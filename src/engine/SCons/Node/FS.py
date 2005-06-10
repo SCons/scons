@@ -288,6 +288,65 @@ else:
     def _my_normcase(x):
         return string.upper(x)
 
+
+
+class DiskChecker:
+    def __init__(self, type, do, ignore):
+        self.type = type
+        self.do = do
+        self.ignore = ignore
+        self.set_do()
+    def set_do(self):
+        self.__call__ = self.do
+    def set_ignore(self):
+        self.__call__ = self.ignore
+    def set(self, list):
+        if self.type in list:
+            self.set_do()
+        else:
+            self.set_ignore()
+
+def do_diskcheck_match(node, predicate, errorfmt):
+    path = node.abspath
+    if predicate(path):
+        raise TypeError, errorfmt % path
+
+def ignore_diskcheck_match(node, predicate, errorfmt):
+    pass
+
+def do_diskcheck_rcs(node, name):
+    rcspath = 'RCS' + os.sep + name+',v'
+    return node.entry_exists_on_disk(rcspath)
+
+def ignore_diskcheck_rcs(node, name):
+    return None
+
+def do_diskcheck_sccs(node, name):
+    sccspath = 'SCCS' + os.sep + 's.'+name
+    return node.entry_exists_on_disk(sccspath)
+
+def ignore_diskcheck_sccs(node, name):
+    return None
+
+diskcheck_match = DiskChecker('match', do_diskcheck_match, ignore_diskcheck_match)
+diskcheck_rcs = DiskChecker('rcs', do_diskcheck_rcs, ignore_diskcheck_rcs)
+diskcheck_sccs = DiskChecker('sccs', do_diskcheck_sccs, ignore_diskcheck_sccs)
+
+diskcheckers = [
+    diskcheck_match,
+    diskcheck_rcs,
+    diskcheck_sccs,
+]
+
+def set_diskcheck(list):
+    for dc in diskcheckers:
+        dc.set(list)
+
+def diskcheck_types():
+    return map(lambda dc: dc.type, diskcheckers)
+
+
+
 class EntryProxy(SCons.Util.Proxy):
     def __get_abspath(self):
         entry = self.get()
@@ -597,6 +656,9 @@ class Entry(Base):
     time comes, and then call the same-named method in the transformed
     class."""
 
+    def diskcheck_match(self):
+        pass
+
     def disambiguate(self):
         if self.isdir():
             self.__class__ = Dir
@@ -852,14 +914,12 @@ class FS(LocalFS):
                 if not create:
                     raise SCons.Errors.UserError
 
-                # look at the actual filesystem and make sure there isn't
-                # a file already there
-                path = directory.entry_abspath(orig)
-                if self.isfile(path):
-                    raise TypeError, \
-                          "File %s found where directory expected." % path
-
                 d = Dir(orig, directory, self)
+
+                # Check the file system (or not, as configured) to make
+                # sure there isn't already a file there.
+                d.diskcheck_match()
+
                 directory.entries[norm] = d
                 directory.add_wkid(d)
                 directory = d
@@ -878,19 +938,13 @@ class FS(LocalFS):
             if not create:
                 raise SCons.Errors.UserError
 
-            # make sure we don't create File nodes when there is actually
-            # a directory at that path on the disk, and vice versa
-            path = directory.entry_abspath(last_orig)
-            if fsclass == File:
-                if self.isdir(path):
-                    raise TypeError, \
-                          "Directory %s found where file expected." % path
-            elif fsclass == Dir:
-                if self.isfile(path):
-                    raise TypeError, \
-                          "File %s found where directory expected." % path
-            
             result = fsclass(last_orig, directory, self)
+
+            # Check the file system (or not, as configured) to make
+            # sure there isn't already a directory at the path on
+            # disk where we just created a File node, and vice versa.
+            result.diskcheck_match()
+
             directory.entries[last_norm] = result 
             directory.add_wkid(result)
         else:
@@ -1079,6 +1133,10 @@ class Dir(Base):
         # be preserved.
         self.builder = get_MkdirBuilder()
         self.get_executor().set_action_list(self.builder.action)
+
+    def diskcheck_match(self):
+        diskcheck_match(self, self.fs.isfile,
+                           "File %s found where directory expected.")
 
     def disambiguate(self):
         return self
@@ -1342,14 +1400,6 @@ class Dir(Base):
         """__cacheable__"""
         return self.fs.exists(self.entry_abspath(name))
 
-    def rcs_on_disk(self, name):
-        rcspath = 'RCS' + os.sep + name+',v'
-        return self.entry_exists_on_disk(rcspath)
-
-    def sccs_on_disk(self, name):
-        sccspath = 'SCCS' + os.sep + 's.'+name
-        return self.entry_exists_on_disk(sccspath)
-
     def srcdir_list(self):
         """__cacheable__"""
         result = []
@@ -1417,8 +1467,8 @@ class Dir(Base):
 
     def file_on_disk(self, name):
         if self.entry_exists_on_disk(name) or \
-           self.sccs_on_disk(name) or \
-           self.rcs_on_disk(name):
+           diskcheck_rcs(self, name) or \
+           diskcheck_sccs(self, name):
             try: return self.File(name)
             except TypeError: pass
         return self.srcdir_duplicate(name)
@@ -1532,6 +1582,10 @@ class BuildInfo(SCons.Node.BuildInfo):
 class File(Base):
     """A class for files in a file system.
     """
+    def diskcheck_match(self):
+        diskcheck_match(self, self.fs.isdir,
+                           "Directory %s found where file expected.")
+
     def __init__(self, name, directory, fs):
         if __debug__: logInstanceCreation(self, 'Node.FS.File')
         Base.__init__(self, name, directory, fs)
@@ -1703,9 +1757,9 @@ class File(Base):
             else:
                 scb = self.dir.src_builder()
                 if scb is _null:
-                    if self.dir.sccs_on_disk(self.name):
+                    if diskcheck_sccs(self.dir, self.name):
                         scb = get_DefaultSCCSBuilder()
-                    elif self.dir.rcs_on_disk(self.name):
+                    elif diskcheck_rcs(self.dir, self.name):
                         scb = get_DefaultRCSBuilder()
                     else:
                         scb = None

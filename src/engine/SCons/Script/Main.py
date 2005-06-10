@@ -258,6 +258,26 @@ exit_status = 0 # exit status, assume success by default
 repositories = []
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
+diskcheck_all = SCons.Node.FS.diskcheck_types()
+diskcheck_option_set = None
+
+def diskcheck_convert(value):
+    if value is None:
+        return []
+    if not SCons.Util.is_List(value):
+        value = string.split(value, ',')
+    result = []
+    for v in map(string.lower, value):
+        if v == 'all':
+            result = diskcheck_all
+        elif v == 'none':
+            result = []
+        elif v in diskcheck_all:
+            result.append(v)
+        else:
+            raise ValueError, v
+    return result
+
 #
 class Stats:
     def __init__(self):
@@ -613,6 +633,20 @@ class OptParser(OptionParser):
                         help="Print various types of debugging information: "
                              "%s." % string.join(debug_options, ", "))
 
+        def opt_diskcheck(option, opt, value, parser):
+            try:
+                global diskcheck_option_set
+                diskcheck_option_set = diskcheck_convert(value)
+                SCons.Node.FS.set_diskcheck(diskcheck_option_set)
+            except ValueError, e:
+                raise OptionValueError("Warning: `%s' is not a valid diskcheck type" % e)
+
+            
+        self.add_option('--diskcheck', action="callback", type="string",
+                        callback=opt_diskcheck, dest='diskcheck',
+                        metavar="TYPE",
+                        help="Enable specific on-disk checks.")
+
         def opt_duplicate(option, opt, value, parser):
             if not value in SCons.Node.FS.Valid_Duplicates:
                 raise OptionValueError("`%s' is not a valid duplication style." % value)
@@ -799,7 +833,8 @@ class SConscriptSettableOptions:
                          'max_drift':SCons.Sig.default_max_drift,
                          'implicit_cache':0,
                          'clean':0,
-                         'duplicate':'hard-soft-copy'}
+                         'duplicate':'hard-soft-copy',
+                         'diskcheck':diskcheck_all}
 
     def get(self, name):
         if not self.settable.has_key(name):
@@ -835,6 +870,13 @@ class SConscriptSettableOptions:
             # Set the duplicate stye right away so it can affect linking
             # of SConscript files.
             SCons.Node.FS.set_duplicate(value)
+        elif name == 'diskcheck':
+            try:
+                value = diskcheck_convert(value)
+            except ValueError, v:
+                raise SCons.Errors.UserError, "Not a valid diskcheck value: %s"%v
+            if not diskcheck_option_set:
+                SCons.Node.FS.set_diskcheck(value)
 
         self.settable[name] = value
     

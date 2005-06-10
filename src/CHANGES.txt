@@ -296,6 +296,11 @@ RELEASE 0.97 - XXX
 
   - Remove support for conversion from old (pre 0.96) .sconsign formats.
 
+  - Add support for a --diskcheck option to enable or disable various
+    on-disk checks:  that File and Dir nodes match on-disk entries;
+    whether an RCS file exists for a missing source file; whether an
+    SCCS file exists for a missing source file.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
