@@ -1713,8 +1713,8 @@ class DirTestCase(_tempdirTestCase):
         r = sub.file_on_disk('dir')
         assert not r, r
 
-class EntryTestCase(unittest.TestCase):
-    def runTest(self):
+class EntryTestCase(_tempdirTestCase):
+    def test_runTest(self):
         """Test methods specific to the Entry sub-class.
         """
         test = TestCmd(workdir='')
@@ -1803,7 +1803,10 @@ class EntryTestCase(unittest.TestCase):
         # Doesn't exist, no sources, and no builder: no sig
         assert sig is None, sig
 
-
+    def test_Entry_Entry_lookup(self):
+        """Test looking up an Entry within another Entry"""
+        self.fs.Entry('#topdir')
+        self.fs.Entry('#topdir/a/b/c')
 
 class RepositoryTestCase(_tempdirTestCase):
 
@@ -2779,7 +2782,6 @@ class SaveStringsTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(BuildDirTestCase())
-    suite.addTest(EntryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
     suite.addTest(stored_infoTestCase())
@@ -2795,6 +2797,7 @@ if __name__ == "__main__":
     tclasses = [
         BaseTestCase,
         BuildInfoTestCase,
+        EntryTestCase,
         NodeInfoTestCase,
         FSTestCase,
         DirTestCase,
