@@ -909,7 +909,15 @@ class FS(LocalFS):
         # Lookup the directory
         for orig, norm in map(None, path_orig, path_norm):
             try:
-                directory = directory.entries[norm]
+                entries = directory.entries
+            except AttributeError:
+                # We tried to look up the entry in either an Entry or
+                # a File.  Give whatever it is a chance to do what's
+                # appropriate: morph into a Dir or raise an exception.
+                directory.must_be_a_Dir()
+                entries = directory.entries
+            try:
+                directory = entries[norm]
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
@@ -923,12 +931,6 @@ class FS(LocalFS):
                 directory.entries[norm] = d
                 directory.add_wkid(d)
                 directory = d
-            except AttributeError:
-                # We tried to look up the entry in either an Entry or
-                # a File.  Give whatever it is a chance to do what's
-                # appropriate: morph into a Dir or raise an exception.
-                directory.must_be_a_Dir()
-                directory = directory.entries[norm]
 
         directory.must_be_a_Dir()
 
