@@ -301,6 +301,9 @@ RELEASE 0.97 - XXX
     whether an RCS file exists for a missing source file; whether an
     SCCS file exists for a missing source file.
 
+  - Add a --raw argument to the sconsign script, so it can print a
+    raw representation of each entry's NodeInfo dictionary.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

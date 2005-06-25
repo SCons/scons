@@ -201,6 +201,7 @@ Print_Entries = []
 Print_Flags = Flagger()
 Verbose = 0
 Readable = 0
+Raw = 0
 
 def default_mapper(entry, name):
     try:
@@ -251,9 +252,20 @@ def field(name, entry, verbose=Verbose):
         val = name + ": " + val
     return val
 
-def nodeinfo_string(name, entry, prefix=""):
+def nodeinfo_raw(name, ninfo, prefix=""):
+    # This does essentially what the pprint module does,
+    # except that it sorts the keys for deterministic output.
+    d = ninfo.__dict__
+    keys = d.keys()
+    keys.sort()
+    l = []
+    for k in keys:
+        l.append('%s: %s' % (repr(k), repr(d[k])))
+    return name + ': {' + string.join(l, ', ') + '}'
+
+def nodeinfo_string(name, ninfo, prefix=""):
     fieldlist = ["bsig", "csig", "timestamp", "size"]
-    f = lambda x, e=entry, v=Verbose: field(x, e, v)
+    f = lambda x, ni=ninfo, v=Verbose: field(x, ni, v)
     outlist = [name+":"] + filter(None, map(f, fieldlist))
     if Verbose:
         sep = "\n    " + prefix
@@ -262,7 +274,10 @@ def nodeinfo_string(name, entry, prefix=""):
     return string.join(outlist, sep)
 
 def printfield(name, entry, prefix=""):
-    print nodeinfo_string(name, entry.ninfo, prefix)
+    if Raw:
+        print nodeinfo_raw(name, entry.ninfo, prefix)
+    else:
+        print nodeinfo_string(name, entry.ninfo, prefix)
 
     outlist = field("implicit", entry, 0)
     if outlist:
@@ -371,6 +386,7 @@ Options:
   -h, --help                  Print this message and exit.
   -i, --implicit              Print implicit dependency information.
   -r, --readable              Print timestamps in human-readable form.
+  --raw                       Print raw Python object representations.
   -s, --size                  Print file sizes human-readable form.
   -t, --timestamp             Print timestamp information.
   -v, --verbose               Verbose, describe each field.
@@ -379,7 +395,8 @@ Options:
 opts, args = getopt.getopt(sys.argv[1:], "bcd:e:f:hirstv",
                             ['bsig', 'csig', 'dir=', 'entry=',
                              'format=', 'help', 'implicit',
-                             'readable', 'size', 'timestamp', 'verbose'])
+                             'raw', 'readable',
+                             'size', 'timestamp', 'verbose'])
 
 
 for o, a in opts:
@@ -410,6 +427,8 @@ for o, a in opts:
         sys.exit(0)
     elif o in ('-i', '--implicit'):
         Print_Flags['implicit'] = 1
+    elif o in ('--raw',):
+        Raw = 1
     elif o in ('-r', '--readable'):
         Readable = 1
     elif o in ('-s', '--size'):

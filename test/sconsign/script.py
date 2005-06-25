@@ -111,13 +111,21 @@ test.write(['work1', 'sub2', 'inc2.h'], r"""\
 #define STRING2 "inc2.h"
 """)
 
-test.run(chdir = 'work1', arguments = '--debug=stacktrace --implicit-cache .')
+test.run(chdir = 'work1', arguments = '--implicit-cache .')
 
 test.run_sconsign(arguments = "work1/sub1/.sconsign",
          stdout = """\
 hello.exe: \S+ None \d+ \d+
         hello.obj: \S+
 hello.obj: \S+ None \d+ \d+
+        hello.c: \S+
+""")
+
+test.run_sconsign(arguments = "--raw work1/sub1/.sconsign",
+         stdout = """\
+hello.exe: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+        hello.obj: \S+
+hello.obj: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
         hello.c: \S+
 """)
 
@@ -315,6 +323,22 @@ hello.obj: \S+ None \d+ \d+
         inc2.h: \S+
 """)
 
+test.run_sconsign(arguments = "--raw work2/.sconsign",
+         stdout = """\
+=== sub1:
+hello.exe: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+        hello.obj: \S+
+hello.obj: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+        hello.c: \S+
+=== sub2:
+hello.exe: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+        hello.obj: \S+
+hello.obj: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
+
 test.run_sconsign(arguments = "-v work2/.sconsign",
          stdout = """\
 === sub1:
@@ -476,11 +500,6 @@ env2.Program('sub2/hello.c')
 time.sleep(1)
 
 test.run(chdir = 'work2', arguments = '. --max-drift=1')
-
-expect = """\
-=== sub1:
-hello.c: None \S+ \d+ \d+
-"""
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
          stdout = """\
