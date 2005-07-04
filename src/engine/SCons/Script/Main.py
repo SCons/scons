@@ -830,7 +830,7 @@ class SConscriptSettableOptions:
         # settable options, as well as indicating which options
         # are SConscript settable. 
         self.settable = {'num_jobs':1,
-                         'max_drift':SCons.Sig.default_max_drift,
+                         'max_drift':SCons.Node.FS.default_max_drift,
                          'implicit_cache':0,
                          'clean':0,
                          'duplicate':'hard-soft-copy',
@@ -1074,6 +1074,7 @@ def _main(args, parser):
     # that are SConscript settable:
     SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
     SCons.Node.FS.set_duplicate(ssoptions.get('duplicate'))
+    fs.set_max_drift(ssoptions.get('max_drift'))
 
     lookup_top = None
     if targets:
@@ -1166,8 +1167,6 @@ def _main(args, parser):
                 failure_message = "cleaning terminated because of errors."
     except AttributeError:
         pass
-
-    SCons.Environment.CalculatorArgs['max_drift'] = ssoptions.get('max_drift')
 
     if options.random:
         def order(dependencies):

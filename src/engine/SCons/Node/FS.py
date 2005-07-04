@@ -52,6 +52,10 @@ import SCons.Sig.MD5
 import SCons.Util
 import SCons.Warnings
 
+# The max_drift value:  by default, use a cached signature value for
+# any file that's been untouched for more than two days.
+default_max_drift = 2*24*60*60
+
 #
 # We stringify these file system Nodes a lot.  Turning a file system Node
 # into a string is non-trivial, because the final string representation
@@ -827,6 +831,7 @@ class FS(LocalFS):
         self.CachePath = None
         self.cache_force = None
         self.cache_show = None
+        self.max_drift = default_max_drift
 
         if path is None:
             self.pathTop = os.getcwd()
@@ -844,6 +849,12 @@ class FS(LocalFS):
     
     def set_SConstruct_dir(self, dir):
         self.SConstruct_dir = dir
+
+    def get_max_drift(self):
+        return self.max_drift
+
+    def set_max_drift(self, max_drift):
+        self.max_drift = max_drift
 
     def getcwd(self):
         return self._cwd
@@ -1866,10 +1877,9 @@ class File(Base):
         if calc is None:
             calc = self.calculator()
 
+        max_drift = self.fs.max_drift
         mtime = self.get_timestamp()
-
-        use_stored = calc.max_drift >= 0 and \
-                    (time.time() - mtime) > calc.max_drift
+        use_stored = max_drift >= 0 and (time.time() - mtime) > max_drift
 
         csig = None
         if use_stored:

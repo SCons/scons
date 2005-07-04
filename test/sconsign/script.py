@@ -519,40 +519,36 @@ hello.obj: \d+ None \d+ \d+
         hello.c: \S+
 """)
 
-test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
          stdout = """\
 === sub1:
-hello.c: None \d+ \d+ \d+
 hello.exe: \d+ None \d+ \d+
         hello.obj: \d+
 hello.obj: \d+ None \d+ \d+
         hello.c: \d+
 """)
 
-test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign.dblite",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign.dblite",
          stdout = """\
 === sub1:
-hello.c: None \d+ \d+ \d+
 hello.exe: \S+ None \d+ \d+
         hello.obj: \d+
 hello.obj: \S+ None \d+ \d+
         hello.c: \d+
 """)
 
-test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign",
          stdout = """\
 === sub1:
-hello.c: None \d+ '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
 hello.exe: \d+ None '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
         hello.obj: \d+
 hello.obj: \d+ None '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
         hello.c: \d+
 """)
 
-test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign.dblite",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign.dblite",
          stdout = """\
 === sub1:
-hello.c: None \d+ '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
 hello.exe: \d+ None '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
         hello.obj: \d+
 hello.obj: \d+ None '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
