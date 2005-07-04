@@ -36,26 +36,18 @@ except ImportError:
     import TimeStamp
     default_module = TimeStamp
 
-# XXX We should move max_drift into Node/FS.py,
-# since it's really something about files.
-default_max_drift = 2*24*60*60
-
 class Calculator:
     """
     Encapsulates signature calculations and .sconsign file generating
     for the build engine.
     """
 
-    def __init__(self, module=default_module, max_drift=default_max_drift):
+    def __init__(self, module=default_module):
         """
         Initialize the calculator.
 
         module - the signature module to use for signature calculations
-        max_drift - the maximum system clock drift used to determine when to
-          cache content signatures. A negative value means to never cache
-          content signatures. (defaults to 2 days)
         """
         self.module = module
-        self.max_drift = max_drift
 
 default_calc = Calculator()

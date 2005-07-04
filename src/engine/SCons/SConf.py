@@ -400,7 +400,8 @@ class SConf:
 
         try:
             # ToDo: use user options for calc
-            self.calc = SCons.Sig.Calculator(max_drift=0)
+            save_max_drift = SConfFS.get_max_drift()
+            SConfFS.set_max_drift(0)
             tm = SCons.Taskmaster.Taskmaster(nodes, SConfBuildTask)
             # we don't want to build tests in parallel
             jobs = SCons.Job.Jobs(1, tm )
@@ -412,6 +413,7 @@ class SConf:
                     # the node could not be built. we return 0 in this case
                     ret = 0
         finally:
+            SConfFS.set_max_drift(save_max_drift)
             os.chdir(old_os_dir)
             SConfFS.chdir(old_fs_dir, change_os_dir=0)
             if self.logstream != None:
