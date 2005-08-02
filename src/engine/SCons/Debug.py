@@ -157,10 +157,13 @@ def func_shorten(func_tuple):
 
 
 TraceFP = {}
-TraceDefault = '/dev/tty'
+if sys.platform == 'win32':
+    TraceDefault = 'con'
+else:
+    TraceDefault = '/dev/tty'
 
-def Trace(msg, file=None, mode='a'):
-    """Write a trace a message to a file.  Whenever a file is specified,
+def Trace(msg, file=None, mode='w'):
+    """Write a trace message to a file.  Whenever a file is specified,
     it becomes the default for the next call to Trace()."""
     global TraceDefault
     if file is None:
