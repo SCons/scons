@@ -127,6 +127,13 @@ class TempFileMunge:
     Example usage:
     env["TEMPFILE"] = TempFileMunge
     env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES')}"
+
+    By default, the name of the temporary file used begins with a
+    prefix of '@'.  This may be configred for other tool chains by
+    setting '$TEMPFILEPREFIX'.
+
+    env["TEMPFILEPREFIX"] = '-@'        # diab compiler
+    env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
     """
     def __init__(self, cmd):
         self.cmd = cmd
@@ -139,54 +146,59 @@ class TempFileMunge:
             maxline = int(env.subst('$MAXLINELENGTH'))
         except ValueError:
             maxline = 2048
+
         if (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= maxline:
             return self.cmd
+
+        # We do a normpath because mktemp() has what appears to be
+        # a bug in Win32 that will use a forward slash as a path
+        # delimiter.  Win32's link mistakes that for a command line
+        # switch and barfs.
+        #
+        # We use the .lnk suffix for the benefit of the Phar Lap
+        # linkloc linker, which likes to append an .lnk suffix if
+        # none is given.
+        tmp = os.path.normpath(tempfile.mktemp('.lnk'))
+        native_tmp = SCons.Util.get_native_path(tmp)
+
+        if env['SHELL'] and env['SHELL'] == 'sh':
+            # The sh shell will try to escape the backslashes in the
+            # path, so unescape them.
+            native_tmp = string.replace(native_tmp, '\\', r'\\\\')
+            # In Cygwin, we want to use rm to delete the temporary
+            # file, because del does not exist in the sh shell.
+            rm = env.Detect('rm') or 'del'
         else:
-            # We do a normpath because mktemp() has what appears to be
-            # a bug in Win32 that will use a forward slash as a path
-            # delimiter.  Win32's link mistakes that for a command line
-            # switch and barfs.
-            #
-            # We use the .lnk suffix for the benefit of the Phar Lap
-            # linkloc linker, which likes to append an .lnk suffix if
-            # none is given.
-            tmp = os.path.normpath(tempfile.mktemp('.lnk'))
-            native_tmp = SCons.Util.get_native_path(tmp)
+            # Don't use 'rm' if the shell is not sh, because rm won't
+            # work with the win32 shells (cmd.exe or command.com) or
+            # win32 path names.
+            rm = 'del'
 
-            if env['SHELL'] and env['SHELL'] == 'sh':
-                # The sh shell will try to escape the backslashes in the
-                # path, so unescape them.
-                native_tmp = string.replace(native_tmp, '\\', r'\\\\')
-                # In Cygwin, we want to use rm to delete the temporary
-                # file, because del does not exist in the sh shell.
-                rm = env.Detect('rm') or 'del'
-            else:
-                # Don't use 'rm' if the shell is not sh, because rm won't
-                # work with the win32 shells (cmd.exe or command.com) or
-                # win32 path names.
-                rm = 'del'
+        prefix = env.subst('$TEMPFILEPREFIX')
+        if not prefix:
+            prefix = '@'
 
-            args = map(SCons.Util.quote_spaces, cmd[1:])
-            open(tmp, 'w').write(string.join(args, " ") + "\n")
-            # XXX Using the SCons.Action.print_actions value directly
-            # like this is bogus, but expedient.  This class should
-            # really be rewritten as an Action that defines the
-            # __call__() and strfunction() methods and lets the
-            # normal action-execution logic handle whether or not to
-            # print/execute the action.  The problem, though, is all
-            # of that is decided before we execute this method as
-            # part of expanding the $TEMPFILE construction variable.
-            # Consequently, refactoring this will have to wait until
-            # we get more flexible with allowing Actions to exist
-            # independently and get strung together arbitrarily like
-            # Ant tasks.  In the meantime, it's going to be more
-            # user-friendly to not let obsession with architectural
-            # purity get in the way of just being helpful, so we'll
-            # reach into SCons.Action directly.
-            if SCons.Action.print_actions:
-                print("Using tempfile "+native_tmp+" for command line:\n"+
-                      str(cmd[0]) + " " + string.join(args," "))
-            return [ cmd[0], '@' + native_tmp + '\n' + rm, native_tmp ]
+        args = map(SCons.Util.quote_spaces, cmd[1:])
+        open(tmp, 'w').write(string.join(args, " ") + "\n")
+        # XXX Using the SCons.Action.print_actions value directly
+        # like this is bogus, but expedient.  This class should
+        # really be rewritten as an Action that defines the
+        # __call__() and strfunction() methods and lets the
+        # normal action-execution logic handle whether or not to
+        # print/execute the action.  The problem, though, is all
+        # of that is decided before we execute this method as
+        # part of expanding the $TEMPFILE construction variable.
+        # Consequently, refactoring this will have to wait until
+        # we get more flexible with allowing Actions to exist
+        # independently and get strung together arbitrarily like
+        # Ant tasks.  In the meantime, it's going to be more
+        # user-friendly to not let obsession with architectural
+        # purity get in the way of just being helpful, so we'll
+        # reach into SCons.Action directly.
+        if SCons.Action.print_actions:
+            print("Using tempfile "+native_tmp+" for command line:\n"+
+                  str(cmd[0]) + " " + string.join(args," "))
+        return [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
     
 def Platform(name = platform_default()):
     """Select a canned Platform specification.

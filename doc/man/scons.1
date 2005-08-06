@@ -7177,6 +7177,14 @@ that may not be set or used in a construction environment.
 .IP TARSUFFIX 
 The suffix used for tar file names.
 
+.IP TEMPFILEPREFIX
+The prefix for a temporary file used
+to execute lines longer than $MAXLINELENGTH.
+The default is '@'.
+This may be set for toolchains that use other values,
+such as '-@' for the diab compiler
+or '-via' for ARM toolchain.
+
 .IP TEX
 The TeX formatter and typesetter.
 

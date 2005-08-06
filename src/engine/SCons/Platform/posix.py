@@ -242,6 +242,7 @@ def generate(env):
     env['SHELL']          = 'sh'
     env['ESCAPE']         = escape
     env['TEMPFILE']       = TempFileMunge
+    env['TEMPFILEPREFIX'] = '@'
     #Based on LINUX: ARG_MAX=ARG_MAX=131072 - 3000 for environment expansion
     #Note: specific platforms might rise or lower this value
     env['MAXLINELENGTH']  = 128072

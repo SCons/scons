@@ -257,5 +257,6 @@ def generate(env):
     env['SPAWN']          = spawn
     env['SHELL']          = cmd_interp
     env['TEMPFILE']       = TempFileMunge
+    env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048
     env['ESCAPE']         = escape
