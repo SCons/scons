@@ -116,3 +116,14 @@ The prefix used for shared object file names.
 The suffix used for shared object file names.
 </summary>
 </cvar>
+
+<cvar name="TEMPFILEPREFIX">
+<summary>
+The prefix for a temporary file used
+to execute lines longer than $MAXLINELENGTH.
+The default is '@'.
+This may be set for toolchains that use other values,
+such as '-@' for the diab compiler
+or '-via' for ARM toolchain.
+</summary>
+</cvar>
