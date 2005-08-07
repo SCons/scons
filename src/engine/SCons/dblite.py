@@ -64,7 +64,7 @@ class dblite:
         if (len(p) > 0):
           try:
             self._dict = cPickle.loads(p)
-          except cPickle.UnpicklingError:
+          except (cPickle.UnpicklingError, EOFError):
             if (ignore_corrupt_dbfiles == 0): raise
             if (ignore_corrupt_dbfiles == 1):
               corruption_warning(self._file_name)

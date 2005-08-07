@@ -387,7 +387,7 @@ Options:
   -i, --implicit              Print implicit dependency information.
   -r, --readable              Print timestamps in human-readable form.
   --raw                       Print raw Python object representations.
-  -s, --size                  Print file sizes human-readable form.
+  -s, --size                  Print file sizes.
   -t, --timestamp             Print timestamp information.
   -v, --verbose               Verbose, describe each field.
 """
