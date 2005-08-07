@@ -908,7 +908,7 @@ class FS(LocalFS):
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
-                directory = RootDir(drive, self)
+                directory = RootDir(_my_normcase(drive), self)
                 self.Root[drive] = directory
 
         if not path_orig:

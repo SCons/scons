@@ -123,9 +123,9 @@ hello.obj: \S+ None \d+ \d+
 
 test.run_sconsign(arguments = "--raw work1/sub1/.sconsign",
          stdout = """\
-hello.exe: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+hello.exe: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
         hello.obj: \S+
-hello.obj: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+hello.obj: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
         hello.c: \S+
 """)
 
@@ -326,14 +326,14 @@ hello.obj: \S+ None \d+ \d+
 test.run_sconsign(arguments = "--raw work2/.sconsign",
          stdout = """\
 === sub1:
-hello.exe: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+hello.exe: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
         hello.obj: \S+
-hello.obj: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+hello.obj: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
         hello.c: \S+
 === sub2:
-hello.exe: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+hello.exe: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
         hello.obj: \S+
-hello.obj: {'bsig': '\S+', 'size': \d+, 'timestamp': \d+}
+hello.obj: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
         hello.c: \S+
         inc1.h: \S+
         inc2.h: \S+
