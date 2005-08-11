@@ -65,7 +65,7 @@ of each directory in &cv-FORTRANPATH;.
 Directory location where the Fortran compiler should place
 any module files it generates.  This variable is empty, by default. Some 
 Fortran compilers will internally append this directory in the search path 
-for module files, as well
+for module files, as well.
 </summary>
 </cvar>
 

@@ -554,6 +554,11 @@ RELEASE 0.97 - XXX
   - Add a PathAccept validator to the list of new canned PathOption
     validators.
 
+  From Craig Scott:
+
+  - Have the Fortran module emitter look for Fortan modules to be created
+    relative to $FORTRANMODDIR, not the top-level directory.
+
   From Jeff Squyres:
 
   - Documentation changes:  Use $CPPDEFINES instead of $CCFLAGS in man
