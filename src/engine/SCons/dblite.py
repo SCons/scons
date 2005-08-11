@@ -78,7 +78,9 @@ class dblite:
     f = _open(self._tmp_name, "wb", self._mode)
     cPickle.dump(self._dict, f, 1)
     f.close()
-    # Win32 doesn't allow renaming if the file exists, so unlink it first.
+    # Win32 doesn't allow renaming if the file exists, so unlink it first,
+    # chmod'ing it to make sure we can do so.
+    os.chmod(self._file_name, 0777)
     os.unlink(self._file_name)
     os.rename(self._tmp_name, self._file_name)
     self._needs_sync = 00000

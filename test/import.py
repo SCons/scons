@@ -135,22 +135,30 @@ tools = [
     'zip',
 ]
 
-intel_warnings = [
-        # License warning.
-        """
-scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
-File "SConstruct", line 1, in ?
-""",
-        # No top dir warning, 32 bit version.
-        """
+# Intel no top dir warning, 32 bit version.
+intel_no_top_dir_32_warning = """
 scons: warning: Can't find Intel compiler top dir for version='None', abi='ia32'
 File "SConstruct", line 1, in ?
-""",
-        # No top dir warning, 64 bit version.
-        """
+"""
+
+# Intel no top dir warning, 64 bit version.
+intel_no_top_dir_64_warning = """
 scons: warning: Can't find Intel compiler top dir for version='None', abi='x86_64'
 File "SConstruct", line 1, in ?
-""",
+"""
+
+# Intel no license directory warning
+intel_license_warning = """
+scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
+File "SConstruct", line 1, in ?
+"""
+
+intel_warnings = [
+    intel_license_warning,
+    intel_no_top_dir_32_warning,
+    intel_no_top_dir_32_warning + intel_license_warning,
+    intel_no_top_dir_64_warning,
+    intel_no_top_dir_64_warning + intel_license_warning,
 ]
 
 moc = test.where_is('moc')
