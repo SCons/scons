@@ -377,7 +377,10 @@ def _scons_user_error(e):
     The file and line number will be the deepest stack frame that is
     not part of SCons itself.
     """
+    global print_stacktrace
     etype, value, tb = sys.exc_info()
+    if print_stacktrace:
+        traceback.print_exception(etype, value, tb)
     filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_tb(tb))
     sys.stderr.write("\nscons: *** %s\n" % value)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
