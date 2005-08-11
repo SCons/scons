@@ -32,6 +32,10 @@ RELEASE 0.97 - XXX
     files so the same signature file can interoperate on Windows and
     non-Windows systems.
 
+  - Make --debug=stacktrace print a stacktrace when a UserError is thrown.
+
+  - Remove an old, erroneous cut-and-paste comment in Scanner/Dir.py.
+
   From Stanislav Baranov:
 
   - Make it possible to support with custom Alias (sub-)classes.
@@ -62,6 +66,9 @@ RELEASE 0.97 - XXX
   From Bjorn Eriksson:
 
   - Fix an incorrect Command() keyword argument in the man page.
+
+  - Add a $TEMPFILEPREFIX variable to control the prefix or flag used
+    to pass a long-command-line-execution tempfile to a command.
 
   From Eric Frias:
 

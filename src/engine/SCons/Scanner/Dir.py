@@ -49,10 +49,7 @@ skip_entry = {
 
 def scan(node, env, path=()):
     """
-    This scanner scans program files for static-library
-    dependencies.  It will search the LIBPATH environment variable
-    for libraries specified in the LIBS variable, returning any
-    files it finds as dependencies.
+    This scanner scans a directory for on-disk files and directories therein.
     """
     try:
         flist = node.fs.listdir(node.abspath)
