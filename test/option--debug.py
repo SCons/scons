@@ -285,49 +285,4 @@ test.must_match('file16.out', "file16.in\n")
 test.must_match('file17.out', "file17.in\n")
 test.must_match('file18.out', "file18.in\n")
 
-############################
-# test --debug=stacktrace
-
-test.write('SConstruct', """\
-def kfile_scan(node, env, target):
-    raise "kfile_scan error"
-
-kscan = Scanner(name = 'kfile',
-                function = kfile_scan,
-                skeys = ['.k'])
-
-env = Environment()
-env.Append(SCANNERS = [kscan])
-
-env.Command('foo', 'foo.k', Copy('$TARGET', '$SOURCE'))
-""")
-
-test.write('foo.k', "foo.k\n")
-
-test.run(status = 2, stderr = "scons: *** kfile_scan error\n")
-
-test.run(arguments = "--debug=stacktrace",
-         status = 2,
-         stderr = None)
-
-stderr = test.stderr()
-
-lines = [
-    "scons: *** kfile_scan error",
-    "scons: internal stack trace:",
-    'raise "kfile_scan error"',
-]
-
-missing = []
-for line in lines:
-    if string.find(stderr, line) == -1:
-        missing.append(line)
-
-if missing:
-    print "STDERR is missing the following lines:"
-    print "\t" + string.join(lines, "\n\t")
-    print "STDERR ====="
-    print stderr
-    test.fail_test(1)
-
 test.pass_test()
