@@ -52,12 +52,21 @@ def generate(env):
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
         
+    env['_CCCOMCOM'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS'
+    # It's a hack to test for darwin here, but the alternative of creating
+    # an applecc.py to contain this seems overkill.  Maybe someday the Apple
+    # platform will require more setup and this logic will be moved.
+    env['FRAMEWORKS'] = SCons.Util.CLVar('')
+    env['FRAMEWORKPATH'] = SCons.Util.CLVar('')
+    if env['PLATFORM'] == 'darwin':
+        env['_CCCOMCOM'] = env['_CCCOMCOM'] + ' $_FRAMEWORKPATH'
+
     env['CC']        = 'cc'
     env['CCFLAGS']   = SCons.Util.CLVar('')
-    env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['CCCOM']     = '$CC -o $TARGET -c $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCC']      = '$CC'
     env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
-    env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCCCOM']   = '$SHCC -o $TARGET -c $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''

@@ -137,6 +137,13 @@ RELEASE 0.97 - XXX
               converting signature information from .sconsign files
               written by SCons versions prior to 0.96 has been removed.
 
+          --  ORDER OF -o FLAGS ON CERTAIN LINK COMMAND LINES HAS CHANGED
+
+              The -o flag that specifies an output file has been moved on
+              certain linker command lines to place it consistently after
+              the link command itself.  This will cause recompilation
+              of target files created by these changed lines.
+
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
         The Configure() subsystem now stores its cached results in a

@@ -1,11 +1,87 @@
-<!-- __COPYRIGHT__ -->
-<cvar name="FRAMEWORKSFLAGS">
+<!-- Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation -->
+<cvar name="FRAMEWORKSFLAGS">">
 <summary>
-On Mac OS X,
-frameworks options to be added at
+On Mac OS X with gcc,
+general user-supplied frameworks options to be added at
 the end of a command
 line building a loadable module.
+(This has been largely superceded by
+the &cv-FRAMEWORKPATH;, &cv-FRAMEWORKPATHPREFIX;,
+&cv-FRAMEWORKPREFIX; and &cv-FRAMEWORKS; variables
+described above.)
 </summary>
 </cvar>
 
+<cvar name="FRAMEWORKS">
+<summary>
+On Mac OS X with gcc, a list of the framework names to be linked into a
+program or shared library or bundle.
+The default value is the empty list.
+For example:
 
+<example>
+ env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
+</example>
+
+</summary>
+</cvar>
+
+<cvar name="FRAMEWORKPREFIX">
+<summary>
+On Mac OS X with gcc,
+the prefix to be used for linking in frameworks
+(see &cv-FRAMEWORKS;).
+The default value is
+<option>-framework</option>.
+</summary>
+</cvar>
+
+<cvar name="_FRAMEWORKS">
+<summary>
+On Mac OS X with gcc,
+an automatically-generated construction variable
+containing the linker command-line options
+for linking with FRAMEWORKS.
+</summary>
+</cvar>
+
+<cvar name="FRAMEWORKPATH">
+<summary>
+On Mac OS X with gcc,
+a list containing the paths to search for frameworks.
+Used by the compiler to find framework-style includes like
+#include &lt;Fmwk/Header.h&gt;.
+Used by the linker to find user-specified frameworks when linking (see
+&cv-FRAMEWORKS;).
+For example:
+
+<example>
+ env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
+</example>
+
+will add
+
+<example>
+  ... -Fmyframeworkdir
+</example>
+
+to the compiler and linker command lines.
+</summary>
+</cvar>
+
+<cvar name="FRAMEWORKPATHPREFIX">
+<summary>
+On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
+(see &cv-FRAMEWORKPATH;).
+The default value is
+<option>-F</option>.
+</summary>
+</cvar>
+
+<cvar name="_FRAMEWORKPATH">
+<summary>
+On Mac OS X with gcc, an automatically-generated construction variable
+containing the linker command-line options corresponding to
+&cv-FRAMEWORKPATH;.
+</summary>
+</cvar>
