@@ -45,13 +45,11 @@ def generate(env):
 
     if env['PLATFORM'] == 'hpux':
         env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared -fPIC')
-    elif env['PLATFORM'] == 'darwin':
-        env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -dynamiclib')
 
     # __RPATH is set to $_RPATH in the platform specification if that
     # platform supports it.
     env.Append(LINKFLAGS=['$__RPATH'])
-    env['RPATHPREFIX'] = '-Wl,--rpath='
+    env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
     

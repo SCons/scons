@@ -87,7 +87,7 @@ env.Program('foo.c')
 test.write('foo.c', "foo.c posix\n")
 
 test.run(arguments = '. platform=posix', stdout = test.wrap_stdout("""\
-cc -c -o foo.obj foo.c
+cc -o foo.obj -c foo.c
 cc -o foo.exe foo.obj
 """))
 

@@ -5711,11 +5711,66 @@ The default list is:
 A function that converts a file name into a File instance relative to the
 target being built. 
 
+.IP FRAMEWORKPATH
+On Mac OS X with gcc,
+a list containing the paths to search for frameworks.
+Used by the compiler to find framework-style includes like
+#include <Fmwk/Header.h>.
+Used by the linker to find user-specified frameworks when linking (see
+$FRAMEWORKS).
+For example:
+.ES
+ env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
+.EE
+.IP
+will add
+.ES
+  ... -Fmyframeworkdir
+.EE
+.IP
+to the compiler and linker command lines.
+
+.IP _FRAMEWORKPATH
+On Mac OS X with gcc, an automatically-generated construction variable
+containing the linker command-line options corresponding to FRAMEWORKPATH.
+
+.IP FRAMEWORKPATHPREFIX
+On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
+(see $FRAMEWORKPATH).
+The default value is
+.BR -F .
+
+.IP FRAMEWORKPREFIX
+On Mac OS X with gcc,
+the prefix to be used for linking in frameworks
+(see $FRAMEWORKS).
+The default value is
+.BR -framework .
+
+.IP FRAMEWORKS
+On Mac OS X with gcc, a list of the framework names to be linked into a
+program or shared library or bundle.
+The default value is the empty list.
+For example:
+.ES
+ env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
+.EE
+
+.IP _FRAMEWORKS
+On Mac OS X with gcc,
+an automatically-generated construction variable
+containing the linker command-line options
+for linking with FRAMEWORKS.
+
 .IP FRAMEWORKSFLAGS
-On Mac OS X,
-frameworks options to be added at
+On Mac OS X with gcc,
+general user-supplied frameworks options to be added at
 the end of a command
 line building a loadable module.
+(This has been largely superceded by
+the $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX,
+$FRAMWORKPREFIX and $FRAMEWORKS variables
+described above.)
 
 .IP GS
 The Ghostscript program used to convert PostScript to PDF files.

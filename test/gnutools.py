@@ -128,16 +128,16 @@ def testObject(test, obj, command, flags):
 if sys.platform == 'cygwin':
     fpic = ''
 else:
-    fpic = '-fPIC '
+    fpic = ' -fPIC'
 
 test.fail_test(not testObject(test, 'cfile1.o', 'gcc', '-c') or
                not testObject(test, 'cfile2.o', 'gcc', '-c') or
                not testObject(test, 'cppfile1.o', 'g++', '-c') or
                not testObject(test, 'cppfile2.o', 'g++', '-c') or
-               not testObject(test, 'cfile1.os', 'gcc', fpic + '-c') or
-               not testObject(test, 'cfile2.os', 'gcc', fpic + '-c') or
-               not testObject(test, 'cppfile1.os', 'g++', fpic + '-c') or
-               not testObject(test, 'cppfile2.os', 'g++', fpic + '-c') or
+               not testObject(test, 'cfile1.os', 'gcc', '-c' + fpic) or
+               not testObject(test, 'cfile2.os', 'gcc', '-c' + fpic) or
+               not testObject(test, 'cppfile1.os', 'g++', '-c' + fpic) or
+               not testObject(test, 'cppfile2.os', 'g++', '-c' + fpic) or
                not testObject(test, 'c-only' + _exe, 'gcc', '') or
                not testObject(test, 'cpp-only' + _exe, 'g++', '') or
                not testObject(test, 'c-and-cpp' + _exe, 'g++', '') or

@@ -311,6 +311,10 @@ RELEASE 0.97 - XXX
   - Add a --raw argument to the sconsign script, so it can print a
     raw representation of each entry's NodeInfo dictionary.
 
+  From Chen Lee:
+
+  - Handle Visual Studio project and solution files in Unicode.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
@@ -368,6 +372,14 @@ RELEASE 0.97 - XXX
     value directory; avoiding slowing substitution logic when there's no
     '$' in the string.
 
+  From Greg Noel:
+
+  - Add construction variables to support frameworks on Mac OS X:
+    $FRAMEWORKS, $FRAMEWORKPREFIX, $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX.
+
+  - Re-order link lines so the -o option always comes right after the
+    command name.
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a
@@ -417,6 +429,8 @@ RELEASE 0.97 - XXX
     filenames or Nodes in $LIBS.
 
   - Add support for Intel C++ beta 9.0 (both 32 and 64 bit versions).
+
+  - Document the new $FRAMEWORK* variables for Mac OS X.
 
   From Chris Pawling:
 
