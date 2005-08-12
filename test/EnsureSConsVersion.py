@@ -30,122 +30,93 @@ test = TestSCons.TestSCons()
 
 import SCons
 
-if SCons.__version__ == "__VERSION__":
+if SCons.__version__ != "__VERSION__":
 
-    test.write('SConstruct', """
-import sys
-EnsurePythonVersion(0,0)
-sys.exit(0)
-""")
-
-    test.run()
-
-    test.write('SConstruct', """
-import sys
-EnsurePythonVersion(2000,0)
-sys.exit(0)
-""")
-
-    test.run(status=2)
-
-else:
-    test.write('SConstruct', """
-import sys
+    test.write('SConstruct', """\
 env = Environment()
-EnsurePythonVersion(0,0)
 env.EnsureSConsVersion(0,0)
-sys.exit(0)
+Exit(0)
 """)
 
     test.run()
 
-    test.write('SConstruct', """
-import sys
+    test.write('SConstruct', """\
 env = Environment()
-EnsurePythonVersion(0,0)
 env.EnsureSConsVersion(1,0)
-sys.exit(0)
+Exit(0)
 """)
 
     test.run(status=2)
 
-    test.write('SConstruct', """
-import sys
+    test.write('SConstruct', """\
 env = Environment()
-EnsurePythonVersion(0,0)
 env.EnsureSConsVersion(2,0)
-sys.exit(0)
+Exit(0)
 """)
 
     test.run(status=2)
 
-    test.write('SConstruct', """
-import sys
-env = Environment()
-env.EnsurePythonVersion(0,0)
+    test.write('SConstruct', """\
 EnsureSConsVersion(2000,0)
-sys.exit(0)
+Exit(0)
 """)
 
     test.run(status=2)
 
-    test.write('SConstruct', """
-import sys
-EnsurePythonVersion(2000,0)
-EnsureSConsVersion(2000,0)
-sys.exit(0)
-""")
 
-    test.run(status=2)
 
 test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(1,3)
-sys.exit(0)
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(0,33)
 """)
 
 test.run()
 
 test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3+ (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(2,2)
-sys.exit(0)
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(0,33,0)
 """)
 
 test.run()
 
 test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(2,3)
-sys.exit(0)
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(0,33,1)
 """)
 
 test.run()
 
 test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(2,4)
-sys.exit(0)
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(0,33,2)
+""")
+
+test.run()
+
+test.write('SConstruct', """\
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(0,33,3)
+""")
+
+test.run(status=2)
+
+test.write('SConstruct', """\
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(0,34)
+""")
+
+test.run(status=2)
+
+test.write('SConstruct', """\
+import SCons
+SCons.__version__ = '0.33.2'
+EnsureSConsVersion(1,0)
 """)
 
 test.run(status=2)

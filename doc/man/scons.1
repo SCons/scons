@@ -3096,17 +3096,24 @@ EnsurePythonVersion(2,2)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI EnsureSConsVersion( major ", " minor )
+.RI EnsureSConsVersion( major ", " minor ", [" revision ])
 .TP
-.RI env.EnsureSConsVersion( major ", " minor )
+.RI env.EnsureSConsVersion( major ", " minor ", [" revision ])
 Ensure that the SCons version is at least 
-.IR major . minor . 
+.IR major.minor ,
+or
+.IR major.minor.revision . 
+if
+.I revision
+is specified.
 This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual SCons version is not late enough.
 
 .ES
-EnsureSConsVersion(0,9)
+EnsureSConsVersion(0,14)
+
+EnsureSConsVersion(0,96,90)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

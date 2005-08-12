@@ -587,6 +587,8 @@ RELEASE 0.97 - XXX
   - When calling the resource compiler on MinGW, add --include-dir and
     the source directory so it finds the source file.
 
+  - Update EnsureSConsVersion() to support revision numbers.
+
   From Greg Ward:
 
   - Fix a misplaced line in the man page.
