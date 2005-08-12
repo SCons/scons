@@ -306,14 +306,20 @@ class SConsEnvironment(SCons.Environment.Base):
         in 'v_major' and 'v_minor', and 0 otherwise."""
         return (major > v_major or (major == v_major and minor > v_minor))
 
-    def _get_major_minor(self, version_string):
-        """Split a version string into major and minor parts.  This
-        is complicated by the fact that a version string can be something
-        like 3.2b1."""
+    def _get_major_minor_revision(self, version_string):
+        """Split a version string into major, minor and (optionally)
+        revision parts.
+
+        This is complicated by the fact that a version string can be
+        something like 3.2b1."""
         version = string.split(string.split(version_string, ' ')[0], '.')
         v_major = int(version[0])
         v_minor = int(re.match('\d+', version[1]).group())
-        return v_major, v_minor
+        if len(version) >= 3:
+            v_revision = int(re.match('\d+', version[2]).group())
+        else:
+            v_revision = 0
+        return v_major, v_minor, v_revision
 
     def _get_SConscript_filenames(self, ls, kw):
         """
@@ -400,20 +406,26 @@ class SConsEnvironment(SCons.Environment.Base):
     def Default(self, *targets):
         SCons.Script._Set_Default_Targets(self, targets)
 
-    def EnsureSConsVersion(self, major, minor):
+    def EnsureSConsVersion(self, major, minor, revision=0):
         """Exit abnormally if the SCons version is not late enough."""
-        v_major, v_minor = self._get_major_minor(SCons.__version__)
-        if self._exceeds_version(major, minor, v_major, v_minor):
-            print "SCons %d.%d or greater required, but you have SCons %s" %(major,minor,SCons.__version__)
+        scons_ver = self._get_major_minor_revision(SCons.__version__)
+        if scons_ver < (major, minor, revision):
+            if revision:
+                scons_ver_string = '%d.%d.%d' % (major, minor, revision)
+            else:
+                scons_ver_string = '%d.%d' % (major, minor)
+            print "SCons %s or greater required, but you have SCons %s" % \
+                  (scons_ver_string, SCons.__version__)
             sys.exit(2)
 
     def EnsurePythonVersion(self, major, minor):
         """Exit abnormally if the Python version is not late enough."""
         try:
             v_major, v_minor, v_micro, release, serial = sys.version_info
+            python_ver = (v_major, v_minor)
         except AttributeError:
-            v_major, v_minor = self._get_major_minor(sys.version)
-        if self._exceeds_version(major, minor, v_major, v_minor):
+            python_ver = self._get_major_minor_revision(sys.version)[:2]
+        if python_ver < (major, minor):
             v = string.split(sys.version, " ", 1)[0]
             print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
             sys.exit(2)

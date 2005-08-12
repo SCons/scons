@@ -24,60 +24,77 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import string
-import sys
 import TestSCons
-
-python = TestSCons.python
-_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write("wrapper.py",
-"""import os
-import string
+
+test.write('SConstruct', """\
+EnsurePythonVersion(0,0)
+Exit(0)
+""")
+
+test.run()
+
+test.write('SConstruct', """\
+EnsurePythonVersion(2000,0)
+Exit(0)
+""")
+
+test.run(status=2)
+
+test.write('SConstruct', """\
 import sys
-open('%s', 'wb').write("wrapper.py\\n")
-args = filter(lambda s: s != 'fake_link_flag', sys.argv[1:])
-os.system(string.join(args, " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
-
-test.write('SConstruct', """
-foo = Environment()
-bar = Environment(LINK = foo.subst(r'%s wrapper.py $LINK'),
-                  LINKFLAGS = foo.subst('$LINKFLAGS fake_link_flag'))
-foo.Program(target = 'foo', source = 'foo.c')
-bar.Program(target = 'bar', source = 'bar.c')
-""" % python)
-
-test.write('foo.c', r"""
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	printf("foo.c\n");
-	exit (0);
-}
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
+sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
+EnsurePythonVersion(1,3)
+Exit(0)
 """)
 
-test.write('bar.c', r"""
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	printf("foo.c\n");
-	exit (0);
-}
+test.run()
+
+test.write('SConstruct', """\
+import sys
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
+sys.version = '2.3+ (#0, Feb 24 2003, 19:13:11)\\n'
+EnsurePythonVersion(2,2)
+Exit(0)
 """)
 
+test.run()
 
-test.run(arguments = 'foo' + _exe)
+test.write('SConstruct', """\
+import sys
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
+sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
+EnsurePythonVersion(2,3)
+Exit(0)
+""")
 
-test.must_not_exist(test.workpath('wrapper.out'))
+test.run()
 
-test.run(arguments = 'bar' + _exe)
+test.write('SConstruct', """\
+import sys
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
+sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
+EnsurePythonVersion(2,4)
+Exit(0)
+""")
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.run(status=2)
+
+
 
 test.pass_test()

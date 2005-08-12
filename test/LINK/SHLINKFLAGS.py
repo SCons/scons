@@ -40,13 +40,14 @@ test.write("wrapper.py",
 import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
+args = filter(lambda s: s != 'fake_shlink_flag', sys.argv[1:])
+os.system(string.join(args, " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
 test.write('SConstruct', """
 foo = Environment()
-bar = Environment(SHLINK = '',
-                  SHLINKFLAGS = foo.subst(r'%s wrapper.py $SHLINK $SHLINKFLAGS'))
+bar = Environment(SHLINK = foo.subst(r'%s wrapper.py $SHLINK'),
+                  SHLINKFLAGS = foo.subst('$SHLINKFLAGS fake_shlink_flag'))
 foo.SharedLibrary(target = 'foo', source = 'foo.c')
 bar.SharedLibrary(target = 'bar', source = 'bar.c')
 """ % python)
@@ -75,7 +76,7 @@ test()
 
 test.run(arguments = lib_ + 'foo' + _shlib)
 
-test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = lib_ + 'bar' + _shlib)
 
