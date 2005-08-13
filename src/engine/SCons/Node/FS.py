@@ -1614,6 +1614,11 @@ class File(Base):
         the SConscript directory of this file."""
         return self.fs.Dir(name, self.cwd)
 
+    def Dirs(self, pathlist):
+        """Create a list of directories relative to the SConscript
+        directory of this file."""
+        return map(lambda p, s=self: s.Dir(p), pathlist)
+
     def File(self, name):
         """Create a file node named 'name' relative to
         the SConscript directory of this file."""

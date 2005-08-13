@@ -1808,6 +1808,23 @@ class EntryTestCase(_tempdirTestCase):
         self.fs.Entry('#topdir')
         self.fs.Entry('#topdir/a/b/c')
 
+
+
+class FileTestCase(_tempdirTestCase):
+
+    def test_Dirs(self):
+        """Test the File.Dirs() method"""
+        fff = self.fs.File('subdir/fff')
+        # This simulates that the SConscript file that defined
+        # fff is in subdir/.
+        fff.cwd = self.fs.Dir('subdir')
+        d1 = self.fs.Dir('subdir/d1')
+        d2 = self.fs.Dir('subdir/d2')
+        dirs = fff.Dirs(['d1', 'd2'])
+        assert dirs == [d1, d2], map(str, dirs)
+
+
+
 class RepositoryTestCase(_tempdirTestCase):
 
     def setUp(self):
@@ -2798,6 +2815,7 @@ if __name__ == "__main__":
         BaseTestCase,
         BuildInfoTestCase,
         EntryTestCase,
+        FileTestCase,
         NodeInfoTestCase,
         FSTestCase,
         DirTestCase,
