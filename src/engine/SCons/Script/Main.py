@@ -1080,13 +1080,15 @@ def _main(args, parser):
     fs.set_max_drift(ssoptions.get('max_drift'))
 
     lookup_top = None
-    if targets:
+    if SCons.Script.BUILD_TARGETS:
         # They specified targets on the command line, so if they
         # used -u, -U or -D, we have to look up targets relative
         # to the top, but we build whatever they specified.
         if target_top:
             lookup_top = fs.Dir(target_top)
             target_top = None
+
+        targets = SCons.Script.BUILD_TARGETS
     else:
         # There are no targets specified on the command line,
         # so if they used -u, -U or -D, we may have to restrict

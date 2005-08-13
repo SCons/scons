@@ -32,6 +32,8 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+
+
 test.write('SConstruct', """
 print COMMAND_LINE_TARGETS
 print map(str, BUILD_TARGETS)
@@ -61,6 +63,8 @@ scons: Nothing to be done for `bbb'.
 scons: Nothing to be done for `aaa'.
 """)
 test.run(arguments = 'bbb ccc=xyz -n aaa', stdout = expect)
+
+
 
 test.write('SConstruct', """
 env = Environment()
@@ -105,5 +109,32 @@ expect = test.wrap_stdout(build_str = "scons: `.' is up to date.\n",
 ['.']
 """)
 test.run(arguments = '.', stdout = expect)
+
+
+
+test.write('SConstruct', """\
+print map(str, BUILD_TARGETS)
+SConscript('SConscript')
+print map(str, BUILD_TARGETS)
+""")
+
+test.write('SConscript', """\
+BUILD_TARGETS.append('sconscript_target')
+""")
+
+test.write('command_line_target', "command_line_target\n")
+test.write('sconscript_target', "sconscript_target\n")
+
+expect = test.wrap_stdout(read_str = """\
+['command_line_target']
+['command_line_target', 'sconscript_target']
+""",
+                          build_str = """\
+scons: Nothing to be done for `command_line_target'.
+scons: Nothing to be done for `sconscript_target'.
+""")
+test.run(arguments = 'command_line_target', stdout = expect)
+
+
 
 test.pass_test()
