@@ -44,8 +44,6 @@ RELEASE 0.97 - XXX
 
   - Allow access to both TARGET and SOURCE in $*PATH expansions.
 
-  - Allow SConscript files to modify BUILD_TARGETS.
-
   From Timothee Besset:
 
   - Add support for Objective C/C++ .m and .mm file suffixes (for
@@ -579,6 +577,12 @@ RELEASE 0.97 - XXX
 
   - Have the Fortran module emitter look for Fortan modules to be created
     relative to $FORTRANMODDIR, not the top-level directory.
+
+  - When saving Options to a file, run default values through the
+    converter before comparing them with the set values.  This correctly
+    suppresses Boolean Option values from getting written to the saved
+    file when they're one of the many synonyms for a default True or
+    False value.
 
   From Jeff Squyres:
 

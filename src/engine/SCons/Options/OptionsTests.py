@@ -320,6 +320,11 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         cache_file = test.workpath('cached.options')
         opts = SCons.Options.Options()
+
+        def bool_converter(val):
+            if val in [1, 'y']: val = 1
+            if val in [0, 'n']: val = 0
+            return val
         
         # test saving out empty file
         opts.Add('OPT_VAL',
@@ -331,16 +336,34 @@ class OptionsTestCase(unittest.TestCase):
                  default='foo')
         opts.Add('OPT_VAL_3',
                  default=1)
+        opts.Add('OPT_BOOL_0',
+                 default='n',
+                 converter=bool_converter)
+        opts.Add('OPT_BOOL_1',
+                 default='y',
+                 converter=bool_converter)
+        opts.Add('OPT_BOOL_2',
+                 default=0,
+                 converter=bool_converter)
 
         env = Environment()
         opts.Update(env, {'OPT_VAL_3' : 2})
-        assert env['OPT_VAL'] == 21
-        assert env['OPT_VAL_2'] == 'foo'
-        assert env['OPT_VAL_3'] == 2
+        assert env['OPT_VAL'] == 21, env['OPT_VAL']
+        assert env['OPT_VAL_2'] == 'foo', env['OPT_VAL_2']
+        assert env['OPT_VAL_3'] == 2, env['OPT_VAL_3']
+        assert env['OPT_BOOL_0'] == 0, env['OPT_BOOL_0']
+        assert env['OPT_BOOL_1'] == 1, env['OPT_BOOL_1']
+        assert env['OPT_BOOL_2'] == '0', env['OPT_BOOL_2']
+
         env['OPT_VAL_2'] = 'bar'
+        env['OPT_BOOL_0'] = 0
+        env['OPT_BOOL_1'] = 1
+        env['OPT_BOOL_2'] = 2
+
         opts.Save(cache_file, env)
         checkSave(cache_file, { 'OPT_VAL_2' : 'bar',
-                                'OPT_VAL_3' : 2 })
+                                'OPT_VAL_3' : 2,
+                                'OPT_BOOL_2' : 2})
 
         # Test against some old bugs
         class Foo:
