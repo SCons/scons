@@ -4882,19 +4882,15 @@ This may or may not be set,
 depending on the specific C compiler being used.
 
 .IP _concat
-A function used to produce variables like $_CPPINCFLAGS.
-It takes four to seven arguments:
-a prefix to concatenate onto each element;
-a list of elements;
-a suffix to concatenate onto each element;
-an environment for variable interpolation;
-an optional function that will be
-called to transform the list before concatenation;
-a target or list of targets;
-and a source or list of sources.
+A function used to produce variables like $_CPPINCFLAGS. It takes
+four or five
+arguments: a prefix to concatenate onto each element, a list of
+elements, a suffix to concatenate onto each element, an environment
+for variable interpolation, and an optional function that will be
+called to transform the list before concatenation.
 
 .ES
-env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
 .EE
 
 .IP CPPDEFINES
@@ -5151,8 +5147,12 @@ This may or may not be set,
 depending on the specific C++ compiler being used.
 
 .IP Dir
-A function that converts a file name into a Dir instance relative to the
-target being built. 
+A function that converts a string
+into a Dir instance relative to the target being built. 
+
+.IP Dirs
+A function that converts a list of strings
+into a list of Dir instances relative to the target being built.
 
 .IP DSUFFIXES
 The list of suffixes of files that will be scanned
@@ -5723,7 +5723,7 @@ The default list is:
 .EE
 
 .IP File
-A function that converts a file name into a File instance relative to the
+A function that converts a string into a File instance relative to the
 target being built. 
 
 .IP FRAMEWORKPATH
@@ -6756,7 +6756,7 @@ The string displayed when registering a newly-built DLL file.
 If this is not set, then $REGSVRCOM (the command line) is displayed.
 
 .IP RDirs
-A function that converts a file name into a list of Dir instances by
+A function that converts a string into a list of Dir instances by
 searching the repositories. 
 
 .IP RMIC

@@ -364,6 +364,7 @@ ConstructionEnvironment = {
     '_CPPDEFFLAGS'  : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
     'TEMPFILE'      : NullCmdGenerator,
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
+    'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),
     'File'          : Variable_Method_Caller('TARGET', 'File'),
     'RDirs'         : Variable_Method_Caller('TARGET', 'RDirs'),
 }
