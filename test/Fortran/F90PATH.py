@@ -39,16 +39,23 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
-#if not test.detect('F90', 'g90'):
-#    test.pass_test()
-base = '/opt/intel_fc_80'
-F90 = os.path.join(base, 'bin', 'ifort')
+baselist = [
+    '/opt/intel_fc_80',
+    '/opt/intel/fc/9.0',
+]
+
+F90 = None
+for base in baselist:
+    ifort = os.path.join(base, 'bin', 'ifort')
+    if os.path.exists(ifort):
+        F90 = ifort
+
+if not F90:
+    l = string.join(baselist, '\n\t')
+    test.skip_test('No (hard-coded) F90 compiler under:' + l + '\n')
+
 LIBPATH = os.path.join(base, 'lib')
 LIBS = ['irc']
-if not os.path.exists(F90):
-   sys.stderr.write('No (hard-coded) F90 compiler %s\n' % F90)
-   test.no_result(1)
-
 os.environ['LD_LIBRARY_PATH'] = LIBPATH
     
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')

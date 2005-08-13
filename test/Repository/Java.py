@@ -41,8 +41,7 @@ java = '/usr/local/j2sdk1.3.1/bin/java'
 javac = '/usr/local/j2sdk1.3.1/bin/javac'
 
 if not os.path.exists(javac):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find Java, skipping test(s).\n")
 
 ###############################################################################
 
