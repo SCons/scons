@@ -38,20 +38,28 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
-if not test.detect('F77', 'g77'):
+if not test.detect('_FORTRANG', 'g77'):
     test.skip_test('Found no $F77 tool; skipping test.\n')
     
-test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
+test.subdir('include',
+            'subdir',
+            ['subdir', 'include'],
+            'foobar',
+            'inc2')
+
+
 
 test.write('SConstruct', """
-env = Environment(FORTRANPATH = ['$FOO'], LIBS = %s, FOO='include')
+env = Environment(FORTRANPATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
+                  LIBS = %s, FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(FORTRANPATH=[include], LIBS = %s)
+env = Environment(FORTRANPATH=[include, '#foobar', '#subdir'],
+                  LIBS = %s)
 SConscript('variant/SConscript', "env")
 """ % (FTN_LIB, FTN_LIB))
 
@@ -77,6 +85,8 @@ r"""
       PROGRAM PROG
       PRINT *, 'subdir/prog.f'
       include 'foo.f'
+      include 'sss.f'
+      include 'ttt.f'
       STOP
       END
 """)
@@ -92,23 +102,53 @@ r"""
       PRINT *, 'subdir/include/bar.f 1'
 """)
 
+test.write(['subdir', 'sss.f'],
+r"""
+      PRINT *, 'subdir/sss.f'
+""")
+
+test.write(['subdir', 'ttt.f'],
+r"""
+      PRINT *, 'subdir/ttt.f'
+""")
+
 
 
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f\n include/foo.f 1\n include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 1
+ include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f\n subdir/include/foo.f 1\n subdir/include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ subdir/include/foo.f 1
+ subdir/include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f\n include/foo.f 1\n include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 1
+ include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
 test.must_not_exist(test.workpath('variant', 'prog.f'))
 
 test.up_to_date(arguments = args)
+
+
 
 test.write(['include', 'foo.f'],
 r"""
@@ -119,18 +159,38 @@ r"""
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f\n include/foo.f 2\n include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 2
+ include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f\n subdir/include/foo.f 1\n subdir/include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ subdir/include/foo.f 1
+ subdir/include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f\n include/foo.f 2\n include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 2
+ include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
 test.must_not_exist(test.workpath('variant', 'prog.f'))
 
 test.up_to_date(arguments = args)
+
+
 
 #
 test.write(['include', 'bar.f'],
@@ -141,33 +201,57 @@ r"""
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f\n include/foo.f 2\n include/bar.f 2\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 2
+ include/bar.f 2
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f\n subdir/include/foo.f 1\n subdir/include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ subdir/include/foo.f 1
+ subdir/include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f\n include/foo.f 2\n include/bar.f 2\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 2
+ include/bar.f 2
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
 test.must_not_exist(test.workpath('variant', 'prog.f'))
 
 test.up_to_date(arguments = args)
 
+
+
 # Change FORTRANPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(FORTRANPATH = Split('inc2 include'), LIBS = %s)
+env = Environment(FORTRANPATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
+                  LIBS = %s)
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(FORTRANPATH=['inc2', include], LIBS = %s)
+env = Environment(FORTRANPATH=['inc2', include, '#foobar', '#subdir'],
+                  LIBS = %s)
 SConscript('variant/SConscript', "env")
 """ % (FTN_LIB, FTN_LIB))
 
 test.up_to_date(arguments = args)
+
+
 
 #
 test.write(['inc2', 'foo.f'],
@@ -179,24 +263,46 @@ r"""
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f\n inc2/foo.f 1\n include/bar.f 2\n")
+         stdout = """\
+ subdir/prog.f
+ inc2/foo.f 1
+ include/bar.f 2
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f\n subdir/include/foo.f 1\n subdir/include/bar.f 1\n")
+         stdout = """\
+ subdir/prog.f
+ subdir/include/foo.f 1
+ subdir/include/bar.f 1
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f\n include/foo.f 2\n include/bar.f 2\n")
+         stdout = """\
+ subdir/prog.f
+ include/foo.f 2
+ include/bar.f 2
+ subdir/sss.f
+ subdir/ttt.f
+""")
 
 test.up_to_date(arguments = args)
+
+
 
 # Check that a null-string FORTRANPATH doesn't blow up.
 test.write('SConstruct', """
 env = Environment(FORTRANPATH = '', LIBS = %s)
-env.Library('foo', source = 'empty.f')
+env.Object('foo', source = 'empty.f')
 """ % FTN_LIB)
 
 test.write('empty.f', '')
 
 test.run(arguments = '.')
+
+
 
 test.pass_test()
