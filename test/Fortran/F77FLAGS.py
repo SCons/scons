@@ -119,16 +119,16 @@ test.write('test10.F77', "This is a .F77 file.\n#link\n#g77\n")
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test01' + _exe, " -x -c\nThis is a .f file.\n")
-test.must_match('test02' + _exe, " -x -c\nThis is a .F file.\n")
-test.must_match('test03' + _exe, " -x -c\nThis is a .for file.\n")
-test.must_match('test04' + _exe, " -x -c\nThis is a .FOR file.\n")
-test.must_match('test05' + _exe, " -x -c\nThis is a .ftn file.\n")
-test.must_match('test06' + _exe, " -x -c\nThis is a .FTN file.\n")
-test.must_match('test07' + _exe, " -x -c\nThis is a .fpp file.\n")
-test.must_match('test08' + _exe, " -x -c\nThis is a .FPP file.\n")
-test.must_match('test09' + _exe, " -x -c\nThis is a .f77 file.\n")
-test.must_match('test10' + _exe, " -x -c\nThis is a .F77 file.\n")
+test.must_match('test01' + _exe, " -c -x\nThis is a .f file.\n")
+test.must_match('test02' + _exe, " -c -x\nThis is a .F file.\n")
+test.must_match('test03' + _exe, " -c -x\nThis is a .for file.\n")
+test.must_match('test04' + _exe, " -c -x\nThis is a .FOR file.\n")
+test.must_match('test05' + _exe, " -c -x\nThis is a .ftn file.\n")
+test.must_match('test06' + _exe, " -c -x\nThis is a .FTN file.\n")
+test.must_match('test07' + _exe, " -c -x\nThis is a .fpp file.\n")
+test.must_match('test08' + _exe, " -c -x\nThis is a .FPP file.\n")
+test.must_match('test09' + _exe, " -c -x\nThis is a .f77 file.\n")
+test.must_match('test10' + _exe, " -c -x\nThis is a .F77 file.\n")
 
 
 
