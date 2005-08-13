@@ -162,12 +162,14 @@ class TestSCons(TestCommon):
         used as prog.
         """
         env = self.Environment(ENV)
-        try:
-            if prog is None:
-                prog = env[var]
-            return env[var] == prog and env.WhereIs(prog)
-        except KeyError:
+        v = env.subst('$'+var)
+        if not v:
             return None
+        if prog is None:
+            prog = v
+        if v != prog:
+            return None
+        return env.WhereIs(prog)
 
     def detect_tool(self, tool, prog=None, ENV=None):
         """
