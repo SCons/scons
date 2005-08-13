@@ -197,8 +197,12 @@ class Options:
                             # Convert stuff that has a repr() that
                             # cannot be evaluated into a string
                             value = SCons.Util.to_String(value)
-                        if env.subst('${%s}' % option.key) != \
-                           env.subst(SCons.Util.to_String(option.default)):
+                        
+                        defaultVal = env.subst(SCons.Util.to_String(option.default))
+                        if option.converter:
+                            defaultVal = option.converter(defaultVal)
+
+                        if str(env.subst('${%s}' % option.key)) != str(defaultVal):
                             fh.write('%s = %s\n' % (option.key, repr(value)))
                     except KeyError:
                         pass
