@@ -232,9 +232,11 @@ def generate(env):
     # environment's ENV.  This is a potential slippery slope, because we
     # *don't* want to make builds dependent on the user's environment by
     # default.  We're doing this for SYSTEMROOT, though, because it's
-    # needed for anything that uses sockets, and seldom changes.  Weigh
-    # the impact carefully before adding other variables to this list.
-    import_env = [ 'SYSTEMROOT', 'TEMP', 'TMP' ]
+    # needed for anything that uses sockets, and seldom changes, and
+    # for SYSTEMDRIVE because it's related.
+    #
+    # Weigh the impact carefully before adding other variables to this list.
+    import_env = [ 'SYSTEMDRIVE', 'SYSTEMROOT', 'TEMP', 'TMP' ]
     for var in import_env:
         v = os.environ.get(var)
         if v:

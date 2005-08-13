@@ -448,6 +448,9 @@ RELEASE 0.97 - XXX
   - Look in the right directory, not always the local directory, for a
     same-named file or directory conflict on disk.
 
+  - On Windows, preserve the external environment's %SYSTEMDRIVE%
+    variable, too.
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances
