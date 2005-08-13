@@ -111,12 +111,12 @@ def add_to_env(env):
     env['_SHF77COMSTRG']    = ShF77CommandStrGenerator
     env['_SHF77PPCOMSTRG']  = ShF77PPCommandStrGenerator
 
-    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET)} $)'
+    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
 
-    env['_F77COMD']     = '$_F77G $_F77FLAGSG $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['_F77PPCOMD']   = '$_F77G $_F77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['_SHF77COMD']   = '$_SHF77G $_SHF77FLAGSG $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['_SHF77PPCOMD'] = '$_SHF77G $_SHF77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['_F77COMD']     = '$_F77G -o $TARGET -c $_F77FLAGSG $_F77INCFLAGS $SOURCES'
+    env['_F77PPCOMD']   = '$_F77G -o $TARGET -c $_F77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS $SOURCES'
+    env['_SHF77COMD']   = '$_SHF77G -o $TARGET -c $_SHF77FLAGSG $_F77INCFLAGS $SOURCES'
+    env['_SHF77PPCOMD'] = '$_SHF77G -o $TARGET -c $_SHF77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS $SOURCES'
 
 def generate(env):
     fortran.add_to_env(env)

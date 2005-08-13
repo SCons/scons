@@ -58,11 +58,17 @@ LIBPATH = os.path.join(base, 'lib')
 LIBS = ['irc']
 os.environ['LD_LIBRARY_PATH'] = LIBPATH
     
-test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
+test.subdir('include',
+            'subdir',
+            ['subdir', 'include'],
+            'foobar',
+            'inc2')
+
+
 
 test.write('SConstruct', """
 env = Environment(F90 = r'%s',
-                  F90PATH = ['$FOO'],
+                  F90PATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
                   LINK = '$F90',
                   LIBPATH = %s,
                   LIBS = %s,
@@ -74,7 +80,7 @@ SConscript('subdir/SConscript', "env")
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
 env = Environment(F90 = r'%s',
-                  F90PATH=[include],
+                  F90PATH=[include, '#foobar', '#subdir'],
                   LINK = '$F90',
                   LIBPATH = %s,
                   LIBS = %s)
@@ -103,6 +109,8 @@ r"""
       PROGRAM PROG
       PRINT *, 'subdir/prog.f90'
       include 'foo.f90'
+      include 'sss.f90'
+      include 'ttt.f90'
       STOP
       END
 """)
@@ -118,23 +126,53 @@ r"""
       PRINT *, 'subdir/include/bar.f90 1'
 """)
 
+test.write(['subdir', 'sss.f90'],
+r"""
+      PRINT *, 'subdir/sss.f90'
+""")
+
+test.write(['subdir', 'ttt.f90'],
+r"""
+      PRINT *, 'subdir/ttt.f90'
+""")
+
 
 
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 1\n include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 1
+ include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f90\n subdir/include/foo.f90 1\n subdir/include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ subdir/include/foo.f90 1
+ subdir/include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 1\n include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 1
+ include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
 test.must_not_exist(test.workpath('variant', 'prog.f90'))
 
 test.up_to_date(arguments = args)
+
+
 
 test.write(['include', 'foo.f90'],
 r"""
@@ -145,18 +183,38 @@ r"""
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 2\n include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 2
+ include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f90\n subdir/include/foo.f90 1\n subdir/include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ subdir/include/foo.f90 1
+ subdir/include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 2\n include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 2
+ include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
 test.must_not_exist(test.workpath('variant', 'prog.f90'))
 
 test.up_to_date(arguments = args)
+
+
 
 #
 test.write(['include', 'bar.f90'],
@@ -167,23 +225,43 @@ r"""
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 2\n include/bar.f90 2\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 2
+ include/bar.f90 2
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f90\n subdir/include/foo.f90 1\n subdir/include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ subdir/include/foo.f90 1
+ subdir/include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 2\n include/bar.f90 2\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 2
+ include/bar.f90 2
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
 test.must_not_exist(test.workpath('variant', 'prog.f90'))
 
 test.up_to_date(arguments = args)
 
+
+
 # Change F90PATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
 env = Environment(F90 = r'%s',
-                  F90PATH = Split('inc2 include'),
+                  F90PATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
                   LINK = '$F90',
                   LIBPATH = %s,
                   LIBS = %s)
@@ -194,7 +272,7 @@ SConscript('subdir/SConscript', "env")
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
 env = Environment(F90 = r'%s',
-                  F90PATH=['inc2', include],
+                  F90PATH=['inc2', include, '#foobar', '#subdir'],
                   LINK = '$F90',
                   LIBPATH = %s,
                   LIBS = %s)
@@ -202,6 +280,8 @@ SConscript('variant/SConscript', "env")
 """ % (F90, repr(LIBPATH), LIBS, F90, repr(LIBPATH), LIBS))
 
 test.up_to_date(arguments = args)
+
+
 
 #
 test.write(['inc2', 'foo.f90'],
@@ -213,14 +293,34 @@ r"""
 test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = " subdir/prog.f90\n inc2/foo.f90 1\n include/bar.f90 2\n")
+         stdout = """\
+ subdir/prog.f90
+ inc2/foo.f90 1
+ include/bar.f90 2
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(subdir_prog),
-         stdout = " subdir/prog.f90\n subdir/include/foo.f90 1\n subdir/include/bar.f90 1\n")
+         stdout = """\
+ subdir/prog.f90
+ subdir/include/foo.f90 1
+ subdir/include/bar.f90 1
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.run(program = test.workpath(variant_prog),
-         stdout = " subdir/prog.f90\n include/foo.f90 2\n include/bar.f90 2\n")
+         stdout = """\
+ subdir/prog.f90
+ include/foo.f90 2
+ include/bar.f90 2
+ subdir/sss.f90
+ subdir/ttt.f90
+""")
 
 test.up_to_date(arguments = args)
+
+
 
 test.pass_test()

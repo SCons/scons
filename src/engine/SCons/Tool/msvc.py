@@ -71,10 +71,24 @@ def _parse_msvc7_overrides(version):
         # now we parse the directories from this file, if it exists.
         # We only look for entries after: [VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories],
         # since this file could contain a number of things...
-        f = open(comps,'r')
-        line = f.readline()
+        lines = None
+        try:
+            import codecs
+        except ImportError:
+            pass
+        else:
+            try:
+                f = codecs.open(comps, 'r', 'utf16')
+                encoder = codecs.getencoder('ascii')
+            except LookupError:
+                lines = codecs.open(comps, 'r', 'utf8').readlines()
+            else:
+                lines = map(lambda l, e=encoder: e(l)[0], f.readlines())
+        if lines is None:
+            lines = open(comps, 'r').readlines()
+            
         found = 0
-        while line:
+        for line in lines:
             line.strip()
             if line.find(r'[VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories]') >= 0:
                 found = 1
@@ -86,7 +100,6 @@ def _parse_msvc7_overrides(version):
                     (key, val) = kv
                 key = key.replace(' Dirs','')
                 dirs[key.upper()] = val
-            line = f.readline()
         f.close()
     else:
         # since the file didn't exist, we have only the defaults in
@@ -143,7 +156,7 @@ def _get_msvc7_path(path, version, platform):
 
     rv = []
     for entry in p.split(os.pathsep):
-        entry = s.sub(repl,entry)
+        entry = s.sub(repl,entry).rstrip('\n\r')
         rv.append(entry)
 
     return string.join(rv,os.pathsep)

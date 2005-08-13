@@ -193,7 +193,7 @@ def copyFunc(dest, source, env):
     os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-def _concat(prefix, list, suffix, env, f=lambda x: x, target=None):
+def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
     """Creates a new list from 'list' by first interpolating each
     element in the list using the 'env' dictionary and then calling f
     on the list, and finally concatenating 'prefix' and 'suffix' onto
@@ -206,7 +206,7 @@ def _concat(prefix, list, suffix, env, f=lambda x: x, target=None):
 
     if SCons.Util.is_List(list):
         list = SCons.Util.flatten(list)
-    list = f(env.subst_path(list, target=target))
+    list = f(env.subst_path(list, target=target, source=source))
 
     result = []
 
@@ -359,8 +359,8 @@ ConstructionEnvironment = {
     '_defines'      : _defines,
     '_stripixes'    : _stripixes,
     '_LIBFLAGS'     : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-    '_LIBDIRFLAGS'  : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET)} $)',
-    '_CPPINCFLAGS'  : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET)} $)',
+    '_LIBDIRFLAGS'  : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+    '_CPPINCFLAGS'  : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
     '_CPPDEFFLAGS'  : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
     'TEMPFILE'      : NullCmdGenerator,
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
