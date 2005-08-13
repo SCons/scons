@@ -42,12 +42,10 @@ javac = '/usr/local/j2sdk1.3.1/bin/javac'
 rmic = '/usr/local/j2sdk1.3.1/bin/rmic'
 
 if not os.path.exists(javac):
-    print "Could not find Java (javac), skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find Java (javac), skipping test(s).\n")
 
 if not os.path.exists(rmic):
-    print "Could not find Java (rmic), skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find Java (rmic), skipping test(s).\n")
 
 ###############################################################################
 

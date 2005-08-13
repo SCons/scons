@@ -99,8 +99,7 @@ if test.detect_tool('javac', ENV=ENV):
 else:
     where_javac = test.where_is('javac')
 if not where_javac:
-    print "Could not find Java javac, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find Java javac, skipping test(s).\n")
 
 
 

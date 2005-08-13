@@ -242,6 +242,33 @@ class TestSCons(TestCommon):
         kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
 
+    def skip_test(self, message="Skipping test.\n"):
+        """Skips a test.
+
+        Proper test-skipping behavior is dependent on whether we're being
+        executed as part of development of a change under Aegis.
+
+        Technically, skipping a test is a NO RESULT, but Aegis will
+        treat that as a test failure and prevent the change from going
+        to the next step.  We don't want to force anyone using Aegis
+        to have to install absolutely every tool used by the tests,
+        so we actually report to Aegis that a skipped test has PASSED
+        so that the workflow isn't held up.
+        """
+        if message:
+            sys.stdout.write(message)
+            sys.stdout.flush()
+        devdir = os.popen("aesub '$dd' 2>/dev/null", "r").read()[:-1]
+        intdir = os.popen("aesub '$intd' 2>/dev/null", "r").read()[:-1]
+        if devdir and self._cwd[:len(devdir)] == devdir or \
+           intdir and self._cwd[:len(intdir)] == intdir:
+            # We're under the development directory for this change,
+            # so this is an Aegis invocation; pass the test (exit 0).
+            self.pass_test()
+        else:
+            self.no_result()
+
+
     def java_ENV(self):
         """
         Return a default external environment that uses a local Java SDK

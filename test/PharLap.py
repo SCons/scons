@@ -34,7 +34,7 @@ import time
 test = TestSCons.TestSCons()
 
 if sys.platform != 'win32':
-    test.pass_test()
+    test.skip_test('PharLap is only available on win32; skipping test.\n')
 
 test.no_result(not test.detect_tool('linkloc'))
 test.no_result(not test.detect_tool('386asm'))

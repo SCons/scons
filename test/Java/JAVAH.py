@@ -103,8 +103,7 @@ else:
     if not where_javac:
         where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
         if not where_javac:
-            print "Could not find Java javac, skipping test(s)."
-            test.pass_test(1)
+            test.skip_test("Could not find Java javac, skipping test(s).\n")
 
 if test.detect_tool('javah'):
     where_javah = test.detect('JAVAH', 'javah')
@@ -115,8 +114,7 @@ else:
     if not where_javah:
         where_javah = env.WhereIs('javah', '/usr/local/j2sdk1.3.1/bin')
         if not where_javah:
-            print "Could not find Java javah, skipping test(s)."
-            test.pass_test(1)
+            test.skip_test("Could not find Java javah, skipping test(s).\n")
 
 
 
