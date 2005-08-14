@@ -34,18 +34,15 @@ test = TestSCons.TestSCons()
 
 rcs = test.where_is('rcs')
 if not rcs:
-    print "Could not find RCS, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'rcs'; skipping test(s).\n")
 
 ci = test.where_is('ci')
 if not ci:
-    print "Could not find `ci' command, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'ci'; skipping test(s).\n")
 
 co = test.where_is('co')
 if not co:
-    print "Could not find `co' command, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'co'; skipping test(s).\n")
 
 
 

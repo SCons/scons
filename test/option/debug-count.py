@@ -39,9 +39,8 @@ test = TestSCons.TestSCons()
 try:
     import weakref
 except ImportError:
-    print "Python version has no `weakref' module;"
-    print "skipping tests of --debug=count."
-    test.pass_test()
+    x = "Python version has no 'weakref' module; skipping tests.\n"
+    test.skip_test(x)
 
 
 

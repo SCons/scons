@@ -36,8 +36,7 @@ test = TestSCons.TestSCons()
 
 bk = test.where_is('bk')
 if not bk:
-    print "Could not find BitKeeper, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'bk'; skipping test(s).\n")
 
 try:
     login = os.getlogin()

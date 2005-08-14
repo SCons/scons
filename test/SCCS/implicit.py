@@ -36,8 +36,7 @@ test = TestSCons.TestSCons()
 
 sccs = test.where_is('sccs')
 if not sccs:
-    print "Could not find SCCS, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'sccs'; skipping test(s).\n")
 
 
 

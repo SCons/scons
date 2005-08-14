@@ -34,8 +34,7 @@ test = TestSCons.TestSCons()
 
 dmd = test.where_is('dmd')
 if not dmd:
-    print "dmd not found, skipping test"
-    test.pass_test(1)
+    test.skip_test("Could not find 'dmd'; skipping test.\n")
 
 test.write('SConstruct', """\
 import os

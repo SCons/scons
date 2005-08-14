@@ -34,13 +34,11 @@ test = TestSCons.TestSCons()
 
 svn = test.where_is('svn')
 if not svn:
-    print "Could not find Subversion, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'svn'; skipping test(s).\n")
 
 svnadmin = test.where_is('svnadmin')
 if not svn:
-    print "Could not find Subversion, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'svnadmin'; skipping test(s).\n")
 
 print "Short-circuiting this test until we support Subversion"
 test.pass_test()

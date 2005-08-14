@@ -41,8 +41,7 @@ test = TestSCons.TestSCons()
 
 p4 = test.where_is('p4')
 if not p4:
-    print "Could not find Perforce, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'p4'; skipping test(s).\n")
 
 user = os.environ.get('USER')
 if not user:

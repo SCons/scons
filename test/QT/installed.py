@@ -31,14 +31,15 @@ Look if qt is installed, and try out all builders.
 import os
 import re
 import string
+import sys
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 if not os.environ.get('QTDIR', None):
-    print "Could not find QT, skipping test(s)."
-    test.no_result(1)
+    x ="External environment variable $QTDIR not set; skipping test(s).\n"
+    test.skip_test(x)
 
 test.Qt_dummy_installation()
 
@@ -175,8 +176,24 @@ int main(int argc, char **argv) {
 
 test.run(arguments="bld/test_realqt" + TestSCons._exe)
 
+
 test.run(program=test.workpath("bld", "test_realqt"),
-         stdout="Hello World\n")
+         stdout=None,
+         status=None,
+         stderr=None)
+
+if test.stdout() != "Hello World\n" or test.stderr() != '' or test.status:
+    sys.stdout.write(test.stdout())
+    sys.stderr.write(test.stderr())
+    # The test might be run on a system that doesn't have an X server
+    # running, or may be run by an ID that can't connect to the server.
+    # If so, then print whatever it showed us (which is in and of itself
+    # an indication that it built correctly) but don't fail the test.
+    expect = 'cannot connect to X server'
+    test.fail_test(test.stdout() != '' or
+                   string.find(test.stderr(), expect) == -1 or \
+                   (test.status>>8) != 1)
+
 
 QTDIR = os.environ['QTDIR']
 PATH = os.environ['PATH']
@@ -190,5 +207,6 @@ expect2 = "scons: warning: Could not detect qt, using moc executable as a hint"
 
 test.fail_test(string.find(test.stderr(), expect1) == -1 and
                string.find(test.stderr(), expect2) == -1)
+
 
 test.pass_test()
