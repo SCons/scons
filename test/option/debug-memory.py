@@ -39,9 +39,8 @@ test = TestSCons.TestSCons()
 try:
     import resource
 except ImportError:
-    print "Python version has no `resource' module;"
-    print "skipping test of --debug=memory."
-    test.pass_test()
+    x = "Python version has no 'resource' module; skipping tests.\n"
+    test.skip_test(x)
 
 
 

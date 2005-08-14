@@ -37,8 +37,7 @@ test = TestSCons.TestSCons()
 
 cvs = test.where_is('cvs')
 if not cvs:
-    print "Could not find CVS, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find 'cvs'; skipping test(s).\n")
 
 test.subdir('CVS', 'import', ['import', 'sub'], 'work1', 'work2')
 

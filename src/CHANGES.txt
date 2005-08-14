@@ -44,6 +44,8 @@ RELEASE 0.97 - XXX
 
   - Allow access to both TARGET and SOURCE in $*PATH expansions.
 
+  - Allow SConscript files to modify BUILD_TARGETS.
+
   From Timothee Besset:
 
   - Add support for Objective C/C++ .m and .mm file suffixes (for

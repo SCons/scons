@@ -94,8 +94,7 @@ line 3
 
 
 if not os.path.exists('/usr/local/j2sdk1.3.1/bin/rmic'):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
+    test.skip_test("Could not find Java; skipping non-simulated test(s).\n")
 
 
 
