@@ -149,6 +149,28 @@ import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 .EE
 
+Similarly, if the commands use external environment variables
+like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
+these variables can also be explicitly propagated:
+
+.ES
+import os
+env = Environment(ENV = {'PATH' : os.environ['PATH'],
+                         'HOME' : os.environ['HOME']})
+.EE
+
+Or you may explicitly propagate the invoking user's
+complete external environment:
+
+.ES
+import os
+env = Environment(ENV = os.environ['PATH'])
+.EE
+
+This comes at the expense of making your build
+dependent on the user's environment being set correctly,
+but it may be more convenient for many configurations.
+
 .B scons
 can scan known input files automatically for dependency
 information (for example, #include statements
@@ -2537,7 +2559,7 @@ Example:
 .ES
 print 'before:',env['ENV']['INCLUDE']
 include_path = '/foo/bar:/foo'
-env.PrependENVPath('INCLUDE', include_path)
+env.AppendENVPath('INCLUDE', include_path)
 print 'after:',env['ENV']['INCLUDE']
 
 yields:
@@ -3716,7 +3738,7 @@ after: /foo/bar:/foo:/biz
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.AppendUnique( key = val ", [...])"
+.RI env.PrependUnique( key = val ", [...])"
 Appends the specified keyword arguments
 to the beginning of construction variables in the environment.
 If the Environment does not have
