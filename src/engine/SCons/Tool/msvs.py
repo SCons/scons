@@ -765,11 +765,11 @@ def get_default_visualstudio_version(env):
 
 def get_visualstudio_versions():
     """
-    Get list of visualstudio versions from the Windows registry.  Return a
-    list of strings containing version numbers; an exception will be raised
-    if we were unable to access the registry (eg. couldn't import
-    a registry-access module) or the appropriate registry keys weren't
-    found.
+    Get list of visualstudio versions from the Windows registry.
+    Returns a list of strings containing version numbers.  An empty list
+    is returned if we were unable to accees the register (for example,
+    we couldn't import the registry-access module) or the appropriate
+    registry keys weren't found.
     """
 
     if not SCons.Util.can_read_reg:
