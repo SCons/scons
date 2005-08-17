@@ -114,19 +114,19 @@ def check(expect):
 test.run()
 check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
-test.run(arguments='"RELEASE_BUILD=1"')
+test.run(arguments='RELEASE_BUILD=1')
 check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
-test.run(arguments='"RELEASE_BUILD=1" "DEBUG_BUILD=0"')
+test.run(arguments='RELEASE_BUILD=1 DEBUG_BUILD=0')
 check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
 
-test.run(arguments='"CC=not_a_c_compiler"')
+test.run(arguments='CC=not_a_c_compiler')
 check(['0', '1', 'not_a_c_compiler', string.strip(ccflags + ' -g'), 'v', 'v'])
 
-test.run(arguments='"UNDECLARED=foo"')
+test.run(arguments='UNDECLARED=foo')
 check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
-test.run(arguments='"CCFLAGS=--taco"')
+test.run(arguments='CCFLAGS=--taco')
 check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
 test.write('custom.py', """
@@ -137,7 +137,7 @@ RELEASE_BUILD=1
 test.run()
 check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
 
-test.run(arguments='"DEBUG_BUILD=1"')
+test.run(arguments='DEBUG_BUILD=1')
 check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
 test.run(arguments='-h',
@@ -217,7 +217,7 @@ check(['1','0'])
 checkSave('options.saved', { 'RELEASE_BUILD':1, 'DEBUG_BUILD':0})
 
 # Override with command line arguments
-test.run(arguments='"DEBUG_BUILD=3"')
+test.run(arguments='DEBUG_BUILD=3')
 check(['1','3'])
 checkSave('options.saved', {'RELEASE_BUILD':1, 'DEBUG_BUILD':3})
 
@@ -265,12 +265,12 @@ check(['0','1'])
 checkSave('options.saved', {})
 
 # Now specify one option the same as default and make sure it doesn't write out
-test.run(arguments='"DEBUG_BUILD=1"')
+test.run(arguments='DEBUG_BUILD=1')
 check(['0','1'])
 checkSave('options.saved', {})
 
 # Now specify same option non-default and make sure only it is written out
-test.run(arguments='"DEBUG_BUILD=0" "LISTOPTION_TEST=a,b"')
+test.run(arguments='DEBUG_BUILD=0 LISTOPTION_TEST=a,b')
 check(['0','0'])
 checkSave('options.saved',{'DEBUG_BUILD':0, 'LISTOPTION_TEST':'a,b'})
 

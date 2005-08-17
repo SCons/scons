@@ -80,8 +80,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.13.D001 2004/11/20 08:30:40 knight"
-__version__ = "0.13"
+__revision__ = "TestCommon.py 0.14.D001 2005/08/15 23:02:35 knight"
+__version__ = "0.14"
 
 import os
 import os.path
@@ -262,6 +262,8 @@ class TestCommon(TestCmd):
         file_contents = self.read(file, mode)
         try:
             self.fail_test(not self.match(file_contents, expect))
+        except KeyboardInterrupt:
+            raise
         except:
             print "Unexpected contents of `%s'" % file
             print "EXPECTED contents ======"
@@ -338,6 +340,8 @@ class TestCommon(TestCmd):
             match = self.match
         try:
             apply(TestCmd.run, [self], kw)
+        except KeyboardInterrupt:
+            raise
         except:
             print "STDOUT ============"
             print self.stdout()

@@ -247,6 +247,10 @@ def SCons_revision(target, source, env):
 revbuilder = Builder(action = Action(SCons_revision,
                                      varlist=['COPYRIGHT', 'VERSION']))
 
+# When copying local files from a Repository (Aegis),
+# just make copies, don't symlink them.
+SetOption('duplicate', 'copy')
+
 env = Environment(
                    ENV                 = ENV,
 

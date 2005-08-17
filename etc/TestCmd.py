@@ -175,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.13.D002 2004/11/20 08:34:16 knight"
-__version__ = "0.13"
+__revision__ = "TestCmd.py 0.15.D001 2005/08/16 17:14:33 knight"
+__version__ = "0.15"
 
 import os
 import os.path
@@ -241,13 +241,20 @@ _Cleanup = []
 
 def _clean():
     global _Cleanup
-    list = _Cleanup[:]
-    _Cleanup = []
-    list.reverse()
-    for test in list:
+    cleanlist = filter(None, _Cleanup)
+    del _Cleanup[:]
+    cleanlist.reverse()
+    for test in cleanlist:
         test.cleanup()
 
 sys.exitfunc = _clean
+
+class Collector:
+    def __init__(self, top):
+        self.entries = [top]
+    def __call__(self, arg, dirname, names):
+        pathjoin = lambda n, d=dirname: os.path.join(d, n)
+        self.entries.extend(map(pathjoin, names))
 
 def _caller(tblist, skip):
     string = ""
@@ -417,7 +424,7 @@ else:
             if os.path.isfile(f):
                 try:
                     st = os.stat(f)
-                except:
+                except OSError:
                     continue
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                     return f
@@ -634,25 +641,27 @@ class TestCmd:
             if self.verbose:
                 sys.stderr.write("chdir(" + chdir + ")\n")
             os.chdir(chdir)
-        cmd = None
         if program:
             if not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
-            cmd = escape_cmd(program)
-            if interpreter:
-                cmd = interpreter + " " + cmd
         else:
-            cmd = escape_cmd(self.program)
-            if self.interpreter:
-                cmd =  self.interpreter + " " + cmd
+            program = self.program
+            if not interpreter:
+                interpreter = self.interpreter
+        cmd = [program]
+        if interpreter:
+            cmd = [interpreter] + cmd
         if arguments:
-            cmd = cmd + " " + arguments
+            if type(arguments) == type(''):
+                arguments = string.split(arguments)
+            cmd.extend(arguments)
+        cmd_string = string.join(cmd, ' ')
         if self.verbose:
-            sys.stderr.write(cmd + "\n")
+            sys.stderr.write(cmd_string + "\n")
         try:
             p = popen2.Popen3(cmd, 1)
         except AttributeError:
-            (tochild, fromchild, childerr) = os.popen3(cmd)
+            (tochild, fromchild, childerr) = os.popen3(cmd_string)
             if stdin:
                 if is_List(stdin):
                     for line in stdin:
@@ -748,7 +757,7 @@ class TestCmd:
             new = os.path.join(self.workdir, sub)
             try:
                 os.mkdir(new)
-            except:
+            except OSError:
                 pass
             else:
                 count = count + 1
@@ -837,37 +846,124 @@ class TestCmd:
         """
         return apply(os.path.join, (self.workdir,) + tuple(args))
 
-    def writable(self, top, write):
+    def readable(self, top, read=1):
+        """Make the specified directory tree readable (read == 1)
+        or not (read == None).
+        """
+
+        if read:
+            def do_chmod(fname):
+                try: st = os.stat(fname)
+                except OSError: pass
+                else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0400))
+        else:
+            def do_chmod(fname):
+                try: st = os.stat(fname)
+                except OSError: pass
+                else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0400))
+
+        if os.path.isfile(top):
+            # If it's a file, that's easy, just chmod it.
+            do_chmod(top)
+        elif read:
+            # It's a directory and we're trying to turn on read
+            # permission, so it's also pretty easy, just chmod the
+            # directory and then chmod every entry on our walk down the
+            # tree.  Because os.path.walk() is top-down, we'll enable
+            # read permission on any directories that have it disabled
+            # before os.path.walk() tries to list their contents.
+            do_chmod(top)
+
+            def chmod_entries(arg, dirname, names, do_chmod=do_chmod):
+                pathnames = map(lambda n, d=dirname: os.path.join(d, n),
+                                names)
+                map(lambda p, do=do_chmod: do(p), pathnames)
+
+            os.path.walk(top, chmod_entries, None)
+        else:
+            # It's a directory and we're trying to turn off read
+            # permission, which means we have to chmod the directoreis
+            # in the tree bottom-up, lest disabling read permission from
+            # the top down get in the way of being able to get at lower
+            # parts of the tree.  But os.path.walk() visits things top
+            # down, so we just use an object to collect a list of all
+            # of the entries in the tree, reverse the list, and then
+            # chmod the reversed (bottom-up) list.
+            col = Collector(top)
+            os.path.walk(top, col, None)
+            col.entries.reverse()
+            map(lambda d, do=do_chmod: do(d), col.entries)
+
+    def writable(self, top, write=1):
         """Make the specified directory tree writable (write == 1)
         or not (write == None).
         """
 
-        def _walk_chmod(arg, dirname, names):
-            st = os.stat(dirname)
-            os.chmod(dirname, arg(st[stat.ST_MODE]))
-            for name in names:
-                n = os.path.join(dirname, name)
-                st = os.stat(n)
-                os.chmod(n, arg(st[stat.ST_MODE]))
-
-        def _mode_writable(mode):
-            return stat.S_IMODE(mode|0200)
-
-        def _mode_non_writable(mode):
-            return stat.S_IMODE(mode&~0200)
-
         if write:
-            f = _mode_writable
+            def do_chmod(fname):
+                try: st = os.stat(fname)
+                except OSError: pass
+                else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0200))
         else:
-            f = _mode_non_writable
+            def do_chmod(fname):
+                try: st = os.stat(fname)
+                except OSError: pass
+                else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0200))
+
         if os.path.isfile(top):
-            st = os.stat(top)
-            os.chmod(top, f(st[stat.ST_MODE]))
+            do_chmod(top)
         else:
-            try:
-                os.path.walk(top, _walk_chmod, f)
-            except:
-                pass # ignore any problems changing modes
+            col = Collector(top)
+            os.path.walk(top, col, None)
+            map(lambda d, do=do_chmod: do(d), col.entries)
+
+    def executable(self, top, execute=1):
+        """Make the specified directory tree executable (execute == 1)
+        or not (execute == None).
+        """
+
+        if execute:
+            def do_chmod(fname):
+                try: st = os.stat(fname)
+                except OSError: pass
+                else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0100))
+        else:
+            def do_chmod(fname):
+                try: st = os.stat(fname)
+                except OSError: pass
+                else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0100))
+
+        if os.path.isfile(top):
+            # If it's a file, that's easy, just chmod it.
+            do_chmod(top)
+        elif execute:
+            # It's a directory and we're trying to turn on execute
+            # permission, so it's also pretty easy, just chmod the
+            # directory and then chmod every entry on our walk down the
+            # tree.  Because os.path.walk() is top-down, we'll enable
+            # execute permission on any directories that have it disabled
+            # before os.path.walk() tries to list their contents.
+            do_chmod(top)
+
+            def chmod_entries(arg, dirname, names, do_chmod=do_chmod):
+                pathnames = map(lambda n, d=dirname: os.path.join(d, n),
+                                names)
+                map(lambda p, do=do_chmod: do(p), pathnames)
+
+            os.path.walk(top, chmod_entries, None)
+        else:
+            # It's a directory and we're trying to turn off execute
+            # permission, which means we have to chmod the directories
+            # in the tree bottom-up, lest disabling execute permission from
+            # the top down get in the way of being able to get at lower
+            # parts of the tree.  But os.path.walk() visits things top
+            # down, so we just use an object to collect a list of all
+            # of the entries in the tree, reverse the list, and then
+            # chmod the reversed (bottom-up) list.
+            col = Collector(top)
+            os.path.walk(top, col, None)
+            col.entries.reverse()
+            map(lambda d, do=do_chmod: do(d), col.entries)
 
     def write(self, file, content, mode = 'wb'):
         """Writes the specified content text (second argument) to the

@@ -1,11 +1,13 @@
 #! /usr/bin/env perl
-#
-# Copyright 2001, 2002, 2003 Steven Knight.  All rights reserved.  This program
-# is free software; you can redistribute and/or modify under the
-# same terms as Perl itself.
-#
 
-$revision = "src/ae2cvs.pl 0.D002 2001/10/03 09:36:49 software";
+$revision = "src/ae2cvs.pl 0.04.D001 2005/08/14 15:13:36 knight";
+
+$copyright = "Copyright 2001, 2002, 2003, 2004, 2005 Steven Knight.";
+
+#
+# All rights reserved.  This program is free software; you can
+# redistribute and/or modify under the same terms as Perl itself.
+#
 
 use strict;
 use File::Find;
@@ -15,14 +17,23 @@ use Pod::Usage ();
 use vars qw( @add_list @args @cleanup @copy_list @libraries
 	     @mkdir_list @remove_list
 	     %seen_dir
-	     $ae_copy $aedir $aedist $cnum $commit $common $cvsmod
+	     $ae_copy $aedir $aedist
+	     $cnum $comment $commit $common $copyright
+	     $cvs_command $cvsmod $cvsroot
 	     $delta $description $exec $help $indent $infile
-	     $proj $pwd $quiet
+	     $proj $pwd $quiet $revision
 	     $summary $usedir $usepath );
 
 $aedist = 1;
+$cvsroot = undef;
 $exec = undef;
 $indent = "";
+
+sub version {
+   	print "ae2cvs: $revision\n";
+   	print "$copyright\n";
+	exit 0;
+}
 
 {
     use Getopt::Long;
@@ -33,6 +44,7 @@ $indent = "";
 	"aedist" => sub { $aedist = 1 },
 	"aegis" => sub { $aedist = 0 },
 	"change=i" => \$cnum,
+	"d=s" => \$cvsroot,
 	"file=s" => \$infile,
 	"help|?" => \$help,
 	"library=s" => \@libraries,
@@ -41,6 +53,7 @@ $indent = "";
 	"project=s" => \$proj,
 	"quiet" => \$quiet,
 	"usedir=s" => \$usedir,
+	"v|version" => \&version,
 	"x|execute" => sub { $exec++ if ! defined $exec || $exec != 0 },
 	"X|EXECUTE" => sub { $exec = 2 if ! defined $exec || $exec != 0 },
     );
@@ -49,6 +62,8 @@ $indent = "";
 
     $exec = 0 if ! defined $exec;
 }
+
+$cvs_command = $cvsroot ? "cvs -d $cvsroot -Q" : "cvs -Q";
 
 #
 # Wrap up the $quiet logic in one place.
@@ -116,6 +131,59 @@ sub filter {
 }
 
 #
+# Parse a change description, in both 'aegis -l cd" and "aedist" formats.
+#
+# Returns an array containing the project name, the change number
+# (if any), the delta number (if any), the SUMMARY, the DESCRIPTION
+# and the lines describing the files in the change.
+#
+sub parse_change {
+    my $output = shift;
+
+    my ($p, $c, $d, $c_or_d, $sum, $desc, $filesection, @flines);
+
+    # The project name line comes after NAME in "aegis -l cd" format,
+    # and PROJECT in "aedist" format.  In both cases, the project name
+    # and the change/delta name are separated a comma.
+    ($p = $output) =~ s/(?:NAME|PROJECT)\n([^\n]*)\n.*/$1/ms;
+    ($p, $c_or_d) = (split(/,/, $p));
+
+    # In "aegis -l cd" format, the project name actually comes after
+    # the string "Project" and is itself enclosed in double quotes.
+    $p =~ s/Project "([^"]*)"/$1/;
+
+    # The change or delta string was the right-hand side of the comma.
+    # "aegis -l cd" format spells it "Change 123." or "Delta 123." while
+    # "aedist" format spells it "change 123."
+    if ($c_or_d =~ /\s*[Cc]hange (\d+).*/) { $c = $1 };
+    if ($c_or_d =~ /\s*[Dd]elta (\d+).*/) { $d = $1 };
+
+    # The SUMMARY line is always followed the DESCRIPTION section.
+    # It seems to always be a single line, but we grab everything in
+    # between just in case.
+    ($sum = $output) =~ s/.*\nSUMMARY\n//ms;
+    $sum =~ s/\nDESCRIPTION\n.*//ms;
+
+    # The DESCRIPTION section is followed ARCHITECTURE in "aegis -l cd"
+    # format and by CAUSE in "aedist" format.  Explicitly under it if the
+    # string is only "none," which means they didn't supply a description.
+    ($desc = $output) =~ s/.*\nDESCRIPTION\n//ms;
+    $desc =~ s/\n(ARCHITECTURE|CAUSE)\n.*//ms;
+    chomp($desc);
+    if ($desc eq "none" || $desc eq "none\n") { $desc = undef }
+
+    # The FILES section is followed by HISTORY in "aegis -l cd" format.
+    # It seems to be the last section in "aedist" format, but stripping
+    # a non-existent HISTORY section doesn't hurt.
+    ($filesection = $output) =~ s/.*\nFILES\n//ms;
+    $filesection =~ s/\nHISTORY\n.*//ms;
+
+    @flines = split(/\n/, $filesection);
+
+    ($p, $c, $d, $sum, $desc, \@flines)
+}
+
+#
 #
 #
 $pwd = Cwd::cwd();
@@ -144,15 +212,12 @@ if ($aedist) {
     }
 
     my $output = filter("aedist -l -unf", $contents);
+    my ($p, $c, $d, $s, $desc, $fl) = parse_change($output);
 
-    my $filesection;
-    if (! defined $proj) {
-	($proj = $output) =~ s/PROJECT\n([^\n]*)\n.*/$1/ms;
-    }
-    ($summary = $output) =~ s/.*\nSUMMARY\n([^\n]*)\n.*/$1/ms;
-    ($description = $output) =~ s/.*\nDESCRIPTION\n([^\n]*)\nCAUSE\n.*/$1/ms;
-    ($filesection = $output) =~ s/.*\nFILES\n//ms;
-    @filelines = split(/\n/, $filesection);
+    $proj = $p if ! defined $proj;
+    $summary = $s;
+    $description = $desc;
+    @filelines = @$fl;
 
     if (! $exec) {
 	printit qq(MYTMP="/tmp/ae2cvs-ae.\$\$"\n),
@@ -181,9 +246,10 @@ if ($aedist) {
     }
 
     $ae_copy = sub {
-	my $dest = shift;
-	my $source = File::Spec->catfile($aedir, "src", $dest);
-	execute(qq(cp $source $dest));
+	foreach my $dest (@_) {
+	    my $source = File::Spec->catfile($aedir, "src", $dest);
+	    execute(qq(cp $source $dest));
+	}
     }
 } else {
     $cnum = $ENV{AEGIS_CHANGE} if ! defined $cnum;
@@ -192,24 +258,21 @@ if ($aedist) {
     $common = "-lib " . join(" -lib ", @libraries) if @libraries;
     $common = "$common -proj $proj" if $proj;
 
-    foreach (`aegis -l ph -unf $common`) {
-	chomp;
-	if (/^(\d+) .{24} $cnum\s*(.*)/) {
-	    $delta = $1;
-	    $summary = $2;
-	    last;
-	}
-    }
-    if (! $delta) {
-	print STDERR "ae2cvs:  No change $cnum for project $proj.\n";
-	exit 1;
-    }
+    my $output = `aegis -l cd $cnum -unf $common`;
+    my ($p, $c, $d, $s, $desc, $fl) = parse_change($output);
 
-    @filelines = `aegis -l cf -unf -c $cnum $common`;
+    $delta = $d;
+    $summary = $s;
+    $description = $desc;
+    @filelines = @$fl;
+
+    if (! $delta) {
+        print STDERR "ae2cvs:  No delta number, exiting.\n";
+        exit 1;
+    }
 
     $ae_copy = sub {
-	my $file = shift;
-	execute(qq(aegis -cp -ind -delta $delta $common $file));
+	execute(qq(aegis -cp -ind -delta $delta $common @_));
     }
 }
 
@@ -229,7 +292,7 @@ if (! File::Spec->file_name_is_absolute($usepath)) {
 if (! -d File::Spec->catfile($usedir, "CVS")) {
     $cvsmod = (split(/\./, $proj))[0] if ! defined $cvsmod;
 
-    execute(qq(cvs -Q co $cvsmod));
+    execute(qq($cvs_command co $cvsmod));
 
     _chdir($cvsmod);
 
@@ -288,7 +351,7 @@ if (@mkdir_list) {
 	    $indent = "  ";
 	}
 	_mkdir($_);
-	execute(qq(cvs -Q add $_));
+	execute(qq($cvs_command add $_));
 	if (! $exec) {
 	    $indent = "";
 	    printit qq(fi\n);
@@ -300,21 +363,21 @@ if (@mkdir_list) {
 }
 
 # Copy in any files in the change, before we try to "cvs add" them.
-for (@copy_list) {
-    $ae_copy->($_);
-}
+$ae_copy->(@copy_list) if @copy_list;
 
 if (@add_list) {
-    execute(qq(cvs -Q add @add_list));
+    execute(qq($cvs_command add @add_list));
 }
 
 if (@remove_list) {
     execute(qq(rm -f @remove_list));
-    execute(qq(cvs -Q remove @remove_list));
+    execute(qq($cvs_command remove @remove_list));
 }
 
 # Last, commit the whole bunch.
-$commit = qq(cvs -Q commit -m "$summary" .);
+$comment = $summary;
+$comment .= "\n" . $description if $description;
+$commit = qq($cvs_command commit -m '$comment' .);
 if ($exec == 1) {
     printit qq(# Execute the following to commit the changes:\n),
 	    qq(# $commit\n);
@@ -352,12 +415,13 @@ ae2cvs - convert an Aegis change set to CVS commands
 
 =head1 SYNOPSIS
 
-ae2cvs [-aedist|-aegis] [-c change] [-f file] [-l lib]
-	[-m module] [-n] [-p proj] [-q] [-u dir] [-x] [-X]
+ae2cvs [-aedist|-aegis] [-c change] [-d cvs_root] [-f file] [-l lib]
+	[-m module] [-n] [-p proj] [-q] [-u dir] [-v] [-x] [-X]
 
 	-aedist		use aedist format from input (default)
 	-aegis		query aegis repository directly
 	-c change	change number
+	-d cvs_root	CVS root directory
 	-f file		read aedist from file ('-' == stdin)
 	-l lib		Aegis library directory
 	-m module	CVS module
@@ -365,6 +429,7 @@ ae2cvs [-aedist|-aegis] [-c change] [-f file] [-l lib]
 	-p proj		project name
 	-q		quiet, don't print commands
 	-u dir		use dir for CVS checkin
+	-v		print version string and exit
 	-x		execute the commands, but don't commit;
 			two or more -x options commit changes
 	-X		execute the commands and commit changes
@@ -408,6 +473,14 @@ Specify the Aegis change number to be used.
 The value of the C<AEGIS_CHANGE> environment variable
 is used by default.
 
+=item -d cvsroot
+
+Specify the CVS root directory to be used.
+This option is passed explicitly to each executed C<cvs> command.
+The default behavior is to omit any C<-d> options
+and let the executed C<cvs> commands use the
+C<CVSROOT> environment variable as they normally would.
+
 =item -f file
 
 Reads the aedist change set from the specified C<file>,
@@ -446,6 +519,10 @@ Quiet.  Commands are not printed.
 Use the already checked-out CVS tree that exists at C<dir>
 for the checkins and commits.
 The default is to use a separately-created temporary directory.
+
+=item -v
+
+Print the version string and exit.
 
 =item -x
 
@@ -489,16 +566,13 @@ the time, though, so this needs more investigation.
 
 =head1 TODO
 
-Add support for the CVS -d option to allow use of a specified
-CVS repository.
-
 Add an explicit test for using ae2cvs in the Aegis
 integrate_pass_notify_command field to support fully keeping a
 repository in sync automatically.
 
 =head1 COPYRIGHT
 
-Copyright 2001, 2002, 2003 Steven Knight.
+Copyright 2001, 2002, 2003, 2004, 2005 Steven Knight.
 
 =head1 SEE ALSO
 
