@@ -175,6 +175,17 @@ BUILD_TARGETS           = TargetList()
 COMMAND_LINE_TARGETS    = []
 DEFAULT_TARGETS         = []
 
+# BUILD_TARGETS can be modified in the SConscript files.  If so, we
+# want to treat the modified BUILD_TARGETS list as if they specified
+# targets on the command line.  To do that, though, we need to know if
+# BUILD_TARGETS was modified through "official" APIs or by hand.  We do
+# this by updating two lists in parallel, the documented BUILD_TARGETS
+# list, above, and this internal _build_plus_default targets list which
+# should only have "official" API changes.  Then Script/Main.py can
+# compare these two afterwards to figure out if the user added their
+# own targets to BUILD_TARGETS.
+_build_plus_default = TargetList()
+
 def _Add_Arguments(alist):
     for arg in alist:
         a, b = string.split(arg, '=', 1)
@@ -187,6 +198,9 @@ def _Add_Targets(tlist):
         BUILD_TARGETS.extend(tlist)
         BUILD_TARGETS._add_Default = BUILD_TARGETS._do_nothing
         BUILD_TARGETS._clear = BUILD_TARGETS._do_nothing
+        _build_plus_default.extend(tlist)
+        _build_plus_default._add_Default = _build_plus_default._do_nothing
+        _build_plus_default._clear = _build_plus_default._do_nothing
 
 def _Set_Default_Targets_Has_Been_Called(d, fs):
     return DEFAULT_TARGETS
@@ -209,13 +223,16 @@ def _Set_Default_Targets(env, tlist):
             # variables will still point to the same object we point to.
             del DEFAULT_TARGETS[:]
             BUILD_TARGETS._clear()
+            _build_plus_default._clear()
         elif isinstance(t, SCons.Node.Node):
             DEFAULT_TARGETS.append(t)
             BUILD_TARGETS._add_Default([t])
+            _build_plus_default._add_Default([t])
         else:
             nodes = env.arg2nodes(t, env.fs.Entry)
             DEFAULT_TARGETS.extend(nodes)
             BUILD_TARGETS._add_Default(nodes)
+            _build_plus_default._add_Default(nodes)
 
 #
 help_text = None
