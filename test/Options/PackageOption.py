@@ -62,7 +62,7 @@ test.run()
 check(['1'])
 test.run(arguments='x11=no'); check(['0'])
 test.run(arguments='x11=0'); check(['0'])
-test.run(arguments='"x11=%s"' % test.workpath()); check([test.workpath()])
+test.run(arguments=['x11=%s' % test.workpath()]); check([test.workpath()])
 
 test.run(arguments='x11=/non/existing/path/',
          stderr = """

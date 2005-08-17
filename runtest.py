@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
 #
 # runtest.py - wrapper script for running SCons tests
 #
@@ -206,6 +206,31 @@ else:
 
 sp.append(cwd)
 
+#
+_ws = re.compile('\s')
+
+def escape(s):
+    if _ws.search(s):
+        s = '"' + s + '"'
+    return s
+
+# Set up lowest-common-denominator spawning of a process on both Windows
+# and non-Windows systems that works all the way back to Python 1.5.2.
+try:
+    os.spawnv
+except AttributeError:
+    def spawn_it(command_args):
+        pid = os.fork()
+        if pid == 0:
+            os.execv(command_args[0], command_args)
+        else:
+            pid, status = os.waitpid(pid, 0)
+            return status >> 8
+else:
+    def spawn_it(command_args):
+	command_args = map(escape, command_args)
+        return os.spawnv(os.P_WAIT, command_args[0], command_args)
+
 class Base:
     def __init__(self, path, spe=None):
         self.path = path
@@ -220,9 +245,7 @@ class Base:
 
 class SystemExecutor(Base):
     def execute(self):
-        s = os.system(self.command)
-        if s >= 256:
-            s = s / 256
+        s = spawn_it(self.command_args)
         self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
@@ -232,7 +255,7 @@ try:
 except AttributeError:
     class PopenExecutor(Base):
         def execute(self):
-            (tochild, fromchild, childerr) = os.popen3(self.command)
+            (tochild, fromchild, childerr) = os.popen3(self.command_str)
             tochild.close()
             self.stdout = fromchild.read()
             self.stderr = childerr.read()
@@ -243,7 +266,7 @@ except AttributeError:
 else:
     class PopenExecutor(Base):
         def execute(self):
-            p = popen2.Popen3(self.command, 1)
+            p = popen2.Popen3(self.command_str, 1)
             p.tochild.close()
             self.stdout = p.fromchild.read()
             self.stderr = p.childerr.read()
@@ -264,7 +287,7 @@ class XML(PopenExecutor):
     def write(self, f):
         f.write('    <test>\n')
         f.write('      <file_name>%s</file_name>\n' % self.path)
-        f.write('      <command_line>%s</command_line>\n' % self.command)
+        f.write('      <command_line>%s</command_line>\n' % self.command_str)
         f.write('      <exit_status>%s</exit_status>\n' % self.status)
         f.write('      <stdout>%s</stdout>\n' % self.stdout)
         f.write('      <stderr>%s</stderr>\n' % self.stderr)
@@ -468,17 +491,14 @@ class Unbuffered:
 
 sys.stdout = Unbuffered(sys.stdout)
 
-_ws = re.compile('\s')
-
-def escape(s):
-    if _ws.search(s):
-        s = '"' + s + '"'
-    return s
-
 for t in tests:
-    t.command = string.join(map(escape, [python, debug, t.abspath]), " ")
+    t.command_args = [python]
+    if debug:
+        t.command_args.append(debug)
+    t.command_args.append(t.abspath)
+    t.command_str = string.join(map(escape, t.command_args), " ")
     if printcommand:
-        sys.stdout.write(t.command + "\n")
+        sys.stdout.write(t.command_str + "\n")
     t.execute()
 
 passed = filter(lambda t: t.status == 0, tests)

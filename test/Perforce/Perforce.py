@@ -59,7 +59,8 @@ except TestSCons.TestFailed:
     pass # it's okay if this fails...it will fail if the depot is clear already.
 
 # Set up a perforce depot for testing.
-test.write("depotspec","""# A Perforce Depot Specification.
+depotspec = """\
+# A Perforce Depot Specification.
 Depot:	testme
 
 Owner:	%s
@@ -74,13 +75,14 @@ Type:	local
 Address:	subdir
 
 Map:	testme/...
-""" % user)
+""" % user
 
-test.run(program=p4, arguments='-p 1666 depot -i < depotspec')
+test.run(program=p4, arguments='-p 1666 depot -i', stdin = depotspec)
 
 # Now set up 2 clients, one to check in some files, and one to
 # do the building.
-clientspec = """# A Perforce Client Specification.
+clientspec = """\
+# A Perforce Client Specification.
 Client:	%s
 
 Owner:	%s
@@ -104,13 +106,11 @@ clientspec1 = clientspec % ("testclient1", user, host, test.workpath('import'),
                             "//testme/foo/...", "testclient1")
 clientspec2 = clientspec % ("testclient2", user, host, test.workpath('work'),
                             "//testme/...", "testclient2")
-test.write("testclient1", clientspec1)
-test.write("testclient2", clientspec2)
 
 test.subdir('import', ['import', 'sub'], 'work')
 
-test.run(program=p4, arguments = '-p 1666 client -i < testclient1')
-test.run(program=p4, arguments = '-p 1666 client -i < testclient2')
+test.run(program=p4, arguments = '-p 1666 client -i', stdin=clientspec1)
+test.run(program=p4, arguments = '-p 1666 client -i', stdin=clientspec2)
 
 test.write(['import', 'aaa.in'], "import/aaa.in\n")
 test.write(['import', 'bbb.in'], "import/bbb.in\n")
@@ -130,11 +130,13 @@ test.write(['import', 'sub', 'fff.in'], "import/sub/fff.in\n")
 
 # Perforce uses the PWD environment variable in preference to the actual cwd
 os.environ["PWD"] = test.workpath('import')
-paths = map(os.path.normpath, [ 'sub/ddd.in', 'sub/eee.in', 'sub/fff.in', 'sub/SConscript' ])
-args = '-p 1666 -c testclient1 add -t binary *.in %s' % string.join(paths)
+paths = [ 'aaa.in', 'bbb.in', 'ccc.in',
+          'sub/ddd.in', 'sub/eee.in', 'sub/fff.in', 'sub/SConscript' ]
+paths = map(os.path.normpath, paths)
+args = '-p 1666 -c testclient1 add -t binary %s' % string.join(paths)
 test.run(program=p4, chdir='import', arguments=args)
 
-test.write('changespec', """
+changespec = """
 Change:	new
 
 Client:	testclient1
@@ -154,9 +156,11 @@ Files:
 	//testme/foo/sub/ddd.in	# add
 	//testme/foo/sub/eee.in	# add
 	//testme/foo/sub/fff.in	# add
-""" % user)
+""" % user
 
-test.run(program=p4, arguments='-p 1666 -c testclient1 submit -i < changespec')
+test.run(program=p4,
+         arguments='-p 1666 -c testclient1 submit -i',
+         stdin=changespec)
 
 test.write(['work', 'SConstruct'], """
 def cat(env, source, target):

@@ -74,27 +74,27 @@ check([qtpath, os.path.join('$qtdir', 'lib'), libpath])
 
 qtpath = os.path.join(workpath, 'qt')
 libpath = os.path.join(qtpath, 'lib')
-test.run(arguments='"qtdir=%s"' % qtpath)
+test.run(arguments=['qtdir=%s' % qtpath])
 check([qtpath, os.path.join('$qtdir', 'lib'), libpath])
 
 qtpath = workpath
 libpath = os.path.join(qtpath, 'nolib')
-test.run(arguments='"qt_libraries=%s"' % libpath)
+test.run(arguments=['qt_libraries=%s' % libpath])
 check([qtpath, libpath, libpath])
 
 qtpath = os.path.join(workpath, 'qt')
 libpath = os.path.join(workpath, 'nolib')
-test.run(arguments='"qtdir=%s" "qt_libraries=%s"' % (qtpath, libpath))
+test.run(arguments=['qtdir=%s' % qtpath, 'qt_libraries=%s' % libpath])
 check([qtpath, libpath, libpath])
 
 qtpath = os.path.join(workpath, 'non', 'existing', 'path')
-test.run(arguments='"qtdir=%s"' % qtpath,
+test.run(arguments=['qtdir=%s' % qtpath],
          stderr = """
 scons: *** Path for option qtdir does not exist: %s
 File "SConstruct", line 12, in ?
 """ % qtpath, status=2)
 
-test.run(arguments='"qt_libraries=%s"' % qtpath,
+test.run(arguments=['qt_libraries=%s' % qtpath],
          stderr = """
 scons: *** Path for option qt_libraries does not exist: %s
 File "SConstruct", line 12, in ?
@@ -132,16 +132,16 @@ Default(env.Alias('dummy', None))
 test.run()
 check([default_subdir])
 
-test.run(arguments='"X=%s"' % existing_file)
+test.run(arguments=['X=%s' % existing_file])
 check([existing_file])
 
-test.run(arguments='"X=%s"' % non_existing_file)
+test.run(arguments=['X=%s' % non_existing_file])
 check([non_existing_file])
 
-test.run(arguments='"X=%s"' % existing_subdir)
+test.run(arguments=['X=%s' % existing_subdir])
 check([existing_subdir])
 
-test.run(arguments='"X=%s"' % non_existing_subdir)
+test.run(arguments=['X=%s' % non_existing_subdir])
 check([non_existing_subdir])
 
 test.must_not_exist(non_existing_file)
@@ -173,17 +173,17 @@ test.write(default_file, "default_file\n")
 test.run()
 check([default_file])
 
-test.run(arguments='"X=%s"' % existing_subdir,
+test.run(arguments=['X=%s' % existing_subdir],
          status=2,
          stderr="""
 scons: *** File path for option X is a directory: %s
 File "SConstruct", line 6, in ?
 """ % existing_subdir)
 
-test.run(arguments='"X=%s"' % existing_file)
+test.run(arguments=['X=%s' % existing_file])
 check([existing_file])
 
-test.run(arguments='"X=%s"' % non_existing_file,
+test.run(arguments=['X=%s' % non_existing_file],
          status=2,
          stderr="""
 scons: *** File path for option X does not exist: %s
@@ -216,17 +216,17 @@ test.subdir(default_subdir)
 test.run()
 check([default_subdir])
 
-test.run(arguments='"X=%s"' % existing_file,
+test.run(arguments=['X=%s' % existing_file],
          status=2,
          stderr="""
 scons: *** Directory path for option X is a file: %s
 File "SConstruct", line 6, in ?
 """ % existing_file)
 
-test.run(arguments='"X=%s"' % existing_subdir)
+test.run(arguments=['X=%s' % existing_subdir])
 check([existing_subdir])
 
-test.run(arguments='"X=%s"' % non_existing_subdir,
+test.run(arguments=['X=%s' % non_existing_subdir],
          status=2,
          stderr="""
 scons: *** Directory path for option X does not exist: %s
@@ -251,17 +251,17 @@ Default(env.Alias('dummy', None))
 test.run()
 check([default_subdir])
 
-test.run(arguments='"X=%s"' % existing_file,
+test.run(arguments=['X=%s' % existing_file],
          status=2,
          stderr="""
 scons: *** Path for option X is a file, not a directory: %s
 File "SConstruct", line 6, in ?
 """ % existing_file)
 
-test.run(arguments='"X=%s"' % existing_subdir)
+test.run(arguments=['X=%s' % existing_subdir])
 check([existing_subdir])
 
-test.run(arguments='"X=%s"' % non_existing_subdir)
+test.run(arguments=['X=%s' % non_existing_subdir])
 check([non_existing_subdir])
 
 test.must_exist(non_existing_subdir)
