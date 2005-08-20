@@ -39,7 +39,8 @@ import os.path
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
 if sys.platform != 'win32':
-    test.pass_test()
+    msg = "Skipping Windows path tests on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 test.subdir('src', 'build', 'include', 'src2')
 
@@ -86,16 +87,30 @@ int blat(void);
 int bar(void);
 """)
 
-drive,rest = os.path.splitdrive(test.workpath('src'))
-upper = os.path.join(string.upper(drive),rest)
-lower = os.path.join(string.lower(drive),rest)
+drive, rest = os.path.splitdrive(test.workpath('src'))
 
-test.run(chdir=upper)
-test.run(chdir=lower, stdout=test.wrap_stdout("""\
+drive_upper = string.upper(drive)
+drive_lower = string.lower(drive)
+rest_upper = rest[0] + string.upper(rest[1]) + rest[2:]
+rest_lower = rest[0] + string.lower(rest[1]) + rest[2:]
+
+combinations = [
+    os.path.join(drive_upper, rest_upper),
+    os.path.join(drive_upper, rest_lower),
+    os.path.join(drive_lower, rest_upper),
+    os.path.join(drive_lower, rest_lower),
+]
+
+test.run(chdir=combinations[0])
+
+for dir in combinations[1:]:
+    test.run(chdir=dir, stdout=test.wrap_stdout("""\
 scons: .* is up to date.
 scons: .* is up to date.
 scons: .* is up to date.
 """))
+
+
 
 test.write('SConstruct', """
 env=Environment()

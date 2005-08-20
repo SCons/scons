@@ -38,9 +38,9 @@ except ImportError:
     pass
 else:
     if desc[2] == imp.C_BUILTIN:
-	print "The 'md5' module is built in to this version of Python."
-	print "Cannot test falling back to timestamps."
-        test.pass_test(1);
+        msg = "The 'md5' module is built in to this version of Python.\n" + \
+              "Cannot test falling back to timestamps.\n"
+        test.skip_test(msg)
 
 test.write('md5.py', r"""
 raise ImportError

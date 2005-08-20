@@ -256,9 +256,8 @@ class _GenerateV6DSP(_DSPGenerator):
                 self.file.write('# PROP %sOutput_Dir "%s"\n'
                                 '# PROP %sIntermediate_Dir "%s"\n' % (base,outdir,base,outdir))
                 (d,c) = os.path.split(str(self.conspath))
-                cmd = '"%s" -c "%s" -C %s -f %s %s' % (python_executable,
-                                                       exec_script_main,
-                                                       d, c, buildtarget)
+                cmd = 'echo Starting SCons && "%s" -c "%s" -C %s -f %s %s'
+                cmd = cmd % (python_executable, exec_script_main, d, c, buildtarget)
                 self.file.write('# PROP %sCmd_Line "%s"\n' 
                                 '# PROP %sRebuild_Opt "-c && %s"\n'
                                 '# PROP %sTarget_File "%s"\n'
@@ -414,11 +413,11 @@ class _GenerateV7DSP(_DSPGenerator):
             buildtarget = self.configs[kind].buildtarget
 
             (d,c) = os.path.split(str(self.conspath))
-            cmd = '&quot;%s&quot; -c &quot;%s&quot; -C %s -f %s %s' % (python_executable,
+            cmd = 'echo Starting SCons &amp;&amp; &quot;%s&quot; -c &quot;%s&quot; -C %s -f %s %s' % (python_executable,
                                                    exec_script_main_xml,
                                                    d, c, buildtarget)
 
-            cleancmd = '&quot;%s&quot; -c &quot;%s&quot; -C %s -f %s -c %s' % (python_executable,
+            cleancmd = 'echo Starting SCons &amp;&amp; &quot;%s&quot; -c &quot;%s&quot; -C %s -f %s -c %s' % (python_executable,
                                                          exec_script_main_xml,
                                                          d, c, buildtarget)
 

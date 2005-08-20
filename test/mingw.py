@@ -40,7 +40,8 @@ test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
 # MinGW is win32 only:
 if sys.platform != 'win32':
-    test.pass_test()
+    msg = "Skipping mingw test on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 # This test requires MingW to be installed:
 test.write('SConstruct',"""

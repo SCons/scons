@@ -902,13 +902,14 @@ class FS(LocalFS):
             path_orig = [ path_first, ] + path_orig
             path_norm = [ _my_normcase(path_first), ] + path_norm
         else:
+            drive = _my_normcase(drive)
             # Absolute path
             try:
                 directory = self.Root[drive]
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
-                directory = RootDir(_my_normcase(drive), self)
+                directory = RootDir(drive, self)
                 self.Root[drive] = directory
 
         if not path_orig:

@@ -916,9 +916,6 @@ scons: Configure: creating config.h
         print test.stdout()
         print "---------------------------------------------------------"
         test.fail_test()
-    
-
-    test.pass_test()
 
 finally:
     pass
@@ -927,3 +924,6 @@ finally:
     #print test.read( test.workpath(work_dir, 'config.log'))
     #print "-------------build/config.log------------"
     #print test.read( test.workpath('build/config.log' ))
+
+
+test.pass_test()
