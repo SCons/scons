@@ -325,6 +325,9 @@ class UtilTestCase(unittest.TestCase):
 
             # Tests callables that don't match our calling arguments.
             '$CALLABLE',            'callable-1',
+
+            # Test handling of quotes.
+            'aaa "bbb ccc" ddd',    'aaa "bbb ccc" ddd',
         ]
 
         kwargs = {'target' : target, 'source' : source,
@@ -717,6 +720,9 @@ class UtilTestCase(unittest.TestCase):
 
             # Test callables that don't match our calling arguments.
             '$CALLABLE',            [['callable-2']],
+
+            # Test handling of quotes.
+            'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
         ]
 
         gvars = env.Dictionary()
