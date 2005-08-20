@@ -12,7 +12,7 @@ from those classes, as well as any overridden or additional methods or
 attributes defined in this subclass.
 """
 
-# Copyright 2001, 2002, 2003 Steven Knight
+# __COPYRIGHT__
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -423,6 +423,57 @@ else:
 Export("env dup")
 SConscript( sconscript )
 """ % (self.QT, self.QT_LIB, self.QT_MOC, self.QT_UIC))
+
+    def msvs_versions(self):
+        if not hasattr(self, '_msvs_versions'):
+
+            # Determine the SCons version and the versions of the MSVS
+            # environments installed on the test machine.
+            #
+            # We do this by executing SCons with an SConstruct file
+            # (piped on stdin) that spits out Python assignments that
+            # we can just exec().  We construct the SCons.__"version"__
+            # string in the input here so that the SCons build itself
+            # doesn't fill it in when packaging SCons.
+            input = """\
+import SCons
+print "self._scons_version =", repr(SCons.__%s__)
+env = Environment();
+print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
+""" % 'version'
+        
+            self.run(arguments = '-n -q -Q -f -', stdin = input)
+            exec(self.stdout())
+
+        return self._msvs_versions
+
+    def vcproj_sys_path(self, fname):
+        """
+        """
+        orig = 'sys.path = [ join(sys'
+
+        enginepath = repr(os.path.join(self._cwd, '..', 'engine'))
+        replace = 'sys.path = [ %s, join(sys' % enginepath
+
+        contents = self.read(fname)
+        contents = string.replace(contents, orig, replace)
+        self.write(fname, contents)
+
+    def msvs_substitute(self, input, msvs_ver, python=sys.executable):
+        if not hasattr(self, '_msvs_versions'):
+            self.msvs_versions()
+
+        if msvs_ver in ['7.1']:
+            python = '&quot;' + python + '&quot;'
+
+        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
+        exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
+
+        result = string.replace(input, r'<WORKPATH>', self.workpath())
+        result = string.replace(result, r'<PYTHON>', python)
+        result = string.replace(result, r'<SCONS_SCRIPT_MAIN>', exec_script_main)
+        result = string.replace(result, r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
+        return result
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One

@@ -95,11 +95,7 @@ def Reset():
     sig_files = []
     DB_sync_list = []
 
-if os.sep == '/':
-    norm_entry = lambda s: s
-else:
-    def norm_entry(str):
-        return string.replace(str, os.sep, '/')
+normcase = os.path.normcase
 
 def write():
     global sig_files
@@ -163,7 +159,7 @@ class DB(Base):
         # Read using the path relative to the top of the Repository
         # (self.dir.tpath) from which we're fetching the signature
         # information.
-        path = norm_entry(dir.tpath)
+        path = normcase(dir.tpath)
         try:
             rawentries = db[path]
         except KeyError:
@@ -202,7 +198,7 @@ class DB(Base):
         # directory (self.dir.path), not relative to the top of
         # the Repository; we only write to our own .sconsign file,
         # not to .sconsign files in Repositories.
-        path = norm_entry(self.dir.path)
+        path = normcase(self.dir.path)
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
         db[path] = cPickle.dumps(self.entries, 1)

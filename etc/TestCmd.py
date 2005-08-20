@@ -175,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.15.D001 2005/08/16 17:14:33 knight"
-__version__ = "0.15"
+__revision__ = "TestCmd.py 0.16.D002 2005/08/19 16:58:31 knight"
+__version__ = "0.16"
 
 import os
 import os.path
@@ -217,9 +217,11 @@ else:
 
 tempfile.template = 'testcmd.'
 
+re_space = re.compile('\s')
+
 if os.name == 'posix':
 
-    def escape_cmd(arg):
+    def escape(arg):
         "escape shell special characters"
         slash = '\\'
         special = '"$'
@@ -228,14 +230,19 @@ if os.name == 'posix':
         for c in special:
             arg = string.replace(arg, c, slash+c)
 
-        return '"' + arg + '"'
+        if re_space.search(arg):
+            arg = '"' + arg + '"'
+        return arg
 
 else:
 
     # Windows does not allow special characters in file names
     # anyway, so no need for an escape function, we will just quote
     # the arg.
-    escape_cmd = lambda x: '"' + x + '"'
+    def escape(arg):
+        if re_space.search(arg):
+            arg = '"' + arg + '"'
+        return arg
 
 _Cleanup = []
 
@@ -633,6 +640,9 @@ class TestCmd:
         """Runs a test of the program or script for the test
         environment.  Standard output and error output are saved for
         future retrieval via the stdout() and stderr() methods.
+
+        The specified program will have the original directory
+        prepending unless it is enclosed in a [list].
         """
         if chdir:
             oldcwd = os.getcwd()
@@ -642,26 +652,28 @@ class TestCmd:
                 sys.stderr.write("chdir(" + chdir + ")\n")
             os.chdir(chdir)
         if program:
-            if not os.path.isabs(program):
+            if type(program) == type('') and not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
         else:
             program = self.program
             if not interpreter:
                 interpreter = self.interpreter
-        cmd = [program]
+        if type(program) != type([]):
+            program = [program]
+        cmd = program
         if interpreter:
             cmd = [interpreter] + cmd
         if arguments:
             if type(arguments) == type(''):
                 arguments = string.split(arguments)
             cmd.extend(arguments)
-        cmd_string = string.join(cmd, ' ')
+        cmd_string = string.join(map(escape, cmd), ' ')
         if self.verbose:
             sys.stderr.write(cmd_string + "\n")
         try:
             p = popen2.Popen3(cmd, 1)
         except AttributeError:
-            (tochild, fromchild, childerr) = os.popen3(cmd_string)
+            (tochild, fromchild, childerr) = os.popen3(' ' + cmd_string)
             if stdin:
                 if is_List(stdin):
                     for line in stdin:

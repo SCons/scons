@@ -334,6 +334,12 @@ RELEASE 0.97 - XXX
   - Fix a bad use of Copy() in an example in the man page, and a
     bad regular expression example in the man page and User's Guide.
 
+  From Shannon Mann:
+
+  - Have the Visual Studio project file(s) echo "Starting SCons" before
+    executing SCons, mainly to work around a quote-stripping bug in
+    (some versions of?) the Windows cmd command executor.
+
   From Michael McCracken:
 
   - Add a new "applelink" tool to handle the things like Frameworks and

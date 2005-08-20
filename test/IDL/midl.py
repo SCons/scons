@@ -34,7 +34,8 @@ import time
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 if sys.platform != 'win32':
-    test.pass_test()
+    msg = "Skipping test on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 #####
 # Test the basics

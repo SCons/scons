@@ -64,18 +64,18 @@ void bar() {
 """)
 
 if sys.platform in ['cygwin', 'win32']:
-    print "Using case-insensitive filesystem, testing for failure"
+    sys.stdout.write("Using case-insensitive filesystem, testing for failure\n")
+    sys.stdout.flush()
 
     test.run(stderr = None, status = None)
     test.fail_test(string.split(test.stderr(), '\n')[0] ==
                    "scons: *** Multiple ways to build the same target were specified for: foo.o")
 
-    test.pass_test()
-    
 else:
-    print "Not using case-insensitive filesystem, testing for success"
+    sys.stdout.write("Not using case-insensitive filesystem, testing for success\n")
+    sys.stdout.flush()
 
     test.run()
     test.run(program = test.workpath('main' + _exe), stdout = "foo\nbar\n")
 
-    test.pass_test()
+test.pass_test()

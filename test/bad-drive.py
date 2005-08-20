@@ -40,7 +40,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 if sys.platform != 'win32':
-    test.pass_test()
+    msg = "Skipping drive-letter test on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 bad_drive = None
 for i in range(len(string.uppercase)-1, -1, -1):
