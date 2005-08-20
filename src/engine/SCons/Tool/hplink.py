@@ -45,7 +45,9 @@ ccLinker = None
 
 try:
     dirs = os.listdir('/opt')
-except OSError:
+except (IOError, OSError):
+    # Not being able to read the directory because it doesn't exist
+    # (IOError) or isn't readable (OSError) is okay.
     dirs = []
 
 for dir in dirs:

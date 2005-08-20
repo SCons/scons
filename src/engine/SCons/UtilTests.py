@@ -1388,39 +1388,6 @@ class UtilTestCase(unittest.TestCase):
         assert sys.stdout.buffer == "line1\nline3\nline4\n"
         sys.stdout = old_stdout
 
-    def test_fs_delete(self):
-        test = TestCmd.TestCmd(workdir = '')
-        base = test.workpath('')
-        xxx = test.workpath('xxx.xxx')
-        ZZZ = test.workpath('ZZZ.ZZZ')
-        sub1_yyy = test.workpath('sub1', 'yyy.yyy')
-
-        test.subdir('sub1')
-        test.write(xxx, "\n")
-        test.write(ZZZ, "\n")
-        test.write(sub1_yyy, "\n")
-
-        old_stdout = sys.stdout
-        sys.stdout = OutBuffer()
-
-        exp = "Removed " + os.path.join(base, ZZZ) + "\n" + \
-              "Removed " + os.path.join(base, sub1_yyy) + '\n' + \
-              "Removed directory " + os.path.join(base, 'sub1') + '\n' + \
-              "Removed " + os.path.join(base, xxx) + '\n' + \
-              "Removed directory " + base + '\n'
-
-        fs_delete(base, remove=0)
-        assert sys.stdout.buffer == exp, sys.stdout.buffer
-        assert os.path.exists(sub1_yyy)
-
-        sys.stdout.buffer = ""
-        fs_delete(base, remove=1)
-        assert sys.stdout.buffer == exp
-        assert not os.path.exists(base)
-
-        test._dirlist = None
-        sys.stdout = old_stdout
-
     def test_get_native_path(self):
         """Test the get_native_path() function."""
         import tempfile
