@@ -297,16 +297,27 @@ class DirFile(Dir):
                     mode = os.stat(self.sconsign)[0]
                     os.chmod(self.sconsign, 0666)
                     os.unlink(self.sconsign)
-                except OSError:
+                except (IOError, OSError):
+                    # Try to carry on in the face of either OSError
+                    # (things like permission issues) or IOError (disk
+                    # or network issues).  If there's a really dangerous
+                    # issue, it should get re-raised by the calls below.
                     pass
                 try:
                     os.rename(fname, self.sconsign)
                 except OSError:
+                    # An OSError failure to rename may indicate something
+                    # like the directory has no write permission, but
+                    # the .sconsign file itself might still be writable,
+                    # so try writing on top of it directly.  An IOError
+                    # here, or in any of the following calls, would get
+                    # raised, indicating something like a potentially
+                    # serious disk or network issue.
                     open(self.sconsign, 'wb').write(open(fname, 'rb').read())
                     os.chmod(self.sconsign, mode)
             try:
                 os.unlink(temp)
-            except OSError:
+            except (IOError, OSError):
                 pass
 
 ForDirectory = DB

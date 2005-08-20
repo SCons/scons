@@ -156,7 +156,13 @@ def LinkFunc(target, source, env):
         try:
             func(src,dest)
             break
-        except OSError:
+        except (IOError, OSError):
+            # An OSError indicates something happened like a permissions
+            # problem or an attempt to symlink across file-system
+            # boundaries.  An IOError indicates something like the file
+            # not existing.  In either case, keeping trying additional
+            # functions in the list and only raise an error if the last
+            # one failed.
             if func == Link_Funcs[-1]:
                 # exception of the last link method (copy) are fatal
                 raise
@@ -240,10 +246,12 @@ def CachePushFunc(target, source, env):
         fs.rename(tempfile, cachefile)
         st = fs.stat(t.path)
         fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
-    except OSError:
-        # It's possible someone else tried writing the file at the same
-        # time we did.  Print a warning but don't stop the build, since
-        # it doesn't affect the correctness of the build.
+    except (IOError, OSError):
+        # It's possible someone else tried writing the file at the
+        # same time we did, or else that there was some problem like
+        # the CacheDir being on a separate file system that's full.
+        # In any case, inability to push a file to cache doesn't affect
+        # the correctness of the build, so just print a warning.
         SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning,
                             "Unable to copy %s to cache. Cache file is %s"
                                 % (str(target), cachefile))

@@ -190,6 +190,35 @@ class BuildTask(SCons.Taskmaster.Task):
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
+    def dir_index(self, directory):
+        dirname = lambda f, d=directory: os.path.join(d, f)
+        files = map(dirname, os.listdir(directory))
+
+        # os.listdir() isn't guaranteed to return files in any specific order,
+        # but some of the test code expects sorted output.
+        files.sort()
+        return files
+
+    def fs_delete(self, path, remove=1):
+        try:
+            if os.path.exists(path):
+                if os.path.isfile(path):
+                    if remove: os.unlink(path)
+                    display("Removed " + path)
+                elif os.path.isdir(path) and not os.path.islink(path):
+                    # delete everything in the dir
+                    for p in self.dir_index(path):
+                        if os.path.isfile(p):
+                            if remove: os.unlink(p)
+                            display("Removed " + p)
+                        else:
+                            self.fs_delete(p, remove)
+                    # then delete dir itself
+                    if remove: os.rmdir(path)
+                    display("Removed directory " + path)
+        except (IOError, OSError), e:
+            print "scons: Could not remove '%s':" % str(path), e.strerror
+
     def show(self):
         target = self.targets[0]
         if (target.has_builder() or target.side_effect) and not target.isdir():
@@ -197,7 +226,7 @@ class CleanTask(SCons.Taskmaster.Task):
         if SCons.Environment.CleanTargets.has_key(target):
             files = SCons.Environment.CleanTargets[target]
             for f in files:
-                SCons.Util.fs_delete(str(f), 0)
+                self.fs_delete(str(f), 0)
 
     def remove(self):
         target = self.targets[0]
@@ -206,6 +235,11 @@ class CleanTask(SCons.Taskmaster.Task):
                 try:
                     removed = t.remove()
                 except OSError, e:
+                    # An OSError may indicate something like a permissions
+                    # issue, an IOError would indicate something like
+                    # the file not existing.  In either case, print a
+                    # message and keep going to try to remove as many
+                    # targets aa possible.
                     print "scons: Could not remove '%s':" % str(t), e.strerror
                 else:
                     if removed:
@@ -213,7 +247,7 @@ class CleanTask(SCons.Taskmaster.Task):
         if SCons.Environment.CleanTargets.has_key(target):
             files = SCons.Environment.CleanTargets[target]
             for f in files:
-                SCons.Util.fs_delete(str(f))
+                self.fs_delete(str(f))
 
     execute = remove
 

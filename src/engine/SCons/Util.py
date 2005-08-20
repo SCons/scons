@@ -1380,6 +1380,10 @@ else:
                 try:
                     st = os.stat(f)
                 except OSError:
+                    # os.stat() raises OSError, not IOError if the file
+                    # doesn't exist, so in this case we let IOError get
+                    # raised so as to not mask possibly serious disk or
+                    # network issues.
                     continue
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                     try:
@@ -1477,38 +1481,6 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
         return paths
     else:
         return string.join(paths, sep)
-
-
-def dir_index(directory):
-    files = []
-    for f in os.listdir(directory):
-        fullname = os.path.join(directory, f)
-        files.append(fullname)
-
-    # os.listdir() isn't guaranteed to return files in any specific order,
-    # but some of the test code expects sorted output.
-    files.sort()
-    return files
-
-def fs_delete(path, remove=1):
-    try:
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                if remove: os.unlink(path)
-                display("Removed " + path)
-            elif os.path.isdir(path) and not os.path.islink(path):
-                # delete everything in the dir
-                for p in dir_index(path):
-                    if os.path.isfile(p):
-                        if remove: os.unlink(p)
-                        display("Removed " + p)
-                    else:
-                        fs_delete(p, remove)
-                # then delete dir itself
-                if remove: os.rmdir(path)
-                display("Removed directory " + path)
-    except OSError, e:
-        print "scons: Could not remove '%s':" % str(path), e.strerror
 
 if sys.platform == 'cygwin':
     def get_native_path(path):

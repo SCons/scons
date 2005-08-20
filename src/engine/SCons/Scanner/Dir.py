@@ -53,7 +53,7 @@ def scan(node, env, path=()):
     """
     try:
         flist = node.fs.listdir(node.abspath)
-    except OSError:
+    except (IOError, OSError):
         return []
     dont_scan = lambda k: not skip_entry.has_key(k)
     flist = filter(dont_scan, flist)
