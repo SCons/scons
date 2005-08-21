@@ -592,6 +592,9 @@ RELEASE 0.97 - XXX
     file when they're one of the many synonyms for a default True or
     False value.
 
+  - Fix the Fortran Scanner's ability to handle a module being used
+    in the same file in which it is defined.
+
   From Jeff Squyres:
 
   - Documentation changes:  Use $CPPDEFINES instead of $CCFLAGS in man
