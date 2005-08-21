@@ -54,11 +54,12 @@ class F90Scanner(SCons.Scanner.Classic):
     smart thing to do.
     """
 
-    def __init__(self, name, suffixes, path_variable, use_regex,
-                 incl_regex, *args, **kw):
+    def __init__(self, name, suffixes, path_variable,
+                 use_regex, incl_regex, def_regex, *args, **kw):
 
         self.cre_use = re.compile(use_regex, re.M)
         self.cre_incl = re.compile(incl_regex, re.M)
+        self.cre_def = re.compile(def_regex, re.M)
 
         def _scan(node, env, path, self=self):
             node = node.rfile()
@@ -78,7 +79,7 @@ class F90Scanner(SCons.Scanner.Classic):
 
     def scan(self, node, env, path=()):
         "__cacheable__"
-        
+
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
             mods_and_includes = node.includes
@@ -87,6 +88,15 @@ class F90Scanner(SCons.Scanner.Classic):
             includes = self.cre_incl.findall(node.get_contents())
             # retrieve all USE'd module names
             modules = self.cre_use.findall(node.get_contents())
+            # retrieve all defined module names
+            defmodules = self.cre_def.findall(node.get_contents())
+
+            # Remove all USE'd module names that are defined in the same file
+            d = {}
+            for m in defmodules:
+                d[m] = 1
+            modules = filter(lambda m, d=d: not d.has_key(m), modules)
+            #modules = self.undefinedModules(modules, defmodules)
 
             # Convert module name to a .mod filename
             suffix = env.subst('$FORTRANMODSUFFIX')
@@ -270,9 +280,34 @@ def FortranScan(path_variable="FORTRANPATH"):
 
     include_regex = """(?i)(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
 
+#   The MODULE statement regex finds module definitions by matching
+#   the following:
+#
+#   MODULE module_name
+#
+#   but *not* the following:
+#
+#   MODULE PROCEDURE procedure_name
+#
+#   Here is a breakdown of the regex:
+#
+#   (?i)               : regex is case insensitive
+#   ^\s*               : any amount of white space
+#   MODULE             : match the string MODULE, case insensitive
+#   \s+                : match one or more white space characters
+#   (?!PROCEDURE)      : but *don't* match if the next word matches
+#                        PROCEDURE (negative lookahead assertion),
+#                        case insensitive
+#   (\w+)              : match one or more alphanumeric characters
+#                        that make up the defined module name and
+#                        save it in a group
+
+    def_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
+
     scanner = F90Scanner("FortranScan",
                          "$FORTRANSUFFIXES",
                          path_variable,
                          use_regex,
-                         include_regex)
+                         include_regex,
+                         def_regex)
     return scanner
