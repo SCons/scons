@@ -315,6 +315,9 @@ RELEASE 0.97 - XXX
   - Add a --raw argument to the sconsign script, so it can print a
     raw representation of each entry's NodeInfo dictionary.
 
+  - Add the 'f90' and 'f95' tools to the list of Fortran compilers
+    searched for by default.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
