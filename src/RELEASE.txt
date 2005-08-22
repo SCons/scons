@@ -144,6 +144,19 @@ RELEASE 0.97 - XXX
               the link command itself.  This will cause recompilation
               of target files created by these changed lines.
 
+    --  F95 AND F90 COMPILERS ARE NOW PREFERRED OVER F77
+
+        SCons now searches for Fortran 95 and Fortran 90 compilers first
+        in preference to Fortran 77.  This may result in a different
+        Fortran compiler being used by default, although as Fortran 95 and
+        Fortran 90 are backwards compatible with Fortran 77, this should
+        not cause problems for standards-compliant Fortran programs.
+        On systems that have multiple versions of Fortran installed,
+        the Fortran 77 compiler may be explicitly selected by specifying
+        it when creating the construction environment:
+
+            env = Environment(tools = ['default', 'f77'])
+
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
         The Configure() subsystem now stores its cached results in a
