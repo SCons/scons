@@ -32,6 +32,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 import cc
 
 def generate(env):
@@ -39,6 +41,7 @@ def generate(env):
     cc.generate(env)
 
     env['CXX']        = 'aCC'
+    env['SHCCFLAGS']  = SCons.Util.CLVar('$CCFLAGS +Z')
 
 def exists(env):
     return env.Detect('aCC')

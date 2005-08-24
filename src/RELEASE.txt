@@ -157,6 +157,13 @@ RELEASE 0.97 - XXX
 
             env = Environment(tools = ['default', 'f77'])
 
+    --  SOLARIS DEFAULT SHARED OBJECT PREFIXES AND SUFFIXES HAVE CHANGED
+
+        On Solaris, SCons now builds shared objects from C and C++ source
+        files with a default prefix of "so_" and a default suffix of ".o".
+        The previous default suffix of ".os" caused problems when trying
+        to use SCons with Sun WorkShop.
+
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
         The Configure() subsystem now stores its cached results in a
