@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 import os.path
 
 cplusplus = __import__('c++', globals(), locals(), [])
@@ -66,7 +68,9 @@ def generate(env):
     env['CXX'] = cxx
     env['SHCXX'] = shcxx
     env['CXXVERSION'] = version
-    env['SHOBJSUFFIX'] = '.os'
+    env['SHCXXFLAGS']   = SCons.Util.CLVar('$CXXFLAGS -KPIC')
+    env['SHOBJPREFIX']  = 'so_'
+    env['SHOBJSUFFIX']  = '.o'
     
 def exists(env):
     path, cxx, shcxx, version = get_cppc(env)
