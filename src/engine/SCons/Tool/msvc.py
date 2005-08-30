@@ -80,10 +80,9 @@ def _parse_msvc7_overrides(version):
             try:
                 f = codecs.open(comps, 'r', 'utf16')
                 encoder = codecs.getencoder('ascii')
-            except LookupError:
-                lines = codecs.open(comps, 'r', 'utf8').readlines()
-            else:
                 lines = map(lambda l, e=encoder: e(l)[0], f.readlines())
+            except (LookupError, UnicodeError):
+                lines = codecs.open(comps, 'r', 'utf8').readlines()
         if lines is None:
             lines = open(comps, 'r').readlines()
             
