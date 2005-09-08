@@ -546,12 +546,11 @@ _regex_remove = [ _rm, None, _remove ]
 #
 #       "   "                   [white space]
 #       "non-white-space"       [without any dollar signs]
-#       '"with-space-or-not"'   [without any dollar signs]
 #       "$"                     [single dollar sign]
 #
 _dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
 _dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
-_separate_args = re.compile(r'(%s|\s+|[^"\s\$]+|"[^"\$]+"|\$)' % _dollar_exps_str)
+_separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
 
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.
@@ -891,8 +890,6 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         else:
                             self.next_word()
                     else:
-                        if a[0] == '"' and a[-1] == '"':
-                            a = a[1:-1]
                         self.expand(a, lvars, within_list)
             else:
                 self.expand(args, lvars, within_list)
