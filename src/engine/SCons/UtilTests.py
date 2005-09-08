@@ -535,6 +535,15 @@ class UtilTestCase(unittest.TestCase):
                    MyNode("/bar/ack.cpp"),
                    MyNode("../foo/ack.c") ]
 
+        def _defines(defs):
+            l = []
+            for d in defs:
+                if SCons.Util.is_List(d) or type(d) is types.TupleType:
+                    l.append(str(d[0]) + '=' + str(d[1]))
+                else:
+                    l.append(str(d))
+            return l
+
         loc = {
             'xxx'       : None,
             'NEWLINE'   : 'before\nafter',
@@ -586,6 +595,9 @@ class UtilTestCase(unittest.TestCase):
 
             # Test callable objects that don't match our calling arguments.
             'CALLABLE'  : TestCallable('callable-2'),
+
+            '_defines'  : _defines,
+            'DEFS'      : [ ('Q1', '"q1"'), ('Q2', '"$AAA"') ],
         }
 
         env = DummyEnv(loc)
@@ -721,8 +733,13 @@ class UtilTestCase(unittest.TestCase):
             # Test callables that don't match our calling arguments.
             '$CALLABLE',            [['callable-2']],
 
+            # Test
+
             # Test handling of quotes.
-            'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
+            # XXX Find a way to handle this in the future.
+            #'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
+
+            '${_defines(DEFS)}',     [['Q1="q1"', 'Q2="a"']],
         ]
 
         gvars = env.Dictionary()
