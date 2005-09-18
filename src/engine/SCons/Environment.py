@@ -147,6 +147,23 @@ def copy_non_reserved_keywords(dict):
             del result[k]
     return result
 
+def _set_reserved(env, key, value):
+    msg = "Ignoring attempt to set reserved variable `%s'" % key
+    SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg)
+
+def _set_BUILDERS(env, key, value):
+    try:
+        bd = env._dict[key]
+        for k in bd.keys():
+            del bd[k]
+    except KeyError:
+        env._dict[key] = BuilderDict(kwbd, env)
+    env._dict[key].update(value)
+
+def _set_SCANNERS(env, key, value):
+    env._dict[key] = value
+    env.scanner_map_delete()
+
 class BuilderWrapper:
     """Wrapper class that associates an environment with a Builder at
     instantiation."""
@@ -255,6 +272,16 @@ class SubstitutionEnvironment:
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = kw.copy()
+        self._init_special()
+
+    def _init_special(self):
+        """Initial the dispatch table for special handling of
+        special construction variables."""
+        self._special = {}
+        for key in reserved_construction_var_names:
+            self._special[key] = _set_reserved
+        self._special['BUILDERS'] = _set_BUILDERS
+        self._special['SCANNERS'] = _set_SCANNERS
 
     def __cmp__(self, other):
         return cmp(self._dict, other._dict)
@@ -268,20 +295,9 @@ class SubstitutionEnvironment:
 
     def __setitem__(self, key, value):
         "__cache_reset__"
-        if key in reserved_construction_var_names:
-            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
-                                "Ignoring attempt to set reserved variable `%s'" % key)
-        elif key == 'BUILDERS':
-            try:
-                bd = self._dict[key]
-                for k in bd.keys():
-                    del bd[k]
-            except KeyError:
-                self._dict[key] = BuilderDict(kwbd, self)
-            self._dict[key].update(value)
-        elif key == 'SCANNERS':
-            self._dict[key] = value
-            self.scanner_map_delete()
+        special = self._special.get(key)
+        if special:
+            special(self, key, value)
         else:
             if not SCons.Util.is_valid_construction_var(key):
                 raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
@@ -489,6 +505,7 @@ class Base(SubstitutionEnvironment):
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
+        self._init_special()
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
@@ -501,12 +518,10 @@ class Base(SubstitutionEnvironment):
         self._dict['PLATFORM'] = str(platform)
         platform(self)
 
-        # Apply the passed-in variables before calling the tools,
-        # because they may use some of them:
+        # Apply the passed-in variables and customizable options to the
+        # environment before calling the tools, because they may use
+        # some of them during initialization.
         apply(self.Replace, (), kw)
-        
-        # Update the environment with the customizable options
-        # before calling the tools, since they may use some of the options: 
         if options:
             options.Update(self)
 
@@ -516,13 +531,10 @@ class Base(SubstitutionEnvironment):
                 tools = ['default']
         apply_tools(self, tools, toolpath)
 
-        # Reapply the passed in variables after calling the tools,
-        # since they should overide anything set by the tools:
+        # Now re-apply the passed-in variables and customizable options
+        # to the environment, since the values the user set explicitly
+        # should override any values set by the tools.
         apply(self.Replace, (), kw)
-
-        # Update the environment with the customizable options
-        # after calling the tools, since they should override anything
-        # set by the tools:
         if options:
             options.Update(self)
 

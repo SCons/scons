@@ -1211,7 +1211,7 @@ def exists(env):
         assert env['CCC2'] == ['c2'], env['CCC2']
 
     def test_Copy(self):
-        """Test construction Environment copying
+        """Test construction environment copying
 
         Update the copy independently afterwards and check that
         the original remains intact (that is, no dangling
