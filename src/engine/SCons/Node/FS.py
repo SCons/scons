@@ -49,6 +49,7 @@ from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Node
 import SCons.Sig.MD5
+import SCons.Subst
 import SCons.Util
 import SCons.Warnings
 
@@ -362,28 +363,28 @@ def diskcheck_types():
 class EntryProxy(SCons.Util.Proxy):
     def __get_abspath(self):
         entry = self.get()
-        return SCons.Util.SpecialAttrWrapper(entry.get_abspath(),
+        return SCons.Subst.SpecialAttrWrapper(entry.get_abspath(),
                                              entry.name + "_abspath")
 
     def __get_filebase(self):
         name = self.get().name
-        return SCons.Util.SpecialAttrWrapper(SCons.Util.splitext(name)[0],
+        return SCons.Subst.SpecialAttrWrapper(SCons.Util.splitext(name)[0],
                                              name + "_filebase")
 
     def __get_suffix(self):
         name = self.get().name
-        return SCons.Util.SpecialAttrWrapper(SCons.Util.splitext(name)[1],
+        return SCons.Subst.SpecialAttrWrapper(SCons.Util.splitext(name)[1],
                                              name + "_suffix")
 
     def __get_file(self):
         name = self.get().name
-        return SCons.Util.SpecialAttrWrapper(name, name + "_file")
+        return SCons.Subst.SpecialAttrWrapper(name, name + "_file")
 
     def __get_base_path(self):
         """Return the file's directory and file name, with the
         suffix stripped."""
         entry = self.get()
-        return SCons.Util.SpecialAttrWrapper(SCons.Util.splitext(entry.get_path())[0],
+        return SCons.Subst.SpecialAttrWrapper(SCons.Util.splitext(entry.get_path())[0],
                                              entry.name + "_base")
 
     def __get_posix_path(self):
@@ -394,7 +395,7 @@ class EntryProxy(SCons.Util.Proxy):
         else:
             entry = self.get()
             r = string.replace(entry.get_path(), os.sep, '/')
-            return SCons.Util.SpecialAttrWrapper(r, entry.name + "_posix")
+            return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_posix")
 
     def __get_win32_path(self):
         """Return the path with \ as the path separator,
@@ -404,7 +405,7 @@ class EntryProxy(SCons.Util.Proxy):
         else:
             entry = self.get()
             r = string.replace(entry.get_path(), os.sep, '\\')
-            return SCons.Util.SpecialAttrWrapper(r, entry.name + "_win32")
+            return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_win32")
 
     def __get_srcnode(self):
         return EntryProxy(self.get().srcnode())

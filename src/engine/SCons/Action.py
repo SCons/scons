@@ -422,7 +422,8 @@ class CommandAction(_ActionAction):
         handle lists of commands, even though that's not how we use it
         externally.
         """
-        from SCons.Util import is_String, is_List, flatten, escape_list
+        from SCons.Subst import escape_list
+        from SCons.Util import is_String, is_List, flatten
 
         try:
             shell = env['SHELL']
@@ -478,12 +479,13 @@ class CommandAction(_ActionAction):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
+        from SCons.Subst import SUBST_SIG
         cmd = self.cmd_list
         if SCons.Util.is_List(cmd):
             cmd = string.join(map(str, cmd))
         else:
             cmd = str(cmd)
-        return env.subst_target_source(cmd, SCons.Util.SUBST_SIG, target, source)
+        return env.subst_target_source(cmd, SUBST_SIG, target, source)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""

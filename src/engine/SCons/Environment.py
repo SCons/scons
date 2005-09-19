@@ -55,6 +55,7 @@ import SCons.SConsign
 import SCons.Sig
 import SCons.Sig.MD5
 import SCons.Sig.TimeStamp
+import SCons.Subst
 import SCons.Tool
 import SCons.Util
 import SCons.Warnings
@@ -374,7 +375,7 @@ class SubstitutionEnvironment:
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
-        return SCons.Util.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
+        return SCons.Subst.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_kw(self, kw, raw=0, target=None, source=None):
         nkw = {}
@@ -386,12 +387,12 @@ class SubstitutionEnvironment:
         return nkw
 
     def subst_list(self, string, raw=0, target=None, source=None, conv=None):
-        """Calls through to SCons.Util.scons_subst_list().  See
+        """Calls through to SCons.Subst.scons_subst_list().  See
         the documentation for that function."""
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
-        return SCons.Util.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
+        return SCons.Subst.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_path(self, path, target=None, source=None):
         """Substitute a path list, turning EntryProxies into Nodes
@@ -450,7 +451,7 @@ class SubstitutionEnvironment:
             o = copy_non_reserved_keywords(overrides)
             overrides = {}
             for key, value in o.items():
-                overrides[key] = SCons.Util.scons_subst_once(value, self, key)
+                overrides[key] = SCons.Subst.scons_subst_once(value, self, key)
         if overrides:
             env = OverrideEnvironment(self, overrides)
             return env
@@ -774,7 +775,7 @@ class Base(SubstitutionEnvironment):
         kw = copy_non_reserved_keywords(kw)
         new = {}
         for key, value in kw.items():
-            new[key] = SCons.Util.scons_subst_once(value, self, key)
+            new[key] = SCons.Subst.scons_subst_once(value, self, key)
         apply(clone.Replace, (), new)
         if __debug__: logInstanceCreation(self, 'Environment.EnvironmentCopy')
         return clone
@@ -1351,7 +1352,7 @@ class Base(SubstitutionEnvironment):
         return result
 
     def Literal(self, string):
-        return SCons.Util.Literal(string)
+        return SCons.Subst.Literal(string)
 
     def Local(self, *targets):
         ret = []
@@ -1596,13 +1597,13 @@ def NoSubstitutionProxy(subject):
             nkw = kwargs.copy()
             nkw['gvars'] = {}
             self.raw_to_mode(nkw)
-            return apply(SCons.Util.scons_subst_list, nargs, nkw)
+            return apply(SCons.Subst.scons_subst_list, nargs, nkw)
         def subst_target_source(self, string, *args, **kwargs):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
             nkw['gvars'] = {}
             self.raw_to_mode(nkw)
-            return apply(SCons.Util.scons_subst, nargs, nkw)
+            return apply(SCons.Subst.scons_subst, nargs, nkw)
     return _NoSubstitutionProxy(subject)
 
 if SCons.Memoize.use_old_memoization():

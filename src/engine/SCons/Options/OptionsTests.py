@@ -29,7 +29,7 @@ import unittest
 import TestSCons
 
 import SCons.Options
-import SCons.Util
+import SCons.Subst
 import SCons.Warnings
 
 
@@ -37,7 +37,7 @@ class Environment:
     def __init__(self):
         self.dict = {}
     def subst(self, x):
-        return SCons.Util.scons_subst(x, self, gvars=self.dict)
+        return SCons.Subst.scons_subst(x, self, gvars=self.dict)
     def __setitem__(self, key, value):
         self.dict[key] = value
     def __getitem__(self, key):
