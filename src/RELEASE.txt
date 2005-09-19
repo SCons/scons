@@ -256,6 +256,31 @@ RELEASE 0.97 - XXX
         The deprecated "validater" keyword to the Options.Add() method
         has been removed.
 
+    --  INTERNAL FUNCTIONS AND CLASSES HAVE MOVED FROM SCons.Util
+
+        All internal functions and classes related to string substitution
+        have been moved out of the SCons.Util module into their own
+        SCons.Subst module.  The following classes have been moved:
+
+                Literal
+                SpecialAttrWrapper
+                NLWrapper
+                Targets_or_Sources
+                Target_or_Source
+
+        And the following functions have moved:
+
+                quote_spaces()
+                escape_list()
+                subst_dict()
+                scons_subst()
+                scons_subst_list()
+                scons_subst_once()
+
+        If your SConscript files have been using any of these function
+        directly from the SCons.Util module (which they ultimately should
+        not be!), you will need to modify them.
+
   Please note the following important changes since release 0.95:
 
     --  BUILDERS NOW ALWAYS RETURN A LIST OF TARGETS

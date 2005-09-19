@@ -50,6 +50,7 @@ import SCons.Builder
 import SCons.Environment
 import SCons.Tool
 import SCons.Sig
+import SCons.Subst
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -211,8 +212,8 @@ def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
     result = []
 
     # ensure that prefix and suffix are strings
-    prefix = str(env.subst(prefix, SCons.Util.SUBST_RAW))
-    suffix = str(env.subst(suffix, SCons.Util.SUBST_RAW))
+    prefix = str(env.subst(prefix, SCons.Subst.SUBST_RAW))
+    suffix = str(env.subst(suffix, SCons.Subst.SUBST_RAW))
 
     for x in list:
         if isinstance(x, SCons.Node.FS.File):

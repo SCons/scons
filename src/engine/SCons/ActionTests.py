@@ -136,10 +136,10 @@ class Environment:
             self.d[k] = v
     # Just use the underlying scons_subst*() utility methods.
     def subst(self, strSubst, raw=0, target=[], source=[]):
-        return SCons.Util.scons_subst(strSubst, self, raw, target, source, self.d)
+        return SCons.Subst.scons_subst(strSubst, self, raw, target, source, self.d)
     subst_target_source = subst
     def subst_list(self, strSubst, raw=0, target=[], source=[]):
-        return SCons.Util.scons_subst_list(strSubst, self, raw, target, source, self.d)
+        return SCons.Subst.scons_subst_list(strSubst, self, raw, target, source, self.d)
     def __getitem__(self, item):
         return self.d[item]
     def __setitem__(self, item, value):
