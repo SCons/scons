@@ -4283,15 +4283,71 @@ env.SourceCode('no_source.c', None)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.subst( string )
+.RI env.subst( string ", [" raw ", " target ", " source ", " conv ])
 Performs construction variable interpolation
 on the specified string argument.
+
+By default,
+any
+.B $(
+and
+.B $)
+will be stripped from the returned string.
+The optional
+.I raw
+target may be set to
+.B 1
+if you want to preserve these,
+although there is usually
+no reason to do this.
+
+The optional
+.I target
+and
+.I source
+keyword arguments
+must be set to lists of
+target and source nodes, respectively,
+if you want the
+.BR $TARGET ,
+.BR $TARGETS ,
+.BR $SOURCE
+and
+.BR $SOURCES
+to be available for expansion.
+This is usually necessary if you are
+calling
+.BR env.subst ()
+from within a Python function used
+as an SCons action.
+
+By default,
+all returned values are converted
+to their string representation.
+The optional
+.I conv
+argument
+may specify a conversion function
+that will be used in place of
+the default.
+For example, if you want Python objects
+(including SCons Nodes)
+to be returned as Python objects,
+you can use the Python
+.B lambda
+idiom to pass in an unnamed function
+that simply returns its unconverted argument.
 
 .ES
 print env.subst("The C compiler is: $CC")
 
 def compile(target, source, env):
-    sourceDir = env.subst("${SOURCE.srcdir}")
+    sourceDir = env.subst("${SOURCE.srcdir}",
+                          target=target,
+                          source=source)
+
+source_nodes = env.subst('$EXPAND_TO_NODELIST',
+                         conv=lambda x: x)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

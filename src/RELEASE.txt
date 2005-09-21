@@ -31,12 +31,12 @@ RELEASE 0.97 - XXX
     --  DIRECTORY TREES ARE NO LONGER AUTOMATICALLY SCANNED FOR CHANGES
 
         Custom builders and Command() calls that accept directories as
-        source arguments no longer scan entire on-disk directory trees
-        by default.  This means that their targets will not be
-        automatically rebuilt if a file changes on disk, and SCons does
-        *not* already know about.  Note that the targets will still be
-        rebuilt correctly if a file changes that SCons already knows
-        about due to a Builder or other call.
+        source arguments no longer scan entire on-disk directory trees by
+        default.  This means that their targets will not be automatically
+        rebuilt if a file changes on disk *unless* SCons already knows
+        about the file from a specific Builder or File() call.  Note that
+        the targets will still be rebuilt correctly if a file changes
+        that SCons already knows about due to a Builder or other call.
 
         The existing behavior of scanning on-disk directory trees for
         any changed file can be maintained by passing the new DirScanner
@@ -77,12 +77,12 @@ RELEASE 0.97 - XXX
 
         in any SConscript file.
 
-        If you are using the Repository feature, are not already using
-        the SConsignFile() function in your build, you *must* add
-        SConsignFile(None) to your build to keep interoperating with an
-        existing Repository that uses the old behavior of a .sconsign
-        file in each directory.  Alternatively, you can rebuild the
-        Repository with the new default behavior.
+        If you are using the Repository feature, and are not already
+        using the SConsignFile() function in your build, you *must*
+        add "SConsignFile(None)" to your build configuration to keep
+        interoperating with an existing Repository that uses the old
+        behavior of a .sconsign file in each directory.  Alternatively,
+        you can rebuild the Repository with the new default behavior.
 
     --  OTHER SIGNATURE CHANGES WILL CAUSE LIKELY REBUILDS AFTER UPGRADE
 
@@ -186,6 +186,26 @@ RELEASE 0.97 - XXX
         "sconsign.1" man pages on UNIX and Linux systems.  A
         new --no-install-man
 
+    --  env.subst() NO LONGER EXPANDS $TARGET, $SOURCES, etc. BY DEFAULT
+
+        Calls to the env.subst() method to interpolate construction
+        variables in strings no longer automatically expand the special
+        variables $TARGET, $TARGETS, $SOURCE and $SOURCES.  The keyword
+        variables "target" and "source" must now be set to the lists
+        of target and source files to be used in expansion of those
+        variables, when desired.
+
+        This is most likely necessary for any env.subst() calls within
+        a Python function being used as an SCons action for a Builder:
+
+            def build_it(env, target, source):
+                env.subst('$STRING', target=targets, source=sources)
+            MyBuilder = Builder(action=build_it)
+
+        The "target" and "source" keyword arguments are backwards
+        compatible and can be added to SConscript files without breaking
+        builds on systems using older SCons releases.
+
     --  ParseConfig() METHOD ADDS LIBRARY FILE NAMES TO THE $LIBS VARIABLE
 
         The ParseConfig() method now adds library file names returned
@@ -218,20 +238,21 @@ RELEASE 0.97 - XXX
 
     --  BUILDERS RETURN A LIST-LIKE OBJECT, NOT A REGULAR LIST
 
-        Builders calls now return an object that behaves like a list
+        Builder calls now return an object that behaves like a list
         (and which provides some other functionality), not an underlying
         Python list.  In general, this should not cause any problems,
         although it introduces a subtle change in the following behavior:
 
                 obj += env.Object('foo.c')
 
-        If "obj" is a list, Python will no longer update the "obj" in
-        place, because the return value from env.Object() is no longer
-        the same type.  Python will instead allocate a new object and
-        assign the local variable "obj" to it.  If "obj" is defined in
-        an SConscript file that calls another SConscript file containing
-        the above code, "obj" in the first SConscript file will not
-        contain the objects.
+        If "obj" is a regular Python list, Python will no longer update
+        the "obj" in place, because the return value from env.Object()
+        is no longer the same type.  Python will instead allocate a
+        new object and assign the local variable "obj" to it.  If "obj"
+        is defined in an SConscript file that calls another SConscript
+        file containing the above code, "obj" in the first SConscript
+        file will not contain the object file nodes created by the
+        env.Object() call.
 
         You can guarantee that a list will be updated in place regardless
         of which SConscript file defines it and which adds to it by
