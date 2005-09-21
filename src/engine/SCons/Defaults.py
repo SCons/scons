@@ -332,17 +332,15 @@ class Variable_Method_Caller:
     def __call__(self, *args, **kw):
         try: 1/0
         except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
-        variable = None
+        variable = self.variable
         while frame:
-            try:
-                variable = frame.f_locals[self.variable]
-            except KeyError:
-                pass
+            if frame.f_locals.has_key(variable):
+                v = frame.f_locals[variable]
+                if v:
+                    method = getattr(v, self.method)
+                    return apply(method, args, kw)
             frame = frame.f_back
-        if variable is None:
-            return None
-        method = getattr(variable, self.method)
-        return apply(method, args, kw)
+        return None
 
 ConstructionEnvironment = {
     'BUILDERS'      : {},
