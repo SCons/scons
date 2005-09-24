@@ -506,8 +506,8 @@ if can_read_reg:
         p = key.rfind('\\') + 1
         keyp = key[:p]
         val = key[p:]
-        k = SCons.Util.RegOpenKeyEx(root, keyp)
-        return SCons.Util.RegQueryValueEx(k,val)
+        k = RegOpenKeyEx(root, keyp)
+        return RegQueryValueEx(k,val)
 
 if sys.platform == 'win32':
 
