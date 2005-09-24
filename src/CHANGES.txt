@@ -86,6 +86,11 @@ RELEASE 0.97 - XXX
     check for the build engine in the parent directory of the Python
     library directory (/usr/lib64 instead of /usr/lib).
 
+  From Ralph W. Grosse-Kunstleve and Patrick Mezard:
+
+  - Remove unneceesary (and incorrect) SCons.Util strings on some function
+    calls in SCons.Util.
+
   From Stephen Kennedy:
 
   - Speed up writing the .sconsign file at the end of a run by only
