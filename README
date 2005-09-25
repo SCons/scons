@@ -316,6 +316,13 @@ CONTENTS OF THIS PACKAGE
 
 Not guaranteed to be up-to-date (but better than nothing):
 
+bench/
+        A subdirectory for benchmarking scripts, used to perform timing
+        tests to decide what specific idioms are most efficient for
+        various parts of the code base.  We check these in so they're
+        available in case we have to revisit any of these decisions in
+        the future.
+
 bin/
         Miscellaneous utilities used in SCons development.  Right now,
         some of the stuff here includes:
