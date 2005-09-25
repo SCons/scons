@@ -328,15 +328,21 @@ def ignore_diskcheck_match(node, predicate, errorfmt):
     pass
 
 def do_diskcheck_rcs(node, name):
-    rcspath = 'RCS' + os.sep + name+',v'
-    return node.entry_exists_on_disk(rcspath)
+    try:
+        rcs_dir = node.rcs_dir
+    except AttributeError:
+        rcs_dir = node.rcs_dir = node.Dir('RCS')
+    return rcs_dir.entry_exists_on_disk(name+',v')
 
 def ignore_diskcheck_rcs(node, name):
     return None
 
 def do_diskcheck_sccs(node, name):
-    sccspath = 'SCCS' + os.sep + 's.'+name
-    return node.entry_exists_on_disk(sccspath)
+    try:
+        sccs_dir = node.sccs_dir
+    except AttributeError:
+        sccs_dir = node.sccs_dir = node.Dir('SCCS')
+    return sccs_dir.entry_exists_on_disk('s.'+name)
 
 def ignore_diskcheck_sccs(node, name):
     return None
@@ -555,17 +561,13 @@ class Base(SCons.Node.Node):
 
     def getmtime(self):
         st = self.stat()
-        if st:
-            return self.stat()[stat.ST_MTIME]
-        else:
-            return None
+        if st: return st[stat.ST_MTIME]
+        else: return None
 
     def getsize(self):
         st = self.stat()
-        if st:
-            return self.stat()[stat.ST_SIZE]
-        else:
-            return None
+        if st: return st[stat.ST_SIZE]
+        else: return None
 
     def isdir(self):
         st = self.stat()
@@ -1421,7 +1423,19 @@ class Dir(Base):
 
     def entry_exists_on_disk(self, name):
         """__cacheable__"""
-        return self.fs.exists(self.entry_abspath(name))
+        try:
+            d = self.on_disk_entries
+        except AttributeError:
+            d = {}
+            try:
+                entries = os.listdir(self.abspath)
+            except OSError:
+                pass
+            else:
+                for entry in entries:
+                    d[entry] = 1
+            self.on_disk_entries = d
+        return d.has_key(name)
 
     def srcdir_list(self):
         """__cacheable__"""

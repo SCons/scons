@@ -326,6 +326,11 @@ RELEASE 0.97 - XXX
   - Add the +Z option by default when compiling shared objects on
     HP-UX.
 
+  - Check for whether files exist on disk by listing the directory
+    contents, not calling os.path.exists() file by file.  This is
+    somewhat more efficient in general, and may be significantly
+    more efficient on Windows.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.

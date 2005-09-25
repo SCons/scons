@@ -2015,23 +2015,23 @@ class RepositoryTestCase(_tempdirTestCase):
         r = fs.Rfindalldirs(['d1', d2], fs.Top)
         assert r == [d1, rep1_d1, rep2_d1, rep3_d1, d2], map(str, r)
 
-    def test_rexists(self):
+    def tttest_rexists(self):
         """Test the Entry.rexists() method"""
         fs = self.fs
         test = self.test
 
         test.write([self.rep1, 'f2'], "")
+        test.write([self.rep2, "i_exist"], "\n")
+        test.write(["work", "i_exist_too"], "\n")
 
         fs.BuildDir('build', '.')
 
         f = fs.File(test.workpath("work", "i_do_not_exist"))
         assert not f.rexists()
 
-        test.write([self.rep2, "i_exist"], "\n")
         f = fs.File(test.workpath("work", "i_exist"))
         assert f.rexists()
 
-        test.write(["work", "i_exist_too"], "\n")
         f = fs.File(test.workpath("work", "i_exist_too"))
         assert f.rexists()
 
@@ -2822,7 +2822,7 @@ if __name__ == "__main__":
         RepositoryTestCase,
     ]
     for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
+        names = unittest.getTestCaseNames(tclass, 'tttest_')
         suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

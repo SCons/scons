@@ -51,12 +51,13 @@ test.write('foo.c', """\
 
 test.symlink('nonexistent', 'foo.h')
 
+expect = """\
+scons: *** Source `foo.h' not found, needed by target `%s'.  Stop.
+"""% foo_obj
+
 test.run(arguments = '.',
          status = 2,
-         stderr = None)
-
-expect = "scons: *** [%s] Error 1\n" % foo_obj
-test.fail_test(string.find(test.stderr(), expect) == -1)
+         stderr = expect)
 
 test.write('SConstruct', """
 Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
