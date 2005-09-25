@@ -331,6 +331,12 @@ RELEASE 0.97 - XXX
     somewhat more efficient in general, and may be significantly
     more efficient on Windows.
 
+  - Minor speedups in the internal is_Dict(), is_List() and is_String()
+    functions.
+
+  - Fix a signature refactoring bug that caused Qt header files to
+    get re-generated every time.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.

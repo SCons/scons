@@ -702,20 +702,33 @@ class NodeInfoTestCase(_tempdirTestCase):
     def test___init__(self):
         """Test NodeInfo initialization"""
         ni = SCons.Node.FS.NodeInfo()
-        assert hasattr(ni, 'bsig')
+        assert not hasattr(ni, 'bsig')
 
     def test___cmp__(self):
         """Test comparing NodeInfo objects"""
         ni1 = SCons.Node.FS.NodeInfo()
         ni2 = SCons.Node.FS.NodeInfo()
 
-        assert cmp(ni1, ni2) == 0, "ni1 %s != ni2 %s" % (ni1, ni2)
+        msg = "cmp(%s, %s) returned %s, not %s"
+
+        c = cmp(ni1, ni2)
+        assert c == 1, msg % (ni1, ni2, c, 1)
 
         ni1.bsig = 777
-        assert cmp(ni1, ni2) != 0, "ni1 %s == ni2 %s" % (ni1, ni2)
+        c = cmp(ni1, ni2)
+        assert c == 1, msg % (ni1.bsig, ni2, c, 1)
+
+        ni2.bsig = 666
+        c = cmp(ni1, ni2)
+        assert c == 1, msg % (ni1.bsig, ni2.bsig, c, 1)
 
         ni2.bsig = 777
-        assert cmp(ni1, ni2) == 0, "ni1 %s != ni2 %s" % (ni1, ni2)
+        c = cmp(ni1, ni2)
+        assert c == 0, msg % (ni1.bsig, ni2.bsig, c, 0)
+
+        ni2.bsig = 888
+        c = cmp(ni1, ni2)
+        assert c == -1, msg % (ni1.bsig, ni2.bsig, c, -1)
 
     def test_update(self):
         """Test updating a NodeInfo with on-disk information"""
@@ -2015,7 +2028,7 @@ class RepositoryTestCase(_tempdirTestCase):
         r = fs.Rfindalldirs(['d1', d2], fs.Top)
         assert r == [d1, rep1_d1, rep2_d1, rep3_d1, d2], map(str, r)
 
-    def tttest_rexists(self):
+    def test_rexists(self):
         """Test the Entry.rexists() method"""
         fs = self.fs
         test = self.test
@@ -2822,7 +2835,7 @@ if __name__ == "__main__":
         RepositoryTestCase,
     ]
     for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'tttest_')
+        names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
