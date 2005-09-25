@@ -42,6 +42,13 @@ import types
 from UserDict import UserDict
 from UserList import UserList
 
+# Don't "from types import ..." these because we need to get at the
+# types module later to look for UnicodeType.
+DictType        = types.DictType
+InstanceType    = types.InstanceType
+ListType        = types.ListType
+StringType      = types.StringType
+
 try:
     from UserString import UserString
 except ImportError:
@@ -164,12 +171,13 @@ def updrive(path):
 # specified object has one.
 #
 if hasattr(types, 'UnicodeType'):
+    UnicodeType = types.UnicodeType
     def to_String(s):
         if isinstance(s, UserString):
             t = type(s.data)
         else:
             t = type(s)
-        if t is types.UnicodeType:
+        if t is UnicodeType:
             return unicode(s)
         else:
             return str(s)
@@ -378,20 +386,55 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
         print_tree(children[-1], child_func, prune, IDX(showtags), margin, visited)
         margin.pop()
 
-def is_Dict(e):
-    return type(e) is types.DictType or isinstance(e, UserDict)
 
-def is_List(e):
-    return type(e) is types.ListType or isinstance(e, UserList)
+
+# Functions for deciding if things are like various types, mainly to
+# handle UserDict, UserList and UserString like their underlying types.
+#
+# Yes, all of this manual testing breaks polymorphism, and the real
+# Pythonic way to do all of this would be to just try it and handle the
+# exception, but handling the exception when it's not the right type is
+# too slow.
+#
+# The actual implementations here have been selected after timings
+# coded up in in bench/is_types.py (from the SCons source tree, see the
+# scons-src distribution).  Key results from those timings:
+#
+#   --  Storing the type of the object in a variable (t = type(obj))
+#       slows down the case where it's a native type and the first
+#       comparison will match, but nicely speeds up the case where
+#       it's a different native type.  Since that's going to be common,
+#       it's a good tradeoff.
+#
+#   --  The data show that calling isinstance() on an object that's
+#       a native type (dict, list or string) is expensive enough that
+#       checking up front for whether the object is of type InstanceType
+#       is a pretty big win, even though it does slow down the case
+#       where it really *is* an object instance a little bit.
+
+def is_Dict(obj):
+    t = type(obj)
+    return t is DictType or \
+           (t is InstanceType and isinstance(obj, UserDict))
+
+def is_List(obj):
+    t = type(obj)
+    return t is ListType \
+        or (t is InstanceType and isinstance(obj, UserList))
 
 if hasattr(types, 'UnicodeType'):
-    def is_String(e):
-        return type(e) is types.StringType \
-            or type(e) is types.UnicodeType \
-            or isinstance(e, UserString)
+    def is_String(obj):
+        t = type(obj)
+        return t is StringType \
+            or t is UnicodeType \
+            or (t is InstanceType and isinstance(obj, UserString))
 else:
-    def is_String(e):
-        return type(e) is types.StringType or isinstance(e, UserString)
+    def is_String(obj):
+        t = type(obj)
+        return t is StringType \
+            or (t is InstanceType and isinstance(obj, UserString))
+
+
 
 def is_Scalar(e):
     return is_String(e) or not is_List(e)
