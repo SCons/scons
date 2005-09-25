@@ -1565,12 +1565,9 @@ class RootDir(Dir):
         return _null
 
 class NodeInfo(SCons.Node.NodeInfo):
-    # The bsig attributes needs to stay here, if it's initialized in
-    # __init__() then the assignment seems to overwrite any values
-    # unpickled from .sconsign files.
-    bsig = None
     def __cmp__(self, other):
-        return cmp(self.bsig, other.bsig)
+        try: return cmp(self.bsig, other.bsig)
+        except AttributeError: return 1
     def update(self, node):
         self.timestamp = node.get_timestamp()
         self.size = node.getsize()
