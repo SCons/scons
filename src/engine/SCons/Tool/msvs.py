@@ -143,7 +143,7 @@ class _DSPGenerator:
             self.source = os.path.abspath(source[0])
         else:
             self.source = source[0].get_abspath()
-            
+
         self.env = env
 
         if self.env.has_key('name'):
@@ -193,37 +193,45 @@ class _DSPGenerator:
 
     def Build(self):
         pass
-        
+
+V6DSPHeader = """\
+# Microsoft Developer Studio Project File - Name="%(name)s" - Package Owner=<4>
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (x86) External Target" 0x0106
+
+CFG=%(name)s - Win32 %(confkey)s
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "%(name)s.mak".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "%(name)s.mak" CFG="%(name)s - Win32 %(confkey)s"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+"""
+
 class _GenerateV6DSP(_DSPGenerator):
     """Generates a Project file for MSVS 6.0"""
 
     def PrintHeader(self):
-        name = self.name
         # pick a default config
         confkeys = self.configs.keys()
         confkeys.sort()
 
-        self.file.write('# Microsoft Developer Studio Project File - Name="%s" - Package Owner=<4>\n'
-                        '# Microsoft Developer Studio Generated Build File, Format Version 6.00\n'
-                        '# ** DO NOT EDIT **\n\n'
-                        '# TARGTYPE "Win32 (x86) External Target" 0x0106\n\n'
-                        'CFG=%s - Win32 %s\n'
-                        '!MESSAGE This is not a valid makefile. To build this project using NMAKE,\n'
-                        '!MESSAGE use the Export Makefile command and run\n'
-                        '!MESSAGE \n'
-                        '!MESSAGE NMAKE /f "%s.mak".\n'
-                        '!MESSAGE \n'
-                        '!MESSAGE You can specify a configuration when running NMAKE\n'
-                        '!MESSAGE by defining the macro CFG on the command line. For example:\n'
-                        '!MESSAGE \n'
-                        '!MESSAGE NMAKE /f "%s.mak" CFG="%s - Win32 %s"\n'
-                        '!MESSAGE \n'
-                        '!MESSAGE Possible choices for configuration are:\n'
-                        '!MESSAGE \n' % (name,name,confkeys[0],name,name,name,confkeys[0]))
+        name = self.name
+        confkey = confkeys[0]
+
+        self.file.write(V6DSPHeader % locals())
 
         for kind in confkeys:
             self.file.write('!MESSAGE "%s - Win32 %s" (based on "Win32 (x86) External Target")\n' % (name, kind))
-            
+
         self.file.write('!MESSAGE \n\n')
 
     def PrintProject(self):
@@ -258,13 +266,13 @@ class _GenerateV6DSP(_DSPGenerator):
                 (d,c) = os.path.split(str(self.conspath))
                 cmd = 'echo Starting SCons && "%s" -c "%s" -C %s -f %s %s'
                 cmd = cmd % (python_executable, exec_script_main, d, c, buildtarget)
-                self.file.write('# PROP %sCmd_Line "%s"\n' 
+                self.file.write('# PROP %sCmd_Line "%s"\n'
                                 '# PROP %sRebuild_Opt "-c && %s"\n'
                                 '# PROP %sTarget_File "%s"\n'
                                 '# PROP %sBsc_Name ""\n'
                                 '# PROP %sTarget_Dir ""\n'\
                                 %(base,cmd,base,cmd,base,buildtarget,base,base))
-            
+
         self.file.write('\n!ENDIF\n\n'
                         '# Begin Target\n\n')
         for kind in confkeys:
@@ -281,7 +289,7 @@ class _GenerateV6DSP(_DSPGenerator):
         self.PrintSourceFiles()
         self.file.write('# End Target\n'
                         '# End Project\n')
-        
+
         # now we pickle some data and add it to the file -- MSDEV will ignore it.
         pdata = pickle.dumps(self.configs,1)
         pdata = base64.encodestring(pdata)
@@ -289,7 +297,7 @@ class _GenerateV6DSP(_DSPGenerator):
         pdata = pickle.dumps(self.sources,1)
         pdata = base64.encodestring(pdata)
         self.file.write(pdata + '\n')
-  
+
     def PrintSourceFiles(self):
         categories = {' Source Files': 'cpp|c|cxx|l|y|def|odl|idl|hpj|bat',
                       'Header Files': 'h|hpp|hxx|hm|inl',
@@ -302,11 +310,11 @@ class _GenerateV6DSP(_DSPGenerator):
         for kind in cats:
             if not self.sources[kind]:
                 continue # skip empty groups
-            
+
             self.file.write('# Begin Group "' + kind + '"\n\n')
             typelist = categories[kind].replace('|',';')
             self.file.write('# PROP Default_Filter "' + typelist + '"\n')
-            
+
             for file in self.sources[kind]:
                 file = os.path.normpath(file)
                 self.file.write('# Begin Source File\n\n'
@@ -366,7 +374,7 @@ class _GenerateV6DSP(_DSPGenerator):
             return # unable to unpickle any data for some reason
 
         self.sources.update(data)
-    
+
     def Build(self):
         try:
             self.file = open(self.dspfile,'w')
@@ -376,6 +384,38 @@ class _GenerateV6DSP(_DSPGenerator):
             self.PrintHeader()
             self.PrintProject()
             self.file.close()
+
+V7DSPHeader = """\
+<?xml version="1.0" encoding = "Windows-1252"?>
+<VisualStudioProject
+\tProjectType="Visual C++"
+\tVersion="%(versionstr)s"
+\tName="%(name)s"
+\tSccProjectName=""
+\tSccLocalPath=""
+\tKeyword="MakeFileProj">
+\t<Platforms>
+\t\t<Platform
+\t\t\tName="Win32"/>
+\t</Platforms>
+"""
+
+V7DSPConfiguration = """\
+\t\t<Configuration
+\t\t\tName="%(capitalized_kind)s|Win32"
+\t\t\tOutputDirectory="%(outdir)s"
+\t\t\tIntermediateDirectory="%(outdir)s"
+\t\t\tConfigurationType="0"
+\t\t\tUseOfMFC="0"
+\t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
+\t\t\t<Tool
+\t\t\t\tName="VCNMakeTool"
+\t\t\t\tBuildCommandLine="%(cmd)s"
+\t\t\t\tCleanCommandLine="%(cleancmd)s"
+\t\t\t\tRebuildCommandLine="%(cmd)s"
+\t\t\t\tOutput="%(buildtarget)s"/>
+\t\t</Configuration>
+"""
 
 class _GenerateV7DSP(_DSPGenerator):
     """Generates a Project file for MSVS .NET"""
@@ -388,59 +428,32 @@ class _GenerateV7DSP(_DSPGenerator):
             self.versionstr = '7.10'
 
     def PrintHeader(self):
-        self.file.write('<?xml version="1.0" encoding = "Windows-1252"?>\n'
-                        '<VisualStudioProject\n'
-                        '	ProjectType="Visual C++"\n'
-                        '	Version="%s"\n'
-                        '	Name="%s"\n'
-                        '	SccProjectName=""\n'
-                        '	SccLocalPath=""\n'
-                        '	Keyword="MakeFileProj">\n'
-                        '	<Platforms>\n'
-                        '		<Platform\n'
-                        '			Name="Win32"/>\n'
-                        '	</Platforms>\n' % (self.versionstr, self.name))
+        self.file.write(V7DSPHeader % self.__dict__)
 
     def PrintProject(self):
-        
-
-        self.file.write('	<Configurations>\n')
+        self.file.write('\t<Configurations>\n')
 
         confkeys = self.configs.keys()
         confkeys.sort()
         for kind in confkeys:
+            capitalized_kind = kind.capitalize()
             outdir = self.configs[kind].outdir
             buildtarget = self.configs[kind].buildtarget
 
             (d,c) = os.path.split(str(self.conspath))
-            cmd = 'echo Starting SCons &amp;&amp; &quot;%s&quot; -c &quot;%s&quot; -C %s -f %s %s' % (python_executable,
-                                                   exec_script_main_xml,
-                                                   d, c, buildtarget)
+            fmt = 'echo Starting SCons &amp;&amp; &quot;%s&quot; -c &quot;%s&quot; -C %s -f %s%s %s'
+            cmd         = fmt % (python_executable, exec_script_main_xml,
+                                 d, c, '', buildtarget)
+            cleancmd    = fmt % (python_executable, exec_script_main_xml,
+                                 d, c, ' -c', buildtarget)
 
-            cleancmd = 'echo Starting SCons &amp;&amp; &quot;%s&quot; -c &quot;%s&quot; -C %s -f %s -c %s' % (python_executable,
-                                                         exec_script_main_xml,
-                                                         d, c, buildtarget)
+            self.file.write(V7DSPConfiguration % locals())
 
-            self.file.write('		<Configuration\n'
-                            '			Name="%s|Win32"\n'
-                            '			OutputDirectory="%s"\n'
-                            '			IntermediateDirectory="%s"\n'
-                            '			ConfigurationType="0"\n'
-                            '			UseOfMFC="0"\n'
-                            '			ATLMinimizesCRunTimeLibraryUsage="FALSE">\n'
-                            '			<Tool\n'
-                            '				Name="VCNMakeTool"\n'
-                            '				BuildCommandLine="%s"\n'
-                            '				CleanCommandLine="%s"\n'
-                            '				RebuildCommandLine="%s"\n'
-                            '				Output="%s"/>\n'
-                            '		</Configuration>\n' % (kind.capitalize(),outdir,outdir,\
-                                                               cmd,cleancmd,cmd,buildtarget))
-            
-        self.file.write('	</Configurations>\n')
+        self.file.write('\t</Configurations>\n')
+
         if self.version >= 7.1:
-            self.file.write('	<References>\n')
-            self.file.write('	</References>\n')
+            self.file.write('\t<References>\n'
+                            '\t</References>\n')
 
         self.PrintSourceFiles()
 
@@ -453,7 +466,7 @@ class _GenerateV7DSP(_DSPGenerator):
         pdata = pickle.dumps(self.sources,1)
         pdata = base64.encodestring(pdata)
         self.file.write(pdata + '-->\n')
-  
+
     def PrintSourceFiles(self):
         categories = {' Source Files': 'cpp;c;cxx;l;y;def;odl;idl;hpj;bat',
                       'Header Files': 'h;hpp;hxx;hm;inl',
@@ -461,33 +474,34 @@ class _GenerateV7DSP(_DSPGenerator):
                       'Resource Files': 'r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe',
                       'Other Files': ''}
 
-        self.file.write('	<Files>\n')
-        
+        self.file.write('\t<Files>\n')
+
         cats = categories.keys()
         cats.sort()
         for kind in cats:
             if not self.sources[kind]:
                 continue # skip empty groups
 
-            self.file.write('		<Filter\n'
-                            '			Name="%s"\n'
-                            '			Filter="%s">\n' % (kind, categories[kind]))
-            
+            self.file.write('\t\t<Filter\n'
+                            '\t\t\tName="%s"\n'
+                            '\t\t\tFilter="%s">\n' % (kind, categories[kind]))
+
             for file in self.sources[kind]:
                 file = os.path.normpath(file)
-                self.file.write('			<File\n'
-                                '				RelativePath="%s">\n'
-                                '			</File>\n' % file)
+                self.file.write('\t\t\t<File\n'
+                                '\t\t\t\tRelativePath="%s">\n'
+                                '\t\t\t</File>\n' % file)
 
-            self.file.write('		</Filter>\n')
+            self.file.write('\t\t</Filter>\n')
 
         # add the Conscript file outside of the groups
-        self.file.write('		<File\n'
-                        '			RelativePath="%s">\n'
-                        '		</File>\n'
-                        '	</Files>\n'
-                        '	<Globals>\n'
-                        '	</Globals>\n' % str(self.source))
+        self.file.write('\t\t<File\n'
+                        '\t\t\tRelativePath="%s">\n'
+                        '\t\t</File>\n'
+                        '\t</Files>\n' % str(self.source))
+
+        self.file.write('\t<Globals>\n'
+                        '\t</Globals>\n')
 
     def Parse(self):
         try:
@@ -535,7 +549,7 @@ class _GenerateV7DSP(_DSPGenerator):
             return # unable to unpickle any data for some reason
 
         self.sources.update(data)
-    
+
     def Build(self):
         try:
             self.file = open(self.dspfile,'w')
@@ -627,31 +641,31 @@ class _GenerateV7DSW(_DSWGenerator):
                         'Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "%s"\n'
                         % (self.versionstr, self.name, os.path.basename(self.dspfile), self.slnguid))
         if self.version >= 7.1:
-            self.file.write('	ProjectSection(ProjectDependencies) = postProject\n'
-                            '	EndProjectSection\n')
+            self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
+                            '\tEndProjectSection\n')
         self.file.write('EndProject\n'
                         'Global\n'
-                        '	GlobalSection(SolutionConfiguration) = preSolution\n')
+                        '\tGlobalSection(SolutionConfiguration) = preSolution\n')
         confkeys = self.configs.keys()
         confkeys.sort()
         cnt = 0
         for name in confkeys:
-            self.file.write('		ConfigName.%d = %s\n' % (cnt, name.capitalize()))
+            self.file.write('\t\tConfigName.%d = %s\n' % (cnt, name.capitalize()))
             cnt = cnt + 1
-        self.file.write('	EndGlobalSection\n')
+        self.file.write('\tEndGlobalSection\n')
         if self.version < 7.1:
-            self.file.write('	GlobalSection(ProjectDependencies) = postSolution\n'
-                            '	EndGlobalSection\n')
-        self.file.write('	GlobalSection(ProjectConfiguration) = postSolution\n')
+            self.file.write('\tGlobalSection(ProjectDependencies) = postSolution\n'
+                            '\tEndGlobalSection\n')
+        self.file.write('\tGlobalSection(ProjectConfiguration) = postSolution\n')
         for name in confkeys:
             name = name.capitalize()
-            self.file.write('		%s.%s.ActiveCfg = %s|Win32\n'
-                            '		%s.%s.Build.0 = %s|Win32\n'  %(self.slnguid,name,name,self.slnguid,name,name))
-        self.file.write('	EndGlobalSection\n'
-                        '	GlobalSection(ExtensibilityGlobals) = postSolution\n'
-                        '	EndGlobalSection\n'
-                        '	GlobalSection(ExtensibilityAddIns) = postSolution\n'
-                        '	EndGlobalSection\n'
+            self.file.write('\t\t%s.%s.ActiveCfg = %s|Win32\n'
+                            '\t\t%s.%s.Build.0 = %s|Win32\n'  %(self.slnguid,name,name,self.slnguid,name,name))
+        self.file.write('\tEndGlobalSection\n'
+                        '\tGlobalSection(ExtensibilityGlobals) = postSolution\n'
+                        '\tEndGlobalSection\n'
+                        '\tGlobalSection(ExtensibilityAddIns) = postSolution\n'
+                        '\tEndGlobalSection\n'
                         'EndGlobal\n')
         pdata = pickle.dumps(self.configs,1)
         pdata = base64.encodestring(pdata)
@@ -666,40 +680,43 @@ class _GenerateV7DSW(_DSWGenerator):
             self.PrintSolution()
             self.file.close()
 
+V6DSWHeader = """\
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "%(name)s"="%(dspfile)s" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+"""
+
 class _GenerateV6DSW(_DSWGenerator):
     """Generates a Workspace file for MSVS 6.0"""
 
     def PrintWorkspace(self):
         """ writes a DSW file """
-        self.file.write('Microsoft Developer Studio Workspace File, Format Version 6.00\n'
-                        '# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!\n'
-                        '\n'
-                        '###############################################################################\n'
-                        '\n'
-                        'Project: "%s"="%s" - Package Owner=<4>\n'
-                        '\n'
-                        'Package=<5>\n'
-                        '{{{\n'
-                        '}}}\n'
-                        '\n'
-                        'Package=<4>\n'
-                        '{{{\n'
-                        '}}}\n'
-                        '\n'
-                        '###############################################################################\n'
-                        '\n'
-                        'Global:\n'
-                        '\n'
-                        'Package=<5>\n'
-                        '{{{\n'
-                        '}}}\n'
-                        '\n'
-                        'Package=<3>\n'
-                        '{{{\n'
-                        '}}}\n'
-                        '\n'
-                        '###############################################################################\n'\
-                         %(self.name,self.dspfile))
+        self.file.write(V6DSWHeader % self.__dict__)
 
     def Build(self):
         try:
@@ -723,7 +740,7 @@ def GenerateDSP(dspfile, source, env):
 
 def GenerateDSW(dswfile, dspfile, source, env):
     """Generates a Solution/Workspace file based on the version of MSVS that is being used"""
-    
+
     if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
         g = _GenerateV7DSW(dswfile, dspfile, source, env)
         g.Build()
@@ -759,7 +776,7 @@ def get_default_visualstudio_version(env):
     env['MSVS_VERSION'] = version
     env['MSVS']['VERSIONS'] = versions
     env['MSVS']['VERSION'] = version
-    
+
     return version
 
 def get_visualstudio_versions():
@@ -838,7 +855,7 @@ def get_visualstudio_versions():
         L.remove("6.1")
     except ValueError:
         pass
-    
+
     L.sort()
     L.reverse()
 
@@ -932,7 +949,7 @@ def get_msvs_install_dirs(version = None):
                 if c == 0:
                     c = int(bbl[2]) - int(aal[2])
             return c
-        
+
         versions.sort(versrt)
 
         rv['FRAMEWORKVERSIONS'] = versions
@@ -1035,7 +1052,7 @@ def GenerateProject(target, source, env):
         bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
 
     GenerateDSP(dspfile, source, env)
-    GenerateDSW(dswfile, dspfile, source, env) 
+    GenerateDSW(dswfile, dspfile, source, env)
 
 def projectEmitter(target, source, env):
     """Sets up the DSP and DSW dependencies for an SConscript file."""
@@ -1069,7 +1086,7 @@ def projectEmitter(target, source, env):
         env.Precious(dspfile)
         # dswfile isn't precious -- it can be blown away and rewritten each time.
         env.SideEffect(dswfile, target[0])
-    
+
     return ([target[0],bdswfile], source)
 
 projectGeneratorAction = SCons.Action.Action(GenerateProject, None)
@@ -1117,7 +1134,7 @@ def exists(env):
         v = SCons.Tool.msvs.get_visualstudio_versions()
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         pass
-    
+
     if not v:
         if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
             return env.Detect('devenv')

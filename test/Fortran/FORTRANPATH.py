@@ -39,7 +39,7 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 test = TestSCons.TestSCons()
 
 if not test.detect('_FORTRANG', 'g77'):
-    test.skip_test('Found no $F77 tool; skipping test.\n')
+    test.skip_test('Could not find a $F77 tool; skipping test.\n')
     
 test.subdir('include',
             'subdir',

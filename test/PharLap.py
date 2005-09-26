@@ -36,8 +36,11 @@ test = TestSCons.TestSCons()
 if sys.platform != 'win32':
     test.skip_test('PharLap is only available on win32; skipping test.\n')
 
-test.no_result(not test.detect_tool('linkloc'))
-test.no_result(not test.detect_tool('386asm'))
+if not test.detect_tool('linkloc'):
+    test.skip_test("Could not find 'linkloc', skipping test.\n")
+
+if not test.detect_tool('386asm'):
+    test.skip_test("Could not find '386asm', skipping test.\n")
 
 # From the Phar Lap minasm example program...
 test.write("minasm.asm", r"""

@@ -31,10 +31,9 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-if sys.platform == 'cygwin':
-    test.no_result(1)
-elif sys.platform == 'win32':
-    test.no_result(1)
+if sys.platform in ['cygwin', 'win32']:
+    msg = "Can not test RPATH on '%s', skipping test.\n" % sys.platform
+    test.skip_test(msg)
 
 foo = test.workpath('foo' + _exe)
 

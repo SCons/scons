@@ -268,7 +268,11 @@ class TestSCons(TestCommon):
             # so this is an Aegis invocation; pass the test (exit 0).
             self.pass_test()
         else:
-            self.no_result()
+            # skip=1 means skip this function when showing where this
+            # result came from.  They only care about the line where the
+            # script called test.skip_test(), not the line number where
+            # we call test.no_result().
+            self.no_result(skip=1)
 
 
     def java_ENV(self):
