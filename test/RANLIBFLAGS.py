@@ -36,7 +36,8 @@ test = TestSCons.TestSCons()
 
 ranlib = test.detect('RANLIB', 'ranlib')
 
-test.no_result(not ranlib)
+if not ranlib:
+    test.skip_test("Could not find 'ranlib', skipping test.\n")
 
 test.write("wrapper.py",
 """import os

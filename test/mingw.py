@@ -43,7 +43,7 @@ if sys.platform != 'win32':
     msg = "Skipping mingw test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-# This test requires MingW to be installed:
+# This test requires MinGW to be installed:
 test.write('SConstruct',"""
 from SCons.Tool.mingw import exists
 import sys
@@ -55,7 +55,7 @@ sys.exit(0)
 
 test.run()
 if string.find(test.stdout(), 'mingw exists') == -1:
-    test.no_result()
+    test.skip_test("No MinGW on this system, skipping test.\n")
 
 test.subdir('header')
 
