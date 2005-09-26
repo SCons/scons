@@ -79,19 +79,22 @@ class BuildTask(SCons.Taskmaster.Task):
         display('scons: ' + message)
 
     def execute(self):
-        target = self.targets[0]
-        if target.get_state() == SCons.Node.up_to_date:
+        for target in self.targets:
+            if target.get_state() == SCons.Node.up_to_date: 
+                continue
+            if target.has_builder() and not hasattr(target.builder, 'status'):
+                if print_time:
+                    start_time = time.time()
+                SCons.Taskmaster.Task.execute(self)
+                if print_time:
+                    finish_time = time.time()
+                    global command_time
+                    command_time = command_time+finish_time-start_time
+                    print "Command execution time: %f seconds"%(finish_time-start_time)
+                break
+        else:
             if self.top and target.has_builder():
                 display("scons: `%s' is up to date." % str(self.node))
-        elif target.has_builder() and not hasattr(target.builder, 'status'):
-            if print_time:
-                start_time = time.time()
-            SCons.Taskmaster.Task.execute(self)
-            if print_time:
-                finish_time = time.time()
-                global command_time
-                command_time = command_time+finish_time-start_time
-                print "Command execution time: %f seconds"%(finish_time-start_time)
 
     def do_failed(self, status=2):
         global exit_status
@@ -1187,7 +1190,7 @@ def _main(args, parser):
 
     nodes = filter(None, map(Entry, targets))
 
-    task_class = BuildTask	# default action is to build targets
+    task_class = BuildTask      # default action is to build targets
     opening_message = "Building targets ..."
     closing_message = "done building targets."
     if keep_going_on_error:
@@ -1277,7 +1280,7 @@ def main():
     global exit_status
     
     try:
-	_exec_main()
+        _exec_main()
     except SystemExit, s:
         if s:
             exit_status = s
