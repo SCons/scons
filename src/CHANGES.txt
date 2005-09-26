@@ -375,6 +375,12 @@ RELEASE 0.97 - XXX
 
   - Improve SWIG tests for use on Mac OS X (Darwin).
 
+  From Patrick Mezard:
+
+  - Execute build commands for a command-line target if any of the
+    files built along with the target is out of date or non-existent,
+    not just if the command-line target itself is out of date.
+
   From Georg Mischler:
 
   - Remove the space after the -o option when invoking the Borland
