@@ -48,6 +48,8 @@ def jarSources(target, source, env, for_signature):
                 # If we are changing the dir with -C, then sources should
                 # be relative to that directory.
                 src = src.get_path(src.fs.Dir(jarchdir))
+                result.append('-C')
+                result.append(jarchdir)
             result.append(src)
     return result
 
@@ -71,14 +73,6 @@ def jarFlags(target, source, env, for_signature):
             break
     return jarflags
 
-def jarChdir(target, source, env, for_signature):
-    """If we have an Environment variable by the name
-    of JARCHDIR, then supply the command line option
-    '-C <dir>' to Jar."""
-    if env.has_key('JARCHDIR'):
-        return [ '-C', '$JARCHDIR' ]
-    return []
-
 JarAction = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
 
 JarBuilder = SCons.Builder.Builder(action = JarAction,
@@ -97,8 +91,7 @@ def generate(env):
     env['_JARFLAGS']  = jarFlags
     env['_JARMANIFEST'] = jarManifest
     env['_JARSOURCES'] = jarSources
-    env['_JARCHDIR']  = jarChdir
-    env['JARCOM']     = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARCHDIR $_JARSOURCES'
+    env['JARCOM']     = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARSOURCES'
     env['JARSUFFIX']  = '.jar'
 
 def exists(env):

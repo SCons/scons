@@ -470,6 +470,11 @@ RELEASE 0.97 - XXX
 
   - Document the new $FRAMEWORK* variables for Mac OS X.
 
+  From Kian Win Ong:
+
+  - When building a .jar file and there is a $JARCHDIR, put the -C
+    in front of each .class file on the command line.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
