@@ -94,27 +94,22 @@ line 3
     test.must_match('test2.h', "test2.JAVA\nline 3\n")
 
 
-if test.detect_tool('javac'):
-    where_javac = test.detect('JAVAC', 'javac')
-else:
-    import SCons.Environment
-    env = SCons.Environment.Environment()
-    where_javac = env.WhereIs('javac', os.environ['PATH'])
-    if not where_javac:
-        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
-        if not where_javac:
-            test.skip_test("Could not find Java javac, skipping test(s).\n")
 
-if test.detect_tool('javah'):
-    where_javah = test.detect('JAVAH', 'javah')
+ENV = test.java_ENV()
+
+if test.detect_tool('javac', ENV=ENV):
+    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
 else:
-    import SCons.Environment
-    env = SCons.Environment.Environment()
-    where_javah = env.WhereIs('javah', os.environ['PATH'])
-    if not where_javah:
-        where_javah = env.WhereIs('javah', '/usr/local/j2sdk1.3.1/bin')
-        if not where_javah:
-            test.skip_test("Could not find Java javah, skipping test(s).\n")
+    where_javac = test.where_is('javac')
+if not where_javac:
+    test.skip_test("Could not find Java javac, skipping test(s).\n")
+
+if test.detect_tool('javah', ENV=ENV):
+    where_javah = test.detect('JAVAH', 'javah', ENV=ENV)
+else:
+    where_javah = test.where_is('javah')
+if not where_javah:
+    test.skip_test("Could not find Java javah, skipping test(s).\n")
 
 
 
