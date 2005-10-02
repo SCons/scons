@@ -224,8 +224,10 @@ class CleanTask(SCons.Taskmaster.Task):
 
     def show(self):
         target = self.targets[0]
-        if (target.has_builder() or target.side_effect) and not target.isdir():
-            display("Removed " + str(target))
+        if target.has_builder() or target.side_effect:
+            for t in self.targets:
+                if not t.isdir():
+                    display("Removed " + str(t))
         if SCons.Environment.CleanTargets.has_key(target):
             files = SCons.Environment.CleanTargets[target]
             for f in files:
