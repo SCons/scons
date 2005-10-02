@@ -381,6 +381,9 @@ RELEASE 0.97 - XXX
     files built along with the target is out of date or non-existent,
     not just if the command-line target itself is out of date.
 
+  - Fix the -n option when used with -c to print all of the targets
+    that will be removed for a multi-target Builder call.
+
   From Georg Mischler:
 
   - Remove the space after the -o option when invoking the Borland
