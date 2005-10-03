@@ -478,7 +478,10 @@ if old_pythonpath:
                                os.pathsep + \
                                old_pythonpath
 
-os.chdir(scons_script_dir)
+try:
+    os.chdir(scons_script_dir)
+except OSError:
+    pass
 
 class Unbuffered:
     def __init__(self, file):
