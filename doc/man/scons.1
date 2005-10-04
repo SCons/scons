@@ -4971,6 +4971,25 @@ called to transform the list before concatenation.
 env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
 .EE
 
+.IP CONFIGUREDIR
+The name of the directory in which
+Configure context test files are written.
+The default is
+.B .sconf_temp
+in the top-level directory
+containing the
+.B SConstruct
+file.
+
+.IP CONFIGURELOG
+The name of the Configure context log file.
+The default is
+.B config.log
+in the top-level directory
+containing the
+.B SConstruct
+file.
+
 .IP CPPDEFINES
 A platform independent specification of C preprocessor definitions.
 The definitions will be added to command lines

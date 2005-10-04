@@ -345,6 +345,8 @@ class Variable_Method_Caller:
 ConstructionEnvironment = {
     'BUILDERS'      : {},
     'SCANNERS'      : [],
+    'CONFIGUREDIR'  : '#/.sconf_temp',
+    'CONFIGURELOG'  : '#/config.log',
     'CPPSUFFIXES'   : SCons.Tool.CSuffixes,
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
