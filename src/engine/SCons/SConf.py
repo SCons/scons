@@ -329,8 +329,8 @@ class SConf:
     SConf run, we need to explicitely cache this error.
     """
 
-    def __init__(self, env, custom_tests = {}, conf_dir='#/.sconf_temp',
-                 log_file='#/config.log', config_h = None, _depth = 0): 
+    def __init__(self, env, custom_tests = {}, conf_dir='$CONFIGUREDIR',
+                 log_file='$CONFIGURELOG', config_h = None, _depth = 0): 
         """Constructor. Pass additional tests in the custom_tests-dictinary,
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
@@ -346,9 +346,8 @@ class SConf:
                    "Only one SConf object may be active at one time")
         self.env = env
         if log_file != None:
-            self.logfile = SConfFS.File(log_file)
-        else:
-            self.logfile = None
+            log_file = SConfFS.File(env.subst(log_file))
+        self.logfile = log_file
         self.logstream = None
         self.lastTarget = None
         self.depth = _depth
@@ -366,7 +365,7 @@ class SConf:
                }
         self.AddTests(default_tests)
         self.AddTests(custom_tests)
-        self.confdir = SConfFS.Dir(conf_dir)
+        self.confdir = SConfFS.Dir(env.subst(conf_dir))
         self.calc = None
         if not config_h is None:
             config_h = SConfFS.File(config_h)

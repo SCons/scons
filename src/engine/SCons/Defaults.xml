@@ -84,6 +84,31 @@ env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDir
 </summary>
 </cvar>
 
+<cvar name="CONFIGUREDIR">
+<summary>
+The name of the directory in which
+Configure context test files are written.
+The default is
+<filename>.sconf_temp</filename>
+in the top-level directory
+containing the
+<filename>SConstruct</filename>
+file.
+</summary>
+</cvar>
+
+<cvar name="CONFIGURELOG">
+<summary>
+The name of the Configure context log file.
+The default is
+<filename>config.log</filename>
+in the top-level directory
+containing the
+<filename>SConstruct</filename>
+file.
+</summary>
+</cvar>
+
 <cvar name="CPPDEFINES">
 <summary>
 A platform independent specification of C preprocessor definitions.
