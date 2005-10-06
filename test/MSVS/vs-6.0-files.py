@@ -24,9 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test that we can generate Visual Studio 6 project (.dsp) and solution
+(.dsw) files that look correct.
+"""
+
 import os
-import os.path
-import string
 import sys
 
 import TestCmd
@@ -38,20 +41,7 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-if not '6.0' in test.msvs_versions():
-    msg = "Visual Studio 6 not installed; skipping test.\n"
-    test.skip_test(msg)
 
-def diff_section(expect, actual):
-    i = 0
-    for x, y in zip(expect, actual):
-        if x != y:
-            return "Actual did not match expect at char %d:\n" \
-                   "    Expect:  %s\n" \
-                   "    Actual:  %s\n" \
-                   % (i, repr(expect[i-20:i+40]), repr(actual[i-20:i+40]))
-        i = i + 1
-    return "Actual matched the expected output???"
 
 expected_dspfile = '''\
 # Microsoft Developer Studio Project File - Name="Test" - Package Owner=<4>
@@ -192,8 +182,9 @@ Package=<3>
 '''
 
 
+test.subdir('work1')
 
-test.write('SConstruct','''
+test.write(['work1', 'SConstruct'], """\
 env=Environment(MSVS_VERSION = '6.0')
 
 testsrc = ['test.c']
@@ -210,75 +201,35 @@ env.MSVSProject(target = 'Test.dsp',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-''')
+""")
 
-test.run(arguments="Test.dsp")
+test.run(chdir='work1', arguments="Test.dsp")
 
-test.must_exist(test.workpath('Test.dsp'))
-dsp = test.read('Test.dsp', 'r')
-expect = test.msvs_substitute(expected_dspfile, '6.0')
+test.must_exist(test.workpath('work1', 'Test.dsp'))
+dsp = test.read(['work1', 'Test.dsp'], 'r')
+expect = test.msvs_substitute(expected_dspfile, '6.0', 'work1')
 # don't compare the pickled data
-assert dsp[:len(expect)] == expect, diff_section(expect, dsp)
+assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
-test.must_exist(test.workpath('Test.dsw'))
-dsw = test.read('Test.dsw', 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0')
-assert dsw == expect, diff_section(expect, dsw)
+test.must_exist(test.workpath('work1', 'Test.dsw'))
+dsw = test.read(['work1', 'Test.dsw'], 'r')
+expect = test.msvs_substitute(expected_dswfile, '6.0', 'work1')
+assert dsw == expect, test.diff_substr(expect, dsw)
 
-test.run(arguments='-c .')
+test.run(chdir='work1', arguments='-c .')
 
-test.must_not_exist(test.workpath('Test.dsp'))
-test.must_not_exist(test.workpath('Test.dsw'))
+test.must_not_exist(test.workpath('work1', 'Test.dsp'))
+test.must_not_exist(test.workpath('work1', 'Test.dsw'))
 
-test.run(arguments='Test.dsp')
+test.run(chdir='work1', arguments='Test.dsp')
 
-test.must_exist(test.workpath('Test.dsp'))
-test.must_exist(test.workpath('Test.dsw'))
+test.must_exist(test.workpath('work1', 'Test.dsp'))
+test.must_exist(test.workpath('work1', 'Test.dsw'))
 
-test.run(arguments='-c Test.dsw')
+test.run(chdir='work1', arguments='-c Test.dsw')
 
-test.must_not_exist(test.workpath('Test.dsp'))
-test.must_not_exist(test.workpath('Test.dsw'))
-
-
-
-test.write('SConstruct','''
-env=Environment(MSVS_VERSION = '6.0')
-
-env.MSVSProject(target = 'Test.dsp',
-                srcs = ['test.c'],
-                buildtarget = 'Test.exe',
-                variant = 'Release')
-
-env.Program('test.c')
-''')
-
-test.write('test.c', r"""
-int
-main(int argc, char *argv)
-{
-    printf("test.c\n");
-    exit (0);
-}
-""")
-
-# Let SCons figure out the Visual Studio environment variables for us and
-# print out a statement that we can exec to suck them into our external
-# environment so we can execute msdev and really try to build something.
-
-test.run(arguments = '-n -q -Q -f -', stdin = """\
-env = Environment(tools = ['msvc'])
-print "os.environ.update(%s)" % repr(env['ENV'])
-""")
-
-exec(test.stdout())
-
-test.run(arguments='Test.dsp')
-
-test.run(program=['msdev'],
-         arguments=['Test.dsp', '/MAKE', 'test - Win32 Release'])
-
-test.run(program=test.workpath('test'), stdout = "test.c\n")
+test.must_not_exist(test.workpath('work1', 'Test.dsp'))
+test.must_not_exist(test.workpath('work1', 'Test.dsw'))
 
 
 

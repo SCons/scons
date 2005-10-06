@@ -274,6 +274,16 @@ class TestSCons(TestCommon):
             # we call test.no_result().
             self.no_result(skip=1)
 
+    def diff_substr(self, expect, actual):
+        i = 0
+        for x, y in zip(expect, actual):
+            if x != y:
+                return "Actual did not match expect at char %d:\n" \
+                       "    Expect:  %s\n" \
+                       "    Actual:  %s\n" \
+                       % (i, repr(expect[i-20:i+40]), repr(actual[i-20:i+40]))
+            i = i + 1
+        return "Actual matched the expected output???"
 
     def java_ENV(self):
         """
@@ -463,17 +473,19 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         contents = string.replace(contents, orig, replace)
         self.write(fname, contents)
 
-    def msvs_substitute(self, input, msvs_ver, python=sys.executable):
+    def msvs_substitute(self, input, msvs_ver, subdir=None, python=sys.executable):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
 
-        if msvs_ver in ['7.1']:
-            python = '&quot;' + python + '&quot;'
+        if subdir:
+            workpath = self.workpath(subdir)
+        else:
+            workpath = self.workpath()
 
         exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
         exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
 
-        result = string.replace(input, r'<WORKPATH>', self.workpath())
+        result = string.replace(input, r'<WORKPATH>', workpath)
         result = string.replace(result, r'<PYTHON>', python)
         result = string.replace(result, r'<SCONS_SCRIPT_MAIN>', exec_script_main)
         result = string.replace(result, r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
