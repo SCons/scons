@@ -473,7 +473,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         contents = string.replace(contents, orig, replace)
         self.write(fname, contents)
 
-    def msvs_substitute(self, input, msvs_ver, subdir=None, python=sys.executable):
+    def msvs_substitute(self, input, msvs_ver, subdir=None, sconscript=None, python=sys.executable):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
 
@@ -482,11 +482,15 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         else:
             workpath = self.workpath()
 
+	if not sconscript:
+	    sconscript = self.workpath('SConstruct')
+
         exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
         exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
 
         result = string.replace(input, r'<WORKPATH>', workpath)
         result = string.replace(result, r'<PYTHON>', python)
+        result = string.replace(result, r'<SCONSCRIPT>', sconscript)
         result = string.replace(result, r'<SCONS_SCRIPT_MAIN>', exec_script_main)
         result = string.replace(result, r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
         return result
