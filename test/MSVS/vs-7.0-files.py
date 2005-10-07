@@ -36,7 +36,7 @@ import sys
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons()
 
 if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
@@ -129,7 +129,7 @@ expected_vcprojfile = """\
 \t\t\t</File>
 \t\t</Filter>
 \t\t<File
-\t\t\tRelativePath="<WORKPATH>\SConstruct">
+\t\t\tRelativePath="<SCONSCRIPT>">
 \t\t</File>
 \t</Files>
 \t<Globals>
@@ -138,9 +138,8 @@ expected_vcprojfile = """\
 """
 
 
-test.subdir('work1')
 
-test.write(['work1', 'SConstruct'], """\
+SConscript_contents = """\
 env=Environment(MSVS_VERSION = '7.0')
 
 testsrc = ['test.cpp']
@@ -158,19 +157,27 @@ env.MSVSProject(target = 'Test.vcproj',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""")
+"""
+
+
+
+test.subdir('work1')
+
+test.write(['work1', 'SConstruct'], SConscript_contents)
 
 test.run(chdir='work1', arguments="Test.vcproj")
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1',
+		              test.workpath('work1', 'SConstruct'))
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_exist(test.workpath('work1', 'Test.sln'))
 sln = test.read(['work1', 'Test.sln'], 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0', 'work1')
+expect = test.msvs_substitute(expected_slnfile, '7.0', 'work1',
+		              test.workpath('work1', 'SConstruct'))
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
@@ -201,11 +208,51 @@ python = os.path.join('$(PYTHON_ROOT)', os.path.split(sys.executable)[1])
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1', python=python)
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1',
+		              test.workpath('work1', 'SConstruct'),
+		              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 os.environ['PYTHON_ROOT'] = ''
+
+
+
+test.subdir('work2', ['work2', 'src'])
+
+test.write(['work2', 'SConstruct'], """\
+SConscript('src/SConscript', build_dir='build')
+""")
+
+test.write(['work2', 'src', 'SConscript'], SConscript_contents)
+
+test.run(chdir='work2', arguments=".")
+
+test.must_match(['work2', 'build', 'Test.vcproj'], """\
+This is just a placeholder file.
+The real project file is here:
+%s
+""" % test.workpath('work2', 'src', 'Test.vcproj'),
+                mode='r')
+
+vcproj = test.read(['work2', 'src', 'Test.vcproj'], 'r')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work2',
+		              test.workpath('work2', 'src', 'SConscript'))
+# don't compare the pickled data
+assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+
+test.must_match(['work2', 'build', 'Test.sln'], """\
+This is just a placeholder file.
+The real workspace file is here:
+%s
+""" % test.workpath('work2', 'src', 'Test.sln'),
+                mode='r')
+
+test.must_exist(test.workpath('work2', 'src', 'Test.sln'))
+sln = test.read(['work2', 'src', 'Test.sln'], 'r')
+expect = test.msvs_substitute(expected_slnfile, '7.0', 'work2\\src')
+# don't compare the pickled data
+assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
 
 

@@ -35,7 +35,7 @@ import sys
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons()
 
 if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
@@ -144,7 +144,7 @@ SOURCE="test.rc"
 # End Group
 # Begin Source File
 
-SOURCE="<WORKPATH>\SConstruct"
+SOURCE="<SCONSCRIPT>"
 # End Source File
 # End Target
 # End Project
@@ -182,9 +182,8 @@ Package=<3>
 '''
 
 
-test.subdir('work1')
 
-test.write(['work1', 'SConstruct'], """\
+SConscript_contents = """\
 env=Environment(MSVS_VERSION = '6.0')
 
 testsrc = ['test.c']
@@ -201,19 +200,27 @@ env.MSVSProject(target = 'Test.dsp',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""")
+"""
+
+
+
+test.subdir('work1')
+
+test.write(['work1', 'SConstruct'], SConscript_contents)
 
 test.run(chdir='work1', arguments="Test.dsp")
 
 test.must_exist(test.workpath('work1', 'Test.dsp'))
 dsp = test.read(['work1', 'Test.dsp'], 'r')
-expect = test.msvs_substitute(expected_dspfile, '6.0', 'work1')
+expect = test.msvs_substitute(expected_dspfile, '6.0', 'work1',
+		              test.workpath('work1', 'SConstruct'))
 # don't compare the pickled data
 assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
 test.must_exist(test.workpath('work1', 'Test.dsw'))
 dsw = test.read(['work1', 'Test.dsw'], 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0', 'work1')
+expect = test.msvs_substitute(expected_dswfile, '6.0', 'work1',
+		              test.workpath('work1', 'SConstruct'))
 assert dsw == expect, test.diff_substr(expect, dsw)
 
 test.run(chdir='work1', arguments='-c .')
@@ -230,6 +237,43 @@ test.run(chdir='work1', arguments='-c Test.dsw')
 
 test.must_not_exist(test.workpath('work1', 'Test.dsp'))
 test.must_not_exist(test.workpath('work1', 'Test.dsw'))
+
+
+
+test.subdir('work2', ['work2', 'src'])
+
+test.write(['work2', 'SConstruct'], """\
+SConscript('src/SConscript', build_dir='build')
+""")
+
+test.write(['work2', 'src', 'SConscript'], SConscript_contents)
+
+test.run(chdir='work2', arguments=".")
+
+test.must_match(['work2', 'build', 'Test.dsp'], """\
+This is just a placeholder file.
+The real project file is here:
+%s
+""" % test.workpath('work2', 'src', 'Test.dsp'),
+                mode='r')
+
+dsp = test.read(['work2', 'src', 'Test.dsp'], 'r')
+expect = test.msvs_substitute(expected_dspfile, '6.0', 'work2',
+		              test.workpath('work2', 'src', 'SConscript'))
+# don't compare the pickled data
+assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
+
+test.must_match(['work2', 'build', 'Test.dsw'], """\
+This is just a placeholder file.
+The real workspace file is here:
+%s
+""" % test.workpath('work2', 'src', 'Test.dsw'),
+                mode='r')
+
+test.must_exist(test.workpath('work2', 'src', 'Test.dsw'))
+dsw = test.read(['work2', 'src', 'Test.dsw'], 'r')
+expect = test.msvs_substitute(expected_dswfile, '6.0', 'work2\\src')
+assert dsw == expect, test.diff_substr(expect, dsw)
 
 
 
