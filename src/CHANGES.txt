@@ -340,6 +340,10 @@ RELEASE 0.97 - XXX
   - Don't fail when writing signatures if the .sconsign.dblite file is
     owned by a different user (e.g. root) from a previous run.
 
+  - When deleting variables from stacked OverrideEnvironments, don't
+    throw a KeyError if we were able to delte the variable from any
+    Environment in the stack.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.

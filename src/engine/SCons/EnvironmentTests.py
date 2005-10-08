@@ -2847,6 +2847,25 @@ class OverrideEnvironmentTestCase(unittest.TestCase):
         assert env2['YYY'] == 'y', env2['YYY']
         assert env3['YYY'] == 'y3', env3['YYY']
 
+    def test___delitem__(self):
+        """Test deleting variables from an OverrideEnvironment"""
+        env, env2, env3 = self.envs
+
+        del env3['XXX']
+        assert not env.has_key('XXX'), "env has XXX?"
+        assert not env2.has_key('XXX'), "env2 has XXX?"
+        assert not env3.has_key('XXX'), "env3 has XXX?"
+
+        del env3['YYY']
+        assert not env.has_key('YYY'), "env has YYY?"
+        assert not env2.has_key('YYY'), "env2 has YYY?"
+        assert not env3.has_key('YYY'), "env3 has YYY?"
+
+        del env3['ZZZ']
+        assert not env.has_key('ZZZ'), "env has ZZZ?"
+        assert not env2.has_key('ZZZ'), "env2 has ZZZ?"
+        assert not env3.has_key('ZZZ'), "env3 has ZZZ?"
+
     def test_get(self):
         """Test the OverrideEnvironment get() method"""
         env, env2, env3 = self.envs
