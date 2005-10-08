@@ -4387,18 +4387,34 @@ Performs construction variable interpolation
 on the specified string argument.
 
 By default,
+leading or trailing white space will
+be removed from the result.
+and all sequences of white space
+will be compressed to a single space character.
+Additionally, any
+.B $(
+and
+.B $)
+character sequences will be stripped from the returned string,
+The optional
+.I raw
+argument may be set to
+.B 1
+if you want to preserve white space and
+.BR $( - $)
+sequences.
+The
+.I raw
+argument may be set to
+.B 2
+if you want to strip
+all characters between
 any
 .B $(
 and
 .B $)
-will be stripped from the returned string.
-The optional
-.I raw
-target may be set to
-.B 1
-if you want to preserve these,
-although there is usually
-no reason to do this.
+pairs
+(as is done for signature calculation).
 
 The optional
 .I target
