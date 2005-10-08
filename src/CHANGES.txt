@@ -337,6 +337,9 @@ RELEASE 0.97 - XXX
   - Fix a signature refactoring bug that caused Qt header files to
     get re-generated every time.
 
+  - Don't fail when writing signatures if the .sconsign.dblite file is
+    owned by a different user (e.g. root) from a previous run.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
