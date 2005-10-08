@@ -40,12 +40,11 @@ import pickle
 import re
 import string
 import sys
-import types
 
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Platform.win32
-import SCons.Script
+import SCons.Script.SConscript
 import SCons.Util
 import SCons.Warnings
 
@@ -86,7 +85,6 @@ def _generateGUID(slnfile, name):
 # the MSVS Project file invoke SCons the same way that scons.bat does,
 # which works regardless of how we were invoked.
 exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
-exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
 
 # The string for the Python executable we tell the Project file to use
 # is either sys.executable or, if an external PYTHON_ROOT environment
@@ -97,52 +95,109 @@ try:
 except KeyError:
     python_executable = sys.executable
 else:
-    python_executable = os.path.join('$(PYTHON_ROOT)',
+    python_executable = os.path.join('$$(PYTHON_ROOT)',
                                      os.path.split(sys.executable)[1])
 
 class Config:
     pass
 
+def splitFully(path):
+    dir, base = os.path.split(path)
+    if dir and dir != '' and dir != path:
+        return splitFully(dir)+[base]
+    if base == '':
+        return []
+    return [base]
+
+def makeHierarchy(sources):
+    '''Break a list of files into a hierarchy; for each value, if it is a string,
+       then it is a file.  If it is a dictionary, it is a folder.  The string is
+       the original path of the file.'''
+
+    hierarchy = {}
+    for file in sources:
+        path = splitFully(file)
+        if len(path):
+            dict = hierarchy
+            for part in path[:-1]:
+                if not dict.has_key(part):
+                    dict[part] = {}
+                dict = dict[part]
+            dict[path[-1]] = file
+        #else:
+        #    print 'Warning: failed to decompose path for '+str(file)
+    return hierarchy    
+
 class _DSPGenerator:
     """ Base class for DSP generators """
+
+    srcargs = [
+        'srcs',
+        'incs',
+        'localincs',
+        'resources',
+        'misc']
+
     def __init__(self, dspfile, source, env):
-        if type(dspfile) == types.StringType:
+        if SCons.Util.is_String(dspfile):
             self.dspfile = os.path.abspath(dspfile)
         else:
             self.dspfile = dspfile.get_abspath()
 
-        try:
-            self.conspath = source[0].attributes.sconstruct.get_abspath()
-        except KeyError:
-            raise SCons.Errors.InternalError, \
-                  "Unable to determine where the SConstruct is"
-
-        self.config = Config()
-        if env.has_key('variant'):
-            self.config.variant = env['variant'].capitalize()
-        else:
+        if not env.has_key('variant'):
             raise SCons.Errors.InternalError, \
                   "You must specify a 'variant' argument (i.e. 'Debug' or " +\
                   "'Release') to create an MSVSProject."
+        elif SCons.Util.is_String(env['variant']):
+            variants = [env['variant']]
+        elif SCons.Util.is_List(env['variant']):
+            variants = env['variant']
 
-        if env.has_key('buildtarget'):
-            if type(env['buildtarget']) == types.StringType:
-                self.config.buildtarget = os.path.abspath(env['buildtarget'])
-            elif type(env['buildtarget']) == types.ListType:
-                self.config.buildtarget = env['buildtarget'][0].get_abspath()
-            else:
-                self.config.buildtarget = env['buildtarget'].get_abspath()
+        if not env.has_key('buildtarget') or env['buildtarget'] == None:
+            buildtarget = ['']
+        elif SCons.Util.is_String(env['buildtarget']):
+            buildtarget = [env['buildtarget']]
+        elif SCons.Util.is_List(env['buildtarget']):
+            if len(env['buildtarget']) != len(variants):
+                raise SCons.Errors.InternalError, \
+                    "Sizes of 'buildtarget' and 'variant' lists must be the same."
+            buildtarget = []
+            for bt in env['buildtarget']:
+                if SCons.Util.is_String(bt):
+                    buildtarget.append(bt)
+                else:
+                    buildtarget.append(bt.get_abspath())
         else:
-            raise SCons.Errors.InternalError, \
-                  "You must specify a target 'buildtarget' file argument (such as the target" +\
-                  " executable) to create an MSVSProject."
+            buildtarget = [env['buildtarget'].get_abspath()]
+        if len(buildtarget) == 1:
+            bt = buildtarget[0]
+            buildtarget = []
+            for v in variants:
+                buildtarget.append(bt)
 
-        self.config.outdir = os.path.dirname(self.config.buildtarget)
-
-        if type(source[0]) == types.StringType:
-            self.source = os.path.abspath(source[0])
+        if not env.has_key('outdir') or env['outdir'] == None:
+            outdir = ['']
+        elif SCons.Util.is_String(env['outdir']):
+            outdir = [env['outdir']]
+        elif SCons.Util.is_List(env['outdir']):
+            if len(env['outdir']) != len(variants):
+                raise SCons.Errors.InternalError, \
+                    "Sizes of 'outdir' and 'variant' lists must be the same."
+            outdir = []
+            for s in env['outdir']:
+                if SCons.Util.is_String(s):
+                    outdir.append(s)
+                else:
+                    outdir.append(s.get_abspath())
         else:
-            self.source = source[0].get_abspath()
+            outdir = [env['outdir'].get_abspath()]
+        if len(outdir) == 1:
+            s = outdir[0]
+            outdir = []
+            for v in variants:
+                outdir.append(s)
+
+	self.sconscript = env['MSVSSCONSCRIPT']
 
         self.env = env
 
@@ -151,21 +206,12 @@ class _DSPGenerator:
         else:
             self.name = os.path.basename(SCons.Util.splitext(self.dspfile)[0])
 
-        print "Adding '" + self.name + ' - ' + self.config.variant + "' to Visual Studio Project '" + str(dspfile) + "'"
-
         sourcenames = [
-            ' Source Files',
+            'Source Files',
             'Header Files',
             'Local Headers',
             'Resource Files',
             'Other Files']
-
-        srcargs = [
-            'srcs',
-            'incs',
-            'localincs',
-            'resources',
-            'misc']
 
         self.sources = {}
         for n in sourcenames:
@@ -173,12 +219,16 @@ class _DSPGenerator:
 
         self.configs = {}
 
-        if os.path.exists(self.dspfile):
+        self.nokeep = 0
+        if env.has_key('nokeep') and env['variant'] != 0:
+            self.nokeep = 1
+
+        if self.nokeep == 0 and os.path.exists(self.dspfile):
             self.Parse()
 
-        for t in zip(sourcenames,srcargs):
+        for t in zip(sourcenames,self.srcargs):
             if self.env.has_key(t[1]):
-                if type(self.env[t[1]]) == types.ListType:
+                if SCons.Util.is_List(self.env[t[1]]):
                     for i in self.env[t[1]]:
                         if not i in self.sources[t[0]]:
                             self.sources[t[0]].append(i)
@@ -187,9 +237,32 @@ class _DSPGenerator:
                         self.sources[t[0]].append(self.env[t[1]])
 
         for n in sourcenames:
-            self.sources[n].sort()
+            self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
 
-        self.configs[self.config.variant] = self.config
+        def AddConfig(variant, buildtarget, outdir):
+            config = Config()
+            config.buildtarget = buildtarget
+            config.outdir = outdir
+
+            match = re.match('(.*)\|(.*)', variant)
+            if match:
+                config.variant = match.group(1)
+                config.platform = match.group(2)
+            else:
+                config.variant = variant
+                config.platform = 'Win32';
+
+            self.configs[variant] = config
+            print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'"
+
+        for i in range(len(variants)):
+            AddConfig(variants[i], buildtarget[i], outdir[i])
+
+        self.platforms = []
+        for key in self.configs.keys():
+            platform = self.configs[key].platform
+            if not platform in self.platforms:
+                self.platforms.append(platform)
 
     def Build(self):
         pass
@@ -253,6 +326,10 @@ class _GenerateV6DSP(_DSPGenerator):
             else:
                 self.file.write('\n!ELSEIF  "$(CFG)" == "%s - Win32 %s"\n\n' % (name, kind))
 
+            env_has_buildtarget = self.env.has_key('MSVSBUILDTARGET')
+            if not env_has_buildtarget:
+                self.env['MSVSBUILDTARGET'] = buildtarget
+
             # have to write this twice, once with the BASE settings, and once without
             for base in ("BASE ",""):
                 self.file.write('# PROP %sUse_MFC 0\n'
@@ -263,15 +340,16 @@ class _GenerateV6DSP(_DSPGenerator):
                     self.file.write('1\n')
                 self.file.write('# PROP %sOutput_Dir "%s"\n'
                                 '# PROP %sIntermediate_Dir "%s"\n' % (base,outdir,base,outdir))
-                (d,c) = os.path.split(str(self.conspath))
-                cmd = 'echo Starting SCons && "%s" -c "%s" -C %s -f %s %s'
-                cmd = cmd % (python_executable, exec_script_main, d, c, buildtarget)
-                self.file.write('# PROP %sCmd_Line "%s"\n'
+                cmd = 'echo Starting SCons && ' + self.env.subst('$MSVSBUILDCOM', 1)
+                self.file.write('# PROP %sCmd_Line "%s"\n' 
                                 '# PROP %sRebuild_Opt "-c && %s"\n'
                                 '# PROP %sTarget_File "%s"\n'
                                 '# PROP %sBsc_Name ""\n'
                                 '# PROP %sTarget_Dir ""\n'\
                                 %(base,cmd,base,cmd,base,buildtarget,base,base))
+
+            if not env_has_buildtarget:
+                del self.env['MSVSBUILDTARGET']
 
         self.file.write('\n!ENDIF\n\n'
                         '# Begin Target\n\n')
@@ -290,23 +368,24 @@ class _GenerateV6DSP(_DSPGenerator):
         self.file.write('# End Target\n'
                         '# End Project\n')
 
-        # now we pickle some data and add it to the file -- MSDEV will ignore it.
-        pdata = pickle.dumps(self.configs,1)
-        pdata = base64.encodestring(pdata)
-        self.file.write(pdata + '\n')
-        pdata = pickle.dumps(self.sources,1)
-        pdata = base64.encodestring(pdata)
-        self.file.write(pdata + '\n')
+        if self.nokeep == 0:
+            # now we pickle some data and add it to the file -- MSDEV will ignore it.
+            pdata = pickle.dumps(self.configs,1)
+            pdata = base64.encodestring(pdata)
+            self.file.write(pdata + '\n')
+            pdata = pickle.dumps(self.sources,1)
+            pdata = base64.encodestring(pdata)
+            self.file.write(pdata + '\n')
 
     def PrintSourceFiles(self):
-        categories = {' Source Files': 'cpp|c|cxx|l|y|def|odl|idl|hpj|bat',
+        categories = {'Source Files': 'cpp|c|cxx|l|y|def|odl|idl|hpj|bat',
                       'Header Files': 'h|hpp|hxx|hm|inl',
                       'Local Headers': 'h|hpp|hxx|hm|inl',
                       'Resource Files': 'r|rc|ico|cur|bmp|dlg|rc2|rct|bin|cnt|rtf|gif|jpg|jpeg|jpe',
                       'Other Files': ''}
 
         cats = categories.keys()
-        cats.sort()
+        cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
         for kind in cats:
             if not self.sources[kind]:
                 continue # skip empty groups
@@ -322,9 +401,9 @@ class _GenerateV6DSP(_DSPGenerator):
                                 '# End Source File\n')
             self.file.write('# End Group\n')
 
-        # add the Conscript file outside of the groups
+        # add the SConscript file outside of the groups
         self.file.write('# Begin Source File\n\n'
-                        'SOURCE="' + str(self.source) + '"\n'
+                        'SOURCE="' + str(self.sconscript) + '"\n'
                         '# End Source File\n')
 
     def Parse(self):
@@ -386,7 +465,7 @@ class _GenerateV6DSP(_DSPGenerator):
             self.file.close()
 
 V7DSPHeader = """\
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding = "%(encoding)s"?>
 <VisualStudioProject
 \tProjectType="Visual C++"
 \tVersion="%(versionstr)s"
@@ -394,15 +473,11 @@ V7DSPHeader = """\
 \tSccProjectName=""
 \tSccLocalPath=""
 \tKeyword="MakeFileProj">
-\t<Platforms>
-\t\t<Platform
-\t\t\tName="Win32"/>
-\t</Platforms>
 """
 
 V7DSPConfiguration = """\
 \t\t<Configuration
-\t\t\tName="%(capitalized_kind)s|Win32"
+\t\t\tName="%(variant)s|Win32"
 \t\t\tOutputDirectory="%(outdir)s"
 \t\t\tIntermediateDirectory="%(outdir)s"
 \t\t\tConfigurationType="0"
@@ -410,9 +485,9 @@ V7DSPConfiguration = """\
 \t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="%(cmd)s"
+\t\t\t\tBuildCommandLine="%(buildcmd)s"
 \t\t\t\tCleanCommandLine="%(cleancmd)s"
-\t\t\t\tRebuildCommandLine="%(cmd)s"
+\t\t\t\tRebuildCommandLine="%(rebuildcmd)s"
 \t\t\t\tOutput="%(buildtarget)s"/>
 \t\t</Configuration>
 """
@@ -428,7 +503,18 @@ class _GenerateV7DSP(_DSPGenerator):
             self.versionstr = '7.10'
 
     def PrintHeader(self):
-        self.file.write(V7DSPHeader % self.__dict__)
+        versionstr = self.versionstr
+        name = self.name
+        encoding = self.env.subst('$MSVSENCODING')
+
+        self.file.write(V7DSPHeader % locals())
+
+        self.file.write('\t<Platforms>\n')
+        for platform in self.platforms:
+            self.file.write(
+                        '\t\t<Platform\n'
+                        '\t\t\tName="%s"/>\n' % platform)
+        self.file.write('\t</Platforms>\n')
 
     def PrintProject(self):
         self.file.write('\t<Configurations>\n')
@@ -436,39 +522,52 @@ class _GenerateV7DSP(_DSPGenerator):
         confkeys = self.configs.keys()
         confkeys.sort()
         for kind in confkeys:
-            capitalized_kind = kind.capitalize()
+            variant = self.configs[kind].variant
+            platform = self.configs[kind].platform
             outdir = self.configs[kind].outdir
             buildtarget = self.configs[kind].buildtarget
 
-            (d,c) = os.path.split(str(self.conspath))
-            fmt = 'echo Starting SCons &amp;&amp; &quot;%s&quot; -c &quot;%s&quot; -C %s -f %s%s %s'
-            cmd         = fmt % (python_executable, exec_script_main_xml,
-                                 d, c, '', buildtarget)
-            cleancmd    = fmt % (python_executable, exec_script_main_xml,
-                                 d, c, ' -c', buildtarget)
+            def xmlify(cmd):
+                cmd = string.replace(cmd, "&", "&amp;") # do this first
+                cmd = string.replace(cmd, "'", "&apos;")
+                cmd = string.replace(cmd, '"', "&quot;")
+                return cmd
+
+            env_has_buildtarget = self.env.has_key('MSVSBUILDTARGET')
+            if not env_has_buildtarget:
+                self.env['MSVSBUILDTARGET'] = buildtarget
+
+            starting = 'echo Starting SCons && '
+            buildcmd    = xmlify(starting + self.env.subst('$MSVSBUILDCOM', 1))
+            rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1))
+            cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1))
+
+            if not env_has_buildtarget:
+                del self.env['MSVSBUILDTARGET']
 
             self.file.write(V7DSPConfiguration % locals())
 
         self.file.write('\t</Configurations>\n')
 
         if self.version >= 7.1:
-            self.file.write('\t<References>\n'
+            self.file.write('\t<References>\n' 
                             '\t</References>\n')
 
         self.PrintSourceFiles()
 
         self.file.write('</VisualStudioProject>\n')
 
-        # now we pickle some data and add it to the file -- MSDEV will ignore it.
-        pdata = pickle.dumps(self.configs,1)
-        pdata = base64.encodestring(pdata)
-        self.file.write('<!-- SCons Data:\n' + pdata + '\n')
-        pdata = pickle.dumps(self.sources,1)
-        pdata = base64.encodestring(pdata)
-        self.file.write(pdata + '-->\n')
+        if self.nokeep == 0:
+            # now we pickle some data and add it to the file -- MSDEV will ignore it.
+            pdata = pickle.dumps(self.configs,1)
+            pdata = base64.encodestring(pdata)
+            self.file.write('<!-- SCons Data:\n' + pdata + '\n')
+            pdata = pickle.dumps(self.sources,1)
+            pdata = base64.encodestring(pdata)
+            self.file.write(pdata + '-->\n')
 
     def PrintSourceFiles(self):
-        categories = {' Source Files': 'cpp;c;cxx;l;y;def;odl;idl;hpj;bat',
+        categories = {'Source Files': 'cpp;c;cxx;l;y;def;odl;idl;hpj;bat',
                       'Header Files': 'h;hpp;hxx;hm;inl',
                       'Local Headers': 'h;hpp;hxx;hm;inl',
                       'Resource Files': 'r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe',
@@ -477,30 +576,61 @@ class _GenerateV7DSP(_DSPGenerator):
         self.file.write('\t<Files>\n')
 
         cats = categories.keys()
-        cats.sort()
+        cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        cats = filter(lambda k, s=self: s.sources[k], cats)
         for kind in cats:
-            if not self.sources[kind]:
-                continue # skip empty groups
+            if len(cats) > 1:
+                self.file.write('\t\t<Filter\n'
+                                '\t\t\tName="%s"\n'
+                                '\t\t\tFilter="%s">\n' % (kind, categories[kind]))
 
-            self.file.write('\t\t<Filter\n'
-                            '\t\t\tName="%s"\n'
-                            '\t\t\tFilter="%s">\n' % (kind, categories[kind]))
 
-            for file in self.sources[kind]:
-                file = os.path.normpath(file)
-                self.file.write('\t\t\t<File\n'
-                                '\t\t\t\tRelativePath="%s">\n'
-                                '\t\t\t</File>\n' % file)
+            def printSources(hierarchy):
+                sorteditems = hierarchy.items()
+                sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
 
-            self.file.write('\t\t</Filter>\n')
+                # First folders, then files
+                for key, value in sorteditems:
+                    if SCons.Util.is_Dict(value):
+                        self.file.write('\t\t\t<Filter\n'
+                                        '\t\t\t\tName="%s"\n'
+                                        '\t\t\t\tFilter="">\n' % (key))
+                        printSources(value)
+                        self.file.write('\t\t\t</Filter>\n')
 
-        # add the Conscript file outside of the groups
+                for key, value in sorteditems:
+                    if SCons.Util.is_String(value):
+                        file = value
+                        if commonprefix:
+                            file = os.path.join(commonprefix, value)
+                        file = os.path.normpath(file)
+                        self.file.write('\t\t\t<File\n'
+                                        '\t\t\t\tRelativePath="%s">\n'
+                                        '\t\t\t</File>\n' % (file))
+
+            sources = self.sources[kind]
+
+            # First remove any common prefix
+            commonprefix = None
+            if len(sources) > 1:
+                commonprefix = os.path.commonprefix(sources)
+                prefixlen = len(commonprefix)
+                if prefixlen:
+                    sources = map(lambda s, p=prefixlen: s[p:], sources)
+
+            hierarchy = makeHierarchy(sources)
+            printSources(hierarchy)
+
+            if len(cats)>1:
+                self.file.write('\t\t</Filter>\n')
+
+        # add the SConscript file outside of the groups
         self.file.write('\t\t<File\n'
                         '\t\t\tRelativePath="%s">\n'
-                        '\t\t</File>\n'
-                        '\t</Files>\n' % str(self.source))
+                        '\t\t</File>\n' % str(self.sconscript))
 
-        self.file.write('\t<Globals>\n'
+        self.file.write('\t</Files>\n'
+                        '\t<Globals>\n'
                         '\t</Globals>\n')
 
     def Parse(self):
@@ -562,10 +692,25 @@ class _GenerateV7DSP(_DSPGenerator):
 
 class _DSWGenerator:
     """ Base class for DSW generators """
-    def __init__(self, dswfile, dspfile, source, env):
+    def __init__(self, dswfile, source, env):
         self.dswfile = os.path.normpath(str(dswfile))
-        self.dspfile = os.path.abspath(str(dspfile))
         self.env = env
+
+        if not env.has_key('projects'):
+            raise SCons.Errors.UserError, \
+                "You must specify a 'projects' argument to create an MSVSSolution."
+        projects = env['projects']
+        if not SCons.Util.is_List(projects):
+            raise SCons.Errors.InternalError, \
+                "The 'projects' argument must be a list of nodes."
+        projects = SCons.Util.flatten(projects)
+        if len(projects) < 1:
+            raise SCons.Errors.UserError, \
+                "You must specify at least one project to create an MSVSSolution."
+        if len(projects) > 1:
+            raise SCons.Errors.UserError, \
+                "Currently you can specify at most one project to create an MSVSSolution."
+        self.dspfile = str(projects[0])
 
         if self.env.has_key('name'):
             self.name = self.env['name']
@@ -577,8 +722,8 @@ class _DSWGenerator:
 
 class _GenerateV7DSW(_DSWGenerator):
     """Generates a Solution file for MSVS .NET"""
-    def __init__(self, dswfile, dspfile, source, env):
-        _DSWGenerator.__init__(self, dswfile, dspfile, source, env)
+    def __init__(self, dswfile, source, env):
+        _DSWGenerator.__init__(self, dswfile, source, env)
 
         self.version = float(self.env['MSVS_VERSION'])
         self.versionstr = '7.00'
@@ -590,20 +735,44 @@ class _GenerateV7DSW(_DSWGenerator):
         else:
             self.slnguid = _generateGUID(dswfile, self.name)
 
-        self.config = Config()
-        if env.has_key('variant'):
-            self.config.variant = env['variant'].capitalize()
-        else:
+        self.configs = {}
+
+        self.nokeep = 0
+        if env.has_key('nokeep') and env['variant'] != 0:
+            self.nokeep = 1
+
+        if self.nokeep == 0 and os.path.exists(self.dswfile):
+            self.Parse()
+
+        def AddConfig(variant):
+            config = Config()
+
+            match = re.match('(.*)\|(.*)', variant)
+            if match:
+                config.variant = match.group(1)
+                config.platform = match.group(2)
+            else:
+                config.variant = variant
+                config.platform = 'Win32';
+
+            self.configs[variant] = config
+            print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dswfile) + "'"
+
+        if not env.has_key('variant'):
             raise SCons.Errors.InternalError, \
                   "You must specify a 'variant' argument (i.e. 'Debug' or " +\
                   "'Release') to create an MSVS Solution File."
+        elif SCons.Util.is_String(env['variant']):
+            AddConfig(env['variant'])
+        elif SCons.Util.is_List(env['variant']):
+            for variant in env['variant']:
+                AddConfig(variant)
 
-        self.configs = {}
-
-        if os.path.exists(self.dswfile):
-            self.Parse()
-
-        self.configs[self.config.variant] = self.config
+        self.platforms = []
+        for key in self.configs.keys():
+            platform = self.configs[key].platform
+            if not platform in self.platforms:
+                self.platforms.append(platform)
 
     def Parse(self):
         try:
@@ -650,7 +819,8 @@ class _GenerateV7DSW(_DSWGenerator):
         confkeys.sort()
         cnt = 0
         for name in confkeys:
-            self.file.write('\t\tConfigName.%d = %s\n' % (cnt, name.capitalize()))
+            variant = self.configs[name].variant
+            self.file.write('\t\tConfigName.%d = %s\n' % (cnt, variant))
             cnt = cnt + 1
         self.file.write('\tEndGlobalSection\n')
         if self.version < 7.1:
@@ -658,18 +828,21 @@ class _GenerateV7DSW(_DSWGenerator):
                             '\tEndGlobalSection\n')
         self.file.write('\tGlobalSection(ProjectConfiguration) = postSolution\n')
         for name in confkeys:
-            name = name.capitalize()
-            self.file.write('\t\t%s.%s.ActiveCfg = %s|Win32\n'
-                            '\t\t%s.%s.Build.0 = %s|Win32\n'  %(self.slnguid,name,name,self.slnguid,name,name))
+            name = name
+            variant = self.configs[name].variant
+            platform = self.configs[name].platform
+            self.file.write('\t\t%s.%s.ActiveCfg = %s|%s\n'
+                            '\t\t%s.%s.Build.0 = %s|%s\n'  %(self.slnguid,variant,variant,platform,self.slnguid,variant,variant,platform))
         self.file.write('\tEndGlobalSection\n'
                         '\tGlobalSection(ExtensibilityGlobals) = postSolution\n'
                         '\tEndGlobalSection\n'
                         '\tGlobalSection(ExtensibilityAddIns) = postSolution\n'
                         '\tEndGlobalSection\n'
                         'EndGlobal\n')
-        pdata = pickle.dumps(self.configs,1)
-        pdata = base64.encodestring(pdata)
-        self.file.write(pdata + '\n')
+        if self.nokeep == 0:
+            pdata = pickle.dumps(self.configs,1)
+            pdata = base64.encodestring(pdata)
+            self.file.write(pdata + '\n')
 
     def Build(self):
         try:
@@ -716,7 +889,9 @@ class _GenerateV6DSW(_DSWGenerator):
 
     def PrintWorkspace(self):
         """ writes a DSW file """
-        self.file.write(V6DSWHeader % self.__dict__)
+        name = self.name
+        dspfile = self.dspfile
+        self.file.write(V6DSWHeader % locals())
 
     def Build(self):
         try:
@@ -738,14 +913,14 @@ def GenerateDSP(dspfile, source, env):
         g = _GenerateV6DSP(dspfile, source, env)
         g.Build()
 
-def GenerateDSW(dswfile, dspfile, source, env):
+def GenerateDSW(dswfile, source, env):
     """Generates a Solution/Workspace file based on the version of MSVS that is being used"""
 
     if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
-        g = _GenerateV7DSW(dswfile, dspfile, source, env)
+        g = _GenerateV7DSW(dswfile, source, env)
         g.Build()
     else:
-        g = _GenerateV6DSW(dswfile, dspfile, source, env)
+        g = _GenerateV6DSW(dswfile, source, env)
         g.Build()
 
 
@@ -761,7 +936,7 @@ def get_default_visualstudio_version(env):
 
     version = '6.0'
     versions = [version]
-    if not env.has_key('MSVS') or type(env['MSVS']) != types.DictType:
+    if not env.has_key('MSVS') or not SCons.Util.is_Dict(env['MSVS']):
         env['MSVS'] = {}
 
     if env.has_key('MSVS_VERSION'):
@@ -1022,19 +1197,10 @@ def GetMSVSSolutionSuffix(target, source, env, for_signature):
 def GenerateProject(target, source, env):
     # generate the dsp file, according to the version of MSVS.
     builddspfile = target[0]
-    builddswfile = target[1]
-    dswfile = builddswfile.srcnode()
     dspfile = builddspfile.srcnode()
 
-#     print "SConscript    :",str(source[0])
-#     print "DSW file      :",dswfile
-#     print "DSP file      :",dspfile
-#     print "Build DSW file:",builddswfile
-#     print "Build DSP file:",builddspfile
-
     # this detects whether or not we're using a BuildDir
-    if os.path.abspath(os.path.normcase(str(dspfile))) != \
-           os.path.abspath(os.path.normcase(str(builddspfile))):
+    if not dspfile is builddspfile:
         try:
             bdsp = open(str(builddspfile), "w+")
         except IOError, detail:
@@ -1043,20 +1209,33 @@ def GenerateProject(target, source, env):
 
         bdsp.write("This is just a placeholder file.\nThe real project file is here:\n%s\n" % dspfile.get_abspath())
 
-        try:
-            bdsw = open(str(builddswfile), "w+")
-        except IOError, detail:
-            print 'Unable to open "' + str(dspfile) + '" for writing:',detail,'\n'
-            raise
-
-        bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
-
     GenerateDSP(dspfile, source, env)
-    GenerateDSW(dswfile, dspfile, source, env)
+
+    if env.get('auto_build_solution', 1):
+        builddswfile = target[1]
+        dswfile = builddswfile.srcnode()
+
+        if not dswfile is builddswfile:
+
+            try:
+                bdsw = open(str(builddswfile), "w+")
+            except IOError, detail:
+                print 'Unable to open "' + str(dspfile) + '" for writing:',detail,'\n'
+                raise
+
+            bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
+
+        GenerateDSW(dswfile, source, env)
+
+def GenerateSolution(target, source, env):
+    GenerateDSW(target[0], source, env)
 
 def projectEmitter(target, source, env):
-    """Sets up the DSP and DSW dependencies for an SConscript file."""
+    """Sets up the DSP dependencies."""
 
+    # todo: Not sure what sets source to what user has passed as target,
+    # but this is what happens. When that is fixed, we also won't have
+    # to make the user always append env['MSVSPROJECTSUFFIX'] to target.
     if source[0] == target[0]:
         source = []
 
@@ -1065,35 +1244,156 @@ def projectEmitter(target, source, env):
     suff = env.subst('$MSVSPROJECTSUFFIX')
     target[0] = base + suff
 
-    dspfile = env.File(target[0]).srcnode()
-    dswfile = env.File(SCons.Util.splitext(str(dspfile))[0] + env.subst('$MSVSSOLUTIONSUFFIX'))
-
-    # XXX Need to find a way to abstract this; the build engine
-    # shouldn't depend on anything in SCons.Script.
-    stack = SCons.Script.call_stack
     if not source:
-        source = [stack[-1].sconscript.srcnode()]
-    source[0].attributes.sconstruct = stack[0].sconscript
+        source = 'prj_inputs:'
+        source = source + env.subst('$MSVSSCONSCOM', 1)
+        source = source + env.subst('$MSVSENCODING', 1)
 
-    bdswpath = SCons.Util.splitext(str(target[0]))[0] + env.subst('$MSVSSOLUTIONSUFFIX')
-    bdswfile = env.File(bdswpath)
+        if env.has_key('buildtarget') and env['buildtarget'] != None:
+            if SCons.Util.is_String(env['buildtarget']):
+                source = source + ' "%s"' % env['buildtarget']
+            elif SCons.Util.is_List(env['buildtarget']):
+                for bt in env['buildtarget']:
+                    if SCons.Util.is_String(bt):
+                        source = source + ' "%s"' % bt
+                    else:
+                        try: source = source + ' "%s"' % bt.get_abspath()
+                        except AttributeError: raise SCons.Errors.InternalError, \
+                            "buildtarget can be a string, a node, a list of strings or nodes, or None"
+            else:
+                try: source = source + ' "%s"' % env['buildtarget'].get_abspath()
+                except AttributeError: raise SCons.Errors.InternalError, \
+                    "buildtarget can be a string, a node, a list of strings or nodes, or None"
 
-    # only make these side effects if they're
-    # not the same file.
-    if os.path.abspath(os.path.normcase(str(dspfile))) != \
-           os.path.abspath(os.path.normcase(str(target[0]))):
-        env.SideEffect(dspfile, target[0])
-        env.Precious(dspfile)
-        # dswfile isn't precious -- it can be blown away and rewritten each time.
-        env.SideEffect(dswfile, target[0])
+        if env.has_key('outdir') and env['outdir'] != None:
+            if SCons.Util.is_String(env['outdir']):
+                source = source + ' "%s"' % env['outdir']
+            elif SCons.Util.is_List(env['outdir']):
+                for s in env['outdir']:
+                    if SCons.Util.is_String(s):
+                        source = source + ' "%s"' % s
+                    else:
+                        try: source = source + ' "%s"' % s.get_abspath()
+                        except AttributeError: raise SCons.Errors.InternalError, \
+                            "outdir can be a string, a node, a list of strings or nodes, or None"
+            else:
+                try: source = source + ' "%s"' % env['outdir'].get_abspath()
+                except AttributeError: raise SCons.Errors.InternalError, \
+                    "outdir can be a string, a node, a list of strings or nodes, or None"
 
-    return ([target[0],bdswfile], source)
+        if env.has_key('name'):
+            if SCons.Util.is_String(env['name']):
+                source = source + ' "%s"' % env['name']
+            else:
+                raise SCons.Errors.InternalError, "name must be a string"
 
-projectGeneratorAction = SCons.Action.Action(GenerateProject, None)
+        if env.has_key('variant'):
+            if SCons.Util.is_String(env['variant']):
+                source = source + ' "%s"' % env['variant']
+            elif SCons.Util.is_List(env['variant']):
+                for variant in env['variant']:
+                    if SCons.Util.is_String(variant):
+                        source = source + ' "%s"' % variant
+                    else:
+                        raise SCons.Errors.InternalError, "name must be a string or a list of strings"
+            else:
+                raise SCons.Errors.InternalError, "variant must be a string or a list of strings"
+        else:
+            raise SCons.Errors.InternalError, "variant must be specified"
+
+        for s in _DSPGenerator.srcargs:
+            if env.has_key(s):
+                if SCons.Util.is_String(env[s]):
+                    source = source + ' "%s' % env[s]
+                elif SCons.Util.is_List(env[s]):
+                    for t in env[s]:
+                        if SCons.Util.is_String(t):
+                            source = source + ' "%s"' % t
+                        else:
+                            raise SCons.Errors.InternalError, s + " must be a string or a list of strings"
+                else:
+                    raise SCons.Errors.InternalError, s + " must be a string or a list of strings"
+
+        source = source + ' "%s"' % str(target[0])
+        source = [SCons.Node.Python.Value(source)]
+
+    targetlist = [target[0]]
+    sourcelist = source
+
+    if env.get('auto_build_solution', 1):
+        env['projects'] = targetlist
+        t, s = solutionEmitter(target, target, env)
+        targetlist = targetlist + t
+
+    return (targetlist, sourcelist)
+
+def solutionEmitter(target, source, env):
+    """Sets up the DSW dependencies."""
+
+    # todo: Not sure what sets source to what user has passed as target,
+    # but this is what happens. When that is fixed, we also won't have
+    # to make the user always append env['MSVSSOLUTIONSUFFIX'] to target.
+    if source[0] == target[0]:
+        source = []
+
+    # make sure the suffix is correct for the version of MSVS we're running.
+    (base, suff) = SCons.Util.splitext(str(target[0]))
+    suff = env.subst('$MSVSSOLUTIONSUFFIX')
+    target[0] = base + suff
+
+    if not source:
+        source = 'sln_inputs:'
+
+        if env.has_key('name'):
+            if SCons.Util.is_String(env['name']):
+                source = source + ' "%s"' % env['name']
+            else:
+                raise SCons.Errors.InternalError, "name must be a string"
+
+        if env.has_key('variant'):
+            if SCons.Util.is_String(env['variant']):
+                source = source + ' "%s"' % env['variant']
+            elif SCons.Util.is_List(env['variant']):
+                for variant in env['variant']:
+                    if SCons.Util.is_String(variant):
+                        source = source + ' "%s"' % variant
+                    else:
+                        raise SCons.Errors.InternalError, "name must be a string or a list of strings"
+            else:
+                raise SCons.Errors.InternalError, "variant must be a string or a list of strings"
+        else:
+            raise SCons.Errors.InternalError, "variant must be specified"
+
+        if env.has_key('slnguid'):
+            if SCons.Util.is_String(env['slnguid']):
+                source = source + ' "%s"' % env['slnguid']
+            else:
+                raise SCons.Errors.InternalError, "slnguid must be a string"
+
+        if env.has_key('projects'):
+            if SCons.Util.is_String(env['projects']):
+                source = source + ' "%s"' % env['projects']
+            elif SCons.Util.is_List(env['projects']):
+                for t in env['projects']:
+                    if SCons.Util.is_String(t):
+                        source = source + ' "%s"' % t
+
+        source = source + ' "%s"' % str(target[0])
+        source = [SCons.Node.Python.Value(source)]
+
+    return ([target[0]], source)
+
+projectAction = SCons.Action.Action(GenerateProject, None)
+
+solutionAction = SCons.Action.Action(GenerateSolution, None)
 
 projectBuilder = SCons.Builder.Builder(action = '$MSVSPROJECTCOM',
                                        suffix = '$MSVSPROJECTSUFFIX',
                                        emitter = projectEmitter)
+
+solutionBuilder = SCons.Builder.Builder(action = '$MSVSSOLUTIONCOM',
+                                        suffix = '$MSVSSOLUTIONSUFFIX',
+                                        emitter = solutionEmitter)
 
 def generate(env):
     """Add Builders and construction variables for Microsoft Visual
@@ -1103,7 +1403,28 @@ def generate(env):
     except KeyError:
         env['BUILDERS']['MSVSProject'] = projectBuilder
 
-    env['MSVSPROJECTCOM'] = projectGeneratorAction
+    try:
+        env['BUILDERS']['MSVSSolution']
+    except KeyError:
+        env['BUILDERS']['MSVSSolution'] = solutionBuilder
+
+    env['MSVSPROJECTCOM'] = projectAction
+    env['MSVSSOLUTIONCOM'] = solutionAction
+
+    if SCons.Script.call_stack:
+        # XXX Need to find a way to abstract this; the build engine
+        # shouldn't depend on anything in SCons.Script.
+        env['MSVSSCONSCRIPT'] = SCons.Script.call_stack[0].sconscript
+    else:
+        env['MSVSSCONSCRIPT'] = env.File('SConstruct')
+
+    env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, exec_script_main)
+    env['MSVSSCONSFLAGS'] = '-C ${MSVSSCONSCRIPT.dir.abspath} -f ${MSVSSCONSCRIPT.name}'
+    env['MSVSSCONSCOM'] = '$MSVSSCONS $MSVSSCONSFLAGS'
+    env['MSVSBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'
+    env['MSVSREBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'
+    env['MSVSCLEANCOM'] = '$MSVSSCONSCOM -c $MSVSBUILDTARGET'
+    env['MSVSENCODING'] = 'Windows-1252'
 
     try:
         version = get_default_visualstudio_version(env)
@@ -1143,4 +1464,3 @@ def exists(env):
     else:
         # there's at least one version of MSVS installed.
         return 1
-

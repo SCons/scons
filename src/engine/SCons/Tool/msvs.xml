@@ -7,62 +7,100 @@ XXX
 
 <builder name ="MSVSProject">
 <summary>
-Builds Microsoft Visual Studio project files.
+Builds a Microsoft Visual Studio project file,
+and by default builds a solution file as well.
+
 This builds a Visual Studio project file, based on the version of
 Visual Studio that is configured (either the latest installed version,
-or the version set by 
+or the version specified by 
 &cv-MSVS_VERSION;
 in the Environment constructor).
-For VS 6, it will generate 
+For Visual Studio 6, it will generate a
 <filename>.dsp</filename>
-and
+file.
+For Visual Studio 7 (.NET), it will generate a
+<filename>.dsp</filename>
+file.
+
+By default,
+this also generates a solution file
+for the specified project,
+a
 <filename>.dsw</filename>
-files, for VS 7, it will
-generate
-<filename>.vcproj</filename>
-and
+file for Visual Studio 6
+or a
 <filename>.sln</filename>
-files.
+file for Visual Studio 7 (.NET).
+This behavior may be disabled by specifying
+<literal>auto_build_solution=0</literal>
+when you call
+&b-MSVSProject;,
+in which case you presumably want to
+build the solution file(s)
+by calling the
+&b-MSVSSolution;
+Builder (see below).
 
 It takes several lists of filenames to be placed into the project
-file, currently these are limited to 
+file.
+These are currently these are limited to 
 <literal>srcs</literal>,
 <literal>incs</literal>,
 <literal>localincs</literal>,
 <literal>resources</literal>,
 and
 <literal>misc</literal>.
-These are pretty self explanatory, but it
-should be noted that the <literal>srcs</literal> list
-is NOT added to the &cv-SOURCES;
-construction variable.  This is because it represents a list of files
-to be added to the project file, not the source used to build the
-project file (in this case, the "source" is the &SConscript; file used
-to call MSVSProject).
+These are pretty self-explanatory, but it should be noted that these
+lists are added to the &cv-SOURCES; construction variable as strings,
+NOT as SCons File Nodes.  This is because they represent file
+names to be added to the project file, not the source files used to
+build the project file.
 
-In addition to these values (which are all optional, although not
-specifying any of them results in an empty project file), the
-following values must be specified:
+In addition to the above lists of values (which are all optional,
+although not specifying any of them results in an empty project file),
+the following values may be specified:
 
-target: The name of the target
+<literal>target</literal>: The name of the target
 <filename>.dsp</filename>
 or
 <filename>.vcproj</filename>
-file.  The correct
-suffix for the version of Visual Studio must be used, but the
+file.
+The correct
+suffix for the version of Visual Studio must be used,
+but the
 &cv-MSVSPROJECTSUFFIX;
-construction value
+construction variable
 will be defined to the correct value (see example below).
 
-variant: The name of this particular variant.  These are typically
-things like "Debug" or "Release", but really can be anything you want.
-Multiple calls to MSVSProject with different variants are allowed: all
-variants will be added to the project file with their appropriate
+<literal>variant</literal>:
+The name of this particular variant.
+For Visual Studio 7 projects,
+this can also be a list of variant names.
+These are typically things like "Debug" or "Release", but really
+can be anything you want.
+For Visual Studio 7 projects,
+they may also specify a target platform
+separated from the variant name by a
+<literal>|</literal>
+(vertical pipe)
+character:
+<literal>Debug|Xbox</literal>.
+The default target platform is Win32.
+Multiple calls to
+&b-MSVSProject;
+ with different variants are allowed;
+all variants will be added to the project file with their appropriate
 build targets and sources.
 
-buildtarget: A list of SCons.Node.FS objects which is returned from
-the command which builds the target.  This is used to tell SCons what
-to build when the 'build' button is pressed inside of the IDE.
+<literal>buildtarget</literal>:
+An optional string, node, or list of strings or nodes
+(one per build variant), to tell the Visual Studio debugger
+what output target to use in what build variant.
+The number of
+<literal>buildtarget</literal>
+entries must match the number of
+<literal>variant</literal>
+entries.
 
 Example usage:
 
@@ -83,6 +121,60 @@ local.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
                   resources = barresources,
                   misc = barmisc,
                   buildtarget = dll,
+                  variant = 'Release')
+</example>
+</summary>
+</builder>
+
+<builder name ="MSVSSolution">
+<summary>
+Builds a Microsoft Visual Studio solution file.
+
+This builds a Visual Studio solution file,
+based on the version of Visual Studio that is configured
+(either the latest installed version,
+or the version specified by 
+&cv-MSVS_VERSION;
+in the construction environment).
+For Visual Studio 6, it will generate a
+<filename>dsw</filename>
+file.
+For Visual Studio 7 (.NET), it will
+generate a
+<filename>sln</filename>
+file.
+
+The following values must be specified:
+
+<literal>target</literal>:
+The name of the target .dsw or .sln file.  The correct
+suffix for the version of Visual Studio must be used, but the value
+&cv-MSVSSOLUTIONSUFFIX;
+will be defined to the correct value (see example below).
+
+<literal>variant</literal>:
+The name of this particular variant, or a list of variant
+names (the latter is only supported for MSVS 7 solutions). These are
+typically things like "Debug" or "Release", but really can be anything
+you want. For MSVS 7 they may also specify target platform, like this
+"Debug|Xbox". Default platform is Win32.
+
+<literal>projects</literal>:
+A list of project file names, or Project nodes returned by calls to the
+&b-MSVSProject;
+Builder,
+to be placed into the solution file.
+(NOTE: Currently only one project is supported per solution.)
+It should be noted that these file names are NOT added to the $SOURCES
+environment variable in form of files, but rather as strings.   This
+is because they represent file names to be added to the solution file,
+not the source files used to build the solution file.
+
+Example Usage:
+
+<example>
+local.MSVSSolution(target = 'Bar' + env['MSVSSOLUTIONSUFFIX'],
+                  projects = ['bar' + env['MSVSPROJECTSUFFIX']],
                   variant = 'Release')
 </example>
 </summary>
@@ -224,8 +316,10 @@ environment variables are set explictly.
 Sets the preferred version of MSVS to use.
 
 SCons will (by default) select the latest version of MSVS
-installed on your machine.  So, if you have version 6 and version 7
-(MSVS .NET) installed, it will prefer version 7.  You can override this by
+installed on your machine.
+So, if you have version 6 and version 7 (MSVS .NET) installed,
+it will prefer version 7.
+You can override this by
 specifying the 
 <envar>MSVS_VERSION</envar>
 variable in the Environment initialization, setting it to the
@@ -234,10 +328,36 @@ If the given version isn't installed, tool initialization will fail.
 </summary>
 </cvar>
 
+<cvar name="MSVSBUILDCOM">
+<summary>
+The build command line placed in
+a generated Microsoft Visual Studio project file.
+The default is to have Visual Studio invoke SCons with any specified
+build targets.
+</summary>
+</cvar>
+
+<cvar name="MSVSCLEANCOM">
+<summary>
+The clean command line placed in
+a generated Microsoft Visual Studio project file.
+The default is to have Visual Studio invoke SCons with the -c option
+to remove any specified targets.
+</summary>
+</cvar>
+
+<cvar name="MSVSENCODING">
+<summary>
+The encoding string placed in
+a generated Microsoft Visual Studio project file.
+The default is encoding
+<literal>Windows-1252</literal>.
+</summary>
+</cvar>
+
 <cvar name="MSVSPROJECTCOM">
 <summary>
-The action used to generate Microsoft Visual Studio
-project and solution files.
+The action used to generate Microsoft Visual Studio project files.
 </summary>
 </cvar>
 
@@ -250,6 +370,63 @@ when using Visual Studio version 7.x (.NET),
 and
 <filename>.dsp</filename>
 when using earlier versions of Visual Studio.
+</summary>
+</cvar>
+
+<cvar name="MSVSREBUILDCOM">
+<summary>
+The rebuild command line placed in
+a generated Microsoft Visual Studio project file.
+The default is to have Visual Studio invoke SCons with any specified
+rebuild targets.
+</summary>
+</cvar>
+
+<cvar name="MSVSSCONS">
+<summary>
+The SCons used in generated Microsoft Visual Studio project files.
+The default is the version of SCons being
+used to generate the project file.
+</summary>
+</cvar>
+
+<cvar name="MSVSSCONSFLAGS">
+<summary>
+The SCons flags used in generated Microsoft Visual Studio
+project files.
+</summary>
+</cvar>
+
+<cvar name="MSVSSCONSCOM">
+<summary>
+The default SCons command used in generated Microsoft Visual Studio
+project files.
+</summary>
+</cvar>
+
+<cvar name="MSVSSCONSCRIPT">
+<summary>
+The sconscript file
+(that is,
+&SConstruct;
+or
+&SConscript;
+file)
+that will be invoked by Visual Studio
+project files
+(through the
+&cv-MSVSSCONSCOM;
+variable).
+The default is the same sconscript file
+that contains the call to
+&b-MSVSProject;
+to build the project file.
+</summary>
+</cvar>
+
+<cvar name="MSVSSOLUTIONCOM">
+<summary>
+The action used to generate Microsoft Visual Studio solution files.
 </summary>
 </cvar>
 

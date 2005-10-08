@@ -79,27 +79,20 @@ expected_vcprojfile = """\
 \t<Configurations>
 \t\t<Configuration
 \t\t\tName="Release|Win32"
-\t\t\tOutputDirectory="<WORKPATH>"
-\t\t\tIntermediateDirectory="<WORKPATH>"
+\t\t\tOutputDirectory=""
+\t\t\tIntermediateDirectory=""
 \t\t\tConfigurationType="0"
 \t\t\tUseOfMFC="0"
 \t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct -c <WORKPATH>\Test.exe"
-\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-\t\t\t\tOutput="<WORKPATH>\Test.exe"/>
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct Test.exe"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct -c Test.exe"
+\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct Test.exe"
+\t\t\t\tOutput="Test.exe"/>
 \t\t</Configuration>
 \t</Configurations>
 \t<Files>
-\t\t<Filter
-\t\t\tName=" Source Files"
-\t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
-\t\t\t<File
-\t\t\t\tRelativePath="test.cpp">
-\t\t\t</File>
-\t\t</Filter>
 \t\t<Filter
 \t\t\tName="Header Files"
 \t\t\tFilter="h;hpp;hxx;hm;inl">
@@ -126,6 +119,13 @@ expected_vcprojfile = """\
 \t\t\tFilter="r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
 \t\t\t<File
 \t\t\t\tRelativePath="test.rc">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Source Files"
+\t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
+\t\t\t<File
+\t\t\t\tRelativePath="test.cpp">
 \t\t\t</File>
 \t\t</Filter>
 \t\t<File
@@ -169,15 +169,13 @@ test.run(chdir='work1', arguments="Test.vcproj")
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1',
-		              test.workpath('work1', 'SConstruct'))
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1', 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_exist(test.workpath('work1', 'Test.sln'))
 sln = test.read(['work1', 'Test.sln'], 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0', 'work1',
-		              test.workpath('work1', 'SConstruct'))
+expect = test.msvs_substitute(expected_slnfile, '7.0', 'work1', 'SConstruct')
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
@@ -208,8 +206,7 @@ python = os.path.join('$(PYTHON_ROOT)', os.path.split(sys.executable)[1])
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1',
-		              test.workpath('work1', 'SConstruct'),
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1', 'SConstruct',
 		              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
@@ -228,18 +225,24 @@ test.write(['work2', 'src', 'SConscript'], SConscript_contents)
 
 test.run(chdir='work2', arguments=".")
 
+vcproj = test.read(['work2', 'src', 'Test.vcproj'], 'r')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work2', 'SConstruct')
+# don't compare the pickled data
+assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+
+test.must_exist(test.workpath('work2', 'src', 'Test.sln'))
+sln = test.read(['work2', 'src', 'Test.sln'], 'r')
+expect = test.msvs_substitute(expected_slnfile, '7.0',
+                              os.path.join('work2', 'src'))
+# don't compare the pickled data
+assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+
 test.must_match(['work2', 'build', 'Test.vcproj'], """\
 This is just a placeholder file.
 The real project file is here:
 %s
 """ % test.workpath('work2', 'src', 'Test.vcproj'),
                 mode='r')
-
-vcproj = test.read(['work2', 'src', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work2',
-		              test.workpath('work2', 'src', 'SConscript'))
-# don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_match(['work2', 'build', 'Test.sln'], """\
 This is just a placeholder file.
@@ -248,11 +251,67 @@ The real workspace file is here:
 """ % test.workpath('work2', 'src', 'Test.sln'),
                 mode='r')
 
-test.must_exist(test.workpath('work2', 'src', 'Test.sln'))
-sln = test.read(['work2', 'src', 'Test.sln'], 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0', 'work2\\src')
+
+
+test.subdir('work3')
+
+test.write(['work3', 'SConstruct'], """\
+env=Environment(MSVS_VERSION = '7.0')
+
+testsrc = ['test.cpp']
+testincs = ['sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+p = env.MSVSProject(target = 'Test.vcproj',
+                    srcs = testsrc,
+                    incs = testincs,
+                    localincs = testlocalincs,
+                    resources = testresources,
+                    misc = testmisc,
+                    buildtarget = 'Test.exe',
+                    variant = 'Release',
+                    auto_build_solution = 0)
+
+env.MSVSSolution(target = 'Test.sln',
+                 slnguid = '{SLNGUID}',
+                 projects = [p],
+                 variant = 'Release')
+""")
+
+test.run(chdir='work3', arguments=".")
+
+test.must_exist(test.workpath('work3', 'Test.vcproj'))
+vcproj = test.read(['work3', 'Test.vcproj'], 'r')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work3', 'SConstruct')
+# don't compare the pickled data
+assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+
+test.must_exist(test.workpath('work3', 'Test.sln'))
+sln = test.read(['work3', 'Test.sln'], 'r')
+expect = test.msvs_substitute(expected_slnfile, '7.0', 'work3', 'SConstruct')
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+
+test.run(chdir='work3', arguments='-c .')
+
+test.must_not_exist(test.workpath('work3', 'Test.vcproj'))
+test.must_not_exist(test.workpath('work3', 'Test.sln'))
+
+test.run(chdir='work3', arguments='.')
+
+test.must_exist(test.workpath('work3', 'Test.vcproj'))
+test.must_exist(test.workpath('work3', 'Test.sln'))
+
+test.run(chdir='work3', arguments='-c Test.sln')
+
+test.must_exist(test.workpath('work3', 'Test.vcproj'))
+test.must_not_exist(test.workpath('work3', 'Test.sln'))
+
+test.run(chdir='work3', arguments='-c Test.vcproj')
+
+test.must_not_exist(test.workpath('work3', 'Test.vcproj'))
 
 
 
