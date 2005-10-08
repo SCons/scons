@@ -424,6 +424,8 @@ RELEASE 0.97 - XXX
   - Re-order link lines so the -o option always comes right after the
     command name.
 
+  - Add /sw/bin to the default execution PATH on Mac OS X.
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a
@@ -499,6 +501,10 @@ RELEASE 0.97 - XXX
 
   - On Windows, preserve the external environment's %SYSTEMDRIVE%
     variable, too.
+
+  From Asfand Yar Qazi:
+
+  - Add /opt/bin to the default execution PATH on all POSIX platforms.
 
   From Kevin Quick:
 

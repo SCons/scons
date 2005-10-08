@@ -38,3 +38,4 @@ import os
 def generate(env):
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
+    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/sw/bin'
