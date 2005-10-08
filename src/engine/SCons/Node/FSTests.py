@@ -1836,6 +1836,37 @@ class FileTestCase(_tempdirTestCase):
         dirs = fff.Dirs(['d1', 'd2'])
         assert dirs == [d1, d2], map(str, dirs)
 
+    def test_exists(self):
+        """Test the File.exists() method"""
+        fs = self.fs
+        test = self.test
+
+        src_f1 = fs.File('src/f1')
+        assert not src_f1.exists(), "%s apparently exists?" % src_f1
+
+        test.subdir('src')
+        test.write(['src', 'f1'], "src/f1\n")
+
+        assert not src_f1.exists(), "%s did not cache previous exists() value" % src_f1
+        src_f1.clear()
+        assert src_f1.exists(), "%s apparently does not exist?" % src_f1
+
+        test.subdir('build')
+        fs.BuildDir('build', 'src')
+        build_f1 = fs.File('build/f1')
+
+        assert build_f1.exists(), "%s did not realize that %s exists" % (build_f1, src_f1)
+        assert os.path.exists(build_f1.abspath), "%s did not get duplicated on disk" % build_f1.abspath
+
+        test.unlink(['src', 'f1'])
+        src_f1.clear()  # so the next exists() call will look on disk again
+
+        assert build_f1.exists(), "%s did not cache previous exists() value" % build_f1
+        build_f1.clear()
+        build_f1.linked = None
+        assert not build_f1.exists(), "%s did not realize that %s disappeared" % (build_f1, src_f1)
+        assert not os.path.exists(build_f1.abspath), "%s did not get removed after %s was removed" % (build_f1, src_f1)
+
 
 
 class RepositoryTestCase(_tempdirTestCase):

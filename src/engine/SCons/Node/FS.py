@@ -1866,12 +1866,24 @@ class File(Base):
         "__cacheable__"
         # Duplicate from source path if we are set up to do this.
         if self.duplicate and not self.is_derived() and not self.linked:
-            src=self.srcnode()
+            src = self.srcnode()
             if src is self:
                 return Base.exists(self)
+            # At this point, src is meant to be copied in a build directory.
             src = src.rfile()
-            if src.abspath != self.abspath and src.exists():
-                self.do_duplicate(src)
+            if src.abspath != self.abspath:
+                if src.exists():
+                    self.do_duplicate(src)
+                    # Can't return 1 here because the duplication might
+                    # not actually occur if the -n option is being used.
+                else:
+                    # The source file does not exist.  Make sure no old
+                    # copy remains in the build directory.
+                    if Base.exists(self) or self.islink():
+                        self.fs.unlink(self.path)
+                    # Return None explicitly because the Base.exists() call
+                    # above will have cached its value if the file existed.
+                    return None
         return Base.exists(self)
 
     #

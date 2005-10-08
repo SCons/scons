@@ -396,6 +396,10 @@ RELEASE 0.97 - XXX
   - Fix the -n option when used with -c to print all of the targets
     that will be removed for a multi-target Builder call.
 
+  - If there's no file in the source directory, make sure there isn't
+    one in the build directory, too, to avoid dangling files left
+    over from previous runs when a source file is removed.
+
   From Georg Mischler:
 
   - Remove the space after the -o option when invoking the Borland
