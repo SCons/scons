@@ -75,20 +75,20 @@ CFG=Test - Win32 Release
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "<WORKPATH>"
-# PROP BASE Intermediate_Dir "<WORKPATH>"
-# PROP BASE Cmd_Line "echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP BASE Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP BASE Target_File "<WORKPATH>\Test.exe"
+# PROP BASE Output_Dir ""
+# PROP BASE Intermediate_Dir ""
+# PROP BASE Cmd_Line "echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct Test.exe"
+# PROP BASE Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct Test.exe"
+# PROP BASE Target_File "Test.exe"
 # PROP BASE Bsc_Name ""
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "<WORKPATH>"
-# PROP Intermediate_Dir "<WORKPATH>"
-# PROP Cmd_Line "echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP Target_File "<WORKPATH>\Test.exe"
+# PROP Output_Dir ""
+# PROP Intermediate_Dir ""
+# PROP Cmd_Line "echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct Test.exe"
+# PROP Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct Test.exe"
+# PROP Target_File "Test.exe"
 # PROP Bsc_Name ""
 # PROP Target_Dir ""
 
@@ -102,14 +102,6 @@ CFG=Test - Win32 Release
 
 !ENDIF 
 
-# Begin Group " Source Files"
-
-# PROP Default_Filter "cpp;c;cxx;l;y;def;odl;idl;hpj;bat"
-# Begin Source File
-
-SOURCE="test.c"
-# End Source File
-# End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
@@ -142,6 +134,14 @@ SOURCE="readme.txt"
 SOURCE="test.rc"
 # End Source File
 # End Group
+# Begin Group "Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;l;y;def;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE="test.c"
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE="<SCONSCRIPT>"
@@ -156,7 +156,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Test"="<WORKPATH>\Test.dsp" - Package Owner=<4>
+Project: "Test"="Test.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -212,15 +212,13 @@ test.run(chdir='work1', arguments="Test.dsp")
 
 test.must_exist(test.workpath('work1', 'Test.dsp'))
 dsp = test.read(['work1', 'Test.dsp'], 'r')
-expect = test.msvs_substitute(expected_dspfile, '6.0', 'work1',
-		              test.workpath('work1', 'SConstruct'))
+expect = test.msvs_substitute(expected_dspfile, '6.0', 'work1', 'SConstruct')
 # don't compare the pickled data
 assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
 test.must_exist(test.workpath('work1', 'Test.dsw'))
 dsw = test.read(['work1', 'Test.dsw'], 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0', 'work1',
-		              test.workpath('work1', 'SConstruct'))
+expect = test.msvs_substitute(expected_dswfile, '6.0', 'work1', 'SConstruct')
 assert dsw == expect, test.diff_substr(expect, dsw)
 
 test.run(chdir='work1', arguments='-c .')
@@ -250,18 +248,23 @@ test.write(['work2', 'src', 'SConscript'], SConscript_contents)
 
 test.run(chdir='work2', arguments=".")
 
+dsp = test.read(['work2', 'src', 'Test.dsp'], 'r')
+expect = test.msvs_substitute(expected_dspfile, '6.0', 'work2', 'SConstruct')
+# don't compare the pickled data
+assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
+
+test.must_exist(test.workpath('work2', 'src', 'Test.dsw'))
+dsw = test.read(['work2', 'src', 'Test.dsw'], 'r')
+expect = test.msvs_substitute(expected_dswfile, '6.0',
+                              os.path.join('work2', 'src'))
+assert dsw == expect, test.diff_substr(expect, dsw)
+
 test.must_match(['work2', 'build', 'Test.dsp'], """\
 This is just a placeholder file.
 The real project file is here:
 %s
 """ % test.workpath('work2', 'src', 'Test.dsp'),
                 mode='r')
-
-dsp = test.read(['work2', 'src', 'Test.dsp'], 'r')
-expect = test.msvs_substitute(expected_dspfile, '6.0', 'work2',
-		              test.workpath('work2', 'src', 'SConscript'))
-# don't compare the pickled data
-assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
 test.must_match(['work2', 'build', 'Test.dsw'], """\
 This is just a placeholder file.
@@ -270,10 +273,66 @@ The real workspace file is here:
 """ % test.workpath('work2', 'src', 'Test.dsw'),
                 mode='r')
 
-test.must_exist(test.workpath('work2', 'src', 'Test.dsw'))
-dsw = test.read(['work2', 'src', 'Test.dsw'], 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0', 'work2\\src')
+
+
+test.subdir('work3')
+
+test.write(['work3', 'SConstruct'], """\
+env=Environment(MSVS_VERSION = '6.0')
+
+testsrc = ['test.c']
+testincs = ['sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+p = env.MSVSProject(target = 'Test.dsp',
+                    srcs = testsrc,
+                    incs = testincs,
+                    localincs = testlocalincs,
+                    resources = testresources,
+                    misc = testmisc,
+                    buildtarget = 'Test.exe',
+                    variant = 'Release',
+                    auto_build_solution = 0)
+
+env.MSVSSolution(target = 'Test.dsw',
+                 slnguid = '{SLNGUID}',
+                 projects = [p],
+                 variant = 'Release')
+""")
+
+test.run(chdir='work3', arguments=".")
+
+test.must_exist(test.workpath('work3', 'Test.dsp'))
+dsp = test.read(['work3', 'Test.dsp'], 'r')
+expect = test.msvs_substitute(expected_dspfile, '6.0', 'work3', 'SConstruct')
+# don't compare the pickled data
+assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
+
+test.must_exist(test.workpath('work3', 'Test.dsw'))
+dsw = test.read(['work3', 'Test.dsw'], 'r')
+expect = test.msvs_substitute(expected_dswfile, '6.0', 'work3', 'SConstruct')
 assert dsw == expect, test.diff_substr(expect, dsw)
+
+test.run(chdir='work3', arguments='-c .')
+
+test.must_not_exist(test.workpath('work3', 'Test.dsp'))
+test.must_not_exist(test.workpath('work3', 'Test.dsw'))
+
+test.run(chdir='work3', arguments='.')
+
+test.must_exist(test.workpath('work3', 'Test.dsp'))
+test.must_exist(test.workpath('work3', 'Test.dsw'))
+
+test.run(chdir='work3', arguments='-c Test.dsw')
+
+test.must_exist(test.workpath('work3', 'Test.dsp'))
+test.must_not_exist(test.workpath('work3', 'Test.dsw'))
+
+test.run(chdir='work3', arguments='-c Test.dsp')
+
+test.must_not_exist(test.workpath('work3', 'Test.dsp'))
 
 
 

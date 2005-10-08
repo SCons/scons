@@ -46,6 +46,11 @@ RELEASE 0.97 - XXX
 
   - Allow SConscript files to modify BUILD_TARGETS.
 
+  - Add a separate MSVSSolution() Builder, with support for the
+    following new construction variables: $MSVSBUILDCOM, $MSVSCLEANCOM,
+    $MSVSENCODING, $MSVSREBUILDCOM, $MSVSSCONS, $MSVSSCONSCOM,
+    $MSVSSCONSFLAGS, $MSVSSCONSCRIPT and $MSVSSOLUTIONCOM.
+
   From Timothee Besset:
 
   - Add support for Objective C/C++ .m and .mm file suffixes (for
