@@ -517,7 +517,8 @@ RELEASE 0.97 - XXX
 
   From Asfand Yar Qazi:
 
-  - Add /opt/bin to the default execution PATH on all POSIX platforms.
+  - Add /opt/bin to the default execution PATH on all POSIX platforms
+    (between /usr/local/bin and /bin).
 
   From Kevin Quick:
 

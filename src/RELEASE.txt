@@ -157,6 +157,20 @@ RELEASE 0.97 - XXX
 
             env = Environment(tools = ['default', 'f77'])
 
+    --  /opt/bin AND /sw/bin ADDED TO DEFAULT EXECUTION PATH VARIABLES
+
+        On all POSIX systems, the default execution PATH variable has had
+        the /opt/bin directory added after the /usr/local/bin directory
+        and before /bin and /usr/bin directories.  This may cause SCons
+        to find and/or different compilers, linkers, etc. if you have
+        any same-named utilities installed in /opt/bin that it previously
+        found in /bin or /usr/bin.
+
+        On Mac OS X (Darwin) systems, the /sw/bin directory has been added
+        to the end of the default execution PATH.  This may cause SCons
+        to find compilers, linkers and other utilities it previously did
+        not, although it should not otherwise change existing behavior.
+
     --  SOLARIS DEFAULT SHARED OBJECT PREFIXES AND SUFFIXES HAVE CHANGED
 
         On Solaris, SCons now builds shared objects from C and C++ source
