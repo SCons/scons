@@ -1509,8 +1509,16 @@ class OverrideEnvironment(Base):
         try:
             del self.__dict__['overrides'][key]
         except KeyError:
-            pass
-        return self.__dict__['__subject'].__delitem__(key)
+            deleted = 0
+        else:
+            deleted = 1
+        try:
+            result = self.__dict__['__subject'].__delitem__(key)
+        except KeyError:
+            if not deleted:
+                raise
+            result = None
+        return result
     def get(self, key, default=None):
         """Emulates the get() method of dictionaries."""
         try:
