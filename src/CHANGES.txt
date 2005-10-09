@@ -353,6 +353,9 @@ RELEASE 0.97 - XXX
     add -tt to the Python invocations in the packaging build and the
     tests so they don't creep back in.
 
+  - In Visual Studio project files, put quotes around the -C directory
+    so everything works even if the path has spaces in it.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
