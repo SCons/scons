@@ -197,7 +197,7 @@ class _DSPGenerator:
             for v in variants:
                 outdir.append(s)
 
-	self.sconscript = env['MSVSSCONSCRIPT']
+        self.sconscript = env['MSVSSCONSCRIPT']
 
         self.env = env
 

@@ -50,10 +50,10 @@ def write_LIBDIRFLAGS(env, target, source):
     suf = env.subst('$LIBDIRSUFFIX')
     f = open(str(target[0]), 'wb')
     for arg in string.split(env.subst('$_LIBDIRFLAGS', target=target)):
-	if arg[:len(pre)] == pre:
-	    arg = arg[len(pre):]
-	if arg[-len(suf):] == suf:
-	    arg = arg[:-len(pre)]
+        if arg[:len(pre)] == pre:
+            arg = arg[len(pre):]
+        if arg[-len(suf):] == suf:
+            arg = arg[:-len(pre)]
         f.write(arg + '\n')
     f.close()
     return 0

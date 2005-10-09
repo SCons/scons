@@ -94,7 +94,7 @@ class bld:
         self.cmd = r'%s build.py %%s 4 %%s'
     def __call__(self, env, target, source):
         cmd = self.get_contents(env, target, source)
-	print cmd
+        print cmd
         return os.system(cmd)
     def get_contents(self, env, target, source):
         return self.cmd %% (string.join(map(str, target)),

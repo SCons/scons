@@ -38,6 +38,7 @@ things.  Here is an overview of them:
     test.program_set('program_or_script_to_test')
 
     test.interpreter_set('script_interpreter')
+    test.interpreter_set(['script_interpreter', 'arg'])
 
     test.workdir_set('prefix')
     test.workdir_set('')
@@ -175,8 +176,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.16.D002 2005/08/19 16:58:31 knight"
-__version__ = "0.16"
+__revision__ = "TestCmd.py 0.17.D001 2005/10/08 22:58:27 knight"
+__version__ = "0.17"
 
 import os
 import os.path
@@ -658,11 +659,13 @@ class TestCmd:
             program = self.program
             if not interpreter:
                 interpreter = self.interpreter
-        if type(program) != type([]):
+        if not type(program) in [type([]), type(())]:
             program = [program]
-        cmd = program
+        cmd = list(program)
         if interpreter:
-            cmd = [interpreter] + cmd
+            if not type(interpreter) in [type([]), type(())]:
+                interpreter = [interpreter]
+            cmd = list(interpreter) + cmd
         if arguments:
             if type(arguments) == type(''):
                 arguments = string.split(arguments)
