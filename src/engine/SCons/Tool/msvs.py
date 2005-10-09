@@ -1419,7 +1419,7 @@ def generate(env):
         env['MSVSSCONSCRIPT'] = env.File('SConstruct')
 
     env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, exec_script_main)
-    env['MSVSSCONSFLAGS'] = '-C ${MSVSSCONSCRIPT.dir.abspath} -f ${MSVSSCONSCRIPT.name}'
+    env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.abspath}" -f ${MSVSSCONSCRIPT.name}'
     env['MSVSSCONSCOM'] = '$MSVSSCONS $MSVSSCONSFLAGS'
     env['MSVSBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'
     env['MSVSREBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'

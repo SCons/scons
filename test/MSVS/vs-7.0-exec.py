@@ -59,7 +59,9 @@ exec(test.stdout())
 
 
 
-test.write('SConstruct', """\
+test.subdir('sub dir')
+
+test.write(['sub dir', 'SConstruct'], """\
 env=Environment(MSVS_VERSION = '7.0')
 
 env.MSVSProject(target = 'foo.vcproj',
@@ -70,7 +72,7 @@ env.MSVSProject(target = 'foo.vcproj',
 env.Program('foo.c')
 """)
 
-test.write('foo.c', r"""
+test.write(['sub dir', 'foo.c'], r"""
 int
 main(int argc, char *argv)
 {
@@ -79,14 +81,15 @@ main(int argc, char *argv)
 }
 """)
 
-test.run(arguments='.')
+test.run(chdir='sub dir', arguments='.')
 
-test.vcproj_sys_path('foo.vcproj')
+test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcproj'))
 
-test.run(program=['devenv'],
+test.run(chdir='sub dir',
+         program=['devenv'],
          arguments=['foo.sln', '/build', 'Release'])
 
-test.run(program=test.workpath('foo'), stdout="foo.c\n")
+test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
 
 
 

@@ -86,9 +86,9 @@ expected_vcprojfile = """\
 \t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct Test.exe"
-\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct -c Test.exe"
-\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C <WORKPATH> -f SConstruct Test.exe"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct Test.exe"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c Test.exe"
+\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct Test.exe"
 \t\t\t\tOutput="Test.exe"/>
 \t\t</Configuration>
 \t</Configurations>
