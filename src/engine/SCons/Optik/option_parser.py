@@ -530,8 +530,8 @@ class OptionParser:
         (basename of sys.argv[0]).  Does nothing if self.usage is empty
         or not defined.
         """
-	if file is None:
-	    file = sys.stdout
+        if file is None:
+            file = sys.stdout
         if self.usage:
             usage = string.replace(self.usage,"%prog", get_prog_name())
             file.write(usage + "\n")
@@ -544,8 +544,8 @@ class OptionParser:
         of "%prog" in self.version is replaced by the current program's
         name.  Does nothing if self.version is empty or undefined.
         """
-	if file is None:
-	    file = sys.stdout
+        if file is None:
+            file = sys.stdout
         if self.version:
             version = string.replace(self.version,"%prog", get_prog_name())
             file.write(version+"\n")
@@ -649,10 +649,10 @@ def _match_abbrev (s, wordmap):
     else:
         # Isolate all words with s as a prefix.
         possibilities = []
-	ls = len(s)
-	for word in wordmap.keys():
+        ls = len(s)
+        for word in wordmap.keys():
             if len(word)>=ls and word[:ls]==s:
-		possibilities.append(word)
+                possibilities.append(word)
         # No exact match, so there had better be just one possibility.
         if len(possibilities) == 1:
             return possibilities[0]

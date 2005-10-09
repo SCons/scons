@@ -791,12 +791,12 @@ class Base(SubstitutionEnvironment):
         return None
 
     def Dictionary(self, *args):
-	if not args:
-	    return self._dict
-	dlist = map(lambda x, s=self: s._dict[x], args)
-	if len(dlist) == 1:
-	    dlist = dlist[0]
-	return dlist
+        if not args:
+            return self._dict
+        dlist = map(lambda x, s=self: s._dict[x], args)
+        if len(dlist) == 1:
+            dlist = dlist[0]
+        return dlist
 
     def Dump(self, key = None):
         """

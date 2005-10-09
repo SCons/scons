@@ -287,7 +287,8 @@ env = Environment(
 
                    BUILDERS            = { 'SCons_revision' : revbuilder },
 
-                   PYTHON              = sys.executable
+                   PYTHON              = sys.executable,
+                   PYTHONFLAGS         = '-tt',
                  )
 
 Version_values = [Value(version), Value(build_id)]
@@ -643,7 +644,7 @@ for p in [ scons ]:
         env.Command(dfiles, unpack_tar_gz_files, [
             Delete(os.path.join(unpack_tar_gz_dir, pkg_version, 'build')),
             Delete("$TEST_TAR_GZ_DIR"),
-            '$PYTHON "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
+            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
                 os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
         ])
 
@@ -716,7 +717,7 @@ for p in [ scons ]:
         env.Command(dfiles, unpack_zip_files, [
             Delete(os.path.join(unpack_zip_dir, pkg_version, 'build')),
             Delete("$TEST_ZIP_DIR"),
-            '$PYTHON "%s" install "--prefix=$TEST_ZIP_DIR" --standalone-lib' % \
+            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_ZIP_DIR" --standalone-lib' % \
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
@@ -812,12 +813,12 @@ for p in [ scons ]:
                                             'bdist.' + platform,
                                             'dumb')))
         for format in distutils_formats:
-            commands.append("$PYTHON $SETUP_PY bdist_dumb -f %s" % format)
+            commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_dumb -f %s" % format)
 
-        commands.append("$PYTHON $SETUP_PY sdist --formats=%s" %  \
+        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
                             string.join(distutils_formats, ','))
 
-    commands.append("$PYTHON $SETUP_PY bdist_wininst")
+    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst")
 
     env.Command(distutils_targets, build_src_files, commands)
 
@@ -837,7 +838,7 @@ for p in [ scons ]:
 
     commands = [
         Delete(local),
-        '$PYTHON $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-man --no-compile --standalone-lib --no-version-script' % \
+        '$PYTHON $PYTHONFLAGS $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-man --no-compile --standalone-lib --no-version-script' % \
                                                 (cwd_local, cwd_local_slv),
     ]
 
@@ -1021,11 +1022,11 @@ if change:
                                     'scons',
                                     'build')),
                 Delete("$TEST_SRC_TAR_GZ_DIR"),
-                'cd "%s" && $PYTHON "%s" "%s"' % \
+                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s"' % \
                     (os.path.join(unpack_tar_gz_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                '$PYTHON "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
+                '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
                     os.path.join(unpack_tar_gz_dir,
                                  psv,
                                  'build',
@@ -1077,11 +1078,11 @@ if change:
                                     'scons',
                                     'build')),
                 Delete("$TEST_SRC_ZIP_DIR"),
-                'cd "%s" && $PYTHON "%s" "%s"' % \
+                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s"' % \
                     (os.path.join(unpack_zip_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                '$PYTHON "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
+                '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
                     os.path.join(unpack_zip_dir,
                                  psv,
                                  'build',

@@ -131,7 +131,7 @@ class TestSCons(TestCommon):
                 else:
                     kw['program'] = 'scons.py'
 	if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
-	    kw['interpreter'] = python
+	    kw['interpreter'] = [python, '-tt']
 	if not kw.has_key('match'):
 	    kw['match'] = match_exact
 	if not kw.has_key('workdir'):

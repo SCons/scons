@@ -346,8 +346,8 @@ class Option:
             if self.nargs == 1:
                 value = self.check_value(opt, value)
             else:
-		def cv(v,check=self.check_value,o=opt):
-		    return check(o,v)
+                def cv(v,check=self.check_value,o=opt):
+                    return check(o,v)
 
                 value = tuple(map(cv,value))
 

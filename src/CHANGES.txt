@@ -349,6 +349,10 @@ RELEASE 0.97 - XXX
     throw a KeyError if we were able to delte the variable from any
     Environment in the stack.
 
+  - Get rid of the last indentation tabs in the SCons source files and
+    add -tt to the Python invocations in the packaging build and the
+    tests so they don't creep back in.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.

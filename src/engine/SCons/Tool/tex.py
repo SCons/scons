@@ -81,7 +81,7 @@ def is_LaTeX(flist):
     for f in flist:
         content = f.get_contents()
         if LaTeX_re.search(content):
-	    return 1
+            return 1
     return 0
 
 def TeXLaTeXFunction(target = None, source= None, env=None):
@@ -89,9 +89,9 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
     decide the "flavor" of the source and then executes the appropriate
     program."""
     if is_LaTeX(source):
-	LaTeXAuxAction(target,source,env)
+        LaTeXAuxAction(target,source,env)
     else:
-	TeXAction(target,source,env)
+        TeXAction(target,source,env)
     return 0
 
 TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,

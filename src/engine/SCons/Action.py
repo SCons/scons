@@ -409,8 +409,8 @@ class CommandAction(_ActionAction):
             if c:
                 return c
         cmd_list, ignore, silent = self.process(target, source, env)
-	if silent:
-	    return ''
+        if silent:
+            return ''
         return _string_from_cmd_list(cmd_list[0])
 
     def execute(self, target, source, env):
@@ -462,7 +462,7 @@ class CommandAction(_ActionAction):
                     # reasonable for just about everything else:
                     ENV[key] = str(value)
 
-	cmd_list, ignore, silent = self.process(target, map(rfile, source), env)
+        cmd_list, ignore, silent = self.process(target, map(rfile, source), env)
 
         # Use len() to filter out any "command" that's zero-length.
         for cmd_line in filter(len, cmd_list):
