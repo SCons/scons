@@ -86,11 +86,17 @@ def check_abi(abi):
     abi = abi.lower()
     # valid_abis maps input name to canonical name
     if is_win32:
-        valid_abis = {'ia32':'ia32', 'x86':'ia32',
-                      'ia64':'ia64'}
+        valid_abis = {'ia32'  : 'ia32',
+                      'x86'   : 'ia32',
+                      'ia64'  : 'ia64',
+                      'em64t' : 'ia32e',
+                      'amd64' : 'ia32e'}
     if is_linux:
-        valid_abis = {'ia32':'ia32', 'x86':'ia32',
-                      'x86_64':'x86_64', 'em64t':'x86_64', 'amd64':'x86_64'}
+        valid_abis = {'ia32'   : 'ia32',
+                      'x86'    : 'ia32',
+                      'x86_64' : 'x86_64',
+                      'em64t'  : 'x86_64',
+                      'amd64'  : 'x86_64'}
     try:
         abi = valid_abis[abi]
     except KeyError:
@@ -125,14 +131,13 @@ def get_intel_registry_value(valuename, version=None, abi=None):
     """
     Return a value from the Intel compiler registry tree. (Win32 only)
     """
-
     # Open the key:
     K = 'Software\\Intel\\Compilers\\C++\\' + version + '\\'+abi.upper()
     try:
         k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
     except SCons.Util.RegError:
         raise MissingRegistryError, \
-              "%s was not found in the registry, for Intel compiler version %s"%(K, version)
+              "%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi)
 
     # Get the value:
     try:
@@ -167,7 +172,7 @@ def get_all_compiler_versions():
                 # than uninstalling properly), so the registry values
                 # are still there.
                 ok = False
-                for try_abi in ('IA32', 'IA64'):
+                for try_abi in ('IA32', 'IA32e',  'IA64'):
                     try:
                         d = get_intel_registry_value('ProductDir', subkey, try_abi)
                     except MissingRegistryError:
@@ -201,12 +206,10 @@ def get_intel_compiler_top(version, abi):
     The compiler will be in <top>/bin/icl.exe (icc on linux),
     the include dir is <top>/include, etc.
     """
-
     if is_win32:
         if not SCons.Util.can_read_reg:
             raise NoRegistryModuleError, "No Windows registry module was found"
         top = get_intel_registry_value('ProductDir', version, abi)
-
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")):
             raise MissingDirError, \
                   "Can't find Intel compiler in %s"%(top)
@@ -245,7 +248,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         SCons.Tool.msvc.generate(env)
     elif is_linux:
         SCons.Tool.gcc.generate(env)
-        
+
     # if version is unspecified, use latest
     vlist = get_all_compiler_versions()
     if not version:
@@ -285,14 +288,22 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
     if not topdir:
         # Normally this is an error, but it might not be if the compiler is
         # on $PATH and the user is importing their env.
+        class ICLTopDirWarning(SCons.Warnings.Warning):
+            pass
         if is_linux and not env.Detect('icc') or \
            is_win32 and not env.Detect('icl'):
-            class ICLTopDirWarning(SCons.Warnings.Warning):
-                    pass
+
+            SCons.Warnings.enableWarningClass(ICLTopDirWarning)
+            SCons.Warnings.warn(ICLTopDirWarning,
+                                "Failed to find Intel compiler for version='%s', abi='%s'"%
+                                (str(version), str(abi)))
+        else:
+            # should be cleaned up to say what this other version is
+            # since in this case we have some other Intel compiler installed
             SCons.Warnings.enableWarningClass(ICLTopDirWarning)
             SCons.Warnings.warn(ICLTopDirWarning,
                                 "Can't find Intel compiler top dir for version='%s', abi='%s'"%
-                                (str(version), str(abi)))
+                                    (str(version), str(abi)))
 
     if topdir:
         if verbose:

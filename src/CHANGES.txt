@@ -17,6 +17,9 @@ RELEASE 0.97 - XXX
 
   - Fix a typo in the man page description of PathIsDirCreate.
 
+  - Fix the intelc.py Tool module to not throw an exception if the
+    only installed version is something other than ia32.
+
   From Chad Austin:
 
   - Allow Help() to be called multiple times, appending to the help

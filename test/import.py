@@ -135,17 +135,23 @@ tools = [
     'zip',
 ]
 
-# Intel no top dir warning, 32 bit version.
-intel_no_top_dir_32_warning = """
-scons: warning: Can't find Intel compiler top dir for version='None', abi='ia32'
+# Intel no compiler warning..
+intel_no_compiler_fmt = """
+scons: warning: Failed to find Intel compiler for version='None', abi='%s'
 File "SConstruct", line 1, in ?
 """
 
-# Intel no top dir warning, 64 bit version.
-intel_no_top_dir_64_warning = """
-scons: warning: Can't find Intel compiler top dir for version='None', abi='x86_64'
+intel_no_compiler_32_warning = intel_no_compiler_fmt % 'ia32'
+intel_no_compiler_64_warning = intel_no_compiler_fmt % 'x86_64'
+
+# Intel no top dir warning.
+intel_no_top_dir_fmt = """
+scons: warning: Can't find Intel compiler top dir for version='None', abi='%s'
 File "SConstruct", line 1, in ?
 """
+
+intel_no_top_dir_32_warning = intel_no_top_dir_fmt % 'ia32'
+intel_no_top_dir_64_warning = intel_no_top_dir_fmt % 'x86_64'
 
 # Intel no license directory warning
 intel_license_warning = """
@@ -155,6 +161,10 @@ File "SConstruct", line 1, in ?
 
 intel_warnings = [
     intel_license_warning,
+    intel_no_compiler_32_warning,
+    intel_no_compiler_32_warning + intel_license_warning,
+    intel_no_compiler_64_warning,
+    intel_no_compiler_64_warning + intel_license_warning,
     intel_no_top_dir_32_warning,
     intel_no_top_dir_32_warning + intel_license_warning,
     intel_no_top_dir_64_warning,
