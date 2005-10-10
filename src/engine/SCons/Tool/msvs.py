@@ -1395,6 +1395,8 @@ solutionBuilder = SCons.Builder.Builder(action = '$MSVSSOLUTIONCOM',
                                         suffix = '$MSVSSOLUTIONSUFFIX',
                                         emitter = solutionEmitter)
 
+default_MSVS_SConscript = None
+
 def generate(env):
     """Add Builders and construction variables for Microsoft Visual
     Studio project files to an Environment."""
@@ -1416,7 +1418,10 @@ def generate(env):
         # shouldn't depend on anything in SCons.Script.
         env['MSVSSCONSCRIPT'] = SCons.Script.call_stack[0].sconscript
     else:
-        env['MSVSSCONSCRIPT'] = env.File('SConstruct')
+        global default_MSVS_SConscript
+        if default_MSVS_SConscript is None:
+            default_MSVS_SConscript = env.File('SConstruct')
+        env['MSVSSCONSCRIPT'] = default_MSVS_SConscript
 
     env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, exec_script_main)
     env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.abspath}" -f ${MSVSSCONSCRIPT.name}'

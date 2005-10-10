@@ -33,9 +33,17 @@ up-to-date after a build.
 ca. September 2005.)
 """
 
+import os
+
 import TestSCons
 
+_obj = TestSCons._obj
+
 test = TestSCons.TestSCons()
+
+if not os.environ.get('QTDIR', None):
+    x ="External environment variable $QTDIR not set; skipping test(s).\n"
+    test.skip_test(x)
 
 test.subdir('layer',
             ['layer', 'aclock'],
@@ -121,10 +129,10 @@ test.write(['layer', 'aclock', 'qt_bug', 'my.cc'], """\
 #include <main.h>
 """)
 
-test.run(arguments = 'layer/aclock/qt_bug/my.o', stderr=None)
+test.run(arguments = 'layer/aclock/qt_bug/my'+_obj, stderr=None)
 
 test.up_to_date(options = '--debug=explain',
-                arguments = 'layer/aclock/qt_bug/my.o',
+                arguments = 'layer/aclock/qt_bug/my'+_obj,
                 stderr=None)
 
 test.pass_test()

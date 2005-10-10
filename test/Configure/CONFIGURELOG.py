@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "test/Configure.py 0.96.D308 2005/09/25 12:59:35 knight"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that the configure context log file name can be specified by
@@ -55,6 +55,6 @@ scons: Configure: (cached) yes
 
 """
 
-test.must_match('custom.logfile', expect)
+test.must_match('custom.logfile', expect, mode='r')
 
 test.pass_test()
