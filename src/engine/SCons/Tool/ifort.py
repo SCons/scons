@@ -34,6 +34,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
+
 import SCons.Defaults
 
 import fortran
@@ -57,6 +59,15 @@ def generate(env):
     # Intel Fortran to create shared libraries, all external symbols must
     # be in shared libraries.
     env['SHLINKFLAGS'] = '-shared -no_archive'
+
+    #
+    if env['PLATFORM'] == 'win32':
+        # On Windows, the ifort compiler specifies the object on the
+        # command line with -object:, not -o.  Massage the necessary
+        # command-line construction variables.
+        for var in ['_FORTRANCOMD', '_FORTRANPPCOMD',
+                    '_SHFORTRANCOMD', '_SHFORTRANPPCOMD']:
+            env[var] = string.replace(env[var], '-o $TARGET', '-object:$TARGET')
 
 def exists(env):
     return env.Detect('ifort')

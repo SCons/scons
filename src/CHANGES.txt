@@ -359,6 +359,10 @@ RELEASE 0.97 - XXX
   - In Visual Studio project files, put quotes around the -C directory
     so everything works even if the path has spaces in it.
 
+  - The Intel Fortran compiler uses -object:$TARGET, not "-o $TARGET",
+    when building object files on Windows.  Have the the ifort Tool
+    modify the default command lines appropriately.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
