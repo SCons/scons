@@ -1432,10 +1432,10 @@ class Dir(Base):
             except OSError:
                 pass
             else:
-                for entry in entries:
+                for entry in map(_my_normcase, entries):
                     d[entry] = 1
             self.on_disk_entries = d
-        return d.has_key(name)
+        return d.has_key(_my_normcase(name))
 
     def srcdir_list(self):
         """__cacheable__"""

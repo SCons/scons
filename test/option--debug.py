@@ -66,62 +66,11 @@ test.write('bar.h', """
 """)
 
 ############################
-# test --debug=time
+# test --debug=pdb
 
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
 test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)
 test.fail_test(string.find(test.stdout(), "scons") == -1)
-
-test.write('foo.c', r"""
-#include "foo.h"
-
-int main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	printf("f1.c\n");
-	exit (0);
-}
-""")
-
-test.write('bar.c', """
-#include "bar.h"
-
-""")
-
-############################
-# test --debug=time
-
-def num(match, line):
-    return float(re.match(match, line).group(1))
-
-start_time = time.time()
-test.run(program=TestSCons.python, arguments='-c pass')
-overhead = time.time() - start_time 
-
-start_time = time.time()
-test.run(arguments = "--debug=time .")
-expected_total_time = time.time() - start_time - overhead
-line = string.split(test.stdout(), '\n')
-
-cmdline = filter(lambda x: x[:23] == "Command execution time:", line)
-
-expected_command_time = num(r'Command execution time: (\d+\.\d+) seconds', cmdline[0])
-expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[1])
-expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[2])
-
-totalline = filter(lambda x: x[:6] == "Total ", line)
-
-total_time = num(r'Total build time: (\d+\.\d+) seconds', totalline[0])
-sconscript_time = num(r'Total SConscript file execution time: (\d+\.\d+) seconds', totalline[1])
-scons_time = num(r'Total SCons execution time: (\d+\.\d+) seconds', totalline[2])
-command_time = num(r'Total command execution time: (\d+\.\d+) seconds', totalline[3])
-
-def check(expected, actual, tolerance):
-    return abs((expected-actual)/actual) <= tolerance
-
-assert check(expected_command_time, command_time, 0.01)
-assert check(total_time, sconscript_time+scons_time+command_time, 0.01) 
-assert check(total_time, expected_total_time, 0.1)
 
 ############################
 # test --debug=presub

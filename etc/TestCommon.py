@@ -95,6 +95,7 @@ from TestCmd import *
 from TestCmd import __all__
 
 __all__.extend([ 'TestCommon',
+                 'TestFailed',
                  'exe_suffix',
                  'obj_suffix',
                  'shobj_suffix',

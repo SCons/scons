@@ -37,80 +37,141 @@ import string
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+class TestPerforce(TestSCons.TestSCons):
+    def __init__(self, *args, **kw):
+        apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
 
-p4 = test.where_is('p4')
-if not p4:
-    test.skip_test("Could not find 'p4'; skipping test(s).\n")
+        self._p4prog = self.where_is('p4')
+        if not self._p4prog:
+            self.skip_test("Could not find 'p4'; skipping test(s).\n")
 
-user = os.environ.get('USER')
-if not user:
-    user = os.environ.get('USERNAME')
-if not user:
-    user = os.environ.get('P4USER')
+        self.host = socket.gethostname()
 
-host = socket.gethostname()
+        self.user = os.environ.get('USER')
+        if not self.user:
+            self.user = os.environ.get('USERNAME')
+        if not self.user:
+            self.user = os.environ.get('P4USER')
 
-# clean out everything
-try:
-    test.run(program=p4, arguments='-p 1666 obliterate -y //testme/...')
-    test.run(program=p4, arguments='-p 1666 depot -d testme')
-except TestSCons.TestFailed:
-    pass # it's okay if this fails...it will fail if the depot is clear already.
+        self.depot = 'testme'
+
+        self.p4d = self.where_is('p4d')
+        if self.p4d:
+            self.p4portflags = ['-p', self.host + ':1777']
+            self.subdir('depot', ['depot', 'testme'])
+            args = [self.p4d, '-q', '-d'] + \
+                   self.p4portflags + \
+                   ['-J', 'Journal',
+                    '-L', 'Log',
+                    '-r', self.workpath('depot')]
+
+            # We don't use self.run() because the TestCmd logic will hang
+            # waiting for the daemon to exit, even when we pass it
+	    # the -d option.
+            try:
+                spawnv = os.spawnv
+            except AttributeError:
+                os.system(string.join(args))
+            else:
+                spawnv(os.P_NOWAIT, self.p4d, args)
+                self.sleep(2)
+        else:
+            self.p4portflags = ['-p', self.host + ':1666']
+            try:
+                self.p4('obliterate -y //%s/...' % self.depot)
+                self.p4('depot -d %s' % self.depot)
+            except TestSCons.TestFailed:
+                # It's okay if this fails.  It will fail if the depot
+                # is already clear.
+                pass
+
+        self.portflag = string.join(self.p4portflags)
+
+    def p4(self, *args, **kw):
+        try:
+            arguments = kw['arguments']
+        except KeyError:
+            arguments = args[0]
+            args = args[1:]
+        kw['arguments'] = string.join(self.p4portflags + [arguments])
+        kw['program'] = self._p4prog
+        return apply(self.run, args, kw)
+
+    def substitute(self, s, **kw):
+        kw = kw.copy()
+	kw.update(self.__dict__)
+        return s % kw
+
+    def cleanup(self, condition = None):
+        if self.p4d:
+            self.p4('admin stop')
+	    self.p4d = None
+
+	if TestSCons:
+            TestSCons.TestSCons.cleanup(self, condition)
+
+test = TestPerforce()
 
 # Set up a perforce depot for testing.
-depotspec = """\
+depotspec = test.substitute("""\
 # A Perforce Depot Specification.
-Depot:	testme
+Depot:  %(depot)s
 
-Owner:	%s
+Owner:  %(user)s
 
-Date:	2003/02/19 17:21:41
+Date:   2003/02/19 17:21:41
 
 Description:
-	A test depot.
+        A test depot.
 
-Type:	local
+Type:   local
 
-Address:	subdir
+Address:        subdir
 
-Map:	testme/...
-""" % user
+Map:    %(depot)s/...
+""")
 
-test.run(program=p4, arguments='-p 1666 depot -i', stdin = depotspec)
+test.p4(arguments='depot -i', stdin = depotspec)
 
 # Now set up 2 clients, one to check in some files, and one to
 # do the building.
 clientspec = """\
 # A Perforce Client Specification.
-Client:	%s
+Client: %(client)s
 
-Owner:	%s
+Owner:  %(user)s
 
-Host: %s
+Host: %(host)s
 
 Description:
-	Created by ccrain.
+        Created by %(user)s.
 
-Root:	%s
+Root:   %(root)s
 
-Options:	noallwrite noclobber nocompress unlocked nomodtime normdir
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
 
-LineEnd:	local
+LineEnd:        local
 
 View:
-	%s //%s/...
+        //%(depot)s/%(subdir)s... //%(client)s/...
 """
 
-clientspec1 = clientspec % ("testclient1", user, host, test.workpath('import'),
-                            "//testme/foo/...", "testclient1")
-clientspec2 = clientspec % ("testclient2", user, host, test.workpath('work'),
-                            "//testme/...", "testclient2")
+clientspec1 = test.substitute(clientspec,
+                              client = 'testclient1',
+                              root = test.workpath('import'),
+                              subdir = 'foo/',
+                              )
+
+clientspec2 = test.substitute(clientspec,
+                              client = 'testclient2',
+                              root = test.workpath('work'),
+                              subdir = '',
+                              )
 
 test.subdir('import', ['import', 'sub'], 'work')
 
-test.run(program=p4, arguments = '-p 1666 client -i', stdin=clientspec1)
-test.run(program=p4, arguments = '-p 1666 client -i', stdin=clientspec2)
+test.p4('client -i', stdin=clientspec1)
+test.p4('client -i', stdin=clientspec2)
 
 test.write(['import', 'aaa.in'], "import/aaa.in\n")
 test.write(['import', 'bbb.in'], "import/bbb.in\n")
@@ -133,36 +194,35 @@ os.environ["PWD"] = test.workpath('import')
 paths = [ 'aaa.in', 'bbb.in', 'ccc.in',
           'sub/ddd.in', 'sub/eee.in', 'sub/fff.in', 'sub/SConscript' ]
 paths = map(os.path.normpath, paths)
-args = '-p 1666 -c testclient1 add -t binary %s' % string.join(paths)
-test.run(program=p4, chdir='import', arguments=args)
+args = '-c testclient1 add -t binary %s' % string.join(paths)
+test.p4(args, chdir='import')
 
-changespec = """
-Change:	new
+changespec = test.substitute("""
+Change: new
 
-Client:	testclient1
+Client: testclient1
 
-User:	%s
+User:   %(user)s
 
-Status:	new
+Status: new
 
 Description:
-	A test check in
+        A test check in
 
 Files:
-	//testme/foo/aaa.in	# add
-	//testme/foo/bbb.in	# add
-	//testme/foo/ccc.in	# add
-	//testme/foo/sub/SConscript	# add
-	//testme/foo/sub/ddd.in	# add
-	//testme/foo/sub/eee.in	# add
-	//testme/foo/sub/fff.in	# add
-""" % user
+        //%(depot)s/foo/aaa.in  # add
+        //%(depot)s/foo/bbb.in  # add
+        //%(depot)s/foo/ccc.in  # add
+        //%(depot)s/foo/sub/SConscript  # add
+        //%(depot)s/foo/sub/ddd.in      # add
+        //%(depot)s/foo/sub/eee.in      # add
+        //%(depot)s/foo/sub/fff.in      # add
+""")
 
-test.run(program=p4,
-         arguments='-p 1666 -c testclient1 submit -i',
-         stdin=changespec)
+test.p4('-c testclient1 opened')
+test.p4('-c testclient1 submit -i', stdin=changespec)
 
-test.write(['work', 'SConstruct'], """
+SConstruct_contents = test.substitute("""
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -171,7 +231,7 @@ def cat(env, source, target):
         f.write(open(src, "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  P4FLAGS='-p 1666 -c testclient2')
+                  P4FLAGS='%(portflag)s -c testclient2')
 env.Cat('aaa.out', 'foo/aaa.in')
 env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
@@ -180,6 +240,8 @@ env.SourceCode('.', env.Perforce())
 SConscript('foo/sub/SConscript', 'env')
 """)
 
+test.write(['work', 'SConstruct'], SConstruct_contents)
+
 test.subdir(['work', 'foo'])
 test.write(['work', 'foo', 'bbb.in'], "work/foo/bbb.in\n")
 
@@ -187,6 +249,7 @@ test.subdir(['work', 'foo', 'sub'])
 test.write(['work', 'foo', 'sub', 'eee.in'], "work/foo/sub/eee.in\n")
 
 test.run(chdir = 'work', arguments = '.')
+
 test.fail_test(test.read(['work', 'all']) != "import/aaa.in\nwork/foo/bbb.in\nimport/ccc.in\n")
 test.fail_test(test.read(['work', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork/foo/sub/eee.in\nimport/sub/fff.in\n")
 

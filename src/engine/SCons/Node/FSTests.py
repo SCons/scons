@@ -1455,10 +1455,14 @@ class DirTestCase(_tempdirTestCase):
 
         test.subdir('d')
         test.write(['d', 'exists'], "d/exists\n")
+        test.write(['d', 'Case-Insensitive'], "d/Case-Insensitive\n")
 
         d = self.fs.Dir('d')
         assert d.entry_exists_on_disk('exists')
         assert not d.entry_exists_on_disk('does_not_exist')
+
+        if os.path.normcase("TeSt") != os.path.normpath("TeSt") or sys.platform == "cygwin":
+            assert d.entry_exists_on_disk('case-insensitive')
 
     def test_srcdir_list(self):
         """Test the Dir.srcdir_list() method
