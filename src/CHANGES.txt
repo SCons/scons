@@ -431,6 +431,9 @@ RELEASE 0.97 - XXX
 
   - Fix the Java parser's handling of backslashes in strings.
 
+  - Fix the Qt UIC scanner to work with generated .ui files (by using
+    the FindFile() function instead of checking by-hand for the file).
+
   From Christian Neeb:
 
   - Fix the Java parser's handling of string definitions to avoid ignoring

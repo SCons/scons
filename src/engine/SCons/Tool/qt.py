@@ -219,19 +219,17 @@ def uicEmitter(target, source, env):
     return target, source
 
 def uicScannerFunc(node, env, path):
-    #print "uicScannerFunc"
     dir = node.dir
+    lookout = []
+    lookout.extend(env['CPPPATH'])
+    lookout.append(str(node.rfile().dir))
     includes = re.findall("<include.*?>(.*?)</include>", node.get_contents())
-    res = []
+    result = []
     for incFile in includes:
-        incNode = dir.File(incFile)
-        if incNode.rexists():
-            #print "uicdep: ", incNode
-            res.append(dir.File(incFile))
-        else:
-            #print "uicdep: ", incNode, "not found"
-            pass
-    return res
+        dep = env.FindFile(incFile,lookout)
+        if dep:
+            result.append(dep)
+    return result
 
 uicScanner = SCons.Scanner.Scanner(uicScannerFunc,
                                    name = "UicScanner", 
