@@ -56,11 +56,11 @@ def re_sep(*args):
 class MyTestSCons(TestSCons.TestSCons):
     # subclass with a method for running the sconsign script
     def __init__(self, *args, **kw):
-	apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
-	self.my_kw = {
+        apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
+        self.my_kw = {
             'interpreter' : TestSCons.python,
-	    'program' : sconsign,
-	}
+            'program' : sconsign,
+        }
     def run_sconsign(self, *args, **kw):
         kw.update(self.my_kw)
         return apply(self.run, args, kw)
@@ -85,9 +85,9 @@ test.write(['work1', 'sub1', 'hello.c'], r"""\
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub1/hello.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub1/hello.c\n");
+        exit (0);
 }
 """)
 
@@ -97,9 +97,9 @@ test.write(['work1', 'sub2', 'hello.c'], r"""\
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub2/goodbye.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub2/goodbye.c\n");
+        exit (0);
 }
 """)
 
@@ -277,9 +277,9 @@ test.write(['work2', 'sub1', 'hello.c'], r"""\
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub1/hello.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub1/hello.c\n");
+        exit (0);
 }
 """)
 
@@ -289,9 +289,9 @@ test.write(['work2', 'sub2', 'hello.c'], r"""\
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub2/goodbye.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub2/goodbye.c\n");
+        exit (0);
 }
 """)
 

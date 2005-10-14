@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', "")
 
 test.run(arguments = '--write-filenames=FILE .',
-	 stderr = "Warning:  the --write-filenames option is not yet implemented\n")
+         stderr = "Warning:  the --write-filenames option is not yet implemented\n")
 
 test.pass_test()
  

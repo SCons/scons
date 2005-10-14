@@ -28,7 +28,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is implemented.
+test.pass_test()        #XXX Short-circuit until this is implemented.
 
 test.write('SConstruct', """
 """)

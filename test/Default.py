@@ -96,7 +96,7 @@ Default(env.B(target = 'bar.out', source = 'bar.in'))
 
 for dir in ['one', 'two', 'three', 'four', 'five']:
 
-    test.run(chdir = dir)	# no arguments, use the Default
+    test.run(chdir = dir)       # no arguments, use the Default
 
 test.fail_test(test.read(test.workpath('one', 'foo.out')) != "one/foo.in\n")
 test.fail_test(os.path.exists(test.workpath('one', 'bar')))
@@ -175,7 +175,7 @@ Default('xxx.out')
 
 test.write(['nine', 'sub1', 'xxx.in'], "sub1/xxx.in\n")
 
-test.run(chdir = 'nine')	# no arguments, use the Default
+test.run(chdir = 'nine')        # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('nine', 'xxx.out')))
 test.fail_test(test.read(test.workpath('nine', 'sub1', 'xxx.out')) != "sub1/xxx.in\n")
@@ -202,7 +202,7 @@ env.B(target = 'xxx.out', source = 'xxx.in')
 
 test.write(['ten', 'sub2', 'xxx.in'], "sub2/xxx.in\n")
 
-test.run(chdir = 'ten')	# no arguments, use the Default
+test.run(chdir = 'ten') # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('ten', 'xxx.out')))
 test.fail_test(test.read(test.workpath('ten', 'sub2', 'xxx.out')) != "sub2/xxx.in\n")
@@ -222,7 +222,7 @@ test.write(os.path.join('eleven', 'foo.in'), "eleven/foo.in\n");
 
 test.write(os.path.join('eleven', 'bar.in'), "eleven/bar.in\n");
 
-test.run(chdir = 'eleven')	# no arguments, use the Default
+test.run(chdir = 'eleven')      # no arguments, use the Default
 
 test.fail_test(test.read(test.workpath('eleven', 'foo.out')) != "eleven/foo.in\n")
 test.fail_test(os.path.exists(test.workpath('eleven', 'bar')))

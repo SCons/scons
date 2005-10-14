@@ -38,7 +38,7 @@ test = TestSCons.TestSCons()
 test.subdir('repository',
             ['repository', 'src'],
             ['repository', 'subdir'],
-	    'work')
+            'work')
 
 src_SConscript = os.path.join('src', 'SConscript')
 work_src_foo = test.workpath('work', 'src', 'foo' + _exe)
@@ -59,7 +59,7 @@ test.write(['repository', 'src', 'aaa.c'], r"""
 void
 src_aaa(void)
 {
-	printf("repository/src/aaa.c\n");
+        printf("repository/src/aaa.c\n");
 }
 """)
 
@@ -67,7 +67,7 @@ test.write(['repository', 'subdir', 'aaa.c'], r"""
 void
 subdir_aaa(void)
 {
-	printf("repository/subdir/aaa.c\n");
+        printf("repository/subdir/aaa.c\n");
 }
 """)
 
@@ -77,11 +77,11 @@ extern void subdir_aaa(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	src_aaa();
-	subdir_aaa();
-	printf("repository/src/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        src_aaa();
+        subdir_aaa();
+        printf("repository/src/foo.c\n");
+        exit (0);
 }
 """)
 

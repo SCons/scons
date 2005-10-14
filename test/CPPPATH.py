@@ -65,7 +65,7 @@ env.Program(target='prog', source='prog.c')
 
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 1\n"
+#define FOO_STRING "include/foo.h 1\n"
 #include <bar.h>
 """)
 
@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 
 test.write(['subdir', 'include', 'foo.h'],
 r"""
-#define	FOO_STRING "subdir/include/foo.h 1\n"
+#define FOO_STRING "subdir/include/foo.h 1\n"
 #include "bar.h"
 """)
 
@@ -160,7 +160,7 @@ test.up_to_date(arguments = args)
 
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 2\n"
+#define FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
 """)
 

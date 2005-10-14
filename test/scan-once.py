@@ -69,7 +69,7 @@ XScanner = Scanner(name = 'XScanner',
                    function = scan,
                    argument = None,
                    scan_check = exists_check,
-		   skeys = ['.x'])
+                   skeys = ['.x'])
 
 def echo(env, target, source):
     t = os.path.split(str(target[0]))[1]
@@ -78,7 +78,7 @@ def echo(env, target, source):
 
 Echo = Builder(action = Action(echo, None),
                src_suffix = '.x',
-	       suffix = '.x')
+               suffix = '.x')
 
 env = Environment(BUILDERS = {'Echo':Echo}, SCANNERS = [XScanner])
 
@@ -108,7 +108,7 @@ builders = Environment().Dictionary('BUILDERS')
 builders["StaticLibMerge"] = BStaticLibMerge
 
 env = Environment(BUILDERS = builders)
-e = env.Dictionary()	# Slightly easier to type
+e = env.Dictionary()    # Slightly easier to type
 
 global_env = env
 e["GlobalEnv"] = global_env

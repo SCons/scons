@@ -41,7 +41,7 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c\n");
+        printf("f1.c\n");
 }
 """)
 
@@ -49,7 +49,7 @@ test.write('f2a.c', r"""
 void
 f2a(void)
 {
-	printf("f2a.c\n");
+        printf("f2a.c\n");
 }
 """)
 
@@ -57,7 +57,7 @@ test.write('f2b.c', r"""
 void
 f2b(void)
 {
-	printf("f2b.c\n");
+        printf("f2b.c\n");
 }
 """)
 
@@ -65,7 +65,7 @@ test.write('f2c.c', r"""
 void
 f2c(void)
 {
-	printf("f2c.c\n");
+        printf("f2c.c\n");
 }
 """)
 
@@ -73,7 +73,7 @@ test.write('f3a.c', r"""
 void
 f3a(void)
 {
-	printf("f3a.c\n");
+        printf("f3a.c\n");
 }
 """)
 
@@ -81,7 +81,7 @@ test.write('f3b.c', r"""
 void
 f3b(void)
 {
-	printf("f3b.c\n");
+        printf("f3b.c\n");
 }
 """)
 
@@ -90,7 +90,7 @@ test.write('f3c.cpp', r"""
 extern "C" void
 f3c(void)
 {
-	printf("f3c.cpp\n");
+        printf("f3c.cpp\n");
 }
 """)
 
@@ -108,15 +108,15 @@ void f3c(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	f1();
-	f2a();
-	f2b();
-	f2c();
-	f3a();
-	f3b();
-	f3c();
-	printf("prog.c\n");
+        argv[argc++] = "--";
+        f1();
+        f2a();
+        f2b();
+        f2c();
+        f3a();
+        f3b();
+        f3c();
+        printf("prog.c\n");
         return 0;
 }
 """)

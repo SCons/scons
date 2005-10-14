@@ -106,37 +106,37 @@ class TestSCons(TestCommon):
     """
 
     def __init__(self, **kw):
-	"""Initialize an SCons testing object.
+        """Initialize an SCons testing object.
 
-	If they're not overridden by keyword arguments, this
-	initializes the object with the following default values:
+        If they're not overridden by keyword arguments, this
+        initializes the object with the following default values:
 
-		program = 'scons' if it exists,
-			  else 'scons.py'
-		interpreter = 'python'
-		match = match_exact
-		workdir = ''
+                program = 'scons' if it exists,
+                          else 'scons.py'
+                interpreter = 'python'
+                match = match_exact
+                workdir = ''
 
         The workdir value means that, by default, a temporary workspace
         directory is created for a TestSCons environment.  In addition,
-	this method changes directory (chdir) to the workspace directory,
-	so an explicit "chdir = '.'" on all of the run() method calls
-	is not necessary.
-	"""
-	if not kw.has_key('program'):
+        this method changes directory (chdir) to the workspace directory,
+        so an explicit "chdir = '.'" on all of the run() method calls
+        is not necessary.
+        """
+        if not kw.has_key('program'):
             kw['program'] = os.environ.get('SCONS')
             if not kw['program']:
                 if os.path.exists('scons'):
                     kw['program'] = 'scons'
                 else:
                     kw['program'] = 'scons.py'
-	if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
-	    kw['interpreter'] = [python, '-tt']
-	if not kw.has_key('match'):
-	    kw['match'] = match_exact
-	if not kw.has_key('workdir'):
-	    kw['workdir'] = ''
-	apply(TestCommon.__init__, [self], kw)
+        if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
+            kw['interpreter'] = [python, '-tt']
+        if not kw.has_key('match'):
+            kw['match'] = match_exact
+        if not kw.has_key('workdir'):
+            kw['workdir'] = ''
+        apply(TestCommon.__init__, [self], kw)
 
     def Environment(self, ENV=None, *args, **kw):
         """
@@ -482,8 +482,8 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         else:
             workpath = self.workpath()
 
-	if not sconscript:
-	    sconscript = self.workpath('SConstruct')
+        if not sconscript:
+            sconscript = self.workpath('SConstruct')
 
         exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
         exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")

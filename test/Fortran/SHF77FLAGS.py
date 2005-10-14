@@ -56,7 +56,7 @@ outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
 for l in infile.readlines():
     if l[:4] != '#g77':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 

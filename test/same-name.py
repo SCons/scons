@@ -45,10 +45,10 @@ test.write('foo.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
+        argv[argc++] = "--";
         bu();
-	printf("foo.c\n");
-	exit (0);
+        printf("foo.c\n");
+        exit (0);
 }
 """)
 

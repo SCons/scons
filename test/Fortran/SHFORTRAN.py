@@ -46,7 +46,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:8] != '#fortran':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 

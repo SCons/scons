@@ -52,7 +52,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -72,7 +72,7 @@ infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:6] != '/*cc*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -88,7 +88,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -102,7 +102,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:6] != '/*cc*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -131,7 +131,7 @@ if os.path.normcase('.c') == os.path.normcase('.C'):
 cc = Environment().Dictionary('CC')
 env = Environment(LINK = r'%s mylink.py',
                   CC = r'%s mycc.py',
-		  CXX = cc)
+                  CXX = cc)
 env.Program(target = 'test2', source = 'test2.C')
 """ % (python, python))
 
@@ -167,9 +167,9 @@ test.write('foo.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo.c\n");
+        exit (0);
 }
 """)
 
@@ -177,9 +177,9 @@ test.write('bar.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo.c\n");
+        exit (0);
 }
 """)
 

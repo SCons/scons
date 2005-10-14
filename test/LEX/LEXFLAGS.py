@@ -60,10 +60,10 @@ test.write('aaa.l', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("LEXFLAGS\n");
-	printf("aaa.l\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("LEXFLAGS\n");
+        printf("aaa.l\n");
+        exit (0);
 }
 """)
 
@@ -86,8 +86,8 @@ bar.Program(target = 'bar', source = 'bar.l')
 
     lex = r"""
 %%%%
-a	printf("A%sA");
-b	printf("B%sB");
+a       printf("A%sA");
+b       printf("B%sB");
 %%%%
 int
 yywrap()

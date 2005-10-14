@@ -35,7 +35,7 @@ test.write('SConstruct', "")
 test.run(arguments = '-S .', stderr = "Warning:  ignoring -S option\n")
 
 test.run(arguments = '--no-keep-going .',
-	 stderr = "Warning:  ignoring --no-keep-going option\n")
+         stderr = "Warning:  ignoring --no-keep-going option\n")
 
 test.run(arguments = '--stop .', stderr = "Warning:  ignoring --stop option\n")
 

@@ -43,7 +43,7 @@ outfile = open(sys.argv[2], 'wb')
 infile = open(sys.argv[3], 'rb')
 for l in infile.readlines():
     if l[:len(comment)] != comment:
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 

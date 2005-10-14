@@ -65,9 +65,9 @@ test.write(['work', 'aaa.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("work/aaa.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("work/aaa.c\n");
+        exit (0);
 }
 """)
 
@@ -75,9 +75,9 @@ test.write(['work', 'bbb.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("work/bbb.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("work/bbb.c\n");
+        exit (0);
 }
 """)
 

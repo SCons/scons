@@ -778,20 +778,20 @@ class BuilderTestCase(unittest.TestCase):
 
         tgt = builder2(env, target='baz',
                        source=['test.bar', 'test2.foo', 'test3.txt'])[0]
-	s = str(tgt)
-	assert s == 'baz', s
-	s = map(str, tgt.sources)
-	assert s == ['test.foo', 'test2.foo', 'test3.txt'], s
-	s = map(str, tgt.sources[0].sources)
-	assert s == ['test.bar'], s
+        s = str(tgt)
+        assert s == 'baz', s
+        s = map(str, tgt.sources)
+        assert s == ['test.foo', 'test2.foo', 'test3.txt'], s
+        s = map(str, tgt.sources[0].sources)
+        assert s == ['test.bar'], s
 
         tgt = builder2(env, None, 'aaa.bar')[0]
-	s = str(tgt)
-	assert s == 'aaa', s
-	s = map(str, tgt.sources)
-	assert s == ['aaa.foo'], s
-	s = map(str, tgt.sources[0].sources)
-	assert s == ['aaa.bar'], s
+        s = str(tgt)
+        assert s == 'aaa', s
+        s = map(str, tgt.sources)
+        assert s == ['aaa.foo'], s
+        s = map(str, tgt.sources[0].sources)
+        assert s == ['aaa.bar'], s
 
         builder3 = SCons.Builder.MultiStepBuilder(action = 'foo',
                                                   src_builder = 'xyzzy',
@@ -810,14 +810,14 @@ class BuilderTestCase(unittest.TestCase):
                                                   suffix='.exe',
                                                   src_suffix='.obj')
         tgt = builder6(env, 'test', 'test.i')[0]
-	s = str(tgt)
+        s = str(tgt)
         assert s == 'test.exe', s
-	s = map(str, tgt.sources)
-	assert s == ['test_wrap.obj'], s
-	s = map(str, tgt.sources[0].sources)
-	assert s == ['test_wrap.c'], s
-	s = map(str, tgt.sources[0].sources[0].sources)
-	assert s == ['test.i'], s
+        s = map(str, tgt.sources)
+        assert s == ['test_wrap.obj'], s
+        s = map(str, tgt.sources[0].sources)
+        assert s == ['test_wrap.c'], s
+        s = map(str, tgt.sources[0].sources[0].sources)
+        assert s == ['test.i'], s
         
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""

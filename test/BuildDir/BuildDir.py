@@ -134,9 +134,9 @@ test.write(['work1', 'src', 'f1.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf(F1_STR);
-	exit (0);
+        argv[argc++] = "--";
+        printf(F1_STR);
+        exit (0);
 }
 """)
 
@@ -146,9 +146,9 @@ test.write(['work1', 'src', 'f2.in'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf(F2_STR);
-	exit (0);
+        argv[argc++] = "--";
+        printf(F2_STR);
+        exit (0);
 }
 """)
 
@@ -158,9 +158,9 @@ test.write(['work1', 'src', 'f3.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf(F3_STR);
-	exit (0);
+        argv[argc++] = "--";
+        printf(F3_STR);
+        exit (0);
 }
 """)
 
@@ -170,9 +170,9 @@ test.write(['work1', 'src', 'f4.in'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf(F4_STR);
-	exit (0);
+        argv[argc++] = "--";
+        printf(F4_STR);
+        exit (0);
 }
 """)
 
@@ -328,9 +328,9 @@ test.write(['work2', 'prog.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("work2/prog.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("work2/prog.c\n");
+        exit (0);
 }
 """)
 

@@ -52,7 +52,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:5] != '#link':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -68,7 +68,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:5] != '#link':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -79,7 +79,7 @@ outfile = open(sys.argv[2], 'wb')
 infile = open(sys.argv[3], 'rb')
 for l in infile.readlines():
     if l[:len(comment)] != comment:
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 

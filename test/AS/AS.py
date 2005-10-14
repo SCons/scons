@@ -197,7 +197,7 @@ ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
 .globl name
 name:
         .ascii	"aaa.s"
-	.byte	0
+        .byte	0
 """)
 
     test.write('bbb.s', """\
@@ -207,7 +207,7 @@ name:
 .globl name
 name:
         .ascii	"bbb.s"
-	.byte	0
+        .byte	0
 """)
 
     test.write('ccc.h', """\
@@ -222,7 +222,7 @@ name:
 .globl name
 name:
         .ascii	STRING
-	.byte	0
+        .byte	0
 """)
 
     test.write('aaa_main.c', r"""
@@ -317,19 +317,19 @@ ddd.Program(target = 'ddd', source = ['ddd.asm', 'ddd_main.c'])
     test.write('ccc.asm', 
 """
 DSEG	segment
-	PUBLIC _name
+        PUBLIC _name
 _name	byte "ccc.asm",0
 DSEG	ends
-	end
+        end
 """)
 
     test.write('ddd.asm', 
 """        
 DSEG	segment
-	PUBLIC _name
+        PUBLIC _name
 _name	byte "ddd.asm",0
 DSEG	ends
-	end
+        end
 """)
 
     test.write('ccc_main.c', r"""
@@ -408,14 +408,14 @@ fff.Program(target = 'fff', source = ['fff.asm', 'fff_main.c'])
 """
 global name
 name:
-	db 'eee.asm',0
+        db 'eee.asm',0
 """)
 
     test.write('fff.asm', 
 """        
 global name
 name:
-	db 'fff.asm',0
+        db 'fff.asm',0
 """)
 
     test.write('eee_main.c', r"""

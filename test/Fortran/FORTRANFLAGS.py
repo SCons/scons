@@ -50,7 +50,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:5] != '#link':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -66,7 +66,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:5] != '#link':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -83,7 +83,7 @@ outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
 for l in infile.readlines():
     if l[:8] != '#fortran':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 

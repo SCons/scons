@@ -90,14 +90,14 @@ test.write('prog.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
+        argv[argc++] = "--";
 #ifdef FOO
-	printf("prog.c:  FOO %d\n", VAL);
+        printf("prog.c:  FOO %d\n", VAL);
 #endif
 #ifdef BAR
-	printf("prog.c:  BAR %d\n", VAL);
+        printf("prog.c:  BAR %d\n", VAL);
 #endif
-	exit (0);
+        exit (0);
 }
 """)
 

@@ -44,7 +44,7 @@ test.subdir('repository',
             ['repository', 'src2', 'include'],
             ['repository', 'src2', 'xxx'],
             ['repository', 'build2'],
-	    ['repository', 'build2', 'foo'],
+            ['repository', 'build2', 'foo'],
             ['repository', 'build2', 'bar'],
             'work1',
             ['work1', 'src1'],
@@ -124,11 +124,11 @@ env2.Program('xxx', ['main.c'])
 """)
 
 test.write(['repository', 'src1', 'iii.h'], r"""
-#ifdef	FOO
-#define	STRING	"REPOSITORY_FOO"
+#ifdef  FOO
+#define STRING  "REPOSITORY_FOO"
 #endif
-#ifdef	BAR
-#define	STRING	"REPOSITORY_BAR"
+#ifdef  BAR
+#define STRING  "REPOSITORY_BAR"
 #endif
 """)
 
@@ -137,7 +137,7 @@ test.write(['repository', 'src1', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("repository/src1/aaa.c:  %s\n", STRING);
+        printf("repository/src1/aaa.c:  %s\n", STRING);
 }
 """)
 
@@ -146,7 +146,7 @@ test.write(['repository', 'src1', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("repository/src1/bbb.c:  %s\n", STRING);
+        printf("repository/src1/bbb.c:  %s\n", STRING);
 }
 """)
 
@@ -157,51 +157,51 @@ extern void bbb(void);
 int
 main(int argc, char *argv[])
 {
-#ifdef	BAR
-	printf("Only when -DBAR.\n");
+#ifdef  BAR
+        printf("Only when -DBAR.\n");
 #endif
-	aaa();
-	bbb();
-	printf("repository/src1/main.c:  %s\n", STRING);
-	exit (0);
+        aaa();
+        bbb();
+        printf("repository/src1/main.c:  %s\n", STRING);
+        exit (0);
 }
 """)
 
 test.write(['repository', 'src2', 'include', 'my_string.h'], r"""
-#ifdef	FOO
-#define	INCLUDE_OS	"FOO"
+#ifdef  FOO
+#define INCLUDE_OS      "FOO"
 #endif
-#ifdef	BAR
-#define	INCLUDE_OS	"BAR"
+#ifdef  BAR
+#define INCLUDE_OS      "BAR"
 #endif
-#define	INCLUDE_STRING	"repository/src2/include/my_string.h:  %s\n"
+#define INCLUDE_STRING  "repository/src2/include/my_string.h:  %s\n"
 """)
 
 test.write(['repository', 'src2', 'xxx', 'include.h'], r"""
 #include <my_string.h>
-#ifdef	FOO
-#define	XXX_OS		"FOO"
+#ifdef  FOO
+#define XXX_OS          "FOO"
 #endif
-#ifdef	BAR
-#define	XXX_OS		"BAR"
+#ifdef  BAR
+#define XXX_OS          "BAR"
 #endif
-#define	XXX_STRING	"repository/src2/xxx/include.h:  %s\n"
+#define XXX_STRING      "repository/src2/xxx/include.h:  %s\n"
 """)
 
 test.write(['repository', 'src2', 'xxx', 'main.c'], r"""
 #include <include.h>
-#ifdef	FOO
-#define	MAIN_OS		"FOO"
+#ifdef  FOO
+#define MAIN_OS         "FOO"
 #endif
-#ifdef	BAR
-#define	MAIN_OS		"BAR"
+#ifdef  BAR
+#define MAIN_OS         "BAR"
 #endif
 main()
 {
-	printf(INCLUDE_STRING, INCLUDE_OS);
-	printf(XXX_STRING, XXX_OS);
-	printf("repository/src2/xxx/main.c:  %s\n", MAIN_OS);
-	exit (0);
+        printf(INCLUDE_STRING, INCLUDE_OS);
+        printf(XXX_STRING, XXX_OS);
+        printf("repository/src2/xxx/main.c:  %s\n", MAIN_OS);
+        exit (0);
 }
 """)
 
@@ -270,11 +270,11 @@ test.up_to_date(chdir = 'work1', options = opts + " OS=bar", arguments = 'build1
 time.sleep(2)
 
 test.write(['work1', 'src1', 'iii.h'], r"""
-#ifdef	FOO
-#define	STRING	"WORK_FOO"
+#ifdef  FOO
+#define STRING  "WORK_FOO"
 #endif
-#ifdef	BAR
-#define	STRING	"WORK_BAR"
+#ifdef  BAR
+#define STRING  "WORK_BAR"
 #endif
 """)
 
@@ -327,13 +327,13 @@ test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'x
 time.sleep(2)
 
 test.write(['work2', 'src2', 'include', 'my_string.h'], r"""
-#ifdef	FOO
-#define	INCLUDE_OS	"FOO"
+#ifdef  FOO
+#define INCLUDE_OS      "FOO"
 #endif
-#ifdef	BAR
-#define	INCLUDE_OS	"BAR"
+#ifdef  BAR
+#define INCLUDE_OS      "BAR"
 #endif
-#define	INCLUDE_STRING	"work2/src2/include/my_string.h:  %s\n"
+#define INCLUDE_STRING  "work2/src2/include/my_string.h:  %s\n"
 """)
 
 #
@@ -361,13 +361,13 @@ time.sleep(2)
 
 test.write(['work2', 'src2', 'xxx', 'include.h'], r"""
 #include <my_string.h>
-#ifdef	FOO
-#define	XXX_OS		"FOO"
+#ifdef  FOO
+#define XXX_OS          "FOO"
 #endif
-#ifdef	BAR
-#define	XXX_OS		"BAR"
+#ifdef  BAR
+#define XXX_OS          "BAR"
 #endif
-#define	XXX_STRING	"work2/src2/xxx/include.h:  %s\n"
+#define XXX_STRING      "work2/src2/xxx/include.h:  %s\n"
 """)
 
 test.run(chdir = 'work2', options = opts, arguments = 'build2')

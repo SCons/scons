@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 test.subdir('repository',
             ['repository', 'include1'],
             ['repository', 'include2'],
-	    'work')
+            'work')
 
 work_foo = test.workpath('work', 'foo')
 
@@ -45,11 +45,11 @@ opts = '-Y ' + test.workpath('repository')
 
 #
 test.write(['repository', 'include1', 'foo.h'], r"""
-#define	STRING	"repository/include1/foo.h"
+#define STRING  "repository/include1/foo.h"
 """)
 
 test.write(['repository', 'include2', 'foo.h'], r"""
-#define	STRING	"repository/include2/foo.h"
+#define STRING  "repository/include2/foo.h"
 """)
 
 test.write(['repository', 'foo.c'], r"""
@@ -57,9 +57,9 @@ test.write(['repository', 'foo.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", STRING);
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", STRING);
+        exit (0);
 }
 """)
 

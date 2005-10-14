@@ -60,7 +60,7 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c\n");
+        printf("f1.c\n");
 }
 """)
 
@@ -79,9 +79,9 @@ void f1(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	f1();
-	printf("prog.c\n");
+        argv[argc++] = "--";
+        f1();
+        printf("prog.c\n");
         return 0;
 }
 """)
@@ -105,7 +105,7 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c 1\n");
+        printf("f1.c 1\n");
 }
 """)
 
@@ -138,7 +138,7 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c 2\n");
+        printf("f1.c 2\n");
 }
 """)
 

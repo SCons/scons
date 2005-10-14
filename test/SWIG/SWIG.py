@@ -63,7 +63,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:4] != 'swig':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -77,9 +77,9 @@ env.Copy(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
 test.write('test1.i', r"""
 int
 main(int argc, char *argv[]) {
-	argv[argc++] = "--";
-	printf("test1.i\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("test1.i\n");
+        exit (0);
 }
 swig
 """)
@@ -93,9 +93,9 @@ test.write('test3.i', r"""
 #include <stdlib.h>
 int
 main(int argc, char *argv[]) {
-	argv[argc++] = "--";
-	printf("test3.i\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("test3.i\n");
+        exit (0);
 }
 swig
 """)

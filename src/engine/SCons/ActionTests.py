@@ -540,7 +540,7 @@ class _ActionActionTestCase(unittest.TestCase):
 
             def exitstatfunc(stat, result=exitstatfunc_result):
                 result.append(stat)
-		return stat
+                return stat
 
             result = a("out", "in", env, exitstatfunc=exitstatfunc)
             assert result == 0, result
@@ -840,37 +840,37 @@ class CommandActionTestCase(unittest.TestCase):
         s = act4.strfunction([t1], [s1], env)
         assert s is None, s
 
-	act = SCons.Action.CommandAction("@foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "", s
+        act = SCons.Action.CommandAction("@foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "", s
 
-	act = SCons.Action.CommandAction("@-foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "", s
+        act = SCons.Action.CommandAction("@-foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "", s
 
-	act = SCons.Action.CommandAction("-@foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "", s
+        act = SCons.Action.CommandAction("-@foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "", s
 
-	act = SCons.Action.CommandAction("-foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "foo bar", s
+        act = SCons.Action.CommandAction("-foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "foo bar", s
 
-	act = SCons.Action.CommandAction("@ foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "", s
+        act = SCons.Action.CommandAction("@ foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "", s
 
-	act = SCons.Action.CommandAction("@- foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "", s
+        act = SCons.Action.CommandAction("@- foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "", s
 
-	act = SCons.Action.CommandAction("-@ foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "", s
+        act = SCons.Action.CommandAction("-@ foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "", s
 
-	act = SCons.Action.CommandAction("- foo bar")
-	s = act.strfunction([], [], env)
-	assert s == "foo bar", s
+        act = SCons.Action.CommandAction("- foo bar")
+        s = act.strfunction([], [], env)
+        assert s == "foo bar", s
 
     def test_execute(self):
         """Test execution of command Actions
@@ -994,33 +994,33 @@ class CommandActionTestCase(unittest.TestCase):
         r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
-	act = SCons.Action.CommandAction('%s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 1, r
+        act = SCons.Action.CommandAction('%s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 1, r
 
-	act = SCons.Action.CommandAction('@%s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 1, r
+        act = SCons.Action.CommandAction('@%s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 1, r
 
-	act = SCons.Action.CommandAction('@-%s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 0, r
+        act = SCons.Action.CommandAction('@-%s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 0, r
 
-	act = SCons.Action.CommandAction('-%s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 0, r
+        act = SCons.Action.CommandAction('-%s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 0, r
 
-	act = SCons.Action.CommandAction('@ %s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 1, r
+        act = SCons.Action.CommandAction('@ %s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 1, r
 
-	act = SCons.Action.CommandAction('@- %s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 0, r
+        act = SCons.Action.CommandAction('@- %s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 0, r
 
-	act = SCons.Action.CommandAction('- %s %s 1' % (python, exit_py))
-	r = act([], [], env)
-	assert r == 0, r
+        act = SCons.Action.CommandAction('- %s %s 1' % (python, exit_py))
+        r = act([], [], env)
+        assert r == 0, r
 
     def _DO_NOT_EXECUTE_test_pipe_execute(self):
         """Test capturing piped output from an action

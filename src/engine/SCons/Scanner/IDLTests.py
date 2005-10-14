@@ -44,11 +44,11 @@ test.write('t1.idl','''
 import "f3.idl";
 
 [
-	object,
-	uuid(22995106-CE26-4561-AF1B-C71C6934B840),
-	dual,
-	helpstring("IBarObject Interface"),
-	pointer_default(unique)
+        object,
+        uuid(22995106-CE26-4561-AF1B-C71C6934B840),
+        dual,
+        helpstring("IBarObject Interface"),
+        pointer_default(unique)
 ]
 interface IBarObject : IDispatch
 {
@@ -62,11 +62,11 @@ test.write('t2.idl',"""
 import <f3.idl>;
 
 [
-	object,
-	uuid(22995106-CE26-4561-AF1B-C71C6934B840),
-	dual,
-	helpstring(\"IBarObject Interface\"),
-	pointer_default(unique)
+        object,
+        uuid(22995106-CE26-4561-AF1B-C71C6934B840),
+        dual,
+        helpstring(\"IBarObject Interface\"),
+        pointer_default(unique)
 ]
 interface IBarObject : IDispatch
 {
@@ -93,11 +93,11 @@ include \t \"never.idl\"
 const char* x = \"#include <never.idl>\"
 
 [
-	object,
-	uuid(22995106-CE26-4561-AF1B-C71C6934B840),
-	dual,
-	helpstring(\"IBarObject Interface\"),
-	pointer_default(unique)
+        object,
+        uuid(22995106-CE26-4561-AF1B-C71C6934B840),
+        dual,
+        helpstring(\"IBarObject Interface\"),
+        pointer_default(unique)
 ]
 interface IBarObject : IDispatch
 {
@@ -130,11 +130,11 @@ test.write('t4.idl',"""
 #include <fb.idl>
 
 [
-	object,
-	uuid(22995106-CE26-4561-AF1B-C71C6934B840),
-	dual,
-	helpstring(\"IBarObject Interface\"),
-	pointer_default(unique)
+        object,
+        uuid(22995106-CE26-4561-AF1B-C71C6934B840),
+        dual,
+        helpstring(\"IBarObject Interface\"),
+        pointer_default(unique)
 ]
 interface IBarObject : IDispatch
 {

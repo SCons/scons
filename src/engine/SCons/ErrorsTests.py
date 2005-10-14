@@ -38,21 +38,21 @@ class ErrorsTestCase(unittest.TestCase):
             assert e.errstr == "foo"
 
     def test_InternalError(self):
-	"""Test the InternalError exception."""
+        """Test the InternalError exception."""
         try:
             raise SCons.Errors.InternalError, "test internal error"
         except SCons.Errors.InternalError, e:
             assert e.args == ("test internal error",)
 
     def test_UserError(self):
-	"""Test the UserError exception."""
+        """Test the UserError exception."""
         try:
             raise SCons.Errors.UserError, "test user error"
         except SCons.Errors.UserError, e:
             assert e.args == ("test user error",)
 
     def test_ExplicitExit(self):
-	"""Test the ExplicitExit exception."""
+        """Test the ExplicitExit exception."""
         try:
             raise SCons.Errors.ExplicitExit, "node"
         except SCons.Errors.ExplicitExit, e:
@@ -61,4 +61,4 @@ class ErrorsTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.makeSuite(ErrorsTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)

@@ -83,10 +83,10 @@ void
 doIt()
 {
 #ifdef FOO
-	printf("prog.c:  FOO\n");
+        printf("prog.c:  FOO\n");
 #endif
 #ifdef BAR
-	printf("prog.c:  BAR\n");
+        printf("prog.c:  BAR\n");
 #endif
 }
 """)

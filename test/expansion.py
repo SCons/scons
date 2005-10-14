@@ -55,9 +55,9 @@ test.write(['sub', 'f1.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub/f1.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub/f1.c\n");
+        exit (0);
 }
 """)
 
@@ -65,9 +65,9 @@ test.write('f2.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f2.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f2.c\n");
+        exit (0);
 }
 """)
 
@@ -75,9 +75,9 @@ test.write(['sub', 'f3.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub/f3.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub/f3.c\n");
+        exit (0);
 }
 """)
 
@@ -85,9 +85,9 @@ test.write(['sub', 'foo4.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("sub/foo4.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("sub/foo4.c\n");
+        exit (0);
 }
 """)
 

@@ -54,7 +54,7 @@ test.write(['repository', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("repository/aaa.c\n");
+        printf("repository/aaa.c\n");
 }
 """)
 
@@ -62,7 +62,7 @@ test.write(['repository', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("repository/bbb.c\n");
+        printf("repository/bbb.c\n");
 }
 """)
 
@@ -72,11 +72,11 @@ extern void bbb(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	aaa();
-	bbb();
-	printf("repository/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        aaa();
+        bbb();
+        printf("repository/foo.c\n");
+        exit (0);
 }
 """)
 
@@ -98,7 +98,7 @@ test.write(['work1', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("work1/bbb.c\n");
+        printf("work1/bbb.c\n");
 }
 """)
 
@@ -116,7 +116,7 @@ test.write(['work1', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("work1/aaa.c\n");
+        printf("work1/aaa.c\n");
 }
 """)
 
@@ -126,11 +126,11 @@ extern void bbb(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	aaa();
-	bbb();
-	printf("work1/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        aaa();
+        bbb();
+        printf("work1/foo.c\n");
+        exit (0);
 }
 """)
 
@@ -188,7 +188,7 @@ test.write(['repository.old', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("repository.old/aaa.c\n");
+        printf("repository.old/aaa.c\n");
 }
 """)
 
@@ -196,7 +196,7 @@ test.write(['repository.old', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("repository.old/bbb.c\n");
+        printf("repository.old/bbb.c\n");
 }
 """)
 
@@ -206,11 +206,11 @@ extern void bbb(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	aaa();
-	bbb();
-	printf("repository.old/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        aaa();
+        bbb();
+        printf("repository.old/foo.c\n");
+        exit (0);
 }
 """)
 
@@ -235,7 +235,7 @@ test.write(['repository.new', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("repository.new/aaa.c\n");
+        printf("repository.new/aaa.c\n");
 }
 """)
 
@@ -243,7 +243,7 @@ test.write(['work2', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("work2/bbb.c\n");
+        printf("work2/bbb.c\n");
 }
 """)
 
@@ -264,7 +264,7 @@ test.write(['work2', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("work2/aaa.c\n");
+        printf("work2/aaa.c\n");
 }
 """)
 
@@ -274,11 +274,11 @@ extern void bbb(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	aaa();
-	bbb();
-	printf("work2/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        aaa();
+        bbb();
+        printf("work2/foo.c\n");
+        exit (0);
 }
 """)
 

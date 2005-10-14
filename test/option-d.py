@@ -28,7 +28,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is supported.
+test.pass_test()        #XXX Short-circuit until this is supported.
 
 test.subdir('subdir')
 
@@ -49,9 +49,9 @@ test.write('aaa.c', """
 int
 main(int argc, char *argv)
 {
-	argv[argc++] = "--";
-	printf("aaa.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("aaa.c\n");
+        exit (0);
 }
 """)
 
@@ -59,9 +59,9 @@ test.write('bbb.c', """
 int
 main(int argc, char *argv)
 {
-	argv[argc++] = "--";
-	printf("bbb.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("bbb.c\n");
+        exit (0);
 }
 """)
 
@@ -69,9 +69,9 @@ test.write(['subdir', 'ccc.c'], """
 int
 main(int argc, char *argv)
 {
-	argv[argc++] = "--";
-	printf("subdir/ccc.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("subdir/ccc.c\n");
+        exit (0);
 }
 """)
 
@@ -79,9 +79,9 @@ test.write(['subdir', 'ddd.c'], """
 int
 main(int argc, char *argv)
 {
-	argv[argc++] = "--";
-	printf("subdir/ddd.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("subdir/ddd.c\n");
+        exit (0);
 }
 """)
 
