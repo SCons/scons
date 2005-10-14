@@ -53,17 +53,17 @@ test.write('prog.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
+        argv[argc++] = "--";
 #ifdef FOO
-	printf("prog.c:  FOO\n");
+        printf("prog.c:  FOO\n");
 #endif
 #ifdef BAR
-	printf("prog.c:  BAR\n");
+        printf("prog.c:  BAR\n");
 #endif
 #ifdef BAZ
-	printf("prog.c:  BAZ\n");
+        printf("prog.c:  BAZ\n");
 #endif
-	exit (0);
+        exit (0);
 }
 """)
 

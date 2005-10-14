@@ -123,10 +123,10 @@ extern "C" void
 doIt()
 {
 #ifdef FOO
-	printf("prog.cpp:  FOO\n");
+        printf("prog.cpp:  FOO\n");
 #endif
 #ifdef BAR
-	printf("prog.cpp:  BAR\n");
+        printf("prog.cpp:  BAR\n");
 #endif
 }
 """)
@@ -187,7 +187,7 @@ void
 doIt()
 {
 #ifdef FOO
-	printf("prog.cpp:  %s\n", boo_sub());
+        printf("prog.cpp:  %s\n", boo_sub());
 #endif
 }
 """)
@@ -224,10 +224,10 @@ sub_build_nodes = [ os.path.join('bld', 'subsrcdir','boo' + _obj),
 
 build_nodes = ['fooprog' + _exe,
                dll_ + 'foo' + _dll,
-	       'foo' + _obj,
+               'foo' + _obj,
                'barprog' + _exe,
-	       dll_ + 'bar' + _dll,
-	       'bar' + _obj,
+               dll_ + 'bar' + _dll,
+               'bar' + _obj,
 
                'gooprog' + _exe,
 

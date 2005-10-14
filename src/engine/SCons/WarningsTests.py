@@ -122,4 +122,4 @@ class WarningsTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.makeSuite(WarningsTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)

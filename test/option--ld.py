@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', "")
 
 test.run(arguments = '--list-derived .',
-	 stderr = "Warning:  the --list-derived option is not yet implemented\n")
+         stderr = "Warning:  the --list-derived option is not yet implemented\n")
 
 test.pass_test()
  

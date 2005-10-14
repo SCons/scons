@@ -49,7 +49,7 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c\n");
+        printf("f1.c\n");
 }
 """)
 
@@ -59,7 +59,7 @@ test.write('f2.cpp', r"""
 void
 f2(void)
 {
-	printf("f2.c\n");
+        printf("f2.c\n");
 }
 """)
 
@@ -67,7 +67,7 @@ test.write('f3.c', r"""
 void
 f3(void)
 {
-	printf("f3.c\n");
+        printf("f3.c\n");
 }
 """)
 
@@ -75,7 +75,7 @@ test.write('f4.c', r"""
 void
 f4(void)
 {
-	printf("f4.c\n");
+        printf("f4.c\n");
 }
 """)
 
@@ -83,7 +83,7 @@ test.write('f5.c', r"""
 void
 f5(void)
 {
-	printf("f5.c\n");
+        printf("f5.c\n");
 }
 """)
 
@@ -96,12 +96,12 @@ extern "C" void f3(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	f1();
-	f2();
-	f3();
-	printf("prog.c\n");
-	return 0;
+        argv[argc++] = "--";
+        f1();
+        f2();
+        f3();
+        printf("prog.c\n");
+        return 0;
 }
 """)
 

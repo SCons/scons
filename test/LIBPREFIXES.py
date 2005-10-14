@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(LIBPREFIX = 'xxx-',
-		  LIBPREFIXES = ['xxx-'])
+                  LIBPREFIXES = ['xxx-'])
 lib = env.Library(target = 'foo', source = 'foo.c')
 env.Program(target = 'prog', source = ['prog.c', lib])
 """)
@@ -46,7 +46,7 @@ test.write('foo.c', r"""
 void
 foo(void)
 {
-	printf("foo.c\n");
+        printf("foo.c\n");
 }
 """)
 
@@ -55,9 +55,9 @@ void foo(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	foo();
-	printf("prog.c\n");
+        argv[argc++] = "--";
+        foo();
+        printf("prog.c\n");
         return 0;
 }
 """)

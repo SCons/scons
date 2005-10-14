@@ -55,10 +55,10 @@ input = r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("LEX\n");
-	printf("%s\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("LEX\n");
+        printf("%s\n");
+        exit (0);
 }
 """
 

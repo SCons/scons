@@ -52,7 +52,7 @@ def process(outfile, name):
         entries = os.listdir(name)
         entries.sort()
         for entry in entries:
-	    process(outfile, os.path.join(name, entry))
+            process(outfile, os.path.join(name, entry))
     else:
         outfile.write(open(name, 'rb').read())
 outfile = open(out, 'wb')
@@ -104,7 +104,7 @@ os.system(string.join(sys.argv[1:], " "))
 foo = Environment()
 tar = foo['TAR']
 bar = Environment(TAR = '',
-		  TARFLAGS = r'%s wrapper.py ' + tar + ' -c -b 1')
+                  TARFLAGS = r'%s wrapper.py ' + tar + ' -c -b 1')
 foo.Tar(target = 'foo.tar', source = ['file10', 'file11'])
 foo.Tar(target = 'foo.tar', source = 'file12')
 bar.Tar(target = 'bar.tar', source = ['file13', 'file14'])

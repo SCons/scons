@@ -60,7 +60,7 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c\n");
+        printf("f1.c\n");
         fflush(stdout);
 }
 """)
@@ -75,19 +75,19 @@ extern int errno;
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
+        argv[argc++] = "--";
         void *foo1_shobj = dlopen("__foo1_name__", RTLD_NOW);
-	if(!foo1_shobj){
-	  printf("Error loading foo1 '__foo1_name__' library at runtime, exiting.\n");
-	  printf("%d\n", errno);
-	  perror("");
-	  return -1;
-	}
-	void (*f1)() = dlsym(foo1_shobj, "f1\0");
-	(*f1)();
-	printf("dlopenprog.c\n");
+        if(!foo1_shobj){
+          printf("Error loading foo1 '__foo1_name__' library at runtime, exiting.\n");
+          printf("%d\n", errno);
+          perror("");
+          return -1;
+        }
+        void (*f1)() = dlsym(foo1_shobj, "f1\0");
+        (*f1)();
+        printf("dlopenprog.c\n");
         dlclose(foo1_shobj);
-	return 0;
+        return 0;
 }
 """
 

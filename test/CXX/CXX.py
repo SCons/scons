@@ -52,7 +52,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -72,7 +72,7 @@ infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:7] != '/*c++*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -88,7 +88,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -102,7 +102,7 @@ infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:7] != '/*c++*/':
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 
@@ -199,9 +199,9 @@ test.write('foo.cxx', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo.cxx\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo.cxx\n");
+        exit (0);
 }
 """)
 
@@ -211,9 +211,9 @@ test.write('bar.cxx', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo.cxx\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo.cxx\n");
+        exit (0);
 }
 """)
 

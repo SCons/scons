@@ -75,7 +75,7 @@ for i in range(1, 255):
     if not bad_char(c):
         if c in '$':
             c = '\\' + c
-	infile = "in" + c + "in"
+        infile = "in" + c + "in"
         env.Command(c + "out", infile, "cp $SOURCE $TARGET")
         env.Command("out" + c + "out", infile, "cp $SOURCE $TARGET")
         env.Command("out" + c, infile, "cp $SOURCE $TARGET")

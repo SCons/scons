@@ -48,7 +48,7 @@ env.bld(target = 'f1', source = 'f1.in')
 """ % string.replace(no_such_file, '\\', '\\\\'))
 
 test.run(arguments='-f SConstruct1 .',
-	 stdout = test.wrap_stdout("%s f1.in f1\n" % no_such_file, error=1),
+         stdout = test.wrap_stdout("%s f1.in f1\n" % no_such_file, error=1),
          stderr = None,
          status = 2)
 
@@ -131,7 +131,7 @@ env.bld(target = 'f2', source = 'f2.in')
 """ % string.replace(not_executable, '\\', '\\\\'))
 
 test.run(arguments='-f SConstruct2 .',
-	 stdout = test.wrap_stdout("%s f2.in f2\n" % not_executable, error=1),
+         stdout = test.wrap_stdout("%s f2.in f2\n" % not_executable, error=1),
          stderr = None,
          status = 2)
 
@@ -163,7 +163,7 @@ env.bld(target = 'f3', source = 'f3.in')
 """ % string.replace(test.workdir, '\\', '\\\\'))
 
 test.run(arguments='-f SConstruct3 .',
-	 stdout = test.wrap_stdout("%s f3.in f3\n" % test.workdir, error=1),
+         stdout = test.wrap_stdout("%s f3.in f3\n" % test.workdir, error=1),
          stderr = None,
          status = 2)
 

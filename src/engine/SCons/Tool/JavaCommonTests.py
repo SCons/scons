@@ -193,10 +193,10 @@ public class Test {
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
 public class MyTabs
 {
-	private class MyInternal
-	{
-	}
-	private final static String PATH = "images\\\\";
+        private class MyInternal
+        {
+        }
+        private final static String PATH = "images\\\\";
 }
 """)
         assert pkg_dir == None, pkg_dir

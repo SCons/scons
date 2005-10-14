@@ -445,7 +445,7 @@ if __name__ == "__main__":
     print "Test MSVS 6 Registry"
     # print str(registry.root)
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)
 
     registry = DummyRegistry(regdata_6b)
     default_version = '6.0'
@@ -456,7 +456,7 @@ if __name__ == "__main__":
     print "Test Other MSVS 6 Registry"
     # print str(registry.root)
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)
 
     registry = DummyRegistry(regdata_67)
     default_version = '7.0'
@@ -467,7 +467,7 @@ if __name__ == "__main__":
     # print str(registry.root)
     print "Test MSVS 6 & 7 Registry"
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)
 
     registry = DummyRegistry(regdata_7)
     default_version = '7.0'
@@ -478,7 +478,7 @@ if __name__ == "__main__":
     # print str(registry.root)
     print "Test MSVS 7 Registry"
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)
 
     registry = DummyRegistry(regdata_none)
     default_version = '6.0'
@@ -489,4 +489,4 @@ if __name__ == "__main__":
     # print str(registry.root)
     print "Test Empty Registry"
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)

@@ -113,9 +113,9 @@ class MyTestSCons(TestSCons.TestSCons):
             self.version_lib = os.path.join(self.lib_dir, scons_version)
             self.man_dir = os.path.join(self.prefix, 'man', 'man1')
 
-	self.prepend_bin_dir = lambda p, d=self.bin_dir: os.path.join(d, p)
-	self.prepend_bat_dir = lambda p, d=self.bat_dir: os.path.join(d, p)
-	self.prepend_man_dir = lambda p, d=self.man_dir: os.path.join(d, p)
+        self.prepend_bin_dir = lambda p, d=self.bin_dir: os.path.join(d, p)
+        self.prepend_bat_dir = lambda p, d=self.bat_dir: os.path.join(d, p)
+        self.prepend_man_dir = lambda p, d=self.man_dir: os.path.join(d, p)
 
     def run(self, *args, **kw):
         kw['chdir'] = scons_version
@@ -157,7 +157,7 @@ class MyTestSCons(TestSCons.TestSCons):
         return 'Installed SCons man pages into %s' % self.man_dir
 
     def man_page_paths(self):
-	return map(self.prepend_man_dir, self._man_pages)
+        return map(self.prepend_man_dir, self._man_pages)
 
 
     def must_have_installed(self, paths):

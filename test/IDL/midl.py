@@ -93,22 +93,22 @@ test.write('src/BarObject.h','''
 #include "resource.h"
 
 class ATL_NO_VTABLE CBarObject : 
-	public CComObjectRootEx<CComSingleThreadModel>,
-	public CComCoClass<CBarObject, &CLSID_BarObject>,
-	public IDispatchImpl<IBarObject, &IID_IBarObject, &LIBID_BARLib>
+        public CComObjectRootEx<CComSingleThreadModel>,
+        public CComCoClass<CBarObject, &CLSID_BarObject>,
+        public IDispatchImpl<IBarObject, &IID_IBarObject, &LIBID_BARLib>
 {
 public:
-	CBarObject()
-	{
-	}
+        CBarObject()
+        {
+        }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_BAROBJECT)
 
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CBarObject)
-	COM_INTERFACE_ENTRY(IBarObject)
-	COM_INTERFACE_ENTRY(IDispatch)
+        COM_INTERFACE_ENTRY(IBarObject)
+        COM_INTERFACE_ENTRY(IDispatch)
 END_COM_MAP()
 
 public:
@@ -120,29 +120,29 @@ public:
 test.write('src/BarObject.rgs',"""
 HKCR
 {
-	Bar.BarObject.1 = s 'BarObject Class'
-	{
-		CLSID = s '{640BE9EC-B79D-4C9E-BB64-95D24854A303}'
-	}
-	Bar.BarObject = s 'BarObject Class'
-	{
-		CLSID = s '{640BE9EC-B79D-4C9E-BB64-95D24854A303}'
-		CurVer = s 'Bar.BarObject.1'
-	}
-	NoRemove CLSID
-	{
-		ForceRemove {640BE9EC-B79D-4C9E-BB64-95D24854A303} = s 'BarObject Class'
-		{
-			ProgID = s 'Bar.BarObject.1'
-			VersionIndependentProgID = s 'Bar.BarObject'
-			ForceRemove 'Programmable'
-			InprocServer32 = s '%MODULE%'
-			{
-				val ThreadingModel = s 'Apartment'
-			}
-			'TypeLib' = s '{73E5EA5F-9D45-463F-AA33-9F376AF7B643}'
-		}
-	}
+        Bar.BarObject.1 = s 'BarObject Class'
+        {
+                CLSID = s '{640BE9EC-B79D-4C9E-BB64-95D24854A303}'
+        }
+        Bar.BarObject = s 'BarObject Class'
+        {
+                CLSID = s '{640BE9EC-B79D-4C9E-BB64-95D24854A303}'
+                CurVer = s 'Bar.BarObject.1'
+        }
+        NoRemove CLSID
+        {
+                ForceRemove {640BE9EC-B79D-4C9E-BB64-95D24854A303} = s 'BarObject Class'
+                {
+                        ProgID = s 'Bar.BarObject.1'
+                        VersionIndependentProgID = s 'Bar.BarObject'
+                        ForceRemove 'Programmable'
+                        InprocServer32 = s '%MODULE%'
+                        {
+                                val ThreadingModel = s 'Apartment'
+                        }
+                        'TypeLib' = s '{73E5EA5F-9D45-463F-AA33-9F376AF7B643}'
+                }
+        }
 }
 """)
 
@@ -234,44 +234,44 @@ test.write('src/bar.def','''
 LIBRARY      "bar.DLL"
 
 EXPORTS
-	DllCanUnloadNow     @1 PRIVATE
-	DllGetClassObject   @2 PRIVATE
-	DllRegisterServer   @3 PRIVATE
-	DllUnregisterServer	@4 PRIVATE
+        DllCanUnloadNow     @1 PRIVATE
+        DllGetClassObject   @2 PRIVATE
+        DllRegisterServer   @3 PRIVATE
+        DllUnregisterServer     @4 PRIVATE
 ''')
 
 test.write('src/bar.idl','''
 import "oaidl.idl";
 import "ocidl.idl";
-	[
-		object,
-		uuid(22995106-CE26-4561-AF1B-C71C6934B840),
-		dual,
-		helpstring("IBarObject Interface"),
-		pointer_default(unique)
-	]
-	interface IBarObject : IDispatch
-	{
-	};
+        [
+                object,
+                uuid(22995106-CE26-4561-AF1B-C71C6934B840),
+                dual,
+                helpstring("IBarObject Interface"),
+                pointer_default(unique)
+        ]
+        interface IBarObject : IDispatch
+        {
+        };
 
 [
-	uuid(73E5EA5F-9D45-463F-AA33-9F376AF7B643),
-	version(1.0),
-	helpstring("bar 1.0 Type Library")
+        uuid(73E5EA5F-9D45-463F-AA33-9F376AF7B643),
+        version(1.0),
+        helpstring("bar 1.0 Type Library")
 ]
 library BARLib
 {
-	importlib("stdole32.tlb");
-	importlib("stdole2.tlb");
+        importlib("stdole32.tlb");
+        importlib("stdole2.tlb");
 
-	[
-		uuid(640BE9EC-B79D-4C9E-BB64-95D24854A303),
-		helpstring("BarObject Class")
-	]
-	coclass BarObject
-	{
-		[default] interface IBarObject;
-	};
+        [
+                uuid(640BE9EC-B79D-4C9E-BB64-95D24854A303),
+                helpstring("BarObject Class")
+        ]
+        coclass BarObject
+        {
+                [default] interface IBarObject;
+        };
 };
 ''')
 

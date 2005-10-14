@@ -53,7 +53,7 @@ test.write(['work', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("work/aaa.c\n");
+        printf("work/aaa.c\n");
 }
 """)
 
@@ -61,7 +61,7 @@ test.write(['work', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("work/bbb.c\n");
+        printf("work/bbb.c\n");
 }
 """)
 
@@ -71,11 +71,11 @@ extern void bbb(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	aaa();
-	bbb();
-	printf("work/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        aaa();
+        bbb();
+        printf("work/foo.c\n");
+        exit (0);
 }
 """)
 

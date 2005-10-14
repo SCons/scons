@@ -36,12 +36,12 @@ test = TestSCons.TestSCons()
 # control.  The getopt module reports "--warn not a unique prefix"
 # when both are defined.  We may be able to support both in the
 # future with a more robust getopt solution.
-test.pass_test()	#XXX Short-circuit until then.
+test.pass_test()        #XXX Short-circuit until then.
 
 test.write('SConstruct', "")
 
 test.run(arguments = '--warn-undefined-variables',
-	stderr = "Warning:  the --warn-undefined-variables option is not yet implemented\n")
+        stderr = "Warning:  the --warn-undefined-variables option is not yet implemented\n")
 
 test.pass_test()
  

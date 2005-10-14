@@ -76,9 +76,9 @@ test.write('foo.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo.c\n");
+        exit (0);
 }
 """)
 
@@ -86,9 +86,9 @@ test.write('static.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("static.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("static.c\n");
+        exit (0);
 }
 """)
 
@@ -96,9 +96,9 @@ test.write('shared.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("shared.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("shared.c\n");
+        exit (0);
 }
 """)
 

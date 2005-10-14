@@ -171,11 +171,14 @@ env.B(target = 'file4.out', source = 'file4b.in', foo=3)
 test.write('file4a.in', 'file4a.in\n')
 test.write('file4b.in', 'file4b.in\n')
 
+python_expr = string.replace(TestSCons.python, '\\', '\\\\')
+act = TestSCons.re_escape('%s build.py \$foo \$TARGET \$SOURCES' % python_expr)
+
 test.run(arguments='file4.out', 
-         stderr=TestSCons.re_escape("""
+         stderr=("""
 scons: warning: Two different environments were specified for target file4.out,
-	but they appear to have the same action: %(python)s build.py \$foo \$TARGET \$SOURCES
-""" % {'python':string.replace(TestSCons.python, '\\', '\\\\')}) + TestSCons.file_expr)
+\tbut they appear to have the same action: %s
+""" % act) + TestSCons.file_expr)
 
 test.must_match('file4.out', "3\nfile4a.in\nfile4b.in\n")
 
@@ -204,7 +207,7 @@ test.write('file5b.in', 'file5b.in\n')
 test.run(arguments='file5.out', 
          stderr=TestSCons.re_escape("""
 scons: warning: Two different environments were specified for target file5.out,
-	but they appear to have the same action: build(target, source, env)
+\tbut they appear to have the same action: build(target, source, env)
 """) + TestSCons.file_expr)
 
 test.must_match('file5.out', "file5a.in\nfile5b.in\n")

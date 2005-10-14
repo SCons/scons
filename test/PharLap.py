@@ -46,8 +46,8 @@ if not test.detect_tool('386asm'):
 test.write("minasm.asm", r"""
 ; 
 ; MINASM.ASM - A minimal assembly language program which runs
-;	under ToolSuite.  You can use this program as a framework
-;	for large assembly language programs.
+;       under ToolSuite.  You can use this program as a framework
+;       for large assembly language programs.
 ;
 .386
 
@@ -110,7 +110,7 @@ _CONST	ends
 CGROUP group _TEXT, _CONST
 DGROUP group _DATA, _bss
 
-	assume cs:CGROUP,ds:DGROUP
+        assume cs:CGROUP,ds:DGROUP
 _TEXT	segment
 
 ;
@@ -122,22 +122,22 @@ _TEXT	segment
 ; modify the loop count in memory verifies that it actually ends
 ; up in RAM.
 ;
-	public _main
+        public _main
 _main proc near
 
-	mov	cl,0ah			; Skip a line before we start
-	call	PutCharTarget		;
+        mov	cl,0ah			; Skip a line before we start
+        call	PutCharTarget		;
 main_loop:
-	cmp	loopcount,0		; Are we at the end of our loop?
-	je	short done_main		;  yes.
-	lea	edx,rommessage		; EDX -> ROM message
-	call	WriteStringTarget	; Display it
-	lea	edx,rammessage		; EDX -> RAM message
-	call	WriteStringTarget	; Display it
-	dec	loopcount		;
-	jmp	main_loop		; Branch back for next loop iteration
+        cmp	loopcount,0		; Are we at the end of our loop?
+        je	short done_main		;  yes.
+        lea	edx,rommessage		; EDX -> ROM message
+        call	WriteStringTarget	; Display it
+        lea	edx,rammessage		; EDX -> RAM message
+        call	WriteStringTarget	; Display it
+        dec	loopcount		;
+        jmp	main_loop		; Branch back for next loop iteration
 done_main:
-	ret				; That's it!
+        ret				; That's it!
 
 _main endp
 
@@ -145,27 +145,27 @@ _main endp
 ; WriteStringTarget - Display a string on the target console
 ;
 ; Inputs:
-;	EDX -> Null terminated ASCII string to display
+;       EDX -> Null terminated ASCII string to display
 ;
 ; Outputs:
-;	All registers preserved
+;       All registers preserved
 ;
 WriteStringTarget proc near
 
-	push	ecx			; Save registers
-	push	edx			;
+        push	ecx			; Save registers
+        push	edx			;
 
 write_loop:
-	movzx	ecx,byte ptr [edx]	; Get a character
-	jecxz	done_str		; Branch if end of string
-	call	PutCharTarget		; Display this character
-	inc	edx			; Bump scan pointer
-	jmp	write_loop		; And loop back for next character
+        movzx	ecx,byte ptr [edx]	; Get a character
+        jecxz	done_str		; Branch if end of string
+        call	PutCharTarget		; Display this character
+        inc	edx			; Bump scan pointer
+        jmp	write_loop		; And loop back for next character
 
 done_str:
-	pop	edx			; Restore registers
-	pop	ecx			;
-	ret				;  and return
+        pop	edx			; Restore registers
+        pop	ecx			;
+        ret				;  and return
 
 WriteStringTarget endp
 
@@ -176,26 +176,26 @@ WriteStringTarget endp
 ; the PutChar kernel service available through int 254.
 ;
 ; Inputs:
-;	CL = character to display
+;       CL = character to display
 ;
 ; Outputs:
-;	All registers preserved
+;       All registers preserved
 ;
 PutCharTarget proc near
 
-	push	eax		; Save registers
-	push	ebx		;
-	push	edx		;
+        push	eax		; Save registers
+        push	ebx		;
+        push	edx		;
 
-	mov     ax,254Ah	; Request Kernel Service
-	mov     bx,1		; service code 1 = PutChar
-	movzx   edx,cl		; EDX = character to display
-	int     0FEh		; Int 254 is for kernel services
+        mov     ax,254Ah	; Request Kernel Service
+        mov     bx,1		; service code 1 = PutChar
+        movzx   edx,cl		; EDX = character to display
+        int     0FEh		; Int 254 is for kernel services
 
-	pop	edx		; Restore registers
-	pop	ebx		;
-	pop	eax		;
-	ret			;  and return
+        pop	edx		; Restore registers
+        pop	ebx		;
+        pop	eax		;
+        ret			;  and return
 
 PutCharTarget endp
 
@@ -226,54 +226,54 @@ extrn   __p_SEG__bss_END:dword
 ;
 public __p_start
 __p_start proc near
-	pushad				; save initial regs
-	push	es				;
-	call	__pl_unpackrom		; Call the unpacker 
-	cld				; Clear direction flag
+        pushad				; save initial regs
+        push	es				;
+        call	__pl_unpackrom		; Call the unpacker 
+        cld				; Clear direction flag
 
-	lea 	eax,__p_SEG__bss_END	; load end address and 
-	lea	ebx,__p_SEG__bss_BEGIN	; subtract start to get size
-	sub 	eax,ebx
-	mov 	ecx,eax			; This is size
-	inc	ecx
-	lea	edi,__p_SEG__bss_BEGIN	; Zero from start address
-	mov 	al,0			;Zero out BSS and C_COMMON	
-	rep     stosb
+        lea 	eax,__p_SEG__bss_END	; load end address and 
+        lea	ebx,__p_SEG__bss_BEGIN	; subtract start to get size
+        sub 	eax,ebx
+        mov 	ecx,eax			; This is size
+        inc	ecx
+        lea	edi,__p_SEG__bss_BEGIN	; Zero from start address
+        mov 	al,0			;Zero out BSS and C_COMMON	
+        rep     stosb
 
-	pop	es			; restore initial regs
-	popad
-	call	_main			; go do some work
+        pop	es			; restore initial regs
+        popad
+        call	_main			; go do some work
 stopme:
  	xor	eax,eax			; Call _EtsExitProcess(0)
-	push	eax			;
-	call	_EtsExitProcess		;
-	pop	eax			;
-	jmp	stopme			;  .. in a loop just in case it ever
-					;  comes back
+        push	eax			;
+        call	_EtsExitProcess		;
+        pop	eax			;
+        jmp	stopme			;  .. in a loop just in case it ever
+        				;  comes back
 
 __p_start endp
 
 TD_hack:
-	mov	eax, __p_tdhack		; force reference to TD-hack symbol
+        mov	eax, __p_tdhack		; force reference to TD-hack symbol
 
 _TEXT	ends
 
 ;
-;	Hack for Turbo Debugger/TDEMB - TD will fault if the .exe being
-;	debugged doesn't have an import table.  (TD looks for the address of
-;	the table, then dereferences that address wihtout checking for NULL).
+;       Hack for Turbo Debugger/TDEMB - TD will fault if the .exe being
+;       debugged doesn't have an import table.  (TD looks for the address of
+;       the table, then dereferences that address wihtout checking for NULL).
 ;
-;	This symbol, __p_tdhack, must be declared as an import in all the
-;	.emb files shipped.  IE:
+;       This symbol, __p_tdhack, must be declared as an import in all the
+;       .emb files shipped.  IE:
 ;
-;		-implib embkern.lib
-;		-import __p_tdhack
+;               -implib embkern.lib
+;               -import __p_tdhack
 ;
-;	This forces the creation of an import table within the .EXE.
+;       This forces the creation of an import table within the .EXE.
 _DATA	segment
 extrn	__p_tdhack:dword
 _DATA	ends
-	end	__p_start
+        end	__p_start
 """)
 
 test.write("foo.lnk","""

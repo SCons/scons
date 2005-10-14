@@ -47,12 +47,12 @@ env.Program(target = 'foo', source = 'foo.c')
 """ % repository)
 
 test.write(['repository', 'foo.h'], r"""
-#define	STRING1	"repository/foo.h"
+#define STRING1 "repository/foo.h"
 #include <bar.h>
 """)
 
 test.write(['repository', 'bar.h'], r"""
-#define	STRING2	"repository/bar.h"
+#define STRING2 "repository/bar.h"
 """)
 
 test.write(['repository', 'foo.c'], r"""
@@ -60,11 +60,11 @@ test.write(['repository', 'foo.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", STRING1);
-	printf("%s\n", STRING2);
-	printf("repository/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", STRING1);
+        printf("%s\n", STRING2);
+        printf("repository/foo.c\n");
+        exit (0);
 }
 """)
 
@@ -84,7 +84,7 @@ test.up_to_date(chdir = 'work', arguments = '.')
 
 #
 test.write(['work', 'foo.h'], r"""
-#define STRING1	"work/foo.h"
+#define STRING1 "work/foo.h"
 #include <bar.h>
 """)
 
@@ -104,11 +104,11 @@ test.write(['work', 'foo.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", STRING1);
-	printf("%s\n", STRING2);
-	printf("work/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", STRING1);
+        printf("%s\n", STRING2);
+        printf("work/foo.c\n");
+        exit (0);
 }
 """)
 
@@ -124,7 +124,7 @@ test.up_to_date(chdir = 'work', arguments = '.')
 
 #
 test.write(['work', 'bar.h'], r"""
-#define STRING2	"work/bar.h"
+#define STRING2 "work/bar.h"
 """)
 
 test.run(chdir = 'work', arguments = '.')

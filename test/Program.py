@@ -55,9 +55,9 @@ test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f1.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f1.c\n");
+        exit (0);
 }
 """)
 
@@ -65,7 +65,7 @@ test.write('f2a.c', r"""
 void
 f2a(void)
 {
-	printf("f2a.c\n");
+        printf("f2a.c\n");
 }
 """)
 
@@ -73,7 +73,7 @@ test.write('f2b.c', r"""
 void
 f2b(void)
 {
-	printf("f2b.c\n");
+        printf("f2b.c\n");
 }
 """)
 
@@ -83,11 +83,11 @@ extern void f2b(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	f2a();
-	f2b();
-	printf("f2c.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        f2a();
+        f2b();
+        printf("f2c.c\n");
+        exit (0);
 }
 """)
 
@@ -95,7 +95,7 @@ test.write('f3a.c', r"""
 void
 f3a(void)
 {
-	printf("f3a.c\n");
+        printf("f3a.c\n");
 }
 """)
 
@@ -103,7 +103,7 @@ test.write('f3b.c', r"""
 void
 f3b(void)
 {
-	printf("f3b.c\n");
+        printf("f3b.c\n");
 }
 """)
 
@@ -113,11 +113,11 @@ extern void f3b(void);
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	f3a();
-	f3b();
-	printf("f3c.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        f3a();
+        f3b();
+        printf("f3c.c\n");
+        exit (0);
 }
 """)
 
@@ -125,9 +125,9 @@ test.write('f4.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f4.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f4.c\n");
+        exit (0);
 }
 """)
 
@@ -135,9 +135,9 @@ test.write('foo5.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo5.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo5.c\n");
+        exit (0);
 }
 """)
 
@@ -155,9 +155,9 @@ test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f1.c X\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f1.c X\n");
+        exit (0);
 }
 """)
 
@@ -165,7 +165,7 @@ test.write('f3b.c', r"""
 void
 f3b(void)
 {
-	printf("f3b.c X\n");
+        printf("f3b.c X\n");
 }
 """)
 
@@ -173,9 +173,9 @@ test.write('f4.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f4.c X\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f4.c X\n");
+        exit (0);
 }
 """)
 
@@ -183,9 +183,9 @@ test.write('foo5.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo5.c X\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo5.c X\n");
+        exit (0);
 }
 """)
 
@@ -220,9 +220,9 @@ test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f1.c Y\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f1.c Y\n");
+        exit (0);
 }
 """)
 
@@ -230,7 +230,7 @@ test.write('f3b.c', r"""
 void
 f3b(void)
 {
-	printf("f3b.c Y\n");
+        printf("f3b.c Y\n");
 }
 """)
 
@@ -238,9 +238,9 @@ test.write('f4.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f4.c Y\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f4.c Y\n");
+        exit (0);
 }
 """)
 
@@ -248,9 +248,9 @@ test.write('foo5.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo5.c Y\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo5.c Y\n");
+        exit (0);
 }
 """)
 
@@ -268,9 +268,9 @@ test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f1.c Z\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f1.c Z\n");
+        exit (0);
 }
 """)
 
@@ -278,7 +278,7 @@ test.write('f3b.c', r"""
 void
 f3b(void)
 {
-	printf("f3b.c Z\n");
+        printf("f3b.c Z\n");
 }
 """)
 
@@ -286,9 +286,9 @@ test.write('f4.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f4.c Z\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f4.c Z\n");
+        exit (0);
 }
 """)
 
@@ -296,9 +296,9 @@ test.write('foo5.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("foo5.c Z\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("foo5.c Z\n");
+        exit (0);
 }
 """)
 

@@ -57,7 +57,7 @@ outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
 for l in infile.readlines():
     if l[:len(comment)] != comment:
-	outfile.write(l)
+        outfile.write(l)
 sys.exit(0)
 """)
 

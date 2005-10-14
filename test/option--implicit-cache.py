@@ -80,7 +80,7 @@ main(int argc, char *argv[])
 
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 1\n"
+#define FOO_STRING "include/foo.h 1\n"
 #include <bar.h>
 """)
 
@@ -112,7 +112,7 @@ main(int argc, char *argv[])
 
 test.write(['subdir', 'include', 'foo.h'],
 r"""
-#define	FOO_STRING "subdir/include/foo.h 1\n"
+#define FOO_STRING "subdir/include/foo.h 1\n"
 #include "bar.h"
 """)
 
@@ -144,7 +144,7 @@ test.up_to_date(arguments = args)
 # Make sure implicit dependenies work right when one is modifed:
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 2\n"
+#define FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
 """)
 
@@ -165,7 +165,7 @@ test.up_to_date(arguments = args)
 # doesn't produce redundant rebuilds:
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 2\n"
+#define FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
 #include "baz.h"
 """)
@@ -185,7 +185,7 @@ test.up_to_date(arguments = args)
 
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 2\n"
+#define FOO_STRING "include/foo.h 2\n"
 #include "baz.h"
 #include "bar.h"
 """)
@@ -228,7 +228,7 @@ test.run(program = test.workpath(variant_prog),
 # Now modifying include/foo.h should make scons aware of inc2/foo.h
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 3\n"
+#define FOO_STRING "include/foo.h 3\n"
 #include "bar.h"
 """)
 
@@ -264,7 +264,7 @@ test.run(arguments = "--implicit-cache one%s"%_obj)
 # Test forcing of implicit caching:
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 3\n"
+#define FOO_STRING "include/foo.h 3\n"
 #include "bar.h"
 """)
 
@@ -272,7 +272,7 @@ test.run(arguments = "--implicit-cache " + args)
 
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 3\n"
+#define FOO_STRING "include/foo.h 3\n"
 #include "baz.h"
 #include "bar.h"
 """)
@@ -294,7 +294,7 @@ assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
 # Test forcing rescanning:
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 3\n"
+#define FOO_STRING "include/foo.h 3\n"
 #include "bar.h"
 """)
 
@@ -302,7 +302,7 @@ test.run(arguments = "--implicit-cache " + args)
 
 test.write(['include', 'foo.h'],
 r"""
-#define	FOO_STRING "include/foo.h 3\n"
+#define FOO_STRING "include/foo.h 3\n"
 #include "baz.h"
 #include "bar.h"
 """)

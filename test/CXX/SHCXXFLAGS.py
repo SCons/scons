@@ -85,10 +85,10 @@ extern "C" void
 doIt()
 {
 #ifdef FOO
-	printf("prog.cpp:  FOO\n");
+        printf("prog.cpp:  FOO\n");
 #endif
 #ifdef BAR
-	printf("prog.cpp:  BAR\n");
+        printf("prog.cpp:  BAR\n");
 #endif
 }
 """)

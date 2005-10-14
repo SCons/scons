@@ -50,7 +50,7 @@ out_file = open(base_name+'.pdf', 'wb')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[0] != '\\':
-	out_file.write(l)
+        out_file.write(l)
 sys.exit(0)
 """)
 

@@ -161,9 +161,9 @@ test.write(['src2', 'hello.c'], r"""\
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("src2/hello.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("src2/hello.c\n");
+        exit (0);
 }
 """)
 

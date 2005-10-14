@@ -70,10 +70,10 @@ test.write('aaa.y', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("YACCFLAGS\n");
-	printf("aaa.y\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("YACCFLAGS\n");
+        printf("aaa.y\n");
+        exit (0);
 }
 """)
 
@@ -119,7 +119,7 @@ yylex()
 }
 %%}
 %%%%
-input:	letter newline { printf("%s\n"); };
+input:  letter newline { printf("%s\n"); };
 letter:  'a' | 'b';
 newline: '\n';
 """

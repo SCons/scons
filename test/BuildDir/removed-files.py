@@ -54,7 +54,7 @@ test.write(['src', 'dep.cpp'], """\
 
 int main(int argc, char* argv[])
 {
-	return test_dep();
+        return test_dep();
 }
 """)
 
@@ -78,7 +78,7 @@ test.write(['src', 'dep.h'], """\
 
 inline int test_dep()
 {
-	return 1;
+        return 1;
 }
 
 #endif //DEP_H

@@ -38,7 +38,7 @@ def diff_env(env1, env2):
     s2 = "env2 = {\n"
     d = {}
     for k in env1._dict.keys() + env2._dict.keys():
-	d[k] = None
+        d[k] = None
     keys = d.keys()
     keys.sort()
     for k in keys:
@@ -60,7 +60,7 @@ def diff_dict(d1, d2):
     s2 = "d2 = {\n"
     d = {}
     for k in d1.keys() + d2.keys():
-	d[k] = None
+        d[k] = None
     keys = d.keys()
     keys.sort()
     for k in keys:
@@ -627,27 +627,27 @@ class BaseTestCase(unittest.TestCase):
 
 
     def test_Builder_execs(self):
-	"""Test Builder execution through different environments
+        """Test Builder execution through different environments
 
-	One environment is initialized with a single
-	Builder object, one with a list of a single Builder
-	object, and one with a list of two Builder objects.
-	"""
-	global built_it
+        One environment is initialized with a single
+        Builder object, one with a list of a single Builder
+        object, and one with a list of two Builder objects.
+        """
+        global built_it
 
-	b1 = Builder()
-	b2 = Builder()
+        b1 = Builder()
+        b2 = Builder()
 
-	built_it = {}
+        built_it = {}
         env3 = Environment()
         env3.Replace(BUILDERS = { 'builder1' : b1,
                                   'builder2' : b2 })
-	env3.builder1.execute(target = 'out1')
-	env3.builder2.execute(target = 'out2')
-	env3.builder1.execute(target = 'out3')
-	assert built_it['out1']
-	assert built_it['out2']
-	assert built_it['out3']
+        env3.builder1.execute(target = 'out1')
+        env3.builder2.execute(target = 'out2')
+        env3.builder1.execute(target = 'out3')
+        assert built_it['out1']
+        assert built_it['out2']
+        assert built_it['out3']
 
         env4 = env3.Copy()
         assert env4.builder1.env is env4, "builder1.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
@@ -747,13 +747,13 @@ class BaseTestCase(unittest.TestCase):
         assert s == [s1, s1, None, s3, s3], s
 
     def test_ENV(self):
-	"""Test setting the external ENV in Environments
-	"""
-	env = Environment()
-	assert env.Dictionary().has_key('ENV')
+        """Test setting the external ENV in Environments
+        """
+        env = Environment()
+        assert env.Dictionary().has_key('ENV')
 
-	env = Environment(ENV = { 'PATH' : '/foo:/bar' })
-	assert env.Dictionary('ENV')['PATH'] == '/foo:/bar'
+        env = Environment(ENV = { 'PATH' : '/foo:/bar' })
+        assert env.Dictionary('ENV')['PATH'] == '/foo:/bar'
 
     def test_ReservedVariables(self):
         """Test generation of warnings when reserved variable names
@@ -1383,28 +1383,28 @@ def generate(env):
         assert x is None, x
 
     def test_Dictionary(self):
-	"""Test retrieval of known construction variables
+        """Test retrieval of known construction variables
 
-	Fetch them from the Dictionary and check for well-known
-	defaults that get inserted.
-	"""
-	env = Environment(XXX = 'x', YYY = 'y', ZZZ = 'z')
-	assert env.Dictionary('XXX') == 'x'
-	assert env.Dictionary('YYY') == 'y'
-	assert env.Dictionary('XXX', 'ZZZ') == ['x', 'z']
-	xxx, zzz = env.Dictionary('XXX', 'ZZZ')
-	assert xxx == 'x'
-	assert zzz == 'z'
-	assert env.Dictionary().has_key('BUILDERS')
-	assert env.Dictionary().has_key('CC')
-	assert env.Dictionary().has_key('CCFLAGS')
-	assert env.Dictionary().has_key('ENV')
+        Fetch them from the Dictionary and check for well-known
+        defaults that get inserted.
+        """
+        env = Environment(XXX = 'x', YYY = 'y', ZZZ = 'z')
+        assert env.Dictionary('XXX') == 'x'
+        assert env.Dictionary('YYY') == 'y'
+        assert env.Dictionary('XXX', 'ZZZ') == ['x', 'z']
+        xxx, zzz = env.Dictionary('XXX', 'ZZZ')
+        assert xxx == 'x'
+        assert zzz == 'z'
+        assert env.Dictionary().has_key('BUILDERS')
+        assert env.Dictionary().has_key('CC')
+        assert env.Dictionary().has_key('CCFLAGS')
+        assert env.Dictionary().has_key('ENV')
 
-	assert env['XXX'] == 'x'
-	env['XXX'] = 'foo'
-	assert env.Dictionary('XXX') == 'foo'
-	del env['XXX']
-	assert not env.Dictionary().has_key('XXX')
+        assert env['XXX'] == 'x'
+        env['XXX'] = 'foo'
+        assert env.Dictionary('XXX') == 'foo'
+        del env['XXX']
+        assert not env.Dictionary().has_key('XXX')
 
     def test_FindIxes(self):
         "Test FindIxes()"
@@ -2381,7 +2381,7 @@ def generate(env):
         assert i.path == 'dir2'
 
     def test_Install(self):
-	"""Test the Install method"""
+        """Test the Install method"""
         env = Environment(FOO='iii', BAR='jjj')
 
         tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
@@ -2428,7 +2428,7 @@ def generate(env):
         assert match, e
 
     def test_InstallAs(self):
-	"""Test the InstallAs method"""
+        """Test the InstallAs method"""
         env = Environment(FOO='iii', BAR='jjj')
 
         tgt = env.InstallAs(target=string.split('foo1 foo2'),

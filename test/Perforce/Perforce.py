@@ -67,7 +67,7 @@ class TestPerforce(TestSCons.TestSCons):
 
             # We don't use self.run() because the TestCmd logic will hang
             # waiting for the daemon to exit, even when we pass it
-	    # the -d option.
+            # the -d option.
             try:
                 spawnv = os.spawnv
             except AttributeError:
@@ -99,15 +99,15 @@ class TestPerforce(TestSCons.TestSCons):
 
     def substitute(self, s, **kw):
         kw = kw.copy()
-	kw.update(self.__dict__)
+        kw.update(self.__dict__)
         return s % kw
 
     def cleanup(self, condition = None):
         if self.p4d:
             self.p4('admin stop')
-	    self.p4d = None
+            self.p4d = None
 
-	if TestSCons:
+        if TestSCons:
             TestSCons.TestSCons.cleanup(self, condition)
 
 test = TestPerforce()

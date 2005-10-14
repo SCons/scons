@@ -495,7 +495,7 @@ class Unbuffered:
 sys.stdout = Unbuffered(sys.stdout)
 
 for t in tests:
-    t.command_args = [python]
+    t.command_args = [python, '-tt']
     if debug:
         t.command_args.append(debug)
     t.command_args.append(t.abspath)

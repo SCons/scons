@@ -70,9 +70,9 @@ test.write(['work1', 'foo.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", STRING);
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", STRING);
+        exit (0);
 }
 """)
 
@@ -103,9 +103,9 @@ test.write(['work2', 'foo.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", STRING);
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", STRING);
+        exit (0);
 }
 """)
 

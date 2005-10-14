@@ -50,11 +50,11 @@ env.Program(target = 'foo', source = 'foo.c')
 """ % repository)
 
 foo_h_contents = """\
-#define	STRING1	"foo.h"
+#define STRING1 "foo.h"
 """
 
 bar_h_contents = """\
-#define	STRING2	"bar.h"
+#define STRING2 "bar.h"
 """
 
 test.write(['repository', 'foo.h'], foo_h_contents)
@@ -67,11 +67,11 @@ test.write(['repository', 'foo.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", STRING1);
-	printf("%s\n", STRING2);
-	printf("repository/foo.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", STRING1);
+        printf("%s\n", STRING2);
+        printf("repository/foo.c\n");
+        exit (0);
 }
 """)
 

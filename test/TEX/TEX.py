@@ -44,7 +44,7 @@ infile = open(sys.argv[1], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
 for l in infile.readlines():
     if l[0] != '\\':
-	out_file.write(l)
+        out_file.write(l)
 sys.exit(0)
 """)
 
@@ -129,10 +129,10 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
 
     bib = r"""
 @Book{lamport,
-  author =	 {L. Lamport},
-  title = 	 {{\LaTeX: A} Document Preparation System},
-  publisher = 	 {Addison-Wesley},
-  year = 	 1994
+  author =      {L. Lamport},
+  title =       {{\LaTeX: A} Document Preparation System},
+  publisher =   {Addison-Wesley},
+  year =        1994
 }
 """
 

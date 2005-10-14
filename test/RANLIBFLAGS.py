@@ -64,7 +64,7 @@ test.write('foo.c', r"""
 void
 library_function(void)
 {
-	printf("foo.c\n");
+        printf("foo.c\n");
 }
 """)
 
@@ -72,7 +72,7 @@ test.write('bar.c', r"""
 void
 library_function(void)
 {
-	printf("bar.c\n");
+        printf("bar.c\n");
 }
 """)
 
@@ -80,9 +80,9 @@ test.write('main.c', r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	library_function();
-	exit (0);
+        argv[argc++] = "--";
+        library_function();
+        exit (0);
 }
 """)
 

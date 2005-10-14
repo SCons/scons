@@ -58,8 +58,8 @@ test.write('foo.c', r"""
 void
 test()
 {
-	printf("foo.c\n");
-	fflush(stdout);
+        printf("foo.c\n");
+        fflush(stdout);
 }
 """)
 
@@ -69,8 +69,8 @@ test.write('bar.c', r"""
 void
 test()
 {
-	printf("foo.c\n");
-	fflush(stdout);
+        printf("foo.c\n");
+        fflush(stdout);
 }
 """)
 

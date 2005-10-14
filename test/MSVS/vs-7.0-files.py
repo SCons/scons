@@ -207,7 +207,7 @@ python = os.path.join('$(PYTHON_ROOT)', os.path.split(sys.executable)[1])
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
 expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1', 'SConstruct',
-		              python=python)
+                              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 

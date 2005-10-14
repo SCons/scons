@@ -46,7 +46,7 @@ def process(outfile, name):
         list = os.listdir(name)
         list.sort()
         for entry in list:
-	    process(outfile, os.path.join(name, entry))
+            process(outfile, os.path.join(name, entry))
     else:
         outfile.write(open(name, 'rb').read())
 outfile = open(sys.argv[1], 'wb')

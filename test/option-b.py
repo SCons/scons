@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', "")
 
 test.run(arguments = '-b .',
-	 stderr = "Warning:  ignoring -b option\n")
+         stderr = "Warning:  ignoring -b option\n")
 
 test.pass_test()
  

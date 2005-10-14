@@ -64,12 +64,12 @@ env.Program(target = 'xxx', source = 'main.c')
 """)
 
 test.write(['repository', 'include', 'my_string.h'], r"""
-#define	MY_STRING	"repository/include/my_string.h"
+#define MY_STRING       "repository/include/my_string.h"
 """)
 
 test.write(['repository', 'src', 'include.h'], r"""
 #include <my_string.h>
-#define	LOCAL_STRING	"repository/src/include.h"
+#define LOCAL_STRING    "repository/src/include.h"
 """)
 
 test.write(['repository', 'src', 'main.c'], r"""
@@ -77,11 +77,11 @@ test.write(['repository', 'src', 'main.c'], r"""
 int
 main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("%s\n", MY_STRING);
-	printf("%s\n", LOCAL_STRING);
-	printf("repository/src/main.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("%s\n", MY_STRING);
+        printf("%s\n", LOCAL_STRING);
+        printf("repository/src/main.c\n");
+        exit (0);
 }
 """)
 
@@ -99,7 +99,7 @@ repository/src/main.c
 
 #
 test.write(['work', 'include', 'my_string.h'], r"""
-#define	MY_STRING	"work/include/my_string.h"
+#define MY_STRING       "work/include/my_string.h"
 """)
 
 test.run(chdir = 'work', options = opts, arguments = ".")
@@ -112,7 +112,7 @@ repository/src/main.c
 
 test.write(['work', 'src', 'include.h'], r"""
 #include <my_string.h>
-#define	LOCAL_STRING	"work/src/include.h"
+#define LOCAL_STRING    "work/src/include.h"
 """)
 
 test.run(chdir = 'work', options = opts, arguments = ".")

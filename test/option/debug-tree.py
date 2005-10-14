@@ -50,9 +50,9 @@ test.write('Foo.c', r"""
 #include "Foo.h"
 int main(int argc, char *argv[])
 {
-	argv[argc++] = "--";
-	printf("f1.c\n");
-	exit (0);
+        argv[argc++] = "--";
+        printf("f1.c\n");
+        exit (0);
 }
 """)
 

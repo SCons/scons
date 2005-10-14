@@ -41,7 +41,7 @@ test.write('foo.c', r"""
 void
 foo(void)
 {
-	printf("foo.c\n");
+        printf("foo.c\n");
 }
 """)
 
