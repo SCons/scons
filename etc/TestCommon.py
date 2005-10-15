@@ -80,8 +80,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.14.D001 2005/08/15 23:02:35 knight"
-__version__ = "0.14"
+__revision__ = "TestCommon.py 0.18.D001 2005/10/15 06:40:23 knight"
+__version__ = "0.18"
 
 import os
 import os.path
@@ -96,6 +96,7 @@ from TestCmd import __all__
 
 __all__.extend([ 'TestCommon',
                  'TestFailed',
+                 'TestNoResult',
                  'exe_suffix',
                  'obj_suffix',
                  'shobj_suffix',
@@ -146,6 +147,36 @@ else:
     lib_suffix   = '.a'
     dll_prefix   = 'lib'
     dll_suffix   = '.so'
+
+try:
+    import difflib
+except ImportError:
+    pass
+else:
+    def simple_diff(a, b, fromfile='', tofile='',
+                    fromfiledate='', tofiledate='', n=3, lineterm='\n'):
+        """
+        A function with the same calling signature as difflib.context_diff
+        (diff -c) and difflib.unified_diff (diff -u) but which prints
+        output like the simple, unadorned 'diff" command.
+        """
+        sm = difflib.SequenceMatcher(None, a, b)
+        def comma(x1, x2):
+            return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
+        result = []
+        for op, a1, a2, b1, b2 in sm.get_opcodes():
+            if op == 'delete':
+                result.append("%sd%d" % (comma(a1, a2), b1))
+                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+            elif op == 'insert':
+                result.append("%da%s" % (a1, comma(b1, b2)))
+                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+            elif op == 'replace':
+                result.append("%sc%s" % (comma(a1, a2), comma(b1, b2)))
+                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+                result.append('---')
+                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+        return result
 
 def is_List(e):
     return type(e) is types.ListType \
@@ -212,6 +243,38 @@ class TestCommon(TestCmd):
         """
         apply(TestCmd.__init__, [self], kw)
         os.chdir(self.workdir)
+        try:
+            difflib
+        except NameError:
+            pass
+        else:
+            self.diff_function = simple_diff
+            #self.diff_function = difflib.context_diff
+            #self.diff_function = difflib.unified_diff
+
+    banner_char = '='
+    banner_width = 80
+
+    def banner(self, s, width=None):
+        if width is None:
+            width = self.banner_width
+        return s + self.banner_char * (width - len(s))
+
+    try:
+        difflib
+    except NameError:
+        def diff(self, a, b, name, *args, **kw):
+            print self.banner('Expected %s' % name)
+            print a
+            print self.banner('Actual %s' % name)
+            print b
+    else:
+        def diff(self, a, b, name, *args, **kw):
+            print self.banner(name)
+            args = (a.splitlines(), b.splitlines()) + args
+            lines = apply(self.diff_function, args, kw)
+            for l in lines:
+                print l
 
     def must_be_writable(self, *files):
         """Ensures that the specified file(s) exist and are writable.
@@ -236,9 +299,9 @@ class TestCommon(TestCmd):
         contains = (string.find(file_contents, required) != -1)
         if not contains:
             print "File `%s' does not contain required string." % file
-            print "Required string ====="
+            print self.banner('Required string ')
             print required
-            print "%s contents =====" % file
+            print self.banner('%s contents ' % file)
             print file_contents
             self.fail_test(not contains)
 
@@ -267,10 +330,7 @@ class TestCommon(TestCmd):
             raise
         except:
             print "Unexpected contents of `%s'" % file
-            print "EXPECTED contents ======"
-            print expect
-            print "ACTUAL contents ========"
-            print file_contents
+            self.diff(expect, file_contents, 'contents ')
             raise
 
     def must_not_exist(self, *files):
@@ -344,9 +404,9 @@ class TestCommon(TestCmd):
         except KeyboardInterrupt:
             raise
         except:
-            print "STDOUT ============"
+            print self.banner('STDOUT ')
             print self.stdout()
-            print "STDERR ============"
+            print self.banner('STDERR ')
             print self.stderr()
             raise
         if _failed(self, status):
@@ -354,26 +414,20 @@ class TestCommon(TestCmd):
             if status != 0:
                 expect = " (expected %s)" % str(status)
             print "%s returned %s%s" % (self.program, str(_status(self)), expect)
-            print "STDOUT ============"
+            print self.banner('STDOUT ')
             print self.stdout()
-            print "STDERR ============"
+            print self.banner('STDERR ')
             print self.stderr()
             raise TestFailed
         if not stdout is None and not match(self.stdout(), stdout):
-            print "Expected STDOUT =========="
-            print stdout
-            print "Actual STDOUT ============"
-            print self.stdout()
+            self.diff(stdout, self.stdout(), 'STDOUT ')
             stderr = self.stderr()
             if stderr:
-                print "STDERR ==================="
+                print self.banner('STDERR ')
                 print stderr
             raise TestFailed
         if not stderr is None and not match(self.stderr(), stderr):
-            print "STDOUT ==================="
+            print self.banner('STDOUT ')
             print self.stdout()
-            print "Expected STDERR =========="
-            print stderr
-            print "Actual STDERR ============"
-            print self.stderr()
+            self.diff(stderr, self.stderr(), 'STDERR ')
             raise TestFailed
