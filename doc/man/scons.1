@@ -544,6 +544,16 @@ Print the dependency tree
 after each top-level target is built. This prints out only derived files.
 
 .TP
+--debug=explain
+Print an explanation of precisely why
+.B scons
+is deciding to (re-)build any targets.
+(Note:  this does not print anything
+for targets that are
+.I not
+rebuilt.)
+
+.TP
 --debug=findlibs
 Instruct the scanner that searches for libraries
 to print a message about each potential library
