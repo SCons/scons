@@ -363,6 +363,9 @@ RELEASE 0.97 - XXX
     when building object files on Windows.  Have the the ifort Tool
     modify the default command lines appropriately.
 
+  - Document the --debug=explain option in the man page.  (How did we
+    miss this?)
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
