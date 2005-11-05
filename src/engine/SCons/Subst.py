@@ -708,11 +708,21 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         self.add_new_word(x)
                     else:
                         y = current_word + x
-                        literal1 = self.literal(self[-1][-1])
-                        literal2 = self.literal(x)
+
+                        # We used to treat a word appended to a literal
+                        # as a literal itself, but this caused problems
+                        # with interpreting quotes around space-separated
+                        # targets on command lines.  Removing this makes
+                        # none of the "substantive" end-to-end tests fail,
+                        # so we'll take this out but leave it commented
+                        # for now in case there's a problem not covered
+                        # by the test cases and we need to resurrect this.
+                        #literal1 = self.literal(self[-1][-1])
+                        #literal2 = self.literal(x)
                         y = self.conv(y)
                         if is_String(y):
-                            y = CmdStringHolder(y, literal1 or literal2)
+                            #y = CmdStringHolder(y, literal1 or literal2)
+                            y = CmdStringHolder(y, None)
                         self[-1][-1] = y
 
         def add_new_word(self, x):

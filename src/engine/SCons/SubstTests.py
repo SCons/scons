@@ -818,11 +818,26 @@ class SubstTestCase(unittest.TestCase):
         c = cmd_list[0][3].escape(escape_func)
         assert c == 'xyz', c
 
+        # We used to treat literals smooshed together like the whole
+        # thing was literal and escape it as a unit.  The commented-out
+        # asserts below are in case we ever have to find a way to
+        # resurrect that functionality in some way.
         cmd_list = scons_subst_list("abc${LITERALS}xyz", env, gvars=gvars)
         c = cmd_list[0][0].escape(escape_func)
-        assert c == '**abcfoo\nwith\nnewlines**', c
+        #assert c == '**abcfoo\nwith\nnewlines**', c
+        assert c == 'abcfoo\nwith\nnewlines', c
         c = cmd_list[0][1].escape(escape_func)
-        assert c == '**bar\nwith\nnewlinesxyz**', c
+        #assert c == '**bar\nwith\nnewlinesxyz**', c
+        assert c == 'bar\nwith\nnewlinesxyz', c
+
+        cmd_list = scons_subst_list('echo "target: $TARGET"', env,
+                                    target=_t, gvars=gvars)
+        c = cmd_list[0][0].escape(escape_func)
+        assert c == 'echo', c
+        c = cmd_list[0][1].escape(escape_func)
+        assert c == '"target:', c
+        c = cmd_list[0][2].escape(escape_func)
+        assert c == 't"', c
 
         # Tests of the various SUBST_* modes of substitution.
         subst_list_cases = [
