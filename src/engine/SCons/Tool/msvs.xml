@@ -254,6 +254,99 @@ Where 'VSDir' is the installed location of Visual Studio.
 </summary>
 </cvar>
 
+<cvar name="MSVS_PROJECT_BASE_PATH">
+<summary>
+The string
+placed in a generated Microsoft Visual Studio solution file
+as the value of the
+<literal>SccProjectFilePathRelativizedFromConnection0</literal>
+and 
+<literal>SccProjectFilePathRelativizedFromConnection1</literal>
+attributes of the
+<literal>GlobalSection(SourceCodeControl)</literal>
+section.
+There is no default value.
+</summary>
+</cvar>
+
+<cvar name="MSVS_PROJECT_GUID">
+<summary>
+The string
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+<literal>ProjectGUID</literal>
+attribute.
+The string is also placed in the
+<literal>SolutionUniqueID</literal>
+attribute of the
+<literal>GlobalSection(SourceCodeControl)</literal>
+section of the Microsoft Visual Studio solution file.
+There is no default value.
+</summary>
+</cvar>
+
+<cvar name="MSVS_SCC_AUX_PATH">
+<summary>
+The path name
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+<literal>SccAuxPath</literal>
+attribute
+if the
+<envar>MSVS_SCC_PROVIDER</envar>
+construction variable is also set.
+There is no default value.
+</summary>
+</cvar>
+
+<cvar name="MSVS_SCC_LOCAL_PATH">
+<summary>
+The path name
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+<literal>SccLocalPath</literal>
+attribute
+if the
+<envar>MSVS_SCC_PROVIDER</envar>
+construction variable is also set.
+The path name is also placed in the
+<literal>SccLocalPath0</literal>
+and
+<literal>SccLocalPath1</literal>
+attributes of the
+<literal>GlobalSection(SourceCodeControl)</literal>
+section of the Microsoft Visual Studio solution file.
+There is no default value.
+</summary>
+</cvar>
+
+<cvar name="MSVS_SCC_PROJECT_NAME">
+<summary>
+The project name
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+<literal>SccProjectName</literal>
+attribute.
+There is no default value.
+</summary>
+</cvar>
+
+<cvar name="MSVS_SCC_PROVIDER">
+<summary>
+The string
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+<literal>SccProvider</literal>
+attribute.
+The string is also placed in the
+<literal>SccProvider1</literal>
+attribute of the
+<literal>GlobalSection(SourceCodeControl)</literal>
+section of the Microsoft Visual Studio solution file.
+There is no default value.
+</summary>
+</cvar>
+
 <cvar name="MSVS_USE_MFC_DIRS">
 <summary>
 Tells the MS Visual Studio tool(s) to use

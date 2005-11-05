@@ -6523,6 +6523,81 @@ For VS7, it is:
 .IP
 Where '<VSDir>' is the installed location of Visual Studio.
 
+.IP MSVS_PROJECT_BASE_PATH
+The string
+placed in a generated Microsoft Visual Studio solution file
+as the value of the
+.B SccProjectFilePathRelativizedFromConnection0
+and 
+.B SccProjectFilePathRelativizedFromConnection1
+attributes of the
+.B GlobalSection(SourceCodeControl)
+section.
+There is no default value.
+
+.IP MSVS_PROJECT_GUID
+The string
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+.B ProjectGUID
+attribute.
+The string is also placed in the
+.B SolutionUniqueID
+attribute of the
+.B GlobalSection(SourceCodeControl)
+section of the Microsoft Visual Studio solution file.
+There is no default value.
+
+.IP MSVS_SCC_AUX_PATH
+The path name
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+.B SccAuxPath
+attribute
+if the
+.I MSVS_SCC_PROVIDER
+construction variable is also set.
+There is no default value.
+
+.IP MSVS_SCC_LOCAL_PATH
+The path name
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+.B SccLocalPath
+attribute
+if the
+.I MSVS_SCC_PROVIDER
+construction variable is also set.
+The path name is also placed in the
+.B SccLocalPath0
+and
+.B SccLocalPath1
+attributes of the
+.B GlobalSection(SourceCodeControl)
+section of the Microsoft Visual Studio solution file.
+There is no default value.
+
+.IP MSVS_SCC_PROJECT_NAME
+The project name
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+.B SccProjectName
+attribute.
+There is no default value.
+
+.IP MSVS_SCC_PROVIDER
+The string
+placed in a generated Microsoft Visual Studio project file
+as the value of the
+.B SccProvider
+attribute.
+The string is also placed in the
+.B SccProvider1
+attribute of the
+.B GlobalSection(SourceCodeControl)
+section of the Microsoft Visual Studio solution file.
+There is no default value.
+
 .IP MSVS_USE_MFC_DIRS
 Tells the MS Visual Studio tool(s) to use
 the MFC directories in its default paths
