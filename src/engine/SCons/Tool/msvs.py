@@ -470,8 +470,7 @@ V7DSPHeader = """\
 \tProjectType="Visual C++"
 \tVersion="%(versionstr)s"
 \tName="%(name)s"
-\tSccProjectName=""
-\tSccLocalPath=""
+%(scc_attrs)s
 \tKeyword="MakeFileProj">
 """
 
@@ -501,11 +500,28 @@ class _GenerateV7DSP(_DSPGenerator):
         self.versionstr = '7.00'
         if self.version >= 7.1:
             self.versionstr = '7.10'
+        self.file = None
 
     def PrintHeader(self):
+        env = self.env
         versionstr = self.versionstr
         name = self.name
         encoding = self.env.subst('$MSVSENCODING')
+        scc_provider = env.get('MSVS_SCC_PROVIDER', '')
+        scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '')
+        scc_aux_path = env.get('MSVS_SCC_AUX_PATH', '')
+        scc_local_path = env.get('MSVS_SCC_LOCAL_PATH', '')
+        project_guid = env.get('MSVS_PROJECT_GUID', '')
+        if scc_provider != '':
+            scc_attrs = ('\tProjectGUID="%s"\n'
+                         '\tSccProjectName="%s"\n'
+                         '\tSccAuxPath="%s"\n'
+                         '\tSccLocalPath="%s"\n'
+                         '\tSccProvider="%s"' % (project_guid, scc_project_name, scc_aux_path, scc_local_path, scc_provider))
+        else:
+            scc_attrs = ('\tProjectGUID="%s"\n'
+                         '\tSccProjectName="%s"\n'
+                         '\tSccLocalPath="%s"' % (project_guid, scc_project_name, scc_local_path))
 
         self.file.write(V7DSPHeader % locals())
 
@@ -725,6 +741,7 @@ class _GenerateV7DSW(_DSWGenerator):
     def __init__(self, dswfile, source, env):
         _DSWGenerator.__init__(self, dswfile, source, env)
 
+        self.file = None
         self.version = float(self.env['MSVS_VERSION'])
         self.versionstr = '7.00'
         if self.version >= 7.1:
@@ -813,8 +830,34 @@ class _GenerateV7DSW(_DSWGenerator):
             self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
                             '\tEndProjectSection\n')
         self.file.write('EndProject\n'
-                        'Global\n'
-                        '\tGlobalSection(SolutionConfiguration) = preSolution\n')
+                        'Global\n')
+        env = self.env
+        if env.has_key('MSVS_SCC_PROVIDER'):
+            dspfile_base = os.path.basename(self.dspfile)
+            slnguid = self.slnguid
+            scc_provider = env.get('MSVS_SCC_PROVIDER', '')
+            scc_provider = string.replace(scc_provider, ' ', r'\u0020')
+            scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '')
+            # scc_aux_path = env.get('MSVS_SCC_AUX_PATH', '')
+            scc_local_path = env.get('MSVS_SCC_LOCAL_PATH', '')
+            scc_project_base_path = env.get('MSVS_SCC_PROJECT_BASE_PATH', '')
+            # project_guid = env.get('MSVS_PROJECT_GUID', '')
+            
+            self.file.write('\tGlobalSection(SourceCodeControl) = preSolution\n'
+                            '\t\tSccNumberOfProjects = 2\n'
+                            '\t\tSccProjectUniqueName0 = %(dspfile_base)s\n'
+                            '\t\tSccLocalPath0 = %(scc_local_path)s\n'
+                            '\t\tCanCheckoutShared = true\n'
+                            '\t\tSccProjectFilePathRelativizedFromConnection0 = %(scc_project_base_path)s\n'
+                            '\t\tSccProjectName1 = %(scc_project_name)s\n'
+                            '\t\tSccLocalPath1 = %(scc_local_path)s\n'
+                            '\t\tSccProvider1 = %(scc_provider)s\n'
+                            '\t\tCanCheckoutShared = true\n'
+                            '\t\tSccProjectFilePathRelativizedFromConnection1 = %(scc_project_base_path)s\n'
+                            '\t\tSolutionUniqueID = %(slnguid)s\n'
+                            '\tEndGlobalSection\n' % locals())
+                        
+        self.file.write('\tGlobalSection(SolutionConfiguration) = preSolution\n')
         confkeys = self.configs.keys()
         confkeys.sort()
         cnt = 0
@@ -1012,7 +1055,7 @@ def get_visualstudio_versions():
                     vs = r'Microsoft Visual Studio\Common\MSDev98'
                 else:
                     vs = r'Microsoft Visual Studio .NET\Common7\IDE'
-                id = [ os.path.join(files_dir, vs) ]
+                id = [ os.path.join(files_dir, vs, 'devenv.exe') ]
             if os.path.exists(id[0]):
                 L.append(p)
     except SCons.Util.RegError:

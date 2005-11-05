@@ -69,6 +69,7 @@ expected_vcprojfile = """\
 \tProjectType="Visual C++"
 \tVersion="7.10"
 \tName="Test"
+\tProjectGUID=""
 \tSccProjectName=""
 \tSccLocalPath=""
 \tKeyword="MakeFileProj">
