@@ -665,6 +665,8 @@ RELEASE 0.97 - XXX
   - Add support for $CONFIGUREDIR and $CONFIGURELOG variables to control
     the directory and logs for configuration tests.
 
+  - Add support for a $INSTALLSTR variable.
+
   From Craig Scott:
 
   - Have the Fortran module emitter look for Fortan modules to be created

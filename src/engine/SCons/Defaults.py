@@ -347,6 +347,7 @@ ConstructionEnvironment = {
     'SCANNERS'      : [],
     'CONFIGUREDIR'  : '#/.sconf_temp',
     'CONFIGURELOG'  : '#/config.log',
+    'INSTALLSTR'    : 'Install file: "$SOURCE" as "$TARGET"',
     'CPPSUFFIXES'   : SCons.Tool.CSuffixes,
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
