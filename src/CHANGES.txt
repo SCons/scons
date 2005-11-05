@@ -449,6 +449,10 @@ RELEASE 0.97 - XXX
     value directory; avoiding slowing substitution logic when there's no
     '$' in the string.
 
+  From Jan Nieuwenhuizen:
+
+  - Fix a problem with interpreting quoted argument lists on command lines.
+
   From Greg Noel:
 
   - Add construction variables to support frameworks on Mac OS X:
@@ -705,6 +709,13 @@ RELEASE 0.97 - XXX
     the source directory so it finds the source file.
 
   - Update EnsureSConsVersion() to support revision numbers.
+
+  From Dobes Vandermeer:
+
+  - Add support for SCC and other settings in Microsoft Visual
+    Studio project and solution files:  $MSVS_PROJECT_BASE_PATH,
+    $MSVS_PROJECT_GUID, $MSVS_SCC_AUX_PATH, $MSVS_SCC_LOCAL_PATH,
+    $MSVS_SCC_PROJECT_NAME, $MSVS_SCC_PROVIDER,
 
   From Greg Ward:
 
