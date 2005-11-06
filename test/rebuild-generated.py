@@ -50,6 +50,7 @@ without arguments.
 This may be a duplicate to bug 1019683.
 """
 
+import os
 import sys
 import TestSCons
 
@@ -83,11 +84,11 @@ kernelImporter = env.Program(
 
 kernelImports = env.Command(
   "KernelImport.hh", kernelImporter,
-  "./$SOURCE > $TARGET")
+  ".%s$SOURCE > $TARGET")
                                         
 osLinuxModule = env.StaticObject(
   ["target.cc"])
-""" % (generator_name, kernel_action))
+""" % (generator_name, kernel_action, os.sep))
 
 test.write('main.cc', """\
 int

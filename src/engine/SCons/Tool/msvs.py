@@ -66,6 +66,12 @@ def _hexdigest(s):
         r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
     return r
 
+def xmlify(s):
+    s = string.replace(s, "&", "&amp;") # do this first
+    s = string.replace(s, "'", "&apos;")
+    s = string.replace(s, '"', "&quot;")
+    return s
+
 def _generateGUID(slnfile, name):
     """This generates a dummy GUID for the sln file to use.  It is
     based on the MD5 signatures of the sln filename plus the name of
@@ -84,7 +90,15 @@ def _generateGUID(slnfile, name):
 # things and ends up with "-c" as sys.argv[0].  Consequently, we have
 # the MSVS Project file invoke SCons the same way that scons.bat does,
 # which works regardless of how we were invoked.
-exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+def getExecScriptMain(env, xml=None):
+    scons_home = env.get('SCONS_HOME')
+    if scons_home:        
+        exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % scons_home
+    else:
+        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+    if xml:
+        exec_script_main = xmlify(exec_script_main)
+    return exec_script_main
 
 # The string for the Python executable we tell the Project file to use
 # is either sys.executable or, if an external PYTHON_ROOT environment
@@ -542,12 +556,6 @@ class _GenerateV7DSP(_DSPGenerator):
             platform = self.configs[kind].platform
             outdir = self.configs[kind].outdir
             buildtarget = self.configs[kind].buildtarget
-
-            def xmlify(cmd):
-                cmd = string.replace(cmd, "&", "&amp;") # do this first
-                cmd = string.replace(cmd, "'", "&apos;")
-                cmd = string.replace(cmd, '"', "&quot;")
-                return cmd
 
             env_has_buildtarget = self.env.has_key('MSVSBUILDTARGET')
             if not env_has_buildtarget:
@@ -1466,7 +1474,7 @@ def generate(env):
             default_MSVS_SConscript = env.File('SConstruct')
         env['MSVSSCONSCRIPT'] = default_MSVS_SConscript
 
-    env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, exec_script_main)
+    env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, getExecScriptMain(env))
     env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.abspath}" -f ${MSVSSCONSCRIPT.name}'
     env['MSVSSCONSCOM'] = '$MSVSSCONS $MSVSSCONSFLAGS'
     env['MSVSBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'
@@ -1497,6 +1505,7 @@ def generate(env):
     env['GET_MSVSSOLUTIONSUFFIX']  = GetMSVSSolutionSuffix
     env['MSVSPROJECTSUFFIX']  = '${GET_MSVSPROJECTSUFFIX}'
     env['MSVSSOLUTIONSUFFIX']  = '${GET_MSVSSOLUTIONSUFFIX}'
+    env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
 
 def exists(env):
     try:

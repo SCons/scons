@@ -724,6 +724,10 @@ RELEASE 0.97 - XXX
     $MSVS_PROJECT_GUID, $MSVS_SCC_AUX_PATH, $MSVS_SCC_LOCAL_PATH,
     $MSVS_SCC_PROJECT_NAME, $MSVS_SCC_PROVIDER,
 
+  - Add support for using a $SCONS_HOME variable (imported from the
+    external environment, or settable internally) to put a shortened
+    SCons execution line in the Visual Studio project file.
+
   From Greg Ward:
 
   - Fix a misplaced line in the man page.

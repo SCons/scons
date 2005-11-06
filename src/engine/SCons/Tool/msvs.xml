@@ -534,3 +534,15 @@ and
 when using earlier versions of Visual Studio.
 </summary>
 </cvar>
+
+<cvar name="SCONS_HOME">
+<summary>
+The (optional) path to the SCons library directory,
+initialized from the external environment.
+If set, this is used to construct a shorter and more
+efficient search path in the
+&cv-MSVSSCONS;
+command line executed
+from Microsoft Visual Studio project files.
+</summary>
+</cvar>

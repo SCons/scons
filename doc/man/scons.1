@@ -7226,6 +7226,15 @@ This can be set, for example, to
 .I -e
 to check out editable files from SCCS.
 
+.IP SCONS_HOME
+The (optional) path to the SCons library directory,
+initialized from the external environment.
+If set, this is used to construct a shorter and more
+efficient search path in the
+.B MSVSSCONS
+command line executed
+from Microsoft Visual Studio project files.
+
 .IP SHCC
 The C compiler used for generating shared-library objects.
 
