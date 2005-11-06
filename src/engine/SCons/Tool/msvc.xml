@@ -88,19 +88,22 @@ env['PCHSTOP'] = 'StdAfx.h'
 
 <cvar name="RC">
 <summary>
-The resource compiler used by the RES builder.
+The resource compiler used to build
+a Microsoft Visual C++ resource file.
 </summary>
 </cvar>
 
 <cvar name="RCCOM">
 <summary>
-The command line used by the RES builder.
+The command line used to build
+a Microsoft Visual C++ resource file.
 </summary>
 </cvar>
 
 <cvar name="RCCOMSTR">
 <summary>
-The string displayed when invoking the resource compiler.
+The string displayed when invoking the resource compiler
+to build a Microsoft Visual C++ resource file.
 If this is not set, then &cv-RCCOM; (the command line) is displayed.
 </summary>
 </cvar>
