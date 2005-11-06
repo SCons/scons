@@ -28,9 +28,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that the UI scanning logic correctly picks up scansG
 """
 
+import os
+
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+if not os.environ.get('QTDIR', None):
+    x ="External environment variable $QTDIR not set; skipping test(s).\n"
+    test.skip_test(x)
 
 test.subdir(['layer'],
             ['layer', 'aclock'],
