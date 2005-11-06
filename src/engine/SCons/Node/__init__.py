@@ -516,8 +516,21 @@ class Node:
             implicit = self.get_stored_implicit()
             if implicit:
                 factory = build_env.get_factory(self.builder.source_factory)
-                implicit = map(factory, implicit)
-                self._add_child(self.implicit, self.implicit_dict, implicit)
+                nodes = []
+                for i in implicit:
+                    try:
+                        n = factory(i)
+                    except TypeError:
+                        # The implicit dependency was cached as one type
+                        # of Node last time, but the configuration has
+                        # changed (probably) and it's a different type
+                        # this time.  Just ignore the mismatch and go
+                        # with what our current configuration says the
+                        # Node is.
+                        pass
+                    else:
+                        nodes.append(n)
+                self._add_child(self.implicit, self.implicit_dict, nodes)
                 calc = build_env.get_calculator()
                 if implicit_deps_unchanged or self.current(calc):
                     return
