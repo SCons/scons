@@ -115,7 +115,7 @@ if java_parsing:
                 if len(self.listClasses) > 0:
                     return self.__getAnonClassState()
                 return self.__getSkipState() # Skip the class name
-            elif token == 'class' or token == 'interface':
+            elif token in ['class', 'interface', 'enum']:
                 if len(self.listClasses) == 0:
                     self.nextAnon = 1
                 self.stackBrackets.append(self.brackets)
