@@ -739,6 +739,10 @@ RELEASE 0.97 - XXX
     external environment, or settable internally) to put a shortened
     SCons execution line in the Visual Studio project file.
 
+  - Don't throw an exception if the configuration changes and a stored
+    implicit dependency now has a different type (File or Dir) than it
+    did last time.
+
   From Greg Ward:
 
   - Fix a misplaced line in the man page.
