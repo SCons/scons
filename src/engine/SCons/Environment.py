@@ -747,8 +747,10 @@ class Base(SubstitutionEnvironment):
             else:
                 dk = self._dict[key]
                 if SCons.Util.is_List(dk):
+                    # By elimination, val is not a list.  Since dk is a
+                    # list, wrap val in a list first.
                     if not val in dk:
-                        self._dict[key] = dk + val
+                        self._dict[key] = dk + [val]
                 else:
                     self._dict[key] = self._dict[key] + val
         self.scanner_map_delete(kw)
@@ -1044,8 +1046,10 @@ class Base(SubstitutionEnvironment):
             else:
                 dk = self._dict[key]
                 if SCons.Util.is_List(dk):
+                    # By elimination, val is not a list.  Since dk is a
+                    # list, wrap val in a list first.
                     if not val in dk:
-                        self._dict[key] = val + dk
+                        self._dict[key] = [val] + dk
                 else:
                     self._dict[key] = val + dk
         self.scanner_map_delete(kw)

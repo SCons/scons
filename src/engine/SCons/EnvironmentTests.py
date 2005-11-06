@@ -1187,26 +1187,38 @@ def exists(env):
         env = Environment(AAA1 = 'a1',
                           AAA2 = 'a2',
                           AAA3 = 'a3',
+                          AAA4 = 'a4',
+                          AAA5 = 'a5',
                           BBB1 = ['b1'],
                           BBB2 = ['b2'],
                           BBB3 = ['b3'],
+                          BBB4 = ['b4'],
+                          BBB5 = ['b5'],
                           CCC1 = '',
                           CCC2 = '')
         env.AppendUnique(AAA1 = 'a1',
                          AAA2 = ['a2'],
                          AAA3 = ['a3', 'b', 'c', 'a3'],
+                         AAA4 = 'a4.new',
+                         AAA5 = ['a5.new'],
                          BBB1 = 'b1',
                          BBB2 = ['b2'],
                          BBB3 = ['b3', 'c', 'd', 'b3'],
+                         BBB4 = 'b4.new',
+                         BBB5 = ['b5.new'],
                          CCC1 = 'c1',
                          CCC2 = ['c2'])
 
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
         assert env['AAA3'] == ['a3', 'b', 'c'], env['AAA3']
+        assert env['AAA4'] == 'a4a4.new', env['AAA4']
+        assert env['AAA5'] == ['a5', 'a5.new'], env['AAA5']
         assert env['BBB1'] == ['b1'], env['BBB1']
         assert env['BBB2'] == ['b2'], env['BBB2']
         assert env['BBB3'] == ['b3', 'c', 'd'], env['BBB3']
+        assert env['BBB4'] == ['b4', 'b4.new'], env['BBB4']
+        assert env['BBB5'] == ['b5', 'b5.new'], env['BBB5']
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
 
@@ -1720,25 +1732,37 @@ f5: \
         env = Environment(AAA1 = 'a1',
                           AAA2 = 'a2',
                           AAA3 = 'a3',
+                          AAA4 = 'a4',
+                          AAA5 = 'a5',
                           BBB1 = ['b1'],
                           BBB2 = ['b2'],
                           BBB3 = ['b3'],
+                          BBB4 = ['b4'],
+                          BBB5 = ['b5'],
                           CCC1 = '',
                           CCC2 = '')
         env.PrependUnique(AAA1 = 'a1',
                           AAA2 = ['a2'],
                           AAA3 = ['a3', 'b', 'c', 'a3'],
+                          AAA4 = 'a4.new',
+                          AAA5 = ['a5.new'],
                           BBB1 = 'b1',
                           BBB2 = ['b2'],
                           BBB3 = ['b3', 'b', 'c', 'b3'],
+                          BBB4 = 'b4.new',
+                          BBB5 = ['b5.new'],
                           CCC1 = 'c1',
                           CCC2 = ['c2'])
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
         assert env['AAA3'] == ['b', 'c', 'a3'], env['AAA3']
+        assert env['AAA4'] == 'a4.newa4', env['AAA4']
+        assert env['AAA5'] == ['a5.new', 'a5'], env['AAA5']
         assert env['BBB1'] == ['b1'], env['BBB1']
         assert env['BBB2'] == ['b2'], env['BBB2']
         assert env['BBB3'] == ['b', 'c', 'b3'], env['BBB3']
+        assert env['BBB4'] == ['b4.new', 'b4'], env['BBB4']
+        assert env['BBB5'] == ['b5.new', 'b5'], env['BBB5']
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
 

@@ -417,6 +417,9 @@ RELEASE 0.97 - XXX
     one in the build directory, too, to avoid dangling files left
     over from previous runs when a source file is removed.
 
+  - Allow AppendUnique() and PrependUnique() to append strings (and
+    other atomic objects) to lists.
+
   From Georg Mischler:
 
   - Remove the space after the -o option when invoking the Borland
