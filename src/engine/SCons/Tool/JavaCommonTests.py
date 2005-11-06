@@ -202,6 +202,16 @@ public class MyTabs
         assert pkg_dir == None, pkg_dir
         assert classes == ['MyTabs$MyInternal', 'MyTabs'], classes
 
+    def test_enum(self):
+        """Test the Java 1.5 enum keyword"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+package p;
+public enum a {}
+""")
+        assert pkg_dir == 'p', pkg_dir
+        assert classes == ['a'], classes
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ parse_javaTestCase ]
