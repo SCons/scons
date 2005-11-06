@@ -1572,11 +1572,14 @@ the
 .B DVI
 builder method will also examine the contents
 of the
-.B .aux file
-and invoke the $BIBTEX command line
+.B .aux
+file and invoke the $BIBTEX command line
 if the string
 .B bibdata
 is found,
+start $MAKEINDEX to generate an index if a
+.B .ind
+file is found
 and will examine the contents
 .B .log
 file and re-run the $LATEXCOM command
@@ -6199,6 +6202,16 @@ env = Environment(LATEXCOMSTR = "Building $TARGET from LaTeX input $SOURCES")
 .IP LATEXFLAGS
 General options passed to the LaTeX structured formatter and typesetter.
 
+.IP LATEXSUFFIXES
+The list of suffixes of files that will be scanned
+for LaTeX implicit dependencies
+(\\include or \\import files).
+The default list is:
+
+.ES
+[".tex", ".ltx", ".latex"]
+.EE
+
 .IP LDMODULE
 The linker for building loadable modules.
 By default, this is the same as $SHLINK.
@@ -6449,6 +6462,25 @@ The command line used to pass files through the M4 macro preprocessor.
 The string displayed when
 a file is passed through the M4 macro preprocessor.
 If this is not set, then $M4COM (the command line) is displayed.
+
+.IP MAKEINDEX
+The makeindex generator for the TeX formatter and typesetter and the
+LaTeX structured formatter and typesetter.
+
+.IP MAKEINDEXCOM
+The command line used to call the makeindex generator for the
+TeX formatter and typesetter and the LaTeX structured formatter and
+typesetter.
+
+.IP MAKEINDEXCOMSTR
+The string displayed when calling the makeindex generator for the
+TeX formatter and typesetter
+and the LaTeX structured formatter and typesetter.
+If this is not set, then $MAKEINDEXCOM (the command line) is displayed.
+
+.IP MAKEINDEXFLAGS
+General options passed to the makeindex generator for the TeX formatter
+and typesetter and the LaTeX structured formatter and typesetter.
 
 .IP MAXLINELENGTH
 The maximum number of characters allowed on an external command line.
@@ -7647,6 +7679,12 @@ env = Environment(TEXCOMSTR = "Building $TARGET from TeX input $SOURCES")
 
 .IP TEXFLAGS
 General options passed to the TeX formatter and typesetter.
+
+.IP TEXINPUTS
+List of directories that the LaTeX programm will search
+for include directories.
+The LaTeX implicit dependency scanner will search these
+directories for \include and \import files.
 
 .IP TOOLS
 A list of the names of the Tool specifications

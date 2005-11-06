@@ -100,6 +100,7 @@ SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 # transition period.
 CScan = SCons.Tool.CScanner
 DScan = SCons.Tool.DScanner
+LaTeXScan = SCons.Tool.LaTeXScanner
 ObjSourceScan = SCons.Tool.SourceFileScanner
 ProgScan = SCons.Tool.ProgramScanner
 
@@ -126,6 +127,7 @@ LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
 def DVI():
     """Common function to generate a DVI file Builder."""
     return SCons.Builder.Builder(action = {},
+                                 source_scanner = LaTeXScan,
                                  # The suffix is not configurable via a
                                  # construction variable like $DVISUFFIX
                                  # because the output file name is
@@ -135,6 +137,7 @@ def DVI():
 def PDF():
     """A function for generating the PDF Builder."""
     return SCons.Builder.Builder(action = { },
+                                 source_scanner = LaTeXScan,
                                  prefix = '$PDFPREFIX',
                                  suffix = '$PDFSUFFIX')
 
@@ -351,6 +354,7 @@ ConstructionEnvironment = {
     'CPPSUFFIXES'   : SCons.Tool.CSuffixes,
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
+    'LATEXSUFFIXES' : SCons.Tool.LaTeXSuffixes,
     'PDFPREFIX'     : '',
     'PDFSUFFIX'     : '.pdf',
     'PSPREFIX'      : '',

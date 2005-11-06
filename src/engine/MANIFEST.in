@@ -41,6 +41,7 @@ SCons/Scanner/D.py
 SCons/Scanner/Dir.py
 SCons/Scanner/Fortran.py
 SCons/Scanner/IDL.py
+SCons/Scanner/LaTeX.py
 SCons/Scanner/Prog.py
 SCons/SConf.py
 SCons/SConsign.py
