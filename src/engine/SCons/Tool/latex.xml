@@ -34,3 +34,13 @@ env = Environment(LATEXCOMSTR = "Building $TARGET from LaTeX input $SOURCES")
 General options passed to the LaTeX structured formatter and typesetter.
 </summary>
 </cvar>
+
+<cvar name="TEXINPUTS">
+<summary>
+List of directories that the LaTeX programm will search
+for include directories.
+The LaTeX implicit dependency scanner will search these
+directories for \include and \import files.
+</summary>
+</cvar>
+

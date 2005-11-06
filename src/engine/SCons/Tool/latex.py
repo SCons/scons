@@ -35,7 +35,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Scanner.LaTeX
 import SCons.Util
+import SCons.Tool
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM', '$LATEXCOMSTR')
 
@@ -48,8 +50,8 @@ def generate(env):
         bld = SCons.Defaults.DVI()
         env['BUILDERS']['DVI'] = bld
         
-    bld.add_action('.ltx', LaTeXAction)
-    bld.add_action('.latex', LaTeXAction)
+    for suffix in SCons.Tool.LaTeXSuffixes:
+        bld.add_action(suffix, LaTeXAction)
 
     env['LATEX']      = 'latex'
     env['LATEXFLAGS'] = SCons.Util.CLVar('')

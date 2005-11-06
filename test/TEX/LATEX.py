@@ -83,12 +83,19 @@ os.system(string.join(sys.argv[1:], " "))
 
     test.write('SConstruct', """
 import os
-ENV = { 'PATH' : os.environ['PATH'] }
+ENV = { 'PATH' : os.environ['PATH'],
+        'TEXINPUTS' : [ 'subdir', os.environ.get('TEXINPUTS', '') ] }
 foo = Environment(ENV = ENV)
 latex = foo.Dictionary('LATEX')
-bar = Environment(ENV = ENV, LATEX = r'%s wrapper.py ' + latex)
+makeindex = foo.Dictionary('MAKEINDEX')
+bar = Environment(ENV = ENV,
+                  LATEX = r'%s wrapper.py ' + latex,
+                  MAKEINDEX =  r' wrapper.py ' + makeindex)
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 bar.DVI(target = 'bar', source = 'bar.latex')
+
+bar.DVI(target = 'makeindex', source = 'makeindex.tex')
+foo.DVI(target = 'latexi', source = 'latexi.tex')
 """ % python)
 
     latex = r"""
@@ -98,20 +105,62 @@ This is the %s LaTeX file.
 \end{document}
 """
 
+    makeindex =  r"""
+\documentclass{letter}
+\usepackage{makeidx}
+\makeindex
+\begin{document}
+\index{info}
+This is the %s LaTeX file.
+\printindex{}
+\end{document}
+"""
+
+    latex1 = r"""
+\documentclass{letter}
+\usepackage{makeidx}
+\makeindex
+\begin{document}
+\index{info}
+This is the %s LaTeX file.
+
+It has an Index and includes another file.
+\include{latexincludefile}
+\end{document}
+"""
+
+    latex2 = r"""
+\index{include}
+This is the include file.
+\printindex{}
+"""
+
     test.write('foo.ltx', latex % 'foo.ltx')
 
     test.write('bar.latex', latex % 'bar.latex')
 
+    test.write('makeindex.tex',  makeindex % 'makeindex.tex');
+    test.write('makeindex.idx',  '');
+
+    test.subdir('subdir')
+    test.write('latexi.tex',  latex1 % 'latexi.tex');
+    test.write([ 'subdir', 'latexincludefile.tex'], latex2)
+
     test.run(arguments = 'foo.dvi', stderr = None)
-
     test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
     test.fail_test(not os.path.exists(test.workpath('foo.dvi')))
 
     test.run(arguments = 'bar.dvi', stderr = None)
+    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
 
+    test.run(arguments = 'makeindex.dvi', stderr = None)
     test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
-    test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
+    test.run(arguments = 'latexi.dvi', stderr = None)
+    test.fail_test(not os.path.exists(test.workpath('latexi.dvi')))
+    test.fail_test(not os.path.exists(test.workpath('latexi.ind')))
+
+
 
 test.pass_test()

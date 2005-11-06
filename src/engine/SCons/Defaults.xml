@@ -20,11 +20,13 @@ the
 builder method will also examine the contents
 of the
 <filename>.aux</filename>
-file
-and invoke the &cv-BIBTEX; command line
+file and invoke the &cv-BIBTEX; command line
 if the string
 <literal>bibdata</literal>
 is found,
+start &cv-MAKEINDEX; to generate an index if a
+<filename>.ind</filename>
+file is found
 and will examine the contents
 <filename>.log</filename>
 file and re-run the &cv-LATEXCOM; command
@@ -349,6 +351,19 @@ is the path name of the source file.
 is the construction environment
 (a dictionary of construction values)
 in force for this file installation.
+</summary>
+</cvar>
+
+<cvar name="LATEXSUFFIXES">
+<summary>
+The list of suffixes of files that will be scanned
+for LaTeX implicit dependencies
+(<literal>\include</literal> or <literal>\import</literal> files).
+The default list is:
+
+<example>
+[".tex", ".ltx", ".latex"]
+</example>
 </summary>
 </cvar>
 

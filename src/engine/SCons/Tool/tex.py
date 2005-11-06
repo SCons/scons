@@ -54,6 +54,9 @@ LaTeXAction = SCons.Action.Action("$LATEXCOM", "$LATEXCOMSTR")
 # Define an action to run BibTeX on a file.
 BibTeXAction = SCons.Action.Action("$BIBTEXCOM", "$BIBTEXCOMSTR")
 
+# Define an action to run MakeIndex on a file.
+MakeIndexAction = SCons.Action.Action("$MAKEINDEXCOM", "$MAKEINDEXOMSTR")
+
 def LaTeXAuxAction(target = None, source= None, env=None):
     """A builder for LaTeX files that checks the output in the aux file
     and decides how many times to use LaTeXAction, and BibTeXAction."""
@@ -66,6 +69,14 @@ def LaTeXAuxAction(target = None, source= None, env=None):
     if string.find(content, "bibdata") != -1:
         bibfile = env.fs.File(basename)
         BibTeXAction(None,bibfile,env)
+    # Now if makeindex will need to be run.
+    idxfilename = basename + ".idx"
+    if os.path.exists(idxfilename):
+        idxfile = env.fs.File(basename)
+        # TODO: if ( idxfile has changed) ...
+        MakeIndexAction(None,idxfile,env)
+        LaTeXAction(target,source,env)
+        
     # Now check if latex needs to be run yet again.
     for trial in range(3):
         content = open(basename + ".log","rb").read()
@@ -109,17 +120,21 @@ def generate(env):
 
     env['TEX']      = 'tex'
     env['TEXFLAGS'] = SCons.Util.CLVar('')
-    env['TEXCOM']   = '$TEX $TEXFLAGS $SOURCES'
+    env['TEXCOM']   = '$TEX $TEXFLAGS $SOURCE'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['LATEX']      = 'latex'
     env['LATEXFLAGS'] = SCons.Util.CLVar('')
-    env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCES'
+    env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCE'
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
-    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS $SOURCES'
+    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS $SOURCE'
 
+    env['MAKEINDEX']      = 'makeindex'
+    env['MAKEINDEXFLAGS'] = SCons.Util.CLVar('')
+    env['MAKEINDEXCOM']   = '$MAKEINDEX $MAKEINDEXFLAGS $SOURCES'
 
+    
 def exists(env):
     return env.Detect('tex')

@@ -45,10 +45,12 @@ import SCons.Errors
 import SCons.Scanner
 import SCons.Scanner.C
 import SCons.Scanner.D
+import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 
 CScanner = SCons.Scanner.C.CScanner()
 DScanner = SCons.Scanner.D.DScanner()
+LaTeXScanner = SCons.Scanner.LaTeX.LaTeXScanner()
 ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
 SourceFileScanner = SCons.Scanner.Scanner({}, name='SourceFileScanner')
 
@@ -62,11 +64,16 @@ DSuffixes = ['.d']
 
 IDLSuffixes = [".idl", ".IDL"]
 
+LaTeXSuffixes = [".tex", ".ltx", ".latex"]
+
 for suffix in CSuffixes:
     SourceFileScanner.add_scanner(suffix, CScanner)
 
 for suffix in DSuffixes:
     SourceFileScanner.add_scanner(suffix, DScanner)
+
+for suffix in LaTeXSuffixes:
+     SourceFileScanner.add_scanner(suffix, LaTeXScanner)
 
 class Tool:
     def __init__(self, name, toolpath=[], **kw):

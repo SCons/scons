@@ -99,6 +99,15 @@ RELEASE 0.97 - XXX
   - Remove unneceesary (and incorrect) SCons.Util strings on some function
     calls in SCons.Util.
 
+  From August Hörandl:
+
+  - Add a scanner for \include and \import files, with support for
+    searching a directory list in $TEXINPUTS (imported from the external
+    environment).
+
+  - Support $MAKEINDEX, $MAKEINDEXCOM, $MAKEINDEXCOMSTR and
+    $MAKEINDEXFLAGS for generating indices from .idx files.
+
   From Stephen Kennedy:
 
   - Speed up writing the .sconsign file at the end of a run by only
@@ -381,6 +390,8 @@ RELEASE 0.97 - XXX
     $CCFLAGS, and -mwindows to $LINKFLAGS.
 
   From Sanjoy Mahajan:
+
+  - Correct TeX-related command lines to just $SOURCE, not $SOURCES
 
   - Fix a bad use of Copy() in an example in the man page, and a
     bad regular expression example in the man page and User's Guide.

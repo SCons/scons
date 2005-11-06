@@ -1,15 +1,11 @@
-"""SCons.Tool.dvips
+"""SCons.Scanner.LaTeX
 
-Tool-specific initialization for dvips.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
+This module implements the dependency scanner for LaTeX code. 
 
 """
 
 #
-# __COPYRIGHT__
+# Copyright (c) 2005 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,28 +27,25 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = ""
 
-import SCons.Action
-import SCons.Builder
-import SCons.Defaults
-import SCons.Util
 
-PSAction = SCons.Action.Action('$PSCOM', '$PSCOMSTR')
+import SCons.Scanner
 
-PostScript = SCons.Builder.Builder(action = PSAction,
-                                   prefix = '$PSPREFIX',
-                                   suffix = '$PSSUFFIX',
-                                   src_suffix = '.dvi',
-                                   src_builder = 'DVI')
+def LaTeXScanner(fs = SCons.Node.FS.default_fs):
+    """Return a prototype Scanner instance for scanning LaTeX source files"""
+    ds = LaTeX(name = "LaTeXScanner",
+           suffixes =  '$LATEXSUFFIXES',
+           path_variable = 'TEXINPUTS',
+           regex = '\\\\(include|input){([^}]*)}',
+           recursive = 0)
+    return ds
 
-def generate(env):
-    """Add Builders and construction variables for dvips to an Environment."""
-    env['BUILDERS']['PostScript'] = PostScript
-    
-    env['DVIPS']      = 'dvips'
-    env['DVIPSFLAGS'] = SCons.Util.CLVar('')
-    env['PSCOM']      = '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCE'
-
-def exists(env):
-    return env.Detect('dvips')
+class LaTeX(SCons.Scanner.Classic):
+    def find_include(self, include, source_dir, path):
+        if callable(path): path=path()
+        # find (2nd result reg expr) + extension
+        # print 'looking for latex includes: ' + include[1]
+        i = SCons.Node.FS.find_file(include[1] + '.tex',
+                                    (source_dir,) + path)
+        return i, include
