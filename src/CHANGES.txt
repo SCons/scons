@@ -710,6 +710,8 @@ RELEASE 0.97 - XXX
 
   - Update EnsureSConsVersion() to support revision numbers.
 
+  - Add use of $CPPDEFINES to $RCCOM (resource file compilation) on MinGW.
+
   From Dobes Vandermeer:
 
   - Add support for SCC and other settings in Microsoft Visual
