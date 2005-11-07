@@ -36,8 +36,29 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Action
 import SCons.Defaults
 import SCons.Util
+import SCons.Tool.tex
 
 PDFTeXAction = SCons.Action.Action('$PDFTEXCOM', '$PDFTEXCOMSTR')
+
+# Define an action to build a latex file.  This action might be needed more
+# than once if we are dealing with labels and bibtex
+PDFLaTeXAction = SCons.Action.Action("$PDFLATEXCOM", "$PDFLATEXCOMSTR")
+
+def PDFLaTeXAuxAction(target = None, source= None, env=None):
+    SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+
+def PDFTeXLaTeXFunction(target = None, source= None, env=None):
+    """A builder for TeX and LaTeX that scans the source file to
+    decide the "flavor" of the source and then executes the appropriate
+    program."""
+    if SCons.Tool.tex.is_LaTeX(source):
+        PDFLaTeXAuxAction(target,source,env)
+    else:
+        PDFTeXAction(target,source,env)
+    return 0
+
+PDFTeXLaTeXAction = SCons.Action.Action(PDFTeXLaTeXFunction,
+                                     strfunction=None)
 
 def generate(env):
     """Add Builders and construction variables for pdftex to an Environment."""
@@ -47,11 +68,21 @@ def generate(env):
         bld = SCons.Defaults.PDF()
         env['BUILDERS']['PDF'] = bld
 
-    bld.add_action('.tex', PDFTeXAction)
+    bld.add_action('.tex', PDFTeXLaTeXAction)
 
     env['PDFTEX']      = 'pdftex'
     env['PDFTEXFLAGS'] = SCons.Util.CLVar('')
     env['PDFTEXCOM']   = '$PDFTEX $PDFTEXFLAGS $SOURCE'
+
+    # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
+    env['PDFLATEX']      = 'pdflatex'
+    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('')
+    env['PDFLATEXCOM']   = '$PDFLATEX $PDFLATEXFLAGS $SOURCES'
+    env['LATEXRETRIES']  = 3
+
+    env['BIBTEX']      = 'bibtex'
+    env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
+    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS $SOURCES'
 
 def exists(env):
     return env.Detect('pdftex')
