@@ -43,7 +43,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
-# Define an action to build a generic tex file.  This is sufficient for all 
+# Define an action to build a generic tex file.  This is sufficient for all
 # tex files.
 TeXAction = SCons.Action.Action("$TEXCOM", "$TEXCOMSTR")
 
@@ -57,33 +57,49 @@ BibTeXAction = SCons.Action.Action("$BIBTEXCOM", "$BIBTEXCOMSTR")
 # Define an action to run MakeIndex on a file.
 MakeIndexAction = SCons.Action.Action("$MAKEINDEXCOM", "$MAKEINDEXOMSTR")
 
-def LaTeXAuxAction(target = None, source= None, env=None):
+def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None):
     """A builder for LaTeX files that checks the output in the aux file
     and decides how many times to use LaTeXAction, and BibTeXAction."""
     # Get the base name of the target
     basename, ext = os.path.splitext(str(target[0]))
+
     # Run LaTeX once to generate a new aux file.
-    LaTeXAction(target,source,env)
-    # Now if bibtex will need to be run.
-    content = open(basename + ".aux","rb").read()
-    if string.find(content, "bibdata") != -1:
-        bibfile = env.fs.File(basename)
-        BibTeXAction(None,bibfile,env)
-    # Now if makeindex will need to be run.
-    idxfilename = basename + ".idx"
+    XXXLaTeXAction(target,source,env)
+
+    # Decide if various things need to be run, or run again.  We check
+    # for the existence of files before opening them--even ones like the
+    # aux file that TeX always creates--to make it possible to write tests
+    # with stubs that don't necessarily generate all of the same files.
+
+    # Now decide if bibtex will need to be run.
+    auxfilename = basename + '.aux'
+    if os.path.exists(auxfilename):
+        content = open(auxfilename, "rb").read()
+        if string.find(content, "bibdata") != -1:
+            bibfile = env.fs.File(basename)
+            BibTeXAction(None,bibfile,env)
+
+    # Now decide if makeindex will need to be run.
+    idxfilename = basename + '.idx'
     if os.path.exists(idxfilename):
         idxfile = env.fs.File(basename)
         # TODO: if ( idxfile has changed) ...
         MakeIndexAction(None,idxfile,env)
         LaTeXAction(target,source,env)
-        
-    # Now check if latex needs to be run yet again.
-    for trial in range(3):
-        content = open(basename + ".log","rb").read()
-        if not re.search("^LaTeX Warning:.*Rerun",content,re.MULTILINE):
+
+    # Now decide if latex needs to be run yet again.
+    logfilename = basename + '.log'
+    for trial in range(int(env.subst('$LATEXRETRIES'))):
+        if not os.path.exists(logfilename):
             break
-        LaTeXAction(target,source,env)
+        content = open(logfilename, "rb").read()
+        if not re.search("^LaTeX Warning:.*Rerun",content,re.MULTILINE) and not re.search("^LaTeX Warning:.*undefined references",content,re.MULTILINE):
+            break
+        XXXLaTeXAction(target,source,env)
     return 0
+
+def LaTeXAuxAction(target = None, source= None, env=None):
+    InternalLaTeXAuxAction( LaTeXAction, target, source, env )
 
 LaTeX_re = re.compile("\\\\document(style|class)")
 
@@ -105,8 +121,7 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
         TeXAction(target,source,env)
     return 0
 
-TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
-                                     strfunction=None)
+TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction, strfunction=None)
 
 def generate(env):
     """Add Builders and construction variables for TeX to an Environment."""
@@ -115,7 +130,7 @@ def generate(env):
     except KeyError:
         bld = SCons.Defaults.DVI()
         env['BUILDERS']['DVI'] = bld
-        
+
     bld.add_action('.tex', TeXLaTeXAction)
 
     env['TEX']      = 'tex'
@@ -123,9 +138,10 @@ def generate(env):
     env['TEXCOM']   = '$TEX $TEXFLAGS $SOURCE'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
-    env['LATEX']      = 'latex'
-    env['LATEXFLAGS'] = SCons.Util.CLVar('')
-    env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCE'
+    env['LATEX']        = 'latex'
+    env['LATEXFLAGS']   = SCons.Util.CLVar('')
+    env['LATEXCOM']     = '$LATEX $LATEXFLAGS $SOURCE'
+    env['LATEXRETRIES'] = 3
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
@@ -135,6 +151,5 @@ def generate(env):
     env['MAKEINDEXFLAGS'] = SCons.Util.CLVar('')
     env['MAKEINDEXCOM']   = '$MAKEINDEX $MAKEINDEXFLAGS $SOURCES'
 
-    
 def exists(env):
     return env.Detect('tex')

@@ -375,6 +375,9 @@ RELEASE 0.97 - XXX
   - Document the --debug=explain option in the man page.  (How did we
     miss this?)
 
+  - Add a $LATEXRETRIES variable to allow configuration of the number of
+    times LaTex can be re-called to try to resolve undefined references.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
@@ -436,6 +439,13 @@ RELEASE 0.97 - XXX
   - Remove the space after the -o option when invoking the Borland
     BCC compiler; some versions apparently require that the file name
     argument be concatenated with the option.
+
+  From Joel B. Mohler:
+
+  - Extend latex.py, pdflatex.py, pdftex.py and tex.py so that building
+    from both TeX and LaTeX files uses the same logic to call $BIBTEX
+    when it's necessary, to call $MAKEINDEX when it's necessary, and to
+    call $TEX or $LATEX multiple times to handle undefined references.
 
   From Elliot Murphy:
 
@@ -738,10 +748,6 @@ RELEASE 0.97 - XXX
   - Add support for using a $SCONS_HOME variable (imported from the
     external environment, or settable internally) to put a shortened
     SCons execution line in the Visual Studio project file.
-
-  - Don't throw an exception if the configuration changes and a stored
-    implicit dependency now has a different type (File or Dir) than it
-    did last time.
 
   From Greg Ward:
 

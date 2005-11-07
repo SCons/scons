@@ -38,8 +38,14 @@ import SCons.Defaults
 import SCons.Scanner.LaTeX
 import SCons.Util
 import SCons.Tool
+import SCons.Tool.tex
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM', '$LATEXCOMSTR')
+
+def LaTeXAuxFunction(target = None, source= None, env=None):
+    SCons.Tool.tex.InternalLaTeXAuxAction( LaTeXAction, target, source, env )
+
+LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction, strfunction=None)
 
 def generate(env):
     """Add Builders and construction variables for LaTeX to an Environment."""
@@ -49,13 +55,14 @@ def generate(env):
     except KeyError:
         bld = SCons.Defaults.DVI()
         env['BUILDERS']['DVI'] = bld
-        
-    for suffix in SCons.Tool.LaTeXSuffixes:
-        bld.add_action(suffix, LaTeXAction)
 
-    env['LATEX']      = 'latex'
-    env['LATEXFLAGS'] = SCons.Util.CLVar('')
-    env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCES'
+    bld.add_action('.ltx', LaTeXAuxAction)
+    bld.add_action('.latex', LaTeXAuxAction)
+
+    env['LATEX']        = 'latex'
+    env['LATEXFLAGS']   = SCons.Util.CLVar('')
+    env['LATEXCOM']     = '$LATEX $LATEXFLAGS $SOURCES'
+    env['LATEXRETRIES'] = 3
 
 def exists(env):
     return env.Detect('latex')

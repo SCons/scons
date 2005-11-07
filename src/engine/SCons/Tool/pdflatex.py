@@ -36,8 +36,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Action
 import SCons.Defaults
 import SCons.Util
+import SCons.Tool.tex
 
 PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM', '$PDFLATEXCOMSTR')
+
+def PDFLaTeXAuxFunction(target = None, source= None, env=None):
+    SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+
+PDFLaTeXAuxAction = SCons.Action.Action(PDFLaTeXAuxFunction, strfunction=None)
 
 def generate(env):
     """Add Builders and construction variables for pdflatex to an Environment."""
@@ -47,12 +53,13 @@ def generate(env):
         bld = SCons.Defaults.PDF()
         env['BUILDERS']['PDF'] = bld
 
-    bld.add_action('.ltx', PDFLaTeXAction)
-    bld.add_action('.latex', PDFLaTeXAction)
+    bld.add_action('.ltx', PDFLaTeXAuxAction)
+    bld.add_action('.latex', PDFLaTeXAuxAction)
 
     env['PDFLATEX']      = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('')
     env['PDFLATEXCOM']   = '$PDFLATEX $PDFLATEXFLAGS $SOURCE'
+    env['LATEXRETRIES']  = 3
 
 def exists(env):
     return env.Detect('pdflatex')
