@@ -31,7 +31,7 @@
 .fi
 .RE
 ..
-.TH SCONS 1 "October 2005"
+.TH SCONS 1 "October 2004"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -148,28 +148,6 @@ from your external environment as follows:
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 .EE
-
-Similarly, if the commands use external environment variables
-like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
-these variables can also be explicitly propagated:
-
-.ES
-import os
-env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                         'HOME' : os.environ['HOME']})
-.EE
-
-Or you may explicitly propagate the invoking user's
-complete external environment:
-
-.ES
-import os
-env = Environment(ENV = os.environ['PATH'])
-.EE
-
-This comes at the expense of making your build
-dependent on the user's environment being set correctly,
-but it may be more convenient for many configurations.
 
 .B scons
 can scan known input files automatically for dependency
@@ -532,26 +510,14 @@ specifies what type of debugging:
 
 .TP
 --debug=count
-Print how many objects are created
-of the various classes used internally by SCons
-before and after reading the SConscript files
-and before and after building targets.
+Print a count of how many objects are created
+of the various classes used internally by SCons.
 This only works when run under Python 2.1 or later.
 
 .TP
 --debug=dtree
 Print the dependency tree
 after each top-level target is built. This prints out only derived files.
-
-.TP
---debug=explain
-Print an explanation of precisely why
-.B scons
-is deciding to (re-)build any targets.
-(Note:  this does not print anything
-for targets that are
-.I not
-rebuilt.)
 
 .TP
 --debug=findlibs
@@ -571,33 +537,10 @@ $ scons --debug=includes foo.o
 .EE
 
 .TP
---debug=memoizer
-Prints a summary of hits and misses in the Memoizer,
-the internal SCons subsystem for caching
-various values in memory instead of
-recomputing them each time they're needed.
-
-.TP
 --debug=memory
 Prints how much memory SCons uses
 before and after reading the SConscript files
-and before and after building targets.
-
-.TP
---debug=nomemoizer
-Disables use of the Memoizer,
-the internal SCons subsystem for caching
-various values in memory instead of
-recomputing them each time they're needed.
-This provides more accurate counts of the
-underlying function calls in the 
-Python profiler output when using the
-.R --profile=
-option.
-(When the Memoizer is used,
-the profiler counts all
-memoized functions as being executed
-by the Memoizer's wrapper calls.)
+and before and after building.
 
 .TP
 --debug=objects
@@ -610,6 +553,7 @@ This only works when run under Python 2.1 or later.
 Re-run SCons under the control of the
 .RI pdb
 Python debugger.
+.EE
 
 .TP
 --debug=presub
@@ -630,12 +574,6 @@ Prints an internal Python stack trace
 when encountering an otherwise unexplained error.
 
 .TP
---debug=stree
-Print the dependency tree along with status information.  This is the
-same as the debug=tree option, but additional status information is
-provided for each node in the tree.
-
-.TP
 --debug=time
 Prints various time profiling information: the time spent
 executing each build command, the total build time, the total time spent
@@ -648,47 +586,6 @@ Print the dependency tree
 after each top-level target is built. This prints out the complete
 dependency tree including implicit dependencies and ignored
 dependencies.
-
-.TP
-.RI --diskcheck= types
-Enable specific checks for
-whether or not there is a file on disk
-where the SCons configuration expects a directory
-(or vice versa),
-and whether or not RCS or SCCS sources exist
-when searching for source and include files.
-The
-.I types
-argument can be set to:
-.BR all ,
-to enable all checks explicitly
-(the default behavior);
-.BR none ,
-to disable all such checks;
-.BR match ,
-to check that files and directories on disk
-match SCons' expected configuration;
-.BR rcs ,
-to check for the existence of an RCS source
-for any missing source or include files;
-.BR sccs ,
-to check for the existence of an SCCS source
-for any missing source or include files.
-Multiple checks can be specified separated by commas;
-for example,
-.B --diskcheck=sccs,rcs
-would still check for SCCS and RCS sources,
-but disable the check for on-disk matches of files and directories.
-Disabling some or all of these checks
-can provide a performance boost for large configurations,
-or when the configuration will check for files and/or directories
-across networked or shared file systems,
-at the slight increased risk of an incorrect build
-or of not handling errors gracefully
-(if include files really should be
-found in SCCS or RCS, for example,
-or if a file really does exist
-where the SCons configuration expects a directory).
 
 .\" .TP
 .\" -e, --environment-overrides
@@ -827,18 +724,12 @@ Ignored for compatibility with non-GNU versions of
 .RI --max-drift= SECONDS
 Set the maximum expected drift in the modification time of files to 
 .IR SECONDS .
-This value determines how long a file must be unmodified
-before its cached content signature
-will be used instead of
-calculating a new content signature (MD5 checksum)
-of the file's contents.
-The default value is 2 days, which means a file must have a
-modification time of at least two days ago in order to have its
-cached content signature used.
-A negative value means to never cache the content
+This value determines how old a file must be before its content signature
+is cached. The default value is 2 days, which means a file must have a
+modification time of at least two days ago in order to have its content
+signature cached. A negative value means to never cache the content
 signature and to ignore the cached value if there already is one. A value
-of 0 means to always use the cached signature,
-no matter how old the file is.
+of 0 means to always cache the signature, no matter how old the file is.
 
 .TP
 -n, --just-print, --dry-run, --recon
@@ -1060,10 +951,8 @@ and suffixes appropriate for the platform.
 Note that the
 .B win32
 platform adds the
-.B SYSTEMDRIVE
-and
 .B SYSTEMROOT
-variables from the user's external environment
+variable from the user's external environment
 to the construction environment's
 .B ENV
 dictionary.
@@ -1106,7 +995,7 @@ have two functions: generate(env, **kw) and exists(env).
 The
 .B generate()
 function
-modifies the passed-in environment
+modifies the passed in environment
 to set up variables so that the tool
 can be executed;
 it may use any keyword arguments
@@ -1119,19 +1008,6 @@ value if the tool is available.
 Tools in the toolpath are used before
 any of the built-in ones.  For example, adding gcc.py to the toolpath
 would override the built-in gcc tool.
-Also note that the toolpath is
-stored in the environment for use
-by later calls to
-.BR Copy ()
-and
-.BR Tool ()
-methods:
-
-.ES
-base = Environment(toolpath=['custom_path'])
-derived = base.Copy(tools=['custom_tool'])
-derived.CustomBuilder()
-.EE
 
 The elements of the tools list may also
 be functions or callable objects,
@@ -1221,7 +1097,6 @@ ifl
 ifort
 ilink
 ilink32
-intelc
 jar
 javac
 javah
@@ -1237,8 +1112,6 @@ mslib
 mslink
 msvc
 msvs
-mwcc
-mwld
 nasm
 pdflatex
 pdftex
@@ -1375,15 +1248,6 @@ environment that consists of the tools and values that
 .B scons
 has determined are appropriate for the local system.
 
-Builder methods that can be called without an explicit
-environment may be called from custom Python modules that you
-import into an SConscript file by adding the following
-to the Python module:
-
-.ES
-from SCons.Script import *
-.EE
-
 All builder methods return a list of Nodes
 that represent the target or targets that will be built.
 A
@@ -1402,7 +1266,7 @@ to add a specific
 flag when compiling one specific object file:
 
 .ES
-bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
+bar_obj_list = env.StaticObject('bar.c', CCFLAGS='-DBAR')
 env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
 .EE
 
@@ -1449,7 +1313,7 @@ by passing the Node to the Python-builtin
 function:
 
 .ES
-bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
+bar_obj_list = env.StaticObject('bar.c', CCFLAGS='-DBAR')
 print "The path to bar_obj is:", str(bar_obj_list[0])
 .EE
 
@@ -1572,14 +1436,11 @@ the
 .B DVI
 builder method will also examine the contents
 of the
-.B .aux
-file and invoke the $BIBTEX command line
+.B .aux file
+and invoke the $BIBTEX command line
 if the string
 .B bibdata
 is found,
-start $MAKEINDEX to generate an index if a
-.B .ind
-file is found
 and will examine the contents
 .B .log
 file and re-run the $LATEXCOM command
@@ -1712,16 +1573,6 @@ A synonym for the
 builder method.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.IP LoadableModule()
-.IP env.LoadableModule()
-On most systems,
-this is the same as
-.BR SharedLibrary ().
-On Mac OS X (Darwin) platforms,
-this creates a loadable module bundle.
-
-
-'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP M4()
 .IP env.M4()
 Builds an output file from an M4 input file.
@@ -1752,101 +1603,55 @@ env.Moc('foo.cpp') # generates foo.moc
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP MSVSProject()
 .IP env.MSVSProject()
-Builds a Microsoft Visual Studio project file,
-and by default builds a solution file as well.
-
+Builds Microsoft Visual Studio project files.
 This builds a Visual Studio project file, based on the version of
 Visual Studio that is configured (either the latest installed version,
-or the version specified by 
+or the version set by 
 .B MSVS_VERSION
-in the construction environment).
-For Visual Studio 6, it will generate a
+in the Environment constructor).
+For VS 6, it will generate 
 .B .dsp
-file.
-For Visual Studio 7 (.NET), it will
-generate a
-.B .vcproj
-file.
-
-By default,
-this also generates a solution file
-for the specified project,
-a
+and
 .B .dsw
-file for Visual Studio 6
-or a
+files, for VS 7, it will
+generate
+.B .vcproj
+and
 .B .sln
-file for Visual Studio 7 (.NET).
-This behavior may be disabled by specifying
-.B auto_build_solution=0
-when you call
-.BR MSVSProject (),
-in which case you presumably want to
-build the solution file(s)
-by calling the
-.BR MSVSSolution ()
-Builder (see below).
+files.
 
 It takes several lists of filenames to be placed into the project
-file.
-These are currently limited to
-.BR srcs ,
-.BR incs ,
-.BR localincs ,
-.BR resources ,
+file, currently these are limited to 
+.B srcs, incs, localincs, resources,
 and
-.BR misc .
-These are pretty self-explanatory, but it should be noted that these
-lists are added to the $SOURCES construction variable as strings,
-NOT as SCons File Nodes.  This is because they represent file
-names to be added to the project file, not the source files used to
-build the project file.
+.B misc.
+These are pretty self explanatory, but it
+should be noted that the 'srcs' list is NOT added to the $SOURCES
+environment variable.  This is because it represents a list of files
+to be added to the project file, not the source used to build the
+project file (in this case, the 'source' is the SConscript file used
+to call MSVSProject).
 
-In addition to the above lists of values (which are all optional,
-although not specifying any of them results in an empty project file),
-the following values may be specified:
+In addition to these values (which are all optional, although not
+specifying any of them results in an empty project file), the
+following values must be specified:
 
-.BR target :
-The name of the target
-.B .dsp
-or
-.B .vcproj
-file.
-The correct
-suffix for the version of Visual Studio must be used, but the
-.B env['MSVSPROJECTSUFFIX']
-construction variable
+target: The name of the target .dsp or .vcproj file.  The correct
+suffix for the version of Visual Studio must be used, but the value
+
+env['MSVSPROJECTSUFFIX']
+
 will be defined to the correct value (see example below).
 
-.BR variant :
-The name of this particular variant.
-For Visual Studio 7 projects,
-this can also be a list of variant names.
-These are typically things like "Debug" or "Release", but really
-can be anything you want.
-For Visual Studio 7 projects,
-they may also specify a target platform
-separated from the variant name by a
-.B |
-(vertical pipe)
-character:
-.BR Debug|Xbox .
-The default target platform is Win32.
-Multiple calls to
-.BR MSVSProject ()
-with different variants are allowed;
-all variants will be added to the project file with their appropriate
+variant: The name of this particular variant.  These are typically
+things like "Debug" or "Release", but really can be anything you want.
+Multiple calls to MSVSProject with different variants are allowed: all
+variants will be added to the project file with their appropriate
 build targets and sources.
 
-.BR buildtarget :
-An optional string, node, or list of strings or nodes
-(one per build variant), to tell the Visual Studio debugger
-what output target to use in what build variant.
-The number of
-.B buildtarget
-entries must match the number of
-.B variant
-entries.
+buildtarget: A list of SCons.Node.FS objects which is returned from
+the command which builds the target.  This is used to tell SCons what
+to build when the 'build' button is pressed inside of the IDE.
 
 Example Usage:
 
@@ -1867,59 +1672,6 @@ Example Usage:
                           resources = barresources,
                           misc = barmisc,
                           buildtarget = dll,
-                          variant = 'Release')
-.EE
-
-'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.IP MSVSSolution()
-.IP env.MSVSSolution()
-Builds a Microsoft Visual Studio solution file.
-
-This builds a Visual Studio solution file,
-based on the version of Visual Studio that is configured
-(either the latest installed version,
-or the version specified by 
-.B MSVS_VERSION
-in the construction environment).
-For Visual Studio 6, it will generate a
-.B .dsw
-file.
-For Visual Studio 7 (.NET), it will
-generate a
-.B .sln
-file.
-
-The following values must be specified:
-
-.BR target :
-The name of the target .dsw or .sln file.  The correct
-suffix for the version of Visual Studio must be used, but the value
-.B env['MSVSSOLUTIONSUFFIX']
-will be defined to the correct value (see example below).
-
-.BR variant :
-The name of this particular variant, or a list of variant
-names (the latter is only supported for MSVS 7 solutions). These are
-typically things like "Debug" or "Release", but really can be anything
-you want. For MSVS 7 they may also specify target platform, like this
-"Debug|Xbox". Default platform is Win32.
-
-.BR projects :
-A list of project file names, or Project nodes returned by calls to the
-.BR MSVSProject ()
-Builder,
-to be placed into the solution file.
-(NOTE: Currently only one project is supported per solution.)
-It should be noted that these file names are NOT added to the $SOURCES
-environment variable in form of files, but rather as strings.   This
-is because they represent file names to be added to the solution file,
-not the source files used to build the solution file.
-
-Example Usage:
-
-.ES
-        local.MSVSSolution(target = 'Bar' + env['MSVSSOLUTIONSUFFIX'],
-                          projects = ['bar' + env['MSVSPROJECTSUFFIX']],
                           variant = 'Release')
 .EE
 
@@ -2210,13 +1962,6 @@ env.SharedObject(target = 'eee.o', source = 'eee.cpp')
 env.SharedObject(target = 'fff.obj', source = 'fff.for')
 .EE
 
-Note that the source files will be scanned
-according to the suffix mappings in
-.B SourceFileScanner
-object.
-See the section "Scanner Objects,"
-below, for a more information.
-
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP StaticLibrary()
 .IP env.StaticLibrary()
@@ -2277,8 +2022,6 @@ Source files must have one of the following extensions:
   .FOR    Fortran file
   .fpp    Fortran file + C pre-processor
   .FPP    Fortran file + C pre-processor
-  .m      Objective C file
-  .mm     Objective C++ file
   .s      assembly language file
   .S      WIN32:  assembly language file
           POSIX:  assembly language file + C pre-processor
@@ -2300,13 +2043,6 @@ env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
 env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 .EE
 
-Note that the source files will be scanned
-according to the suffix mappings in
-.B SourceFileScanner
-object.
-See the section "Scanner Objects,"
-below, for a more information.
-
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP Tar()
 .IP env.Tar()
@@ -2320,12 +2056,6 @@ for a given target;
 each additional call
 adds to the list of entries
 that will be built into the archive.
-Any source directories will
-be scanned for changes to
-any on-disk files,
-regardless of whether or not
-.B scons
-knows about them from other Builder or function calls.
 
 .ES
 env.Tar('src.tar', 'src')
@@ -2392,12 +2122,6 @@ for a given target;
 each additional call
 adds to the list of entries
 that will be built into the archive.
-Any source directories will
-be scanned for changes to
-any on-disk files,
-regardless of whether or not
-.B scons
-knows about them from other Builder or function calls.
 
 .ES
 env.Zip('src.zip', 'src')
@@ -2408,21 +2132,9 @@ env.Zip('stuff', ['subdir1', 'subdir2'])
 env.Zip('stuff', 'another')
 .EE
 
-All
-targets of builder methods automatically depend on their sources.
-An explicit dependency can
-be specified using the 
-.B Depends 
-method of a construction environment (see below).
-
-In addition,
 .B scons
 automatically scans
-source files for various programming languages,
-so the dependencies do not need to be specified explicitly.
-By default, SCons can
-C source files,
-C++ source files,
+C source files, C++ source files,
 Fortran source files with
 .B .F
 (POSIX systems only),
@@ -2437,26 +2149,14 @@ and assembly language files with
 or
 .B .SPP
 files extensions
-for C preprocessor dependencies.
-SCons also has default support
-for scanning D source files,
-You can also write your own Scanners
-to add support for additional source file types.
-These can be added to the default
-Scanner object used by
-the
-.BR Object ()
-.BR StaticObject ()
-and
-.BR SharedObject ()
-Builders by adding them
-to the
-.B SourceFileScanner
-object as follows:
-
-See the section "Scanner Objects,"
-below, for a more information about
-defining your own Scanner objects.
+for C preprocessor dependencies,
+so the dependencies do not need to be specified explicitly.
+In addition, all
+targets of builder methods automatically depend on their sources.
+An explicit dependency can
+be specified using the 
+.B Depends 
+method of a construction environment (see below).
 
 .SS Methods and Functions to Do Things
 In addition to Builder methods,
@@ -2483,14 +2183,6 @@ environment it looks like:
 .EE
 If you can call the functionality in both ways,
 then both forms are listed.
-
-Global functions may be called from custom Python modules that you
-import into an SConscript file by adding the following
-to the Python module:
-
-.ES
-from SCons.Script import *
-.EE
 
 Except where otherwise noted,
 the same-named
@@ -2574,17 +2266,11 @@ can be converted into an Action object
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Alias( alias ", [" targets ", [" action ]])
+.RI Alias( alias ", [" targets ])
 .TP
-.RI env.Alias( alias ", [" targets ", [" action ]])
+.RI env.Alias( alias ", [" targets ])
 Creates one or more phony targets that
 expand to one or more other targets.
-An optional
-.I action
-(command)
-or list of actions
-can be specified that will be executed
-whenever the any of the alias targets are out-of-date.
 Returns the Node object representing the alias,
 which exists outside of any file system.
 This Node object, or the alias name,
@@ -2592,8 +2278,7 @@ may be used as a dependency of any other target,
 including another alias.
 .B Alias
 can be called multiple times for the same
-alias to add additional targets to the alias,
-or additional actions to the list for this alias.
+alias to add additional targets to the alias.
 
 .ES
 Alias('install')
@@ -2602,8 +2287,6 @@ Alias(['install', 'install-lib'], '/usr/local/lib')
 
 env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 env.Alias('install', ['/usr/local/man'])
-
-env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -2671,7 +2354,7 @@ Example:
 .ES
 print 'before:',env['ENV']['INCLUDE']
 include_path = '/foo/bar:/foo'
-env.AppendENVPath('INCLUDE', include_path)
+env.PrependENVPath('INCLUDE', include_path)
 print 'after:',env['ENV']['INCLUDE']
 
 yields:
@@ -2936,47 +2619,22 @@ Clean(['foo', 'bar'], 'something_else_to_clean')
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Command( target ", " source ", " action ", [" key = val ", ...])"
+.RI Command( target ", " source ", " commands ", [" key = val ", ...])"
 .TP
-.RI env.Command( target ", " source ", " action ", [" key = val ", ...])"
+.RI env.Command( target ", " source ", " commands ", [" key = val ", ...])"
 Executes a specific action
 (or list of actions)
 to build a target file or files.
 This is more convenient
 than defining a separate Builder object
 for a single special-case build.
-
-As a special case, the
-.B source_scanner
-keyword argument can
-be used to specify
-a Scanner object
-that will be used to scan the sources.
-(The global
-.B DirScanner
-object can be used
-if any of the sources will be directories
-that must be scanned on-disk for
-changes to files that aren't
-already specified in other Builder of function calls.)
-
-Any other keyword arguments specified override any
+Any keyword arguments specified override any
 same-named existing construction variables.
 
-An action can be an external command,
+Note that an action can be an external command,
 specified as a string,
 or a callable Python object;
-see "Action Objects," below,
-for more complete information.
-Also note that a string specifying an external command
-may be preceded by an
-.B @
-(at-sign)
-to suppress printing the command in question,
-or by a
-.B \-
-(hyphen)
-to ignore the exit status of the external command.
+see "Action Objects," below.
 Examples:
 
 .ES
@@ -3232,24 +2890,17 @@ EnsurePythonVersion(2,2)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI EnsureSConsVersion( major ", " minor ", [" revision ])
+.RI EnsureSConsVersion( major ", " minor )
 .TP
-.RI env.EnsureSConsVersion( major ", " minor ", [" revision ])
+.RI env.EnsureSConsVersion( major ", " minor )
 Ensure that the SCons version is at least 
-.IR major.minor ,
-or
-.IR major.minor.revision . 
-if
-.I revision
-is specified.
+.IR major . minor . 
 This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual SCons version is not late enough.
 
 .ES
-EnsureSConsVersion(0,14)
-
-EnsureSConsVersion(0,96,90)
+EnsureSConsVersion(0,9)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -3597,7 +3248,7 @@ Returns a list of the target Node or Nodes.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.ParseConfig( command ", [" function ", " unique ])
+.RI env.ParseConfig( command ", [" function ])
 Calls the specified
 .I function
 to modify the environment as specified by the output of
@@ -3608,25 +3259,15 @@ expects the output of a typical
 .I *-config command
 (for example,
 .BR gtk-config )
-and adds the options
-to the appropriate construction variables.
-By default, 
-duplicate values are not
-added to any construction variables;
-you can specify
-.B unique=0
-to allow duplicate
-values to be added.
-
-By default,
+and parses the returned
 .BR -L ,
 .BR -l ,
 .BR -Wa ,
 .BR -Wl ,
 .BR -Wp ,
 .B -I
-and other options,
-are add to the
+and other options
+into the
 .BR LIBPATH ,
 .BR LIBS ,
 .BR ASFLAGS ,
@@ -3635,7 +3276,7 @@ are add to the
 .B CPPPATH
 and
 .B CCFLAGS
-construction variables,
+variables,
 respectively.
 A returned
 .B -pthread
@@ -3659,7 +3300,7 @@ construction variable.
 .TP
 .RI ParseDepends( filename ", [" must_exist ])
 .TP
-.RI env.ParseDepends( filename ", [" must_exist " " only_one ])
+.RI env.ParseDepends( filename ", [" must_exist ])
 Parses the contents of the specified
 .I filename
 as a list of dependencies in the style of
@@ -3667,7 +3308,6 @@ as a list of dependencies in the style of
 or
 .BR mkdep ,
 and explicitly establishes all of the listed dependencies.
-
 By default,
 it is not an error
 if the specified
@@ -3681,34 +3321,13 @@ scons
 throw an exception and
 generate an error if the file does not exist,
 or is otherwise inaccessible.
-
-The optional
-.I only_one
-argument may be set to a non-zero
-value to have
-scons
-thrown an exception and
-generate an error
-if the file contains dependency
-information for more than one target.
-This can provide a small sanity check
-for files intended to be generated
-by, for example, the
-.B gcc -M
-flag,
-which should typically only
-write dependency information for
-one output file into a corresponding
-.B .d
-file.
-
 The
 .I filename
 and all of the files listed therein
 will be interpreted relative to
 the directory of the
 .I SConscript
-file which calls the
+file which called the
 .B ParseDepends
 function.
 
@@ -3769,10 +3388,8 @@ env.Platform('posix')
 Note that the
 .B win32
 platform adds the
-.B SYSTEMDRIVE
-and
 .B SYSTEMROOT
-variables from the user's external environment
+variable from the user's external environment
 to the construction environment's
 .B ENV
 dictionary.
@@ -3850,7 +3467,7 @@ after: /foo/bar:/foo:/biz
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.PrependUnique( key = val ", [...])"
+.RI env.AppendUnique( key = val ", [...])"
 Appends the specified keyword arguments
 to the beginning of construction variables in the environment.
 If the Environment does not have
@@ -4190,37 +3807,19 @@ SConscript('bar/SConscript')	# will chdir to bar
 This tells
 .B scons
 to store all file signatures
-in the specified database
+in the specified
 .IR file .
 If the
 .I file
-name is omitted,
-.B .sconsign
+is omitted,
+.B .sconsign.dbm
 is used by default.
-(The actual file name(s) stored on disk
-may have an appropriated suffix appended
-by the
-.IR  dbm_module .)
 If
 .I file
 is not an absolute path name,
 the file is placed in the same directory as the top-level
 .B SConstruct
 file.
-
-If
-.I file
-is
-.BR None ,
-then
-.B scons
-will store file signatures
-in a separate
-.B .sconsign
-file in each directory,
-not in one global database file.
-(This was the default behavior
-prior to SCons 0.96.91 and 0.97.)
 
 The optional
 .I dbm_module
@@ -4235,9 +3834,8 @@ and which works on all Python versions from 1.5.2 on.
 Examples:
 
 .ES
-# Explicitly stores signatures in ".sconsign.dblite"
-# in the top-level SConstruct directory (the
-# default behavior).
+# Stores signatures in ".sconsign.dbm"
+# in the top-level SConstruct directory.
 SConsignFile()
 
 # Stores signatures in the file "etc/scons-signatures"
@@ -4246,10 +3844,6 @@ SConsignFile("etc/scons-signatures")
 
 # Stores signatures in the specified absolute file name.
 SConsignFile("/home/me/SCons/signatures")
-
-# Stores signatures in a separate .sconsign file
-# in each directory.
-SConsignFile(None)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4392,92 +3986,7 @@ env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
 env.SourceCode('no_source.c', None)
 .EE
 '\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
-
-'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP
-.RI env.subst( string ", [" raw ", " target ", " source ", " conv ])
-Performs construction variable interpolation
-on the specified string argument.
-
-By default,
-leading or trailing white space will
-be removed from the result.
-and all sequences of white space
-will be compressed to a single space character.
-Additionally, any
-.B $(
-and
-.B $)
-character sequences will be stripped from the returned string,
-The optional
-.I raw
-argument may be set to
-.B 1
-if you want to preserve white space and
-.BR $( - $)
-sequences.
-The
-.I raw
-argument may be set to
-.B 2
-if you want to strip
-all characters between
-any
-.B $(
-and
-.B $)
-pairs
-(as is done for signature calculation).
-
-The optional
-.I target
-and
-.I source
-keyword arguments
-must be set to lists of
-target and source nodes, respectively,
-if you want the
-.BR $TARGET ,
-.BR $TARGETS ,
-.BR $SOURCE
-and
-.BR $SOURCES
-to be available for expansion.
-This is usually necessary if you are
-calling
-.BR env.subst ()
-from within a Python function used
-as an SCons action.
-
-By default,
-all returned values are converted
-to their string representation.
-The optional
-.I conv
-argument
-may specify a conversion function
-that will be used in place of
-the default.
-For example, if you want Python objects
-(including SCons Nodes)
-to be returned as Python objects,
-you can use the Python
-.B lambda
-idiom to pass in an unnamed function
-that simply returns its unconverted argument.
-
-.ES
-print env.subst("The C compiler is: $CC")
-
-def compile(target, source, env):
-    sourceDir = env.subst("${SOURCE.srcdir}",
-                          target=target,
-                          source=source)
-
-source_nodes = env.subst('$EXPAND_TO_NODELIST',
-                         conv=lambda x: x)
-.EE
-
+'\"
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 '\".TP
 '\".RI Subversion( repository ", " module )
@@ -4711,13 +4220,6 @@ In addition to the global functions and methods,
 supports a number of Python variables
 that can be used in SConscript files
 to affect how you want the build to be performed.
-These variables may be accessed from custom Python modules that you
-import into an SConscript file by adding the following
-to the Python module:
-
-.ES
-from SCons.Script import *
-.EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -4920,15 +4422,6 @@ The static library archiver.
 .IP ARCOM
 The command line used to generate a static library from object files.
 
-.IP ARCOMSTR
-The string displayed when an object file
-is generated from an assembly-language source file.
-If this is not set, then $ARCOM (the command line) is displayed.
-
-.ES
-env = Environment(ARCOMSTR = "Archiving $TARGET")
-.EE
-
 .IP ARFLAGS
 General options passed to the static library archiver.
 
@@ -4938,15 +4431,6 @@ The assembler.
 .IP ASCOM
 The command line used to generate an object file
 from an assembly-language source file.
-
-.IP ASCOMSTR
-The string displayed when an object file
-is generated from an assembly-language source file.
-If this is not set, then $ASCOM (the command line) is displayed.
-
-.ES
-env = Environment(ASCOMSTR = "Assembling $TARGET")
-.EE
 
 .IP ASFLAGS
 General options passed to the assembler.
@@ -4958,22 +4442,6 @@ after first running the file through the C preprocessor.
 Any options specified in the $ASFLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
-.IP ASPPCOMSTR
-The string displayed when an object file
-is generated from an assembly-language source file
-after first running the file through the C preprocessor.
-If this is not set, then $ASPPCOM (the command line) is displayed.
-
-.ES
-env = Environment(ASPPCOMSTR = "Assembling $TARGET")
-.EE
-
-.IP ASPPFLAGS
-General options when an assembling an assembly-language
-source file into an object file
-after first running the file through the C preprocessor.
-The default is to use the value of $ASFLAGS.
-
 .IP BIBTEX
 The bibliography generator for the TeX formatter and typesetter and the
 LaTeX structured formatter and typesetter.
@@ -4982,16 +4450,6 @@ LaTeX structured formatter and typesetter.
 The command line used to call the bibliography generator for the
 TeX formatter and typesetter and the LaTeX structured formatter and
 typesetter.
-
-.IP BIBTEXCOMSTR
-The string displayed when generating a bibliography
-for TeX or LaTeX.
-If this is not set, then $BIBTEXCOM (the command line) is displayed.
-
-.ES
-env = Environment(BIBTEXCOMSTR = "Generating bibliography $TARGET")
-.EE
-
 
 .IP BIBTEXFLAGS
 General options passed to the bibliography generator for the TeX formatter
@@ -5002,13 +4460,7 @@ The BitKeeper executable.
 
 .IP BITKEEPERCOM
 The command line for
-fetching source files using BitKeeper.
-
-.IP BITKEEPERCOMSTR
-The string displayed when fetching
-a source file using BitKeeper.
-If this is not set, then $BITKEEPERCOM
-(the command line) is displayed.
+fetching source files using BitKEeper.
 
 .IP BITKEEPERGET
 The command ($BITKEEPER) and subcommand
@@ -5057,15 +4509,6 @@ The command line used to compile a C source file to a (static) object file.
 Any options specified in the $CCFLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
-.IP CCCOMSTR
-The string displayed when a C source file
-is compiled to a (static) object file.
-If this is not set, then $CCCOM (the command line) is displayed.
-
-.ES
-env = Environment(CCCOMSTR = "Compiling static object $TARGET")
-.EE
-
 .IP CCFLAGS 
 General options that are passed to the C compiler.
 
@@ -5098,25 +4541,6 @@ called to transform the list before concatenation.
 .ES
 env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
 .EE
-
-.IP CONFIGUREDIR
-The name of the directory in which
-Configure context test files are written.
-The default is
-.B .sconf_temp
-in the top-level directory
-containing the
-.B SConstruct
-file.
-
-.IP CONFIGURELOG
-The name of the Configure context log file.
-The default is
-.B config.log
-in the top-level directory
-containing the
-.B SConstruct
-file.
 
 .IP CPPDEFINES
 A platform independent specification of C preprocessor definitions.
@@ -5289,7 +4713,6 @@ The default list is:
 [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
  ".h", ".H", ".hxx", ".hpp", ".hh",
  ".F", ".fpp", ".FPP",
- ".m", ".mm",
  ".S", ".spp", ".SPP"]
 .EE
 
@@ -5302,12 +4725,6 @@ Options that are passed to the CVS checkout subcommand.
 .IP CVSCOM
 The command line used to
 fetch source files from a CVS repository.
-
-.IP CVSCOMSTR
-The string displayed when fetching
-a source file from a CVS repository.
-If this is not set, then $CVSCOM
-(the command line) is displayed.
 
 .IP CVSFLAGS
 General options that are passed to CVS.
@@ -5335,10 +4752,7 @@ SCons also treats files with the suffixes
 .IR .c++ ,
 and
 .I .C++
-as C++ files,
-and files with
-.I .mm
-suffixes as Objective C++ files.
+as C++ files.
 On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
 SCons also treats
 .I .C
@@ -5350,21 +4764,8 @@ The command line used to compile a C++ source file to an object file.
 Any options specified in the $CXXFLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
-.IP CXXCOMSTR
-The string displayed when a C++ source file
-is compiled to a (static) object file.
-If this is not set, then $CXXCOM (the command line) is displayed.
-
-.ES
-env = Environment(CXXCOMSTR = "Compiling static object $TARGET")
-.EE
-
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.
-By default, this includes the value of $CCFLAGS,
-so that setting $CCFLAGS affects both C and C++ compilation.
-If you want to add C++-specific flags,
-you must set or override the value of $CXXFLAGS.
 
 .IP CXXVERSION
 The version number of the C++ compiler.
@@ -5372,12 +4773,8 @@ This may or may not be set,
 depending on the specific C++ compiler being used.
 
 .IP Dir
-A function that converts a string
-into a Dir instance relative to the target being built. 
-
-.IP Dirs
-A function that converts a list of strings
-into a list of Dir instances relative to the target being built.
+A function that converts a file name into a Dir instance relative to the
+target being built. 
 
 .IP DSUFFIXES
 The list of suffixes of files that will be scanned
@@ -5396,11 +4793,6 @@ General options passed to the TeX DVI file to PDF file converter.
 
 .IP DVIPDFCOM
 The command line used to convert TeX DVI files into a PDF file.
-
-.IP DVIPDFCOMSTR
-The string displayed when a TeX DVI file
-is converted into a PDF file.
-If this is not set, then $DVIPDFCOM (the command line) is displayed.
 
 .IP DVIPS
 The TeX DVI file to PostScript converter.
@@ -5476,11 +4868,6 @@ command line for Fortran 77 files.
 You should normally set the $FORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
-
-.IP F77COMSTR
-The string displayed when a Fortran 77 source file
-is compiled to an object file.
-If this is not set, then $F77COM or $FORTRANCOM (the command line) is displayed.
 
 .IP F77FLAGS
 General user-specified options that are passed to the Fortran 77 compiler.
@@ -5587,12 +4974,6 @@ You should normally set the $FORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
-.IP F90COMSTR
-The string displayed when a Fortran 90 source file
-is compiled to an object file.
-If this is not set, then $F90COM or $FORTRANCOM
-(the command line) is displayed.
-
 .IP F90FLAGS
 General user-specified options that are passed to the Fortran 90 compiler.
 Note that this variable does
@@ -5698,12 +5079,6 @@ You should normally set the $FORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
-.IP F95COMSTR
-The string displayed when a Fortran 95 source file
-is compiled to an object file.
-If this is not set, then $F95COM or $FORTRANCOM
-(the command line) is displayed.
-
 .IP F95FLAGS
 General user-specified options that are passed to the Fortran 95 compiler.
 Note that this variable does
@@ -5804,12 +5179,6 @@ in the $FORTRANFLAGS, $CPPFLAGS, $_CPPDEFFLAGS,
 $_FORTRANMODFLAG, and $_FORTRANINCFLAGS construction variables
 are included on this command line.
 
-.IP FORTRANCOMSTR
-The string displayed when a Fortran source file
-is compiled to an object file.
-If this is not set, then $FORTRANCOM
-(the command line) is displayed.
-
 .IP FORTRANFLAGS
 General user-specified options that are passed to the Fortran compiler.
 Note that this variable does
@@ -5837,7 +5206,7 @@ of each directory in $FORTRANPATH.
 Directory location where the Fortran compiler should place
 any module files it generates.  This variable is empty, by default. Some 
 Fortran compilers will internally append this directory in the search path 
-for module files, as well.
+for module files, as well
 
 .IP FORTRANMODDIRPREFIX
 The prefix used to specify a module directory on the Fortran compiler command
@@ -5853,7 +5222,7 @@ This will be appended to the beginning of the directory
 in the $FORTRANMODDIR construction variables
 when the $_FORTRANMODFLAG variables is automatically generated.
 
-.IP _FORTRANMODFLAG
+.IP FORTRANMODFLAG
 An automatically-generated construction variable
 containing the Fortran compiler command-line option
 for specifying the directory location where the Fortran
@@ -5948,69 +5317,8 @@ The default list is:
 .EE
 
 .IP File
-A function that converts a string into a File instance relative to the
+A function that converts a file name into a File instance relative to the
 target being built. 
-
-.IP FRAMEWORKPATH
-On Mac OS X with gcc,
-a list containing the paths to search for frameworks.
-Used by the compiler to find framework-style includes like
-#include <Fmwk/Header.h>.
-Used by the linker to find user-specified frameworks when linking (see
-$FRAMEWORKS).
-For example:
-.ES
- env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
-.EE
-.IP
-will add
-.ES
-  ... -Fmyframeworkdir
-.EE
-.IP
-to the compiler and linker command lines.
-
-.IP _FRAMEWORKPATH
-On Mac OS X with gcc, an automatically-generated construction variable
-containing the linker command-line options corresponding to FRAMEWORKPATH.
-
-.IP FRAMEWORKPATHPREFIX
-On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
-(see $FRAMEWORKPATH).
-The default value is
-.BR -F .
-
-.IP FRAMEWORKPREFIX
-On Mac OS X with gcc,
-the prefix to be used for linking in frameworks
-(see $FRAMEWORKS).
-The default value is
-.BR -framework .
-
-.IP FRAMEWORKS
-On Mac OS X with gcc, a list of the framework names to be linked into a
-program or shared library or bundle.
-The default value is the empty list.
-For example:
-.ES
- env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
-.EE
-
-.IP _FRAMEWORKS
-On Mac OS X with gcc,
-an automatically-generated construction variable
-containing the linker command-line options
-for linking with FRAMEWORKS.
-
-.IP FRAMEWORKSFLAGS
-On Mac OS X with gcc,
-general user-supplied frameworks options to be added at
-the end of a command
-line building a loadable module.
-(This has been largely superceded by
-the $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX,
-$FRAMWORKPREFIX and $FRAMEWORKS variables
-described above.)
 
 .IP GS
 The Ghostscript program used to convert PostScript to PDF files.
@@ -6021,12 +5329,6 @@ when converting PostScript to PDF files.
 
 .IP GSCOM
 The Ghostscript command line used to convert PostScript to PDF files.
-
-.IP GSCOMSTR
-The string displayed when
-Ghostscript is used to convert
-a PostScript file to a PDF file.
-If this is not set, then $GSCOM (the command line) is displayed.
 
 .IP IDLSUFFIXES
 The list of suffixes of files that will be scanned
@@ -6075,19 +5377,6 @@ is the construction environment
 (a dictionary of construction values)
 in force for this file installation.
 
-.IP INSTALLSTR
-The string displayed when a file is
-installed into a destination file name.
-The default is:
-.ES
-Install file: "$SOURCE" as "$TARGET"
-.EE
-
-.IP INTEL_C_COMPILER_VERSION
-Set by the "intelc" Tool
-to the major version number of the Intel C compiler
-selected for use.
-
 .IP JAR
 The Java archive tool.
 
@@ -6099,15 +5388,6 @@ option).
 
 .IP JARCOM
 The command line used to call the Java archive tool.
-
-.IP JARCOMSTR
-The string displayed when the Java archive tool
-is called
-If this is not set, then $JARCOM (the command line) is displayed.
-
-.ES
-env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
-.EE
 
 .IP JARFLAGS
 General options passed to the Java archive tool.
@@ -6131,16 +5411,6 @@ Java source files to
 corresponding Java class files.
 Any options specified in the $JAVACFLAGS construction variable
 are included on this command line.
-
-.IP JAVACCOMSTR
-The string displayed when compiling
-a directory tree of Java source files to
-corresponding Java class files.
-If this is not set, then $JAVACCOM (the command line) is displayed.
-
-.ES
-env = Environment(JAVACCOMSTR = "Compiling class files $TARGETS from $SOURCES")
-.EE
 
 .IP JAVACFLAGS
 General options that are passed to the Java compiler.
@@ -6166,15 +5436,6 @@ from Java classes.
 Any options specified in the $JAVAHFLAGS construction variable
 are included on this command line.
 
-.IP JAVAHCOMSTR
-The string displayed when C header and stub files
-are generated from Java classes.
-If this is not set, then $JAVAHCOM (the command line) is displayed.
-
-.ES
-env = Environment(JAVAHCOMSTR = "Generating header/stub file(s) $TARGETS from $SOURCES")
-.EE
-
 .IP JAVAHFLAGS
 General options passed to the C header and stub file generator
 for Java classes.
@@ -6190,65 +5451,8 @@ The LaTeX structured formatter and typesetter.
 .IP LATEXCOM
 The command line used to call the LaTeX structured formatter and typesetter.
 
-.IP LATEXCOMSTR
-The string displayed when calling
-the LaTeX structured formatter and typesetter.
-If this is not set, then $LATEXCOM (the command line) is displayed.
-
-.ES
-env = Environment(LATEXCOMSTR = "Building $TARGET from LaTeX input $SOURCES")
-.EE
-
 .IP LATEXFLAGS
 General options passed to the LaTeX structured formatter and typesetter.
-
-.IP LATEXRETRIES
-The maximum number of times that LaTeX
-will be re-run if the
-.B .log
-generated by the $LATEXCOM command
-indicates that there are undefined references.
-The default is to try to resolve undefined references
-by re-running LaTeX up to three times.
-
-.IP LATEXSUFFIXES
-The list of suffixes of files that will be scanned
-for LaTeX implicit dependencies
-(\\include or \\import files).
-The default list is:
-
-.ES
-[".tex", ".ltx", ".latex"]
-.EE
-
-.IP LDMODULE
-The linker for building loadable modules.
-By default, this is the same as $SHLINK.
-
-.IP LDMODULECOM
-The command line for building loadable modules.
-On Mac OS X, this uses the $LDMODULE,
-$LDMODULEFLAGS and $FRAMEWORKSFLAGS variables.
-On other systems, this is the same as $SHLINK.
-
-.IP LDMODULECOMSTR
-The string displayed when building loadable modules.
-If this is not set, then $LDMODULECOM (the command line) is displayed.
-
-.IP LDMODULEFLAGS
-General user options passed to the linker for building loadable modules.
-
-.IP LDMODULEPREFIX
-The prefix used for loadable module file names.
-On Mac OS X, this is null;
-on other systems, this is
-the same as $SHLIBPREFIX.
-
-.IP LDMODULESUFFIX
-The suffix used for loadable module file names.
-On Mac OS X, this is null;
-on other systems, this is
-the same as $SHLIBSUFFIX.
 
 .IP LEX
 The lexical analyzer generator.
@@ -6259,15 +5463,6 @@ General options passed to the lexical analyzer generator.
 .IP LEXCOM
 The command line used to call the lexical analyzer generator
 to generate a source file.
-
-.IP LEXCOMSTR
-The string displayed when generating a source file
-using the lexical analyzer generator.
-If this is not set, then $LEXCOM (the command line) is displayed.
-
-.ES
-env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
-.EE
 
 .IP _LIBDIRFLAGS
 An automatically-generated construction variable
@@ -6297,7 +5492,7 @@ for specifying libraries to be linked with the resulting target.
 The value of $_LIBFLAGS is created
 by appending $LIBLINKPREFIX and $LIBLINKSUFFIX
 to the beginning and end
-of each filename in $LIBS.
+of each directory in $LIBS.
 
 .IP LIBLINKPREFIX
 The prefix used to specify a library to link on the linker command line.
@@ -6383,7 +5578,7 @@ appending the values of the
 $LIBLINKPREFIX and $LIBLINKSUFFIX
 construction variables
 to the beginning and end
-of each filename in $LIBS.
+of each directory in $LIBS.
 Any command lines you define that need
 the LIBS library list should
 include $_LIBFLAGS:
@@ -6391,26 +5586,6 @@ include $_LIBFLAGS:
 .ES
 env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
 .EE
-
-.IP
-If you add a
-File
-object to the
-LIBS
-list, the name of that file will be added to
-$_LIBFLAGS,
-and thus the link line, as is, without
-$LIBLINKPREFIX
-or
-$LIBLINKSUFFIX.
-For example:
-.ES
-env.Append(LIBS=File('/tmp/mylib.so'))
-.EE
-
-.IP
-In all cases, scons will add dependencies from the executable program to
-all the libraries in this list.
 
 .IP LIBSUFFIX 
 The suffix used for (static) library file names.
@@ -6449,15 +5624,6 @@ for the variable that expands to library search path options.
 .IP LINKCOM
 The command line used to link object files into an executable.
 
-.IP LINKCOMSTR
-The string displayed when object files
-are linked into an executable.
-If this is not set, then $LINKCOM (the command line) is displayed.
-
-.ES
-env = Environment(LINKCOMSTR = "Linking $TARGET")
-.EE
-
 .IP M4
 The M4 macro preprocessor.
 
@@ -6465,31 +5631,7 @@ The M4 macro preprocessor.
 General options passed to the M4 macro preprocessor.
 
 .IP M4COM
-The command line used to pass files through the M4 macro preprocessor.
-
-.IP M4COMSTR
-The string displayed when
-a file is passed through the M4 macro preprocessor.
-If this is not set, then $M4COM (the command line) is displayed.
-
-.IP MAKEINDEX
-The makeindex generator for the TeX formatter and typesetter and the
-LaTeX structured formatter and typesetter.
-
-.IP MAKEINDEXCOM
-The command line used to call the makeindex generator for the
-TeX formatter and typesetter and the LaTeX structured formatter and
-typesetter.
-
-.IP MAKEINDEXCOMSTR
-The string displayed when calling the makeindex generator for the
-TeX formatter and typesetter
-and the LaTeX structured formatter and typesetter.
-If this is not set, then $MAKEINDEXCOM (the command line) is displayed.
-
-.IP MAKEINDEXFLAGS
-General options passed to the makeindex generator for the TeX formatter
-and typesetter and the LaTeX structured formatter and typesetter.
+The command line used to pass files through the macro preprocessor.
 
 .IP MAXLINELENGTH
 The maximum number of characters allowed on an external command line.
@@ -6564,81 +5706,6 @@ For VS7, it is:
 .IP
 Where '<VSDir>' is the installed location of Visual Studio.
 
-.IP MSVS_PROJECT_BASE_PATH
-The string
-placed in a generated Microsoft Visual Studio solution file
-as the value of the
-.B SccProjectFilePathRelativizedFromConnection0
-and 
-.B SccProjectFilePathRelativizedFromConnection1
-attributes of the
-.B GlobalSection(SourceCodeControl)
-section.
-There is no default value.
-
-.IP MSVS_PROJECT_GUID
-The string
-placed in a generated Microsoft Visual Studio project file
-as the value of the
-.B ProjectGUID
-attribute.
-The string is also placed in the
-.B SolutionUniqueID
-attribute of the
-.B GlobalSection(SourceCodeControl)
-section of the Microsoft Visual Studio solution file.
-There is no default value.
-
-.IP MSVS_SCC_AUX_PATH
-The path name
-placed in a generated Microsoft Visual Studio project file
-as the value of the
-.B SccAuxPath
-attribute
-if the
-.I MSVS_SCC_PROVIDER
-construction variable is also set.
-There is no default value.
-
-.IP MSVS_SCC_LOCAL_PATH
-The path name
-placed in a generated Microsoft Visual Studio project file
-as the value of the
-.B SccLocalPath
-attribute
-if the
-.I MSVS_SCC_PROVIDER
-construction variable is also set.
-The path name is also placed in the
-.B SccLocalPath0
-and
-.B SccLocalPath1
-attributes of the
-.B GlobalSection(SourceCodeControl)
-section of the Microsoft Visual Studio solution file.
-There is no default value.
-
-.IP MSVS_SCC_PROJECT_NAME
-The project name
-placed in a generated Microsoft Visual Studio project file
-as the value of the
-.B SccProjectName
-attribute.
-There is no default value.
-
-.IP MSVS_SCC_PROVIDER
-The string
-placed in a generated Microsoft Visual Studio project file
-as the value of the
-.B SccProvider
-attribute.
-The string is also placed in the
-.B SccProvider1
-attribute of the
-.B GlobalSection(SourceCodeControl)
-section of the Microsoft Visual Studio solution file.
-There is no default value.
-
 .IP MSVS_USE_MFC_DIRS
 Tells the MS Visual Studio tool(s) to use
 the MFC directories in its default paths
@@ -6697,36 +5764,17 @@ environment variables are set explictly.
 Sets the preferred version of MSVS to use.
 
 SCons will (by default) select the latest version of MSVS
-installed on your machine.
-So, if you have version 6 and version 7 (MSVS .NET) installed,
-it will prefer version 7.
-You can override this by
+installed on your machine.  So, if you have version 6 and version 7
+(MSVS .NET) installed, it will prefer version 7.  You can override this by
 specifying the 
 .B MSVS_VERSION
 variable in the Environment initialization, setting it to the
 appropriate version ('6.0' or '7.0', for example).
 If the given version isn't installed, tool initialization will fail.
 
-.IP MSVSBUILDCOM
-The build command line placed in
-a generated Microsoft Visual Studio project file.
-The default is to have Visual Studio invoke SCons with any specified
-build targets.
-
-.IP MSVSCLEANCOM
-The clean command line placed in
-a generated Microsoft Visual Studio project file.
-The default is to have Visual Studio invoke SCons with the -c option
-to remove any specified targets.
-
-.IP MSVSENCODING
-The encoding string placed in
-a generated Microsoft Visual Studio project file.
-The default is encoding
-.BR Windows-1252 .
-
 .IP MSVSPROJECTCOM
-The action used to generate Microsoft Visual Studio project files.
+The action used to generate Microsoft Visual Studio
+project and solution files.
 
 .IP MSVSPROJECTSUFFIX
 The suffix used for Microsoft Visual Studio project (DSP) files.
@@ -6737,45 +5785,6 @@ and
 .B .dsp
 when using earlier versions of Visual Studio.
 
-.IP MSVSREBUILDCOM
-The rebuild command line placed in
-a generated Microsoft Visual Studio project file.
-The default is to have Visual Studio invoke SCons with any specified
-rebuild targets.
-
-.IP MSVSSCONS
-The SCons used in generated Microsoft Visual Studio project files.
-The default is the version of SCons being
-used to generate the project file.
-
-.IP MSVSSCONSFLAGS
-The SCons flags used in generated Microsoft Visual Studio
-project files.
-
-.IP MSVSSCONSCOM
-The default SCons command used in generated Microsoft Visual Studio
-project files.
-
-.IP MSVSSCONSCRIPT
-The sconscript file
-(that is,
-.B SConstruct
-or
-.B SConscript
-file)
-that will be invoked by Visual Studio
-project files
-(through the
-.B MSVSSCONSCOM
-variable).
-The default is the same sconscript file
-that contains the call to
-.BR MSVSProject ()
-to build the project file.
-
-.IP MSVSSOLUTIONCOM
-The action used to generate Microsoft Visual Studio solution files.
-
 .IP MSVSSOLUTIONSUFFIX
 The suffix used for Microsoft Visual Studio solution (DSW) files.
 The default value is
@@ -6784,14 +5793,6 @@ when using Visual Studio version 7.x (.NET),
 and
 .B .dsw
 when using earlier versions of Visual Studio.
-
-.IP MWCW_VERSION
-The version number of the MetroWerks CodeWarrior C compiler
-to be used.
-
-.IP MWCW_VERSIONS
-A list of installed versions of the MetroWerks CodeWarrior C compiler
-on this system.
 
 .IP no_import_lib
 When set to non-zero,
@@ -6816,11 +5817,6 @@ The Perforce executable.
 The command line used to
 fetch source files from Perforce.
 
-.IP P4COMSTR
-The string displayed when
-fetching a source file from Perforce.
-If this is not set, then $P4COM (the command line) is displayed.
-
 .IP P4FLAGS
 General options that are passed to Perforce.
 
@@ -6835,15 +5831,6 @@ dependencies for the PCH file. Example:
 .ES
 env['PCH'] = 'StdAfx.pch'
 .EE
-
-.IP PCHCOM
-The command line used by the
-.B PCH
-builder to generated a precompiled header.
-
-.IP PCHCOMSTR
-The string displayed when generating a precompiled header.
-If this is not set, then $PCHCOM (the command line) is displayed.
 
 .IP PCHSTOP
 This variable specifies how much of a source file is precompiled. This
@@ -6940,11 +5927,6 @@ The suffix used for executable file names.
 
 .IP PSCOM
 The command line used to convert TeX DVI files into a PostScript file.
-
-.IP PSCOMSTR
-The string displayed when a TeX DVI file
-is converted into a PostScript file.
-If this is not set, then $PSCOM (the command line) is displayed.
 
 .IP PSPREFIX
 The prefix used for PostScript file names.
@@ -7044,16 +6026,8 @@ cpp file.
 .IP QT_MOCFROMCXXCOM
 Command to generate a moc file from a cpp file.
 
-.IP QT_MOCFROMCXXCOMSTR
-The string displayed when generating a moc file from a cpp file.
-If this is not set, then $QT_MOCFROMCXXCOM (the command line) is displayed.
-
 .IP QT_MOCFROMHCOM
 Command to generate a moc file from a header.
-
-.IP QT_MOCFROMHCOMSTR
-The string displayed when generating a moc file from a cpp file.
-If this is not set, then $QT_MOCFROMHCOM (the command line) is displayed.
 
 .IP QT_MOCFROMHFLAGS
 Default value is ''. These flags are passed to moc, when moccing a header
@@ -7069,12 +6043,8 @@ a header.
 .IP QT_UIC
 Default value is '$QT_BINPATH/uic'.
 
-.IP QT_UICCOM
+.IP QT_UICDECLCOM
 Command to generate header files from .ui files.
-
-.IP QT_UICCOMSTR
-The string displayed when generating header files from .ui files.
-If this is not set, then $QT_UICCOM (the command line) is displayed.
 
 .IP QT_UICDECLFLAGS
 Default value is ''. These flags are passed to uic, when creating a a h
@@ -7085,6 +6055,9 @@ Default value is ''. Prefix for uic generated header files.
 
 .IP QT_UICDECLSUFFIX
 Default value is '.h'. Suffix for uic generated header files.
+
+.IP QT_UICIMPLCOM
+Command to generate cxx files from .ui files.
 
 .IP QT_UICIMPLFLAGS
 Default value is ''. These flags are passed to uic, when creating a cxx
@@ -7107,17 +6080,10 @@ The archive indexer.
 General options passed to the archive indexer.
 
 .IP RC
-The resource compiler used to build
-a Microsoft Visual C++ resource file.
+The resource compiler used by the RES builder.
 
 .IP RCCOM
-The command line used to build
-a Microsoft Visual C++ resource file.
-
-.IP RCCOMSTR
-The string displayed when invoking the resource compiler
-to build a Microsoft Visual C++ resource file.
-If this is not set, then $RCCOM (the command line) is displayed.
+The command line used by the RES builder.
 
 .IP RCFLAGS
 The flags passed to the resource compiler by the RES builder.
@@ -7138,32 +6104,11 @@ used to fetch source files from RCS.
 The command line used to
 fetch (checkout) source files from RCS.
 
-.IP RCS_COCOMSTR
-The string displayed when fetching
-a source file from RCS.
-If this is not set, then $RCS_COCOM
-(the command line) is displayed.
-
 .IP RCS_COFLAGS
 Options that are passed to the $RCS_CO command.
 
-.IP REGSVR
-The program used to register DLLs on Windows systems.
-
-.IP REGSVRCOM
-The command line used to register a newly-built DLL file
-on Windows systems.
-Invoked when the "register=1"
-keyword argument is passed to the
-.B SharedLibrary
-Builder.
-
-.IP REGSVRCOMSTR
-The string displayed when registering a newly-built DLL file.
-If this is not set, then $REGSVRCOM (the command line) is displayed.
-
 .IP RDirs
-A function that converts a string into a list of Dir instances by
+A function that converts a file name into a list of Dir instances by
 searching the repositories. 
 
 .IP RMIC
@@ -7175,16 +6120,6 @@ and skeleton class files
 from Java classes that contain RMI implementations.
 Any options specified in the $RMICFLAGS construction variable
 are included on this command line.
-
-.IP RMICCOMSTR
-The string displayed when compiling
-stub and skeleton class files
-from Java classes that contain RMI implementations.
-If this is not set, then $RMICCOM (the command line) is displayed.
-
-.ES
-env = Environment(RMICCOMSTR = "Generating stub/skeleton class files $TARGETS from $SOURCES")
-.EE
 
 .IP RMICFLAGS
 General options passed to the Java RMI stub compiler.
@@ -7225,8 +6160,7 @@ construction variable.
 
 .IP RPATH
 A list of paths to search for shared libraries when running programs.
-Currently only used in the GNU (gnulink),
-IRIX (sgilink) and Sun (sunlink) linkers.
+Currently only used in the GNU linker (gnulink) and IRIX linker (sgilink).
 Ignored on platforms and toolchains that don't support it.
 Note that the paths added to RPATH
 are not transformed by
@@ -7252,12 +6186,6 @@ The SCCS executable.
 The command line used to
 fetch source files from SCCS.
 
-.IP SCCSCOMSTR
-The string displayed when fetching
-a source file from a CVS repository.
-If this is not set, then $SCCSCOM
-(the command line) is displayed.
-
 .IP SCCSFLAGS
 General options that are passed to SCCS.
 
@@ -7267,15 +6195,6 @@ This can be set, for example, to
 .I -e
 to check out editable files from SCCS.
 
-.IP SCONS_HOME
-The (optional) path to the SCons library directory,
-initialized from the external environment.
-If set, this is used to construct a shorter and more
-efficient search path in the
-.B MSVSSCONS
-command line executed
-from Microsoft Visual Studio project files.
-
 .IP SHCC
 The C compiler used for generating shared-library objects.
 
@@ -7284,15 +6203,6 @@ The command line used to compile a C source file
 to a shared-library object file.
 Any options specified in the $SHCCFLAGS and $CPPFLAGS construction variables
 are included on this command line.
-
-.IP SHCCCOMSTR
-The string displayed when a C source file
-is compiled to a shared object file.
-If this is not set, then $SHCCCOM (the command line) is displayed.
-
-.ES
-env = Environment(SHCCCOMSTR = "Compiling shared object $TARGET")
-.EE
 
 .IP SHCCFLAGS
 Options that are passed to the C compiler
@@ -7306,15 +6216,6 @@ The command line used to compile a C++ source file
 to a shared-library object file.
 Any options specified in the $SHCXXFLAGS and $CPPFLAGS construction variables
 are included on this command line.
-
-.IP SHCXXCOMSTR
-The string displayed when a C++ source file
-is compiled to a shared object file.
-If this is not set, then $SHCXXCOM (the command line) is displayed.
-
-.ES
-env = Environment(SHCXXCOMSTR = "Compiling shared object $TARGET")
-.EE
 
 .IP SHCXXFLAGS
 Options that are passed to the C++ compiler
@@ -7344,12 +6245,6 @@ command line for Fortran 77 files.
 You should normally set the $SHFORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
-
-.IP SHF77COMSTR
-The string displayed when a Fortran 77 source file
-is compiled to a shared-library object file.
-If this is not set, then $SHF77COM or $SHFORTRANCOM
-(the command line) is displayed.
 
 .IP SHF77FLAGS
 Options that are passed to the Fortran 77 compiler
@@ -7390,12 +6285,6 @@ You should normally set the $SHFORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
-.IP SHF90COMSTR
-The string displayed when a Fortran 90 source file
-is compiled to a shared-library object file.
-If this is not set, then $SHF90COM or $SHFORTRANCOM
-(the command line) is displayed.
-
 .IP SHF90FLAGS
 Options that are passed to the Fortran 90 compiler
 to generated shared-library objects.
@@ -7435,12 +6324,6 @@ You should normally set the $SHFORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
-.IP SHF95COMSTR
-The string displayed when a Fortran 95 source file
-is compiled to a shared-library object file.
-If this is not set, then $SHF95COM or $SHFORTRANCOM
-(the command line) is displayed.
-
 .IP SHF95FLAGS
 Options that are passed to the Fortran 95 compiler
 to generated shared-library objects.
@@ -7470,12 +6353,6 @@ The default Fortran compiler used for generating shared-library objects.
 The command line used to compile a Fortran source file
 to a shared-library object file.
 
-.IP FORTRANCOMSTR
-The string displayed when a Fortran source file
-is compiled to a shared-library object file.
-If this is not set, then $SHFORTRANCOM
-(the command line) is displayed.
-
 .IP SHFORTRANFLAGS
 Options that are passed to the Fortran compiler
 to generate shared-library objects.
@@ -7496,17 +6373,6 @@ The suffix used for shared library file names.
 
 .IP SHLINK
 The linker for programs that use shared libraries.
-
-.IP SHLINKCOM
-The command line used to link programs using shared libaries.
-
-.IP SHLINKCOMSTR
-The string displayed when programs using shared libraries are linked.
-If this is not set, then $SHLINKCOM (the command line) is displayed.
-
-.ES
-env = Environment(SHLINKCOMSTR = "Linking shared $TARGET")
-.EE
 
 .IP SHLINKFLAGS
 General user options passed to the linker for programs using shared libraries.
@@ -7597,11 +6463,6 @@ construction variable.
 The command line used to call
 the scripting language wrapper and interface generator.
 
-.IP SWIGCOMSTR
-The string displayed when calling
-the scripting language wrapper and interface generator.
-If this is not set, then $SWIGCOM (the command line) is displayed.
-
 .IP SWIGCXXFILESUFFIX
 The suffix that will be used for intermediate C++
 source files generated by
@@ -7638,15 +6499,6 @@ The tar archiver.
 .IP TARCOM
 The command line used to call the tar archiver.
 
-.IP TARCOMSTR
-The string displayed when archiving files
-using the tar archiver.
-If this is not set, then $TARCOM (the command line) is displayed.
-
-.ES
-env = Environment(TARCOMSTR = "Archiving $TARGET")
-.EE
-
 .IP TARFLAGS
 General options passed to the tar archiver.
 
@@ -7663,37 +6515,14 @@ that may not be set or used in a construction environment.
 .IP TARSUFFIX 
 The suffix used for tar file names.
 
-.IP TEMPFILEPREFIX
-The prefix for a temporary file used
-to execute lines longer than $MAXLINELENGTH.
-The default is '@'.
-This may be set for toolchains that use other values,
-such as '-@' for the diab compiler
-or '-via' for ARM toolchain.
-
 .IP TEX
 The TeX formatter and typesetter.
 
 .IP TEXCOM
 The command line used to call the TeX formatter and typesetter.
 
-.IP TEXCOMSTR
-The string displayed when calling
-the TeX formatter and typesetter.
-If this is not set, then $TEXCOM (the command line) is displayed.
-
-.ES
-env = Environment(TEXCOMSTR = "Building $TARGET from TeX input $SOURCES")
-.EE
-
 .IP TEXFLAGS
 General options passed to the TeX formatter and typesetter.
-
-.IP TEXINPUTS
-List of directories that the LaTeX programm will search
-for include directories.
-The LaTeX implicit dependency scanner will search these
-directories for \include and \import files.
 
 .IP TOOLS
 A list of the names of the Tool specifications
@@ -7719,15 +6548,6 @@ The parser generator.
 The command line used to call the parser generator
 to generate a source file.
 
-.IP YACCCOMSTR
-The string displayed when generating a source file
-using the parser generator.
-If this is not set, then $YACCCOM (the command line) is displayed.
-
-.ES
-env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
-.EE
-
 .IP YACCFLAGS
 General options passed to the parser generator.
 If $YACCFLAGS contains a \-d option,
@@ -7736,34 +6556,6 @@ SCons assumes that the call will also create a .h file
 or a .hpp file
 (if the yacc source file ends in a .yy suffix)
 
-.IP YACCHFILESUFFIX
-The suffix of the C
-header file generated by the parser generator
-when the
-.B -d
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a header
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
-The default value is
-.BR .h .
-
-.IP YACCHXXFILESUFFIX
-The suffix of the C++
-header file generated by the parser generator
-when the
-.B -d
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a header
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
-The default value is
-.BR .hpp .
-
 .IP ZIP
 The zip compression and file packaging utility.
 
@@ -7771,16 +6563,6 @@ The zip compression and file packaging utility.
 The command line used to call the zip utility,
 or the internal Python function used to create a
 zip archive.
-
-.IP ZIPCOMSTR
-The string displayed when archiving files
-using the zip utility.
-If this is not set, then $ZIPCOM
-(the command line or internal Python function) is displayed.
-
-.ES
-env = Environment(ZIPCOMSTR = "Zipping $TARGET")
-.EE
 
 .IP ZIPCOMPRESSION
 The
@@ -8032,7 +6814,7 @@ and selects the compiler to be used for the check;
 the default is "C".
 
 .TP 
-.RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd=1 ])
+.RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd ])
 Checks if 
 .I library 
 provides 
@@ -8322,13 +7104,7 @@ is the name of the variable.
 .I help 
 is the help text for the variable.
 .I default 
-is the default value of the variable;
-if the default value is
-.B None
-and there is no explicit value specified,
-the construction variable will
-.I not
-be added to the construction environment.
+is the default value of the variable.
 .I validator
 is called to validate the value of the variable, and should take three
 arguments: key, value, and environment
@@ -8371,18 +7147,6 @@ the Environment() function:
 
 .ES
 env = Environment(options=opts)
-.EE
-
-.IP
-The text file(s) that were specified
-when the Options object was created
-are executed as Python scripts,
-and the values of (global) Python variables set in the file
-are added to the construction environment.
-Example:
-
-.ES
-CC = 'my_cc'
 .EE
 
 .TP
@@ -8428,30 +7192,12 @@ Help(opts.GenerateHelpText(env))
 Help(opts.GenerateHelpText(env, sort=cmp))
 .EE
 
-.TP
-.RI FormatOptionHelpText( env ", " opt ", " help ", " default ", " actual )
-This method returns a formatted string
-containing the printable help text
-for one option.
-It is normally not called directly,
-but is called by the
-.IR GenerateHelpText ()
-method to create the returned help text.
-It may be overridden with your own
-function that takes the arguments specified above
-and returns a string of help text formatted to your liking.
-Note that the
-.IR GenerateHelpText ()
-will not put any blank lines or extra
-characters in between the entries,
-so you must add those characters to the returned
-string if you want the entries separated.
+The text based SConscript file is executed as a Python script, and the
+global variables are queried for customizable construction
+variables. Example:
 
 .ES
-def my_format(env, opt, help, default, actual):
-    fmt = "\n%s: default=%s actual=%s (%s)\n"
-    return fmt % (opt, default. actual, help)
-opts.FormatOptionHelpText = my_format
+CC = 'my_cc'
 .EE
 
 To make it more convenient to work with customizable Options,
@@ -8541,7 +7287,7 @@ and all input values will be
 converted to lower case.
 
 .TP
-.RI ListOption( key ", " help ", " default ", " names ", [", map ])
+.RI ListOption( key ", " help ", " default ", " names )
 Return a tuple of arguments
 to set up an option
 whose value may be one or more
@@ -8565,14 +7311,6 @@ with all values separated by commas.
 The default may be a string of
 comma-separated default values,
 or a list of the default values.
-The optional
-.I map
-argument is a dictionary
-that can be used to convert
-input values into specific legal values
-in the
-.I names
-list.
 
 .TP
 .RI PackageOption( key ", " help ", " default )
@@ -8643,7 +7381,7 @@ which verifies that the specified path is an existing directory;
 and
 .BR PathOption.PathIsDirCreate ,
 which verifies that the specified path is a directory,
-and will create the specified directory if the path does not exist.
+and will create the specified directory if the path exist.
 You may supply your own
 .I validator
 function,
@@ -8894,17 +7632,8 @@ specify a scanner to
 find things like
 .B #include
 lines in source files.
-The pre-built
-.B DirScanner
-Scanner object may be used to
-indicate that this Builder
-should scan directory trees
-for on-disk changes to files
-that
-.B scons
-does not know about from other Builder or function calls.
 (See the section "Scanner Objects," below,
-for information about creating your own Scanner objects.)
+for information about creating Scanner objects.)
 
 .IP target_factory
 A factory function that the Builder will use
@@ -8928,15 +7657,6 @@ env = Environment()
 env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 .EE
-
-Note that the call to the MakeDirectory Builder
-needs to specify an empty source list
-to make the string represent the builder's target;
-without that, it would assume the argument is the source,
-and would try to deduce the target name from it,
-which in the absence of an automatically-added prefix or suffix
-would lead to a matching target and source name
-and a circular dependency.
 
 .IP source_factory
 A factory function that the Builder will use
@@ -9023,6 +7743,12 @@ b = Builder("my_build < $TARGET > $SOURCE",
             emitter = {'.suf1' : e_suf1,
                        '.suf2' : e_suf2})
 .EE
+.IP
+The 
+.I generator
+and
+.I action
+arguments must not both be used for the same Builder.
 
 .IP multi
 Specifies whether this builder is allowed to be called multiple times for
@@ -9071,13 +7797,6 @@ def g(source, target, env, for_signature):
 
 b = Builder(generator=g)
 .EE
-
-.IP
-The 
-.I generator
-and
-.I action
-arguments must not both be used for the same Builder.
 
 .IP src_builder
 Specifies a builder to use when a source file name suffix does not match
@@ -9222,27 +7941,9 @@ the object is simply returned.
 .IP String
 If the first argument is a string,
 a command-line Action is returned.
-Note that the command line string
-may be preceded by an
-.B @
-(at-sign)
-to suppress printing of the
-specified command line,
-or by a
-.B \-
-(hyphen)
-to ignore the exit status from
-the specified command.
-Examples:
 
 .ES
 Action('$CC -c -o $TARGET $SOURCES')
-
-# Doesn't print the line being executed.
-Action('@build $TARGET $SOURCES')
-
-# Ignores
-Action('-build $TARGET $SOURCES')
 .EE
 
 .\" XXX From Gary Ruben, 23 April 2002:
@@ -9432,32 +8133,6 @@ a = Action("build < ${SOURCE.file} > ${TARGET.file}",
            chdir=1)
 .EE
 
-The
-.BR Action ()
-global function
-also takes an
-.B exitstatfunc
-keyword argument
-which specifies a function
-that is passed the exit status
-(or return value)
-from the specified action
-and can return an arbitrary
-or modified value.
-This can be used, for example,
-to specify that an Action object's
-return value should be ignored
-and SCons should, therefore,
-consider that the action always suceeds:
-
-.ES
-def always_succeed(s):
-    # Always return 0, which indicates success.
-    return 0
-a = Action("build < ${SOURCE.file} > ${TARGET.file}",
-           exitstatfunc=always_succeed)
-.EE
-
 .SS Miscellaneous Action Functions
 
 .B scons
@@ -9516,7 +8191,7 @@ that
 env = Environment(TMPBUILD = '/tmp/builddir')
 env.Command('foo.out', 'foo.in',
             [Mkdir('$TMPBUILD'),
-             Copy('$TMPBUILD', '${SOURCE.dir}')
+             Copy('${SOURCE.dir}', '$TMPBUILD')
              "cd $TMPBUILD && make",
              Delete('$TMPBUILD')])
 .EE
@@ -9770,7 +8445,7 @@ ${TARGET.filebase}   => file
 ${TARGET.suffix}     => .x
 ${TARGET.abspath}    => /top/dir/sub/dir/file.x
 
-SConscript('src/SConscript', build_dir='sub/dir')
+BuildDir('sub/dir','src')
 $SOURCE              => sub/dir/file.x
 ${SOURCE.srcpath}    => src/file.x
 ${SOURCE.srcdir}     => src
@@ -10022,49 +8697,6 @@ only invoke the scanner on the file being scanned,
 and not (for example) also on the files
 specified by the #include lines
 in the file being scanned.
-.I recursive
-may be a callable function,
-in which case it will be called with a list of
-Nodes found and
-should return a list of Nodes
-that should be scanned recursively;
-this can be used to select a specific subset of
-Nodes for additional scanning.
-
-Note that
-.B scons
-has a global
-.B SourceFileScanner
-object that is used by
-the
-.BR Object (),
-.BR SharedObject (),
-and 
-.BR StaticObject ()
-builders to decide
-which scanner should be used
-for different file extensions.
-You can using the
-.BR SourceFileScanner.add_scanner ()
-method to add your own Scanner object
-to the
-.B scons
-infrastructure
-that builds target programs or
-libraries from a list of
-source files of different types:
-
-.ES
-def xyz_scan(node, env, path):
-    contents = node.get_contents()
-    # Scan the contents and return the included files.
-
-XYZScanner = Scanner(xyz_scan)
-
-SourceFileScanner.add_scanner('.xyx', XYZScanner)
-
-env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
-.EE
 
 .SH SYSTEM-SPECIFIC BEHAVIOR
 SCons and its configuration files are very portable,
@@ -10312,8 +8944,6 @@ env['BUILDERS]['PDFBuilder'] = bld
 .ES
 import re
 
-'\" Note:  the \\ in the following are for the benefit of nroff/troff,
-'\" not inappropriate doubled escape characters within the r'' raw string.
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
 def kfile_scan(node, env, path, arg):
@@ -10386,32 +9016,36 @@ subdirectory/SConscript:
 
 .SS Building Multiple Variants From the Same Source
 
-Use the build_dir keyword argument to
-the SConscript function to establish
+Use the BuildDir() method to establish
 one or more separate build directories for
-a given source directory:
+a given source directory,
+then use the SConscript() method
+to specify the SConscript files
+in the build directories:
 
 .ES
 SConstruct:
 
-    cppdefines = ['FOO']
-    Export("cppdefines")
-    SConscript('src/SConscript', build_dir='foo')
+    ccflags = '-DFOO'
+    Export("ccflags")
+    BuildDir('foo', 'src')
+    SConscript('foo/SConscript')
 
-    cppdefines = ['BAR']
-    Export("cppdefines")
-    SConscript('src/SConscript', build_dir='bar')
+    ccflags = '-DBAR'
+    Export("ccflags")
+    BuildDir('bar', 'src')
+    SConscript('bar/SConscript')
 
 src/SConscript:
 
-    Import("cppdefines")
-    env = Environment(CPPDEFINES = cppdefines)
+    Import("ccflags")
+    env = Environment(CCFLAGS = ccflags)
     env.Program(target = 'src', source = 'src.c')
 .EE
 
 Note the use of the Export() method
-to set the "cppdefines" variable to a different
-value each time we call the SConscript function.
+to set the "ccflags" variable to a different
+value for each variant build.
 
 .SS Hierarchical Build of Two Libraries Linked With a Program
 

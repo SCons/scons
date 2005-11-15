@@ -34,7 +34,6 @@ import os.path
 import sys
 import types
 import unittest
-import UserList
 
 import TestCmd
 
@@ -55,9 +54,6 @@ test = TestCmd.TestCmd(workdir = '')
 outfile = test.workpath('outfile')
 outfile2 = test.workpath('outfile2')
 
-infile = test.workpath('infile')
-test.write(infile, "infile\n")
-
 show_string = None
 
 scons_env = SCons.Environment.Environment()
@@ -75,7 +71,6 @@ class Environment:
         global env_arg2nodes_called
         env_arg2nodes_called = None
         self.scanner = None
-        self.fs = SCons.Node.FS.FS()
     def subst(self, s):
         if not SCons.Util.is_String(s):
             return s
@@ -87,14 +82,6 @@ class Environment:
         except IndexError:
             pass
         return self.d.get(s, s)
-    def subst_target_source(self, string, raw=0, target=None,
-                            source=None, dict=None, conv=None):
-        return SCons.Util.scons_subst(string, self, raw, target,
-                                      source, dict, conv)
-    def subst_list(self, string, raw=0, target=None,
-                   source=None, dict=None, conv=None):
-        return SCons.Util.scons_subst_list(string, self, raw, target,
-                                           source, dict, conv)
     def arg2nodes(self, args, factory):
         global env_arg2nodes_called
         env_arg2nodes_called = 1
@@ -106,8 +93,6 @@ class Environment:
                 a = factory(a)
             list.append(a)
         return list
-    def get_factory(self, factory):
-        return factory or self.fs.File
     def get_scanner(self, ext):
         return self.scanner
     def Dictionary(self):
@@ -127,7 +112,6 @@ class Environment:
     def Override(self, overrides):
         env = apply(Environment, (), self.d)
         env.d.update(overrides)
-        env.scanner = self.scanner
         return env
     def _update(self, dict):
         self.d.update(dict)
@@ -141,32 +125,23 @@ class Environment:
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
         d['SOURCE'] = d['SOURCES'][0]
         return d
-    def __cmp__(self, other):
-        return cmp(self.scanner, other.scanner) or cmp(self.d, other.d)
-
-class MyAction:
-    def __init__(self, action):
-        self.action = action
-    def get_executor(self, env, overrides, tlist, slist, executor_kw):
-        return ['executor'] + [self.action]
 
 class MyNode_without_target_from_source:
     def __init__(self, name):
         self.name = name
         self.sources = []
         self.builder = None
-        self.is_explicit = None
         self.side_effect = 0
+        self.source_scanner = None
+        self.backup_source_scanner = None
     def __str__(self):
         return self.name
     def builder_set(self, builder):
         self.builder = builder
     def has_builder(self):
         return not self.builder is None
-    def set_explicit(self, is_explicit):
-        self.is_explicit = is_explicit
     def has_explicit_builder(self):
-        return self.is_explicit
+        return not self.builder is None and self.builder.is_explicit
     def env_set(self, env, safe=0):
         self.env = env
     def add_source(self, source):
@@ -231,11 +206,8 @@ class BuilderTestCase(unittest.TestCase):
                                         target_factory=MyNode,
                                         source_factory=MyNode)
 
-        tgt = builder(env, source=[])
-        assert tgt == [], tgt
-
-        n1 = MyNode("n1")
-        n2 = MyNode("n2")
+        n1 = MyNode("n1");
+        n2 = MyNode("n2");
         builder(env, target = n1, source = n2)
         assert env_arg2nodes_called
         assert n1.env == env, n1.env
@@ -244,48 +216,15 @@ class BuilderTestCase(unittest.TestCase):
         assert n1.executor, "no executor found"
         assert not hasattr(n2, 'env')
 
-        l = [1]
-        ul = UserList.UserList([2])
-        try:
-            l.extend(ul)
-        except TypeError:
-            def mystr(l):
-                return str(map(str, l))
-        else:
-            mystr = str
-
-        nnn1 = MyNode("nnn1")
-        nnn2 = MyNode("nnn2")
-        tlist = builder(env, target = [nnn1, nnn2], source = [])
-        s = mystr(tlist)
-        assert s == "['nnn1', 'nnn2']", s
-        l = map(str, tlist)
-        assert l == ['nnn1', 'nnn2'], l
-
-        tlist = builder(env, target = 'n3', source = 'n4')
-        s = mystr(tlist)
-        assert s == "['n3']", s
-        target = tlist[0]
-        l = map(str, tlist)
-        assert l == ['n3'], l
+        target = builder(env, target = 'n3', source = 'n4')[0]
         assert target.name == 'n3'
         assert target.sources[0].name == 'n4'
 
-        tlist = builder(env, target = 'n4 n5', source = ['n6 n7'])
-        s = mystr(tlist)
-        assert s == "['n4 n5']", s
-        l = map(str, tlist)
-        assert l == ['n4 n5'], l
-        target = tlist[0]
+        target = builder(env, target = 'n4 n5', source = ['n6 n7'])[0]
         assert target.name == 'n4 n5'
         assert target.sources[0].name == 'n6 n7'
 
-        tlist = builder(env, target = ['n8 n9'], source = 'n10 n11')
-        s = mystr(tlist)
-        assert s == "['n8 n9']", s
-        l = map(str, tlist)
-        assert l == ['n8 n9'], l
-        target = tlist[0]
+        target = builder(env, target = ['n8 n9'], source = 'n10 n11')[0]
         assert target.name == 'n8 n9'
         assert target.sources[0].name == 'n10 n11'
 
@@ -315,7 +254,7 @@ class BuilderTestCase(unittest.TestCase):
         n20 = MyNode_without_target_from_source('n20')
         flag = 0
         try:
-            target = builder(env, None, source=n20)
+            target = builder(env, source=n20)
         except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown if a source node can't create a target."
@@ -325,7 +264,7 @@ class BuilderTestCase(unittest.TestCase):
                                         source_factory=MyNode,
                                         prefix='p-',
                                         suffix='.s')
-        target = builder(env, None, source='n21')[0]
+        target = builder(env, source='n21')[0]
         assert target.name == 'p-n21.s', target
 
         builder = SCons.Builder.Builder(misspelled_action="foo",
@@ -391,29 +330,6 @@ class BuilderTestCase(unittest.TestCase):
 
         builder = SCons.Builder.Builder(generator=generator)
         assert builder.action.generator == generator
-
-    def test_get_name(self):
-        """Test the get_name() method
-        """
-
-    def test_get_single_executor(self):
-        """Test the get_single_executor() method
-        """
-        b = SCons.Builder.Builder(action='foo')
-        x = b.get_single_executor({}, [], [], {})
-        assert not x is None, x
-
-    def test_get_multi_executor(self):
-        """Test the get_multi_executor() method
-        """
-        b = SCons.Builder.Builder(action='foo', multi=1)
-        t1 = MyNode('t1')
-        s1 = MyNode('s1')
-        s2 = MyNode('s2')
-        x1 = b.get_multi_executor({}, [t1], [s1], {})
-        t1.executor = x1
-        x2 = b.get_multi_executor({}, [t1], [s2], {})
-        assert x1 is x2, "%s is not %s" % (repr(x1), repr(x2))
 
     def test_cmp(self):
         """Test simple comparisons of Builder objects
@@ -496,10 +412,10 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'tgt2a tgt2b', source = 'src2')[0]
         assert tgt.path == 'libtgt2a tgt2b', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, target = None, source = 'src3')[0]
+        tgt = builder(env, source = 'src3')[0]
         assert tgt.path == 'libsrc3', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, target = None, source = 'lib/src4')[0]
+        tgt = builder(env, source = 'lib/src4')[0]
         assert tgt.path == os.path.join('lib', 'libsrc4'), \
                 "Target has unexpected name: %s" % tgt.path
         tgt = builder(env, target = 'lib/tgt5', source = 'lib/src5')[0]
@@ -523,34 +439,18 @@ class BuilderTestCase(unittest.TestCase):
                                                   '$FOO' : 'foo-',
                                                   '.zzz' : my_emit},
                                         action = '')
-        tgt = builder(my_env, target = None, source = 'f1')[0]
+        tgt = builder(my_env, source = 'f1')[0]
         assert tgt.path == 'default-f1', tgt.path
-        tgt = builder(my_env, target = None, source = 'f2.c')[0]
+        tgt = builder(my_env, source = 'f2.c')[0]
         assert tgt.path == 'default-f2', tgt.path
-        tgt = builder(my_env, target = None, source = 'f3.in')[0]
+        tgt = builder(my_env, source = 'f3.in')[0]
         assert tgt.path == 'out-f3', tgt.path
-        tgt = builder(my_env, target = None, source = 'f4.x')[0]
+        tgt = builder(my_env, source = 'f4.x')[0]
         assert tgt.path == 'y-f4', tgt.path
-        tgt = builder(my_env, target = None, source = 'f5.foo')[0]
+        tgt = builder(my_env, source = 'f5.foo')[0]
         assert tgt.path == 'foo-f5', tgt.path
-        tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
+        tgt = builder(my_env, source = 'f6.zzz')[0]
         assert tgt.path == 'emit-f6', tgt.path
-
-    def test_set_suffix(self):
-        """Test the set_suffix() method"""
-        b = SCons.Builder.Builder(action='')
-        env = Environment(XSUFFIX = '.x')
-
-        s = b.get_suffix(env)
-        assert s == '', s
-
-        b.set_suffix('.foo')
-        s = b.get_suffix(env)
-        assert s == '.foo', s
-
-        b.set_suffix('$XSUFFIX')
-        s = b.get_suffix(env)
-        assert s == '.x', s
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
@@ -592,7 +492,7 @@ class BuilderTestCase(unittest.TestCase):
         b6 = SCons.Builder.Builder(action = '',
                                    src_suffix='_src.a',
                                    suffix='.b')
-        tgt = b6(env, target=None, source='foo_src.a')
+        tgt = b6(env, source='foo_src.a')
         assert str(tgt[0]) == 'foo.b', str(tgt[0])
 
         b7 = SCons.Builder.Builder(action = '',
@@ -601,16 +501,16 @@ class BuilderTestCase(unittest.TestCase):
         b8 = SCons.Builder.Builder(action = '',
                                    src_builder=b7,
                                    suffix='.c')
-        tgt = b8(env, target=None, source='foo_source.a')
+        tgt = b8(env, source='foo_source.a')
         assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
-        src = env.fs.File('foo_source.a')
-        tgt = b8(env, target=None, source=src)
+        src = SCons.Node.FS.default_fs.File('foo_source.a')
+        tgt = b8(env, source=src)
         assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
 
         b9 = SCons.Builder.Builder(action={'_src.a' : 'srcaction'},
                                    suffix='.c')
         b9.add_action('_altsrc.b', 'altaction')
-        tgt = b9(env, target=None, source='foo_altsrc.b')
+        tgt = b9(env, source='foo_altsrc.b')
         assert str(tgt[0]) == 'foo.c', str(tgt[0])
 
     def test_suffix(self):
@@ -630,7 +530,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'tgt4a tgt4b', source = 'src4')[0]
         assert tgt.path == 'tgt4a tgt4b.o', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, target = None, source = 'src5')[0]
+        tgt = builder(env, source = 'src5')[0]
         assert tgt.path == 'src5.o', \
                 "Target has unexpected name: %s" % tgt.path
 
@@ -651,17 +551,17 @@ class BuilderTestCase(unittest.TestCase):
                                                   '$BAR' : '.new',
                                                   '.zzz' : my_emit},
                                         action='')
-        tgt = builder(my_env, target = None, source = 'f1')[0]
+        tgt = builder(my_env, source = 'f1')[0]
         assert tgt.path == 'f1.default', tgt.path
-        tgt = builder(my_env, target = None, source = 'f2.c')[0]
+        tgt = builder(my_env, source = 'f2.c')[0]
         assert tgt.path == 'f2.default', tgt.path
-        tgt = builder(my_env, target = None, source = 'f3.in')[0]
+        tgt = builder(my_env, source = 'f3.in')[0]
         assert tgt.path == 'f3.out', tgt.path
-        tgt = builder(my_env, target = None, source = 'f4.x')[0]
+        tgt = builder(my_env, source = 'f4.x')[0]
         assert tgt.path == 'f4.y', tgt.path
-        tgt = builder(my_env, target = None, source = 'f5.bar')[0]
+        tgt = builder(my_env, source = 'f5.bar')[0]
         assert tgt.path == 'f5.new', tgt.path
-        tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
+        tgt = builder(my_env, source = 'f6.zzz')[0]
         assert tgt.path == 'f6.emit', tgt.path
 
     def test_single_source(self):
@@ -689,7 +589,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt.prepare()
         tgt.build()
         assert env['CNT'][0] == 2
-        tgts = builder(env, None, infiles[2:4])
+        tgts = builder(env, infiles[2:4])
         for t in tgts: t.prepare()
         tgts[0].build()
         tgts[1].build()
@@ -721,11 +621,7 @@ class BuilderTestCase(unittest.TestCase):
 
         env = Environment()
         builder = SCons.Builder.Builder(action = function2)
-
-        tgts = builder(env, source=[])
-        assert tgts == [], tgts
-
-        tgts = builder(env, target = [outfile, outfile2], source = infile)
+        tgts = builder(env, target = [outfile, outfile2], source = 'foo')
         for t in tgts:
             t.prepare()
         try:
@@ -749,7 +645,7 @@ class BuilderTestCase(unittest.TestCase):
             return 1
 
         builder = SCons.Builder.Builder(action = function3)
-        tgts = builder(env, target = [sub1_out, sub2_out], source = infile)
+        tgts = builder(env, target = [sub1_out, sub2_out], source = 'foo')
         for t in tgts:
             t.prepare()
         try:
@@ -769,29 +665,23 @@ class BuilderTestCase(unittest.TestCase):
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
-        builder2 = SCons.Builder.MultiStepBuilder(action=MyAction('act'),
+        builder2 = SCons.Builder.MultiStepBuilder(action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
 
-        tgt = builder2(env, source=[])
-        assert tgt == [], tgt
-
         tgt = builder2(env, target='baz',
                        source=['test.bar', 'test2.foo', 'test3.txt'])[0]
-        s = str(tgt)
-        assert s == 'baz', s
-        s = map(str, tgt.sources)
-        assert s == ['test.foo', 'test2.foo', 'test3.txt'], s
-        s = map(str, tgt.sources[0].sources)
-        assert s == ['test.bar'], s
+        assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'test.bar', \
+               str(tgt.sources[0].sources[0])
+        assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
+        assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
 
-        tgt = builder2(env, None, 'aaa.bar')[0]
-        s = str(tgt)
-        assert s == 'aaa', s
-        s = map(str, tgt.sources)
-        assert s == ['aaa.foo'], s
-        s = map(str, tgt.sources[0].sources)
-        assert s == ['aaa.bar'], s
+        tgt = builder2(env, 'aaa.bar')[0]
+        assert str(tgt) == 'aaa', str(tgt)
+        assert str(tgt.sources[0]) == 'aaa.foo', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'aaa.bar', \
+               str(tgt.sources[0].sources[0])
 
         builder3 = SCons.Builder.MultiStepBuilder(action = 'foo',
                                                   src_builder = 'xyzzy',
@@ -801,23 +691,21 @@ class BuilderTestCase(unittest.TestCase):
         builder4 = SCons.Builder.Builder(action='bld4',
                                          src_suffix='.i',
                                          suffix='_wrap.c')
-        builder5 = SCons.Builder.MultiStepBuilder(action=MyAction('act'),
+        builder5 = SCons.Builder.MultiStepBuilder(action='bld5',
                                                   src_builder=builder4,
                                                   suffix='.obj',
                                                   src_suffix='.c')
-        builder6 = SCons.Builder.MultiStepBuilder(action=MyAction('act'),
+        builder6 = SCons.Builder.MultiStepBuilder(action='bld6',
                                                   src_builder=builder5,
                                                   suffix='.exe',
                                                   src_suffix='.obj')
         tgt = builder6(env, 'test', 'test.i')[0]
-        s = str(tgt)
-        assert s == 'test.exe', s
-        s = map(str, tgt.sources)
-        assert s == ['test_wrap.obj'], s
-        s = map(str, tgt.sources[0].sources)
-        assert s == ['test_wrap.c'], s
-        s = map(str, tgt.sources[0].sources[0].sources)
-        assert s == ['test.i'], s
+        assert str(tgt) == 'test.exe', str(tgt)
+        assert str(tgt.sources[0]) == 'test_wrap.obj', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'test_wrap.c', \
+               str(tgt.sources[0].sources[0])
+        assert str(tgt.sources[0].sources[0].sources[0]) == 'test.i', \
+               str(tgt.sources[0].sources[0].sources[0])
         
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""
@@ -829,21 +717,15 @@ class BuilderTestCase(unittest.TestCase):
                                                  '.bar' : func_action,
                                                  '$BAR_SUFFIX' : func_action,
                                                  '$FOO_SUFFIX' : func_action })
-
-        tgt = builder(env, source=[])
-        assert tgt == [], tgt
         
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
-
         tgt = builder(env, target='test1', source='test1.foo')[0]
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
         assert tgt.builder.action is builder.action
-
         tgt = builder(env, target='test2', source='test1.bar')[0]
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
         assert tgt.builder.action is builder.action
-
         flag = 0
         tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
         try:
@@ -970,8 +852,8 @@ class BuilderTestCase(unittest.TestCase):
                                         source_scanner=sscan,
                                         action='')
         tgt = builder(env, target='foo2', source='bar')[0]
-        assert tgt.builder.target_scanner == tscan, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner == sscan, tgt.builder.source_scanner
+        assert tgt.target_scanner == tscan, tgt.target_scanner
+        assert tgt.source_scanner == sscan, tgt.source_scanner
 
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
@@ -981,8 +863,8 @@ class BuilderTestCase(unittest.TestCase):
                                          target_scanner = tscan,
                                          source_scanner = tscan)
         tgt = builder2(env, target='baz2', source='test.bar test2.foo test3.txt')[0]
-        assert tgt.builder.target_scanner == tscan, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner == tscan, tgt.builder.source_scanner
+        assert tgt.target_scanner == tscan, tgt.target_scanner
+        assert tgt.source_scanner == tscan, tgt.source_scanner
 
     def test_actual_scanner(self):
         """Test usage of actual Scanner objects."""
@@ -1008,84 +890,28 @@ class BuilderTestCase(unittest.TestCase):
                  return 'TestScannerkey'
             def instance(self, env):
                  return self
-            def select(self, node):
-                 return self
-            name = 'TestScanner'
-            def __str__(self):
-                return self.name
 
         scanner = TestScanner()
         builder = SCons.Builder.Builder(action='action')
 
         # With no scanner specified, source_scanner and
         # backup_source_scanner are None.
-        bar_y = MyNode('bar.y')
         env1 = Environment()
         tgt = builder(env1, target='foo1.x', source='bar.y')[0]
         src = tgt.sources[0]
-        assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner is None, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y) is None, tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
+        assert tgt.target_scanner != scanner, tgt.target_scanner
+        assert src.source_scanner is None, src.source_scanner
+        assert src.backup_source_scanner is None, src.backup_source_scanner
 
-        # An Environment that has suffix-specified SCANNERS should
-        # provide a source scanner to the target.
-        class EnvTestScanner:
-            def key(self, env):
-                 return '.y'
-            def instance(self, env):
-                 return self
-            name = 'EnvTestScanner'
-            def __str__(self):
-                return self.name
-            def select(self, node):
-                return self
-            def path(self, env, dir=None):
-                return ()
-            def __call__(self, node, env, path):
-                return []
-        env3 = Environment(SCANNERS = [EnvTestScanner()])
-        env3.scanner = EnvTestScanner() # test env's version of SCANNERS
-        tgt = builder(env3, target='foo2.x', source='bar.y')[0]
+        # Later use of the same source file with an environment that
+        # has a scanner must still set the scanner.
+        env2 = Environment()
+        env2.scanner = scanner
+        tgt = builder(env2, target='foo2.x', source='bar.y')[0]
         src = tgt.sources[0]
-        assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
-        assert not tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
-
-        # Can't simply specify the scanner as a builder argument; it's
-        # global to all invocations of this builder.
-        tgt = builder(env3, target='foo3.x', source='bar.y', source_scanner = scanner)[0]
-        src = tgt.sources[0]
-        assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
-        assert not tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
-
-        # Now use a builder that actually has scanners and ensure that
-        # the target is set accordingly (using the specified scanner
-        # instead of the Environment's scanner)
-        builder = SCons.Builder.Builder(action='action',
-                                        source_scanner=scanner,
-                                        target_scanner=scanner)
-        tgt = builder(env3, target='foo4.x', source='bar.y')[0]
-        src = tgt.sources[0]
-        assert tgt.builder.target_scanner == scanner, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.builder.source_scanner == scanner, tgt.builder.source_scanner
-        assert str(tgt.builder.source_scanner) == 'TestScanner', str(tgt.builder.source_scanner)
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert tgt.get_source_scanner(bar_y) == scanner, tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'TestScanner', tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
-
-
+        assert tgt.target_scanner != scanner, tgt.target_scanner
+        assert src.source_scanner is None, src.source_scanner
+        assert src.backup_source_scanner == scanner, src.backup_source_scanner
 
     def test_Builder_API(self):
         """Test Builder interface.
@@ -1095,8 +921,8 @@ class BuilderTestCase(unittest.TestCase):
         forms of component specifications."""
 
         builder = SCons.Builder.Builder()
-        env = Environment(BUILDERS={'Bld':builder})
 
+        env = Environment(BUILDERS={'Bld':builder})
         r = builder.get_name(env)
         assert r == 'Bld', r
         r = builder.get_prefix(env)
@@ -1111,34 +937,23 @@ class BuilderTestCase(unittest.TestCase):
         assert r == ['foo'], r
 
         # src_suffix can be a single string or a list of strings
-        # src_suffixes() caches its return value, so we use a new
-        # Builder each time we do any of these tests
 
-        bld = SCons.Builder.Builder()
-        env = Environment(BUILDERS={'Bld':bld})
-
-        bld.set_src_suffix('.foo')
-        r = bld.get_src_suffix(env)
+        builder.set_src_suffix('.foo')
+        r = builder.get_src_suffix(env)
         assert r == '.foo', r
-        r = bld.src_suffixes(env)
+        r = builder.src_suffixes(env)
         assert r == ['.foo'], r
 
-        bld = SCons.Builder.Builder()
-        env = Environment(BUILDERS={'Bld':bld})
-
-        bld.set_src_suffix(['.foo', '.bar'])
-        r = bld.get_src_suffix(env)
+        builder.set_src_suffix(['.foo', '.bar'])
+        r = builder.get_src_suffix(env)
         assert r == '.foo', r
-        r = bld.src_suffixes(env)
+        r = builder.src_suffixes(env)
         assert r == ['.foo', '.bar'], r
 
-        bld = SCons.Builder.Builder()
-        env = Environment(BUILDERS={'Bld':bld})
-
-        bld.set_src_suffix(['.bar', '.foo'])
-        r = bld.get_src_suffix(env)
+        builder.set_src_suffix(['.bar', '.foo'])
+        r = builder.get_src_suffix(env)
         assert r == '.bar', r
-        r = bld.src_suffixes(env)
+        r = builder.src_suffixes(env)
         assert r == ['.bar', '.foo'], r
 
         # adjust_suffix normalizes the suffix, adding a `.' if needed
@@ -1211,8 +1026,8 @@ class BuilderTestCase(unittest.TestCase):
         assert r == '.D', r
 
         builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
-        env = Environment(BUILDERS={'Bld':builder})
 
+        env = Environment(BUILDERS={'Bld':builder})
         r = builder.get_name(env)
         assert r == 'Bld', r
         r = builder.get_prefix(env)
@@ -1228,10 +1043,7 @@ class BuilderTestCase(unittest.TestCase):
         # whose keys are the source suffix.  The add_action()
         # specifies a new source suffix/action binding.
 
-        builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
-        env = Environment(BUILDERS={'Bld':builder})
         builder.add_action('.src_sfx1', 'FOO')
-
         r = builder.get_name(env)
         assert r == 'Bld', r
         r = builder.get_prefix(env)
@@ -1245,9 +1057,6 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.src_suffixes(env)
         assert r == ['.src_sfx1'], r
 
-        builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
-        env = Environment(BUILDERS={'Bld':builder})
-        builder.add_action('.src_sfx1', 'FOO')
         builder.add_action('.src_sfx2', 'BAR')
 
         r = builder.get_name(env)
@@ -1375,11 +1184,11 @@ class BuilderTestCase(unittest.TestCase):
                                                   '.4b':emit4b},
                                          target_factory=MyNode,
                                          source_factory=MyNode)
-        tgt = builder4(env, None, source='aaa.4a')[0]
+        tgt = builder4(env, source='aaa.4a')[0]
         assert str(tgt) == 'emit4a-aaa', str(tgt)
-        tgt = builder4(env, None, source='bbb.4b')[0]
+        tgt = builder4(env, source='bbb.4b')[0]
         assert str(tgt) == 'emit4b-bbb', str(tgt)
-        tgt = builder4(env, None, source='ccc.4c')[0]
+        tgt = builder4(env, source='ccc.4c')[0]
         assert str(tgt) == 'ccc', str(tgt)
 
         def emit4c(target, source, env):
@@ -1387,7 +1196,7 @@ class BuilderTestCase(unittest.TestCase):
             target = map(lambda x: 'emit4c-' + x[:-3], source)
             return (target, source)
         builder4.add_emitter('.4c', emit4c)
-        tgt = builder4(env, None, source='ccc.4c')[0]
+        tgt = builder4(env, source='ccc.4c')[0]
         assert str(tgt) == 'emit4c-ccc', str(tgt)
 
         # Test a list of emitter functions.
@@ -1432,43 +1241,43 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
         b = SCons.Builder.Builder(action='foo', suffix='.o')
 
-        tgt = b(env, None, 'aaa')[0]
+        tgt = b(env, 'aaa')[0]
         assert str(tgt) == 'aaa.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'aaa', map(str, tgt.sources)
 
-        tgt = b(env, None, 'bbb.c')[0]
+        tgt = b(env, 'bbb.c')[0]
         assert str(tgt) == 'bbb.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'bbb.c', map(str, tgt.sources)
 
-        tgt = b(env, None, 'ccc.x.c')[0]
+        tgt = b(env, 'ccc.x.c')[0]
         assert str(tgt) == 'ccc.x.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'ccc.x.c', map(str, tgt.sources)
 
-        tgt = b(env, None, ['d0.c', 'd1.c'])[0]
+        tgt = b(env, ['d0.c', 'd1.c'])[0]
         assert str(tgt) == 'd0.o', str(tgt)
         assert len(tgt.sources) == 2,  map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'd0.c', map(str, tgt.sources)
         assert str(tgt.sources[1]) == 'd1.c', map(str, tgt.sources)
 
-        tgt = b(env, target = None, source='eee')[0]
+        tgt = b(env, source='eee')[0]
         assert str(tgt) == 'eee.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'eee', map(str, tgt.sources)
 
-        tgt = b(env, target = None, source='fff.c')[0]
+        tgt = b(env, source='fff.c')[0]
         assert str(tgt) == 'fff.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'fff.c', map(str, tgt.sources)
 
-        tgt = b(env, target = None, source='ggg.x.c')[0]
+        tgt = b(env, source='ggg.x.c')[0]
         assert str(tgt) == 'ggg.x.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'ggg.x.c', map(str, tgt.sources)
 
-        tgt = b(env, target = None, source=['h0.c', 'h1.c'])[0]
+        tgt = b(env, source=['h0.c', 'h1.c'])[0]
         assert str(tgt) == 'h0.o', str(tgt)
         assert len(tgt.sources) == 2,  map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'h0.c', map(str, tgt.sources)
@@ -1476,7 +1285,7 @@ class BuilderTestCase(unittest.TestCase):
 
         w = b(env, target='i0.w', source=['i0.x'])[0]
         y = b(env, target='i1.y', source=['i1.z'])[0]
-        tgt = b(env, None, source=[w, y])[0]
+        tgt = b(env, source=[w, y])[0]
         assert str(tgt) == 'i0.o', str(tgt)
         assert len(tgt.sources) == 2, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'i0.w', map(str, tgt.sources)
@@ -1507,31 +1316,18 @@ class BuilderTestCase(unittest.TestCase):
                                      'B2': b2,
                                      'B3': b3,
                                      'B4': b4})
-        # With no name, get_name will return the class.  Allow
-        # for caching...
-        b6_names = [
-            'SCons.Builder.BuilderBase',
-            "<class 'SCons.Builder.BuilderBase'>",
-            'SCons.Memoize.BuilderBase',
-            "<class 'SCons.Memoize.BuilderBase'>",
-        ]
-
         assert b1.get_name(env) == 'bldr1', b1.get_name(env)
         assert b2.get_name(env) == 'bldr2', b2.get_name(env)
         assert b3.get_name(env) == 'bldr3', b3.get_name(env)
         assert b4.get_name(env) == 'bldr4', b4.get_name(env)
         assert b5.get_name(env) == 'builder5', b5.get_name(env)
-        assert b6.get_name(env) in b6_names, b6.get_name(env)
-
+        assert b6.get_name(env) == 'SCons.Builder.BuilderBase', b6.get_name(env)
         assert b1.get_name(env2) == 'B1', b1.get_name(env2)
         assert b2.get_name(env2) == 'B2', b2.get_name(env2)
         assert b3.get_name(env2) == 'B3', b3.get_name(env2)
         assert b4.get_name(env2) == 'B4', b4.get_name(env2)
         assert b5.get_name(env2) == 'builder5', b5.get_name(env2)
-        assert b6.get_name(env2) in b6_names, b6.get_name(env2)
-
-        assert b5.get_name(None) == 'builder5', b5.get_name(None)
-        assert b6.get_name(None) in b6_names, b6.get_name(None)
+        assert b6.get_name(env2) == 'SCons.Builder.BuilderBase', b6.get_name(env2)
 
         for B in b3.get_src_builders(env):
             assert B.get_name(env) == 'bldr1'
@@ -1540,8 +1336,7 @@ class BuilderTestCase(unittest.TestCase):
 
         tgts = b1(env, target = [outfile, outfile2], source='moo')
         for t in tgts:
-            name = t.builder.get_name(env)
-            assert name == 'ListBuilder(bldr1)', name
+            assert t.builder.get_name(env) == 'ListBuilder(bldr1)'
             # The following are not symbolically correct, because the
             # ListBuilder was only created on behalf of env, so it
             # would probably be OK if better correctness

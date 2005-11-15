@@ -126,7 +126,6 @@ import SCons.Action
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 import SCons.Executor
-import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
@@ -152,9 +151,6 @@ class DictCmdGenerator(SCons.Util.Selector):
         self[suffix] = action
 
     def __call__(self, target, source, env, for_signature):
-        if not source:
-            return []
-
         ext = None
         for src in map(str, source):
             my_ext = SCons.Util.splitext(src)[1]
@@ -225,7 +221,6 @@ class OverrideWarner(UserDict.UserDict):
     """
     def __init__(self, dict):
         UserDict.UserDict.__init__(self, dict)
-        if __debug__: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
     def warn(self):
         if self.already_warned:
@@ -246,15 +241,12 @@ def Builder(**kw):
     if kw.has_key('generator'):
         if kw.has_key('action'):
             raise UserError, "You must not specify both an action and a generator."
-        kw['action'] = SCons.Action.CommandGeneratorAction(kw['generator'])
+        kw['action'] = SCons.Action.CommandGenerator(kw['generator'])
         del kw['generator']
-    elif kw.has_key('action'):
-        if SCons.Util.is_Dict(kw['action']):
-            composite = DictCmdGenerator(kw['action'])
-            kw['action'] = SCons.Action.CommandGeneratorAction(composite)
-            kw['src_suffix'] = composite.src_suffixes()
-        else:
-            kw['action'] = SCons.Action.Action(kw['action'])
+    elif kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
+        composite = DictCmdGenerator(kw['action'])
+        kw['action'] = SCons.Action.CommandGenerator(composite)
+        kw['src_suffix'] = composite.src_suffixes()
 
     if kw.has_key('emitter'):
         emitter = kw['emitter']
@@ -282,10 +274,9 @@ def Builder(**kw):
 
     return ret
 
-def _node_errors(builder, env, tlist, slist):
-    """Validate that the lists of target and source nodes are
-    legal for this builder and environment.  Raise errors or
-    issue warnings as appropriate.
+def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
+    """Initialize lists of target and source nodes with all of
+    the proper Builder information.
     """
 
     # First, figure out if there are any errors in the way the targets
@@ -295,16 +286,21 @@ def _node_errors(builder, env, tlist, slist):
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
         if t.has_explicit_builder():
             if not t.env is None and not t.env is env:
-                action = t.builder.action
-                t_contents = action.get_contents(tlist, slist, t.env)
-                contents = action.get_contents(tlist, slist, env)
+                t_contents = t.builder.action.get_contents(tlist, slist, t.env)
+                contents = t.builder.action.get_contents(tlist, slist, env)
 
                 if t_contents == contents:
                     SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning,
-                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), action.genstring(tlist, slist, t.env)))
+                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), t.builder.action.strfunction(tlist, slist, t.env)))
 
                 else:
                     raise UserError, "Two environments with different actions were specified for the same target: %s"%str(t)
+
+            elif t.overrides != overrides:
+                raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
+
+            elif builder.target_scanner and t.target_scanner and builder.target_scanner != t.target_scanner:
+                raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
 
             if builder.multi:
                 if t.builder != builder:
@@ -320,6 +316,52 @@ def _node_errors(builder, env, tlist, slist):
     if builder.single_source:
         if len(slist) > 1:
             raise UserError, "More than one source given for single-source builder: targets=%s sources=%s" % (map(str,tlist), map(str,slist))
+
+    # The targets are fine, so find or make the appropriate Executor to
+    # build this particular list of targets from this particular list of
+    # sources.
+    executor = None
+    if builder.multi:
+        try:
+            executor = tlist[0].get_executor(create = 0)
+        except AttributeError:
+            pass
+        else:
+            executor.add_sources(slist)
+    if executor is None:
+        if not builder.action:
+            raise UserError, "Builder %s must have an action to build %s."%(builder.get_name(env or builder.env), map(str,tlist))
+        executor = SCons.Executor.Executor(builder.action,
+                                           env or builder.env,
+                                           [builder.overrides, overrides],
+                                           tlist,
+                                           slist,
+                                           executor_kw)
+
+    # Now set up the relevant information in the target Nodes themselves.
+    for t in tlist:
+        t.overrides = overrides
+        t.cwd = SCons.Node.FS.default_fs.getcwd()
+        t.builder_set(builder)
+        t.env_set(env)
+        t.add_source(slist)
+        t.set_executor(executor)
+        if builder.target_scanner:
+            t.target_scanner = builder.target_scanner
+        if t.source_scanner is None:
+            t.source_scanner = builder.source_scanner
+
+    # Add backup source scanners from the environment to the source
+    # nodes.  This may not be necessary if the node will have a real
+    # source scanner added later (which is why these are the "backup"
+    # source scanners, not the real ones), but because source nodes may
+    # be used multiple times for different targets, it ends up being
+    # more efficient to do this calculation once here, as opposed to
+    # delaying it until later when we potentially have to calculate it
+    # over and over and over.
+    for s in slist:
+        if s.source_scanner is None and s.backup_source_scanner is None:
+            s.backup_source_scanner = env.get_scanner(s.scanner_key())
 
 class EmitterProxy:
     """This is a callable class that can act as a
@@ -356,15 +398,12 @@ class BuilderBase:
     nodes (files) from input nodes (files).
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
     def __init__(self,  action = None,
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
-                        target_factory = None,
-                        source_factory = None,
+                        target_factory = SCons.Node.FS.default_fs.File,
+                        source_factory = SCons.Node.FS.default_fs.File,
                         target_scanner = None,
                         source_scanner = None,
                         emitter = None,
@@ -375,14 +414,15 @@ class BuilderBase:
                         chdir = _null,
                         is_explicit = 1,
                         **overrides):
-        if __debug__: logInstanceCreation(self, 'Builder.BuilderBase')
-        self.action = action
+        if __debug__: logInstanceCreation(self, 'BuilderBase')
+        self.action = SCons.Action.Action(action)
         self.multi = multi
         if SCons.Util.is_Dict(prefix):
             prefix = CallableSelector(prefix)
         self.prefix = prefix
         if SCons.Util.is_Dict(suffix):
             suffix = CallableSelector(suffix)
+        self.suffix = suffix
         self.env = env
         self.single_source = single_source
         if overrides.has_key('overrides'):
@@ -398,7 +438,6 @@ class BuilderBase:
             del overrides['scanner']
         self.overrides = overrides
 
-        self.set_suffix(suffix)
         self.set_src_suffix(src_suffix)
 
         self.target_factory = target_factory
@@ -431,7 +470,7 @@ class BuilderBase:
         try:
             index = env['BUILDERS'].values().index(self)
             return env['BUILDERS'].keys()[index]
-        except (AttributeError, KeyError, TypeError, ValueError):
+        except (AttributeError, KeyError, ValueError):
             try:
                 return self.name
             except AttributeError:
@@ -451,25 +490,7 @@ class BuilderBase:
                 return [path[:-len(suf)], path[-len(suf):]]
         return SCons.Util.splitext(path)
 
-    def get_single_executor(self, env, tlist, slist, executor_kw):
-        if not self.action:
-            raise UserError, "Builder %s must have an action to build %s."%(self.get_name(env or self.env), map(str,tlist))
-        return self.action.get_executor(env or self.env,
-                                        [],  # env already has overrides
-                                        tlist,
-                                        slist,
-                                        executor_kw)
-
-    def get_multi_executor(self, env, tlist, slist, executor_kw):
-        try:
-            executor = tlist[0].get_executor(create = 0)
-        except (AttributeError, IndexError):
-            return self.get_single_executor(env, tlist, slist, executor_kw)
-        else:
-            executor.add_sources(slist)
-            return executor
-
-    def _create_nodes(self, env, target = None, source = None):
+    def _create_nodes(self, env, overwarn, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
         def _adjustixes(files, pre, suf):
@@ -485,13 +506,14 @@ class BuilderBase:
                 result.append(f)
             return result
 
+        overwarn.warn()
+
+        env = env.Override(overwarn.data)
+
         src_suf = self.get_src_suffix(env)
 
-        target_factory = env.get_factory(self.target_factory)
-        source_factory = env.get_factory(self.source_factory)
-
         source = _adjustixes(source, None, src_suf)
-        slist = env.arg2nodes(source, source_factory)
+        slist = env.arg2nodes(source, self.source_factory)
 
         pre = self.get_prefix(env, slist)
         suf = self.get_suffix(env, slist)
@@ -501,14 +523,11 @@ class BuilderBase:
                 t_from_s = slist[0].target_from_source
             except AttributeError:
                 raise UserError("Do not know how to create a target from source `%s'" % slist[0])
-            except IndexError:
-                tlist = []
-            else:
-                splitext = lambda S,self=self,env=env: self.splitext(S,env)
-                tlist = [ t_from_s(pre, suf, splitext) ]
+            splitext = lambda S,self=self,env=env: self.splitext(S,env)
+            tlist = [ t_from_s(pre, suf, splitext) ]
         else:
             target = _adjustixes(target, pre, suf)
-            tlist = env.arg2nodes(target, target_factory)
+            tlist = env.arg2nodes(target, self.target_factory)
 
         if self.emitter:
             # The emitter is going to do str(node), but because we're
@@ -519,88 +538,62 @@ class BuilderBase:
             new_targets = []
             for t in tlist:
                 if not t.is_derived():
-                    t.builder_set(self)
+                    t.builder = self
                     new_targets.append(t)
 
             target, source = self.emitter(target=tlist, source=slist, env=env)
 
             # Now delete the temporary builders that we attached to any
-            # new targets, so that _node_errors() doesn't do weird stuff
+            # new targets, so that _init_nodes() doesn't do weird stuff
             # to them because it thinks they already have builders.
             for t in new_targets:
                 if t.builder is self:
                     # Only delete the temporary builder if the emitter
                     # didn't change it on us.
-                    t.builder_set(None)
+                    t.builder = None
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
-            slist = env.arg2nodes(source, source_factory)
-            tlist = env.arg2nodes(target, target_factory)
+            slist = env.arg2nodes(source, self.source_factory)
+            tlist = env.arg2nodes(target, self.target_factory)
 
         return tlist, slist
 
-    def _execute(self, env, target, source, overwarn={}, executor_kw={}):
-        # We now assume that target and source are lists or None.
-        if self.single_source and len(source) > 1 and target is None:
+    def _execute(self, env, target=None, source=_null, overwarn={}, executor_kw={}):
+        if source is _null:
+            source = target
+            target = None
+
+        if(self.single_source and
+           SCons.Util.is_List(source) and
+           len(source) > 1 and
+           target is None):
             result = []
             if target is None: target = [None]*len(source)
-            for tgt, src in zip(target, source):
-                if not tgt is None: tgt = [tgt]
-                if not src is None: src = [src]
-                result.extend(self._execute(env, tgt, src, overwarn))
+            for k in range(len(source)):
+                t = self._execute(env, target[k], source[k], overwarn)
+                if SCons.Util.is_List(t):
+                    result.extend(t)
+                else:
+                    result.append(t)
             return result
-
-        overwarn.warn()
         
-        tlist, slist = self._create_nodes(env, target, source)
+        tlist, slist = self._create_nodes(env, overwarn, target, source)
 
         if len(tlist) == 1:
             builder = self
         else:
             builder = ListBuilder(self, env, tlist)
+        _init_nodes(builder, env, overwarn.data, executor_kw, tlist, slist)
 
-        # Check for errors with the specified target/source lists.
-        _node_errors(builder, env, tlist, slist)
+        return tlist
 
-        # The targets are fine, so find or make the appropriate Executor to
-        # build this particular list of targets from this particular list of
-        # sources.
-        if builder.multi:
-            get_executor = builder.get_multi_executor
-        else:
-            get_executor = builder.get_single_executor
-        executor = get_executor(env, tlist, slist, executor_kw)
-
-        # Now set up the relevant information in the target Nodes themselves.
-        for t in tlist:
-            t.cwd = env.fs.getcwd()
-            t.builder_set(builder)
-            t.env_set(env)
-            t.add_source(slist)
-            t.set_executor(executor)
-            t.set_explicit(builder.is_explicit)
-
-        return SCons.Node.NodeList(tlist)
-
-    def __call__(self, env, target=None, source=None, chdir=_null, **kw):
-        # We now assume that target and source are lists or None.
-        # The caller (typically Environment.BuilderWrapper) is
-        # responsible for converting any scalar values to lists.
+    def __call__(self, env, target=None, source=_null, chdir=_null, **kw):
         if chdir is _null:
             ekw = self.executor_kw
         else:
             ekw = self.executor_kw.copy()
             ekw['chdir'] = chdir
-        if kw:
-            if self.overrides:
-                env_kw = self.overrides.copy()
-                env_kw.update(kw)
-            else:
-                env_kw = kw
-        else:
-            env_kw = self.overrides
-        env = env.Override(env_kw)
         return self._execute(env, target, source, OverrideWarner(kw), ekw)
 
     def adjust_suffix(self, suff):
@@ -614,29 +607,24 @@ class BuilderBase:
             prefix = prefix(env, sources)
         return env.subst(prefix)
 
-    def set_suffix(self, suffix):
-        if not callable(suffix):
-            suffix = self.adjust_suffix(suffix)
-        self.suffix = suffix
-
     def get_suffix(self, env, sources=[]):
         suffix = self.suffix
         if callable(suffix):
             suffix = suffix(env, sources)
+        else:
+            suffix = self.adjust_suffix(suffix)
         return env.subst(suffix)
 
     def src_suffixes(self, env):
-        "__cacheable__"
-        return map(lambda x, s=self, e=env: e.subst(x), self.src_suffix)
+        return map(lambda x, s=self, e=env: e.subst(s.adjust_suffix(x)),
+                   self.src_suffix)
 
     def set_src_suffix(self, src_suffix):
         if not src_suffix:
             src_suffix = []
         elif not SCons.Util.is_List(src_suffix):
             src_suffix = [ src_suffix ]
-        adjust = lambda suf, s=self: \
-                        callable(suf) and suf or s.adjust_suffix(suf)
-        self.src_suffix = map(adjust, src_suffix)
+        self.src_suffix = src_suffix
 
     def get_src_suffix(self, env):
         """Get the first src_suffix in the list of src_suffixes."""
@@ -662,21 +650,13 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
-if SCons.Memoize.use_old_memoization():
-    _Base = BuilderBase
-    class BuilderBase(SCons.Memoize.Memoizer, _Base):
-        "Cache-backed version of BuilderBase"
-        def __init__(self, *args, **kw):
-            apply(_Base.__init__, (self,)+args, kw)
-            SCons.Memoize.Memoizer.__init__(self)
-
 class ListBuilder(SCons.Util.Proxy):
     """A Proxy to support building an array of targets (for example,
     foo.o and foo.h from foo.y) from a single Action execution.
     """
 
     def __init__(self, builder, env, tlist):
-        if __debug__: logInstanceCreation(self, 'Builder.ListBuilder')
+        if __debug__: logInstanceCreation(self)
         SCons.Util.Proxy.__init__(self, builder)
         self.builder = builder
         self.target_scanner = builder.target_scanner
@@ -712,13 +692,13 @@ class MultiStepBuilder(BuilderBase):
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
-                        target_factory = None,
-                        source_factory = None,
+                        target_factory = SCons.Node.FS.default_fs.File,
+                        source_factory = SCons.Node.FS.default_fs.File,
                         target_scanner = None,
                         source_scanner = None,
                         emitter=None,
                         single_source=0):
-        if __debug__: logInstanceCreation(self, 'Builder.MultiStepBuilder')
+        if __debug__: logInstanceCreation(self)
         BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
                              target_factory, source_factory,
                              target_scanner, source_scanner, emitter,
@@ -726,60 +706,50 @@ class MultiStepBuilder(BuilderBase):
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
         self.src_builder = src_builder
+        self.sdict = {}
+        self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
-    def _get_sdict(self, env):
-        "__cacheable__"
-        sdict = {}
-        for bld in self.src_builder:
-            if SCons.Util.is_String(bld):
-                try:
-                    bld = env['BUILDERS'][bld]
-                except KeyError:
-                    continue
-            for suf in bld.src_suffixes(env):
-                sdict[suf] = bld
-        return sdict
-        
-    def _execute(self, env, target, source, overwarn={}, executor_kw={}):
-        # We now assume that target and source are lists or None.
-        source_factory = env.get_factory(self.source_factory)
-        slist = env.arg2nodes(source, source_factory)
+    def _execute(self, env, target = None, source = _null, overwarn={}, executor_kw={}):
+        if source is _null:
+            source = target
+            target = None
+
+        slist = env.arg2nodes(source, self.source_factory)
         final_sources = []
 
-        sdict = self._get_sdict(env)
+        try:
+            sdict = self.sdict[id(env)]
+        except KeyError:
+            sdict = {}
+            self.sdict[id(env)] = sdict
+            for bld in self.src_builder:
+                if SCons.Util.is_String(bld):
+                    try:
+                        bld = env['BUILDERS'][bld]
+                    except KeyError:
+                        continue
+                for suf in bld.src_suffixes(env):
+                    sdict[suf] = bld
 
         src_suffixes = self.src_suffixes(env)
 
-        lengths_dict = {}
-        for l in map(len, src_suffixes):
-            lengths_dict[l] = None
-        lengths = lengths_dict.keys()
-
-        def match_src_suffix(node, src_suffixes=src_suffixes, lengths=lengths):
-            node_suffixes = map(lambda l, n=node: n.name[-l:], lengths)
-            for suf in src_suffixes:
-                if suf in node_suffixes:
-                    return suf
-            return None
-
         for snode in slist:
-            match_suffix = match_src_suffix(snode)
-            if match_suffix:
-                try:
-                    bld = sdict[match_suffix]
-                except KeyError:
-                    final_sources.append(snode)
-                else:
-                    tlist = bld._execute(env, None, [snode], overwarn)
-                    # If the subsidiary Builder returned more than one
-                    # target, then filter out any sources that this
-                    # Builder isn't capable of building.
-                    if len(tlist) > 1:
-                        tlist = filter(match_src_suffix, tlist)
-                    final_sources.extend(tlist)
-            else:
+            for srcsuf in src_suffixes:
+                if str(snode)[-len(srcsuf):] == srcsuf and sdict.has_key(srcsuf):
+                    tgt = sdict[srcsuf]._execute(env, None, snode, overwarn)
+                    # If the subsidiary Builder returned more than one target,
+                    # then filter out any sources that this Builder isn't
+                    # capable of building.
+                    if len(tgt) > 1:
+                        tgt = filter(lambda x, self=self, suf=src_suffixes, e=env:
+                                     self.splitext(SCons.Util.to_String(x),e)[1] in suf,
+                                     tgt)
+                    final_sources.extend(tgt)
+                    snode = None
+                    break
+            if snode:
                 final_sources.append(snode)
-
+                
         return BuilderBase._execute(self, env, target, final_sources, overwarn)
 
     def get_src_builders(self, env):
@@ -802,12 +772,15 @@ class MultiStepBuilder(BuilderBase):
     def src_suffixes(self, env):
         """Return a list of the src_suffix attributes for all
         src_builders of this Builder.
-        __cacheable__
         """
-        suffixes = BuilderBase.src_suffixes(self, env)
-        for builder in self.get_src_builders(env):
-            suffixes.extend(builder.src_suffixes(env))
-        return suffixes
+        try:
+            return self.cached_src_suffixes[id(env)]
+        except KeyError:
+            suffixes = BuilderBase.src_suffixes(self, env)
+            for builder in self.get_src_builders(env):
+                suffixes.extend(builder.src_suffixes(env))
+            self.cached_src_suffixes[id(env)] = suffixes
+            return suffixes
 
 class CompositeBuilder(SCons.Util.Proxy):
     """A Builder Proxy whose main purpose is to always have
@@ -816,7 +789,7 @@ class CompositeBuilder(SCons.Util.Proxy):
     """
 
     def __init__(self, builder, cmdgen):
-        if __debug__: logInstanceCreation(self, 'Builder.CompositeBuilder')
+        if __debug__: logInstanceCreation(self)
         SCons.Util.Proxy.__init__(self, builder)
 
         # cmdgen should always be an instance of DictCmdGenerator.

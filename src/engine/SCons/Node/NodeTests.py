@@ -24,12 +24,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import re
-import string
 import sys
 import types
 import unittest
-import UserList
 
 import SCons.Errors
 import SCons.Node
@@ -42,27 +39,7 @@ built_source =  None
 cycle_detected = None
 built_order = 0
 
-def _actionAppend(a1, a2):
-    all = []
-    for curr_a in [a1, a2]:
-        if isinstance(curr_a, MyAction):
-            all.append(curr_a)
-        elif isinstance(curr_a, MyListAction):
-            all.extend(curr_a.list)
-        elif type(curr_a) == type([1,2]):
-            all.extend(curr_a)
-        else:
-            raise 'Cannot Combine Actions'
-    return MyListAction(all)
-
-class MyActionBase:
-    def __add__(self, other):
-        return _actionAppend(self, other)
-
-    def __radd__(self, other):
-        return _actionAppend(other, self)
-
-class MyAction(MyActionBase):
+class MyAction:
     def __init__(self):
         self.order = 0
 
@@ -76,36 +53,29 @@ class MyAction(MyActionBase):
         self.order = built_order
         return 0
 
-class MyExecutor:
-    def __init__(self, env=None, targets=[], sources=[]):
-        self.env = env
-        self.targets = targets
-        self.sources = sources
-    def get_build_env(self):
-        return self.env
-    def get_build_scanner_path(self, scanner):
-        return 'executor would call %s' % scanner
-    def cleanup(self):
-        self.cleaned_up = 1
-    def scan_targets(self, scanner):
-        if not scanner:
-            return
-        d = scanner(self.targets)
-        for t in self.targets:
-            t.implicit.extend(d)
-    def scan_sources(self, scanner):
-        if not scanner:
-            return
-        d = scanner(self.sources)
-        for t in self.targets:
-            t.implicit.extend(d)
+    def get_actions(self):
+        return [self]
 
-class MyListAction(MyActionBase):
-    def __init__(self, list):
-        self.list = list
+class MyNonGlobalAction:
+    def __init__(self):
+        self.order = 0
+        self.built_it = None
+        self.built_target =  None
+        self.built_source =  None
+
     def __call__(self, target, source, env, errfunc):
-        for A in self.list:
-            A(target, source, env, errfunc)
+        # Okay, so not ENTIRELY non-global...
+        global built_order
+        self.built_it = 1
+        self.built_target = target
+        self.built_source = source
+        self.built_args = env
+        built_order = built_order + 1
+        self.order = built_order
+        return 0
+
+    def get_actions(self):
+        return [self]
 
 class Environment:
     def __init__(self, **kw):
@@ -121,23 +91,13 @@ class Environment:
         return apply(Environment, (), d)
     def _update(self, dict):
         self._dict.update(dict)
-    def get_calculator(self):
-        return SCons.Sig.default_calc
-    def get_factory(self, factory):
-        return factory or MyNode
-    def get_scanner(self, scanner_key):
-        return self._dict['SCANNERS'][0]
 
 class Builder:
-    def __init__(self, env=None, is_explicit=1):
-        if env is None: env = Environment()
-        self.env = env
+    def __init__(self, is_explicit=1):
+        self.env = Environment()
         self.overrides = {}
         self.action = MyAction()
-        self.source_factory = MyNode
         self.is_explicit = is_explicit
-        self.target_scanner = None
-        self.source_scanner = None
     def targets(self, t):
         return [t]
     def get_actions(self):
@@ -179,12 +139,8 @@ class Scanner:
     def __call__(self, node):
         self.called = 1
         return node.found_includes
-    def path(self, env, dir, target=None, source=None):
-        return ()
     def select(self, node):
         return self
-    def recurse_nodes(self, nodes):
-        return nodes
 
 class MyNode(SCons.Node.Node):
     """The base Node class contains a number of do-nothing methods that
@@ -199,116 +155,6 @@ class MyNode(SCons.Node.Node):
         return self.name
     def get_found_includes(self, env, scanner, target):
         return scanner(self)
-
-class Calculator:
-    def __init__(self, val):
-        self.max_drift = 0
-        class M:
-            def __init__(self, val):
-                self.val = val
-            def signature(self, args):
-                return self.val
-            def collect(self, args):
-                return reduce(lambda x, y: x+y, args, self.val)
-        self.module = M(val)
-
-
-
-class NodeInfoTestCase(unittest.TestCase):
-
-    def test___cmp__(self):
-        """Test comparing NodeInfo objects"""
-        ni1 = SCons.Node.NodeInfo()
-        ni2 = SCons.Node.NodeInfo()
-
-        assert ni1 == ni2, "%s != %s" % (ni1.__dict__, ni2.__dict__)
-
-        ni1.foo = 777
-        assert ni1 != ni2, "%s == %s" % (ni1.__dict__, ni2.__dict__)
-
-        ni2.foo = 888
-        assert ni1 != ni2, "%s == %s" % (ni1.__dict__, ni2.__dict__)
-
-        ni1.foo = 888
-        assert ni1 == ni2, "%s != %s" % (ni1.__dict__, ni2.__dict__)
-
-    def test_merge(self):
-        """Test merging NodeInfo attributes"""
-        ni1 = SCons.Node.NodeInfo()
-        ni2 = SCons.Node.NodeInfo()
-
-        ni1.a1 = 1
-        ni1.a2 = 2
-
-        ni2.a2 = 222
-        ni2.a3 = 333
-
-        ni1.merge(ni2)
-        assert ni1.__dict__ == {'a1':1, 'a2':222, 'a3':333}, ni1.__dict__
-
-    def test_update(self):
-        """Test the update() method"""
-        ni = SCons.Node.NodeInfo()
-        ni.update(SCons.Node.Node())
-
-
-
-class BuildInfoTestCase(unittest.TestCase):
-
-    def test___init__(self):
-        """Test BuildInfo initialization"""
-        bi = SCons.Node.BuildInfo(SCons.Node.Node())
-        assert hasattr(bi, 'ninfo')
-
-        class MyNode(SCons.Node.Node):
-            def new_ninfo(self):
-                return 'ninfo initialization'
-        bi = SCons.Node.BuildInfo(MyNode())
-        assert bi.ninfo == 'ninfo initialization', bi.ninfo
-
-    def test___cmp__(self):
-        """Test comparing BuildInfo objects"""
-        bi1 = SCons.Node.BuildInfo(SCons.Node.Node())
-        bi2 = SCons.Node.BuildInfo(SCons.Node.Node())
-
-        assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
-
-        bi1.ninfo.foo = 777
-        assert bi1 != bi2, "%s == %s" % (bi1.__dict__, bi2.__dict__)
-
-        bi2.ninfo.foo = 888
-        assert bi1 != bi2, "%s == %s" % (bi1.__dict__, bi2.__dict__)
-
-        bi1.ninfo.foo = 888
-        assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
-
-        bi1.foo = 999
-        assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
-
-    def test_merge(self):
-        """Test merging BuildInfo attributes"""
-        bi1 = SCons.Node.BuildInfo(SCons.Node.Node())
-        bi2 = SCons.Node.BuildInfo(SCons.Node.Node())
-
-        bi1.a1 = 1
-        bi1.a2 = 2
-
-        bi2.a2 = 222
-        bi2.a3 = 333
-
-        bi1.ninfo.a4 = 4
-        bi1.ninfo.a5 = 5
-        bi2.ninfo.a5 = 555
-        bi2.ninfo.a6 = 666
-
-        bi1.merge(bi2)
-        assert bi1.a1 == 1, bi1.a1
-        assert bi1.a2 == 222, bi1.a2
-        assert bi1.a3 == 333, bi1.a3
-        assert bi1.ninfo.a4 == 4, bi1.ninfo.a4
-        assert bi1.ninfo.a5 == 555, bi1.ninfo.a5
-        assert bi1.ninfo.a6 == 666, bi1.ninfo.a6
-
 
 
 
@@ -390,62 +236,36 @@ class NodeTestCase(unittest.TestCase):
         assert built_args["on"] == 3, built_args
         assert built_args["off"] == 4, built_args
 
-    def test_get_build_scanner_path(self):
-        """Test the get_build_scanner_path() method"""
-        n = SCons.Node.Node()
-        x = MyExecutor()
-        n.set_executor(x)
-        p = n.get_build_scanner_path('fake_scanner')
-        assert p == "executor would call fake_scanner", p
+        built_it = None
+        built_order = 0
+        node = MyNode("xxx")
+        node.builder_set(Builder())
+        node.env_set(Environment())
+        node.sources = ["yyy", "zzz"]
+        pre1 = MyNonGlobalAction()
+        pre2 = MyNonGlobalAction()
+        post1 = MyNonGlobalAction()
+        post2 = MyNonGlobalAction()
+        node.add_pre_action(pre1)
+        node.add_pre_action(pre2)
+        node.add_post_action(post1)
+        node.add_post_action(post2)
+        node.build()
+        assert built_it
+        assert pre1.built_it
+        assert pre2.built_it
+        assert post1.built_it
+        assert post2.built_it
+        assert pre1.order == 1, pre1.order
+        assert pre2.order == 2, pre1.order
+        # The action of the builder itself is order 3...
+        assert post1.order == 4, pre1.order
+        assert post2.order == 5, pre1.order
 
-    def test_get_executor(self):
-        """Test the get_executor() method"""
-        n = SCons.Node.Node()
-
-        try:
-            n.get_executor(0)
-        except AttributeError:
-            pass
-        else:
-            self.fail("did not catch expected AttributeError")
-
-        class Builder:
-            action = 'act'
-            env = 'env1'
-            overrides = {}
-
-        n = SCons.Node.Node()
-        n.builder_set(Builder())
-        x = n.get_executor()
-        assert x.env == 'env1', x.env
-
-        n = SCons.Node.Node()
-        n.builder_set(Builder())
-        n.env_set('env2')
-        x = n.get_executor()
-        assert x.env == 'env2', x.env
-
-    def test_set_executor(self):
-        """Test the set_executor() method"""
-        n = SCons.Node.Node()
-        n.set_executor(1)
-        assert n.executor == 1, n.executor
-
-    def test_executor_cleanup(self):
-        """Test letting the executor cleanup its cache"""
-        n = SCons.Node.Node()
-        x = MyExecutor()
-        n.set_executor(x)
-        n.executor_cleanup()
-        assert x.cleaned_up
-
-    def test_reset_executor(self):
-        """Test the reset_executor() method"""
-        n = SCons.Node.Node()
-        n.set_executor(1)
-        assert n.executor == 1, n.executor
-        n.reset_executor()
-        assert not hasattr(n, 'executor'), "unexpected executor attribute"
+        for act in [ pre1, pre2, post1, post2 ]:
+            assert type(act.built_target[0]) == type(MyNode("bar")), type(act.built_target[0])
+            assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
+            assert act.built_source == ["yyy", "zzz"], act.built_source
 
     def test_built(self):
         """Test the built() method"""
@@ -471,6 +291,14 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
         n.visited()
 
+    def test_depends_on(self):
+        """Test the depends_on() method
+        """
+        parent = SCons.Node.Node()
+        child = SCons.Node.Node()
+        parent.add_dependency([child])
+        assert parent.depends_on([child])
+
     def test_builder_set(self):
         """Test setting a Node's Builder
         """
@@ -492,23 +320,10 @@ class NodeTestCase(unittest.TestCase):
         """
         n1 = SCons.Node.Node()
         assert not n1.has_explicit_builder()
-        n1.set_explicit(1)
+        n1.builder_set(Builder(is_explicit=1))
         assert n1.has_explicit_builder()
-        n1.set_explicit(None)
+        n1.builder_set(Builder(is_explicit=None))
         assert not n1.has_explicit_builder()
-
-    def test_get_builder(self):
-        """Test the get_builder() method"""
-        n1 = SCons.Node.Node()
-        b = n1.get_builder()
-        assert b is None, b
-        b = n1.get_builder(777)
-        assert b == 777, b
-        n1.builder_set(888)
-        b = n1.get_builder()
-        assert b == 888, b
-        b = n1.get_builder(999)
-        assert b == 888, b
 
     def test_multiple_side_effect_has_builder(self):
         """Test the multiple_side_effect_has_builder() method
@@ -546,23 +361,6 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         assert node.current() is None
 
-    def test_children_are_up_to_date(self):
-        """Test the children_are_up_to_date() method used by subclasses
-        """
-        n1 = SCons.Node.Node()
-        n2 = SCons.Node.Node()
-
-        calc = Calculator(111)
-
-        n1.add_source(n2)
-        assert n1.children_are_up_to_date(calc), "expected up to date"
-        n2.set_state(SCons.Node.executed)
-        assert not n1.children_are_up_to_date(calc), "expected not up to date"
-        n2.set_state(SCons.Node.up_to_date)
-        assert n1.children_are_up_to_date(calc), "expected up to date"
-        n1.always_build = 1
-        assert not n1.children_are_up_to_date(calc), "expected not up to date"
-
     def test_env_set(self):
         """Test setting a Node's Environment
         """
@@ -579,80 +377,85 @@ class NodeTestCase(unittest.TestCase):
         a = node.builder.get_actions()
         assert isinstance(a[0], MyAction), a[0]
 
-    def test_get_bsig(self):
+    def test_calc_bsig(self):
         """Test generic build signature calculation
         """
+        class Calculator:
+            def __init__(self, val):
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def collect(self, args):
+                        return reduce(lambda x, y: x+y, args, self.val)
+                self.module = M(val)
         node = SCons.Node.Node()
-        result = node.get_bsig(Calculator(222))
+        result = node.calc_bsig(Calculator(222))
         assert result == 222, result
-        result = node.get_bsig(Calculator(333))
+        result = node.calc_bsig(Calculator(333))
         assert result == 222, result
 
-    def test_get_csig(self):
+    def test_calc_csig(self):
         """Test generic content signature calculation
         """
+        class Calculator:
+            def __init__(self, val):
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def signature(self, args):
+                        return self.val
+                self.module = M(val)
         node = SCons.Node.Node()
-        result = node.get_csig(Calculator(444))
+        result = node.calc_csig(Calculator(444))
         assert result == 444, result
-        result = node.get_csig(Calculator(555))
+        result = node.calc_csig(Calculator(555))
         assert result == 444, result
-
-    def test_get_binfo(self):
-        """Test fetching/creating a build information structure
-        """
-        node = SCons.Node.Node()
-
-        binfo = node.get_binfo()
-        assert isinstance(binfo, SCons.Node.BuildInfo), binfo
-
-        node.binfo = 777
-        binfo = node.get_binfo()
-        assert binfo == 777, binfo
 
     def test_gen_binfo(self):
         """Test generating a build information structure
         """
+        class Calculator:
+            def __init__(self, val):
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def collect(self, args):
+                        return reduce(lambda x, y: x+y, args, self.val)
+                self.module = M(val)
+
         node = SCons.Node.Node()
-        d = SCons.Node.Node()
-        i = SCons.Node.Node()
-        node.depends = [d]
-        node.implicit = [i]
-        node.gen_binfo(Calculator(666))
-        binfo = node.binfo
+        binfo = node.gen_binfo(Calculator(666))
         assert isinstance(binfo, SCons.Node.BuildInfo), binfo
         assert hasattr(binfo, 'bsources')
         assert hasattr(binfo, 'bsourcesigs')
-        assert binfo.bdepends == [d]
+        assert hasattr(binfo, 'bdepends')
         assert hasattr(binfo, 'bdependsigs')
-        assert binfo.bimplicit == [i]
+        assert hasattr(binfo, 'bimplicit')
         assert hasattr(binfo, 'bimplicitsigs')
-        assert binfo.ninfo.bsig == 1998, binfo.ninfo.bsig
+        assert binfo.bsig == 666, binfo.bsig
 
     def test_explain(self):
         """Test explaining why a Node must be rebuilt
         """
-        class testNode(SCons.Node.Node):
-            def __str__(self): return 'xyzzy'
-        node = testNode()
+        node = SCons.Node.Node()
         node.exists = lambda: None
-        # Can't do this with new-style classes (python bug #1066490)
-        #node.__str__ = lambda: 'xyzzy'
+        node.__str__ = lambda: 'xyzzy'
         result = node.explain()
         assert result == "building `xyzzy' because it doesn't exist\n", result
 
-        class testNode2(SCons.Node.Node):
-            def __str__(self): return 'null_binfo'
-        node = testNode2()
+        node = SCons.Node.Node()
         result = node.explain()
         assert result == None, result
 
-        def get_null_info():
-            class Null_BInfo:
+        class Null_BInfo:
+            def __init__(self):
                 pass
-            return Null_BInfo()
 
-        node.get_stored_info = get_null_info
-        #see above: node.__str__ = lambda: 'null_binfo'
+        node.get_stored_info = Null_BInfo
+        node.__str__ = lambda: 'null_binfo'
         result = node.explain()
         assert result == "Cannot explain why `null_binfo' is being rebuilt: No previous build information found\n", result
 
@@ -723,8 +526,6 @@ class NodeTestCase(unittest.TestCase):
 
     def test_prepare(self):
         """Test preparing a node to be built
-
-        By extension, this also tests the missing() method.
         """
         node = SCons.Node.Node()
 
@@ -881,55 +682,41 @@ class NodeTestCase(unittest.TestCase):
         assert deps == [], deps
 
         s = Scanner()
-        d1 = MyNode("d1")
-        d2 = MyNode("d2")
-        node.found_includes = [d1, d2]
+        d = MyNode("ddd")
+        node.found_includes = [d]
 
         # Simple return of the found includes
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2], deps
+        assert deps == [d], deps
 
-        # By default, our fake scanner recurses
+        # No "recursive" attribute on scanner doesn't recurse
         e = MyNode("eee")
-        f = MyNode("fff")
-        g = MyNode("ggg")
-        d1.found_includes = [e, f]
-        d2.found_includes = [e, f]
-        f.found_includes = [g]
+        d.found_includes = [e]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2, e, f, g], map(str, deps)
+        assert deps == [d], map(str, deps)
+
+        # Explicit "recursive" attribute on scanner doesn't recurse
+        s.recursive = None
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d], map(str, deps)
+
+        # Explicit "recursive" attribute on scanner which does recurse
+        s.recursive = 1
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d, e], map(str, deps)
 
         # Recursive scanning eliminates duplicates
+        f = MyNode("fff")
+        d.found_includes = [e, f]
         e.found_includes = [f]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2, e, f, g], map(str, deps)
-
-        # Scanner method can select specific nodes to recurse
-        def no_fff(nodes):
-            return filter(lambda n: str(n)[0] != 'f', nodes)
-        s.recurse_nodes = no_fff
-        deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2, e, f], map(str, deps)
-
-        # Scanner method can short-circuit recursing entirely
-        s.recurse_nodes = lambda nodes: []
-        deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2], map(str, deps)
-
-    def test_get_scanner(self):
-        """Test fetching the environment scanner for a Node
-        """
-        node = SCons.Node.Node()
-        scanner = Scanner()
-        env = Environment(SCANNERS = [scanner])
-        s = node.get_scanner(env)
-        assert s == scanner, s
-        s = node.get_scanner(env, {'X':1})
-        assert s == scanner, s
+        assert deps == [d, e, f], map(str, deps)
 
     def test_get_source_scanner(self):
         """Test fetching the source scanner for a Node
         """
+        class Builder:
+            pass
         target = SCons.Node.Node()
         source = SCons.Node.Node()
         s = target.get_source_scanner(source)
@@ -939,48 +726,32 @@ class NodeTestCase(unittest.TestCase):
         ts2 = Scanner()
         ts3 = Scanner()
 
-        class Builder1(Builder):
-            def __call__(self, source):
-                r = SCons.Node.Node()
-                r.builder = self
-                return [r]
-        class Builder2(Builder1):
-            def __init__(self, scanner):
-                self.source_scanner = scanner
-
-        builder = Builder2(ts1)
-            
-        targets = builder([source])
-        s = targets[0].get_source_scanner(source)
+        source.backup_source_scanner = ts1
+        s = target.get_source_scanner(source)
         assert s is ts1, s
 
-        target.builder_set(Builder2(ts1))
+        target.builder = Builder()
         target.builder.source_scanner = ts2
         s = target.get_source_scanner(source)
         assert s is ts2, s
 
-        builder = Builder1(env=Environment(SCANNERS = [ts3]))
-
-        targets = builder([source])
-        
-        s = targets[0].get_source_scanner(source)
+        target.source_scanner = ts3
+        s = target.get_source_scanner(source)
         assert s is ts3, s
-
 
     def test_scan(self):
         """Test Scanner functionality
         """
-        env = Environment()
         node = MyNode("nnn")
         node.builder = Builder()
-        node.env_set(env)
-        x = MyExecutor(env, [node])
-
+        node.env_set(Environment())
         s = Scanner()
+
         d = MyNode("ddd")
         node.found_includes = [d]
 
-        node.builder.target_scanner = s
+        assert node.target_scanner == None, node.target_scanner
+        node.target_scanner = s
         assert node.implicit is None
 
         node.scan()
@@ -1012,14 +783,13 @@ class NodeTestCase(unittest.TestCase):
         SCons.Node.implicit_deps_unchanged = None
         try:
             sn = StoredNode("eee")
-            sn.builder_set(Builder())
-            sn.builder.target_scanner = s
+            sn._children = ['fake']
+            sn.target_scanner = s
 
             sn.scan()
 
             assert sn.implicit == [], sn.implicit
-            assert sn.children() == [], sn.children()
-
+            assert not hasattr(sn, '_children'), "unexpected _children attribute"
         finally:
             SCons.Sig.default_calc = save_default_calc
             SCons.Node.implicit_cache = save_implicit_cache
@@ -1094,7 +864,7 @@ class NodeTestCase(unittest.TestCase):
         """Test setting and getting the state of a node
         """
         node = SCons.Node.Node()
-        assert node.get_state() == SCons.Node.no_state
+        assert node.get_state() == None
         node.set_state(SCons.Node.executing)
         assert node.get_state() == SCons.Node.executing
         assert SCons.Node.pending < SCons.Node.executing
@@ -1229,17 +999,14 @@ class NodeTestCase(unittest.TestCase):
         n.implicit = 'testimplicit'
         n.waiting_parents = ['foo', 'bar']
 
-        x = MyExecutor()
-        n.set_executor(x)
-
         n.clear()
 
+        assert n.get_state() is None, n.get_state()
         assert not hasattr(n, 'binfo'), n.bsig
         assert n.includes is None, n.includes
         assert n.found_includes == {}, n.found_includes
         assert n.implicit is None, n.implicit
         assert n.waiting_parents == [], n.waiting_parents
-        assert x.cleaned_up
 
     def test_get_subst_proxy(self):
         """Test the get_subst_proxy method."""
@@ -1258,6 +1025,12 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
         s = n.get_suffix()
         assert s == '', s
+
+    def test_generate_build_dict(self):
+        """Test the base Node generate_build_dict() method"""
+        n = SCons.Node.Node()
+        dict = n.generate_build_dict()
+        assert dict == {}, dict
 
     def test_postprocess(self):
         """Test calling the base Node postprocess() method"""
@@ -1283,46 +1056,9 @@ class NodeTestCase(unittest.TestCase):
         n1.call_for_all_waiting_parents(func)
         assert result == [n1, n2], result
 
-class NodeListTestCase(unittest.TestCase):
-    def test___str__(self):
-        """Test"""
-        n1 = MyNode("n1")
-        n2 = MyNode("n2")
-        n3 = MyNode("n3")
-        nl = SCons.Node.NodeList([n3, n2, n1])
-
-        l = [1]
-        ul = UserList.UserList([2])
-        try:
-            l.extend(ul)
-        except TypeError:
-            # An older version of Python (*cough* 1.5.2 *cough*)
-            # that doesn't allow UserList objects to extend lists.
-            pass
-        else:
-            s = str(nl)
-            assert s == "['n3', 'n2', 'n1']", s
-
-        r = repr(nl)
-        r = re.sub('at (0[xX])?[0-9a-fA-F]+', 'at 0x', r)
-        # Don't care about ancestry: just leaf value of MyNode
-        r = re.sub('<.*?\.MyNode', '<MyNode', r)
-        # New-style classes report as "object"; classic classes report
-        # as "instance"...
-        r = re.sub("object", "instance", r)
-        l = string.join(["<MyNode instance at 0x>"]*3, ", ")
-        assert r == '[%s]' % l, r
-
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [ BuildInfoTestCase,
-                 NodeInfoTestCase,
-                 NodeTestCase,
-                 NodeListTestCase ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+    suite = unittest.makeSuite(NodeTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
