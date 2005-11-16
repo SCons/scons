@@ -827,8 +827,8 @@ def CheckCXXHeader(context, header, include_quotes = '""'):
     return CheckHeader(context, header, include_quotes, language = "C++")
 
 
-def CheckLib(context, library = None, symbol = "main", autoadd = 1,
-             header = None, language = None):
+def CheckLib(context, library = None, symbol = "main",
+             header = None, language = None, autoadd = 1):
     """
     A test for a library. See also CheckLibWithHeader.
     Note that library may also be None to test whether the given symbol

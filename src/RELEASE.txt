@@ -280,6 +280,15 @@ RELEASE 0.97 - XXX
         "no" instead of "ok" and "failed."  This might interfere with any
         scripts that automatically parse the Configure() output from SCons.
 
+    --  Configure.Checklib() ARGUMENTS HAVE CHANGED TO MATCH DOCUMENTATION
+
+        The order of the arguments to the Configure.CheckLib() function
+        has changed to put the "autoadd" keyword argument last, matching
+        the documentation in the man page.  This could cause problems
+        for any calls to Configure.Checklib() that were relying on the
+        order of the arguments.  Specifying all arguments as keyword
+        arguments will work on both older and newer versions of SCons.
+
     --  DEPRECATED GLOBAL FUNCTIONS HAVE BEEN REMOVED
 
         The following deprecated global functions have been removed:
