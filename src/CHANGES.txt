@@ -381,6 +381,9 @@ RELEASE 0.97 - XXX
   - Change the order of the arguments to Configure.Checklib() to match
     the documentation.
 
+  - Handle signature calculation properly when the Python function used
+    for a FunctionAction is an object method.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.

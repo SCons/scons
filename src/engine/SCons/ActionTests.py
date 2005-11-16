@@ -1462,6 +1462,14 @@ class FunctionActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c == 'xyzzy', repr(c)
 
+        class LocalClass:
+            def LocalMethod(self):
+                pass
+        lc = LocalClass()
+        a = SCons.Action.FunctionAction(lc.LocalMethod)
+        c = a.get_contents(target=[], source=[], env=Environment())
+        assert c in matches, repr(c)
+
 class ListActionTestCase(unittest.TestCase):
 
     def test___init__(self):
