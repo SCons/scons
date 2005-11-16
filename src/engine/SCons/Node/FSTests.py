@@ -307,7 +307,6 @@ class BuildDirTestCase(unittest.TestCase):
         try:
             dir_made = []
             d9.builder = Builder(fs.Dir, action=MkdirAction(dir_made))
-            d9.reset_executor()
             f9.exists()
             expect = os.path.join('build', 'var2', 'new_dir')
             assert dir_made[0].path == expect, dir_made[0].path
@@ -380,10 +379,13 @@ class BuildDirTestCase(unittest.TestCase):
         assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
                stat.S_IMODE(st[stat.ST_MODE])
 
-        # This used to generate a UserError when we forbid the source
-        # directory from being outside the top-level SConstruct dir.
-        fs = SCons.Node.FS.FS()
-        fs.BuildDir('build', '/test/foo')
+        exc_caught = 0
+        try:
+            fs = SCons.Node.FS.FS()
+            fs.BuildDir('build', '/test/foo')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a UserError."
 
         exc_caught = 0
         try:
@@ -603,170 +605,15 @@ class BuildDirTestCase(unittest.TestCase):
 
         self.failIf(errors)
 
-class BaseTestCase(_tempdirTestCase):
-    def test_stat(self):
-        """Test the Base.stat() method"""
-        test = self.test
-        test.write("e1", "e1\n")
-        fs = SCons.Node.FS.FS()
-
-        e1 = fs.Entry('e1')
-        s = e1.stat()
-        assert not s is None, s
-
-        e2 = fs.Entry('e2')
-        s = e2.stat()
-        assert s is None, s
-
-    def test_getmtime(self):
-        """Test the Base.getmtime() method"""
-        test = self.test
-        test.write("file", "file\n")
-        fs = SCons.Node.FS.FS()
-
-        file = fs.Entry('file')
-        assert file.getmtime()
-
-        file = fs.Entry('nonexistent')
-        mtime = file.getmtime()
-        assert mtime is None, mtime
-
-    def test_getsize(self):
-        """Test the Base.getsize() method"""
-        test = self.test
-        test.write("file", "file\n")
-        fs = SCons.Node.FS.FS()
-
-        file = fs.Entry('file')
-        size = file.getsize()
-        assert size == 5, size
-
-        file = fs.Entry('nonexistent')
-        size = file.getsize()
-        assert size is None, size
-
-    def test_isdir(self):
-        """Test the Base.isdir() method"""
-        test = self.test
-        test.subdir('dir')
-        test.write("file", "file\n")
-        fs = SCons.Node.FS.FS()
-
-        dir = fs.Entry('dir')
-        assert dir.isdir()
-
-        file = fs.Entry('file')
-        assert not file.isdir()
-
-        nonexistent = fs.Entry('nonexistent')
-        assert not nonexistent.isdir()
-
-    def test_isfile(self):
-        """Test the Base.isfile() method"""
-        test = self.test
-        test.subdir('dir')
-        test.write("file", "file\n")
-        fs = SCons.Node.FS.FS()
-
-        dir = fs.Entry('dir')
-        assert not dir.isfile()
-
-        file = fs.Entry('file')
-        assert file.isfile()
-
-        nonexistent = fs.Entry('nonexistent')
-        assert not nonexistent.isfile()
-
-    if hasattr(os, 'symlink'):
-        def test_islink(self):
-            """Test the Base.islink() method"""
-            test = self.test
-            test.subdir('dir')
-            test.write("file", "file\n")
-            test.symlink("symlink", "symlink")
-            fs = SCons.Node.FS.FS()
-
-            dir = fs.Entry('dir')
-            assert not dir.islink()
-
-            file = fs.Entry('file')
-            assert not file.islink()
-
-            symlink = fs.Entry('symlink')
-            assert symlink.islink()
-
-            nonexistent = fs.Entry('nonexistent')
-            assert not nonexistent.islink()
-
-class NodeInfoTestCase(_tempdirTestCase):
-    def test___init__(self):
-        """Test NodeInfo initialization"""
-        ni = SCons.Node.FS.NodeInfo()
-        assert not hasattr(ni, 'bsig')
-
-    def test___cmp__(self):
-        """Test comparing NodeInfo objects"""
-        ni1 = SCons.Node.FS.NodeInfo()
-        ni2 = SCons.Node.FS.NodeInfo()
-
-        msg = "cmp(%s, %s) returned %s, not %s"
-
-        c = cmp(ni1, ni2)
-        assert c == 1, msg % (ni1, ni2, c, 1)
-
-        ni1.bsig = 777
-        c = cmp(ni1, ni2)
-        assert c == 1, msg % (ni1.bsig, ni2, c, 1)
-
-        ni2.bsig = 666
-        c = cmp(ni1, ni2)
-        assert c == 1, msg % (ni1.bsig, ni2.bsig, c, 1)
-
-        ni2.bsig = 777
-        c = cmp(ni1, ni2)
-        assert c == 0, msg % (ni1.bsig, ni2.bsig, c, 0)
-
-        ni2.bsig = 888
-        c = cmp(ni1, ni2)
-        assert c == -1, msg % (ni1.bsig, ni2.bsig, c, -1)
-
-    def test_update(self):
-        """Test updating a NodeInfo with on-disk information"""
-        test = self.test
-        test.write('fff', "fff\n")
-        fff = self.fs.File('fff')
-
-        ni = SCons.Node.FS.NodeInfo()
-        assert not hasattr(ni, 'timestamp')
-        assert not hasattr(ni, 'size')
-
-        ni.update(fff)
-        assert ni.timestamp == os.path.getmtime('fff'), ni.timestamp
-        assert ni.size == os.path.getsize('fff'), ni.size
-
-class BuildInfoTestCase(_tempdirTestCase):
-    def test___init__(self):
-        """Test BuildInfo initialization"""
-        fff = self.fs.File('fff')
-        bi = SCons.Node.FS.BuildInfo(fff)
-        assert bi.node is fff, bi.node
-
-    def test_convert_to_sconsign(self):
-        """Test converting to .sconsign file format"""
-
-    def test_convert_from_sconsign(self):
-        """Test converting from .sconsign file format"""
-
-class FSTestCase(_tempdirTestCase):
-    def test_runTest(self):
+class FSTestCase(unittest.TestCase):
+    def runTest(self):
         """Test FS (file system) Node operations
 
         This test case handles all of the file system node
         tests in one environment, so we don't have to set up a
         complicated directory structure for each test individually.
         """
-        test = self.test
-
+        test = TestCmd(workdir = '')
         test.subdir('sub', ['sub', 'dir'])
 
         wp = test.workpath('')
@@ -970,7 +817,6 @@ class FSTestCase(_tempdirTestCase):
         assert not built_it
         d1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
         d1.builder_set(Builder(fs.File))
-        d1.reset_executor()
         d1.env_set(Environment())
         d1.build()
         assert built_it
@@ -979,7 +825,6 @@ class FSTestCase(_tempdirTestCase):
         assert not built_it
         f1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
         f1.builder_set(Builder(fs.File))
-        f1.reset_executor()
         f1.env_set(Environment())
         f1.build()
         assert built_it
@@ -1126,7 +971,7 @@ class FSTestCase(_tempdirTestCase):
         # the reading of files in text mode.  This tests that
         # get_contents() returns the binary contents.
         test.write("binary_file", "Foo\x1aBar")
-        f1 = fs.File(test.workpath("binary_file"))
+        f1 = SCons.Node.FS.default_fs.File(test.workpath("binary_file"))
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
         def nonexistent(method, s):
@@ -1339,111 +1184,7 @@ class FSTestCase(_tempdirTestCase):
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
         assert str(t) == 'pre-z-suf', str(t)
 
-    def test_same_name(self):
-        """Test that a local same-named file isn't found for # Dir lookup"""
-        test = self.test
-        fs = self.fs
-
-        test.subdir('subdir')
-        test.write(['subdir', 'build'], "subdir/build\n")
-
-        subdir = fs.Dir('subdir')
-        fs.chdir(subdir, change_os_dir=1)
-        path, dir = fs._transformPath('#build/file', subdir)
-        self.fs._doLookup(SCons.Node.FS.File, path, dir)
-
-    def test_above_root(self):
-        """Testing looking up a path above the root directory"""
-        test = self.test
-        fs = self.fs
-
-        d1 = fs.Dir('d1')
-        d2 = d1.Dir('d2')
-        dirs = string.split(os.path.normpath(d2.abspath), os.sep)
-        above_path = apply(os.path.join, ['..']*len(dirs) + ['above'])
-        above = d2.Dir(above_path)
-
-    def test_rel_path(self):
-        """Test the rel_path() method"""
-        test = self.test
-        fs = self.fs
-
-        d1 = fs.Dir('d1')
-        d1_f = d1.File('f')
-        d1_d2 = d1.Dir('d2')
-        d1_d2_f = d1_d2.File('f')
-
-        d3 = fs.Dir('d3')
-        d3_f = d3.File('f')
-        d3_d4 = d3.Dir('d4')
-        d3_d4_f = d3_d4.File('f')
-
-        cases = [
-                d1,             d1,             '.',
-                d1,             d1_f,           'f',
-                d1,             d1_d2,          'd2',
-                d1,             d1_d2_f,        'd2/f',
-                d1,             d3,             '../d3',
-                d1,             d3_f,           '../d3/f',
-                d1,             d3_d4,          '../d3/d4',
-                d1,             d3_d4_f,        '../d3/d4/f',
-
-                d1_f,           d1,             '.',
-                d1_f,           d1_f,           'f',
-                d1_f,           d1_d2,          'd2',
-                d1_f,           d1_d2_f,        'd2/f',
-                d1_f,           d3,             '../d3',
-                d1_f,           d3_f,           '../d3/f',
-                d1_f,           d3_d4,          '../d3/d4',
-                d1_f,           d3_d4_f,        '../d3/d4/f',
-
-                d1_d2,          d1,             '..',
-                d1_d2,          d1_f,           '../f',
-                d1_d2,          d1_d2,          '.',
-                d1_d2,          d1_d2_f,        'f',
-                d1_d2,          d3,             '../../d3',
-                d1_d2,          d3_f,           '../../d3/f',
-                d1_d2,          d3_d4,          '../../d3/d4',
-                d1_d2,          d3_d4_f,        '../../d3/d4/f',
-
-                d1_d2_f,        d1,             '..',
-                d1_d2_f,        d1_f,           '../f',
-                d1_d2_f,        d1_d2,          '.',
-                d1_d2_f,        d1_d2_f,        'f',
-                d1_d2_f,        d3,             '../../d3',
-                d1_d2_f,        d3_f,           '../../d3/f',
-                d1_d2_f,        d3_d4,          '../../d3/d4',
-                d1_d2_f,        d3_d4_f,        '../../d3/d4/f',
-        ]
-
-        d1.rel_path(d3)
-
-        failed = 0
-        while cases:
-            dir, other, expect = cases[:3]
-            expect = os.path.normpath(expect)
-            del cases[:3]
-            result = dir.rel_path(other)
-            if result != expect:
-                if failed == 0: print
-                fmt = "    dir_path(%(dir)s, %(other)s) => '%(result)s' did not match '%(expect)s'"
-                print fmt % locals()
-                failed = failed + 1
-        assert failed == 0, "%d rel_path() cases failed" % failed
-
 class DirTestCase(_tempdirTestCase):
-
-    def test__morph(self):
-        """Test handling of actions when morphing an Entry into a Dir"""
-        test = self.test
-        e = self.fs.Entry('eee')
-        x = e.get_executor()
-        x.add_pre_action('pre')
-        x.add_post_action('post')
-        e.must_be_a_Dir()
-        a = x.get_action_list()
-        assert a[0] == 'pre', a
-        assert a[2] == 'post', a
 
     def test_entry_exists_on_disk(self):
         """Test the Dir.entry_exists_on_disk() method
@@ -1455,14 +1196,10 @@ class DirTestCase(_tempdirTestCase):
 
         test.subdir('d')
         test.write(['d', 'exists'], "d/exists\n")
-        test.write(['d', 'Case-Insensitive'], "d/Case-Insensitive\n")
 
         d = self.fs.Dir('d')
         assert d.entry_exists_on_disk('exists')
         assert not d.entry_exists_on_disk('does_not_exist')
-
-        if os.path.normcase("TeSt") != os.path.normpath("TeSt") or sys.platform == "cygwin":
-            assert d.entry_exists_on_disk('case-insensitive')
 
     def test_srcdir_list(self):
         """Test the Dir.srcdir_list() method
@@ -1529,11 +1266,11 @@ class DirTestCase(_tempdirTestCase):
         src0 = self.fs.Dir('src0')
         self.fs.BuildDir(bld0, src0, duplicate=0)
 
-        n = bld0.srcdir_duplicate('does_not_exist')
+        n = bld0.srcdir_duplicate('does_not_exist', SCons.Node.FS.File)
         assert n is None, n
         assert not os.path.exists(test.workpath('bld0', 'does_not_exist'))
 
-        n = bld0.srcdir_duplicate('exists')
+        n = bld0.srcdir_duplicate('exists', SCons.Node.FS.File)
         assert str(n) == os.path.normpath('src0/exists'), str(n)
         assert not os.path.exists(test.workpath('bld0', 'exists'))
 
@@ -1544,11 +1281,11 @@ class DirTestCase(_tempdirTestCase):
         src1 = self.fs.Dir('src1')
         self.fs.BuildDir(bld1, src1, duplicate=1)
 
-        n = bld1.srcdir_duplicate('does_not_exist')
+        n = bld1.srcdir_duplicate('does_not_exist', SCons.Node.FS.File)
         assert n is None, n
         assert not os.path.exists(test.workpath('bld1', 'does_not_exist'))
 
-        n = bld1.srcdir_duplicate('exists')
+        n = bld1.srcdir_duplicate('exists', SCons.Node.FS.File)
         assert str(n) == os.path.normpath('bld1/exists'), str(n)
         assert os.path.exists(test.workpath('bld1', 'exists'))
 
@@ -1584,7 +1321,7 @@ class DirTestCase(_tempdirTestCase):
         exists_e.exists = return_true
 
         def check(result, expect):
-            result = map(str, result)
+	    result = map(str, result)
             expect = map(os.path.normpath, expect)
             assert result == expect, result
 
@@ -1700,38 +1437,8 @@ class DirTestCase(_tempdirTestCase):
         n = bld1.srcdir_find_file('on-disk-e2')
         check(n, ['bld1/on-disk-e2', 'bld1'])
 
-    def test_dir_on_disk(self):
-        """Test the Dir.dir_on_disk() method"""
-        self.test.subdir('sub', ['sub', 'exists'])
-        self.test.write(['sub', 'file'], "self/file\n")
-        sub = self.fs.Dir('sub')
-
-        r = sub.dir_on_disk('does_not_exist')
-        assert not r, r
-
-        r = sub.dir_on_disk('exists')
-        assert r, r
-
-        r = sub.dir_on_disk('file')
-        assert not r, r
-
-    def test_file_on_disk(self):
-        """Test the Dir.file_on_disk() method"""
-        self.test.subdir('sub', ['sub', 'dir'])
-        self.test.write(['sub', 'exists'], "self/exists\n")
-        sub = self.fs.Dir('sub')
-
-        r = sub.file_on_disk('does_not_exist')
-        assert not r, r
-
-        r = sub.file_on_disk('exists')
-        assert r, r
-
-        r = sub.file_on_disk('dir')
-        assert not r, r
-
-class EntryTestCase(_tempdirTestCase):
-    def test_runTest(self):
+class EntryTestCase(unittest.TestCase):
+    def runTest(self):
         """Test methods specific to the Entry sub-class.
         """
         test = TestCmd(workdir='')
@@ -1820,57 +1527,6 @@ class EntryTestCase(_tempdirTestCase):
         # Doesn't exist, no sources, and no builder: no sig
         assert sig is None, sig
 
-    def test_Entry_Entry_lookup(self):
-        """Test looking up an Entry within another Entry"""
-        self.fs.Entry('#topdir')
-        self.fs.Entry('#topdir/a/b/c')
-
-
-
-class FileTestCase(_tempdirTestCase):
-
-    def test_Dirs(self):
-        """Test the File.Dirs() method"""
-        fff = self.fs.File('subdir/fff')
-        # This simulates that the SConscript file that defined
-        # fff is in subdir/.
-        fff.cwd = self.fs.Dir('subdir')
-        d1 = self.fs.Dir('subdir/d1')
-        d2 = self.fs.Dir('subdir/d2')
-        dirs = fff.Dirs(['d1', 'd2'])
-        assert dirs == [d1, d2], map(str, dirs)
-
-    def test_exists(self):
-        """Test the File.exists() method"""
-        fs = self.fs
-        test = self.test
-
-        src_f1 = fs.File('src/f1')
-        assert not src_f1.exists(), "%s apparently exists?" % src_f1
-
-        test.subdir('src')
-        test.write(['src', 'f1'], "src/f1\n")
-
-        assert not src_f1.exists(), "%s did not cache previous exists() value" % src_f1
-        src_f1.clear()
-        assert src_f1.exists(), "%s apparently does not exist?" % src_f1
-
-        test.subdir('build')
-        fs.BuildDir('build', 'src')
-        build_f1 = fs.File('build/f1')
-
-        assert build_f1.exists(), "%s did not realize that %s exists" % (build_f1, src_f1)
-        assert os.path.exists(build_f1.abspath), "%s did not get duplicated on disk" % build_f1.abspath
-
-        test.unlink(['src', 'f1'])
-        src_f1.clear()  # so the next exists() call will look on disk again
-
-        assert build_f1.exists(), "%s did not cache previous exists() value" % build_f1
-        build_f1.clear()
-        build_f1.linked = None
-        assert not build_f1.exists(), "%s did not realize that %s disappeared" % (build_f1, src_f1)
-        assert not os.path.exists(build_f1.abspath), "%s did not get removed after %s was removed" % (build_f1, src_f1)
-
 
 
 class RepositoryTestCase(_tempdirTestCase):
@@ -1907,28 +1563,6 @@ class RepositoryTestCase(_tempdirTestCase):
         ]
 
         rep = self.fs.Dir('#').getRepositories()
-        r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
-        assert r == expect, r
-
-    def test_get_all_rdirs(self):
-        """Test the Dir.get_all_rdirs() method"""
-        self.fs.Repository('foo')
-        self.fs.Repository(os.path.join('foo', 'bar'))
-        self.fs.Repository('bar/foo')
-        self.fs.Repository('bar')
-
-        expect = [
-            '.',
-            self.rep1,
-            self.rep2,
-            self.rep3,
-            'foo',
-            os.path.join('foo', 'bar'),
-            os.path.join('bar', 'foo'),
-            'bar'
-        ]
-
-        rep = self.fs.Dir('#').get_all_rdirs()
         r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
         assert r == expect, r
 
@@ -2026,42 +1660,95 @@ class RepositoryTestCase(_tempdirTestCase):
         r = e2.rfile()
         assert r is re2, r
 
-    def test_Rfindalldirs(self):
-        """Test the Rfindalldirs() methods"""
+    def test_Rsearches(self):
+        """Test the Rsearch() methods"""
         fs = self.fs
         test = self.test
 
-        d1 = fs.Dir('d1')
-        d2 = fs.Dir('d2')
-        rep1_d1 = fs.Dir(test.workpath('rep1', 'd1'))
-        rep2_d1 = fs.Dir(test.workpath('rep2', 'd1'))
-        rep3_d1 = fs.Dir(test.workpath('rep3', 'd1'))
-        sub = fs.Dir('sub')
-        sub_d1 = sub.Dir('d1')
-        rep1_sub_d1 = fs.Dir(test.workpath('rep1', 'sub', 'd1'))
-        rep2_sub_d1 = fs.Dir(test.workpath('rep2', 'sub', 'd1'))
-        rep3_sub_d1 = fs.Dir(test.workpath('rep3', 'sub', 'd1'))
+        test.write([self.rep1, 'f2'], "")
+        test.subdir([self.rep2, 'f3'])
+        test.write([self.rep3, 'f3'], "")
 
-        r = fs.Rfindalldirs(d1, fs.Top)
-        assert r == [d1], map(str, r)
+        r = fs.Rsearch('f1')
+        assert r is None, r
 
-        r = fs.Rfindalldirs([d1, d2], fs.Top)
-        assert r == [d1, d2], map(str, r)
+        r = fs.Rsearch('f2')
+        assert r, r
 
-        r = fs.Rfindalldirs('d1', fs.Top)
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
+        f3 = fs.File('f3')
+        r = fs.Rsearch(f3)
+        assert r is f3, r
 
-        r = fs.Rfindalldirs('#d1', fs.Top)
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
+    def test_Rsearchall(self):
+        """Test the Rsearchall() methods"""
+        fs = self.fs
+        test = self.test
 
-        r = fs.Rfindalldirs('d1', sub)
-        assert r == [sub_d1, rep1_sub_d1, rep2_sub_d1, rep3_sub_d1], map(str, r)
+        list = fs.Rsearchall(fs.Dir('d1'))
+        assert len(list) == 1, list
+        assert list[0].path == 'd1', list[0].path
 
-        r = fs.Rfindalldirs('#d1', sub)
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
+        list = fs.Rsearchall([fs.Dir('d1')])
+        assert len(list) == 1, list
+        assert list[0].path == 'd1', list[0].path
 
-        r = fs.Rfindalldirs(['d1', d2], fs.Top)
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1, d2], map(str, r)
+        list = fs.Rsearchall('d2')
+        assert list == [], list
+
+        list = fs.Rsearchall('#d2')
+        assert list == [], list
+
+        fs.File('d2').built() # Clear exists cache
+        test.subdir(['work', 'd2'])
+
+        list = fs.Rsearchall('d2')
+        assert map(str, list) == ['d2'], list
+
+        fs.File('../rep2/d2').built() # Clear exists cache
+        test.subdir(['rep2', 'd2'])
+
+        list = fs.Rsearchall('d2')
+        assert map(str, list) == ['d2', test.workpath('rep2', 'd2')], list
+
+        fs.File('../rep1/d2').built() # Clear exists cache
+        test.subdir(['rep1', 'd2'])
+
+        list = fs.Rsearchall('d2')
+        assert map(str, list) == ['d2',
+                                  test.workpath('rep1', 'd2'),
+                                  test.workpath('rep2', 'd2')], list
+
+        list = fs.Rsearchall(['d3', 'd4'])
+        assert list == [], list
+
+        fs.File('d3').built() # Clear exists cache
+        test.subdir(['work', 'd3'])
+
+        list = map(str, fs.Rsearchall(['d3', 'd4']))
+        assert list == ['d3'], list
+
+        fs.File('../rep3/d4').built() # Clear exists cache
+        test.subdir(['rep3', 'd4'])
+
+        list = map(str, fs.Rsearchall(['d3', 'd4']))
+        assert list == ['d3', test.workpath('rep3', 'd4')], list
+
+        list = map(str, fs.Rsearchall(string.join(['d3', 'd4'], os.pathsep)))
+        assert list == ['d3', test.workpath('rep3', 'd4')], list
+
+        work_d4 = fs.File(os.path.join('work', 'd4'))
+
+        list = map(str, fs.Rsearchall(['d3', work_d4]))
+        assert list == ['d3', str(work_d4)], list
+
+        list = fs.Rsearchall('')
+        assert list == [], list
+
+        list = fs.Rsearchall([None])
+        assert list == [], list
+
+        list = fs.Rsearchall([''])
+        assert list == [], list
 
     def test_rexists(self):
         """Test the Entry.rexists() method"""
@@ -2069,17 +1756,17 @@ class RepositoryTestCase(_tempdirTestCase):
         test = self.test
 
         test.write([self.rep1, 'f2'], "")
-        test.write([self.rep2, "i_exist"], "\n")
-        test.write(["work", "i_exist_too"], "\n")
 
         fs.BuildDir('build', '.')
 
         f = fs.File(test.workpath("work", "i_do_not_exist"))
         assert not f.rexists()
 
+        test.write([self.rep2, "i_exist"], "\n")
         f = fs.File(test.workpath("work", "i_exist"))
         assert f.rexists()
 
+        test.write(["work", "i_exist_too"], "\n")
         f = fs.File(test.workpath("work", "i_exist_too"))
         assert f.rexists()
 
@@ -2216,7 +1903,7 @@ class StringDirTestCase(unittest.TestCase):
 
 class stored_infoTestCase(unittest.TestCase):
     def runTest(self):
-        """Test how we store build information"""
+        """Test how storing build information"""
         test = TestCmd(workdir = '')
         test.subdir('sub')
         fs = SCons.Node.FS.FS(test.workpath(''))
@@ -2224,8 +1911,7 @@ class stored_infoTestCase(unittest.TestCase):
         d = fs.Dir('sub')
         f = fs.File('file1', d)
         bi = f.get_stored_info()
-        assert bi.ninfo.timestamp == 0, bi.ninfo.timestamp
-        assert bi.ninfo.size == None, bi.ninfo.size
+        assert bi.bsig == None, bi.bsig
 
         class MySConsign:
             class Null:
@@ -2337,7 +2023,6 @@ class prepareTestCase(unittest.TestCase):
         dir_made = []
         new_dir = fs.Dir("new_dir")
         new_dir.builder = Builder(fs.Dir, action=MkdirAction(dir_made))
-        new_dir.reset_executor()
         xyz = fs.File(os.path.join("new_dir", "xyz"))
 
         xyz.set_state(SCons.Node.up_to_date)
@@ -2476,7 +2161,7 @@ class CacheDirTestCase(unittest.TestCase):
         try:
             f5 = fs.File("cd.f5")
             f5.binfo = f5.new_binfo()
-            f5.binfo.ninfo.bsig = 'a_fake_bsig'
+            f5.binfo.bsig = 'a_fake_bsig'
             cp = f5.cachepath()
             dirname = os.path.join('cache', 'A')
             filename = os.path.join(dirname, 'a_fake_bsig')
@@ -2511,7 +2196,7 @@ class CacheDirTestCase(unittest.TestCase):
             test.write(cd_f7, "cd.f7\n")
             f7 = fs.File(cd_f7)
             f7.binfo = f7.new_binfo()
-            f7.binfo.ninfo.bsig = 'f7_bsig'
+            f7.binfo.bsig = 'f7_bsig'
 
             warn_caught = 0
             try:
@@ -2846,7 +2531,9 @@ class SaveStringsTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
+    suite.addTest(FSTestCase())
     suite.addTest(BuildDirTestCase())
+    suite.addTest(EntryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
     suite.addTest(stored_infoTestCase())
@@ -2860,12 +2547,6 @@ if __name__ == "__main__":
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())
     tclasses = [
-        BaseTestCase,
-        BuildInfoTestCase,
-        EntryTestCase,
-        FileTestCase,
-        NodeInfoTestCase,
-        FSTestCase,
         DirTestCase,
         RepositoryTestCase,
     ]
