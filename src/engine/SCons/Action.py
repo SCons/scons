@@ -659,22 +659,33 @@ class FunctionAction(_ActionAction):
         So we remove the line number byte codes to prevent
         recompilations from moving a Python function.
         """
+        execfunction = self.execfunction
         try:
-            # "self.execfunction" is a function.
-            contents = str(self.execfunction.func_code.co_code)
+            # Test if execfunction is a function.
+            code = execfunction.func_code.co_code
         except AttributeError:
-            # "self.execfunction" is a callable object.
             try:
-                contents = str(self.execfunction.__call__.im_func.func_code.co_code)
+                # Test if execfunction is a method.
+                code = execfunction.im_func.func_code.co_code
             except AttributeError:
                 try:
-                    # See if execfunction will do the heavy lifting for us.
-                    gc = self.execfunction.get_contents
+                    # Test if execfunction is a callable object.
+                    code = execfunction.__call__.im_func.func_code.co_code
                 except AttributeError:
-                    # This is weird, just do the best we can.
-                    contents = str(self.execfunction)
+                    try:
+                        # See if execfunction will do the heavy lifting for us.
+                        gc = self.execfunction.get_contents
+                    except AttributeError:
+                        # This is weird, just do the best we can.
+                        contents = str(self.execfunction)
+                    else:
+                        contents = gc(target, source, env)
                 else:
-                    contents = gc(target, source, env)
+                    contents = str(code)
+            else:
+                contents = str(code)
+        else:
+            contents = str(code)
         contents = remove_set_lineno_codes(contents)
         return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
                                                      self.varlist)))
