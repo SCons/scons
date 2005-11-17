@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <cvar name="ESCAPE">
 <summary>
 A function that will be called to escape shell special characters in
@@ -84,10 +89,10 @@ The suffix used for executable file names.
 
 <cvar name="SHELL">
 <summary>
-A string naming the shell program that will be passed to the 
+A string naming the shell program that will be passed to the
 &cv-SPAWN;
-function. 
-See the 
+function.
+See the
 &cv-SPAWN;
 construction variable for more information.
 </summary>

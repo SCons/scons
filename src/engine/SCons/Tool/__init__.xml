@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <builder name="CFile">
 <summary>
 Builds a C source file given a lex (<filename>.l</filename>)
@@ -6,7 +11,8 @@ or yacc (<filename>.y</filename>) input file.
 The suffix specified by the &cv-CFILESUFFIX; construction variable
 (<filename>.c</filename> by default)
 is automatically added to the target
-if it is not already present. Example:
+if it is not already present.
+Example:
 
 <example>
 # builds foo.c
@@ -25,7 +31,8 @@ input file.
 The suffix specified by the &cv-CXXFILESUFFIX; construction variable
 (<filename>.cc</filename> by default)
 is automatically added to the target
-if it is not already present. Example:
+if it is not already present.
+Example:
 
 <example>
 # builds foo.cc
@@ -41,6 +48,16 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
 A synonym for the
 &b-StaticLibrary;
 builder method.
+</summary>
+</builder>
+
+<builder name="LoadableModule">
+<summary>
+On most systems,
+this is the same as
+&b-SharedLibrary;.
+On Mac OS X (Darwin) platforms,
+this creates a loadable module bundle.
 </summary>
 </builder>
 
@@ -173,7 +190,7 @@ The target object file prefix
 by default, the same as &cv-OBJPREFIX;)
 and suffix
 (specified by the &cv-SHOBJSUFFIX; construction variable)
-are automatically added to the target if not already present. 
+are automatically added to the target if not already present.
 Examples:
 
 <example>
@@ -181,6 +198,13 @@ env.SharedObject(target = 'ddd', source = 'ddd.c')
 env.SharedObject(target = 'eee.o', source = 'eee.cpp')
 env.SharedObject(target = 'fff.obj', source = 'fff.for')
 </example>
+
+Note that the source files will be scanned
+according to the suffix mappings in the
+<literal>SourceFileScanner</literal>
+object.
+See the section "Scanner Objects,"
+below, for a more information.
 </summary>
 </builder>
 
@@ -245,6 +269,8 @@ Source files must have one of the following extensions:
   .FOR    Fortran file
   .fpp    Fortran file + C pre-processor
   .FPP    Fortran file + C pre-processor
+  .m      Object C file
+  .mm     Object C++ file
   .s      assembly language file
   .S      WIN32:  assembly language file
           POSIX:  assembly language file + C pre-processor
@@ -266,6 +292,13 @@ env.StaticObject(target = 'aaa', source = 'aaa.c')
 env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
 env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 </example>
+
+Note that the source files will be scanned
+according to the suffix mappings in
+<literal>SourceFileScanner</literal>
+object.
+See the section "Scanner Objects,"
+below, for a more information.
 </summary>
 </builder>
 
@@ -314,7 +347,10 @@ SCons also treats files with the suffixes
 <filename>.c++</filename>,
 and
 <filename>.C++</filename>
-as C++ files.
+as C++ files,
+and files with
+<filename>.mm</filename>
+suffixes as Objective C++ files.
 On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
 SCons also treats
 <filename>.C</filename>

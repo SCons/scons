@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="BitKeeper">
 <summary>
 XXX
@@ -14,7 +19,7 @@ The BitKeeper executable.
 <cvar name="BITKEEPERCOM">
 <summary>
 The command line for
-fetching source files using BitKEeper.
+fetching source files using BitKeeper.
 </summary>
 </cvar>
 

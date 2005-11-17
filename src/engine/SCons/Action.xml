@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <cvar name="PRINT_CMD_LINE_FUNC">
 <summary>
 A Python function used to print the command lines as they are executed
@@ -55,7 +60,7 @@ def spawn(shell, escape, cmd, args, env):
 is a string naming the shell program to use.
 <varname>escape</varname>
 is a function that can be called to escape shell special characters in
-the command line. 
+the command line.
 <varname>cmd</varname>
 is the path to the command to be executed.
 <varname>args</varname>

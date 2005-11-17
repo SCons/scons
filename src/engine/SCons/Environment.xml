@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <cvar name="BUILDERS">
 <summary>
 A dictionary mapping the names of the builders
@@ -34,8 +39,8 @@ env['BUILDERS]['NewBuilder'] = foo
 
 <cvar name="Dir">
 <summary>
-A function that converts a file name into a Dir instance relative to the
-target being built. 
+A function that converts a string
+into a Dir instance relative to the target being built.
 </summary>
 </cvar>
 
@@ -91,15 +96,8 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
 <cvar name="File">
 <summary>
-A function that converts a file name into a File instance relative to the
-target being built. 
-</summary>
-</cvar>
-
-<cvar name="RDirs">
-<summary>
-A function that converts a file name into a list of Dir instances by
-searching the repositories. 
+A function that converts a string into a File instance relative to the
+target being built.
 </summary>
 </cvar>
 

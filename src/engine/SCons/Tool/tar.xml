@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="tar">
 <summary>
 XXX
@@ -17,6 +22,12 @@ for a given target;
 each additional call
 adds to the list of entries
 that will be built into the archive.
+Any source directories will
+be scanned for changes to
+any on-disk files,
+regardless of whether or not
+&scons;
+knows about them from other Builder or function calls.
 
 <example>
 env.Tar('src.tar', 'src')

@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="msvc">
 <summary>
 XXX
@@ -12,7 +17,7 @@ Calling this builder method
 returns a list of two targets: the PCH as the first element, and the object
 file as the second element. Normally the object file is ignored.
 This builder method is only
-provided when Microsoft Visual C++ is being used as the compiler. 
+provided when Microsoft Visual C++ is being used as the compiler.
 The PCH builder method is generally used in
 conjuction with the PCH construction variable to force object files to use
 the precompiled header:
@@ -29,11 +34,12 @@ Builds a Microsoft Visual C++ resource file.
 This builder method is only provided
 when Microsoft Visual C++ or MinGW is being used as the compiler. The
 <filename>.res</filename>
-(or 
+(or
 <filename>.o</filename>
 for MinGW) suffix is added to the target name if no other suffix is given.
 The source
-file is scanned for implicit dependencies as though it were a C file. Example:
+file is scanned for implicit dependencies as though it were a C file.
+Example:
 
 <example>
 env.RES('resource.rc')
@@ -48,7 +54,8 @@ object files. This variable is ignored by tools other than Microsoft Visual C++.
 When this variable is
 defined SCons will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
-dependencies for the PCH file. Example: 
+dependencies for the PCH file.
+Example:
 
 <example>
 env['PCH'] = 'StdAfx.pch'

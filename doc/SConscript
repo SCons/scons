@@ -164,11 +164,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     # to rebuild documentation just because it's found in one location
     # vs. the other.  The *.gen and *.mod targets will still be dependent
     # on the list of the files themselves.
-    b = env.Command([builders_gen, builders_mod,
-                     tools_gen, tools_mod,
-                     variables_gen, variables_mod],
+    doc_output_files = [builders_gen, builders_mod,
+                        tools_gen, tools_mod,
+                        variables_gen, variables_mod]
+    b = env.Command(doc_output_files,
                     scons_doc_files,
-                    "python $SCONS_PROC_PY -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
+                    "python $SCONS_PROC_PY --sgml -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
     env.Depends(b, "$SCONS_PROC_PY")
 
     env.Local(b)
@@ -375,20 +376,39 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 #
 # Man page(s), in good ol' troff format.
 #
-man_page_list = ['scons', 'sconsign']
+man_page_list = ['scons.1', 'sconsign.1']
 
-for man in man_page_list:
-    man_1 = os.path.join('man', '%s.1' % man)
+for m in man_page_list:
+    orig_env.SCons_revision(os.path.join(build, 'man', m),
+                            os.path.join('man', m))
+
+man_intermediate_files = ['builders.man', 'tools.man', 'variables.man']
+
+man_intermediate_files = map(lambda x: os.path.join(build, 'man', x),
+                             man_intermediate_files)
+
+cmd = "python $SCONS_PROC_PY --man -b ${TARGETS[0]} -t ${TARGETS[1]} -v ${TARGETS[2]} $( $SOURCES $)"
+man_intermediate_files = env.Command(man_intermediate_files,
+                                     scons_doc_files,
+                                     cmd)
+env.Depends(man_intermediate_files, "$SCONS_PROC_PY")
+
+for man_1 in man_page_list:
+    man, _1 = os.path.splitext(man_1)
+
+    man_1 = os.path.join(build, 'man', man_1)
 
     if groff:
         ps = os.path.join(build, 'PS', '%s-man.ps' % man)
         text = os.path.join(build, 'TEXT', '%s-man.txt' % man)
 
-        env.Command(ps, man_1, "groff -man -Tps $SOURCES > $TARGET")
+        b = env.Command(ps, man_1, "( cd ${SOURCES.dir} && groff -man -Tps ${SOURCES.file} ) > $TARGET")
         Local(ps)
+        env.Depends(b, man_intermediate_files)
 
-        env.Command(text, man_1, "groff -man -Tascii $SOURCES > $TARGET")
+        b = env.Command(text, man_1, "( cd ${SOURCES.dir} && groff -man -Tascii ${SOURCES.file} ) > $TARGET")
         Local(text)
+        env.Depends(b, man_intermediate_files)
 
         tar_deps.extend([ps, text])
         tar_list.extend([ps, text])
@@ -396,11 +416,12 @@ for man in man_page_list:
     if man2html:
         html = os.path.join(build, 'HTML' , '%s-man.html' % man)
 
-        cmds = [ "man2html $SOURCES > $TARGET" ]
+        cmds = [ "( cd ${SOURCES.dir} && man2html ${SOURCES.dir} ) > $TARGET" ]
         if tidy:
             cmds.append("tidy -m -q $TARGET || true")
-        env.Command(html, man_1, cmds)
+        b = env.Command(html, man_1, cmds)
         Local(html)
+        env.Depends(b, man_intermediate_files)
 
         tar_deps.append(html)
         tar_list.append(html)

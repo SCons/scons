@@ -1,4 +1,9 @@
-<!-- Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <cvar name="FRAMEWORKSFLAGS">">
 <summary>
 On Mac OS X with gcc,
