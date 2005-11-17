@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="msvs">
 <summary>
 XXX
@@ -12,7 +17,7 @@ and by default builds a solution file as well.
 
 This builds a Visual Studio project file, based on the version of
 Visual Studio that is configured (either the latest installed version,
-or the version specified by 
+or the version specified by
 &cv-MSVS_VERSION;
 in the Environment constructor).
 For Visual Studio 6, it will generate a
@@ -43,7 +48,7 @@ Builder (see below).
 
 It takes several lists of filenames to be placed into the project
 file.
-These are currently these are limited to 
+These are currently limited to
 <literal>srcs</literal>,
 <literal>incs</literal>,
 <literal>localincs</literal>,
@@ -60,7 +65,8 @@ In addition to the above lists of values (which are all optional,
 although not specifying any of them results in an empty project file),
 the following values may be specified:
 
-<literal>target</literal>: The name of the target
+<literal>target</literal>:
+The name of the target
 <filename>.dsp</filename>
 or
 <filename>.vcproj</filename>
@@ -88,7 +94,7 @@ character:
 The default target platform is Win32.
 Multiple calls to
 &b-MSVSProject;
- with different variants are allowed;
+with different variants are allowed;
 all variants will be added to the project file with their appropriate
 build targets and sources.
 
@@ -133,15 +139,15 @@ Builds a Microsoft Visual Studio solution file.
 This builds a Visual Studio solution file,
 based on the version of Visual Studio that is configured
 (either the latest installed version,
-or the version specified by 
+or the version specified by
 &cv-MSVS_VERSION;
 in the construction environment).
 For Visual Studio 6, it will generate a
-<filename>dsw</filename>
+<filename>.dsw</filename>
 file.
 For Visual Studio 7 (.NET), it will
 generate a
-<filename>sln</filename>
+<filename>.sln</filename>
 file.
 
 The following values must be specified:
@@ -185,35 +191,35 @@ local.MSVSSolution(target = 'Bar' + env['MSVSSOLUTIONSUFFIX'],
 When the Microsoft Visual Studio tools are initialized, they set up
 this dictionary with the following keys:
 
-<envar>VERSION</envar>
+<envar>VERSION</envar>:
 the version of MSVS being used (can be set via
 MSVS_VERSION)
 
-<envar>VERSIONS</envar>
+<envar>VERSIONS</envar>:
 the available versions of MSVS installed
 
-<envar>VCINSTALLDIR</envar>
+<envar>VCINSTALLDIR</envar>:
 installed directory of Visual C++
 
-<envar>VSINSTALLDIR</envar>
+<envar>VSINSTALLDIR</envar>:
 installed directory of Visual Studio
 
-<envar>FRAMEWORKDIR</envar>
+<envar>FRAMEWORKDIR</envar>:
 installed directory of the .NET framework
 
-<envar>FRAMEWORKVERSIONS</envar>
+<envar>FRAMEWORKVERSIONS</envar>:
 list of installed versions of the .NET framework, sorted latest to oldest.
 
-<envar>FRAMEWORKVERSION</envar>
+<envar>FRAMEWORKVERSION</envar>:
 latest installed version of the .NET framework
 
-<envar>FRAMEWORKSDKDIR</envar>
+<envar>FRAMEWORKSDKDIR</envar>:
 installed location of the .NET SDK.
 
-<envar>PLATFORMSDKDIR</envar>
+<envar>PLATFORMSDKDIR</envar>:
 installed location of the Platform SDK.
 
-<envar>PLATFORMSDK_MODULES</envar>
+<envar>PLATFORMSDK_MODULES</envar>:
 dictionary of installed Platform SDK modules,
 where the dictionary keys are keywords for the various modules, and
 the values are 2-tuples where the first is the release date, and the
@@ -239,18 +245,18 @@ minimal set of paths needed to run the tools successfully.
 
 For VS6, the mininimal set is:
 <example>
-   INCLUDE:'VSDir\VC98\ATL\include;VSDir\VC98\MFC\include;VSDir\VC98\include'
-   LIB:'VSDir\VC98\MFC\lib;VSDir\VC98\lib'
-   PATH:'VSDir\Common\MSDev98\bin;VSDir\VC98\bin'
+   INCLUDE:'&lt;VSDir&gt;\VC98\ATL\include;&lt;VSDir&gt;\VC98\MFC\include;&lt;VSDir&gt;\VC98\include'
+   LIB:'&lt;VSDir&gt;\VC98\MFC\lib;&lt;VSDir&gt;\VC98\lib'
+   PATH:'&lt;VSDir&gt;\Common\MSDev98\bin;&lt;VSDir&gt;\VC98\bin'
 </example>
 For VS7, it is:
 <example>
-   INCLUDE:'VSDir\Vc7\atlmfc\include;VSDir\Vc7\include'
-   LIB:'VSDir\Vc7\atlmfc\lib;VSDir\Vc7\lib'
-   PATH:'VSDir\Common7\Tools\bin;VSDir\Common7\Tools;VSDir\Vc7\bin'
+   INCLUDE:'&lt;VSDir&gt;\Vc7\atlmfc\include;&lt;VSDir&gt;\Vc7\include'
+   LIB:'&lt;VSDir&gt;\Vc7\atlmfc\lib;&lt;VSDir&gt;\Vc7\lib'
+   PATH:'&lt;VSDir&gt;\Common7\Tools\bin;&lt;VSDir&gt;\Common7\Tools;&lt;VSDir&gt;\Vc7\bin'
 </example>
 
-Where 'VSDir' is the installed location of Visual Studio.
+Where '&lt;VSDir&gt;' is the installed location of Visual Studio.
 </summary>
 </cvar>
 
@@ -260,7 +266,7 @@ The string
 placed in a generated Microsoft Visual Studio solution file
 as the value of the
 <literal>SccProjectFilePathRelativizedFromConnection0</literal>
-and 
+and
 <literal>SccProjectFilePathRelativizedFromConnection1</literal>
 attributes of the
 <literal>GlobalSection(SourceCodeControl)</literal>
@@ -385,7 +391,7 @@ directory to the default
 <envar>LIB</envar>
 external environment variable.
 The current default value is
-<literal>1</literal>
+<literal>1</literal>,
 which means these directories
 are added to the paths by default.
 This default value is likely to change
@@ -413,7 +419,7 @@ installed on your machine.
 So, if you have version 6 and version 7 (MSVS .NET) installed,
 it will prefer version 7.
 You can override this by
-specifying the 
+specifying the
 <envar>MSVS_VERSION</envar>
 variable in the Environment initialization, setting it to the
 appropriate version ('6.0' or '7.0', for example).

@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <builder name="DVI">
 <summary>
 Builds a <filename>.dvi</filename> file
@@ -111,12 +116,24 @@ file.
 </summary>
 </cvar>
 
+<cvar name="_CPPDEFFLAGS">
+<summary>
+An automatically-generated construction variable
+containing the C preprocessor command-line options
+to define values.
+The value of &cv-_CPPDEFFLAGS; is created
+by appending &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
+to the beginning and end
+of each directory in &cv-CPPDEFINES;.
+</summary>
+</cvar>
+
 <cvar name="CPPDEFINES">
 <summary>
 A platform independent specification of C preprocessor definitions.
 The definitions will be added to command lines
 through the automatically-generated
-&cv-_CPPDEFFLAGS; construction variable (see below),
+&cv-_CPPDEFFLAGS; construction variable (see above),
 which is constructed according to
 the type of value of &cv-CPPDEFINES;:
 
@@ -163,25 +180,14 @@ then the name is defined without an explicit value.
 Note that the resulting flags are sorted by keyword
 to ensure that the order of the options on the
 command line is consistent each time
-&scons; is run.
+&scons;
+is run.
 
 <example>
 # Will add -DA -DB=2 to POSIX compiler command lines,
 # and /DA /DB=2 to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES={'B':2, 'A':None})
 </example>
-</summary>
-</cvar>
-
-<cvar name="_CPPDEFFLAGS">
-<summary>
-An automatically-generated construction variable
-containing the C preprocessor command-line options
-to define values.
-The value of &cv-_CPPDEFFLAGS; is created
-by appending &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-to the beginning and end
-of each directory in &cv-CPPDEFINES;.
 </summary>
 </cvar>
 
@@ -225,7 +231,7 @@ directories for include files. Don't explicitly put include directory
 arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
 and the directories will not be searched by the dependency scanner. Note:
 directory names in CPPPATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force 
+directory when they are used in a command. To force
 &scons;
 to look-up a directory relative to the root of the source tree use #:
 
@@ -233,7 +239,7 @@ to look-up a directory relative to the root of the source tree use #:
 env = Environment(CPPPATH='#/include')
 </example>
 
-The directory look-up can also be forced using the 
+The directory look-up can also be forced using the
 &Dir;()
 function:
 
@@ -265,7 +271,7 @@ env = Environment(CCCOM="my_compiler $_CPPINCFLAGS -c -o $TARGET $SOURCE")
 <cvar name="Dir">
 <summary>
 A function that converts a string
-into a Dir instance relative to the target being built. 
+into a Dir instance relative to the target being built.
 </summary>
 </cvar>
 
@@ -291,7 +297,7 @@ The default list is:
 <cvar name="File">
 <summary>
 A function that converts a string into a File instance relative to the
-target being built. 
+target being built.
 </summary>
 </cvar>
 
@@ -351,6 +357,17 @@ is the path name of the source file.
 is the construction environment
 (a dictionary of construction values)
 in force for this file installation.
+</summary>
+</cvar>
+
+<cvar name="INSTALLSTR">
+<summary>
+The string displayed when a file is
+installed into a destination file name.
+The default is:
+<example>
+Install file: "$SOURCE" as "$TARGET"
+</example>
 </summary>
 </cvar>
 
@@ -436,7 +453,7 @@ arguments in &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
 because the result will be non-portable
 and the directories will not be searched by the dependency scanner. Note:
 directory names in LIBPATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force 
+directory when they are used in a command. To force
 &scons;
 to look-up a directory relative to the root of the source tree use #:
 
@@ -444,7 +461,7 @@ to look-up a directory relative to the root of the source tree use #:
 env = Environment(LIBPATH='#/libs')
 </example>
 
-The directory look-up can also be forced using the 
+The directory look-up can also be forced using the
 &Dir;()
 function:
 
@@ -534,6 +551,6 @@ The suffix used for PDF file names.
 <cvar name="RDirs">
 <summary>
 A function that converts a string into a list of Dir instances by
-searching the repositories. 
+searching the repositories.
 </summary>
 </cvar>

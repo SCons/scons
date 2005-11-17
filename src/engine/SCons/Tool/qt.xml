@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="qt">
 <summary>
 XXX
@@ -7,8 +12,8 @@ XXX
 
 <builder name="Moc">
 <summary>
-Builds an output file from a moc input file. Moc input files are either 
-header files or cxx files. This builder is only available after using the 
+Builds an output file from a moc input file. Moc input files are either
+header files or cxx files. This builder is only available after using the
 tool 'qt'. See the &cv-QTDIR; variable for more information.
 Example:
 
@@ -23,7 +28,7 @@ env.Moc('foo.cpp') # generates foo.moc
 <summary>
 Builds a header file, an implementation file and a moc file from an ui file.
 and returns the corresponding nodes in the above order.
-This builder is only available after using the tool 'qt'. Note: you can 
+This builder is only available after using the tool 'qt'. Note: you can
 specify <filename>.ui</filename> files directly as source
 files to the &b-Program;,
 &b-Library; and &b-SharedLibrary; builders
@@ -63,38 +68,41 @@ Environment(tools=['default','qt'])
 
 The qt tool supports the following operations:
 
-.B Automatic moc file generation from header files.
+<emphasis Role="strong">Automatic moc file generation from header files.</emphasis>
 You do not have to specify moc files explicitly, the tool does it for you.
 However, there are a few preconditions to do so: Your header file must have
 the same filebase as your implementation file and must stay in the same
-directory. It must have one of the suffixes .h, .hpp, .H, .hxx, .hh. You 
+directory. It must have one of the suffixes .h, .hpp, .H, .hxx, .hh. You
 can turn off automatic moc file generation by setting QT_AUTOSCAN to 0.
 See also the corresponding builder method
 .B Moc()
 
-.B Automatic moc file generation from cxx files.
-As stated in the qt documentation, include the moc file at the end of 
+<emphasis Role="strong">Automatic moc file generation from cxx files.</emphasis>
+As stated in the qt documentation, include the moc file at the end of
 the cxx file. Note that you have to include the file, which is generated
-by the transformation ${QT_MOCCXXPREFIX}basename${QT_MOCCXXSUFFIX}, by default
-basename.moc. A warning is generated after building the moc file, if you 
-do not include the correct file. If you are using BuildDir, you may 
-need to specify duplicate=1. You can turn off automatic moc file generation 
-by setting QT_AUTOSCAN to 0. See also the corresponding builder method
-.B Moc()
+by the transformation ${QT_MOCCXXPREFIX}&lt;basename&gt;${QT_MOCCXXSUFFIX}, by default
+&lt;basename&gt;.moc. A warning is generated after building the moc file, if you
+do not include the correct file. If you are using BuildDir, you may
+need to specify duplicate=1. You can turn off automatic moc file generation
+by setting QT_AUTOSCAN to 0. See also the corresponding
+&b-Moc;
+builder method.
 
-.B Automatic handling of .ui files.
+<emphasis Role="strong">Automatic handling of .ui files.</emphasis>
 The implementation files generated from .ui files are handled much the same
 as yacc or lex files. Each .ui file given as a source of Program, Library or
-SharedLibrary will generate three files, the declaration file, the 
-implementation file and a moc file. Because there are also generated headers, 
-you may need to specify duplicate=1 in calls to BuildDir. See also the corresponding builder method
-.B Uic()
+SharedLibrary will generate three files, the declaration file, the
+implementation file and a moc file. Because there are also generated headers,
+you may need to specify duplicate=1 in calls to BuildDir.
+See also the corresponding
+&b-Uic;
+builder method.
 </summary>
 </cvar>
 
 <cvar name="QT_AUTOSCAN">
 <summary>
-Turn off scanning for mocable files. Use the Moc Builder to explicitely 
+Turn off scanning for mocable files. Use the Moc Builder to explicitely
 specify files to run moc on.
 </summary>
 </cvar>
@@ -131,7 +139,7 @@ this variable to None, the tool won't change the &cv-LIBS; variable.
 <cvar name="QT_LIBPATH">
 <summary>
 The path where the qt libraries are installed.
-The default value is '&cv-QTDIR;/lib'. 
+The default value is '&cv-QTDIR;/lib'.
 Note: If you set this variable to None, the tool won't change the &cv-LIBPATH;
 construction variable.
 </summary>
@@ -139,7 +147,7 @@ construction variable.
 
 <cvar name="QT_MOC">
 <summary>
-Default value is '&cv-QT_BINPATH;/bin/moc'.
+Default value is '&cv-QT_BINPATH;/moc'.
 </summary>
 </cvar>
 
@@ -151,7 +159,7 @@ Default value is ''. Prefix for moc output files, when source is a cxx file.
 
 <cvar name="QT_MOCCXXSUFFIX">
 <summary>
-Default value is '.moc'. Suffix for moc output files, when source is a cxx 
+Default value is '.moc'. Suffix for moc output files, when source is a cxx
 file.
 </summary>
 </cvar>
@@ -262,7 +270,7 @@ Default value is 'uic_'. Prefix for uic generated implementation files.
 
 <cvar name="QT_UICIMPLSUFFIX">
 <summary>
-Default value is '&cv-CXXFILESUFFIX;'. Suffix for uic generated implementation 
+Default value is '&cv-CXXFILESUFFIX;'. Suffix for uic generated implementation
 files.
 </summary>
 </cvar>

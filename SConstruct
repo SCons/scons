@@ -32,6 +32,7 @@ copyright_years = '2001, 2002, 2003, 2004'
 import distutils.util
 import os
 import os.path
+import re
 import socket
 import stat
 import string
@@ -247,6 +248,38 @@ def SCons_revision(target, source, env):
 revbuilder = Builder(action = Action(SCons_revision,
                                      varlist=['COPYRIGHT', 'VERSION']))
 
+def soelim(target, source, env):
+    """
+    Interpolate files included in [gnt]roff source files using the
+    .so directive.
+
+    This behaves somewhat like the soelim(1) wrapper around groff, but
+    makes us independent of whether the actual underlying implementation
+    includes an soelim() command or the corresponding command-line option
+    to groff(1).  The key behavioral difference is that this doesn't
+    recursively include .so files from the include file.  Not yet, anyway.
+    """
+    t = str(target[0])
+    s = str(source[0])
+    dir, f = os.path.split(s)
+    tfp = open(t, 'w')
+    sfp = open(s, 'r')
+    for line in sfp.readlines():
+        if line[:4] in ['.so ', "'so "]:
+            sofile = os.path.join(dir, line[4:-1])
+            tfp.write(open(sofile, 'r').read())
+        else:
+            tfp.write(line)
+    sfp.close()
+    tfp.close()
+
+def soscan(node, env, path):
+    c = node.get_contents()
+    return re.compile(r"^[\.']so\s+(\S+)", re.M).findall(c)
+
+soelimbuilder = Builder(action = Action(soelim),
+                        source_scanner = Scanner(soscan))
+
 # When copying local files from a Repository (Aegis),
 # just make copies, don't symlink them.
 SetOption('duplicate', 'copy')
@@ -285,7 +318,8 @@ env = Environment(
                    UNPACK_TAR_GZ_DIR   = unpack_tar_gz_dir,
                    UNPACK_ZIP_DIR      = unpack_zip_dir,
 
-                   BUILDERS            = { 'SCons_revision' : revbuilder },
+                   BUILDERS            = { 'SCons_revision' : revbuilder,
+                                           'SOElim' : soelimbuilder },
 
                    PYTHON              = sys.executable,
                    PYTHONFLAGS         = '-tt',
@@ -336,6 +370,8 @@ python_scons = {
                             'LICENSE.txt' : '../LICENSE.txt'
                           },
 
+        'buildermap'    : {},
+
         'explicit_deps' : {
                             'SCons/__init__.py' : Version_values,
                           },
@@ -374,6 +410,7 @@ python_scons = {
 #        'filemap'      : {
 #                            'LICENSE.txt' : '../LICENSE.txt',
 #                          },
+#        'buildermap'    : {},
 #}
 #
 
@@ -406,6 +443,8 @@ scons_script = {
                             'scons'             : 'scons.py',
                             'sconsign'          : 'sconsign.py',
                            },
+
+        'buildermap'    : {},
 
         'extra_rpm_files' : [
                             'scons-' + version,
@@ -446,8 +485,13 @@ scons = {
                           ],
 
         'filemap'       : {
-                            'scons.1' : '../doc/man/scons.1',
-                            'sconsign.1' : '../doc/man/sconsign.1',
+                            'scons.1' : '../build/doc/man/scons.1',
+                            'sconsign.1' : '../build/doc/man/sconsign.1',
+                          },
+
+        'buildermap'    : {
+                            'scons.1' : env.SOElim,
+                            'sconsign.1' : env.SOElim,
                           },
 
         'subpkgs'       : [ python_scons, scons_script ],
@@ -562,7 +606,9 @@ for p in [ scons ]:
     #
     for b in src_files:
         s = p['filemap'].get(b, b)
-        env.SCons_revision(os.path.join(build, b), os.path.join(src, s))
+        builder = p['buildermap'].get(b, env.SCons_revision)
+        x = builder(os.path.join(build, b), os.path.join(src, s))
+        Local(x)
 
     #
     # NOW, finally, we can create the MANIFEST, which we do

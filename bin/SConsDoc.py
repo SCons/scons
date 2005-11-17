@@ -2,6 +2,86 @@
 #
 # Module for handling SCons documentation processing.
 #
+
+__doc__ = """
+This module parses home-brew XML files that document various things
+in SCons.  Right now, it handles Builders, construction variables,
+and Tools, but we expect it to get extended in the future.
+
+In general, you can use any DocBook tag in the input, and this module
+just adds processing various home-brew tags to try to make life a
+little easier.
+
+Builder example:
+
+    <builder name="VARIABLE">
+    <summary>
+    This is the summary description of an SCons Tool.
+    It will get placed in the man page,
+    and in the appropriate User's Guide appendix.
+    The name of any builder may be interpolated
+    anywhere in the document by specifying the
+    &b-VARIABLE;
+    element.  It need not be on a line by itself.
+
+    Unlike normal XML, blank lines are significant in these
+    descriptions and serve to separate paragraphs.
+    They'll get replaced in DocBook output with appropriate tags
+    to indicate a new paragraph.
+
+    <example>
+    print "this is example code, it will be offset and indented"
+    </example>
+    </summary>
+    </builder>
+
+Construction variable example:
+
+    <cvar name="VARIABLE">
+    <summary>
+    This is the summary description of a construction variable.
+    It will get placed in the man page,
+    and in the appropriate User's Guide appendix.
+    The name of any construction variable may be interpolated
+    anywhere in the document by specifying the
+    &t-VARIABLE;
+    element.  It need not be on a line by itself.
+
+    Unlike normal XML, blank lines are significant in these
+    descriptions and serve to separate paragraphs.
+    They'll get replaced in DocBook output with appropriate tags
+    to indicate a new paragraph.
+
+    <example>
+    print "this is example code, it will be offset and indented"
+    </example>
+    </summary>
+    </cvar>
+
+Tool example:
+
+    <tool name="VARIABLE">
+    <summary>
+    This is the summary description of an SCons Tool.
+    It will get placed in the man page,
+    and in the appropriate User's Guide appendix.
+    The name of any tool may be interpolated
+    anywhere in the document by specifying the
+    &t-VARIABLE;
+    element.  It need not be on a line by itself.
+
+    Unlike normal XML, blank lines are significant in these
+    descriptions and serve to separate paragraphs.
+    They'll get replaced in DocBook output with appropriate tags
+    to indicate a new paragraph.
+
+    <example>
+    print "this is example code, it will be offset and indented"
+    </example>
+    </summary>
+    </tool>
+"""
+
 import os.path
 import imp
 import sys

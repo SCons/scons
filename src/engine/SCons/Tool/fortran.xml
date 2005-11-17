@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="fortran">
 <summary>
 XXX
@@ -16,7 +21,7 @@ for all versions of Fortran.
 <summary>
 The command line used to compile a Fortran source file to an object file.
 By default, any options specified
-in the &cv-FORTRANFLAGS;, &cv-CPPFLAGS;, &cv-_CPPDEFFLAGS;, 
+in the &cv-FORTRANFLAGS;, &cv-CPPFLAGS;, &cv-_CPPDEFFLAGS;,
 &cv-_FORTRANMODFLAG;, and &cv-_FORTRANINCFLAGS; construction variables
 are included on this command line.
 </summary>
@@ -51,7 +56,7 @@ for the variables that expand those options.
 <summary>
 An automatically-generated construction variable
 containing the Fortran compiler command-line options
-for specifying directories to be searched for include 
+for specifying directories to be searched for include
 files and module files.
 The value of &cv-_FORTRANINCFLAGS; is created
 by prepending/appending &cv-INCPREFIX; and &cv-INCSUFFIX;
@@ -63,8 +68,8 @@ of each directory in &cv-FORTRANPATH;.
 <cvar name="FORTRANMODDIR">
 <summary>
 Directory location where the Fortran compiler should place
-any module files it generates.  This variable is empty, by default. Some 
-Fortran compilers will internally append this directory in the search path 
+any module files it generates.  This variable is empty, by default. Some
+Fortran compilers will internally append this directory in the search path
 for module files, as well.
 </summary>
 </cvar>
@@ -94,7 +99,7 @@ when the &cv-_FORTRANMODFLAG; variables is automatically generated.
 An automatically-generated construction variable
 containing the Fortran compiler command-line option
 for specifying the directory location where the Fortran
-compiler should place any module files that happen to get 
+compiler should place any module files that happen to get
 generated during compilation.
 The value of &cv-_FORTRANMODFLAG; is created
 by prepending/appending &cv-FORTRANMODDIRPREFIX; and &cv-FORTRANMODDIRSUFFIX;
@@ -146,7 +151,7 @@ to look-up a directory relative to the root of the source tree use #:
 env = Environment(FORTRANPATH='#/include')
 </example>
 
-The directory look-up can also be forced using the 
+The directory look-up can also be forced using the
 &Dir;()
 function:
 
@@ -178,7 +183,7 @@ env = Environment(FORTRANCOM="my_compiler $_FORTRANINCFLAGS -c -o $TARGET $SOURC
 <cvar name="FORTRANPPCOM">
 <summary>
 The command line used to compile a Fortran source file to an object file
-after first running the file through the C preprocessor. 
+after first running the file through the C preprocessor.
 By default, any options specified in the &cv-FORTRANFLAGS;, &cv-CPPFLAGS;,
 _CPPDEFFLAGS, &cv-_FORTRANMODFLAG;, and &cv-_FORTRANINCFLAGS;
 construction variables are included on this command line.

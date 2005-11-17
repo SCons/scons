@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="cc">
 <summary>
 XXX
@@ -71,6 +76,7 @@ The default list is:
 [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
  ".h", ".H", ".hxx", ".hpp", ".hh",
  ".F", ".fpp", ".FPP",
+ ".m", ".mm",
  ".S", ".spp", ".SPP"]
 </example>
 </summary>

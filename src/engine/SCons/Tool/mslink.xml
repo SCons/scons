@@ -1,4 +1,9 @@
-<!-- __COPYRIGHT__ -->
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
 <tool name="mslink">
 <summary>
 XXX
@@ -26,7 +31,8 @@ tools other than Microsoft Visual C++.
 When this variable is
 defined SCons will add options to the compiler and linker command line to
 cause them to generate external debugging information, and will also set up the
-dependencies for the PDB file. Example:
+dependencies for the PDB file.
+Example:
 
 <example>
 env['PDB'] = 'hello.pdb'
