@@ -99,6 +99,11 @@ RELEASE 0.97 - XXX
   - Remove unneceesary (and incorrect) SCons.Util strings on some function
     calls in SCons.Util.
 
+  From Bob Halley:
+
+  - Fix C/C++ compiler selection on AIX to not always use the external $CC
+    environment variable.
+
   From August Hörandl:
 
   - Add a scanner for \include and \import files, with support for
