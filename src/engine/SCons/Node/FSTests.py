@@ -854,9 +854,11 @@ class FSTestCase(_tempdirTestCase):
         if os.sep != '/':
             seps = seps + ['/']
 
+        drive, path = os.path.splitdrive(os.getcwd())
+
         for sep in seps:
 
-            def Dir_test(lpath, path_, abspath_, up_path_, fileSys=fs, s=sep):
+            def Dir_test(lpath, path_, abspath_, up_path_, fileSys=fs, s=sep, drive=drive):
                 dir = fileSys.Dir(string.replace(lpath, '/', s))
 
                 if os.sep != '/':
@@ -864,9 +866,11 @@ class FSTestCase(_tempdirTestCase):
                     abspath_ = string.replace(abspath_, '/', os.sep)
                     up_path_ = string.replace(up_path_, '/', os.sep)
 
-                def strip_slash(p):
+                def strip_slash(p, drive=drive):
                     if p[-1] == os.sep and len(p) > 1:
                         p = p[:-1]
+                    if p[0] == os.sep:
+                        p = drive + p
                     return p
                 path = strip_slash(path_)
                 abspath = strip_slash(abspath_)

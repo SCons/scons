@@ -794,6 +794,12 @@ class BaseTestCase(unittest.TestCase):
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""
 
+        drive, p = os.path.splitdrive(os.getcwd())
+        def normalize_path(path, drive=drive):
+            if path[0] in '\\/':
+                path = drive + path
+            return os.path.normpath(path)
+
         env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
                           LIBLINKSUFFIX = 'bar')
@@ -813,12 +819,12 @@ class BaseTestCase(unittest.TestCase):
                     FOO = 'baz')
         flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
         expect = [ '$(',
-                   os.path.normpath('foo'),
-                   os.path.normpath('xx/foobar'),
-                   os.path.normpath('foo'),
-                   os.path.normpath('xx/baz/bar'),
-                   os.path.normpath('foo'),
-                   os.path.normpath('blatbar'),
+                   normalize_path('foo'),
+                   normalize_path('xx/foobar'),
+                   normalize_path('foo'),
+                   normalize_path('xx/baz/bar'),
+                   normalize_path('foo'),
+                   normalize_path('blatbar'),
                    '$)',
         ]
         assert flags == expect, flags
@@ -829,12 +835,12 @@ class BaseTestCase(unittest.TestCase):
                     FOO = 'baz')
         flags = env.subst_list('$_F77INCFLAGS', 1)[0]
         expect = [ '$(',
-                   os.path.normpath('foo'),
-                   os.path.normpath('xx/foobar'),
-                   os.path.normpath('foo'),
-                   os.path.normpath('xx/baz/bar'),
-                   os.path.normpath('foo'),
-                   os.path.normpath('blatbar'),
+                   normalize_path('foo'),
+                   normalize_path('xx/foobar'),
+                   normalize_path('foo'),
+                   normalize_path('xx/baz/bar'),
+                   normalize_path('foo'),
+                   normalize_path('blatbar'),
                    '$)',
         ]
         assert flags == expect, flags
@@ -855,14 +861,14 @@ class BaseTestCase(unittest.TestCase):
                     FOO = 'baz')
         flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
         expect = [ '$(',
-                   '-I', os.path.normpath('xx/fooXXX'),
-                   '-I', os.path.normpath('/rep1/xx/fooXXX'),
-                   '-I', os.path.normpath('/rep2/xx/fooXXX'),
-                   '-I', os.path.normpath('/a/bXXX'),
-                   '-I', os.path.normpath('xx/baz/barXXX'),
-                   '-I', os.path.normpath('/rep1/xx/baz/barXXX'),
-                   '-I', os.path.normpath('/rep2/xx/baz/barXXX'),
-                   '-I', os.path.normpath('blatXXX'),
+                   '-I', normalize_path('xx/fooXXX'),
+                   '-I', normalize_path('/rep1/xx/fooXXX'),
+                   '-I', normalize_path('/rep2/xx/fooXXX'),
+                   '-I', normalize_path('/a/bXXX'),
+                   '-I', normalize_path('xx/baz/barXXX'),
+                   '-I', normalize_path('/rep1/xx/baz/barXXX'),
+                   '-I', normalize_path('/rep2/xx/baz/barXXX'),
+                   '-I', normalize_path('blatXXX'),
                    '$)'
         ]
         assert flags == expect, flags
