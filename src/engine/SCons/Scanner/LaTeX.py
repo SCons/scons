@@ -5,7 +5,7 @@ This module implements the dependency scanner for LaTeX code.
 """
 
 #
-# Copyright (c) 2005 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ This module implements the dependency scanner for LaTeX code.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = ""
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import SCons.Scanner
@@ -37,15 +37,13 @@ def LaTeXScanner(fs = SCons.Node.FS.default_fs):
     ds = LaTeX(name = "LaTeXScanner",
            suffixes =  '$LATEXSUFFIXES',
            path_variable = 'TEXINPUTS',
-           regex = '\\\\(include|input){([^}]*)}',
+           regex = '\\\\(?:include|input){([^}]*)}',
            recursive = 0)
     return ds
 
 class LaTeX(SCons.Scanner.Classic):
     def find_include(self, include, source_dir, path):
         if callable(path): path=path()
-        # find (2nd result reg expr) + extension
-        # print 'looking for latex includes: ' + include[1]
-        i = SCons.Node.FS.find_file(include[1] + '.tex',
+        i = SCons.Node.FS.find_file(include + '.tex',
                                     (source_dir,) + path)
         return i, include
