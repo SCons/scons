@@ -3,6 +3,7 @@ SCons/Defaults.xml
 SCons/Environment.xml
 SCons/Platform/__init__.xml
 SCons/Platform/posix.xml
+SCons/Platform/sunos.xml
 SCons/Platform/win32.xml
 SCons/Tool/386asm.xml
 SCons/Tool/aixcc.xml
