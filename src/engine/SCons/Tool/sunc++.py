@@ -45,19 +45,22 @@ def get_cppc(env):
     cppcPath = env.get('CXX', None)
     cppcVersion = None
 
+    pkginfo = env.subst('$PKGINFO')
+    pkgchk = env.subst('$PKGCHK')
+
     for package in ['SPROcpl']:
-        cmd = "pkginfo -l " + package + " 2>/dev/null | grep '^ *VERSION:'"
+        cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo, package)
         line = os.popen(cmd).readline()
         if line:
             cppcVersion = line.split()[-1]
-            cmd = "pkgchk -l " + package + " | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'"
+            cmd = "%s -l %s | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
             line = os.popen(cmd).readline()
             cppcPath = os.path.dirname(line.split()[-1])
             break
     return (cppcPath, 'CC', 'CC', cppcVersion)
 
 def generate(env):
-    """Add Builders and construction variables for SUN PRO C++ to an Environment."""
+    """Add Builders and construction variables for SunPRO C++."""
     path, cxx, shcxx, version = get_cppc(env)
     if path:
         cxx = os.path.join(path, cxx)

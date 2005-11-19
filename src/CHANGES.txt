@@ -395,6 +395,11 @@ RELEASE 0.97 - XXX
   - Add /usr/ccs/bin to the end of the the default external execution
     PATH on Solaris.
 
+  - Add $PKGCHK and $PKGINFO variables for use on Solaris when searching
+    for the SunPRO C++ compiler.  Make the default value for $PKGCHK
+    be /usr/sbin/pgkchk (since /usr/sbin isn't usually on the external
+    execution $PATH).
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
