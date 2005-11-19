@@ -837,6 +837,7 @@ class FS(LocalFS):
         The path argument must be a valid absolute path.
         """
         if __debug__: logInstanceCreation(self, 'Node.FS')
+
         self.Root = {}
         self.SConstruct_dir = None
         self.CachePath = None
@@ -844,10 +845,12 @@ class FS(LocalFS):
         self.cache_show = None
         self.max_drift = default_max_drift
 
+        self.Top = None
         if path is None:
             self.pathTop = os.getcwd()
         else:
             self.pathTop = path
+        self.defaultDrive = _my_normcase(os.path.splitdrive(self.pathTop)[0])
 
         self.Top = self._doLookup(Dir, os.path.normpath(self.pathTop))
         self.Top.path = '.'
@@ -913,8 +916,8 @@ class FS(LocalFS):
             path_orig = [ path_first, ] + path_orig
             path_norm = [ _my_normcase(path_first), ] + path_norm
         else:
-            drive = _my_normcase(drive)
             # Absolute path
+            drive = _my_normcase(drive)
             try:
                 directory = self.Root[drive]
             except KeyError:
@@ -922,6 +925,10 @@ class FS(LocalFS):
                     raise SCons.Errors.UserError
                 directory = RootDir(drive, self)
                 self.Root[drive] = directory
+                if not drive:
+                    self.Root[self.defaultDrive] = directory
+                elif drive == self.defaultDrive:
+                    self.Root[''] = directory
 
         if not path_orig:
             return directory
@@ -1648,6 +1655,13 @@ class File(Base):
     def RDirs(self, pathlist):
         """Search for a list of directories in the Repository list."""
         return self.fs.Rfindalldirs(pathlist, self.cwd)
+
+    #def generate_build_dict(self):
+    #    """Return an appropriate dictionary of values for building
+    #    this File."""
+    #    return {'Dir' : self.Dir,
+    #            'File' : self.File,
+    #            'RDirs' : self.RDirs}
 
     def _morph(self):
         """Turn a file system node into a File object.  __cache_reset__"""

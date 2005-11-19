@@ -389,6 +389,9 @@ RELEASE 0.97 - XXX
   - Handle signature calculation properly when the Python function used
     for a FunctionAction is an object method.
 
+  - On Windows, assume that absolute path names without a drive letter
+    refer to the drive on which the SConstruct file lives.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
