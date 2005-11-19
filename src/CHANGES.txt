@@ -392,6 +392,9 @@ RELEASE 0.97 - XXX
   - On Windows, assume that absolute path names without a drive letter
     refer to the drive on which the SConstruct file lives.
 
+  - Add /usr/ccs/bin to the end of the the default external execution
+    PATH on Solaris.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.

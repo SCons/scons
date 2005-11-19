@@ -36,5 +36,7 @@ import posix
 
 def generate(env):
     posix.generate(env)
-    #Based on sunSparc 8:32bit   ARG_MAX=1048320 - 3000 for environment expansion
+    # Based on sunSparc 8:32bit
+    # ARG_MAX=1048320 - 3000 for environment expansion
     env['MAXLINELENGTH']  = 1045320
+    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/usr/ccs/bin'
