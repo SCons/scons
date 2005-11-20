@@ -1,6 +1,6 @@
 """SCons.Scanner.LaTeX
 
-This module implements the dependency scanner for LaTeX code. 
+This module implements the dependency scanner for LaTeX code.
 
 """
 
@@ -35,15 +35,32 @@ import SCons.Scanner
 def LaTeXScanner(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning LaTeX source files"""
     ds = LaTeX(name = "LaTeXScanner",
-           suffixes =  '$LATEXSUFFIXES',
-           path_variable = 'TEXINPUTS',
-           regex = '\\\\(?:include|input){([^}]*)}',
-           recursive = 0)
+               suffixes =  '$LATEXSUFFIXES',
+               path_variable = 'TEXINPUTS',
+               regex = '\\\\(include|includegraphics(?:\[[^\]]+\])?|input){([^}]*)}',
+               recursive = 0)
     return ds
 
 class LaTeX(SCons.Scanner.Classic):
+    """Class for scanning LaTeX files for included files.
+
+    Unlike most scanners, which use regular expressions that just
+    return the included file name, this returns a tuple consisting
+    of the keyword for the inclusion ("include", "includegraphics" or
+    "input"), and then the file name itself.  Base on a quick look at
+    LaTeX documentation, it seems that we need a should append .tex
+    suffix for "include" and "input" keywords, but leave the file name
+    untouched for "includegraphics."
+    """
+    def latex_name(self, include):
+        filename = include[1]
+        if include[0][:15] != 'includegraphics':
+            filename = filename + '.tex'
+        return filename
+    def sort_key(self, include):
+        return SCons.Node.FS._my_normcase(self.latex_name(include))
     def find_include(self, include, source_dir, path):
         if callable(path): path=path()
-        i = SCons.Node.FS.find_file(include + '.tex',
+        i = SCons.Node.FS.find_file(self.latex_name(include),
                                     (source_dir,) + path)
         return i, include
