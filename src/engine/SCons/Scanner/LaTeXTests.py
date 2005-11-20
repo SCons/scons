@@ -40,16 +40,24 @@ test.write('test1.latex',"""
 \include{inc1}
 \input{inc2}
 """)
+
 test.write('test2.latex',"""
 \include{inc1}
 \include{inc3}
+""")
+
+test.write('test3.latex',"""
+\includegraphics{inc4.eps}
+\includegraphics[width=60mm]{inc5.xyz}
 """)
 
 test.subdir('subdir')
 
 test.write('inc1.tex',"\n")
 test.write('inc2.tex',"\n")
-test.write([ 'subdir', 'inc3.tex'], "\n")
+test.write(['subdir', 'inc3.tex'], "\n")
+test.write(['subdir', 'inc4.eps'], "\n")
+test.write('inc5.xyz', "\n")
 
 # define some helpers:
 #   copied from CTest.py
@@ -119,11 +127,21 @@ class LaTeXScannerTestCase2(unittest.TestCase):
          headers = ['inc1.tex', 'subdir/inc3.tex']
          deps_match(self, deps, headers)
 
+class LaTeXScannerTestCase3(unittest.TestCase):
+     def runTest(self):
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")])
+         s = SCons.Scanner.LaTeX.LaTeXScanner()
+         path = s.path(env)
+         deps = s(env.File('test3.latex'), env, path)
+         files = ['subdir/inc4.eps', 'inc5.xyz']
+         deps_match(self, deps, files)
+
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(LaTeXScannerTestCase1())
     suite.addTest(LaTeXScannerTestCase2())
+    suite.addTest(LaTeXScannerTestCase3())
     return suite
 
 if __name__ == "__main__":
@@ -131,4 +149,3 @@ if __name__ == "__main__":
     result = runner.run(suite())
     if not result.wasSuccessful():
         sys.exit(1)
-
