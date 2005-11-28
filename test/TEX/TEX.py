@@ -24,6 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Validate that we can set the TEX string to our own utility, that
+the produced .dvi, .aux and .log files get removed by the -c option,
+and that we can use this to wrap calls to the real latex utility.
+"""
+
 import os
 import os.path
 import string
@@ -41,10 +47,14 @@ import sys
 import os
 base_name = os.path.splitext(sys.argv[1])[0]
 infile = open(sys.argv[1], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+dvi_file = open(base_name+'.dvi', 'wb')
+aux_file = open(base_name+'.aux', 'wb')
+log_file = open(base_name+'.log', 'wb')
 for l in infile.readlines():
     if l[0] != '\\':
-        out_file.write(l)
+        dvi_file.write(l)
+        aux_file.write(l)
+        log_file.write(l)
 sys.exit(0)
 """)
 
@@ -57,9 +67,17 @@ test.write('test.tex', r"""This is a test.
 \end
 """)
 
-test.run(arguments = 'test.dvi', stderr = None)
+test.run(arguments = 'test.dvi')
 
-test.fail_test(test.read('test.dvi') != "This is a test.\n")
+test.must_match('test.dvi', "This is a test.\n")
+test.must_match('test.aux', "This is a test.\n")
+test.must_match('test.log', "This is a test.\n")
+
+test.run(arguments = '-c test.dvi')
+
+test.must_not_exist('test.dvi')
+test.must_not_exist('test.aux')
+test.must_not_exist('test.log')
 
 
 
@@ -145,14 +163,14 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
     test.write('test.bib', bib)
 
     test.run(arguments = 'foo.dvi foo-latex.dvi', stderr = None)
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-    test.fail_test(not os.path.exists(test.workpath('foo.dvi')))
-    test.fail_test(not os.path.exists(test.workpath('foo-latex.dvi')))
+    test.must_not_exist('wrapper.out')
+    test.must_exist('foo.dvi')
+    test.must_exist('foo-latex.dvi')
 
     test.run(arguments = 'bar.dvi bar-latex.dvi', stderr = None)
-    test.fail_test(not os.path.exists(test.workpath('wrapper.out')))
-    test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
-    test.fail_test(not os.path.exists(test.workpath('bar-latex.dvi')))
+    test.must_exist('wrapper.out')
+    test.must_exist('bar.dvi')
+    test.must_exist('bar-latex.dvi')
 
     test.run(stderr = None)
     output_lines = string.split(test.stdout(), '\n')

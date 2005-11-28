@@ -58,6 +58,8 @@ def generate(env):
 
     bld.add_action('.ltx', LaTeXAuxAction)
     bld.add_action('.latex', LaTeXAuxAction)
+    bld.add_emitter('.ltx', SCons.Tool.tex.tex_emitter)
+    bld.add_emitter('.latex', SCons.Tool.tex.tex_emitter)
 
     env['LATEX']        = 'latex'
     env['LATEXFLAGS']   = SCons.Util.CLVar('')
