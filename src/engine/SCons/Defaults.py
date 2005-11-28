@@ -132,14 +132,16 @@ def DVI():
                                  # construction variable like $DVISUFFIX
                                  # because the output file name is
                                  # hard-coded within TeX.
-                                 suffix = '.dvi')
+                                 suffix = '.dvi',
+                                 emitter = {})
 
 def PDF():
     """A function for generating the PDF Builder."""
     return SCons.Builder.Builder(action = { },
                                  source_scanner = LaTeXScan,
                                  prefix = '$PDFPREFIX',
-                                 suffix = '$PDFSUFFIX')
+                                 suffix = '$PDFSUFFIX',
+                                 emitter = {})
 
 # Common tasks that we allow users to perform in platform-independent
 # ways by creating ActionFactory instances.

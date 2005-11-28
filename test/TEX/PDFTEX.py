@@ -24,6 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Validate that we can set the PDFTEX string to our own utility, that
+the produced .dvi, .aux and .log files get removed by the -c option,
+and that we can use this to wrap calls to the real latex utility.
+"""
+
 import os
 import os.path
 import string
@@ -41,10 +47,14 @@ import sys
 import os
 base_name = os.path.splitext(sys.argv[1])[0]
 infile = open(sys.argv[1], 'rb')
-out_file = open(base_name+'.pdf', 'wb')
+pdf_file = open(base_name+'.pdf', 'wb')
+aux_file = open(base_name+'.aux', 'wb')
+log_file = open(base_name+'.log', 'wb')
 for l in infile.readlines():
     if l[0] != '\\':
-        out_file.write(l)
+        pdf_file.write(l)
+        aux_file.write(l)
+        log_file.write(l)
 sys.exit(0)
 """)
 
@@ -57,9 +67,17 @@ test.write('test.tex', r"""This is a test.
 \end
 """)
 
-test.run(arguments = 'test.pdf', stderr = None)
+test.run(arguments = 'test.pdf')
 
-test.fail_test(not os.path.exists(test.workpath('test.pdf')))
+test.must_exist('test.pdf')
+test.must_exist('test.aux')
+test.must_exist('test.log')
+
+test.run(arguments = '-c test.pdf')
+
+test.must_not_exist('test.pdf')
+test.must_not_exist('test.aux')
+test.must_not_exist('test.log')
 
 
 
@@ -95,14 +113,14 @@ This is the %s TeX file.
 
     test.run(arguments = 'foo.pdf', stderr = None)
 
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+    test.must_not_exist('wrapper.out')
 
-    test.fail_test(not os.path.exists(test.workpath('foo.pdf')))
+    test.must_exist('foo.pdf')
 
     test.run(arguments = 'bar.pdf', stderr = None)
 
-    test.fail_test(not os.path.exists(test.workpath('wrapper.out')))
+    test.must_exist('wrapper.out')
 
-    test.fail_test(not os.path.exists(test.workpath('bar.pdf')))
+    test.must_exist('bar.pdf')
 
 test.pass_test()

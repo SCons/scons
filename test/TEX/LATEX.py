@@ -24,6 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Validate that we can set the LATEX string to our own utility, that
+the produced .dvi, .aux and .log files get removed by the -c option,
+and that we can use this to wrap calls to the real latex utility.
+"""
+
 import os
 import os.path
 import string
@@ -41,10 +47,14 @@ import sys
 import os
 base_name = os.path.splitext(sys.argv[1])[0]
 infile = open(sys.argv[1], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+dvi_file = open(base_name+'.dvi', 'wb')
+aux_file = open(base_name+'.aux', 'wb')
+log_file = open(base_name+'.log', 'wb')
 for l in infile.readlines():
     if l[0] != '\\':
-        out_file.write(l)
+        dvi_file.write(l)
+        aux_file.write(l)
+        log_file.write(l)
 sys.exit(0)
 """)
 
@@ -62,11 +72,25 @@ test.write('test2.latex', r"""This is a .latex test.
 \end
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments = '.')
 
-test.fail_test(test.read('test1.dvi') != "This is a .ltx test.\n")
+test.must_match('test1.dvi', "This is a .ltx test.\n")
+test.must_match('test1.aux', "This is a .ltx test.\n")
+test.must_match('test1.log', "This is a .ltx test.\n")
 
-test.fail_test(test.read('test2.dvi') != "This is a .latex test.\n")
+test.must_match('test2.dvi', "This is a .latex test.\n")
+test.must_match('test2.aux', "This is a .latex test.\n")
+test.must_match('test2.log', "This is a .latex test.\n")
+
+test.run(arguments = '-c .')
+
+test.must_not_exist('test1.dvi')
+test.must_not_exist('test1.aux')
+test.must_not_exist('test1.log')
+
+test.must_not_exist('test2.dvi')
+test.must_not_exist('test2.aux')
+test.must_not_exist('test2.log')
 
 
 
@@ -139,27 +163,27 @@ This is the include file.
 
     test.write('bar.latex', latex % 'bar.latex')
 
-    test.write('makeindex.tex',  makeindex % 'makeindex.tex');
-    test.write('makeindex.idx',  '');
+    test.write('makeindex.tex',  makeindex % 'makeindex.tex')
+    test.write('makeindex.idx',  '')
 
     test.subdir('subdir')
     test.write('latexi.tex',  latex1 % 'latexi.tex');
     test.write([ 'subdir', 'latexincludefile.tex'], latex2)
 
     test.run(arguments = 'foo.dvi', stderr = None)
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-    test.fail_test(not os.path.exists(test.workpath('foo.dvi')))
+    test.must_not_exist('wrapper.out')
+    test.must_exist('foo.dvi')
 
     test.run(arguments = 'bar.dvi', stderr = None)
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
-    test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
+    test.must_match('wrapper.out', "wrapper.py\n")
+    test.must_exist('bar.dvi')
 
     test.run(arguments = 'makeindex.dvi', stderr = None)
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n")
 
     test.run(arguments = 'latexi.dvi', stderr = None)
-    test.fail_test(not os.path.exists(test.workpath('latexi.dvi')))
-    test.fail_test(not os.path.exists(test.workpath('latexi.ind')))
+    test.must_exist('latexi.dvi')
+    test.must_exist('latexi.ind')
 
 
 

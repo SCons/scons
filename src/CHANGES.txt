@@ -469,6 +469,9 @@ RELEASE 0.97 - XXX
     when it's necessary, to call $MAKEINDEX when it's necessary, and to
     call $TEX or $LATEX multiple times to handle undefined references.
 
+  - Add an emitter to the various TeX builders so that the generated
+    .aux and .log files also get deleted by the -c option.
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption

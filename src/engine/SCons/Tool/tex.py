@@ -121,6 +121,11 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
         TeXAction(target,source,env)
     return 0
 
+def tex_emitter( target, source, env ):
+	target.append( os.path.splitext( SCons.Util.to_String(source[0]) )[0] + ".aux" )
+	target.append( os.path.splitext( SCons.Util.to_String(source[0]) )[0] + ".log" )
+	return (target, source)
+
 TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction, strfunction=None)
 
 def generate(env):
@@ -132,6 +137,7 @@ def generate(env):
         env['BUILDERS']['DVI'] = bld
 
     bld.add_action('.tex', TeXLaTeXAction)
+    bld.add_emitter('.tex', tex_emitter)
 
     env['TEX']      = 'tex'
     env['TEXFLAGS'] = SCons.Util.CLVar('')

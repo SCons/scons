@@ -69,6 +69,7 @@ def generate(env):
         env['BUILDERS']['PDF'] = bld
 
     bld.add_action('.tex', PDFTeXLaTeXAction)
+    bld.add_emitter('.tex', SCons.Tool.tex.tex_emitter)
 
     env['PDFTEX']      = 'pdftex'
     env['PDFTEXFLAGS'] = SCons.Util.CLVar('')

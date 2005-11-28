@@ -55,6 +55,8 @@ def generate(env):
 
     bld.add_action('.ltx', PDFLaTeXAuxAction)
     bld.add_action('.latex', PDFLaTeXAuxAction)
+    bld.add_emitter('.ltx', SCons.Tool.tex.tex_emitter)
+    bld.add_emitter('.latex', SCons.Tool.tex.tex_emitter)
 
     env['PDFLATEX']      = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('')
