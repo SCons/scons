@@ -169,8 +169,12 @@ def createStaticLibBuilder(env):
     try:
         static_lib = env['BUILDERS']['StaticLibrary']
     except KeyError:
-        ar_action = SCons.Action.Action("$ARCOM", "$ARCOMSTR")
-        static_lib = SCons.Builder.Builder(action = ar_action,
+        action_list = [ SCons.Action.Action("$ARCOM", "$ARCOMSTR") ]
+        if env.Detect('ranlib'):
+            ranlib_action = SCons.Action.Action("$RANLIBCOM", "$RANLIBCOMSTR")
+            action_list.append(ranlib_action)
+
+        static_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = '$LIBEMITTER',
                                            prefix = '$LIBPREFIX',
                                            suffix = '$LIBSUFFIX',

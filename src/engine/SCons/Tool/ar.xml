@@ -46,6 +46,23 @@ The archive indexer.
 </summary>
 </cvar>
 
+<cvar name="RANLIBCOM">
+<summary>
+The command line used to index a static library archive.
+</summary>
+</cvar>
+
+<cvar name="RANLIBCOMSTR">
+<summary>
+The string displayed when a static library archive is indexed.
+If this is not set, then &cv-RANLIBCOM; (the command line) is displayed.
+
+<example>
+env = Environment(RANLIBCOMSTR = "Indexing $TARGET")
+</example>
+</summary>
+</cvar>
+
 <cvar name="RANLIBFLAGS">
 <summary>
 General options passed to the archive indexer.

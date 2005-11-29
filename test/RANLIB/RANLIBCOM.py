@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test the ability to configure the $ARCOM construction variable.
+Test the ability to configure the $RANLIBCOM construction variable.
 """
 
 import TestSCons
@@ -47,6 +47,12 @@ sys.exit(0)
 """)
 
 test.write('myranlib.py', """
+import sys
+lines = open(sys.argv[1], 'rb').readlines()
+outfile = open(sys.argv[1], 'wb')
+for l in filter(lambda l: l != '/*ranlib*/\\n', lines):
+    outfile.write(l)
+sys.exit(0)
 """)
 
 test.write('SConstruct', """
@@ -58,8 +64,8 @@ env = Environment(tools=['default', 'ar'],
 env.Library(target = 'output', source = ['file.1', 'file.2'])
 """ % (python, python))
 
-test.write('file.1', "file.1\n/*ar*/\n")
-test.write('file.2', "file.2\n/*ar*/\n")
+test.write('file.1', "file.1\n/*ar*/\n/*ranlib*/\n")
+test.write('file.2', "file.2\n/*ar*/\n/*ranlib*/\n")
 
 test.run(arguments = '.')
 

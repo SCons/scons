@@ -47,21 +47,26 @@ for f in sys.argv[2:]:
 sys.exit(0)
 """)
 
+test.write('myranlib.py', """
+""")
+
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
                   ARCOM = r'%s myar.py $TARGET $SOURCES',
                   ARCOMSTR = 'Archiving $TARGET from $SOURCES',
+                  RANLIBCOM = r'%s myranlib.py $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
 env.Library(target = 'output', source = ['file.1', 'file.2'])
-""" % python)
+""" % (python, python))
 
 test.write('file.1', "file.1\n/*ar*/\n")
 test.write('file.2', "file.2\n/*ar*/\n")
 
 test.run(stdout = test.wrap_stdout("""\
 Archiving output.lib from file.1 file.2
-"""))
+%s myranlib.py output.lib
+""" % python))
 
 test.must_match('output.lib', "file.1\nfile.2\n")
 

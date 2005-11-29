@@ -722,6 +722,9 @@ RELEASE 0.97 - XXX
 
   - Add support for a $INSTALLSTR variable.
 
+  - Add support for $RANLIBCOM and $RANLIBCOMSTR variables (which fixes
+    a bug when setting $ARCOMSTR).
+
   From Craig Scott:
 
   - Have the Fortran module emitter look for Fortan modules to be created

@@ -25,7 +25,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test the ability to configure the $ARCOM construction variable.
+Test that the $RANLIBCOMSTR construction variable allows you to
+customize the displayed archive indexer string.
 """
 
 import TestSCons
@@ -47,21 +48,31 @@ sys.exit(0)
 """)
 
 test.write('myranlib.py', """
+import sys
+lines = open(sys.argv[1], 'rb').readlines()
+outfile = open(sys.argv[1], 'wb')
+for l in filter(lambda l: l != '/*ranlib*/\\n', lines):
+    outfile.write(l)
+sys.exit(0)
 """)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
                   ARCOM = r'%s myar.py $TARGET $SOURCES',
                   RANLIBCOM = r'%s myranlib.py $TARGET',
+                  RANLIBCOMSTR = 'Indexing $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
 env.Library(target = 'output', source = ['file.1', 'file.2'])
 """ % (python, python))
 
-test.write('file.1', "file.1\n/*ar*/\n")
-test.write('file.2', "file.2\n/*ar*/\n")
+test.write('file.1', "file.1\n/*ar*/\n/*ranlib*/\n")
+test.write('file.2', "file.2\n/*ar*/\n/*ranlib*/\n")
 
-test.run(arguments = '.')
+test.run(stdout = test.wrap_stdout("""\
+%s myar.py output.lib file.1 file.2
+Indexing output.lib
+""" % python))
 
 test.must_match('output.lib', "file.1\nfile.2\n")
 
