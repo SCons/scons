@@ -993,6 +993,14 @@ class FS(LocalFS):
         If directory is None, and name is a relative path,
         then the same applies.
         """
+        if not SCons.Util.is_String(name):
+            # This handles cases where the object is a Proxy wrapping
+            # a Node.FS.File object (e.g.).  It would be good to handle
+            # this more directly some day by having the callers of this
+            # function recognize that a Proxy can be treated like the
+            # underlying object (that is, get rid of the isinstance()
+            # calls that explicitly look for a Node.FS.Base object).
+            name = str(name)
         if name and name[0] == '#':
             directory = self.Top
             name = name[1:]

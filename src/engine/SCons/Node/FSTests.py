@@ -1435,6 +1435,20 @@ class FSTestCase(_tempdirTestCase):
                 failed = failed + 1
         assert failed == 0, "%d rel_path() cases failed" % failed
 
+    def test_proxy(self):
+        """Test a Node.FS object wrapped in a proxy instance"""
+        f1 = self.fs.File('fff')
+        class Proxy:
+            # Simplest possibly Proxy class that works for our test,
+            # this is stripped down from SCons.Util.Proxy.
+            def __init__(self, subject):
+                self.__subject = subject
+            def __getattr__(self, name):
+                return getattr(self.__subject, name)
+        p = Proxy(f1)
+        f2 = self.fs.Entry(p)
+        assert f1 is f2, (f1, f2)
+
 class DirTestCase(_tempdirTestCase):
 
     def test__morph(self):
