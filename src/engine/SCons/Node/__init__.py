@@ -442,7 +442,7 @@ class Node:
 
         # Give the scanner a chance to select a more specific scanner
         # for this Node.
-        scanner = scanner.select(self)
+        #scanner = scanner.select(self)
 
         nodes = [self]
         seen = {}
@@ -555,6 +555,16 @@ class Node:
 
     def scanner_key(self):
         return None
+
+    def select_scanner(self, scanner):
+        """Selects a scanner for this Node.
+
+        This is a separate method so it can be overridden by Node
+        subclasses (specifically, Node.FS.Dir) that *must* use their
+        own Scanner and don't select one the Scanner.Selector that's
+        configured for the target.
+        """
+        return scanner.select(self)
 
     def env_set(self, env, safe=0):
         if safe and self.env:

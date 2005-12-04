@@ -191,7 +191,7 @@ class Executor:
         each individual target, which is a hell of a lot more efficient.
         """
         env = self.get_build_env()
-        select_specific_scanner = lambda t: (t[0], t[1].select(t[0]))
+        select_specific_scanner = lambda t: (t[0], t[0].select_scanner(t[1]))
         remove_null_scanners = lambda t: not t[1] is None
         add_scanner_path = lambda t, s=self: \
                                   (t[0], t[1], s.get_build_scanner_path(t[1]))

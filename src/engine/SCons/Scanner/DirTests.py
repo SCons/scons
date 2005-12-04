@@ -33,55 +33,73 @@ import TestCmd
 import SCons.Node.FS
 import SCons.Scanner.Dir
 
-test = TestCmd.TestCmd(workdir = '')
-
-test.subdir('dir', ['dir', 'sub'])
-
-test.write(['dir', 'f1'], "dir/f1\n")
-test.write(['dir', 'f2'], "dir/f2\n")
-test.write(['dir', '.sconsign'], "dir/.sconsign\n")
-test.write(['dir', '.sconsign.dblite'], "dir/.sconsign.dblite\n")
-test.write(['dir', 'sub', 'f3'], "dir/sub/f3\n")
-test.write(['dir', 'sub', 'f4'], "dir/sub/f4\n")
-test.write(['dir', 'sub', '.sconsign'], "dir/.sconsign\n")
-test.write(['dir', 'sub', '.sconsign.dblite'], "dir/.sconsign.dblite\n")
-
-class DummyNode:
-    def __init__(self, name, fs):
-        self.name = name
-        self.abspath = test.workpath(name)
-        self.fs = fs
-    def __str__(self):
-        return self.name
-    def Entry(self, name):
-        return self.fs.Entry(name)
+#class DummyNode:
+#    def __init__(self, name, fs):
+#        self.name = name
+#        self.abspath = test.workpath(name)
+#        self.fs = fs
+#    def __str__(self):
+#        return self.name
+#    def Entry(self, name):
+#        return self.fs.Entry(name)
 
 class DummyEnvironment:
-    def __init__(self):
-        self.fs = SCons.Node.FS.FS()
+    def __init__(self, root):
+        self.fs = SCons.Node.FS.FS(root)
+    def Dir(self, name):
+        return self.fs.Dir(name)
     def Entry(self, name):
-        node = DummyNode(name, self.fs)
-        return node
+        return self.fs.Entry(name)
     def get_factory(self, factory):
         return factory or self.fs.Entry
 
-class DirScannerTestCase1(unittest.TestCase):
+class DirScannerTestBase(unittest.TestCase):
+    def setUp(self):
+        self.test = TestCmd.TestCmd(workdir = '')
+
+        self.test.subdir('dir', ['dir', 'sub'])
+
+        self.test.write(['dir', 'f1'], "dir/f1\n")
+        self.test.write(['dir', 'f2'], "dir/f2\n")
+        self.test.write(['dir', '.sconsign'], "dir/.sconsign\n")
+        self.test.write(['dir', '.sconsign.dblite'], "dir/.sconsign.dblite\n")
+        self.test.write(['dir', 'sub', 'f3'], "dir/sub/f3\n")
+        self.test.write(['dir', 'sub', 'f4'], "dir/sub/f4\n")
+        self.test.write(['dir', 'sub', '.sconsign'], "dir/.sconsign\n")
+        self.test.write(['dir', 'sub', '.sconsign.dblite'], "dir/.sconsign.dblite\n")
+
+class DirScannerTestCase1(DirScannerTestBase):
     def runTest(self):
-        env = DummyEnvironment()
+        env = DummyEnvironment(self.test.workpath())
 
         s = SCons.Scanner.Dir.DirScanner()
 
-        deps = s(env.Entry('dir'), env, ())
+        deps = s(env.Dir('dir'), env, ())
         sss = map(str, deps)
-        assert sss == ['f1', 'f2', 'sub'], sss
+        assert sss == ['dir/f1', 'dir/f2', 'dir/sub'], sss
 
-        deps = s(env.Entry('dir/sub'), env, ())
+        deps = s(env.Dir('dir/sub'), env, ())
         sss = map(str, deps)
-        assert sss == ['f3', 'f4'], sss
+        assert sss == ['dir/sub/f3', 'dir/sub/f4'], sss
+
+class DirScannerTestCase2(DirScannerTestBase):
+    def runTest(self):
+        env = DummyEnvironment(self.test.workpath())
+
+        s = SCons.Scanner.Dir.DirEntryScanner()
+
+        deps = s(env.Dir('dir'), env, ())
+        sss = map(str, deps)
+        assert sss == [], sss
+
+        deps = s(env.Dir('dir/sub'), env, ())
+        sss = map(str, deps)
+        assert sss == [], sss
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(DirScannerTestCase1())
+    suite.addTest(DirScannerTestCase2())
     return suite
 
 if __name__ == "__main__":
