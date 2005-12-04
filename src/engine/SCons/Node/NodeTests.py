@@ -1030,6 +1030,12 @@ class NodeTestCase(unittest.TestCase):
         """Test that a scanner_key() method exists"""
         assert SCons.Node.Node().scanner_key() == None
 
+    def test_select_scanner(self):
+        """Test the base select_scanner() method returns its scanner"""
+        scanner = Scanner()
+        s = SCons.Node.Node().select_scanner(scanner)
+        assert scanner is s, s
+
     def test_children(self):
         """Test fetching the non-ignored "children" of a Node.
         """
