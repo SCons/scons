@@ -1352,11 +1352,18 @@ libraries for just one program:
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 .EE
 
-or generate a shared library with a nonstandard suffix:
+or generate a shared library with a non-standard suffix:
 
 .ES
-env.SharedLibrary('word', 'word.cpp', SHLIBSUFFIX='.ocx')
+env.SharedLibrary('word', 'word.cpp',
+                  SHLIBSUFFIX='.ocx',
+                  LIBSUFFIXES=['.ocx'])
 .EE
+
+(Note that both the $SHLIBSUFFIX and $LIBSUFFIXES variables must be set
+if you want SCons to search automatically
+for dependencies on the non-standard library names;
+see the descriptions of these variables, below, for more information.)
 
 Although the builder methods defined by
 .B scons

@@ -25,7 +25,11 @@ to reflect the names of the libraries they create.
 
 <cvar name="LIBPREFIXES">
 <summary>
-An array of legal prefixes for library file names.
+A list of all legal prefixes for library file names.
+When searching for library dependencies,
+SCons will look for files with these prefixes,
+the base library name,
+and suffixes in the &cv-LIBSUFFIXES; list.
 </summary>
 </cvar>
 
@@ -42,7 +46,11 @@ to reflect the names of the libraries they create.
 
 <cvar name="LIBSUFFIXES">
 <summary>
-An array of legal suffixes for library file names.
+A list of all legal suffixes for library file names.
+When searching for library dependencies,
+SCons will look for files with prefixes, in the &cv-LIBPREFIXES; list,
+the base library name,
+and these suffixes.
 </summary>
 </cvar>
 
