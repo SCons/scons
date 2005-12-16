@@ -40,7 +40,7 @@ import SCons.Util
 import SCons.Tool
 import SCons.Tool.tex
 
-LaTeXAction = SCons.Action.Action('$LATEXCOM', '$LATEXCOMSTR')
+LaTeXAction = None
 
 def LaTeXAuxFunction(target = None, source= None, env=None):
     SCons.Tool.tex.InternalLaTeXAuxAction( LaTeXAction, target, source, env )
@@ -49,13 +49,14 @@ LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction, strfunction=None)
 
 def generate(env):
     """Add Builders and construction variables for LaTeX to an Environment."""
+    global LaTeXAction
+    if LaTeXAction is None:
+        LaTeXAction = SCons.Action.Action('$LATEXCOM', '$LATEXCOMSTR')
 
-    try:
-        bld = env['BUILDERS']['DVI']
-    except KeyError:
-        bld = SCons.Defaults.DVI()
-        env['BUILDERS']['DVI'] = bld
+    import dvi
+    dvi.generate(env)
 
+    bld = env['BUILDERS']['DVI']
     bld.add_action('.ltx', LaTeXAuxAction)
     bld.add_action('.latex', LaTeXAuxAction)
     bld.add_emitter('.ltx', SCons.Tool.tex.tex_emitter)

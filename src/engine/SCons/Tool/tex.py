@@ -38,30 +38,28 @@ import re
 import string
 
 import SCons.Action
-import SCons.Defaults
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
-# Define an action to build a generic tex file.  This is sufficient for all
-# tex files.
-TeXAction = SCons.Action.Action("$TEXCOM", "$TEXCOMSTR")
+# An Action sufficient to build any generic tex file.
+TeXAction = None
 
-# Define an action to build a latex file.  This action might be needed more
-# than once if we are dealing with labels and bibtex
-LaTeXAction = SCons.Action.Action("$LATEXCOM", "$LATEXCOMSTR")
+# An action to build a latex file.  This action might be needed more
+# than once if we are dealing with labels and bibtex.
+LaTeXAction = None
 
-# Define an action to run BibTeX on a file.
-BibTeXAction = SCons.Action.Action("$BIBTEXCOM", "$BIBTEXCOMSTR")
+# An action to run BibTeX on a file.
+BibTeXAction = None
 
-# Define an action to run MakeIndex on a file.
-MakeIndexAction = SCons.Action.Action("$MAKEINDEXCOM", "$MAKEINDEXOMSTR")
+# An action to run MakeIndex on a file.
+MakeIndexAction = None
 
 def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None):
     """A builder for LaTeX files that checks the output in the aux file
     and decides how many times to use LaTeXAction, and BibTeXAction."""
-    # Get the base name of the target
-    basename, ext = os.path.splitext(str(target[0]))
+
+    basename, ext = SCons.Util.splitext(str(target[0]))
 
     # Run LaTeX once to generate a new aux file.
     XXXLaTeXAction(target,source,env)
@@ -121,21 +119,46 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
         TeXAction(target,source,env)
     return 0
 
-def tex_emitter( target, source, env ):
-	target.append( os.path.splitext( SCons.Util.to_String(source[0]) )[0] + ".aux" )
-	target.append( os.path.splitext( SCons.Util.to_String(source[0]) )[0] + ".log" )
-	return (target, source)
+def tex_emitter(target, source, env):
+    base = SCons.Util.splitext(str(source[0]))[0]
+    target.append(base + '.aux')
+    target.append(base + '.log')
+    return (target, source)
 
-TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction, strfunction=None)
+TeXLaTeXAction = None
 
 def generate(env):
     """Add Builders and construction variables for TeX to an Environment."""
-    try:
-        bld = env['BUILDERS']['DVI']
-    except KeyError:
-        bld = SCons.Defaults.DVI()
-        env['BUILDERS']['DVI'] = bld
 
+    # A generic tex file Action, sufficient for all tex files.
+    global TeXAction
+    if TeXAction is None:
+        TeXAction = SCons.Action.Action("$TEXCOM", "$TEXCOMSTR")
+
+    # An Action to build a latex file.  This might be needed more
+    # than once if we are dealing with labels and bibtex.
+    global LaTeXAction
+    if LaTeXAction is None:
+        LaTeXAction = SCons.Action.Action("$LATEXCOM", "$LATEXCOMSTR")
+
+    # Define an action to run BibTeX on a file.
+    global BibTeXAction
+    if BibTeXAction is None:
+        BibTeXAction = SCons.Action.Action("$BIBTEXCOM", "$BIBTEXCOMSTR")
+
+    # Define an action to run MakeIndex on a file.
+    global MakeIndexAction
+    if MakeIndexAction is None:
+        MakeIndexAction = SCons.Action.Action("$MAKEINDEXCOM", "$MAKEINDEXOMSTR")
+
+    global TeXLaTeXAction
+    if TeXLaTeXAction is None:
+        TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction, strfunction=None)
+
+    import dvi
+    dvi.generate(env)
+
+    bld = env['BUILDERS']['DVI']
     bld.add_action('.tex', TeXLaTeXAction)
     bld.add_emitter('.tex', tex_emitter)
 

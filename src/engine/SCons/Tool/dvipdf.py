@@ -35,18 +35,34 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Tool.pdf
 import SCons.Util
 
-PDFAction = SCons.Action.Action('$DVIPDFCOM', '$DVIPDFCOMSTR')
+PDFAction = None
+
+def PDFEmitter(target, source, env):
+    """Strips any .aux or .log files from the input source list.
+    These are created by the TeX Builder that in all likelihood was
+    used to generate the .dvi file we're using as input, and we only
+    care about the .dvi file.
+    """
+    def strip_suffixes(n):
+        return not SCons.Util.splitext(str(n))[1] in ['.aux', '.log']
+    source = filter(strip_suffixes, source)
+    return (target, source)
 
 def generate(env):
     """Add Builders and construction variables for dvipdf to an Environment."""
-    try:
-        bld = env['BUILDERS']['PDF']
-    except KeyError:
-        bld = SCons.Defaults.PDF()
-        env['BUILDERS']['PDF'] = bld
+    global PDFAction
+    if PDFAction is None:
+        PDFAction = SCons.Action.Action('$DVIPDFCOM', '$DVIPDFCOMSTR')
+
+    import pdf
+    pdf.generate(env)
+
+    bld = env['BUILDERS']['PDF']
     bld.add_action('.dvi', PDFAction)
+    bld.add_emitter('.dvi', PDFEmitter)
 
     env['DVIPDF']      = 'dvipdf'
     env['DVIPDFFLAGS'] = SCons.Util.CLVar('')

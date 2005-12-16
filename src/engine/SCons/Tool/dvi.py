@@ -1,10 +1,6 @@
-"""SCons.Tool.gs
+"""SCons.Tool.dvi
 
-Tool-specific initialization for Ghostscript.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
+Common DVI Builder definition for various other Tool modules that use it.
 
 """
 
@@ -33,43 +29,29 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Platform
-import SCons.Util
+import SCons.Builder
+import SCons.Tool
 
-# Ghostscript goes by different names on different platforms...
-platform = SCons.Platform.platform_default()
-
-if platform == 'os2':
-    gs = 'gsos2'
-elif platform == 'win32':
-    gs = 'gswin32c'
-else:
-    gs = 'gs'
-
-GhostscriptAction = None
+DVIBuilder = None
 
 def generate(env):
-    """Add Builders and construction variables for Ghostscript to an
-    Environment."""
+    try:
+        bld = env['BUILDERS']['DVI']
+    except KeyError:
+        global DVIBuilder
 
-    global GhostscriptAction
-    if GhostscriptAction is None:
-        GhostscriptAction = SCons.Action.Action('$GSCOM', '$GSCOMSTR')
+        if DVIBuilder is None:
+            # The suffix is hard-coded to '.dvi', not configurable via a
+            # construction variable like $DVISUFFIX, because the output
+            # file name is hard-coded within TeX.
+            DVIBuilder = SCons.Builder.Builder(action = {},
+                                               source_scanner = SCons.Tool.LaTeXScanner,
+                                               suffix = '.dvi',
+                                               emitter = {})
 
-    import pdf
-    pdf.generate(env)
-
-    bld = env['BUILDERS']['PDF']
-    bld.add_action('.ps', GhostscriptAction)
-
-    env['GS']      = gs
-    env['GSFLAGS'] = SCons.Util.CLVar('-dNOPAUSE -dBATCH -sDEVICE=pdfwrite')
-    env['GSCOM']   = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'
-
+        env['BUILDERS']['DVI'] = DVIBuilder
 
 def exists(env):
-    if env.has_key('PS2PDF'):
-        return env.Detect(env['PS2PDF'])
-    else:
-        return env.Detect(gs) or SCons.Util.WhereIs(gs)
+    # This only puts a skeleton Builder in place, so if someone
+    # references this Tool directly, it's always "available."
+    return 1

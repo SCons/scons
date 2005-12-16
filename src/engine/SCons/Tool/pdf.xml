@@ -1,0 +1,39 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<builder name="PDF">
+<summary>
+Builds a <filename>.pdf</filename> file
+from a <filename>.dvi</filename> input file
+(or, by extension, a <filename>.tex</filename>,
+<filename>.ltx</filename>,
+or
+<filename>.latex</filename> input file).
+The suffix specified by the &cv-PDFSUFFIX; construction variable
+(<filename>.pdf</filename> by default)
+is added automatically to the target
+if it is not already present.  Example:
+
+<example>
+# builds from aaa.tex
+env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
+# builds bbb.pdf from bbb.dvi
+env.PDF(target = 'bbb', source = 'bbb.dvi')
+</example>
+</summary>
+</builder>
+
+<cvar name="PDFPREFIX">
+<summary>
+The prefix used for PDF file names.
+</summary>
+</cvar>
+
+<cvar name="PDFSUFFIX">
+<summary>
+The suffix used for PDF file names.
+</summary>
+</cvar>
