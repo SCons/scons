@@ -117,6 +117,20 @@ class NodeInfo:
     def merge(self, other):
         for key, val in other.__dict__.items():
             self.__dict__[key] = val
+    def format(self):
+        try:
+            field_list = self.field_list
+        except AttributeError:
+            field_list = self.__dict__.keys()
+            field_list.sort()
+        fields = []
+        for field in field_list:
+            try:
+                f = getattr(self, field)
+            except AttributeError:
+                f = None
+            fields.append(str(f))
+        return string.join(fields, " ")
 
 class BuildInfo:
     """

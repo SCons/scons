@@ -251,6 +251,21 @@ class NodeInfoTestCase(unittest.TestCase):
         ni = SCons.Node.NodeInfo()
         ni.update(SCons.Node.Node())
 
+    def test_format(self):
+        """Test the NodeInfo.format() method"""
+        ni1 = SCons.Node.NodeInfo()
+        ni1.xxx = 'x'
+        ni1.yyy = 'y'
+        ni1.zzz = 'z'
+
+        f = ni1.format()
+        assert f == 'x y z', f
+
+        ni1.field_list = ['xxx', 'zzz', 'aaa']
+
+        f = ni1.format()
+        assert f == 'x z None', f
+
 
 
 class BuildInfoTestCase(unittest.TestCase):
@@ -308,7 +323,6 @@ class BuildInfoTestCase(unittest.TestCase):
         assert bi1.ninfo.a4 == 4, bi1.ninfo.a4
         assert bi1.ninfo.a5 == 555, bi1.ninfo.a5
         assert bi1.ninfo.a6 == 666, bi1.ninfo.a6
-
 
 
 

@@ -48,6 +48,25 @@ class AliasTestCase(unittest.TestCase):
         a2 = ans.Alias('a1')
         assert a1 is a2, (a1, a2)
 
+    def test_get_contents(self):
+        """Test the get_contents() method
+        """
+        class DummyNode:
+            def __init__(self, contents):
+                self.contents = contents
+            def get_contents(self):
+                return self.contents
+
+        ans = SCons.Node.Alias.AliasNameSpace()
+
+        ans.Alias('a1')
+        a = ans.lookup('a1')
+
+        a.sources = [ DummyNode('one'), DummyNode('two'), DummyNode('three') ]
+
+        c = a.get_contents()
+        assert c == 'onetwothree', c
+
     def test_lookup(self):
         """Test the lookup() method
         """

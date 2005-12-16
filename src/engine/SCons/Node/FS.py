@@ -727,6 +727,18 @@ class Entry(Base):
         directory."""
         return self.disambiguate().exists()
 
+    def missing(self):
+        """Return if the Entry is missing.  Check the file system to
+        see what we should turn into first.  Assume a file if there's
+        no directory."""
+        return self.disambiguate().missing()
+
+    def get_csig(self):
+        """Return the entry's content signature.  Check the file system
+        to see what we should turn into first.  Assume a file if there's
+        no directory."""
+        return self.disambiguate().get_csig()
+
     def calc_signature(self, calc=None):
         """Return the Entry's calculated signature.  Check the file
         system to see what we should turn into first.  Assume a file if
@@ -1360,10 +1372,8 @@ class Dir(Base):
 
     def get_contents(self):
         """Return aggregate contents of all our children."""
-        contents = cStringIO.StringIO()
-        for kid in self.children():
-            contents.write(kid.get_contents())
-        return contents.getvalue()
+        contents = map(lambda n: n.get_contents(), self.children())
+        return  string.join(contents, '')
 
     def prepare(self):
         pass
@@ -1627,6 +1637,14 @@ class BuildInfo(SCons.Node.BuildInfo):
                 pass
             else:
                 setattr(self, attr, map(Entry_func, val))
+    def format(self):
+        result = [ self.ninfo.format() ]
+        bkids = self.bsources + self.bdepends + self.bimplicit
+        bkidsigs = self.bsourcesigs + self.bdependsigs + self.bimplicitsigs
+        for i in xrange(len(bkids)):
+            result.append(str(bkids[i]) + ': ' + bkidsigs[i].format())
+        return string.join(result, '\n')
+
 
 class File(Base):
     """A class for files in a file system.

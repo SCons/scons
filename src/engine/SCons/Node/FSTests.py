@@ -757,6 +757,28 @@ class BuildInfoTestCase(_tempdirTestCase):
     def test_convert_from_sconsign(self):
         """Test converting from .sconsign file format"""
 
+    def test_format(self):
+        """Test the format() method"""
+        f1 = self.fs.File('f1')
+        bi1 = SCons.Node.FS.BuildInfo(f1)
+
+        s1sig = SCons.Node.FS.NodeInfo()
+        s1sig.a = 1
+        d1sig = SCons.Node.FS.NodeInfo()
+        d1sig.a = 2
+        i1sig = SCons.Node.FS.NodeInfo()
+        i1sig.a = 3
+
+        bi1.bsources = [self.fs.File('s1')]
+        bi1.bdepends = [self.fs.File('d1')]
+        bi1.bimplicit = [self.fs.File('i1')]
+        bi1.bsourcesigs = [s1sig]
+        bi1.bdependsigs = [d1sig]
+        bi1.bimplicitsigs = [i1sig]
+
+        format = bi1.format()
+        assert format == 'None 0\ns1: 1\nd1: 2\ni1: 3', repr(format)
+
 class FSTestCase(_tempdirTestCase):
     def test_runTest(self):
         """Test FS (file system) Node operations
@@ -1842,6 +1864,55 @@ class EntryTestCase(_tempdirTestCase):
         """Test looking up an Entry within another Entry"""
         self.fs.Entry('#topdir')
         self.fs.Entry('#topdir/a/b/c')
+
+    def test_missing(self):
+        """Test that the Entry.missing() method disambiguates node types"""
+        test = TestCmd(workdir='')
+        # FS doesn't like the cwd to be something other than its root.
+        os.chdir(test.workpath(""))
+
+        fs = SCons.Node.FS.FS()
+
+        test.subdir('emd')
+        test.write('emf', "emf\n")
+
+        emd = fs.Entry('emd')
+        missing = emd.missing()
+        assert emd.__class__ is SCons.Node.FS.Dir, emd.__class__
+        assert not missing
+
+        emf = fs.Entry('emf')
+        missing = emf.missing()
+        assert emf.__class__ is SCons.Node.FS.File, emf.__class__
+        assert not missing
+
+        emn = fs.Entry('emn')
+        missing = emn.missing()
+        assert emn.__class__ is SCons.Node.FS.File, emn.__class__
+        assert missing
+
+    def test_get_csig(self):
+        """Test that the Entry.get_csig() method disambiguates node types"""
+        test = TestCmd(workdir='')
+        # FS doesn't like the cwd to be something other than its root.
+        os.chdir(test.workpath(""))
+
+        fs = SCons.Node.FS.FS()
+
+        test.subdir('egcd')
+        test.write('egcf', "egcf\n")
+
+        egcd = fs.Entry('egcd')
+        egcd.get_csig()
+        assert egcd.__class__ is SCons.Node.FS.Dir, egcd.__class__
+
+        egcf = fs.Entry('egcf')
+        egcf.get_csig()
+        assert egcf.__class__ is SCons.Node.FS.File, egcf.__class__
+
+        egcn = fs.Entry('egcn')
+        egcn.get_csig()
+        assert egcn.__class__ is SCons.Node.FS.File, egcn.__class__
 
 
 
