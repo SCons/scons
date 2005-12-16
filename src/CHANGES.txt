@@ -405,6 +405,9 @@ RELEASE 0.97 - XXX
     be /usr/sbin/pgkchk (since /usr/sbin isn't usually on the external
     execution $PATH).
 
+  - Fix a man page example of overriding variables when calling
+    SharedLibrary() to also set the $LIBSUFFIXES variable.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
