@@ -35,24 +35,32 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Builder
-import SCons.Defaults
 import SCons.Util
 
-PSAction = SCons.Action.Action('$PSCOM', '$PSCOMSTR')
-
-PostScript = SCons.Builder.Builder(action = PSAction,
-                                   prefix = '$PSPREFIX',
-                                   suffix = '$PSSUFFIX',
-                                   src_suffix = '.dvi',
-                                   src_builder = 'DVI')
+PSAction = None
+PSBuilder = None
 
 def generate(env):
     """Add Builders and construction variables for dvips to an Environment."""
-    env['BUILDERS']['PostScript'] = PostScript
+    global PSAction
+    if PSAction is None:
+        PSAction = SCons.Action.Action('$PSCOM', '$PSCOMSTR')
+
+    global PSBuilder
+    if PSBuilder is None:
+        PSBuilder = SCons.Builder.Builder(action = PSAction,
+                                          prefix = '$PSPREFIX',
+                                          suffix = '$PSSUFFIX',
+                                          src_suffix = '.dvi',
+                                          src_builder = 'DVI')
+
+    env['BUILDERS']['PostScript'] = PSBuilder
     
     env['DVIPS']      = 'dvips'
     env['DVIPSFLAGS'] = SCons.Util.CLVar('')
     env['PSCOM']      = '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCE'
+    env['PSPREFIX'] = ''
+    env['PSSUFFIX'] = '.ps'
 
 def exists(env):
     return env.Detect('dvips')

@@ -124,25 +124,6 @@ ShLinkAction = SCons.Action.Action("$SHLINKCOM", "$SHLINKCOMSTR")
 
 LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
 
-def DVI():
-    """Common function to generate a DVI file Builder."""
-    return SCons.Builder.Builder(action = {},
-                                 source_scanner = LaTeXScan,
-                                 # The suffix is not configurable via a
-                                 # construction variable like $DVISUFFIX
-                                 # because the output file name is
-                                 # hard-coded within TeX.
-                                 suffix = '.dvi',
-                                 emitter = {})
-
-def PDF():
-    """A function for generating the PDF Builder."""
-    return SCons.Builder.Builder(action = { },
-                                 source_scanner = LaTeXScan,
-                                 prefix = '$PDFPREFIX',
-                                 suffix = '$PDFSUFFIX',
-                                 emitter = {})
-
 # Common tasks that we allow users to perform in platform-independent
 # ways by creating ActionFactory instances.
 ActionFactory = SCons.Action.ActionFactory
@@ -357,10 +338,6 @@ ConstructionEnvironment = {
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
     'LATEXSUFFIXES' : SCons.Tool.LaTeXSuffixes,
-    'PDFPREFIX'     : '',
-    'PDFSUFFIX'     : '.pdf',
-    'PSPREFIX'      : '',
-    'PSSUFFIX'      : '.ps',
     'ENV'           : {},
     'INSTALL'       : copyFunc,
     '_concat'       : _concat,
