@@ -408,6 +408,9 @@ RELEASE 0.97 - XXX
   - Fix a man page example of overriding variables when calling
     SharedLibrary() to also set the $LIBSUFFIXES variable.
 
+  - Add a --taskmastertrace=FILE option to give some insight on how
+    the taskmaster decides what Node to build next.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
