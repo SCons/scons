@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,7 +21,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = ""
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import string
