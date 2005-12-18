@@ -171,7 +171,7 @@ class TaskmasterTestCase(unittest.TestCase):
         """Test fetching the next task
         """
         global built_text
-        
+
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1, n1])
         t = tm.next_task()
@@ -1030,6 +1030,37 @@ class TaskmasterTestCase(unittest.TestCase):
         t.postprocess()
         assert n2.postprocessed
         assert n3.postprocessed
+
+    def test_trace(self):
+        """Test Taskmaster tracing
+        """
+        import StringIO
+
+        trace = StringIO.StringIO()
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n3 = Node("n3", [n1, n2])
+        tm = SCons.Taskmaster.Taskmaster([n1, n1, n3], trace=trace)
+        t = tm.next_task()
+        t.prepare()
+        t.execute()
+        n1.set_state(SCons.Node.executed)
+        t = tm.next_task()
+        t.prepare()
+        t.execute()
+        t = tm.next_task()
+
+        value = trace.getvalue()
+        expect = """\
+Taskmaster: 'n1': building
+Taskmaster: 'n1': already handled
+Taskmaster: 'n3': waiting on unstarted children:
+    ['n2']
+Taskmaster: 'n2': building
+Taskmaster: 'n3': waiting on unfinished children:
+    ['n2']
+"""
+        assert value == expect, value
 
 
 

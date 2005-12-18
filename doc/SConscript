@@ -392,6 +392,7 @@ man_intermediate_files = env.Command(man_intermediate_files,
                                      scons_doc_files,
                                      cmd)
 env.Depends(man_intermediate_files, "$SCONS_PROC_PY")
+Local(man_intermediate_files)
 
 for man_1 in man_page_list:
     man, _1 = os.path.splitext(man_1)

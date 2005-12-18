@@ -31,7 +31,7 @@
 .fi
 .RE
 ..
-.TH SCONS 1 "October 2005"
+.TH SCONS 1 "December 2005"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -882,6 +882,7 @@ and save the results in the specified
 .IR file .
 The results may be analyzed using the Python
 pstats module.
+
 .TP
 -q, --question
 Do not run any commands, or print anything.  Just return an exit
@@ -926,6 +927,16 @@ Ignored for compatibility with GNU
 (Touching a file to make it
 appear up-to-date is unnecessary when using 
 .BR scons .)
+
+.TP
+.RI --taskmastertrace= file
+Prints trace information to the specified
+.I file
+about how the internal Taskmaster object
+evaluates and controls the order in which Nodes are built.
+A file name of
+.B -
+may be used to specify the standard output.
 
 .TP
 -u, --up, --search-up

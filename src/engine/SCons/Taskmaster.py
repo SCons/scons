@@ -38,7 +38,7 @@ import SCons.Errors
 
 # A subsystem for recording stats about how different Nodes are handled by
 # the main Taskmaster loop.  There's no external control here (no need for
-# a --debug= option); enabled it by changing the value of CollectStats.
+# a --debug= option); enable it by changing the value of CollectStats.
 
 CollectStats = None
 
@@ -276,7 +276,7 @@ class Taskmaster:
     the base class method, so this class can do its thing.
     """
 
-    def __init__(self, targets=[], tasker=Task, order=order):
+    def __init__(self, targets=[], tasker=Task, order=order, trace=None):
         self.targets = targets # top level targets
         self.candidates = targets[:] # nodes that might be ready to be executed
         self.candidates.reverse()
@@ -286,6 +286,7 @@ class Taskmaster:
         self.ready = None # the next task that is ready to be executed
         self.order = order
         self.message = None
+        self.trace = trace
 
         # See if we can alter the target list to find any
         # corresponding targets in linked build directories
@@ -304,6 +305,8 @@ class Taskmaster:
 
         self.ready_exc = None
 
+        T = self.trace
+
         while self.candidates:
             node = self.candidates.pop()
             state = node.get_state()
@@ -317,9 +320,12 @@ class Taskmaster:
             else:
                 S = None
 
+            if T: T.write('Taskmaster: %s' % repr(str(node)))
+
             # Skip this node if it has already been handled:
             if not state in [ SCons.Node.no_state, SCons.Node.stack ]:
                 if S: S.already_handled = S.already_handled + 1
+                if T: T.write(': already handled\n')
                 continue
 
             # Mark this node as being on the execution stack:
@@ -334,6 +340,7 @@ class Taskmaster:
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
                 self.ready = node
+                if T: T.write(': SystemExit\n')
                 break
             except KeyboardInterrupt:
                 raise
@@ -345,15 +352,19 @@ class Taskmaster:
                 self.ready_exc = sys.exc_info()
                 self.ready = node
                 if S: S.problem = S.problem + 1
+                if T: T.write(': exception problem\n')
                 break
 
             # Skip this node if any of its children have failed.  This
             # catches the case where we're descending a top-level target
             # and one of our children failed while trying to be built
             # by a *previous* descent of an earlier top-level target.
-            if filter(lambda I: I[0] == SCons.Node.failed, childinfo):
+            failed_children = filter(lambda I: I[0] == SCons.Node.failed,
+                                     childinfo)
+            if failed_children:
                 node.set_state(SCons.Node.failed)
                 if S: S.child_failed = S.child_failed + 1
+                if T: T.write(': children failed:\n    %s\n' % map(str, failed_children))
                 continue
 
             # Detect dependency cycles:
@@ -368,6 +379,7 @@ class Taskmaster:
                                map(lambda I: I[2], cycle)
                 nodes.reverse()
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
+                if T: T.write(': dependency cycle\n')
                 raise SCons.Errors.UserError, desc
 
             # Select all of the dependencies that are derived targets
@@ -401,40 +413,47 @@ class Taskmaster:
                 not_started.reverse()
                 self.candidates.extend(self.order(not_started))
                 if S: S.not_started = S.not_started + 1
+                if T: T.write(': waiting on unstarted children:\n    %s\n' % map(str, not_started))
                 continue
 
             not_built = filter(lambda I: I[0] <= SCons.Node.executing, derived_children)
             if not_built:
+                not_built = map(lambda I: I[2], not_built)
+
                 # We're waiting on one or more derived targets that have
                 # started building but not yet finished.  Add this node
                 # to the waiting parents lists of those derived files
                 # so that when they've finished building, our implicit
                 # dependency list will get cleared and we'll re-scan the
                 # newly-built file(s) for updated implicit dependencies.
-                map(lambda I, P=node: I[2].add_to_waiting_parents(P), not_built)
+                map(lambda n, P=node: n.add_to_waiting_parents(P), not_built)
 
                 # And add this node to the "pending" list, so it can get
                 # put back on the candidates list when appropriate.
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
                 if S: S.not_built = S.not_built + 1
+                if T: T.write(': waiting on unfinished children:\n    %s\n' % map(str, not_built))
                 continue
 
             # Skip this node if it has side-effects that are
             # currently being built:
-            if reduce(lambda E,N:
-                      E or N.get_state() == SCons.Node.executing,
-                      node.side_effects,
-                      0):
+            side_effects = reduce(lambda E,N:
+                                  E or N.get_state() == SCons.Node.executing,
+                                  node.side_effects,
+                                  0)
+            if side_effects:
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
                 if S: S.side_effects = S.side_effects + 1
+                if T: T.write(': waiting on side effects:\n    %s\n' % map(str, side_effects))
                 continue
 
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
             self.ready = node
             if S: S.build = S.build + 1
+            if T: T.write(': building\n')
             break
 
     def next_task(self):

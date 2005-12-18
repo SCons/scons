@@ -768,6 +768,10 @@ class OptParser(OptionParser):
         self.add_option('-s', '--silent', '--quiet', action="store_true",
                         default=0, help="Don't print commands.")
 
+        self.add_option('--taskmastertrace', action="store",
+                        dest="taskmastertrace_file", metavar="FILE",
+                        help="Trace Node evaluation to FILE.")
+
         self.add_option('-u', '--up', '--search-up', action="store_const",
                         dest="climb_up", default=0, const=1,
                         help="Search up directory tree for SConstruct,       "
@@ -1229,7 +1233,13 @@ def _main(args, parser):
             return dependencies
 
     progress_display("scons: " + opening_message)
-    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order)
+    if options.taskmastertrace_file == '-':
+        tmtrace = sys.stdout
+    elif options.taskmastertrace_file:
+        tmtrace = open(options.taskmastertrace_file, 'w')
+    else:
+        tmtrace = None
+    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)
 
     nj = ssoptions.get('num_jobs')
     jobs = SCons.Job.Jobs(nj, taskmaster)
