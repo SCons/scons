@@ -76,7 +76,7 @@ class Alias(SCons.Node.Node):
     def get_contents(self):
         """The contents of an alias is the concatenation
         of all the contents of its sources"""
-        contents = map(lambda n: n.get_contents(), self.children(None))
+        contents = map(lambda n: n.get_contents(), self.children())
         return string.join(contents, '')
 
     def sconsign(self):

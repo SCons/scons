@@ -78,7 +78,7 @@ class MyNode:
                                            [self],
                                            ['s1', 's2'])
         apply(executor, (self, errfunc), {})
-    def get_scanner(self, env, kw):
+    def get_env_scanner(self, env, kw):
         return MyScanner('dep-')
     def get_implicit_deps(self, env, scanner, path):
         return [scanner.prefix + str(self)]
@@ -88,8 +88,6 @@ class MyNode:
         return self.missing_val
     def calc_signature(self, calc):
         return 'cs-'+calc+'-'+self.name
-    def select_scanner(self, scanner):
-        return scanner.select(self)
 
 class MyScanner:
     def __init__(self, prefix):

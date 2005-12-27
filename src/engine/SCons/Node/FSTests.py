@@ -966,22 +966,6 @@ class FSTestCase(_tempdirTestCase):
                 dir = fs.Dir(drive)
                 assert str(dir) == drive + os.sep, str(dir)
 
-            # Test Dir.scan()
-            dir = fs.Dir('ddd')
-            fs.File(string.join(['ddd', 'f1'], sep))
-            fs.File(string.join(['ddd', 'f2'], sep))
-            fs.File(string.join(['ddd', 'f3'], sep))
-            fs.Dir(string.join(['ddd', 'd1'], sep))
-            fs.Dir(string.join(['ddd', 'd1', 'f4'], sep))
-            fs.Dir(string.join(['ddd', 'd1', 'f5'], sep))
-            dir.scan()
-            kids = map(lambda x: x.path, dir.children(None))
-            kids.sort()
-            assert kids == [os.path.join('ddd', 'd1'),
-                            os.path.join('ddd', 'f1'),
-                            os.path.join('ddd', 'f2'),
-                            os.path.join('ddd', 'f3')], kids
-
         # Test for a bug in 0.04 that did not like looking up
         # dirs with a trailing slash on Win32.
         d=fs.Dir('./')
@@ -1366,7 +1350,7 @@ class FSTestCase(_tempdirTestCase):
         assert str(t) == 'pre-z-suf', str(t)
 
     def test_same_name(self):
-        """Test that a local same-named file isn't found for # Dir lookup"""
+        """Test that a local same-named file isn't found for a Dir lookup"""
         test = self.test
         fs = self.fs
 
@@ -1484,6 +1468,42 @@ class DirTestCase(_tempdirTestCase):
         a = x.get_action_list()
         assert a[0] == 'pre', a
         assert a[2] == 'post', a
+
+    def test_get_env_scanner(self):
+        """Test the Dir.get_env_scanner() method
+        """
+        import SCons.Defaults
+        d = self.fs.Dir('ddd')
+        s = d.get_env_scanner(Environment())
+        assert s is SCons.Defaults.DirEntryScanner, s
+
+    def test_get_target_scanner(self):
+        """Test the Dir.get_target_scanner() method
+        """
+        import SCons.Defaults
+        d = self.fs.Dir('ddd')
+        s = d.get_target_scanner()
+        assert s is SCons.Defaults.DirEntryScanner, s
+
+    def test_scan(self):
+        """Test scanning a directory for in-memory entries
+        """
+        fs = self.fs
+
+        dir = fs.Dir('ddd')
+        fs.File(os.path.join('ddd', 'f1'))
+        fs.File(os.path.join('ddd', 'f2'))
+        fs.File(os.path.join('ddd', 'f3'))
+        fs.Dir(os.path.join('ddd', 'd1'))
+        fs.Dir(os.path.join('ddd', 'd1', 'f4'))
+        fs.Dir(os.path.join('ddd', 'd1', 'f5'))
+        dir.scan()
+        kids = map(lambda x: x.path, dir.children(None))
+        kids.sort()
+        assert kids == [os.path.join('ddd', 'd1'),
+                        os.path.join('ddd', 'f1'),
+                        os.path.join('ddd', 'f2'),
+                        os.path.join('ddd', 'f3')], kids
 
     def test_entry_exists_on_disk(self):
         """Test the Dir.entry_exists_on_disk() method

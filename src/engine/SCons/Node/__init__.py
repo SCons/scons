@@ -474,8 +474,11 @@ class Node:
 
         return deps
 
-    def get_scanner(self, env, kw={}):
+    def get_env_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
+
+    def get_target_scanner(self):
+        return self.builder.target_scanner
 
     def get_source_scanner(self, node):
         """Fetch the source scanner for the specified node
@@ -498,7 +501,7 @@ class Node:
             # The builder didn't have an explicit scanner, so go look up
             # a scanner from env['SCANNERS'] based on the node's scanner
             # key (usually the file extension).
-            scanner = self.get_scanner(self.get_build_env())
+            scanner = self.get_env_scanner(self.get_build_env())
         if scanner:
             scanner = scanner.select(node)
         return scanner
@@ -563,7 +566,7 @@ class Node:
 
         # If there's a target scanner, have the executor scan the target
         # node itself and associated targets that might be built.
-        scanner = self.builder.target_scanner
+        scanner = self.get_target_scanner()
         if scanner:
             executor.scan_targets(scanner)
 

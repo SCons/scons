@@ -1052,12 +1052,20 @@ class TaskmasterTestCase(unittest.TestCase):
 
         value = trace.getvalue()
         expect = """\
-Taskmaster: 'n1': building
+Taskmaster: 'n1': children:
+    []
+    evaluating
 Taskmaster: 'n1': already handled
-Taskmaster: 'n3': waiting on unstarted children:
+Taskmaster: 'n3': children:
+    ['n1', 'n2']
+    waiting on unstarted children:
     ['n2']
-Taskmaster: 'n2': building
-Taskmaster: 'n3': waiting on unfinished children:
+Taskmaster: 'n2': children:
+    []
+    evaluating
+Taskmaster: 'n3': children:
+    ['n1', 'n2']
+    waiting on unfinished children:
     ['n2']
 """
         assert value == expect, value

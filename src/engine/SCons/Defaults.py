@@ -109,6 +109,7 @@ ProgScan = SCons.Tool.ProgramScanner
 # should go.  Leave it here for now.
 import SCons.Scanner.Dir
 DirScanner = SCons.Scanner.Dir.DirScanner()
+DirEntryScanner = SCons.Scanner.Dir.DirEntryScanner()
 
 # Actions for common languages.
 CAction = SCons.Action.Action("$CCCOM", "$CCCOMSTR")
