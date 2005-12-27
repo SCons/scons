@@ -62,11 +62,20 @@ class DirScannerTestBase(unittest.TestCase):
         self.test.write(['dir', 'f1'], "dir/f1\n")
         self.test.write(['dir', 'f2'], "dir/f2\n")
         self.test.write(['dir', '.sconsign'], "dir/.sconsign\n")
+        self.test.write(['dir', '.sconsign.bak'], "dir/.sconsign.bak\n")
+        self.test.write(['dir', '.sconsign.dat'], "dir/.sconsign.dat\n")
+        self.test.write(['dir', '.sconsign.db'], "dir/.sconsign.db\n")
         self.test.write(['dir', '.sconsign.dblite'], "dir/.sconsign.dblite\n")
+        self.test.write(['dir', '.sconsign.dir'], "dir/.sconsign.dir\n")
+        self.test.write(['dir', '.sconsign.pag'], "dir/.sconsign.pag\n")
         self.test.write(['dir', 'sub', 'f3'], "dir/sub/f3\n")
         self.test.write(['dir', 'sub', 'f4'], "dir/sub/f4\n")
         self.test.write(['dir', 'sub', '.sconsign'], "dir/.sconsign\n")
+        self.test.write(['dir', 'sub', '.sconsign.bak'], "dir/.sconsign.bak\n")
+        self.test.write(['dir', 'sub', '.sconsign.dat'], "dir/.sconsign.dat\n")
         self.test.write(['dir', 'sub', '.sconsign.dblite'], "dir/.sconsign.dblite\n")
+        self.test.write(['dir', 'sub', '.sconsign.dir'], "dir/.sconsign.dir\n")
+        self.test.write(['dir', 'sub', '.sconsign.pag'], "dir/.sconsign.pag\n")
 
 class DirScannerTestCase1(DirScannerTestBase):
     def runTest(self):
@@ -74,13 +83,22 @@ class DirScannerTestCase1(DirScannerTestBase):
 
         s = SCons.Scanner.Dir.DirScanner()
 
+        expect = [
+            os.path.join('dir', 'f1'),
+            os.path.join('dir', 'f2'),
+            os.path.join('dir', 'sub'),
+        ]
         deps = s(env.Dir('dir'), env, ())
         sss = map(str, deps)
-        assert sss == ['dir/f1', 'dir/f2', 'dir/sub'], sss
+        assert sss == expect, sss
 
+        expect = [
+            os.path.join('dir', 'sub', 'f3'),
+            os.path.join('dir', 'sub', 'f4'),
+        ]
         deps = s(env.Dir('dir/sub'), env, ())
         sss = map(str, deps)
-        assert sss == ['dir/sub/f3', 'dir/sub/f4'], sss
+        assert sss == expect, sss
 
 class DirScannerTestCase2(DirScannerTestBase):
     def runTest(self):

@@ -1236,7 +1236,7 @@ def _main(args, parser):
     if options.taskmastertrace_file == '-':
         tmtrace = sys.stdout
     elif options.taskmastertrace_file:
-        tmtrace = open(options.taskmastertrace_file, 'w')
+        tmtrace = open(options.taskmastertrace_file, 'wb')
     else:
         tmtrace = None
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)

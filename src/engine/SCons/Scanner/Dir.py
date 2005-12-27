@@ -43,15 +43,31 @@ def DirEntryScanner(**kw):
     """Return a prototype Scanner instance for "scanning"
     directory Nodes for their in-memory entries"""
     kw['node_factory'] = SCons.Node.FS.Entry
-    kw['recursive'] = only_dirs
+    kw['recursive'] = None
     return apply(SCons.Scanner.Base, (scan_in_memory, "DirEntryScanner"), kw)
 
-skip_entry = {
-   '.' : 1,
-   '..' : 1,
-   '.sconsign' : 1,
-   '.sconsign.dblite' : 1,
-}
+skip_entry = {}
+
+skip_entry_list = [
+   '.',
+   '..',
+   '.sconsign',
+   # Used by the native dblite.py module.
+   '.sconsign.dblite',
+   # Used by dbm and dumbdbm.
+   '.sconsign.dir',
+   # Used by dbm.
+   '.sconsign.pag',
+   # Used by dumbdbm.
+   '.sconsign.dat',
+   '.sconsign.bak',
+   # Used by some dbm emulations using Berkeley DB.
+   '.sconsign.db',
+]
+
+for skip in skip_entry_list:
+    skip_entry[skip] = 1
+    skip_entry[SCons.Node.FS._my_normcase(skip)] = 1
 
 do_not_scan = lambda k: not skip_entry.has_key(k)
 

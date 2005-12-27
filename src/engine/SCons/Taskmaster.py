@@ -320,29 +320,28 @@ class Taskmaster:
             else:
                 S = None
 
-            if T: T.write('Taskmaster: %s' % repr(str(node)))
+            if T: T.write('Taskmaster: %s:' % repr(str(node)))
 
             # Skip this node if it has already been handled:
             if not state in [ SCons.Node.no_state, SCons.Node.stack ]:
                 if S: S.already_handled = S.already_handled + 1
-                if T: T.write(': already handled\n')
+                if T: T.write(' already handled\n')
                 continue
 
             # Mark this node as being on the execution stack:
             node.set_state(SCons.Node.stack)
 
             try:
-                childinfo = map(lambda N: (N.get_state(),
-                                           N.is_derived() or N.is_pseudo_derived(),
-                                           N), node.children())
+                children = node.children()
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
                 self.ready = node
-                if T: T.write(': SystemExit\n')
+                if T: T.write(' SystemExit\n')
                 break
             except KeyboardInterrupt:
+                if T: T.write(' KeyboardInterrupt\n')
                 raise
             except:
                 # We had a problem just trying to figure out the
@@ -352,8 +351,16 @@ class Taskmaster:
                 self.ready_exc = sys.exc_info()
                 self.ready = node
                 if S: S.problem = S.problem + 1
-                if T: T.write(': exception problem\n')
+                if T: T.write(' exception\n')
                 break
+            else:
+                c = map(str, children)
+                c.sort()
+                if T: T.write(' children:\n    %s\n   ' % c)
+
+            childinfo = map(lambda N: (N.get_state(),
+                                       N.is_derived() or N.is_pseudo_derived(),
+                                       N), children)
 
             # Skip this node if any of its children have failed.  This
             # catches the case where we're descending a top-level target
@@ -364,7 +371,10 @@ class Taskmaster:
             if failed_children:
                 node.set_state(SCons.Node.failed)
                 if S: S.child_failed = S.child_failed + 1
-                if T: T.write(': children failed:\n    %s\n' % map(str, failed_children))
+                if T:
+                    c = map(str, failed_children)
+                    c.sort()
+                    T.write(' children failed:\n    %s\n' % c)
                 continue
 
             # Detect dependency cycles:
@@ -379,7 +389,7 @@ class Taskmaster:
                                map(lambda I: I[2], cycle)
                 nodes.reverse()
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
-                if T: T.write(': dependency cycle\n')
+                if T: T.write(' dependency cycle\n')
                 raise SCons.Errors.UserError, desc
 
             # Select all of the dependencies that are derived targets
@@ -413,7 +423,10 @@ class Taskmaster:
                 not_started.reverse()
                 self.candidates.extend(self.order(not_started))
                 if S: S.not_started = S.not_started + 1
-                if T: T.write(': waiting on unstarted children:\n    %s\n' % map(str, not_started))
+                if T:
+                    c = map(str, not_started)
+                    c.sort()
+                    T.write(' waiting on unstarted children:\n    %s\n' % c)
                 continue
 
             not_built = filter(lambda I: I[0] <= SCons.Node.executing, derived_children)
@@ -433,7 +446,10 @@ class Taskmaster:
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
                 if S: S.not_built = S.not_built + 1
-                if T: T.write(': waiting on unfinished children:\n    %s\n' % map(str, not_built))
+                if T:
+                    c = map(str, not_built)
+                    c.sort()
+                    T.write(' waiting on unfinished children:\n    %s\n' % c)
                 continue
 
             # Skip this node if it has side-effects that are
@@ -446,14 +462,17 @@ class Taskmaster:
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
                 if S: S.side_effects = S.side_effects + 1
-                if T: T.write(': waiting on side effects:\n    %s\n' % map(str, side_effects))
+                if T:
+                    c = map(str, side_effects)
+                    c.sort()
+                    T.write(' waiting on side effects:\n    %s\n' % c)
                 continue
 
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
             self.ready = node
             if S: S.build = S.build + 1
-            if T: T.write(': building\n')
+            if T: T.write(' evaluating\n')
             break
 
     def next_task(self):

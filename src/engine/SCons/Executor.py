@@ -182,7 +182,8 @@ class Executor:
         self.scan(scanner, self.targets)
 
     def scan_sources(self, scanner):
-        self.scan(scanner, self.sources)
+        if self.sources:
+            self.scan(scanner, self.sources)
 
     def scan(self, scanner, node_list):
         """Scan a list of this Executor's files (targets or sources) for
@@ -191,16 +192,16 @@ class Executor:
         each individual target, which is a hell of a lot more efficient.
         """
         env = self.get_build_env()
-        select_specific_scanner = lambda t: (t[0], t[0].select_scanner(t[1]))
+        select_specific_scanner = lambda t: (t[0], t[1].select(t[0]))
         remove_null_scanners = lambda t: not t[1] is None
         add_scanner_path = lambda t, s=self: \
                                   (t[0], t[1], s.get_build_scanner_path(t[1]))
         if scanner:
-            scanner_list = map(lambda src, s=scanner: (src, s), node_list)
+            scanner_list = map(lambda n, s=scanner: (n, s), node_list)
         else:
             kw = self.get_kw()
-            get_initial_scanners = lambda src, e=env, kw=kw: \
-                                          (src, src.get_scanner(e, kw))
+            get_initial_scanners = lambda n, e=env, kw=kw: \
+                                          (n, n.get_env_scanner(e, kw))
             scanner_list = map(get_initial_scanners, node_list)
             scanner_list = filter(remove_null_scanners, scanner_list)
 

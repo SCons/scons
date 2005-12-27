@@ -930,16 +930,27 @@ class NodeTestCase(unittest.TestCase):
         deps = node.get_implicit_deps(env, s, target)
         assert deps == [d1, d2], map(str, deps)
 
-    def test_get_scanner(self):
+    def test_get_env_scanner(self):
         """Test fetching the environment scanner for a Node
         """
         node = SCons.Node.Node()
         scanner = Scanner()
         env = Environment(SCANNERS = [scanner])
-        s = node.get_scanner(env)
+        s = node.get_env_scanner(env)
         assert s == scanner, s
-        s = node.get_scanner(env, {'X':1})
+        s = node.get_env_scanner(env, {'X':1})
         assert s == scanner, s
+
+    def test_get_target_scanner(self):
+        """Test fetching the target scanner for a Node
+        """
+        s = Scanner()
+        b = Builder()
+        b.target_scanner = s
+        n = SCons.Node.Node()
+        n.builder = b
+        x = n.get_target_scanner()
+        assert x is s, x
 
     def test_get_source_scanner(self):
         """Test fetching the source scanner for a Node
@@ -1043,12 +1054,6 @@ class NodeTestCase(unittest.TestCase):
     def test_scanner_key(self):
         """Test that a scanner_key() method exists"""
         assert SCons.Node.Node().scanner_key() == None
-
-    def test_select_scanner(self):
-        """Test the base select_scanner() method returns its scanner"""
-        scanner = Scanner()
-        s = SCons.Node.Node().select_scanner(scanner)
-        assert scanner is s, s
 
     def test_children(self):
         """Test fetching the non-ignored "children" of a Node.

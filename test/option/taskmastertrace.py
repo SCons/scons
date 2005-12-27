@@ -41,13 +41,21 @@ env.Command('file.mid', 'file.in', Copy('$TARGET', '$SOURCE'))
 test.write('file.in', "file.in\n")
 
 expect_stdout = test.wrap_stdout("""\
-Taskmaster: '.': waiting on unstarted children:
-    ['file.out', 'file.mid']
-Taskmaster: 'file.mid': building
+Taskmaster: '.': children:
+    ['SConstruct', 'file.in', 'file.mid', 'file.out']
+    waiting on unstarted children:
+    ['file.mid', 'file.out']
+Taskmaster: 'file.mid': children:
+    ['file.in']
+    evaluating
 Copy("file.mid", "file.in")
-Taskmaster: 'file.out': building
+Taskmaster: 'file.out': children:
+    ['file.mid']
+    evaluating
 Copy("file.out", "file.mid")
-Taskmaster: '.': building
+Taskmaster: '.': children:
+    ['SConstruct', 'file.in', 'file.mid', 'file.out']
+    evaluating
 """)
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
@@ -66,11 +74,19 @@ Copy("file.out", "file.mid")
 test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
 
 expect_trace = """\
-Taskmaster: '.': waiting on unstarted children:
-    ['file.out', 'file.mid']
-Taskmaster: 'file.mid': building
-Taskmaster: 'file.out': building
-Taskmaster: '.': building
+Taskmaster: '.': children:
+    ['SConstruct', 'file.in', 'file.mid', 'file.out']
+    waiting on unstarted children:
+    ['file.mid', 'file.out']
+Taskmaster: 'file.mid': children:
+    ['file.in']
+    evaluating
+Taskmaster: 'file.out': children:
+    ['file.mid']
+    evaluating
+Taskmaster: '.': children:
+    ['SConstruct', 'file.in', 'file.mid', 'file.out']
+    evaluating
 """
 
 test.must_match('trace.out', expect_trace)

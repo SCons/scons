@@ -198,12 +198,14 @@ def get_MkdirBuilder():
     global MkdirBuilder
     if MkdirBuilder is None:
         import SCons.Builder
+        import SCons.Defaults
         # "env" will get filled in by Executor.get_build_env()
         # calling SCons.Defaults.DefaultEnvironment() when necessary.
         MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
                                              env = None,
                                              explain = None,
                                              is_explicit = None,
+                                             target_scanner = SCons.Defaults.DirEntryScanner,
                                              name = "MkdirBuilder")
     return MkdirBuilder
 
@@ -1287,21 +1289,11 @@ class Dir(Base):
              
         return string.join(path_elems, os.sep)
 
-    def scan(self):
-        if not self.implicit is None:
-            return
-        self.implicit = []
-        self.implicit_dict = {}
-        self._children_reset()
+    def get_env_scanner(self, env, kw={}):
+        return SCons.Defaults.DirEntryScanner
 
-        dont_scan = lambda k: k not in ['.', '..', '.sconsign']
-        deps = filter(dont_scan, self.entries.keys())
-        # keys() is going to give back the entries in an internal,
-        # unsorted order.  Sort 'em so the order is deterministic.
-        deps.sort()
-        entries = map(lambda n, e=self.entries: e[n], deps)
-
-        self._add_child(self.implicit, self.implicit_dict, entries)
+    def get_target_scanner(self):
+        return SCons.Defaults.DirEntryScanner
 
     def get_found_includes(self, env, scanner, path):
         """Return the included implicit dependencies in this file.
@@ -1310,7 +1302,7 @@ class Dir(Base):
         __cacheable__"""
         if not scanner:
             return []
-        # Clear cached info for this Node.  If we already visited this
+        # Clear cached info for this Dir.  If we already visited this
         # directory on our walk down the tree (because we didn't know at
         # that point it was being used as the source for another Node)
         # then we may have calculated build signature before realizing
