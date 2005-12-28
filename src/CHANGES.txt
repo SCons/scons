@@ -726,6 +726,11 @@ RELEASE 0.97 - XXX
   - Add a PathAccept validator to the list of new canned PathOption
     validators.
 
+  From Jon Rafkind:
+
+  - Fix the use of Configure() contexts from nested subsidiary
+    SConscript files.
+
   From Christoph Schulz:
 
   - Add support for $CONFIGUREDIR and $CONFIGURELOG variables to control
