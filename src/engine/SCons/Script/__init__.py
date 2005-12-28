@@ -245,7 +245,7 @@ def HelpFunction(text):
         help_text = help_text + text
 
 #
-# Will be set to 1 if we are reading a SConscript.
+# Will be non-zero if we are reading an SConscript file.
 sconscript_reading = 0
 
 #

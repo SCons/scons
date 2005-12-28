@@ -161,7 +161,7 @@ def _SConscript(fs, *files, **kw):
         call_stack.append(Frame(fs, exports, fn))
         old_sys_path = sys.path
         try:
-            SCons.Script.sconscript_reading = 1
+            SCons.Script.sconscript_reading = SCons.Script.sconscript_reading + 1
             if fn == "-":
                 exec sys.stdin in call_stack[-1].globals
             else:
@@ -229,7 +229,7 @@ def _SConscript(fs, *files, **kw):
                              "Ignoring missing SConscript '%s'" % f.path)
 
         finally:
-            SCons.Script.sconscript_reading = 0
+            SCons.Script.sconscript_reading = SCons.Script.sconscript_reading - 1
             sys.path = old_sys_path
             frame = call_stack.pop()
             try:
