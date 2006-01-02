@@ -20,6 +20,8 @@ RELEASE 0.97 - XXX
   - Fix the intelc.py Tool module to not throw an exception if the
     only installed version is something other than ia32.
 
+  - Set $CCVERSION when using gcc.
+
   From Erling Andersen:
 
   - Fix interpretation of Node.FS objects wrapped in Proxy instances,

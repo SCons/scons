@@ -36,6 +36,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Util
 
 import cc
+import os
+import re
 
 compilers = ['gcc', 'cc']
 
@@ -48,6 +50,12 @@ def generate(env):
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     else:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS -fPIC')
+    # determine compiler version
+    if env['CC']:
+        line = os.popen(env['CC'] + ' --version').readline()
+        match = re.search(r'[0-9]+(\.[0-9]+)+', line)
+        if match:
+            env['CCVERSION'] = match.group(0)
 
 def exists(env):
     return env.Detect(compilers)
