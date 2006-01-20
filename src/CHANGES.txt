@@ -22,6 +22,14 @@ RELEASE 0.97 - XXX
 
   - Set $CCVERSION when using gcc.
 
+  From Matthias:
+
+  - Support generating project and solution files for Microsoft
+    Visual Studio version 8.
+
+  - Support generating more than one project file for a Microsoft
+    Visual Studio solution file.
+
   From Erling Andersen:
 
   - Fix interpretation of Node.FS objects wrapped in Proxy instances,
@@ -417,6 +425,8 @@ RELEASE 0.97 - XXX
 
   - Handle Visual Studio project and solution files in Unicode.
 
+  - Add x64 support for Microsoft Visual Studio 8.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
@@ -426,6 +436,16 @@ RELEASE 0.97 - XXX
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
     $CCFLAGS, and -mwindows to $LINKFLAGS.
+
+  From Christian Maaser:
+
+  - Add support for Visual Studio Express Editions.
+
+  - Add support for Visual Studio 8 *.manifest files, includng
+    new $WIN32_INSERT_MANIFEST, $WIN32PROGMANIFESTSUFFIX,
+    $WIN32PROGMANIFESTPREFIX, $WIN32PROGMANIFESTSUFFIX,
+    $WIN32SHLIBMANIFESTPREFIX and $WIN32SHLIBMANIFESTSUFFIX construction
+    variables.
 
   From Sanjoy Mahajan:
 

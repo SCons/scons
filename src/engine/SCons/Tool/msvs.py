@@ -82,6 +82,17 @@ def _generateGUID(slnfile, name):
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
 
+version_re = re.compile(r'(\d+\.\d+)(.*)')
+
+def msvs_parse_version(s):
+    """
+    Split a Visual Studio version, which may in fact be something like
+    '7.0Exp', into is version number (returned as a float) and trailing
+    "suite" portion.
+    """
+    num, suite = version_re.match(s).groups()
+    return float(num), suite
+
 # This is how we re-invoke SCons from inside MSVS Project files.
 # The problem is that we might have been invoked as either scons.bat
 # or scons.py.  If we were invoked directly as scons.py, then we could
@@ -92,10 +103,13 @@ def _generateGUID(slnfile, name):
 # which works regardless of how we were invoked.
 def getExecScriptMain(env, xml=None):
     scons_home = env.get('SCONS_HOME')
-    if scons_home:        
+    if not scons_home and os.environ.has_key('SCONS_LIB_DIR'):
+        scons_home = os.environ['SCONS_LIB_DIR']
+    if scons_home:
         exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % scons_home
     else:
-        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+        version = SCons.__version__
+        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%(version)s'), join(sys.prefix, 'scons-%(version)s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % locals()
     if xml:
         exec_script_main = xmlify(exec_script_main)
     return exec_script_main
@@ -140,7 +154,7 @@ def makeHierarchy(sources):
             dict[path[-1]] = file
         #else:
         #    print 'Warning: failed to decompose path for '+str(file)
-    return hierarchy    
+    return hierarchy
 
 class _DSPGenerator:
     """ Base class for DSP generators """
@@ -153,10 +167,13 @@ class _DSPGenerator:
         'misc']
 
     def __init__(self, dspfile, source, env):
-        if SCons.Util.is_String(dspfile):
-            self.dspfile = os.path.abspath(dspfile)
+        self.dspfile = str(dspfile)
+        try:
+            get_abspath = dspfile.get_abspath
+        except AttributeError:
+            self.dspabs = os.path.abspath(dspfile)
         else:
-            self.dspfile = dspfile.get_abspath()
+            self.dspabs = get_abspath()
 
         if not env.has_key('variant'):
             raise SCons.Errors.InternalError, \
@@ -213,6 +230,8 @@ class _DSPGenerator:
 
         self.sconscript = env['MSVSSCONSCRIPT']
 
+        cmdargs = env.get('cmdargs', '')
+
         self.env = env
 
         if self.env.has_key('name'):
@@ -237,7 +256,7 @@ class _DSPGenerator:
         if env.has_key('nokeep') and env['variant'] != 0:
             self.nokeep = 1
 
-        if self.nokeep == 0 and os.path.exists(self.dspfile):
+        if self.nokeep == 0 and os.path.exists(self.dspabs):
             self.Parse()
 
         for t in zip(sourcenames,self.srcargs):
@@ -253,10 +272,11 @@ class _DSPGenerator:
         for n in sourcenames:
             self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
 
-        def AddConfig(variant, buildtarget, outdir):
+        def AddConfig(variant, buildtarget, outdir, cmdargs):
             config = Config()
             config.buildtarget = buildtarget
             config.outdir = outdir
+            config.cmdargs = cmdargs
 
             match = re.match('(.*)\|(.*)', variant)
             if match:
@@ -264,13 +284,13 @@ class _DSPGenerator:
                 config.platform = match.group(2)
             else:
                 config.variant = variant
-                config.platform = 'Win32';
+                config.platform = 'Win32'
 
             self.configs[variant] = config
             print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'"
 
         for i in range(len(variants)):
-            AddConfig(variants[i], buildtarget[i], outdir[i])
+            AddConfig(variants[i], buildtarget[i], outdir[i],cmdargs)
 
         self.platforms = []
         for key in self.configs.keys():
@@ -355,7 +375,7 @@ class _GenerateV6DSP(_DSPGenerator):
                 self.file.write('# PROP %sOutput_Dir "%s"\n'
                                 '# PROP %sIntermediate_Dir "%s"\n' % (base,outdir,base,outdir))
                 cmd = 'echo Starting SCons && ' + self.env.subst('$MSVSBUILDCOM', 1)
-                self.file.write('# PROP %sCmd_Line "%s"\n' 
+                self.file.write('# PROP %sCmd_Line "%s"\n'
                                 '# PROP %sRebuild_Opt "-c && %s"\n'
                                 '# PROP %sTarget_File "%s"\n'
                                 '# PROP %sBsc_Name ""\n'
@@ -422,7 +442,7 @@ class _GenerateV6DSP(_DSPGenerator):
 
     def Parse(self):
         try:
-            dspfile = open(self.dspfile,'r')
+            dspfile = open(self.dspabs,'r')
         except IOError:
             return # doesn't exist yet, so can't add anything to configs.
 
@@ -470,9 +490,9 @@ class _GenerateV6DSP(_DSPGenerator):
 
     def Build(self):
         try:
-            self.file = open(self.dspfile,'w')
+            self.file = open(self.dspabs,'w')
         except IOError, detail:
-            raise SCons.Errors.InternalError, 'Unable to open "' + self.dspfile + '" for writing:' + str(detail)
+            raise SCons.Errors.InternalError, 'Unable to open "' + self.dspabs + '" for writing:' + str(detail)
         else:
             self.PrintHeader()
             self.PrintProject()
@@ -490,7 +510,7 @@ V7DSPHeader = """\
 
 V7DSPConfiguration = """\
 \t\t<Configuration
-\t\t\tName="%(variant)s|Win32"
+\t\t\tName="%(variant)s|%(platform)s"
 \t\t\tOutputDirectory="%(outdir)s"
 \t\t\tIntermediateDirectory="%(outdir)s"
 \t\t\tConfigurationType="0"
@@ -505,15 +525,57 @@ V7DSPConfiguration = """\
 \t\t</Configuration>
 """
 
+V8DSPHeader = """\
+<?xml version="1.0" encoding="%(encoding)s"?>
+<VisualStudioProject
+\tProjectType="Visual C++"
+\tVersion="%(versionstr)s"
+\tName="%(name)s"
+%(scc_attrs)s
+\tRootNamespace="%(name)s"
+\tKeyword="MakeFileProj">
+"""
+
+V8DSPConfiguration = """\
+\t\t<Configuration
+\t\t\tName="%(variant)s|Win32"
+\t\t\tConfigurationType="0"
+\t\t\tUseOfMFC="0"
+\t\t\tATLMinimizesCRunTimeLibraryUsage="false"
+\t\t\t>
+\t\t\t<Tool
+\t\t\t\tName="VCNMakeTool"
+\t\t\t\tBuildCommandLine="%(buildcmd)s"
+\t\t\t\tReBuildCommandLine="%(rebuildcmd)s"
+\t\t\t\tCleanCommandLine="%(cleancmd)s"
+\t\t\t\tOutput="%(buildtarget)s"
+\t\t\t\tPreprocessorDefinitions=""
+\t\t\t\tIncludeSearchPath=""
+\t\t\t\tForcedIncludes=""
+\t\t\t\tAssemblySearchPath=""
+\t\t\t\tForcedUsingAssemblies=""
+\t\t\t\tCompileAsManaged=""
+\t\t\t/>
+\t\t</Configuration>
+"""
 class _GenerateV7DSP(_DSPGenerator):
     """Generates a Project file for MSVS .NET"""
 
     def __init__(self, dspfile, source, env):
         _DSPGenerator.__init__(self, dspfile, source, env)
-        self.version = float(env['MSVS_VERSION'])
-        self.versionstr = '7.00'
-        if self.version >= 7.1:
-            self.versionstr = '7.10'
+        self.version = env['MSVS_VERSION']
+        self.version_num, self.suite = msvs_parse_version(self.version)
+        if self.version_num >= 8.0:
+            self.versionstr = '8.00'
+            self.dspheader = V8DSPHeader
+            self.dspconfiguration = V8DSPConfiguration
+        else:
+            if self.version_num >= 7.1:
+                self.versionstr = '7.10'
+            else:
+                self.versionstr = '7.00'
+            self.dspheader = V7DSPHeader
+            self.dspconfiguration = V7DSPConfiguration
         self.file = None
 
     def PrintHeader(self):
@@ -526,6 +588,8 @@ class _GenerateV7DSP(_DSPGenerator):
         scc_aux_path = env.get('MSVS_SCC_AUX_PATH', '')
         scc_local_path = env.get('MSVS_SCC_LOCAL_PATH', '')
         project_guid = env.get('MSVS_PROJECT_GUID', '')
+        if self.version_num >= 8.0 and not project_guid:
+            project_guid = _generateGUID(self.dspfile, '')
         if scc_provider != '':
             scc_attrs = ('\tProjectGUID="%s"\n'
                          '\tSccProjectName="%s"\n'
@@ -537,7 +601,7 @@ class _GenerateV7DSP(_DSPGenerator):
                          '\tSccProjectName="%s"\n'
                          '\tSccLocalPath="%s"' % (project_guid, scc_project_name, scc_local_path))
 
-        self.file.write(V7DSPHeader % locals())
+        self.file.write(self.dspheader % locals())
 
         self.file.write('\t<Platforms>\n')
         for platform in self.platforms:
@@ -545,6 +609,10 @@ class _GenerateV7DSP(_DSPGenerator):
                         '\t\t<Platform\n'
                         '\t\t\tName="%s"/>\n' % platform)
         self.file.write('\t</Platforms>\n')
+
+        if self.version_num >= 8.0:
+            self.file.write('\t<ToolFiles>\n'
+                            '\t</ToolFiles>\n')
 
     def PrintProject(self):
         self.file.write('\t<Configurations>\n')
@@ -556,25 +624,30 @@ class _GenerateV7DSP(_DSPGenerator):
             platform = self.configs[kind].platform
             outdir = self.configs[kind].outdir
             buildtarget = self.configs[kind].buildtarget
+            cmdargs = self.configs[kind].cmdargs
 
             env_has_buildtarget = self.env.has_key('MSVSBUILDTARGET')
             if not env_has_buildtarget:
                 self.env['MSVSBUILDTARGET'] = buildtarget
 
             starting = 'echo Starting SCons && '
-            buildcmd    = xmlify(starting + self.env.subst('$MSVSBUILDCOM', 1))
-            rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1))
-            cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1))
+            if cmdargs:
+                cmdargs = ' ' + cmdargs
+            else:
+                cmdargs = ''
+            buildcmd    = xmlify(starting + self.env.subst('$MSVSBUILDCOM', 1) + cmdargs)
+            rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1) + cmdargs)
+            cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1) + cmdargs)
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
 
-            self.file.write(V7DSPConfiguration % locals())
+            self.file.write(self.dspconfiguration % locals())
 
         self.file.write('\t</Configurations>\n')
 
-        if self.version >= 7.1:
-            self.file.write('\t<References>\n' 
+        if self.version_num >= 7.1:
+            self.file.write('\t<References>\n'
                             '\t</References>\n')
 
         self.PrintSourceFiles()
@@ -659,7 +732,7 @@ class _GenerateV7DSP(_DSPGenerator):
 
     def Parse(self):
         try:
-            dspfile = open(self.dspfile,'r')
+            dspfile = open(self.dspabs,'r')
         except IOError:
             return # doesn't exist yet, so can't add anything to configs.
 
@@ -706,9 +779,9 @@ class _GenerateV7DSP(_DSPGenerator):
 
     def Build(self):
         try:
-            self.file = open(self.dspfile,'w')
+            self.file = open(self.dspabs,'w')
         except IOError, detail:
-            raise SCons.Errors.InternalError, 'Unable to open "' + self.dspfile + '" for writing:' + str(detail)
+            raise SCons.Errors.InternalError, 'Unable to open "' + self.dspabs + '" for writing:' + str(detail)
         else:
             self.PrintHeader()
             self.PrintProject()
@@ -731,15 +804,12 @@ class _DSWGenerator:
         if len(projects) < 1:
             raise SCons.Errors.UserError, \
                 "You must specify at least one project to create an MSVSSolution."
-        if len(projects) > 1:
-            raise SCons.Errors.UserError, \
-                "Currently you can specify at most one project to create an MSVSSolution."
-        self.dspfile = str(projects[0])
+        self.dspfiles = map(str, projects)
 
         if self.env.has_key('name'):
             self.name = self.env['name']
         else:
-            self.name = os.path.basename(SCons.Util.splitext(self.dspfile)[0])
+            self.name = os.path.basename(SCons.Util.splitext(self.dswfile)[0])
 
     def Build(self):
         pass
@@ -750,10 +820,15 @@ class _GenerateV7DSW(_DSWGenerator):
         _DSWGenerator.__init__(self, dswfile, source, env)
 
         self.file = None
-        self.version = float(self.env['MSVS_VERSION'])
+        self.version = self.env['MSVS_VERSION']
+        self.version_num, self.suite = msvs_parse_version(self.version)
         self.versionstr = '7.00'
-        if self.version >= 7.1:
+        if self.version_num >= 8.0:
+            self.versionstr = '9.00'
+        elif self.version_num >= 7.1:
             self.versionstr = '8.00'
+        if self.version_num >= 8.0:
+            self.versionstr = '9.00'
 
         if env.has_key('slnguid') and env['slnguid']:
             self.slnguid = env['slnguid']
@@ -778,7 +853,7 @@ class _GenerateV7DSW(_DSWGenerator):
                 config.platform = match.group(2)
             else:
                 config.variant = variant
-                config.platform = 'Win32';
+                config.platform = 'Win32'
 
             self.configs[variant] = config
             print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dswfile) + "'"
@@ -830,15 +905,24 @@ class _GenerateV7DSW(_DSWGenerator):
 
     def PrintSolution(self):
         """Writes a solution file"""
-        self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n'
-                        # the next line has the GUID for an external makefile project.
-                        'Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "%s"\n'
-                        % (self.versionstr, self.name, os.path.basename(self.dspfile), self.slnguid))
-        if self.version >= 7.1:
-            self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
-                            '\tEndProjectSection\n')
-        self.file.write('EndProject\n'
-                        'Global\n')
+        self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr )
+        if self.version_num >= 8.0:
+            self.file.write('# Visual Studio 2005\n')
+        for p in self.dspfiles:
+            name = os.path.basename(p)
+            base, suffix = SCons.Util.splitext(name)
+            if suffix == '.vcproj':
+                name = base
+            # the next line has the GUID for an external makefile project.
+            self.file.write('Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "%s"\n'
+                            % ( name, p, self.slnguid ) )
+            if self.version_num >= 7.1 and self.version_num < 8.0:
+                self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
+                                '\tEndProjectSection\n')
+            self.file.write('EndProject\n')
+
+        self.file.write('Global\n')
+
         env = self.env
         if env.has_key('MSVS_SCC_PROVIDER'):
             dspfile_base = os.path.basename(self.dspfile)
@@ -850,7 +934,7 @@ class _GenerateV7DSW(_DSWGenerator):
             scc_local_path = env.get('MSVS_SCC_LOCAL_PATH', '')
             scc_project_base_path = env.get('MSVS_SCC_PROJECT_BASE_PATH', '')
             # project_guid = env.get('MSVS_PROJECT_GUID', '')
-            
+
             self.file.write('\tGlobalSection(SourceCodeControl) = preSolution\n'
                             '\t\tSccNumberOfProjects = 2\n'
                             '\t\tSccProjectUniqueName0 = %(dspfile_base)s\n'
@@ -864,32 +948,57 @@ class _GenerateV7DSW(_DSWGenerator):
                             '\t\tSccProjectFilePathRelativizedFromConnection1 = %(scc_project_base_path)s\n'
                             '\t\tSolutionUniqueID = %(slnguid)s\n'
                             '\tEndGlobalSection\n' % locals())
-                        
-        self.file.write('\tGlobalSection(SolutionConfiguration) = preSolution\n')
+
+        if self.version_num >= 8.0:
+            self.file.write('\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\n')
+        else:
+            self.file.write('\tGlobalSection(SolutionConfiguration) = preSolution\n')
+
         confkeys = self.configs.keys()
         confkeys.sort()
         cnt = 0
         for name in confkeys:
             variant = self.configs[name].variant
-            self.file.write('\t\tConfigName.%d = %s\n' % (cnt, variant))
+            platform = self.configs[name].platform
+            if self.version_num >= 8.0:
+                self.file.write('\t\t%s|%s = %s|%s\n' % (variant, platform, variant, platform))
+            else:
+                self.file.write('\t\tConfigName.%d = %s\n' % (cnt, variant))
             cnt = cnt + 1
         self.file.write('\tEndGlobalSection\n')
-        if self.version < 7.1:
+        if self.version_num < 7.1:
             self.file.write('\tGlobalSection(ProjectDependencies) = postSolution\n'
                             '\tEndGlobalSection\n')
-        self.file.write('\tGlobalSection(ProjectConfiguration) = postSolution\n')
+        if self.version_num >= 8.0:
+            self.file.write('\tGlobalSection(ProjectConfigurationPlatforms) = postSolution\n')
+        else:
+            self.file.write('\tGlobalSection(ProjectConfiguration) = postSolution\n')
+
         for name in confkeys:
             name = name
             variant = self.configs[name].variant
             platform = self.configs[name].platform
-            self.file.write('\t\t%s.%s.ActiveCfg = %s|%s\n'
-                            '\t\t%s.%s.Build.0 = %s|%s\n'  %(self.slnguid,variant,variant,platform,self.slnguid,variant,variant,platform))
-        self.file.write('\tEndGlobalSection\n'
-                        '\tGlobalSection(ExtensibilityGlobals) = postSolution\n'
-                        '\tEndGlobalSection\n'
-                        '\tGlobalSection(ExtensibilityAddIns) = postSolution\n'
-                        '\tEndGlobalSection\n'
-                        'EndGlobal\n')
+            if self.version_num >= 8.0:
+                for p in self.dspfiles:
+                    guid = _generateGUID(p, '')
+                    self.file.write('\t\t%s.%s|%s.ActiveCfg = %s|%s\n'
+                                    '\t\t%s.%s|%s.Build.0 = %s|%s\n'  % (guid,variant,platform,variant,platform,guid,variant,platform,variant,platform))
+            else:
+                self.file.write('\t\t%s.%s.ActiveCfg = %s|%s\n'
+                                '\t\t%s.%s.Build.0 = %s|%s\n'  %(self.slnguid,variant,variant,platform,self.slnguid,variant,variant,platform))
+
+        self.file.write('\tEndGlobalSection\n')
+
+        if self.version_num >= 8.0:
+            self.file.write('\tGlobalSection(SolutionProperties) = preSolution\n'
+                            '\t\tHideSolutionNode = FALSE\n'
+                            '\tEndGlobalSection\n')
+        else:
+            self.file.write('\tGlobalSection(ExtensibilityGlobals) = postSolution\n'
+                            '\tEndGlobalSection\n'
+                            '\tGlobalSection(ExtensibilityAddIns) = postSolution\n'
+                            '\tEndGlobalSection\n')
+        self.file.write('EndGlobal\n')
         if self.nokeep == 0:
             pdata = pickle.dumps(self.configs,1)
             pdata = base64.encodestring(pdata)
@@ -941,7 +1050,7 @@ class _GenerateV6DSW(_DSWGenerator):
     def PrintWorkspace(self):
         """ writes a DSW file """
         name = self.name
-        dspfile = self.dspfile
+        dspfile = self.dspfiles[0]
         self.file.write(V6DSWHeader % locals())
 
     def Build(self):
@@ -957,7 +1066,10 @@ class _GenerateV6DSW(_DSWGenerator):
 def GenerateDSP(dspfile, source, env):
     """Generates a Project file based on the version of MSVS that is being used"""
 
-    if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
+    version_num = 6.0
+    if env.has_key('MSVS_VERSION'):
+        version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+    if version_num >= 7.0:
         g = _GenerateV7DSP(dspfile, source, env)
         g.Build()
     else:
@@ -967,7 +1079,10 @@ def GenerateDSP(dspfile, source, env):
 def GenerateDSW(dswfile, source, env):
     """Generates a Solution/Workspace file based on the version of MSVS that is being used"""
 
-    if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
+    version_num = 6.0
+    if env.has_key('MSVS_VERSION'):
+        version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+    if version_num >= 7.0:
         g = _GenerateV7DSW(dswfile, source, env)
         g.Build()
     else:
@@ -1018,56 +1133,64 @@ def get_visualstudio_versions():
         return []
 
     HLM = SCons.Util.HKEY_LOCAL_MACHINE
-    K = r'Software\Microsoft\VisualStudio'
+    KEYS = {
+        r'Software\Microsoft\VisualStudio'      : '',
+        r'Software\Microsoft\VCExpress'         : 'Exp',
+    }
     L = []
-    try:
-        k = SCons.Util.RegOpenKeyEx(HLM, K)
-        i = 0
-        while 1:
-            try:
-                p = SCons.Util.RegEnumKey(k,i)
-            except SCons.Util.RegError:
-                break
-            i = i + 1
-            if not p[0] in '123456789' or p in L:
-                continue
-            # Only add this version number if there is a valid
-            # registry structure (includes the "Setup" key),
-            # and at least some of the correct directories
-            # exist.  Sometimes VS uninstall leaves around
-            # some registry/filesystem turds that we don't
-            # want to trip over.  Also, some valid registry
-            # entries are MSDN entries, not MSVS ('7.1',
-            # notably), and we want to skip those too.
-            try:
-                SCons.Util.RegOpenKeyEx(HLM, K + '\\' + p + '\\Setup')
-            except SCons.Util.RegError:
-                continue
+    for K, suite_suffix in KEYS.items():
+        try:
+            k = SCons.Util.RegOpenKeyEx(HLM, K)
+            i = 0
+            while 1:
+                try:
+                    p = SCons.Util.RegEnumKey(k,i)
+                except SCons.Util.RegError:
+                    break
+                i = i + 1
+                if not p[0] in '123456789' or p in L:
+                    continue
+                # Only add this version number if there is a valid
+                # registry structure (includes the "Setup" key),
+                # and at least some of the correct directories
+                # exist.  Sometimes VS uninstall leaves around
+                # some registry/filesystem turds that we don't
+                # want to trip over.  Also, some valid registry
+                # entries are MSDN entries, not MSVS ('7.1',
+                # notably), and we want to skip those too.
+                try:
+                    SCons.Util.RegOpenKeyEx(HLM, K + '\\' + p + '\\Setup')
+                except SCons.Util.RegError:
+                    continue
 
-            id = []
-            idk = SCons.Util.RegOpenKeyEx(HLM, K + '\\' + p)
-            # This is not always here -- it only exists if the
-            # user installed into a non-standard location (at
-            # least in VS6 it works that way -- VS7 seems to
-            # always write it)
-            try:
-                id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
-            except SCons.Util.RegError:
-                pass
+                id = []
+                idk = SCons.Util.RegOpenKeyEx(HLM, K + '\\' + p)
+                # This is not always here -- it only exists if the
+                # user installed into a non-standard location (at
+                # least in VS6 it works that way -- VS7 seems to
+                # always write it)
+                try:
+                    id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+                except SCons.Util.RegError:
+                    pass
 
-            # If the InstallDir key doesn't exist,
-            # then we check the default locations.
-            if not id or not id[0]:
-                files_dir = SCons.Platform.win32.get_program_files_dir()
-                if float(p) < 7.0:
-                    vs = r'Microsoft Visual Studio\Common\MSDev98'
-                else:
-                    vs = r'Microsoft Visual Studio .NET\Common7\IDE'
-                id = [ os.path.join(files_dir, vs, 'devenv.exe') ]
-            if os.path.exists(id[0]):
-                L.append(p)
-    except SCons.Util.RegError:
-        pass
+                # If the InstallDir key doesn't exist,
+                # then we check the default locations.
+                # Note: The IDE's executable is not devenv.exe for VS8 Express.
+                if not id or not id[0]:
+                    files_dir = SCons.Platform.win32.get_program_files_dir()
+                    version_num, suite = msvs_parse_version(p)
+                    if version_num < 7.0:
+                        vs = r'Microsoft Visual Studio\Common\MSDev98'
+                    elif version_num < 8.0:
+                        vs = r'Microsoft Visual Studio .NET\Common7\IDE'
+                    else:
+                        vs = r'Microsoft Visual Studio 8\Common7\IDE'
+                    id = [ os.path.join(files_dir, vs) ]
+                if os.path.exists(id[0]):
+                    L.append(p + suite_suffix)
+        except SCons.Util.RegError:
+            pass
 
     if not L:
         return []
@@ -1086,6 +1209,51 @@ def get_visualstudio_versions():
     L.reverse()
 
     return L
+
+def get_default_visualstudio8_suite(env):
+    """
+    Returns the Visual Studio 2005 suite identifier set in the env, or the
+    highest suite installed.
+    """
+    if not env.has_key('MSVS') or not SCons.Util.is_Dict(env['MSVS']):
+        env['MSVS'] = {}
+
+    if env.has_key('MSVS_SUITE'):
+        suite = env['MSVS_SUITE'].upper()
+        suites = [suite]
+    else:
+        suite = 'EXPRESS'
+        suites = [suite]
+        if SCons.Util.can_read_reg:
+            suites = get_visualstudio8_suites()
+            if suites:
+                suite = suites[0] #use best suite by default
+
+    env['MSVS_SUITE'] = suite
+    env['MSVS']['SUITES'] = suites
+    env['MSVS']['SUITE'] = suite
+
+    return suite
+
+def get_visualstudio8_suites():
+    """
+    Returns a sorted list of all installed Visual Studio 2005 suites found
+    in the registry. The highest version should be the first entry in the list.
+    """
+
+    suites = []
+
+    # ToDo: add tests for better suits than VS8 Express here.
+
+    idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+        r'Software\Microsoft\VCExpress\8.0')
+    try:
+        id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+        suites.append('EXPRESS')
+    except SCons.Util.RegError:
+        pass
+
+    return suites
 
 def is_msvs_installed():
     """
@@ -1113,22 +1281,26 @@ def get_msvs_install_dirs(version = None):
         else:
             return {}
 
-    K = 'Software\\Microsoft\\VisualStudio\\' + version
+    version_num, suite = msvs_parse_version(version)
+
+    if (version_num >= 8.0):
+        K = 'Software\\Microsoft\\VCExpress\\' + str(version_num)
+    else:
+        K = 'Software\\Microsoft\\VisualStudio\\' + str(version_num)
 
     # vc++ install dir
     rv = {}
+    if (version_num < 7.0):
+        key = K + r'\Setup\Microsoft Visual C++\ProductDir'
+    else:
+        key = K + r'\Setup\VC\ProductDir'
     try:
-        if (float(version) < 7.0):
-            (rv['VCINSTALLDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,
-                                                             K + r'\Setup\Microsoft Visual C++\ProductDir')
-        else:
-            (rv['VCINSTALLDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,
-                                                             K + r'\Setup\VC\ProductDir')
+        (rv['VCINSTALLDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, key)
     except SCons.Util.RegError:
         pass
 
     # visual studio install dir
-    if (float(version) < 7.0):
+    if (version_num < 7.0):
         try:
             (rv['VSINSTALLDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,
                                                              K + r'\Setup\Microsoft Visual Studio\ProductDir')
@@ -1237,13 +1409,13 @@ def get_msvs_install_dirs(version = None):
         except SCons.Util.RegError:
             pass
 
-    return rv;
+    return rv
 
 def GetMSVSProjectSuffix(target, source, env, for_signature):
-     return env['MSVS']['PROJECTSUFFIX'];
+     return env['MSVS']['PROJECTSUFFIX']
 
 def GetMSVSSolutionSuffix(target, source, env, for_signature):
-     return env['MSVS']['SOLUTIONSUFFIX'];
+     return env['MSVS']['SOLUTIONSUFFIX']
 
 def GenerateProject(target, source, env):
     # generate the dsp file, according to the version of MSVS.
@@ -1494,7 +1666,8 @@ def generate(env):
         # find them on their own.
         pass
 
-    if (float(env['MSVS_VERSION']) < 7.0):
+    version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+    if (version_num < 7.0):
         env['MSVS']['PROJECTSUFFIX']  = '.dsp'
         env['MSVS']['SOLUTIONSUFFIX'] = '.dsw'
     else:
@@ -1514,7 +1687,10 @@ def exists(env):
         pass
 
     if not v:
-        if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
+        version_num = 6.0
+        if env.has_key('MSVS_VERSION'):
+            version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+        if version_num >= 7.0:
             return env.Detect('devenv')
         else:
             return env.Detect('msdev')

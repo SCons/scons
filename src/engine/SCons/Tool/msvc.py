@@ -49,8 +49,9 @@ import SCons.Warnings
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 
-def _parse_msvc7_overrides(version):
-    """ Parse any overridden defaults for MSVS directory locations in MSVS .NET. """
+def _parse_msvc7_overrides(version,platform):
+    """ Parse any overridden defaults for MSVS directory locations
+    in MSVS .NET. """
 
     # First, we get the shell folder for this user:
     if not SCons.Util.can_read_reg:
@@ -62,14 +63,16 @@ def _parse_msvc7_overrides(version):
                                             r'Software\Microsoft\Windows\CurrentVersion' +\
                                             r'\Explorer\Shell Folders\Local AppData')
     except SCons.Util.RegError:
-        raise SCons.Errors.InternalError, "The Local AppData directory was not found in the registry."
+        raise SCons.Errors.InternalError, \
+              "The Local AppData directory was not found in the registry."
 
     comps = comps + '\\Microsoft\\VisualStudio\\' + version + '\\VCComponents.dat'
     dirs = {}
 
     if os.path.exists(comps):
         # now we parse the directories from this file, if it exists.
-        # We only look for entries after: [VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories],
+        # We only look for entries after:
+        # [VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories],
         # since this file could contain a number of things...
         lines = None
         try:
@@ -85,11 +88,12 @@ def _parse_msvc7_overrides(version):
                 lines = codecs.open(comps, 'r', 'utf8').readlines()
         if lines is None:
             lines = open(comps, 'r').readlines()
-            
+        if 'x86' == platform: platform = 'Win32'
+
         found = 0
         for line in lines:
             line.strip()
-            if line.find(r'[VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories]') >= 0:
+            if line.find(r'[VC\VC_OBJECTS_PLATFORM_INFO\%s\Directories]'%platform) >= 0:
                 found = 1
             elif line == '' or line[:1] == '[':
                 found = 0
@@ -103,9 +107,12 @@ def _parse_msvc7_overrides(version):
     else:
         # since the file didn't exist, we have only the defaults in
         # the registry to work with.
+
+        if 'x86' == platform: platform = 'Win32'
+
         try:
             K = 'SOFTWARE\\Microsoft\\VisualStudio\\' + version
-            K = K + r'\VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories'
+            K = K + r'\VC\VC_OBJECTS_PLATFORM_INFO\%s\Directories'%platform
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,K)
             i = 0
             while 1:
@@ -121,6 +128,115 @@ def _parse_msvc7_overrides(version):
             raise SCons.Errors.InternalError, "Unable to find MSVC paths in the registry."
     return dirs
 
+def _parse_msvc8_overrides(version,platform,suite):
+    """ Parse any overridden defaults for MSVC directory locations
+    in MSVC 2005. """
+
+    # In VS8 the user can change the location of the settings file that
+    # contains the include, lib and binary paths. Try to get the location
+    # from registry
+    if not SCons.Util.can_read_reg:
+        raise SCons.Errors.InternalError, "No Windows registry module was found"
+
+    s = ''
+    if suite == 'EXPRESS':
+        s = '\\VCExpress\\'
+
+    # ToDo: add registry key strings for the other versions of visual
+    # studio 2005.
+    settings_path = ""
+    try:
+        (settings_path, t) = SCons.Util.RegGetValue(SCons.Util.HKEY_CURRENT_USER,
+                                                    r'Software\Microsoft' + s + version +\
+                                                    r'\Profile\AutoSaveFile')
+        settings_path = settings_path.upper()
+    except SCons.Util.RegError:
+        raise SCons.Errors.InternalError, \
+              "The VS8 settings file location was not found in the registry."
+
+    # Look for potential environment variables in the settings path
+    if settings_path.find('%VSSPV_VISUALSTUDIO_DIR%') >= 0:
+        # First replace a special variable named %vsspv_visualstudio_dir%
+        # that is not found in the OSs environment variables...
+        try:
+            (value, t) = SCons.Util.RegGetValue(SCons.Util.HKEY_CURRENT_USER,
+                                                r'Software\Microsoft' + s + version +\
+                                                r'\VisualStudioLocation')
+            settings_path = settings_path.replace('%VSSPV_VISUALSTUDIO_DIR%', value)
+        except SCons.Util.RegError:
+            raise SCons.Errors.InternalError, "The VS8 settings file location was not found in the registry."
+
+    if settings_path.find('%') >= 0:
+        # Collect global environment variables
+        env_vars = {}
+
+        # Read all the global environment variables of the current user
+        k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_CURRENT_USER, r'Environment')
+        i = 0
+        while 1:
+            try:
+                (key,val,t) = SCons.Util.RegEnumValue(k,i)
+                env_vars[key.upper()] = val.upper()
+                i = i + 1
+            except SCons.Util.RegError:
+                break
+
+        # And some more variables that are not found in the registry
+        env_vars['USERPROFILE'] = os.getenv('USERPROFILE')
+        env_vars['SystemDrive'] = os.getenv('SystemDrive')
+
+        found_var = 1
+        while found_var:
+            found_var = 0
+            for env_var in env_vars:
+                if settings_path.find(r'%' + env_var + r'%') >= 0:
+                    settings_path = settings_path.replace(r'%' + env_var + r'%', env_vars[env_var])
+                    found_var = 1
+
+    dirs = {}
+
+    if os.path.exists(settings_path):
+        # now we parse the directories from this file, if it exists.
+        import xml.dom.minidom
+        doc = xml.dom.minidom.parse(settings_path)
+        user_settings = doc.getElementsByTagName('UserSettings')[0]
+        tool_options = user_settings.getElementsByTagName('ToolsOptions')[0]
+        tool_options_categories = tool_options.getElementsByTagName('ToolsOptionsCategory')
+        for category in tool_options_categories:
+            category_name = category.attributes.get('name')
+            if category_name is not None and category_name.value == 'Projects':
+                subcategories = category.getElementsByTagName('ToolsOptionsSubCategory')
+                for subcategory in subcategories:
+                    subcategory_name = subcategory.attributes.get('name')
+                    if subcategory_name is not None and subcategory_name.value == 'VCDirectories':
+                        properties = subcategory.getElementsByTagName('PropertyValue')
+                        for property in properties:
+                            property_name = property.attributes.get('name')
+                            if property_name is None:
+                                continue
+                            elif property_name.value == 'IncludeDirectories':
+                                include_dirs = property.childNodes[0].data
+                                # ToDo: Support for other destinations than Win32
+                                include_dirs = include_dirs.replace('Win32|', '')
+                                dirs['INCLUDE'] = include_dirs
+                            elif property_name.value == 'LibraryDirectories':
+                                lib_dirs = property.childNodes[0].data.replace('Win32|', '')
+                                # ToDo: Support for other destinations than Win32
+                                lib_dirs = lib_dirs.replace('Win32|', '')
+                                dirs['LIBRARY'] = lib_dirs
+                            elif property_name.value == 'ExecutableDirectories':
+                                path_dirs = property.childNodes[0].data.replace('Win32|', '')
+                                # ToDo: Support for other destinations than Win32
+                                path_dirs = path_dirs.replace('Win32|', '')
+                                dirs['PATH'] = path_dirs
+
+        dirs['VCINSTALLDIR'] = os.getenv('VCInstallDir')
+        dirs['VSINSTALLDIR'] = os.getenv('VSInstallDir')
+    else:
+        # There are no default directories in the registry for VS8 Express :(
+        raise SCons.Errors.InternalError, "Unable to find MSVC paths in the registry."
+    return dirs
+
 def _get_msvc7_path(path, version, platform):
     """
     Get Visual Studio directories from version 7 (MSVS .NET)
@@ -129,12 +245,13 @@ def _get_msvc7_path(path, version, platform):
     # first, look for a customization of the default values in the
     # registry: These are sometimes stored in the Local Settings area
     # for Visual Studio, in a file, so we have to parse it.
-    dirs = _parse_msvc7_overrides(version)
+    dirs = _parse_msvc7_overrides(version,platform)
 
     if dirs.has_key(path):
         p = dirs[path]
     else:
-        raise SCons.Errors.InternalError, "Unable to retrieve the %s path from MS VC++."%path
+        raise SCons.Errors.InternalError, \
+              "Unable to retrieve the %s path from MS VC++."%path
 
     # collect some useful information for later expansions...
     paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
@@ -160,7 +277,47 @@ def _get_msvc7_path(path, version, platform):
 
     return string.join(rv,os.pathsep)
 
-def get_msvc_path (path, version, platform='x86'):
+def _get_msvc8_path(path, version, platform, suite):
+    """
+    Get Visual Studio directories from version 8 (MSVS 2005)
+    (it has a different registry structure than versions before it)
+    """
+    # first, look for a customization of the default values in the
+    # registry: These are sometimes stored in the Local Settings area
+    # for Visual Studio, in a file, so we have to parse it.
+    dirs = _parse_msvc8_overrides(version, platform, suite)
+
+    if dirs.has_key(path):
+        p = dirs[path]
+    else:
+        raise SCons.Errors.InternalError, \
+              "Unable to retrieve the %s path from MS VC++."%path
+
+    # collect some useful information for later expansions...
+    paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
+
+    # expand the directory path variables that we support.  If there
+    # is a variable we don't support, then replace that entry with
+    # "---Unknown Location VSInstallDir---" or something similar, to clue
+    # people in that we didn't find something, and so env expansion doesn't
+    # do weird things with the $(xxx)'s
+    s = re.compile('\$\(([a-zA-Z0-9_]+?)\)')
+
+    def repl(match, paths=paths):
+        key = string.upper(match.group(1))
+        if paths.has_key(key):
+            return paths[key]
+        else:
+            return '---Unknown Location %s---' % match.group()
+
+    rv = []
+    for entry in p.split(os.pathsep):
+        entry = s.sub(repl,entry).rstrip('\n\r')
+        rv.append(entry)
+
+    return string.join(rv,os.pathsep)
+
+def get_msvc_path(env, path, version):
     """
     Get a list of visualstudio directories (include, lib or path).  Return
     a string delimited by ';'. An exception will be raised if unable to
@@ -177,13 +334,22 @@ def get_msvc_path (path, version, platform='x86'):
     if path=='LIB':
         path= 'LIBRARY'
 
-    if float(version) >= 7.0:
+    version_num, suite = SCons.Tool.msvs.msvs_parse_version(version)
+    if version_num >= 8.0:
+        platform = env.get('MSVS8_PLATFORM', 'x86')
+        suite = SCons.Tool.msvs.get_default_visualstudio8_suite(env)
+    else:
+        platform = 'x86'
+
+    if version_num >= 8.0:
+        return _get_msvc8_path(path, version, platform, suite)
+    elif version_num >= 7.0:
         return _get_msvc7_path(path, version, platform)
 
     path = string.upper(path + ' Dirs')
     K = ('Software\\Microsoft\\Devstudio\\%s\\' +
-         'Build System\\Components\\Platforms\\Win32 (%s)\\Directories') % \
-        (version,platform)
+         'Build System\\Components\\Platforms\\Win32 (x86)\\Directories') % \
+        (version)
     for base in (SCons.Util.HKEY_CURRENT_USER,
                  SCons.Util.HKEY_LOCAL_MACHINE):
         try:
@@ -245,7 +411,7 @@ def _get_msvc6_default_paths(version, use_mfc_dirs):
         exe_path = r'%s\tools\%s;%s\MSDev98\bin;%s\tools;%s\bin' % (MVSCommondir, osdir, MVSCommondir,  MVSCommondir, MVSVCdir)
     return (include_path, lib_path, exe_path)
 
-def _get_msvc7_default_paths(version, use_mfc_dirs):
+def _get_msvc7_default_paths(env, version, use_mfc_dirs):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
     three environment variables that should be set in order to execute
     the MSVC .NET tools properly, if the information wasn't available
@@ -293,7 +459,61 @@ def _get_msvc7_default_paths(version, use_mfc_dirs):
 
     return (include_path, lib_path, exe_path)
 
-def get_msvc_paths(version=None, use_mfc_dirs=0):
+def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
+    """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
+    three environment variables that should be set in order to execute
+    the MSVC 8 tools properly, if the information wasn't available
+    from the registry."""
+
+    MVSdir = None
+    paths = {}
+    exe_path = ''
+    lib_path = ''
+    include_path = ''
+    try:
+        paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
+        MVSdir = paths['VSINSTALLDIR']
+    except (KeyError, SCons.Util.RegError, SCons.Errors.InternalError):
+        if os.environ.has_key('VSCOMNTOOLS'):
+            MVSdir = os.path.normpath(os.path.join(os.environ['VSCOMNTOOLS'],'..','..'))
+        else:
+            # last resort -- default install location
+            MVSdir = os.getenv('ProgramFiles') + r'\Microsoft Visual Studio 8'
+
+    if MVSdir:
+        if SCons.Util.can_read_reg and paths.has_key('VCINSTALLDIR'):
+            MVSVCdir = paths['VCINSTALLDIR']
+        else:
+            MVSVCdir = os.path.join(MVSdir,'VC')
+
+        MVSCommondir = r'%s\Common7' % MVSdir
+        include_path = r'%s\include' % (MVSVCdir)
+        lib_path = r'%s\lib' % (MVSVCdir)
+        exe_path = r'%s\IDE;%s\bin;%s\Tools;%s\Tools\bin' % (MVSCommondir,MVSVCdir, MVSCommondir, MVSCommondir)
+
+        if paths.has_key('PLATFORMSDKDIR'):
+            PlatformSdkDir = paths['PLATFORMSDKDIR']
+            include_path = include_path + r';%sInclude' % PlatformSdkDir
+            lib_path = lib_path + r';%s\lib' % PlatformSdkDir
+            if use_mfc_dirs:
+                include_path = include_path + r';%sInclude\mfc;%sInclude\atl' % (PlatformSdkDir, PlatformSdkDir)
+            lib_path = lib_path + r';%s\lib' % paths['PLATFORMSDKDIR']
+
+        envvar = 'include'
+        SCons.Util.get_environment_var(envvar)
+        include_path = include_path + envvar
+
+        if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKSDKDIR'):
+            include_path = include_path + r';%s\include'%paths['FRAMEWORKSDKDIR']
+            lib_path = lib_path + r';%s\lib'%paths['FRAMEWORKSDKDIR']
+            exe_path = exe_path + r';%s\bin'%paths['FRAMEWORKSDKDIR']
+
+        if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKDIR') and paths.has_key('FRAMEWORKVERSION'):
+            exe_path = exe_path + r';%s\%s'%(paths['FRAMEWORKDIR'],paths['FRAMEWORKVERSION'])
+
+    return (include_path, lib_path, exe_path)
+
+def get_msvc_paths(env, version=None, use_mfc_dirs=0):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values
     of those three environment variables that should be set
     in order to execute the MSVC tools properly."""
@@ -313,29 +533,33 @@ def get_msvc_paths(version=None, use_mfc_dirs=0):
     # Therefore, we'll see if we can get the path to the MSDev
     # base installation from the registry and deduce the default
     # directories.
-    if float(version) >= 7.0:
-        defpaths = _get_msvc7_default_paths(version, use_mfc_dirs)
+    version_num, suite = SCons.Tool.msvs.msvs_parse_version(version)
+    if version_num >= 8.0:
+        suite = SCons.Tool.msvs.get_default_visualstudio8_suite(env)
+        defpaths = _get_msvc8_default_paths(env, version, suite, use_mfc_dirs)
+    elif version_num >= 7.0:
+        defpaths = _get_msvc7_default_paths(env, version, use_mfc_dirs)
     else:
         defpaths = _get_msvc6_default_paths(version, use_mfc_dirs)
 
     try:
-        include_path = get_msvc_path("include", version)
+        include_path = get_msvc_path(env, "include", version)
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         include_path = defpaths[0]
 
     try:
-        lib_path = get_msvc_path("lib", version)
+        lib_path = get_msvc_path(env, "lib", version)
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         lib_path = defpaths[1]
 
     try:
-        exe_path = get_msvc_path("path", version)
+        exe_path = get_msvc_path(env, "path", version)
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         exe_path = defpaths[2]
 
     return (include_path, lib_path, exe_path)
 
-def get_msvc_default_paths(version=None, use_mfc_dirs=0):
+def get_msvc_default_paths(env, version=None, use_mfc_dirs=0):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
     three environment variables that should be set in order to execute
     the MSVC tools properly.  This will only return the default
@@ -355,8 +579,12 @@ def get_msvc_default_paths(version=None, use_mfc_dirs=0):
     except:
         pass
 
-    if float(version) >= 7.0:
-        return _get_msvc7_default_paths(version, use_mfc_dirs)
+    version_num, suite = SCons.Tool.msvs.msvs_parse_version(version)
+    if version_num >= 8.0:
+        suite = SCons.Tool.msvs.get_default_visualstudio8_suite(env)
+        defpaths = _get_msvc8_default_paths(env, version, suite, use_mfc_dirs)
+    elif version_num >= 7.0:
+        return _get_msvc7_default_paths(env, version, use_mfc_dirs)
     else:
         return _get_msvc6_default_paths(version, use_mfc_dirs)
 
@@ -468,13 +696,16 @@ def generate(env):
 
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)
+        version_num, suite = SCons.Tool.msvs.msvs_parse_version(version)
+        if version_num == 8.0:
+            suite = SCons.Tool.msvs.get_default_visualstudio8_suite(env)
 
         use_mfc_dirs = env.get('MSVS_USE_MFC_DIRS', 0)
         if env.get('MSVS_IGNORE_IDE_PATHS', 0):
             _get_paths = get_msvc_default_paths
         else:
             _get_paths = get_msvc_paths
-        include_path, lib_path, exe_path = _get_paths(version, use_mfc_dirs)
+        include_path, lib_path, exe_path = _get_paths(env, version, use_mfc_dirs)
 
         # since other tools can set these, we just make sure that the
         # relevant stuff from MSVS is in there somewhere.

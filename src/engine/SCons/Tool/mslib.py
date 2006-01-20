@@ -47,9 +47,9 @@ def generate(env):
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)
 
         if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
-            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(version)
+            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(env,version)
         else:
-            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(version)
+            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(env,version)
 
         # since other tools can set this, we just make sure that the
         # relevant stuff from MSVS is in there somewhere.
@@ -68,7 +68,7 @@ def exists(env):
         v = SCons.Tool.msvs.get_visualstudio_versions()
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         pass
-    
+
     if not v:
         return env.Detect('lib')
     else:
