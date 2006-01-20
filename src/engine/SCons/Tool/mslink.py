@@ -72,13 +72,13 @@ def win32ShlinkSources(target, source, env, for_signature):
             # Just treat it as a generic source file.
             listCmd.append(src)
     return listCmd
-    
+
 def win32LibEmitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
-    
+
     dll = env.FindIxes(target, "SHLIBPREFIX", "SHLIBSUFFIX")
     no_import_lib = env.get('no_import_lib', 0)
-    
+
     if not dll:
         raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
 
@@ -86,9 +86,16 @@ def win32LibEmitter(target, source, env):
        not env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX"):
 
         # append a def file to the list of sources
-        source.append(env.ReplaceIxes(dll, 
+        source.append(env.ReplaceIxes(dll,
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
                                       "WIN32DEFPREFIX", "WIN32DEFSUFFIX"))
+
+    version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
+    if version_num >= 8.0 and env.get('WIN32_INSERT_MANIFEST', 0):
+        # MSVC 8 automatically generates .manifest files that must be installed
+        target.append(env.ReplaceIxes(dll,
+                                      "SHLIBPREFIX", "SHLIBSUFFIX",
+                                      "WIN32SHLIBMANIFESTPREFIX", "WIN32SHLIBMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
         target.append(env['PDB'])
@@ -96,11 +103,11 @@ def win32LibEmitter(target, source, env):
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
         # Append an import library to the list of targets.
-        target.append(env.ReplaceIxes(dll, 
+        target.append(env.ReplaceIxes(dll,
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
                                       "LIBPREFIX", "LIBSUFFIX"))
         # and .exp file is created if there are exports from a DLL
-        target.append(env.ReplaceIxes(dll, 
+        target.append(env.ReplaceIxes(dll,
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
                                       "WIN32EXPPREFIX", "WIN32EXPSUFFIX"))
 
@@ -108,10 +115,21 @@ def win32LibEmitter(target, source, env):
 
 def prog_emitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
-    
+
+    exe = env.FindIxes(target, "PROGPREFIX", "PROGSUFFIX")
+    if not exe:
+        raise SCons.Errors.UserError, "An executable should have exactly one target with the suffix: %s" % env.subst("$PROGSUFFIX")
+
+    version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
+    if version_num >= 8.0 and env.get('WIN32_INSERT_MANIFEST', 0):
+        # MSVC 8 automatically generates .manifest files that have to be installed
+        target.append(env.ReplaceIxes(exe,
+                                      "PROGPREFIX", "PROGSUFFIX",
+                                      "WIN32PROGMANIFESTPREFIX", "WIN32PROGMANIFESTSUFFIX"))
+
     if env.has_key('PDB') and env['PDB']:
         target.append(env['PDB'])
-        
+
     return (target,source)
 
 def RegServerFunc(target, source, env):
@@ -133,7 +151,7 @@ def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createSharedLibBuilder(env)
     SCons.Tool.createProgBuilder(env)
-    
+
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS /dll')
     env['_SHLINK_TARGETS'] = win32ShlinkTargets
@@ -157,6 +175,11 @@ def generate(env):
     env['WIN32EXPPREFIX']        = ''
     env['WIN32EXPSUFFIX']        = '.exp'
 
+    env['WIN32SHLIBMANIFESTPREFIX'] = ''
+    env['WIN32SHLIBMANIFESTSUFFIX'] = env['SHLIBSUFFIX'] + '.manifest'
+    env['WIN32PROGMANIFESTPREFIX']  = ''
+    env['WIN32PROGMANIFESTSUFFIX']  = env['PROGSUFFIX'] + '.manifest'
+
     env['REGSVRACTION'] = regServerCheck
     env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')
     env['REGSVRFLAGS'] = '/s '
@@ -166,9 +189,9 @@ def generate(env):
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)
 
         if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
-            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(version)
+            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(env,version)
         else:
-            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(version)
+            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(env,version)
 
         # since other tools can set these, we just make sure that the
         # relevant stuff from MSVS is in there somewhere.
@@ -183,8 +206,8 @@ def generate(env):
     # setting them the same means that LoadableModule works everywhere.
     SCons.Tool.createLoadableModuleBuilder(env)
     env['LDMODULE'] = '$SHLINK'
-    env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
-    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
+    env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
+    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'
     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
     # We can't use '$SHLINKCOM' here because that will stringify the
     # action list on expansion, and will then try to execute expanded

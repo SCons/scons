@@ -473,7 +473,10 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         contents = string.replace(contents, orig, replace)
         self.write(fname, contents)
 
-    def msvs_substitute(self, input, msvs_ver, subdir=None, sconscript=None, python=sys.executable):
+    def msvs_substitute(self, input, msvs_ver,
+                        subdir=None, sconscript=None,
+                        python=sys.executable,
+                        project_guid=None):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
 
@@ -482,10 +485,16 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         else:
             workpath = self.workpath()
 
-        if not sconscript:
+        if sconscript is None:
             sconscript = self.workpath('SConstruct')
 
-        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
+        if project_guid is None:
+            project_guid = "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+
+        if os.environ.has_key('SCONS_LIB_DIR'):
+            exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % os.environ['SCONS_LIB_DIR']
+        else:
+            exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
         exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
 
         result = string.replace(input, r'<WORKPATH>', workpath)
@@ -493,6 +502,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         result = string.replace(result, r'<SCONSCRIPT>', sconscript)
         result = string.replace(result, r'<SCONS_SCRIPT_MAIN>', exec_script_main)
         result = string.replace(result, r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
+        result = string.replace(result, r'<PROJECT_GUID>', project_guid)
         return result
 
 # In some environments, $AR will generate a warning message to stderr
