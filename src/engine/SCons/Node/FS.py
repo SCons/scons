@@ -1974,6 +1974,18 @@ class File(Base):
     #
     #
 
+    def is_up_to_date(self, node=None, bi=None):
+        """Returns if the node is up-to-date with respect to stored
+        BuildInfo.  The default is to compare it against our own
+        previously stored BuildInfo, but the stored BuildInfo from another
+        Node (typically one in a Repository) can be used instead."""
+        if bi is None:
+            if node is None:
+                node = self
+            bi = node.get_stored_info()
+        new = self.get_binfo()
+        return new == bi
+
     def current(self, calc=None):
         self.binfo = self.gen_binfo(calc)
         return self._cur2()
@@ -1986,20 +1998,16 @@ class File(Base):
             r = self.rfile()
             if r != self:
                 # ...but there is one in a Repository...
-                old = r.get_stored_info()
-                new = self.get_binfo()
-                if new == old:
+                if self.is_up_to_date(r):
                     # ...and it's even up-to-date...
                     if self._local:
                         # ...and they'd like a local copy.
                         LocalCopy(self, r, None)
-                        self.store_info(new)
+                        self.store_info(self.get_binfo())
                     return 1
             return None
         else:
-            old = self.get_stored_info()
-            new = self.get_binfo()
-            return (new == old)
+            return self.is_up_to_date()
 
     def rfile(self):
         "__cacheable__"
