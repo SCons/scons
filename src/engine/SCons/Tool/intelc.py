@@ -36,10 +36,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import math, sys, os.path, glob, string, re
 
-is_win32 = sys.platform == 'win32'
+is_windows = sys.platform == 'win32'
 is_linux = sys.platform == 'linux2'
 
-if is_win32:
+if is_windows:
     import SCons.Tool.msvc
 elif is_linux:
     import SCons.Tool.gcc
@@ -72,7 +72,7 @@ def linux_ver_normalize(vstr):
     Always returns an old-style float like 80 or 90 for compatibility with Windows.
     Shades of Y2K!"""
     f = float(vstr)
-    if is_win32:
+    if is_windows:
         return f
     else:
         if f < 60: return f * 10.0
@@ -85,7 +85,7 @@ def check_abi(abi):
         return None
     abi = abi.lower()
     # valid_abis maps input name to canonical name
-    if is_win32:
+    if is_windows:
         valid_abis = {'ia32'  : 'ia32',
                       'x86'   : 'ia32',
                       'ia64'  : 'ia64',
@@ -113,7 +113,7 @@ def vercmp(a, b):
 def get_version_from_list(v, vlist):
     """See if we can match v (string) in vlist (list of strings)
     Linux has to match in a fuzzy way."""
-    if is_win32:
+    if is_windows:
         # Simple case, just find it in the list
         if v in vlist: return v
         else: return None
@@ -129,7 +129,7 @@ def get_version_from_list(v, vlist):
 
 def get_intel_registry_value(valuename, version=None, abi=None):
     """
-    Return a value from the Intel compiler registry tree. (Win32 only)
+    Return a value from the Intel compiler registry tree. (Windows only)
     """
     # Open the key:
     K = 'Software\\Intel\\Compilers\\C++\\' + version + '\\'+abi.upper()
@@ -153,7 +153,7 @@ def get_all_compiler_versions():
     with most recent compiler version first.
     """
     versions=[]
-    if is_win32:
+    if is_windows:
         keyname = 'Software\\Intel\\Compilers\\C++'
         try:
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
@@ -206,7 +206,7 @@ def get_intel_compiler_top(version, abi):
     The compiler will be in <top>/bin/icl.exe (icc on linux),
     the include dir is <top>/include, etc.
     """
-    if is_win32:
+    if is_windows:
         if not SCons.Util.can_read_reg:
             raise NoRegistryModuleError, "No Windows registry module was found"
         top = get_intel_registry_value('ProductDir', version, abi)
@@ -240,11 +240,11 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                         If topdir is used, version and abi are ignored.
       verbose: (int)    if >0, prints compiler version used.
     """
-    if not (is_linux or is_win32):
+    if not (is_linux or is_windows):
         # can't handle this platform
         return
 
-    if is_win32:
+    if is_windows:
         SCons.Tool.msvc.generate(env)
     elif is_linux:
         SCons.Tool.gcc.generate(env)
@@ -291,7 +291,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         class ICLTopDirWarning(SCons.Warnings.Warning):
             pass
         if is_linux and not env.Detect('icc') or \
-           is_win32 and not env.Detect('icl'):
+           is_windows and not env.Detect('icl'):
 
             SCons.Warnings.enableWarningClass(ICLTopDirWarning)
             SCons.Warnings.warn(ICLTopDirWarning,
@@ -321,7 +321,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LD_LIBRARY_PATH' : 'lib'}
             for p in paths:
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
-        if is_win32:
+        if is_windows:
             #       env key    reg valname   default subdir of top
             paths=(('INCLUDE', 'IncludeDir', 'Include'),
                    ('LIB'    , 'LibDir',     'Lib'),
@@ -340,7 +340,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                     env.PrependENVPath(p[0], string.split(path, os.pathsep))
                     # print "ICL %s: %s, final=%s"%(p[0], path, str(env['ENV'][p[0]]))
 
-    if is_win32:
+    if is_windows:
         env['CC']        = 'icl'
         env['CXX']       = 'icl'
         env['LINK']      = 'xilink'
@@ -358,7 +358,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
     if version:
         env['INTEL_C_COMPILER_VERSION']=linux_ver_normalize(version)
 
-    if is_win32:
+    if is_windows:
         # Look for license file dir
         # in system environment, registry, and default location.
         envlicdir = os.environ.get("INTEL_LICENSE_FILE", '')
@@ -389,7 +389,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         env['ENV']['INTEL_LICENSE_FILE'] = licdir
 
 def exists(env):
-    if not (is_linux or is_win32):
+    if not (is_linux or is_windows):
         # can't handle this platform
         return 0
 
@@ -400,7 +400,7 @@ def exists(env):
     detected = versions is not None and len(versions) > 0
     if not detected:
         # try env.Detect, maybe that will work
-        if is_win32:
+        if is_windows:
             return env.Detect('icl')
         elif is_linux:
             return env.Detect('icc')

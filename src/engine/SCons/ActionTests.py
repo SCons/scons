@@ -1053,10 +1053,10 @@ class CommandActionTestCase(unittest.TestCase):
         # test redirection operators
         def test_redirect(self, redir, stdout_msg, stderr_msg):
             cmd = r'%s %s %s xyzzy %s' % (python, act_py, outfile, redir)
-            # Write the output and error messages to files because Win32
-            # can't handle strings that are too big in its external
-            # environment (os.spawnve() returns EINVAL, "Invalid
-            # argument").
+            # Write the output and error messages to files because
+            # Windows can't handle strings that are too big in its
+            # external environment (os.spawnve() returns EINVAL,
+            # "Invalid argument").
             stdout_file = test.workpath('stdout_msg')
             stderr_file = test.workpath('stderr_msg')
             open(stdout_file, 'w').write(stdout_msg)

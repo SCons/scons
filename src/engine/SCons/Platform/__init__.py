@@ -151,8 +151,8 @@ class TempFileMunge:
             return self.cmd
 
         # We do a normpath because mktemp() has what appears to be
-        # a bug in Win32 that will use a forward slash as a path
-        # delimiter.  Win32's link mistakes that for a command line
+        # a bug in Windows that will use a forward slash as a path
+        # delimiter.  Windows's link mistakes that for a command line
         # switch and barfs.
         #
         # We use the .lnk suffix for the benefit of the Phar Lap
@@ -170,8 +170,8 @@ class TempFileMunge:
             rm = env.Detect('rm') or 'del'
         else:
             # Don't use 'rm' if the shell is not sh, because rm won't
-            # work with the win32 shells (cmd.exe or command.com) or
-            # win32 path names.
+            # work with the Windows shells (cmd.exe or command.com) or
+            # Windows path names.
             rm = 'del'
 
         prefix = env.subst('$TEMPFILEPREFIX')

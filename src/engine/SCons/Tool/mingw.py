@@ -60,7 +60,7 @@ def shlib_generator(target, source, env, for_signature):
     implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
     if implib: cmd.append('-Wl,--out-implib,'+implib.get_string(for_signature))
 
-    def_target = env.FindIxes(target, 'WIN32DEFPREFIX', 'WIN32DEFSUFFIX')
+    def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     if def_target: cmd.append('-Wl,--output-def,'+def_target.get_string(for_signature))
 
     return [cmd]
@@ -84,12 +84,12 @@ def shlib_emitter(target, source, env):
     # or a def file source. There is no option to disable def file
     # target emitting, because I can't figure out why someone would ever
     # want to turn it off.
-    def_source = env.FindIxes(source, 'WIN32DEFPREFIX', 'WIN32DEFSUFFIX')
-    def_target = env.FindIxes(target, 'WIN32DEFPREFIX', 'WIN32DEFSUFFIX')
+    def_source = env.FindIxes(source, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
+    def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     if not def_source and not def_target:
         target.append(env.ReplaceIxes(dll,  
                                       'SHLIBPREFIX', 'SHLIBSUFFIX',
-                                      'WIN32DEFPREFIX', 'WIN32DEFSUFFIX'))
+                                      'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX'))
     
     return (target, source)
                          
@@ -132,8 +132,12 @@ def generate(env):
     env.Append(SHLIBEMITTER = [shlib_emitter])
     env['LINK'] = 'g++'
     env['AS'] = 'as'
+
     env['WIN32DEFPREFIX']        = ''
     env['WIN32DEFSUFFIX']        = '.def'
+    env['WINDOWSDEFPREFIX']      = '${WIN32DEFPREFIX}'
+    env['WINDOWSDEFSUFFIX']      = '${WIN32DEFSUFFIX}'
+
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 

@@ -960,14 +960,14 @@ class FSTestCase(_tempdirTestCase):
             p = os.path.abspath(test.workpath('root_file'))
             drive, path = os.path.splitdrive(p)
             if drive:
-                # The assert below probably isn't correct for the
-                # general case, but it works for Win32, which covers a
-                # lot of ground...
+                # The assert below probably isn't correct for the general
+                # case, but it works for Windows, which covers a lot
+                # of ground...
                 dir = fs.Dir(drive)
                 assert str(dir) == drive + os.sep, str(dir)
 
         # Test for a bug in 0.04 that did not like looking up
-        # dirs with a trailing slash on Win32.
+        # dirs with a trailing slash on Windows.
         d=fs.Dir('./')
         assert d.path == '.', d.abspath
         d=fs.Dir('foo/')
@@ -1132,7 +1132,7 @@ class FSTestCase(_tempdirTestCase):
         f1.built()
         assert not f1.exists()
 
-        # For some reason, in Win32, the \x1a character terminates
+        # For some reason, in Windows, the \x1a character terminates
         # the reading of files in text mode.  This tests that
         # get_contents() returns the binary contents.
         test.write("binary_file", "Foo\x1aBar")
@@ -2800,12 +2800,20 @@ class SpecialAttrTestCase(unittest.TestCase):
             for_sig = f.posix.for_signature()
             assert for_sig == 'baz.blat_posix', for_sig
 
+        s = str(f.windows)
+        assert s == 'foo\\bar\\baz.blat', repr(s)
+        assert f.windows.is_literal(), f.windows
+        if f.windows != f:
+            for_sig = f.windows.for_signature()
+            assert for_sig == 'baz.blat_windows', for_sig
+
+        # Deprecated synonym for the .windows suffix.
         s = str(f.win32)
         assert s == 'foo\\bar\\baz.blat', repr(s)
         assert f.win32.is_literal(), f.win32
         if f.win32 != f:
             for_sig = f.win32.for_signature()
-            assert for_sig == 'baz.blat_win32', for_sig
+            assert for_sig == 'baz.blat_windows', for_sig
 
         # And now, combinations!!!
         s = str(f.srcpath.base)
@@ -2814,6 +2822,8 @@ class SpecialAttrTestCase(unittest.TestCase):
         assert s == str(f.srcdir), s
         s = str(f.srcpath.posix)
         assert s == 'foo/bar/baz.blat', s
+        s = str(f.srcpath.windows)
+        assert s == 'foo\\bar\\baz.blat', s
         s = str(f.srcpath.win32)
         assert s == 'foo\\bar\\baz.blat', s
 

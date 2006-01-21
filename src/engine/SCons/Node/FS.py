@@ -405,7 +405,7 @@ class EntryProxy(SCons.Util.Proxy):
             r = string.replace(entry.get_path(), os.sep, '/')
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_posix")
 
-    def __get_win32_path(self):
+    def __get_windows_path(self):
         """Return the path with \ as the path separator,
         regardless of platform."""
         if os.sep == '\\':
@@ -413,7 +413,7 @@ class EntryProxy(SCons.Util.Proxy):
         else:
             entry = self.get()
             r = string.replace(entry.get_path(), os.sep, '\\')
-            return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_win32")
+            return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_windows")
 
     def __get_srcnode(self):
         return EntryProxy(self.get().srcnode())
@@ -436,7 +436,8 @@ class EntryProxy(SCons.Util.Proxy):
     
     dictSpecialAttrs = { "base"     : __get_base_path,
                          "posix"    : __get_posix_path,
-                         "win32"    : __get_win32_path,
+                         "windows"  : __get_windows_path,
+                         "win32"    : __get_windows_path,
                          "srcpath"  : __get_srcnode,
                          "srcdir"   : __get_srcdir,
                          "dir"      : __get_dir,
@@ -452,7 +453,7 @@ class EntryProxy(SCons.Util.Proxy):
         # This is how we implement the "special" attributes
         # such as base, posix, srcdir, etc.
         try:
-            return self.dictSpecialAttrs[name](self)
+            attr_function = self.dictSpecialAttrs[name]
         except KeyError:
             try:
                 attr = SCons.Util.Proxy.__getattr__(self, name)
@@ -467,6 +468,8 @@ class EntryProxy(SCons.Util.Proxy):
                     classname = classname[:-2]
                 raise AttributeError, "%s instance '%s' has no attribute '%s'" % (classname, entry.name, name)
             return attr
+        else:
+            return attr_function(self)
 
 class Base(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
@@ -907,12 +910,12 @@ class FS(LocalFS):
         __cacheable__"""
 
         if not name:
-            # This is a stupid hack to compensate for the fact that
-            # the POSIX and Win32 versions of os.path.normpath() behave
+            # This is a stupid hack to compensate for the fact that the
+            # POSIX and Windows versions of os.path.normpath() behave
             # differently in older versions of Python.  In particular,
             # in POSIX:
             #   os.path.normpath('./') == '.'
-            # in Win32
+            # in Windows:
             #   os.path.normpath('./') == ''
             #   os.path.normpath('.\\') == ''
             #

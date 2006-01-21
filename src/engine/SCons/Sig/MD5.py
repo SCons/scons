@@ -34,7 +34,7 @@ import imp
 import string
 
 # Force Python to load the builtin "md5" module.  If we do this with a
-# normal import statement, then case-insensitive systems (Win32) get
+# normal import statement, then case-insensitive systems (Windows) get
 # confused and thinks there's a case mismatch with *this* MD5.py module.
 file, name, desc = imp.find_module('md5')
 try:

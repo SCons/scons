@@ -78,12 +78,12 @@ class dblite:
     f = _open(self._tmp_name, "wb", self._mode)
     cPickle.dump(self._dict, f, 1)
     f.close()
-    # Win32 doesn't allow renaming if the file exists, so unlink it first,
-    # chmod'ing it to make sure we can do so.  On UNIX, we may not be able
-    # to chmod the file if it's owned by someone else (e.g. from a previous
-    # run as root).  We should still be able to unlink() the file if the
-    # directory's writable, though, so ignore any OSError exception  thrown
-    # by the chmod() call.
+    # Windows doesn't allow renaming if the file exists, so unlink
+    # it first, chmod'ing it to make sure we can do so.  On UNIX, we
+    # may not be able to chmod the file if it's owned by someone else
+    # (e.g. from a previous run as root).  We should still be able to
+    # unlink() the file if the directory's writable, though, so ignore
+    # any OSError exception  thrown by the chmod() call.
     try: os.chmod(self._file_name, 0777)
     except OSError: pass
     os.unlink(self._file_name)

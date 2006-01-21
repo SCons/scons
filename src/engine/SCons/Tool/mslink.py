@@ -50,7 +50,7 @@ def pdbGenerator(env, target, source, for_signature):
                 '/DEBUG']
     return None
 
-def win32ShlinkTargets(target, source, env, for_signature):
+def windowsShlinkTargets(target, source, env, for_signature):
     listCmd = []
     dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
     if dll: listCmd.append("/out:%s"%dll.get_string(for_signature))
@@ -60,10 +60,10 @@ def win32ShlinkTargets(target, source, env, for_signature):
 
     return listCmd
 
-def win32ShlinkSources(target, source, env, for_signature):
+def windowsShlinkSources(target, source, env, for_signature):
     listCmd = []
 
-    deffile = env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX")
+    deffile = env.FindIxes(source, "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX")
     for src in source:
         if src == deffile:
             # Treat this source as a .def file.
@@ -73,7 +73,7 @@ def win32ShlinkSources(target, source, env, for_signature):
             listCmd.append(src)
     return listCmd
 
-def win32LibEmitter(target, source, env):
+def windowsLibEmitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
 
     dll = env.FindIxes(target, "SHLIBPREFIX", "SHLIBSUFFIX")
@@ -82,20 +82,21 @@ def win32LibEmitter(target, source, env):
     if not dll:
         raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
 
-    if env.get("WIN32_INSERT_DEF", 0) and \
-       not env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX"):
+    insert_def = env.subst("$WINDOWS_INSERT_DEF")
+    if not insert_def in ['', '0', 0] and \
+       not env.FindIxes(source, "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"):
 
         # append a def file to the list of sources
         source.append(env.ReplaceIxes(dll,
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "WIN32DEFPREFIX", "WIN32DEFSUFFIX"))
+                                      "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"))
 
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
-    if version_num >= 8.0 and env.get('WIN32_INSERT_MANIFEST', 0):
+    if version_num >= 8.0 and env.get('WINDOWS_INSERT_MANIFEST', 0):
         # MSVC 8 automatically generates .manifest files that must be installed
         target.append(env.ReplaceIxes(dll,
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "WIN32SHLIBMANIFESTPREFIX", "WIN32SHLIBMANIFESTSUFFIX"))
+                                      "WINDOWSSHLIBMANIFESTPREFIX", "WINDOWSSHLIBMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
         target.append(env['PDB'])
@@ -109,7 +110,7 @@ def win32LibEmitter(target, source, env):
         # and .exp file is created if there are exports from a DLL
         target.append(env.ReplaceIxes(dll,
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "WIN32EXPPREFIX", "WIN32EXPSUFFIX"))
+                                      "WINDOWSEXPPREFIX", "WINDOWSEXPSUFFIX"))
 
     return (target, source)
 
@@ -121,11 +122,11 @@ def prog_emitter(target, source, env):
         raise SCons.Errors.UserError, "An executable should have exactly one target with the suffix: %s" % env.subst("$PROGSUFFIX")
 
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
-    if version_num >= 8.0 and env.get('WIN32_INSERT_MANIFEST', 0):
+    if version_num >= 8.0 and env.get('WINDOWS_INSERT_MANIFEST', 0):
         # MSVC 8 automatically generates .manifest files that have to be installed
         target.append(env.ReplaceIxes(exe,
                                       "PROGPREFIX", "PROGSUFFIX",
-                                      "WIN32PROGMANIFESTPREFIX", "WIN32PROGMANIFESTSUFFIX"))
+                                      "WINDOWSPROGMANIFESTPREFIX", "WINDOWSPROGMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
         target.append(env['PDB'])
@@ -154,14 +155,14 @@ def generate(env):
 
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS /dll')
-    env['_SHLINK_TARGETS'] = win32ShlinkTargets
-    env['_SHLINK_SOURCES'] = win32ShlinkSources
+    env['_SHLINK_TARGETS'] = windowsShlinkTargets
+    env['_SHLINK_SOURCES'] = windowsShlinkSources
     env['SHLINKCOM']   =  compositeLinkAction
-    env.Append(SHLIBEMITTER = [win32LibEmitter])
+    env.Append(SHLIBEMITTER = [windowsLibEmitter])
     env['LINK']        = 'link'
     env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
-    env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.win32 $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES.win32")}'
+    env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES.windows")}'
     env.Append(PROGEMITTER = [prog_emitter])
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
@@ -171,19 +172,24 @@ def generate(env):
     env['WIN32DEFPREFIX']        = ''
     env['WIN32DEFSUFFIX']        = '.def'
     env['WIN32_INSERT_DEF']      = 0
+    env['WINDOWSDEFPREFIX']      = '${WIN32DEFPREFIX}'
+    env['WINDOWSDEFSUFFIX']      = '${WIN32DEFSUFFIX}'
+    env['WINDOWS_INSERT_DEF']    = '${WIN32_INSERT_DEF}'
 
     env['WIN32EXPPREFIX']        = ''
     env['WIN32EXPSUFFIX']        = '.exp'
+    env['WINDOWSEXPPREFIX']      = '${WIN32EXPPREFIX}'
+    env['WINDOWSEXPSUFFIX']      = '${WIN32EXPSUFFIX}'
 
-    env['WIN32SHLIBMANIFESTPREFIX'] = ''
-    env['WIN32SHLIBMANIFESTSUFFIX'] = env['SHLIBSUFFIX'] + '.manifest'
-    env['WIN32PROGMANIFESTPREFIX']  = ''
-    env['WIN32PROGMANIFESTSUFFIX']  = env['PROGSUFFIX'] + '.manifest'
+    env['WINDOWSSHLIBMANIFESTPREFIX'] = ''
+    env['WINDOWSSHLIBMANIFESTSUFFIX'] = env['SHLIBSUFFIX'] + '.manifest'
+    env['WINDOWSPROGMANIFESTPREFIX']  = ''
+    env['WINDOWSPROGMANIFESTSUFFIX']  = env['PROGSUFFIX'] + '.manifest'
 
     env['REGSVRACTION'] = regServerCheck
     env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')
     env['REGSVRFLAGS'] = '/s '
-    env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS ${TARGET.win32}'
+    env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS ${TARGET.windows}'
 
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)

@@ -78,9 +78,9 @@ class SConfTestCase(unittest.TestCase):
 
         # we want to do some autodetection here
         # this stuff works with
-        #    - cygwin on win32 (using cmd.exe, not bash)
+        #    - cygwin on Windows (using cmd.exe, not bash)
         #    - posix
-        #    - msvc on win32 (hopefully)
+        #    - msvc on Windows (hopefully)
         if (not self.scons_env.Detect( self.scons_env.subst('$CXX') ) or
             not self.scons_env.Detect( self.scons_env.subst('$CC') ) or
             not self.scons_env.Detect( self.scons_env.subst('$LINK') )):

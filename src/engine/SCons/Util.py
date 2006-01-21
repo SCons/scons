@@ -740,7 +740,7 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
 if sys.platform == 'cygwin':
     def get_native_path(path):
         """Transforms an absolute path into a native path for the system.  In
-        Cygwin, this converts from a Cygwin path to a Win32 one."""
+        Cygwin, this converts from a Cygwin path to a Windows one."""
         return string.replace(os.popen('cygpath -w ' + path).read(), '\n', '')
 else:
     def get_native_path(path):
@@ -865,7 +865,7 @@ class Selector(OrderedDict):
 
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
-    # fact that the underlying Win32 OS is case-insensitive.
+    # fact that the underlying Windows OS is case-insensitive.
     def case_sensitive_suffixes(s1, s2):
         return 0
 else:

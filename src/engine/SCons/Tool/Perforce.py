@@ -74,7 +74,7 @@ def generate(env):
     # Perforce seems to use the PWD environment variable rather than
     # calling getcwd() for itself, which is odd.  If no PWD variable
     # is present, p4 WILL call getcwd, but this seems to cause problems
-    # with good ol' Win32's tilde-mangling for long file names.
+    # with good ol' Windows's tilde-mangling for long file names.
     environ['PWD'] = env.Dir('#').get_abspath()
 
     for var in _import_env:

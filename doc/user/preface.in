@@ -345,12 +345,12 @@
 
     &SCons; has received contributions
     from many other people, of course:
-    Matt Balvin (extending long command-line support on Win32),
+    Matt Balvin (extending long command-line support on Windows),
     Allen Bierbaum (extensions and fixes to Options),
     Steve Christensen (help text sorting and function action signature fixes),
     Michael Cook (avoiding losing signal bits from executed commands),
     Derrick 'dman' Hudson (),
-    Alex Jacques (work on the Win32 scons.bat file),
+    Alex Jacques (work on the Windows scons.bat file),
     Stephen Kennedy (performance enhancements),
     Lachlan O'Dea (SharedObject() support for masm
     and normalized paths for the WhereIs() function),
