@@ -33,7 +33,7 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
-# Win32 may or may not print a line for the script version
+# Windows may or may not print a line for the script version
 # depending on whether it's invoked through scons.py or scons.bat.
 expect1 = r"""SCons by Steven Knight et al.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
