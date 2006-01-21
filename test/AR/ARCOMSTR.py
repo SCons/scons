@@ -30,6 +30,7 @@ the displayed archiver string.
 """
 
 import TestSCons
+import string
 
 python = TestSCons.python
 
@@ -63,10 +64,10 @@ env.Library(target = 'output', source = ['file.1', 'file.2'])
 test.write('file.1', "file.1\n/*ar*/\n")
 test.write('file.2', "file.2\n/*ar*/\n")
 
-test.run(stdout = test.wrap_stdout("""\
-Archiving output.lib from file.1 file.2
-%s myranlib.py output.lib
-""" % python))
+test.run()
+
+expect = 'Archiving output.lib from file.1 file.2'
+test.fail_test(string.find(test.stdout(), expect) == -1)
 
 test.must_match('output.lib', "file.1\nfile.2\n")
 
