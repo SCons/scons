@@ -34,6 +34,11 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
+ranlib = test.detect('RANLIB', 'ranlib')
+
+if not ranlib:
+    test.skip_test("Could not find 'ranlib', skipping test.\n")
+
 
 
 test.write('myar.py', """

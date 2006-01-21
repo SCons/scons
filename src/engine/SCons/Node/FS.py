@@ -1377,20 +1377,15 @@ class Dir(Base):
         pass
 
     def current(self, calc=None):
-        """If all of our children were up-to-date, then this
-        directory was up-to-date, too."""
+        """If any child is not up-to-date, then this directory isn't,
+        either."""
         if not self.builder is MkdirBuilder and not self.exists():
             return 0
-        state = 0
+        up_to_date = SCons.Node.up_to_date
         for kid in self.children():
-            s = kid.get_state()
-            if s and (not state or s > state):
-                state = s
-        import SCons.Node
-        if state == 0 or state == SCons.Node.up_to_date:
-            return 1
-        else:
-            return 0
+            if kid.get_state() > up_to_date:
+                return 0
+        return 1
 
     def rdir(self):
         "__cacheable__"
