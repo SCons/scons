@@ -36,7 +36,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-# Note:  Win32 basically has two modes that it can os.chmod() files to
+# Note:  Windows basically has two modes that it can os.chmod() files to
 # 0444 and 0666, and directories to 0555 and 0777, so we can only really
 # oscillate between those values.
 test.write('SConstruct', """

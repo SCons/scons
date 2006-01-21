@@ -253,7 +253,7 @@ env = env.Copy()    # Yes, clobber intentionally
 Mylib.AddCFlags(env, "-DGOOFY_DEMO")
 Mylib.AddIncludeDirs(env, ".")
 
-# Not part of SLF's original stuff: On Win32, it's import to use the
+# Not part of SLF's original stuff: On Windows, it's import to use the
 # original test environment when we invoke SCons recursively.
 import os
 recurse_env = env.Copy()

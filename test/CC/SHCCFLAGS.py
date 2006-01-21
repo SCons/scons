@@ -44,8 +44,8 @@ if string.find(sys.platform, 'irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.write('SConstruct', """
-foo = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
-bar = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
+foo = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
+bar = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
 
 foo_obj = foo.SharedObject(target = 'foo', source = 'prog.c')
 foo.SharedLibrary(target = 'foo', source = foo_obj)
@@ -109,7 +109,7 @@ test.run(program = test.workpath('fooprog'), stdout = "prog.c:  FOO\n")
 test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
 
 test.write('SConstruct', """
-bar = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
+bar = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
 
 foo_obj = bar.SharedObject(target = 'foo', source = 'prog.c')
 bar.SharedLibrary(target = 'foo', source = foo_obj)

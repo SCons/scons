@@ -46,8 +46,8 @@ if string.find(sys.platform, 'irix') > -1:
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-foo = Environment(SHCXXFLAGS = '%s', WIN32_INSERT_DEF=1)
-bar = Environment(SHCXXFLAGS = '%s', WIN32_INSERT_DEF=1)
+foo = Environment(SHCXXFLAGS = '%s', WINDOWS_INSERT_DEF=1)
+bar = Environment(SHCXXFLAGS = '%s', WINDOWS_INSERT_DEF=1)
 foo.SharedObject(target = 'foo%s', source = 'prog.cpp')
 bar.SharedObject(target = 'bar%s', source = 'prog.cpp')
 foo.SharedLibrary(target = 'foo', source = 'foo%s')
@@ -111,7 +111,7 @@ test.run(program = test.workpath('fooprog'), stdout = "prog.cpp:  FOO\n")
 test.run(program = test.workpath('barprog'), stdout = "prog.cpp:  BAR\n")
 
 test.write('SConstruct', """
-bar = Environment(SHCXXFLAGS = '%s', WIN32_INSERT_DEF=1)
+bar = Environment(SHCXXFLAGS = '%s', WINDOWS_INSERT_DEF=1)
 bar.SharedObject(target = 'foo%s', source = 'prog.cpp')
 bar.SharedObject(target = 'bar%s', source = 'prog.cpp')
 bar.SharedLibrary(target = 'foo', source = 'foo%s')

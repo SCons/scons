@@ -39,7 +39,7 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 if sys.platform == 'win32':
-    sys.stderr.write('Cannot set SHELL separately from other variables on win32.\n')
+    sys.stderr.write('Cannot set SHELL separately from other variables on Windows.\n')
     test.no_result(1)
 
 my_shell = test.workpath('my_shell.py')

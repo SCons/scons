@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 import sys
-env=Environment(WIN32_INSERT_DEF=1)
+env=Environment(WINDOWS_INSERT_DEF=1)
 env2 = Environment(LIBS = [ 'foo1', 'foo2', 'foo3' ],
                    LIBPATH = [ '.' ])
 env.SharedLibrary(target = 'foo1', source = 'f1.c')
@@ -45,7 +45,7 @@ else:
     env.StaticLibrary(target = 'foo1', source = 'f1.c')
 SharedLibrary(target = 'foo2',
               source = Split('f2a.c f2b.c f2c.c'),
-              WIN32_INSERT_DEF = 1)
+              WINDOWS_INSERT_DEF = 1)
 env.SharedLibrary(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env2.Program(target = 'prog', source = 'prog.c')
 """)
@@ -223,11 +223,11 @@ test.run(arguments = '-f SConstructFoo2',
 
 if sys.platform == 'win32':
     # Make sure we don't insert a .def source file (when
-    # WIN32_INSERT_DEF is set) and a .lib target file if
+    # WINDOWS_INSERT_DEF is set) and a .lib target file if
     # they're specified explicitly.
 
     test.write('SConstructBar', '''
-env = Environment(WIN32_INSERT_DEF=1)
+env = Environment(WINDOWS_INSERT_DEF=1)
 env2 = Environment(LIBS = [ 'foo4' ],
                    LIBPATH = [ '.' ])
 env.SharedLibrary(target = ['foo4', 'foo4.lib'], source = ['f4.c', 'foo4.def'])

@@ -65,8 +65,8 @@ test = TestSCons.TestSCons()
 test.subdir('bld', 'src', ['src', 'subsrcdir'])
 
 sconstruct = r"""
-foo = Environment(SHCXXFLAGS = '%(fooflags)s', WIN32_INSERT_DEF=1)
-bar = Environment(SHCXXFLAGS = '%(barflags)s', WIN32_INSERT_DEF=1)
+foo = Environment(SHCXXFLAGS = '%(fooflags)s', WINDOWS_INSERT_DEF=1)
+bar = Environment(SHCXXFLAGS = '%(barflags)s', WINDOWS_INSERT_DEF=1)
 src = Dir('src')
 BuildDir('bld', src, duplicate=1)
 Nodes=[]

@@ -38,7 +38,7 @@ import string
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
-# MinGW is win32 only:
+# MinGW is Windows only:
 if sys.platform != 'win32':
     msg = "Skipping mingw test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)

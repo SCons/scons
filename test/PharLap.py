@@ -34,7 +34,7 @@ import time
 test = TestSCons.TestSCons()
 
 if sys.platform != 'win32':
-    test.skip_test('PharLap is only available on win32; skipping test.\n')
+    test.skip_test('PharLap is only available on Windows; skipping test.\n')
 
 if not test.detect_tool('linkloc'):
     test.skip_test("Could not find 'linkloc', skipping test.\n")
@@ -294,7 +294,7 @@ env.Program(target='minasm', source='minasm.asm')
 
 test.run(arguments='.')
 
-# Assume .exe extension...this test is for Win32 only.
+# Assume .exe extension...this test is for Windows only.
 test.fail_test(not os.path.exists('minasm.exe'))
 test.up_to_date(arguments='.')
 

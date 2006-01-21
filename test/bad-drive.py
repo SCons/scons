@@ -52,7 +52,7 @@ for i in range(len(string.uppercase)-1, -1, -1):
 
 if bad_drive is None:
     print "All drive letters appear to be in use."
-    print "Cannot test SCons handling of invalid Win32 drive letters."
+    print "Cannot test SCons handling of invalid Windows drive letters."
     test.no_result(1);
 
 test.write('SConstruct', """

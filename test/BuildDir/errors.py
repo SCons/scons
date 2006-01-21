@@ -83,7 +83,7 @@ test.run(chdir = 'normal', arguments = ".")
 test.fail_test(test.read(['normal', 'build', 'file.out']) != "normal/src/file.in\n")
 
 # Verify the error when the BuildDir itself is read-only.  Don't bother
-# to test this on Win32, because the ACL (I think) still allows the
+# to test this on Windows, because the ACL (I think) still allows the
 # owner to create files in the directory even when it's read-only.
 if sys.platform != 'win32':
     dir = os.path.join('ro-dir', 'build')
