@@ -421,6 +421,12 @@ RELEASE 0.97 - XXX
   - Add a --taskmastertrace=FILE option to give some insight on how
     the taskmaster decides what Node to build next.
 
+  - Changed the names of the old $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX construction variables to
+    new $WINDOWSDEFPREFIX, $WINDOWSDEFSUFFIX, $WINDOWSDLLPREFIX and
+    $WINDOWSIMPLIBPREFIX construction variables.  The old names are now
+    deprecated, but preserved for backwards compatibility.
+
   From Chen Lee:
 
   - Handle Visual Studio project and solution files in Unicode.
@@ -442,10 +448,10 @@ RELEASE 0.97 - XXX
   - Add support for Visual Studio Express Editions.
 
   - Add support for Visual Studio 8 *.manifest files, includng
-    new $WIN32_INSERT_MANIFEST, $WIN32PROGMANIFESTSUFFIX,
-    $WIN32PROGMANIFESTPREFIX, $WIN32PROGMANIFESTSUFFIX,
-    $WIN32SHLIBMANIFESTPREFIX and $WIN32SHLIBMANIFESTSUFFIX construction
-    variables.
+    new $WINDOWS_INSERT_MANIFEST, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSPROGMANIFESTPREFIX, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSSHLIBMANIFESTPREFIX and $WINDOWSSHLIBMANIFESTSUFFIX
+    construction variables.
 
   From Sanjoy Mahajan:
 

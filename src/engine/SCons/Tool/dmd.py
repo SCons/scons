@@ -7,7 +7,7 @@ Coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
 
 There are a number of problems with this script at this point in time.
-The one that irritates me the most is the win32 linker setup.  The D
+The one that irritates me the most is the Windows linker setup.  The D
 linker doesn't have a way to add lib paths on the commandline, as far
 as I can see.  You have to specify paths relative to the SConscript or
 use absolute paths.  To hack around it, add '#/blah'.  This will link

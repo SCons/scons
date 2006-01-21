@@ -45,7 +45,7 @@ import time
 import traceback
 
 # Strip the script directory from sys.path() so on case-insensitive
-# (WIN32) systems Python doesn't think that the "scons" script is the
+# (Windows) systems Python doesn't think that the "scons" script is the
 # "SCons" package.  Replace it with our own version directory so, if
 # if they're there, we pick up the right version of the build engine
 # modules.
@@ -590,8 +590,8 @@ class OptParser(OptionParser):
         except KeyboardInterrupt:
             raise
         except:
-            # On win32 there is no scons.py, so there is no __main__.__version__,
-            # hence there is no script version.
+            # On Windows there is no scons.py, so there is no
+            # __main__.__version__, hence there is no script version.
             pass 
         parts.append("\tengine: v%s.%s, %s, by %s on %s\n" % (SCons.__version__,
                                                               SCons.__build__,

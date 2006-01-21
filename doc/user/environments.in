@@ -125,7 +125,7 @@ UNIX system are:
   ENV		=> { 'PATH' => '/bin:/usr/bin' },
 
 
-And on a Win32 system (Windows NT), the default construction variables
+And on a Windows system (Windows NT), the default construction variables
 are (unless the default rule style is set using the B<DefaultRules>
 method):
 
@@ -735,7 +735,7 @@ environment undisturbed.
 
    <para>
 
-   And on Win32:
+   And on Windows:
 
    </para>
 

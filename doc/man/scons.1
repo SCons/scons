@@ -359,7 +359,7 @@ By default,
 .B scons
 knows how to search for available programming tools
 on various systems.
-On WIN32 systems,
+On Windows systems,
 .B scons
 searches in order for the
 Microsoft Visual C++ tools,
@@ -1083,7 +1083,7 @@ that use sockets to connect with other systems
 (such as fetching source files from
 external CVS repository specifications like 
 .BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
-will work on Win32 systems.
+will work on Windows systems.
 
 The platform argument may be function or callable object,
 in which case the Environment() method
@@ -1279,7 +1279,7 @@ environment with a default set of tools for the current platform.
 
 On posix and cygwin platforms
 the GNU tools (e.g. gcc) are preferred by SCons,
-on win32 the Microsoft tools (e.g. msvc)
+on Windows the Microsoft tools (e.g. msvc)
 followed by MinGW are preferred by SCons,
 and in OS/2 the IBM tools (e.g. icc) are preferred by SCons.
 
@@ -2941,7 +2941,7 @@ that use sockets to connect with other systems
 (such as fetching source files from
 external CVS repository specifications like 
 .BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
-will work on Win32 systems.
+will work on Windows systems.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -3850,7 +3850,7 @@ the value of the calling environment's PATH
 or the user's current external PATH
 (os.environ['PATH'])
 by default.
-On Win32 systems, searches for executable
+On Windows systems, searches for executable
 programs with any of the file extensions
 listed in the specified
 .I pathext,
@@ -6034,7 +6034,7 @@ with directories separated by
 .B /
 (forward slashes)
 not backslashes.
-This is sometimes necessary on Win32 systems
+This is sometimes necessary on Windows systems
 when a path references a file on other (POSIX) systems.
 
 .IP srcpath
@@ -6409,7 +6409,7 @@ SCons treats a file with a
 suffix as a Fortran source file that should
 .I not
 be run through the C preprocessor.
-.SS WIN32:  Cygwin Tools and Cygwin Python vs. Windows Pythons
+.SS Windows:  Cygwin Tools and Cygwin Python vs. Windows Pythons
 Cygwin supplies a set of tools and utilities
 that let users work on a
 Windows system using a more POSIX-like environment.
@@ -6444,8 +6444,8 @@ when using Microsoft Visual C/C++
 (or some other Windows compiler)
 use the python.org or ActiveState version of Python
 to run SCons.
-.SS WIN32:  scons.bat file
-On WIN32 systems,
+.SS Windows:  scons.bat file
+On Windows systems,
 SCons is executed via a wrapper
 .B scons.bat
 file.
