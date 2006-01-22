@@ -1156,9 +1156,18 @@ class FS(LocalFS):
             message = fmt % string.join(map(str, targets))
         return targets, message
 
+class DirNodeInfo(SCons.Node.NodeInfoBase):
+    pass
+
+class DirBuildInfo(SCons.Node.BuildInfoBase):
+    pass
+
 class Dir(Base):
     """A class for directories in a file system.
     """
+
+    NodeInfo = DirNodeInfo
+    BuildInfo = DirBuildInfo
 
     def __init__(self, name, directory, fs):
         if __debug__: logInstanceCreation(self, 'Node.FS.Dir')
@@ -1579,7 +1588,10 @@ class RootDir(Dir):
     def src_builder(self):
         return _null
 
-class NodeInfo(SCons.Node.NodeInfo):
+class FileNodeInfo(SCons.Node.NodeInfoBase):
+    def __init__(self, node):
+        SCons.Node.NodeInfoBase.__init__(self, node)
+        self.update(node)
     def __cmp__(self, other):
         try: return cmp(self.bsig, other.bsig)
         except AttributeError: return 1
@@ -1587,9 +1599,9 @@ class NodeInfo(SCons.Node.NodeInfo):
         self.timestamp = node.get_timestamp()
         self.size = node.getsize()
 
-class BuildInfo(SCons.Node.BuildInfo):
+class FileBuildInfo(SCons.Node.BuildInfoBase):
     def __init__(self, node):
-        SCons.Node.BuildInfo.__init__(self, node)
+        SCons.Node.BuildInfoBase.__init__(self, node)
         self.node = node
     def convert_to_sconsign(self):
         """Convert this BuildInfo object for writing to a .sconsign file
@@ -1635,10 +1647,19 @@ class BuildInfo(SCons.Node.BuildInfo):
             result.append(str(bkids[i]) + ': ' + bkidsigs[i].format())
         return string.join(result, '\n')
 
+class NodeInfo(FileNodeInfo):
+    pass
+
+class BuildInfo(FileBuildInfo):
+    pass
 
 class File(Base):
     """A class for files in a file system.
     """
+
+    NodeInfo = FileNodeInfo
+    BuildInfo = FileBuildInfo
+
     def diskcheck_match(self):
         diskcheck_match(self, self.fs.isdir,
                            "Directory %s found where file expected.")
@@ -1919,14 +1940,6 @@ class File(Base):
     #
     # SIGNATURE SUBSYSTEM
     #
-
-    def new_binfo(self):
-        return BuildInfo(self)
-
-    def new_ninfo(self):
-        ninfo = NodeInfo()
-        ninfo.update(self)
-        return ninfo
 
     def get_csig(self, calc=None):
         """

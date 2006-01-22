@@ -698,16 +698,33 @@ class BaseTestCase(_tempdirTestCase):
             nonexistent = fs.Entry('nonexistent')
             assert not nonexistent.islink()
 
-class NodeInfoTestCase(_tempdirTestCase):
+class DirNodeInfoTestCase(_tempdirTestCase):
     def test___init__(self):
-        """Test NodeInfo initialization"""
-        ni = SCons.Node.FS.NodeInfo()
-        assert not hasattr(ni, 'bsig')
+        """Test DirNodeInfo initialization"""
+        ddd = self.fs.Dir('ddd')
+        ni = SCons.Node.FS.DirNodeInfo(ddd)
+
+class DirBuildInfoTestCase(_tempdirTestCase):
+    def test___init__(self):
+        """Test DirBuildInfo initialization"""
+        ddd = self.fs.Dir('ddd')
+        bi = SCons.Node.FS.DirBuildInfo(ddd)
+
+class FileNodeInfoTestCase(_tempdirTestCase):
+    def test___init__(self):
+        """Test FileNodeInfo initialization"""
+        fff = self.fs.File('fff')
+        ni = SCons.Node.FS.FileNodeInfo(fff)
+        assert hasattr(ni, 'timestamp')
+        assert hasattr(ni, 'size')
 
     def test___cmp__(self):
-        """Test comparing NodeInfo objects"""
-        ni1 = SCons.Node.FS.NodeInfo()
-        ni2 = SCons.Node.FS.NodeInfo()
+        """Test comparing File.NodeInfo objects"""
+        f1 = self.fs.File('f1')
+        f2 = self.fs.File('f2')
+
+        ni1 = SCons.Node.FS.FileNodeInfo(f1)
+        ni2 = SCons.Node.FS.FileNodeInfo(f2)
 
         msg = "cmp(%s, %s) returned %s, not %s"
 
@@ -731,22 +748,29 @@ class NodeInfoTestCase(_tempdirTestCase):
         assert c == -1, msg % (ni1.bsig, ni2.bsig, c, -1)
 
     def test_update(self):
-        """Test updating a NodeInfo with on-disk information"""
+        """Test updating a File.NodeInfo with on-disk information"""
         test = self.test
-        test.write('fff', "fff\n")
         fff = self.fs.File('fff')
 
-        ni = SCons.Node.FS.NodeInfo()
-        assert not hasattr(ni, 'timestamp')
-        assert not hasattr(ni, 'size')
+        ni = SCons.Node.FS.FileNodeInfo(fff)
 
+        import time
+        time.sleep(2)
+
+        test.write('fff', "fff\n")
+
+        assert ni.timestamp != os.path.getmtime('fff'), ni.timestamp
+        assert ni.size != os.path.getsize('fff'), ni.size
+
+        fff.clear()
         ni.update(fff)
+
         assert ni.timestamp == os.path.getmtime('fff'), ni.timestamp
         assert ni.size == os.path.getsize('fff'), ni.size
 
-class BuildInfoTestCase(_tempdirTestCase):
+class FileBuildInfoTestCase(_tempdirTestCase):
     def test___init__(self):
-        """Test BuildInfo initialization"""
+        """Test File.BuildInfo initialization"""
         fff = self.fs.File('fff')
         bi = SCons.Node.FS.BuildInfo(fff)
         assert bi.node is fff, bi.node
@@ -762,11 +786,11 @@ class BuildInfoTestCase(_tempdirTestCase):
         f1 = self.fs.File('f1')
         bi1 = SCons.Node.FS.BuildInfo(f1)
 
-        s1sig = SCons.Node.FS.NodeInfo()
+        s1sig = SCons.Node.FS.FileNodeInfo(self.fs.File('n1'))
         s1sig.a = 1
-        d1sig = SCons.Node.FS.NodeInfo()
+        d1sig = SCons.Node.FS.FileNodeInfo(self.fs.File('n2'))
         d1sig.a = 2
-        i1sig = SCons.Node.FS.NodeInfo()
+        i1sig = SCons.Node.FS.FileNodeInfo(self.fs.File('n3'))
         i1sig.a = 3
 
         bi1.bsources = [self.fs.File('s1')]
@@ -776,8 +800,16 @@ class BuildInfoTestCase(_tempdirTestCase):
         bi1.bdependsigs = [d1sig]
         bi1.bimplicitsigs = [i1sig]
 
+        expect_lines = [
+            'None 0',
+            's1: 1 None 0',
+            'd1: 2 None 0',
+            'i1: 3 None 0',
+        ]
+
+        expect = string.join(expect_lines, '\n')
         format = bi1.format()
-        assert format == 'None 0\ns1: 1\nd1: 2\ni1: 3', repr(format)
+        assert format == expect, (repr(format), repr(expect))
 
 class FSTestCase(_tempdirTestCase):
     def test_runTest(self):
@@ -2584,7 +2616,7 @@ class CacheDirTestCase(unittest.TestCase):
         SCons.Sig.MD5.collect = my_collect
         try:
             f5 = fs.File("cd.f5")
-            f5.binfo = f5.new_binfo()
+            f5.binfo = f5.BuildInfo(f5)
             f5.binfo.ninfo.bsig = 'a_fake_bsig'
             cp = f5.cachepath()
             dirname = os.path.join('cache', 'A')
@@ -2595,7 +2627,7 @@ class CacheDirTestCase(unittest.TestCase):
 
         # Verify that no bsig raises an InternalERror
         f6 = fs.File("cd.f6")
-        f6.binfo = f6.new_binfo()
+        f6.binfo = f6.BuildInfo(f6)
         exc_caught = 0
         try:
             cp = f6.cachepath()
@@ -2619,7 +2651,7 @@ class CacheDirTestCase(unittest.TestCase):
             cd_f7 = test.workpath("cd.f7")
             test.write(cd_f7, "cd.f7\n")
             f7 = fs.File(cd_f7)
-            f7.binfo = f7.new_binfo()
+            f7.binfo = f7.BuildInfo(f7)
             f7.binfo.ninfo.bsig = 'f7_bsig'
 
             warn_caught = 0
@@ -2980,12 +3012,14 @@ if __name__ == "__main__":
     suite.addTest(SaveStringsTestCase())
     tclasses = [
         BaseTestCase,
-        BuildInfoTestCase,
+        DirTestCase,
+        DirBuildInfoTestCase,
+        DirNodeInfoTestCase,
         EntryTestCase,
         FileTestCase,
-        NodeInfoTestCase,
+        FileBuildInfoTestCase,
+        FileNodeInfoTestCase,
         FSTestCase,
-        DirTestCase,
         RepositoryTestCase,
     ]
     for tclass in tclasses:

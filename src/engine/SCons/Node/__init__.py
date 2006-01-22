@@ -97,15 +97,14 @@ Annotate = do_nothing
 
 # Classes for signature info for Nodes.
 
-class NodeInfo:
+class NodeInfoBase:
     """
-    A generic class for signature information for a Node.
+    The generic base class for signature information for a Node.
 
-    We actually expect that modules containing Node subclasses will also
-    subclass NodeInfo, to provide their own logic for dealing with their
-    own Node-specific signature information.
+    Node subclasses should subclass NodeInfoBase to provide their own
+    logic for dealing with their own Node-specific signature information.
     """
-    def __init__(self):
+    def __init__(self, node):
         """A null initializer so that subclasses have a superclass
         initialization method to call for future use.
         """
@@ -132,9 +131,9 @@ class NodeInfo:
             fields.append(str(f))
         return string.join(fields, " ")
 
-class BuildInfo:
+class BuildInfoBase:
     """
-    The generic build information for a Node.
+    The generic base clasee for build information for a Node.
 
     This is what gets stored in a .sconsign file for each target file.
     It contains a NodeInfo instance for this node (signature information
@@ -143,7 +142,7 @@ class BuildInfo:
     implicit dependencies, and action information.
     """
     def __init__(self, node):
-        self.ninfo = node.new_ninfo()
+        self.ninfo = node.NodeInfo(node)
         self.bsourcesigs = []
         self.bdependsigs = []
         self.bimplicitsigs = []
@@ -592,6 +591,9 @@ class Node:
     # SIGNATURE SUBSYSTEM
     #
 
+    NodeInfo = NodeInfoBase
+    BuildInfo = BuildInfoBase
+
     def calculator(self):
         import SCons.Defaults
         
@@ -618,10 +620,10 @@ class Node:
         return self.get_csig(calc)
 
     def new_ninfo(self):
-        return NodeInfo()
+        return self.NodeInfo(self)
 
     def new_binfo(self):
-        return BuildInfo(self)
+        return self.BuildInfo(self)
 
     def get_binfo(self):
         try:

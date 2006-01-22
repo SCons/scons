@@ -214,12 +214,12 @@ class Calculator:
 
 
 
-class NodeInfoTestCase(unittest.TestCase):
+class NodeInfoBaseTestCase(unittest.TestCase):
 
     def test___cmp__(self):
-        """Test comparing NodeInfo objects"""
-        ni1 = SCons.Node.NodeInfo()
-        ni2 = SCons.Node.NodeInfo()
+        """Test comparing NodeInfoBase objects"""
+        ni1 = SCons.Node.NodeInfoBase(SCons.Node.Node())
+        ni2 = SCons.Node.NodeInfoBase(SCons.Node.Node())
 
         assert ni1 == ni2, "%s != %s" % (ni1.__dict__, ni2.__dict__)
 
@@ -233,9 +233,9 @@ class NodeInfoTestCase(unittest.TestCase):
         assert ni1 == ni2, "%s != %s" % (ni1.__dict__, ni2.__dict__)
 
     def test_merge(self):
-        """Test merging NodeInfo attributes"""
-        ni1 = SCons.Node.NodeInfo()
-        ni2 = SCons.Node.NodeInfo()
+        """Test merging NodeInfoBase attributes"""
+        ni1 = SCons.Node.NodeInfoBase(SCons.Node.Node())
+        ni2 = SCons.Node.NodeInfoBase(SCons.Node.Node())
 
         ni1.a1 = 1
         ni1.a2 = 2
@@ -248,12 +248,12 @@ class NodeInfoTestCase(unittest.TestCase):
 
     def test_update(self):
         """Test the update() method"""
-        ni = SCons.Node.NodeInfo()
+        ni = SCons.Node.NodeInfoBase(SCons.Node.Node())
         ni.update(SCons.Node.Node())
 
     def test_format(self):
-        """Test the NodeInfo.format() method"""
-        ni1 = SCons.Node.NodeInfo()
+        """Test the NodeInfoBase.format() method"""
+        ni1 = SCons.Node.NodeInfoBase(SCons.Node.Node())
         ni1.xxx = 'x'
         ni1.yyy = 'y'
         ni1.zzz = 'z'
@@ -268,23 +268,23 @@ class NodeInfoTestCase(unittest.TestCase):
 
 
 
-class BuildInfoTestCase(unittest.TestCase):
+class BuildInfoBaseTestCase(unittest.TestCase):
 
     def test___init__(self):
-        """Test BuildInfo initialization"""
-        bi = SCons.Node.BuildInfo(SCons.Node.Node())
+        """Test BuildInfoBase initialization"""
+        bi = SCons.Node.BuildInfoBase(SCons.Node.Node())
         assert hasattr(bi, 'ninfo')
 
         class MyNode(SCons.Node.Node):
-            def new_ninfo(self):
+            def NodeInfo(self, node):
                 return 'ninfo initialization'
-        bi = SCons.Node.BuildInfo(MyNode())
+        bi = SCons.Node.BuildInfoBase(MyNode())
         assert bi.ninfo == 'ninfo initialization', bi.ninfo
 
     def test___cmp__(self):
-        """Test comparing BuildInfo objects"""
-        bi1 = SCons.Node.BuildInfo(SCons.Node.Node())
-        bi2 = SCons.Node.BuildInfo(SCons.Node.Node())
+        """Test comparing BuildInfoBase objects"""
+        bi1 = SCons.Node.BuildInfoBase(SCons.Node.Node())
+        bi2 = SCons.Node.BuildInfoBase(SCons.Node.Node())
 
         assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
 
@@ -301,9 +301,9 @@ class BuildInfoTestCase(unittest.TestCase):
         assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
 
     def test_merge(self):
-        """Test merging BuildInfo attributes"""
-        bi1 = SCons.Node.BuildInfo(SCons.Node.Node())
-        bi2 = SCons.Node.BuildInfo(SCons.Node.Node())
+        """Test merging BuildInfoBase attributes"""
+        bi1 = SCons.Node.BuildInfoBase(SCons.Node.Node())
+        bi2 = SCons.Node.BuildInfoBase(SCons.Node.Node())
 
         bi1.a1 = 1
         bi1.a2 = 2
@@ -617,7 +617,7 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
 
         binfo = node.get_binfo()
-        assert isinstance(binfo, SCons.Node.BuildInfo), binfo
+        assert isinstance(binfo, SCons.Node.BuildInfoBase), binfo
 
         node.binfo = 777
         binfo = node.get_binfo()
@@ -633,7 +633,7 @@ class NodeTestCase(unittest.TestCase):
         node.implicit = [i]
         node.gen_binfo(Calculator(666))
         binfo = node.binfo
-        assert isinstance(binfo, SCons.Node.BuildInfo), binfo
+        assert isinstance(binfo, SCons.Node.BuildInfoBase), binfo
         assert hasattr(binfo, 'bsources')
         assert hasattr(binfo, 'bsourcesigs')
         assert binfo.bdepends == [d]
@@ -1276,7 +1276,7 @@ class NodeTestCase(unittest.TestCase):
         """Test the new_binfo() method"""
         n = SCons.Node.Node()
         result = n.new_binfo()
-        assert isinstance(result, SCons.Node.BuildInfo), result
+        assert isinstance(result, SCons.Node.BuildInfoBase), result
 
     def test_get_suffix(self):
         """Test the base Node get_suffix() method"""
@@ -1342,8 +1342,8 @@ class NodeListTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ BuildInfoTestCase,
-                 NodeInfoTestCase,
+    tclasses = [ BuildInfoBaseTestCase,
+                 NodeInfoBaseTestCase,
                  NodeTestCase,
                  NodeListTestCase ]
     for tclass in tclasses:

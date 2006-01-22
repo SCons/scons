@@ -60,8 +60,27 @@ class ValueTestCase(unittest.TestCase):
         csig = v3.get_csig(None)
         assert csig == 'None', csig
 
+class ValueNodeInfoTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test ValueNodeInfo initialization"""
+        vvv = SCons.Node.Python.Value('vvv')
+        ni = SCons.Node.Python.ValueNodeInfo(vvv)
+
+class ValueBuildInfoTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test ValueBuildInfo initialization"""
+        vvv = SCons.Node.Python.Value('vvv')
+        bi = SCons.Node.Python.ValueBuildInfo(vvv)
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ValueTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [
+        ValueTestCase,
+        ValueBuildInfoTestCase,
+        ValueNodeInfoTestCase,
+    ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

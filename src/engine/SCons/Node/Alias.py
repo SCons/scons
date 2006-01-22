@@ -56,7 +56,17 @@ class AliasNameSpace(UserDict.UserDict):
         except KeyError:
             return None
 
+class AliasNodeInfo(SCons.Node.NodeInfoBase):
+    pass
+
+class AliasBuildInfo(SCons.Node.BuildInfoBase):
+    pass
+
 class Alias(SCons.Node.Node):
+
+    NodeInfo = AliasNodeInfo
+    BuildInfo = AliasBuildInfo
+
     def __init__(self, name):
         SCons.Node.Node.__init__(self)
         self.name = name
