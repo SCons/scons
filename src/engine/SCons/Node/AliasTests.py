@@ -94,9 +94,29 @@ class AliasTestCase(unittest.TestCase):
         assert not a1 is a2
         assert a1.name == a2.name
 
+class AliasNodeInfoTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test AliasNodeInfo initialization"""
+        ans = SCons.Node.Alias.AliasNameSpace()
+        aaa = ans.Alias('aaa')
+        ni = SCons.Node.Alias.AliasNodeInfo(aaa)
 
+class AliasBuildInfoTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test AliasBuildInfo initialization"""
+        ans = SCons.Node.Alias.AliasNameSpace()
+        aaa = ans.Alias('aaa')
+        bi = SCons.Node.Alias.AliasBuildInfo(aaa)
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(AliasTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [
+        AliasTestCase,
+        AliasBuildInfoTestCase,
+        AliasNodeInfoTestCase,
+    ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

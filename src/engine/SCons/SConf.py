@@ -150,7 +150,7 @@ def _stringSource( target, source, env ):
 BooleanTypes = [types.IntType]
 if hasattr(types, 'BooleanType'): BooleanTypes.append(types.BooleanType)
 
-class SConfBuildInfo(SCons.Node.FS.BuildInfo):
+class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     """
     Special build info for targets of configure tests. Additional members
     are result (did the builder succeed last time?) and string, which
@@ -160,7 +160,7 @@ class SConfBuildInfo(SCons.Node.FS.BuildInfo):
     string = None # the stdout / stderr output when building the target
     
     def __init__(self, node, result, string, sig):
-        SCons.Node.FS.BuildInfo.__init__(self, node)
+        SCons.Node.FS.FileBuildInfo.__init__(self, node)
         self.result = result
         self.string = string
         self.ninfo.bsig = sig
