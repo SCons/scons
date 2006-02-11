@@ -20,43 +20,83 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.97 - XXX
+RELEASE 0.96.92 - XXX
 
   This is a pre-release for testing the eighth beta release of SCons.
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
 
-  Please note the following important changes since release 0.96:
+  Please note the following important changes since release 0.96.91:
 
-    --  DIRECTORY TREES ARE NO LONGER AUTOMATICALLY SCANNED FOR CHANGES
+    --  /opt/bin AND /sw/bin ADDED TO DEFAULT EXECUTION PATH VARIABLES
 
-        Custom builders and Command() calls that accept directories as
-        source arguments no longer scan entire on-disk directory trees by
-        default.  This means that their targets will not be automatically
-        rebuilt if a file changes on disk *unless* SCons already knows
-        about the file from a specific Builder or File() call.  Note that
-        the targets will still be rebuilt correctly if a file changes
-        that SCons already knows about due to a Builder or other call.
+        On all POSIX systems, the default execution PATH variable has had
+        the /opt/bin directory added after the /usr/local/bin directory
+        and before /bin and /usr/bin directories.  This may cause SCons
+        to find and/or different compilers, linkers, etc. if you have
+        any same-named utilities installed in /opt/bin that it previously
+        found in /bin or /usr/bin.
 
-        The existing behavior of scanning on-disk directory trees for
-        any changed file can be maintained by passing the new DirScanner
-        global directory scanner as the source_scanner keyword argument
-        to the Builder call:
+        On Mac OS X (Darwin) systems, the /sw/bin directory has been added
+        to the end of the default execution PATH.  This may cause SCons
+        to find compilers, linkers and other utilities it previously did
+        not, although it should not otherwise change existing behavior.
 
-            bld = Builder("build < $SOURCE > $TARGET",
-                          source_scanner = DirScanner)
+    --  Configure.Checklib() ARGUMENTS HAVE CHANGED TO MATCH DOCUMENTATION
 
-        The same keyword argument can also be supplied to any Command()
-        calls that need to scan directory trees on-disk for changed files:
+        The order of the arguments to the Configure.CheckLib() function
+        has changed to put the "autoadd" keyword argument last, matching
+        the documentation in the man page.  This could cause problems
+        for any calls to Configure.Checklib() that were relying on the
+        order of the arguments.  Specifying all arguments as keyword
+        arguments will work on both older and newer versions of SCons.
 
-            env.Command("archive.out", "directory",
-                        "archiver -o $TARGET $SOURCE",
-                        source_scanner = DirScanner)
+    --  env.subst() NO LONGER EXPANDS $TARGET, $SOURCES, etc. BY DEFAULT
 
-        This change was made because scanning directories by default
-        could cause huge slowdowns if a configurable directory like /usr
-        or /usr/local was passed as the source to a Builder or Command()
-        call, in which case SCons would scan the entire directory tree.
+        Calls to the env.subst() method to interpolate construction
+        variables in strings no longer automatically expand the special
+        variables $TARGET, $TARGETS, $SOURCE and $SOURCES.  The keyword
+        variables "target" and "source" must now be set to the lists
+        of target and source files to be used in expansion of those
+        variables, when desired.
+
+        This is most likely necessary for any env.subst() calls within
+        a Python function being used as an SCons action for a Builder:
+
+            def build_it(env, target, source):
+                env.subst('$STRING', target=targets, source=sources)
+            MyBuilder = Builder(action=build_it)
+
+        The "target" and "source" keyword arguments are backwards
+        compatible and can be added to SConscript files without breaking
+        builds on systems using older SCons releases.
+
+    --  INTERNAL FUNCTIONS AND CLASSES HAVE MOVED FROM SCons.Util
+
+        All internal functions and classes related to string substitution
+        have been moved out of the SCons.Util module into their own
+        SCons.Subst module.  The following classes have been moved:
+
+                Literal
+                SpecialAttrWrapper
+                NLWrapper
+                Targets_or_Sources
+                Target_or_Source
+
+        And the following functions have moved:
+
+                quote_spaces()
+                escape_list()
+                subst_dict()
+                scons_subst()
+                scons_subst_list()
+                scons_subst_once()
+
+        If your SConscript files have been using any of these function
+        directly from the SCons.Util module (which they ultimately should
+        not be!), you will need to modify them.
+
+  Please note the following important changes since release 0.96.90:
 
     --  SIGNATURES ARE NOW STORED IN AN SConsignFile() BY DEFAULT,
         CAUSING LIKELY REBUILDS; SPECIAL NOTE CONCERNING INTERACTION
@@ -157,20 +197,6 @@ RELEASE 0.97 - XXX
 
             env = Environment(tools = ['default', 'f77'])
 
-    --  /opt/bin AND /sw/bin ADDED TO DEFAULT EXECUTION PATH VARIABLES
-
-        On all POSIX systems, the default execution PATH variable has had
-        the /opt/bin directory added after the /usr/local/bin directory
-        and before /bin and /usr/bin directories.  This may cause SCons
-        to find and/or different compilers, linkers, etc. if you have
-        any same-named utilities installed in /opt/bin that it previously
-        found in /bin or /usr/bin.
-
-        On Mac OS X (Darwin) systems, the /sw/bin directory has been added
-        to the end of the default execution PATH.  This may cause SCons
-        to find compilers, linkers and other utilities it previously did
-        not, although it should not otherwise change existing behavior.
-
     --  SOLARIS DEFAULT SHARED OBJECT PREFIXES AND SUFFIXES HAVE CHANGED
 
         On Solaris, SCons now builds shared objects from C and C++ source
@@ -200,56 +226,6 @@ RELEASE 0.97 - XXX
         "sconsign.1" man pages on UNIX and Linux systems.  A
         new --no-install-man
 
-    --  env.subst() NO LONGER EXPANDS $TARGET, $SOURCES, etc. BY DEFAULT
-
-        Calls to the env.subst() method to interpolate construction
-        variables in strings no longer automatically expand the special
-        variables $TARGET, $TARGETS, $SOURCE and $SOURCES.  The keyword
-        variables "target" and "source" must now be set to the lists
-        of target and source files to be used in expansion of those
-        variables, when desired.
-
-        This is most likely necessary for any env.subst() calls within
-        a Python function being used as an SCons action for a Builder:
-
-            def build_it(env, target, source):
-                env.subst('$STRING', target=targets, source=sources)
-            MyBuilder = Builder(action=build_it)
-
-        The "target" and "source" keyword arguments are backwards
-        compatible and can be added to SConscript files without breaking
-        builds on systems using older SCons releases.
-
-    --  ParseConfig() METHOD ADDS LIBRARY FILE NAMES TO THE $LIBS VARIABLE
-
-        The ParseConfig() method now adds library file names returned
-        by the specified *-config command to the $LIBS construction
-        variable, instead of returning them (the same way it handles
-        the -l option).
-
-    --  ParseConfig() METHOD DOESN'T ADD DUPLICATES TO CONSTRUCTION VARIABLES
-
-        By default, the ParseConfig() method now avoids adding duplicate
-        entries to construction variables.  The old behavior may be
-        specified using a new "unique=0" keyword argument.
-
-    --  WINDOWS %TEMP% and %TMP% VARIABLES ARE PROPAGATED AUTOMATICALLY
-
-        The %TEMP% and %TMP% external environment variables are now
-        propagated automatically to the command execution environment on
-        Windows systems.
-
-    --  VISUAL STUDIO ATL AND MFC DIRECTORIES NOT ADDED BY DEFAULT
-
-        When compiling with Microsoft Visual Studio, SCons no longer
-        adds the ATL and MFC directories to the INCLUDE and LIB
-        environment variables by default.  If you want these directories
-        included in your environment variables, you should now set the
-        $MSVS_USE_MFC_DIRS *construction* variable when initializing
-        your environment:
-
-            env = Environment(MSVS_USE_MFC_DIRS = 1)
-
     --  BUILDERS RETURN A LIST-LIKE OBJECT, NOT A REGULAR LIST
 
         Builder calls now return an object that behaves like a list
@@ -274,20 +250,73 @@ RELEASE 0.97 - XXX
 
                 obj.append(env.Object('foo.c'))
 
+  Please note the following important changes since release 0.96.1:
+
+    --  DIRECTORY TREES ARE NO LONGER AUTOMATICALLY SCANNED FOR CHANGES
+
+        Custom builders and Command() calls that accept directories as
+        source arguments no longer scan entire on-disk directory trees by
+        default.  This means that their targets will not be automatically
+        rebuilt if a file changes on disk *unless* SCons already knows
+        about the file from a specific Builder or File() call.  Note that
+        the targets will still be rebuilt correctly if a file changes
+        that SCons already knows about due to a Builder or other call.
+
+        The existing behavior of scanning on-disk directory trees for
+        any changed file can be maintained by passing the new DirScanner
+        global directory scanner as the source_scanner keyword argument
+        to the Builder call:
+
+            bld = Builder("build < $SOURCE > $TARGET",
+                          source_scanner = DirScanner)
+
+        The same keyword argument can also be supplied to any Command()
+        calls that need to scan directory trees on-disk for changed files:
+
+            env.Command("archive.out", "directory",
+                        "archiver -o $TARGET $SOURCE",
+                        source_scanner = DirScanner)
+
+        This change was made because scanning directories by default
+        could cause huge slowdowns if a configurable directory like /usr
+        or /usr/local was passed as the source to a Builder or Command()
+        call, in which case SCons would scan the entire directory tree.
+
+    --  ParseConfig() METHOD ADDS LIBRARY FILE NAMES TO THE $LIBS VARIABLE
+
+        The ParseConfig() method now adds library file names returned
+        by the specified *-config command to the $LIBS construction
+        variable, instead of returning them (the same way it handles
+        the -l option).
+
+    --  ParseConfig() METHOD DOESN'T ADD DUPLICATES TO CONSTRUCTION VARIABLES
+
+        By default, the ParseConfig() method now avoids adding duplicate
+        entries to construction variables.  The old behavior may be
+        specified using a new "unique=0" keyword argument.
+
+    --  WINDOWS %TEMP% and %TMP% VARIABLES ARE PROPAGATED AUTOMATICALLY
+
+        The %TEMP% and %TMP% external environment variables are now
+        propagated automatically to the command execution environment on
+        Windows systems.
+
     --  OUTPUT OF Configure() SUBSYSTEM CHANGED SLIGHTLY
 
         The Configure() subsystem now reports tests results as "yes" and
         "no" instead of "ok" and "failed."  This might interfere with any
         scripts that automatically parse the Configure() output from SCons.
 
-    --  Configure.Checklib() ARGUMENTS HAVE CHANGED TO MATCH DOCUMENTATION
+    --  VISUAL STUDIO ATL AND MFC DIRECTORIES NOT ADDED BY DEFAULT
 
-        The order of the arguments to the Configure.CheckLib() function
-        has changed to put the "autoadd" keyword argument last, matching
-        the documentation in the man page.  This could cause problems
-        for any calls to Configure.Checklib() that were relying on the
-        order of the arguments.  Specifying all arguments as keyword
-        arguments will work on both older and newer versions of SCons.
+        When compiling with Microsoft Visual Studio, SCons no longer
+        adds the ATL and MFC directories to the INCLUDE and LIB
+        environment variables by default.  If you want these directories
+        included in your environment variables, you should now set the
+        $MSVS_USE_MFC_DIRS *construction* variable when initializing
+        your environment:
+
+            env = Environment(MSVS_USE_MFC_DIRS = 1)
 
     --  DEPRECATED GLOBAL FUNCTIONS HAVE BEEN REMOVED
 
@@ -299,31 +328,6 @@ RELEASE 0.97 - XXX
 
         The deprecated "validater" keyword to the Options.Add() method
         has been removed.
-
-    --  INTERNAL FUNCTIONS AND CLASSES HAVE MOVED FROM SCons.Util
-
-        All internal functions and classes related to string substitution
-        have been moved out of the SCons.Util module into their own
-        SCons.Subst module.  The following classes have been moved:
-
-                Literal
-                SpecialAttrWrapper
-                NLWrapper
-                Targets_or_Sources
-                Target_or_Source
-
-        And the following functions have moved:
-
-                quote_spaces()
-                escape_list()
-                subst_dict()
-                scons_subst()
-                scons_subst_list()
-                scons_subst_once()
-
-        If your SConscript files have been using any of these function
-        directly from the SCons.Util module (which they ultimately should
-        not be!), you will need to modify them.
 
   Please note the following important changes since release 0.95:
 
@@ -349,7 +353,7 @@ RELEASE 0.97 - XXX
         the Object() call:
 
               target = Object('foo.c')
-              # NEW AY
+              # NEW WAY
               print target[0]
 
         This change was introduced to make the data type returned by Builder

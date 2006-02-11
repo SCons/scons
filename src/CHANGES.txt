@@ -12,11 +12,6 @@ RELEASE 0.97 - XXX
 
   From Anonymous:
 
-  - Fix Java parsing to avoid erroneously identifying a new array
-    of class instances as an anonymous inner class.
-
-  - Fix a typo in the man page description of PathIsDirCreate.
-
   - Fix the intelc.py Tool module to not throw an exception if the
     only installed version is something other than ia32.
 
@@ -35,13 +30,205 @@ RELEASE 0.97 - XXX
   - Fix interpretation of Node.FS objects wrapped in Proxy instances,
     allowing expansion of things like ${File(TARGET)} in command lines.
 
+  From Stanislav Baranov:
+
+  - Add a separate MSVSSolution() Builder, with support for the
+    following new construction variables: $MSVSBUILDCOM, $MSVSCLEANCOM,
+    $MSVSENCODING, $MSVSREBUILDCOM, $MSVSSCONS, $MSVSSCONSCOM,
+    $MSVSSCONSFLAGS, $MSVSSCONSCRIPT and $MSVSSOLUTIONCOM.
+
+  From Ralph W. Grosse-Kunstleve and Patrick Mezard:
+
+  - Remove unneceesary (and incorrect) SCons.Util strings on some function
+    calls in SCons.Util.
+
+  From Bob Halley:
+
+  - Fix C/C++ compiler selection on AIX to not always use the external $CC
+    environment variable.
+
+  From August Hörandl:
+
+  - Add a scanner for \include and \import files, with support for
+    searching a directory list in $TEXINPUTS (imported from the external
+    environment).
+
+  - Support $MAKEINDEX, $MAKEINDEXCOM, $MAKEINDEXCOMSTR and
+    $MAKEINDEXFLAGS for generating indices from .idx files.
+
+  From Steven Knight:
+
+  - Check for whether files exist on disk by listing the directory
+    contents, not calling os.path.exists() file by file.  This is
+    somewhat more efficient in general, and may be significantly
+    more efficient on Windows.
+
+  - Minor speedups in the internal is_Dict(), is_List() and is_String()
+    functions.
+
+  - Fix a signature refactoring bug that caused Qt header files to
+    get re-generated every time.
+
+  - Don't fail when writing signatures if the .sconsign.dblite file is
+    owned by a different user (e.g. root) from a previous run.
+
+  - When deleting variables from stacked OverrideEnvironments, don't
+    throw a KeyError if we were able to delte the variable from any
+    Environment in the stack.
+
+  - Get rid of the last indentation tabs in the SCons source files and
+    add -tt to the Python invocations in the packaging build and the
+    tests so they don't creep back in.
+
+  - In Visual Studio project files, put quotes around the -C directory
+    so everything works even if the path has spaces in it.
+
+  - The Intel Fortran compiler uses -object:$TARGET, not "-o $TARGET",
+    when building object files on Windows.  Have the the ifort Tool
+    modify the default command lines appropriately.
+
+  - Document the --debug=explain option in the man page.  (How did we
+    miss this?)
+
+  - Add a $LATEXRETRIES variable to allow configuration of the number of
+    times LaTex can be re-called to try to resolve undefined references.
+
+  - Change the order of the arguments to Configure.Checklib() to match
+    the documentation.
+
+  - Handle signature calculation properly when the Python function used
+    for a FunctionAction is an object method.
+
+  - On Windows, assume that absolute path names without a drive letter
+    refer to the drive on which the SConstruct file lives.
+
+  - Add /usr/ccs/bin to the end of the the default external execution
+    PATH on Solaris.
+
+  - Add $PKGCHK and $PKGINFO variables for use on Solaris when searching
+    for the SunPRO C++ compiler.  Make the default value for $PKGCHK
+    be /usr/sbin/pgkchk (since /usr/sbin isn't usually on the external
+    execution $PATH).
+
+  - Fix a man page example of overriding variables when calling
+    SharedLibrary() to also set the $LIBSUFFIXES variable.
+
+  - Add a --taskmastertrace=FILE option to give some insight on how
+    the taskmaster decides what Node to build next.
+
+  - Changed the names of the old $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX construction variables to
+    new $WINDOWSDEFPREFIX, $WINDOWSDEFSUFFIX, $WINDOWSDLLPREFIX and
+    $WINDOWSIMPLIBPREFIX construction variables.  The old names are now
+    deprecated, but preserved for backwards compatibility.
+
+  From Chen Lee:
+
+  - Add x64 support for Microsoft Visual Studio 8.
+
+  From Christian Maaser:
+
+  - Add support for Visual Studio Express Editions.
+
+  - Add support for Visual Studio 8 *.manifest files, includng
+    new $WINDOWS_INSERT_MANIFEST, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSPROGMANIFESTPREFIX, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSSHLIBMANIFESTPREFIX and $WINDOWSSHLIBMANIFESTSUFFIX
+    construction variables.
+
+  From Sanjoy Mahajan:
+
+  - Correct TeX-related command lines to just $SOURCE, not $SOURCES
+
+  From Patrick Mezard:
+
+  - Execute build commands for a command-line target if any of the
+    files built along with the target is out of date or non-existent,
+    not just if the command-line target itself is out of date.
+
+  - Fix the -n option when used with -c to print all of the targets
+    that will be removed for a multi-target Builder call.
+
+  - If there's no file in the source directory, make sure there isn't
+    one in the build directory, too, to avoid dangling files left
+    over from previous runs when a source file is removed.
+
+  - Allow AppendUnique() and PrependUnique() to append strings (and
+    other atomic objects) to lists.
+
+  From Joel B. Mohler:
+
+  - Extend latex.py, pdflatex.py, pdftex.py and tex.py so that building
+    from both TeX and LaTeX files uses the same logic to call $BIBTEX
+    when it's necessary, to call $MAKEINDEX when it's necessary, and to
+    call $TEX or $LATEX multiple times to handle undefined references.
+
+  - Add an emitter to the various TeX builders so that the generated
+    .aux and .log files also get deleted by the -c option.
+
+  From Leanid Nazdrynau:
+
+  - Fix the Qt UIC scanner to work with generated .ui files (by using
+    the FindFile() function instead of checking by-hand for the file).
+
+  From Jan Nieuwenhuizen:
+
+  - Fix a problem with interpreting quoted argument lists on command lines.
+
+  From Greg Noel:
+
+  - Add /sw/bin to the default execution PATH on Mac OS X.
+
+  From Kian Win Ong:
+
+  - When building a .jar file and there is a $JARCHDIR, put the -C
+    in front of each .class file on the command line.
+
+  - Recognize the Java 1.5 enum keyword.
+
+  From Asfand Yar Qazi:
+
+  - Add /opt/bin to the default execution PATH on all POSIX platforms
+    (between /usr/local/bin and /bin).
+
+  From Jon Rafkind:
+
+  - Fix the use of Configure() contexts from nested subsidiary
+    SConscript files.
+
+  From Christoph Schulz:
+
+  - Add support for $CONFIGUREDIR and $CONFIGURELOG variables to control
+    the directory and logs for configuration tests.
+
+  - Add support for a $INSTALLSTR variable.
+
+  - Add support for $RANLIBCOM and $RANLIBCOMSTR variables (which fixes
+    a bug when setting $ARCOMSTR).
+
+  From Amir Szekely:
+
+  - Add use of $CPPDEFINES to $RCCOM (resource file compilation) on MinGW.
+
+  From Dobes Vandermeer:
+
+  - Add support for SCC and other settings in Microsoft Visual
+    Studio project and solution files:  $MSVS_PROJECT_BASE_PATH,
+    $MSVS_PROJECT_GUID, $MSVS_SCC_AUX_PATH, $MSVS_SCC_LOCAL_PATH,
+    $MSVS_SCC_PROJECT_NAME, $MSVS_SCC_PROVIDER,
+
+  - Add support for using a $SCONS_HOME variable (imported from the
+    external environment, or settable internally) to put a shortened
+    SCons execution line in the Visual Studio project file.
+
+
+
+
+RELEASE 0.96.91 - Thu, 08 Sep 2005 07:18:23 -0400
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
   From Chad Austin:
-
-  - Allow Help() to be called multiple times, appending to the help
-    text each call.
-
-  - Allow Tools found on a toolpath to import Python modules from
-    their local directory.
 
   - Have the environment store the toolpath and re-use it to find Tools
     modules during later Copy() or Tool() calls (unless overridden).
@@ -64,15 +251,198 @@ RELEASE 0.97 - XXX
 
   - Allow SConscript files to modify BUILD_TARGETS.
 
-  - Add a separate MSVSSolution() Builder, with support for the
-    following new construction variables: $MSVSBUILDCOM, $MSVSCLEANCOM,
-    $MSVSENCODING, $MSVSREBUILDCOM, $MSVSSCONS, $MSVSSCONSCOM,
-    $MSVSSCONSFLAGS, $MSVSSCONSCRIPT and $MSVSSOLUTIONCOM.
-
   From Timothee Besset:
 
   - Add support for Objective C/C++ .m and .mm file suffixes (for
     Mac OS X).
+
+  From Charles Crain
+
+  - Fix the PharLap linkloc.py module to use target+source arguments
+    when calling env.subst().
+
+  From Bjorn Eriksson:
+
+  - Fix an incorrect Command() keyword argument in the man page.
+
+  - Add a $TEMPFILEPREFIX variable to control the prefix or flag used
+    to pass a long-command-line-execution tempfile to a command.
+
+  From Steven Knight:
+
+  - Enhanced the SCons setup.py script to install man pages on
+    UNIX/Linux systems.
+
+  - Add support for an Options.FormatOptionHelpText() method that can
+    be overridden to customize the format of Options help text.
+
+  - Add a global name for the Entry class (which had already been
+    documented).
+
+  - Fix re-scanning of generated source files for implicit dependencies
+    when the -j option is used.
+
+  - Fix a dependency problem that caused $LIBS scans to not be added
+    to all of the targets in a multiple-target builder call, which
+    could cause out-of-order builds when the -j option is used.
+
+  - Store the paths of source files and dependencies in the .sconsign*
+    file(s) relative to the target's directory, not relative to the
+    top-level SConstruct directory.  This starts to make it possible to
+    subdivide the dependency tree arbitrarily by putting an SConstruct
+    file in every directory and using content signatures.
+
+  - Add support for $YACCHFILESUFFIX and $YACCHXXFILESUFFIX variables
+    that accomodate parser generators that write header files to a
+    different suffix than the hard-coded .hpp when the -d option is used.
+
+  - The default behavior is now to store signature information in a
+    single .sconsign.dblite file in the top-level SConstruct directory.
+    The old behavior of a separate .sconsign file in each directory can
+    be specified by calling SConsignFile(None).
+
+  - Remove line number byte codes within the signature calculation
+    of Python function actions, so that changing the location of an
+    otherwise unmodified Python function doesn't cause rebuilds.
+
+  - Fix AddPreAction() and AddPostAction() when an action has more than
+    one target file:  attach the actions to the Executor, not the Node.
+
+  - Allow the source directory of a BuildDir / build_dir to be outside
+    of the top-level SConstruct directory tree.
+
+  - Add a --debug=nomemoizer option that disables the Memoizer for clearer
+    looks at the counts and profiles of the underlying function calls,
+    not the Memoizer wrappers.
+
+  - Print various --debug= stats even if we exit early (e.g. using -h).
+
+  - Really only use the cached content signature value if the file
+    is older than --max-drift, not just if --max-drift is set.
+
+  - Remove support for conversion from old (pre 0.96) .sconsign formats.
+
+  - Add support for a --diskcheck option to enable or disable various
+    on-disk checks:  that File and Dir nodes match on-disk entries;
+    whether an RCS file exists for a missing source file; whether an
+    SCCS file exists for a missing source file.
+
+  - Add a --raw argument to the sconsign script, so it can print a
+    raw representation of each entry's NodeInfo dictionary.
+
+  - Add the 'f90' and 'f95' tools to the list of Fortran compilers
+    searched for by default.
+
+  - Add the +Z option by default when compiling shared objects on
+    HP-UX.
+
+  From Chen Lee:
+
+  - Handle Visual Studio project and solution files in Unicode.
+
+  From Sanjoy Mahajan:
+
+  - Fix a bad use of Copy() in an example in the man page, and a
+    bad regular expression example in the man page and User's Guide.
+
+  From Shannon Mann:
+
+  - Have the Visual Studio project file(s) echo "Starting SCons" before
+    executing SCons, mainly to work around a quote-stripping bug in
+    (some versions of?) the Windows cmd command executor.
+
+  From Georg Mischler:
+
+  - Remove the space after the -o option when invoking the Borland
+    BCC compiler; some versions apparently require that the file name
+    argument be concatenated with the option.
+
+  From Leanid Nazdrynau:
+
+  - Fix the Java parser's handling of backslashes in strings.
+
+  From Greg Noel:
+
+  - Add construction variables to support frameworks on Mac OS X:
+    $FRAMEWORKS, $FRAMEWORKPREFIX, $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX.
+
+  - Re-order link lines so the -o option always comes right after the
+    command name.
+
+  From Gary Oberbrunner:
+
+  - Add support for Intel C++ beta 9.0 (both 32 and 64 bit versions).
+
+  - Document the new $FRAMEWORK* variables for Mac OS X.
+
+  From Karol Pietrzak:
+
+  - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
+
+  - Add a description of env.subst() to the man page.
+
+  From Chris Prince:
+
+  - Look in the right directory, not always the local directory, for a
+    same-named file or directory conflict on disk.
+
+  - On Windows, preserve the external environment's %SYSTEMDRIVE%
+    variable, too.
+
+  From Craig Scott:
+
+  - Have the Fortran module emitter look for Fortan modules to be created
+    relative to $FORTRANMODDIR, not the top-level directory.
+
+  - When saving Options to a file, run default values through the
+    converter before comparing them with the set values.  This correctly
+    suppresses Boolean Option values from getting written to the saved
+    file when they're one of the many synonyms for a default True or
+    False value.
+
+  - Fix the Fortran Scanner's ability to handle a module being used
+    in the same file in which it is defined.
+
+  From Steve-o:
+
+  - Add the -KPIC option by default when compiling shared objects on
+    Solaris.
+
+  - Change the default suffix for Solaris objects to .o, to conform to
+    Sun WorkShop's expectations.  Change the profix to so_ so they can
+    still be differentiated from static objects in the same directory.
+
+  From Amir Szekely:
+
+  - When calling the resource compiler on MinGW, add --include-dir and
+    the source directory so it finds the source file.
+
+  - Update EnsureSConsVersion() to support revision numbers.
+
+  From Greg Ward:
+
+  - Fix a misplaced line in the man page.
+
+
+
+RELEASE 0.96.90 - Tue, 15 Feb 2005 21:21:12 +0000
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Fix Java parsing to avoid erroneously identifying a new array
+    of class instances as an anonymous inner class.
+
+  - Fix a typo in the man page description of PathIsDirCreate.
+
+  From Chad Austin:
+
+  - Allow Help() to be called multiple times, appending to the help
+    text each call.
+
+  - Allow Tools found on a toolpath to import Python modules from
+    their local directory.
 
   From Steve Christensen:
 
@@ -81,21 +451,9 @@ RELEASE 0.97 - XXX
   - Add a set of canned PathOption validators:  PathExists (the default),
     PathIsFile, PathIsDir and PathIsDirCreate.
 
-  Charles Crain
-
-  - Fix the PharLap linkloc.py module to use target+source arguments
-    when calling env.subst().
-
   From Matthew Doar:
 
   - Add support for .lex and .yacc file suffixes for Lex and Yacc files.
-
-  From Bjorn Eriksson:
-
-  - Fix an incorrect Command() keyword argument in the man page.
-
-  - Add a $TEMPFILEPREFIX variable to control the prefix or flag used
-    to pass a long-command-line-execution tempfile to a command.
 
   From Eric Frias:
 
@@ -108,25 +466,6 @@ RELEASE 0.97 - XXX
   - Fix SCons on SuSE/AMD-64 Linux by having the wrapper script also
     check for the build engine in the parent directory of the Python
     library directory (/usr/lib64 instead of /usr/lib).
-
-  From Ralph W. Grosse-Kunstleve and Patrick Mezard:
-
-  - Remove unneceesary (and incorrect) SCons.Util strings on some function
-    calls in SCons.Util.
-
-  From Bob Halley:
-
-  - Fix C/C++ compiler selection on AIX to not always use the external $CC
-    environment variable.
-
-  From August Hörandl:
-
-  - Add a scanner for \include and \import files, with support for
-    searching a directory list in $TEXINPUTS (imported from the external
-    environment).
-
-  - Support $MAKEINDEX, $MAKEINDEXCOM, $MAKEINDEXCOMSTR and
-    $MAKEINDEXFLAGS for generating indices from .idx files.
 
   From Stephen Kennedy:
 
@@ -297,142 +636,6 @@ RELEASE 0.97 - XXX
     is old enough at this point that it probably isn't worth the
     effort to make it do so.
 
-  - Enhanced the SCons setup.py script to install man pages on
-    UNIX/Linux systems.
-
-  - Add support for an Options.FormatOptionHelpText() method that can
-    be overridden to customize the format of Options help text.
-
-  - Add a global name for the Entry class (which had already been
-    documented).
-
-  - Fix re-scanning of generated source files for implicit dependencies
-    when the -j option is used.
-
-  - Fix a dependency problem that caused $LIBS scans to not be added
-    to all of the targets in a multiple-target builder call, which
-    could cause out-of-order builds when the -j option is used.
-
-  - Store the paths of source files and dependencies in the .sconsign*
-    file(s) relative to the target's directory, not relative to the
-    top-level SConstruct directory.  This starts to make it possible to
-    subdivide the dependency tree arbitrarily by putting an SConstruct
-    file in every directory and using content signatures.
-
-  - Add support for $YACCHFILESUFFIX and $YACCHXXFILESUFFIX variables
-    that accomodate parser generators that write header files to a
-    different suffix than the hard-coded .hpp when the -d option is used.
-
-  - The default behavior is now to store signature information in a
-    single .sconsign.dblite file in the top-level SConstruct directory.
-    The old behavior of a separate .sconsign file in each directory can
-    be specified by calling SConsignFile(None).
-
-  - Remove line number byte codes within the signature calculation
-    of Python function actions, so that changing the location of an
-    otherwise unmodified Python function doesn't cause rebuilds.
-
-  - Fix AddPreAction() and AddPostAction() when an action has more than
-    one target file:  attach the actions to the Executor, not the Node.
-
-  - Allow the source directory of a BuildDir / build_dir to be outside
-    of the top-level SConstruct directory tree.
-
-  - Add a --debug=nomemoizer option that disables the Memoizer for clearer
-    looks at the counts and profiles of the underlying function calls,
-    not the Memoizer wrappers.
-
-  - Print various --debug= stats even if we exit early (e.g. using -h).
-
-  - Really only use the cached content signature value if the file
-    is older than --max-drift, not just if --max-drift is set.
-
-  - Remove support for conversion from old (pre 0.96) .sconsign formats.
-
-  - Add support for a --diskcheck option to enable or disable various
-    on-disk checks:  that File and Dir nodes match on-disk entries;
-    whether an RCS file exists for a missing source file; whether an
-    SCCS file exists for a missing source file.
-
-  - Add a --raw argument to the sconsign script, so it can print a
-    raw representation of each entry's NodeInfo dictionary.
-
-  - Add the 'f90' and 'f95' tools to the list of Fortran compilers
-    searched for by default.
-
-  - Add the +Z option by default when compiling shared objects on
-    HP-UX.
-
-  - Check for whether files exist on disk by listing the directory
-    contents, not calling os.path.exists() file by file.  This is
-    somewhat more efficient in general, and may be significantly
-    more efficient on Windows.
-
-  - Minor speedups in the internal is_Dict(), is_List() and is_String()
-    functions.
-
-  - Fix a signature refactoring bug that caused Qt header files to
-    get re-generated every time.
-
-  - Don't fail when writing signatures if the .sconsign.dblite file is
-    owned by a different user (e.g. root) from a previous run.
-
-  - When deleting variables from stacked OverrideEnvironments, don't
-    throw a KeyError if we were able to delte the variable from any
-    Environment in the stack.
-
-  - Get rid of the last indentation tabs in the SCons source files and
-    add -tt to the Python invocations in the packaging build and the
-    tests so they don't creep back in.
-
-  - In Visual Studio project files, put quotes around the -C directory
-    so everything works even if the path has spaces in it.
-
-  - The Intel Fortran compiler uses -object:$TARGET, not "-o $TARGET",
-    when building object files on Windows.  Have the the ifort Tool
-    modify the default command lines appropriately.
-
-  - Document the --debug=explain option in the man page.  (How did we
-    miss this?)
-
-  - Add a $LATEXRETRIES variable to allow configuration of the number of
-    times LaTex can be re-called to try to resolve undefined references.
-
-  - Change the order of the arguments to Configure.Checklib() to match
-    the documentation.
-
-  - Handle signature calculation properly when the Python function used
-    for a FunctionAction is an object method.
-
-  - On Windows, assume that absolute path names without a drive letter
-    refer to the drive on which the SConstruct file lives.
-
-  - Add /usr/ccs/bin to the end of the the default external execution
-    PATH on Solaris.
-
-  - Add $PKGCHK and $PKGINFO variables for use on Solaris when searching
-    for the SunPRO C++ compiler.  Make the default value for $PKGCHK
-    be /usr/sbin/pgkchk (since /usr/sbin isn't usually on the external
-    execution $PATH).
-
-  - Fix a man page example of overriding variables when calling
-    SharedLibrary() to also set the $LIBSUFFIXES variable.
-
-  - Add a --taskmastertrace=FILE option to give some insight on how
-    the taskmaster decides what Node to build next.
-
-  - Changed the names of the old $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
-    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX construction variables to
-    new $WINDOWSDEFPREFIX, $WINDOWSDEFSUFFIX, $WINDOWSDLLPREFIX and
-    $WINDOWSIMPLIBPREFIX construction variables.  The old names are now
-    deprecated, but preserved for backwards compatibility.
-
-  From Chen Lee:
-
-  - Handle Visual Studio project and solution files in Unicode.
-
-  - Add x64 support for Microsoft Visual Studio 8.
-
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
@@ -442,29 +645,6 @@ RELEASE 0.97 - XXX
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
     $CCFLAGS, and -mwindows to $LINKFLAGS.
-
-  From Christian Maaser:
-
-  - Add support for Visual Studio Express Editions.
-
-  - Add support for Visual Studio 8 *.manifest files, includng
-    new $WINDOWS_INSERT_MANIFEST, $WINDOWSPROGMANIFESTSUFFIX,
-    $WINDOWSPROGMANIFESTPREFIX, $WINDOWSPROGMANIFESTSUFFIX,
-    $WINDOWSSHLIBMANIFESTPREFIX and $WINDOWSSHLIBMANIFESTSUFFIX
-    construction variables.
-
-  From Sanjoy Mahajan:
-
-  - Correct TeX-related command lines to just $SOURCE, not $SOURCES
-
-  - Fix a bad use of Copy() in an example in the man page, and a
-    bad regular expression example in the man page and User's Guide.
-
-  From Shannon Mann:
-
-  - Have the Visual Studio project file(s) echo "Starting SCons" before
-    executing SCons, mainly to work around a quote-stripping bug in
-    (some versions of?) the Windows cmd command executor.
 
   From Michael McCracken:
 
@@ -479,51 +659,12 @@ RELEASE 0.97 - XXX
 
   - Improve SWIG tests for use on Mac OS X (Darwin).
 
-  From Patrick Mezard:
-
-  - Execute build commands for a command-line target if any of the
-    files built along with the target is out of date or non-existent,
-    not just if the command-line target itself is out of date.
-
-  - Fix the -n option when used with -c to print all of the targets
-    that will be removed for a multi-target Builder call.
-
-  - If there's no file in the source directory, make sure there isn't
-    one in the build directory, too, to avoid dangling files left
-    over from previous runs when a source file is removed.
-
-  - Allow AppendUnique() and PrependUnique() to append strings (and
-    other atomic objects) to lists.
-
-  From Georg Mischler:
-
-  - Remove the space after the -o option when invoking the Borland
-    BCC compiler; some versions apparently require that the file name
-    argument be concatenated with the option.
-
-  From Joel B. Mohler:
-
-  - Extend latex.py, pdflatex.py, pdftex.py and tex.py so that building
-    from both TeX and LaTeX files uses the same logic to call $BIBTEX
-    when it's necessary, to call $MAKEINDEX when it's necessary, and to
-    call $TEX or $LATEX multiple times to handle undefined references.
-
-  - Add an emitter to the various TeX builders so that the generated
-    .aux and .log files also get deleted by the -c option.
-
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption
     values in saved options files.
 
   - Supply the help text when -h is used with the -u, -U or -D options.
-
-  From Leanid Nazdrynau:
-
-  - Fix the Java parser's handling of backslashes in strings.
-
-  - Fix the Qt UIC scanner to work with generated .ui files (by using
-    the FindFile() function instead of checking by-hand for the file).
 
   From Christian Neeb:
 
@@ -536,20 +677,6 @@ RELEASE 0.97 - XXX
     possible); not using "eval" for variables for which we can fetch the
     value directory; avoiding slowing substitution logic when there's no
     '$' in the string.
-
-  From Jan Nieuwenhuizen:
-
-  - Fix a problem with interpreting quoted argument lists on command lines.
-
-  From Greg Noel:
-
-  - Add construction variables to support frameworks on Mac OS X:
-    $FRAMEWORKS, $FRAMEWORKPREFIX, $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX.
-
-  - Re-order link lines so the -o option always comes right after the
-    command name.
-
-  - Add /sw/bin to the default execution PATH on Mac OS X.
 
   From Gary Oberbrunner:
 
@@ -599,40 +726,10 @@ RELEASE 0.97 - XXX
   - Documentation changes:  Update the man page to describe use of
     filenames or Nodes in $LIBS.
 
-  - Add support for Intel C++ beta 9.0 (both 32 and 64 bit versions).
-
-  - Document the new $FRAMEWORK* variables for Mac OS X.
-
-  From Kian Win Ong:
-
-  - When building a .jar file and there is a $JARCHDIR, put the -C
-    in front of each .class file on the command line.
-
-  - Recognize the Java 1.5 enum keyword.
-
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
     Visual Studio version to use.
-
-  From Karol Pietrzak:
-
-  - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
-
-  - Add a description of env.subst() to the man page.
-
-  From Chris Prince:
-
-  - Look in the right directory, not always the local directory, for a
-    same-named file or directory conflict on disk.
-
-  - On Windows, preserve the external environment's %SYSTEMDRIVE%
-    variable, too.
-
-  From Asfand Yar Qazi:
-
-  - Add /opt/bin to the default execution PATH on all POSIX platforms
-    (between /usr/local/bin and /bin).
 
   From Kevin Quick:
 
@@ -754,35 +851,6 @@ RELEASE 0.97 - XXX
   - Add a PathAccept validator to the list of new canned PathOption
     validators.
 
-  From Jon Rafkind:
-
-  - Fix the use of Configure() contexts from nested subsidiary
-    SConscript files.
-
-  From Christoph Schulz:
-
-  - Add support for $CONFIGUREDIR and $CONFIGURELOG variables to control
-    the directory and logs for configuration tests.
-
-  - Add support for a $INSTALLSTR variable.
-
-  - Add support for $RANLIBCOM and $RANLIBCOMSTR variables (which fixes
-    a bug when setting $ARCOMSTR).
-
-  From Craig Scott:
-
-  - Have the Fortran module emitter look for Fortan modules to be created
-    relative to $FORTRANMODDIR, not the top-level directory.
-
-  - When saving Options to a file, run default values through the
-    converter before comparing them with the set values.  This correctly
-    suppresses Boolean Option values from getting written to the saved
-    file when they're one of the many synonyms for a default True or
-    False value.
-
-  - Fix the Fortran Scanner's ability to handle a module being used
-    in the same file in which it is defined.
-
   From Jeff Squyres:
 
   - Documentation changes:  Use $CPPDEFINES instead of $CCFLAGS in man
@@ -791,39 +859,6 @@ RELEASE 0.97 - XXX
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.
-
-  From Steve-o:
-
-  - Add the -KPIC option by default when compiling shared objects on
-    Solaris.
-
-  - Change the default suffix for Solaris objects to .o, to conform to
-    Sun WorkShop's expectations.  Change the profix to so_ so they can
-    still be differentiated from static objects in the same directory.
-
-  From Amir Szekely:
-
-  - When calling the resource compiler on MinGW, add --include-dir and
-    the source directory so it finds the source file.
-
-  - Update EnsureSConsVersion() to support revision numbers.
-
-  - Add use of $CPPDEFINES to $RCCOM (resource file compilation) on MinGW.
-
-  From Dobes Vandermeer:
-
-  - Add support for SCC and other settings in Microsoft Visual
-    Studio project and solution files:  $MSVS_PROJECT_BASE_PATH,
-    $MSVS_PROJECT_GUID, $MSVS_SCC_AUX_PATH, $MSVS_SCC_LOCAL_PATH,
-    $MSVS_SCC_PROJECT_NAME, $MSVS_SCC_PROVIDER,
-
-  - Add support for using a $SCONS_HOME variable (imported from the
-    external environment, or settable internally) to put a shortened
-    SCons execution line in the Visual Studio project file.
-
-  From Greg Ward:
-
-  - Fix a misplaced line in the man page.
 
   From Christoph Wiedemann:
 
@@ -884,7 +919,7 @@ RELEASE 0.97 - XXX
 
 
 
-RELEASE 0.96.1 - XXX
+RELEASE 0.96.1 - Mon, 23 Aug 2004 12:55:50 +0000
 
   From Craig Bachelor:
 

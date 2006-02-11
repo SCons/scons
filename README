@@ -247,10 +247,16 @@ you can build everything by simply running it:
         $ scons
 
 If you don't have SCons version 0.96 or later already installed on your
-system, you can build this version of SCons with itself with a little
-more typing:
+system, you can build this version of SCons with itself with a little more
+typing.  On UNIX or Linux (using sh or a derivative like bash or ksh):
 
-        $ SCONS_LIB_DIR=`pwd`/src/engine python src/script/scons.py
+        $ export SCONS_LIB_DIR=`pwd`/src/engine
+        $ python src/script/scons.py
+
+On Windows:
+        
+        C:\scons\>set SCONS_LIB_DIR=%cd%\src\engine
+        C:\scons\>python src/script/scons.py
 
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
