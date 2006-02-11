@@ -214,7 +214,7 @@ try:
             if os.path.isfile(dest) or os.path.islink(dest):
                 os.unlink(dest)
             if not os.path.isdir(dest):
-                open(dest, 'w').write(zf.read(name))
+                open(dest, 'wb').write(zf.read(name))
 
 except:
     if unzip and zip:
