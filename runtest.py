@@ -58,6 +58,8 @@
 #                       command line it will execute before
 #                       executing it.  This suppresses that print.
 #
+#       -t              Print the execution time of each test.
+#
 #       -X              The scons "script" is an executable; don't
 #                       feed it to Python.
 #
@@ -84,6 +86,7 @@ import re
 import stat
 import string
 import sys
+import time
 
 all = 0
 debug = ''
@@ -97,6 +100,7 @@ scons_exec = None
 outputfile = None
 testlistfile = None
 version = ''
+print_time = lambda fmt, time: None
 
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
@@ -134,17 +138,18 @@ Options:
                                 zip           .zip distribution
   --passed                    Summarize which tests passed.
   -q, --quiet                 Don't print the test being executed.
+  -t, --time                  Print test execution time.
   -v version                  Specify the SCons version.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
   --xml                       Print results in SCons XML format.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "adf:ho:P:p:qv:Xx:",
+opts, args = getopt.getopt(sys.argv[1:], "adf:ho:P:p:qv:Xx:t",
                             ['all', 'aegis',
                              'debug', 'file=', 'help', 'output=',
                              'package=', 'passed', 'python=', 'quiet',
-                             'version=', 'exec=',
+                             'version=', 'exec=', 'time',
                              'xml'])
 
 for o, a in opts:
@@ -171,6 +176,8 @@ for o, a in opts:
         python = a
     elif o == '-q' or o == '--quiet':
         printcommand = 0
+    elif o == '-t' or o == '--time':
+        print_time = lambda fmt, time: sys.stdout.write(fmt % time)
     elif o == '-v' or o == '--version':
         version = a
     elif o == '-X':
@@ -291,8 +298,10 @@ class XML(PopenExecutor):
         f.write('      <exit_status>%s</exit_status>\n' % self.status)
         f.write('      <stdout>%s</stdout>\n' % self.stdout)
         f.write('      <stderr>%s</stderr>\n' % self.stderr)
+        f.write('      <time>%.1f</time>\n' % self.test_time)
         f.write('    </test>\n')
     def footer(self, f):
+        f.write('  <time>%.1f</time>\n' % self.total_time)
         f.write('  </results>\n')
 
 format_class = {
@@ -494,6 +503,15 @@ class Unbuffered:
 
 sys.stdout = Unbuffered(sys.stdout)
 
+# time.clock() is the suggested interface for doing benchmarking timings,
+# but time.time() does a better job on Linux systems, so let that be
+# the non-Windows default.
+if sys.platform == 'win32':
+    time_func = time.clock
+else:
+    time_func = time.time
+
+total_start_time = time_func()
 for t in tests:
     t.command_args = [python, '-tt']
     if debug:
@@ -502,7 +520,13 @@ for t in tests:
     t.command_str = string.join(map(escape, t.command_args), " ")
     if printcommand:
         sys.stdout.write(t.command_str + "\n")
+    test_start_time = time_func()
     t.execute()
+    t.test_time = time_func() - test_start_time
+    print_time("Test execution time: %.1f seconds\n",  t.test_time)
+if len(tests) > 0:
+    tests[0].total_time = time_func() - total_start_time
+    print_time("Total execution time for all tests: %.1f seconds\n",  tests[0].total_time)
 
 passed = filter(lambda t: t.status == 0, tests)
 fail = filter(lambda t: t.status == 1, tests)
