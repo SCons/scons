@@ -39,8 +39,12 @@ test = TestSCons.TestSCons()
 try:
     import resource
 except ImportError:
-    x = "Python version has no 'resource' module; skipping tests.\n"
-    test.skip_test(x)
+    try:
+        import win32process
+        import win32api
+    except ImportError:
+        x = "Python version has no 'resource' or 'win32api/win32process' module; skipping tests.\n"
+        test.skip_test(x)
 
 
 
