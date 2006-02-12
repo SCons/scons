@@ -137,6 +137,11 @@ RELEASE 0.97 - XXX
   - Support the --debug=memory option on Windows when the Python version
     has the win32process and win32api modules.
 
+  - Add support for Visual Studio 2005 Pro.
+
+  - Fix Windows portability issues in various Visual Studio and
+    Java tests.
+
   From Christian Maaser:
 
   - Add support for Visual Studio Express Editions.

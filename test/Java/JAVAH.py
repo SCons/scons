@@ -123,8 +123,8 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'javah'],
-                  JAVAC = '%(where_javac)s',
-                  JAVAH = '%(where_javah)s')
+                  JAVAC = r'%(where_javac)s',
+                  JAVAH = r'%(where_javah)s')
 javah = foo.Dictionary('JAVAH')
 bar = foo.Copy(JAVAH = r'%(python)s wrapper.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')

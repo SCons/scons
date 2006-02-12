@@ -505,6 +505,20 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         result = string.replace(result, r'<PROJECT_GUID>', project_guid)
         return result
 
+    def get_msvs_executable(self, version):
+        """Returns a full path to the executable (MSDEV or devenv)
+        for the specified version of Visual Studio.
+        """
+        sub_path = {
+            '6.0' : ['Common', 'MSDev98', 'Bin', 'MSDEV.COM'],
+            '7.0' : ['Common7', 'IDE', 'devenv.com'],
+            '7.1' : ['Common7', 'IDE', 'devenv.com'],
+            '8.0' : ['Common7', 'IDE', 'devenv.com'],
+        }
+        from SCons.Tool.msvs import get_msvs_install_dirs
+        vs_path = get_msvs_install_dirs(version)['VSINSTALLDIR']
+        return apply(os.path.join, [vs_path] + sub_path[version])
+
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One
 # way to fix this is to tell AR to be quiet (sometimes the 'c' flag),

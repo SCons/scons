@@ -85,8 +85,12 @@ test.run(chdir='sub dir', arguments='.')
 
 test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcproj'))
 
+import SCons.Platform.win32
+system_dll_path = os.path.join( SCons.Platform.win32.get_system_root(), 'System32' )
+os.environ['PATH'] = os.environ['PATH'] + os.pathsep + system_dll_path
+
 test.run(chdir='sub dir',
-         program=['devenv'],
+         program=[test.get_msvs_executable('8.0')],
          arguments=['foo.sln', '/build', 'Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")

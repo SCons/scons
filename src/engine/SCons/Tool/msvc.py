@@ -319,9 +319,10 @@ def _get_msvc8_path(path, version, platform, suite):
 
 def get_msvc_path(env, path, version):
     """
-    Get a list of visualstudio directories (include, lib or path).  Return
-    a string delimited by ';'. An exception will be raised if unable to
-    access the registry or appropriate registry keys not found.
+    Get a list of visualstudio directories (include, lib or path).
+    Return a string delimited by the os.pathsep separator (';'). An
+    exception will be raised if unable to access the registry or
+    appropriate registry keys not found.
     """
 
     if not SCons.Util.can_read_reg:
@@ -467,9 +468,9 @@ def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
 
     MVSdir = None
     paths = {}
-    exe_path = ''
-    lib_path = ''
-    include_path = ''
+    exe_paths = []
+    lib_paths = []
+    include_paths = []
     try:
         paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
         MVSdir = paths['VSINSTALLDIR']
@@ -486,31 +487,44 @@ def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
         else:
             MVSVCdir = os.path.join(MVSdir,'VC')
 
-        MVSCommondir = r'%s\Common7' % MVSdir
-        include_path = r'%s\include' % (MVSVCdir)
-        lib_path = r'%s\lib' % (MVSVCdir)
-        exe_path = r'%s\IDE;%s\bin;%s\Tools;%s\Tools\bin' % (MVSCommondir,MVSVCdir, MVSCommondir, MVSCommondir)
+        MVSCommondir = os.path.join(MVSdir, 'Common7')
+        include_paths.append( os.path.join(MVSVCdir, 'include') )
+        lib_paths.append( os.path.join(MVSVCdir, 'lib') )
+        for base, subdir in [(MVSCommondir,'IDE'), (MVSVCdir,'bin'),
+                             (MVSCommondir,'Tools'), (MVSCommondir,r'Tools\bin')]:
+            exe_paths.append( os.path.join( base, subdir) )
 
         if paths.has_key('PLATFORMSDKDIR'):
             PlatformSdkDir = paths['PLATFORMSDKDIR']
-            include_path = include_path + r';%sInclude' % PlatformSdkDir
-            lib_path = lib_path + r';%s\lib' % PlatformSdkDir
-            if use_mfc_dirs:
-                include_path = include_path + r';%sInclude\mfc;%sInclude\atl' % (PlatformSdkDir, PlatformSdkDir)
-            lib_path = lib_path + r';%s\lib' % paths['PLATFORMSDKDIR']
+        else:
+            PlatformSdkDir = os.path.join(MVSVCdir,'PlatformSDK')
+        platform_include_path = os.path.join( PlatformSdkDir, 'Include' )
+        include_paths.append( platform_include_path )
+        lib_paths.append( os.path.join( PlatformSdkDir, 'Lib' ) )
+        if use_mfc_dirs:
+            if paths.has_key('PLATFORMSDKDIR'):
+                include_paths.append( os.path.join( platform_include_path, 'mfc' ) )
+                include_paths.append( os.path.join( platform_include_path, 'atl' ) )
+            else:
+                atlmfc_path = os.path.join( MVSVCdir, 'atlmfc' )
+                include_paths.append( os.path.join( atlmfc_path, 'include' ) )
+                lib_paths.append( os.path.join( atlmfc_path, 'lib' ) )
 
-        envvar = 'include'
-        SCons.Util.get_environment_var(envvar)
-        include_path = include_path + envvar
+        env_include_path = SCons.Util.get_environment_var('INCLUDE')
+        if env_include_path:
+            include_paths.append( env_include_path )
 
         if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKSDKDIR'):
-            include_path = include_path + r';%s\include'%paths['FRAMEWORKSDKDIR']
-            lib_path = lib_path + r';%s\lib'%paths['FRAMEWORKSDKDIR']
-            exe_path = exe_path + r';%s\bin'%paths['FRAMEWORKSDKDIR']
+            include_paths.append( os.path.join( paths['FRAMEWORKSDKDIR'], 'include' ) )
+            lib_paths.append( os.path.join( paths['FRAMEWORKSDKDIR'], 'lib' ) )
+            exe_paths.append( paths['FRAMEWORKSDKDIR'], 'bin' )
 
         if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKDIR') and paths.has_key('FRAMEWORKVERSION'):
-            exe_path = exe_path + r';%s\%s'%(paths['FRAMEWORKDIR'],paths['FRAMEWORKVERSION'])
+            exe_paths.append( os.path.join( paths['FRAMEWORKDIR'], paths['FRAMEWORKVERSION'] ) )
 
+    include_path = string.join( include_paths, os.pathsep )
+    lib_path = string.join(lib_paths, os.pathsep )
+    exe_path = string.join(exe_paths, os.pathsep )
     return (include_path, lib_path, exe_path)
 
 def get_msvc_paths(env, version=None, use_mfc_dirs=0):
@@ -721,6 +735,11 @@ def generate(env):
     env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
     env['PCHCOM'] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder
+
+    if not env.has_key('ENV'):
+        env['ENV'] = {}
+    if not env['ENV'].has_key('SystemRoot'):    # required for dlls in the winsxs folders
+        env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
 def exists(env):
     if SCons.Tool.msvs.is_msvs_installed():

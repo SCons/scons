@@ -24,7 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
+import os
+import string
 
 import TestSCons
 
@@ -43,7 +44,7 @@ test.subdir('src')
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac'],
-                  JAVAC = '%(where_javac)s',
+                  JAVAC = r'%(where_javac)s',
                   JAVACFLAGS = '-O')
 env.Java(target = 'classes', source = 'src')
 """ % locals())
@@ -62,8 +63,10 @@ public class Example1
 }
 """)
 
+expected_wrapper_out = "%(where_javac)s -O -d classes -sourcepath src src/Example1.java\n"
+expected_wrapper_out = string.replace(expected_wrapper_out, '/', os.sep)
 test.run(arguments = '.',
-         stdout = test.wrap_stdout("%(where_javac)s -O -d classes -sourcepath src src/Example1.java\n" % locals()))
+         stdout = test.wrap_stdout(expected_wrapper_out % locals()))
 
 test.must_exist(['classes', 'src', 'Example1.class'])
 

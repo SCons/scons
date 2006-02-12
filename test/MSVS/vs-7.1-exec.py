@@ -86,7 +86,7 @@ test.run(chdir='sub dir', arguments='.')
 test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcproj'))
 
 test.run(chdir='sub dir',
-         program=['devenv'],
+         program=[test.get_msvs_executable('7.1')],
          arguments=['foo.sln', '/build', 'Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
