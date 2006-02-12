@@ -25,6 +25,12 @@ RELEASE 0.97 - XXX
   - Support generating more than one project file for a Microsoft
     Visual Studio solution file.
 
+  - Add support for a support "runfile" parameter to Microsoft
+    Visual Studio project file creation.
+
+  - Put the project GUID, not the solution GUID, in the right spot
+    in the solution file.
+
   From Erling Andersen:
 
   - Fix interpretation of Node.FS objects wrapped in Proxy instances,
@@ -226,6 +232,15 @@ RELEASE 0.97 - XXX
     external environment, or settable internally) to put a shortened
     SCons execution line in the Visual Studio project file.
 
+  From David J. Van Maren:
+
+  - Only filter common prefixes from source files names in Visual Studio
+    project files if the prefix is a complete (sub)directory name.
+
+  From Thad Ward:
+
+  - If $MSVSVERSIONS is already set, don't overwrite it with
+    information from the registry.
 
 
 

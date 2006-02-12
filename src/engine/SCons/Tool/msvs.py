@@ -72,6 +72,8 @@ def xmlify(s):
     s = string.replace(s, '"', "&quot;")
     return s
 
+external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
+
 def _generateGUID(slnfile, name):
     """This generates a dummy GUID for the sln file to use.  It is
     based on the MD5 signatures of the sln filename plus the name of
@@ -228,6 +230,28 @@ class _DSPGenerator:
             for v in variants:
                 outdir.append(s)
 
+        if not env.has_key('runfile') or env['runfile'] == None:
+            runfile = buildtarget[-1:]
+        elif SCons.Util.is_String(env['runfile']):
+            runfile = [env['runfile']]
+        elif SCons.Util.is_List(env['runfile']):
+            if len(env['runfile']) != len(variants):
+                raise SCons.Errors.InternalError, \
+                    "Sizes of 'runfile' and 'variant' lists must be the same."
+            runfile = []
+            for s in env['runfile']:
+                if SCons.Util.is_String(s):
+                    runfile.append(s)
+                else:
+                    runfile.append(s.get_abspath())
+        else:
+            runfile = [env['runfile'].get_abspath()]
+        if len(runfile) == 1:
+            s = runfile[0]
+            runfile = []
+            for v in variants:
+                runfile.append(s)
+
         self.sconscript = env['MSVSSCONSCRIPT']
 
         cmdargs = env.get('cmdargs', '')
@@ -238,6 +262,7 @@ class _DSPGenerator:
             self.name = self.env['name']
         else:
             self.name = os.path.basename(SCons.Util.splitext(self.dspfile)[0])
+        self.name = self.env.subst(self.name)
 
         sourcenames = [
             'Source Files',
@@ -272,11 +297,12 @@ class _DSPGenerator:
         for n in sourcenames:
             self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
 
-        def AddConfig(variant, buildtarget, outdir, cmdargs):
+        def AddConfig(variant, buildtarget, outdir, runfile, cmdargs):
             config = Config()
             config.buildtarget = buildtarget
             config.outdir = outdir
             config.cmdargs = cmdargs
+            config.runfile = runfile
 
             match = re.match('(.*)\|(.*)', variant)
             if match:
@@ -290,7 +316,7 @@ class _DSPGenerator:
             print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'"
 
         for i in range(len(variants)):
-            AddConfig(variants[i], buildtarget[i], outdir[i],cmdargs)
+            AddConfig(variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs)
 
         self.platforms = []
         for key in self.configs.keys():
@@ -521,7 +547,7 @@ V7DSPConfiguration = """\
 \t\t\t\tBuildCommandLine="%(buildcmd)s"
 \t\t\t\tCleanCommandLine="%(cleancmd)s"
 \t\t\t\tRebuildCommandLine="%(rebuildcmd)s"
-\t\t\t\tOutput="%(buildtarget)s"/>
+\t\t\t\tOutput="%(runfile)s"/>
 \t\t</Configuration>
 """
 
@@ -548,7 +574,7 @@ V8DSPConfiguration = """\
 \t\t\t\tBuildCommandLine="%(buildcmd)s"
 \t\t\t\tReBuildCommandLine="%(rebuildcmd)s"
 \t\t\t\tCleanCommandLine="%(cleancmd)s"
-\t\t\t\tOutput="%(buildtarget)s"
+\t\t\t\tOutput="%(runfile)s"
 \t\t\t\tPreprocessorDefinitions=""
 \t\t\t\tIncludeSearchPath=""
 \t\t\t\tForcedIncludes=""
@@ -624,6 +650,7 @@ class _GenerateV7DSP(_DSPGenerator):
             platform = self.configs[kind].platform
             outdir = self.configs[kind].outdir
             buildtarget = self.configs[kind].buildtarget
+            runfile     = self.configs[kind].runfile
             cmdargs = self.configs[kind].cmdargs
 
             env_has_buildtarget = self.env.has_key('MSVSBUILDTARGET')
@@ -682,7 +709,7 @@ class _GenerateV7DSP(_DSPGenerator):
                                 '\t\t\tFilter="%s">\n' % (kind, categories[kind]))
 
 
-            def printSources(hierarchy):
+            def printSources(hierarchy, commonprefix):
                 sorteditems = hierarchy.items()
                 sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
 
@@ -692,7 +719,7 @@ class _GenerateV7DSP(_DSPGenerator):
                         self.file.write('\t\t\t<Filter\n'
                                         '\t\t\t\tName="%s"\n'
                                         '\t\t\t\tFilter="">\n' % (key))
-                        printSources(value)
+                        printSources(value, commonprefix)
                         self.file.write('\t\t\t</Filter>\n')
 
                 for key, value in sorteditems:
@@ -710,13 +737,14 @@ class _GenerateV7DSP(_DSPGenerator):
             # First remove any common prefix
             commonprefix = None
             if len(sources) > 1:
-                commonprefix = os.path.commonprefix(sources)
-                prefixlen = len(commonprefix)
-                if prefixlen:
-                    sources = map(lambda s, p=prefixlen: s[p:], sources)
+                s = map(os.path.normpath, sources)
+                cp = os.path.commonprefix(s)
+                if cp and s[0][len(cp)] == os.path.sep:
+                    sources = map(lambda s, l=len(cp): s[l:], sources)
+                    commonprefix = cp
 
             hierarchy = makeHierarchy(sources)
-            printSources(hierarchy)
+            printSources(hierarchy, commonprefix=commonprefix)
 
             if len(cats)>1:
                 self.file.write('\t\t</Filter>\n')
@@ -810,6 +838,7 @@ class _DSWGenerator:
             self.name = self.env['name']
         else:
             self.name = os.path.basename(SCons.Util.splitext(self.dswfile)[0])
+        self.name = self.env.subst(self.name)
 
     def Build(self):
         pass
@@ -913,9 +942,9 @@ class _GenerateV7DSW(_DSWGenerator):
             base, suffix = SCons.Util.splitext(name)
             if suffix == '.vcproj':
                 name = base
-            # the next line has the GUID for an external makefile project.
-            self.file.write('Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "%s"\n'
-                            % ( name, p, self.slnguid ) )
+            guid = _generateGUID(p, '')
+            self.file.write('Project("%s") = "%s", "%s", "%s"\n'
+                            % ( external_makefile_guid, name, p, guid ) )
             if self.version_num >= 7.1 and self.version_num < 8.0:
                 self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
                                 '\tEndProjectSection\n')
@@ -1102,21 +1131,24 @@ def get_default_visualstudio_version(env):
 
     version = '6.0'
     versions = [version]
+
     if not env.has_key('MSVS') or not SCons.Util.is_Dict(env['MSVS']):
-        env['MSVS'] = {}
+        env['MSVS'] = {}    
 
-    if env.has_key('MSVS_VERSION'):
-        version = env['MSVS_VERSION']
-        versions = [version]
-    else:
         if SCons.Util.can_read_reg:
-            versions = get_visualstudio_versions()
-            if versions:
-                version = versions[0] #use highest version by default
+            v = get_visualstudio_versions()
+            if v:
+                versions = v
+        if env.has_key('MSVS_VERSION'):
+            version = env['MSVS_VERSION']
+        else:
+            version = versions[0] #use highest version by default
 
-    env['MSVS_VERSION'] = version
-    env['MSVS']['VERSIONS'] = versions
-    env['MSVS']['VERSION'] = version
+        env['MSVS_VERSION'] = version
+        env['MSVS']['VERSIONS'] = versions
+        env['MSVS']['VERSION'] = version
+    else:
+        version = env['MSVS']['VERSION']
 
     return version
 

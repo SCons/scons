@@ -45,7 +45,7 @@ if sys.platform != 'win32':
 expected_slnfile = """\
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{SLNGUID}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
 EndProject
 Global
 \tGlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,7 +135,10 @@ expected_vcprojfile = """\
 \t\t\tName="Source Files"
 \t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
 \t\t\t<File
-\t\t\t\tRelativePath="test.cpp">
+\t\t\t\tRelativePath="test1.cpp">
+\t\t\t</File>
+\t\t\t<File
+\t\t\t\tRelativePath="test2.cpp">
 \t\t\t</File>
 \t\t</Filter>
 \t\t<File
@@ -152,7 +155,7 @@ expected_vcprojfile = """\
 SConscript_contents = """\
 env=Environment(MSVS_VERSION = '8.0')
 
-testsrc = ['test.cpp']
+testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
@@ -272,7 +275,7 @@ test.subdir('work3')
 test.write(['work3', 'SConstruct'], """\
 env=Environment(MSVS_VERSION = '8.0')
 
-testsrc = ['test.cpp']
+testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
