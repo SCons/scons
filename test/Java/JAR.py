@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import os.path
 import string
 import sys
 import TestSCons
@@ -146,8 +147,8 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'jar'],
-                  JAVAC = '%(where_javac)s',
-                  JAR = '%(where_jar)s')
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 jar = foo.Dictionary('JAR')
 bar = foo.Copy(JAR = r'%(python)s wrapper.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
@@ -247,8 +248,10 @@ public class Example6
 
 test.run(arguments = '.')
 
+expected_wrapper_out = "wrapper.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
+expected_wrapper_out = string.replace(expected_wrapper_out, '/', os.sep)
 test.must_match('wrapper.out',
-                "wrapper.py %(where_jar)s cf bar.jar classes/com/sub/bar\n" % locals())
+                expected_wrapper_out % locals())
 
 test.must_exist('foo.jar')
 test.must_exist('bar.jar')

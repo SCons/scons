@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import os.path
 import string
 import sys
 import TestSCons
@@ -113,7 +114,7 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac'],
-                  JAVAC = '%s')
+                  JAVAC = r'%s')
 javac = foo.Dictionary('JAVAC')
 bar = foo.Copy(JAVAC = r'%s wrapper.py ' + javac)
 foo.Java(target = 'class1', source = 'com/sub/foo')
@@ -285,7 +286,9 @@ class Private {
 
 test.run(arguments = '.')
 
-test.must_match('wrapper.out', "wrapper.py %s -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n" % where_javac)
+expected_wrapper_out = "wrapper.py %s -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n"
+expected_wrapper_out = string.replace(expected_wrapper_out, '/', os.sep)
+test.must_match('wrapper.out', expected_wrapper_out % where_javac)
 
 test.must_exist(test.workpath('class1', 'com', 'sub', 'foo', 'Example1.class'))
 test.must_exist(test.workpath('class1', 'com', 'other', 'Example2.class'))

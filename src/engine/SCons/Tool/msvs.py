@@ -1135,7 +1135,9 @@ def get_default_visualstudio_version(env):
     if not env.has_key('MSVS') or not SCons.Util.is_Dict(env['MSVS']):
         env['MSVS'] = {}    
 
-        if SCons.Util.can_read_reg:
+        if env['MSVS'].has_key('VERSIONS'):
+            versions = env['MSVS']['VERSIONS']
+        elif SCons.Util.can_read_reg:
             v = get_visualstudio_versions()
             if v:
                 versions = v
@@ -1275,11 +1277,28 @@ def get_visualstudio8_suites():
 
     suites = []
 
-    # ToDo: add tests for better suits than VS8 Express here.
-
-    idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
-        r'Software\Microsoft\VCExpress\8.0')
+    # Detect Standard, Professional and Team edition
     try:
+        idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+            r'Software\Microsoft\VisualStudio\8.0')
+        id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+        editions = { 'PRO': r'Setup\VS\Pro' }       # ToDo: add standard and team editions
+        edition_name = 'STD'
+        for name, key_suffix in editions.items():
+            try:
+                idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+                    r'Software\Microsoft\VisualStudio\8.0' + '\\' + key_suffix )
+                edition_name = name
+            except SCons.Util.RegError:
+                pass
+            suites.append(edition_name)
+    except SCons.Util.RegError:
+        pass
+
+    # Detect Expression edition
+    try:
+        idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+            r'Software\Microsoft\VCExpress\8.0')
         id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
         suites.append('EXPRESS')
     except SCons.Util.RegError:
@@ -1315,10 +1334,12 @@ def get_msvs_install_dirs(version = None):
 
     version_num, suite = msvs_parse_version(version)
 
+    K = 'Software\\Microsoft\\VisualStudio\\' + str(version_num)
     if (version_num >= 8.0):
-        K = 'Software\\Microsoft\\VCExpress\\' + str(version_num)
-    else:
-        K = 'Software\\Microsoft\\VisualStudio\\' + str(version_num)
+        try:
+            SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K )
+        except SCons.Util.RegError:
+            K = 'Software\\Microsoft\\VCExpress\\' + str(version_num)
 
     # vc++ install dir
     rv = {}

@@ -92,11 +92,21 @@ line 3
 
     test.fail_test(test.read(['outdir', 'test2.class']) != "test2.JAVA\nline 3\n")
 
+ENV = test.java_ENV()
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/rmic'):
-    test.skip_test("Could not find Java; skipping non-simulated test(s).\n")
+if test.detect_tool('javac', ENV=ENV):
+    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
+else:
+    where_javac = test.where_is('javac')
+if not where_javac:
+    test.skip_test("Could not find Java javac, skipping non-simulated test(s).\n")
 
-
+if test.detect_tool('rmic', ENV=ENV):
+    where_rmic = test.detect('JAVAC', 'rmic', ENV=ENV)
+else:
+    where_rmic = test.where_is('rmic')
+if not where_rmic:
+    test.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
 
 test.write("wrapper.py", """\
 import os
@@ -109,8 +119,8 @@ os.system(string.join(sys.argv[1:], " "))
 test.write('SConstruct', """
 import string
 foo = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac',
-                  RMIC = '/usr/local/j2sdk1.3.1/bin/rmic')
+                  JAVAC = r'%(where_javac)s',
+                  RMIC = r'%(where_rmic)s')
 foo.Java(target = 'class1', source = 'com/sub/foo')
 foo.RMIC(target = 'outdir1',
           source = ['class1/com/sub/foo/Example1.class',
@@ -118,14 +128,14 @@ foo.RMIC(target = 'outdir1',
           JAVACLASSDIR = 'class1')
 
 rmic = foo.Dictionary('RMIC')
-bar = foo.Copy(RMIC = r'%s wrapper.py ' + rmic)
+bar = foo.Copy(RMIC = r'%(python)s wrapper.py ' + rmic)
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant
 # does with its "excludes" attribute.  We should probably find
 # a similar friendlier way to do this.
 bar_classes = filter(lambda c: string.find(str(c), 'Hello') == -1, bar_classes)
 bar.RMIC(target = Dir('outdir2'), source = bar_classes)
-""" % python)
+""" % locals() )
 
 test.subdir('com',
             ['com', 'other'],
@@ -307,7 +317,7 @@ public class Example4 extends UnicastRemoteObject implements Hello {
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/rmic -d outdir2 -classpath class2 com.sub.bar.Example3 com.sub.bar.Example4\n")
+test.fail_test(test.read('wrapper.out') != "wrapper.py %s -d outdir2 -classpath class2 com.sub.bar.Example3 com.sub.bar.Example4\n" % where_rmic)
 
 test.fail_test(not os.path.exists(test.workpath('outdir1', 'com', 'sub', 'foo', 'Example1_Skel.class')))
 test.fail_test(not os.path.exists(test.workpath('outdir1', 'com', 'sub', 'foo', 'Example1_Stub.class')))

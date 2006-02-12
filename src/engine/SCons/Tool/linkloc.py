@@ -95,7 +95,7 @@ def generate(env):
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
 
     msvs_version = env.get('MSVS_VERSION')
-    include_path, lib_path, exe_path = get_msvc_paths(msvs_version)
+    include_path, lib_path, exe_path = get_msvc_paths(env, version = msvs_version)
     env['ENV']['LIB']            = lib_path
     env['ENV']['PATH']           = exe_path
 

@@ -84,7 +84,7 @@ main(int argc, char *argv)
 test.run(chdir='sub dir', arguments='.')
 
 test.run(chdir='sub dir',
-         program=['msdev'],
+         program=[test.get_msvs_executable('6.0')],
          arguments=['Test.dsp', '/MAKE', 'foo - Win32 Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")

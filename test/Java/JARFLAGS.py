@@ -24,7 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
+import os
+import string
 
 import TestSCons
 
@@ -44,14 +45,14 @@ if not where_javac:
 if test.detect_tool('jar', ENV=ENV):
     where_jar = test.detect('JAR', 'jar', ENV=ENV)
 else:
-    where_javac = test.where_is('jar')
+    where_jar = test.where_is('jar')
 if not where_jar:
     test.skip_test("Could not find Java jar, skipping test(s).\n")
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'jar'],
-                  JAVAC = '%(where_javac)s',
-                  JAR = '%(where_jar)s',
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s',
                   JARFLAGS = 'cvf')
 env['JARFLAGS'] = 'cvf'
 class_files = env.Java(target = 'classes', source = 'src')
@@ -72,14 +73,18 @@ public class Example1
 }
 """)
 
-test.run(arguments = '.',
-         match=TestSCons.match_re_dotall,
-         stdout = test.wrap_stdout("""\
+expect = test.wrap_stdout("""\
 %(where_javac)s -d classes -sourcepath src src/Example1\.java
 %(where_jar)s cvf test.jar classes/src/Example1\.class
 .*
 adding: classes/src/Example1\.class.*
-""" % locals()))
+""" % locals())
+
+expect = string.replace(expect, '/', os.sep)
+
+test.run(arguments = '.',
+         match=TestSCons.match_re_dotall,
+         stdout = expect)
 
 test.must_exist('test.jar')
 

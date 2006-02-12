@@ -43,10 +43,18 @@ else:
 if not where_javac:
     test.skip_test("Could not find Java javac, skipping test(s).\n")
 
+if test.detect_tool('jar', ENV=ENV):
+    where_jar = test.detect('JAR', 'jar', ENV=ENV)
+else:
+    where_jar = test.where_is('jar')
+if not where_jar:
+    test.skip_test("Could not find Java jar, skipping test(s).\n")
+
 test.write('SConstruct', """
 dir = 'dist'
 env = Environment(tools    = ['javac', 'jar'],
-                  JAVAC = '%(where_javac)s',
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s',
                   JARCHDIR = dir)
 bin = env.Java(dir, Dir('./'))
 jar = env.Jar(File('c.jar', dir), bin)
