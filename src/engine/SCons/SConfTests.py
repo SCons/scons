@@ -164,6 +164,8 @@ class SConfTestCase(unittest.TestCase):
                         self.state = None
                         self.side_effects = []
                         self.builder = None
+                    def disambiguate(self):
+                        return self
                     def has_builder(self):
                         return 1
                     def add_pre_action(self, *actions):

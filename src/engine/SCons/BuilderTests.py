@@ -157,6 +157,8 @@ class MyNode_without_target_from_source:
         self.builder = None
         self.is_explicit = None
         self.side_effect = 0
+    def disambiguate(self):
+        return self
     def __str__(self):
         return self.name
     def builder_set(self, builder):

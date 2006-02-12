@@ -53,6 +53,8 @@ import SCons.Subst
 import SCons.Util
 import SCons.Warnings
 
+from SCons.Debug import Trace
+
 # The max_drift value:  by default, use a cached signature value for
 # any file that's been untouched for more than two days.
 default_max_drift = 2*24*60*60
@@ -668,6 +670,9 @@ class Base(SCons.Node.Node):
             self._proxy = ret
             return ret
 
+    def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
+        return self.dir.Entry(prefix + splitext(self.name)[0] + suffix)
+
 class Entry(Base):
     """This is the class for generic Node.FS entries--that is, things
     that could be a File or a Dir, but we're just not sure yet.
@@ -697,11 +702,6 @@ class Entry(Base):
         self.clear()
         return File.rfile(self)
 
-    def get_found_includes(self, env, scanner, path):
-        """If we're looking for included files, it's because this Entry
-        is really supposed to be a File itself."""
-        return self.disambiguate().get_found_includes(env, scanner, path)
-
     def scanner_key(self):
         return self.get_suffix()
 
@@ -723,8 +723,23 @@ class Entry(Base):
             return ''             # avoid errors for dangling symlinks
         raise AttributeError
 
-    def rel_path(self, other):
-        return self.disambiguate().rel_path(other)
+    def must_be_a_Dir(self):
+        """Called to make sure a Node is a Dir.  Since we're an
+        Entry, we can morph into one."""
+        self.__class__ = Dir
+        self._morph()
+        return self
+
+    # The following methods can get called before the Taskmaster has
+    # had a chance to call disambiguate() directly to see if this Entry
+    # should really be a Dir or a File.  We therefore use these to call
+    # disambiguate() transparently (from our caller's point of view).
+    #
+    # Right now, this minimal set of methods has been derived by just
+    # looking at some of the methods that will obviously be called early
+    # in any of the various Taskmasters' calling sequences, and then
+    # empirically figuring out which additional methods are necessary
+    # to make various tests pass.
 
     def exists(self):
         """Return if the Entry exists.  Check the file system to see
@@ -732,30 +747,11 @@ class Entry(Base):
         directory."""
         return self.disambiguate().exists()
 
-    def missing(self):
-        """Return if the Entry is missing.  Check the file system to
-        see what we should turn into first.  Assume a file if there's
-        no directory."""
-        return self.disambiguate().missing()
-
-    def get_csig(self):
-        """Return the entry's content signature.  Check the file system
-        to see what we should turn into first.  Assume a file if there's
-        no directory."""
-        return self.disambiguate().get_csig()
-
-    def calc_signature(self, calc=None):
-        """Return the Entry's calculated signature.  Check the file
-        system to see what we should turn into first.  Assume a file if
-        there's no directory."""
-        return self.disambiguate().calc_signature(calc)
-
-    def must_be_a_Dir(self):
-        """Called to make sure a Node is a Dir.  Since we're an
-        Entry, we can morph into one."""
-        self.__class__ = Dir
-        self._morph()
-        return self
+    def rel_path(self, other):
+        d = self.disambiguate()
+        if d.__class__ == Entry:
+            raise "rel_path() could not disambiguate File/Dir"
+        return d.rel_path(other)
 
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
@@ -1203,9 +1199,6 @@ class Dir(Base):
     def diskcheck_match(self):
         diskcheck_match(self, self.fs.isfile,
                            "File %s found where directory expected.")
-
-    def disambiguate(self):
-        return self
 
     def __clearRepositoryCache(self, duplicate=None):
         """Called when we change the repository(ies) for a directory.
@@ -1706,9 +1699,6 @@ class File(Base):
         if not hasattr(self, '_local'):
             self._local = 0
 
-    def disambiguate(self):
-        return self
-
     def scanner_key(self):
         return self.get_suffix()
 
@@ -2053,9 +2043,6 @@ class File(Base):
         subdir = string.upper(cache_sig[0])
         dir = os.path.join(self.fs.CachePath, subdir)
         return dir, os.path.join(dir, cache_sig)
-
-    def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
-        return self.dir.File(prefix + splitext(self.name)[0] + suffix)
 
     def must_be_a_Dir(self):
         """Called to make sure a Node is a Dir.  Since we're already a

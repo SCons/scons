@@ -1263,6 +1263,7 @@ class Base(SubstitutionEnvironment):
         for an action."""
         bkw = {
             'action' : action,
+            'target_factory' : self.fs.Entry,
             'source_factory' : self.fs.Entry,
         }
         try: bkw['source_scanner'] = kw['source_scanner']

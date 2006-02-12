@@ -227,7 +227,7 @@ class Task:
         """
         self.out_of_date = []
         for t in self.targets:
-            if t.current():
+            if t.disambiguate().current():
                 t.set_state(SCons.Node.up_to_date)
             else:
                 self.out_of_date.append(t)
@@ -308,7 +308,7 @@ class Taskmaster:
         T = self.trace
 
         while self.candidates:
-            node = self.candidates.pop()
+            node = self.candidates.pop().disambiguate()
             state = node.get_state()
 
             if CollectStats:
