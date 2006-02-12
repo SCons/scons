@@ -98,8 +98,17 @@ else:
     try:
         import resource
     except ImportError:
-        def memory():
-            return 0
+        try:
+            import win32process
+            import win32api
+        except ImportError:
+            def memory():
+                return 0
+        else:
+            def memory():
+                process_handle = win32api.GetCurrentProcess()
+                memory_info = win32process.GetProcessMemoryInfo( process_handle )
+                return memory_info['PeakWorkingSetSize']
     else:
         def memory():
             res = resource.getrusage(resource.RUSAGE_SELF)

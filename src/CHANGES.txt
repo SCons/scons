@@ -126,6 +126,11 @@ RELEASE 0.97 - XXX
 
   - Add x64 support for Microsoft Visual Studio 8.
 
+  From Baptiste Lepilleur:
+
+  - Support the --debug=memory option on Windows when the Python version
+    has the win32process and win32api modules.
+
   From Christian Maaser:
 
   - Add support for Visual Studio Express Editions.
