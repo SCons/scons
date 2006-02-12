@@ -62,6 +62,9 @@ class Node:
         self._bsig_val = None
         self._current_val = 0
 
+    def disambiguate(self):
+        return self
+
     def retrieve_from_cache(self):
         global cache_text
         if self.cached:

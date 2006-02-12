@@ -535,8 +535,11 @@ class BuilderBase:
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
-            slist = env.arg2nodes(source, source_factory)
             tlist = env.arg2nodes(target, target_factory)
+            slist = env.arg2nodes(source, source_factory)
+
+        tlist = map(lambda n: n.disambiguate(), tlist)
+        slist = map(lambda n: n.disambiguate(), slist)
 
         return tlist, slist
 

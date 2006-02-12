@@ -1369,17 +1369,34 @@ class FSTestCase(_tempdirTestCase):
                f.get_string(0)
         assert f.get_string(1) == 'baz', f.get_string(1)
 
+    def test_target_from_source(self):
+        """Test the method for generating target nodes from sources"""
+        fs = self.fs
+
         x = fs.File('x.c')
         t = x.target_from_source('pre-', '-suf')
         assert str(t) == 'pre-x-suf', str(t)
+        assert t.__class__ == SCons.Node.FS.Entry
 
         y = fs.File('dir/y')
         t = y.target_from_source('pre-', '-suf')
         assert str(t) == os.path.join('dir', 'pre-y-suf'), str(t)
+        assert t.__class__ == SCons.Node.FS.Entry
 
         z = fs.File('zz')
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
         assert str(t) == 'pre-z-suf', str(t)
+        assert t.__class__ == SCons.Node.FS.Entry
+
+        d = fs.Dir('ddd')
+        t = d.target_from_source('pre-', '-suf')
+        assert str(t) == 'pre-ddd-suf', str(t)
+        assert t.__class__ == SCons.Node.FS.Entry
+
+        e = fs.Entry('eee')
+        t = e.target_from_source('pre-', '-suf')
+        assert str(t) == 'pre-eee-suf', str(t)
+        assert t.__class__ == SCons.Node.FS.Entry
 
     def test_same_name(self):
         """Test that a local same-named file isn't found for a Dir lookup"""
@@ -1836,10 +1853,6 @@ class EntryTestCase(_tempdirTestCase):
         e1.rfile()
         assert e1.__class__ is SCons.Node.FS.File, e1.__class__
 
-        e2 = fs.Entry('e2')
-        e2.get_found_includes(None, None, None)
-        assert e2.__class__ is SCons.Node.FS.File, e2.__class__
-
         test.subdir('e3d')
         test.write('e3f', "e3f\n")
 
@@ -1892,13 +1905,6 @@ class EntryTestCase(_tempdirTestCase):
         test.subdir('e5d')
         test.write('e5f', "e5f\n")
 
-        e5d = fs.Entry('e5d')
-        sig = e5d.calc_signature(MyCalc(555))
-        assert e5d.__class__ is SCons.Node.FS.Dir, e5d.__class__
-        # Node has builder (MkDirBuilder), so executor will calculate
-        # the build signature.
-        assert sig == 777, sig
-
         e5f = fs.Entry('e5f')
         sig = e5f.calc_signature(MyCalc(666))
         assert e5f.__class__ is SCons.Node.FS.File, e5f.__class__
@@ -1916,55 +1922,6 @@ class EntryTestCase(_tempdirTestCase):
         """Test looking up an Entry within another Entry"""
         self.fs.Entry('#topdir')
         self.fs.Entry('#topdir/a/b/c')
-
-    def test_missing(self):
-        """Test that the Entry.missing() method disambiguates node types"""
-        test = TestCmd(workdir='')
-        # FS doesn't like the cwd to be something other than its root.
-        os.chdir(test.workpath(""))
-
-        fs = SCons.Node.FS.FS()
-
-        test.subdir('emd')
-        test.write('emf', "emf\n")
-
-        emd = fs.Entry('emd')
-        missing = emd.missing()
-        assert emd.__class__ is SCons.Node.FS.Dir, emd.__class__
-        assert not missing
-
-        emf = fs.Entry('emf')
-        missing = emf.missing()
-        assert emf.__class__ is SCons.Node.FS.File, emf.__class__
-        assert not missing
-
-        emn = fs.Entry('emn')
-        missing = emn.missing()
-        assert emn.__class__ is SCons.Node.FS.File, emn.__class__
-        assert missing
-
-    def test_get_csig(self):
-        """Test that the Entry.get_csig() method disambiguates node types"""
-        test = TestCmd(workdir='')
-        # FS doesn't like the cwd to be something other than its root.
-        os.chdir(test.workpath(""))
-
-        fs = SCons.Node.FS.FS()
-
-        test.subdir('egcd')
-        test.write('egcf', "egcf\n")
-
-        egcd = fs.Entry('egcd')
-        egcd.get_csig()
-        assert egcd.__class__ is SCons.Node.FS.Dir, egcd.__class__
-
-        egcf = fs.Entry('egcf')
-        egcf.get_csig()
-        assert egcf.__class__ is SCons.Node.FS.File, egcf.__class__
-
-        egcn = fs.Entry('egcn')
-        egcn.get_csig()
-        assert egcn.__class__ is SCons.Node.FS.File, egcn.__class__
 
 
 
