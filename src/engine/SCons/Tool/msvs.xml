@@ -61,8 +61,11 @@ NOT as SCons File Nodes.  This is because they represent file
 names to be added to the project file, not the source files used to
 build the project file.
 
-In addition to the above lists of values (which are all optional,
-although not specifying any of them results in an empty project file),
+The above filename lists are all optional,
+although at least one must be specified
+for the resulting project file to be non-empty.
+
+In addition to the above lists of values,
 the following values may be specified:
 
 <literal>target</literal>:
@@ -107,6 +110,17 @@ The number of
 entries must match the number of
 <literal>variant</literal>
 entries.
+
+<literal>runfile</literal>:
+The name of the file that Visual Studio 7 and later
+will run and debug.
+This appears as the value of the
+<literal>Output</literal>
+field in the resutling Visual Studio project file.
+If this is not specified,
+the default is the same as the specified
+<literal>buildtarget</literal>
+value.
 
 Example usage:
 
