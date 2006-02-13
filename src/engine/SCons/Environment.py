@@ -1285,6 +1285,15 @@ class Base(SubstitutionEnvironment):
         """
         return apply(self.fs.Dir, (self.subst(name),) + args, kw)
 
+    def NoClean(self, *targets):
+        """Tags a target so that it will not be cleaned by -c"""
+        tlist = []
+        for t in targets:
+            tlist.extend(self.arg2nodes(t, self.fs.Entry))
+        for t in tlist:
+            t.set_noclean()
+        return tlist
+
     def Entry(self, name, *args, **kw):
         """
         """

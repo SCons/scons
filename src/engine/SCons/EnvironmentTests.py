@@ -2285,6 +2285,29 @@ def generate(env):
         d = env.Dir('${BAR}_$BAR')
         assert d == 'Dir(bardir_bardir)', d
 
+    def test_NoClean(self):
+        """Test the NoClean() method"""
+        env = Environment(FOO='ggg', BAR='hhh')
+        env.Dir('p_hhhb')
+        env.File('p_d')
+        t = env.NoClean('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
+
+        assert t[0].__class__.__name__ == 'Entry', t[0].__class__.__name__
+        assert t[0].path == 'p_a'
+        assert t[0].noclean
+        assert t[1].__class__.__name__ == 'Dir', t[1].__class__.__name__
+        assert t[1].path == 'p_hhhb'
+        assert t[1].noclean
+        assert t[2].__class__.__name__ == 'Entry', t[2].__class__.__name__
+        assert t[2].path == 'p_c'
+        assert t[2].noclean
+        assert t[3].__class__.__name__ == 'File', t[3].__class__.__name__
+        assert t[3].path == 'p_d'
+        assert t[3].noclean
+        assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
+        assert t[4].path == 'p_ggg'
+        assert t[4].noclean
+
     def test_Dump(self):
         """Test the Dump() method"""
 

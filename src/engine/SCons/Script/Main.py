@@ -224,7 +224,7 @@ class CleanTask(SCons.Taskmaster.Task):
 
     def show(self):
         target = self.targets[0]
-        if target.has_builder() or target.side_effect:
+        if (target.has_builder() or target.side_effect) and not target.noclean:
             for t in self.targets:
                 if not t.isdir():
                     display("Removed " + str(t))
@@ -235,7 +235,7 @@ class CleanTask(SCons.Taskmaster.Task):
 
     def remove(self):
         target = self.targets[0]
-        if target.has_builder() or target.side_effect:
+        if (target.has_builder() or target.side_effect) and not target.noclean:
             for t in self.targets:
                 try:
                     removed = t.remove()

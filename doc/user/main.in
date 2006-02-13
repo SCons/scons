@@ -59,6 +59,7 @@
     <!ENTITY errors SYSTEM "errors.sgml">
     <!ENTITY example SYSTEM "example.sgml">
     <!ENTITY factories SYSTEM "factories.sgml">
+    <!ENTITY file-removal SYSTEM "file-removal.sgml">
     <!ENTITY help SYSTEM "help.sgml">
     <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
     <!ENTITY java SYSTEM "java.sgml">
@@ -68,7 +69,6 @@
     <!ENTITY make SYSTEM "make.sgml">
     <!ENTITY nodes SYSTEM "nodes.sgml">
     <!ENTITY parseconfig SYSTEM "parseconfig.sgml">
-    <!ENTITY precious SYSTEM "precious.sgml">
     <!ENTITY preface SYSTEM "preface.sgml">
     <!ENTITY python SYSTEM "python.sgml">
     <!ENTITY repositories SYSTEM "repositories.sgml">
@@ -190,9 +190,9 @@
     &factories;
   </chapter>
 
-  <chapter id="chap-precious">
-    <title>Preventing Removal of Targets:  the &Precious; Function</title>
-    &precious;
+  <chapter id="chap-file-removal">
+    <title>Preventing Removal of Targets</title>
+    &file-removal;
   </chapter>
 
   <chapter id="chap-hierarchical">

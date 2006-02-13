@@ -162,6 +162,7 @@
 <!ENTITY Mkdir "<function>Mkdir</function>">
 <!ENTITY Module "<function>Module</function>">
 <!ENTITY Move "<function>Move</function>">
+<!ENTITY NoClean "<function>NoClean</function>">
 <!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Options "<function>Options</function>">
 <!ENTITY PackageOption "<function>PackageOption</function>">

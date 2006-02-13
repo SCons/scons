@@ -51,6 +51,8 @@ env.B(target = 'foo1.out', source = 'foo1.in')
 env.B(target = 'foo2.out', source = 'foo2.xxx')
 env.B(target = 'foo2.xxx', source = 'foo2.in')
 env.B(target = 'foo3.out', source = 'foo3.in')
+env.B(target = 'foo4.out', source = 'foo4.in')
+env.NoClean('foo4.out')
 import os
 if hasattr(os, 'symlink'):
     def symlink1(env, target, source):
@@ -73,12 +75,15 @@ test.write('foo2.in', "foo2.in\n")
 
 test.write('foo3.in', "foo3.in\n")
 
-test.run(arguments = 'foo1.out foo2.out foo3.out')
+test.write('foo4.in', "foo4.in\n")
+
+test.run(arguments = 'foo1.out foo2.out foo3.out foo4.out')
 
 test.must_match(test.workpath('foo1.out'), "foo1.in\n")
 test.must_match(test.workpath('foo2.xxx'), "foo2.in\n")
 test.must_match(test.workpath('foo2.out'), "foo2.in\n")
 test.must_match(test.workpath('foo3.out'), "foo3.in\n")
+test.must_match(test.workpath('foo4.out'), "foo4.in\n")
 
 test.run(arguments = '-c foo1.out',
          stdout = test.wrap_stdout("Removed foo1.out\n", cleaning=1))
@@ -87,6 +92,7 @@ test.must_not_exist(test.workpath('foo1.out'))
 test.must_exist(test.workpath('foo2.xxx'))
 test.must_exist(test.workpath('foo2.out'))
 test.must_exist(test.workpath('foo3.out'))
+test.must_exist(test.workpath('foo4.out'))
 
 test.run(arguments = '--clean foo2.out foo2.xxx',
          stdout = test.wrap_stdout("Removed foo2.xxx\nRemoved foo2.out\n",
@@ -96,6 +102,7 @@ test.must_not_exist(test.workpath('foo1.out'))
 test.must_not_exist(test.workpath('foo2.xxx'))
 test.must_not_exist(test.workpath('foo2.out'))
 test.must_exist(test.workpath('foo3.out'))
+test.must_exist(test.workpath('foo4.out'))
 
 test.run(arguments = '--remove foo3.out',
          stdout = test.wrap_stdout("Removed foo3.out\n", cleaning=1))
@@ -104,6 +111,7 @@ test.must_not_exist(test.workpath('foo1.out'))
 test.must_not_exist(test.workpath('foo2.xxx'))
 test.must_not_exist(test.workpath('foo2.out'))
 test.must_not_exist(test.workpath('foo3.out'))
+test.must_exist(test.workpath('foo4.out'))
 
 test.run(arguments = '.')
 
@@ -112,6 +120,7 @@ test.must_match(test.workpath('foo2.xxx'), "foo2.in\n")
 test.must_match(test.workpath('foo2.out'), "foo2.in\n")
 test.must_match(test.workpath('foo3.out'), "foo3.in\n")
 test.must_match(test.workpath('foo3.out'), "foo3.in\n")
+test.must_match(test.workpath('foo4.out'), "foo4.in\n")
 test.must_exist(test.workpath('touch1.out'))
 test.must_exist(test.workpath('touch2.out'))
 
@@ -126,6 +135,7 @@ test.must_match(test.workpath('foo1.out'), "foo1.in\n")
 test.must_not_exist(test.workpath('foo2.xxx'))
 test.must_match(test.workpath('foo2.out'), "foo2.in\n")
 test.must_match(test.workpath('foo3.out'), "foo3.in\n")
+test.must_match(test.workpath('foo4.out'), "foo4.in\n")
 test.must_exist(test.workpath('touch1.out'))
 test.must_exist(test.workpath('touch2.out'))
 
@@ -134,6 +144,7 @@ test.run(arguments = '-c .')
 test.must_not_exist(test.workpath('foo1.out'))
 test.must_not_exist(test.workpath('foo2.out'))
 test.must_not_exist(test.workpath('foo3.out'))
+test.must_exist(test.workpath('foo4.out'))
 test.must_not_exist(test.workpath('touch1.out'))
 test.must_not_exist(test.workpath('touch2.out'))
 
@@ -162,6 +173,7 @@ test.must_match(test.workpath('foo1.out'), "foo1.in\n")
 test.must_match(test.workpath('foo2.xxx'), "foo2.in\n")
 test.must_match(test.workpath('foo2.out'), "foo2.in\n")
 test.must_match(test.workpath('foo3.out'), "foo3.in\n")
+test.must_match(test.workpath('foo4.out'), "foo4.in\n")
 test.must_exist(test.workpath('touch1.out'))
 test.must_exist(test.workpath('touch2.out'))
 

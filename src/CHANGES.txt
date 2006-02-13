@@ -62,6 +62,11 @@ RELEASE 0.97 - XXX
   - Support $MAKEINDEX, $MAKEINDEXCOM, $MAKEINDEXCOMSTR and
     $MAKEINDEXFLAGS for generating indices from .idx files.
 
+  From Steven Johnson:
+
+  - Add a NoClean() Environment method and function to override removal
+    of targets during a -c clean, including documentation and tests.
+
   From Steven Knight:
 
   - Check for whether files exist on disk by listing the directory
