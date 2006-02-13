@@ -1,0 +1,148 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  There are two occasions when &SCons; will,
+  by default, remove target files.
+  The first is when &SCons; determines that 
+  an target file needs to be rebuilt
+  and removes the existing version of the target
+  before executing
+  The second is when &SCons; is invoked with the
+  <literal>-c</literal> option to "clean"
+  a tree of its built targets.
+
+  These behaviours can be suppressed with the
+  &Precious; and &NoClean; functions, respectively.
+
+  </para>
+
+  <section>
+  <title>Preventing target removal during build: the &Precious; Function</title>
+
+    <para>
+    
+    By default, &SCons; removes targets before building them.
+    Sometimes, however, this is not what you want.
+    For example, you may want to update a library incrementally,
+    not by having it deleted and then rebuilt from all
+    of the constituent object files.
+    In such cases, you can use the
+    &Precious; method to prevent
+    &SCons; from removing the target before it is built:
+    
+    </para>
+    
+    <scons_example name="precious-ex1">
+      <file name="SConstruct" printme="1">
+        env = Environment(RANLIBCOM='')
+        lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+        env.Precious(lib)
+      </file>
+      <file name="f1.c">
+      int f1() { }
+      </file>
+      <file name="f2.c">
+      int f2() { }
+      </file>
+      <file name="f3.c">
+      int f3() { }
+      </file>
+    </scons_example>
+    
+    <para>
+    
+    Although the output doesn't look any different,
+    &SCons; does not, in fact,
+    delete the target library before rebuilding it:
+    
+    </para>
+    
+    <scons_output example="precious-ex1">
+        <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+    
+    <para>
+    
+    &SCons; will, however, still delete files marked as &Precious;
+    when the <literal>-c</literal> option is used.
+    
+    </para>
+
+  </section>
+
+
+  <section>
+  <title>Preventing target removal during clean: the &NoClean; Function</title>
+
+    <para>
+    
+    By default, &SCons; removes all built targets when invoked
+    with the <literal>-c</literal> option to clean a source tree
+    of built tragets.
+    Sometimes, however, this is not what you want.
+    For example, you may want to remove only intermediate generated files
+    (such as object files),
+    but leave the final targets
+    (the libraries)
+    untouched.
+    
+    In such cases, you can use the &NoClean; method to prevent &SCons;
+    from removing a target during a clean:
+    
+    </para>
+    
+    <scons_example name="noclean-ex1">
+      <file name="SConstruct" printme="1">
+        env = Environment(RANLIBCOM='')
+        lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+        env.NoClean(lib)
+      </file>
+      <file name="f1.c">
+      int f1() { }
+      </file>
+      <file name="f2.c">
+      int f2() { }
+      </file>
+      <file name="f3.c">
+      int f3() { }
+      </file>
+    </scons_example>
+    
+    <para>
+    
+    Notice that the <filename>libfoo.a</filename>
+    is not listed as a removed file:
+    
+    </para>
+    
+    <scons_output example="noclean-ex1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -c</scons_output_command>
+    </scons_output>
+
+  </section>
+

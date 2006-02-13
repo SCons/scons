@@ -17,6 +17,7 @@ environments.sgml
 errors.sgml
 example.sgml
 factories.sgml
+file-removal.sgml
 help.sgml
 hierarchy.sgml
 install.sgml
@@ -27,7 +28,6 @@ main.sgml
 make.sgml
 nodes.sgml
 parseconfig.sgml
-precious.sgml
 preface.sgml
 python.sgml
 repositories.sgml

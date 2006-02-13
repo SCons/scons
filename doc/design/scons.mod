@@ -155,6 +155,7 @@
 <!ENTITY ListOption "<function>ListOption</function>">
 <!ENTITY Local "<function>Local</function>">
 <!ENTITY Module "<function>Module</function>">
+<!ENTITY NoClean "<function>NoClean</function>">
 <!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Options "<function>Options</function>">
 <!ENTITY PackageOption "<function>PackageOption</function>">

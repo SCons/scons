@@ -704,6 +704,15 @@ class NodeTestCase(unittest.TestCase):
         node.set_always_build(3)
         assert node.always_build == 3
 
+    def test_set_noclean(self):
+        """Test setting a Node's noclean value
+        """
+        node = SCons.Node.Node()
+        node.set_noclean()
+        assert node.noclean
+        node.set_noclean(7)
+        assert node.noclean == 7
+
     def test_set_precious(self):
         """Test setting a Node's precious value
         """

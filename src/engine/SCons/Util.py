@@ -343,14 +343,15 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     if showtags:
 
         if showtags == 2:
-            print ' E       = exists'
-            print '  R      = exists in repository only'
-            print '   b     = implicit builder'
-            print '   B     = explicit builder'
-            print '    S    = side effect'
-            print '     P   = precious'
-            print '      A  = always build'
-            print '       C = current'
+            print ' E        = exists'
+            print '  R       = exists in repository only'
+            print '   b      = implicit builder'
+            print '   B      = explicit builder'
+            print '    S     = side effect'
+            print '     P    = precious'
+            print '      A   = always build'
+            print '       C  = current'
+            print '        N = no clean'
             print ''
 
         tags = ['[']
@@ -362,6 +363,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
         tags.append(' P'[IDX(root.precious)])
         tags.append(' A'[IDX(root.always_build)])
         tags.append(' C'[IDX(root.current())])
+        tags.append(' N'[IDX(root.noclean())])
         tags.append(']')
 
     else:

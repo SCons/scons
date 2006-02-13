@@ -1,0 +1,141 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  There are two occasions when &SCons; will,
+  by default, remove target files.
+  The first is when &SCons; determines that 
+  an target file needs to be rebuilt
+  and removes the existing version of the target
+  before executing
+  The second is when &SCons; is invoked with the
+  <literal>-c</literal> option to "clean"
+  a tree of its built targets.
+
+  These behaviours can be suppressed with the
+  &Precious; and &NoClean; functions, respectively.
+
+  </para>
+
+  <section>
+  <title>Preventing target removal during build: the &Precious; Function</title>
+
+    <para>
+    
+    By default, &SCons; removes targets before building them.
+    Sometimes, however, this is not what you want.
+    For example, you may want to update a library incrementally,
+    not by having it deleted and then rebuilt from all
+    of the constituent object files.
+    In such cases, you can use the
+    &Precious; method to prevent
+    &SCons; from removing the target before it is built:
+    
+    </para>
+    
+    <programlisting>
+        env = Environment(RANLIBCOM='')
+        lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+        env.Precious(lib)
+    </programlisting>
+    
+    <para>
+    
+    Although the output doesn't look any different,
+    &SCons; does not, in fact,
+    delete the target library before rebuilding it:
+    
+    </para>
+    
+    <screen>
+        % <userinput>scons -Q</userinput>
+        cc -o f1.o -c f1.c
+        cc -o f2.o -c f2.c
+        cc -o f3.o -c f3.c
+        ar rc libfoo.a f1.o f2.o f3.o
+    </screen>
+    
+    <para>
+    
+    &SCons; will, however, still delete files marked as &Precious;
+    when the <literal>-c</literal> option is used.
+    
+    </para>
+
+  </section>
+
+
+  <section>
+  <title>Preventing target removal during clean: the &NoClean; Function</title>
+
+    <para>
+    
+    By default, &SCons; removes all built targets when invoked
+    with the <literal>-c</literal> option to clean a source tree
+    of built tragets.
+    Sometimes, however, this is not what you want.
+    For example, you may want to remove only intermediate generated files
+    (such as object files),
+    but leave the final targets
+    (the libraries)
+    untouched.
+    
+    In such cases, you can use the &NoClean; method to prevent &SCons;
+    from removing a target during a clean:
+    
+    </para>
+    
+    <programlisting>
+        env = Environment(RANLIBCOM='')
+        lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+        env.NoClean(lib)
+    </programlisting>
+    
+    <para>
+    
+    Notice that the <filename>libfoo.a</filename>
+    is not listed as a removed file:
+    
+    </para>
+    
+    <screen>
+        % <userinput>scons -Q</userinput>
+        cc -o f1.o -c f1.c
+        cc -o f2.o -c f2.c
+        cc -o f3.o -c f3.c
+        ar rc libfoo.a f1.o f2.o f3.o
+        % <userinput>scons -c</userinput>
+        scons: Reading SConscript files ...
+        scons: done reading SConscript files.
+        scons: Cleaning targets ...
+        Removed f1.o
+        Removed f2.o
+        Removed f3.o
+        scons: done cleaning targets.
+    </screen>
+
+  </section>
+

@@ -1385,7 +1385,43 @@ Comments?
 
   </para>
  </section>
+ 
+ <section>
+  <title>Suppressing cleanup removal of build-targets</title>
 
+  <para>
+    
+    By default, &SCons; explicitly removes all build-targets
+    when invoked to perform "cleanup". Files that should not be 
+    removed during "cleanup" can be specified via the
+    &NoClean; method:
+    
+  </para>
+  
+  <programlisting>
+    env.Library(target = 'libfoo.a', source = ['aaa.c', 'bbb.c', 'ccc.c'])
+    env.NoClean('libfoo.a')
+  </programlisting>
+  
+  <para>
+    
+    The NoClean operation has precedence over the Clean operation.
+    A target that is specified as both Clean and NoClean, will not 
+    be removed during a clean.
+    
+    In the following example, target 'foo' will not be removed 
+    during "cleanup":
+    
+    <programlisting>
+      env.Clean(target = 'foo')
+      env.NoClean('foo')
+    </programlisting>
+    
+    
+  </para>
+  
+ </section>
+ 
  <section>
   <title>Suppressing build-target removal</title>
 

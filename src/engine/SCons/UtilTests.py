@@ -74,6 +74,8 @@ class UtilTestCase(unittest.TestCase):
             return 1
         def current(self):
             return 1
+        def noclean(self):
+            return 1
 
     def tree_case_1(self):
         """Fixture for the render_tree() and print_tree() tests."""
@@ -98,7 +100,7 @@ class UtilTestCase(unittest.TestCase):
 """
 
         lines = string.split(expect, '\n')[:-1]
-        lines = map(lambda l: '[E BSPAC]'+l, lines)
+        lines = map(lambda l: '[E BSPACN]'+l, lines)
         withtags = string.join(lines, '\n') + '\n'
 
         return foo, expect, withtags
@@ -121,7 +123,7 @@ class UtilTestCase(unittest.TestCase):
 """
 
         lines = string.split(expect, '\n')[:-1]
-        lines = map(lambda l: '[E BSPAC]'+l, lines)
+        lines = map(lambda l: '[E BSPACN]'+l, lines)
         withtags = string.join(lines, '\n') + '\n'
 
         return blat_o, expect, withtags

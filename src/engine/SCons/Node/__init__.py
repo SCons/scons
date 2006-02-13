@@ -197,6 +197,7 @@ class Node:
         self.env = None
         self.state = no_state
         self.precious = None
+        self.noclean = None
         self.always_build = None
         self.found_includes = {}
         self.includes = None
@@ -739,6 +740,10 @@ class Node:
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
         self.precious = precious
+
+    def set_noclean(self, noclean = 1):
+        """Set the Node's noclean value."""
+        self.noclean = noclean
 
     def set_always_build(self, always_build = 1):
         """Set the Node's always_build value."""

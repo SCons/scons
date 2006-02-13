@@ -281,6 +281,7 @@ GlobalDefaultEnvironmentFunctions = [
     #The Command() method is handled separately, below.
     'Depends',
     'Dir',
+    'NoClean',
     'Entry',
     'Execute',
     'File',

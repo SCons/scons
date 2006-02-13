@@ -262,7 +262,14 @@ scons -c build export
 
 to remove target files under build and export.
 Additional files or directories to remove can be specified using the
-Clean() function.
+.BR Clean()
+function.
+Conversely, targets that would normally be removed by the
+.B -c
+invocation
+can be prevented from being removed by using the
+.BR NoClean ()
+function.
 
 A subset of a hierarchical tree may be built by
 remaining at the top-level directory (where the 
@@ -406,7 +413,12 @@ Ignored for compatibility with non-GNU versions of
 Clean up by removing all target files for which a construction
 command is specified.
 Also remove any files or directories associated to the construction command
-using the Clean() function.
+using the
+.BR Clean ()
+function.
+Will not remove any targets specified by the
+.BR NoClean ()
+function.
 
 .TP
 --cache-disable, --no-cache
@@ -2088,6 +2100,19 @@ will also accept the return value of any of the construction environment
 Builder methods.
 Examples:
 
+The related
+.BR NoClean () 
+function overrides calling
+.BR Clean ()
+for the same target,
+and any targets passed to both functions will
+.I not
+be removed by the
+.B -c
+option.
+
+Examples:
+
 .ES
 Clean('foo', ['bar', 'baz'])
 Clean('dist', env.Program('hello', 'hello.c'))
@@ -2754,6 +2779,53 @@ will have copies made in the local tree,
 even if an already up-to-date copy
 exists in a repository.
 Returns a list of the target Node or Nodes.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI NoClean( target ", ...)"
+.TP
+.RI env.NoClean( target ", ...)"
+Specifies a list of files or directories which should
+.I not
+be removed whenever the targets (or their dependencies)
+are specified with the
+.B -c
+command line option.
+The specified targets may be a list
+or an individual target.
+Multiple calls to
+.BR NoClean ()
+are legal,
+and prevent each specified target
+from being removed by calls to the
+.B -c
+option.
+
+Multiple files or directories should be specified
+either as separate arguments to the
+.BR NoClean ()
+method, or as a list.
+.BR NoClean ()
+will also accept the return value of any of the construction environment
+Builder methods.
+
+Calling
+.BR NoClean () 
+for a target overrides calling
+.BR Clean ()
+for the same target,
+and any targets passed to both functions will
+.I not
+be removed by the
+.B -c
+option.
+
+Examples:
+
+.ES
+NoClean('foo.elf')
+NoClean(env.Program('hello', 'hello.c'))
+.EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
