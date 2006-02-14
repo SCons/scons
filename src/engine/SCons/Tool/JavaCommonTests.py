@@ -29,6 +29,16 @@ import unittest
 
 import SCons.Tool.JavaCommon
 
+
+# Adding this trace to any of the calls below to the parse_java() method
+# will cause the parser to spit out trace messages of the tokens it sees
+# and state transitions.
+
+def trace(token, newstate):
+    from SCons.Debug import Trace
+    statename = newstate.__class__.__name__
+    Trace('token = %s, state = %s\n' % (repr(token), statename))
+
 class parse_javaTestCase(unittest.TestCase):
 
     def test_bare_bones(self):
@@ -53,6 +63,7 @@ public class Foo
         assert pkg_dir == os.path.join('com', 'sub', 'bar'), pkg_dir
         assert classes == ['Foo'], classes
 
+
     def test_inner_classes(self):
         """Test parsing various forms of inner classes"""
 
@@ -66,7 +77,7 @@ interface Listener {
 
 public
 class
-Test {
+Test implements Listener {
   class Inner {
     void go() {
       use(new Listener() {
@@ -79,6 +90,15 @@ Test {
     String s2 = "new Listener() { }";
     /* class B */
     /* new Listener() { } */
+  }
+
+  class Inner2 {
+     Inner2() { Listener l = new Listener(); }
+  }
+
+  /* Make sure this class doesn't get interpreted as an inner class of the previous one, when "new" is used in the previous class. */
+  class Inner3 {
+
   }
 
   public static void main(String[] args) {
@@ -113,13 +133,15 @@ class Private {
   }
 }
 """)
-
+    
         assert pkg_dir is None, pkg_dir
         expect = [
                    'Empty',
                    'Listener',
                    'Test$1',
                    'Test$Inner',
+                   'Test$Inner2',
+                   'Test$Inner3',
                    'Test$2',
                    'Test$3',
                    'Test',
@@ -127,6 +149,7 @@ class Private {
                    'Private',
                  ]
         assert classes == expect, classes
+
 
     def test_comments(self):
         """Test a class with comments"""
@@ -171,6 +194,7 @@ public class Example1 extends UnicastRemoteObject implements Hello {
         assert pkg_dir == os.path.join('com', 'sub', 'foo'), pkg_dir
         assert classes == ['Example1'], classes
 
+
     def test_arrays(self):
         """Test arrays of class instances"""
 
@@ -187,6 +211,33 @@ public class Test {
         assert pkg_dir == None, pkg_dir
         assert classes == ['Test'], classes
 
+
+# This test comes from bug report #1197470:
+#
+#    http://sourceforge.net/tracker/index.php?func=detail&aid=1194740&group_id=30337&atid=398971
+#
+# I've captured it here so that someone with a better grasp of Java syntax
+# and the parse_java() state machine can uncomment it and fix it some day.
+#
+#    def test_arrays_in_decls(self):
+#        """Test how arrays in method declarations affect class detection"""
+#
+#        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+#public class A {
+#    public class B{
+#        public void F(Object[] o) {
+#            F(new Object[] {Object[].class});
+#        }
+#        public void G(Object[] o) {
+#            F(new Object[] {});
+#        }
+#    }
+#}
+#""")
+#        assert pkg_dir == None, pkg_dir
+#        assert classes == ['A$B', 'A'], classes
+
+
     def test_backslash(self):
         """Test backslash handling"""
 
@@ -202,6 +253,7 @@ public class MyTabs
         assert pkg_dir == None, pkg_dir
         assert classes == ['MyTabs$MyInternal', 'MyTabs'], classes
 
+
     def test_enum(self):
         """Test the Java 1.5 enum keyword"""
 
@@ -211,6 +263,8 @@ public enum a {}
 """)
         assert pkg_dir == 'p', pkg_dir
         assert classes == ['a'], classes
+
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
