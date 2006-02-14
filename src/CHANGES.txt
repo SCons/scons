@@ -157,6 +157,11 @@ RELEASE 0.97 - XXX
     $WINDOWSSHLIBMANIFESTPREFIX and $WINDOWSSHLIBMANIFESTSUFFIX
     construction variables.
 
+  From Adam MacBeth:
+
+  - Fix detection of additional Java inner classes following use of a
+    "new" keyword inside an inner class.
+
   From Sanjoy Mahajan:
 
   - Correct TeX-related command lines to just $SOURCE, not $SOURCES

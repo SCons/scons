@@ -42,14 +42,18 @@ if java_parsing:
     # This is a really cool parser from Charles Crain
     # that finds appropriate class names in Java source.
 
-    # A regular expression that will find, in a java file:  newlines;
-    # any alphanumeric token (keyword, class name, specifier); open or
-    # close brackets; a single-line comment "//"; the multi-line comment
-    # begin and end tokens /* and */; single or double quotes;
-    # single or double quotes preceeded by a backslash; array
-    # declarations "[]".
-    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}]|[A-Za-z_][\w\.]*|' +
-                          r'/\*|\*/|\[\])')
+    # A regular expression that will find, in a java file:
+    #     newlines;
+    #     double-backslashes;
+    #     a single-line comment "//";
+    #     single or double quotes preceeded by a backslash;
+    #     single quotes, double quotes, open or close braces, semi-colons;
+    #     any alphanumeric token (keyword, class name, specifier);
+    #     the multi-line comment begin and end tokens /* and */;
+    #     array declarations "[]";
+    #     semi-colons.
+    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;]|' +
+                          r'[A-Za-z_][\w\.]*|/\*|\*/|\[\])')
 
     class OuterState:
         """The initial state for parsing a Java file for classes,
@@ -61,6 +65,9 @@ if java_parsing:
             self.brackets = 0
             self.nextAnon = 1
             self.package = None
+
+        def trace(self):
+            pass
 
         def __getClassState(self):
             try:
@@ -108,7 +115,7 @@ if java_parsing:
                     self.listOutputs.append(string.join(self.listClasses, '$'))
                     self.listClasses.pop()
                     self.stackBrackets.pop()
-            elif token == '"' or token == "'":
+            elif token in [ '"', "'" ]:
                 return IgnoreState(token, self)
             elif token == "new":
                 # anonymous inner class
@@ -197,7 +204,7 @@ if java_parsing:
     def parse_java_file(fn):
         return parse_java(open(fn, 'r').read())
 
-    def parse_java(contents):
+    def parse_java(contents, trace=None):
         """Parse a .java file and return a double of package directory,
         plus a list of .class files that compiling that .java file will
         produce"""
@@ -208,6 +215,7 @@ if java_parsing:
             # The regex produces a bunch of groups, but only one will
             # have anything in it.
             currstate = currstate.parseToken(token)
+            if trace: trace(token, currstate)
         if initial.package:
             package = string.replace(initial.package, '.', os.sep)
         return (package, initial.listOutputs)
