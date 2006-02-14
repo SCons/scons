@@ -37,15 +37,29 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-java = '/usr/local/j2sdk1.3.1/bin/java'
-javac = '/usr/local/j2sdk1.3.1/bin/javac'
-rmic = '/usr/local/j2sdk1.3.1/bin/rmic'
+ENV = test.java_ENV()
 
-if not os.path.exists(javac):
-    test.skip_test("Could not find Java (javac), skipping test(s).\n")
+if test.detect_tool('javac', ENV=ENV):
+    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
+else:
+    where_javac = test.where_is('javac')
+if not where_javac:
+    test.skip_test("Could not find Java javac, skipping test(s).\n")
 
-if not os.path.exists(rmic):
-    test.skip_test("Could not find Java (rmic), skipping test(s).\n")
+if test.detect_tool('rmic', ENV=ENV):
+    where_rmic = test.detect('JAVAC', 'rmic', ENV=ENV)
+else:
+    where_rmic = test.where_is('rmic')
+if not where_rmic:
+    test.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
+
+where_java = test.where_is('java')
+if not where_java:
+    test.skip_test("Could not find Java java, skipping test(s).\n")
+
+java = where_java
+javac = where_javac
+rmic = where_rmic
 
 ###############################################################################
 
