@@ -144,8 +144,9 @@ RELEASE 0.97 - XXX
 
   - Add support for Visual Studio 2005 Pro.
 
-  - Fix Windows portability issues in various Visual Studio and
-    Java tests.
+  - Fix portability issues in various Visual Studio and Java tests.
+
+  - Ignore pkgchk errors on Solaris when searching for the C++ compiler.
 
   From Christian Maaser:
 

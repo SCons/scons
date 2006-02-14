@@ -53,7 +53,7 @@ def get_cppc(env):
         line = os.popen(cmd).readline()
         if line:
             cppcVersion = line.split()[-1]
-            cmd = "%s -l %s | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
+            cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
             line = os.popen(cmd).readline()
             cppcPath = os.path.dirname(line.split()[-1])
             break
