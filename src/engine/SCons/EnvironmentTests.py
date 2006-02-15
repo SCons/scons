@@ -147,7 +147,28 @@ class DummyNode:
     def get_subst_proxy(self):
         return self
 
+def test_tool( env ):
+    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
 
+class TestEnvironmentFixture:
+    def TestEnvironment(self, *args, **kw):
+        if not kw or not kw.has_key('tools'):
+            kw['tools'] = [test_tool]
+        default_keys = { 'CC' : 'cc',
+                         'CCFLAGS' : '-DNDEBUG',
+                         'ENV' : { 'TMP' : '/tmp' } }
+        for key, value in default_keys.items():
+            if not kw.has_key(key):
+                kw[key] = value
+        if not kw.has_key('BUILDERS'):
+            static_obj = SCons.Builder.Builder(action = {},
+                                               emitter = {},
+                                               suffix = '.o',
+                                               single_source = 1)
+            kw['BUILDERS'] = {'Object' : static_obj}
+            
+        env = apply(Environment, args, kw)
+        return env
 
 class SubstitutionTestCase(unittest.TestCase):
 
@@ -568,7 +589,7 @@ class SubstitutionTestCase(unittest.TestCase):
 
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
     def test___init__(self):
         """Test construction Environment creation
@@ -576,8 +597,8 @@ class BaseTestCase(unittest.TestCase):
         Create two with identical arguments and check that
         they compare the same.
         """
-        env1 = Environment(XXX = 'x', YYY = 'y')
-        env2 = Environment(XXX = 'x', YYY = 'y')
+        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
+        env2 = self.TestEnvironment(XXX = 'x', YYY = 'y')
         assert env1 == env2, diff_env(env1, env2)
 
         assert not env1.has_key('__env__')
@@ -585,7 +606,7 @@ class BaseTestCase(unittest.TestCase):
 
     def test_get(self):
         """Test the get() method."""
-        env = Environment(aaa = 'AAA')
+        env = self.TestEnvironment(aaa = 'AAA')
 
         x = env.get('aaa')
         assert x == 'AAA', x
@@ -655,7 +676,7 @@ class BaseTestCase(unittest.TestCase):
 
         # Now test BUILDERS as a dictionary.
         built_it = {}
-        env5 = Environment(BUILDERS={ 'foo' : b1 })
+        env5 = self.TestEnvironment(BUILDERS={ 'foo' : b1 })
         env5['BUILDERS']['bar'] = b2
         env5.foo.execute(target='out1')
         env5.bar.execute(target='out2')
@@ -687,12 +708,12 @@ class BaseTestCase(unittest.TestCase):
 #        XXX Tests for scanner execution through different environments,
 #        XXX if we ever want to do that some day
 #        scanned_it = {}
-#        env1 = Environment(SCANNERS = s1)
+#        env1 = self.TestEnvironment(SCANNERS = s1)
 #        env1.scanner1(filename = 'out1')
 #        assert scanned_it['out1']
 #
 #        scanned_it = {}
-#        env2 = Environment(SCANNERS = [s1])
+#        env2 = self.TestEnvironment(SCANNERS = [s1])
 #        env1.scanner1(filename = 'out1')
 #        assert scanned_it['out1']
 #
@@ -714,7 +735,7 @@ class BaseTestCase(unittest.TestCase):
         s = map(env.get_scanner, suffixes)
         assert s == [None, None, None, None, None], s
 
-        env = Environment(SCANNERS = [])
+        env = self.TestEnvironment(SCANNERS = [])
         s = map(env.get_scanner, suffixes)
         assert s == [None, None, None, None, None], s
 
@@ -752,7 +773,7 @@ class BaseTestCase(unittest.TestCase):
         env = Environment()
         assert env.Dictionary().has_key('ENV')
 
-        env = Environment(ENV = { 'PATH' : '/foo:/bar' })
+        env = self.TestEnvironment(ENV = { 'PATH' : '/foo:/bar' })
         assert env.Dictionary('ENV')['PATH'] == '/foo:/bar'
 
     def test_ReservedVariables(self):
@@ -800,7 +821,7 @@ class BaseTestCase(unittest.TestCase):
                 path = drive + path
             return os.path.normpath(path)
 
-        env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
+        env = dict.TestEnvironment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
                           LIBLINKSUFFIX = 'bar')
 
@@ -883,7 +904,7 @@ class BaseTestCase(unittest.TestCase):
             env['SET_TOOL'] = 'initialized'
             assert env['PLATFORM'] == "TestPlatform"
 
-        env = Environment(platform = platform(), tools = [tool])
+        env = self.TestEnvironment(platform = platform(), tools = [tool])
         assert env['XYZZY'] == 777, env
         assert env['PLATFORM'] == "TestPlatform"
         assert env['SET_TOOL'] == "initialized"
@@ -905,7 +926,7 @@ class BaseTestCase(unittest.TestCase):
             SCons.Defaults.ConstructionEnvironment.update({
                 'PLATFORM' : platform(),
             })
-            env = Environment(tools = [tool])
+            env = self.TestEnvironment(tools = [tool])
             assert env['XYZZY'] == 888, env
             assert env['PLATFORM'] == "DefaultTestPlatform"
             assert env['SET_TOOL'] == "abcde"
@@ -922,7 +943,7 @@ class BaseTestCase(unittest.TestCase):
             env['AAA'] = env['XYZ']
         def t4(env):
             env['TOOL4'] = 444
-        env = Environment(tools = [t1, t2, t3], XYZ = 'aaa')
+        env = self.TestEnvironment(tools = [t1, t2, t3], XYZ = 'aaa')
         assert env['TOOL1'] == 111, env['TOOL1']
         assert env['TOOL2'] == 222, env
         assert env['AAA'] == 'aaa', env
@@ -939,7 +960,7 @@ def exists(env):
     return 1
 """)
 
-        env = Environment(tools = [('faketool', {'a':1, 'b':2, 'c':3})],
+        env = self.TestEnvironment(tools = [('faketool', {'a':1, 'b':2, 'c':3})],
                           toolpath = [test.workpath('')])
         assert env['a'] == 1, env['a']
         assert env['b'] == 2, env['b']
@@ -977,20 +998,20 @@ def exists(env):
             env['TOOL1'] = 111
         def t2(env):
             env['TOOL2'] = 222
-        env = Environment(tools = [t1, None, t2], XYZ = 'aaa')
+        env = self.TestEnvironment(tools = [t1, None, t2], XYZ = 'aaa')
         assert env['TOOL1'] == 111, env['TOOL1']
         assert env['TOOL2'] == 222, env
         assert env['XYZ'] == 'aaa', env
-        env = Environment(tools = [None], XYZ = 'xyz')
+        env = self.TestEnvironment(tools = [None], XYZ = 'xyz')
         assert env['XYZ'] == 'xyz', env
-        env = Environment(tools = [t1, '', t2], XYZ = 'ddd')
+        env = self.TestEnvironment(tools = [t1, '', t2], XYZ = 'ddd')
         assert env['TOOL1'] == 111, env['TOOL1']
         assert env['TOOL2'] == 222, env
         assert env['XYZ'] == 'ddd', env
 
     def test_concat(self):
         "Test _concat()"
-        e1 = Environment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
+        e1 = self.TestEnvironment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
         s = e1.subst
         x = s("${_concat('', '', '', __env__)}")
         assert x == '', x
@@ -1005,7 +1026,7 @@ def exists(env):
 
     def test_gvars(self):
         """Test the Environment gvars() method"""
-        env = Environment(XXX = 'x', YYY = 'y', ZZZ = 'z')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')
         gvars = env.gvars()
         assert gvars['XXX'] == 'x', gvars['XXX']
         assert gvars['YYY'] == 'y', gvars['YYY']
@@ -1013,7 +1034,7 @@ def exists(env):
 
     def test__update(self):
         """Test the _update() method"""
-        env = Environment(X = 'x', Y = 'y', Z = 'z')
+        env = self.TestEnvironment(X = 'x', Y = 'y', Z = 'z')
         assert env['X'] == 'x', env['X']
         assert env['Y'] == 'y', env['Y']
         assert env['Z'] == 'z', env['Z']
@@ -1155,19 +1176,19 @@ def exists(env):
 
         ccc = C('ccc')
 
-        env2 = Environment(CCC1 = ['c1'], CCC2 = ccc)
+        env2 = self.TestEnvironment(CCC1 = ['c1'], CCC2 = ccc)
         env2.Append(CCC1 = ccc, CCC2 = ['c2'])
         assert env2['CCC1'][0] == 'c1', env2['CCC1']
         assert env2['CCC1'][1] is ccc, env2['CCC1']
         assert env2['CCC2'][0] is ccc, env2['CCC2']
         assert env2['CCC2'][1] == 'c2', env2['CCC2']
 
-        env3 = Environment(X = {'x1' : 7})
+        env3 = self.TestEnvironment(X = {'x1' : 7})
         env3.Append(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})
         assert env3['X'] == {'x1': 8, 'x2': 9}, env3['X']
         assert env3['Y'] == {'y1': 10}, env3['Y']
 
-        env4 = Environment(BUILDERS = {'z1' : 11})
+        env4 = self.TestEnvironment(BUILDERS = {'z1' : 11})
         env4.Append(BUILDERS = {'z2' : 12})
         assert env4['BUILDERS'] == {'z1' : 11, 'z2' : 12}, env4['BUILDERS']
         assert hasattr(env4, 'z1')
@@ -1175,7 +1196,7 @@ def exists(env):
 
     def test_AppendENVPath(self):
         """Test appending to an ENV path."""
-        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
                            MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
@@ -1190,7 +1211,7 @@ def exists(env):
 
         This strips values that are already present when lists are
         involved."""
-        env = Environment(AAA1 = 'a1',
+        env = self.TestEnvironment(AAA1 = 'a1',
                           AAA2 = 'a2',
                           AAA3 = 'a3',
                           AAA4 = 'a4',
@@ -1238,7 +1259,7 @@ def exists(env):
         updates and check that the original remains intact
         and the copy has the updated values.
         """
-        env1 = Environment(XXX = 'x', YYY = 'y')
+        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
         env2 = env1.Copy()
         env1copy = env1.Copy()
         assert env1copy == env1copy
@@ -1259,7 +1280,7 @@ def exists(env):
         # deep copied, but not instances.
         class TestA:
             pass
-        env1 = Environment(XXX=TestA(), YYY = [ 1, 2, 3 ],
+        env1 = self.TestEnvironment(XXX=TestA(), YYY = [ 1, 2, 3 ],
                            ZZZ = { 1:2, 3:4 })
         env2=env1.Copy()
         env2.Dictionary('YYY').append(4)
@@ -1271,7 +1292,7 @@ def exists(env):
         assert not env1.Dictionary('ZZZ').has_key(5)
 
         #
-        env1 = Environment(BUILDERS = {'b1' : 1})
+        env1 = self.TestEnvironment(BUILDERS = {'b1' : 1})
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
         assert env1.b1.env == env1, "b1.env doesn't point to env1"
         env2 = env1.Copy(BUILDERS = {'b2' : 2})
@@ -1288,7 +1309,7 @@ def exists(env):
         def foo(env): env['FOO'] = 1
         def bar(env): env['BAR'] = 2
         def baz(env): env['BAZ'] = 3
-        env1 = Environment(tools=[foo])
+        env1 = self.TestEnvironment(tools=[foo])
         env2 = env1.Copy()
         env3 = env1.Copy(tools=[bar, baz])
 
@@ -1304,7 +1325,7 @@ def exists(env):
 
         # Ensure that recursive variable substitution when copying
         # environments works properly.
-        env1 = Environment(CCFLAGS = '-DFOO', XYZ = '-DXYZ')
+        env1 = self.TestEnvironment(CCFLAGS = '-DFOO', XYZ = '-DXYZ')
         env2 = env1.Copy(CCFLAGS = '$CCFLAGS -DBAR',
                          XYZ = ['-DABC', 'x $XYZ y', '-DDEF'])
         x = env2.get('CCFLAGS')
@@ -1314,7 +1335,7 @@ def exists(env):
 
         # Ensure that special properties of a class don't get
         # lost on copying.
-        env1 = Environment(FLAGS = CLVar('flag1 flag2'))
+        env1 = self.TestEnvironment(FLAGS = CLVar('flag1 flag2'))
         x = env1.get('FLAGS')
         assert x == ['flag1', 'flag2'], x
         env2 = env1.Copy()
@@ -1340,7 +1361,7 @@ def generate(env):
     env['YYY'] = 'two'
 """)
 
-        env = Environment(tools=['xxx'], toolpath=[test.workpath('')])
+        env = self.TestEnvironment(tools=['xxx'], toolpath=[test.workpath('')])
         assert env['XXX'] == 'one', env['XXX']
         env = env.Copy(tools=['yyy'])
         assert env['YYY'] == 'two', env['YYY']
@@ -1356,14 +1377,14 @@ def generate(env):
             test.write(['sub1', 'xxx'], "sub1/xxx\n")
             test.write(['sub2', 'xxx'], "sub2/xxx\n")
 
-            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+            env = self.TestEnvironment(ENV = { 'PATH' : [sub1, sub2] })
 
             x = env.Detect('xxx.exe')
             assert x is None, x
 
             test.write(['sub2', 'xxx.exe'], "sub2/xxx.exe\n")
 
-            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+            env = self.TestEnvironment(ENV = { 'PATH' : [sub1, sub2] })
 
             x = env.Detect('xxx.exe')
             assert x == 'xxx.exe', x
@@ -1377,7 +1398,7 @@ def generate(env):
             test.write(['sub1', 'xxx.exe'], "sub1/xxx.exe\n")
             test.write(['sub2', 'xxx.exe'], "sub2/xxx.exe\n")
 
-            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+            env = self.TestEnvironment(ENV = { 'PATH' : [sub1, sub2] })
 
             x = env.Detect('xxx.exe')
             assert x is None, x
@@ -1385,7 +1406,7 @@ def generate(env):
             sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
             os.chmod(sub2_xxx_exe, 0755)
 
-            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+            env = self.TestEnvironment(ENV = { 'PATH' : [sub1, sub2] })
 
             x = env.Detect('xxx.exe')
             assert x == 'xxx.exe', x
@@ -1396,7 +1417,7 @@ def generate(env):
             x = env.Detect('xxx.exe')
             assert x == 'xxx.exe', x
 
-        env = Environment(ENV = { 'PATH' : [] })
+        env = self.TestEnvironment(ENV = { 'PATH' : [] })
         x = env.Detect('xxx.exe')
         assert x is None, x
 
@@ -1406,7 +1427,7 @@ def generate(env):
         Fetch them from the Dictionary and check for well-known
         defaults that get inserted.
         """
-        env = Environment(XXX = 'x', YYY = 'y', ZZZ = 'z')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')
         assert env.Dictionary('XXX') == 'x'
         assert env.Dictionary('YYY') == 'y'
         assert env.Dictionary('XXX', 'ZZZ') == ['x', 'z']
@@ -1426,7 +1447,7 @@ def generate(env):
 
     def test_FindIxes(self):
         "Test FindIxes()"
-        env = Environment(LIBPREFIX='lib',
+        env = self.TestEnvironment(LIBPREFIX='lib',
                           LIBSUFFIX='.a',
                           SHLIBPREFIX='lib',
                           SHLIBSUFFIX='.so',
@@ -1448,7 +1469,7 @@ def generate(env):
 
     def test_ParseConfig(self):
         """Test the ParseConfig() method"""
-        env = Environment(ASFLAGS='assembler',
+        env = self.TestEnvironment(ASFLAGS='assembler',
                           COMMAND='command',
                           CPPFLAGS=[''],
                           CPPPATH='string',
@@ -1520,7 +1541,7 @@ f5: \
    mno \
 """)
 
-        env = Environment(SINGLE = test.workpath('single'))
+        env = self.TestEnvironment(SINGLE = test.workpath('single'))
 
         tlist = []
         dlist = []
@@ -1566,7 +1587,7 @@ f5: \
 
     def test_Platform(self):
         """Test the Platform() method"""
-        env = Environment(WIN32='win32', NONE='no-such-platform')
+        env = self.TestEnvironment(WIN32='win32', NONE='no-such-platform')
 
         exc_caught = None
         try:
@@ -1695,12 +1716,12 @@ f5: \
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar', 'foo'], result
 
-        env3 = Environment(X = {'x1' : 7})
+        env3 = self.TestEnvironment(X = {'x1' : 7})
         env3.Prepend(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})
         assert env3['X'] == {'x1': 8, 'x2' : 9}, env3['X']
         assert env3['Y'] == {'y1': 10}, env3['Y']
 
-        env4 = Environment(BUILDERS = {'z1' : 11})
+        env4 = self.TestEnvironment(BUILDERS = {'z1' : 11})
         env4.Prepend(BUILDERS = {'z2' : 12})
         assert env4['BUILDERS'] == {'z1' : 11, 'z2' : 12}, env4['BUILDERS']
         assert hasattr(env4, 'z1')
@@ -1708,7 +1729,7 @@ f5: \
 
     def test_PrependENVPath(self):
         """Test prepending to an ENV path."""
-        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
                            MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
@@ -1720,7 +1741,7 @@ f5: \
 
     def test_PrependENVPath(self):
         """Test prepending to an ENV path."""
-        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
                            MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
@@ -1735,7 +1756,7 @@ f5: \
 
         This strips values that are already present when lists are
         involved."""
-        env = Environment(AAA1 = 'a1',
+        env = self.TestEnvironment(AAA1 = 'a1',
                           AAA2 = 'a2',
                           AAA3 = 'a3',
                           AAA4 = 'a4',
@@ -1777,13 +1798,13 @@ f5: \
 
         After creation of the Environment, of course.
         """
-        env1 = Environment(AAA = 'a', BBB = 'b')
+        env1 = self.TestEnvironment(AAA = 'a', BBB = 'b')
         env1.Replace(BBB = 'bbb', CCC = 'ccc')
 
-        env2 = Environment(AAA = 'a', BBB = 'bbb', CCC = 'ccc')
+        env2 = self.TestEnvironment(AAA = 'a', BBB = 'bbb', CCC = 'ccc')
         assert env1 == env2, diff_env(env1, env2)
 
-        env3 = Environment(BUILDERS = {'b1' : 1})
+        env3 = self.TestEnvironment(BUILDERS = {'b1' : 1})
         assert hasattr(env3, 'b1'), "b1 was not set"
         env3.Replace(BUILDERS = {'b2' : 2})
         assert not hasattr(env3, 'b1'), "b1 was not cleared"
@@ -1791,7 +1812,7 @@ f5: \
 
     def test_ReplaceIxes(self):
         "Test ReplaceIxes()"
-        env = Environment(LIBPREFIX='lib',
+        env = self.TestEnvironment(LIBPREFIX='lib',
                           LIBSUFFIX='.a',
                           SHLIBPREFIX='lib',
                           SHLIBSUFFIX='.so',
@@ -1812,7 +1833,7 @@ f5: \
 
     def test_SetDefault(self):
         """Test the SetDefault method"""
-        env = Environment(tools = [])
+        env = self.TestEnvironment(tools = [])
         env.SetDefault(V1 = 1)
         env.SetDefault(V1 = 2)
         assert env['V1'] == 1
@@ -1822,7 +1843,7 @@ f5: \
 
     def test_Tool(self):
         """Test the Tool() method"""
-        env = Environment(LINK='link', NONE='no-such-tool')
+        env = self.TestEnvironment(LINK='link', NONE='no-such-tool')
 
         exc_caught = None
         try:
@@ -1864,7 +1885,7 @@ def generate(env):
     env['YYY'] = 'two'
 """)
 
-        env = Environment(tools=['xxx'], toolpath=[test.workpath('')])
+        env = self.TestEnvironment(tools=['xxx'], toolpath=[test.workpath('')])
         assert env['XXX'] == 'one', env['XXX']
         env.Tool('yyy')
         assert env['YYY'] == 'two', env['YYY']
@@ -1906,7 +1927,7 @@ def generate(env):
                         ] + string.split(env_path, os.pathsep)
 
         path = string.join(pathdirs_1234, os.pathsep)
-        env = Environment(ENV = {'PATH' : path})
+        env = self.TestEnvironment(ENV = {'PATH' : path})
         wi = env.WhereIs('xxx.exe')
         assert wi == test.workpath(sub3_xxx_exe), wi
         wi = env.WhereIs('xxx.exe', pathdirs_1243)
@@ -1920,7 +1941,7 @@ def generate(env):
         assert wi == test.workpath(sub4_xxx_exe), wi
 
         path = string.join(pathdirs_1243, os.pathsep)
-        env = Environment(ENV = {'PATH' : path})
+        env = self.TestEnvironment(ENV = {'PATH' : path})
         wi = env.WhereIs('xxx.exe')
         assert wi == test.workpath(sub4_xxx_exe), wi
         wi = env.WhereIs('xxx.exe', pathdirs_1234)
@@ -1950,7 +1971,7 @@ def generate(env):
         """Test the Action() method"""
         import SCons.Action
 
-        env = Environment(FOO = 'xyzzy')
+        env = self.TestEnvironment(FOO = 'xyzzy')
 
         a = env.Action('foo')
         assert a, a
@@ -1972,7 +1993,7 @@ def generate(env):
 
     def test_AddPostAction(self):
         """Test the AddPostAction() method"""
-        env = Environment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO='fff', BAR='bbb')
 
         n = env.AddPostAction('$FOO', lambda x: x)
         assert str(n[0]) == 'fff', n[0]
@@ -1983,7 +2004,7 @@ def generate(env):
 
     def test_AddPreAction(self):
         """Test the AddPreAction() method"""
-        env = Environment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO='fff', BAR='bbb')
 
         n = env.AddPreAction('$FOO', lambda x: x)
         assert str(n[0]) == 'fff', n[0]
@@ -1994,7 +2015,7 @@ def generate(env):
 
     def test_Alias(self):
         """Test the Alias() method"""
-        env = Environment(FOO='kkk', BAR='lll', EA='export_alias')
+        env = self.TestEnvironment(FOO='kkk', BAR='lll', EA='export_alias')
 
         tgt = env.Alias('new_alias')[0]
         assert str(tgt) == 'new_alias', tgt
@@ -2056,7 +2077,7 @@ def generate(env):
 
     def test_AlwaysBuild(self):
         """Test the AlwaysBuild() method"""
-        env = Environment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO='fff', BAR='bbb')
         t = env.AlwaysBuild('a', 'b$FOO', ['c', 'd'], '$BAR')
         assert t[0].__class__.__name__ == 'File'
         assert t[0].path == 'a'
@@ -2084,7 +2105,7 @@ def generate(env):
                  self.src_dir = src_dir
                  self.duplicate = duplicate
 
-        env = Environment(FOO = 'fff', BAR = 'bbb')
+        env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
         env.fs = MyFS()
 
         env.BuildDir('build', 'src')
@@ -2099,7 +2120,7 @@ def generate(env):
 
     def test_Builder(self):
         """Test the Builder() method"""
-        env = Environment(FOO = 'xyzzy')
+        env = self.TestEnvironment(FOO = 'xyzzy')
 
         b = env.Builder(action = 'foo')
         assert not b is None, b
@@ -2123,7 +2144,7 @@ def generate(env):
             def CacheDir(self, path):
                 self.CD = path
 
-        env = Environment(CD = 'CacheDir')
+        env = self.TestEnvironment(CD = 'CacheDir')
         env.fs = MyFS()
 
         env.CacheDir('foo')
@@ -2134,7 +2155,7 @@ def generate(env):
 
     def test_Clean(self):
         """Test the Clean() method"""
-        env = Environment(FOO = 'fff', BAR = 'bbb')
+        env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
 
         CT = SCons.Environment.CleanTargets
 
@@ -2189,7 +2210,7 @@ def generate(env):
         x = []
         def test2(baz, x=x):
             x.append(baz)
-        env = Environment(TEST2 = test2)
+        env = self.TestEnvironment(TEST2 = test2)
         t = env.Command(target='baz.out', source='baz.in',
                         action='${TEST2(XYZ)}',
                         XYZ='magic word')[0]
@@ -2203,7 +2224,7 @@ def generate(env):
         assert str(t) == 'xxx.out', str(t)
         assert 'xxx.in' in map(lambda x: x.path, t.sources)
 
-        env = Environment(source_scanner = 'should_not_find_this')
+        env = self.TestEnvironment(source_scanner = 'should_not_find_this')
         t = env.Command(target='file.out', source='file.in',
                         action = 'foo',
                         source_scanner = 'fake')[0]
@@ -2218,7 +2239,7 @@ def generate(env):
         try:
             os.chdir(test.workpath())
 
-            env = Environment(FOO = 'xyzzy')
+            env = self.TestEnvironment(FOO = 'xyzzy')
 
             def func(arg):
                 pass
@@ -2237,7 +2258,7 @@ def generate(env):
 
     def test_Depends(self):
         """Test the explicit Depends method."""
-        env = Environment(FOO = 'xxx', BAR='yyy')
+        env = self.TestEnvironment(FOO = 'xxx', BAR='yyy')
         env.Dir('dir1')
         env.Dir('dir2')
         env.File('xxx.py')
@@ -2273,7 +2294,7 @@ def generate(env):
             def Dir(self, name):
                 return 'Dir(%s)' % name
 
-        env = Environment(FOO = 'foodir', BAR = 'bardir')
+        env = self.TestEnvironment(FOO = 'foodir', BAR = 'bardir')
         env.fs = MyFS()
 
         d = env.Dir('d')
@@ -2287,7 +2308,7 @@ def generate(env):
 
     def test_NoClean(self):
         """Test the NoClean() method"""
-        env = Environment(FOO='ggg', BAR='hhh')
+        env = self.TestEnvironment(FOO='ggg', BAR='hhh')
         env.Dir('p_hhhb')
         env.File('p_d')
         t = env.NoClean('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
@@ -2311,13 +2332,13 @@ def generate(env):
     def test_Dump(self):
         """Test the Dump() method"""
 
-        env = Environment(FOO = 'foo')
+        env = self.TestEnvironment(FOO = 'foo')
         assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
         assert len(env.Dump()) > 200, env.Dump()    # no args version
 
     def test_Environment(self):
         """Test the Environment() method"""
-        env = Environment(FOO = 'xxx', BAR = 'yyy')
+        env = self.TestEnvironment(FOO = 'xxx', BAR = 'yyy')
 
         e2 = env.Environment(X = '$FOO', Y = '$BAR')
         assert e2['X'] == 'xxx', e2['X']
@@ -2344,7 +2365,7 @@ def generate(env):
             def Entry(self, name):
                 return 'Entry(%s)' % name
 
-        env = Environment(FOO = 'fooentry', BAR = 'barentry')
+        env = self.TestEnvironment(FOO = 'fooentry', BAR = 'barentry')
         env.fs = MyFS()
 
         e = env.Entry('e')
@@ -2362,7 +2383,7 @@ def generate(env):
             def File(self, name):
                 return 'File(%s)' % name
 
-        env = Environment(FOO = 'foofile', BAR = 'barfile')
+        env = self.TestEnvironment(FOO = 'foofile', BAR = 'barfile')
         env.fs = MyFS()
 
         f = env.File('f')
@@ -2376,7 +2397,7 @@ def generate(env):
 
     def test_FindFile(self):
         """Test the FindFile() method"""
-        env = Environment(FOO = 'fff', BAR = 'bbb')
+        env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
 
         r = env.FindFile('foo', ['no_such_directory'])
         assert r is None, r
@@ -2393,7 +2414,7 @@ def generate(env):
 
     def test_GetBuildPath(self):
         """Test the GetBuildPath() method."""
-        env = Environment(MAGIC = 'xyzzy')
+        env = self.TestEnvironment(MAGIC = 'xyzzy')
 
         p = env.GetBuildPath('foo')
         assert p == 'foo', p
@@ -2403,7 +2424,7 @@ def generate(env):
 
     def test_Ignore(self):
         """Test the explicit Ignore method."""
-        env = Environment(FOO='yyy', BAR='zzz')
+        env = self.TestEnvironment(FOO='yyy', BAR='zzz')
         env.Dir('dir1')
         env.Dir('dir2')
         env.File('yyyzzz')
@@ -2435,7 +2456,7 @@ def generate(env):
 
     def test_Install(self):
         """Test the Install method"""
-        env = Environment(FOO='iii', BAR='jjj')
+        env = self.TestEnvironment(FOO='iii', BAR='jjj')
 
         tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
         paths = map(str, tgt)
@@ -2482,7 +2503,7 @@ def generate(env):
 
     def test_InstallAs(self):
         """Test the InstallAs method"""
-        env = Environment(FOO='iii', BAR='jjj')
+        env = self.TestEnvironment(FOO='iii', BAR='jjj')
 
         tgt = env.InstallAs(target=string.split('foo1 foo2'),
                             source=string.split('bar1 bar2'))
@@ -2501,7 +2522,7 @@ def generate(env):
 
     def test_Literal(self):
         """Test the Literal() method"""
-        env = Environment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO='fff', BAR='bbb')
         list = env.subst_list([env.Literal('$FOO'), '$BAR'])[0]
         assert list == ['$FOO', 'bbb'], list
         list = env.subst_list(['$FOO', env.Literal('$BAR')])[0]
@@ -2509,7 +2530,7 @@ def generate(env):
 
     def test_Local(self):
         """Test the Local() method."""
-        env = Environment(FOO='lll')
+        env = self.TestEnvironment(FOO='lll')
 
         l = env.Local(env.fs.File('fff'))
         assert str(l[0]) == 'fff', l[0]
@@ -2520,7 +2541,7 @@ def generate(env):
 
     def test_Precious(self):
         """Test the Precious() method"""
-        env = Environment(FOO='ggg', BAR='hhh')
+        env = self.TestEnvironment(FOO='ggg', BAR='hhh')
         env.Dir('p_hhhb')
         env.File('p_d')
         t = env.Precious('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
@@ -2550,7 +2571,7 @@ def generate(env):
                 self.list.extend(list(dirs))
             def Dir(self, name):
                 return name
-        env = Environment(FOO='rrr', BAR='sss')
+        env = self.TestEnvironment(FOO='rrr', BAR='sss')
         env.fs = MyFS()
         env.Repository('/tmp/foo')
         env.Repository('/tmp/$FOO', '/tmp/$BAR/foo')
@@ -2562,7 +2583,7 @@ def generate(env):
         def scan(node, env, target, arg):
             pass
 
-        env = Environment(FOO = scan)
+        env = self.TestEnvironment(FOO = scan)
 
         s = env.Scanner('foo')
         assert not s is None, s
@@ -2584,7 +2605,7 @@ def generate(env):
         class MyFS:
             SConstruct_dir = os.sep + 'dir'
 
-        env = Environment(FOO = 'SConsign',
+        env = self.TestEnvironment(FOO = 'SConsign',
                           BAR = os.path.join(os.sep, 'File'))
         env.fs = MyFS()
 
@@ -2630,7 +2651,7 @@ def generate(env):
 
     def test_SideEffect(self):
         """Test the SideEffect() method"""
-        env = Environment(LIB='lll', FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(LIB='lll', FOO='fff', BAR='bbb')
         env.File('mylll.pdb')
         env.Dir('mymmm.pdb')
 
@@ -2663,7 +2684,7 @@ def generate(env):
 
     def test_SourceCode(self):
         """Test the SourceCode() method."""
-        env = Environment(FOO='mmm', BAR='nnn')
+        env = self.TestEnvironment(FOO='mmm', BAR='nnn')
         e = env.SourceCode('foo', None)[0]
         assert e.path == 'foo'
         s = e.src_builder()
@@ -2682,7 +2703,7 @@ def generate(env):
 
     def test_SourceSignatures(type):
         """Test the SourceSignatures() method"""
-        env = Environment(M = 'MD5', T = 'timestamp')
+        env = type.TestEnvironment(M = 'MD5', T = 'timestamp')
 
         exc_caught = None
         try:
@@ -2706,7 +2727,7 @@ def generate(env):
 
     def test_Split(self):
         """Test the Split() method"""
-        env = Environment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO='fff', BAR='bbb')
         s = env.Split("foo bar")
         assert s == ["foo", "bar"], s
         s = env.Split("$FOO bar")
@@ -2722,7 +2743,7 @@ def generate(env):
 
     def test_TargetSignatures(type):
         """Test the TargetSignatures() method"""
-        env = Environment(B = 'build', C = 'content')
+        env = type.TestEnvironment(B = 'build', C = 'content')
 
         exc_caught = None
         try:
@@ -2782,11 +2803,11 @@ def generate(env):
         reserved = ['TARGETS','SOURCES', 'SOURCE','TARGET']
         added = []
 
-        env = SCons.Environment.Environment(TARGETS = 'targets',
-                                            SOURCES = 'sources',
-                                            SOURCE = 'source',
-                                            TARGET = 'target',
-                                            INIT = 'init')
+        env = type.TestEnvironment(TARGETS = 'targets',
+                                   SOURCES = 'sources',
+                                   SOURCE = 'source',
+                                   TARGET = 'target',
+                                   INIT = 'init')
         added.append('INIT')
         for x in reserved:
             assert not env.has_key(x), env[x]
@@ -2878,7 +2899,7 @@ def generate(env):
 
 
 
-class OverrideEnvironmentTestCase(unittest.TestCase):
+class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
 
     def setUp(self):
         env = Environment()
@@ -3106,11 +3127,11 @@ class OverrideEnvironmentTestCase(unittest.TestCase):
 
 
 
-class NoSubstitutionProxyTestCase(unittest.TestCase):
+class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
 
     def test___init__(self):
         """Test NoSubstitutionProxy initialization"""
-        env = Environment(XXX = 'x', YYY = 'y')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y')
         assert env['XXX'] == 'x', env['XXX']
         assert env['YYY'] == 'y', env['YYY']
 
@@ -3138,7 +3159,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
 
     def test_subst(self):
         """Test the NoSubstitutionProxy.subst() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y')
         assert env['XXX'] == 'x', env['XXX']
         assert env['YYY'] == 'y', env['YYY']
 
@@ -3158,7 +3179,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
 
     def test_subst_kw(self):
         """Test the NoSubstitutionProxy.subst_kw() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y')
         assert env['XXX'] == 'x', env['XXX']
         assert env['YYY'] == 'y', env['YYY']
 
@@ -3173,7 +3194,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
 
     def test_subst_list(self):
         """Test the NoSubstitutionProxy.subst_list() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y')
         assert env['XXX'] == 'x', env['XXX']
         assert env['YYY'] == 'y', env['YYY']
 
@@ -3191,7 +3212,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
 
     def test_subst_target_source(self):
         """Test the NoSubstitutionProxy.subst_target_source() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
+        env = self.TestEnvironment(XXX = 'x', YYY = 'y')
         assert env['XXX'] == 'x', env['XXX']
         assert env['YYY'] == 'y', env['YYY']
 

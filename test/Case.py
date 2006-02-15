@@ -36,7 +36,7 @@ test.write('SConstruct', """\
 Program('main', [
     'main.c',
     Object('foo.o', 'foo.c'),
-    Object('FOO.O', 'bar.c')])
+    Object('FOO.o', 'bar.c')])
 """)
 
 test.write('main.c', """\

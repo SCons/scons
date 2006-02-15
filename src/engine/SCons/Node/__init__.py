@@ -197,7 +197,7 @@ class Node:
         self.env = None
         self.state = no_state
         self.precious = None
-        self.noclean = None
+        self.noclean = 0
         self.always_build = None
         self.found_includes = {}
         self.includes = None
@@ -743,7 +743,9 @@ class Node:
 
     def set_noclean(self, noclean = 1):
         """Set the Node's noclean value."""
-        self.noclean = noclean
+        # Make sure noclean is an integer so the --debug=stree
+        # output in Util.py can use it as an index.
+        self.noclean = noclean and 1 or 0
 
     def set_always_build(self, always_build = 1):
         """Set the Node's always_build value."""

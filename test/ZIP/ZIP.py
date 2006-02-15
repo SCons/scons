@@ -35,6 +35,14 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
+try:
+    import zipfile
+except ImportError:
+    zip = test.where_is('zip')
+    if not zip:
+        x = "Python version has no 'ziplib' module nor 'zip' utility; skipping tests.\n"
+        test.skip_test(x)
+
 test.subdir('sub1')
 
 test.write('myzip.py', r"""\

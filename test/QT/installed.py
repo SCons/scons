@@ -62,7 +62,8 @@ except KeyError:
 env = Environment(tools=['default','qt'],
                   ENV={'PATH':ENV_PATH,
                        'PATHEXT':os.environ.get('PATHEXT'),
-                       'HOME':os.getcwd()},
+                       'HOME':os.getcwd(),
+                       'SYSTEMROOT':ENV.get('SYSTEMROOT')},
                        # moc / uic want to write stuff in ~/.qt
                   CXXFILESUFFIX=".cpp")
 

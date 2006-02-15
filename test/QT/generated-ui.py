@@ -47,7 +47,8 @@ import os
 aa=os.getcwd()
 
 env=Environment(tools=['default','expheaders','qt'],toolpath=[aa])
-env['ENV']['HOME'] = os.environ['HOME']
+if os.environ.has_key('HOME'):
+    env['ENV']['HOME'] = os.environ['HOME']
 env["EXP_HEADER_ABS"]=os.path.join(os.getcwd(),'include')
 if not os.access(env["EXP_HEADER_ABS"],os.F_OK):
    os.mkdir (env["EXP_HEADER_ABS"])
