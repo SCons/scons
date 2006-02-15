@@ -29,6 +29,7 @@ Test the Qt tool warnings.
 """
 
 import os
+import string
 
 import TestSCons
 
@@ -79,7 +80,7 @@ if moc:
     expect = """
 scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
 File "SConstruct", line \d+, in \?
-""" % os.path.dirname(os.path.dirname(moc))
+""" % string.replace( os.path.dirname(os.path.dirname(moc)), '\\', '\\\\' )
 else:
     expect = """
 scons: warning: Could not detect qt, using empty QTDIR

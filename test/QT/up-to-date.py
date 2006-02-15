@@ -34,6 +34,7 @@ ca. September 2005.)
 """
 
 import os
+import string
 
 import TestSCons
 
@@ -129,10 +130,13 @@ test.write(['layer', 'aclock', 'qt_bug', 'my.cc'], """\
 #include <main.h>
 """)
 
-test.run(arguments = 'layer/aclock/qt_bug/my'+_obj, stderr=None)
+my_obj = 'layer/aclock/qt_bug/my'+_obj
 
+test.run(arguments = my_obj, stderr=None)
+
+expect = string.replace( my_obj, '/', os.sep )
 test.up_to_date(options = '--debug=explain',
-                arguments = 'layer/aclock/qt_bug/my'+_obj,
+                arguments = (expect),
                 stderr=None)
 
 test.pass_test()

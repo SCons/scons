@@ -144,9 +144,16 @@ RELEASE 0.97 - XXX
 
   - Add support for Visual Studio 2005 Pro.
 
-  - Fix portability issues in various Visual Studio and Java tests.
+  - Fix portability issues in various tests: test/Case.py,
+    Test/Java/{JAR,JARCHDIR,JARFLAGS,JAVAC,JAVACFLAGS,JAVAH,RMIC}.py,
+    test/MSVS/vs-{6.0,7.0,7.1,8.0}-exec.py,
+    test/Repository/{Java,JavaH,RMIC}.py,
+    test/QT/{generated-ui,installed,up-to-date,warnings}.py,
+    test/ZIP/ZIP.py.
 
   - Ignore pkgchk errors on Solaris when searching for the C++ compiler.
+
+  - Speed up the SCons/EnvironmentTests.py unit tests.
 
   From Christian Maaser:
 
