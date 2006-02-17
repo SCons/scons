@@ -176,8 +176,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.18.D001 2005/10/15 06:40:23 knight"
-__version__ = "0.18"
+__revision__ = "TestCmd.py 0.20.D001 2006/02/16 06:28:21 knight"
+__version__ = "0.20"
 
 import os
 import os.path
@@ -449,13 +449,18 @@ class TestCmd:
                        interpreter = None,
                        workdir = None,
                        subdir = None,
-                       verbose = 0,
+                       verbose = None,
                        match = None,
                        combine = 0):
         self._cwd = os.getcwd()
         self.description_set(description)
         self.program_set(program)
         self.interpreter_set(interpreter)
+        if verbose is None:
+            try:
+                verbose = max( 0, int(os.environ.get('TESTCMD_VERBOSE', 0)) )
+            except ValueError:
+                verbose = 0
         self.verbose_set(verbose)
         self.combine = combine
         if not match is None:
@@ -715,6 +720,19 @@ class TestCmd:
             self.status = p.wait()
         if chdir:
             os.chdir(oldcwd)
+        if self.verbose >= 2:
+            write = sys.stdout.write
+            write('============ STATUS: %d\n' % self.status)
+            out = self.stdout()
+            if out or self.verbose >= 3:
+                write('============ BEGIN STDOUT (len=%d):\n' % len(out))
+                write(out)
+                write('============ END STDOUT\n')
+            err = self.stderr()
+            if err or self.verbose >= 3:
+                write('============ BEGIN STDERR (len=%d)\n' % len(err))
+                write(err)
+                write('============ END STDERR\n')
 
     def sleep(self, seconds = default_sleep_seconds):
         """Sleeps at least the specified number of seconds.  If no
