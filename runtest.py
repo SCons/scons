@@ -140,6 +140,9 @@ Options:
   -q, --quiet                 Don't print the test being executed.
   -t, --time                  Print test execution time.
   -v version                  Specify the SCons version.
+  --verbose=LEVEL             Set verbose level: 1 = print executed commands,
+                                2 = print commands and non-zero output,
+                                3 = print commands and all output.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
   --xml                       Print results in SCons XML format.
@@ -150,7 +153,7 @@ opts, args = getopt.getopt(sys.argv[1:], "adf:ho:P:p:qv:Xx:t",
                              'debug', 'file=', 'help', 'output=',
                              'package=', 'passed', 'python=', 'quiet',
                              'version=', 'exec=', 'time',
-                             'xml'])
+                             'verbose=', 'xml'])
 
 for o, a in opts:
     if o == '-a' or o == '--all':
@@ -178,6 +181,8 @@ for o, a in opts:
         printcommand = 0
     elif o == '-t' or o == '--time':
         print_time = lambda fmt, time: sys.stdout.write(fmt % time)
+    elif o in ['--verbose']:
+        os.environ['TESTCMD_VERBOSE'] = a
     elif o == '-v' or o == '--version':
         version = a
     elif o == '-X':
@@ -235,7 +240,8 @@ except AttributeError:
             return status >> 8
 else:
     def spawn_it(command_args):
-	command_args = map(escape, command_args)
+        command_args = map(escape, command_args)
+        command_args = map(lambda s: string.replace(s, '\\','\\\\'), command_args)
         return os.spawnv(os.P_WAIT, command_args[0], command_args)
 
 class Base:
@@ -264,8 +270,8 @@ except AttributeError:
         def execute(self):
             (tochild, fromchild, childerr) = os.popen3(self.command_str)
             tochild.close()
-            self.stdout = fromchild.read()
             self.stderr = childerr.read()
+            self.stdout = fromchild.read()
             fromchild.close()
             self.status = childerr.close()
             if not self.status:

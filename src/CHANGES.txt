@@ -133,6 +133,8 @@ RELEASE 0.97 - XXX
     $WINDOWSIMPLIBPREFIX construction variables.  The old names are now
     deprecated, but preserved for backwards compatibility.
 
+  - Fix (?) a runtest.py hang on Windows when the --xml option is used.
+
   From Chen Lee:
 
   - Add x64 support for Microsoft Visual Studio 8.
@@ -154,6 +156,9 @@ RELEASE 0.97 - XXX
   - Ignore pkgchk errors on Solaris when searching for the C++ compiler.
 
   - Speed up the SCons/EnvironmentTests.py unit tests.
+
+  - Add a --verbose= option to runtest.py to print executed commands
+    and their output at various levels.
 
   From Christian Maaser:
 
