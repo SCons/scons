@@ -884,7 +884,7 @@ class SConscriptSettableOptions:
 
     def get(self, name):
         if not self.settable.has_key(name):
-            raise SCons.Error.UserError, "This option is not settable from a SConscript file: %s"%name
+            raise SCons.Errors.UserError, "This option is not settable from a SConscript file: %s"%name
         if hasattr(self.options, name) and getattr(self.options, name) is not None:
             return getattr(self.options, name)
         else:
@@ -892,7 +892,7 @@ class SConscriptSettableOptions:
 
     def set(self, name, value):
         if not self.settable.has_key(name):
-            raise SCons.Error.UserError, "This option is not settable from a SConscript file: %s"%name
+            raise SCons.Errors.UserError, "This option is not settable from a SConscript file: %s"%name
 
         if name == 'num_jobs':
             try:
