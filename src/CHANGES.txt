@@ -249,6 +249,11 @@ RELEASE 0.97 - XXX
 
   - Add use of $CPPDEFINES to $RCCOM (resource file compilation) on MinGW.
 
+  From Erick Tryzelaar:
+
+  - Fix the error message when trying to report that a given option is
+    not gettable/settable from an SConscript file.
+
   From Dobes Vandermeer:
 
   - Add support for SCC and other settings in Microsoft Visual
