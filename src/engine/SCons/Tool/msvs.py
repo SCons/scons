@@ -739,7 +739,7 @@ class _GenerateV7DSP(_DSPGenerator):
             if len(sources) > 1:
                 s = map(os.path.normpath, sources)
                 cp = os.path.commonprefix(s)
-                if cp and s[0][len(cp)] == os.path.sep:
+                if cp and s[0][len(cp)] == os.sep:
                     sources = map(lambda s, l=len(cp): s[l:], sources)
                     commonprefix = cp
 

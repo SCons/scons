@@ -229,9 +229,6 @@ def _parse_msvc8_overrides(version,platform,suite):
                                 # ToDo: Support for other destinations than Win32
                                 path_dirs = path_dirs.replace('Win32|', '')
                                 dirs['PATH'] = path_dirs
-
-        dirs['VCINSTALLDIR'] = os.getenv('VCInstallDir')
-        dirs['VSINSTALLDIR'] = os.getenv('VSInstallDir')
     else:
         # There are no default directories in the registry for VS8 Express :(
         raise SCons.Errors.InternalError, "Unable to find MSVC paths in the registry."
@@ -268,7 +265,12 @@ def _get_msvc7_path(path, version, platform):
         if paths.has_key(key):
             return paths[key]
         else:
-            return '---Unknown Location %s---' % match.group()
+            # Now look in the global environment variables
+            envresult = os.getenv(key)
+            if not envresult is None:
+                return envresult + '\\'
+            else:
+                return '---Unknown Location %s---' % match.group()
 
     rv = []
     for entry in p.split(os.pathsep):
@@ -343,9 +345,9 @@ def get_msvc_path(env, path, version):
         platform = 'x86'
 
     if version_num >= 8.0:
-        return _get_msvc8_path(path, version, platform, suite)
+        return _get_msvc8_path(path, str(version_num), platform, suite)
     elif version_num >= 7.0:
-        return _get_msvc7_path(path, version, platform)
+        return _get_msvc7_path(path, str(version_num), platform)
 
     path = string.upper(path + ' Dirs')
     K = ('Software\\Microsoft\\Devstudio\\%s\\' +
