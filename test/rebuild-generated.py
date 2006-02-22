@@ -93,7 +93,9 @@ osLinuxModule = env.StaticObject(
 test.write('main.cc', """\
 int
 main(int, char *[])
-{}
+{
+    return (0);
+}
 """)
 
 test.write('target.cc', """\

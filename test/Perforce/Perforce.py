@@ -59,11 +59,15 @@ class TestPerforce(TestSCons.TestSCons):
         if self.p4d:
             self.p4portflags = ['-p', self.host + ':1777']
             self.subdir('depot', ['depot', 'testme'])
-            args = [self.p4d, '-q', '-d'] + \
-                   self.p4portflags + \
-                   ['-J', 'Journal',
-                    '-L', 'Log',
-                    '-r', self.workpath('depot')]
+            def quote_space(a):
+                if ' ' in a:
+                    a = '"%s"' % a
+                return a
+            args = map(quote_space, [self.p4d, '-q', '-d'] + \
+                                    self.p4portflags + \
+                                    ['-J', 'Journal',
+                                     '-L', 'Log',
+                                     '-r', self.workpath('depot')])
 
             # We don't use self.run() because the TestCmd logic will hang
             # waiting for the daemon to exit, even when we pass it
