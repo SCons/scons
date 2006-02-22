@@ -176,8 +176,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.20.D001 2006/02/16 06:28:21 knight"
-__version__ = "0.20"
+__revision__ = "TestCmd.py 0.21.D001 2006/02/21 21:18:43 knight"
+__version__ = "0.21"
 
 import os
 import os.path
@@ -219,31 +219,6 @@ else:
 tempfile.template = 'testcmd.'
 
 re_space = re.compile('\s')
-
-if os.name == 'posix':
-
-    def escape(arg):
-        "escape shell special characters"
-        slash = '\\'
-        special = '"$'
-
-        arg = string.replace(arg, slash, slash+slash)
-        for c in special:
-            arg = string.replace(arg, c, slash+c)
-
-        if re_space.search(arg):
-            arg = '"' + arg + '"'
-        return arg
-
-else:
-
-    # Windows does not allow special characters in file names
-    # anyway, so no need for an escape function, we will just quote
-    # the arg.
-    def escape(arg):
-        if re_space.search(arg):
-            arg = '"' + arg + '"'
-        return arg
 
 _Cleanup = []
 
@@ -499,6 +474,31 @@ class TestCmd:
     def __repr__(self):
         return "%x" % id(self)
 
+    if os.name == 'posix':
+
+        def escape(self, arg):
+            "escape shell special characters"
+            slash = '\\'
+            special = '"$'
+
+            arg = string.replace(arg, slash, slash+slash)
+            for c in special:
+                arg = string.replace(arg, c, slash+c)
+
+            if re_space.search(arg):
+                arg = '"' + arg + '"'
+            return arg
+
+    else:
+
+        # Windows does not allow special characters in file names
+        # anyway, so no need for an escape function, we will just quote
+        # the arg.
+        def escape(self, arg):
+            if re_space.search(arg):
+                arg = '"' + arg + '"'
+            return arg
+
     def cleanup(self, condition = None):
         """Removes any temporary working directories for the specified
         TestCmd environment.  If the environment variable PRESERVE was
@@ -675,12 +675,14 @@ class TestCmd:
             if type(arguments) == type(''):
                 arguments = string.split(arguments)
             cmd.extend(arguments)
-        cmd_string = string.join(map(escape, cmd), ' ')
+        cmd_string = string.join(map(self.escape, cmd), ' ')
         if self.verbose:
             sys.stderr.write(cmd_string + "\n")
         try:
             p = popen2.Popen3(cmd, 1)
         except AttributeError:
+            if sys.platform == 'win32' and cmd_string[0] == '"':
+                cmd_string = '"' + cmd_string + '"'
             (tochild, fromchild, childerr) = os.popen3(' ' + cmd_string)
             if stdin:
                 if is_List(stdin):
