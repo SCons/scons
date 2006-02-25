@@ -819,7 +819,9 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         def normalize_path(path, drive=drive):
             if path[0] in '\\/':
                 path = drive + path
-            return os.path.normpath(path)
+            path = os.path.normpath(path)
+            drive, path = os.path.splitdrive(path)
+            return string.lower(drive) + path
 
         env = dict.TestEnvironment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
@@ -892,6 +894,11 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
                    '-I', normalize_path('blatXXX'),
                    '$)'
         ]
+        def normalize_if_path(arg, np=normalize_path):
+            if arg not in ('$(','$)','-I'):
+                return np(str(arg))
+            return arg
+        flags = map(normalize_if_path, flags)
         assert flags == expect, flags
 
     def test_platform(self):
