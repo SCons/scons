@@ -143,12 +143,8 @@ class Task:
         except SCons.Errors.BuildError:
             raise
         except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            raise SCons.Errors.BuildError(self.targets[0],
-                                          "Exception",
-                                          exc_type,
-                                          exc_value,
-                                          exc_traceback)
+            raise SCons.Errors.TaskmasterException(self.targets[0],
+                                                   sys.exc_info())
 
     def get_target(self):
         """Fetch the target being built or updated by this task.

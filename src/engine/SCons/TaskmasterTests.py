@@ -880,14 +880,12 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         try:
             t.execute()
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.TaskmasterException, e:
             assert e.node == n4, e.node
             assert e.errstr == "Exception", e.errstr
-            assert len(e.args) == 3, `e.args`
-            assert e.args[0] == OtherError, e.args[0]
-            assert isinstance(e.args[1], OtherError), type(e.args[1])
+            assert len(e.exc_info) == 3, e.exc_info
             exc_traceback = sys.exc_info()[2]
-            assert type(e.args[2]) == type(exc_traceback), e.args[2]
+            assert type(e.exc_info[2]) == type(exc_traceback), e.exc_info[2]
         else:
             raise TestFailed, "did not catch expected BuildError"
 

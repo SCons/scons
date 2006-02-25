@@ -33,9 +33,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 class BuildError(Exception):
-    def __init__(self, node=None, errstr="Unknown error", *args):
+    def __init__(self, node=None, errstr="Unknown error", filename=None, *args):
         self.node = node
         self.errstr = errstr
+        self.filename = filename
         apply(Exception.__init__, (self,) + args)
 
 class InternalError(Exception):
@@ -53,3 +54,9 @@ class ExplicitExit(Exception):
         self.status = status
         apply(Exception.__init__, (self,) + args)
 
+class TaskmasterException(Exception):
+    def __init__(self, node=None, exc_info=(None, None, None), *args):
+        self.node = node
+        self.errstr = "Exception"
+        self.exc_info = exc_info
+        apply(Exception.__init__, (self,) + args)

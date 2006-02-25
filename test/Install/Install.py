@@ -128,9 +128,14 @@ test.write(['work', 'f1.in'], "f1.in again again\n")
 os.chmod(test.workpath('work', 'export'), 0555)
 f = open(f1_out, 'rb')
 
+expect = """\
+scons: *** [%s] %s: Permission denied
+""" % (os.path.join('export', 'f1.out'),
+       test.workpath('work', 'export', 'f1.out'))
+
 test.run(chdir = 'work',
          arguments = f1_out,
-         stderr="scons: *** [%s] Permission denied\n" % os.path.join('export', 'f1.out'),
+         stderr=expect,
          status=2)
 
 f.close()

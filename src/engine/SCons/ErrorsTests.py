@@ -58,6 +58,14 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.ExplicitExit, e:
             assert e.node == "node"
 
+    def test_TaskmasterException(self):
+        """Test the TaskmasterException exception."""
+        try:
+            raise SCons.Errors.TaskmasterException("tm exception", (1, 2, 3))
+        except SCons.Errors.TaskmasterException, e:
+            assert e.node == "tm exception"
+            assert e.exc_info == (1, 2, 3)
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(ErrorsTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
