@@ -215,8 +215,8 @@ test.writable('test2.out', 1)
 
 test.description_set("Incorrect STDERR:\n%s" % test.stderr())
 errs = [
-    "scons: *** [test2.out] Permission denied\n",
-    "scons: *** [test2.out] permission denied\n",
+    "scons: *** [test2.out] test2.out: Permission denied\n",
+    "scons: *** [test2.out] test2.out: permission denied\n",
 ]
 test.fail_test(test.stderr() not in errs)
 

@@ -645,7 +645,15 @@ class FunctionAction(_ActionAction):
             result = self.execfunction(target=target, source=rsources, env=env)
         except EnvironmentError, e:
             # If an IOError/OSError happens, raise a BuildError.
-            raise SCons.Errors.BuildError(node=target, errstr=e.strerror)
+            # Report the name of the file or directory that caused the
+            # error, which might be different from the target being built
+            # (for example, failure to create the directory in which the
+            # target file will appear).
+            try: filename = e.filename
+            except AttributeError: filename = None
+            raise SCons.Errors.BuildError(node=target,
+                                          errstr=e.strerror,
+                                          filename=filename)
         return result
 
     def get_contents(self, target, source, env):

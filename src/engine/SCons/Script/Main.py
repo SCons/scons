@@ -138,16 +138,29 @@ class BuildTask(SCons.Taskmaster.Task):
             # see if the sys module has one.
             t, e = sys.exc_info()[:2]
 
+        def nodestring(n):
+            if not SCons.Util.is_List(n):
+                n = [ n ]
+            return string.join(map(str, n), ', ')
+
+        errfmt = "scons: *** [%s] %s\n"
+
         if t == SCons.Errors.BuildError:
-            fname = e.node
-            if SCons.Util.is_List(e.node):
-                fname = string.join(map(str, e.node), ', ')
-            sys.stderr.write("scons: *** [%s] %s\n" % (fname, e.errstr))
-            if e.errstr == 'Exception':
-                traceback.print_exception(e.args[0], e.args[1], e.args[2])
+            tname = nodestring(e.node)
+            errstr = e.errstr
+            if e.filename:
+                errstr = e.filename + ': ' + errstr
+            sys.stderr.write(errfmt % (tname, errstr))
+        elif t == SCons.Errors.TaskmasterException:
+            tname = nodestring(e.node)
+            sys.stderr.write(errfmt % (tname, e.errstr))
+            type, value, trace = e.exc_info
+            traceback.print_exception(type, value, trace)
         elif t == SCons.Errors.ExplicitExit:
             status = e.status
-            sys.stderr.write("scons: *** [%s] Explicit exit, status %s\n" % (e.node, e.status))
+            tname = nodestring(e.node)
+            errstr = 'Explicit exit, status %s' % status
+            sys.stderr.write(errfmt % (tname, errstr))
         else:
             if e is None:
                 e = t

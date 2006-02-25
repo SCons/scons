@@ -135,6 +135,10 @@ RELEASE 0.97 - XXX
 
   - Fix (?) a runtest.py hang on Windows when the --xml option is used.
 
+  - Change the message when an error occurs trying to interact with the
+    file system to report the target(s) in square brackets (as before) and
+    the actual file or directory that encountered the error afterwards.
+
   From Chen Lee:
 
   - Add x64 support for Microsoft Visual Studio 8.
