@@ -176,8 +176,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.21.D001 2006/02/21 21:18:43 knight"
-__version__ = "0.21"
+__revision__ = "TestCmd.py 0.22.D001 2006/02/26 15:45:18 knight"
+__version__ = "0.22"
 
 import os
 import os.path
@@ -499,6 +499,13 @@ class TestCmd:
                 arg = '"' + arg + '"'
             return arg
 
+    def canonicalize(self, path):
+        if is_List(path):
+            path = apply(os.path.join, tuple(path))
+        if not os.path.isabs(path):
+            path = os.path.join(self.workdir, path)
+        return path
+
     def cleanup(self, condition = None):
         """Removes any temporary working directories for the specified
         TestCmd environment.  If the environment variable PRESERVE was
@@ -536,6 +543,12 @@ class TestCmd:
             _Cleanup.remove(self)
         except (AttributeError, ValueError):
             pass
+
+    def chmod(self, path, mode):
+        """Changes permissions on the specified file or directory
+        path name."""
+        path = self.canonicalize(path)
+        os.chmod(path, mode)
 
     def description_set(self, description):
         """Set the description of the functionality being tested.
@@ -630,10 +643,7 @@ class TestCmd:
         be specified; it must begin with an 'r'.  The default is
         'rb' (binary read).
         """
-        if is_List(file):
-            file = apply(os.path.join, tuple(file))
-        if not os.path.isabs(file):
-            file = os.path.join(self.workdir, file)
+        file = self.canonicalize(file)
         if mode[0] != 'r':
             raise ValueError, "mode must begin with 'r'"
         return open(file, mode).read()
@@ -806,11 +816,19 @@ class TestCmd:
         is an absolute path name. The target is *not* assumed to be
         under the temporary working directory.
         """
-        if is_List(link):
-            link = apply(os.path.join, tuple(link))
-        if not os.path.isabs(link):
-            link = os.path.join(self.workdir, link)
+        link = self.canonicalize(link)
         os.symlink(target, link)
+
+    def touch(self, path, mtime=None):
+        """Updates the modification time on the specified file or
+        directory path name.  The default is to update to the
+        current time if no explicit modification time is specified.
+        """
+        path = self.canonicalize(path)
+        atime = os.path.getatime(path)
+        if mtime is None:
+            mtime = time.time()
+        os.utime(path, (atime, mtime))
 
     def unlink(self, file):
         """Unlinks the specified file name.
@@ -819,10 +837,7 @@ class TestCmd:
         assumed to be under the temporary working directory unless it
         is an absolute path name.
         """
-        if is_List(file):
-            file = apply(os.path.join, tuple(file))
-        if not os.path.isabs(file):
-            file = os.path.join(self.workdir, file)
+        file = self.canonicalize(file)
         os.unlink(file)
 
     def verbose_set(self, verbose):
@@ -1009,10 +1024,7 @@ class TestCmd:
         exist.  The I/O mode for the file may be specified; it must
         begin with a 'w'.  The default is 'wb' (binary write).
         """
-        if is_List(file):
-            file = apply(os.path.join, tuple(file))
-        if not os.path.isabs(file):
-            file = os.path.join(self.workdir, file)
+        file = self.canonicalize(file)
         if mode[0] != 'w':
             raise ValueError, "mode must begin with 'w'"
         open(file, mode).write(content)
