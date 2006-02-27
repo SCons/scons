@@ -80,8 +80,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.21.D001 2006/02/21 21:18:43 knight"
-__version__ = "0.21"
+__revision__ = "TestCommon.py 0.22.D001 2006/02/26 15:45:18 knight"
+__version__ = "0.22"
 
 import os
 import os.path
@@ -231,10 +231,6 @@ class TestCommon(TestCmd):
     #  $test->subdir('subdir', ...);
     #
     #  $test->copy('src_file', 'dst_file');
-    #
-    #  $test->chmod($mode, 'file', ...);
-    #
-    #  $test->touch('file', ...);
 
     def __init__(self, **kw):
         """Initialize a new TestCommon instance.  This involves just
