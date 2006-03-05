@@ -335,8 +335,14 @@ def do_diskcheck_rcs(node, name):
     try:
         rcs_dir = node.rcs_dir
     except AttributeError:
-        rcs_dir = node.rcs_dir = node.Dir('RCS')
-    return rcs_dir.entry_exists_on_disk(name+',v')
+        if node.entry_exists_on_disk('RCS'):
+            rcs_dir = node.Dir('RCS')
+        else:
+            rcs_dir = None
+        node.rcs_dir = rcs_dir
+    if rcs_dir:
+        return rcs_dir.entry_exists_on_disk(name+',v')
+    return None
 
 def ignore_diskcheck_rcs(node, name):
     return None
@@ -345,8 +351,14 @@ def do_diskcheck_sccs(node, name):
     try:
         sccs_dir = node.sccs_dir
     except AttributeError:
-        sccs_dir = node.sccs_dir = node.Dir('SCCS')
-    return sccs_dir.entry_exists_on_disk('s.'+name)
+        if node.entry_exists_on_disk('SCCS'):
+            sccs_dir = node.Dir('SCCS')
+        else:
+            sccs_dir = None
+        node.sccs_dir = sccs_dir
+    if sccs_dir:
+        return sccs_dir.entry_exists_on_disk('s.'+name)
+    return None
 
 def ignore_diskcheck_sccs(node, name):
     return None
