@@ -42,6 +42,10 @@
 #
 #       -h              Print the help and exit.
 #
+#       -l              List available tests and exit.
+#
+#       -n              No execute, just print command lines.
+#
 #       -o file         Print test results to the specified file.
 #                       The --aegis and --xml options specify the
 #                       output format.
@@ -90,7 +94,9 @@ import time
 
 all = 0
 debug = ''
+execute_tests = 1
 format = None
+list_only = None
 tests = []
 printcommand = 1
 package = None
@@ -124,6 +130,8 @@ Options:
   -d, --debug                 Run test scripts under the Python debugger.
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
+  -l, --list                  List available tests and exit.
+  -n, --no-exec               No execute, just print command lines.
   -o FILE, --output FILE      Print test results to FILE.
   -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
@@ -148,46 +156,51 @@ Options:
   --xml                       Print results in SCons XML format.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "adf:ho:P:p:qv:Xx:t",
+opts, args = getopt.getopt(sys.argv[1:], "adf:hlno:P:p:qv:Xx:t",
                             ['all', 'aegis',
-                             'debug', 'file=', 'help', 'output=',
+                             'debug', 'file=', 'help',
+                             'list', 'no-exec', 'output=',
                              'package=', 'passed', 'python=', 'quiet',
                              'version=', 'exec=', 'time',
                              'verbose=', 'xml'])
 
 for o, a in opts:
-    if o == '-a' or o == '--all':
+    if o in ['-a', '--all']:
         all = 1
-    elif o == '-d' or o == '--debug':
+    elif o in ['-d', '--debug']:
         debug = os.path.join(lib_dir, "pdb.py")
-    elif o == '-f' or o == '--file':
+    elif o in ['-f', '--file']:
         if not os.path.isabs(a):
             a = os.path.join(cwd, a)
         testlistfile = a
-    elif o == '-h' or o == '--help':
+    elif o in ['-h', '--help']:
         print helpstr
         sys.exit(0)
-    elif o == '-o' or o == '--output':
+    elif o in ['-l', '--list']:
+        list_only = 1
+    elif o in ['-n', '--no-exec']:
+        execute_tests = None
+    elif o in ['-o', '--output']:
         if a != '-' and not os.path.isabs(a):
             a = os.path.join(cwd, a)
         outputfile = a
-    elif o == '-p' or o == '--package':
+    elif o in ['-p', '--package']:
         package = a
-    elif o == '--passed':
+    elif o in ['--passed']:
         print_passed_summary = 1
-    elif o == '-P' or o == '--python':
+    elif o in ['-P', '--python']:
         python = a
-    elif o == '-q' or o == '--quiet':
+    elif o in ['-q', '--quiet']:
         printcommand = 0
-    elif o == '-t' or o == '--time':
+    elif o in ['-t', '--time']:
         print_time = lambda fmt, time: sys.stdout.write(fmt % time)
     elif o in ['--verbose']:
         os.environ['TESTCMD_VERBOSE'] = a
-    elif o == '-v' or o == '--version':
+    elif o in ['-v', '--version']:
         version = a
-    elif o == '-X':
+    elif o in ['-X']:
         scons_exec = 1
-    elif o == '-x' or o == '--exec':
+    elif o in ['-x', '--exec']:
         scons = a
     elif o in ['--aegis', '--xml']:
         format = o
@@ -509,6 +522,11 @@ class Unbuffered:
 
 sys.stdout = Unbuffered(sys.stdout)
 
+if list_only:
+    for t in tests:
+        sys.stdout.write(t.abspath + "\n")
+    sys.exit(0)
+
 # time.clock() is the suggested interface for doing benchmarking timings,
 # but time.time() does a better job on Linux systems, so let that be
 # the non-Windows default.
@@ -527,7 +545,8 @@ for t in tests:
     if printcommand:
         sys.stdout.write(t.command_str + "\n")
     test_start_time = time_func()
-    t.execute()
+    if execute_tests:
+        t.execute()
     t.test_time = time_func() - test_start_time
     print_time("Test execution time: %.1f seconds\n",  t.test_time)
 if len(tests) > 0:
@@ -538,7 +557,7 @@ passed = filter(lambda t: t.status == 0, tests)
 fail = filter(lambda t: t.status == 1, tests)
 no_result = filter(lambda t: t.status == 2, tests)
 
-if len(tests) != 1:
+if len(tests) != 1 and execute_tests:
     if passed and print_passed_summary:
         if len(passed) == 1:
             sys.stdout.write("\nPassed the following test:\n")
