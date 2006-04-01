@@ -216,6 +216,11 @@ class Calculator:
 
 class NodeInfoBaseTestCase(unittest.TestCase):
 
+    def test_prepare_dependencies(self):
+        """Test that we have a prepare_dependencies() method"""
+        ni = SCons.Node.NodeInfoBase(SCons.Node.Node())
+        ni.prepare_dependencies()
+
     def test___cmp__(self):
         """Test comparing NodeInfoBase objects"""
         ni1 = SCons.Node.NodeInfoBase(SCons.Node.Node())
@@ -662,7 +667,8 @@ class NodeTestCase(unittest.TestCase):
 
         def get_null_info():
             class Null_BInfo:
-                pass
+                def prepare_dependencies(self):
+                    pass
             return Null_BInfo()
 
         node.get_stored_info = get_null_info

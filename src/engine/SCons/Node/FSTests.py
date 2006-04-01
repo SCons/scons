@@ -777,9 +777,21 @@ class FileBuildInfoTestCase(_tempdirTestCase):
 
     def test_convert_to_sconsign(self):
         """Test converting to .sconsign file format"""
+        fff = self.fs.File('fff')
+        bi = SCons.Node.FS.FileBuildInfo(fff)
+        assert hasattr(bi, 'convert_to_sconsign')
 
     def test_convert_from_sconsign(self):
         """Test converting from .sconsign file format"""
+        fff = self.fs.File('fff')
+        bi = SCons.Node.FS.FileBuildInfo(fff)
+        assert hasattr(bi, 'convert_from_sconsign')
+
+    def test_prepare_dependencies(self):
+        """Test that we have a prepare_dependencies() method"""
+        fff = self.fs.File('fff')
+        bi = SCons.Node.FS.FileBuildInfo(fff)
+        bi.prepare_dependencies()
 
     def test_format(self):
         """Test the format() method"""
