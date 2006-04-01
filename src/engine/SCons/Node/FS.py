@@ -1609,7 +1609,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         SCons.Node.BuildInfoBase.__init__(self, node)
         self.node = node
     def convert_to_sconsign(self):
-        """Convert this BuildInfo object for writing to a .sconsign file
+        """Convert this FileBuildInfo object for writing to a .sconsign file
 
         We hung onto the node that we refer to so that we can translate
         the lists of bsources, bdepends and bimplicit Nodes into strings
@@ -1627,15 +1627,24 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
             else:
                 setattr(self, attr, map(rel_path, val))
     def convert_from_sconsign(self, dir, name):
-        """Convert a newly-read BuildInfo object for in-SCons use
+        """Convert a newly-read FileBuildInfo object for in-SCons use
 
-        An on-disk BuildInfo comes without a reference to the node
-        for which it's intended, so we have to convert the arguments
-        and add back a self.node attribute.  The bsources, bdepends and
-        bimplicit lists all come from disk as paths relative to that node,
-        so convert them to actual Nodes for use by the rest of SCons.
+        An on-disk BuildInfo comes without a reference to the node for
+        which it's intended, so we have to convert the arguments and add
+        back a self.node attribute.  We don't worry here about converting
+        the bsources, bdepends and bimplicit lists from strings to Nodes
+        because they're not used in the normal case of just deciding
+        whether or not to rebuild things.
         """
         self.node = dir.Entry(name)
+    def prepare_dependencies(self):
+        """Prepare a FileBuildInfo object for explaining what changed
+
+        The bsources, bdepends and bimplicit lists have all been stored
+        on disk as paths relative to the Node for which they're stored
+        as dependency info.  Convert the strings to actual Nodes (for
+        use by the --debug=explain code and --implicit-cache).
+        """
         Entry_func = self.node.dir.Entry
         for attr in ['bsources', 'bdepends', 'bimplicit']:
             try:
@@ -1755,6 +1764,7 @@ class File(Base):
 
     def get_stored_implicit(self):
         binfo = self.get_stored_info()
+        binfo.prepare_dependencies()
         try: return binfo.bimplicit
         except AttributeError: return None
 

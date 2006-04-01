@@ -31,10 +31,11 @@ needed by most users.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-
-# Recipe 14.10 from the Python Cookbook.
+import os
 import string
 import sys
+
+# Recipe 14.10 from the Python Cookbook.
 try:
     import weakref
 except ImportError:
@@ -151,6 +152,12 @@ shorten_list = [
     ( '/src/engine/SCons/',     1),
     ( '/usr/lib/python',        0),
 ]
+
+if os.sep != '/':
+   def platformize(t):
+       return (string.replace(t[0], '/', os.sep), t[1])
+   shorten_list = map(platformize, shorten_list)
+   del platformize
 
 def func_shorten(func_tuple):
     f = func_tuple[0]

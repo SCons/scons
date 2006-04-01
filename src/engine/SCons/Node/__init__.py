@@ -116,6 +116,8 @@ class NodeInfoBase:
     def merge(self, other):
         for key, val in other.__dict__.items():
             self.__dict__[key] = val
+    def prepare_dependencies(self):
+        pass
     def format(self):
         try:
             field_list = self.field_list
@@ -1007,6 +1009,7 @@ class Node:
         old = self.get_stored_info()
         if old is None:
             return None
+        old.prepare_dependencies()
 
         def dictify(result, kids, sigs):
             for k, s in zip(kids, sigs):
