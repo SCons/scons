@@ -1,0 +1,188 @@
+#!/bin/sh
+#
+# Copyright (c) 2005 The SCons Foundation
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+PROG=`basename $0`
+FLAGS="ahnqrstz"
+USAGE="Usage:  ${PROG} [-${FLAGS}] change"
+
+HELP="$USAGE
+
+  -a    Update the latest Aegis baseline (aedist) file.
+  -h    Print this help message and exit.
+  -n    Don't execute, just echo commands.
+  -q    Quiet, don't print commands before executing them.
+  -r    Rsync the Aegis repository to SourceForge.
+  -s    Update the sourceforge.net CVS repository.
+  -t    Update the tigris.org CVS repository.
+  -z    Update the latest .zip file.
+"
+
+DO=""
+PRINT="echo"
+EXECUTE="eval"
+
+while getopts $FLAGS FLAG; do
+	case $FLAG in
+	a | r | s | t | z )
+		DO="${DO}${FLAG}"
+		;;
+	h )
+		echo "${HELP}"
+                exit 0
+		;;
+	n )
+		EXECUTE=":"
+		;;
+        q )
+		PRINT=":"
+                ;;
+	* )
+		echo "${USAGE}" >&2
+		exit 1
+		;;
+	esac
+done
+
+shift `expr ${OPTIND} - 1`
+
+if test "X$1" = "X"; then
+    echo "${USAGE}" >&2
+    exit 1
+fi
+
+if test "X$DO" = "X"; then
+    DO="arstz"
+fi
+
+cmd()
+{
+    $PRINT "$*"
+    $EXECUTE "$*"
+}
+
+CHANGE=$1
+
+if test X$EXECUTE != "X:" -a "X$SSH_AGENT_PID" = "X"; then
+    eval `ssh-agent`
+    ssh-add
+    trap 'eval `ssh-agent -k`; exit' 0 1 2 3 15
+fi
+
+cd
+
+BASELINE=`aesub -p ${AEGIS_PROJECT} -c ${CHANGE} '${Project trunk_name}'`
+
+TMPBLAE="/tmp/${BASELINE}.ae"
+TMPCAE="/tmp/${AEGIS_PROJECT}.C${CHANGE}.ae"
+
+SFLOGIN="stevenknight"
+SFHOST="scons.sourceforge.net"
+SFDEST="/home/groups/s/sc/scons/htdocs"
+
+#
+# Copy the baseline .ae to the constant location on SourceForge.
+#
+case "${DO}" in
+    *a* )
+        cmd "aedist -s -bl -p ${AEGIS_PROJECT} > ${TMPBLAE}"
+        cmd "scp ${TMPBLAE} ${SFLOGIN}@${SFHOST}:${SFDEST}/${BASELINE}.ae"
+        cmd "rm ${TMPBLAE}"
+        ;;
+esac
+
+#
+# Copy the latest .zip file to the constant location on SourceForge.
+#
+case "${DO}" in
+    *z* )
+        BUILD_DIST=`aegis -p ${AEGIS_PROJECT} -cd -bl`/build/dist
+        SCONS_SRC=`echo ${AEGIS_PROJECT} | sed 's/scons./scons-src-/'`.zip
+        cmd "scp ${BUILD_DIST}/${SCONS_SRC} ${SFLOGIN}@${SFHOST}:${SFDEST}/scons-src-latest.zip"
+esac
+
+#
+# Sync Aegis tree with SourceForge.
+#
+# Cribbed and modified from Peter Miller's same-named script in
+# /home/groups/a/ae/aegis/aegis at SourceForge.
+#
+# Guide to what this does with rsync:
+#
+#   --rsh=ssh          use ssh for the transfer
+#   -l                 copy symlinks as symlinks
+#   -p                 preserve permissions
+#   -r                 recursive
+#   -t                 preserve times
+#   -z                 compress data
+#   --stats            file transfer statistics
+#   --exclude          exclude files matching the pattern
+#   --delete           delete files that don't exist locally
+#   --delete-excluded  delete files that match the --exclude patterns
+#   --progress         show progress during the transfer
+#   -v                 verbose
+#
+# We no longer use the --stats option.
+#
+case "${DO}" in
+    *r* )
+	LOCAL=/home/scons/scons
+	REMOTE=/home/groups/s/sc/scons/scons
+	cmd "/usr/bin/rsync --rsh=ssh -l -p -r -t -z \
+		--exclude build \
+		--exclude '*,D' \
+		--exclude '*.pyc' \
+		--exclude aegis.log \
+                --exclude '.sconsign*' \
+		--delete --delete-excluded \
+		--progress -v \
+		${LOCAL}/. scons.sourceforge.net:${REMOTE}/."
+        ;;
+esac
+
+#
+# Sync the CVS tree with Tigris.org.
+#
+case "${DO}" in
+    *t* )
+        cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/tigris.org/scons"
+        ;;
+esac
+
+#
+# Sync the CVS tree with SourceForge.
+#
+case "${DO}" in
+    *s* )
+        export CVS_RSH=ssh
+        cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/sourceforge.net/scons"
+        ;;
+esac
+
+#
+# Send the change .ae to the scons-aedist mailing list
+#
+# The subject requires editing by hand...
+#
+#aedist -s -p ${AEGIS_PROJECT} ${CHANGE} > ${TMPCAE}
+#aegis -l -p ${AEGIS_PROJECT} -c ${CHANGE} cd |
+#	pine -attach_and_delete ${TMPCAE} scons-aedist@lists.sourceforge.net
