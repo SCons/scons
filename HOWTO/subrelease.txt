@@ -36,11 +36,8 @@ Things to do to release a new X.Y.Z version of SCons:
                 aecp rpm/scons.spec.in
                 vi rpm/scons.spec.in
 
-                aecp src/copyrightTests.py
-                vi src/copyrightTests.py
-
-                aecp src/setupTests.py
-                vi src/setupTests.py
+                aecp src/test_setup.py
+                vi src/test_setup.py
 
                 # Read through and update the README files if necessary
 		[optional] aecp README
@@ -109,4 +106,4 @@ Things to do to release a new X.Y.Z version of SCons:
 
 
 
-	Announce to scons-devel.
+	Announce to dev@scons.tigris.org.
