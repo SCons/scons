@@ -16,12 +16,12 @@ The current testing pre-release is 0.96.92.
 <h2>Upcoming Releases</h2>
 
 Take these with a huge grain of salt,
-this is very rough planning
+this is very rough planning.
 
 <table>
 <tr>
 <th>Release</th>
-<th>Est. Date <font size="-1">(yeah, right)</font><th>
+<th>Est. Date <font size="-1">(yeah, right)</font></th>
 <th>
 Goals
 </th>
@@ -60,17 +60,17 @@ to accomplish the following:
 <td>0.97</td>
 <td>???</td>
 <td>
-Wider release of the "Big Signature Refactoring."
-More extensive field testing before
-declaring the new internals ready to be
-blessed as the official 1.0 release.
+Wider release and more extensive field testing before
+declaring the "Big Signature Refactoring"
+ready to be blessed as the official 1.0 release.
+Additional features and bug fixes.
 </td>
 </tr>
 <tr>
 <td>1.0</td>
 <td>???</td>
 <td>
-Official, stable release.
+First official, stable release.
 No 1.x release will (knowingly) break compatibility
 or cause a rebuild on upgrade.
 </td>
@@ -108,6 +108,56 @@ To get some idea of how we do this, see our
 <h3>Release numbering</h3>
 
 <p>
+Our release numbers are of the form <i>major</i>.<i>minor</i>.<i>sub</i>.
+</p>
+
+<ul>
+<li>
+<strong>Major release (1.0, 2.0, 3.0, etc.)</strong>
+<p>
+The major number increments when one of two things happens:
+  <ul>
+  <li>The release knowingly breaks backwards compatibility in some way.
+  <li>The release knowingly causes a rebuild when you upgrade.
+  </ul>
+Our goal is that as a user of SCons,
+you should always be able to upgrade to a later
+revision of the same major number
+with complete confidence that your build will not break.
+</p>
+</li>
+<li>
+<strong>Minor release (1.1, 1.2, 1.3, etc.)</strong>
+<p>
+Minor releases will add new functionality to an
+existing major release branch.
+All new functionality will be added so as to never
+knowingly break backwards compatibility with any
+previous minor releases from the same branch.
+We expect that our major release branches will be long-lived
+platforms for delivering many minor releases to
+add functionality.
+</p>
+</li>
+<li>
+<strong>Bug-fix sub-release (1.1.1, 1.1.2, 1.1.3, etc.)</strong>
+<p>
+Released whenever a critical bug fix is necessary
+for a major or minor release.
+</p>
+</li>
+<li>
+<strong>Testing pre-release (1.1.90, 1.1.91, 1.1.93, etc.)</strong>
+<p>
+A sub-release number of 90 or greater
+indicates the release is intended for
+testing a set of new features intended for
+wider distribution in the next major or minor release.
+</p>
+</li>
+</ul>
+<p>
+Our release numbers are of the form <i>major</i>.<i>minor</i>.<i>sub</i>.
 </p>
 
 </body>
