@@ -3,25 +3,35 @@
 </head>
 <body>
 
+<div class="h2 app" style="border-left: 0px" id="customcontent">
+
 <h2>Current Releases</h2>
 
 <p>
-The current "stable" release is 0.96.1.
+The current stable release is 0.96.1, released 23 August 2004.
 </p>
 
 <p>
-The current testing pre-release is 0.96.92.
+The current testing pre-release is 0.96.92, released 10 April 2006.
+</p>
+
+<p>
+(Yes, the current "stable" release is a little long in the tooth.
+In practice, most everyone uses the testing pre-releases,
+because our testing methodology gives us a pretty good
+track record of not breaking things from release to release.)
 </p>
 
 <h2>Upcoming Releases</h2>
 
 Take these with a huge grain of salt,
-this is very rough planning.
+this is very rough planning
+and subject to change.
 
 <table>
 <tr>
 <th>Release</th>
-<th>Est. Date <font size="-1">(yeah, right)</font></th>
+<th>Est. Date?</th>
 <th>
 Goals
 </th>
@@ -31,8 +41,9 @@ Goals
 <td>???</td>
 <td>
 Significant speed up of some specific configurations,
-plus accumulated patches.
-Fix for the one cosmetic bug found so far in 0.96.92.
+plus accumulated patches with bug fixes and new functionality.
+Fix for the one regression found so far in 0.96.92
+(printing an incorrect message when executing the InstallAs() function).
 </td>
 </tr>
 <tr>
@@ -140,25 +151,29 @@ add functionality.
 </p>
 </li>
 <li>
-<strong>Bug-fix sub-release (1.1.1, 1.1.2, 1.1.3, etc.)</strong>
+<strong>Bug-fix release (1.1.1, 1.1.2, 1.1.3, etc.)</strong>
 <p>
-Released whenever a critical bug fix is necessary
+Sub-release numbers are used
+whenever a critical bug fix is necessary
 for a major or minor release.
 </p>
 </li>
 <li>
-<strong>Testing pre-release (1.1.90, 1.1.91, 1.1.93, etc.)</strong>
+<strong>Testing pre-release (1.1.90, 1.1.91, 1.1.92, etc.)</strong>
 <p>
 A sub-release number of 90 or greater
 indicates the release is intended for
 testing a set of new features intended for
 wider distribution in the next major or minor release.
+There may be many of these
+leading up to a release
+with a lot of significant internal changes
+(<i>*cough*</i> 0.97 <i>*cough*</i>...).
 </p>
 </li>
 </ul>
-<p>
-Our release numbers are of the form <i>major</i>.<i>minor</i>.<i>sub</i>.
-</p>
+
+</div>
 
 </body>
 </html>
