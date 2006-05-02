@@ -1,0 +1,114 @@
+<html>
+<head>
+</head>
+<body>
+
+<h2>Current Releases</h2>
+
+<p>
+The current "stable" release is 0.96.1.
+</p>
+
+<p>
+The current testing pre-release is 0.96.92.
+</p>
+
+<h2>Upcoming Releases</h2>
+
+Take these with a huge grain of salt,
+this is very rough planning
+
+<table>
+<tr>
+<th>Release</th>
+<th>Est. Date <font size="-1">(yeah, right)</font><th>
+<th>
+Goals
+</th>
+</tr>
+<tr>
+<td>0.96.93</td>
+<td>???</td>
+<td>
+Significant speed up of some specific configurations,
+plus accumulated patches.
+Fix for the one cosmetic bug found so far in 0.96.92.
+</td>
+</tr>
+<tr>
+<td>0.96.94</td>
+<td>???</td>
+<td>
+Testing pre-release of the "Big Signature Refactoring,"
+a significant re-design of internal data structures
+to accomplish the following:
+  <ul>
+  <li>
+  Interoperability between MD5 signatures and timestamps.
+  </li>
+  <li>
+  Ability to partition the dependency graph into separate SConstruct
+  (not SConscript) files.
+  </li>
+  <li>
+  Improved performance (we hope)
+  </li>
+  </ul>
+</td>
+</tr>
+<tr>
+<td>0.97</td>
+<td>???</td>
+<td>
+Wider release of the "Big Signature Refactoring."
+More extensive field testing before
+declaring the new internals ready to be
+blessed as the official 1.0 release.
+</td>
+</tr>
+<tr>
+<td>1.0</td>
+<td>???</td>
+<td>
+Official, stable release.
+No 1.x release will (knowingly) break compatibility
+or cause a rebuild on upgrade.
+</td>
+</tr>
+<tr>
+<td>2.0</td>
+<td>???</td>
+<td>
+First release that will break backwards compatibility with Python 1.5.2.
+</td>
+</tr>
+</table>
+
+<!--
+
+<h2>Upcoming Features</h2>
+
+-->
+
+<h2>Release Planning</h2>
+
+<h3>Why has 1.0 still not been released?</h3>
+
+<p>
+As seems so common these days,
+SCons has had an extremely lengthy "beta" period.
+The primary goal has been to arrive at something by 1.0
+that we feel is absolutely rock-solid-stable
+and which people can download and use without fear of
+broken builds or unnecessary rebuilds.
+To get some idea of how we do this, see our
+<a href="testing.html">testing philosophy</a> page.
+</p>
+
+<h3>Release numbering</h3>
+
+<p>
+</p>
+
+</body>
+</html>
