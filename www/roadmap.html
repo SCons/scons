@@ -62,6 +62,10 @@ to accomplish the following:
   (not SConscript) files.
   </li>
   <li>
+  Hooks for supporting tool-generated dependency information
+  (like <tt>gcc -M</tt>)
+  </li>
+  <li>
   Improved performance (we hope)
   </li>
   </ul>
@@ -84,6 +88,14 @@ Additional features and bug fixes.
 First official, stable release.
 No 1.x release will (knowingly) break compatibility
 or cause a rebuild on upgrade.
+The following features have been suggested as prerequisites
+for a fully-feature 1.0 release:
+  <ul>
+  <li>
+  C/C++ dependency scanning that acts like a real C preprocessor
+  (computed file names, #ifdef analysis)
+  </li>
+  </ul>
 </td>
 </tr>
 <tr>
