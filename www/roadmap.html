@@ -40,10 +40,20 @@ Goals
 <td>0.96.93</td>
 <td>???</td>
 <td>
-Significant speed up of some specific configurations,
-plus accumulated patches with bug fixes and new functionality.
-Fix for the one regression found so far in 0.96.92
-(printing an incorrect message when executing the InstallAs() function).
+The last (?) pre-release before the "Big Signature Refactoring"
+changes internal data structures.
+  <ul>
+  <li>
+  Fix for the one regression found so far in 0.96.92
+  (printing an incorrect message when executing the InstallAs() function)
+  </li>
+  <li>
+  Significant speed up of some specific configurations
+  </li>
+  <li>
+  Integration of accumulated patches with bug fixes and new functionality
+  </li>
+  </ul>
 </td>
 </tr>
 <tr>
@@ -55,7 +65,7 @@ a significant re-design of internal data structures
 to accomplish the following:
   <ul>
   <li>
-  Interoperability between MD5 signatures and timestamps.
+  Interoperability between MD5 signatures and timestamps
   </li>
   <li>
   Ability to partition the dependency graph into separate <tt>SConstruct</tt>
@@ -93,7 +103,7 @@ for a fully-feature 1.0 release:
   <ul>
   <li>
   C/C++ dependency scanning that acts like a real C preprocessor
-  (computed file names, <tt>#ifdef</tt> analysis)
+  (computed file names, <tt>#ifdef</tt> analysis, <tt>#include_next</tt> support)
   </li>
   </ul>
 </td>
@@ -131,7 +141,7 @@ To get some idea of how we do this, see our
 <h3>Release numbering</h3>
 
 <p>
-Our release numbers are of the form <i>major</i>.<i>minor</i>.<i>sub</i>.
+Our release numbers are of the form <i>major</i>.<i>minor</i>.<i>revision</i>.
 </p>
 
 <ul>
@@ -152,28 +162,33 @@ with complete confidence that your build will not break.
 <li>
 <strong>Minor release (1.1, 1.2, 1.3, etc.)</strong>
 <p>
-Minor releases will add new functionality to an
-existing major release branch.
+Minor numbers increment for release that
+adds new functionality and/or bug fixes
+to an existing major release branch.
 All new functionality will be added so as to never
 knowingly break backwards compatibility with any
 previous minor releases from the same branch.
 We expect that our major release branches will be long-lived
 platforms for delivering many minor releases to
-add functionality.
+add functionality and fix bugs.
 </p>
 </li>
 <li>
-<strong>Bug-fix release (1.1.1, 1.1.2, 1.1.3, etc.)</strong>
+<strong>Bug-fix revisions (1.1.1, 1.1.2, 1.1.3, etc.)</strong>
 <p>
-Sub-release numbers are used
+Revision numbers are appended and/or incremented
 whenever a critical bug fix is necessary
 for a major or minor release.
+Bedause most new functionality and bug fixes
+will be delivered in minor releases,
+we expect that there will be few of these--at most
+one per minor release.
 </p>
 </li>
 <li>
 <strong>Testing pre-release (1.1.90, 1.1.91, 1.1.92, etc.)</strong>
 <p>
-A sub-release number of 90 or greater
+A revision number of 90 or greater
 indicates the release is intended for
 testing a set of new features intended for
 wider distribution in the next major or minor release.
