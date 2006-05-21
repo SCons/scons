@@ -1,20 +1,340 @@
 <html>
 <head>
-<title>Patch Submission Guidelines</title>
+<title>Patch Submission</title>
 </head>
 <body>
 
 <div id="apphead">
-<h1><small>scons</small><br />Patch Submission Guidelines</h1>
+<h1><small>scons</small><br />Patch Submission</h1>
 </div>
 
 <p>
-<a href="http://scons.tigris.org/issues/enter_bug.cgi?issue_type=PATCH?subcomponent=scons">http://scons.tigris.org/issues/enter_bug.cgi?issue_type=PATCH?subcomponent=scons</a>
+<strong>If you have not already done so, please
+<a href="http://www.tigris.org/servlets/Login">log in</a>
+before submitting a patch!</strong>
+<p>
+
+<p>
+Patches should be submitted to
+<a href="http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=PATCH">http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=PATCH</a>
+Please follow the <a href="patch-submission.html#guidelines">submission guidelines</a> below
+to make sure your patch contains the necessary information.
+A more detailed set of <a href="patch-submission.html#steps">submission steps</a>
+can be found below.
+</p>
+
+</div>
+
+<div class="h2 app" style="border-left: 0px" id="customcontent">
+
+<h2 id="guidelines">Guidelines for Patch Submission</h2>
+
+<p>
+Your bug will be much more likely to get diagnosed and fixed
+if you supply all the necessary information to make it easy to do so.
+</p>
+
+<ul>
+
+<li>
+<strong>
+Please
+<a href="http://www.tigris.org/servlets/Login">log in</a>
+to your tigris.org account before submitting any patch
+</strong>
+<p>
+If you do not already have a tigris.org account,
+please register for one at
+<a href="http://www.tigris.org/servlets/Join">http://www.tigris.org/servlets/Join</a>.
+</p>
+<p>
+We do accept anonymous patches,
+but if the patch needs additional work or
+there are other questions about it,
+not knowing who submitted it
+will delay integration of the patch--or
+prevent it from being integrated at all.
+If you choose not to create a tigris.org account,
+at least put some identifying contact information
+in the bug description.
+</p>
+</li>
+
+<li>
+<strong>If your patch is extensive, discuss it first on the
+<a href="mailto:dev@scons.tigris.org">dev@scons.tigris.org</a>
+mailing list
+</strong>
+<p>
+In fact, for extensive changes, it's a good idea to have this discusssion
+<emphasis>before</emphasis> you invest too much time in coding.
+It's possible that your idea would overlap with something else
+already in the works,
+or that your idea is unlikely to be accepted
+because it would conflict with planned directions for SCons.
+It's much better to find that out,
+or get advice on acceptable design choices.
+before you've spent a lot of time polishing code
+only to have it rejected.
+</p>
+</li>
+
+<li>
+<strong>It's better to submit multiple patches with separate bits of functionality than a big patch containing lots of changes</strong>
+<p>
+Big, intertwined sets of changes
+increase the chances of unintended side effects
+that could case the entire patch to be rejected.
+If you submit separate functional changes in separate patches,
+change that meet all the criteria can
+still be integrated even
+though other pieces might held up for one reason or another.
+</p>
+</li>
+
+<li>
+<strong>Submit your patch in <tt>diff -u</tt> or <tt>diff -c</tt> format</strong>
+<p>
+In particular, do <emphasis>not</emphasis> submit whole source files,
+or <tt>diff</tt> output without any kind of context information.
+It's much more difficult to integrate whole source files
+or plain <tt>diff</tt> output with other changes to
+the SCons code base.
+</p>
+</li>
+
+<li>
+<strong>Your patch must include test caes before it can be integrated!</strong>
+<p>
+THIS IS THE SINGLE MOST COMMON REASON FOR DELAYS IN INTEGRATING PATCHES.
+</p>
+<p>
+The SCons development methodology requires
+that each change be accompanied by one or more test cases
+that get added to our extensive regression test suite,
+to make sure that the desired behavior added by the patch
+doesn't get inadvertently broken by other changes in the future.
+Patches that fix bugs should contain at least one test case
+that demonstrates the behavior being fixed by the patch--for
+example, if you're fixing a configuration that causes
+SCons to exit with an error and a stack trace,
+the test case should trigger that stack trace
+when run against the current code.
+Patches that add new features or enhancements
+should contain test cases that use
+the new behavior being added to SCons.
+</p>
+<p>
+You can do any of the following to supply
+test cases with your patch:
+</p>
+<ul>
+<li>
+<strong>Include actual new or modified SCons test scripts in your patch</strong>
+<p>
+This is the best option because it's the easiest to integrate.
+(Note that, yes, there's a curve to learning how to
+write test scripts in the SCons testing harness.
+We're working on documentation to deal with that.)
+</p>
+</li>
+<li>
+<strong>Include a .tar.gz or .zip file containing test configurations</strong>
+<p>
+If you can't quite figure out how to deal with the SCons test scripts,
+the next best option is to include with your patch an archive file
+containing one or more actual test configurations--<tt>SConscript</tt> files,
+input files, etc.
+It's relatively straightforard for someone who's familiar with the
+SCons testing harness to turn this into an appropriate test script.
+Be sure to include a description of how to run your test scenario,
+or a script for doing so.
+</p>
+</li>
+<li>
+<strong>Describe how to go about testing the patch</strong>
+<p>
+If you really can't cook up a test configuration to include with the patch,
+the lowest-common-denominator approach is to just describe
+how to go about testing the patch.
+Be as specific as possible,
+even if you think it should be obvious
+how to test the patch.
+It might be clear to you while you're writing the code,
+but it might still take someone else 15 minutes
+of making sure they understand the intent.
+The point is you're trying to use your knowledge
+to save time during the integration process,
+thereby increasing the chance of your patch making it
+into the SCons code base.
+</p>
+</li>
+</ul>
+<p>
+If you don't supply <emphasis>any</emphasis> sort of testing
+information with your patch,
+well, you're still welcome to submit the code.
+Just be aware that the patch will likely stay
+in the queue until someone has time to reverse-engineer
+a test cse.
+</p>
+</li>
+
+<li>
+<strong>Your patch should not break any existing tests</strong>
+<p>
+This almost sounds like it should go without saying,
+but the reason we put so much emphasis on test cases
+is so that we can make sure functionality doesn't break.
+Your patch will almost certainly be run through the
+the complete set of checked-in test scripts,
+and if any of them break,
+your patch will either be rejected outright
+or delayed while someone else figures out how to 
+You should, of course, avoid this by running your patch
+against the regression tests and fixing any problems
+<emphasis>before</emphasis> submitting your patch.
+If you run your patch against against the regression tests
+but can't figure out how to fix all the cases,
+the best bet would be to ask the
+<a href="mailto:dev@scons.tigris.org">dev@scons.tigris.org</a>
+mailing list.
+</p>
+</li>
+
+<li>
+<strong>Your patch should include documentation changes</strong>
+<p>
+We also insist that changes to the SCons code base
+be accompanied by appropriate changes to the documentation.
+In practice, right now we make sure the man page is up to date,
+and updates to the User's Guide often lag.
+</p>
+<p>
+Similar to the guidelines above for testing,
+if you don't submit changes to the actual man page with your patch,
+it's helpful if you at least provide
+some suggested text describing your change.
+Even if the actual words get rewritten
+(usually to make the style consistent with the rest of the man page),
+taking the time to provide this
+makes the integration easier because
+the person integrating the patch doesn't have
+to reverse-engineer the <emphasis>intent</emphasis>
+of your change to figure out how to describe.
+</p>
+</li>
+
+</ul>
+
+<h2 id="steps">Steps for Submitting a Patch</h2>
+
+<p>
+The following guides you step-by-step through the
+process of submitting a patch to SCons.
 </p>
 
 <p>
-More information coming soon...
+NOTE:  Attaching a file or files
+(such as a .tar.gz or .zip file containing your patch)
+is a two-step process in the tigris.org Issue Tracker.
+You must first create the patch issue in the Tracker,
+and then attach the file(s) in a separate step,
+as described below.
 </p>
+
+<ul>
+
+<li>
+<strong><a href="http://www.tigris.org/servlets/Login">Log in</a> at tigris.org</strong>
+<p>
+If you do not already have a tigris.org account,
+you can register for one at
+<a href="http://www.tigris.org/servlets/Join">http://www.tigris.org/servlets/Join</a>.
+</p>
+<p>
+You can still submit a patch anonymously, without logging in,
+but it may be impossible to integrate your patch
+if we need more information and have no
+idea who submitted the bug or how to contact you.
+If you choose not to create a tigris.org account,
+at least put some identifying contact information
+in the description.
+</p>
+</li>
+
+<li>
+<strong>Go to the "Enter issue" page at
+<a href="http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=PATCH">http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=PATCH</a>
+</strong>
+<p>
+</p>
+</li>
+
+<li>
+<strong>Specify the version of SCons that you used as a baseline</strong>
+<p>
+You can leave this <strong>-unspecified-</strong>,
+in which case the assumption will be that you started with
+the code checked in to our Subversion repository
+at the time you opened the issue.
+</p>
+</li>
+
+<li>
+<strong>Fill in a good Summary line describing the patch</strong>
+<p>
+This line is what shows up in summary reports,
+so it should be descriptive but not too long.
+Avoid overly-general things like "SCons error," etc.
+</p>
+</li>
+
+<li>
+<strong>Fill in the Description field</strong>
+<p>
+This is where you should go into detail
+about the configuration,
+the exact error you see,
+what you expected to happen, etc.
+When in doubt, include more information rather than less.
+</p>
+</li>
+
+<li>
+<strong>Press the "Submit issue" to submit your report</strong>
+<p>
+You will now receive a <strong>Posting issue</strong> page
+that gives you the number of the issue you submitted.
+</p>
+</li>
+
+<li>
+<strong>Click the "Attach a file to this issue" link</strong>
+<p>
+</p>
+</li>
+
+<li>
+<strong>Fill in the "File" field with the path to the file you want to upload</strong>
+<p>
+(You can also do this through the <strong>Browse...</strong> button.)
+</p>
+</li>
+
+<li>
+<strong>Fill in the Description field</strong>
+<p>
+</p>
+</li>
+
+<li>
+<strong>Click the "Submit" button to attach your file</strong>
+<p>
+</p>
+</li>
+
+</ul>
 
 </div>
 
