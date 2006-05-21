@@ -6,15 +6,237 @@
 
 <div id="apphead">
 <h1><small>scons</small><br />Bug Submission Guidelines</h1>
+
+<p>
+<strong>If you have not already done so, please
+<a href="http://www.tigris.org/servlets/Login">log in</a>
+before submitting a bug report!</strong>
+<p>
+
+<p>
+Bugs should be reported at
+<a href="http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=DEFECT">http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=DEFECT</a>.
+Please follow the <a href="#guidelines">submission guidelines</a> below
+to make sure your bug report contains the necessary information.
+A more detailed set of <a href="steps">submission steps</a>
+can be found below.
+</p>
+
+<p>
+The above URL is set up for reporting a bug in SCons itself.
+If you are reporting a problem in some other aspect of the SCons Project
+(such as the documentation, or any of the web pages),
+you must change the Subcomponent field of the submission form
+to some other appropriate value.
+</p>
+
 </div>
 
+<div class="h2 app" style="border-left: 0px" id="customcontent">
+
+<h2 id="guidelines">Guidelines for a Useful Bug Report</h2>
+
 <p>
-<a href="http://scons.tigris.org/issues/enter_bug.cgi?issue_type=DEFECT?subcomponent=scons">http://scons.tigris.org/issues/enter_bug.cgi?issue_type=DEFECT?subcomponent=scons</a>
+Your bug will be much more likely to get diagnosed and fixed
+if you supply all the necessary information to make it easy to do so.
+</p>
+
+<ul>
+<li>
+<strong>
+Please
+<a href="http://www.tigris.org/servlets/Login">log in</a>
+to your tigris.org account before submitting a bug report
+</strong>
+<p>
+If you do not already have a tigris.org account,
+please register for one at
+<a href="http://www.tigris.org/servlets/Join">http://www.tigris.org/servlets/Join</a>.
+</p>
+<p>
+We do accept anonymous bug reports,
+but it may be impossible to diagnose or fix the bug
+if we need more information and have no
+idea who submitted the bug or how to contact you.
+If you choose not to create a tigris.org account,
+at least put some identifying contact information
+in the bug description.
+</p>
+</li>
+<li>
+<strong>Specify the version of SCons in which you observed the problem</strong>
+</strong>
+<p>
+This helps avoid wasted time trying to pinpoint the version,
+and also allows us to confirm if a later released version
+has already fixed your problem.
+</p>
+</li>
+<li>
+<strong>Provide SConscript files or other configuration that reproduce the problem</strong>
+<p>
+If you can, simplify the configuration to just the
+minimal subset that demonstrates the problem.
+It's much harder to diagnose a problem
+if the incorrect behavor is due to
+one particular item out of a thousand
+in a large configuration.
+</p>
+<p>
+That said, it's most convenient if you can provide
+an actual configuration (set of SConscript files
+and/or other input files)
+that can be downloaded and run to demonstrate the bug.
+The easiest way is to attach a .tar.gz or .zip file
+to the bug report.
+Note that the tigris.org Issue Tracker
+doesn't let you attach a file like this
+when you initially submit the report.
+You must first create the bug report,
+and then attach a file to it as a separate step.
+See below for the detailed steps.
+</p>
+<p>
+If your problem is evident from a few specific
+SConscript files lines,
+it's perfectly acceptable just to
+paste the lines into the Description field of the bug report.
+</p>
+</li>
+<li>
+<strong>Describe specifically the incorrect behavor you observed</strong>
+<p>
+It's best if you can cut and paste the output from SCons,
+especially any error messages.
+Otherwise,
+Vague descriptions like,
+"SCons errors out," or "Product XYZ doesn't compile"
+are extremely difficult to diagnose,
+because the different installed tools on someone else's system
+may cause SCons to behave differently
+and not demonstrate your bug.
+</p>
+</li>
+<li>
+<strong>Describe what you expected to happen</strong>
+<p>
+This isn't always obvious, especially if the
+bug does not involve an SCons failure or error message.
+Describing the behavior you expected
+helps speed up the diagnosis.
+</p>
+</li>
+</ul>
+
+<h2 id="steps">>Steps for Submitting a Bug Report</h2>
+
+<p>
+The following guides you step-by-step through the
+process of submitting a new SCons bug report.
 </p>
 
 <p>
-More information coming soon...
+NOTE:  Creating a bug report with an attached file or files
+(such as a .tar.gz or .zip file containing a sample configuration)
+is a two-step process in the tigris.org Issue Tracker.
+You must first create the bug report,
+and then attach the file(s) in a separate step,
+as described below.
 </p>
+
+<ul>
+<li>
+<strong>Log in at tigris.org</strong>
+<p>
+If you do not already have a tigris.org account,
+you can register for one at
+<a href="http://www.tigris.org/servlets/Join">http://www.tigris.org/servlets/Join</a>.
+</p>
+<p>
+You can still submit an anonymous bug report without logging in,
+but it may be impossible to diagnose or fix the bug
+if we need more information and have no
+idea who submitted the bug or how to contact you.
+If you choose not to create a tigris.org account,
+at least put some identifying contact information
+in the bug description.
+</p>
+</li>
+<li>
+<strong>Go to the "Enter issue" page at
+<a href="http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=DEFECT">http://scons.tigris.org/issues/enter_bug.cgi?subcomponent=scons&issue_type=DEFECT</a>
+</strong>
+</li>
+<li>
+<strong>Specify the version of SCons in which you found the bug</strong>
+<p>
+</p>
+</li>
+<li>
+<strong>Specify the Subcomponent (if the bug is not in SCons itself)</strong>
+<p>
+The URL two steps above assumes that you're reporting
+a bug in the behavior of SCons itself.
+If you're reporting a problem in some other aspect of the SCons Project
+(such as the documentation, or the packaging),
+please change the Subcomponent field to reflect that.
+</p>
+</li>
+<li>
+<strong>Specify the Platform and OS</strong>
+<p>
+The Platform field is less important here
+(SCons doesn't have many behavioral difference
+due to different hardware platforms)
+but the OS field is important.
+</p>
+</li>
+<li>
+<strong>Fill in a good Summary line describing the bug</strong>
+<p>
+This line is what shows up in summary reports,
+so it should be descriptive but not too long.
+Avoid overly-general things like "SCons error," etc.
+</p>
+</li>
+<li>
+<strong>Fill in the Description field</strong>
+<p>
+This is where you should go into detail
+about the configuration,
+the exact error you see,
+what you expected to happen, etc.
+When in doubt, include more information rather than less.
+</p>
+</li>
+<li>
+<strong>Press the "Submit issue" to submit your report</strong>
+<p>
+You will now receive a <strong>Posting issue</strong> page
+that gives you the number of the issue you submitted.
+</p>
+</li>
+<strong>If you have a .tar.gz, .zip or other file to attach:</strong>
+<li>
+<ul>
+<li>
+<strong>Click the "Attach a file to this issue" link</strong>
+</li>
+<li>
+<strong>Fill in the "File" with the path to the file you want to upload</strong>
+<p>
+You can also do this through the <strong>Browse...</strong> button.
+</p>
+</li>
+<li>
+<strong>Fill in the Description></strong>
+</li>
+<li>
+<strong>Click the "Submit" button</strong>
+</li>
+</ul>
+</li>
+</ul>
 
 </div>
 
