@@ -60,8 +60,8 @@ We do accept anonymous patches,
 but if the patch needs additional work or
 there are other questions about it,
 not knowing who submitted it
-will delay integration of the patch--or
-prevent it from being integrated at all.
+will delay its integration,
+or prevent it from being integrated at all.
 If you choose not to create a tigris.org account,
 at least put some identifying contact information
 in the patch description.
@@ -75,15 +75,16 @@ mailing list
 </strong>
 <p>
 In fact, for extensive changes, it's a good idea to have this discusssion
-<emphasis>before</emphasis> you invest too much time in coding.
-It's possible that your idea would overlap with something else
+<em>before</em> you invest too much time in coding.
+It's possible that your idea overlaps with something else
 already in the works,
 or that your idea is unlikely to be accepted
 because it would conflict with planned directions for SCons.
 It's much better to find that out,
 or get advice on acceptable design choices.
 before you've spent a lot of time polishing code
-only to have it rejected.
+that will be rejected because it doesn't fit
+plans for the architecture.
 </p>
 </li>
 
@@ -92,39 +93,44 @@ only to have it rejected.
 <p>
 Big, intertwined sets of changes
 increase the chances of unintended side effects
-that could case the entire patch to be rejected.
+that could cause the entire patch to be rejected.
 If you submit separate functional changes in separate patches,
-change that meet all the criteria can
+those change that meet all the criteria can
 still be integrated even
-though other pieces might held up for one reason or another.
+though other pieces might be held up for one reason or another.
 </p>
 </li>
 
 <li>
 <strong>Submit your patch in <tt>diff -u</tt> or <tt>diff -c</tt> format</strong>
 <p>
-In particular, do <emphasis>not</emphasis> submit whole source files,
+In particular, do <em>not</em> submit whole source files,
 or <tt>diff</tt> output without any kind of context information.
 It's much more difficult to integrate whole source files
 or plain <tt>diff</tt> output with other changes to
-the SCons code base.
+the SCons code base,
+especially other changes that might be integrated
+after you've submitted your patch.
 </p>
 </li>
 
 <li>
 <strong>Your patch must include test caes before it can be integrated!</strong>
 <p>
-THIS IS THE SINGLE MOST COMMON REASON FOR DELAYS IN INTEGRATING PATCHES.
+THIS IS THE SINGLE MOST COMMON REASON FOR DELAYS IN INTEGRATING PATCHES
+AND THE SINGLE MOST IMPORTANT THING YOU CAN DO TO INCREASE THE
+CHANCES OF YOUR PATCH BEING INTEGRATED QUICKLY.
 </p>
 <p>
 The SCons development methodology requires
-that each change be accompanied by one or more test cases
-that get added to our extensive regression test suite,
-to make sure that the desired behavior added by the patch
+that each change be accompanied by one or more
+new or modified test cases
+that get added to our extensive regression test suite.
+This is to make sure that the behavior added by your patch
 doesn't get inadvertently broken by other changes in the future.
 Patches that fix bugs should contain at least one test case
-that demonstrates the behavior being fixed by the patch--for
-example, if you're fixing a configuration that causes
+that demonstrates the behavior being fixed by the patch.
+For example, if you're fixing a configuration that causes
 SCons to exit with an error and a stack trace,
 the test case should trigger that stack trace
 when run against the current code.
@@ -140,7 +146,8 @@ test cases with your patch:
 <li>
 <strong>Include actual new or modified SCons test scripts in your patch</strong>
 <p>
-This is the best option because it's the easiest to integrate.
+This is the best option because it's the easiest to integrate,
+and therefore maximizes the chances of your patch being accepted quickly.
 (Note that, yes, there's a curve to learning how to
 write test scripts in the SCons testing harness.
 We're working on documentation to deal with that.)
@@ -151,11 +158,12 @@ We're working on documentation to deal with that.)
 <p>
 If you can't quite figure out how to deal with the SCons test scripts,
 the next best option is to include with your patch an archive file
-containing one or more actual test configurations--<tt>SConscript</tt> files,
-input files, etc.
-It's relatively straightforard for someone who's familiar with the
-SCons testing harness to turn this into an appropriate test script.
-Be sure to include a description of how to run your test scenario,
+containing one or more actual test configurations
+(<tt>SConscript</tt> files, input files, etc.).
+It will be relatively straightforward for someone integrating your patch,
+and who's presumably familiar with the SCons testing harness,
+to turn this into an appropriate test script.
+Be sure to include a description of how to run your recommended test scenario,
 or a script for doing so.
 </p>
 </li>
@@ -169,8 +177,8 @@ Be as specific as possible,
 even if you think it should be obvious
 how to test the patch.
 It might be clear to you while you're writing the code,
-but it might still take someone else 15 minutes
-of making sure they understand the intent.
+but it might still take someone else 15 or more minutes
+of making sure they understand your intent.
 The point is you're trying to use your knowledge
 to save time during the integration process,
 thereby increasing the chance of your patch making it
@@ -179,7 +187,7 @@ into the SCons code base.
 </li>
 </ul>
 <p>
-If you don't supply <emphasis>any</emphasis> sort of testing
+If you don't supply <em>any</em> sort of testing
 information with your patch,
 well, you're still welcome to submit the code.
 Just be aware that the patch will likely stay
@@ -198,10 +206,11 @@ Your patch will almost certainly be run through the
 the complete set of checked-in test scripts,
 and if any of them break,
 your patch will either be rejected outright
-or delayed while someone else figures out how to 
+or delayed while someone else figures out how to fix it
+(or the tests) so that everything works correctly.
 You should, of course, avoid this by running your patch
 against the regression tests and fixing any problems
-<emphasis>before</emphasis> submitting your patch.
+<em>before</em> submitting your patch.
 If you run your patch against against the regression tests
 but can't figure out how to fix all the cases,
 the best bet would be to ask the
@@ -228,8 +237,8 @@ Even if the actual words get rewritten
 taking the time to provide this
 makes the integration easier because
 the person integrating the patch doesn't have
-to reverse-engineer the <emphasis>intent</emphasis>
-of your change to figure out how to describe.
+to reverse-engineer the <em>intent</em>
+of your change to figure out how to describe it.
 </p>
 </li>
 
@@ -282,7 +291,7 @@ in the description.
 <li>
 <strong>Specify the version of SCons that you used as a baseline</strong>
 <p>
-You can leave this <strong>-unspecified-</strong>,
+You can leave this <tt>-unspecified-</tt>,
 in which case the assumption will be that you started with
 the code checked in to our Subversion repository
 at the time you opened the issue.
@@ -301,10 +310,12 @@ Avoid overly-general things like "SCons error," etc.
 <li>
 <strong>Fill in the Description field</strong>
 <p>
-This is where you should go into detail
-about the configuration,
-the exact error you see,
-what you expected to happen, etc.
+This is where you should describe
+the nature of your patch:
+the exact error it fixes,
+the feature that it adds,
+how to go about testing it,
+etc.
 When in doubt, include more information rather than less.
 </p>
 </li>
@@ -312,7 +323,7 @@ When in doubt, include more information rather than less.
 <li>
 <strong>Press the "Submit issue" to submit your report</strong>
 <p>
-You will now receive a <strong>Posting issue</strong> page
+You will now receive a <tt>Posting issue</tt> page
 that gives you the number of the issue you submitted.
 </p>
 </li>
@@ -324,9 +335,9 @@ that gives you the number of the issue you submitted.
 </li>
 
 <li>
-<strong>Fill in the "File" field with the path to the file you want to upload</strong>
+<strong>Fill in the "File" field with the path to the patch file you want to upload</strong>
 <p>
-(You can also do this through the <strong>Browse...</strong> button.)
+(You can also do this through the <tt>Browse...</tt> button.)
 </p>
 </li>
 
@@ -337,7 +348,7 @@ that gives you the number of the issue you submitted.
 </li>
 
 <li>
-<strong>Click the "Submit" button to attach your file</strong>
+<strong>Click the "Submit" button to attach your patch file</strong>
 <p>
 </p>
 </li>
