@@ -29,7 +29,7 @@ import stat
 import string
 import sys
 
-Version = "0.96"
+Version = "0.96.92"
 
 (head, tail) = os.path.split(sys.argv[0])
 

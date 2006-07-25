@@ -25,6 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import string
+import StringIO
 import sys
 import TestCmd
 import unittest
@@ -200,13 +201,13 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env1 == env2
 
     def test___getitem__(self):
-        """Test deleting a variable from a SubstitutionEnvironment
+        """Test fetching a variable from a SubstitutionEnvironment
         """
         env = SubstitutionEnvironment(XXX = 'x')
         assert env['XXX'] == 'x', env['XXX']
 
     def test___setitem__(self):
-        """Test deleting a variable from a SubstitutionEnvironment
+        """Test setting a variable in a SubstitutionEnvironment
         """
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
@@ -387,6 +388,16 @@ class SubstitutionTestCase(unittest.TestCase):
         mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
         assert mystr == "c cA cB c", mystr
 
+        # Lists:
+        env = SubstitutionEnvironment(AAA = ['a', 'aa', 'aaa'])
+        mystr = env.subst("$AAA")
+        assert mystr == "a aa aaa", mystr
+
+        # Tuples:
+        env = SubstitutionEnvironment(AAA = ('a', 'aa', 'aaa'))
+        mystr = env.subst("$AAA")
+        assert mystr == "a aa aaa", mystr
+
         t1 = DummyNode('t1')
         t2 = DummyNode('t2')
         s1 = DummyNode('s1')
@@ -562,6 +573,56 @@ class SubstitutionTestCase(unittest.TestCase):
         mystr = env.subst_target_source("$AAA ${AAA}A $BBBB $BBB")
         assert mystr == "a aA b", mystr
 
+    def test_backtick(self):
+        """Test the backtick() method for capturing command output"""
+        env = SubstitutionEnvironment()
+
+        test = TestCmd.TestCmd(workdir = '')
+        test.write('stdout.py', """\
+import sys
+sys.stdout.write('this came from stdout.py\\n')
+sys.exit(0)
+""")
+        test.write('stderr.py', """\
+import sys
+sys.stderr.write('this came from stderr.py\\n')
+sys.exit(0)
+""")
+        test.write('fail.py', """\
+import sys
+sys.exit(1)
+""")
+
+        save_stderr = sys.stderr
+
+        try:
+            cmd = '%s %s' % (sys.executable, test.workpath('stdout.py'))
+            output = env.backtick(cmd)
+
+            assert output == 'this came from stdout.py\n', output
+
+            sys.stderr = StringIO.StringIO()
+
+            cmd = '%s %s' % (sys.executable, test.workpath('stderr.py'))
+            output = env.backtick(cmd)
+            errout = sys.stderr.getvalue()
+
+            assert output == '', output
+            assert errout == 'this came from stderr.py\n', errout
+
+            sys.stderr = StringIO.StringIO()
+
+            cmd = '%s %s' % (sys.executable, test.workpath('fail.py'))
+            try:
+                env.backtick(cmd)
+            except OSError, e:
+                assert str(e) == "'%s' exited 1" % cmd, str(e)
+            else:
+                self.fail("did not catch expected OSError")
+
+        finally:
+            sys.stderr = save_stderr
+
     def test_Override(self):
         "Test overriding construction variables"
         env = SubstitutionEnvironment(ONE=1, TWO=2, THREE=3, FOUR=4)
@@ -586,6 +647,88 @@ class SubstitutionTestCase(unittest.TestCase):
         env2.Replace(ONE = "won")
         assert env2['ONE'] == "won", env2['ONE']
         assert env['ONE'] == 1, env['ONE']
+
+    def test_ParseFlags(self):
+        """Test the ParseFlags() method
+        """
+        env = SubstitutionEnvironment()
+
+        empty = {
+            'ASFLAGS'       : [],
+            'CCFLAGS'       : [],
+            'CPPDEFINES'    : [],
+            'CPPFLAGS'      : [],
+            'CPPPATH'       : [],
+            'FRAMEWORKPATH' : [],
+            'FRAMEWORKS'    : [],
+            'LIBPATH'       : [],
+            'LIBS'          : [],
+            'LINKFLAGS'     : [],
+            'RPATH'         : [],
+        }
+
+        d = env.ParseFlags(None)
+        assert d == empty, d
+
+        d = env.ParseFlags('')
+        assert d == empty, d
+
+        d = env.ParseFlags([])
+        assert d == empty, d
+
+        s = "-I/usr/include/fum -I bar -X\n" + \
+            "-L/usr/fax -L foo -lxxx -l yyy " + \
+            "-Wa,-as -Wl,-link " + \
+            "-Wl,-rpath=rpath1 " + \
+            "-Wl,-R,rpath2 " + \
+            "-Wl,-Rrpath3 " + \
+            "-Wp,-cpp " + \
+            "-framework Carbon " + \
+            "-frameworkdir=fwd1 " + \
+            "-Ffwd2 " + \
+            "-F fwd3 " + \
+            "-pthread " + \
+            "-mno-cygwin -mwindows " + \
+            "-arch i386 -isysroot /tmp +DD64 " + \
+            "-DFOO -DBAR=value"
+
+        d = env.ParseFlags(s)
+
+        assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
+        assert d['CCFLAGS'] == ['-X', '-Wa,-as',
+                                  '-pthread', '-mno-cygwin',
+                                  ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                  '+DD64'], d['CCFLAGS']
+        assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value']], d['CPPDEFINES']
+        assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
+        assert d['CPPPATH'] == ['/usr/include/fum', 'bar'], d['CPPPATH']
+        assert d['FRAMEWORKPATH'] == ['fwd1', 'fwd2', 'fwd3'], d['FRAMEWORKPATH']
+        assert d['FRAMEWORKS'] == ['Carbon'], d['FRAMEWORKS']
+        assert d['LIBPATH'] == ['/usr/fax', 'foo'], d['LIBPATH']
+        assert d['LIBS'] == ['xxx', 'yyy'], d['LIBS']
+        assert d['LINKFLAGS'] == ['-Wl,-link', '-pthread',
+                                  '-mno-cygwin', '-mwindows',
+                                  ('-arch', 'i386'),
+                                  ('-isysroot', '/tmp'),
+                                  '+DD64'], d['LINKFLAGS']
+        assert d['RPATH'] == ['rpath1', 'rpath2', 'rpath3'], d['RPATH']
+
+
+    def test_MergeFlags(self):
+        """Test the MergeFlags() method
+        """
+        env = SubstitutionEnvironment()
+        env.MergeFlags('')
+        assert env['CCFLAGS'] == [], env['CCFLAGS']
+        env.MergeFlags('-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        env.MergeFlags('-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+
+        env = SubstitutionEnvironment()
+        env.MergeFlags({'A':['aaa'], 'B':['bbb']})
+        assert env['A'] == ['aaa'], env['A']
+        assert env['B'] == ['bbb'], env['B']
 
 
 
@@ -1476,52 +1619,74 @@ def generate(env):
 
     def test_ParseConfig(self):
         """Test the ParseConfig() method"""
-        env = self.TestEnvironment(ASFLAGS='assembler',
-                          COMMAND='command',
+        env = self.TestEnvironment(COMMAND='command',
+                          ASFLAGS='assembler',
+                          CCFLAGS=[''],
+                          CPPDEFINES=[],
                           CPPFLAGS=[''],
                           CPPPATH='string',
+                          FRAMEWORKPATH=[],
+                          FRAMEWORKS=[],
                           LIBPATH=['list'],
                           LIBS='',
                           LINKFLAGS=[''],
-                          CCFLAGS=[''])
-        orig_popen = os.popen
-        class my_popen:
+                          RPATH=[])
+
+        orig_backtick = env.backtick
+        class my_backtick:
             def __init__(self, save_command, output):
                 self.save_command = save_command
                 self.output = output
             def __call__(self, command):
                 self.save_command.append(command)
-                class fake_file:
-                    def __init__(self, output):
-                        self.output = output
-                    def read(self):
-                        return self.output
-                return fake_file(self.output)
+                return self.output
+
         try:
             save_command = []
-            os.popen = my_popen(save_command, 
+            env.backtick = my_backtick(save_command, 
                                  "-I/usr/include/fum -I bar -X\n" + \
                                  "-L/usr/fax -L foo -lxxx -l yyy " + \
-                                 "-Wa,-as -Wl,-link -Wp,-cpp abc " + \
-                                 "-pthread -framework Carbon " + \
-                                 "-mno-cygwin -mwindows")
+                                 "-Wa,-as -Wl,-link " + \
+                                 "-Wl,-rpath=rpath1 " + \
+                                 "-Wl,-R,rpath2 " + \
+                                 "-Wl,-Rrpath3 " + \
+                                 "-Wp,-cpp abc " + \
+                                 "-framework Carbon " + \
+                                 "-frameworkdir=fwd1 " + \
+                                 "-Ffwd2 " + \
+                                 "-F fwd3 " + \
+                                 "-pthread " + \
+                                 "-mno-cygwin -mwindows " + \
+                                 "-arch i386 -isysroot /tmp +DD64 " + \
+                                 "-DFOO -DBAR=value")
             env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
-            assert env['ASFLAGS'] == ['assembler', '-Wa,-as'], env['ASFLAGS']
-            assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
+            assert env['ASFLAGS'] == ['assembler', '-as'], env['ASFLAGS']
+            assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
+                                      '-pthread', '-mno-cygwin',
+                                      ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                      '+DD64'], env['CCFLAGS']
+            assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
+            assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
+            assert env['FRAMEWORKPATH'] == ['fwd1', 'fwd2', 'fwd3'], env['FRAMEWORKPATH']
+            assert env['FRAMEWORKS'] == ['Carbon'], env['FRAMEWORKS']
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
             assert env['LIBS'] == ['xxx', 'yyy', env.File('abc')], env['LIBS']
-            assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread', '-framework', 'Carbon', '-mno-cygwin', '-mwindows'], env['LINKFLAGS']
-            assert env['CCFLAGS'] == ['', '-X', '-pthread', '-mno-cygwin'], env['CCFLAGS']
+            assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread',
+                                        '-mno-cygwin', '-mwindows',
+                                        ('-arch', 'i386'),
+                                        ('-isysroot', '/tmp'),
+                                        '+DD64'], env['LINKFLAGS']
+            assert env['RPATH'] == ['rpath1', 'rpath2', 'rpath3'], env['RPATH']
 
-            os.popen = my_popen([], "-Ibar")
+            env.backtick = my_backtick([], "-Ibar")
             env.ParseConfig("fake2")
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
             env.ParseConfig("fake2", unique=0)
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar', 'bar'], env['CPPPATH']
         finally:
-            os.popen = orig_popen
+            env.backtick = orig_backtick
 
     def test_ParseDepends(self):
         """Test the ParseDepends() method"""
@@ -1982,21 +2147,25 @@ def generate(env):
 
         a = env.Action('foo')
         assert a, a
-        assert a.__class__ is SCons.Action.CommandAction, a
+        assert a.__class__ is SCons.Action.CommandAction, a.__class__
 
         a = env.Action('$FOO')
         assert a, a
-        assert a.__class__ is SCons.Action.LazyAction, a
+        assert a.__class__ is SCons.Action.CommandAction, a.__class__
+
+        a = env.Action('$$FOO')
+        assert a, a
+        assert a.__class__ is SCons.Action.LazyAction, a.__class__
 
         a = env.Action(['$FOO', 'foo'])
         assert a, a
-        assert a.__class__ is SCons.Action.ListAction, a
+        assert a.__class__ is SCons.Action.ListAction, a.__class__
 
         def func(arg):
             pass
         a = env.Action(func)
         assert a, a
-        assert a.__class__ is SCons.Action.FunctionAction, a
+        assert a.__class__ is SCons.Action.FunctionAction, a.__class__
 
     def test_AddPostAction(self):
         """Test the AddPostAction() method"""
@@ -2815,12 +2984,12 @@ def generate(env):
                                    SOURCE = 'source',
                                    TARGET = 'target',
                                    INIT = 'init')
+        bad_msg = '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'
         added.append('INIT')
         for x in reserved:
             assert not env.has_key(x), env[x]
         for x in added:
-            assert env.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert env.has_key(x), bad_msg % x
 
         env.Append(TARGETS = 'targets',
                    SOURCES = 'sources',
@@ -2831,8 +3000,7 @@ def generate(env):
         for x in reserved:
             assert not env.has_key(x), env[x]
         for x in added:
-            assert env.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert env.has_key(x), bad_msg % x
 
         env.AppendUnique(TARGETS = 'targets',
                          SOURCES = 'sources',
@@ -2843,8 +3011,7 @@ def generate(env):
         for x in reserved:
             assert not env.has_key(x), env[x]
         for x in added:
-            assert env.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert env.has_key(x), bad_msg % x
 
         env.Prepend(TARGETS = 'targets',
                     SOURCES = 'sources',
@@ -2855,8 +3022,7 @@ def generate(env):
         for x in reserved:
             assert not env.has_key(x), env[x]
         for x in added:
-            assert env.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert env.has_key(x), bad_msg % x
 
         env.Prepend(TARGETS = 'targets',
                     SOURCES = 'sources',
@@ -2867,8 +3033,7 @@ def generate(env):
         for x in reserved:
             assert not env.has_key(x), env[x]
         for x in added:
-            assert env.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert env.has_key(x), bad_msg % x
 
         env.Replace(TARGETS = 'targets',
                     SOURCES = 'sources',
@@ -2879,8 +3044,7 @@ def generate(env):
         for x in reserved:
             assert not env.has_key(x), env[x]
         for x in added:
-            assert env.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert env.has_key(x), bad_msg % x
 
         copy = env.Copy(TARGETS = 'targets',
                         SOURCES = 'sources',
@@ -2890,8 +3054,7 @@ def generate(env):
         for x in reserved:
             assert not copy.has_key(x), env[x]
         for x in added + ['COPY']:
-            assert copy.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert copy.has_key(x), bad_msg % x
 
         over = env.Override({'TARGETS' : 'targets',
                              'SOURCES' : 'sources',
@@ -2901,8 +3064,7 @@ def generate(env):
         for x in reserved:
             assert not over.has_key(x), over[x]
         for x in added + ['OVERRIDE']:
-            assert over.has_key(x), \
-                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+            assert over.has_key(x), bad_msg % x
 
 
 

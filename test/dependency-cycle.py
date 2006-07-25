@@ -48,7 +48,7 @@ f1(void)
 """)
 
 test.run(arguments = ".", stderr=r"""
-scons: \*\*\* Dependency cycle: .*foo1.* -> .*foo3.* -> .*foo2.* -> .*foo1.* -> \.
+scons: \*\*\* Dependency cycle: .*foo1.* -> .*foo3.* -> .*foo2.* -> .*foo1.*
 .*
 """, status=2)
 

@@ -131,17 +131,17 @@ barlocalincs = ['StdAfx.h']
 barresources = ['bar.rc','resource.h']
 barmisc = ['bar_readme.txt']
 
-dll = local.SharedLibrary(target = 'bar.dll',
-                          source = barsrcs)
+dll = env.SharedLibrary(target = 'bar.dll',
+                        source = barsrcs)
 
-local.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
-                  srcs = barsrcs,
-                  incs = barincs,
-                  localincs = barlocalincs,
-                  resources = barresources,
-                  misc = barmisc,
-                  buildtarget = dll,
-                  variant = 'Release')
+env.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
+                srcs = barsrcs,
+                incs = barincs,
+                localincs = barlocalincs,
+                resources = barresources,
+                misc = barmisc,
+                buildtarget = dll,
+                variant = 'Release')
 </example>
 </summary>
 </builder>
@@ -193,9 +193,9 @@ not the source files used to build the solution file.
 Example Usage:
 
 <example>
-local.MSVSSolution(target = 'Bar' + env['MSVSSOLUTIONSUFFIX'],
-                  projects = ['bar' + env['MSVSPROJECTSUFFIX']],
-                  variant = 'Release')
+env.MSVSSolution(target = 'Bar' + env['MSVSSOLUTIONSUFFIX'],
+                 projects = ['bar' + env['MSVSPROJECTSUFFIX']],
+                 variant = 'Release')
 </example>
 </summary>
 </builder>

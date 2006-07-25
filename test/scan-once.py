@@ -275,7 +275,9 @@ for k in fromdict.keys():
         # When $TARGET is None, so $TARGET.attributes would throw an
         # exception.
         f = fromdict[k]
-        if SCons.Util.is_String(f) and string.find(f, "TARGET") == -1:
+        if SCons.Util.is_String(f) and \
+           string.find(f, "TARGET") == -1 and \
+           string.find(f, "SOURCE") == -1:
              todict[k] = env.subst(f)
 todict["CFLAGS"] = fromdict["CPPFLAGS"] + " " + \
     string.join(map(lambda x: "-I" + x, env["CPPPATH"])) + " " + \

@@ -131,13 +131,6 @@ This is the %s TeX file.
 \end
 """
 
-    latex = r"""
-\documentclass{letter}
-\begin{document}
-This is the %s LaTeX file.
-\end{document}
-"""
-
     test.write('foo.tex', tex % 'foo.tex')
 
     test.write('xxx.tex', tex % 'xxx.tex')

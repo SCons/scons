@@ -66,7 +66,7 @@ def generate(env):
 
     env['DVIPDF']      = 'dvipdf'
     env['DVIPDFFLAGS'] = SCons.Util.CLVar('')
-    env['DVIPDFCOM']   = '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET'
+    env['DVIPDFCOM']   = '$DVIPDF $DVIPDFFLAGS $SOURCE $TARGET'
 
     # Deprecated synonym.
     env['PDFCOM']      = ['$DVIPDFCOM']

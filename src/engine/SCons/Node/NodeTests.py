@@ -1271,7 +1271,6 @@ class NodeTestCase(unittest.TestCase):
         n.includes = 'testincludes'
         n.found_include = {'testkey':'testvalue'}
         n.implicit = 'testimplicit'
-        n.waiting_parents = ['foo', 'bar']
 
         x = MyExecutor()
         n.set_executor(x)
@@ -1282,7 +1281,6 @@ class NodeTestCase(unittest.TestCase):
         assert n.includes is None, n.includes
         assert n.found_includes == {}, n.found_includes
         assert n.implicit is None, n.implicit
-        assert n.waiting_parents == [], n.waiting_parents
         assert x.cleaned_up
 
     def test_get_subst_proxy(self):
@@ -1306,15 +1304,18 @@ class NodeTestCase(unittest.TestCase):
     def test_postprocess(self):
         """Test calling the base Node postprocess() method"""
         n = SCons.Node.Node()
+        n.waiting_parents = {'foo':1, 'bar':1}
+
         n.postprocess()
+        assert n.waiting_parents == {}, n.waiting_parents
 
     def test_add_to_waiting_parents(self):
         """Test the add_to_waiting_parents() method"""
         n1 = SCons.Node.Node()
         n2 = SCons.Node.Node()
-        assert n1.waiting_parents == [], n1.waiting_parents
+        assert n1.waiting_parents == {}, n1.waiting_parents
         n1.add_to_waiting_parents(n2)
-        assert n1.waiting_parents == [n2], n1.waiting_parents
+        assert n1.waiting_parents == {n2:1}, n1.waiting_parents
 
     def test_call_for_all_waiting_parents(self):
         """Test the call_for_all_waiting_parents() method"""

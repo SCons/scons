@@ -372,6 +372,16 @@ class CommandAction(_ActionAction):
         # Environment.subst_list() for substituting environment
         # variables.
         if __debug__: logInstanceCreation(self, 'Action.CommandAction')
+
+        if not cmdstr is None:
+            if callable(cmdstr):
+                args = (cmdstr,)+args
+            elif not SCons.Util.is_String(cmdstr):
+                raise SCons.Errors.UserError(\
+                    'Invalid command display variable type. ' \
+                    'You must either pass a string or a callback which ' \
+                    'accepts (target, source, env) as parameters.')
+
         apply(_ActionAction.__init__, (self,)+args, kw)
         if SCons.Util.is_List(cmd):
             if filter(SCons.Util.is_List, cmd):
@@ -405,7 +415,7 @@ class CommandAction(_ActionAction):
 
     def strfunction(self, target, source, env):
         if not self.cmdstr is None:
-            c = env.subst(self.cmdstr, 0, target, source)
+            c = env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target, source)
             if c:
                 return c
         cmd_list, ignore, silent = self.process(target, source, env)
@@ -492,6 +502,7 @@ class CommandGeneratorAction(ActionBase):
     def __init__(self, generator, *args, **kw):
         if __debug__: logInstanceCreation(self, 'Action.CommandGeneratorAction')
         self.generator = generator
+        self.gen_args = args
         self.gen_kw = kw
 
     def _generate(self, target, source, env, for_signature):
@@ -501,7 +512,7 @@ class CommandGeneratorAction(ActionBase):
             target = [target]
 
         ret = self.generator(target=target, source=source, env=env, for_signature=for_signature)
-        gen_cmd = apply(Action, (ret,), self.gen_kw)
+        gen_cmd = apply(Action, (ret,)+self.gen_args, self.gen_kw)
         if not gen_cmd:
             raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
         return gen_cmd
@@ -559,6 +570,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         if __debug__: logInstanceCreation(self, 'Action.LazyAction')
         apply(CommandAction.__init__, (self, '$'+var)+args, kw)
         self.var = SCons.Util.to_String(var)
+        self.gen_args = args
         self.gen_kw = kw
 
     def get_parent_class(self, env):
@@ -570,7 +582,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
     def _generate_cache(self, env):
         """__cacheable__"""
         c = env.get(self.var, '')
-        gen_cmd = apply(Action, (c,), self.gen_kw)
+        gen_cmd = apply(Action, (c,)+self.gen_args, self.gen_kw)
         if not gen_cmd:
             raise SCons.Errors.UserError("$%s value %s cannot be used to create an Action." % (self.var, repr(c)))
         return gen_cmd
@@ -599,11 +611,22 @@ if not SCons.Memoize.has_metaclass:
 class FunctionAction(_ActionAction):
     """Class for Python function actions."""
 
-    def __init__(self, execfunction, *args, **kw):
+    def __init__(self, execfunction, cmdstr=_null, *args, **kw):
         if __debug__: logInstanceCreation(self, 'Action.FunctionAction')
+
+        if not cmdstr is _null:
+            if callable(cmdstr):
+                args = (cmdstr,)+args
+            elif not (cmdstr is None or SCons.Util.is_String(cmdstr)):
+                raise SCons.Errors.UserError(\
+                    'Invalid function display variable type. ' \
+                    'You must either pass a string or a callback which ' \
+                    'accepts (target, source, env) as parameters.')
+
         self.execfunction = execfunction
         apply(_ActionAction.__init__, (self,)+args, kw)
         self.varlist = kw.get('varlist', [])
+        self.cmdstr = cmdstr
 
     def function_name(self):
         try:
@@ -615,6 +638,12 @@ class FunctionAction(_ActionAction):
                 return "unknown_python_function"
 
     def strfunction(self, target, source, env):
+        if self.cmdstr is None:
+            return None
+        if not self.cmdstr is _null:
+            c = env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target, source)
+            if c:
+                return c
         def array(a):
             def quote(s):
                 return '"' + str(s) + '"'

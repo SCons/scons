@@ -53,8 +53,6 @@ import SCons.Subst
 import SCons.Util
 import SCons.Warnings
 
-from SCons.Debug import Trace
-
 # The max_drift value:  by default, use a cached signature value for
 # any file that's been untouched for more than two days.
 default_max_drift = 2*24*60*60
@@ -685,6 +683,10 @@ class Base(SCons.Node.Node):
     def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
         return self.dir.Entry(prefix + splitext(self.name)[0] + suffix)
 
+    def RDirs(self, pathlist):
+        """Search for a list of directories in the Repository list."""
+        return self.fs.Rfindalldirs(pathlist, self.cwd)
+
 class Entry(Base):
     """This is the class for generic Node.FS entries--that is, things
     that could be a File or a Dir, but we're just not sure yet.
@@ -697,7 +699,7 @@ class Entry(Base):
         pass
 
     def disambiguate(self):
-        if self.isdir():
+        if self.isdir() or self.srcnode().isdir():
             self.__class__ = Dir
             self._morph()
         else:
@@ -1703,10 +1705,6 @@ class File(Base):
         the SConscript directory of this file."""
         return self.fs.File(name, self.cwd)
 
-    def RDirs(self, pathlist):
-        """Search for a list of directories in the Repository list."""
-        return self.fs.Rfindalldirs(pathlist, self.cwd)
-
     #def generate_build_dict(self):
     #    """Return an appropriate dictionary of values for building
     #    this File."""
@@ -1778,7 +1776,7 @@ class File(Base):
         __cacheable__"""
         if not scanner:
             return []
-        return scanner(self, env, path)
+        return map(lambda N: N.disambiguate(), scanner(self, env, path))
 
     def _createDir(self):
         # ensure that the directories for this node are

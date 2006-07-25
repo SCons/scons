@@ -87,12 +87,12 @@ def generate(env):
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['PDFLATEX']      = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('')
-    env['PDFLATEXCOM']   = '$PDFLATEX $PDFLATEXFLAGS $SOURCES'
+    env['PDFLATEXCOM']   = '$PDFLATEX $PDFLATEXFLAGS $SOURCE'
     env['LATEXRETRIES']  = 3
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
-    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS $SOURCES'
+    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS ${SOURCE.base}'
 
 def exists(env):
     return env.Detect('pdftex')

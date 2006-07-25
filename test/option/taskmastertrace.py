@@ -47,15 +47,16 @@ Taskmaster: '.': children:
     ['file.mid', 'file.out']
 Taskmaster: 'file.mid': children:
     ['file.in']
-    evaluating
+    evaluating file.mid
 Copy("file.mid", "file.in")
 Taskmaster: 'file.out': children:
     ['file.mid']
-    evaluating
+    evaluating file.out
 Copy("file.out", "file.mid")
 Taskmaster: '.': children:
     ['SConstruct', 'file.in', 'file.mid', 'file.out']
-    evaluating
+    evaluating .
+Taskmaster: '.': already handled (executed)
 """)
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
@@ -80,13 +81,14 @@ Taskmaster: '.': children:
     ['file.mid', 'file.out']
 Taskmaster: 'file.mid': children:
     ['file.in']
-    evaluating
+    evaluating file.mid
 Taskmaster: 'file.out': children:
     ['file.mid']
-    evaluating
+    evaluating file.out
 Taskmaster: '.': children:
     ['SConstruct', 'file.in', 'file.mid', 'file.out']
-    evaluating
+    evaluating .
+Taskmaster: '.': already handled (executed)
 """
 
 test.must_match('trace.out', expect_trace)

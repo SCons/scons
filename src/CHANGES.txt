@@ -10,6 +10,101 @@
 
 RELEASE 0.97 - XXX
 
+  From Ken Boortz:
+
+  - Enhance ParseConfig() to recognize options that begin with '+'.
+
+  From Christopher Drexler:
+
+  - Make SCons aware bibtex must be called if any \include files
+    cause creation of a bibliography.
+
+  - Make SCons aware that "\bilbiography" in TeX source files means
+    that related .bbl and .blg bibliography files will be created.
+    (NOTE:  This still needs to search for the string in \include files.)
+
+  From David Gruener:
+
+  - Fix inconsistent handling of Action strfunction arguments.
+
+  - Preserve white space in display Action strfunction strings.
+
+  From Steven Knight:
+
+  - Speed up the Taskmaster significantly by avoiding unnecessary
+    re-scans of Nodes to find out if there's work to be done, having it
+    track the currently-executed top-level target directly and not
+    through its presence on the target list, and eliminating some other
+    minor list(s), method(s) and manipulation.
+
+  - Fix the expansion of $TARGET and $SOURCE in the expansion of
+    $INSTALLSTR displayed for non-environment calls to InstallAs().
+
+  - Fix the ability to have an Alias() call refer to a directory
+    name that's not identified as a directory until later.
+
+  - Enhance runtest.py with an option to use QMTest as the harness.
+    This will become the default behavior as we add more functionality
+    to the QMTest side.
+
+  From Sanjoy Mahajan:
+
+  - Change use of $SOURCES to $SOURCE in all TeX-related Tool modules.
+
+  From Joel B. Mohler:
+
+  - Make SCons aware that "\makeindex" in TeX source files means that
+    related .ilg, .ind and .idx index files will be created.
+    (NOTE:  This still needs to search for the string in \include files.)
+
+  - Prevent scanning the TeX .aux file for additional files from
+    trying to remove it twice when the -c option is used.
+
+  From Greg Noel:
+
+  - Add an env.ParseFlags() method that provides separate logic for
+    parsing GNU tool chain flags into a dictionary.
+    
+  - Add an env.MergeFlags() method to apply an arbitrary dictionary
+    of flags to a construction environment's variables.
+
+  From Gary Oberbrunner:
+
+  - Fix parsing tripartite Intel C compiler version numbers on Linux.
+
+  - Extend the ParseConfig() function to recognize -arch and
+    -isysroot options.
+
+  - Have the error message list the known suffixes when a Builder call
+    can't build a source file with an unknown suffix.
+
+  From Karol Pietrzak:
+
+  - Avoid recursive calls to main() in the program snippet used by the
+    SConf subsystem to test linking against libraries.  This changes the
+    default behavior of CheckLib() and CheckLibWithHeader() to print
+    "Checking for C library foo..." instead of "Checking for main()
+    in C library foo...".
+
+  From John Pye:
+
+  - Throw an exception if a command called by ParseConfig() or
+    ParseFlags() returns an error.
+
+  From Stefan Seefeld:
+
+  - Initial infrastructure for running SCons tests under QMTest.
+
+  From Atul Varma:
+
+  - Fix detection of Visual C++ Express Edition.
+
+
+
+RELEASE 0.96.92 - Mon, 10 Apr 2006 21:08:22 -0400
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
   From Anonymous:
 
   - Fix the intelc.py Tool module to not throw an exception if the

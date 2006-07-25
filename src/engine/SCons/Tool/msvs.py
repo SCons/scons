@@ -1295,7 +1295,7 @@ def get_visualstudio8_suites():
     except SCons.Util.RegError:
         pass
 
-    # Detect Expression edition
+    # Detect Express edition
     try:
         idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
             r'Software\Microsoft\VCExpress\8.0')
@@ -1316,7 +1316,7 @@ def is_msvs_installed():
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         return 0
 
-def get_msvs_install_dirs(version = None):
+def get_msvs_install_dirs(version = None, vs8suite = None):
     """
     Get installed locations for various msvc-related products, like the .NET SDK
     and the Platform SDK.
@@ -1336,9 +1336,14 @@ def get_msvs_install_dirs(version = None):
 
     K = 'Software\\Microsoft\\VisualStudio\\' + str(version_num)
     if (version_num >= 8.0):
-        try:
-            SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K )
-        except SCons.Util.RegError:
+        if vs8suite == None:
+            # We've been given no guidance about which Visual Studio 8
+            # suite to use, so attempt to autodetect.
+            suites = get_visualstudio8_suites()
+            if suites:
+                vs8suite = suites[0]
+
+        if vs8suite == 'EXPRESS':
             K = 'Software\\Microsoft\\VCExpress\\' + str(version_num)
 
     # vc++ install dir

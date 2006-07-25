@@ -319,7 +319,7 @@ int main() {
     return ret
 
 
-def CheckLib(context, libs, func_name, header = None,
+def CheckLib(context, libs, func_name = None, header = None,
                  extra_libs = None, call = None, language = None, autoadd = 1):
     """
     Configure check for a C or C++ libraries "libs".  Searches through
@@ -333,13 +333,15 @@ def CheckLib(context, libs, func_name, header = None,
     depends on.
     Optional "call" replaces the call to "func_name" in the test code.  It must
     consist of complete C statements, including a trailing ";".
-    There must either be a "func_name" or a "call" argument (or both).
+    Both "func_name" and "call" arguments are optional, and in that case, just
+    linking against the libs is tested.
     "language" should be "C" or "C++" and is used to select the compiler.
     Default is "C".
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
     Returns an empty string for success, an error message for failure.
     """
+    from SCons.Debug import Trace
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
     if context.headerfilename:
         includetext = '#include "%s"' % context.headerfilename
@@ -353,32 +355,36 @@ def CheckLib(context, libs, func_name, header = None,
 %s""" % (includetext, header)
 
     # Add a function declaration if needed.
-    if func_name and func_name != "main" and not header:
-        text = text + """
+    if func_name and func_name != "main":
+        if not header:
+            text = text + """
 #ifdef __cplusplus
 extern "C"
 #endif
 char %s();
 """ % func_name
 
-    # The actual test code.
-    if not call:
-        call = "%s();" % func_name
+        # The actual test code.
+        if not call:
+            call = "%s();" % func_name
+
+    # if no function to test, leave main() blank
     text = text + """
 int
 main() {
   %s
 return 0;
 }
-""" % call
+""" % (call or "")
 
-    i = string.find(call, "\n")
-    if i > 0:
-        calltext = call[:i] + ".."
-    elif call[-1] == ';':
-        calltext = call[:-1]
-    else:
-        calltext = call
+    if call:
+        i = string.find(call, "\n")
+        if i > 0:
+            calltext = call[:i] + ".."
+        elif call[-1] == ';':
+            calltext = call[:-1]
+        else:
+            calltext = call
 
     for lib_name in libs:
 
@@ -387,8 +393,15 @@ return 0;
             context.Display("Cannot check for library %s: %s\n" % (lib_name, msg))
             return msg
 
-        context.Display("Checking for %s in %s library %s... "
-                        % (calltext, lang, lib_name))
+        # if a function was specified to run in main(), say it
+        if call:
+                context.Display("Checking for %s in %s library %s... "
+                                % (calltext, lang, lib_name))
+        # otherwise, just say the name of library and language
+        else:
+                context.Display("Checking for %s library %s... "
+                                % (lang, lib_name))
+
         if lib_name:
             l = [ lib_name ]
             if extra_libs:

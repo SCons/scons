@@ -45,48 +45,69 @@ def strfunction(target, source, env):
     t = str(target[0])
     s = str(source[0])
     return "Building %%s from %%s" %% (t, s)
+
 def func(target, source, env):
     t = str(target[0])
     s = str(source[0])
     open(t, 'w').write(open(s, 'r').read())
-funcaction = Action(func, strfunction=strfunction)
-cmd = r"%s cat.py $SOURCE $TARGET"
-cmdaction = Action(cmd, strfunction=strfunction)
-list = [ r"%s cat.py $SOURCE .temp", r"%s cat.py .temp $TARGET" ]
+func1action = Action(func, strfunction)
+func2action = Action(func, strfunction=strfunction)
+
+cmd = r"%(python)s cat.py $SOURCE $TARGET"
+cmd1action = Action(cmd, strfunction)
+cmd2action = Action(cmd, strfunction=strfunction)
+
+list = [ r"%(python)s cat.py $SOURCE .temp",
+         r"%(python)s cat.py .temp $TARGET" ]
 listaction = Action(list, strfunction=strfunction)
+
 lazy = '$LAZY'
-lazyaction = Action(lazy, strfunction=strfunction)
+lazy1action = Action(lazy, strfunction)
+lazy2action = Action(lazy, strfunction=strfunction)
+
+targetaction = Action(func, '$TARGET')
+
 dict = {
     '.cmd'      : cmd,
-    '.cmdstr'   : cmdaction,
+    '.cmdstr'   : cmd2action,
     '.func'     : func,
-    '.funcstr'  : funcaction,
+    '.funcstr'  : func2action,
     '.list'     : list,
     '.liststr'  : listaction,
     '.lazy'     : lazy,
-    '.lazystr'  : lazyaction,
+    '.lazystr'  : lazy2action,
 }
+
 env = Environment(BUILDERS = {
                         'Cmd'           : Builder(action=cmd),
-                        'CmdStr'        : Builder(action=cmdaction),
+                        'Cmd1Str'       : Builder(action=cmd1action),
+                        'Cmd2Str'       : Builder(action=cmd2action),
                         'Func'          : Builder(action=func),
-                        'FuncStr'       : Builder(action=funcaction),
+                        'Func1Str'      : Builder(action=func1action),
+                        'Func2Str'      : Builder(action=func2action),
                         'Lazy'          : Builder(action=lazy),
-                        'LazyStr'       : Builder(action=lazyaction),
+                        'Lazy1Str'      : Builder(action=lazy1action),
+                        'Lazy2Str'      : Builder(action=lazy2action),
                         'List'          : Builder(action=list),
                         'ListStr'       : Builder(action=listaction),
+                        'Target'        : Builder(action=targetaction),
 
                         'Dict'          : Builder(action=dict),
                   },
-                  LAZY = r"%s cat.py $SOURCE $TARGET")
+                  LAZY = r"%(python)s cat.py $SOURCE $TARGET")
+
 env.Cmd('cmd.out', 'cmd.in')
-env.CmdStr('cmdstr.out', 'cmdstr.in')
+env.Cmd1Str('cmd1str.out', 'cmdstr.in')
+env.Cmd2Str('cmd2str.out', 'cmdstr.in')
 env.Func('func.out', 'func.in')
-env.FuncStr('funcstr.out', 'funcstr.in')
+env.Func1Str('func1str.out', 'funcstr.in')
+env.Func2Str('func2str.out', 'funcstr.in')
 env.Lazy('lazy.out', 'lazy.in')
-env.LazyStr('lazystr.out', 'lazystr.in')
+env.Lazy1Str('lazy1str.out', 'lazystr.in')
+env.Lazy2Str('lazy2str.out', 'lazystr.in')
 env.List('list.out', 'list.in')
 env.ListStr('liststr.out', 'liststr.in')
+env.Target('target.out', 'target.in')
 
 env.Dict('dict1.out', 'dict1.cmd')
 env.Dict('dict2.out', 'dict2.cmdstr')
@@ -96,7 +117,7 @@ env.Dict('dict5.out', 'dict5.lazy')
 env.Dict('dict6.out', 'dict6.lazystr')
 env.Dict('dict7.out', 'dict7.list')
 env.Dict('dict8.out', 'dict8.liststr')
-""" % (python, python, python, python))
+""" % locals())
 
 test.write('func.in',           "func.in\n")
 test.write('funcstr.in',        "funcstr.in\n")
@@ -106,6 +127,7 @@ test.write('lazy.in',           "lazy.in\n")
 test.write('lazystr.in',        "lazystr.in\n")
 test.write('list.in',           "list.in\n")
 test.write('liststr.in',        "liststr.in\n")
+test.write('target.in',         "target.in\n")
 
 test.write('dict1.cmd',         "dict1.cmd\n")
 test.write('dict2.cmdstr',      "dict2.cmdstr\n")
@@ -116,27 +138,33 @@ test.write('dict6.lazystr',     "dict6.lazystr\n")
 test.write('dict7.list',        "dict7.list\n")
 test.write('dict8.liststr',     "dict8.liststr\n")
 
-test.run(arguments = '.', stdout=test.wrap_stdout("""\
-%s cat.py cmd.in cmd.out
-Building cmdstr.out from cmdstr.in
-%s cat.py dict1.cmd dict1.out
+expect = test.wrap_stdout("""\
+%(python)s cat.py cmd.in cmd.out
+Building cmd1str.out from cmdstr.in
+Building cmd2str.out from cmdstr.in
+%(python)s cat.py dict1.cmd dict1.out
 Building dict2.out from dict2.cmdstr
 func(["dict3.out"], ["dict3.func"])
 Building dict4.out from dict4.funcstr
-%s cat.py dict5.lazy dict5.out
+%(python)s cat.py dict5.lazy dict5.out
 Building dict6.out from dict6.lazystr
-%s cat.py dict7.list .temp
-%s cat.py .temp dict7.out
+%(python)s cat.py dict7.list .temp
+%(python)s cat.py .temp dict7.out
 Building dict8.out from dict8.liststr
 Building dict8.out from dict8.liststr
 func(["func.out"], ["func.in"])
-Building funcstr.out from funcstr.in
-%s cat.py lazy.in lazy.out
-Building lazystr.out from lazystr.in
-%s cat.py list.in .temp
-%s cat.py .temp list.out
+Building func1str.out from funcstr.in
+Building func2str.out from funcstr.in
+%(python)s cat.py lazy.in lazy.out
+Building lazy1str.out from lazystr.in
+Building lazy2str.out from lazystr.in
+%(python)s cat.py list.in .temp
+%(python)s cat.py .temp list.out
 Building liststr.out from liststr.in
 Building liststr.out from liststr.in
-""") % (python, python, python, python, python, python, python, python))
+target.out
+""" % locals())
+
+test.run(arguments = '.', stdout=expect)
 
 test.pass_test()

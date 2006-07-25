@@ -88,8 +88,7 @@ provided Python-standard setup script as follows:
 
 By default, the above command will do the following:
 
-    --  Install the version-numbered "scons-__VERSION__" and
-    "sconsign-__VERSION__"
+    --  Install the version-numbered "scons-__VERSION__" and "sconsign-__VERSION__"
         scripts in the default system script directory (/usr/bin or
         C:\Python*\Scripts, for example).  This can be disabled by
         specifying the "--no-version-script" option on the command
@@ -263,8 +262,12 @@ With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc
+        Baptiste Lepilleur
+        Elliot Murphy
         Gary Oberbrunner
         Anthony Roach
+        Greg Noel
+        Kevin Quick
         Greg Spencer
         Christoph Wiedemann
 

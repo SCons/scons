@@ -688,6 +688,18 @@ class CommandActionTestCase(unittest.TestCase):
         assert a.cmd_list == [ "abra" ], a.cmd_list
         assert a.cmdstr == "cadabra", a.cmdstr
 
+    def test_bad_cmdstr(self):
+        """Test handling of bad CommandAction(cmdstr) arguments
+        """
+        try:
+            a = SCons.Action.CommandAction('foo', [])
+        except SCons.Errors.UserError, e:
+            s = str(e)
+            m = 'Invalid command display variable'
+            assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
+        else:
+            raise "did not catch expected UserError"
+
     def test___str__(self):
         """Test fetching the pre-substitution string for command Actions
         """
@@ -760,7 +772,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE',
                                          'cmdstr - $SOURCE - $TARGET -')
         s = act.strfunction([], [], env)
-        assert s == 'cmdstr - - -', s
+        assert s == 'cmdstr -  -  -', s
         s = act.strfunction([t1], [s1], env)
         assert s == 'cmdstr - s1 - t1 -', s
         s = act.strfunction([t1, t2], [s1, s2], env)
@@ -777,7 +789,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES',
                                          'cmdstr = $SOURCES = $TARGETS =')
         s = act.strfunction([], [], env)
-        assert s == 'cmdstr = = =', s
+        assert s == 'cmdstr =  =  =', s
         s = act.strfunction([t1], [s1], env)
         assert s == 'cmdstr = s1 = t1 =', s
         s = act.strfunction([t1, t2], [s1, s2], env)
@@ -792,6 +804,16 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == 'xyzzy t1 s1 t1 s1', s
         s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == 'xyzzy t1 s1 t1 t2 s1 s2', s
+
+        act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES',
+                                         'cmdstr\t$TARGETS\n$SOURCES   ')
+                    
+        s = act.strfunction([], [], env)
+        assert s == 'cmdstr\t\n   ', s
+        s = act.strfunction([t1], [s1], env)
+        assert s == 'cmdstr\tt1\ns1   ', s
+        s = act.strfunction([t1, t2], [s1, s2], env)
+        assert s == 'cmdstr\tt1 t2\ns1 s2   ', s
 
         def sf(target, source, env):
             return "sf was called"
@@ -1337,6 +1359,20 @@ class FunctionActionTestCase(unittest.TestCase):
         assert a.execfunction == func2, a.execfunction
         assert a.strfunction == func3, a.strfunction
 
+    def test_cmdstr_bad(self):
+        """Test handling of bad FunctionAction(cmdstr) arguments
+        """
+        def func():
+            pass
+        try:
+            a = SCons.Action.FunctionAction(func, [])
+        except SCons.Errors.UserError, e:
+            s = str(e)
+            m = 'Invalid function display variable'
+            assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
+        else:
+            raise "did not catch expected UserError"
+
     def test___str__(self):
         """Test the __str__() method for function Actions
         """
@@ -1469,6 +1505,24 @@ class FunctionActionTestCase(unittest.TestCase):
         a = SCons.Action.FunctionAction(lc.LocalMethod)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in matches, repr(c)
+
+    def test_strfunction(self):
+        """Test the FunctionAction.strfunction() method
+        """
+        def func():
+            pass
+
+        a = SCons.Action.FunctionAction(func)
+        s = a.strfunction(target=[], source=[], env=Environment())
+        assert s == 'func([], [])', s
+
+        a = SCons.Action.FunctionAction(func, None)
+        s = a.strfunction(target=[], source=[], env=Environment())
+        assert s is None, s
+
+        a = SCons.Action.FunctionAction(func, 'function')
+        s = a.strfunction(target=[], source=[], env=Environment())
+        assert s == 'function', s
 
 class ListActionTestCase(unittest.TestCase):
 

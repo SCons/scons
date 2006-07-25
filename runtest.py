@@ -8,7 +8,7 @@
 # directories to test the SCons modules.
 #
 # By default, it directly uses the modules in the local tree:
-# ./src/ (source files we ship) and ./etc/ (other modules we don't).
+# ./src/ (source files we ship) and ./QMTest/ (other modules we don't).
 #
 # HOWEVER, now that SCons has Repository support, we don't have
 # Aegis copy all of the files into the local tree.  So if you're
@@ -62,6 +62,10 @@
 #                       command line it will execute before
 #                       executing it.  This suppresses that print.
 #
+#       --sp            The Aegis search path.
+#
+#       --spe           The Aegis executable search path.
+#
 #       -t              Print the execution time of each test.
 #
 #       -X              The scons "script" is an executable; don't
@@ -93,6 +97,7 @@ import sys
 import time
 
 all = 0
+baseline = 0
 debug = ''
 execute_tests = 1
 format = None
@@ -104,14 +109,13 @@ print_passed_summary = None
 scons = None
 scons_exec = None
 outputfile = None
+qmtest = None
 testlistfile = None
 version = ''
-print_time = lambda fmt, time: None
-
-if os.name == 'java':
-    python = os.path.join(sys.prefix, 'jython')
-else:
-    python = sys.executable
+print_times = None
+python = None
+sp = None
+spe = None
 
 cwd = os.getcwd()
 
@@ -127,6 +131,7 @@ Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
   -a, --all                   Run all tests.
   --aegis                     Print results in Aegis format.
+  -b BASE, --baseline BASE    Run test scripts against baseline BASE.
   -d, --debug                 Run test scripts under the Python debugger.
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
@@ -145,7 +150,10 @@ Options:
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
   --passed                    Summarize which tests passed.
+  --qmtest                    Run using the QMTest harness.
   -q, --quiet                 Don't print the test being executed.
+  --sp PATH                   The Aegis search path.
+  --spe PATH                  The Aegis executable search path.
   -t, --time                  Print test execution time.
   -v version                  Specify the SCons version.
   --verbose=LEVEL             Set verbose level: 1 = print executed commands,
@@ -156,17 +164,20 @@ Options:
   --xml                       Print results in SCons XML format.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "adf:hlno:P:p:qv:Xx:t",
-                            ['all', 'aegis',
+opts, args = getopt.getopt(sys.argv[1:], "ab:df:hlno:P:p:qv:Xx:t",
+                            ['all', 'aegis', 'baseline=',
                              'debug', 'file=', 'help',
                              'list', 'no-exec', 'output=',
-                             'package=', 'passed', 'python=', 'quiet',
+                             'package=', 'passed', 'python=',
+                             'qmtest', 'quiet', 'spe=',
                              'version=', 'exec=', 'time',
                              'verbose=', 'xml'])
 
 for o, a in opts:
     if o in ['-a', '--all']:
         all = 1
+    elif o in ['-b', '--baseline']:
+        baseline = a
     elif o in ['-d', '--debug']:
         debug = os.path.join(lib_dir, "pdb.py")
     elif o in ['-f', '--file']:
@@ -190,10 +201,16 @@ for o, a in opts:
         print_passed_summary = 1
     elif o in ['-P', '--python']:
         python = a
+    elif o in ['--qmtest']:
+        qmtest = 1
     elif o in ['-q', '--quiet']:
         printcommand = 0
+    elif o in ['--sp']:
+        sp = string.split(a, os.pathsep)
+    elif o in ['--spe']:
+        spe = string.split(a, os.pathsep)
     elif o in ['-t', '--time']:
-        print_time = lambda fmt, time: sys.stdout.write(fmt % time)
+        print_times = 1
     elif o in ['--verbose']:
         os.environ['TESTCMD_VERBOSE'] = a
     elif o in ['-v', '--version']:
@@ -219,14 +236,21 @@ def whereis(file):
 
 aegis = whereis('aegis')
 
-sp = []
+if format == '--aegis' and aegis:
+    change = os.popen("aesub '$c' 2>/dev/null", "r").read()
+    if change:
+        if sp is None:
+            paths = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
+            sp = string.split(paths, os.pathsep)
+        if spe is None:
+            spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
+            spe = string.split(spe, os.pathsep)
+    else:
+        aegis = None
 
-if aegis:
-    paths = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
-    sp.extend(string.split(paths, os.pathsep))
-    spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
-    spe = string.split(spe, os.pathsep)
-else:
+if sp is None:
+    sp = []
+if spe is None:
     spe = []
 
 sp.append(cwd)
@@ -330,7 +354,9 @@ format_class = {
 }
 Test = format_class[format]
 
-if args:
+if qmtest:
+    pass
+elif args:
     if spe:
         for a in args:
             if os.path.isabs(a):
@@ -376,7 +402,7 @@ elif all:
                 tdict[t] = Test(t)
     os.path.walk('test', find_py, 0)
 
-    if aegis:
+    if format == '--aegis' and aegis:
         cmd = "aegis -list -unf pf 2>/dev/null"
         for line in os.popen(cmd, "r").readlines():
             a = string.split(line)
@@ -469,9 +495,43 @@ else:
     #    spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
     #    ld = string.join(spe, os.pathsep)
 
-    scons_script_dir = sd or os.path.join(cwd, 'src', 'script')
+    if not baseline or baseline == '.':
+        base = cwd
+    elif baseline == '-':
+        # Tentative code for fetching information directly from the
+        # QMTest context file.
+        #
+        #import qm.common
+        #import qm.test.context
+        #qm.rc.Load("test")
+        #context = qm.test.context.Context()
+        #context.Read('context')
 
-    scons_lib_dir = ld or os.path.join(cwd, 'src', 'engine')
+        url = None
+        svn_info =  os.popen("svn info 2>&1", "r").read()
+        match = re.search('URL: (.*)', svn_info)
+        if match:
+            url = match.group(1)
+        if not url:
+            sys.stderr.write('runtest.py: could not find a URL:\n')
+            sys.stderr.write(svn_info)
+            sys.exit(1)
+        import tempfile
+        base = tempfile.mkdtemp(prefix='runtest-tmp-')
+
+        command = 'cd %s && svn co -q %s' % (base, url)
+
+        base = os.path.join(base, os.path.split(url)[1])
+        if printcommand:
+            print command
+        if execute_tests:
+            os.system(command)
+    else:
+        base = baseline
+
+    scons_script_dir = sd or os.path.join(base, 'src', 'script')
+
+    scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
 
     pythonpath_dir = scons_lib_dir
 
@@ -496,9 +556,16 @@ os.environ['SCONS_VERSION'] = version
 old_pythonpath = os.environ.get('PYTHONPATH')
 
 pythonpaths = [ pythonpath_dir ]
-for p in sp:
-    pythonpaths.append(os.path.join(p, 'build', 'etc'))
-    pythonpaths.append(os.path.join(p, 'etc'))
+
+for dir in sp:
+    if format == '--aegis':
+        q = os.path.join(dir, 'build', 'QMTest')
+    else:
+        q = os.path.join(dir, 'QMTest')
+    pythonpaths.append(q)
+
+os.environ['SCONS_SOURCE_PATH_EXECUTABLE'] = string.join(spe, os.pathsep)
+
 os.environ['PYTHONPATH'] = string.join(pythonpaths, os.pathsep)
 
 if old_pythonpath:
@@ -506,10 +573,49 @@ if old_pythonpath:
                                os.pathsep + \
                                old_pythonpath
 
-try:
-    os.chdir(scons_script_dir)
-except OSError:
-    pass
+if qmtest:
+    if baseline:
+        result_stream = 'AegisBaselineStream'
+        qmr_file = 'baseline.qmr'
+    else:
+        result_stream = 'AegisChangeStream'
+        qmr_file = 'results.qmr'
+    #qmtest = r'D:\Applications\python23\scripts\qmtest.py'
+    qmtest = 'qmtest.py'
+    qmtest_args = [
+                qmtest,
+                'run',
+                '--output %s' % qmr_file,
+                '--format none',
+                '--result-stream=scons_tdb.%s' % result_stream,
+              ]
+
+    if python:
+        qmtest_args.append('--context python=%s' % python)
+
+    if print_times:
+        qmtest_args.append('--context print_time=1')
+
+    if outputfile:
+        #rs = '--result-stream=scons_tdb.AegisBatchStream(results_file=\\"%s\\")' % outputfile
+        rs = '\'--result-stream=scons_tdb.AegisBatchStream(results_file="%s")\'' % outputfile
+        qmtest_args.append(rs)
+
+    os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
+
+    cmd = string.join(qmtest_args + args, ' ')
+    if printcommand:
+        sys.stdout.write(cmd + '\n')
+        sys.stdout.flush()
+    status = 0
+    if execute_tests:
+        status = os.system(cmd)
+    sys.exit(status)
+
+#try:
+#    os.chdir(scons_script_dir)
+#except OSError:
+#    pass
 
 class Unbuffered:
     def __init__(self, file):
@@ -527,9 +633,27 @@ if list_only:
         sys.stdout.write(t.abspath + "\n")
     sys.exit(0)
 
+#
+if not python:
+    if os.name == 'java':
+        python = os.path.join(sys.prefix, 'jython')
+    else:
+        python = sys.executable
+
 # time.clock() is the suggested interface for doing benchmarking timings,
 # but time.time() does a better job on Linux systems, so let that be
 # the non-Windows default.
+
+if print_times:
+    print_time_func = lambda fmt, time: sys.stdout.write(fmt % time)
+else:
+    print_time_func = lambda fmt, time: None
+
+if sys.platform == 'win32':
+    time_func = time.clock
+else:
+    time_func = time.time
+
 if sys.platform == 'win32':
     time_func = time.clock
 else:
@@ -548,10 +672,10 @@ for t in tests:
     if execute_tests:
         t.execute()
     t.test_time = time_func() - test_start_time
-    print_time("Test execution time: %.1f seconds\n",  t.test_time)
+    print_time_func("Test execution time: %.1f seconds\n", t.test_time)
 if len(tests) > 0:
     tests[0].total_time = time_func() - total_start_time
-    print_time("Total execution time for all tests: %.1f seconds\n",  tests[0].total_time)
+    print_time_func("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
 
 passed = filter(lambda t: t.status == 0, tests)
 fail = filter(lambda t: t.status == 1, tests)

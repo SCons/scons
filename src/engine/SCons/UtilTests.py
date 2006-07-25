@@ -188,6 +188,7 @@ class UtilTestCase(unittest.TestCase):
         assert is_Dict({})
         assert is_Dict(UserDict())
         assert not is_Dict([])
+        assert not is_Dict(())
         assert not is_Dict("")
         if hasattr(types, 'UnicodeType'):
             exec "assert not is_Dict(u'')"
@@ -196,6 +197,7 @@ class UtilTestCase(unittest.TestCase):
         assert is_List([])
         import UserList
         assert is_List(UserList.UserList())
+        assert not is_List(())
         assert not is_List({})
         assert not is_List("")
         if hasattr(types, 'UnicodeType'):
@@ -213,6 +215,15 @@ class UtilTestCase(unittest.TestCase):
             assert is_String(UserString.UserString(''))
         assert not is_String({})
         assert not is_String([])
+        assert not is_String(())
+
+    def test_is_Tuple(self):
+        assert is_Tuple(())
+        assert not is_Tuple([])
+        assert not is_Tuple({})
+        assert not is_Tuple("")
+        if hasattr(types, 'UnicodeType'):
+            exec "assert not is_Tuple(u'')"
 
     def test_to_String(self):
         """Test the to_String() method."""

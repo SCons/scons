@@ -89,8 +89,7 @@ class Serial:
         that needs to be executed, or None if there are no more tasks. The
         taskmaster's executed() method will be called for each task when it
         is successfully executed or failed() will be called if it failed to
-        execute (e.g. execute() raised an exception). The taskmaster's
-        is_blocked() method will not be called.  """
+        execute (e.g. execute() raised an exception)."""
         
         self.taskmaster = taskmaster
 
@@ -193,20 +192,17 @@ else:
         def __init__(self, taskmaster, num):
             """Create a new parallel job given a taskmaster.
 
-            The taskmaster's next_task() method should return the next task
-            that needs to be executed, or None if there are no more tasks. The
-            taskmaster's executed() method will be called for each task when it
-            is successfully executed or failed() will be called if the task
-            failed to execute (i.e. execute() raised an exception).  The
-            taskmaster's is_blocked() method should return true iff there are
-            more tasks, but they can't be executed until one or more other
-            tasks have been executed. next_task() will be called iff
-            is_blocked() returned false.
+            The taskmaster's next_task() method should return the next
+            task that needs to be executed, or None if there are no more
+            tasks. The taskmaster's executed() method will be called
+            for each task when it is successfully executed or failed()
+            will be called if the task failed to execute (i.e. execute()
+            raised an exception).
 
-            Note: calls to taskmaster are serialized, but calls to execute() on
-            distinct tasks are not serialized, because that is the whole point
-            of parallel jobs: they can execute multiple tasks
-            simultaneously. """
+            Note: calls to taskmaster are serialized, but calls to
+            execute() on distinct tasks are not serialized, because
+            that is the whole point of parallel jobs: they can execute
+            multiple tasks simultaneously. """
 
             self.taskmaster = taskmaster
             self.tp = ThreadPool(num)
