@@ -125,12 +125,14 @@ class Base:
         which scanner should be used for a given Node. In the case of File
         nodes, for example, the 'skeys' would be file suffixes.
 
-        'path_function' - a function that takes one to three arguments
-        (a construction environment, optional directory, and optional
-        argument for this instance) and returns a tuple of the
-        directories that can be searched for implicit dependency files.
-        May also return a callable() which is called with no args and
-        returns the tuple (supporting Bindable class).
+        'path_function' - a function that takes four or five arguments
+        (a construction environment, Node for the directory containing
+        the SConscript file that defined the primary target, list of
+        target nodes, list of source nodes, and optional argument for
+        this instance) and returns a tuple of the directories that can
+        be searched for implicit dependency files.  May also return a
+        callable() which is called with no args and returns the tuple
+        (supporting Bindable class).
 
         'node_class' - the class of Nodes which this scan will return.
         If node_class is None, then this scanner will not enforce any

@@ -44,7 +44,7 @@ except NameError: WindowsError = OSError
 #    version = os.environ['SCONS_VERSION']
 #except KeyError:
 #    version = '__VERSION__'
-version = '0.96'
+version = '0.96.92'
 
 scons_version = 'scons-%s' % version
 

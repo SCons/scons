@@ -56,7 +56,19 @@ test.write('file1.in', "file1.in\n")
 test.write('file2.in', "file2.in\n")
 test.write(['subdir', 'file3.in'], "subdir/file3.in\n")
 
-test.run(arguments = '.')
+install_file1_out = os.path.join('install', 'file1.out')
+install_file2_out = os.path.join('install', 'file2.out')
+install_file3_out = os.path.join('install', 'file3.out')
+
+subdir_file3_in = os.path.join('subdir', 'file3.in')
+
+expect = test.wrap_stdout("""\
+Install file: "file1.in" as "%(install_file1_out)s"
+Install file: "file2.in" as "%(install_file2_out)s"
+Install file: "%(subdir_file3_in)s" as "%(install_file3_out)s"
+""" % locals())
+
+test.run(arguments = '.', stdout=expect)
 
 test.fail_test(test.read(install_file1_out) != "file1.in\n")
 test.fail_test(test.read(install_file2_out) != "file2.in\n")

@@ -36,17 +36,23 @@ test = TestSCons.TestSCons()
 
 test_config1 = test.workpath('test-config1')
 test_config2 = test.workpath('test-config2')
+test_config3 = test.workpath('test-config3')
 
 # 'abc' is supposed to be a static lib; it is included in LIBS as a
 # File node.
 # It used to be returned as the 'static_libs' output of ParseConfig.
 test.write(test_config1, """\
-print "-I/usr/include/fum -Ibar -X"
+print "-I/usr/include/fum -Ibar -X -arch i386"
 print "-L/usr/fax -Lfoo -lxxx abc"
 """)
 
 test.write(test_config2, """\
 print "-L foo -L lib_dir"
+""")
+
+# This is like what wxWidgets does on OSX w/ Universal Binaries
+test.write(test_config3, """\
+print "-L foo -L lib_dir -isysroot /tmp -arch ppc -arch i386"
 """)
 
 test.write('SConstruct', """
@@ -70,15 +76,34 @@ print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
 """ % locals())
 
+test.write('SConstruct3', """
+env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
+                  PYTHON = '%(python)s')
+env.ParseConfig(r"$PYTHON %(test_config3)s --libs --cflags")
+print env['CPPPATH']
+print env['LIBPATH']
+print map(lambda x: str(x), env['LIBS'])
+print env['CCFLAGS']
+""" % locals())
+
 good_stdout = test.wrap_stdout(read_str = """\
 ['/usr/include/fum', 'bar']
 ['/usr/fax', 'foo', 'lib_dir']
 ['xxx', 'abc']
-['-X']
+['-X', ('-arch', 'i386')]
+""", build_str = "scons: `.' is up to date.\n")
+
+stdout3 = test.wrap_stdout(read_str = """\
+[]
+['foo', 'lib_dir']
+[]
+[('-isysroot', '/tmp'), ('-arch', 'ppc'), ('-arch', 'i386')]
 """, build_str = "scons: `.' is up to date.\n")
 
 test.run(arguments = ".", stdout = good_stdout)
 
 test.run(arguments = "-f SConstruct2 .", stdout = good_stdout)
+
+test.run(arguments = "-f SConstruct3 .", stdout = stdout3)
 
 test.pass_test()

@@ -276,23 +276,23 @@ test.must_match(['work3', 'all'],
                 mode='r')
 
 # Test CVS checkouts from a remote server (Tigris.org).
-test.subdir(['work4'])
-
-test.write(['work4', 'SConstruct'], """\
-import os
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
-# We used to use the SourceForge server, but SourceForge has restrictions
-# that make them deny access on occasion.  Leave the incantation here
-# in case we need to use it again some day.
-#cvs = env.CVS(':pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons')
-cvs = env.CVS(':pserver:anoncvs@cvs.tigris.org:/cvs')
-env.SourceCode('.', cvs)
-env.Install('install', 'scons/SConstruct')
-""")
-
-test.run(chdir = 'work4', arguments = '.')
-
-test.must_exist(test.workpath('work4', 'install', 'SConstruct'))
+#test.subdir(['work4'])
+#
+#test.write(['work4', 'SConstruct'], """\
+#import os
+#env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+## We used to use the SourceForge server, but SourceForge has restrictions
+## that make them deny access on occasion.  Leave the incantation here
+## in case we need to use it again some day.
+##cvs = env.CVS(':pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons')
+#cvs = env.CVS(':pserver:anoncvs@cvs.tigris.org:/cvs')
+#env.SourceCode('.', cvs)
+#env.Install('install', 'scons/SConstruct')
+#""")
+#
+#test.run(chdir = 'work4', arguments = '.')
+#
+#test.must_exist(test.workpath('work4', 'install', 'SConstruct'))
 
 
 test.pass_test()

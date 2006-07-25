@@ -68,7 +68,6 @@ executing = 2
 up_to_date = 3
 executed = 4
 failed = 5
-stack = 6 # nodes that are in the current Taskmaster execution stack
 
 StateString = {
     0 : "0",
@@ -77,7 +76,6 @@ StateString = {
     3 : "up_to_date",
     4 : "executed",
     5 : "failed",
-    6 : "stack",
 }
 
 # controls whether implicit dependencies are cached:
@@ -193,7 +191,9 @@ class Node:
         self.ignore = []        # dependencies to ignore
         self.ignore_dict = {}
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
-        self.waiting_parents = []
+        self.waiting_parents = {}
+        self.waiting_s_e = {}
+        self.ref_count = 0
         self.wkids = None       # Kids yet to walk, when it's an array
 
         self.env = None
@@ -208,7 +208,7 @@ class Node:
         self.side_effects = [] # the side effects of building this target
         self.pre_actions = []
         self.post_actions = []
-        self.linked = 0 # is this node linked to the build directory? 
+        self.linked = 0 # is this node linked to the build directory?
 
         # Let the interface in which the build engine is embedded
         # annotate this Node with its own info (like a description of
@@ -281,7 +281,7 @@ class Node:
         Returns true iff the node was successfully retrieved.
         """
         return 0
-        
+
     def build(self, **kw):
         """Actually build the node.
 
@@ -301,10 +301,10 @@ class Node:
 
         # Clear the implicit dependency caches of any Nodes
         # waiting for this Node to be built.
-        for parent in self.waiting_parents:
+        for parent in self.waiting_parents.keys():
             parent.implicit = None
             parent.del_binfo()
-        
+
         try:
             new = self.binfo
         except AttributeError:
@@ -316,7 +316,7 @@ class Node:
         # Reset this Node's cached state since it was just built and
         # various state has changed.
         self.clear()
-        
+
         if new:
             # It had build info, so it should be stored in the signature
             # cache.  However, if the build info included a content
@@ -328,18 +328,22 @@ class Node:
                 self.binfo = new
             self.store_info(self.binfo)
 
+    def add_to_waiting_s_e(self, node):
+        self.waiting_s_e[node] = 1
+
     def add_to_waiting_parents(self, node):
-        self.waiting_parents.append(node)
+        self.waiting_parents[node] = 1
 
     def call_for_all_waiting_parents(self, func):
         func(self)
-        for parent in self.waiting_parents:
+        for parent in self.waiting_parents.keys():
             parent.call_for_all_waiting_parents(func)
 
     def postprocess(self):
         """Clean up anything we don't need to hang onto after we've
         been built."""
         self.executor_cleanup()
+        self.waiting_parents = {}
 
     def clear(self):
         """Completely clear a Node of all its cached state (so that it
@@ -356,8 +360,6 @@ class Node:
         self.includes = None
         self.found_includes = {}
         self.implicit = None
-
-        self.waiting_parents = []
 
     def visited(self):
         """Called just after this node has been visited
@@ -757,7 +759,7 @@ class Node:
         """Does this node exists?"""
         # All node exist by default:
         return 1
-    
+
     def rexists(self):
         """Does this node exist locally or in a repositiory?"""
         # There are no repositories by default:

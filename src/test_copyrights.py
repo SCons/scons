@@ -46,84 +46,93 @@ try:
 except KeyError:
     cwd = os.getcwd()
 
+build_scons = os.path.join(cwd, 'build', 'scons')
+build_local = os.path.join(cwd, 'build', 'scons-local', 'scons-local-0.96.92')
+build_src = os.path.join(cwd, 'build', 'scons-src')
+
 class Collect:
     expression = re.compile('Copyright.*The SCons Foundation')
-    def __init__(self, remove_list):
+    def __init__(self, directory, remove_list):
         self.copyright = []
         self.no_copyright = []
-        self.remove_list = remove_list
+        self.remove = {}
+        for r in remove_list:
+            self.remove[os.path.join(directory, r)] = 1
 
 def visit(collect, dirname, names):
-    for r in collect.remove_list:
-        try:
-            names.remove(r)
-        except ValueError:
-            pass
-    for name in map(lambda n, d=dirname: os.path.join(d, n), names):
-        if not os.path.isfile(name):
-            continue
-        if collect.expression.search(open(name, 'r').read()):
-            collect.copyright.append(name)
-        else:
-            collect.no_copyright.append(name)
+    make_path_tuple = lambda n, d=dirname: (n, os.path.join(d, n))
+    for name, path in map(make_path_tuple, names):
+        if collect.remove.get(path):
+            names.remove(name)
+        elif os.path.isfile(path):
+            if collect.expression.search(open(path, 'r').read()):
+                collect.copyright.append(path)
+            else:
+                collect.no_copyright.append(path)
 
-remove_list = [
+# Map each directory to search (dictionary keys) to a list of its
+# subsidiary files and directories to exclude from copyright checks.
+check = {
+    build_scons : [
         'build',
-        'debian',
         'dist',
-        'Optik',
-        'dblite.py',
-        'Conftest.py',
+        'engine/SCons/Conftest.py',
+        'engine/SCons/dblite.py',
+        'engine/SCons/Optik',
         'MANIFEST',
         'os_spawnv_fix.diff',
         'setup.cfg',
-        'SCons-win32-install-1.jpg',
-        'SCons-win32-install-2.jpg',
-        'SCons-win32-install-3.jpg',
-        'SCons-win32-install-4.jpg',
-]
-
-src_remove_list = [
+    ],
+    build_local : [
+        'SCons/Conftest.py',
+        'SCons/dblite.py',
+        'SCons/Optik',
+    ],
+    build_src : [
         'bin',
-                'cons.pl',
-                'design',
-                'python10',
-                'reference',
-        'etc',
-        'gentoo',
         'config',
-        'MANIFEST.in',
-        'MANIFEST-xml.in',
-]
+        'debian',
+        'doc/design',
+        'doc/MANIFEST',
+        'doc/python10',
+        'doc/reference',
+        'doc/man/MANIFEST',
+        'doc/user/cons.pl',
+        'doc/user/MANIFEST',
+        'doc/user/SCons-win32-install-1.jpg',
+        'doc/user/SCons-win32-install-2.jpg',
+        'doc/user/SCons-win32-install-3.jpg',
+        'doc/user/SCons-win32-install-4.jpg',
+        'gentoo',
+        'QMTest/classes.qmc',
+        'QMTest/configuration',
+        'QMTest/TestCmd.py',
+        'QMTest/TestCommon.py',
+        'QMTest/unittest.py',
+        'src/os_spawnv_fix.diff',
+        'src/MANIFEST.in',
+        'src/setup.cfg',
+        'src/engine/MANIFEST.in',
+        'src/engine/MANIFEST-xml.in',
+        'src/engine/setup.cfg',
+        'src/engine/SCons/Conftest.py',
+        'src/engine/SCons/dblite.py',
+        'src/engine/SCons/Optik',
+        'src/script/MANIFEST.in',
+        'src/script/setup.cfg',
+    ],
+}
 
-# XXX Remove '*-stamp' when we get rid of those.
-scons = Collect(remove_list + ['build-stamp', 'configure-stamp'])
-# XXX Remove '.sconsign' when we start using SConsignFile() for SCons builds.
-local = Collect(remove_list + ['.sconsign'])
-src = Collect(remove_list + src_remove_list)
-
-build_scons = os.path.join(cwd, 'build', 'scons')
-build_local = os.path.join(cwd, 'build', 'scons-local')
-build_src = os.path.join(cwd, 'build', 'scons-src')
-
+no_copyright = []
 no_result = []
 
-if os.path.exists(build_scons):
-    os.path.walk(build_scons, visit, scons)
-else:
-    no_result.append(build_scons)
-
-if os.path.exists(build_local):
-    os.path.walk(build_local, visit, local)
-else:
-    no_result.append(build_local)
-
-if os.path.exists(build_src):
-    os.path.walk(build_src, visit, src)
-else:
-    no_result.append(build_src)
-
-no_copyright = scons.no_copyright + local.no_copyright + src.no_copyright
+for directory, remove_list in check.items():
+    if os.path.exists(directory):
+        c = Collect(directory, remove_list)
+        os.path.walk(directory, visit, c)
+        no_copyright.extend(c.no_copyright)
+    else:
+        no_result.append(directory)
 
 if no_copyright:
     print "Found the following files with no copyrights:"
@@ -135,5 +144,4 @@ if no_result:
     print "\t" + string.join(no_result, "\n\t")
     test.no_result(1)
 
-# All done.
 test.pass_test()

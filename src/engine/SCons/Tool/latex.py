@@ -64,7 +64,7 @@ def generate(env):
 
     env['LATEX']        = 'latex'
     env['LATEXFLAGS']   = SCons.Util.CLVar('')
-    env['LATEXCOM']     = '$LATEX $LATEXFLAGS $SOURCES'
+    env['LATEXCOM']     = '$LATEX $LATEXFLAGS $SOURCE'
     env['LATEXRETRIES'] = 3
 
 def exists(env):

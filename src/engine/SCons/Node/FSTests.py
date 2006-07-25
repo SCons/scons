@@ -2736,6 +2736,20 @@ class disambiguateTestCase(unittest.TestCase):
         f = efile.disambiguate()
         assert f.__class__ is fff.__class__, f.__class__
 
+        test.subdir('src')
+        test.subdir(['src', 'edir'])
+        test.write(['src', 'efile'], "src/efile\n")
+
+        fs.BuildDir(test.workpath('build'), test.workpath('src'))
+
+        build_edir = fs.Entry(test.workpath('build/edir'))
+        d = build_edir.disambiguate()
+        assert d.__class__ is ddd.__class__, d.__class__
+
+        build_efile = fs.Entry(test.workpath('build/efile'))
+        f = build_efile.disambiguate()
+        assert f.__class__ is fff.__class__, f.__class__
+
 class postprocessTestCase(unittest.TestCase):
     def runTest(self):
         """Test calling the postprocess() method."""

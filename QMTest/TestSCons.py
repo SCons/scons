@@ -123,6 +123,13 @@ class TestSCons(TestCommon):
         so an explicit "chdir = '.'" on all of the run() method calls
         is not necessary.
         """
+        self.orig_cwd = os.getcwd()
+        try:
+            script_dir = os.environ['SCONS_SCRIPT_DIR']
+        except KeyError:
+            pass
+        else:
+            os.chdir(script_dir)
         if not kw.has_key('program'):
             kw['program'] = os.environ.get('SCONS')
             if not kw['program']:

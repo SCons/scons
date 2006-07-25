@@ -42,6 +42,10 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
+warning_rerun_re = re.compile("^LaTeX Warning:.*Rerun", re.MULTILINE)
+undefined_references_re = re.compile("^LaTeX Warning:.*undefined references", re.MULTILINE)
+openout_aux_re = re.compile(r"\\openout.*`(.*\.aux)'")
+
 # An Action sufficient to build any generic tex file.
 TeXAction = None
 
@@ -62,28 +66,36 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     basename, ext = SCons.Util.splitext(str(target[0]))
 
     # Run LaTeX once to generate a new aux file.
-    XXXLaTeXAction(target,source,env)
+    XXXLaTeXAction(target, source, env)
 
     # Decide if various things need to be run, or run again.  We check
     # for the existence of files before opening them--even ones like the
     # aux file that TeX always creates--to make it possible to write tests
     # with stubs that don't necessarily generate all of the same files.
 
+    # Read the log file to find all .aux files
+    logfilename = basename + '.log'
+    auxfiles = []
+    if os.path.exists(logfilename):
+        content = open(logfilename, "rb").read()
+        auxfiles = openout_aux_re.findall(content)
+
     # Now decide if bibtex will need to be run.
-    auxfilename = basename + '.aux'
-    if os.path.exists(auxfilename):
-        content = open(auxfilename, "rb").read()
-        if string.find(content, "bibdata") != -1:
-            bibfile = env.fs.File(basename)
-            BibTeXAction(None,bibfile,env)
+    for auxfilename in auxfiles:
+        if os.path.exists(auxfilename):
+            content = open(auxfilename, "rb").read()
+            if string.find(content, "bibdata") != -1:
+                bibfile = env.fs.File(basename)
+                BibTeXAction(None, bibfile, env)
+                break
 
     # Now decide if makeindex will need to be run.
     idxfilename = basename + '.idx'
     if os.path.exists(idxfilename):
         idxfile = env.fs.File(basename)
         # TODO: if ( idxfile has changed) ...
-        MakeIndexAction(None,idxfile,env)
-        LaTeXAction(target,source,env)
+        MakeIndexAction(None, idxfile, env)
+        XXXLaTeXAction(target, source, env)
 
     # Now decide if latex needs to be run yet again.
     logfilename = basename + '.log'
@@ -91,9 +103,10 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         if not os.path.exists(logfilename):
             break
         content = open(logfilename, "rb").read()
-        if not re.search("^LaTeX Warning:.*Rerun",content,re.MULTILINE) and not re.search("^LaTeX Warning:.*undefined references",content,re.MULTILINE):
+        if not warning_rerun_re.search(content) and \
+           not undefined_references_re.search(content):
             break
-        XXXLaTeXAction(target,source,env)
+        XXXLaTeXAction(target, source, env)
     return 0
 
 def LaTeXAuxAction(target = None, source= None, env=None):
@@ -123,6 +136,23 @@ def tex_emitter(target, source, env):
     base = SCons.Util.splitext(str(source[0]))[0]
     target.append(base + '.aux')
     target.append(base + '.log')
+    for f in source:
+        content = f.get_contents()
+        if string.find(content, r'\makeindex') != -1:
+            target.append(base + '.ilg')
+            target.append(base + '.ind')
+            target.append(base + '.idx')
+        if string.find(content, r'\bibliography') != -1:
+            target.append(base + '.bbl')
+            target.append(base + '.blg')
+
+    # read log file to get all .aux files
+    logfilename = base + '.log'
+    if os.path.exists(logfilename):
+        content = open(logfilename, "rb").read()
+        aux_files = openout_aux_re.findall(content)
+        target.extend(filter(lambda f, b=base+'.aux': f != b, aux_files))
+
     return (target, source)
 
 TeXLaTeXAction = None
@@ -149,7 +179,7 @@ def generate(env):
     # Define an action to run MakeIndex on a file.
     global MakeIndexAction
     if MakeIndexAction is None:
-        MakeIndexAction = SCons.Action.Action("$MAKEINDEXCOM", "$MAKEINDEXOMSTR")
+        MakeIndexAction = SCons.Action.Action("$MAKEINDEXCOM", "$MAKEINDEXCOMSTR")
 
     global TeXLaTeXAction
     if TeXLaTeXAction is None:
@@ -174,7 +204,7 @@ def generate(env):
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
-    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS $SOURCE'
+    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS ${SOURCE.base}'
 
     env['MAKEINDEX']      = 'makeindex'
     env['MAKEINDEXFLAGS'] = SCons.Util.CLVar('')

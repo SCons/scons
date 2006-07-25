@@ -224,10 +224,10 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
 """ % (lib,lib))
 
     test.run(chdir=work_dir)
-    checkLogAndStdout(["Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
-                       "Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
+    checkLogAndStdout(["Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
+                       "Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
                        "Checking for C header file math.h... ",
                        "Checking for C++ header file vector... "],
                       ["yes"]*6,
@@ -238,10 +238,10 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
     
 
     test.run(chdir=work_dir)
-    checkLogAndStdout(["Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
-                       "Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
+    checkLogAndStdout(["Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
+                       "Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
                        "Checking for C header file math.h... ",
                        "Checking for C++ header file vector... "],
                       ["yes"]*6,
@@ -253,10 +253,10 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
     # same should be true for TargetSignatures('content')
 
     test.run(chdir=work_dir, arguments='target_signatures_content=1 --config=force')
-    checkLogAndStdout(["Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
-                       "Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
+    checkLogAndStdout(["Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
+                       "Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
                        "Checking for C header file math.h... ",
                        "Checking for C++ header file vector... "],
                       ["yes"]*6,
@@ -266,10 +266,10 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
                       test, "config.log", ".sconf_temp", "SConstruct")    
 
     test.run(chdir=work_dir, arguments='target_signatures_content=1')
-    checkLogAndStdout(["Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
-                       "Checking for main() in C library %s... " % lib,
-                       "Checking for main() in C library None... ",
+    checkLogAndStdout(["Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
+                       "Checking for C library %s... " % lib,
+                       "Checking for C library None... ",
                        "Checking for C header file math.h... ",
                        "Checking for C++ header file vector... "],
                       ["yes"]*6,
@@ -299,7 +299,7 @@ if not (not r1 and not r2):
 
     test.run(chdir=work_dir)
     checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
-                       "Checking for main() in C library no_c_library_SAFFDG... "],
+                       "Checking for C library no_c_library_SAFFDG... "],
                       ["no"]*2,
                       [[((".c", NCR), (_obj, NCF))],
                        [((".c", NCR), (_obj, NCR), (_exe, NCF))]],
@@ -307,7 +307,7 @@ if not (not r1 and not r2):
 
     test.run(chdir=work_dir)
     checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
-                       "Checking for main() in C library no_c_library_SAFFDG... "],
+                       "Checking for C library no_c_library_SAFFDG... "],
                       ["no"]*2,
                       [[((".c", CR), (_obj, CF))],
                        [((".c", CR), (_obj, CR), (_exe, CF))]],
@@ -316,7 +316,7 @@ if not (not r1 and not r2):
     # 1.3 same should be true for TargetSignatures('content')
     test.run(chdir=work_dir, arguments='--config=force target_signatures_content=1')
     checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
-                       "Checking for main() in C library no_c_library_SAFFDG... "],
+                       "Checking for C library no_c_library_SAFFDG... "],
                       ["no"]*2,
                       [[((".c", NCR), (_obj, NCF))],
                        [((".c", NCR), (_obj, NCR), (_exe, NCF))]],
@@ -324,7 +324,7 @@ if not (not r1 and not r2):
 
     test.run(chdir=work_dir, arguments='target_signatures_content=1')
     checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
-                       "Checking for main() in C library no_c_library_SAFFDG... "],
+                       "Checking for C library no_c_library_SAFFDG... "],
                       ["no"]*2,
                       [[((".c", CR), (_obj, CF))],
                        [((".c", CR), (_obj, CR), (_exe, CF))]],
@@ -698,8 +698,8 @@ File "SConstruct", line 6, in ?
 """ % os.path.join(".sconf_temp", "conftest_0.c"))
 
     test.run(chdir=work_dir)
-    checkLogAndStdout( ["Checking for main() in C library %s... " % lib,
-                        "Checking for main() in C library hopefullynolib... "],
+    checkLogAndStdout( ["Checking for C library %s... " % lib,
+                        "Checking for C library hopefullynolib... "],
                         ["yes", "no"],
                         [[((".c", NCR), (_obj, NCR))],
                          [((".c", NCR), (_obj, NCF))]],
@@ -707,8 +707,8 @@ File "SConstruct", line 6, in ?
     oldLog = test.read(test.workpath(work_dir, 'config.log'))
 
     test.run(chdir=work_dir, arguments='-n')
-    checkLogAndStdout( ["Checking for main() in C library %s... " % lib,
-                        "Checking for main() in C library hopefullynolib... "],
+    checkLogAndStdout( ["Checking for C library %s... " % lib,
+                        "Checking for C library hopefullynolib... "],
                         ["yes", "no"],
                         [[((".c", CR), (_obj, CR))],
                          [((".c", CR), (_obj, CF))]],
@@ -842,9 +842,9 @@ Checking for C++ header file vector... yes
 Checking for C++ header file hopefullynocxx-header.h... no
 Checking for sin() in C library %(lib)s... yes
 Checking for sin() in C library hopefullynolib... no
-Checking for main() in C library %(lib)s... yes
-Checking for main() in C library %(lib)s... no
-Checking for main() in C library hopefullynolib2... no
+Checking for C library %(lib)s... yes
+Checking for C library %(lib)s... no
+Checking for C library hopefullynolib2... no
 """ % {'lib' : lib}
 
     expected_build_str = """\

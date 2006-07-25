@@ -47,7 +47,8 @@ def generate(env):
             DVIBuilder = SCons.Builder.Builder(action = {},
                                                source_scanner = SCons.Tool.LaTeXScanner,
                                                suffix = '.dvi',
-                                               emitter = {})
+                                               emitter = {},
+                                               source_ext_match = None)
 
         env['BUILDERS']['DVI'] = DVIBuilder
 

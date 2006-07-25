@@ -1,7 +1,4 @@
-#
-# SConscript file for external packages we need.
-#
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -25,29 +22,41 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import os.path
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-Import('env')
+"""
+Test how we handle a no-results test specified on the command line.
+"""
 
-files = [
-    'TestCmd.py',
-    'TestCommon.py',
-    'TestSCons.py',
-    'unittest.py',
-]
+import TestRuntest
 
-def copy(target, source, env):
-    t = str(target[0])
-    s = str(source[0])
-    open(t, 'wb').write(open(s, 'rb').read())
+test = TestRuntest.TestRuntest()
 
-for file in files:
-    # Guarantee that real copies of these files always exist in
-    # build/etc.  If there's a symlink there, then this is an Aegis
-    # build and we blow them away now so that they'll get "built" later.
-    p = os.path.join('build', 'etc', file)
-    if os.path.islink(p):
-        os.unlink(p)
-    sp = '#' + p
-    env.Command(sp, file, copy)
-    Local(sp)
+test.subdir('test')
+
+test.write_no_result_test(['test', 'no_result.py'])
+
+expect = r"""qmtest.py run --output results.qmr --format none --result-stream=scons_tdb.AegisChangeStream test/no_result.py
+--- TEST RESULTS -------------------------------------------------------------
+
+  test/no_result.py                             : NO_RESULT
+
+    NO RESULT TEST STDOUT
+
+    NO RESULT TEST STDERR
+
+--- TESTS THAT DID NOT PASS --------------------------------------------------
+
+  test/no_result.py                             : NO_RESULT
+
+
+--- STATISTICS ---------------------------------------------------------------
+
+       1        tests total
+
+       1 (100%) tests NO_RESULT
+"""
+
+test.run(arguments = '--qmtest test/no_result.py', stdout = expect)
+
+test.pass_test()

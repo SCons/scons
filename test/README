@@ -3,11 +3,10 @@ __COPYRIGHT__
 This directory contains our end-to-end SCons tests.
 
 They are all meant to be run essentially standalone, with the exception
-of the TestSCons.py module (and the TestCmd.py module it imports) that
-is imported by each test.  These modules are in the etc/ subdirectory,
-and PYTHONPATH needs to be set up correctly so that the test script can
-find them, and so that the SCons script itself can find the build engine
-modules.
+of the TestSCons.py module and the other modules imported by the various
+tests.  These modules are in the QMTest/ subdirectory, and PYTHONPATH
+needs to be set up correctly so that the test scripts can find them,
+and so that the SCons script itself can find the build engine modules.
 
 There is a wrapper script, runtest.py, that takes care of this for you,
 so the canonical invocation of a test is:
@@ -17,22 +16,13 @@ so the canonical invocation of a test is:
 There is also a "runtest.py -a" option that will search the tree for
 all tests, and execute them.
 
-Many of these tests have code for features that are not yet supported,
-but which will be part of SCons IN THE CURRENT PLANNED RELEASE.  These
-are either:
+Some of these tests have code for features that are not yet supported.
 
 	commented out with a "#XXX" at the beginning of the line;
 
 	short-circuited entirely by having the test pass via an
 	early call to test.pass_test(), which has a "#XXX" comment
 	at the end of the line
-
-The upshot is that you should be able to:
-
-	egrep -l '#XXX' test/*.py
-
-and see a list of the tests we still have to make work in order to get
-the next release out the door.
 
 If you're trying to implement one of these features, DO NOT BLINDLY
 ASSUME THAT THE NEW CODE IN THE TEST IS CORRECT.  It may have problems
@@ -50,16 +40,8 @@ semblance of uniformity, here are the naming conventions for tests:
 				keep this description reasonably
 				short
 
-		Feature-01.py	additional tests of specified
-		Feature-02.py	feature
-		Feature-03.py
-
     		Feature-x.py	test of specified feature using
 				option x
-
-		Feature-x-01.py	additional tests of specified
-		Feature-x-02.py	feature using option x
-		Feature-x-03.py
 
     --	Command line option tests take the form:
 

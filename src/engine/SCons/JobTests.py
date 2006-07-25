@@ -61,7 +61,7 @@ class Task:
         self.taskmaster = taskmaster
         self.was_executed = 0
         self.was_prepared = 0
-        
+
     def prepare(self):
         self.was_prepared = 1
 
@@ -71,7 +71,7 @@ class Task:
     def execute(self):
         self.taskmaster.test_case.failUnless(self.was_prepared,
                                   "the task wasn't prepared")
-        
+
         self.taskmaster.guard.acquire()
         self.taskmaster.begin_list.append(self.i)
         self.taskmaster.guard.release()
@@ -119,7 +119,7 @@ class ExceptionTask:
 
     def prepare(self):
         self.was_prepared = 1
-        
+
     def execute(self):
         raise "exception"
 
@@ -188,14 +188,6 @@ class Taskmaster:
     def all_tasks_are_postprocessed(self):
         return self.num_postprocessed == self.num_tasks
 
-    def is_blocked(self):
-        if self.stop or self.all_tasks_are_executed():
-            return 0
-        if self.all_tasks_are_iterated():
-            return 1
-        # simulate blocking tasks
-        return self.num_iterated - self.num_executed >= max(num_jobs/2, 2)
-
     def tasks_were_serial(self):
         "analyze the task order to see if they were serial"
         serial = 1 # assume the tasks were serial
@@ -233,7 +225,7 @@ class ParallelTestCase(unittest.TestCase):
         self.failUnless(taskmaster.all_tasks_are_postprocessed(),
                         "all the tests were not postprocessed")
         self.failIf(taskmaster.num_failed,
-                    "some task(s) failed to execute") 
+                    "some task(s) failed to execute")
 
         # Verify that parallel jobs will pull all of the completed tasks
         # out of the queue at once, instead of one by one.  We do this by
@@ -298,7 +290,7 @@ class SerialTestCase(unittest.TestCase):
         self.failUnless(taskmaster.all_tasks_are_postprocessed(),
                         "all the tests were not postprocessed")
         self.failIf(taskmaster.num_failed,
-                    "some task(s) failed to execute") 
+                    "some task(s) failed to execute")
 
 class NoParallelTestCase(unittest.TestCase):
     def runTest(self):
@@ -310,7 +302,7 @@ class NoParallelTestCase(unittest.TestCase):
         try:
             taskmaster = Taskmaster(num_tasks, self, RandomTask)
             jobs = SCons.Job.Jobs(2, taskmaster)
-            self.failUnless(jobs.num_jobs == 1, 
+            self.failUnless(jobs.num_jobs == 1,
                             "unexpected number of jobs %d" % jobs.num_jobs)
             jobs.run()
             self.failUnless(taskmaster.tasks_were_serial(),
@@ -322,7 +314,7 @@ class NoParallelTestCase(unittest.TestCase):
             self.failUnless(taskmaster.all_tasks_are_postprocessed(),
                             "all the tests were not postprocessed")
             self.failIf(taskmaster.num_failed,
-                        "some task(s) failed to execute") 
+                        "some task(s) failed to execute")
         finally:
             SCons.Job.Parallel = save_Parallel
 
@@ -357,7 +349,7 @@ class ParallelExceptionTestCase(unittest.TestCase):
         self.failUnless(taskmaster.num_iterated >= 1,
                     "one or more task should have been iterated")
         self.failUnless(taskmaster.num_failed >= 1,
-                    "one or more tasks should have failed") 
+                    "one or more tasks should have failed")
         self.failUnless(taskmaster.num_postprocessed >= 1,
                     "one or more tasks should have been postprocessed")
 
@@ -385,7 +377,7 @@ class slowgoodnode (goodnode):
         # by this test.
         time.sleep(0.15)
         goodnode.prepare(self)
-        
+
 class badnode (goodnode):
     def __init__(self):
         goodnode.__init__(self)
@@ -436,7 +428,7 @@ class _SConsTaskTest(unittest.TestCase):
 
         # Exceptions thrown by tasks are not actually propagated to
         # this level, but are instead stored in the Taskmaster.
-        
+
         jobs.run()
 
         # Now figure out if tests proceeded correctly.  The first test

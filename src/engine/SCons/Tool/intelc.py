@@ -71,12 +71,18 @@ def linux_ver_normalize(vstr):
     is greater than 60 it's an old-style number and otherwise new-style.
     Always returns an old-style float like 80 or 90 for compatibility with Windows.
     Shades of Y2K!"""
-    f = float(vstr)
-    if is_windows:
-        return f
+    # Check for version number like 9.1.026: return 91.026
+    m = re.match(r'([0-9]+)\.([0-9]+)\.([0-9]+)', vstr)
+    if m:
+        vmaj,vmin,build = m.groups()
+        return float(vmaj) * 10 + float(vmin) + float(build) / 1000.;
     else:
-        if f < 60: return f * 10.0
-        else: return f
+        f = float(vstr)
+        if is_windows:
+            return f
+        else:
+            if f < 60: return f * 10.0
+            else: return f
 
 def check_abi(abi):
     """Check for valid ABI (application binary interface) name,

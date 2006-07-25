@@ -191,6 +191,8 @@ class Executor:
         This essentially short-circuits an N*M scan of the sources for
         each individual target, which is a hell of a lot more efficient.
         """
+        map(lambda N: N.disambiguate(), node_list)
+
         env = self.get_build_env()
         select_specific_scanner = lambda t: (t[0], t[1].select(t[0]))
         remove_null_scanners = lambda t: not t[1] is None

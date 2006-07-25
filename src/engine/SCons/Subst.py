@@ -37,7 +37,7 @@ import UserList
 
 import SCons.Errors
 
-from SCons.Util import is_String, is_List
+from SCons.Util import is_String, is_List, is_Tuple
 
 # Indexed by the SUBST_* constants below.
 _strconv = [SCons.Util.to_String,
@@ -170,7 +170,7 @@ class NLWrapper:
         list = self.list
         if list is None:
             list = []
-        elif not is_List(list):
+        elif not is_List(list) and not is_Tuple(list):
             list = [list]
         # The map(self.func) call is what actually turns
         # a list into appropriate proxies.
@@ -411,7 +411,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     var = string.split(key, '.')[0]
                     lv[var] = ''
                     return self.substitute(s, lv)
-            elif is_List(s):
+            elif is_List(s) or is_Tuple(s):
                 def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                     return conv(substitute(l, lvars))
                 r = map(func, s)
@@ -618,7 +618,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     lv[var] = ''
                     self.substitute(s, lv, 0)
                     self.this_word()
-            elif is_List(s):
+            elif is_List(s) or is_Tuple(s):
                 for a in s:
                     self.substitute(a, lvars, 1)
                     self.next_word()
@@ -808,18 +808,18 @@ def scons_subst_once(strSubst, env, key):
         a = match.group(1)
         if a in matchlist:
             a = val
-        if is_List(a):
+        if is_List(a) or is_Tuple(a):
             return string.join(map(str, a))
         else:
             return str(a)
 
-    if is_List(strSubst):
+    if is_List(strSubst) or is_Tuple(strSubst):
         result = []
         for arg in strSubst:
             if is_String(arg):
                 if arg in matchlist:
                     arg = val
-                    if is_List(arg):
+                    if is_List(arg) or is_Tuple(arg):
                         result.extend(arg)
                     else:
                         result.append(arg)

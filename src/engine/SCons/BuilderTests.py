@@ -820,145 +820,6 @@ class BuilderTestCase(unittest.TestCase):
         assert s == ['test_wrap.c'], s
         s = map(str, tgt.sources[0].sources[0].sources)
         assert s == ['test.i'], s
-        
-    def test_CompositeBuilder(self):
-        """Testing CompositeBuilder class."""
-        def func_action(target, source, env):
-            return 0
-        
-        env = Environment(BAR_SUFFIX = '.BAR2', FOO_SUFFIX = '.FOO2')
-        builder = SCons.Builder.Builder(action={ '.foo' : func_action,
-                                                 '.bar' : func_action,
-                                                 '$BAR_SUFFIX' : func_action,
-                                                 '$FOO_SUFFIX' : func_action })
-
-        tgt = builder(env, source=[])
-        assert tgt == [], tgt
-        
-        assert isinstance(builder, SCons.Builder.CompositeBuilder)
-        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
-
-        tgt = builder(env, target='test1', source='test1.foo')[0]
-        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
-        assert tgt.builder.action is builder.action
-
-        tgt = builder(env, target='test2', source='test1.bar')[0]
-        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
-        assert tgt.builder.action is builder.action
-
-        flag = 0
-        tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError, e:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
-        assert match, e
-
-        tgt = builder(env, target='test4', source=['test4.BAR2'])[0]
-        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
-        try:
-            tgt.build()
-            flag = 1
-        except SCons.Errors.UserError, e:
-            print e
-            flag = 0
-        assert flag, "It should be possible to define actions in composite builders using variables."
-        env['FOO_SUFFIX'] = '.BAR2'
-        builder.add_action('$NEW_SUFFIX', func_action)
-        flag = 0
-        tgt = builder(env, target='test5', source=['test5.BAR2'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with ambigous suffixes."
-        del env.d['FOO_SUFFIX']
-        del env.d['BAR_SUFFIX']
-
-        foo_bld = SCons.Builder.Builder(action = 'a-foo',
-                                        src_suffix = '.ina',
-                                        suffix = '.foo')
-        assert isinstance(foo_bld, SCons.Builder.BuilderBase)
-        builder = SCons.Builder.Builder(action = { '.foo' : 'foo',
-                                                   '.bar' : 'bar' },
-                                        src_builder = foo_bld)
-        assert isinstance(builder, SCons.Builder.CompositeBuilder)
-        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
-
-        tgt = builder(env, target='t1', source='t1a.ina t1b.ina')[0]
-        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
-
-        tgt = builder(env, target='t2', source='t2a.foo t2b.ina')[0]
-        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder), tgt.builder.__dict__
-
-        bar_bld = SCons.Builder.Builder(action = 'a-bar',
-                                        src_suffix = '.inb',
-                                        suffix = '.bar')
-        assert isinstance(bar_bld, SCons.Builder.BuilderBase)
-        builder = SCons.Builder.Builder(action = { '.foo' : 'foo'},
-                                        src_builder = [foo_bld, bar_bld])
-        assert isinstance(builder, SCons.Builder.CompositeBuilder)
-        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
-
-        builder.add_action('.bar', 'bar')
-
-        tgt = builder(env, target='t3-foo', source='t3a.foo t3b.ina')[0]
-        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
-
-        tgt = builder(env, target='t3-bar', source='t3a.bar t3b.inb')[0]
-        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
-
-        flag = 0
-        tgt = builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError, e:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['t5']' from `test5b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
-        assert match, e
-
-        flag = 0
-        tgt = builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError, e:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['t6']' from `test6b.foo': Cannot build multiple sources with different extensions: .bar, .foo"
-        assert match, e
-
-        flag = 0
-        tgt = builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError, e:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['t4']' from `test4b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
-        assert match, e
-
-        flag = 0
-        tgt = builder(env, target='t7', source=['test7'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError, e:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['t7']': Cannot deduce file extension from source files: ['test7']"
-        assert match, e
-
-        flag = 0
-        tgt = builder(env, target='t8', source=['test8.unknown'])[0]
-        try:
-            tgt.build()
-        except SCons.Errors.UserError, e:
-            flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['t8']': Don't know how to build a file with suffix `.unknown'."
-        assert match, e
 
     def test_target_scanner(self):
         """Testing ability to set target and source scanners through a builder."""
@@ -1554,7 +1415,191 @@ class BuilderTestCase(unittest.TestCase):
         tgt = b4(env, target = 'moo', source='cow')
         assert tgt[0].builder.get_name(env) == 'bldr4'
 
+class CompositeBuilderTestCase(unittest.TestCase):
+
+    def setUp(self):
+        def func_action(target, source, env):
+            return 0
+
+        builder = SCons.Builder.Builder(action={ '.foo' : func_action,
+                                                 '.bar' : func_action})
+
+        self.func_action = func_action
+        self.builder = builder
+
+    def test___init__(self):
+        """Test CompositeBuilder creation"""
+        env = Environment()
+        builder = SCons.Builder.Builder(action={})
+
+        tgt = builder(env, source=[])
+        assert tgt == [], tgt
+        
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
+
+    def test_target_action(self):
+        """Test CompositeBuilder setting of target builder actions"""
+        env = Environment()
+        builder = self.builder
+
+        tgt = builder(env, target='test1', source='test1.foo')[0]
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+        assert tgt.builder.action is builder.action
+
+        tgt = builder(env, target='test2', source='test1.bar')[0]
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+        assert tgt.builder.action is builder.action
+
+    def test_multiple_suffix_error(self):
+        """Test the CompositeBuilder multiple-source-suffix error"""
+        env = Environment()
+        builder = self.builder
+
+        flag = 0
+        tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        expect = "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
+        assert str(e) == expect, e
+
+    def test_source_ext_match(self):
+        """Test the CompositeBuilder source_ext_match argument"""
+        env = Environment()
+        func_action = self.func_action
+        builder = SCons.Builder.Builder(action={ '.foo' : func_action,
+                                                 '.bar' : func_action},
+                                        source_ext_match = None)
+
+        tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
+        tgt.build()
+
+    def test_suffix_variable(self):
+        """Test CompositeBuilder defining action suffixes through a variable"""
+        env = Environment(BAR_SUFFIX = '.BAR2', FOO_SUFFIX = '.FOO2')
+        func_action = self.func_action
+        builder = SCons.Builder.Builder(action={ '.foo' : func_action,
+                                                 '.bar' : func_action,
+                                                 '$BAR_SUFFIX' : func_action,
+                                                 '$FOO_SUFFIX' : func_action })
+
+        tgt = builder(env, target='test4', source=['test4.BAR2'])[0]
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+        try:
+            tgt.build()
+            flag = 1
+        except SCons.Errors.UserError, e:
+            print e
+            flag = 0
+        assert flag, "It should be possible to define actions in composite builders using variables."
+        env['FOO_SUFFIX'] = '.BAR2'
+        builder.add_action('$NEW_SUFFIX', func_action)
+        flag = 0
+        tgt = builder(env, target='test5', source=['test5.BAR2'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with ambigous suffixes."
+
+    def test_src_builder(self):
+        """Test CompositeBuilder's use of a src_builder"""
+        env = Environment()
+
+        foo_bld = SCons.Builder.Builder(action = 'a-foo',
+                                        src_suffix = '.ina',
+                                        suffix = '.foo')
+        assert isinstance(foo_bld, SCons.Builder.BuilderBase)
+        builder = SCons.Builder.Builder(action = { '.foo' : 'foo',
+                                                   '.bar' : 'bar' },
+                                        src_builder = foo_bld)
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
+
+        tgt = builder(env, target='t1', source='t1a.ina t1b.ina')[0]
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+
+        tgt = builder(env, target='t2', source='t2a.foo t2b.ina')[0]
+        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder), tgt.builder.__dict__
+
+        bar_bld = SCons.Builder.Builder(action = 'a-bar',
+                                        src_suffix = '.inb',
+                                        suffix = '.bar')
+        assert isinstance(bar_bld, SCons.Builder.BuilderBase)
+        builder = SCons.Builder.Builder(action = { '.foo' : 'foo'},
+                                        src_builder = [foo_bld, bar_bld])
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
+
+        builder.add_action('.bar', 'bar')
+
+        tgt = builder(env, target='t3-foo', source='t3a.foo t3b.ina')[0]
+        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
+
+        tgt = builder(env, target='t3-bar', source='t3a.bar t3b.inb')[0]
+        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
+
+        flag = 0
+        tgt = builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        expect = "While building `['t5']' from `test5b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
+        assert str(e) == expect, e
+
+        flag = 0
+        tgt = builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        expect = "While building `['t6']' from `test6b.foo': Cannot build multiple sources with different extensions: .bar, .foo"
+        assert str(e) == expect, e
+
+        flag = 0
+        tgt = builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        expect = "While building `['t4']' from `test4b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
+        assert str(e) == expect, e
+
+        flag = 0
+        tgt = builder(env, target='t7', source=['test7'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        expect = "While building `['t7']': Cannot deduce file extension from source files: ['test7']"
+        assert str(e) == expect, e
+
+        flag = 0
+        tgt = builder(env, target='t8', source=['test8.unknown'])[0]
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build a target with an unknown suffix."
+        expect = "While building `['t8']' from `['test8.unknown']': Don't know how to build from a source file with suffix `.unknown'.  Expected a suffix in this list: ['.foo', '.bar']."
+        assert str(e) == expect, e
+
 if __name__ == "__main__":
-    suite = unittest.makeSuite(BuilderTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [
+#        BuilderTestCase,
+        CompositeBuilderTestCase
+    ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

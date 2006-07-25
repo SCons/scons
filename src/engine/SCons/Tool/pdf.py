@@ -44,7 +44,8 @@ def generate(env):
                                                source_scanner = SCons.Tool.LaTeXScanner,
                                                prefix = '$PDFPREFIX',
                                                suffix = '$PDFSUFFIX',
-                                               emitter = {})
+                                               emitter = {},
+                                               source_ext_match = None)
         env['BUILDERS']['PDF'] = PDFBuilder
 
     env['PDFPREFIX'] = ''

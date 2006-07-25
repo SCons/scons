@@ -48,6 +48,7 @@ DictType        = types.DictType
 InstanceType    = types.InstanceType
 ListType        = types.ListType
 StringType      = types.StringType
+TupleType       = types.TupleType
 
 try:
     from UserString import UserString
@@ -424,6 +425,10 @@ def is_List(obj):
     return t is ListType \
         or (t is InstanceType and isinstance(obj, UserList))
 
+def is_Tuple(obj):
+    t = type(obj)
+    return t is TupleType
+
 if hasattr(types, 'UnicodeType'):
     def is_String(obj):
         t = type(obj)
@@ -439,7 +444,7 @@ else:
 
 
 def is_Scalar(e):
-    return is_String(e) or not is_List(e)
+    return is_String(e) or (not is_List(e) and not is_Tuple(e))
 
 def flatten(sequence, scalarp=is_Scalar, result=None):
     if result is None:
@@ -575,7 +580,7 @@ if sys.platform == 'win32':
             if string.lower(ext) == string.lower(file[-len(ext):]):
                 pathext = ['']
                 break
-        if not is_List(reject):
+        if not is_List(reject) and not is_Tuple(reject):
             reject = [reject]
         for dir in path:
             f = os.path.join(dir, file)
@@ -605,7 +610,7 @@ elif os.name == 'os2':
             if string.lower(ext) == string.lower(file[-len(ext):]):
                 pathext = ['']
                 break
-        if not is_List(reject):
+        if not is_List(reject) and not is_Tuple(reject):
             reject = [reject]
         for dir in path:
             f = os.path.join(dir, file)
@@ -629,7 +634,7 @@ else:
                 return None
         if is_String(path):
             path = string.split(path, os.pathsep)
-        if not is_List(reject):
+        if not is_List(reject) and not is_Tuple(reject):
             reject = [reject]
         for d in path:
             f = os.path.join(d, file)
@@ -668,11 +673,11 @@ def PrependPath(oldpath, newpath, sep = os.pathsep):
     orig = oldpath
     is_list = 1
     paths = orig
-    if not is_List(orig):
+    if not is_List(orig) and not is_Tuple(orig):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if is_List(newpath):
+    if is_List(newpath) or is_Tuple(newpath):
         newpaths = newpath
     else:
         newpaths = string.split(newpath, sep)
@@ -711,11 +716,11 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
     orig = oldpath
     is_list = 1
     paths = orig
-    if not is_List(orig):
+    if not is_List(orig) and not is_Tuple(orig):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if is_List(newpath):
+    if is_List(newpath) or is_Tuple(newpath):
         newpaths = newpath
     else:
         newpaths = string.split(newpath, sep)
@@ -753,7 +758,7 @@ else:
 display = DisplayEngine()
 
 def Split(arg):
-    if is_List(arg):
+    if is_List(arg) or is_Tuple(arg):
         return arg
     elif is_String(arg):
         return string.split(arg)

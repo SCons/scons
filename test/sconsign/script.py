@@ -31,15 +31,41 @@ import time
 import TestCmd
 import TestSCons
 
+class MyTestSCons(TestSCons.TestSCons):
+    # subclass with a method for running the sconsign script
+    def __init__(self, *args, **kw):
+        try:
+            script_dir = os.environ['SCONS_SCRIPT_DIR']
+        except KeyError:
+            pass
+        else:
+            os.chdir(script_dir)
+        self.script_dir = os.getcwd()
+        apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
+        self.my_kw = {
+            'interpreter' : TestSCons.python,
+        }
+    def script_path(self, script):
+        return os.path.join(self.script_dir, script)
+    def set_sconsign(self, sconsign):
+        self.my_kw['program'] = sconsign
+    def run_sconsign(self, *args, **kw):
+        kw.update(self.my_kw)
+        return apply(self.run, args, kw)
+
+test = MyTestSCons(match = TestCmd.match_re)
+
 # Check for the sconsign script before we instantiate TestSCons(),
 # because that will change directory on us.
-if os.path.exists('sconsign.py'):
+if os.path.exists(test.script_path('sconsign.py')):
     sconsign = 'sconsign.py'
-elif os.path.exists('sconsign'):
+elif os.path.exists(test.script_path('sconsign')):
     sconsign = 'sconsign'
 else:
     print "Can find neither 'sconsign.py' nor 'sconsign' scripts."
-    test.no_result(1)
+    test.no_result()
+
+test.set_sconsign(sconsign)
 
 def sort_match(test, lines, expect):
     lines = string.split(lines, '\n')
@@ -50,23 +76,6 @@ def sort_match(test, lines, expect):
 
 def re_sep(*args):
     return string.replace(apply(os.path.join, args), '\\', '\\\\')
-
-
-
-class MyTestSCons(TestSCons.TestSCons):
-    # subclass with a method for running the sconsign script
-    def __init__(self, *args, **kw):
-        apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
-        self.my_kw = {
-            'interpreter' : TestSCons.python,
-            'program' : sconsign,
-        }
-    def run_sconsign(self, *args, **kw):
-        kw.update(self.my_kw)
-        return apply(self.run, args, kw)
-
-test = MyTestSCons(match = TestCmd.match_re)
-
 
 
 

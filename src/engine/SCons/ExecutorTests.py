@@ -88,6 +88,8 @@ class MyNode:
         return self.missing_val
     def calc_signature(self, calc):
         return 'cs-'+calc+'-'+self.name
+    def disambiguate(self):
+        return self
 
 class MyScanner:
     def __init__(self, prefix):

@@ -382,10 +382,10 @@ for m in man_page_list:
     orig_env.SCons_revision(os.path.join(build, 'man', m),
                             os.path.join('man', m))
 
-man_intermediate_files = ['builders.man', 'tools.man', 'variables.man']
+man_i_files = ['builders.man', 'tools.man', 'variables.man']
 
 man_intermediate_files = map(lambda x: os.path.join(build, 'man', x),
-                             man_intermediate_files)
+                             man_i_files)
 
 cmd = "python $SCONS_PROC_PY --man -b ${TARGETS[0]} -t ${TARGETS[1]} -v ${TARGETS[2]} $( $SOURCES $)"
 man_intermediate_files = env.Command(man_intermediate_files,
@@ -417,7 +417,18 @@ for man_1 in man_page_list:
     if man2html:
         html = os.path.join(build, 'HTML' , '%s-man.html' % man)
 
-        cmds = [ "( cd ${SOURCES.dir} && man2html ${SOURCES.dir} ) > $TARGET" ]
+        def strip_to_first_html_tag(target, source, env):
+            t = str(target[0])
+            contents = open(t).read()
+            contents = contents[string.find(contents, '<HTML>'):]
+            open(t, 'w').write(contents)
+            return 0
+
+        cmds = [
+            "( cd build/doc/man && cp %s .. )" % string.join(man_i_files),
+            "( cd ${SOURCE.dir} && man2html ${SOURCE.file} ) > $TARGET",
+            Action(strip_to_first_html_tag),
+        ]
         if tidy:
             cmds.append("tidy -m -q $TARGET || true")
         b = env.Command(html, man_1, cmds)

@@ -296,7 +296,7 @@ def _get_msvc8_path(path, version, platform, suite):
               "Unable to retrieve the %s path from MS VC++."%path
 
     # collect some useful information for later expansions...
-    paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
+    paths = SCons.Tool.msvs.get_msvs_install_dirs(version, suite)
 
     # expand the directory path variables that we support.  If there
     # is a variable we don't support, then replace that entry with
@@ -474,7 +474,7 @@ def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
     lib_paths = []
     include_paths = []
     try:
-        paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
+        paths = SCons.Tool.msvs.get_msvs_install_dirs(version, suite)
         MVSdir = paths['VSINSTALLDIR']
     except (KeyError, SCons.Util.RegError, SCons.Errors.InternalError):
         if os.environ.has_key('VSCOMNTOOLS'):
