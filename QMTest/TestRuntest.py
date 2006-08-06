@@ -99,7 +99,7 @@ class TestRuntest(TestCommon):
             'QMTest',
         ]
 
-        dirs = []
+        dirs = [orig_cwd]
         
         spe = os.environ.get('SCONS_SOURCE_PATH_EXECUTABLE', orig_cwd)
         for d in string.split(spe, os.pathsep):

@@ -98,12 +98,19 @@ def platform_module(name = platform_default()):
             try:
                 file, path, desc = imp.find_module(name,
                                         sys.modules['SCons.Platform'].__path__)
-                mod = imp.load_module(full_name, file, path, desc)
-                setattr(SCons.Platform, name, mod)
+                try:
+                    mod = imp.load_module(full_name, file, path, desc)
+                finally:
+                    if file:
+                        file.close()
             except ImportError:
-                raise SCons.Errors.UserError, "No platform named '%s'" % name
-            if file:
-                file.close()
+                try:
+                    import zipimport
+                    importer = zipimport.zipimporter( sys.modules['SCons.Platform'].__path__[0] )
+                    mod = importer.load_module(full_name)
+                except ImportError:
+                    raise SCons.Errors.UserError, "No platform named '%s'" % name
+            setattr(SCons.Platform, name, mod)
     return sys.modules[full_name]
 
 def DefaultToolList(platform, env):

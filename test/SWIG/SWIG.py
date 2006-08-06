@@ -218,6 +218,56 @@ This is bar.c!
 
     test.up_to_date(arguments = '.')
 
+    # Test that swig-generated modules are removed
+    # The %module directive specifies the module name
+    test.write("module.i", """\
+%module modulename
+""")
+    test.write('SConstruct', """
+foo = Environment(SWIGFLAGS='-python',
+                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
+                  SHCCFLAGS='',
+                  LDMODULEPREFIX='%(ldmodule_prefix)s',
+                  LDMODULESUFFIX='%(_dll)s',
+                  FRAMEWORKSFLAGS='%(frameworks)s',
+                  )
 
+foo.LoadableModule(target = 'modulename', source = ['module.i'])
+""" % locals())
+    test.run()
+    test.must_exist(test.workpath("modulename.py"))
+    test.run(arguments = "-c")
+    test.must_not_exist(test.workpath("modulename.py"))
+
+    # Test that implicit dependencies are caught
+
+    test.write("dependency.i", """\
+%module dependency
+""")
+    test.write("dependent.i", """\
+%module dependent
+
+%include dependency.i
+""")
+    test.write('SConstruct', """
+foo = Environment(SWIGFLAGS='-python',
+                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
+                  SHCCFLAGS='',
+                  LDMODULEPREFIX='%(ldmodule_prefix)s',
+                  LDMODULESUFFIX='%(_dll)s',
+                  FRAMEWORKSFLAGS='%(frameworks)s',
+                  )
+
+swig = foo.Dictionary('SWIG')
+bar = foo.Copy(SWIG = r'%(python)s wrapper.py ' + swig)
+foo.CFile(target = 'dependent', source = ['dependent.i'])
+""" % locals())
+
+    test.run()
+    test.write("dependency.i", """%module dependency
+
+extern char *dependency_string();
+""")
+    test.not_up_to_date(arguments = "dependent_wrap.c")
 
 test.pass_test()
