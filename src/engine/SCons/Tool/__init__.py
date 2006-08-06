@@ -99,7 +99,17 @@ class Tool:
                     if file:
                         file.close()
             except ImportError, e:
-                pass
+                try:
+                    import zipimport
+                except ImportError:
+                    pass
+                else:
+                    for aPath in self.toolpath:
+                        try:
+                            importer = zipimport.zipimporter(aPath)
+                            return importer.load_module(self.name)
+                        except ImportError, e:
+                            pass
         finally:
             sys.path = oldpythonpath
 
@@ -109,14 +119,23 @@ class Tool:
         except KeyError:
             try:
                 smpath = sys.modules['SCons.Tool'].__path__
-                file, path, desc = imp.find_module(self.name, smpath)
                 try:
+                    file, path, desc = imp.find_module(self.name, smpath)
                     module = imp.load_module(full_name, file, path, desc)
                     setattr(SCons.Tool, self.name, module)
-                    return module
-                finally:
                     if file:
                         file.close()
+                    return module
+                except ImportError, e:
+                    try:
+                        import zipimport
+                        importer = zipimport.zipimporter( sys.modules['SCons.Tool'].__path__[0] )
+                        module = importer.load_module(full_name)
+                        setattr(SCons.Tool, self.name, module)
+                        return module
+                    except ImportError, e:
+                        m = "No tool named '%s': %s" % (self.name, e)
+                        raise SCons.Errors.UserError, m
             except ImportError, e:
                 m = "No tool named '%s': %s" % (self.name, e)
                 raise SCons.Errors.UserError, m
