@@ -31,7 +31,7 @@ customize the displayed archive indexer string.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -63,21 +63,23 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
-                  ARCOM = r'%s myar.py $TARGET $SOURCES',
-                  RANLIBCOM = r'%s myranlib.py $TARGET',
+                  ARCOM = r'%(_python_)s myar.py $TARGET $SOURCES',
+                  RANLIBCOM = r'%(_python_)s myranlib.py $TARGET',
                   RANLIBCOMSTR = 'Indexing $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
 env.Library(target = 'output', source = ['file.1', 'file.2'])
-""" % (python, python))
+""" % locals())
 
 test.write('file.1', "file.1\n/*ar*/\n/*ranlib*/\n")
 test.write('file.2', "file.2\n/*ar*/\n/*ranlib*/\n")
 
-test.run(stdout = test.wrap_stdout("""\
-%s myar.py output.lib file.1 file.2
+expect = test.wrap_stdout("""\
+%(_python_)s myar.py output.lib file.1 file.2
 Indexing output.lib
-""" % python))
+""" % locals())
+
+test.run(stdout = expect)
 
 test.must_match('output.lib', "file.1\nfile.2\n")
 

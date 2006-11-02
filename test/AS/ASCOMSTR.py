@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -57,7 +57,7 @@ else:
     alt_asm_suffix = '.asm'
 
 test.write('SConstruct', """
-env = Environment(ASCOM = r'%(python)s myas.py $TARGET $SOURCE',
+env = Environment(ASCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
                   ASCOMSTR = 'Assembling $TARGET from $SOURCE',
                   OBJSUFFIX = '.obj')
 env.Object(target = 'test1', source = 'test1.s')

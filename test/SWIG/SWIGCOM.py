@@ -30,7 +30,7 @@ Test the ability to configure the $SWIGCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,10 +48,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'swig'],
-                  SWIGCOM = r'%s myswig.py $TARGET $SOURCES')
+                  SWIGCOM = r'%(_python_)s myswig.py $TARGET $SOURCES')
 env.CFile(target = 'aaa', source = 'aaa.i')
 env.CXXFile(target = 'bbb', source = 'bbb.i', SWIGFLAGS='-c++')
-""" % python)
+""" % locals())
 
 test.write('aaa.i', "aaa.i\n/*swig*/\n")
 test.write('bbb.i', "bbb.i\n/*swig*/\n")

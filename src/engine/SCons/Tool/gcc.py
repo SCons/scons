@@ -46,7 +46,7 @@ def generate(env):
     cc.generate(env)
 
     env['CC'] = env.Detect(compilers) or 'gcc'
-    if env['PLATFORM'] == 'cygwin':
+    if env['PLATFORM'] in ['cygwin', 'win32']:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     else:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS -fPIC')

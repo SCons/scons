@@ -35,6 +35,7 @@ import sys
 import TestSCons
 
 python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -68,7 +69,8 @@ os.chmod(my_shell, 0755)
 
 test.write('SConstruct', """\
 env = Environment(SHELL = r'%(my_shell)s')
-env.Command('file.out', 'file.in', "%(python)s fake_cat_program $TARGET $SOURCES")
+env.Command('file.out', 'file.in',
+            'r%(_python_)s fake_cat_program $TARGET $SOURCES')
 """ % locals())
 
 test.write('file.in', "file.in\n")

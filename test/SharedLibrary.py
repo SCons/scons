@@ -94,6 +94,8 @@ EXPORTS
 """)
 
 test.write('f2a.c', r"""
+#include <stdio.h>
+
 void
 f2a(void)
 {
@@ -102,6 +104,7 @@ f2a(void)
 """)
 
 test.write('f2b.c', r"""
+#include <stdio.h>
 void
 f2b(void)
 {
@@ -131,6 +134,7 @@ EXPORTS
 """)
 
 test.write('f3a.c', r"""
+#include <stdio.h>
 void
 f3a(void)
 {
@@ -139,6 +143,7 @@ f3a(void)
 """)
 
 test.write('f3b.c', r"""
+#include <stdio.h>
 void
 f3b(void)
 {
@@ -168,6 +173,7 @@ EXPORTS
 """)
 
 test.write('prog.c', r"""
+#include <stdio.h>
 void f1(void);
 void f2a(void);
 void f2b(void);
@@ -253,6 +259,7 @@ EXPORTS
 """)
 
     test.write('progbar.c', r"""
+#include <stdio.h>
 void f4(void);
 int
 main(int argc, char *argv[])

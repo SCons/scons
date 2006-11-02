@@ -122,9 +122,6 @@ class ListOptionTestCase(unittest.TestCase):
         l = o.converter('all')
         n = l.__class__(copy.copy(l))
 
-    def test___repr__(self):
-        """Test copying a ListOption like an Environment would"""
-
 if __name__ == "__main__":
     suite = unittest.makeSuite(ListOptionTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

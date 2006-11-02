@@ -31,7 +31,7 @@ when using MSVC.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,7 +49,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'msvc'],
-                  RCCOM = r'%(python)s myrc.py $TARGET $SOURCES')
+                  RCCOM = r'%(_python_)s myrc.py $TARGET $SOURCES')
 env.RES(target = 'aaa', source = 'aaa.rc')
 """ % locals())
 

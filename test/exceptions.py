@@ -25,16 +25,19 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import re
 import string
 import sys
 import TestSCons
 import TestCmd
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
-test.write('SConstruct', """
+SConstruct_path = test.workpath('SConstruct')
+
+test.write(SConstruct_path, """\
 def func(source = None, target = None, env = None):
     raise "func exception"
 B = Builder(action = func)
@@ -51,10 +54,10 @@ Traceback \((most recent call|innermost) last\):
 )*(  File ".+", line \d+, in \S+
 )*(  File ".+", line \d+, in \S+
     [^\n]+
-)*  File "SConstruct", line 3, in func
+)*  File "%s", line 2, in func
     raise "func exception"
 func exception
-"""
+""" % re.escape(SConstruct_path)
 
 test.run(arguments = "foo.out", stderr = expected_stderr, status = 2)
 
@@ -69,11 +72,11 @@ import sys
 sys.exit(1)
 """)
 
-test.write('SConstruct', """
-Fail = Builder(action = r'%s myfail.py $TARGETS $SOURCE')
+test.write(SConstruct_path, """
+Fail = Builder(action = r'%(_python_)s myfail.py $TARGETS $SOURCE')
 env = Environment(BUILDERS = { 'Fail' : Fail })
 env.Fail(target = 'f1', source = 'f1.in')
-""" % (python))
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 
@@ -87,13 +90,13 @@ test.run(arguments = '-j2 .', status = 2, stderr = expected_stderr)
 # even if the exception is raised during the Task.prepare()
 # [Node.prepare()]
 
-test.write('SConstruct', """
-Fail = Builder(action = r'%s myfail.py $TARGETS $SOURCE')
+test.write(SConstruct_path, """
+Fail = Builder(action = r'%(_python_)s myfail.py $TARGETS $SOURCE')
 env = Environment(BUILDERS = { 'Fail' : Fail })
 env.Fail(target = 'f1', source = 'f1.in')
 env.Fail(target = 'f2', source = 'f2.in')
 env.Fail(target = 'f3', source = 'f3.in')
-""" % (python))
+""" % locals())
 
 # f2.in is not created to cause a Task.prepare exception
 test.write('f3.in', 'f3.in\n')

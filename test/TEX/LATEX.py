@@ -36,7 +36,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -59,10 +59,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LATEX = r'%s mylatex.py', tools=['latex'])
+env = Environment(LATEX = r'%(_python_)s mylatex.py', tools=['latex'])
 env.DVI(target = 'test1.dvi', source = 'test1.ltx')
 env.DVI(target = 'test2.dvi', source = 'test2.latex')
-""" % python)
+""" % locals())
 
 test.write('test1.ltx', r"""This is a .ltx test.
 \end
@@ -113,14 +113,14 @@ foo = Environment(ENV = ENV)
 latex = foo.Dictionary('LATEX')
 makeindex = foo.Dictionary('MAKEINDEX')
 bar = Environment(ENV = ENV,
-                  LATEX = r'%s wrapper.py ' + latex,
+                  LATEX = r'%(_python_)s wrapper.py ' + latex,
                   MAKEINDEX =  r' wrapper.py ' + makeindex)
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 bar.DVI(target = 'bar', source = 'bar.latex')
 
 bar.DVI(target = 'makeindex', source = 'makeindex.tex')
 foo.DVI(target = 'latexi', source = 'latexi.tex')
-""" % python)
+""" % locals())
 
     latex = r"""
 \documentclass{letter}

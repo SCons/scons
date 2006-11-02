@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 lib_   = TestSCons.dll_
 _shlib = TestSCons._dll
 
@@ -46,11 +46,11 @@ os.system(string.join(args, " "))
 
 test.write('SConstruct', """
 foo = Environment()
-bar = Environment(SHLINK = foo.subst(r'%s wrapper.py $SHLINK'),
+bar = Environment(SHLINK = foo.subst(r'%(_python_)s wrapper.py $SHLINK'),
                   SHLINKFLAGS = foo.subst('$SHLINKFLAGS fake_shlink_flag'))
 foo.SharedLibrary(target = 'foo', source = 'foo.c')
 bar.SharedLibrary(target = 'bar', source = 'bar.c')
-""" % python)
+""" % locals())
 
 test.write('foo.c', r"""
 #include <stdio.h>

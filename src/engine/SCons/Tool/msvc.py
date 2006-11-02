@@ -517,9 +517,10 @@ def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
             include_paths.append( env_include_path )
 
         if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKSDKDIR'):
-            include_paths.append( os.path.join( paths['FRAMEWORKSDKDIR'], 'include' ) )
-            lib_paths.append( os.path.join( paths['FRAMEWORKSDKDIR'], 'lib' ) )
-            exe_paths.append( paths['FRAMEWORKSDKDIR'], 'bin' )
+            fwdir = paths['FRAMEWORKSDKDIR']
+            include_paths.append( os.path.join( fwdir, 'include' ) )
+            lib_paths.append( os.path.join( fwdir, 'lib' ) )
+            exe_paths.append( os.path.join( fwdir, 'bin' ) )
 
         if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKDIR') and paths.has_key('FRAMEWORKVERSION'):
             exe_paths.append( os.path.join( paths['FRAMEWORKDIR'], paths['FRAMEWORKVERSION'] ) )
@@ -658,7 +659,10 @@ pch_builder = SCons.Builder.Builder(action=pch_action, suffix='.pch',
                                     emitter=pch_emitter,
                                     source_scanner=SCons.Tool.SourceFileScanner)
 res_action = SCons.Action.Action('$RCCOM', '$RCCOMSTR')
-res_builder = SCons.Builder.Builder(action=res_action, suffix='.res',
+res_builder = SCons.Builder.Builder(action=res_action,
+                                    src_suffix='.rc',
+                                    suffix='.res',
+                                    src_builder=[],
                                     source_scanner=SCons.Tool.SourceFileScanner)
 SCons.Tool.SourceFileScanner.add_scanner('.rc', SCons.Defaults.CScan)
 

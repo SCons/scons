@@ -24,12 +24,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import sys
-import os.path
 import os
-import TestCmd
+import os.path
+import re
+import sys
 import time
+
+import TestCmd
+import TestSCons
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
@@ -234,30 +236,36 @@ test.must_not_exist(test.workpath('build/StdAfx.obj'))
 #####
 # Test error reporting
 
-test.write('SConstruct',"""
-env=Environment()
+SConstruct_path = test.workpath('SConstruct')
+
+test.write(SConstruct_path, """\
+env = Environment()
 env['PDB'] = File('test.pdb')
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('test', 'test.cpp')
 """)
 
-test.run(status=2, stderr='''
+expect_stderr = r'''
 scons: \*\*\* The PCHSTOP construction must be defined if PCH is defined.
-File "SConstruct", line 5, in \?
-''')
+File "%s", line 4, in \?
+''' % re.escape(SConstruct_path)
 
-test.write('SConstruct',"""
-env=Environment()
+test.run(status=2, stderr=expect_stderr)
+
+test.write(SConstruct_path, """\
+env = Environment()
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = File('StdAfx.h')
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('test', 'test.cpp')
 """)
 
-test.run(status=2, stderr='''
+expect_stderr = r'''
 scons: \*\*\* The PCHSTOP construction variable must be a string: .+
-File "SConstruct", line 6, in \?
-''')
+File "%s", line 5, in \?
+''' % re.escape(SConstruct_path)
+
+test.run(status=2, stderr=expect_stderr)
 
 test.pass_test()
 

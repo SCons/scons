@@ -70,7 +70,7 @@ def exec_spawnvpe(l, env):
     # returned by os.waitpid() or os.system().
     return stat
 
-def exec_fork(l, env):
+def exec_fork(l, env): 
     pid = os.fork()
     if not pid:
         # Child process.
@@ -78,7 +78,7 @@ def exec_fork(l, env):
         try:
             os.execvpe(l[0], l, env)
         except OSError, e:
-            exitval = exitvalmap[e[0]]
+            exitval = exitvalmap.get(e[0], e[0])
             sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
         os._exit(exitval)
     else:
@@ -159,7 +159,7 @@ def exec_piped_fork(l, env, stdout, stderr):
         try:
             os.execvpe(l[0], l, env)
         except OSError, e:
-            exitval = exitvalmap[e[0]]
+            exitval = exitvalmap.get(e[0], e[0])
             stderr.write("scons: %s: %s\n" % (l[0], e[1]))
         os._exit(exitval)
     else:

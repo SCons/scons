@@ -169,7 +169,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                         variables_gen, variables_mod]
     b = env.Command(doc_output_files,
                     scons_doc_files,
-                    "python $SCONS_PROC_PY --sgml -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
+                    "$PYTHON $SCONS_PROC_PY --sgml -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
     env.Depends(b, "$SCONS_PROC_PY")
 
     env.Local(b)
@@ -259,7 +259,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 if build_doc and ext == '.sgml':
                     env.Command(doc_s,
                                 base + '.in',
-                                "python $SCONSOUTPUT_PY $SOURCE > $TARGET")
+                                "$PYTHON $SCONSOUTPUT_PY $SOURCE > $TARGET")
                 orig_env.SCons_revision(build_s, doc_s)
             Local(build_s)
 
@@ -387,7 +387,7 @@ man_i_files = ['builders.man', 'tools.man', 'variables.man']
 man_intermediate_files = map(lambda x: os.path.join(build, 'man', x),
                              man_i_files)
 
-cmd = "python $SCONS_PROC_PY --man -b ${TARGETS[0]} -t ${TARGETS[1]} -v ${TARGETS[2]} $( $SOURCES $)"
+cmd = "$PYTHON $SCONS_PROC_PY --man -b ${TARGETS[0]} -t ${TARGETS[1]} -v ${TARGETS[2]} $( $SOURCES $)"
 man_intermediate_files = env.Command(man_intermediate_files,
                                      scons_doc_files,
                                      cmd)

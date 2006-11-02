@@ -73,6 +73,8 @@ env.SharedLibrary(target = 'shared', source = 'shared.c', no_import_lib=1)
 """ % (arflag_init, arflag, linkflag_init, linkflag))
 
 test.write('foo.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -83,6 +85,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('static.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -93,6 +97,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('shared.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

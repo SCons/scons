@@ -93,8 +93,8 @@ Things to do to release a new X.Y version of SCons:
                 aecp rpm/scons.spec.in
                 vi rpm/scons.spec.in
 
-                aecp src/test_setup.py
-                vi src/test_setup.py
+                aecp QMTest/TestSCons.py
+                vi QMTest/TestSCons.py
 
                 # Read through and update the README files if necessary
 		[optional] aecp README

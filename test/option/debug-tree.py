@@ -47,6 +47,8 @@ env.Program('Foo', Split('Foo.c Bar.c'))
 # (UNIX/Linux) and case-insensitive (Windows) systems.
 
 test.write('Foo.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include "Foo.h"
 int main(int argc, char *argv[])
 {

@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -41,16 +41,16 @@ file.close()
 """)
 
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%s build.py $TARGETS')
+MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = '-f1.out', source = 'f1.in')
 env.MyBuild(target = '-f2.out', source = 'f2.in')
-""" % python)
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
 
-expect = test.wrap_stdout("%s build.py -f1.out\n%s build.py -f2.out\n" % (python, python))
+expect = test.wrap_stdout('%(_python_)s build.py -f1.out\n%(_python_)s build.py -f2.out\n' % locals())
 
 test.run(arguments = '-- -f1.out -f2.out', stdout = expect)
 

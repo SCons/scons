@@ -30,7 +30,7 @@ Test how using strfunction() to report different types of
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -53,12 +53,12 @@ def func(target, source, env):
 func1action = Action(func, strfunction)
 func2action = Action(func, strfunction=strfunction)
 
-cmd = r"%(python)s cat.py $SOURCE $TARGET"
+cmd = r'%(_python_)s cat.py $SOURCE $TARGET'
 cmd1action = Action(cmd, strfunction)
 cmd2action = Action(cmd, strfunction=strfunction)
 
-list = [ r"%(python)s cat.py $SOURCE .temp",
-         r"%(python)s cat.py .temp $TARGET" ]
+list = [ r'%(_python_)s cat.py $SOURCE .temp',
+         r'%(_python_)s cat.py .temp $TARGET' ]
 listaction = Action(list, strfunction=strfunction)
 
 lazy = '$LAZY'
@@ -94,7 +94,7 @@ env = Environment(BUILDERS = {
 
                         'Dict'          : Builder(action=dict),
                   },
-                  LAZY = r"%(python)s cat.py $SOURCE $TARGET")
+                  LAZY = r'%(_python_)s cat.py $SOURCE $TARGET')
 
 env.Cmd('cmd.out', 'cmd.in')
 env.Cmd1Str('cmd1str.out', 'cmdstr.in')
@@ -139,27 +139,27 @@ test.write('dict7.list',        "dict7.list\n")
 test.write('dict8.liststr',     "dict8.liststr\n")
 
 expect = test.wrap_stdout("""\
-%(python)s cat.py cmd.in cmd.out
+%(_python_)s cat.py cmd.in cmd.out
 Building cmd1str.out from cmdstr.in
 Building cmd2str.out from cmdstr.in
-%(python)s cat.py dict1.cmd dict1.out
+%(_python_)s cat.py dict1.cmd dict1.out
 Building dict2.out from dict2.cmdstr
 func(["dict3.out"], ["dict3.func"])
 Building dict4.out from dict4.funcstr
-%(python)s cat.py dict5.lazy dict5.out
+%(_python_)s cat.py dict5.lazy dict5.out
 Building dict6.out from dict6.lazystr
-%(python)s cat.py dict7.list .temp
-%(python)s cat.py .temp dict7.out
+%(_python_)s cat.py dict7.list .temp
+%(_python_)s cat.py .temp dict7.out
 Building dict8.out from dict8.liststr
 Building dict8.out from dict8.liststr
 func(["func.out"], ["func.in"])
 Building func1str.out from funcstr.in
 Building func2str.out from funcstr.in
-%(python)s cat.py lazy.in lazy.out
+%(_python_)s cat.py lazy.in lazy.out
 Building lazy1str.out from lazystr.in
 Building lazy2str.out from lazystr.in
-%(python)s cat.py list.in .temp
-%(python)s cat.py .temp list.out
+%(_python_)s cat.py list.in .temp
+%(_python_)s cat.py .temp list.out
 Building liststr.out from liststr.in
 Building liststr.out from liststr.in
 target.out

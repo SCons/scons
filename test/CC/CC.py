@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -108,13 +108,13 @@ sys.exit(0)
 
 test.write('SConstruct', """
 cc = Environment().Dictionary('CC')
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  CC = r'%s mycc.py',
+                  CC = r'%(_python_)s mycc.py',
                   CXX = cc,
                   CXXFLAGS = [])
 env.Program(target = 'test1', source = 'test1.c')
-""" % (python, python))
+""" % locals())
 
 test.write('test1.c', r"""This is a .c file.
 /*cc*/
@@ -129,11 +129,11 @@ if os.path.normcase('.c') == os.path.normcase('.C'):
 
     test.write('SConstruct', """
 cc = Environment().Dictionary('CC')
-env = Environment(LINK = r'%s mylink.py',
-                  CC = r'%s mycc.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
+                  CC = r'%(_python_)s mycc.py',
                   CXX = cc)
 env.Program(target = 'test2', source = 'test2.C')
-""" % (python, python))
+""" % locals())
 
     test.write('test2.C', r"""This is a .C file.
 /*cc*/
@@ -158,12 +158,15 @@ os.system(string.join(sys.argv[1:], " "))
 test.write('SConstruct', """
 foo = Environment()
 cc = foo.Dictionary('CC')
-bar = Environment(CC = r'%s wrapper.py ' + cc)
+bar = Environment(CC = r'%(_python_)s wrapper.py ' + cc)
 foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')
-""" % python)
+""" % locals())
 
 test.write('foo.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {
@@ -174,6 +177,9 @@ main(int argc, char *argv[])
 """)
 
 test.write('bar.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {

@@ -62,6 +62,8 @@ test.write(['repository', 'foo.h'], foo_h_contents)
 test.write(['repository', 'bar.h'], bar_h_contents)
 
 test.write(['repository', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <foo.h>
 #include <bar.h>
 int

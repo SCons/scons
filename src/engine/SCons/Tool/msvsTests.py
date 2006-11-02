@@ -471,6 +471,18 @@ class msvsTestCase(unittest.TestCase):
         assert env['MSVS']['VERSION'] == '7.0', env['MSVS']['VERSION']
         assert v2 == '7.0', v2
 
+        env = DummyEnv()
+        v3 = get_default_visualstudio_version(env)
+        if v3 == '7.1':
+            override = '7.0'
+        else:
+            override = '7.1'
+        env['MSVS_VERSION'] = override
+        v3 = get_default_visualstudio_version(env)
+        assert env['MSVS_VERSION'] == override, env['MSVS_VERSION']
+        assert env['MSVS']['VERSION'] == override, env['MSVS']['VERSION']
+        assert v3 == override, v3
+
     def test_get_visual_studio_versions(self):
         """Test retrieval of the list of visual studio versions"""
         v1 = get_visualstudio_versions()

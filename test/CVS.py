@@ -97,7 +97,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+env = Environment(ENV = { 'PATH' : os.environ['PATH'],
+                          'EDITOR' : os.environ.get('EDITOR', 'ed') },
                   BUILDERS={'Cat':Builder(action=cat)})
 env.Prepend(CVSFLAGS='-Q')
 env.Cat('aaa.out', 'foo/aaa.in')
@@ -161,7 +162,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+env = Environment(ENV = { 'PATH' : os.environ['PATH'],
+                          'EDITOR' : os.environ.get('EDITOR', 'ed') },
                   BUILDERS={'Cat':Builder(action=cat)})
 env.Prepend(CVSFLAGS='-q')
 env.Cat('aaa.out', 'aaa.in')
@@ -232,7 +234,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+env = Environment(ENV = { 'PATH' : os.environ['PATH'],
+                          'EDITOR' : os.environ.get('EDITOR', 'ed') },
                   BUILDERS={'Cat':Builder(action=cat)},
                   CVSROOT=r'%s')
 env.Prepend(CVSFLAGS='-q')

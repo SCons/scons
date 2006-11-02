@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -84,12 +84,12 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  F77COM = r'%s myfortran.py f77 $TARGET $SOURCES',
-                  F77PPCOM = r'%s myfortran.py f77pp $TARGET $SOURCES',
-                  FORTRANCOM = r'%s myfortran.py fortran $TARGET $SOURCES',
-                  FORTRANPPCOM = r'%s myfortran.py fortranpp $TARGET $SOURCES')
+                  F77COM = r'%(_python_)s myfortran.py f77 $TARGET $SOURCES',
+                  F77PPCOM = r'%(_python_)s myfortran.py f77pp $TARGET $SOURCES',
+                  FORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
+                  FORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
 env.Program(target = 'test03', source = 'test03.for')
@@ -104,10 +104,10 @@ env.Program(target = 'test11', source = 'test11.f90')
 env.Program(target = 'test12', source = 'test12.F90')
 env.Program(target = 'test13', source = 'test13.f95')
 env.Program(target = 'test14', source = 'test14.F95')
-env2 = Environment(LINK = r'%s mylink.py',
+env2 = Environment(LINK = r'%(_python_)s mylink.py',
                    LINKFLAGS = [],
-                   F77COM = r'%s myfortran.py f77 $TARGET $SOURCES',
-                   F77PPCOM = r'%s myfortran.py f77pp $TARGET $SOURCES')
+                   F77COM = r'%(_python_)s myfortran.py f77 $TARGET $SOURCES',
+                   F77PPCOM = r'%(_python_)s myfortran.py f77pp $TARGET $SOURCES')
 env2.Program(target = 'test21', source = 'test21.f')
 env2.Program(target = 'test22', source = 'test22.F')
 env2.Program(target = 'test23', source = 'test23.for')
@@ -118,7 +118,7 @@ env2.Program(target = 'test27', source = 'test27.fpp')
 env2.Program(target = 'test28', source = 'test28.FPP')
 env2.Program(target = 'test29', source = 'test29.f77')
 env2.Program(target = 'test30', source = 'test30.F77')
-""" % (python, python, python, python, python, python, python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
 test.write('test02.F',   "This is a .F file.\n#link\n#fortranpp\n")

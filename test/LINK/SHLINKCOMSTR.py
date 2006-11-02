@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -61,8 +61,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(SHCCCOM = r'%(python)s mycc.py $TARGET $SOURCES',
-                  SHLINKCOM = r'%(python)s mylink.py $TARGET $SOURCES',
+env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCES',
+                  SHLINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
                   SHLINKCOMSTR = 'Linking shared $TARGET from $SOURCES',
                   SHOBJSUFFIX = '.obj',
                   SHLIBPREFIX = '',
@@ -85,8 +85,8 @@ test2.c
 """)
 
 test.run(stdout = test.wrap_stdout("""\
-%(python)s mycc.py test1.obj test1.c
-%(python)s mycc.py test2.obj test2.c
+%(_python_)s mycc.py test1.obj test1.c
+%(_python_)s mycc.py test2.obj test2.c
 Linking shared test3.dll from test1.obj test2.obj
 """ % locals()))
 

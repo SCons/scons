@@ -30,7 +30,13 @@ Test a combination of a passing test, failing test, and no-result
 test with no argument on the command line.
 """
 
+import os.path
+
 import TestRuntest
+
+test_fail_py = os.path.join('test', 'fail.py')
+test_no_result_py = os.path.join('test', 'no_result.py')
+test_pass_py = os.path.join('test', 'pass.py')
 
 test = TestRuntest.TestRuntest()
 
@@ -45,37 +51,37 @@ test.write_passing_test(['test', 'pass.py'])
 # NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
 # have spaces at the end.
 
-expect = r"""qmtest.py run --output baseline.qmr --format none --result-stream=scons_tdb.AegisBaselineStream test
+expect = r"""qmtest.py run --output baseline.qmr --format none --result-stream="scons_tdb.AegisBaselineStream" test
 --- TEST RESULTS -------------------------------------------------------------
 
-  test/fail.py                                  : FAIL    
+  %(test_fail_py)s                                  : FAIL    
 
     FAILING TEST STDOUT
 
     FAILING TEST STDERR
 
-  test/no_result.py                             : NO_RESULT
+  %(test_no_result_py)s                             : NO_RESULT
 
     NO RESULT TEST STDOUT
 
     NO RESULT TEST STDERR
 
-  test/pass.py                                  : PASS    
+  %(test_pass_py)s                                  : PASS    
 
 --- TESTS WITH UNEXPECTED OUTCOMES -------------------------------------------
 
-  test/no_result.py                             : NO_RESULT
+  %(test_no_result_py)s                             : NO_RESULT
 
-  test/pass.py                                  : PASS    
+  %(test_pass_py)s                                  : PASS    
 
 
 --- STATISTICS ---------------------------------------------------------------
 
-       1 ( 33%) tests as expected
-       1 ( 33%) tests unexpected PASS
-       1 ( 33%) tests unexpected NO_RESULT
-"""
+       1 ( 33%%) tests as expected
+       1 ( 33%%) tests unexpected PASS
+       1 ( 33%%) tests unexpected NO_RESULT
+""" % locals()
 
-test.run(arguments = '--qmtest -b . test', stdout = expect)
+test.run(arguments = '-b . test', status = 1, stdout = expect)
 
 test.pass_test()

@@ -32,7 +32,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -65,7 +65,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'BitKeeper'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  BITKEEPERCOM='%(python)s my-bk-get.py $TARGET')
+                  BITKEEPERCOM='%(_python_)s my-bk-get.py $TARGET')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -92,19 +92,19 @@ test.write(['BitKeeper', 'sub', 'fff.in'], "BitKeeper/sub/fff.in\n")
 
 test.run(arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-%(python)s my-bk-get.py %(sub_SConscript)s
+%(_python_)s my-bk-get.py %(sub_SConscript)s
 """ % locals(),
                                    build_str = """\
-%(python)s my-bk-get.py aaa.in
+%(_python_)s my-bk-get.py aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
-%(python)s my-bk-get.py ccc.in
+%(_python_)s my-bk-get.py ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-%(python)s my-bk-get.py %(sub_ddd_in)s
+%(_python_)s my-bk-get.py %(sub_ddd_in)s
 cat(["%(sub_ddd_out)s"], ["%(sub_ddd_in)s"])
 cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
-%(python)s my-bk-get.py %(sub_fff_in)s
+%(_python_)s my-bk-get.py %(sub_fff_in)s
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
 """ % locals()))

@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -41,10 +41,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGET 1 $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGET 1 $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
-""" % python)
+""" % locals())
 
 test.write('foo.in', "foo.in\n")
 
@@ -55,10 +55,10 @@ test.fail_test(test.read('foo.out') != "1\nfoo.in\n")
 test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGET 2 $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGET 2 $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
-""" % python)
+""" % locals())
 
 test.run(arguments = '.')
 
@@ -70,14 +70,14 @@ test.write('SConstruct', """
 import os
 import string
 def func(env, target, source):
-    cmd = r'%s build.py %%s 3 %%s' %% (string.join(map(str, target)),
+    cmd = r'%(_python_)s build.py %%s 3 %%s' %% (string.join(map(str, target)),
                                        string.join(map(str, source)))
     print cmd
     return os.system(cmd)
 B = Builder(action = func)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
-""" % python)
+""" % locals())
 
 test.run(arguments = '.', stderr = None)
 
@@ -91,7 +91,7 @@ assert not globals().has_key('string')
 import string
 class bld:
     def __init__(self):
-        self.cmd = r'%s build.py %%s 4 %%s'
+        self.cmd = r'%(_python_)s build.py %%s 4 %%s'
     def __call__(self, env, target, source):
         cmd = self.get_contents(env, target, source)
         print cmd
@@ -102,7 +102,7 @@ class bld:
 B = Builder(action = bld())
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
-""" % python)
+""" % locals())
 
 test.run(arguments = '.')
 

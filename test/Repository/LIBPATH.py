@@ -62,6 +62,8 @@ env_yyy.Command('yyy.out', bbb_exe, write_LIBDIRFLAGS)
 """)
 
 test.write(['work', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -72,6 +74,8 @@ main(int argc, char *argv[])
 """)
 
 test.write(['work', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

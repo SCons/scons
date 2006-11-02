@@ -133,6 +133,8 @@ test.write(['repository', 'src1', 'iii.h'], r"""
 """)
 
 test.write(['repository', 'src1', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <iii.h>
 void
 aaa(void)
@@ -142,6 +144,8 @@ aaa(void)
 """)
 
 test.write(['repository', 'src1', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <iii.h>
 void
 bbb(void)
@@ -151,6 +155,8 @@ bbb(void)
 """)
 
 test.write(['repository', 'src1', 'main.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <iii.h>
 extern void aaa(void);
 extern void bbb(void);
@@ -189,6 +195,8 @@ test.write(['repository', 'src2', 'xxx', 'include.h'], r"""
 """)
 
 test.write(['repository', 'src2', 'xxx', 'main.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <include.h>
 #ifdef  FOO
 #define MAIN_OS         "FOO"

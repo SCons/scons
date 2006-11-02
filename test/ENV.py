@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -38,14 +38,14 @@ bin2_build_py = test.workpath('bin2', 'build.py')
 
 test.write('SConstruct', """
 import os
-Bld = Builder(action = r"%s build.py $TARGET $SOURCES")
+Bld = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env1 = Environment(BUILDERS = { 'Bld' : Bld })
 env2 = Environment(BUILDERS = { 'Bld' : Bld })
 env1['ENV']['X'] = 'env1'
 env2['ENV']['X'] = 'env2'
 env1.Bld(target = 'env1.out', source = 'input')
 env2.Bld(target = 'env2.out', source = 'input')
-""" % python)
+""" % locals())
 
 test.write('build.py',
 r"""#!/usr/bin/env python
@@ -65,10 +65,10 @@ test.fail_test(test.read('env2.out') != "build.py env2\ninput file\n")
 
 test.write('SConstruct', """
 env = Environment()
-foo = env.Command('foo', [], r'%s build.py $TARGET')
+foo = env.Command('foo', [], r'%(_python_)s build.py $TARGET')
 env['ENV']['LIST'] = [foo, 'bar']
 env['ENV']['FOO'] = foo
-"""%python)
+""" % locals())
 
 test.write('build.py',
 r"""

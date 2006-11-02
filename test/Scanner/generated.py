@@ -22,20 +22,17 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-"""
-This test verifies that Scanners are called just once.
-
-This is actually a shotgun marriage of two separate tests, the simple
-test originally created for this, plus a more complicated test based
-on a real-life bug report submitted by Scott Lystig Fritchie.  Both
-have value: the simple test will be easier to debug if there are basic
-scanning problems, while Scott's test has a lot of cool real-world
-complexity that is valuable in its own right, including scanning of
-generated .h files.
-
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""
+Verify that we only scan generated .h files once.
+
+This originated as a real-life bug report submitted by Scott Lystig
+Fritchie.  It's been left as-is, rather than stripped down to bear
+minimum, partly because it wasn't completely clear what combination of
+factors triggered the bug Scott saw, and partly because the real-world
+complexity is valuable in its own right.
+"""
 
 import os.path
 import sys
@@ -45,51 +42,12 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('simple',
-            'SLF',
-            ['SLF', 'reftree'], ['SLF', 'reftree', 'include'],
-            ['SLF', 'src'], ['SLF', 'src', 'lib_geng'])
+test.subdir('reftree',
+            ['reftree', 'include'],
+            'src',
+            ['src', 'lib_geng'])
 
 test.write('SConstruct', """\
-SConscript('simple/SConscript')
-SConscript('SLF/SConscript')
-""")
-
-test.write(['simple', 'SConscript'], r"""
-import os.path
-
-def scan(node, env, envkey, arg):
-    print 'XScanner: node =', os.path.split(str(node))[1]
-    return []
-
-def exists_check(node, env):
-    return os.path.exists(str(node))
-
-XScanner = Scanner(name = 'XScanner',
-                   function = scan,
-                   argument = None,
-                   scan_check = exists_check,
-                   skeys = ['.x'])
-
-def echo(env, target, source):
-    t = os.path.split(str(target[0]))[1]
-    s = os.path.split(str(source[0]))[1]
-    print 'create %s from %s' % (t, s)
-
-Echo = Builder(action = Action(echo, None),
-               src_suffix = '.x',
-               suffix = '.x')
-
-env = Environment(BUILDERS = {'Echo':Echo}, SCANNERS = [XScanner])
-
-f1 = env.Echo(source=['file1'], target=['file2'])
-f2 = env.Echo(source=['file2'], target=['file3'])
-f3 = env.Echo(source=['file3'], target=['file4'])
-""")
-
-test.write(['simple', 'file1.x'], 'simple/file1.x\n')
-
-test.write(['SLF', 'SConscript'], """\
 ###
 ### QQQ !@#$!@#$!  I need to move the SConstruct file to be "above"
 ### both the source and install dirs, or the install dependencies
@@ -129,9 +87,9 @@ env.Append(LIBPATH = [e["EXPORT_LIB"]])
 env.Append(LIBPATH = [e["REF_LIB"]])
 
 Mylib.Subdirs(env, "src")
-""" % test.workpath('SLF'))
+""" % test.workpath())
 
-test.write(['SLF', 'Mylib.py'], """\
+test.write('Mylib.py', """\
 import os
 import string
 import re
@@ -205,23 +163,23 @@ def AddLibDirs(env, str):
 
 """)
 
-test.write(['SLF', 'reftree', 'include', 'lib_a.h'], """\
+test.write(['reftree', 'include', 'lib_a.h'], """\
 char *a_letter(void);
 """)
 
-test.write(['SLF', 'reftree', 'include', 'lib_b.h'], """\
+test.write(['reftree', 'include', 'lib_b.h'], """\
 char *b_letter(void);
 """)
 
-test.write(['SLF', 'reftree', 'include', 'lib_ja.h'], """\
+test.write(['reftree', 'include', 'lib_ja.h'], """\
 char *j_letter_a(void);
 """)
 
-test.write(['SLF', 'reftree', 'include', 'lib_jb.h.intentionally-moved'], """\
+test.write(['reftree', 'include', 'lib_jb.h.intentionally-moved'], """\
 char *j_letter_b(void);
 """)
 
-test.write(['SLF', 'src', 'SConscript'], """\
+test.write(['src', 'SConscript'], """\
 # --- Begin SConscript boilerplate ---
 import Mylib
 Import("env")
@@ -236,7 +194,7 @@ env = env.Copy()    # Yes, clobber intentionally
 
 """)
 
-test.write(['SLF', 'src', 'lib_geng', 'SConscript'], """\
+test.write(['src', 'lib_geng', 'SConscript'], """\
 # --- Begin SConscript boilerplate ---
 import string
 import sys
@@ -253,8 +211,9 @@ env = env.Copy()    # Yes, clobber intentionally
 Mylib.AddCFlags(env, "-DGOOFY_DEMO")
 Mylib.AddIncludeDirs(env, ".")
 
-# Not part of SLF's original stuff: On Windows, it's import to use the
-# original test environment when we invoke SCons recursively.
+# Not part of Scott Lystig Fritchies's original stuff:
+# On Windows, it's import to use the original test environment
+# when we invoke SCons recursively.
 import os
 recurse_env = env.Copy()
 recurse_env["ENV"] = os.environ
@@ -297,10 +256,10 @@ lib_objs = map(lambda x: re.sub("\.c$", ".o", x), lib_srcs)
 Mylib.ExportHeader(env, exported_hdrs)
 Mylib.ExportLib(env, lib_fullname)
 
-# The following were the original commands from SLF, making use of
-# a shell script and a Makefile to build the library.  These have
-# been preserved, commented out below, but in order to make this
-# test portable, we've replaced them with a Python script and a
+# The following were the original commands from Scott Lystic Fritchie,
+# making use of a shell script and a Makefile to build the library.
+# These have been preserved, commented out below, but in order to make
+# this test portable, we've replaced them with a Python script and a
 # recursive invocation of SCons (!).
 #cmd_both = "cd %s ; make generated ; make" % Dir(".")
 #cmd_generated = "cd %s ; sh MAKE-HEADER.sh" % Dir(".")
@@ -313,8 +272,8 @@ def escape(s):
         s = '"' + s + '"'
     return s
 
-cmd_generated = "%s $SOURCE" % (escape(sys.executable),)
-cmd_justlib = "%s %s -C ${SOURCES[0].dir}" % ((sys.executable),
+cmd_generated = "%s $SOURCE" % escape(sys.executable)
+cmd_justlib = "%s %s -C ${SOURCES[0].dir}" % (escape(sys.executable),
                                               escape(sys.argv[0]))
 
 ##### Deps appear correct ... but wacky scanning?
@@ -330,7 +289,7 @@ recurse_env.Command([lib_fullname] + lib_objs,
                     cmd_justlib) 
 """)
 
-test.write(['SLF', 'src', 'lib_geng', 'MAKE-HEADER.py'], """\
+test.write(['src', 'lib_geng', 'MAKE-HEADER.py'], """\
 #!/usr/bin/env python
 
 import os
@@ -344,7 +303,7 @@ for h in ['libg_gx.h', 'libg_gy.h', 'libg_gz.h']:
     open(h, 'w').write('')
 """)
 
-test.write(['SLF', 'src', 'lib_geng', 'SConstruct'], """\
+test.write(['src', 'lib_geng', 'SConstruct'], """\
 import os
 
 Scanned = {}
@@ -384,13 +343,13 @@ Default(l)
 # bug report.  We're not using them--in order to make this script as
 # portable as possible, we're using a Python script and a recursive
 # invocation of SCons--but we're preserving them here for history.
-#test.write(['SLF', 'src', 'lib_geng', 'MAKE-HEADER.sh'], """\
+#test.write(['src', 'lib_geng', 'MAKE-HEADER.sh'], """\
 ##!/bin/sh
 #
 #exec touch $*
 #""")
 #
-#test.write(['SLF', 'src', 'lib_geng', 'Makefile'], """\
+#test.write(['src', 'lib_geng', 'Makefile'], """\
 #all: libg.a
 #
 #GEN_HDRS = libg_gx.h libg_gy.h libg_gz.h
@@ -413,10 +372,10 @@ Default(l)
 #	-rm -f libg.a *.o core core.*
 #""")
 
-test.write(['SLF', 'src', 'lib_geng', 'libg_w.h'], """\
+test.write(['src', 'lib_geng', 'libg_w.h'], """\
 """)
 
-test.write(['SLF', 'src', 'lib_geng', 'libg_1.c'], """\
+test.write(['src', 'lib_geng', 'libg_1.c'], """\
 #include <libg_w.h>
 #include <libg_gx.h>
 
@@ -426,7 +385,7 @@ int g_1()
 }
 """)
 
-test.write(['SLF', 'src', 'lib_geng', 'libg_2.c'], """\
+test.write(['src', 'lib_geng', 'libg_2.c'], """\
 #include <libg_w.h>
 #include <libg_gx.h> 
 #include <libg_gy.h>
@@ -438,7 +397,7 @@ int g_2()
 }
 """)
 
-test.write(['SLF', 'src', 'lib_geng', 'libg_3.c'], """\
+test.write(['src', 'lib_geng', 'libg_3.c'], """\
 #include <libg_w.h>
 #include <libg_gx.h>
 
@@ -448,36 +407,7 @@ int g_3()
 }
 """)
 
-test.run(arguments = 'simple',
-         stdout = test.wrap_stdout("""\
-XScanner: node = file1.x
-create file2.x from file1.x
-create file3.x from file2.x
-create file4.x from file3.x
-"""))
-
-test.write(['simple', 'file2.x'], 'simple/file2.x\n')
-
-test.run(arguments = 'simple',
-         stdout = test.wrap_stdout("""\
-XScanner: node = file1.x
-XScanner: node = file2.x
-create file3.x from file2.x
-create file4.x from file3.x
-"""))
-
-test.write(['simple', 'file3.x'], 'simple/file3.x\n')
-
-test.run(arguments = 'simple',
-         stdout = test.wrap_stdout("""\
-XScanner: node = file1.x
-XScanner: node = file2.x
-XScanner: node = file3.x
-create file4.x from file3.x
-"""))
-
-test.run(arguments = 'SLF',
-         stderr=TestSCons.noisy_ar,
+test.run(stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
 # XXX Note that the generated .h files still get scanned twice,

@@ -31,7 +31,7 @@ utility that writes to an odd
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -58,12 +58,12 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'yacc'],
-                  YACC = r'%s myyacc.py',
+                  YACC = r'%(_python_)s myyacc.py',
                   YACCFLAGS = '-d',
                   YACCHFILESUFFIX = '.hsuffix')
 env.CFile(target = 'aaa', source = 'aaa.y')
 env.CFile(target = 'bbb', source = 'bbb.yacc')
-""" % python)
+""" % locals())
 
 test.write('aaa.y', "aaa.y\n/*yacc*/\n")
 test.write('bbb.yacc', "bbb.yacc\n/*yacc*/\n")

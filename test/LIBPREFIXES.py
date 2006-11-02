@@ -43,6 +43,8 @@ env.Program(target = 'prog', source = ['prog.c', lib])
 """)
 
 test.write('foo.c', r"""
+#include <stdio.h>
+
 void
 foo(void)
 {
@@ -51,6 +53,8 @@ foo(void)
 """)
 
 test.write('prog.c', r"""
+#include <stdio.h>
+
 void foo(void);
 int
 main(int argc, char *argv[])

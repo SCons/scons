@@ -29,7 +29,7 @@ import string
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -44,8 +44,8 @@ file.close()
 """)
 
 test.write('SConstruct', """
-Foo = Builder(action = r"%s build.py $TARGET $SOURCES subdir/foo.dep")
-Bar = Builder(action = r"%s build.py $TARGET $SOURCES subdir/bar.dep")
+Foo = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/foo.dep')
+Bar = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/bar.dep')
 env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
 env.ParseDepends('foo.d')
 env.ParseDepends('bar.d')
@@ -55,7 +55,7 @@ env.Bar(target = 'subdir/f3.out', source = 'f3.in')
 SConscript('subdir/SConscript', "env")
 env.Foo(target = 'f5.out', source = 'f5.in')
 env.Bar(target = 'sub2/f6.out', source = 'f6.in')
-""" % (python, python))
+""" % locals())
 
 test.write('foo.d', "f1.out f2.out: %s\n" % os.path.join('subdir', 'foo.dep'))
 test.write('bar.d', "%s: %s\nf5.out: sub2" % (os.path.join('subdir', 'f3.out'),

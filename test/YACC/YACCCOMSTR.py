@@ -31,7 +31,7 @@ the displayed string when yacc is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,11 +49,11 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'yacc'],
-                  YACCCOM = r'%s myyacc.py $TARGET $SOURCES',
+                  YACCCOM = r'%(_python_)s myyacc.py $TARGET $SOURCES',
                   YACCCOMSTR = 'Yaccing $TARGET from $SOURCE')
 env.CFile(target = 'aaa', source = 'aaa.y')
 env.CFile(target = 'bbb', source = 'bbb.yacc')
-""" % python)
+""" % locals())
 
 test.write('aaa.y', "aaa.y\n/*yacc*/\n")
 test.write('bbb.yacc', "bbb.yacc\n/*yacc*/\n")

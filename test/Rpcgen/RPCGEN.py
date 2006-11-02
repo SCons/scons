@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -52,12 +52,13 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """\
-env = Environment(RPCGEN = r'%s myrpcgen.py', tools=['default', 'rpcgen'])
+env = Environment(RPCGEN = r'%(_python_)s myrpcgen.py',
+                  tools=['default', 'rpcgen'])
 env.RPCGenHeader('rpcif')
 env.RPCGenClient('rpcif')
 env.RPCGenService('rpcif')
 env.RPCGenXDR('rpcif')
-""" % (python,))
+""" % locals())
 
 test.write('rpcif.x', """\
 RPCGEN

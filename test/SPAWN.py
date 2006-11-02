@@ -30,7 +30,7 @@ Test the SPAWN construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -45,10 +45,14 @@ ofp.close()
 test.write('SConstruct', """
 import os
 import string
+import sys
 def my_spawn(sh, escape, cmd, args, env):
-    os.system(string.join(args + ['extra.txt']))
+    s = string.join(args + ['extra.txt'])
+    if sys.platform in ['win32']:
+        s = '"' + s + '"'
+    os.system(s)
 env = Environment(SPAWN = my_spawn)
-env.Command('file.out', 'file.in', "%(python)s cat.py $TARGET $SOURCES")
+env.Command('file.out', 'file.in', '%(_python_)s cat.py $TARGET $SOURCES')
 env = Environment()
 """ % locals())
 

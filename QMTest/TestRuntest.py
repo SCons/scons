@@ -27,9 +27,11 @@ from TestCommon import __all__
 
 __all__.extend([ 'TestRuntest',
                  'python',
+                 '_python_',
                ])
 
 python = python_executable
+_python_ = '"' + python_executable + '"'
 
 
 failing_test_template = """\
@@ -51,6 +53,22 @@ import sys
 sys.stdout.write('PASSING TEST STDOUT\\n')
 sys.stderr.write('PASSING TEST STDERR\\n')
 sys.exit(0)
+"""
+
+fake_scons_py = """
+__version__ = '1.2.3'
+__build__ = 'D123'
+__buildsys__ = 'fake_system'
+__date__ = 'Jan 1 1970'
+__developer__ = 'Anonymous'
+"""
+
+fake___init___py = """
+__version__ = '4.5.6'
+__build__ = 'D456'
+__buildsys__ = 'another_fake_system'
+__date__ = 'Dec 31 1999'
+__developer__ = 'John Doe'
 """
 
 class TestRuntest(TestCommon):
@@ -91,15 +109,28 @@ class TestRuntest(TestCommon):
             kw['match'] = match_exact
         if not kw.has_key('workdir'):
             kw['workdir'] = ''
+
+        try:
+            noqmtest = kw['noqmtest']
+        except KeyError:
+            noqmtest = 0
+        else:
+            del kw['noqmtest']
+
         orig_cwd = os.getcwd()
         apply(TestCommon.__init__, [self], kw)
+  
+        if not noqmtest:
+            qmtest_py = self.where_is('qmtest.py')
+            if not qmtest_py:
+                self.skip_test("Could not find 'qmtest.py'; skipping test(s).\n")
 
         things_to_copy = [
             'runtest.py',
             'QMTest',
         ]
 
-        dirs = [orig_cwd]
+        dirs = [os.environ.get('SCONS_RUNTEST_DIR', orig_cwd)]
         
         spe = os.environ.get('SCONS_SOURCE_PATH_EXECUTABLE', orig_cwd)
         for d in string.split(spe, os.pathsep):
@@ -126,6 +157,47 @@ class TestRuntest(TestCommon):
 
         os.environ['PYTHONPATH'] = ''
         os.environ['SCONS_SOURCE_PATH_EXECUTABLE'] = ''
+
+    def skip_test(self, message="Skipping test.\n"):
+        """Skips a test.
+
+        Proper test-skipping behavior is dependent on whether we're being
+        executed as part of development of a change under Aegis.
+
+        Technically, skipping a test is a NO RESULT, but Aegis will
+        treat that as a test failure and prevent the change from going
+        to the next step.  We don't want to force anyone using Aegis
+        to have to install absolutely every tool used by the tests,
+        so we actually report to Aegis that a skipped test has PASSED
+        so that the workflow isn't held up.
+        """
+        if message:
+            sys.stdout.write(message)
+            sys.stdout.flush()
+        devdir = os.popen("aesub '$dd' 2>/dev/null", "r").read()[:-1]
+        intdir = os.popen("aesub '$intd' 2>/dev/null", "r").read()[:-1]
+        if devdir and self._cwd[:len(devdir)] == devdir or \
+           intdir and self._cwd[:len(intdir)] == intdir:
+            # We're under the development directory for this change,
+            # so this is an Aegis invocation; pass the test (exit 0).
+            self.pass_test()
+        else:
+            # skip=1 means skip this function when showing where this
+            # result came from.  They only care about the line where the
+            # script called test.skip_test(), not the line number where
+            # we call test.no_result().
+            self.no_result(skip=1)
+
+    def write_fake_scons_source_tree(self):
+        os.mkdir('src')
+        os.mkdir('src/script')
+        self.write('src/script/scons.py', fake_scons_py)
+
+        os.mkdir('src/engine')
+        os.mkdir('src/engine/SCons')
+        self.write('src/engine/SCons/__init__.py', fake___init___py)
+        os.mkdir('src/engine/SCons/Script')
+        self.write('src/engine/SCons/Script/__init__.py', fake___init___py)
 
     def write_failing_test(self, name):
         self.write(name, failing_test_template)

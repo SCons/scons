@@ -146,7 +146,7 @@ def add_to_env(env):
     env['FORTRANMODDIR'] = ''          # where the compiler should place .mod files
     env['FORTRANMODDIRPREFIX'] = ''    # some prefix to $FORTRANMODDIR - similar to $INCPREFIX
     env['FORTRANMODDIRSUFFIX'] = ''    # some suffix to $FORTRANMODDIR - similar to $INCSUFFIX
-    env['_FORTRANMODFLAG'] = '$( ${_concat(FORTRANMODDIRPREFIX, FORTRANMODDIR, FORTRANMODDIRSUFFIX, __env__)} $)'
+    env['_FORTRANMODFLAG'] = '$( ${_concat(FORTRANMODDIRPREFIX, FORTRANMODDIR, FORTRANMODDIRSUFFIX, __env__, RDirs)} $)'
 
     env.AppendUnique(FORTRANSUFFIXES = FortranSuffixes + FortranPPSuffixes)
 

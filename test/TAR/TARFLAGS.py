@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -64,12 +64,14 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools = ['tar'], TAR = r'%s mytar.py', TARFLAGS = '-x')
+env = Environment(tools = ['tar'],
+                  TAR = r'%(_python_)s mytar.py',
+                  TARFLAGS = '-x')
 env.Tar(target = 'aaa.tar', source = ['file1', 'file2'])
 env.Tar(target = 'aaa.tar', source = 'file3')
 env.Tar(target = 'bbb', source = 'sub1')
 env.Tar(target = 'bbb', source = 'file4')
-""" % python)
+""" % locals())
 
 test.write('file1', "file1\n")
 test.write('file2', "file2\n")
@@ -104,12 +106,12 @@ os.system(string.join(sys.argv[1:], " "))
 foo = Environment()
 tar = foo['TAR']
 bar = Environment(TAR = '',
-                  TARFLAGS = r'%s wrapper.py ' + tar + ' -c -b 1')
+                  TARFLAGS = r'%(_python_)s wrapper.py ' + tar + ' -c -b 1')
 foo.Tar(target = 'foo.tar', source = ['file10', 'file11'])
 foo.Tar(target = 'foo.tar', source = 'file12')
 bar.Tar(target = 'bar.tar', source = ['file13', 'file14'])
 bar.Tar(target = 'bar.tar', source = 'file15')
-""" % python)
+""" % locals())
 
     test.write('file10', "file10\n")
     test.write('file11', "file11\n")

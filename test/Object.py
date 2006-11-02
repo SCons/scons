@@ -46,6 +46,7 @@ env.Program(target = 'prog3', source = ['f1%s', f2, 'f3%s', 'prog.cpp'])
 """ % (_obj, _obj, _obj, _obj, _obj, _obj))
 
 test.write('f1.c', r"""
+#include <stdio.h>
 void
 f1(void)
 {
@@ -64,6 +65,7 @@ f2(void)
 """)
 
 test.write('f3.c', r"""
+#include <stdio.h>
 void
 f3(void)
 {
@@ -72,6 +74,7 @@ f3(void)
 """)
 
 test.write('f4.c', r"""
+#include <stdio.h>
 void
 f4(void)
 {
@@ -80,6 +83,7 @@ f4(void)
 """)
 
 test.write('f5.c', r"""
+#include <stdio.h>
 void
 f5(void)
 {

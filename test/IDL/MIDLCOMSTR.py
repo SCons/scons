@@ -31,7 +31,7 @@ the displayed string when midl is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'midl'],
-                  MIDLCOM = r'%s mymidl.py $TARGET $SOURCES',
+                  MIDLCOM = r'%(_python_)s mymidl.py $TARGET $SOURCES',
                   MIDLCOMSTR = 'MIDLing $TARGET from $SOURCE')
 env.TypeLibrary(target = 'aaa', source = 'aaa.idl')
-""" % python)
+""" % locals())
 
 test.write('aaa.idl', "aaa.idl\n/*midl*/\n")
 

@@ -129,6 +129,9 @@ if fortran and env.Detect(fortran):
 """ % (fortran_runtime, fortran_runtime))
 
 test.write(['work1', 'src', 'f1.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "f1.h"
 
 int
@@ -141,6 +144,9 @@ main(int argc, char *argv[])
 """)
 
 test.write(['work1', 'src', 'f2.in'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "f2.h"
 
 int
@@ -153,6 +159,9 @@ main(int argc, char *argv[])
 """)
 
 test.write(['work1', 'src', 'f3.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "f3.h"
 
 int
@@ -165,6 +174,9 @@ main(int argc, char *argv[])
 """)
 
 test.write(['work1', 'src', 'f4.in'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "f4.h"
 
 int
@@ -325,6 +337,9 @@ env.Program('prog.c')
 """)
 
 test.write(['work2', 'prog.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {

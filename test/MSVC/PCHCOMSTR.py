@@ -31,7 +31,7 @@ the displayed string when pch is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'msvc'],
-                  PCHCOM = r'%s mypch.py $TARGET $SOURCES',
+                  PCHCOM = r'%(_python_)s mypch.py $TARGET $SOURCES',
                   PCHCOMSTR = 'PCHing $TARGET from $SOURCE')
 env.PCH(target = 'aaa', source = 'aaa.h')
-""" % python)
+""" % locals())
 
 test.write('aaa.h', "aaa.h\n/*pch*/\n")
 

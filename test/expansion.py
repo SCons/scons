@@ -52,6 +52,8 @@ env.Program(r'%s')
        os.path.join('$SUBDIR', 'foo4.c')))
 
 test.write(['sub', 'f1.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -62,6 +64,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('f2.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -72,6 +76,8 @@ main(int argc, char *argv[])
 """)
 
 test.write(['sub', 'f3.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -82,6 +88,8 @@ main(int argc, char *argv[])
 """)
 
 test.write(['sub', 'foo4.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

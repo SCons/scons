@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _obj   = TestSCons._shobj
 
 test = TestSCons.TestSCons()
@@ -50,10 +50,10 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(SHF90COM = r'%s myfortran.py f90 $TARGET $SOURCES',
-                  SHF90PPCOM = r'%s myfortran.py f90pp $TARGET $SOURCES',
-                  SHFORTRANCOM = r'%s myfortran.py fortran $TARGET $SOURCES',
-                  SHFORTRANPPCOM = r'%s myfortran.py fortranpp $TARGET $SOURCES')
+env = Environment(SHF90COM = r'%(_python_)s myfortran.py f90 $TARGET $SOURCES',
+                  SHF90PPCOM = r'%(_python_)s myfortran.py f90pp $TARGET $SOURCES',
+                  SHFORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
+                  SHFORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
 env.SharedObject(target = 'test03', source = 'test03.for')
@@ -68,11 +68,11 @@ env.SharedObject(target = 'test11', source = 'test11.f90')
 env.SharedObject(target = 'test12', source = 'test12.F90')
 env.SharedObject(target = 'test13', source = 'test13.f95')
 env.SharedObject(target = 'test14', source = 'test14.F95')
-env2 = Environment(SHF90COM = r'%s myfortran.py f90 $TARGET $SOURCES',
-                   SHF90PPCOM = r'%s myfortran.py f90pp $TARGET $SOURCES')
+env2 = Environment(SHF90COM = r'%(_python_)s myfortran.py f90 $TARGET $SOURCES',
+                   SHF90PPCOM = r'%(_python_)s myfortran.py f90pp $TARGET $SOURCES')
 env2.SharedObject(target = 'test21', source = 'test21.f90')
 env2.SharedObject(target = 'test22', source = 'test22.F90')
-""" % (python, python, python, python, python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#fortran\n")
 test.write('test02.F',   "This is a .F file.\n#fortranpp\n")

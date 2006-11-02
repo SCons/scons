@@ -51,6 +51,7 @@ env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
 """ % repository)
 
 test.write(['repository', 'aaa.c'], r"""
+#include <stdio.h>
 void
 aaa(void)
 {
@@ -59,6 +60,7 @@ aaa(void)
 """)
 
 test.write(['repository', 'bbb.c'], r"""
+#include <stdio.h>
 void
 bbb(void)
 {
@@ -67,6 +69,9 @@ bbb(void)
 """)
 
 test.write(['repository', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -95,6 +100,7 @@ test.up_to_date(chdir = 'work1', arguments = '.')
 
 #
 test.write(['work1', 'bbb.c'], r"""
+#include <stdio.h>
 void
 bbb(void)
 {
@@ -113,6 +119,7 @@ test.up_to_date(chdir = 'work1', arguments = '.')
 
 #
 test.write(['work1', 'aaa.c'], r"""
+#include <stdio.h>
 void
 aaa(void)
 {
@@ -121,6 +128,8 @@ aaa(void)
 """)
 
 test.write(['work1', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -185,6 +194,7 @@ env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
 """ % (repository_new, repository_old))
 
 test.write(['repository.old', 'aaa.c'], r"""
+#include <stdio.h>
 void
 aaa(void)
 {
@@ -193,6 +203,7 @@ aaa(void)
 """)
 
 test.write(['repository.old', 'bbb.c'], r"""
+#include <stdio.h>
 void
 bbb(void)
 {
@@ -201,6 +212,8 @@ bbb(void)
 """)
 
 test.write(['repository.old', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -232,6 +245,8 @@ test.up_to_date(chdir = 'work2', arguments = '.')
 test.writable('repository.new', 1)
 
 test.write(['repository.new', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 aaa(void)
 {
@@ -240,6 +255,8 @@ aaa(void)
 """)
 
 test.write(['work2', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 bbb(void)
 {
@@ -261,6 +278,8 @@ test.up_to_date(chdir = 'work2', arguments = '.')
 
 #
 test.write(['work2', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 aaa(void)
 {
@@ -269,6 +288,8 @@ aaa(void)
 """)
 
 test.write(['work2', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int

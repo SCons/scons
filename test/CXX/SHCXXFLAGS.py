@@ -29,21 +29,18 @@ import TestSCons
 import os
 import string
 
-if sys.platform == 'win32':
-    _obj = '.obj'
-    fooflags = '/nologo -DFOO'
-    barflags = '/nologo -DBAR'
-else:
-    _obj = '.o'
-    fooflags = '-DFOO'
-    barflags = '-DBAR'
-    
+_obj = TestSCons._obj
+
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
 if string.find(sys.platform, 'irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test = TestSCons.TestSCons()
+
+e = test.Environment()
+fooflags = e['SHCXXFLAGS'] + ' -DFOO'
+barflags = e['SHCXXFLAGS'] + ' -DBAR'
 
 test.write('SConstruct', """
 foo = Environment(SHCXXFLAGS = '%s', WINDOWS_INSERT_DEF=1)

@@ -49,6 +49,8 @@ if not co:
 test.subdir('RCS')
 
 test.write('foo.c', """\
+#include <stdio.h>
+
 #include "foo.h"
 int
 main(int argc, char *argv[]) {

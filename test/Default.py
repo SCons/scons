@@ -32,7 +32,7 @@ import os
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -54,44 +54,44 @@ file.close()
 
 #
 test.write(['one', 'SConstruct'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out')
-""" % python)
+""" % locals())
 
 test.write(['two', 'SConstruct'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out', 'bar.out')
-""" % python)
+""" % locals())
 
 test.write(['three', 'SConstruct'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default(Split('foo.out bar.out'))
-""" % python)
+""" % locals())
 
 test.write(['four', 'SConstruct'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo bar'], source = 'foo.in')
 env.B(target = 'foo', source = 'foo.in')
 env.B(target = 'bar', source = 'bar.in')
 Default(['foo bar'])
-""" % python)
+""" % locals())
 
 test.write(['five', 'SConstruct'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 Default(env.B(target = 'foo.out', source = 'foo.in'))
 Default(env.B(target = 'bar.out', source = 'bar.in'))
-""" % python)
+""" % locals())
 
 
 for dir in ['one', 'two', 'three', 'four', 'five']:
@@ -118,34 +118,34 @@ test.fail_test(test.read(test.workpath('five', 'bar.out')) != "five/bar.in\n")
 
 # Test how a None Default() argument works to disable/reset default targets.
 test.write(['six', 'SConstruct'], """\
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 foo = env.B(target = 'foo.out', source = 'foo.in')
 bar = env.B(target = 'bar.out', source = 'bar.in')
 Default(None)
-""" % python)
+""" % locals())
 
 test.run(chdir = 'six', status = 2, stderr =
 "scons: *** No targets specified and no Default() targets found.  Stop.\n")
 
 test.write(['seven', 'SConstruct'], """\
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 foo = env.B(target = 'foo.out', source = 'foo.in')
 bar = env.B(target = 'bar.out', source = 'bar.in')
 Default(foo, bar, None)
-""" % python)
+""" % locals())
 
 test.run(chdir = 'seven', status = 2, stderr =
 "scons: *** No targets specified and no Default() targets found.  Stop.\n")
 
 test.write(['eight', 'SConstruct'], """\
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 foo = env.B(target = 'foo.out', source = 'foo.in')
 bar = env.B(target = 'bar.out', source = 'bar.in')
 Default(foo, None, bar)
-""" % python)
+""" % locals())
 
 test.run(chdir = 'eight')       # no arguments, use the Default
 
@@ -158,20 +158,20 @@ test.fail_test(test.read(test.workpath('eight', 'bar.out')) != "eight/bar.in\n")
 test.subdir('nine', ['nine', 'sub1'])
 
 test.write(['nine', 'SConstruct'], """\
-B = Builder(action = r'%s build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 SConscript('sub1/SConscript')
-""" % python)
+""" % locals())
 
 test.write(['nine', 'xxx.in'], "xxx.in\n")
 
 test.write(['nine', 'sub1', 'SConscript'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 Default('xxx.out')
-""" % python)
+""" % locals())
 
 test.write(['nine', 'sub1', 'xxx.in'], "sub1/xxx.in\n")
 
@@ -186,19 +186,19 @@ test.subdir('ten', ['ten', 'sub2'])
 
 test.write(['ten', 'SConstruct'], """\
 Default('sub2')
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 SConscript('sub2/SConscript')
-""" % python)
+""" % locals())
 
 test.write(['ten', 'xxx.in'], "xxx.in\n")
 
 test.write(['ten', 'sub2', 'SConscript'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
-""" % python)
+""" % locals())
 
 test.write(['ten', 'sub2', 'xxx.in'], "sub2/xxx.in\n")
 
@@ -211,12 +211,12 @@ test.fail_test(test.read(test.workpath('ten', 'sub2', 'xxx.out')) != "sub2/xxx.i
 test.subdir('eleven')
 
 test.write(['eleven', 'SConstruct'], """
-B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B }, XXX = 'foo.out')
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 env.Default('$XXX')
-""" % python)
+""" % locals())
 
 test.write(os.path.join('eleven', 'foo.in'), "eleven/foo.in\n");
 

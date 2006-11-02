@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
@@ -126,17 +126,17 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  AS = r'%s myas.py', ASFLAGS = '-x',
-                  CC = r'%s myas.py')
+                  AS = r'%(_python_)s myas.py', ASFLAGS = '-x',
+                  CC = r'%(_python_)s myas.py')
 env.Program(target = 'test1', source = 'test1.s')
 env.Program(target = 'test2', source = 'test2.S')
 env.Program(target = 'test3', source = 'test3.asm')
 env.Program(target = 'test4', source = 'test4.ASM')
 env.Program(target = 'test5', source = 'test5.spp')
 env.Program(target = 'test6', source = 'test6.SPP')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test1.s', r"""This is a .s file.
 #as

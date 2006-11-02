@@ -33,6 +33,8 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+SConstruct_path = test.workpath('SConstruct')
+
 platforms = [
     'aix',
     'cygwin',
@@ -139,27 +141,33 @@ tools = [
 
 # Intel no compiler warning..
 intel_no_compiler_fmt = """
-scons: warning: Failed to find Intel compiler for version='None', abi='%s'
-File "SConstruct", line 1, in ?
+scons: warning: Failed to find Intel compiler for version='None', abi='%(abi)s'
+File "%(SConstruct_path)s", line 1, in ?
 """
 
-intel_no_compiler_32_warning = intel_no_compiler_fmt % 'ia32'
-intel_no_compiler_64_warning = intel_no_compiler_fmt % 'x86_64'
+abi = 'ia32'
+intel_no_compiler_32_warning = intel_no_compiler_fmt % locals()
+
+abi = 'x86_64'
+intel_no_compiler_64_warning = intel_no_compiler_fmt % locals()
 
 # Intel no top dir warning.
 intel_no_top_dir_fmt = """
-scons: warning: Can't find Intel compiler top dir for version='None', abi='%s'
-File "SConstruct", line 1, in ?
-"""
+scons: warning: Can't find Intel compiler top dir for version='None', abi='%(abi)s'
+File "%(SConstruct_path)s", line 1, in ?
+""" % locals()
 
-intel_no_top_dir_32_warning = intel_no_top_dir_fmt % 'ia32'
-intel_no_top_dir_64_warning = intel_no_top_dir_fmt % 'x86_64'
+abi = 'ia32'
+intel_no_top_dir_32_warning = intel_no_top_dir_fmt % locals()
+
+abi = 'x86_64'
+intel_no_top_dir_64_warning = intel_no_top_dir_fmt % locals()
 
 # Intel no license directory warning
 intel_license_warning = """
 scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
-File "SConstruct", line 1, in ?
-"""
+File "%(SConstruct_path)s", line 1, in ?
+""" % locals()
 
 intel_warnings = [
     intel_license_warning,
@@ -176,15 +184,20 @@ intel_warnings = [
 moc = test.where_is('moc')
 if moc:
     import os.path
+
+    qtdir = os.path.dirname(os.path.dirname(moc))
+
     qt_err = """
-scons: warning: Could not detect qt, using moc executable as a hint (QTDIR=%s)
-File "SConstruct", line 1, in ?
-""" % os.path.dirname(os.path.dirname(moc))
+scons: warning: Could not detect qt, using moc executable as a hint (QTDIR=%(qtdir)s)
+File "%(SConstruct_path)s", line 1, in ?
+""" % locals()
+
 else:
+
     qt_err = """
 scons: warning: Could not detect qt, using empty QTDIR
-File "SConstruct", line 1, in ?
-"""
+File "%(SConstruct_path)s", line 1, in ?
+""" % locals()
 
 error_output = {
     'icl' : intel_warnings,

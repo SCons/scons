@@ -30,7 +30,7 @@ Test the ability to configure the $RANLIBCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -62,12 +62,12 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
-                  ARCOM = r'%s myar.py $TARGET $SOURCES',
-                  RANLIBCOM = r'%s myranlib.py $TARGET',
+                  ARCOM = r'%(_python_)s myar.py $TARGET $SOURCES',
+                  RANLIBCOM = r'%(_python_)s myranlib.py $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
 env.Library(target = 'output', source = ['file.1', 'file.2'])
-""" % (python, python))
+""" % locals())
 
 test.write('file.1', "file.1\n/*ar*/\n/*ranlib*/\n")
 test.write('file.2', "file.2\n/*ar*/\n/*ranlib*/\n")

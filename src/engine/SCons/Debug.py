@@ -119,20 +119,22 @@ else:
 
 caller_dicts = {}
 
-def caller(back=0):
+def caller(*backlist):
     import traceback
-    tb = traceback.extract_stack(limit=3+back)
-    key = tb[1][:3]
-    try:
-        entry = caller_dicts[key]
-    except KeyError:
-        entry = caller_dicts[key] = {}
-    key = tb[0][:3]
-    try:
-        entry[key] = entry[key] + 1
-    except KeyError:
-        entry[key] = 1
-    return '%s:%d(%s)' % func_shorten(key)
+    if not backlist:
+        backlist = [0]
+    result = []
+    for back in backlist:
+        tb = traceback.extract_stack(limit=3+back)
+        key = tb[1][:3]
+        try:
+            entry = caller_dicts[key]
+        except KeyError:
+            entry = caller_dicts[key] = {}
+        key = tb[0][:3]
+        entry[key] = entry.get(key, 0) + 1
+        result.append('%s:%d(%s)' % func_shorten(key))
+    return result
 
 def dump_caller_counts(file=sys.stdout):
     keys = caller_dicts.keys()

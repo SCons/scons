@@ -46,9 +46,12 @@ try:
 except KeyError:
     cwd = os.getcwd()
 
-build_scons = os.path.join(cwd, 'build', 'scons')
-build_local = os.path.join(cwd, 'build', 'scons-local', 'scons-local-0.96.92')
-build_src = os.path.join(cwd, 'build', 'scons-src')
+def build_path(*args):
+    return apply(os.path.join, (cwd, 'build',)+args)
+
+build_scons     = build_path('scons')
+build_local     = build_path('scons-local', 'scons-local-'+test.scons_version)
+build_src       = build_path('scons-src')
 
 class Collect:
     expression = re.compile('Copyright.*The SCons Foundation')

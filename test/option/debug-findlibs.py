@@ -24,11 +24,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import sys
 import string
 import re
 import time
+
+import TestSCons
+
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,9 +52,9 @@ env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx',
                   LIBS = ['iii', 'jjj', 'kkk', 'lll', 'mmm'],
                   LIBPREFIXES = ['a-', 'b-', 'c-'],
                   LIBSUFFIXES = ['.aaa', '.bbb', '.ccc'],
-                  LINKCOM = '%(python)s cat.py $TARGET $SOURCES')
+                  LINKCOM = '%(_python_)s cat.py $TARGET $SOURCES')
 env.Program('foo', 'a.ooo',)
-""" % {'python' : TestSCons.python})
+""" % locals())
 
 test.write('a.ooo', "a.ooo\n")
 
@@ -198,8 +201,8 @@ test.run(arguments = "--debug=findlibs foo.xxx",
   findlibs: looking for 'c-mmm.ccc' in 'sub1' ...
   findlibs: looking for 'c-mmm.ccc' in 'sub2' ...
   findlibs: looking for 'c-mmm.ccc' in '.' ...
-%(python)s cat.py foo.xxx a.ooo
-""" % {'python' : TestSCons.python}))
+%(_python_)s cat.py foo.xxx a.ooo
+""" % locals()))
 
 test.must_match('foo.xxx', "a.ooo\n")
 

@@ -31,7 +31,7 @@ the displayed string when  is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'dvipdf'],
-                  DVIPDFCOM = r'%s mypdf.py $TARGET $SOURCES',
+                  DVIPDFCOM = r'%(_python_)s mypdf.py $TARGET $SOURCES',
                   DVIPDFCOMSTR = 'DVIPDFing $TARGET from $SOURCE')
 env.PDF(target = 'aaa', source = 'aaa.dvi')
-""" % python)
+""" % locals())
 
 test.write('aaa.dvi', "aaa.dvi\n/*pdf*/\n")
 

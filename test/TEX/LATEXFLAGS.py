@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -55,10 +55,12 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LATEX = r'%s mylatex.py', LATEXFLAGS = '-x', tools=['latex'])
+env = Environment(LATEX = r'%(_python_)s mylatex.py',
+                  LATEXFLAGS = '-x',
+                  tools=['latex'])
 env.DVI(target = 'test1.dvi', source = 'test1.ltx')
 env.Copy(LATEXFLAGS = '-t').DVI(target = 'test2.dvi', source = 'test2.latex')
-""" % python)
+""" % locals())
 
 test.write('test1.ltx', r"""This is a .ltx test.
 \end
@@ -92,10 +94,10 @@ import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV, LATEXFLAGS = '--output-comment Commentary')
 latex = foo.Dictionary('LATEX')
-bar = Environment(ENV = ENV, LATEX = r'%s wrapper.py ' + latex)
+bar = Environment(ENV = ENV, LATEX = r'%(_python_)s wrapper.py ' + latex)
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 bar.DVI(target = 'bar', source = 'bar.latex')
-""" % python)
+""" % locals())
 
     latex = r"""
 \documentclass{letter}

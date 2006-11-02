@@ -40,15 +40,11 @@ import sys
 try: WindowsError
 except NameError: WindowsError = OSError
 
-#try:
-#    version = os.environ['SCONS_VERSION']
-#except KeyError:
-#    version = '__VERSION__'
-version = '0.96.92'
+import TestSCons
+
+version = TestSCons.TestSCons.scons_version
 
 scons_version = 'scons-%s' % version
-
-import TestSCons
 
 python = TestSCons.python
 
@@ -203,8 +199,9 @@ if not os.path.isdir(scons_version) and os.path.isfile(tar_gz):
     os.system("gunzip -c %s | tar xf -" % tar_gz)
 
 if not os.path.isdir(scons_version):
-    print "Found neither SCons package `%s' nor `%s'." % (tar_gz, zip)
-    print "Cannot test package installation."
+    print "Cannot test package installation, found none of the following packages:"
+    print "\t" + tar_gz
+    print "\t" + zip
     test.no_result(1)
 
 # Verify that a virgin installation installs the version library,

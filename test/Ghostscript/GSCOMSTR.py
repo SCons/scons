@@ -31,7 +31,7 @@ the displayed string when Ghostscript is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'gs'],
-                  GSCOM = r'%s mygs.py $TARGET $SOURCES',
+                  GSCOM = r'%(_python_)s mygs.py $TARGET $SOURCES',
                   GSCOMSTR = 'GSing $TARGET from $SOURCE')
 env.PDF(target = 'aaa', source = 'aaa.ps')
-""" % python)
+""" % locals())
 
 test.write('aaa.ps', "aaa.ps\n/*gs*/\n")
 

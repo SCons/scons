@@ -28,6 +28,7 @@ import sys
 import TestSCons
 
 python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -65,30 +66,30 @@ def sub(env, target, source):
     t.close()
     return 0
 
-env = Environment(COPY_THROUGH_TEMP = "%(python)s build.py .tmp $SOURCE\\n%(python)s build.py $TARGET .tmp",
-                  EXPAND = "$COPY_THROUGH_TEMP")
+env = Environment(COPY_THROUGH_TEMP = '%(_python_)s build.py .tmp $SOURCE\\n%(_python_)s build.py $TARGET .tmp',
+                  EXPAND = '$COPY_THROUGH_TEMP')
 env.Command(target = 'f1.out', source = 'f1.in',
             action = buildIt)
 env.Command(target = 'f2.out', source = 'f2.in',
-            action = r"%(python)s build.py temp2 $SOURCES" + '\\n' + r"%(python)s build.py $TARGET temp2")
+            action = r'%(_python_)s build.py temp2 $SOURCES' + '\\n' + r'%(_python_)s build.py $TARGET temp2')
 env.Command(target = 'f3.out', source = 'f3.in',
             action = [ [ r'%(python)s', 'build.py', 'temp3', '$SOURCES' ],
                        [ r'%(python)s', 'build.py', '$TARGET', 'temp3'] ])
 Command(target = 'f4.out', source = 'sub', action = sub)
 env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
-            XYZZY="XYZZY is set")
+            XYZZY='XYZZY is set')
 Command(target = 'f6.out', source = 'f6.in',
-        action = r"%(python)s build.py f6.out f6.in")
+        action = r'%(_python_)s build.py f6.out f6.in')
 env.Command(target = 'f7.out', source = 'f7.in',
-            action = r"%(python)s build.py $TARGET $SOURCE")
+            action = r'%(_python_)s build.py $TARGET $SOURCE')
 Command(target = 'f8.out', source = 'f8.in',
-        action = r"%(python)s build.py $TARGET $SOURCE")
+        action = r'%(_python_)s build.py $TARGET $SOURCE')
 env.Command(target = 'f9.out', source = 'f9.in',
-            action = r"$EXPAND")
+            action = r'$EXPAND')
 env.Command(target = '${F10}.out', source = '${F10}.in',
-            action = r"%(python)s build.py $TARGET $SOURCE",
+            action = r'%(_python_)s build.py $TARGET $SOURCE',
             F10 = 'f10')
-""" % {'python': python})
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")

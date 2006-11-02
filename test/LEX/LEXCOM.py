@@ -30,7 +30,7 @@ Test the ability to configure the $LEXCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,10 +48,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'lex'],
-                  LEXCOM = r'%s mylex.py $TARGET $SOURCES')
+                  LEXCOM = r'%(_python_)s mylex.py $TARGET $SOURCES')
 env.CFile(target = 'aaa', source = 'aaa.l')
 env.CFile(target = 'bbb', source = 'bbb.lex')
-""" % python)
+""" % locals())
 
 test.write('aaa.l', "aaa.l\n/*lex*/\n")
 test.write('bbb.lex', "bbb.lex\n/*lex*/\n")

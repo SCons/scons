@@ -36,7 +36,7 @@ import sys
 import TestCmd
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -53,13 +53,13 @@ sys.exit(1)
 
 test.write('SConstruct', """\
 env = Environment()
-f1 = env.Command('f1.out', 'f1.in', "%(python)s build.py $TARGET $SOURCE")
-f2 = env.Command('f2.out', 'f2.in', "-%(python)s build.py $TARGET $SOURCE")
-f3 = env.Command('f3.out', 'f3.in', "- %(python)s build.py $TARGET $SOURCE")
-f4 = env.Command('f4.out', 'f4.in', "@-%(python)s build.py $TARGET $SOURCE")
-f5 = env.Command('f5.out', 'f5.in', "@- %(python)s build.py $TARGET $SOURCE")
-f6 = env.Command('f6.out', 'f6.in', "-@%(python)s build.py $TARGET $SOURCE")
-f7 = env.Command('f7.out', 'f7.in', "-@ %(python)s build.py $TARGET $SOURCE")
+f1 = env.Command('f1.out', 'f1.in', '%(_python_)s build.py $TARGET $SOURCE')
+f2 = env.Command('f2.out', 'f2.in', '-%(_python_)s build.py $TARGET $SOURCE')
+f3 = env.Command('f3.out', 'f3.in', '- %(_python_)s build.py $TARGET $SOURCE')
+f4 = env.Command('f4.out', 'f4.in', '@-%(_python_)s build.py $TARGET $SOURCE')
+f5 = env.Command('f5.out', 'f5.in', '@- %(_python_)s build.py $TARGET $SOURCE')
+f6 = env.Command('f6.out', 'f6.in', '-@%(_python_)s build.py $TARGET $SOURCE')
+f7 = env.Command('f7.out', 'f7.in', '-@ %(_python_)s build.py $TARGET $SOURCE')
 Default(f2, f3, f4, f5, f6, f7)
 """ % locals())
 

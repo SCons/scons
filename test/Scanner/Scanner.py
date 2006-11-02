@@ -24,10 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -93,19 +92,19 @@ k2scan = env.Scanner(name = 'k2',
 env = Environment()
 env.Append(SCANNERS = kscan)
 
-env.Command('foo', 'foo.k', r'%(python)s build.py $SOURCES $TARGET')
+env.Command('foo', 'foo.k', r'%(_python_)s build.py $SOURCES $TARGET')
 
 ##########################################################
 # Test resetting the environment scanners (and specifying as a list).
 
 env2 = env.Copy()
 env2.Append(SCANNERS = [k2scan])
-env2.Command('junk', 'junk.k2', r'%(python)s build.py $SOURCES $TARGET')
+env2.Command('junk', 'junk.k2', r'%(_python_)s build.py $SOURCES $TARGET')
 
 ##########################################################
 # Test specifying a specific source scanner for a target Node
 
-barbld = Builder(action=r'%(python)s build.py $SOURCES  $TARGET',
+barbld = Builder(action=r'%(_python_)s build.py $SOURCES  $TARGET',
                      source_scanner=kscan)
 env.Append(BUILDERS={'BarBld':barbld})
 bar = env.BarBld(target='bar', source='bar.in')
@@ -120,7 +119,7 @@ def blork(env, target, source):
     open(str(target[0]), 'wb').write(
         string.replace(source[0].get_contents(), 'getfile', 'MISSEDME'))
 
-kbld = Builder(action=r'%(python)s build.py $SOURCES $TARGET',
+kbld = Builder(action=r'%(_python_)s build.py $SOURCES $TARGET',
                src_suffix='.lork',
                suffix='.blork',
                source_scanner=kscan)
@@ -134,7 +133,7 @@ blork = env.KB('moo.lork')
 ork = env.BLORK(blork)
 Alias('make_ork', ork)
 
-""" % {'python': python})
+""" % locals())
 
 test.write('foo.k', 
 """foo.k 1 line 1
@@ -173,14 +172,15 @@ test.write('xxx', "xxx 1\n")
 test.write('yyy', "yyy 1\n")
 test.write('zzz', "zzz 1\n")
 
-test.run(arguments = '.',
-         stdout=test.wrap_stdout("""\
-%(python)s build.py bar.in bar
-%(python)s build.py foo.k foo
-%(python)s build.py junk.k2 junk
-%(python)s build.py moo.lork moo.blork
+expect = test.wrap_stdout("""\
+%(_python_)s build.py bar.in bar
+%(_python_)s build.py foo.k foo
+%(_python_)s build.py junk.k2 junk
+%(_python_)s build.py moo.lork moo.blork
 blork(["moo.ork"], ["moo.blork"])
-""" % {'python':python}))
+""" % locals())
+
+test.run(arguments = '.', stdout=expect)
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
@@ -191,12 +191,13 @@ test.up_to_date(arguments = '.')
 
 test.write('xxx', "xxx 2\n")
 
-test.run(arguments = '.',
-         stdout=test.wrap_stdout("""\
-%(python)s build.py foo.k foo
-%(python)s build.py moo.lork moo.blork
+expect = test.wrap_stdout("""\
+%(_python_)s build.py foo.k foo
+%(_python_)s build.py moo.lork moo.blork
 blork(["moo.ork"], ["moo.blork"])
-""" % {'python':python}))
+""" % locals())
+
+test.run(arguments = '.', stdout=expect)
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
@@ -205,14 +206,15 @@ test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\n
 
 test.write('yyy', "yyy 2\n")
 
-test.run(arguments = '.',
-         stdout=test.wrap_stdout("""\
-%(python)s build.py bar.in bar
-%(python)s build.py foo.k foo
-%(python)s build.py junk.k2 junk
-%(python)s build.py moo.lork moo.blork
+expect = test.wrap_stdout("""\
+%(_python_)s build.py bar.in bar
+%(_python_)s build.py foo.k foo
+%(_python_)s build.py junk.k2 junk
+%(_python_)s build.py moo.lork moo.blork
 blork(["moo.ork"], ["moo.blork"])
-""" % {'python':python}))
+""" % locals())
+
+test.run(arguments = '.', stdout=expect)
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
@@ -221,11 +223,12 @@ test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\n
 
 test.write('zzz', "zzz 2\n")
 
-test.run(arguments = '.',
-         stdout=test.wrap_stdout("""\
-%(python)s build.py bar.in bar
-%(python)s build.py junk.k2 junk
-""" % {'python':python}))
+expect = test.wrap_stdout("""\
+%(_python_)s build.py bar.in bar
+%(_python_)s build.py junk.k2 junk
+""" % locals())
+
+test.run(arguments = '.', stdout=expect)
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
@@ -233,83 +236,5 @@ test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n")
 test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n")
 
 test.up_to_date(arguments = 'foo')
-
-# Now make sure that using the same source file in different
-# environments will get the proper scanner for the environment being
-# used.
-
-test.write('SConstruct2', """
-import re
-
-include_re = re.compile(r'^include\s+(\S+)$', re.M)
-input_re = re.compile(r'^input\s+(\S+)$', re.M)
-
-scan1 = Scanner(name = 'Include',
-                function = lambda N,E,P,A: A.findall(N.get_contents()),
-                argument = include_re,
-                skeys = ['.inp'])
-
-scan2 = Scanner(name = 'Input',
-                function = lambda N,E,P,A: A.findall(N.get_contents()),
-                argument = input_re,
-                skeys = ['.inp'])
-
-env1 = Environment()
-env2 = Environment()
-
-env1.Append(SCANNERS=scan1)
-env2.Append(SCANNERS=scan2)
-
-env1.Command('frog.1', 'frog.inp', r'%(python)s do_incl.py $TARGET $SOURCES')
-env2.Command('frog.2', 'frog.inp', r'%(python)s do_inp.py $TARGET $SOURCES')
-
-"""%{'python':python})
-
-process = r"""
-import sys
-
-def process(infp, outfp):
-    prefix = '%(command)s '
-    l = len(prefix)
-    for line in infp.readlines():
-        if line[:l] == prefix:
-            process(open(line[l:-1], 'rb'), outfp)
-        else:
-            outfp.write(line)
-
-process(open(sys.argv[2], 'rb'),
-        open(sys.argv[1], 'wb'))
-sys.exit(0)
-"""
-
-test.write('do_incl.py', process % { 'command' : 'include' })
-test.write('do_inp.py', process % { 'command' : 'input' })
-
-test.write('frog.inp', """\
-include sound1
-input sound2
-""")
-
-test.write('sound1', 'croak\n')
-test.write('sound2', 'ribbet\n')
-
-test.run(arguments='-f SConstruct2 .',
-stdout=test.wrap_stdout("""\
-%(python)s do_incl.py frog.1 frog.inp
-%(python)s do_inp.py frog.2 frog.inp
-""" % { 'python':python }))
-
-test.must_match('frog.1', 'croak\ninput sound2\n')
-test.must_match('frog.2', 'include sound1\nribbet\n')
-
-test.write('sound2', 'rudeep\n')
-
-test.run(arguments='-f SConstruct2 .',
-stdout=test.wrap_stdout("""\
-%(python)s do_inp.py frog.2 frog.inp
-""" % { 'python':python }))
-
-test.must_match('frog.1', 'croak\ninput sound2\n')
-test.must_match('frog.2', 'include sound1\nrudeep\n')
 
 test.pass_test()

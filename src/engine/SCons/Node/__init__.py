@@ -474,6 +474,7 @@ class Node:
             d = filter(lambda x, seen=seen: not seen.has_key(x),
                        n.get_found_includes(env, scanner, path))
             if d:
+                d = map(lambda N: N.disambiguate(), d)
                 deps.extend(d)
                 for n in d:
                     seen[n] = 1
@@ -538,7 +539,7 @@ class Node:
         # Here's where we implement --implicit-cache.
         if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
-            if implicit:
+            if implicit is not None:
                 factory = build_env.get_factory(self.builder.source_factory)
                 nodes = []
                 for i in implicit:

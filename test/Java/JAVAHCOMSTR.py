@@ -33,7 +33,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -59,7 +59,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'javah'],
-                  JAVAHCOM = r'%(python)s myjavah.py $TARGET $SOURCES',
+                  JAVAHCOM = r'%(_python_)s myjavah.py $TARGET $SOURCES',
                   JAVAHCOMSTR = 'Building javah $TARGET from $SOURCES')
 env.JavaH(target = 'out', source = 'file1.class')
 env.JavaH(target = 'out', source = 'file2.class')

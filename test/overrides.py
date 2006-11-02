@@ -31,7 +31,7 @@ import sys
 test = TestSCons.TestSCons()
 
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test.write('SConstruct', """
 env = Environment(CCFLAGS='-DFOO', LIBS=['a'])
@@ -69,11 +69,11 @@ env['LIBS'] = buildlibs
 test.write('SConstruct', """
 env = Environment()
 env.Program('hello', 'hello.c',
-            CC=r'%s mycc.py',
-            LINK=r'%s mylink.py',
+            CC=r'%(_python_)s mycc.py',
+            LINK=r'%(_python_)s mylink.py',
             OBJSUFFIX='.not_obj',
             PROGSUFFIX='.not_exe')
-"""%(python,python))
+""" % locals())
 
 test.write('hello.c',"this ain't no c file!\n")
 
@@ -97,13 +97,13 @@ test.up_to_date(arguments='hello.not_exe')
 test.write('SConstruct', """\
 env = Environment()
 env.Program('goodbye', 'goodbye.c',
-            CC=r'%s mycc.py',
-            LINK=r'%s mylink.py',
+            CC=r'%(_python_)s mycc.py',
+            LINK=r'%(_python_)s mylink.py',
             OBJSUFFIX='.not_obj',
             PROGSUFFIX='.not_exe',
             targets='ttt',
             sources='sss')
-""" % (python, python))
+""" % locals())
 
 test.write('goodbye.c',"this ain't no c file!\n")
 

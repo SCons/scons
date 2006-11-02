@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -72,15 +72,15 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(TEX = r'%s mytex.py',
-                  LATEX = r'%s mylatex.py',
-                  DVIPDF = r'%s mydvipdf.py',
+env = Environment(TEX = r'%(_python_)s mytex.py',
+                  LATEX = r'%(_python_)s mylatex.py',
+                  DVIPDF = r'%(_python_)s mydvipdf.py',
                   tools=['latex', 'tex', 'dvipdf'])
 dvi = env.DVI(target = 'test1.dvi', source = 'test1.tex')
 env.DVI(target = 'test2.dvi', source = 'test2.tex')
 env.PDF(target = 'test1.pdf', source = dvi)
 env.PDF(target = 'test2.pdf', source = 'test2.dvi')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test1.tex', r"""This is a .dvi test.
 #tex
@@ -118,13 +118,13 @@ import os
 foo = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 dvipdf = foo.Dictionary('DVIPDF')
 bar = Environment(ENV = { 'PATH' : os.environ['PATH'] },
-                  DVIPDF = r'%s wrapper.py ' + dvipdf)
+                  DVIPDF = r'%(_python_)s wrapper.py ' + dvipdf)
 foo.PDF(target = 'foo.pdf',
         source = foo.DVI(target = 'foo.dvi', source = 'foo.tex'))
 bar.PDF(target = 'bar.pdf',
         source = bar.DVI(target = 'bar.dvi', source = 'bar.tex'))
 foo.PDF(target = 'xxx.pdf', source = 'xxx.tex')
-""" % python)
+""" % locals())
 
     tex = r"""
 This is the %s TeX file.

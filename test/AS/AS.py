@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -110,17 +110,16 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
-                  LINKFLAGS = [],
-                  AS = r'%s myas.py',
-                  CC = r'%s myas.py')
+env = Environment(LINK = r'%(_python_)s mylink.py',
+                  AS = r'%(_python_)s myas.py',
+                  CC = r'%(_python_)s myas.py')
 env.Program(target = 'test1', source = 'test1.s')
 env.Program(target = 'test2', source = 'test2.S')
 env.Program(target = 'test3', source = 'test3.asm')
 env.Program(target = 'test4', source = 'test4.ASM')
 env.Program(target = 'test5', source = 'test5.spp')
 env.Program(target = 'test6', source = 'test6.SPP')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test1.s', r"""This is a .s file.
 #as
@@ -183,12 +182,12 @@ os.system(cmd)
 
     test.write('SConstruct', """\
 aaa = Environment()
-bbb = aaa.Copy(AS = r'%s wrapper.py ' + WhereIs('as'))
+bbb = aaa.Copy(AS = r'%(_python_)s wrapper.py ' + WhereIs('as'))
 ccc = aaa.Copy(CPPPATH=['.'])
 aaa.Program(target = 'aaa', source = ['aaa.s', 'aaa_main.c'])
 bbb.Program(target = 'bbb', source = ['bbb.s', 'bbb_main.c'])
 ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
-""" % python)
+""" % locals())
 
     test.write('aaa.s', 
 """        .file   "aaa.s"
@@ -226,6 +225,9 @@ name:
 """)
 
     test.write('aaa_main.c', r"""
+#include <stdlib.h>
+#include <stdio.h>
+
 extern char name[];
 
 int
@@ -238,6 +240,9 @@ main(int argc, char *argv[])
 """)
 
     test.write('bbb_main.c', r"""
+#include <stdlib.h>
+#include <stdio.h>
+
 extern char name[];
 
 int
@@ -250,6 +255,9 @@ main(int argc, char *argv[])
 """)
 
     test.write('ccc_main.c', r"""
+#include <stdlib.h>
+#include <stdio.h>
+
 extern char name[];
 
 int
@@ -309,10 +317,10 @@ import os
 ccc = Environment(tools = ['msvc', 'mslink', 'masm'],
                   ASFLAGS = '/nologo /coff')
 ccc['ENV']['PATH'] = ccc['ENV']['PATH'] + os.pathsep + os.environ['PATH']
-ddd = ccc.Copy(AS = r'%s wrapper.py ' + ccc['AS'])
+ddd = ccc.Copy(AS = r'%(_python_)s wrapper.py ' + ccc['AS'])
 ccc.Program(target = 'ccc', source = ['ccc.asm', 'ccc_main.c'])
 ddd.Program(target = 'ddd', source = ['ddd.asm', 'ddd_main.c'])
-""" % python)
+""" % locals())
 
     test.write('ccc.asm', 
 """
@@ -398,11 +406,11 @@ os.system(string.join(sys.argv[1:], " "))
 
     test.write('SConstruct', """
 eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],
-                  ASFLAGS = '-f %s')
-fff = eee.Copy(AS = r'%s wrapper.py ' + WhereIs('nasm'))
+                  ASFLAGS = '-f %(nasm_format)s')
+fff = eee.Copy(AS = r'%(_python_)s wrapper.py ' + WhereIs('nasm'))
 eee.Program(target = 'eee', source = ['eee.asm', 'eee_main.c'])
 fff.Program(target = 'fff', source = ['fff.asm', 'fff_main.c'])
-""" % (nasm_format, python))
+""" % locals())
 
     test.write('eee.asm', 
 """

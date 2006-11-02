@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -52,7 +52,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LINKCOM = r'%(python)s mylink.py $TARGET $SOURCES',
+env = Environment(LINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
                   LINKCOMSTR = 'Linking $TARGET from $SOURCES',
                   OBJSUFFIX = '.obj',
                   PROGSUFFIX = '.exe')

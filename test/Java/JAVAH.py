@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -61,9 +61,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools = ['javah'],
-                  JAVAH = r'%s myjavah.py')
+                  JAVAH = r'%(_python_)s myjavah.py')
 env.JavaH(target = File('test1.h'), source = 'test1.java')
-""" % (python))
+""" % locals())
 
 test.write('test1.java', """\
 test1.java
@@ -79,9 +79,9 @@ if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
     test.write('SConstruct', """\
 env = Environment(tools = ['javah'],
-                  JAVAH = r'%s myjavah.py')
+                  JAVAH = r'%(_python_)s myjavah.py')
 env.JavaH(target = File('test2.h'), source = 'test2.JAVA')
-""" % python)
+""" % locals())
 
     test.write('test2.JAVA', """\
 test2.JAVA
@@ -126,7 +126,7 @@ foo = Environment(tools = ['javac', 'javah'],
                   JAVAC = r'%(where_javac)s',
                   JAVAH = r'%(where_javah)s')
 javah = foo.Dictionary('JAVAH')
-bar = foo.Copy(JAVAH = r'%(python)s wrapper.py ' + javah)
+bar = foo.Copy(JAVAH = r'%(_python_)s wrapper.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 foo_classes = foo.Java(target = 'class3', source = 'src')

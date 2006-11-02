@@ -45,6 +45,8 @@ env.Program(target = 'f4', source = 'f4.c')
 """)
 
 test.write('f1.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -55,6 +57,9 @@ main(int argc, char *argv[])
 """)
 
 test.write('f2.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {
@@ -66,6 +71,8 @@ main(int argc, char *argv[])
 
 
 test.write('f3.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -76,6 +83,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('f4.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

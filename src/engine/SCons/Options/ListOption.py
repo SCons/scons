@@ -65,7 +65,7 @@ class _ListOption(UserList.UserList):
         UserList.UserList.__init__(self, filter(None, initlist))
         self.allowedElems = allowedElems[:]
         self.allowedElems.sort()
-        
+
     def __cmp__(self, other):
         raise NotImplementedError
     def __eq__(self, other):
@@ -88,7 +88,7 @@ class _ListOption(UserList.UserList):
             return string.join(self, ',')
     def __repr__(self):
         return self.__str__()
-    
+
 def _converter(val, allowedElems, mapdict):
     """
     """

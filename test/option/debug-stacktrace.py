@@ -114,4 +114,25 @@ if err and must_contain_all_lines(test.stderr(), inner_lines):
 
 
 
+# Test that full path names to SConscript files show up in stack traces.
+
+test.write('SConstruct', """\
+1/0
+""")
+
+test.run(arguments = '--debug=stacktrace',
+         status = 2,
+         stderr = None)
+
+lines = [
+    '  File "%s", line 1:' % test.workpath('SConstruct'),
+]
+
+err = must_contain_all_lines(test.stderr(), lines)
+if err:
+    print string.join(err, '')
+    test.fail_test(1)
+
+
+
 test.pass_test()

@@ -35,8 +35,10 @@ if sys.platform =='darwin':
     # so we link to a framework version. However, testing must also
     # use the same version, or else you get interpreter errors.
     python = "/System/Library/Frameworks/Python.framework/Versions/Current/bin/python"
+    _python_ = '"' + python + '"'
 else:
     python = TestSCons.python
+    _python_ = TestSCons._python_
     
 _exe   = TestSCons._exe
 _obj   = TestSCons._obj
@@ -68,11 +70,11 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'swig'], SWIG = r'%s myswig.py')
+env = Environment(tools=['default', 'swig'], SWIG = r'%(_python_)s myswig.py')
 env.Program(target = 'test1', source = 'test1.i')
 env.CFile(target = 'test2', source = 'test2.i')
 env.Copy(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
-""" % (python))
+""" % locals())
 
 test.write('test1.i', r"""
 int
@@ -143,14 +145,13 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
                   CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
-                  SHCCFLAGS='',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   FRAMEWORKSFLAGS='%(frameworks)s',
                   )
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Copy(SWIG = r'%(python)s wrapper.py ' + swig)
+bar = foo.Copy(SWIG = r'%(_python_)s wrapper.py ' + swig)
 foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
 bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])
 """ % locals())
@@ -226,7 +227,6 @@ This is bar.c!
     test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
                   CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
-                  SHCCFLAGS='',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   FRAMEWORKSFLAGS='%(frameworks)s',
@@ -252,14 +252,13 @@ foo.LoadableModule(target = 'modulename', source = ['module.i'])
     test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
                   CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
-                  SHCCFLAGS='',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   FRAMEWORKSFLAGS='%(frameworks)s',
                   )
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Copy(SWIG = r'%(python)s wrapper.py ' + swig)
+bar = foo.Copy(SWIG = r'%(_python_)s wrapper.py ' + swig)
 foo.CFile(target = 'dependent', source = ['dependent.i'])
 """ % locals())
 

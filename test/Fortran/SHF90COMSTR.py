@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -52,9 +52,9 @@ else:
 
 
 test.write('SConstruct', """
-env = Environment(SHF90COM = r'%(python)s myfc.py f90 $TARGET $SOURCES',
+env = Environment(SHF90COM = r'%(_python_)s myfc.py f90 $TARGET $SOURCES',
                   SHF90COMSTR = 'Building f90 $TARGET from $SOURCES',
-                  SHF90PPCOM = r'%(python)s myfc.py f90pp $TARGET $SOURCES',
+                  SHF90PPCOM = r'%(_python_)s myfc.py f90pp $TARGET $SOURCES',
                   SHF90PPCOMSTR = 'Building f90pp $TARGET from $SOURCES',
                   SHOBJSUFFIX='.shobj')
 env.SharedObject(source = 'test01.f90')

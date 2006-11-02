@@ -33,7 +33,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -50,7 +50,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['tar'],
-                  TARCOM = r'%(python)s mytar.py $TARGET $SOURCE')
+                  TARCOM = r'%(_python_)s mytar.py $TARGET $SOURCE')
 env.Tar('test1.tar', 'test1.in')
 """ % locals())
 

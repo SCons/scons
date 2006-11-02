@@ -153,7 +153,7 @@ expected_vcprojfile = """\
 
 
 SConscript_contents = """\
-env=Environment(MSVS_VERSION = '8.0')
+env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -215,7 +215,7 @@ os.environ['PYTHON_ROOT'] = 'xyzzy'
 
 test.run(chdir='work1', arguments='Test.vcproj')
 
-python = os.path.join('$(PYTHON_ROOT)', os.path.split(sys.executable)[1])
+python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSCons.python)[1])
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
@@ -273,7 +273,7 @@ The real workspace file is here:
 test.subdir('work3')
 
 test.write(['work3', 'SConstruct'], """\
-env=Environment(MSVS_VERSION = '8.0')
+env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']

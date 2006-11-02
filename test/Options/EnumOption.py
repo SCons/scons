@@ -35,13 +35,15 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+SConstruct_path = test.workpath('SConstruct')
+
 def check(expect):
     result = string.split(test.stdout(), '\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 
 
-test.write('SConstruct', """
+test.write(SConstruct_path, """\
 from SCons.Options import EnumOption
 
 list_of_libs = Split('x11 gl qt ical')
@@ -71,28 +73,33 @@ Default(env.Alias('dummy', None))
 
 
 test.run(); check(['no', 'gtk', 'xaver'])
+
 test.run(arguments='debug=yes guilib=Motif some=xAVER')
 check(['yes', 'Motif', 'xaver'])
+
 test.run(arguments='debug=full guilib=KdE some=EiNs')
 check(['full', 'KdE', 'eins'])
 
-test.run(arguments='debug=FULL',
-         stderr = """
+expect_stderr = """
 scons: *** Invalid value for option debug: FULL
-File "SConstruct", line 19, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 18, in ?
+""" % locals()
 
-test.run(arguments='guilib=IrGeNdwas',
-         stderr = """
+test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
+
+expect_stderr = """
 scons: *** Invalid value for option guilib: irgendwas
-File "SConstruct", line 19, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 18, in ?
+""" % locals()
 
-test.run(arguments='some=IrGeNdwas',
-         stderr = """
+test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
+
+expect_stderr = """
 scons: *** Invalid value for option some: irgendwas
-File "SConstruct", line 19, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 18, in ?
+""" % locals()
+
+test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
 
 
 test.pass_test()

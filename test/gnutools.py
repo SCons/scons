@@ -31,7 +31,7 @@ Testing the gnu tool chain, i.e. the tools 'gcc', 'g++' and 'gnulink'.
 import TestSCons
 import string
 import sys
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe = TestSCons._exe
 _dll = TestSCons._dll
 dll_ = TestSCons.dll_
@@ -91,10 +91,13 @@ test.write(['work1', 'cppfile2.cpp'],"""
 /* cpp file 2 */
 """)
 
+mygcc_py = test.workpath('gnutools','mygcc.py')
+mygxx_py = test.workpath('gnutools','myg++.py')
+
 test.write(['work1', 'SConstruct'],"""
 env = Environment(tools=['gcc','g++','gnulink'],
-                  CC=r'%s %s',
-                  CXX=r'%s %s',
+                  CC=r'%(_python_)s %(mygcc_py)s',
+                  CXX=r'%(_python_)s %(mygxx_py)s',
                   OBJSUFFIX='.o',
                   SHOBJSUFFIX='.os')
 env.Program('c-only', Split('cfile1.c cfile2.c'))
@@ -104,8 +107,7 @@ env.Program('c-and-cpp', Split('cfile1.c cppfile1.cpp'))
 env.SharedLibrary('c-only', Split('cfile1.c cfile2.c'))
 env.SharedLibrary('cpp-only', Split('cppfile1.cpp cppfile2.cpp'))
 env.SharedLibrary('c-and-cpp', Split('cfile1.c cppfile1.cpp'))
-""" % (python, test.workpath('gnutools','mygcc.py'),
-       python, test.workpath('gnutools','myg++.py')))
+""" % locals())
 
 test.run(chdir='work1')
 

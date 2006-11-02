@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
@@ -90,9 +90,9 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  F77 = r'%s myg77.py',
+                  F77 = r'%(_python_)s myg77.py',
                   F77FLAGS = '-x')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
@@ -104,7 +104,7 @@ env.Program(target = 'test07', source = 'test07.fpp')
 env.Program(target = 'test08', source = 'test08.FPP')
 env.Program(target = 'test09', source = 'test09.f77')
 env.Program(target = 'test10', source = 'test10.F77')
-""" % (python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#link\n#g77\n")
 test.write('test02.F',   "This is a .F file.\n#link\n#g77\n")
@@ -146,12 +146,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %s)
+foo = Environment(LIBS = %FTN_LIBs)
 f77 = foo.Dictionary('F77')
-bar = foo.Copy(F77 = r'%s wrapper.py ' + f77, F77FLAGS = '-Ix')
+bar = foo.Copy(F77 = r'%(_python_)s wrapper.py ' + f77, F77FLAGS = '-Ix')
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
-""" % (FTN_LIB, python))
+""" % locals())
 
     test.write('foo.f', r"""
       PROGRAM FOO

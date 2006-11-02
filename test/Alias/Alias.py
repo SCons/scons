@@ -29,7 +29,7 @@ import sys
 import TestSCons
 import TestCmd
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
@@ -42,7 +42,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-B = Builder(action = r"%s build.py $TARGET $SOURCES")
+B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment()
 env['BUILDERS']['B'] = B
 env.B(target = 'f1.out', source = 'f1.in')
@@ -62,7 +62,7 @@ env.Depends('f1.out', 'bar')
 assert Alias('foo') == foo
 assert Alias('bar') == bar
 
-""" % python)
+""" % locals())
 
 test.write(['sub1', 'SConscript'], """
 Import("env")
@@ -134,7 +134,7 @@ test.up_to_date(arguments = 'f1.out')
 
 test.write('SConstruct', """
 TargetSignatures('content')
-B = Builder(action = r"%s build.py $TARGET $SOURCES")
+B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment()
 env['BUILDERS']['B'] = B
 env.B(target = 'f1.out', source = 'f1.in')
@@ -147,7 +147,7 @@ env.Alias('bar', ['sub2', 'f3.out'])
 env.Alias('blat', ['sub2', 'f3.out'])
 env.Alias('blat', ['f2.out', 'sub1'])
 env.Depends('f1.out', 'bar')
-""" % python)
+""" % locals())
 
 os.unlink(test.workpath('f1.out'))
 
@@ -157,12 +157,12 @@ test.fail_test(not os.path.exists(test.workpath('f1.out')))
 
 test.write('f3.in', "f3.in 3 \n")
 
-test.run(arguments = 'f1.out',
-         match = TestCmd.match_exact,
-         stdout = test.wrap_stdout("""\
-%s build.py f3.out f3.in
-%s build.py f1.out f1.in
-""" % (python, python)))
+expect = test.wrap_stdout("""\
+%(_python_)s build.py f3.out f3.in
+%(_python_)s build.py f1.out f1.in
+""" % locals())
+
+test.run(arguments = 'f1.out', match = TestCmd.match_exact, stdout = expect)
 
 test.up_to_date(arguments = 'f1.out')
 

@@ -52,6 +52,8 @@ env.Program('foo5.c')
 """)
 
 test.write('f1.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -62,6 +64,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('f2a.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 f2a(void)
 {
@@ -70,6 +74,7 @@ f2a(void)
 """)
 
 test.write('f2b.c', r"""
+#include <stdio.h>
 void
 f2b(void)
 {
@@ -78,6 +83,8 @@ f2b(void)
 """)
 
 test.write('f2c.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void f2a(void);
 extern void f2b(void);
 int
@@ -92,6 +99,7 @@ main(int argc, char *argv[])
 """)
 
 test.write('f3a.c', r"""
+#include <stdio.h>
 void
 f3a(void)
 {
@@ -100,6 +108,7 @@ f3a(void)
 """)
 
 test.write('f3b.c', r"""
+#include <stdio.h>
 void
 f3b(void)
 {
@@ -108,6 +117,8 @@ f3b(void)
 """)
 
 test.write('f3c.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void f3a(void);
 extern void f3b(void);
 int
@@ -122,6 +133,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('f4.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -132,6 +145,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('foo5.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -152,6 +167,8 @@ test.run(program = foo5, stdout = "foo5.c\n")
 test.up_to_date(arguments = '.')
 
 test.write('f1.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -162,6 +179,7 @@ main(int argc, char *argv[])
 """)
 
 test.write('f3b.c', r"""
+#include <stdio.h>
 void
 f3b(void)
 {
@@ -170,6 +188,8 @@ f3b(void)
 """)
 
 test.write('f4.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -180,6 +200,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('foo5.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -217,6 +239,8 @@ test.fail_test(oldtime4 != os.path.getmtime(foo4))
 test.fail_test(oldtime5 != os.path.getmtime(foo5))
 
 test.write('f1.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -227,6 +251,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('f3b.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 f3b(void)
 {
@@ -235,6 +261,8 @@ f3b(void)
 """)
 
 test.write('f4.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -245,6 +273,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('foo5.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -265,6 +295,8 @@ test.run(program = foo5, stdout = "foo5.c Y\n")
 test.up_to_date(arguments = foo_args)
 
 test.write('f1.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -275,6 +307,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('f3b.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 f3b(void)
 {
@@ -283,6 +317,8 @@ f3b(void)
 """)
 
 test.write('f4.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -293,6 +329,8 @@ main(int argc, char *argv[])
 """)
 
 test.write('foo5.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

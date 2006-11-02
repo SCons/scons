@@ -33,7 +33,7 @@ import TestSCons
 Test the ability to configure the $SHCCCOM construction variable.
 """
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -54,7 +54,7 @@ else:
     alt_c_suffix = '.c'
 
 test.write('SConstruct', """
-env = Environment(SHCCCOM = r'%(python)s mycc.py $TARGET $SOURCE',
+env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
                   SHOBJSUFFIX='.obj')
 env.SharedObject(target = 'test1', source = 'test1.c')
 env.SharedObject(target = 'test2', source = 'test2%(alt_c_suffix)s')

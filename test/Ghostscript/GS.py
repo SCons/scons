@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,11 +48,11 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(GS = r'%s mygs.py',
+env = Environment(GS = r'%(_python_)s mygs.py',
                   GSCOM = r'$GS $TARGET $SOURCE',
                   tools=['gs'])
 env.PDF(target = 'test1.pdf', source = 'test1.ps')
-""" % (python))
+""" % locals())
 
 test.write('test1.ps', r"""This is a .ps test.
 #ps
@@ -88,10 +88,10 @@ import os
 foo = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 gs = foo.Dictionary('GS')
 bar = Environment(ENV = { 'PATH' : os.environ['PATH'] },
-                  GS = r'%s wrapper.py ' + gs)
+                  GS = r'%(_python_)s wrapper.py ' + gs)
 foo.PDF(target = 'foo.pdf', source = 'foo.ps')
 bar.PDF(target = 'bar.pdf', source = 'bar.ps')
-""" % python)
+""" % locals())
 
     input = """\
 %!PS-Adobe

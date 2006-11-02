@@ -38,6 +38,8 @@ env.Program('foo', Split('foo.c bar.c'))
 """)
 
 test.write('foo.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include "foo.h"
 int main(int argc, char *argv[])
 {

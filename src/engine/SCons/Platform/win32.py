@@ -90,7 +90,11 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
             ret = os.spawnve(os.P_WAIT, sh, args, env)
         except OSError, e:
             # catch any error
-            ret = exitvalmap[e[0]]
+            try:
+                ret = exitvalmap[e[0]]
+            except KeyError:
+                result = 127
+                sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e[0], cmd, e[1]))
             if stderr != None:
                 stderr.write("scons: %s: %s\n" % (cmd, e[1]))
         # copy child output from tempfiles to our streams
@@ -114,8 +118,19 @@ def exec_spawn(l, env):
     try:
         result = os.spawnve(os.P_WAIT, l[0], l, env)
     except OSError, e:
-        result = exitvalmap[e[0]]
-        sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
+        try:
+            result = exitvalmap[e[0]]
+            sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
+        except KeyError:
+            result = 127
+            if len(l) > 2:
+                if len(l[2]) < 1000:
+                    command = string.join(l[0:3])
+                else:
+                    command = l[0]
+            else:
+                command = l[0]
+            sys.stderr.write("scons: unknown OSError exception code %d - '%s': %s\n" % (e[0], command, e[1]))
     return result
 
 def spawn(sh, escape, cmd, args, env):
@@ -124,9 +139,15 @@ def spawn(sh, escape, cmd, args, env):
         return 127
     return exec_spawn([sh, '/C', escape(string.join(args))], env)
 
-# Windows does not allow special characters in file names anyway, so
-# no need for a complex escape function, we will just quote the arg.
-escape = lambda x: '"' + x + '"'
+# Windows does not allow special characters in file names anyway, so no
+# need for a complex escape function, we will just quote the arg, except
+# that "cmd /c" requires that if an argument ends with a backslash it
+# needs to be escaped so as not to interfere with closing double quote
+# that we add.
+def escape(x):
+    if x[-1] == '\\':
+        x = x + '\\'
+    return '"' + x + '"'
 
 # Get the windows system directory name
 def get_system_root():

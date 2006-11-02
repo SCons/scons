@@ -43,7 +43,7 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-expected_vcprojfile = """\
+vcproj_template = """\
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 \tProjectType="Visual C++"
@@ -84,21 +84,7 @@ expected_vcprojfile = """\
 \t</Configurations>
 \t<References>
 \t</References>
-\t<Files>
-\t\t\t<Filter
-\t\t\t\tName="subdir"
-\t\t\t\tFilter="">
-\t\t\t<File
-\t\t\t\tRelativePath="subdir\\test1.cpp">
-\t\t\t</File>
-\t\t\t<File
-\t\t\t\tRelativePath="subdir\\test2.cpp">
-\t\t\t</File>
-\t\t\t</Filter>
-\t\t<File
-\t\t\tRelativePath="<SCONSCRIPT>">
-\t\t</File>
-\t</Files>
+%(sln_files)s
 \t<Globals>
 \t</Globals>
 </VisualStudioProject>
@@ -107,9 +93,9 @@ expected_vcprojfile = """\
 
 
 SConscript_contents = """\
-env=Environment(MSVS_VERSION = '8.0')
+env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
-testsrc = ['subdir/test1.cpp', r'subdir\\test2.cpp']
+testsrc = %(testsrc)s
 
 env.MSVSProject(target = 'Test.vcproj',
                 slnguid = '{SLNGUID}',
@@ -123,13 +109,71 @@ env.MSVSProject(target = 'Test.vcproj',
 
 test.subdir('work1')
 
-test.write(['work1', 'SConstruct'], SConscript_contents)
+testsrc = repr([
+    'prefix/subdir1/test1.cpp',
+    r'prefix\subdir1\test2.cpp',
+    'prefix/subdir2/test3.cpp',
+])
+
+sln_files = """\t<Files>
+\t\t\t<Filter
+\t\t\t\tName="subdir1"
+\t\t\t\tFilter="">
+\t\t\t<File
+\t\t\t\tRelativePath="prefix\\subdir1\\test1.cpp">
+\t\t\t</File>
+\t\t\t<File
+\t\t\t\tRelativePath="prefix\\subdir1\\test2.cpp">
+\t\t\t</File>
+\t\t\t</Filter>
+\t\t\t<Filter
+\t\t\t\tName="subdir2"
+\t\t\t\tFilter="">
+\t\t\t<File
+\t\t\t\tRelativePath="prefix\\subdir2\\test3.cpp">
+\t\t\t</File>
+\t\t\t</Filter>
+\t\t<File
+\t\t\tRelativePath="<SCONSCRIPT>">
+\t\t</File>
+\t</Files>"""
+
+test.write(['work1', 'SConstruct'], SConscript_contents % locals())
 
 test.run(chdir='work1', arguments="Test.vcproj")
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
+expected_vcprojfile = vcproj_template % locals()
 expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work1', 'SConstruct')
+# don't compare the pickled data
+assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+
+
+
+test.subdir('work2')
+
+testsrc = repr([
+    'prefix/subdir/somefile.cpp',
+])
+
+sln_files = """\t<Files>
+\t\t\t<File
+\t\t\t\tRelativePath="prefix\\subdir\\somefile.cpp">
+\t\t\t</File>
+\t\t<File
+\t\t\tRelativePath="<SCONSCRIPT>">
+\t\t</File>
+\t</Files>"""
+
+test.write(['work2', 'SConstruct'], SConscript_contents % locals())
+
+test.run(chdir='work2', arguments="Test.vcproj")
+
+test.must_exist(test.workpath('work2', 'Test.vcproj'))
+vcproj = test.read(['work2', 'Test.vcproj'], 'r')
+expected_vcprojfile = vcproj_template % locals()
+expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work2', 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 

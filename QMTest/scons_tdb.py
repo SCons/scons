@@ -46,9 +46,13 @@ from   qm.test import suite
 from   qm.test.result import Result
 from   qm.test.file_result_stream import FileResultStream
 from   qm.test.classes.text_result_stream import TextResultStream
+from   qm.test.classes.xml_result_stream import XMLResultStream
 from   qm.test.directory_suite import DirectorySuite
 from   qm.extension import get_extension_class_name, get_class_arguments_as_dictionary
-import os, dircache
+
+import dircache
+import os
+import imp
 
 if sys.platform == 'win32':
     console = 'con'
@@ -128,62 +132,145 @@ def check_exit_status(result, prefix, desc, status):
 
     return True
 
-# XXX I'd like to annotate the overall test run with the following
-# information about the Python version, SCons version, and environment.
-# Not sure how to do that yet; ask Stefan.
-#
-#    sys_keys = ['byteorder', 'exec_prefix', 'executable', 'maxint', 'maxunicode', 'platform', 'prefix', 'version', 'version_info']
 
-# "    <%s>" % tag
-# "      <version>%s</version>" % module.__version__
-# "      <build>%s</build>" % module.__build__
-# "      <buildsys>%s</buildsys>" % module.__buildsys__
-# "      <date>%s</date>" % module.__date__
-# "      <developer>%s</developer>" % module.__developer__
-# "    </%s>" % tag
 
-# "  <scons>"
-#    print_version_info("script", scons)
-#    print_version_info("engine", SCons)
-# "  </scons>"
+class Null:
+    pass
 
-#    environ_keys = [
-#        'PATH',
-#        'SCONSFLAGS',
-#        'SCONS_LIB_DIR',
-#        'PYTHON_ROOT',
-#        'QTDIR',
-#
-#        'COMSPEC',
-#        'INTEL_LICENSE_FILE',
-#        'INCLUDE',
-#        'LIB',
-#        'MSDEVDIR',
-#        'OS',
-#        'PATHEXT',
-#        'SYSTEMROOT',
-#        'TEMP',
-#        'TMP',
-#        'USERNAME',
-#        'VXDOMNTOOLS',
-#        'WINDIR',
-#        'XYZZY'
-#
-#        'ENV',
-#        'HOME',
-#        'LANG',
-#        'LANGUAGE',
-#        'LOGNAME',
-#        'MACHINE',
-#        'OLDPWD',
-#        'PWD',
-#        'OPSYS',
-#        'SHELL',
-#        'TMPDIR',
-#        'USER',
-#    ]
+_null = Null()
+
+sys_attributes = [
+    'byteorder',
+    'exec_prefix',
+    'executable',
+    'maxint',
+    'maxunicode',
+    'platform',
+    'prefix',
+    'version',
+    'version_info',
+]
+
+def get_sys_values():
+    sys_attributes.sort()
+    result = map(lambda k: (k, getattr(sys, k, _null)), sys_attributes)
+    result = filter(lambda t: not t[1] is _null, result)
+    result = map(lambda t: t[0] + '=' + repr(t[1]), result)
+    return string.join(result, '\n ')
+
+module_attributes = [
+    '__version__',
+    '__build__',
+    '__buildsys__',
+    '__date__',
+    '__developer__',
+]
+
+def get_module_info(module):
+    module_attributes.sort()
+    result = map(lambda k: (k, getattr(module, k, _null)), module_attributes)
+    result = filter(lambda t: not t[1] is _null, result)
+    result = map(lambda t: t[0] + '=' + repr(t[1]), result)
+    return string.join(result, '\n ')
+
+environ_keys = [
+   'PATH',
+   'SCONS',
+   'SCONSFLAGS',
+   'SCONS_LIB_DIR',
+   'PYTHON_ROOT',
+   'QTDIR',
+
+   'COMSPEC',
+   'INTEL_LICENSE_FILE',
+   'INCLUDE',
+   'LIB',
+   'MSDEVDIR',
+   'OS',
+   'PATHEXT',
+   'SYSTEMROOT',
+   'TEMP',
+   'TMP',
+   'USERNAME',
+   'VXDOMNTOOLS',
+   'WINDIR',
+   'XYZZY'
+
+   'ENV',
+   'HOME',
+   'LANG',
+   'LANGUAGE',
+   'LC_ALL',
+   'LC_MESSAGES',
+   'LOGNAME',
+   'MACHINE',
+   'OLDPWD',
+   'PWD',
+   'OPSYS',
+   'SHELL',
+   'TMPDIR',
+   'USER',
+]
+
+def get_environment():
+    environ_keys.sort()
+    result = map(lambda k: (k, os.environ.get(k, _null)), environ_keys)
+    result = filter(lambda t: not t[1] is _null, result)
+    result = map(lambda t: t[0] + '-' + t[1], result)
+    return string.join(result, '\n ')
+
+class SConsXMLResultStream(XMLResultStream):
+    def __init__(self, *args, **kw):
+        super(SConsXMLResultStream, self).__init__(*args, **kw)
+    def WriteAllAnnotations(self, context):
+        # Load (by hand) the SCons modules we just unwrapped so we can
+        # extract their version information.  Note that we have to override
+        # SCons.Script.main() with a do_nothing() function, because loading up
+        # the 'scons' script will actually try to execute SCons...
+
+        src_engine = os.environ.get('SCONS_LIB_DIR')
+        if not src_engine:
+            src_engine = os.path.join('src', 'engine')
+        fp, pname, desc = imp.find_module('SCons', [src_engine])
+        SCons = imp.load_module('SCons', fp, pname, desc)
+
+        # Override SCons.Script.main() with a do-nothing function, because
+        # loading the 'scons' script will actually try to execute SCons...
+
+        src_engine_SCons = os.path.join(src_engine, 'SCons')
+        fp, pname, desc = imp.find_module('Script', [src_engine_SCons])
+        SCons.Script = imp.load_module('Script', fp, pname, desc)
+        def do_nothing():
+            pass
+        SCons.Script.main = do_nothing
+
+        scons_file = os.environ.get('SCONS')
+        if scons_file:
+            src_script, scons_py = os.path.split(scons_file)
+            scons = os.path.splitext(scons_py)[0]
+        else:
+            src_script = os.path.join('src', 'script')
+            scons = 'scons'
+        fp, pname, desc = imp.find_module(scons, [src_script])
+        scons = imp.load_module('scons', fp, pname, desc)
+        fp.close()
+
+        self.WriteAnnotation("scons_test.engine", get_module_info(SCons))
+        self.WriteAnnotation("scons_test.script", get_module_info(scons))
+
+        self.WriteAnnotation("scons_test.sys", get_sys_values())
+        self.WriteAnnotation("scons_test.os.environ", get_environment())
 
 class AegisStream(TextResultStream):
+    arguments = [
+        qm.fields.IntegerField(
+            name = "print_time",
+            title = "print individual test times",
+            description = """
+            """,
+            default_value = 0,
+        ),
+    ]
     def __init__(self, *args, **kw):
         super(AegisStream, self).__init__(*args, **kw)
         self._num_tests = 0
@@ -227,7 +314,7 @@ class AegisStream(TextResultStream):
             self._DisplayText(result["Test.stderr"])
         except KeyError:
             pass
-        if result["Test.print_time"] != "0":
+        if self.print_time:
             start = float(result['qmtest.start_time'])
             end = float(result['qmtest.end_time'])
             fmt = "    Total execution time: %.1f seconds\n\n"
@@ -296,18 +383,7 @@ class AegisBaselineStream(AegisStream):
                     )
 
 class AegisBatchStream(FileResultStream):
-    arguments = [
-        qm.fields.TextField(
-            name = "results_file",
-            title = "Aegis Results File",
-            description = """
-            """,
-            verbatim = "true",
-            default_value = "aegis-results.txt",
-        ),
-    ]
     def __init__(self, arguments):
-        self.filename = arguments['results_file']
         super(AegisBatchStream, self).__init__(arguments)
         self._outcomes = {}
     def WriteResult(self, result):
@@ -320,7 +396,11 @@ class AegisBatchStream(FileResultStream):
         self._outcomes[test_id] = exit_status
     def Summarize(self):
         self.file.write('test_result = [\n')
-        for file_name, exit_status in self._outcomes.items():
+        file_names = self._outcomes.keys()
+        file_names.sort()
+        for file_name in file_names:
+            exit_status = self._outcomes[file_name]
+            file_name = string.replace(file_name, '\\', '/')
             self.file.write('    { file_name = "%s";\n' % file_name)
             self.file.write('      exit_status = %s; },\n' % exit_status)
         self.file.write('];\n')
@@ -349,9 +429,8 @@ class Test(AegisTest):
         and fails otherwise. The program output is logged, but not validated."""
 
         command = RedirectedExecutable()
-        args = [context.get('python', 'python'), self.script]
+        args = [context.get('python', sys.executable), self.script]
         status = command.Run(args, os.environ)
-        result["Test.print_time"] = context.get('print_time', '0')
         if not check_exit_status(result, 'Test.', self.script, status):
             # In case of failure record exit code, stdout, and stderr.
             result.Fail("Non-zero exit_code.")

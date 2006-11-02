@@ -49,6 +49,7 @@ env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
 """)
 
 test.write(['repository', 'aaa.c'], r"""
+#include <stdio.h>
 void
 aaa(void)
 {
@@ -57,6 +58,7 @@ aaa(void)
 """)
 
 test.write(['repository', 'bbb.c'], r"""
+#include <stdio.h>
 void
 bbb(void)
 {
@@ -65,6 +67,8 @@ bbb(void)
 """)
 
 test.write(['repository', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -95,6 +99,8 @@ test.up_to_date(chdir = 'work1', options = opts, arguments = '.')
 
 #
 test.write(['work1', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 bbb(void)
 {
@@ -113,6 +119,8 @@ test.up_to_date(chdir = 'work1', options = opts, arguments = '.')
 
 #
 test.write(['work1', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 aaa(void)
 {
@@ -121,6 +129,8 @@ aaa(void)
 """)
 
 test.write(['work1', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -175,6 +185,8 @@ test.write(['r.OLD', 'SConstruct'], SConstruct)
 test.write(['r.NEW', 'SConstruct'], SConstruct)
 
 test.write(['r.OLD', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -201,6 +213,8 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
 test.writable('r.NEW', 1)
 
 test.write(['r.NEW', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -220,6 +234,8 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
 
 #
 test.write(['work2', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -240,6 +256,8 @@ test.writable('r.OLD', 1)
 test.writable('r.NEW', 1)
 
 test.write(['r.OLD', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -250,6 +268,8 @@ main(int argc, char *argv[])
 """)
 
 test.write(['r.NEW', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

@@ -28,6 +28,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Create a moc file from a header file.
 """
 
+import os
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -37,6 +39,10 @@ env = Environment()
 """)
 
 test.Qt_dummy_installation()
+
+# We'll run some test programs later that need to find our dummy
+# Qt library.
+os.environ['LD_LIBRARY_PATH'] = test.QT_LIB_DIR
 
 ##############################################################################
 

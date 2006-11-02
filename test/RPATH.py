@@ -45,6 +45,7 @@ Program('foo', 'foo.c', LIBS='bar', LIBPATH='bar', RPATH='bar')
 """)
 
 test.write('foo.c', """\
+#include <stdlib.h>
 int main() {
     void bar();
     bar();

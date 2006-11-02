@@ -28,7 +28,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -43,19 +43,19 @@ for arg in sys.argv[2:]:
 file.close()
 """)
 
+SUBDIR_f3_out = os.path.join('$SUBDIR', 'f3.out')
+SUBDIR_f3b_in = os.path.join('$SUBDIR', 'f3b.in')
+
 test.write('SConstruct', """\
-Foo = Builder(action = r"%s build.py $TARGET $SOURCES")
-Bar = Builder(action = r"%s build.py $TARGET $SOURCES")
+Foo = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
+Bar = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
 env.Foo(target = 'f1.out', source = ['f1a.in', 'f1b.in'])
 Ignore(target = 'f1.out', dependency = 'f1b.in')
 SConscript('subdir/SConscript', "env")
 env.Foo(target = 'subdir/f3.out', source = ['subdir/f3a.in', 'subdir/f3b.in'])
-env.Ignore(target = r'%s', dependency = r'%s')
-""" % (python,
-       python,
-       os.path.join('$SUBDIR', 'f3.out'),
-       os.path.join('$SUBDIR', 'f3b.in')))
+env.Ignore(target = r'%(SUBDIR_f3_out)s', dependency = r'%(SUBDIR_f3b_in)s')
+""" % locals())
 
 test.write(['subdir', 'SConscript'], """
 Import("env")

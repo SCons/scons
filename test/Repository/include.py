@@ -56,6 +56,8 @@ test.write(['repository', 'bar.h'], r"""
 """)
 
 test.write(['repository', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <foo.h>
 int
 main(int argc, char *argv[])
@@ -100,6 +102,8 @@ test.up_to_date(chdir = 'work', arguments = '.')
 
 #
 test.write(['work', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <foo.h>
 int
 main(int argc, char *argv[])

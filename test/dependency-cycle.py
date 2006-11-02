@@ -40,6 +40,7 @@ env.Depends(foo3, foo1)
 """)
 
 test.write('f1.c', r"""
+#include <stdio.h>
 void
 f1(void)
 {

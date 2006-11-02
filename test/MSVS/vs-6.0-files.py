@@ -184,7 +184,7 @@ Package=<3>
 
 
 SConscript_contents = """\
-env=Environment(MSVS_VERSION = '6.0')
+env=Environment(tools=['msvs'], MSVS_VERSION = '6.0')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']
@@ -278,7 +278,7 @@ The real workspace file is here:
 test.subdir('work3')
 
 test.write(['work3', 'SConstruct'], """\
-env=Environment(MSVS_VERSION = '6.0')
+env=Environment(tools=['msvs'], MSVS_VERSION = '6.0')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']

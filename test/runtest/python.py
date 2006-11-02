@@ -28,35 +28,40 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that the -P option lets us specify a Python version to use.
 """
 
+import os.path
+import re
+import sys
+
+if not hasattr(os.path, 'pardir'):
+    os.path.pardir = '..'
+
 import TestRuntest
 
 test = TestRuntest.TestRuntest()
 
-mypython_py = test.workpath('mypython.py')
-mypython_out = test.workpath('mypython.out')
+test_pass_py = os.path.join('test', 'pass.py')
+
+head, python = os.path.split(TestRuntest.python)
+head, dir = os.path.split(head)
+
+mypython = os.path.join(head, dir, os.path.pardir, dir, python)
+
+if re.search('\s', mypython):
+    _mypython_ = '"' + mypython + '"'
+else:
+    _mypython_ = mypython
 
 test.subdir('test')
 
 test.write_passing_test(['test', 'pass.py'])
 
-test.write(mypython_py, """\
-#!/usr/bin/env python
-import os
-import sys
-import string
-open(r'%s', 'a').write(string.join(sys.argv) + '\\n')
-os.system(string.join([sys.executable] + sys.argv[1:]))
-""" % mypython_out)
-
-test.chmod(mypython_py, 0755)
-
 # NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
 # have spaces at the end.
 
-expect = r"""qmtest.py run --output results.qmr --format none --result-stream=scons_tdb.AegisChangeStream --context python=%(mypython_py)s test
+expect = r"""qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" --context python="%(mypython)s" test
 --- TEST RESULTS -------------------------------------------------------------
 
-  test/pass.py                                  : PASS    
+  %(test_pass_py)s                                  : PASS    
 
 --- TESTS THAT DID NOT PASS --------------------------------------------------
 
@@ -70,11 +75,6 @@ expect = r"""qmtest.py run --output results.qmr --format none --result-stream=sc
        1 (100%%) tests PASS
 """ % locals()
 
-test.run(arguments = '--qmtest -P %s test' % mypython_py,
-         stdout = expect)
-
-test.must_match(mypython_out, """\
-%s ./test/pass.py
-""" % mypython_py)
+test.run(arguments = '-P %s test' % _mypython_, stdout = expect)
 
 test.pass_test()

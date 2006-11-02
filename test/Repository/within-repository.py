@@ -53,6 +53,8 @@ env.Program(target = 'foo', source = ['aaa.c', 'bbb.c', 'foo.c'])
 """ % workpath_repository)
 
 test.write(['repository', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 aaa(void)
 {
@@ -61,6 +63,8 @@ aaa(void)
 """)
 
 test.write(['repository', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 bbb(void)
 {
@@ -69,6 +73,8 @@ bbb(void)
 """)
 
 test.write(['repository', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -88,6 +94,8 @@ env.Program(target = 'bar', source = ['aaa.c', 'bbb.c', 'bar.c'])
 """)
 
 test.write(['repository', 'src', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 aaa(void)
 {
@@ -96,6 +104,8 @@ aaa(void)
 """)
 
 test.write(['repository', 'src', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 bbb(void)
 {
@@ -104,6 +114,8 @@ bbb(void)
 """)
 
 test.write(['repository', 'src', 'bar.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int

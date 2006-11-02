@@ -588,29 +588,29 @@ def _create_path(plist):
             path = path + '/' + d
     return path
 
+def version_string(label, module):
+    fmt = "\t%s: v%s.%s, %s, by %s on %s\n"
+    return fmt % (label,
+                  module.__version__,
+                  module.__build__,
+                  module.__date__,
+                  module.__developer__,
+                  module.__buildsys__)
 
 class OptParser(OptionParser):
     def __init__(self):
         import __main__
-        import SCons
+
         parts = ["SCons by Steven Knight et al.:\n"]
         try:
-            parts.append("\tscript: v%s.%s, %s, by %s on %s\n" % (__main__.__version__,
-                                                                  __main__.__build__,
-                                                                  __main__.__date__,
-                                                                  __main__.__developer__,
-                                                                  __main__.__buildsys__))
+            parts.append(version_string("script", __main__))
         except KeyboardInterrupt:
             raise
         except:
             # On Windows there is no scons.py, so there is no
             # __main__.__version__, hence there is no script version.
             pass 
-        parts.append("\tengine: v%s.%s, %s, by %s on %s\n" % (SCons.__version__,
-                                                              SCons.__build__,
-                                                              SCons.__date__,
-                                                              SCons.__developer__,
-                                                              SCons.__buildsys__))
+        parts.append(version_string("engine", SCons))
         parts.append("__COPYRIGHT__")
         OptionParser.__init__(self, version=string.join(parts, ''),
                               usage="usage: scons [OPTION] [TARGET] ...")
@@ -629,6 +629,10 @@ class OptParser(OptionParser):
         self.add_option('-C', '--directory', type="string", action = "append",
                         metavar="DIR",
                         help="Change to DIR before doing anything.")
+
+        self.add_option('--cache-debug', action="store",
+                        dest="cache_debug", metavar="FILE",
+                        help="Print CacheDir debug info to FILE.")
 
         self.add_option('--cache-disable', '--no-cache',
                         action="store_true", dest='cache_disable', default=0,
@@ -1048,6 +1052,9 @@ def _main(args, parser):
         display.set_mode(0)
     if options.silent:
         SCons.Action.print_actions = None
+
+    if options.cache_debug:
+        fs.CacheDebugEnable(options.cache_debug)
     if options.cache_disable:
         def disable(self): pass
         fs.CacheDir = disable
@@ -1291,8 +1298,21 @@ def _exec_main():
         import pdb
         pdb.Pdb().runcall(_main, args, parser)
     elif options.profile_file:
-        import profile
-        prof = profile.Profile()
+        from profile import Profile
+
+        # Some versions of Python 2.4 shipped a profiler that had the
+        # wrong 'c_exception' entry in its dispatch table.  Make sure
+        # we have the right one.  (This may put an unnecessary entry
+        # in the table in earlier versions of Python, but its presence
+        # shouldn't hurt anything).
+        try:
+            dispatch = Profile.dispatch
+        except AttributeError:
+            pass
+        else:
+            dispatch['c_exception'] = Profile.trace_dispatch_return
+
+        prof = Profile()
         try:
             prof.runcall(_main, args, parser)
         except SystemExit:

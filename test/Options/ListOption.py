@@ -35,13 +35,16 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+SConstruct_path = test.workpath('SConstruct')
+
 def check(expect):
     result = string.split(test.stdout(), '\n')
-    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
+    r = result[1:len(expect)+1]
+    assert r == expect, (r, expect)
 
 
 
-test.write('SConstruct', """
+test.write(SConstruct_path, """\
 from SCons.Options import ListOption
 
 list_of_libs = Split('x11 gl qt ical')
@@ -70,56 +73,69 @@ Default(env.Alias('dummy', None))
 
 test.run()
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11'])
+
 test.run(arguments='shared=none')
 check(['none', '0', '', ''])
+
 test.run(arguments='shared=')
 check(['none', '0', '', ''])
+
 test.run(arguments='shared=x11,ical')
 check(['ical,x11', '1', 'ical x11', 'ical x11'])
+
 test.run(arguments='shared=x11,,ical,,')
 check(['ical,x11', '1', 'ical x11', 'ical x11'])
+
 test.run(arguments='shared=GL')
 check(['gl', '0', 'gl', 'gl'])
+
 test.run(arguments='shared=QT,GL')
 check(['gl,qt', '0', 'gl qt', 'gl qt'])
 
 
-test.run(arguments='shared=foo',
-         stderr = """
+expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 15, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
+
+test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 
 # be paranoid in testing some more combinations
 
-test.run(arguments='shared=foo,ical',
-         stderr = """
+expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 15, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
 
-test.run(arguments='shared=ical,foo',
-         stderr = """
+test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
+
+expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 15, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
 
-test.run(arguments='shared=ical,foo,x11',
-         stderr = """
+test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
+
+expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 15, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
 
-test.run(arguments='shared=foo,x11,,,bar',
-         stderr = """
+test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
+
+expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo,bar
-File "SConstruct", line 15, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
+
+test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
+
+
 
 test.write('SConstruct', """
 from SCons.Options import ListOption

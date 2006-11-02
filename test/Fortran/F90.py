@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -89,10 +89,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  F90 = r'%s myfortran.py f90',
-                  FORTRAN = r'%s myfortran.py fortran')
+                  F90 = r'%(_python_)s myfortran.py f90',
+                  FORTRAN = r'%(_python_)s myfortran.py fortran')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
 env.Program(target = 'test03', source = 'test03.for')
@@ -107,7 +107,7 @@ env.Program(target = 'test11', source = 'test11.f90')
 env.Program(target = 'test12', source = 'test12.F90')
 env.Program(target = 'test13', source = 'test13.f95')
 env.Program(target = 'test14', source = 'test14.F95')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
 test.write('test02.F',   "This is a .F file.\n#link\n#fortran\n")
@@ -157,12 +157,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %s)
+foo = Environment(LIBS = %(FTN_LIB)s)
 f90 = foo.Dictionary('F90')
-bar = foo.Copy(F90 = r'%s wrapper.py ' + f90)
+bar = foo.Copy(F90 = r'%(_python_)s wrapper.py ' + f90)
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
-""" % (FTN_LIB, python))
+""" % locals())
 
     test.write('foo.f', r"""
       PROGRAM FOO

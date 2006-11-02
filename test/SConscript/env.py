@@ -25,48 +25,66 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test how we handle symlinks in end-cases.
+Test calling SConscript through a construction environment.
 """
-
-import os
-import string
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if not hasattr(os, 'symlink'):
-    print "No os.symlink() method, no symlinks to test."
-    test.no_result(1)
+test.subdir('sub1', 'sub2')
 
-foo_obj = 'foo' + TestSCons._obj
-
-test.write('SConstruct', """
-Program('foo.c')
+test.write("SConstruct", """\
+env = Environment(SUB1='sub1', SUB2='sub2')
+print "SConstruct"
+x = 'xxx'
+y = 'yyy'
+env.Export(["x", "y"])
+env.SConscript('$SUB1/SConscript')
+env.SConscript(dirs=['$SUB2'])
+SConscript(['s1', 's2'])
+env.SConscript(['s3', 's4'])
 """)
 
-test.write('foo.c', """\
-#include "foo.h"
+test.write(['sub1', 'SConscript'], """\
+env = Environment()
+env.Import("x")
+print "sub1/SConscript"
+print "x =", x
 """)
 
-test.symlink('nonexistent', 'foo.h')
+test.write(['sub2', 'SConscript'], """\
+env = Environment()
+env.Import("y")
+print "sub2/SConscript"
+print "y =", y
+""")
+
+test.write('s1', "\n")
+test.write('s2', "\n")
+test.write('s3', "\n")
+test.write('s4', "\n")
 
 expect = """\
-scons: *** Source `foo.h' not found, needed by target `%s'.  Stop.
-"""% foo_obj
+SConstruct
+sub1/SConscript
+x = xxx
+sub2/SConscript
+y = yyy
+"""
 
-test.run(arguments = '.',
-         status = 2,
-         stderr = expect)
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = expect,
+                                   build_str = "scons: `.' is up to date.\n"))
 
-test.write('SConstruct', """
-Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
+test.write("SConstruct", """\
+def builder(target, source, env):
+    import SCons.Script.SConscript
+    assert SCons.Script.SConscript.sconscript_reading == 0
+env = Environment(BUILDERS={'builder':Builder(action=builder)})
+env.builder('test',[])
+import SCons.Script.SConscript
+assert SCons.Script.SConscript.sconscript_reading == 1
 """)
-
-test.symlink('nonexistent', 'file.in')
-
-test.run(arguments = '.',
-         status = 2,
-         stderr = "scons: *** Source `file.in' not found, needed by target `file.out'.  Stop.\n")
 
 test.pass_test()

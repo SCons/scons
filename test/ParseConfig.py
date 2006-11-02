@@ -30,7 +30,7 @@ import sys
 import TestCmd
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -57,8 +57,8 @@ print "-L foo -L lib_dir -isysroot /tmp -arch ppc -arch i386"
 
 test.write('SConstruct', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
-env.ParseConfig([r"%(python)s", r"%(test_config1)s", "--libs --cflags"])
-env.ParseConfig([r"%(python)s", r"%(test_config2)s", "--libs --cflags"])
+env.ParseConfig([r'%(_python_)s', r"%(test_config1)s", "--libs --cflags"])
+env.ParseConfig([r'%(_python_)s', r"%(test_config2)s", "--libs --cflags"])
 print env['CPPPATH']
 print env['LIBPATH']
 print map(lambda x: str(x), env['LIBS'])
@@ -67,7 +67,7 @@ print env['CCFLAGS']
 
 test.write('SConstruct2', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
-                  PYTHON = '%(python)s')
+                  PYTHON = '%(_python_)s')
 env.ParseConfig(r"$PYTHON %(test_config1)s --libs --cflags")
 env.ParseConfig(r"$PYTHON %(test_config2)s --libs --cflags")
 print env['CPPPATH']
@@ -78,7 +78,7 @@ print env['CCFLAGS']
 
 test.write('SConstruct3', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
-                  PYTHON = '%(python)s')
+                  PYTHON = '%(_python_)s')
 env.ParseConfig(r"$PYTHON %(test_config3)s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']

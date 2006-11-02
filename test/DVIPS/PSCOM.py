@@ -30,7 +30,7 @@ Test the ability to configure the $PSCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,9 +48,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'dvips'],
-                  PSCOM = r'%s myps.py $TARGET $SOURCES')
+                  PSCOM = r'%(_python_)s myps.py $TARGET $SOURCES')
 env.PostScript(target = 'aaa', source = 'aaa.dvi')
-""" % python)
+""" % locals())
 
 test.write('aaa.dvi', "aaa.dvi\n/*ps*/\n")
 

@@ -32,7 +32,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -65,7 +65,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'RCS'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  RCS_COCOM='%(python)s my-rcs-co.py $TARGET',
+                  RCS_COCOM='%(_python_)s my-rcs-co.py $TARGET',
                   RCS_COCOMSTR='Checking out $TARGET from our fake RCS')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')

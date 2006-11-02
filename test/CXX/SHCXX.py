@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -44,10 +44,10 @@ os.system(string.join(sys.argv[1:], " "))
 test.write('SConstruct', """
 foo = Environment()
 shcxx = foo.Dictionary('SHCXX')
-bar = Environment(SHCXX = r'%s wrapper.py ' + shcxx)
+bar = Environment(SHCXX = r'%(_python_)s wrapper.py ' + shcxx)
 foo.SharedObject(target = 'foo/foo', source = 'foo.cpp')
 bar.SharedObject(target = 'bar/bar', source = 'bar.cpp')
-""" % python)
+""" % locals())
 
 test.write('foo.cpp', r"""
 #include <stdio.h>

@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 _obj   = TestSCons._obj
 _shobj = TestSCons._shobj
@@ -102,14 +102,14 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(CPPFLAGS = '-x',
-                  LINK = r'%s mylink.py',
+                  LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  CC = r'%s mygcc.py cc',
-                  CXX = r'%s mygcc.py c++',
+                  CC = r'%(_python_)s mygcc.py cc',
+                  CXX = r'%(_python_)s mygcc.py c++',
                   CXXFLAGS = [],
-                  FORTRAN = r'%s mygcc.py g77')
+                  FORTRAN = r'%(_python_)s mygcc.py g77')
 env.Program(target = 'foo', source = Split('test1.c test2.cpp test3.F'))
-""" % (python, python, python, python))
+""" % locals())
 
 test.write('test1.c', r"""test1.c
 #cc
@@ -139,15 +139,15 @@ else:
 
 test.write('SConstruct', """
 env = Environment(CPPFLAGS = '-x',
-                  SHLINK = r'%s mylink.py',
+                  SHLINK = r'%(_python_)s mylink.py',
                   SHLINKFLAGS = [],
-                  CC = r'%s mygcc.py cc',
-                  CXX = r'%s mygcc.py c++',
+                  CC = r'%(_python_)s mygcc.py cc',
+                  CXX = r'%(_python_)s mygcc.py c++',
                   CXXFLAGS = [],
-                  FORTRAN = r'%s mygcc.py g77')
+                  FORTRAN = r'%(_python_)s mygcc.py g77')
 env.SharedLibrary(target = File('foo.bar'),
                   source = Split('test1.c test2.cpp test3.F'))
-""" % (python, python, python, python))
+""" % locals())
 
 test.write('test1.c', r"""test1.c
 #cc

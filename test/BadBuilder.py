@@ -34,6 +34,8 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+SConstruct_path = test.workpath('SConstruct')
+
 sconstruct = """
 def buildop(env, source, target):
     outf = open(str(target[0]), 'wb')
@@ -58,42 +60,42 @@ built
 
 ### Gross mistake in Builder spec
 
-test.write('SConstruct', sconstruct % '\
+test.write(SConstruct_path, sconstruct % '\
 b2 = Builder(act__ion=buildop, src_suffix=".b", suffix=".c")')
 
-test.run(arguments='.',
-         stderr="""\
+expect_stderr = """\
 
 scons: *** Builder b2 must have an action to build ['foo.c'].
-File "SConstruct", line 14, in ?
-""",
-status = 2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
+
+test.run(arguments='.', stderr=expect_stderr, status = 2)
 
 ### Subtle mistake in Builder spec
 
-test.write('SConstruct', sconstruct % '\
+test.write(SConstruct_path, sconstruct % '\
 b2 = Builder(actoin=buildop, src_suffix=".b", suffix=".c")')
 
-test.run(arguments='test2',
-         stderr="""\
+expect_stderr="""\
 
 scons: *** Builder b2 must have an action to build ['foo.c'].
-File "SConstruct", line 14, in ?
-""",
-status = 2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
+
+test.run(arguments='test2', stderr=expect_stderr, status=2)
 
 ### Missing action in Builder spec
 
-test.write('SConstruct', sconstruct % '\
+test.write(SConstruct_path, sconstruct % '\
 b2 = Builder(src_suffix=".b", suffix=".c")')
 
-test.run(arguments='test2',
-         stderr="""\
+expect_stderr = """\
 
 scons: *** Builder b2 must have an action to build ['foo.c'].
-File "SConstruct", line 14, in ?
-""",
-status = 2)
+File "%(SConstruct_path)s", line 14, in ?
+""" % locals()
+
+test.run(arguments='test2', stderr=expect_stderr, status = 2)
 
 
 test.pass_test()

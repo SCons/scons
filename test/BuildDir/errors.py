@@ -155,17 +155,22 @@ f.close()
 # build directory results in an error message, rather
 # than just silently failing.
 test.subdir('duplicate', ['duplicate', 'src1'], ['duplicate', 'src2'])
-test.write(['duplicate', 'SConstruct'], """\
+
+duplicate_SConstruct_path = test.workpath('duplicate', 'SConstruct')
+
+test.write(duplicate_SConstruct_path, """\
 BuildDir('build', 'src1')
 BuildDir('build', 'src2')
 """)
 
+expect_stderr = """
+scons: *** 'build' already has a source directory: 'src1'.
+File "%(duplicate_SConstruct_path)s", line 2, in ?
+""" % locals()
+
 test.run(chdir = 'duplicate',
          arguments = ".",
          status = 2,
-         stderr = """
-scons: *** 'build' already has a source directory: 'src1'.
-File "SConstruct", line 2, in ?
-""")
+         stderr = expect_stderr)
 
 test.pass_test()

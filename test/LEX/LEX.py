@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -49,10 +49,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%s mylex.py', tools=['default', 'lex'])
+env = Environment(LEX = r'%(_python_)s mylex.py', tools=['default', 'lex'])
 env.Program(target = 'aaa', source = 'aaa.l')
 env.Program(target = 'bbb', source = 'bbb.lex')
-""" % python)
+""" % locals())
 
 test.write('aaa.l', r"""
 int
@@ -97,10 +97,10 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment()
 lex = foo.Dictionary('LEX')
-bar = Environment(LEX = r'%s wrapper.py ' + lex)
+bar = Environment(LEX = r'%(_python_)s wrapper.py ' + lex)
 foo.Program(target = 'foo', source = 'foo.l')
 bar.Program(target = 'bar', source = 'bar.l')
-""" % python)
+""" % locals())
 
     lex = r"""
 %%%%

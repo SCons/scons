@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -84,10 +84,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  FORTRANCOM = r'%s myfortran.py fortran $TARGET $SOURCES',
-                  FORTRANPPCOM = r'%s myfortran.py fortranpp $TARGET $SOURCES')
+                  FORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
+                  FORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
 env.Program(target = 'test03', source = 'test03.for')
@@ -102,7 +102,7 @@ env.Program(target = 'test11', source = 'test11.f90')
 env.Program(target = 'test12', source = 'test12.F90')
 env.Program(target = 'test13', source = 'test13.f95')
 env.Program(target = 'test14', source = 'test14.F95')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
 test.write('test02.F',   "This is a .F file.\n#link\n#fortranpp\n")

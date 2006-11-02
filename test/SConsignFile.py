@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import os.path
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -45,13 +45,13 @@ file.close()
 #
 test.write(['work1', 'SConstruct'], """
 SConsignFile()
-B = Builder(action = "%s ../build.py $TARGETS $SOURCES")
+B = Builder(action = '%(_python_)s ../build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')
 env.B(target = 'subdir/f4.out', source = 'subdir/f4.in')
-""" % python)
+""" % locals())
 
 test.write(['work1', 'f1.in'], "work1/f1.in\n")
 test.write(['work1', 'f2.in'], "work1/f2.in\n")
@@ -79,13 +79,13 @@ test.must_not_exist(test.workpath('work1', 'subdir', '.sconsign'))
 test.write(['work2', 'SConstruct'], """
 e = Environment(XXX = 'scons')
 e.SConsignFile('my_${XXX}ign')
-B = Builder(action = "%s ../build.py $TARGETS $SOURCES")
+B = Builder(action = '%(_python_)s ../build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f5.out', source = 'f5.in')
 env.B(target = 'f6.out', source = 'f6.in')
 env.B(target = 'subdir/f7.out', source = 'subdir/f7.in')
 env.B(target = 'subdir/f8.out', source = 'subdir/f8.in')
-""" % python)
+""" % locals())
 
 test.write(['work2', 'f5.in'], "work2/f5.in\n")
 test.write(['work2', 'f6.in'], "work2/f6.in\n")

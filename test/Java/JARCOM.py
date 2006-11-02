@@ -30,7 +30,7 @@ Test the ability to configure the $JARCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,7 +48,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'jar'],
-                  JARCOM = r'%(python)s myjar.py $TARGET $SOURCES')
+                  JARCOM = r'%(_python_)s myjar.py $TARGET $SOURCES')
 env.Jar(target = 'test1', source = ['file1.in', 'file2.in', 'file3.in'])
 """ % locals())
 

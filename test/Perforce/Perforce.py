@@ -32,7 +32,6 @@ on port 1666, as well as that of course a client must be present.
 """
 
 import os
-import socket
 import string
 
 import TestSCons
@@ -41,11 +40,13 @@ class TestPerforce(TestSCons.TestSCons):
     def __init__(self, *args, **kw):
         apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
 
-        self._p4prog = self.where_is('p4')
-        if not self._p4prog:
+        self.p4path = self.where_is('p4')
+        if not self.p4path:
             self.skip_test("Could not find 'p4'; skipping test(s).\n")
 
-        self.host = socket.gethostname()
+        #import socket
+        #self.host = socket.gethostname()
+        self.host = '127.0.0.1'
 
         self.user = os.environ.get('USER')
         if not self.user:
@@ -98,7 +99,7 @@ class TestPerforce(TestSCons.TestSCons):
             arguments = args[0]
             args = args[1:]
         kw['arguments'] = string.join(self.p4portflags + [arguments])
-        kw['program'] = self._p4prog
+        kw['program'] = self.p4path
         return apply(self.run, args, kw)
 
     def substitute(self, s, **kw):
@@ -144,8 +145,6 @@ clientspec = """\
 Client: %(client)s
 
 Owner:  %(user)s
-
-Host: %(host)s
 
 Description:
         Created by %(user)s.
@@ -234,7 +233,9 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+env = Environment(tools = ['default', 'Perforce'],
+                  BUILDERS={'Cat':Builder(action=cat)},
+                  P4=r'%(p4path)s',
                   P4FLAGS='%(portflag)s -c testclient2')
 env.Cat('aaa.out', 'foo/aaa.in')
 env.Cat('bbb.out', 'foo/bbb.in')

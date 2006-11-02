@@ -30,7 +30,7 @@ Test the ability to configure the $JAVAHCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,7 +48,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'javah'],
-                  JAVAHCOM = r'%(python)s myjavah.py $TARGET $SOURCES')
+                  JAVAHCOM = r'%(_python_)s myjavah.py $TARGET $SOURCES')
 env.JavaH(target = 'out', source = 'file1.class')
 env.JavaH(target = 'out', source = 'file2.class')
 env.JavaH(target = 'out', source = 'file3.class')

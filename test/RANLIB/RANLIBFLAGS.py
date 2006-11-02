@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -50,7 +50,7 @@ os.system(string.join(sys.argv[1:], " "))
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
 bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], RANLIB = '',
-                  RANLIBFLAGS = foo.subst(r'%s wrapper.py $RANLIB $RANLIBFLAGS'))
+                  RANLIBFLAGS = foo.subst(r'%(_python_)s wrapper.py $RANLIB $RANLIBFLAGS'))
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')
 
@@ -58,9 +58,12 @@ main = foo.Object('main', 'main.c')
 
 foo.Program(target = 'f', source = main)
 bar.Program(target = 'b', source = main)
-""" % python)
+""" % locals())
 
 test.write('foo.c', r"""
+#include <stdlib.h>
+#include <stdio.h>
+
 void
 library_function(void)
 {
@@ -69,6 +72,8 @@ library_function(void)
 """)
 
 test.write('bar.c', r"""
+#include <stdlib.h>
+#include <stdio.h>
 void
 library_function(void)
 {
@@ -77,6 +82,8 @@ library_function(void)
 """)
 
 test.write('main.c', r"""
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {

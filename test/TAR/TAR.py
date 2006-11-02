@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -60,12 +60,12 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools = ['tar'], TAR = r'%s mytar.py')
+env = Environment(tools = ['tar'], TAR = r'%(_python_)s mytar.py')
 env.Tar(target = 'aaa.tar', source = ['file1', 'file2'])
 env.Tar(target = 'aaa.tar', source = 'file3')
 env.Tar(target = 'bbb', source = 'sub1')
 env.Tar(target = 'bbb', source = 'file4')
-""" % python)
+""" % locals())
 
 test.write('file1', "file1\n")
 test.write('file2', "file2\n")
@@ -98,7 +98,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment()
 tar = foo.Dictionary('TAR')
-bar = Environment(TAR = r'%s wrapper.py ' + tar)
+bar = Environment(TAR = r'%(_python_)s wrapper.py ' + tar)
 f3 = Environment(TARFLAGS = '-c -z', TARSUFFIX = '.tar.gz')
 f4 = Environment(TARFLAGS = '-c -z', TARSUFFIX = '.tgz')
 f5 = Environment(TARFLAGS = '-c -z')
@@ -112,7 +112,7 @@ f4.Tar(target = 'f4', source = 'file19')
 f4.Tar(target = 'f4', source = ['file20', 'file21'])
 f5.Tar(target = 'f5.tgz', source = 'file22')
 f5.Tar(target = 'f5.tgz', source = ['file23', 'file24'])
-""" % python)
+""" % locals())
 
     for f in ['file10', 'file11', 'file12',
               'file13', 'file14', 'file15',

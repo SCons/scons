@@ -28,7 +28,7 @@ import os.path
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -50,13 +50,13 @@ sys.exit(1)
 """)
 
 test.write(['work1', 'SConstruct'], """\
-Succeed = Builder(action = r'%s ../succeed.py $TARGETS')
-Fail = Builder(action = r'%s ../fail.py $TARGETS')
+Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
+Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
 env.Fail(target = 'aaa.1', source = 'aaa.in')
 env.Succeed(target = 'aaa.out', source = 'aaa.1')
 env.Succeed(target = 'bbb.out', source = 'bbb.in')
-""" % (python, python))
+""" % locals())
 
 test.write(['work1', 'aaa.in'], "aaa.in\n")
 test.write(['work1', 'bbb.in'], "bbb.in\n")
@@ -93,14 +93,14 @@ test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n")
 
 
 test.write(['work2', 'SConstruct'], """\
-Succeed = Builder(action = r'%s ../succeed.py $TARGETS')
-Fail = Builder(action = r'%s ../fail.py $TARGETS')
+Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
+Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
 env.Fail('aaa.out', 'aaa.in')
 env.Succeed('bbb.out', 'aaa.out')
 env.Succeed('ccc.out', 'ccc.in')
 env.Succeed('ddd.out', 'ccc.in')
-""" % (python, python))
+""" % locals())
 
 test.write(['work2', 'aaa.in'], "aaa.in\n")
 test.write(['work2', 'ccc.in'], "ccc.in\n")
@@ -113,11 +113,11 @@ test.run(chdir = 'work2',
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
-%s ../fail.py aaa.out
-%s ../succeed.py ccc.out
-%s ../succeed.py ddd.out
+%(_python_)s ../fail.py aaa.out
+%(_python_)s ../succeed.py ccc.out
+%(_python_)s ../succeed.py ddd.out
 scons: done building targets (errors occurred during build).
-""" % (python, python, python))
+""" % locals())
 
 test.must_not_exist(['work2', 'aaa.out'])
 test.must_not_exist(['work2', 'bbb.out'])

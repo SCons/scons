@@ -59,6 +59,19 @@ def checkSave(file, expected):
 
 class OptionsTestCase(unittest.TestCase):
 
+    def test_keys(self):
+        """Test the Options.keys() method"""
+        opts = SCons.Options.Options()
+
+        opts.Add('VAR1')
+        opts.Add('VAR2',
+                 'THE answer to THE question',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+        keys = opts.keys()
+        assert keys == ['VAR1', 'VAR2'], keys
+
     def test_Add(self):
         """Test adding to an Options object"""
         opts = SCons.Options.Options()

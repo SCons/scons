@@ -31,7 +31,7 @@ Testing the configuration mechanisms of the 'qt' tool.
 import TestSCons
 import os.path
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -123,8 +123,8 @@ test.run(chdir=test.workpath('qt','lib'), arguments = '.',
 
 QT = test.workpath('qt')
 QT_LIB = 'myqt'
-QT_MOC = '%s %s' % (python, test.workpath('qt','bin','mymoc.py'))
-QT_UIC = '%s %s' % (python, test.workpath('qt','bin','myuic.py'))
+QT_MOC = '%s %s' % (_python_, test.workpath('qt','bin','mymoc.py'))
+QT_UIC = '%s %s' % (_python_, test.workpath('qt','bin','myuic.py'))
 
 def createSConstruct(test,place,overrides):
     test.write(place, """

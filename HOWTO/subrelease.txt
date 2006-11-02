@@ -39,8 +39,8 @@ Things to do to release a new X.Y.Z version of SCons:
                 aecp src/setup.py
                 vi src/setup.py
 
-                aecp src/test_setup.py
-                vi src/test_setup.py
+                aecp QMTest/TestSCons.py
+                vi QMTest/TestSCons.py
 
                 # Read through and update the README files if necessary
 		[optional] aecp README

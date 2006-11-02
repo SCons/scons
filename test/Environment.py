@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import sys
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -35,7 +35,7 @@ test.write('SConstruct', """
 env=Environment(BAR='#bar.in', BLAT='subdir/../blat blat')
 target = env.Command('foo.out',
                      'foo.in',
-                     r'%s build.py $SOURCE $TARGET ${File(BAR)} ${Dir(BLAT)}')
+                     r'%(_python_)s build.py $SOURCE $TARGET ${File(BAR)} ${Dir(BLAT)}')
 
 target = target[0]
 assert target == Dir('.').File('foo.out')
@@ -45,7 +45,7 @@ assert target == target.File('foo.out')
 e2 = env.Environment(XXX='$BAR', YYY='$BLAT')
 print e2['XXX']
 print e2['YYY']
-"""%python)
+""" % locals())
 
 test.write('build.py', """
 import sys

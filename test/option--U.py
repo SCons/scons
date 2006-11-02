@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test.subdir('sub1', 'sub2', 'sub3')
 
@@ -47,7 +47,7 @@ file.close()
 test.write('SConstruct', r"""
 import SCons.Defaults
 env = Environment()
-env['BUILDERS']['B'] = Builder(action=r'%s build.py $TARGET $SOURCES', multi=1)
+env['BUILDERS']['B'] = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES', multi=1)
 Default(env.B(target = 'sub1/foo.out', source = 'sub1/foo.in'))
 Export('env')
 SConscript('sub2/SConscript')
@@ -56,7 +56,7 @@ BuildDir('sub2b', 'sub2')
 SConscript('sub2b/SConscript')
 Default(env.B(target = 'sub2/xxx.out', source = 'xxx.in'))
 SConscript('SConscript')
-""" % python)
+""" % locals())
 
 test.write(['sub2', 'SConscript'], """
 Import('env')

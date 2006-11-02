@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -59,9 +59,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac'],
-                  JAVAC = r'%s myjavac.py')
+                  JAVAC = r'%(_python_)s myjavac.py')
 env.Java(target = '.', source = '.')
-""" % (python))
+""" % locals())
 
 test.write('test1.java', """\
 test1.java
@@ -77,9 +77,9 @@ if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
     test.write('SConstruct', """\
 env = Environment(tools = ['javac'],
-                  JAVAC = r'%s myjavac.py')
+                  JAVAC = r'%(_python_)s myjavac.py')
 env.Java(target = '.', source = '.')
-""" % python)
+""" % locals())
 
     test.write('test2.JAVA', """\
 test2.JAVA
@@ -114,13 +114,13 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac'],
-                  JAVAC = r'%s')
+                  JAVAC = r'%(where_javac)s')
 javac = foo.Dictionary('JAVAC')
-bar = foo.Copy(JAVAC = r'%s wrapper.py ' + javac)
+bar = foo.Copy(JAVAC = r'%(_python_)s wrapper.py ' + javac)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar.Java(target = 'class2', source = 'com/sub/bar')
 foo.Java(target = 'class3', source = ['src1', 'src2'])
-""" % (where_javac, python))
+""" % locals())
 
 test.subdir('com',
             ['com', 'sub'],

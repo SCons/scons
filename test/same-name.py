@@ -41,6 +41,8 @@ env.Program(source = ['foo.c', 'bu/bu.c'])
 """)
 
 test.write('foo.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <bu/bu.h>
 int
 main(int argc, char *argv[])
@@ -57,6 +59,7 @@ void bu(void);
 """)
 
 test.write(['bu', 'bu.c'], r"""
+#include <stdio.h>
 void
 bu(void)
 {
