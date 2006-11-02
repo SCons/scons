@@ -29,12 +29,17 @@ Verify that we find tests under the src/ tree only if they end
 with *Tests.py.
 """
 
+import os.path
+
 import TestRuntest
 
 test = TestRuntest.TestRuntest(verbose=1)
 
 test.subdir(['src'],
             ['src', 'suite'])
+
+src_passTests_py = os.path.join('src', 'passTests.py')
+src_suite_passTests_py = os.path.join('src', 'suite', 'passTests.py')
 
 test.write_passing_test(['src', 'pass.py'])
 
@@ -44,15 +49,15 @@ test.write_passing_test(['src', 'suite', 'pass.py'])
 
 test.write_passing_test(['src', 'suite', 'passTests.py'])
 
-# NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
-# have spaces at the end.
+# NOTE:  The "test/pass.py : PASS" and "test/passTests.py : PASS" lines
+# both have spaces at the end.
 
-expect = r"""qmtest.py run --output results.qmr --format none --result-stream=scons_tdb.AegisChangeStream src
+expect = r"""qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" src
 --- TEST RESULTS -------------------------------------------------------------
 
-  src/passTests.py                              : PASS    
+  %(src_passTests_py)s                              : PASS    
 
-  src/suite/passTests.py                        : PASS    
+  %(src_suite_passTests_py)s                        : PASS    
 
 --- TESTS THAT DID NOT PASS --------------------------------------------------
 
@@ -63,9 +68,9 @@ expect = r"""qmtest.py run --output results.qmr --format none --result-stream=sc
 
        2        tests total
 
-       2 (100%) tests PASS
-"""
+       2 (100%%) tests PASS
+""" % locals()
 
-test.run(arguments = '--qmtest src', stdout = expect)
+test.run(arguments = 'src', stdout = expect)
 
 test.pass_test()

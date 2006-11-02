@@ -32,7 +32,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -65,7 +65,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'Perforce'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  P4COM='%(python)s my-p4.py $TARGET')
+                  P4COM='%(_python_)s my-p4.py $TARGET')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -92,19 +92,19 @@ test.write(['Perforce', 'sub', 'fff.in'], "Perforce/sub/fff.in\n")
 
 test.run(arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-%(python)s my-p4.py %(sub_SConscript)s
+%(_python_)s my-p4.py %(sub_SConscript)s
 """ % locals(),
                                    build_str = """\
-%(python)s my-p4.py aaa.in
+%(_python_)s my-p4.py aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
-%(python)s my-p4.py ccc.in
+%(_python_)s my-p4.py ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-%(python)s my-p4.py %(sub_ddd_in)s
+%(_python_)s my-p4.py %(sub_ddd_in)s
 cat(["%(sub_ddd_out)s"], ["%(sub_ddd_in)s"])
 cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
-%(python)s my-p4.py %(sub_fff_in)s
+%(_python_)s my-p4.py %(sub_fff_in)s
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
 """ % locals()))

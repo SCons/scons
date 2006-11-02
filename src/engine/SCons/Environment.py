@@ -84,7 +84,11 @@ def installFunc(target, source, env):
     return install(target[0].path, source[0].path, env)
 
 def installString(target, source, env):
-    return env.subst_target_source(env['INSTALLSTR'], 0, target, source)
+    s = env.get('INSTALLSTR', '')
+    if callable(s):
+        return s(target[0].path, source[0].path, env)
+    else:
+        return env.subst_target_source(s, 0, target, source)
 
 installAction = SCons.Action.Action(installFunc, installString)
 
@@ -742,8 +746,19 @@ class Base(SubstitutionEnvironment):
         # environment before calling the tools, because they may use
         # some of them during initialization.
         apply(self.Replace, (), kw)
+        keys = kw.keys()
         if options:
+            keys = keys + options.keys()
             options.Update(self)
+
+        save = {}
+        for k in keys:
+            try:
+                save[k] = self._dict[k]
+            except KeyError:
+                # No value may have been set if they tried to pass in a
+                # reserved variable name like TARGETS.
+                pass
 
         if tools is None:
             tools = self._dict.get('TOOLS', None)
@@ -751,12 +766,11 @@ class Base(SubstitutionEnvironment):
                 tools = ['default']
         apply_tools(self, tools, toolpath)
 
-        # Now re-apply the passed-in variables and customizable options
+        # Now restore the passed-in variables and customized options
         # to the environment, since the values the user set explicitly
         # should override any values set by the tools.
-        apply(self.Replace, (), kw)
-        if options:
-            options.Update(self)
+        for key, val in save.items():
+            self._dict[key] = val
 
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
@@ -895,19 +909,19 @@ class Base(SubstitutionEnvironment):
                 self._dict[key] = val
             else:
                 try:
-                    # Most straightforward:  just try to add them
-                    # together.  This will work in most cases, when the
-                    # original and new values are of compatible types.
-                    self._dict[key] = orig + val
-                except TypeError:
+                    # Check if the original looks like a dictionary.
+                    # If it is, we can't just try adding the value because
+                    # dictionaries don't have __add__() methods, and
+                    # things like UserList will incorrectly coerce the
+                    # original dict to a list (which we don't want).
+                    update_dict = orig.update
+                except AttributeError:
                     try:
-                        # Try to update a dictionary value with another.
-                        # If orig isn't a dictionary, it won't have an
-                        # update() method; if val isn't a dictionary,
-                        # it won't have a keys() method.  Either way,
-                        # it's an AttributeError.
-                        orig.update(val)
-                    except AttributeError:
+                        # Most straightforward:  just try to add them
+                        # together.  This will work in most cases, when the
+                        # original and new values are of compatible types.
+                        self._dict[key] = orig + val
+                    except (KeyError, TypeError):
                         try:
                             # Check if the original is a list.
                             add_to_orig = orig.append
@@ -925,6 +939,17 @@ class Base(SubstitutionEnvironment):
                             # value to it (if there's a value to append).
                             if val:
                                 add_to_orig(val)
+                else:
+                    # The original looks like a dictionary, so update it
+                    # based on what we think the value looks like.
+                    if SCons.Util.is_List(val):
+                        for v in val:
+                            orig[v] = None
+                    else:
+                        try:
+                            update_dict(val)
+                        except (AttributeError, TypeError, ValueError):
+                            orig[val] = None
         self.scanner_map_delete(kw)
 
     def AppendENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
@@ -952,7 +977,7 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            if not self._dict.has_key(key) or not self._dict[key]:
+            if not self._dict.has_key(key) or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
                  SCons.Util.is_Dict(val):
@@ -1134,19 +1159,19 @@ class Base(SubstitutionEnvironment):
                 self._dict[key] = val
             else:
                 try:
-                    # Most straightforward:  just try to add them
-                    # together.  This will work in most cases, when the
-                    # original and new values are of compatible types.
-                    self._dict[key] = val + orig
-                except TypeError:
+                    # Check if the original looks like a dictionary.
+                    # If it is, we can't just try adding the value because
+                    # dictionaries don't have __add__() methods, and
+                    # things like UserList will incorrectly coerce the
+                    # original dict to a list (which we don't want).
+                    update_dict = orig.update
+                except AttributeError:
                     try:
-                        # Try to update a dictionary value with another.
-                        # If orig isn't a dictionary, it won't have an
-                        # update() method; if val isn't a dictionary,
-                        # it won't have a keys() method.  Either way,
-                        # it's an AttributeError.
-                        orig.update(val)
-                    except AttributeError:
+                        # Most straightforward:  just try to add them
+                        # together.  This will work in most cases, when the
+                        # original and new values are of compatible types.
+                        self._dict[key] = val + orig
+                    except (KeyError, TypeError):
                         try:
                             # Check if the added value is a list.
                             add_to_val = val.append
@@ -1164,6 +1189,17 @@ class Base(SubstitutionEnvironment):
                             if orig:
                                 add_to_val(orig)
                             self._dict[key] = val
+                else:
+                    # The original looks like a dictionary, so update it
+                    # based on what we think the value looks like.
+                    if SCons.Util.is_List(val):
+                        for v in val:
+                            orig[v] = None
+                    else:
+                        try:
+                            update_dict(val)
+                        except (AttributeError, TypeError, ValueError):
+                            orig[val] = None
         self.scanner_map_delete(kw)
 
     def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
@@ -1191,7 +1227,7 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            if not self._dict.has_key(key) or not self._dict[key]:
+            if not self._dict.has_key(key) or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
                  SCons.Util.is_Dict(val):
@@ -1504,25 +1540,37 @@ class Base(SubstitutionEnvironment):
         try:
             dnodes = self.arg2nodes(dir, self.fs.Dir)
         except TypeError:
-            raise SCons.Errors.UserError, "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir)
+            fmt = "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?"
+            raise SCons.Errors.UserError, fmt % str(dir)
         try:
-            sources = self.arg2nodes(source, self.fs.File)
+            sources = self.arg2nodes(source, self.fs.Entry)
         except TypeError:
             if SCons.Util.is_List(source):
-                raise SCons.Errors.UserError, "Source `%s' of Install() contains one or more non-files.  Install() source must be one or more files." % repr(map(str, source))
+                s = repr(map(str, source))
             else:
-                raise SCons.Errors.UserError, "Source `%s' of Install() is not a file.  Install() source must be one or more files." % str(source)
+                s = str(source)
+            fmt = "Source `%s' of Install() is neither a file nor a directory.  Install() source must be one or more files or directories"
+            raise SCons.Errors.UserError, fmt % s
         tgt = []
         for dnode in dnodes:
             for src in sources:
-                target = self.fs.File(src.name, dnode)
+                target = self.fs.Entry(src.name, dnode)
                 tgt.extend(InstallBuilder(self, target, src))
         return tgt
 
     def InstallAs(self, target, source):
         """Install sources as targets."""
-        sources = self.arg2nodes(source, self.fs.File)
-        targets = self.arg2nodes(target, self.fs.File)
+        sources = self.arg2nodes(source, self.fs.Entry)
+        targets = self.arg2nodes(target, self.fs.Entry)
+        if len(sources) != len(targets):
+            if not SCons.Util.is_List(target):
+                target = [target]
+            if not SCons.Util.is_List(source):
+                source = [source]
+            t = repr(map(str, target))
+            s = repr(map(str, source))
+            fmt = "Target (%s) and source (%s) lists of InstallAs() must be the same length."
+            raise SCons.Errors.UserError, fmt % (t, s)
         result = []
         for src, tgt in map(lambda x, y: (x, y), sources, targets):
             result.extend(InstallBuilder(self, tgt, src))
@@ -1632,10 +1680,10 @@ class Base(SubstitutionEnvironment):
         else:
             raise SCons.Errors.UserError, "Unknown target signature type '%s'"%type
 
-    def Value(self, value):
+    def Value(self, value, built_value=None):
         """
         """
-        return SCons.Node.Python.Value(value)
+        return SCons.Node.Python.Value(value, built_value)
 
 class OverrideEnvironment(Base):
     """A proxy that overrides variables in a wrapped construction

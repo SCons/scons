@@ -33,7 +33,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -56,18 +56,27 @@ else:
     alt_asm_suffix = '.asm'
 
 test.write('SConstruct', """
-env = Environment(ASCOM = r'%(python)s myas.py $TARGET $SOURCE',
-                  OBJSUFFIX = '.obj')
+env = Environment(ASCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
+                  OBJSUFFIX = '.obj',
+                  SHOBJSUFFIX = '.shobj')
 env.Object(target = 'test1', source = 'test1.s')
 env.Object(target = 'test2', source = 'test2%(alt_s_suffix)s')
 env.Object(target = 'test3', source = 'test3.asm')
 env.Object(target = 'test4', source = 'test4%(alt_asm_suffix)s')
+env.SharedObject(target = 'test5', source = 'test5.s')
+env.SharedObject(target = 'test6', source = 'test6%(alt_s_suffix)s')
+env.SharedObject(target = 'test7', source = 'test7.asm')
+env.SharedObject(target = 'test8', source = 'test8%(alt_asm_suffix)s')
 """ % locals())
 
 test.write('test1.s', "test1.s\n#as\n")
 test.write('test2'+alt_s_suffix, "test2.S\n#as\n")
 test.write('test3.asm', "test3.asm\n#as\n")
 test.write('test4'+alt_asm_suffix, "test4.ASM\n#as\n")
+test.write('test5.s', "test5.s\n#as\n")
+test.write('test6'+alt_s_suffix, "test6.S\n#as\n")
+test.write('test7.asm', "test7.asm\n#as\n")
+test.write('test8'+alt_asm_suffix, "test8.ASM\n#as\n")
 
 test.run(arguments = '.')
 
@@ -75,6 +84,10 @@ test.fail_test(test.read('test1.obj') != "test1.s\n")
 test.fail_test(test.read('test2.obj') != "test2.S\n")
 test.fail_test(test.read('test3.obj') != "test3.asm\n")
 test.fail_test(test.read('test4.obj') != "test4.ASM\n")
+test.fail_test(test.read('test5.shobj') != "test5.s\n")
+test.fail_test(test.read('test6.shobj') != "test6.S\n")
+test.fail_test(test.read('test7.shobj') != "test7.asm\n")
+test.fail_test(test.read('test8.shobj') != "test8.ASM\n")
 
 
 

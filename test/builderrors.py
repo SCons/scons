@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -47,13 +47,13 @@ sys.exit(exitval)
 """)
 
 test.write(['one', 'SConstruct'], """
-B0 = Builder(action = r'%s ../build.py 0 $TARGET $SOURCES')
-B1 = Builder(action = r'%s ../build.py 1 $TARGET $SOURCES')
+B0 = Builder(action = r'%(_python_)s ../build.py 0 $TARGET $SOURCES')
+B1 = Builder(action = r'%(_python_)s ../build.py 1 $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B0' : B0, 'B1' : B1 })
 env.B1(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
 env.B0(target = 'f3.out', source = 'f3.in')
-""" % (python, python))
+""" % locals())
 
 test.write(['one', 'f1.in'], "one/f1.in\n")
 test.write(['one', 'f2.in'], "one/f2.in\n")
@@ -67,13 +67,13 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write(['two', 'SConstruct'], """
-B0 = Builder(action = r'%s ../build.py 0 $TARGET $SOURCES')
-B1 = Builder(action = r'%s ../build.py 1 $TARGET $SOURCES')
+B0 = Builder(action = r'%(_python_)s ../build.py 0 $TARGET $SOURCES')
+B1 = Builder(action = r'%(_python_)s ../build.py 1 $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B0': B0, 'B1' : B1 })
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B1(target = 'f2.out', source = 'f2.in')
 env.B0(target = 'f3.out', source = 'f3.in')
-""" % (python, python))
+""" % locals())
 
 test.write(['two', 'f1.in'], "two/f1.in\n")
 test.write(['two', 'f2.in'], "two/f2.in\n")
@@ -87,13 +87,13 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write(['three', 'SConstruct'], """
-B0 = Builder(action = r'%s ../build.py 0 $TARGET $SOURCES')
-B1 = Builder(action = r'%s ../build.py 1 $TARGET $SOURCES')
+B0 = Builder(action = r'%(_python_)s ../build.py 0 $TARGET $SOURCES')
+B1 = Builder(action = r'%(_python_)s ../build.py 1 $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B0' : B0, 'B1': B1 })
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
 env.B1(target = 'f3.out', source = 'f3.in')
-""" % (python, python))
+""" % locals())
 
 test.write(['three', 'f1.in'], "three/f1.in\n")
 test.write(['three', 'f2.in'], "three/f2.in\n")
@@ -120,4 +120,62 @@ err = test.stderr()
 test.fail_test(string.find(err, 'Exception') != -1 or \
                string.find(err, 'Traceback') != -1)
 
+
+# Test ETOOLONG (arg list too long).  This is not in exitvalmap,
+# but that shouldn't cause a scons traceback.
+long_cmd = 'xyz ' + "foobarxyz" * 100000
+test.write('SConstruct', """
+env=Environment()
+if env['PLATFORM'] == 'posix':
+    from SCons.Platform.posix import fork_spawn
+    env['SPAWN'] = fork_spawn
+env.Command(target='longcmd.out', source=[], action='echo %s')
+"""%long_cmd)
+
+test.run(status=2, stderr=None)
+err = test.stderr()
+test.fail_test(string.find(err, 'Exception') != -1 or \
+               string.find(err, 'Traceback') != -1)
+# Python 1.5.2 on a FC3 system doesn't even get to the exitvalmap
+# because it fails with "No such file or directory."  Just comment
+# this out for now, there are plenty of other good tests below.
+#test.fail_test(string.find(err, "too long") == -1 and # posix
+#	       string.find(err, "nvalid argument") == -1) # win32
+
+
+# Test bad shell ('./one' is a dir, so it can't be used as a shell).
+# This will also give an exit status not in exitvalmap,
+# with error "Permission denied".
+test.write('SConstruct', """
+env=Environment()
+if env['PLATFORM'] == 'posix':
+    from SCons.Platform.posix import fork_spawn
+    env['SPAWN'] = fork_spawn
+env['SHELL'] = 'one'
+env.Command(target='badshell.out', source=[], action='foo')
+""")
+
+test.run(status=2, stderr=None)
+err = test.stderr()
+test.fail_test(string.find(err, 'Exception') != -1 or \
+               string.find(err, 'Traceback') != -1)
+test.fail_test(string.find(err, "ermission") == -1 and \
+	       string.find(err, "such file") == -1)
+
+
+# Test command with exit status -1.
+# Should not give traceback.
+test.write('SConstruct', """
+import os
+env = Environment(ENV = os.environ)
+env.Command('dummy.txt', None, ['python -c "import sys; sys.exit(-1)"'])
+""")
+
+test.run(status=2, stderr=None)
+err = test.stderr()
+test.fail_test(string.find(err, 'Exception') != -1 or \
+               string.find(err, 'Traceback') != -1)
+
+
+# No tests failed; OK.
 test.pass_test()

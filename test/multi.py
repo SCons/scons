@@ -36,6 +36,7 @@ import TestSCons
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
+_python_ = TestSCons._python_
 
 #
 # A builder with "multi" set can be called multiple times and
@@ -131,11 +132,11 @@ build(sys.argv[1],sys.argv[2],sys.argv[3:])
 
 test.write('SConstruct', """
 
-B = Builder(action='%(python)s build.py $foo $TARGET $SOURCES', multi=1)
+B = Builder(action='%(_python_)s build.py $foo $TARGET $SOURCES', multi=1)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'file03.out', source = 'file03a.in', foo=1)
 env.B(target = 'file03.out', source = 'file03b.in', foo=2)
-""" % {'python':TestSCons.python})
+""" % locals())
 
 test.write('file03a.in', 'file03a.in\n')
 test.write('file03b.in', 'file03b.in\n')
@@ -162,17 +163,17 @@ build(sys.argv[1],sys.argv[2],sys.argv[3:])
 
 test.write('SConstruct', """
 
-B = Builder(action='%(python)s build.py $foo $TARGET $SOURCES', multi=1)
+B = Builder(action='%(_python_)s build.py $foo $TARGET $SOURCES', multi=1)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'file4.out', source = 'file4a.in', foo=3)
 env.B(target = 'file4.out', source = 'file4b.in', foo=3)
-""" % {'python':TestSCons.python})
+""" % locals())
 
 test.write('file4a.in', 'file4a.in\n')
 test.write('file4b.in', 'file4b.in\n')
 
 python_expr = string.replace(TestSCons.python, '\\', '\\\\')
-act = TestSCons.re_escape('%s build.py \$foo \$TARGET \$SOURCES' % python_expr)
+act = TestSCons.re_escape('"%s" build.py \$foo \$TARGET \$SOURCES' % python_expr)
 
 test.run(arguments='file4.out', 
          stderr=("""

@@ -36,7 +36,7 @@ test.subdir('test')
 
 test.write_no_result_test(['test', 'no_result.py'])
 
-expect = r"""qmtest.py run --output results.qmr --format none --result-stream=scons_tdb.AegisChangeStream test/no_result.py
+expect = r"""qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" test/no_result.py
 --- TEST RESULTS -------------------------------------------------------------
 
   test/no_result.py                             : NO_RESULT
@@ -57,6 +57,6 @@ expect = r"""qmtest.py run --output results.qmr --format none --result-stream=sc
        1 (100%) tests NO_RESULT
 """
 
-test.run(arguments = '--qmtest test/no_result.py', stdout = expect)
+test.run(arguments = 'test/no_result.py', status = 1, stdout = expect)
 
 test.pass_test()

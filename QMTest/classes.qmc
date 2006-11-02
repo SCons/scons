@@ -8,4 +8,5 @@
  <class kind="result_stream" name="scons_tdb.AegisChangeStream"/>
  <class kind="result_stream" name="scons_tdb.AegisBaselineStream"/>
  <class kind="result_stream" name="scons_tdb.AegisBatchStream"/>
+ <class kind="result_stream" name="scons_tdb.SConsXMLResultStream"/>
 </class-directory>

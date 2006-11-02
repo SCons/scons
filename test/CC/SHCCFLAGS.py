@@ -28,15 +28,12 @@ import sys
 import TestSCons
 import os
 import string
-
-if sys.platform == 'win32':
-    fooflags = '/nologo -DFOO'
-    barflags = '/nologo -DBAR'
-else:
-    fooflags = '-DFOO'
-    barflags = '-DBAR'
     
 test = TestSCons.TestSCons()
+
+e = test.Environment()
+fooflags = e['SHCCFLAGS'] + ' -DFOO'
+barflags = e['SHCCFLAGS'] + ' -DBAR'
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
@@ -79,6 +76,8 @@ EXPORTS
 """)
 
 test.write('prog.c', r"""
+#include <stdio.h>
+
 void
 doIt()
 {

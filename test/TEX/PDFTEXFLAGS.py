@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -55,9 +55,11 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(PDFTEX = r'%s mypdftex.py', PDFTEXFLAGS = '-x', tools=['pdftex'])
+env = Environment(PDFTEX = r'%(_python_)s mypdftex.py',
+                  PDFTEXFLAGS = '-x',
+                  tools=['pdftex'])
 env.PDF(target = 'test.pdf', source = 'test.tex')
-""" % python)
+""" % locals())
 
 test.write('test.tex', r"""This is a test.
 \end
@@ -85,10 +87,10 @@ import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV, PDFTEXFLAGS = '--output-comment Commentary')
 pdftex = foo.Dictionary('PDFTEX')
-bar = Environment(ENV = ENV, PDFTEX = r'%s wrapper.py ' + pdftex)
+bar = Environment(ENV = ENV, PDFTEX = r'%(_python_)s wrapper.py ' + pdftex)
 foo.PDF(target = 'foo.pdf', source = 'foo.tex')
 bar.PDF(target = 'bar', source = 'bar.tex')
-""" % python)
+""" % locals())
 
     tex = r"""
 This is the %s TeX file.

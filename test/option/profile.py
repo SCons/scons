@@ -33,7 +33,11 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "\n")
+test.write('SConstruct', """\
+Command('file.out', 'file.in', Copy("$TARGET", "$SOURCE"))
+""")
+
+test.write('file.in', "file.in\n")
 
 scons_prof = test.workpath('scons.prof')
 
@@ -63,30 +67,30 @@ test.fail_test(string.find(s, 'option_parser.py') == -1)
 
 scons_prof = test.workpath('scons2.prof')
 
-test.run(arguments = "--profile %s -h" % scons_prof)
-test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
-test.fail_test(string.find(test.stdout(), 'Options:') == -1)
+test.run(arguments = "--profile %s" % scons_prof)
 
 stats = pstats.Stats(scons_prof)
 stats.sort_stats('time')
 
-sys.stdout = StringIO.StringIO()
+try:
+    save_stdout = sys.stdout
+    sys.stdout = StringIO.StringIO()
 
-stats.strip_dirs().print_stats()
+    stats.strip_dirs().print_stats()
 
-s = sys.stdout.getvalue()
+    s = sys.stdout.getvalue()
+finally:
+    sys.stdout = save_stdout
 
 test.fail_test(string.find(s, 'Main.py') == -1)
-test.fail_test(string.find(s, 'print_help') == -1)
 test.fail_test(string.find(s, '_main') == -1)
-test.fail_test(string.find(s, 'option_parser.py') == -1)
+test.fail_test(string.find(s, 'FS.py') == -1)
 
 
 
 scons_prof = test.workpath('scons3.prof')
 
 test.run(arguments = "--profile %s --debug=memory -h" % scons_prof)
-print test.stdout()
 test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
 test.fail_test(string.find(test.stdout(), 'Options:') == -1)
 

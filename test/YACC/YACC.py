@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 if sys.platform == 'win32':
@@ -64,10 +64,10 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(YACC = r'%s myyacc.py', tools=['default', 'yacc'])
+env = Environment(YACC = r'%(_python_)s myyacc.py', tools=['default', 'yacc'])
 env.Program(target = 'aaa', source = 'aaa.y')
 env.Program(target = 'bbb', source = 'bbb.yacc')
-""" % python)
+""" % locals())
 
 test.write('aaa.y', r"""
 int
@@ -113,13 +113,13 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(YACCFLAGS='-d')
 yacc = foo.Dictionary('YACC')
-bar = Environment(YACC = r'%s wrapper.py ' + yacc)
+bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc)
 foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')
 foo.Program(target = 'hello', source = ['hello.cpp']) 
 foo.CXXFile(target = 'file.cpp', source = ['file.yy'], YACCFLAGS='-d')
 foo.CFile(target = 'not_foo', source = 'foo.y')
-""" % python)
+""" % locals())
 
     yacc = r"""
 %%{

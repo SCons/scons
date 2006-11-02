@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 if sys.platform == 'win32':
     _obj = '.obj'
@@ -63,7 +63,7 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(SHF77 = r'%s myg77.py',
+env = Environment(SHF77 = r'%(_python_)s myg77.py',
                   SHF77FLAGS = '-x')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
@@ -75,7 +75,7 @@ env.SharedObject(target = 'test07', source = 'test07.fpp')
 env.SharedObject(target = 'test08', source = 'test08.FPP')
 env.SharedObject(target = 'test09', source = 'test09.f77')
 env.SharedObject(target = 'test10', source = 'test10.F77')
-""" % (python,))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#g77\n")
 test.write('test02.F',   "This is a .F file.\n#g77\n")
@@ -117,12 +117,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %s)
+foo = Environment(LIBS = %(FTN_LIB)s)
 shf77 = foo.Dictionary('SHF77')
-bar = foo.Copy(SHF77 = r'%s wrapper.py ' + shf77, SHF77FLAGS = '-Ix')
+bar = foo.Copy(SHF77 = r'%(_python_)s wrapper.py ' + shf77, SHF77FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
-""" % (FTN_LIB, python))
+""" % locals())
 
     test.write('foo.f', r"""
       PROGRAM FOO

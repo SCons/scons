@@ -93,6 +93,7 @@ test.write('foo4.c', foo_contents)
 test.write('foo5.c', foo_contents)
 
 test.write('sl.c', """\
+#include <stdio.h>
 void
 sl(void)
 {
@@ -101,6 +102,7 @@ sl(void)
 """)
 
 test.write('slprog.c', """\
+#include <stdio.h>
 int
 main(int argc, char *argv[])
 {
@@ -223,7 +225,7 @@ Program (source='main.c', target='blender', LIBS=libraries, LIBPREFIX='lib', LIB
 """)
 
 test.write('main.c', """\
-#include <stdio.h>
+#include <stdlib.h>
 #include "message2.h"
 
 int main (void)

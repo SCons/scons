@@ -57,6 +57,8 @@ env2.Library(target = 'foo2', source = f1)
 """)
 
 test.write('f1.c', r"""
+#include <stdio.h>
+
 void
 f1(void)
 {
@@ -75,6 +77,8 @@ test()
 """)
 
 test.write('prog.c', r"""
+#include <stdio.h>
+
 void f1(void);
 int
 main(int argc, char *argv[])
@@ -102,6 +106,8 @@ test.fail_test(oldtime1 != os.path.getmtime(prog1))
 test.fail_test(oldtime2 != os.path.getmtime(prog2))
 
 test.write('f1.c', r"""
+#include <stdio.h>
+
 void
 f1(void)
 {
@@ -135,6 +141,8 @@ env2.Library(target = 'foo2', source = f1)
 test.up_to_date(arguments = '.', stderr=None)
 
 test.write('f1.c', r"""
+#include <stdio.h>
+
 void
 f1(void)
 {

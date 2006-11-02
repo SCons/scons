@@ -35,7 +35,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -53,7 +53,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['pdflatex'],
-                  PDFLATEXCOM = r'%(python)s mypdflatex.py $TARGET $SOURCE',
+                  PDFLATEXCOM = r'%(_python_)s mypdflatex.py $TARGET $SOURCE',
                   PDFLATEXCOMSTR = 'Building $TARGET from $SOURCE')
 env.PDF('test1', 'test1.latex')
 """ % locals())

@@ -115,12 +115,13 @@ test.write('bbb.in', "checked-out bbb.in\n")
 
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
+
 expect = """\
 
 scons: warning: Ignoring missing SConscript '%s'
-File "SConstruct", line 23, in ?
+File "%s", line 23, in ?
 scons: *** Source `aaa.in' not found, needed by target `aaa.out'.  Stop.
-""" % os.path.join('sub', 'SConscript')
+""" % (os.path.join('sub', 'SConscript'), test.workpath('SConstruct'))
 
 test.run(status=2, stderr=expect)
 

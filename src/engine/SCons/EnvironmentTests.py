@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import copy
 import os
 import string
 import StringIO
@@ -595,15 +596,17 @@ sys.exit(1)
 
         save_stderr = sys.stderr
 
+        python = '"' + sys.executable + '"'
+
         try:
-            cmd = '%s %s' % (sys.executable, test.workpath('stdout.py'))
+            cmd = '%s %s' % (python, test.workpath('stdout.py'))
             output = env.backtick(cmd)
 
             assert output == 'this came from stdout.py\n', output
 
             sys.stderr = StringIO.StringIO()
 
-            cmd = '%s %s' % (sys.executable, test.workpath('stderr.py'))
+            cmd = '%s %s' % (python, test.workpath('stderr.py'))
             output = env.backtick(cmd)
             errout = sys.stderr.getvalue()
 
@@ -612,7 +615,7 @@ sys.exit(1)
 
             sys.stderr = StringIO.StringIO()
 
-            cmd = '%s %s' % (sys.executable, test.workpath('fail.py'))
+            cmd = '%s %s' % (python, test.workpath('fail.py'))
             try:
                 env.backtick(cmd)
             except OSError, e:
@@ -746,6 +749,24 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
         assert not env1.has_key('__env__')
         assert not env2.has_key('__env__')
+
+    def test_options(self):
+        """Test that options only get applied once."""
+        class FakeOptions:
+            def __init__(self, key, val):
+                self.calls = 0
+                self.key = key
+                self.val = val
+            def keys(self):
+                return [self.key]
+            def Update(self, env):
+                env[self.key] = self.val
+                self.calls = self.calls + 1
+
+        o = FakeOptions('AAA', 'fake_opt')
+        env = Environment(options=o, AAA='keyword_arg')
+        assert o.calls == 1, o.calls
+        assert env['AAA'] == 'fake_opt', env['AAA']
 
     def test_get(self):
         """Test the get() method."""
@@ -1212,6 +1233,8 @@ def exists(env):
         b2 = Environment()['BUILDERS']
         assert b1 == b2, diff_dict(b1, b2)
 
+        import UserDict
+        UD = UserDict.UserDict
         import UserList
         UL = UserList.UserList
 
@@ -1242,6 +1265,18 @@ def exists(env):
             UL(['i6']), UL([]),         UL(['i6']),
             UL(['i7']), [''],           UL(['i7', '']),
             UL(['i8']), UL(['']),       UL(['i8', '']),
+
+            {'d1':1},   'D1',           {'d1':1, 'D1':None},
+            {'d2':1},   ['D2'],         {'d2':1, 'D2':None},
+            {'d3':1},   UL(['D3']),     {'d3':1, 'D3':None},
+            {'d4':1},   {'D4':1},       {'d4':1, 'D4':1},
+            {'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1}),
+
+            UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None}),
+            UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None}),
+            UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None}),
+            UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1}),
+            UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}),
 
             '',         'M1',           'M1',
             '',         ['M2'],         ['M2'],
@@ -1293,14 +1328,21 @@ def exists(env):
         failed = 0
         while cases:
             input, append, expect = cases[:3]
-            env['XXX'] = input
-            env.Append(XXX = append)
-            result = env['XXX']
-            if result != expect:
+            env['XXX'] = copy.copy(input)
+            try:
+                env.Append(XXX = append)
+            except Exception, e:
                 if failed == 0: print
-                print "    %s Append %s => %s did not match %s" % \
-                      (repr(input), repr(append), repr(result), repr(expect))
+                print "    %s Append %s exception: %s" % \
+                      (repr(input), repr(append), e)
                 failed = failed + 1
+            else:
+                result = env['XXX']
+                if result != expect:
+                    if failed == 0: print
+                    print "    %s Append %s => %s did not match %s" % \
+                          (repr(input), repr(append), repr(result), repr(expect))
+                    failed = failed + 1
             del cases[:3]
         assert failed == 0, "%d Append() cases failed" % failed
 
@@ -1398,6 +1440,33 @@ def exists(env):
         assert env['BBB5'] == ['b5', 'b5.new'], env['BBB5']
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
+
+        env['CLVar'] = CLVar([])
+        env.AppendUnique(CLVar = 'bar')
+        result = env['CLVar']
+        if sys.version[0] == '1':
+            # Python 1.5.2 has a quirky behavior where CLVar([]) actually
+            # matches '' and [] due to different __coerce__() semantics
+            # in the UserList implementation.  It isn't worth a lot of
+            # effort to get this corner case to work identically (support
+            # for Python 1.5 support will die soon anyway), so just treat
+            # it separately for now.
+            assert result == 'bar', result
+        else:
+            assert isinstance(result, CLVar), repr(result)
+            assert result == ['bar'], result
+
+        env['CLVar'] = CLVar(['abc'])
+        env.AppendUnique(CLVar = 'bar')
+        result = env['CLVar']
+        assert isinstance(result, CLVar), repr(result)
+        assert result == ['abc', 'bar'], result
+
+        env['CLVar'] = CLVar(['bar'])
+        env.AppendUnique(CLVar = 'bar')
+        result = env['CLVar']
+        assert isinstance(result, CLVar), repr(result)
+        assert result == ['bar'], result
 
     def test_Copy(self):
         """Test construction environment copying
@@ -1784,6 +1853,8 @@ f5: \
     def test_Prepend(self):
         """Test prepending to construction variables in an Environment
         """
+        import UserDict
+        UD = UserDict.UserDict
         import UserList
         UL = UserList.UserList
 
@@ -1814,6 +1885,18 @@ f5: \
             UL(['i6']), UL([]),         UL(['i6']),
             UL(['i7']), [''],           UL(['', 'i7']),
             UL(['i8']), UL(['']),       UL(['', 'i8']),
+
+            {'d1':1},   'D1',           {'d1':1, 'D1':None},
+            {'d2':1},   ['D2'],         {'d2':1, 'D2':None},
+            {'d3':1},   UL(['D3']),     {'d3':1, 'D3':None},
+            {'d4':1},   {'D4':1},       {'d4':1, 'D4':1},
+            {'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1}),
+
+            UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None}),
+            UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None}),
+            UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None}),
+            UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1}),
+            UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}),
 
             '',         'M1',           'M1',
             '',         ['M2'],         ['M2'],
@@ -1865,14 +1948,21 @@ f5: \
         failed = 0
         while cases:
             input, prepend, expect = cases[:3]
-            env['XXX'] = input
-            env.Prepend(XXX = prepend)
-            result = env['XXX']
-            if result != expect:
+            env['XXX'] = copy.copy(input)
+            try:
+                env.Prepend(XXX = prepend)
+            except Exception, e:
                 if failed == 0: print
-                print "    %s Prepend %s => %s did not match %s" % \
-                      (repr(input), repr(prepend), repr(result), repr(expect))
+                print "    %s Prepend %s exception: %s" % \
+                      (repr(input), repr(prepend), e)
                 failed = failed + 1
+            else:
+                result = env['XXX']
+                if result != expect:
+                    if failed == 0: print
+                    print "    %s Prepend %s => %s did not match %s" % \
+                          (repr(input), repr(prepend), repr(result), repr(expect))
+                    failed = failed + 1
             del cases[:3]
         assert failed == 0, "%d Prepend() cases failed" % failed
 
@@ -1964,6 +2054,33 @@ f5: \
         assert env['BBB5'] == ['b5.new', 'b5'], env['BBB5']
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
+
+        env['CLVar'] = CLVar([])
+        env.PrependUnique(CLVar = 'bar')
+        result = env['CLVar']
+        if sys.version[0] == '1':
+            # Python 1.5.2 has a quirky behavior where CLVar([]) actually
+            # matches '' and [] due to different __coerce__() semantics
+            # in the UserList implementation.  It isn't worth a lot of
+            # effort to get this corner case to work identically (support
+            # for Python 1.5 support will die soon anyway), so just treat
+            # it separately for now.
+            assert result == 'bar', result
+        else:
+            assert isinstance(result, CLVar), repr(result)
+            assert result == ['bar'], result
+
+        env['CLVar'] = CLVar(['abc'])
+        env.PrependUnique(CLVar = 'bar')
+        result = env['CLVar']
+        assert isinstance(result, CLVar), repr(result)
+        assert result == ['bar', 'abc'], result
+
+        env['CLVar'] = CLVar(['bar'])
+        env.PrependUnique(CLVar = 'bar')
+        result = env['CLVar']
+        assert isinstance(result, CLVar), repr(result)
+        assert result == ['bar'], result
 
     def test_Replace(self):
         """Test replacing construction variables in an Environment
@@ -2650,23 +2767,23 @@ def generate(env):
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 
-        exc_caught = None
-        try:
-            tgt = env.Install('export', 'export')
-        except SCons.Errors.UserError, e:
-            exc_caught = 1
-        assert exc_caught, "UserError should be thrown when Install() target is not a file."
-        match = str(e) == "Source `export' of Install() is not a file.  Install() source must be one or more files."
-        assert match, e
+        tgt = env.Install('export', 'build')
+        paths = map(str, tgt)
+        paths.sort()
+        expect = ['export/build']
+        assert paths == expect, paths
+        for tnode in tgt:
+            assert tnode.builder == InstallBuilder
 
-        exc_caught = None
-        try:
-            tgt = env.Install('export', ['export', 'build/foo1'])
-        except SCons.Errors.UserError, e:
-            exc_caught = 1
-        assert exc_caught, "UserError should be thrown when Install() target containins non-files."
-        match = str(e) == "Source `['export', 'build/foo1']' of Install() contains one or more non-files.  Install() source must be one or more files."
-        assert match, e
+        tgt = env.Install('export', ['build', 'build/foo1'])
+        paths = map(str, tgt)
+        paths.sort()
+        expect = ['export/build', 'export/foo1']
+        assert paths == expect, paths
+        for tnode in tgt:
+            assert tnode.builder == InstallBuilder
+
+        env.File('export/foo1')
 
         exc_caught = None
         try:
@@ -2674,8 +2791,8 @@ def generate(env):
         except SCons.Errors.UserError, e:
             exc_caught = 1
         assert exc_caught, "UserError should be thrown reversing the order of Install() targets."
-        match = str(e) == "Target `export/foo1' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?"
-        assert match, e
+        expect = "Target `export/foo1' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?"
+        assert str(e) == expect, e
 
     def test_InstallAs(self):
         """Test the InstallAs method"""
@@ -2955,6 +3072,9 @@ def generate(env):
 
         assert not v1 is v2
         assert v1.value == v2.value
+
+        v3 = env.Value('c', 'build-c')
+        assert v3.value == 'c', v3.value
 
 
 

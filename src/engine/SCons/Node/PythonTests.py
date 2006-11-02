@@ -45,6 +45,44 @@ class ValueTestCase(unittest.TestCase):
         assert not v1 is v2
         assert v1.value == v2.value
 
+        v3 = SCons.Node.Python.Value('c', 'cb')
+        assert v3.built_value == 'cb'
+
+    def test_build(self):
+        """Test "building" a Value Node
+        """
+        class fake_executor:
+            def __call__(self, node, exitstatfunc):
+                node.write('faked')
+
+        v1 = SCons.Node.Python.Value('b', 'built')
+        v1.executor = fake_executor()
+        v1.build()
+        assert v1.built_value == 'built', v1.built_value
+
+        v2 = SCons.Node.Python.Value('b')
+        v2.executor = fake_executor()
+        v2.build()
+        assert v2.built_value == 'faked', v2.built_value
+
+    def test_read(self):
+        """Test the Value.read() method
+        """
+        v1 = SCons.Node.Python.Value('a')
+        x = v1.read()
+        assert x == 'a', x
+
+    def test_write(self):
+        """Test the Value.write() method
+        """
+        v1 = SCons.Node.Python.Value('a')
+        assert v1.value == 'a', v1.value
+        assert not hasattr(v1, 'built_value')
+
+        v1.write('new')
+        assert v1.value == 'a', v1.value
+        assert v1.built_value == 'new', v1.built_value
+
     def test_get_csig(self):
         """Test calculating the content signature of a Value() object
         """

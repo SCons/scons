@@ -33,7 +33,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -59,7 +59,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'rmic'],
-                  RMICCOM = r'%(python)s myrmic.py $TARGET $SOURCES',
+                  RMICCOM = r'%(_python_)s myrmic.py $TARGET $SOURCES',
                   RMICCOMSTR = 'Building rmic $TARGET from $SOURCES')
 env.RMIC(target = 'out', source = 'file1.class')
 env.RMIC(target = 'out', source = 'file2.class')

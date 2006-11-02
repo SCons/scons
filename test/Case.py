@@ -40,6 +40,8 @@ Program('main', [
 """)
 
 test.write('main.c', """\
+#include <stdlib.h>
+
 void foo();
 void bar();
 int main() {

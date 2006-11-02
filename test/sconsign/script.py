@@ -91,6 +91,8 @@ env2.Program('sub2/hello.c')
 """)
 
 test.write(['work1', 'sub1', 'hello.c'], r"""\
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -101,6 +103,8 @@ main(int argc, char *argv[])
 """)
 
 test.write(['work1', 'sub2', 'hello.c'], r"""\
+#include <stdio.h>
+#include <stdlib.h>
 #include <inc1.h>
 #include <inc2.h>
 int
@@ -283,6 +287,8 @@ env2.Program('sub2/hello.c')
 """)
 
 test.write(['work2', 'sub1', 'hello.c'], r"""\
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
@@ -293,6 +299,8 @@ main(int argc, char *argv[])
 """)
 
 test.write(['work2', 'sub2', 'hello.c'], r"""\
+#include <stdio.h>
+#include <stdlib.h>
 #include <inc1.h>
 #include <inc2.h>
 int

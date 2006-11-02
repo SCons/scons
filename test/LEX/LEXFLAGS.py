@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -52,9 +52,11 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%s mylex.py', LEXFLAGS = '-x', tools=['default', 'lex'])
+env = Environment(LEX = r'%(_python_)s mylex.py',
+                  LEXFLAGS = '-x',
+                  tools=['default', 'lex'])
 env.Program(target = 'aaa', source = 'aaa.l')
-""" % python)
+""" % locals())
 
 test.write('aaa.l', r"""
 int

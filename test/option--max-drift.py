@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -43,11 +43,11 @@ file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
-""" % python)
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
@@ -59,8 +59,8 @@ test.run(arguments = 'f1.out')
 test.run(arguments = 'f1.out f2.out',
          stdout = test.wrap_stdout(
 """scons: `f1.out' is up to date.
-%s build.py f2.out f2.in
-""" % python))
+%(_python_)s build.py f2.out f2.in
+""" % locals()))
 
 atime = os.path.getatime(test.workpath('f1.in'))
 mtime = os.path.getmtime(test.workpath('f1.in'))
@@ -72,11 +72,12 @@ os.utime(test.workpath('f1.in'), (atime,mtime))
 
 test.up_to_date(options='--max-drift=0', arguments='f1.out f2.out')
 
-test.run(arguments = '--max-drift=-1 f1.out f2.out',
-         stdout = test.wrap_stdout(
-"""%s build.py f1.out f1.in
+expect = test.wrap_stdout(
+"""%(_python_)s build.py f1.out f1.in
 scons: `f2.out' is up to date.
-""" % python))
+""" % locals())
+
+test.run(arguments = '--max-drift=-1 f1.out f2.out', stdout = expect)
 
 # Test that Set/GetOption('max_drift') works:
 test.write('SConstruct', """
@@ -99,10 +100,10 @@ test.run(arguments='--max-drift=1')
 # by mucking with the file timestamps to make SCons not realize the source has changed
 test.write('SConstruct', """
 SetOption('max_drift', 0)
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
-""" % python)
+""" % locals())
 
 test.write('foo.in', 'foo.in\n')
 

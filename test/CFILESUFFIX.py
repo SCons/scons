@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -46,10 +46,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%s mylex.py', tools = ['lex'])
+env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
 env.CFile(target = 'foo', source = 'foo.l')
 env.Copy(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
-""" % python)
+""" % locals())
 
 input = r"""
 int

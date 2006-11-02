@@ -913,12 +913,14 @@ for p in [ scons ]:
     env.Command(local_targets, build_src_files, commands)
 
     scons_LICENSE = os.path.join(local, 'scons-LICENSE')
-    env.SCons_revision(scons_LICENSE, 'LICENSE-local')
-    local_targets.append(scons_LICENSE)
+    l = env.SCons_revision(scons_LICENSE, 'LICENSE-local')
+    local_targets.append(l)
+    Local(l)
 
     scons_README = os.path.join(local, 'scons-README')
-    env.SCons_revision(scons_README, 'README-local')
-    local_targets.append(scons_README)
+    l = env.SCons_revision(scons_README, 'README-local')
+    local_targets.append(l)
+    Local(l)
 
     if gzip:
         env.Command(local_tar_gz,

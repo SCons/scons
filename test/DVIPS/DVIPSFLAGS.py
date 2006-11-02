@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -79,16 +79,16 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(TEX = r'%s mytex.py',
-                  LATEX = r'%s mylatex.py',
-                  DVIPS = r'%s mydvips.py', DVIPSFLAGS = '-x',
+env = Environment(TEX = r'%(_python_)s mytex.py',
+                  LATEX = r'%(_python_)s mylatex.py',
+                  DVIPS = r'%(_python_)s mydvips.py', DVIPSFLAGS = '-x',
                   tools=['tex', 'latex', 'dvips'])
 dvi = env.DVI(target = 'test1.dvi', source = 'test1.tex')
 env.PostScript(target = 'test1.ps', source = dvi)
 env.PostScript(target = 'test2.ps', source = 'test2.tex')
 env.PostScript(target = 'test3.ps', source = 'test3.ltx')
 env.PostScript(target = 'test4.ps', source = 'test4.latex')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test1.tex', r"""This is a .dvi test.
 #tex
@@ -139,12 +139,12 @@ import os
 ENV = {'PATH' : os.environ['PATH']}
 foo = Environment(ENV = ENV, DVIPSFLAGS = '-N')
 dvips = foo.Dictionary('DVIPS')
-bar = Environment(ENV = ENV,DVIPS = r'%s wrapper.py ' + dvips)
+bar = Environment(ENV = ENV,DVIPS = r'%(_python_)s wrapper.py ' + dvips)
 foo.PostScript(target = 'foo.ps', source = 'foo.tex')
 bar.PostScript(target = 'bar1', source = 'bar1.tex')
 bar.PostScript(target = 'bar2', source = 'bar2.ltx')
 bar.PostScript(target = 'bar3', source = 'bar3.latex')
-""" % python)
+""" % locals())
 
     tex = r"""
 This is the %s TeX file.

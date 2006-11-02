@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -57,10 +57,10 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(GS = r'%s mygs.py', GSFLAGS = '-x',
+env = Environment(GS = r'%(_python_)s mygs.py', GSFLAGS = '-x',
                   tools = ['gs'])
 env.PDF(target = 'test1.pdf', source = 'test1.ps')
-""" % (python))
+""" % locals())
 
 test.write('test1.ps', """\
 This is a .ps test.

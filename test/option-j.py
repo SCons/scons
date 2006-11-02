@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 try:
     import threading
@@ -64,7 +64,7 @@ foo you
 """)
 
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%s build.py $TARGETS')
+MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1', source = 'f1.in')
 env.MyBuild(target = 'f2', source = 'f2.in')
@@ -80,7 +80,7 @@ t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'],
                 source='foo/foo.in',
                 action=copyn)
 env.Install('out', t)
-""" % python)
+""" % locals())
 
 def RunTest(args, extra):
     """extra is used to make scons rebuild the output file"""
@@ -160,7 +160,7 @@ os.environ['PYTHONPATH'] = save_pythonpath
 
 # Test SetJobs() with no -j:
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%s build.py $TARGETS')
+MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1', source = 'f1.in')
 env.MyBuild(target = 'f2', source = 'f2.in')
@@ -178,7 +178,7 @@ env.Install('out', t)
 assert GetOption('num_jobs') == 1
 SetOption('num_jobs', 2)
 assert GetOption('num_jobs') == 2
-""" % python)
+""" % locals())
 
 # This should be a parallel build because the SConscript sets jobs to 2.
 # fail if the second file was not started
@@ -188,7 +188,7 @@ test.fail_test(not (start2 < finish1))
 
 # Test SetJobs() with -j:
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%s build.py $TARGETS')
+MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1', source = 'f1.in')
 env.MyBuild(target = 'f2', source = 'f2.in')
@@ -206,7 +206,7 @@ env.Install('out', t)
 assert GetOption('num_jobs') == 1
 SetOption('num_jobs', 2)
 assert GetOption('num_jobs') == 1
-""" % python)
+""" % locals())
 
 # This should be a serial build since -j 1 overrides the call to SetJobs().
 # fail if the second file was started
@@ -230,14 +230,14 @@ sys.exit(1)
 """)
 
 test.write('SConstruct', """
-MyCopy = Builder(action = r'%s mycopy.py $TARGET $SOURCE')
-Fail = Builder(action = r'%s myfail.py $TARGETS $SOURCE')
+MyCopy = Builder(action = r'%(_python_)s mycopy.py $TARGET $SOURCE')
+Fail = Builder(action = r'%(_python_)s myfail.py $TARGETS $SOURCE')
 env = Environment(BUILDERS = { 'MyCopy' : MyCopy, 'Fail' : Fail })
 env.Fail(target = 'f3', source = 'f3.in')
 env.MyCopy(target = 'f4', source = 'f4.in')
 env.MyCopy(target = 'f5', source = 'f5.in')
 env.MyCopy(target = 'f6', source = 'f6.in')
-""" % (python, python))
+""" % locals())
 
 test.write('f3.in', "f3.in\n")
 test.write('f4.in', "f4.in\n")

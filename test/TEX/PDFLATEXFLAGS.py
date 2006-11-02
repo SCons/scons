@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -55,10 +55,12 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(PDFLATEX = r'%s mypdflatex.py', PDFLATEXFLAGS = '-x', tools=['pdflatex'])
+env = Environment(PDFLATEX = r'%(_python_)s mypdflatex.py',
+                  PDFLATEXFLAGS = '-x',
+                  tools=['pdflatex'])
 env.PDF(target = 'test1.pdf', source = 'test1.ltx')
 env.Copy(PDFLATEXFLAGS = '-t').PDF(target = 'test2.pdf', source = 'test2.latex')
-""" % python)
+""" % locals())
 
 test.write('test1.ltx', r"""This is a .ltx test.
 \end
@@ -92,10 +94,10 @@ import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV, PDFLATEXFLAGS = '--output-comment Commentary')
 pdflatex = foo.Dictionary('PDFLATEX')
-bar = Environment(ENV = ENV, PDFLATEX = r'%s wrapper.py ' + pdflatex)
+bar = Environment(ENV = ENV, PDFLATEX = r'%(_python_)s wrapper.py ' + pdflatex)
 foo.PDF(target = 'foo.pdf', source = 'foo.ltx')
 bar.PDF(target = 'bar', source = 'bar.latex')
-""" % python)
+""" % locals())
 
     latex = r"""
 \documentclass{letter}

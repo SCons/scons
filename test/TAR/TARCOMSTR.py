@@ -31,7 +31,7 @@ the displayed string when tar is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['tar'],
-                  TARCOM = r'%s mytar.py $TARGET $SOURCES',
+                  TARCOM = r'%(_python_)s mytar.py $TARGET $SOURCES',
                   TARCOMSTR = 'Taring $TARGET from $SOURCE')
 env.Tar('aaa.tar', 'aaa.in')
-""" % python)
+""" % locals())
 
 test.write('aaa.in', "aaa.in\n/*tar*/\n")
 

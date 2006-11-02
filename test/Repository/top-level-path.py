@@ -56,6 +56,8 @@ env.Program('foo', ['aaa.c', '#subdir/aaa.c', 'foo.c'])
 """)
 
 test.write(['repository', 'src', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 src_aaa(void)
 {
@@ -64,6 +66,8 @@ src_aaa(void)
 """)
 
 test.write(['repository', 'subdir', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 subdir_aaa(void)
 {
@@ -72,6 +76,8 @@ subdir_aaa(void)
 """)
 
 test.write(['repository', 'src', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void src_aaa(void);
 extern void subdir_aaa(void);
 int

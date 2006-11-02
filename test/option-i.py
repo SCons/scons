@@ -28,7 +28,7 @@ import os.path
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -46,14 +46,14 @@ sys.exit(1)
 """)
 
 test.write('SConstruct', """
-Succeed = Builder(action = r'%s succeed.py $TARGETS')
-Fail = Builder(action = r'%s fail.py $TARGETS')
+Succeed = Builder(action = r'%(_python_)s succeed.py $TARGETS')
+Fail = Builder(action = r'%(_python_)s fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
 env.Fail(target = 'aaa.1', source = 'aaa.in')
 env.Succeed(target = 'aaa.out', source = 'aaa.1')
 env.Fail(target = 'bbb.1', source = 'bbb.in')
 env.Succeed(target = 'bbb.out', source = 'bbb.1')
-""" % (python, python))
+""" % locals())
 
 test.write('aaa.in', "aaa.in\n")
 test.write('bbb.in', "bbb.in\n")

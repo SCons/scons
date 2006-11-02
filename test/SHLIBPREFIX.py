@@ -38,6 +38,7 @@ env.SharedLibrary(target = 'foo', source = 'foo.c')
 """)
 
 test.write('foo.c', r"""
+#include <stdio.h>
 void
 foo(void)
 {

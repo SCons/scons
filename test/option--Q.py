@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -41,19 +41,19 @@ file.close()
 """)
 
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%s build.py $TARGET')
+MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
-""" % python)
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
 
 test.run(arguments = '-Q f1.out f2.out', stdout = """\
-%s build.py f1.out
-%s build.py f2.out
-""" % (python, python))
+%(_python_)s build.py f1.out
+%(_python_)s build.py f2.out
+""" % locals())
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 

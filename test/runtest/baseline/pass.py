@@ -38,7 +38,7 @@ test.write_passing_test(['test', 'pass.py'])
 
 # NOTE:  The "test/pass.py   : PASS" line has spaces at the end.
 
-expect = r"""qmtest.py run --output baseline.qmr --format none --result-stream=scons_tdb.AegisBaselineStream test/pass.py
+expect = r"""qmtest.py run --output baseline.qmr --format none --result-stream="scons_tdb.AegisBaselineStream" test/pass.py
 --- TEST RESULTS -------------------------------------------------------------
 
   test/pass.py                                  : PASS    
@@ -53,6 +53,6 @@ expect = r"""qmtest.py run --output baseline.qmr --format none --result-stream=s
        1 (100%) tests unexpected PASS
 """
 
-test.run(arguments = '--qmtest -b . test/pass.py', stdout = expect)
+test.run(arguments = '-b . test/pass.py', stdout = expect)
 
 test.pass_test()

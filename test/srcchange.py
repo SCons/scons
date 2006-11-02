@@ -33,6 +33,8 @@ import os.path
 
 import TestSCons
 
+_python_ = TestSCons._python_
+
 test = TestSCons.TestSCons()
 
 test.write('getrevision', """
@@ -59,15 +61,17 @@ SubRevision = Action(subrevision)
 env=Environment()
 content_env=env.Copy()
 content_env.TargetSignatures('content')
-content_env.Command('revision.in', [], '%(python)s getrevision > $TARGET')
+content_env.Command('revision.in', [], '%(_python_)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')
 env.Precious('main.c')
 env.Command('main.c', 'revision.in', SubRevision)
 exe = env.Program('main.c')
 env.Default(exe)
-""" % {'python':TestSCons.python})
+""" % locals())
 
 test.write('main.c', """\
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdio.h>
 int
 main(int argc, char *argv[])
@@ -82,8 +86,8 @@ test.write('revnum.in', '3.2\n')
 prog = 'main' + TestSCons._exe
 
 light_build=test.wrap_stdout("""\
-%(python)s getrevision > revision.in
-""" % {'python':TestSCons.python})
+%(_python_)s getrevision > revision.in
+""" % locals())
 
 test.run(arguments='.')
 test.must_exist(prog)

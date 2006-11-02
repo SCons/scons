@@ -34,7 +34,7 @@ import shutil
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe = TestSCons._exe
 _obj = TestSCons._obj
 
@@ -51,6 +51,8 @@ for src in sys.argv[2:]:
 file.close()
 """)
 
+cache = test.workpath('cache')
+
 test.write(['src1', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
@@ -61,13 +63,13 @@ def cat(env, source, target):
         f.write(open(src, "rb").read())
     f.close()
 env = Environment(BUILDERS={'Internal':Builder(action=cat),
-                            'External':Builder(action='%s build.py $TARGET $SOURCES')})
+                            'External':Builder(action='%(_python_)s build.py $TARGET $SOURCES')})
 env.External('aaa.out', 'aaa.in')
 env.External('bbb.out', 'bbb.in')
 env.Internal('ccc.out', 'ccc.in')
 env.Internal('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-CacheDir(r'%s')
-""" % (python, test.workpath('cache')))
+CacheDir(r'%(cache)s')
+""" % locals())
 
 test.write(['src1', 'aaa.in'], "aaa.in\n")
 test.write(['src1', 'bbb.in'], "bbb.in\n")
@@ -103,14 +105,14 @@ test.run(chdir = 'src1', arguments = '-c .')
 
 # Verify that using --cache-show reports the files as being rebuilt,
 # even though we actually fetch them from the cache.  Then clean up.
-test.run(chdir = 'src1',
-         arguments = '--cache-show .',
-         stdout = test.wrap_stdout("""\
-%s build.py aaa.out aaa.in
-%s build.py bbb.out bbb.in
+expect = test.wrap_stdout("""\
+%(_python_)s build.py aaa.out aaa.in
+%(_python_)s build.py bbb.out bbb.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-""" % (python, python)))
+""" % locals())
+
+test.run(chdir = 'src1', arguments = '--cache-show .', stdout = expect)
 
 test.must_not_exist(test.workpath('src1', 'cat.out'))
 
@@ -121,14 +123,14 @@ test.run(chdir = 'src1', arguments = '-c .')
 # Verify that using --cache-show -n reports the files as being rebuilt,
 # even though we don't actually fetch them from the cache.  No need to
 # clean up.
-test.run(chdir = 'src1',
-         arguments = '--cache-show -n .',
-         stdout = test.wrap_stdout("""\
-%s build.py aaa.out aaa.in
-%s build.py bbb.out bbb.in
+expect = test.wrap_stdout("""\
+%(_python_)s build.py aaa.out aaa.in
+%(_python_)s build.py bbb.out bbb.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-""" % (python, python)))
+""" % locals())
+
+test.run(chdir = 'src1', arguments = '--cache-show -n .', stdout = expect)
 
 test.must_not_exist(test.workpath('src1', 'cat.out'))
 
@@ -158,6 +160,8 @@ CacheDir(r'%s')
 """ % (test.workpath('cache')))
 
 test.write(['src2', 'hello.c'], r"""\
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {

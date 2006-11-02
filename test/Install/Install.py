@@ -46,6 +46,8 @@ f5_txt = test.workpath('outside', 'f5.txt')
 f6_txt = test.workpath('outside', 'f6.txt')
 f6_sep = string.replace(f6_txt, os.sep, '/')
 
+_SUBDIR_f4_out = os.path.join('$SUBDIR', 'f4.out')
+
 test.write(['work', 'SConstruct'], """\
 def cat(env, source, target):
     target = str(target[0])
@@ -74,15 +76,13 @@ env3.Install(dir='export', source=t)
 
 env4 = env1.Copy(EXPORT='export', SUBDIR='sub')
 t = env4.Cat(target='sub/f4.out', source='sub/f4.in')
-env4.Install(dir='$EXPORT', source=r'%s')
+env4.Install(dir='$EXPORT', source=r'%(_SUBDIR_f4_out)s')
 
-env1.Install('.', r'%s')
-env1.Install('export', r'%s')
-env1.Install('.', r'%s')
-env1.Install('export', r'%s')
-""" % (os.path.join('$SUBDIR', 'f4.out'),
-       f5_txt, f5_txt,
-       f6_sep, f6_sep))
+env1.Install('.', r'%(f5_txt)s')
+env1.Install('export', r'%(f5_txt)s')
+env1.Install('.', r'%(f6_sep)s')
+env1.Install('export', r'%(f6_sep)s')
+""" % locals())
 
 test.write(['work', 'f1.in'], "f1.in\n")
 test.write(['work', 'f2.in'], "f2.in\n")

@@ -87,6 +87,9 @@ baz.Program(target = 'baz', source = 'baz.cpp')
 """)
 
 test.write('prog.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {

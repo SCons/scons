@@ -65,6 +65,8 @@ env.Program(target = 'foo', source = 'foo.c')
 """)
 
 test.write(['work1', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <aaa.h>
 #include <bbb.h>
 int
@@ -98,6 +100,8 @@ env.Program(target = 'foo', source = 'foo.c')
 """)
 
 test.write(['work2', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include "aaa.h"
 #include "bbb.h"
 int

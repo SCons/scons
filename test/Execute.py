@@ -30,7 +30,7 @@ Test the Execute() function for executing actions directly.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -45,25 +45,25 @@ sys.exit(exitval)
 """)
 
 test.write('SConstruct', """\
-Execute("%s my_copy.py a.in a.out")
-Execute(Action("%s my_copy.py b.in b.out"))
+Execute('%(_python_)s my_copy.py a.in a.out')
+Execute(Action('%(_python_)s my_copy.py b.in b.out'))
 env = Environment(COPY = 'my_copy.py')
-env.Execute("%s my_copy.py c.in c.out")
-env.Execute(Action("%s my_copy.py d.in d.out"))
-v = env.Execute("%s $COPY e.in e.out")
+env.Execute('%(_python_)s my_copy.py c.in c.out')
+env.Execute(Action('%(_python_)s my_copy.py d.in d.out'))
+v = env.Execute('%(_python_)s $COPY e.in e.out')
 assert v == 0, v
-v = env.Execute(Action("%s $COPY f.in f.out"))
+v = env.Execute(Action('%(_python_)s $COPY f.in f.out'))
 assert v == 0, v
-v = env.Execute("%s $COPY g.in g.out 1")
+v = env.Execute('%(_python_)s $COPY g.in g.out 1')
 assert v == 1, v
-v = env.Execute(Action("%s $COPY h.in h.out 2"))
+v = env.Execute(Action('%(_python_)s $COPY h.in h.out 2'))
 assert v == 2, v
 import shutil
 Execute(lambda target, source, env: shutil.copy('i.in', 'i.out'))
 Execute(Action(lambda target, source, env: shutil.copy('j.in', 'j.out')))
 env.Execute(lambda target, source, env: shutil.copy('k.in', 'k.out'))
 env.Execute(Action(lambda target, source, env: shutil.copy('l.in', 'l.out')))
-""" % (python, python, python, python, python, python, python, python))
+""" % locals())
 
 test.write('a.in', "a.in\n")
 test.write('b.in', "b.in\n")

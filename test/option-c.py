@@ -32,7 +32,7 @@ import os.path
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -45,7 +45,7 @@ file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo1.out', source = 'foo1.in')
 env.B(target = 'foo2.out', source = 'foo2.xxx')
@@ -67,7 +67,7 @@ if hasattr(os, 'symlink'):
 env.Command(['touch1.out', 'touch2.out'],
             [],
             [Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}')])
-""" % python)
+""" % locals())
 
 test.write('foo1.in', "foo1.in\n")
 
@@ -191,7 +191,7 @@ test.write(['subd', 'foox.in'], "foox.in\n")
 test.write('aux1.x', "aux1.x\n")
 test.write('aux2.x', "aux2.x\n")
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B }, FOO = 'foo2')
 env.B(target = 'foo1.out', source = 'foo1.in')
 env.B(target = 'foo2.out', source = 'foo2.xxx')
@@ -201,7 +201,7 @@ SConscript('subd/SConscript')
 Clean(foo2_xxx, ['aux1.x'])
 env.Clean(['${FOO}.xxx'], ['aux2.x'])
 Clean('.', ['subd'])
-""" % python)
+""" % locals())
 
 test.write(['subd', 'SConscript'], """
 Clean('.', 'foox.in')
@@ -248,12 +248,12 @@ test.must_not_exist(test.workpath('subdir'))
 
 # Ensure that Set/GetOption('clean') works correctly:
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 
 assert not GetOption('clean')
-"""%python)
+""" % locals())
 
 test.write('foo.in', '"Foo", I say!\n')
 
@@ -261,36 +261,36 @@ test.run(arguments='foo.out')
 test.must_match(test.workpath('foo.out'), '"Foo", I say!\n')
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 
 assert GetOption('clean')
 SetOption('clean', 0)
 assert GetOption('clean')
-"""%python)
+""" % locals())
 
 test.run(arguments='-c foo.out')
 test.must_not_exist(test.workpath('foo.out'))
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
-"""%python)
+""" % locals())
 
 test.run(arguments='foo.out')
 test.must_match(test.workpath('foo.out'), '"Foo", I say!\n')
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 
 assert not GetOption('clean')
 SetOption('clean', 1)
 assert GetOption('clean')
-"""%python)
+""" % locals())
 
 test.run(arguments='foo.out')
 test.must_not_exist(test.workpath('foo.out'))

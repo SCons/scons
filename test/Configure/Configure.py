@@ -55,6 +55,7 @@ else:
 work_cnt = 0
 work_dir = None
 python = TestSCons.python
+_python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 _obj = TestSCons._obj
 _exe = TestSCons._exe
@@ -123,7 +124,7 @@ def checkLogAndStdout(checks, results, cached,
         sconf_dir = sconf_dir
         sconstruct = sconstruct
 
-        log = re.escape("file " + sconstruct + ",line ") + r"\d+:" + ls
+        log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
         if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
         log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
         if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
@@ -615,9 +616,9 @@ def CustomTest(*args):
     return 0
 conf = env.Configure(custom_tests = {'MyTest' : CustomTest})
 if not conf.MyTest():
-    env.Command("hello", [], "%s cmd.py $TARGET")
+    env.Command("hello", [], '%(_python_)s cmd.py $TARGET')
 env = conf.Finish()
-""" % python)
+""" % locals())
     test.run(chdir=work_dir, stderr="Hello World on stderr\n")
 
     # 4.2 test that calling Configure from a builder results in a
@@ -673,7 +674,10 @@ conf.Finish()
     # 5.1 test the ConfigureDryRunError
     
     reset(EXACT) # exact match
-    test.write([work_dir,  'SConstruct'], """
+
+    SConstruct_path = test.workpath(work_dir, 'SConstruct')
+
+    test.write(SConstruct_path, """
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -687,15 +691,17 @@ if not (r1 and not r2):
 
     test.run(chdir=work_dir, arguments='-n', status=2, stderr="""
 scons: *** Cannot create configure directory ".sconf_temp" within a dry-run.
-File "SConstruct", line 5, in ?
-""")
+File "%(SConstruct_path)s", line 5, in ?
+""" % locals())
     test.must_not_exist([work_dir, 'config.log'])
     test.subdir([work_dir, '.sconf_temp'])
+
+    conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
     
     test.run(chdir=work_dir, arguments='-n', status=2, stderr="""
-scons: *** Cannot update configure test "%s" within a dry-run.
-File "SConstruct", line 6, in ?
-""" % os.path.join(".sconf_temp", "conftest_0.c"))
+scons: *** Cannot update configure test "%(conftest_0_c)s" within a dry-run.
+File "%(SConstruct_path)s", line 6, in ?
+""" % locals())
 
     test.run(chdir=work_dir)
     checkLogAndStdout( ["Checking for C library %s... " % lib,
@@ -722,7 +728,9 @@ File "SConstruct", line 6, in ?
     # 5.2 test the --config=<auto|force|cache> option
     reset(EXACT) # exact match
 
-    test.write([work_dir,  'SConstruct'], """
+    SConstruct_path = test.workpath(work_dir, 'SConstruct')
+
+    test.write(SConstruct_path, """
 env = Environment(CPPPATH='#/include')
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -736,10 +744,12 @@ env = conf.Finish()
 /* A header */
 """)
 
+    conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
+
     test.run(chdir=work_dir, arguments='--config=cache', status=2, stderr="""
-scons: *** "%s" is not yet built and cache is forced.
-File "SConstruct", line 6, in ?
-""" % os.path.join(".sconf_temp", "conftest_0.c"))
+scons: *** "%(conftest_0_c)s" is not yet built and cache is forced.
+File "%(SConstruct_path)s", line 6, in ?
+""" % locals())
 
     test.run(chdir=work_dir, arguments='--config=auto')
     checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",

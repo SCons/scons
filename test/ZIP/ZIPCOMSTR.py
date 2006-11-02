@@ -31,7 +31,7 @@ the displayed string when zip is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['zip'],
-                  ZIPCOM = r'%s myzip.py $TARGET $SOURCES',
+                  ZIPCOM = r'%(_python_)s myzip.py $TARGET $SOURCES',
                   ZIPCOMSTR = 'Zipping $TARGET from $SOURCE')
 env.Zip('aaa.zip', 'aaa.in')
-""" % python)
+""" % locals())
 
 test.write('aaa.in', "aaa.in\n/*zip*/\n")
 

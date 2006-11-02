@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 if sys.platform == 'win32':
     _obj = '.obj'
@@ -64,9 +64,9 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(SHF95 = r'%s myfortran.py g95',
+env = Environment(SHF95 = r'%(_python_)s myfortran.py g95',
                   SHF95FLAGS = '-x',
-                  SHFORTRAN = r'%s myfortran.py fortran',
+                  SHFORTRAN = r'%(_python_)s myfortran.py fortran',
                   SHFORTRANFLAGS = '-y')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
@@ -82,7 +82,7 @@ env.SharedObject(target = 'test11', source = 'test11.f90')
 env.SharedObject(target = 'test12', source = 'test12.F90')
 env.SharedObject(target = 'test13', source = 'test13.f95')
 env.SharedObject(target = 'test14', source = 'test14.F95')
-""" % (python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#fortran\n")
 test.write('test02.F',   "This is a .F file.\n#fortran\n")
@@ -132,12 +132,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %s)
+foo = Environment(LIBS = %(FTN_LIB)s)
 shf95 = foo.Dictionary('SHF95')
-bar = foo.Copy(SHF95 = r'%s wrapper.py ' + shf95, SHF95FLAGS = '-Ix')
+bar = foo.Copy(SHF95 = r'%(_python_)s wrapper.py ' + shf95, SHF95FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
-""" % (FTN_LIB, python))
+""" % locals())
 
     test.write('foo.f', r"""
       PROGRAM FOO

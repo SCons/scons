@@ -33,7 +33,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -55,7 +55,7 @@ else:
     alt_c_suffix = '.c'
 
 test.write('SConstruct', """
-env = Environment(CCCOM = r'%(python)s mycc.py $TARGET $SOURCE',
+env = Environment(CCCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
                   OBJSUFFIX='.obj')
 env.Object(target = 'test1', source = 'test1.c')
 env.Object(target = 'test2', source = 'test2%(alt_c_suffix)s')

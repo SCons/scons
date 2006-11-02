@@ -31,6 +31,8 @@ import sys
 import TestSCons
 import TestCmd
 
+_python_ = TestSCons._python_
+
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
 # Run all of the tests with both types of source signature
@@ -55,13 +57,25 @@ def create(target, source, env):
 
 env = Environment()
 env['BUILDERS']['B'] = Builder(action = create)
-env['BUILDERS']['S'] = Builder(action = "%(python)s put $SOURCES into $TARGET")
+env['BUILDERS']['S'] = Builder(action = '%(_python_)s put $SOURCES into $TARGET')
 env.B('f1.out', Value(P))
 env.B('f2.out', env.Value(L))
 env.B('f3.out', Value(C))
 env.S('f4.out', Value(L))
-""" % {'source_signature':source_signature,
-       'python':TestSCons.python})
+
+def create_value (target, source, env):
+    target[0].write(source[0].get_contents ())
+
+def create_value_file (target, source, env):
+    open(str(target[0]), 'wb').write(source[0].read())
+
+env['BUILDERS']['B2'] = Builder(action = create_value)
+env['BUILDERS']['B3'] = Builder(action = create_value_file)
+
+V = Value('my value')
+env.B2(V, 'f3.out')
+env.B3('f5.out', V)
+""" % locals())
 
     test.write('put', """
 import os
@@ -73,18 +87,25 @@ open(sys.argv[-1],'wb').write(string.join(sys.argv[1:-2]))
     test.run(arguments='-c')
     test.run()
 
+    out7 = """create_value(["'my value'"], ["f3.out"])"""
+    out8 = """create_value_file(["f5.out"], ["'my value'"])"""
+
     out1 = """create(["f1.out"], ["'/usr/local'"])"""
     out2 = """create(["f2.out"], ["10"])"""
     out3 = """create\\(\\["f3.out"\\], \\["<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
+
     test.fail_test(string.find(test.stdout(), out1) == -1)
     test.fail_test(string.find(test.stdout(), out2) == -1)
+    test.fail_test(string.find(test.stdout(), out7) == -1)
+    test.fail_test(string.find(test.stdout(), out8) == -1)
     test.fail_test(re.search(out3, test.stdout()) == None)
 
     test.must_match('f1.out', "/usr/local")
     test.must_match('f2.out', "10")
     test.must_match('f3.out', "C=/usr/local")
     test.must_match('f4.out', '10')
+    test.must_match('f5.out', "C=/usr/local")
 
     test.up_to_date(arguments='.')
 
@@ -111,6 +132,8 @@ open(sys.argv[-1],'wb').write(string.join(sys.argv[1:-2]))
 
     test.fail_test(string.find(test.stdout(), out4) == -1)
     test.fail_test(string.find(test.stdout(), out5) != -1)
+    test.fail_test(string.find(test.stdout(), out7) == -1)
+    test.fail_test(string.find(test.stdout(), out8) == -1)
     test.fail_test(re.search(out6, test.stdout()) == None)
 
     test.up_to_date('prefix=/var', '.')
@@ -119,5 +142,6 @@ open(sys.argv[-1],'wb').write(string.join(sys.argv[1:-2]))
     test.must_match('f2.out', "4")
     test.must_match('f3.out', "C=/var")
     test.must_match('f4.out', "4")
+    test.must_match('f5.out', "C=/var")
 
 test.pass_test()

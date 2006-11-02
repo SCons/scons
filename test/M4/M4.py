@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,9 +49,9 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(M4 = r'%s mym4.py', tools=['default', 'm4'])
+env = Environment(M4 = r'%(_python_)s mym4.py', tools=['default', 'm4'])
 env.M4(target = 'aaa.x', source = 'aaa.x.m4')
-""" % python)
+""" % locals())
 
 test.write('aaa.x.m4', """\
 line 1
@@ -80,7 +80,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(M4=r'%(m4)s', M4FLAGS='-DFFF=fff')
 m4 = foo.Dictionary('M4')
-bar = Environment(M4 = r'%(python)s wrapper.py ' + m4, M4FLAGS='-DBBB=bbb')
+bar = Environment(M4 = r'%(_python_)s wrapper.py ' + m4, M4FLAGS='-DBBB=bbb')
 foo.M4(target = 'foo.x', source = 'foo.x.m4')
 bar.M4(target = 'bar', source = 'bar.m4')
 """ % locals())

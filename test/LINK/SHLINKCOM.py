@@ -33,7 +33,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -60,8 +60,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(SHCCCOM = r'%(python)s mycc.py $TARGET $SOURCES',
-                  SHLINKCOM = r'%(python)s mylink.py $TARGET $SOURCES',
+env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCES',
+                  SHLINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
                   SHOBJSUFFIX = '.obj',
                   SHLIBPREFIX = '',
                   SHLIBSUFFIX = '.dll')

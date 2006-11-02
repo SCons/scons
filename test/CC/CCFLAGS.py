@@ -50,6 +50,9 @@ foo.Program(target = 'prog', source = 'prog.c',
 """ % (fooflags, barflags, _obj, _obj, _obj, _obj))
 
 test.write('prog.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[])
 {

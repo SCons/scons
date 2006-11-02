@@ -41,16 +41,16 @@ install_file1_out = test.workpath('install', 'file1.out')
 install_file2_out = test.workpath('install', 'file2.out')
 install_file3_out = test.workpath('install', 'file3.out')
 
+_INSTALLDIR_file2_out = os.path.join('$INSTALLDIR', 'file2.out')
+_SUBDIR_file3_in = os.path.join('$SUBDIR', 'file3.in')
+
 #
 test.write('SConstruct', r"""
-env = Environment(INSTALLDIR=r'%s', SUBDIR='subdir')
-InstallAs(r'%s', 'file1.in')
-env.InstallAs([r'%s', r'%s'], ['file2.in', r'%s'])
-""" % (install,
-       install_file1_out,
-       os.path.join('$INSTALLDIR', 'file2.out'),
-       install_file3_out,
-       os.path.join('$SUBDIR', 'file3.in')))
+env = Environment(INSTALLDIR=r'%(install)s', SUBDIR='subdir')
+InstallAs(r'%(install_file1_out)s', 'file1.in')
+env.InstallAs([r'%(_INSTALLDIR_file2_out)s', r'%(install_file3_out)s'],
+              ['file2.in', r'%(_SUBDIR_file3_in)s'])
+""" % locals())
 
 test.write('file1.in', "file1.in\n")
 test.write('file2.in', "file2.in\n")

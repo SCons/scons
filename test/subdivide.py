@@ -63,6 +63,8 @@ env.Default(p)
 """ % TestSCons._obj)
 
 test.write('foo.c', """\
+#include <stdio.h>
+#include <stdlib.h>
 void
 foo(void) {
     printf("foo.c\\n");
@@ -70,6 +72,8 @@ foo(void) {
 """)
 
 test.write(['src', 'main.c'], """\
+#include <stdio.h>
+#include <stdlib.h>
 extern void foo(void);
 extern void bar(void);
 int
@@ -82,6 +86,8 @@ main(int argc, char *argv[]) {
 """)
 
 test.write(['src', 'sub', 'bar.c'], """\
+#include <stdio.h>
+#include <stdlib.h>
 void
 bar(void) {
     printf("bar.c\\n");

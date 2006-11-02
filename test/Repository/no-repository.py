@@ -50,6 +50,8 @@ env.Program(target = 'foo', source = Split('aaa.c bbb.c foo.c'))
 """ % no_repository)
 
 test.write(['work', 'aaa.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 aaa(void)
 {
@@ -58,6 +60,8 @@ aaa(void)
 """)
 
 test.write(['work', 'bbb.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 void
 bbb(void)
 {
@@ -66,6 +70,8 @@ bbb(void)
 """)
 
 test.write(['work', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 extern void aaa(void);
 extern void bbb(void);
 int

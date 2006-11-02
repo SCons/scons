@@ -47,6 +47,53 @@ env.RES('resource.rc')
 </summary>
 </builder>
 
+<cvar name="CCPCHFLAGS">
+<summary>
+Options added to the compiler command line
+to support building with precompiled headers.
+The default value expands expands to the appropriate
+Microsoft Visual C++ command-line options
+when the &cv-PCH; construction variable is set.
+</summary>
+
+<cvar name="CCPDBFLAGS">
+<summary>
+Options added to the compiler command line
+to support storing debugging information in a
+Microsoft Visual C++ PDB file.
+The default value expands expands to appropriate
+Microsoft Visual C++ command-line options
+when the &cv-PDB; construction variable is set.
+
+The Visual C++ compiler option that SCons uses by default
+to generate PDB information is <option>/Z7</option>.
+This works correctly with parallel (<option>-j</option>) builds
+because it embeds the debug information in the intermediate object files,
+as opposed to sharing a single PDB file between multiple object files.
+This is also the only way to get debug information
+embedded into a static library.
+Using the <option>/Zi</option> instead may yield improved
+link-time performance,
+although parallel builds will no longer work.
+
+You can generate PDB files with the <option>/Zi</option>
+switch by overriding the default &cv-CCPDBFLAGS; variable as follows:
+
+<example>
+import SCons.Util
+env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Zi /Fd%s" % File(PDB)) or ""}'])
+</example>
+
+An alternative would be to use the <option>/Zi</option>
+to put the debugging information in a separate <filename>.pdb</filename>
+file for each object file by overriding
+the &cv-CCPDBFLAGS; variable as follows:
+
+<example>
+env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
+</example>
+</summary>
+
 <cvar name="PCH">
 <summary>
 The Microsoft Visual C++ precompiled header that will be used when compiling

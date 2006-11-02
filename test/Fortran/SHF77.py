@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _obj   = TestSCons._shobj
 
 test = TestSCons.TestSCons()
@@ -54,8 +54,8 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(SHF77 = r'%s myfortran.py g77',
-                  SHFORTRAN = r'%s myfortran.py fortran')
+env = Environment(SHF77 = r'%(_python_)s myfortran.py g77',
+                  SHFORTRAN = r'%(_python_)s myfortran.py fortran')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
 env.SharedObject(target = 'test03', source = 'test03.for')
@@ -70,7 +70,7 @@ env.SharedObject(target = 'test11', source = 'test11.f90')
 env.SharedObject(target = 'test12', source = 'test12.F90')
 env.SharedObject(target = 'test13', source = 'test13.f95')
 env.SharedObject(target = 'test14', source = 'test14.F95')
-env2 = Environment(SHF77 = r'%s myfortran.py g77')
+env2 = Environment(SHF77 = r'%(_python_)s myfortran.py g77')
 env2.SharedObject(target = 'test21', source = 'test21.f')
 env2.SharedObject(target = 'test22', source = 'test22.F')
 env2.SharedObject(target = 'test23', source = 'test23.for')
@@ -79,7 +79,7 @@ env2.SharedObject(target = 'test25', source = 'test25.ftn')
 env2.SharedObject(target = 'test26', source = 'test26.FTN')
 env2.SharedObject(target = 'test27', source = 'test27.fpp')
 env2.SharedObject(target = 'test28', source = 'test28.FPP')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test01.f',   "This is a .f file.\n#fortran\n")
 test.write('test02.F',   "This is a .F file.\n#fortran\n")
@@ -148,10 +148,10 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(LIBS = 'g2c')
 shf77 = foo.Dictionary('SHF77')
-bar = foo.Copy(SHF77 = r'%s wrapper.py ' + shf77)
+bar = foo.Copy(SHF77 = r'%(_python_)s wrapper.py ' + shf77)
 foo.SharedObject(target = 'foo/foo', source = 'foo.f')
 bar.SharedObject(target = 'bar/bar', source = 'bar.f')
-""" % python)
+""" % locals())
 
     test.write('foo.f', r"""
       PROGRAM FOO

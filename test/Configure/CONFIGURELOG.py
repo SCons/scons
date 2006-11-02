@@ -33,7 +33,9 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write("SConstruct", """\
+SConstruct_path = test.workpath('SConstruct')
+
+test.write(SConstruct_path, """\
 def CustomTest(context):
   context.Message('Executing Custom Test ...')
   context.Result(1)
@@ -47,13 +49,13 @@ env = conf.Finish()
 test.run()
 
 expect = """\
-file SConstruct,line 6:
+file %(SConstruct_path)s,line 6:
 \tConfigure(confdir = .sconf_temp)
 scons: Configure: Executing Custom Test ...
 scons: Configure: (cached) yes
 
 
-"""
+""" % locals()
 
 test.must_match('custom.logfile', expect, mode='r')
 

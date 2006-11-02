@@ -30,7 +30,7 @@ Test the ability to scan additional filesuffixes added to $FORTRANSUFFIXES.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -51,7 +51,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(FORTRANPATH = ['.'],
-                  FORTRAN = r'%s myfc.py',
+                  FORTRAN = r'%(_python_)s myfc.py',
                   FORTRANCOM = '$FORTRAN $TARGET $SOURCES',
                   OBJSUFFIX = '.o')
 env.Append(FORTRANSUFFIXES = ['.x'])
@@ -59,7 +59,7 @@ env.Object(target = 'test1', source = 'test1.f')
 env.InstallAs('test1_f', 'test1.f')
 env.InstallAs('test1_h', 'test1.h')
 env.InstallAs('test1_x', 'test1.x')
-""" % (python,))
+""" % locals())
 
 test.write('test1.f', """\
       test1.f 1
@@ -81,12 +81,14 @@ test.write('foo.h', """\
       foo.h 1
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s myfc.py test1.o test1.f
+expect = test.wrap_stdout("""\
+%(_python_)s myfc.py test1.o test1.f
 Install file: "test1.f" as "test1_f"
 Install file: "test1.h" as "test1_h"
 Install file: "test1.x" as "test1_x"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
@@ -102,9 +104,11 @@ test.write('foo.h', """\
       foo.h 2
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s myfc.py test1.o test1.f
-""" % (python,)))
+expect = test.wrap_stdout("""\
+%(_python_)s myfc.py test1.o test1.f
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
@@ -121,10 +125,12 @@ test.write('test1.x', """\
       INCLUDE 'foo.h'
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s myfc.py test1.o test1.f
+expect = test.wrap_stdout("""\
+%(_python_)s myfc.py test1.o test1.f
 Install file: "test1.x" as "test1_x"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
@@ -141,10 +147,12 @@ test.write('test1.h', """\
       INCLUDE 'foo.h'
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s myfc.py test1.o test1.f
+expect = test.wrap_stdout("""\
+%(_python_)s myfc.py test1.o test1.f
 Install file: "test1.h" as "test1_h"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1

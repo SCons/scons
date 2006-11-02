@@ -24,11 +24,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import sys
 import string
 import re
 import time
+
+import TestSCons
+
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -70,7 +73,7 @@ test.write('bar.h', """
 
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
 test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)
-test.fail_test(string.find(test.stdout(), "scons") == -1)
+test.fail_test(string.find(test.stdout(), "SCons") == -1)
 
 ############################
 # test --debug=presub
@@ -93,7 +96,7 @@ FILE = Builder(action="$FILECOM")
 TEMP = Builder(action="$TEMPCOM")
 LIST = Builder(action="$LISTCOM")
 FUNC = Builder(action=cat)
-env = Environment(PYTHON='%s',
+env = Environment(PYTHON='%(_python_)s',
                   BUILDERS = {'FILE':FILE, 'TEMP':TEMP, 'LIST':LIST, 'FUNC':FUNC},
                   FILECOM="$PYTHON cat.py $SOURCES $TARGET",
                   TEMPCOM="$PYTHON cat.py $SOURCES temp\\n$PYTHON cat.py temp $TARGET",
@@ -116,7 +119,7 @@ env.LIST('file15.out', 'file15.in')
 env.LIST('file16.out', 'file16.in')
 env.FUNC('file17.out', 'file17.in')
 env.FUNC('file18.out', 'file18.in')
-""" % TestSCons.python)
+""" % locals())
 
 test.write('file01.in', "file01.in\n")
 test.write('file02.in', "file02.in\n")
@@ -139,34 +142,34 @@ test.write('file18.in', "file18.in\n")
 expect = """\
 Building file01.out with action:
   $PYTHON cat.py $SOURCES $TARGET
-__PYTHON__ cat.py file01.in file01.out
+%(_python_)s cat.py file01.in file01.out
 Building file02.out with action:
   $PYTHON cat.py $SOURCES $TARGET
-__PYTHON__ cat.py file02.in file02.out
+%(_python_)s cat.py file02.in file02.out
 Building file03.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file03.in temp
+%(_python_)s cat.py file03.in temp
 Building file03.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file03.out
+%(_python_)s cat.py temp file03.out
 Building file04.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file04.in temp
+%(_python_)s cat.py file04.in temp
 Building file04.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file04.out
+%(_python_)s cat.py temp file04.out
 Building file05.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file05.in temp
+%(_python_)s cat.py file05.in temp
 Building file05.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file05.out
+%(_python_)s cat.py temp file05.out
 Building file06.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file06.in temp
+%(_python_)s cat.py file06.in temp
 Building file06.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file06.out
+%(_python_)s cat.py temp file06.out
 Building file07.out with action:
   cat(target, source, env)
 cat(["file07.out"], ["file07.in"])
@@ -178,42 +181,42 @@ Building file09.out with action:
 cat(["file09.out"], ["file09.in"])
 Building file11.out with action:
   $PYTHON cat.py $SOURCES $TARGET
-__PYTHON__ cat.py file11.in file11.out
+%(_python_)s cat.py file11.in file11.out
 Building file12.out with action:
   $PYTHON cat.py $SOURCES $TARGET
-__PYTHON__ cat.py file12.in file12.out
+%(_python_)s cat.py file12.in file12.out
 Building file13.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file13.in temp
+%(_python_)s cat.py file13.in temp
 Building file13.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file13.out
+%(_python_)s cat.py temp file13.out
 Building file14.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file14.in temp
+%(_python_)s cat.py file14.in temp
 Building file14.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file14.out
+%(_python_)s cat.py temp file14.out
 Building file15.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file15.in temp
+%(_python_)s cat.py file15.in temp
 Building file15.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file15.out
+%(_python_)s cat.py temp file15.out
 Building file16.out with action:
   $PYTHON cat.py $SOURCES temp
-__PYTHON__ cat.py file16.in temp
+%(_python_)s cat.py file16.in temp
 Building file16.out with action:
   $PYTHON cat.py temp $TARGET
-__PYTHON__ cat.py temp file16.out
+%(_python_)s cat.py temp file16.out
 Building file17.out with action:
   cat(target, source, env)
 cat(["file17.out"], ["file17.in"])
 Building file18.out with action:
   cat(target, source, env)
 cat(["file18.out"], ["file18.in"])
-"""
-expect = string.replace(expect, '__PYTHON__', TestSCons.python)
+""" % locals()
+
 test.run(arguments = "--debug=presub .", stdout=test.wrap_stdout(expect))
 
 test.must_match('file01.out', "file01.in\n")

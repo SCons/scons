@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -51,7 +51,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(FORTRANCOM = r'%(python)s myfortran.py $SOURCE $TARGET')
+env = Environment(FORTRANCOM = r'%(_python_)s myfortran.py $SOURCE $TARGET')
 env.Object(target = 'test1.obj', source = 'test1.f')
 """ % locals())
 

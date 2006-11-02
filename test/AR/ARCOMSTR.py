@@ -32,7 +32,7 @@ the displayed archiver string.
 import TestSCons
 import string
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -53,13 +53,13 @@ test.write('myranlib.py', """
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
-                  ARCOM = r'%s myar.py $TARGET $SOURCES',
+                  ARCOM = r'%(_python_)s myar.py $TARGET $SOURCES',
                   ARCOMSTR = 'Archiving $TARGET from $SOURCES',
-                  RANLIBCOM = r'%s myranlib.py $TARGET',
+                  RANLIBCOM = r'%(_python_)s myranlib.py $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
 env.Library(target = 'output', source = ['file.1', 'file.2'])
-""" % (python, python))
+""" % locals())
 
 test.write('file.1', "file.1\n/*ar*/\n")
 test.write('file.2', "file.2\n/*ar*/\n")

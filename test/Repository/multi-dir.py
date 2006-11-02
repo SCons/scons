@@ -73,6 +73,8 @@ test.write(['repository', 'src', 'include.h'], r"""
 """)
 
 test.write(['repository', 'src', 'main.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
 #include <include.h>
 int
 main(int argc, char *argv[])

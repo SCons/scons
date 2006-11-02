@@ -33,7 +33,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -50,7 +50,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['zip'],
-                  ZIPCOM = r'%(python)s myzip.py $TARGET $SOURCE')
+                  ZIPCOM = r'%(_python_)s myzip.py $TARGET $SOURCE')
 env.Zip('test1.zip', 'test1.in')
 """ % locals())
 

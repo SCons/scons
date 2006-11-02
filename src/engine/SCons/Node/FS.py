@@ -95,10 +95,33 @@ def save_strings(val):
 # there should be *no* changes to the external file system(s)...
 #
 
-def _copy_func(src, dest):
+if hasattr(os, 'link'):
+    def _hardlink_func(fs, src, dst):
+        # If the source is a symlink, we can't just hard-link to it
+        # because a relative symlink may point somewhere completely
+        # different.  We must disambiguate the symlink and then
+        # hard-link the final destination file.
+        while fs.islink(src):
+            link = fs.readlink(src)
+            if not os.path.isabs(link):
+                src = link
+            else:
+                src = os.path.join(os.path.dirname(src), link)
+        fs.link(src, dst)
+else:
+    _hardlink_func = None
+
+if hasattr(os, 'symlink'):
+    def _softlink_func(fs, src, dst):
+        fs.symlink(src, dst)
+else:
+    _softlink_func = None
+
+def _copy_func(fs, src, dest):
     shutil.copy2(src, dest)
-    st=os.stat(src)
-    os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    st = fs.stat(src)
+    fs.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
 
 Valid_Duplicates = ['hard-soft-copy', 'soft-hard-copy',
                     'hard-copy', 'soft-copy', 'copy']
@@ -113,16 +136,6 @@ def set_duplicate(duplicate):
     # underlying implementations.  We do this inside this function,
     # not in the top-level module code, so that we can remap os.link
     # and os.symlink for testing purposes.
-    try:
-        _hardlink_func = os.link
-    except AttributeError:
-        _hardlink_func = None
-
-    try:
-        _softlink_func = os.symlink
-    except AttributeError:
-        _softlink_func = None
-
     link_dict = {
         'hard' : _hardlink_func,
         'soft' : _softlink_func,
@@ -152,10 +165,11 @@ def LinkFunc(target, source, env):
     if not Link_Funcs:
         # Set a default order of link functions.
         set_duplicate('hard-soft-copy')
+    fs = source[0].fs
     # Now link the files with the previously specified order.
     for func in Link_Funcs:
         try:
-            func(src,dest)
+            func(fs, src, dest)
             break
         except (IOError, OSError):
             # An OSError indicates something happened like a permissions
@@ -213,13 +227,15 @@ def CacheRetrieveFunc(target, source, env):
     t = target[0]
     fs = t.fs
     cachedir, cachefile = t.cachepath()
-    if fs.exists(cachefile):
-        if SCons.Action.execute_actions:
-            fs.copy2(cachefile, t.path)
-            st = fs.stat(cachefile)
-            fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
-        return 0
-    return 1
+    if not fs.exists(cachefile):
+        fs.CacheDebug('CacheRetrieve(%s):  %s not in cache\n', t, cachefile)
+        return 1
+    fs.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
+    if SCons.Action.execute_actions:
+        fs.copy2(cachefile, t.path)
+        st = fs.stat(cachefile)
+        fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    return 0
 
 def CacheRetrieveString(target, source, env):
     t = target[0]
@@ -237,8 +253,17 @@ def CachePushFunc(target, source, env):
     fs = t.fs
     cachedir, cachefile = t.cachepath()
     if fs.exists(cachefile):
-        # Don't bother copying it if it's already there.
+        # Don't bother copying it if it's already there.  Note that
+        # usually this "shouldn't happen" because if the file already
+        # existed in cache, we'd have retrieved the file from there,
+        # not built it.  This can happen, though, in a race, if some
+        # other person running the same build pushes their copy to
+        # the cache after we decide we need to build it but before our
+        # build completes.
+        fs.CacheDebug('CachePush(%s):  %s already exists in cache\n', t, cachefile)
         return
+
+    fs.CacheDebug('CachePush(%s):  pushing to %s\n', t, cachefile)
 
     if not fs.isdir(cachedir):
         fs.makedirs(cachedir)
@@ -258,7 +283,6 @@ def CachePushFunc(target, source, env):
         SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning,
                             "Unable to copy %s to cache. Cache file is %s"
                                 % (str(target), cachefile))
-        return
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
@@ -835,6 +859,14 @@ class LocalFS:
         def islink(self, path):
             return 0                    # no symlinks
 
+    if hasattr(os, 'readlink'):
+        def readlink(self, file):
+            return os.readlink(file)
+    else:
+        def readlink(self, file):
+            return ''
+
+
 if SCons.Memoize.use_old_memoization():
     _FSBase = LocalFS
     class LocalFS(SCons.Memoize.Memoizer, _FSBase):
@@ -1138,6 +1170,21 @@ class FS(LocalFS):
             dir = dir.Dir(path)
             result.extend(dir.get_all_rdirs())
         return result
+
+    def CacheDebugWrite(self, fmt, target, cachefile):
+        self.CacheDebugFP.write(fmt % (target, os.path.split(cachefile)[1]))
+
+    def CacheDebugQuiet(self, fmt, target, cachefile):
+        pass
+
+    CacheDebug = CacheDebugQuiet
+
+    def CacheDebugEnable(self, file):
+        if file == '-':
+            self.CacheDebugFP = sys.stdout
+        else:
+            self.CacheDebugFP = open(file, 'w')
+        self.CacheDebug = self.CacheDebugWrite
 
     def CacheDir(self, path):
         self.CachePath = path
@@ -1776,7 +1823,7 @@ class File(Base):
         __cacheable__"""
         if not scanner:
             return []
-        return map(lambda N: N.disambiguate(), scanner(self, env, path))
+        return scanner(self, env, path)
 
     def _createDir(self):
         # ensure that the directories for this node are
@@ -1818,10 +1865,13 @@ class File(Base):
             if self.fs.cache_show:
                 if CacheRetrieveSilent(self, [], None, execute=1) == 0:
                     self.build(presub=0, execute=0)
+                    self.set_state(SCons.Node.executed)
                     return 1
             elif CacheRetrieve(self, [], None, execute=1) == 0:
+                self.set_state(SCons.Node.executed)
                 return 1
         return None
+
 
     def built(self):
         """Called just after this node is successfully built.

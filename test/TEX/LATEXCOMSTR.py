@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -52,7 +52,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['latex'],
-                  LATEXCOM = r'%(python)s mylatex.py $TARGET $SOURCE',
+                  LATEXCOM = r'%(_python_)s mylatex.py $TARGET $SOURCE',
                   LATEXCOMSTR = 'Building $TARGET from $SOURCE')
 env.DVI('test1', 'test1.latex')
 """ % locals())

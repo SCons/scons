@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 if sys.platform == 'win32':
@@ -62,9 +62,11 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(YACC = r'%s myyacc.py', YACCFLAGS = '-x', tools=['yacc', '%s', '%s'])
+env = Environment(YACC = r'%(_python_)s myyacc.py',
+                  YACCFLAGS = '-x',
+                  tools=['yacc', '%(linker)s', '%(compiler)s'])
 env.Program(target = 'aaa', source = 'aaa.y')
-""" % (python, linker, compiler))
+""" % locals())
 
 test.write('aaa.y', r"""
 int

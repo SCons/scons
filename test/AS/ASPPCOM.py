@@ -33,7 +33,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,19 +49,26 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(ASPPCOM = r'%(python)s myas.py $TARGET $SOURCE',
-                  OBJSUFFIX = '.obj')
+env = Environment(ASPPCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
+                  OBJSUFFIX = '.obj',
+                  SHOBJSUFFIX = '.shobj')
 env.Object(target = 'test1', source = 'test1.spp')
 env.Object(target = 'test2', source = 'test2.SPP')
+env.SharedObject(target = 'test3', source = 'test3.spp')
+env.SharedObject(target = 'test4', source = 'test4.SPP')
 """ % locals())
 
 test.write('test1.spp', "test1.spp\n#as\n")
 test.write('test2.SPP', "test2.SPP\n#as\n")
+test.write('test3.spp', "test3.spp\n#as\n")
+test.write('test4.SPP', "test4.SPP\n#as\n")
 
 test.run(arguments = '.')
 
 test.fail_test(test.read('test1.obj') != "test1.spp\n")
 test.fail_test(test.read('test2.obj') != "test2.SPP\n")
+test.fail_test(test.read('test3.shobj') != "test3.spp\n")
+test.fail_test(test.read('test4.shobj') != "test4.SPP\n")
 
 
 

@@ -37,6 +37,20 @@ Example:
 <example>
 env['PDB'] = 'hello.pdb'
 </example>
+
+The Visual C++ compiler switch that SCons uses by default
+to generate PDB information is <option>/Z7</option>.
+This works correctly with parallel (<option>-j</option>) builds
+because it embeds the debug information in the intermediate object files,
+as opposed to sharing a single PDB file between multiple object files.
+This is also the only way to get debug information
+embedded into a static library.
+Using the <option>/Zi</option> instead may yield improved
+link-time performance,
+although parallel builds will no longer work.
+You can generate PDB files with the <option>/Zi</option>
+switch by overriding the default &cv-CCPDBFLAGS; variable;
+see the entry for that variable for specific examples.
 </summary>
 </cvar>
 

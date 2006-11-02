@@ -45,16 +45,18 @@ class Value(SCons.Node.Node):
     NodeInfo = ValueNodeInfo
     BuildInfo = ValueBuildInfo
 
-    def __init__(self, value):
+    def __init__(self, value, built_value=None):
         SCons.Node.Node.__init__(self)
         self.value = value
+        if not built_value is None:
+            self.built_value = built_value
 
     def __str__(self):
         return repr(self.value)
 
-    def build(self):
-        """A "builder" for Values."""
-        pass
+    def build(self, **kw):
+        if not hasattr(self, 'built_value'):
+            apply (SCons.Node.Node.build, (self,), kw)
 
     current = SCons.Node.Node.children_are_up_to_date
 
@@ -64,9 +66,23 @@ class Value(SCons.Node.Node):
         # are outside the filesystem:
         return 1
 
+    def write(self, built_value):
+        """Set the value of the node."""
+        self.built_value = built_value
+
+    def read(self):
+        """Return the value. If necessary, the value is built."""
+        self.build()
+        if not hasattr(self, 'built_value'):
+            self.built_value = self.value
+        return self.built_value
+
     def get_contents(self):
-        """The contents of a Value are the concatenation
-        of all the contents of its sources with the node's value itself."""
+        """By the assumption that the node.built_value is a
+        deterministic product of the sources, the contents of a Value
+        are the concatenation of all the contents of its sources.  As
+        the value need not be built when get_contents() is called, we
+        cannot use the actual node.built_value."""
         contents = str(self.value)
         for kid in self.children(None):
             contents = contents + kid.get_contents()

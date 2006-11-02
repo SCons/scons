@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -56,9 +56,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools = ['jar'],
-                  JAR = r'%s myjar.py')
+                  JAR = r'%(_python_)s myjar.py')
 env.Jar(target = 'test1.jar', source = 'test1.class')
-""" % (python))
+""" % locals())
 
 test.write('test1.class', """\
 test1.class
@@ -74,9 +74,9 @@ if os.path.normcase('.class') == os.path.normcase('.CLASS'):
 
     test.write('SConstruct', """
 env = Environment(tools = ['jar'],
-                  JAR = r'%s myjar.py')
+                  JAR = r'%(_python_)s myjar.py')
 env.Jar(target = 'test2.jar', source = 'test2.CLASS')
-""" % (python))
+""" % locals())
 
     test.write('test2.CLASS', """\
 test2.CLASS
@@ -100,13 +100,13 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools = ['jar'],
-                  JAR = r'%s myjar2.py',
+                  JAR = r'%(_python_)s myjar2.py',
                   JARFLAGS='cvf')
 env.Jar(target = 'classes.jar', source = [ 'testdir/bar.class',
                                            'foo.mf' ],
         TESTDIR='testdir',
         JARCHDIR='$TESTDIR')
-""" % (python))
+""" % locals())
 
 test.subdir('testdir')
 test.write([ 'testdir', 'bar.class' ], 'foo')
@@ -150,7 +150,7 @@ foo = Environment(tools = ['javac', 'jar'],
                   JAVAC = r'%(where_javac)s',
                   JAR = r'%(where_jar)s')
 jar = foo.Dictionary('JAR')
-bar = foo.Copy(JAR = r'%(python)s wrapper.py ' + jar)
+bar = foo.Copy(JAR = r'%(_python_)s wrapper.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')

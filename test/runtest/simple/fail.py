@@ -38,7 +38,7 @@ test.write_failing_test(['test', 'fail.py'])
 
 # NOTE:  The "test/fail.py   : FAIL" line has spaces at the end.
 
-expect = r"""qmtest.py run --output results.qmr --format none --result-stream=scons_tdb.AegisChangeStream test/fail.py
+expect = r"""qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" test/fail.py
 --- TEST RESULTS -------------------------------------------------------------
 
   test/fail.py                                  : FAIL    
@@ -59,6 +59,6 @@ expect = r"""qmtest.py run --output results.qmr --format none --result-stream=sc
        1 (100%) tests FAIL
 """
 
-test.run(arguments = '--qmtest test/fail.py', stdout = expect)
+test.run(arguments = 'test/fail.py', status = 1, stdout = expect)
 
 test.pass_test()

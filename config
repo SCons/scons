@@ -50,7 +50,7 @@
  *
  * Look in aesub(5) for more information about command substitutions.
  */
-build_command = "python1.5 ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "python2.1 ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * SCons removes its targets before constructing them, which qualifies it
@@ -258,9 +258,9 @@ diff_command =
  * is set appropriately during a baseline test.  So we just use the
  * proper aesub variable to comment out the expanded $spe.
  */
-test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -t -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q --sp ${Search_Path} --spe ${Search_Path_Executable} ${File_Name}";
+test_command = "python1.5 ${Source runtest.py Absolute} --noqmtest -p tar-gz -t -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q --sp ${Search_Path} --spe ${Search_Path_Executable} ${File_Name}";
 
-batch_test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -t -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} --aegis  --sp ${Search_Path} --spe ${Search_Path_Executable} ${File_Names}";
+batch_test_command = "python1.5 ${Source runtest.py Absolute} --noqmtest -p tar-gz -t -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} --aegis  --sp ${Search_Path} --spe ${Search_Path_Executable} ${File_Names}";
 
 new_test_filename = "test/CHANGETHIS.py";
 
@@ -286,3 +286,14 @@ file_template =
 		body = "${read_file ${source template/test.py abs}}";
 	},
 ];
+
+/*
+ * Command for distributing changes from Aegis to all of the repositories
+ * we want to mirror the information.
+ *
+ * XXX Uncomment after upgrading to an Aegis version that supports this.
+
+integrate_pass_notify_command =
+        "$sh ${s bin/scons-cdist} -p $project $change";
+ *
+ */

@@ -33,17 +33,24 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
+SConstruct_path = test.workpath('SConstruct')
+SConscript_path = test.workpath('SConscript')
+
+test.write(SConstruct_path, """\
 env = Environment()
 env['foo-bar'] = 1
 """)
 
-test.run(arguments = '.', status = 2, stderr="""
+expect_stderr = """
 scons: *** Illegal construction variable `foo-bar'
-File "SConstruct", line 2, in ?
-""")
+File "%(SConstruct_path)s", line 2, in ?
+""" % locals()
 
-test.write('SConstruct', """\
+test.run(arguments='.', status=2, stderr=expect_stderr)
+
+
+
+test.write(SConstruct_path, """\
 SConscript('SConscript')
 """)
 
@@ -52,9 +59,11 @@ env = Environment()
 env['foo(bar)'] = 1
 """)
 
-test.run(arguments = '.', status = 2, stderr="""
+expect_stderr = """
 scons: *** Illegal construction variable `foo(bar)'
-File "SConscript", line 2, in ?
-""")
+File "%(SConscript_path)s", line 2, in ?
+""" % locals()
+
+test.run(arguments='.', status=2, stderr=expect_stderr)
 
 test.pass_test()

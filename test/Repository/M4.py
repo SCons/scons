@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,16 +48,17 @@ sys.stdout.write(string.replace(contents, 'M4', 'mym4.py'))
 sys.exit(0)
 """)
 
+mym4_py = test.workpath('mym4.py')
 
 
 
 opts = "-Y " + test.workpath('repository')
 
 test.write(['repository', 'SConstruct'], """\
-env = Environment(M4 = r'%s %s', tools=['default', 'm4'])
+env = Environment(M4 = r'%(_python_)s %(mym4_py)s', tools=['default', 'm4'])
 env.M4(target = 'aaa.x', source = 'aaa.x.m4')
 SConscript('src/SConscript', "env", build_dir="build")
-""" % (python, test.workpath('mym4.py')))
+""" % locals())
 
 test.write(['repository', 'aaa.x.m4'], """\
 line 1

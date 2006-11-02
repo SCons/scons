@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -60,9 +60,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools = ['rmic'],
-                  RMIC = r'%s myrmic.py')
+                  RMIC = r'%(_python_)s myrmic.py')
 env.RMIC(target = 'outdir', source = 'test1.java')
-""" % (python))
+""" % locals())
 
 test.write('test1.java', """\
 test1.java
@@ -78,9 +78,9 @@ if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
     test.write('SConstruct', """\
 env = Environment(tools = ['rmic'],
-                  RMIC = r'%s myrmic.py')
+                  RMIC = r'%(_python_)s myrmic.py')
 env.RMIC(target = 'outdir', source = 'test2.JAVA')
-""" % python)
+""" % locals())
 
     test.write('test2.JAVA', """\
 test2.JAVA
@@ -128,7 +128,7 @@ foo.RMIC(target = 'outdir1',
           JAVACLASSDIR = 'class1')
 
 rmic = foo.Dictionary('RMIC')
-bar = foo.Copy(RMIC = r'%(python)s wrapper.py ' + rmic)
+bar = foo.Copy(RMIC = r'%(_python_)s wrapper.py ' + rmic)
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant
 # does with its "excludes" attribute.  We should probably find

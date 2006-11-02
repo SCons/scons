@@ -10,9 +10,28 @@
 
 RELEASE 0.97 - XXX
 
+  From Anonymous:
+
+  - Allow Python Value Nodes to be Builder targets.
+
+  From Matthias:
+
+  - Only filter Visual Studio common filename prefixes on complete
+    directory names.
+
+  From Chad Austin:
+
+  - Fix the build of the SCons documentation on systems that don't
+    have "python" in the $PATH.
+
   From Ken Boortz:
 
   - Enhance ParseConfig() to recognize options that begin with '+'.
+
+  From John Calcote, Elliot Murphy:
+
+  - Document ways to override the CCPDBFLAGS variable to use the
+    Microsoft linker's /Zi option instead of the default /Z7.
 
   From Christopher Drexler:
 
@@ -28,6 +47,10 @@ RELEASE 0.97 - XXX
   - Fix inconsistent handling of Action strfunction arguments.
 
   - Preserve white space in display Action strfunction strings.
+
+  From James Y. Knight and Gerard Patel:
+
+  - Support creation of shared object files from assembly language.
 
   From Steven Knight:
 
@@ -47,15 +70,43 @@ RELEASE 0.97 - XXX
     This will become the default behavior as we add more functionality
     to the QMTest side.
 
+  - Let linking on mingw use the default function that chooses $CC (gcc)
+    or $CXX (g++) depending on whether there are any C++ source files.
+
+  - Work around a bug in early versions of the Python 2.4 profile module
+    that caused the --profile= option to fail.
+
+  - Only call Options validators and converters once when initializing a
+    construction environment.
+
+  - Fix the ability of env.Append() and env.Prepend(), in all known Python
+    versions, to handle different input value types when the construction
+    variable being updated is a dictionary.
+
+  - Add a --cache-debug option for information about what files it's
+    looking for in a CacheDir().
+
+  - Document the difference in construction variable expansion between
+    {Action,Builder}() and env.{Action,Builder}().
+
   From Arve Knudsen:
 
   - Support cleaning and scanning SWIG-generated files.
 
-  From Baptiste Lepilleur:
+  From Carsten Koch:
+
+  - Allow selection of Visual Studio version by setting $MSVS_VERSION
+    after construction environment initialization.
+
+  From Jean-Baptiste Lab:
 
   - Try using zipimport if we can't import Tool or Platform modules
     using the normal "imp" module.  This allows SCons to be packaged
     using py2exe's all-in-one-zip-file approach.
+
+  From Ben Liblit:
+
+  - Do not re-scan files if the scanner returns no implicit dependencies.
 
   From Sanjoy Mahajan:
 
@@ -69,6 +120,19 @@ RELEASE 0.97 - XXX
 
   - Prevent scanning the TeX .aux file for additional files from
     trying to remove it twice when the -c option is used.
+
+  From Leanid Nazdrynau:
+
+  - Give the MSVC RES (resource) Builder a src_builder list and a .rc
+    src_suffix so other builders can generate .rc files.
+
+  From Matthew A. Nicholson:
+
+  - Enhance Install() and InstallAs() to handle directory trees as sources.
+
+  From Jan Nijtmans:
+
+  - Don't use the -fPIC flag when using gcc on Windows (e.g. MinGW).
 
   From Greg Noel:
 
@@ -105,9 +169,35 @@ RELEASE 0.97 - XXX
 
   - Initial infrastructure for running SCons tests under QMTest.
 
+  From Sohail Sumani:
+
+  - Fix tests that fail due to gcc warnings.
+
+  From Dobes Vandermeer:
+
+  - In stack traces, print the full paths of SConscript files.
+
   From Atul Varma:
 
   - Fix detection of Visual C++ Express Edition.
+
+  From Dobes Vandermeer:
+
+  - Let the src_dir option to the SConscript() function affect all the 
+    the source file paths, instead of treating all source files paths
+    as relative to the SConscript directory itself.
+
+  From Nicolas Vigier:
+
+  - Fix finding Fortran modules in build directories.
+
+  - Fix use of BuildDir() when the source file in the source directory
+    is a symlink with a relative path.
+
+  From Edward Wang:
+
+  - Fix the Memoizer when the SCons Python modules are executed from
+    .pyo files at different locations from where they were compiled.
 
   From Johan Zander:
 

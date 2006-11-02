@@ -47,7 +47,7 @@ import sys
 import TestCmd
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -61,14 +61,14 @@ file.close()
 """)
 
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%s build.py $TARGETS')
+MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
 env.Install('install', 'f3.in')
 BuildDir('build', 'src', duplicate=1)
 SConscript('build/SConscript', "env")
-""" % python)
+""" % locals())
 
 test.write(['src', 'SConscript'], """
 Import("env")
@@ -82,9 +82,9 @@ test.write(['src', 'f4.in'], "src/f4.in\n")
 
 args = 'f1.out f2.out'
 expect = test.wrap_stdout("""\
-%s build.py f1.out
-%s build.py f2.out
-""" % (python, python))
+%(_python_)s build.py f1.out
+%(_python_)s build.py f2.out
+""" % locals())
 
 test.run(arguments = args, stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
@@ -118,8 +118,8 @@ test.fail_test(not os.path.exists(test.workpath('f1.out')))
 
 # Test that SCons does not write a modified .sconsign when -n is used.
 expect = test.wrap_stdout("""\
-%s build.py f1.out
-""" % python)
+%(_python_)s build.py f1.out
+""" % locals())
 test.unlink('.sconsign.dblite')
 test.write('f1.out', "X1.out\n")
 test.run(arguments = '-n f1.out', stdout = expect)

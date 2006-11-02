@@ -31,7 +31,7 @@ the displayed string when  is called.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +49,10 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'dvips'],
-                  PSCOM = r'%s myps.py $TARGET $SOURCES',
+                  PSCOM = r'%(_python_)s myps.py $TARGET $SOURCES',
                   PSCOMSTR = 'PostScripting $TARGET from $SOURCE')
 env.PostScript(target = 'aaa', source = 'aaa.dvi')
-""" % python)
+""" % locals())
 
 test.write('aaa.dvi', "aaa.dvi\n/*ps*/\n")
 

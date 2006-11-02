@@ -212,6 +212,9 @@ env.Program('foo', [foo_obj, 'bar.c'])
 """)
 
 test.write(['test2', 'bar.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 void
 bar(void) {
         printf("bar.c\n");
@@ -219,6 +222,9 @@ bar(void) {
 """)
 
 test.write(['test2', 'foo.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int argc, char *argv[]) {
         bar();

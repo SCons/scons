@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -110,13 +110,13 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LINK = r'%s mylink.py',
+env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  ASPP = r'%s myas.py',
-                  CC = r'%s myas.py')
+                  ASPP = r'%(_python_)s myas.py',
+                  CC = r'%(_python_)s myas.py')
 env.Program(target = 'test1', source = 'test1.spp')
 env.Program(target = 'test2', source = 'test2.SPP')
-""" % (python, python, python))
+""" % locals())
 
 test.write('test1.spp', r"""This is a .spp file.
 #as

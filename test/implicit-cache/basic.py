@@ -24,10 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import sys
+import os.path
+
 import TestSCons
-import string
 
 _exe = TestSCons._exe
 _obj = TestSCons._obj
@@ -67,8 +66,7 @@ Import("env")
 env.Program(target='prog', source='prog.c')
 """)
 
-test.write('nodeps.in', 
-r"""
+test.write('nodeps.in', r"""
 int
 main(int argc, char *argv[])
 {
@@ -78,24 +76,20 @@ main(int argc, char *argv[])
 """)
 
 
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 1\n"
 #include <bar.h>
 """)
 
-test.write(['include', 'bar.h'],
-r"""
+test.write(['include', 'bar.h'], r"""
 #define BAR_STRING "include/bar.h 1\n"
 """)
 
-test.write(['include', 'baz.h'],
-r"""
+test.write(['include', 'baz.h'], r"""
 #define BAZ_STRING "include/baz.h 1\n"
 """)
 
-test.write(['subdir', 'prog.c'],
-r"""
+test.write(['subdir', 'prog.c'], r"""
 #include <foo.h>
 #include <stdio.h>
 
@@ -110,19 +104,16 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write(['subdir', 'include', 'foo.h'],
-r"""
+test.write(['subdir', 'include', 'foo.h'], r"""
 #define FOO_STRING "subdir/include/foo.h 1\n"
 #include "bar.h"
 """)
 
-test.write(['subdir', 'include', 'bar.h'],
-r"""
+test.write(['subdir', 'include', 'bar.h'], r"""
 #define BAR_STRING "subdir/include/bar.h 1\n"
 """)
 
-test.write('one.c' ,
-r"""
+test.write('one.c' , r"""
 #include <foo.h>
 
 void one(void) { }
@@ -141,9 +132,10 @@ test.run(program = test.workpath(variant_prog),
 
 test.up_to_date(arguments = args)
 
-# Make sure implicit dependenies work right when one is modifed:
-test.write(['include', 'foo.h'],
-r"""
+
+
+# Make sure implicit dependencies work right when one is modifed:
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
 """)
@@ -160,11 +152,12 @@ test.run(program = test.workpath(variant_prog),
          stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
 test.up_to_date(arguments = args)
+
+
 
 # Make sure that changing the order of includes causes rebuilds and
 # doesn't produce redundant rebuilds:
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
 #include "baz.h"
@@ -183,8 +176,9 @@ test.run(program = test.workpath(variant_prog),
 
 test.up_to_date(arguments = args)
 
-test.write(['include', 'foo.h'],
-r"""
+
+
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 2\n"
 #include "baz.h"
 #include "bar.h"
@@ -202,20 +196,19 @@ test.run(program = test.workpath(variant_prog),
          stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
 test.up_to_date(arguments = args)
+
+
 
 # Add inc2/foo.h that should shadow include/foo.h, but
 # because of implicit dependency caching, scons doesn't
 # detect this:
-test.write(['inc2', 'foo.h'],
-r"""
+test.write(['inc2', 'foo.h'], r"""
 #define FOO_STRING "inc2/foo.h 1\n"
 #include <bar.h>
 """)
 
 test.run(arguments = "--implicit-cache " + args)
 
-test.run(arguments = "--implicit-cache " + args)
-
 test.run(program = test.workpath(prog),
          stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
@@ -225,9 +218,10 @@ test.run(program = test.workpath(subdir_prog),
 test.run(program = test.workpath(variant_prog),
          stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
+
+
 # Now modifying include/foo.h should make scons aware of inc2/foo.h
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 3\n"
 #include "bar.h"
 """)
@@ -243,11 +237,12 @@ test.run(program = test.workpath(subdir_prog),
 test.run(program = test.workpath(variant_prog),
          stdout = "subdir/prog.c\ninclude/foo.h 3\ninclude/bar.h 1\n")
 
-# test in the face of a file with no dependencies where the source file is generated:
+
+
+# test a file with no dependencies where the source file is generated:
 test.run(arguments = "--implicit-cache nodeps%s"%_exe)
 
-test.write('nodeps.in', 
-r"""
+test.write('nodeps.in', r"""
 #include <foo.h>
 
 int
@@ -259,116 +254,64 @@ main(int argc, char *argv[])
 """)
 
 test.run(arguments = "--implicit-cache one%s"%_obj)
-test.run(arguments = "--implicit-cache one%s"%_obj)
+
+
 
 # Test forcing of implicit caching:
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 3\n"
 #include "bar.h"
 """)
 
 test.run(arguments = "--implicit-cache " + args)
 
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 3\n"
 #include "baz.h"
 #include "bar.h"
 """)
 
-test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
-assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+test.not_up_to_date(options = "--implicit-deps-unchanged",
+                    arguments = variant_prog)
 
-test.write(['include', 'baz.h'],
-r"""
+test.write(['include', 'baz.h'], r"""
 #define BAZ_STRING "include/baz.h 2\n"
 """)
 
-test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
-assert string.find(test.stdout(), 'is up to date') != -1, test.stdout()
+test.up_to_date(options = "--implicit-deps-unchanged",
+                arguments = variant_prog)
 
-test.run(arguments = variant_prog)
-assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+test.not_up_to_date(arguments = variant_prog)
+
+
 
 # Test forcing rescanning:
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 3\n"
 #include "bar.h"
 """)
 
 test.run(arguments = "--implicit-cache " + args)
 
-test.write(['include', 'foo.h'],
-r"""
+test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 3\n"
 #include "baz.h"
 #include "bar.h"
 """)
 
-test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
-assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+test.not_up_to_date(options = "--implicit-deps-unchanged",
+                    arguments = variant_prog)
 
-test.write(['include', 'baz.h'],
-r"""
+test.write(['include', 'baz.h'], r"""
 #define BAZ_STRING "include/baz.h 2\n"
 """)
 
-test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
-assert string.find(test.stdout(), 'is up to date') != -1, test.stdout()
+test.up_to_date(options = "--implicit-deps-unchanged",
+                arguments = variant_prog)
 
-test.run(arguments = "--implicit-deps-changed " + variant_prog)
-assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+test.not_up_to_date(options = "--implicit-deps-changed",
+                    arguments = variant_prog)
 
-# Test that Set/GetOption('implicit_cache') works:
-test.write('SConstruct', """
-assert not GetOption('implicit_cache')
-SetOption('implicit_cache', 1)
-assert GetOption('implicit_cache')
-""")
-
-test.run()
-
-test.write('SConstruct', """
-assert GetOption('implicit_cache')
-SetOption('implicit_cache', 0)
-assert GetOption('implicit_cache')
-""")
-
-test.run(arguments='--implicit-cache')
-
-# Test to make sure SetOption('implicit_cache', 1) actually enables implicit caching
-# by detecting the one case where implicit caching causes inaccurate builds:
-test.write('SConstruct', """
-SetOption('implicit_cache', 1)
-env=Environment(CPPPATH=['i1', 'i2'])
-env.Object('foo.c')
-""")
-
-test.subdir('i1')
-test.subdir('i2')
-
-test.write('foo.c', """
-#include <foo.h>
-
-void foo(void)
-{
-    FOO_H_DEFINED
-    ++x;  /* reference x */
-}
-""")
-
-test.write('i2/foo.h', """
-#define FOO_H_DEFINED int x = 1;
-""")
-
-test.run()
-
-test.write('i1/foo.h', """
-""");
-
-test.run()
 
 
 test.pass_test()

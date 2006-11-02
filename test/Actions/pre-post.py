@@ -34,7 +34,7 @@ import sys
 import TestSCons
 
 _exe = TestSCons._exe
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -187,7 +187,7 @@ def post_action(target, source, env):
 env = Environment()
 o = env.Command(['pre-post', 'file.out'],
                 'file.in',
-                "%(python)s build.py ${TARGETS[1]} $SOURCE")
+                '%(_python_)s build.py ${TARGETS[1]} $SOURCE')
 env.AddPreAction(o, pre_action)
 env.AddPostAction(o, post_action)
 """ % locals())

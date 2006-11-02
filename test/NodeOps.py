@@ -47,13 +47,6 @@ _lib = TestSCons._lib
 _obj = TestSCons._obj
 dll_ = TestSCons.dll_
 _dll = TestSCons._dll
-
-if sys.platform == 'win32':
-    fooflags = '/nologo -DFOO'
-    barflags = '/nologo -DBAR'
-else:
-    fooflags = '-DFOO'
-    barflags = '-DBAR'
     
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
@@ -61,6 +54,10 @@ if string.find(sys.platform, 'irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test = TestSCons.TestSCons()
+
+e = test.Environment()
+fooflags = e['SHCXXFLAGS'] + ' -DFOO'
+barflags = e['SHCXXFLAGS'] + ' -DBAR'
 
 test.subdir('bld', 'src', ['src', 'subsrcdir'])
 

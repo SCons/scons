@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test transparent checkouts from SCCS files in an SCCS subdirectory.
 """
 
+import os.path
 import string
 
 import TestSCons
@@ -94,10 +95,10 @@ test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
 expect = """\
 
-scons: warning: Ignoring missing SConscript 'sub/SConscript'
-File "SConstruct", line 17, in ?
+scons: warning: Ignoring missing SConscript '%s'
+File "%s", line 17, in ?
 scons: *** Source `aaa.in' not found, needed by target `aaa.out'.  Stop.
-"""
+""" % (os.path.join('sub', 'SConscript'), test.workpath('SConstruct'))
 
 test.run(status=2, stderr=expect)
 

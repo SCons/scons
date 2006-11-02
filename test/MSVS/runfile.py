@@ -100,7 +100,7 @@ expected_vcprojfile = """\
 
 
 SConscript_contents = """\
-env=Environment(MSVS_VERSION = '8.0')
+env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 env.MSVSProject(target = 'Test.vcproj',
                 slnguid = '{SLNGUID}',

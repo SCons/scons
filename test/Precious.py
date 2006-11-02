@@ -28,7 +28,7 @@ import os.path
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -39,17 +39,18 @@ import sys
 sys.exit(0)
 """)
 
+SUBDIR_f4_out = os.path.join('$SUBDIR', 'f4.out')
+
 test.write('SConstruct', """\
-B = Builder(action = r"%s build.py $TARGET $SOURCES")
+B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B }, SUBDIR = 'subdir')
 f1 = env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 env.B(target = 'subdir/f4.out', source = 'f4.in')
-env.Precious(f1, 'f2.out', r'%s')
+env.Precious(f1, 'f2.out', r'%(SUBDIR_f4_out)s')
 SConscript('subdir/SConscript', "env")
-""" % (python,
-       os.path.join('$SUBDIR', 'f4.out')))
+""" % locals())
 
 test.write(['subdir', 'SConscript'], """
 Import("env")

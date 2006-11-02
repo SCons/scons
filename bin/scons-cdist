@@ -22,45 +22,58 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 PROG=`basename $0`
-FLAGS="ahnqrstz"
-USAGE="Usage:  ${PROG} [-${FLAGS}] change"
+NOARGFLAGS="afhlnqrstz"
+ARGFLAGS="p:"
+ALLFLAGS="${NOARGFLAGS}${ARGFLAGS}"
+USAGE="Usage:  ${PROG} [-${NOARGFLAGS}] [-p project] change"
 
 HELP="$USAGE
 
-  -a    Update the latest Aegis baseline (aedist) file.
-  -h    Print this help message and exit.
-  -n    Don't execute, just echo commands.
-  -q    Quiet, don't print commands before executing them.
-  -r    Rsync the Aegis repository to SourceForge.
-  -s    Update the sourceforge.net CVS repository.
-  -t    Update the tigris.org CVS repository.
-  -z    Update the latest .zip file.
+  -a            Update the latest Aegis baseline (aedist) file.
+  -f            Force update, skipping up-front sanity check.
+  -h            Print this help message and exit.
+  -l            Update the local CVS repository.
+  -n            Don't execute, just echo commands.
+  -p project    Set the Aegis project.
+  -q            Quiet, don't print commands before executing them.
+  -r            Rsync the Aegis repository to SourceForge.
+  -s            Update the sourceforge.net CVS repository.
+  -t            Update the tigris.org CVS repository.
+  -z            Update the latest .tar.gz and .zip files.
 "
 
 DO=""
 PRINT="echo"
 EXECUTE="eval"
+SANITY_CHECK="yes"
 
-while getopts $FLAGS FLAG; do
-	case $FLAG in
-	a | r | s | t | z )
-		DO="${DO}${FLAG}"
-		;;
-	h )
-		echo "${HELP}"
-                exit 0
-		;;
-	n )
-		EXECUTE=":"
-		;;
-        q )
-		PRINT=":"
-                ;;
-	* )
-		echo "${USAGE}" >&2
-		exit 1
-		;;
-	esac
+while getopts $ALLFLAGS FLAG; do
+    case $FLAG in
+    a | l | r | s | t | z )
+        DO="${DO}${FLAG}"
+        ;;
+    f )
+        SANITY_CHECK="no"
+        ;;
+    h )
+        echo "${HELP}"
+        exit 0
+        ;;
+    n )
+        EXECUTE=":"
+        ;;
+    p )
+        AEGIS_PROJECT="${OPTARG}"
+        ;;
+    q )
+        PRINT=":"
+        ;;
+    * )
+        echo "FLAG = ${FLAG}" >&2
+        echo "${USAGE}" >&2
+        exit 1
+        ;;
+    esac
 done
 
 shift `expr ${OPTIND} - 1`
@@ -70,8 +83,14 @@ if test "X$1" = "X"; then
     exit 1
 fi
 
+if test "X${AEGIS_PROJECT}" = "X"; then
+    echo "$PROG: No AEGIS_PROJECT set." >&2
+    echo "${USAGE}" >&2
+    exit 1
+fi
+
 if test "X$DO" = "X"; then
-    DO="arstz"
+    DO="alrstz"
 fi
 
 cmd()
@@ -81,6 +100,27 @@ cmd()
 }
 
 CHANGE=$1
+
+if test "X${SANITY_CHECK}" = "Xyes"; then
+    SCM="cvs"
+    SCMROOT="/home/scons/CVSROOT/scons"
+    DELTA=`aegis -l -ter cd ${CHANGE} | sed -n 's/.*, Delta \([0-9]*\)\./\1/p'`
+    if test "x${DELTA}" = "x"; then
+        echo "${PROG}:  Could not find delta for change ${CHANGE}." >&2
+        echo "Has this finished integrating?  Change ${CHANGE} not distributed." >&2
+        exit 1
+    fi
+    PREV_DELTA=`expr ${DELTA} - 1`
+    COMMAND="scons-scmcheck -D ${PREV_DELTA} -d q -p ${AEGIS_PROJECT} -s ${SCM} ${SCMROOT}"
+    $PRINT "${COMMAND}"
+    OUTPUT=`${COMMAND}`
+    if test "X${OUTPUT}" != "X"; then
+        echo "${PROG}: ${SCMROOT} is not up to date:" >&2
+        echo "${OUTPUT}" >& 2
+        echo "Did you skip any changes?  Change ${CHANGE} not distributed." >&2
+        exit 1
+    fi
+fi
 
 if test X$EXECUTE != "X:" -a "X$SSH_AGENT_PID" = "X"; then
     eval `ssh-agent`
@@ -95,29 +135,38 @@ BASELINE=`aesub -p ${AEGIS_PROJECT} -c ${CHANGE} '${Project trunk_name}'`
 TMPBLAE="/tmp/${BASELINE}.ae"
 TMPCAE="/tmp/${AEGIS_PROJECT}.C${CHANGE}.ae"
 
-SFLOGIN="stevenknight"
-SFHOST="scons.sourceforge.net"
-SFDEST="/home/groups/s/sc/scons/htdocs"
+# Original values for SourceForge.
+#SFLOGIN="stevenknight"
+#SFHOST="scons.sourceforge.net"
+#SFDEST="/home/groups/s/sc/scons/htdocs"
+
+SCONSLOGIN="scons"
+SCONSHOST="manam.pair.com"
+#SCONSDEST="public_html/production"
+SCONSDEST="public_ftp"
 
 #
 # Copy the baseline .ae to the constant location on SourceForge.
 #
 case "${DO}" in
-    *a* )
-        cmd "aedist -s -bl -p ${AEGIS_PROJECT} > ${TMPBLAE}"
-        cmd "scp ${TMPBLAE} ${SFLOGIN}@${SFHOST}:${SFDEST}/${BASELINE}.ae"
-        cmd "rm ${TMPBLAE}"
-        ;;
+*a* )
+    cmd "aedist -s -bl -p ${AEGIS_PROJECT} > ${TMPBLAE}"
+    cmd "scp ${TMPBLAE} ${SCONSLOGIN}@${SCONSHOST}:${SCONSDEST}/${BASELINE}.ae"
+    cmd "rm ${TMPBLAE}"
+    ;;
 esac
 
 #
-# Copy the latest .zip file to the constant location on SourceForge.
+# Copy the latest .tar.gz and .zip files to the constant location on
+# SourceForge.
 #
 case "${DO}" in
-    *z* )
-        BUILD_DIST=`aegis -p ${AEGIS_PROJECT} -cd -bl`/build/dist
-        SCONS_SRC=`echo ${AEGIS_PROJECT} | sed 's/scons./scons-src-/'`.zip
-        cmd "scp ${BUILD_DIST}/${SCONS_SRC} ${SFLOGIN}@${SFHOST}:${SFDEST}/scons-src-latest.zip"
+*z* )
+    BUILD_DIST=`aegis -p ${AEGIS_PROJECT} -cd -bl`/build/dist
+    SCONS_SRC_TAR_GZ=`echo ${AEGIS_PROJECT} | sed 's/scons./scons-src-/'`*.tar.gz
+    SCONS_SRC_ZIP=`echo ${AEGIS_PROJECT} | sed 's/scons./scons-src-/'`*.zip
+    cmd "scp ${BUILD_DIST}/${SCONS_SRC_TAR_GZ} ${SCONSLOGIN}@${SCONSHOST}:${SCONSDEST}/scons-src-latest.tar.gz"
+    cmd "scp ${BUILD_DIST}/${SCONS_SRC_ZIP} ${SCONSLOGIN}@${SCONSHOST}:${SCONSDEST}/scons-src-latest.zip"
 esac
 
 #
@@ -144,38 +193,73 @@ esac
 # We no longer use the --stats option.
 #
 case "${DO}" in
-    *r* )
-	LOCAL=/home/scons/scons
-	REMOTE=/home/groups/s/sc/scons/scons
-	cmd "/usr/bin/rsync --rsh=ssh -l -p -r -t -z \
-		--exclude build \
-		--exclude '*,D' \
-		--exclude '*.pyc' \
-		--exclude aegis.log \
-                --exclude '.sconsign*' \
-		--delete --delete-excluded \
-		--progress -v \
-		${LOCAL}/. scons.sourceforge.net:${REMOTE}/."
-        ;;
+*r* )
+    LOCAL=/home/scons/scons
+    REMOTE=/home/groups/s/sc/scons/scons
+    cmd "/usr/bin/rsync --rsh='ssh -l stevenknight' \
+            -l -p -r -t -z \
+            --exclude build \
+            --exclude '*,D' \
+            --exclude '*.pyc' \
+            --exclude aegis.log \
+            --exclude '.sconsign*' \
+            --delete --delete-excluded \
+            --progress -v \
+            ${LOCAL}/. scons.sourceforge.net:${REMOTE}/."
+    ;;
 esac
 
 #
-# Sync the CVS tree with Tigris.org.
+# Sync the CVS tree with the local repository.
 #
 case "${DO}" in
-    *t* )
-        cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/tigris.org/scons"
-        ;;
+*l* )
+    (
+        export CVSROOT=/home/scons/CVSROOT/scons
+        #cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/baldmt.com/scons"
+        cmd "ae-cvs-ci ${AEGIS_PROJECT} ${CHANGE}"
+    )
+    ;;
+esac
+
+#
+# Sync the Subversion tree with Tigris.org.
+#
+case "${DO}" in
+*t* )
+    (
+        SVN=http://scons.tigris.org/svn/scons
+        case ${AEGIS_PROJECT} in
+        scons.0.96 )
+            SVN_URL=${SVN}/branches/core
+            ;;
+        scons.0.96.513 )
+            SVN_URL=${SVN}/branches/sigrefactor
+            ;;
+        * )
+            echo "$PROG: Don't know SVN branch for '${AEGIS_PROJECT}'" >&2
+            exit 1
+            ;;
+        esac
+        SVN_CO_FLAGS="--username stevenknight"
+        #cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/tigris.org/scons"
+        cmd "ae-svn-ci ${AEGIS_PROJECT} ${CHANGE} ${SVN_URL} ${SVN_CO_FLAGS}"
+    )
+    ;;
 esac
 
 #
 # Sync the CVS tree with SourceForge.
 #
 case "${DO}" in
-    *s* )
+*s* )
+    (
         export CVS_RSH=ssh
-        cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/sourceforge.net/scons"
-        ;;
+        export CVSROOT=:ext:stevenknight@scons.cvs.sourceforge.net:/cvsroot/scons
+        #cmd "ae2cvs -X -aegis -p ${AEGIS_PROJECT} -c ${CHANGE} -u $HOME/SCons/sourceforge.net/scons"
+        cmd "ae-cvs-ci ${AEGIS_PROJECT} ${CHANGE}"
+    )
+    ;;
 esac
 
 #
@@ -185,4 +269,4 @@ esac
 #
 #aedist -s -p ${AEGIS_PROJECT} ${CHANGE} > ${TMPCAE}
 #aegis -l -p ${AEGIS_PROJECT} -c ${CHANGE} cd |
-#	pine -attach_and_delete ${TMPCAE} scons-aedist@lists.sourceforge.net
+#        pine -attach_and_delete ${TMPCAE} scons-aedist@lists.sourceforge.net

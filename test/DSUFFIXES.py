@@ -30,7 +30,7 @@ Test the ability to scan additional filesuffixes added to $DSUFFIXES.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -57,7 +57,7 @@ env = Environment()
 Tool('dmd')(env)
 # Now replace those suffixes with our fake-D things.
 env.Replace(DPATH = ['.'],
-            DC = r'%s mydc.py',
+            DC = r'%(_python_)s mydc.py',
             DFLAGS = [],
             DCOM = '$DC $TARGET $SOURCES',
             OBJSUFFIX = '.o')
@@ -66,7 +66,7 @@ env.Object(target = 'test1', source = 'test1.d')
 env.InstallAs('test1_d', 'test1.d')
 env.InstallAs('test2_d', 'test2.d')
 env.InstallAs('test3_d', 'test3.d')
-""" % (python,))
+""" % locals())
 
 test.write('test1.d', """\
 test1.d 1
@@ -86,12 +86,14 @@ import foo;
 
 test.write('foo.d', "foo.d 1\n")
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mydc.py test1.o test1.d
+expect = test.wrap_stdout("""\
+%(_python_)s mydc.py test1.o test1.d
 Install file: "test1.d" as "test1_d"
 Install file: "test2.d" as "test2_d"
 Install file: "test3.d" as "test3_d"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.d 1
@@ -105,9 +107,11 @@ test.up_to_date(arguments='.')
 
 test.write('foo.d', "foo.d 2\n")
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mydc.py test1.o test1.d
-""" % (python,)))
+expect = test.wrap_stdout("""\
+%(_python_)s mydc.py test1.o test1.d
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.d 1
@@ -124,10 +128,12 @@ test3.d 2
 import foo;
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mydc.py test1.o test1.d
+expect = test.wrap_stdout("""\
+%(_python_)s mydc.py test1.o test1.d
 Install file: "test3.d" as "test3_d"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.d 1
@@ -144,10 +150,12 @@ test2.d 2
 import foo;
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mydc.py test1.o test1.d
+expect = test.wrap_stdout("""\
+%(_python_)s mydc.py test1.o test1.d
 Install file: "test2.d" as "test2_d"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.d 1

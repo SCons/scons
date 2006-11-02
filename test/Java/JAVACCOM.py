@@ -30,7 +30,7 @@ Test the ability to configure the $JAVACCOM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -50,7 +50,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'javac'],
-                  JAVACCOM = r'%(python)s myjavac.py $TARGET $SOURCES')
+                  JAVACCOM = r'%(_python_)s myjavac.py $TARGET $SOURCES')
 env.Java(target = 'classes', source = 'src')
 """ % locals())
 

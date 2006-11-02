@@ -30,7 +30,7 @@ Test the ability to configure the $M4COM construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -48,9 +48,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'm4'],
-                  M4COM = r'%s mym4.py $TARGET $SOURCES')
+                  M4COM = r'%(_python_)s mym4.py $TARGET $SOURCES')
 env.M4(target = 'aaa.out', source = 'aaa.in')
-""" % python)
+""" % locals())
 
 test.write('aaa.in', "aaa.in\n/*m4*/\n")
 

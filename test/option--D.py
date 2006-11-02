@@ -28,7 +28,7 @@ import sys
 import TestSCons
 import os
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -44,14 +44,14 @@ file.close()
 
 test.write('SConstruct', """
 import SCons.Defaults
-B = Builder(action=r'%s build.py $TARGET $SOURCES')
+B = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment()
 env['BUILDERS']['B'] = B
 env.B(target = 'sub1/foo.out', source = 'sub1/foo.in')
 Export('env')
 SConscript('sub1/SConscript')
 SConscript('sub2/SConscript')
-""" % python)
+""" % locals())
 
 test.write(['sub1', 'SConscript'], """
 Import('env')

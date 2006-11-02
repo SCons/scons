@@ -29,15 +29,18 @@ Test the Qt tool warnings.
 """
 
 import os
+import re
 import string
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
+SConstruct_path = test.workpath('SConstruct')
+
 test.Qt_dummy_installation()
 
-test.Qt_create_SConstruct('SConstruct')
+test.Qt_create_SConstruct(SConstruct_path)
 
 test.write('aaa.cpp', r"""
 #include "my_qobject.h"
@@ -77,15 +80,19 @@ test.run(stderr=None, arguments='-n noqtdir=1')
 moc = test.where_is('moc')
 if moc:
     import os.path
+    qtdir = os.path.dirname(os.path.dirname(moc))
+    qtdir = string.replace(qtdir, '\\', '\\\\' )
+
     expect = """
 scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
-File "SConstruct", line \d+, in \?
-""" % string.replace( os.path.dirname(os.path.dirname(moc)), '\\', '\\\\' )
+File "%s", line \d+, in \?
+""" % (qtdir, re.escape(SConstruct_path))
 else:
+
     expect = """
 scons: warning: Could not detect qt, using empty QTDIR
-File "SConstruct", line \d+, in \?
-"""
+File "%s", line \d+, in \?
+""" % re.escape(SConstruct_path)
 
 test.fail_test(not test.match_re(test.stderr(), expect))
 

@@ -30,9 +30,15 @@ Test a combination of a passing test, failing test, and no-result
 test with no argument on the command line.
 """
 
+import os.path
+
 import TestRuntest
 
 test = TestRuntest.TestRuntest()
+
+test_fail_py = os.path.join('test', 'fail.py')
+test_no_result_py = os.path.join('test', 'no_result.py')
+test_pass_py = os.path.join('test', 'pass.py')
 
 test.subdir('test')
 
@@ -45,39 +51,39 @@ test.write_passing_test(['test', 'pass.py'])
 # NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
 # have spaces at the end.
 
-expect = r"""qmtest.py run --output results.qmr --format none --result-stream=scons_tdb.AegisChangeStream test
+expect = r"""qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" test
 --- TEST RESULTS -------------------------------------------------------------
 
-  test/fail.py                                  : FAIL    
+  %(test_fail_py)s                                  : FAIL    
 
     FAILING TEST STDOUT
 
     FAILING TEST STDERR
 
-  test/no_result.py                             : NO_RESULT
+  %(test_no_result_py)s                             : NO_RESULT
 
     NO RESULT TEST STDOUT
 
     NO RESULT TEST STDERR
 
-  test/pass.py                                  : PASS    
+  %(test_pass_py)s                                  : PASS    
 
 --- TESTS THAT DID NOT PASS --------------------------------------------------
 
-  test/fail.py                                  : FAIL    
+  %(test_fail_py)s                                  : FAIL    
 
-  test/no_result.py                             : NO_RESULT
+  %(test_no_result_py)s                             : NO_RESULT
 
 
 --- STATISTICS ---------------------------------------------------------------
 
        3        tests total
 
-       1 ( 33%) tests PASS
-       1 ( 33%) tests FAIL
-       1 ( 33%) tests NO_RESULT
-"""
+       1 ( 33%%) tests PASS
+       1 ( 33%%) tests FAIL
+       1 ( 33%%) tests NO_RESULT
+""" % locals()
 
-test.run(arguments = '--qmtest test', stdout = expect)
+test.run(arguments = 'test', status = 1, stdout = expect)
 
 test.pass_test()

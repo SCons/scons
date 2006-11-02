@@ -30,6 +30,8 @@ import sys
 
 import TestSCons
 
+_python_ = TestSCons._python_
+
 test = TestSCons.TestSCons()
 
 attempt_file_names = [ 
@@ -68,11 +70,13 @@ for fn in attempt_file_names:
 def buildFileStr(fn):
     return "env.Build(source=r\"\"\"%s.in\"\"\", target=r\"\"\"%s.out\"\"\")" % ( fn, fn )
 
-test.write("SConstruct", """
-env=Environment(BUILDERS = {'Build' : Builder(action = '%s cat.py $TARGET $SOURCE')})
+xxx =  string.join(map(buildFileStr, file_names), '\n')
 
-%s
-""" % (TestSCons.python, string.join(map(buildFileStr, file_names), '\n')))
+test.write("SConstruct", """
+env=Environment(BUILDERS = {'Build' : Builder(action = '%(_python_)s cat.py $TARGET $SOURCE')})
+
+%(xxx)s
+""" % locals())
 
 test.run(arguments='.')
 

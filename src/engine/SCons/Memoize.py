@@ -798,9 +798,14 @@ else:
                 # Make sure filename has os.sep+'SCons'+os.sep so that
                 # SCons.Script.find_deepest_user_frame doesn't stop here
                 import inspect # It's OK, can't get here for Python < 2.1
+                filename = inspect.getsourcefile(_MeMoIZeR_superinit)
+                if not filename:
+                    # This file was compiled at a path name different from
+                    # how it's invoked now, so just make up something.
+                    filename = whoami('superinit', '???')
                 superinitcode = compile(
                     "lambda self, *args, **kw: MPI(self, cls, args, kw)",
-                    inspect.getsourcefile(_MeMoIZeR_superinit) or '<unknown>',
+                    filename,
                     "eval")
                 superinit = eval(superinitcode,
                                  {'cls':cls,

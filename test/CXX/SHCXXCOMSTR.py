@@ -34,7 +34,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
@@ -56,7 +56,7 @@ else:
     alt_cpp_suffix = '.C'
 
 test.write('SConstruct', """
-env = Environment(SHCXXCOM = r'%(python)s mycc.py $TARGET $SOURCE',
+env = Environment(SHCXXCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
                   SHCXXCOMSTR = 'Building shared object $TARGET from $SOURCE',
                   SHOBJSUFFIX='.obj')
 env.SharedObject(target = 'test1', source = 'test1.cpp')

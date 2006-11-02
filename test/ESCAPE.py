@@ -30,7 +30,7 @@ Test the ESCAPE construction variable.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -52,7 +52,7 @@ def my_escape(s):
     s = string.replace(s, 'file.in', 'file.xxx')
     return orig_escape(s)
 env = Environment(ESCAPE = my_escape)
-env.Command('file.out', 'file.in', "%(python)s cat.py $TARGET $SOURCES")
+env.Command('file.out', 'file.in', '%(_python_)s cat.py $TARGET $SOURCES')
 """ % locals())
 
 test.write('file.in', "file.in\n")

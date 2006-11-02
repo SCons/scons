@@ -39,8 +39,9 @@ import re
 import TestSCons
 
 test = TestSCons.TestSCons()
-python = TestSCons.python
-re_python = re.escape(python)
+
+_python_ = TestSCons._python_
+re_python = re.escape(TestSCons.python)
 
 test.write("mycc.py", """
 print 'Compile'
@@ -51,8 +52,8 @@ print 'Link'
 """)
 
 sconstruct = """
-env = Environment(CC = r'%(python)s mycc.py',
-                  LINK = r'%(python)s mylink.py',
+env = Environment(CC = r'%(_python_)s mycc.py',
+                  LINK = r'%(_python_)s mylink.py',
                   INCPREFIX = 'INC_',
                   INCSUFFIX = '_CNI',
                   CPPPATH='%(cpppath)s')  # note no leading '#'
@@ -86,17 +87,16 @@ test.write('SConstruct', sconstruct % locals() )
 targets = re.escape(os.path.join('dir1', 'dir2'))
 INC_CNI = re.escape(os.path.join('INC_dir1', 'dir2', 'dir1', 'dir2_CNI'))
 
-# The .* after mycc\\.py below handles /nologo flags from Visual C/C++.
-test.run(arguments = '',
-         stdout=test.wrap_stdout("""\
+# The .+ after mycc\\.py below handles /nologo flags from Visual C/C++.
+expect = test.wrap_stdout("""\
 scons: building associated BuildDir targets: %(targets)s
-%(re_python)s mycc\\.py.* %(INC_CNI)s .+
+"%(re_python)s" mycc\\.py.* %(INC_CNI)s .+
 Compile
-%(re_python)s mylink\\.py .+
+"%(re_python)s" mylink\\.py .+
 Link
-""" % locals()),
-         match=TestSCons.match_re,
-         )
+""" % locals())
+
+test.run(arguments = '', match=TestSCons.match_re, stdout=expect)
 
 # Note that we don't check for the existence of dir1/dir2/foo.h, because
 # this bad cpppath will expand to dir1/dir2/dir1/dir2, which means it
@@ -120,9 +120,9 @@ INC_CNI = re.escape(os.path.join('INC_dir1', 'dir2_CNI'))
 test.run(arguments = '',
          stdout=test.wrap_stdout("""\
 scons: building associated BuildDir targets: %(targets)s
-%(re_python)s mycc\\.py.* %(INC_CNI)s .+
+"%(re_python)s" mycc\\.py.* %(INC_CNI)s .+
 Compile
-%(re_python)s mylink\\.py .+
+"%(re_python)s" mylink\\.py .+
 Link
 """ % locals()),
          match=TestSCons.match_re,

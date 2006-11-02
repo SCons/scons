@@ -31,7 +31,7 @@ Command() calls and execution work1s correctly.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -99,7 +99,7 @@ ofp.close
 """)
 
 test.write(['work1', 'SConstruct'], """
-cat_command = r"%(python)s %(cat_py)s ${TARGET.file} ${SOURCE.file}"
+cat_command = r'%(_python_)s %(cat_py)s ${TARGET.file} ${SOURCE.file}'
 
 no_chdir_act = Action(cat_command)
 chdir_sub4_act = Action(cat_command, chdir=1)
@@ -229,14 +229,14 @@ work2_sub_f1_out = test.workpath('work2', 'sub', 'f1.out')
 work2_sub_f2_out = test.workpath('work2', 'sub', 'f2.out')
 
 test.write(['work2', 'SConstruct'], """\
-cat_command = r"%(python)s %(cat_py)s ${TARGET.file} ${SOURCE.file}"
+cat_command = r'%(_python_)s %(cat_py)s ${TARGET.file} ${SOURCE.file}'
 env = Environment()
 env.Command('sub/f1.out', 'sub/f1.in', cat_command,
             chdir=1)
 env.Command('sub/f2.out', 'sub/f2.in',
             [
-              r"%(python)s %(cat_py)s .temp ${SOURCE.file}",
-              r"%(python)s %(cat_py)s ${TARGET.file} .temp",
+              r'%(_python_)s %(cat_py)s .temp ${SOURCE.file}',
+              r'%(_python_)s %(cat_py)s ${TARGET.file} .temp',
             ],
             chdir=1)
 """ % locals())
@@ -246,13 +246,13 @@ test.write(['work2', 'sub', 'f2.in'], "work2/sub/f2.in")
 
 expect = test.wrap_stdout("""\
 os.chdir('sub')
-%(python)s %(cat_py)s f1.out f1.in
+%(_python_)s %(cat_py)s f1.out f1.in
 os.chdir(%(work2)s)
 os.chdir('sub')
-%(python)s %(cat_py)s .temp f2.in
+%(_python_)s %(cat_py)s .temp f2.in
 os.chdir(%(work2)s)
 os.chdir('sub')
-%(python)s %(cat_py)s f2.out .temp
+%(_python_)s %(cat_py)s f2.out .temp
 os.chdir(%(work2)s)
 """ % locals())
 

@@ -38,6 +38,7 @@ env.Program(target = 'prog', source = [ 'prog.cpp', libtgt ])
 """)
 
 test.write('f1.c', r"""
+#include <stdio.h>
 void
 f1(void)
 {
@@ -46,6 +47,7 @@ f1(void)
 """)
 
 test.write('f2a.c', r"""
+#include <stdio.h>
 void
 f2a(void)
 {
@@ -54,6 +56,7 @@ f2a(void)
 """)
 
 test.write('f2b.c', r"""
+#include <stdio.h>
 void
 f2b(void)
 {
@@ -62,6 +65,7 @@ f2b(void)
 """)
 
 test.write('f2c.c', r"""
+#include <stdio.h>
 void
 f2c(void)
 {
@@ -70,6 +74,7 @@ f2c(void)
 """)
 
 test.write('f3a.c', r"""
+#include <stdio.h>
 void
 f3a(void)
 {
@@ -78,6 +83,7 @@ f3a(void)
 """)
 
 test.write('f3b.c', r"""
+#include <stdio.h>
 void
 f3b(void)
 {

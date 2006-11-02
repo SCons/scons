@@ -29,7 +29,7 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -42,13 +42,13 @@ file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS =  { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 env.B(target = 'f4.out', source = 'f4.in')
-""" % python)
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
@@ -57,13 +57,14 @@ test.write('f4.in', "f4.in\n")
 
 test.run(arguments = 'f1.out f3.out')
 
-test.run(arguments = 'f1.out f2.out f3.out f4.out', stdout =
-test.wrap_stdout("""\
+expect = test.wrap_stdout("""\
 scons: `f1.out' is up to date.
-%s build.py f2.out f2.in
+%(_python_)s build.py f2.out f2.in
 scons: `f3.out' is up to date.
-%s build.py f4.out f4.in
-""" % (python, python)))
+%(_python_)s build.py f4.out f4.in
+""" % locals())
+
+test.run(arguments = 'f1.out f2.out f3.out f4.out', stdout = expect)
 
 test.pass_test()
 

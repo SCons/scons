@@ -30,7 +30,7 @@ Test the ability to scan additional filesuffixes added to $CPPSUFFIXES.
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -51,7 +51,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(CPPPATH = ['.'],
-                  CC = r'%s mycc.py',
+                  CC = r'%(_python_)s mycc.py',
                   CCFLAGS = [],
                   CCCOM = '$CC $TARGET $SOURCES',
                   OBJSUFFIX = '.o')
@@ -60,7 +60,7 @@ env.Object(target = 'test1', source = 'test1.c')
 env.InstallAs('test1_c', 'test1.c')
 env.InstallAs('test1_h', 'test1.h')
 env.InstallAs('test1_x', 'test1.x')
-""" % (python,))
+""" % locals())
 
 test.write('test1.c', """\
 test1.c 1
@@ -80,12 +80,14 @@ test1.x 1
 
 test.write('foo.h', "foo.h 1\n")
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mycc.py test1.o test1.c
+expect = test.wrap_stdout("""\
+%(_python_)s mycc.py test1.o test1.c
 Install file: "test1.c" as "test1_c"
 Install file: "test1.h" as "test1_h"
 Install file: "test1.x" as "test1_x"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.c 1
@@ -99,9 +101,11 @@ test.up_to_date(arguments='.')
 
 test.write('foo.h', "foo.h 2\n")
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mycc.py test1.o test1.c
-""" % (python,)))
+expect = test.wrap_stdout("""\
+%(_python_)s mycc.py test1.o test1.c
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.c 1
@@ -118,10 +122,12 @@ test1.x 2
 #include <foo.h>
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mycc.py test1.o test1.c
+expect = test.wrap_stdout("""\
+%(_python_)s mycc.py test1.o test1.c
 Install file: "test1.x" as "test1_x"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.c 1
@@ -138,10 +144,12 @@ test1.h 2
 #include <foo.h>
 """)
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-%s mycc.py test1.o test1.c
+expect = test.wrap_stdout("""\
+%(_python_)s mycc.py test1.o test1.c
 Install file: "test1.h" as "test1_h"
-""" % (python,)))
+""" % locals())
+
+test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
 test1.c 1

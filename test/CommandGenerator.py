@@ -44,7 +44,7 @@ sys.exit(0)
 test.write('SConstruct', """
 def g(source, target, for_signature, env):
     import sys
-    python = r"%s"
+    python = r'%(python)s'
     return [[python, "build.py", "$TEMPFILE"] + source,
             [python, "build.py"] + target + ["$TEMPFILE"]]
 
@@ -54,7 +54,7 @@ env = Environment(BUILDERS = { 'b' : b },
 env.b(target = 'foo1.out', source = 'foo1.in')
 env.b(target = 'foo2.out', source = 'foo2.in')
 env.b(target = 'foo3.out', source = 'foo3.in')
-""" % python)
+""" % locals())
 
 test.write('foo1.in', "foo1.in\n")
 

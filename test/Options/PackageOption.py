@@ -35,13 +35,15 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+SConstruct_path = test.workpath('SConstruct')
+
 def check(expect):
     result = string.split(test.stdout(), '\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 
 
-test.write('SConstruct', """
+test.write(SConstruct_path, """\
 from SCons.Options import PackageOption
 
 opts = Options(args=ARGUMENTS)
@@ -64,11 +66,12 @@ test.run(arguments='x11=no'); check(['0'])
 test.run(arguments='x11=0'); check(['0'])
 test.run(arguments=['x11=%s' % test.workpath()]); check([test.workpath()])
 
-test.run(arguments='x11=/non/existing/path/',
-         stderr = """
+expect_stderr = """
 scons: *** Path does not exist for option x11: /non/existing/path/
-File "SConstruct", line 11, in ?
-""", status=2)
+File "%(SConstruct_path)s", line 10, in ?
+""" % locals()
+
+test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
 
 
 
