@@ -1163,14 +1163,14 @@ would override the built-in gcc tool.
 Also note that the toolpath is
 stored in the environment for use
 by later calls to
-.BR Copy ()
+.BR Clone ()
 and
 .BR Tool ()
 methods:
 
 .ES
 base = Environment(toolpath=['custom_path'])
-derived = base.Copy(tools=['custom_tool'])
+derived = base.Clone(tools=['custom_tool'])
 derived.CustomBuilder()
 .EE
 
@@ -2274,7 +2274,7 @@ below, for a complete explanation of the arguments and behavior.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.Copy([ key = val ", ...])"
+.RI env.Clone([ key = val ", ...])"
 Return a separate copy of a construction environment.
 If there are any keyword arguments specified,
 they are added to the returned copy,
@@ -2282,8 +2282,8 @@ overwriting any existing values
 for the keywords.
 
 .ES
-env2 = env.Copy()
-env3 = env.Copy(CCFLAGS = '-g')
+env2 = env.Clone()
+env3 = env.Clone(CCFLAGS = '-g')
 .EE
 .IP
 Additionally, a list of tools and a toolpath may be specified, as in
@@ -2291,8 +2291,15 @@ the Environment constructor:
 
 .ES
 def MyTool(env): env['FOO'] = 'bar'
-env4 = env.Copy(tools = ['msvc', MyTool])
+env4 = env.Clone(tools = ['msvc', MyTool])
 .EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI env.Copy([ key = val ", ...])"
+A synonym for
+env.Clone().
+(This will probably be officially deprecated some day.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -4400,11 +4407,11 @@ env = Environment(CC="cc")
 .EE
 
 or when copying a construction environment using the 
-.B Copy 
+.B Clone 
 method:
 
 .ES
-env2 = env.Copy(CC="cl.exe")
+env2 = env.Clone(CC="cl.exe")
 .EE
 
 .SS Configure Contexts

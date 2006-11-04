@@ -116,7 +116,7 @@ test.write('SConstruct', """
 foo = Environment(tools = ['javac'],
                   JAVAC = r'%(where_javac)s')
 javac = foo.Dictionary('JAVAC')
-bar = foo.Copy(JAVAC = r'%(_python_)s wrapper.py ' + javac)
+bar = foo.Clone(JAVAC = r'%(_python_)s wrapper.py ' + javac)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar.Java(target = 'class2', source = 'com/sub/bar')
 foo.Java(target = 'class3', source = ['src1', 'src2'])

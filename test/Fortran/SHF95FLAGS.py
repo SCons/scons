@@ -134,7 +134,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(LIBS = %(FTN_LIB)s)
 shf95 = foo.Dictionary('SHF95')
-bar = foo.Copy(SHF95 = r'%(_python_)s wrapper.py ' + shf95, SHF95FLAGS = '-Ix')
+bar = foo.Clone(SHF95 = r'%(_python_)s wrapper.py ' + shf95, SHF95FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 """ % locals())

@@ -182,8 +182,8 @@ os.system(cmd)
 
     test.write('SConstruct', """\
 aaa = Environment()
-bbb = aaa.Copy(AS = r'%(_python_)s wrapper.py ' + WhereIs('as'))
-ccc = aaa.Copy(CPPPATH=['.'])
+bbb = aaa.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('as'))
+ccc = aaa.Clone(CPPPATH=['.'])
 aaa.Program(target = 'aaa', source = ['aaa.s', 'aaa_main.c'])
 bbb.Program(target = 'bbb', source = ['bbb.s', 'bbb_main.c'])
 ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
@@ -317,7 +317,7 @@ import os
 ccc = Environment(tools = ['msvc', 'mslink', 'masm'],
                   ASFLAGS = '/nologo /coff')
 ccc['ENV']['PATH'] = ccc['ENV']['PATH'] + os.pathsep + os.environ['PATH']
-ddd = ccc.Copy(AS = r'%(_python_)s wrapper.py ' + ccc['AS'])
+ddd = ccc.Clone(AS = r'%(_python_)s wrapper.py ' + ccc['AS'])
 ccc.Program(target = 'ccc', source = ['ccc.asm', 'ccc_main.c'])
 ddd.Program(target = 'ddd', source = ['ddd.asm', 'ddd_main.c'])
 """ % locals())
@@ -407,7 +407,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],
                   ASFLAGS = '-f %(nasm_format)s')
-fff = eee.Copy(AS = r'%(_python_)s wrapper.py ' + WhereIs('nasm'))
+fff = eee.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('nasm'))
 eee.Program(target = 'eee', source = ['eee.asm', 'eee_main.c'])
 fff.Program(target = 'fff', source = ['fff.asm', 'fff_main.c'])
 """ % locals())

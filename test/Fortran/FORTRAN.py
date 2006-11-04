@@ -156,7 +156,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(LIBS = %(FTN_LIB)s)
 f77 = foo.Dictionary('FORTRAN')
-bar = foo.Copy(FORTRAN = r'%(_python_)s wrapper.py ' + f77)
+bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77)
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
 """ % locals())

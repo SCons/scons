@@ -89,7 +89,7 @@ print "env0['TOOL_SCCS1'] =", env0.get('TOOL_SCCS1')
 print "env0['TOOL_SCCS2'] =", env0.get('TOOL_SCCS2')
 
 base = Environment(tools=[], toolpath=['tools'])
-derived = base.Copy(tools=['bar'])
+derived = base.Clone(tools=['bar'])
 print "derived['TOOL_BAR'] =", derived.get('TOOL_BAR')
 """)
 

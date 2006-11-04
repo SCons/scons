@@ -184,12 +184,12 @@ test.write(['src', 'SConscript'], """\
 import Mylib
 Import("env")
 
-#env = env.Copy()    # Yes, clobber intentionally
+#env = env.Clone()    # Yes, clobber intentionally
 #Make environment changes, such as: Mylib.AddCFlags(env, "-g -D_TEST")
 #Mylib.Subdirs(env, "lib_a lib_b lib_mergej prog_x")
 Mylib.Subdirs(env, "lib_geng")
 
-env = env.Copy()    # Yes, clobber intentionally
+env = env.Clone()    # Yes, clobber intentionally
 # --- End SConscript boilerplate ---
 
 """)
@@ -201,11 +201,11 @@ import sys
 import Mylib
 Import("env")
 
-#env = env.Copy()    # Yes, clobber intentionally
+#env = env.Clone()    # Yes, clobber intentionally
 #Make environment changes, such as: Mylib.AddCFlags(env, "-g -D_TEST")
 #Mylib.Subdirs(env, "foo_dir")
 
-env = env.Copy()    # Yes, clobber intentionally
+env = env.Clone()    # Yes, clobber intentionally
 # --- End SConscript boilerplate ---
 
 Mylib.AddCFlags(env, "-DGOOFY_DEMO")
@@ -215,7 +215,7 @@ Mylib.AddIncludeDirs(env, ".")
 # On Windows, it's import to use the original test environment
 # when we invoke SCons recursively.
 import os
-recurse_env = env.Copy()
+recurse_env = env.Clone()
 recurse_env["ENV"] = os.environ
 
 # Icky code to set up process environment for "make"

@@ -51,7 +51,7 @@ SConscript(dirs=['glscry'])
 
 test.write(['src', 'glscry', 'SConscript'], """\
 Import('*')
-env = env.Copy()
+env = env.Clone()
 env.Append(CPPPATH=['.'])
 env.Library('foo', 'foo.c')
 """)

@@ -24,52 +24,34 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import os.path
-import string
-import sys
-import TestSCons
+"""
+Verify that a specific snippet of backwards-compatibility code works.
 
-_python_ = TestSCons._python_
+"""
+
+import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('mylex.py', """
-import getopt
-import string
-import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
-for a in args:
-    contents = open(a, 'rb').read()
-    sys.stdout.write(string.replace(contents, 'LEX', 'mylex.py'))
-sys.exit(0)
+test.write('SConstruct', """
+
+# When the 0.96.93 release introduced the env.Clone() we advertised this
+# code as the correct pattern for maintaining the backwards compatibility
+# of SConstruct files to earlier release of SCons.  Going forward, make
+# sure it still works (or at least doesn't blow up).
+import SCons.Environment
+try:
+    SCons.Environment.Environment.Clone
+except AttributeError:
+    SCons.Environment.Environment.Clone = SCons.Environment.Environment.Copy
+
+env1 = Environment(X = 1)
+env2 = env1.Clone(X = 2)
+
+print env1['X']
+print env2['X']
 """)
 
-test.write('SConstruct', """
-env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
-env.CFile(target = 'foo', source = 'foo.l')
-env.Clone(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
-""" % locals())
-
-input = r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEX\n");
-        printf("%s\n");
-        exit (0);
-}
-"""
-
-test.write('foo.l', input % 'foo.l')
-
-test.write('bar.l', input % 'bar.l')
-
-test.run(arguments = '.')
-
-test.fail_test(not os.path.exists(test.workpath('foo.c')))
-
-test.fail_test(not os.path.exists(test.workpath('bar.xyz')))
+test.run(arguments = '-q -Q', stdout = "1\n2\n")
 
 test.pass_test()

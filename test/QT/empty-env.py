@@ -36,11 +36,11 @@ test.Qt_dummy_installation('qt')
 
 test.write('SConstruct', """\
 orig = Environment()
-env = orig.Copy(QTDIR = r'%s',
-                QT_LIB = r'%s',
-                QT_MOC = r'%s',
-                QT_UIC = r'%s',
-                tools=['qt'])
+env = orig.Clone(QTDIR = r'%s',
+                 QT_LIB = r'%s',
+                 QT_MOC = r'%s',
+                 QT_UIC = r'%s',
+                 tools=['qt'])
 env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 """ % (test.QT, test.QT_LIB, test.QT_MOC, test.QT_UIC))
 

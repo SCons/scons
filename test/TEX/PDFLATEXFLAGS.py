@@ -59,7 +59,7 @@ env = Environment(PDFLATEX = r'%(_python_)s mypdflatex.py',
                   PDFLATEXFLAGS = '-x',
                   tools=['pdflatex'])
 env.PDF(target = 'test1.pdf', source = 'test1.ltx')
-env.Copy(PDFLATEXFLAGS = '-t').PDF(target = 'test2.pdf', source = 'test2.latex')
+env.Clone(PDFLATEXFLAGS = '-t').PDF(target = 'test2.pdf', source = 'test2.latex')
 """ % locals())
 
 test.write('test1.ltx', r"""This is a .ltx test.

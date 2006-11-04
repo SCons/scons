@@ -809,7 +809,7 @@ for p in [ scons ]:
 
         rpm_files.sort()
         rpm_files_str = string.join(rpm_files, "\n") + "\n"
-        rpm_spec_env = env.Copy(RPM_FILES = rpm_files_str)
+        rpm_spec_env = env.Clone(RPM_FILES = rpm_files_str)
         rpm_spec_action = Action(spec_function, varlist=['RPM_FILES'])
         rpm_spec_env.Command(specfile, specfile_in, rpm_spec_action)
 

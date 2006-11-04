@@ -119,7 +119,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(LIBS = 'g2c')
 shfortran = foo.Dictionary('SHFORTRAN')
-bar = foo.Copy(SHFORTRAN = r'%(_python_)s wrapper.py ' + shfortran)
+bar = foo.Clone(SHFORTRAN = r'%(_python_)s wrapper.py ' + shfortran)
 foo.SharedObject(target = 'foo/foo', source = 'foo.f')
 bar.SharedObject(target = 'bar/bar', source = 'bar.f')
 """ % locals())

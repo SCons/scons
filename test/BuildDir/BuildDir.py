@@ -113,7 +113,7 @@ env.Command(target='f3.h', source='f3h.in', action=buildIt)
 env.Command(target='f4.h', source='f4h.in', action=buildIt)
 env.Command(target='f4.c', source='f4.in', action=buildIt)
 
-env2=env.Copy(CPPPATH='.')
+env2=env.Clone(CPPPATH='.')
 env2.Program(target='foo3', source='f3.c')
 env2.Program(target='foo4', source='f4.c')
 
@@ -124,8 +124,8 @@ except:
 
 if fortran and env.Detect(fortran):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
-    env.Copy(LIBS = %s).Program(target='bar2', source='b2.f')
-    env.Copy(LIBS = %s).Program(target='bar1', source='b1.f')
+    env.Clone(LIBS = %s).Program(target='bar2', source='b2.f')
+    env.Clone(LIBS = %s).Program(target='bar1', source='b1.f')
 """ % (fortran_runtime, fortran_runtime))
 
 test.write(['work1', 'src', 'f1.c'], r"""

@@ -48,7 +48,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
 env.CXXFile(target = 'foo', source = 'foo.ll')
-env.Copy(CXXFILESUFFIX = '.xyz').CXXFile(target = 'bar', source = 'bar.ll')
+env.Clone(CXXFILESUFFIX = '.xyz').CXXFile(target = 'bar', source = 'bar.ll')
 """ % locals())
 
 input = r"""

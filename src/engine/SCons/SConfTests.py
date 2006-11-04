@@ -386,7 +386,7 @@ int main() {
             def libs(env):
                 return env.get('LIBS', [])
 
-            env = sconf.env.Copy()
+            env = sconf.env.Clone()
 
             try:
                 r = sconf.CheckLib( existing_lib, "main", autoadd=1 )
@@ -395,7 +395,7 @@ int main() {
                 got = libs(sconf.env)
                 assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
 
-                sconf.env = env.Copy()
+                sconf.env = env.Clone()
                 r = sconf.CheckLib( existing_lib, "main", autoadd=0 )
                 assert r, "did not find main in %s" % existing_lib
                 expect = libs(env)
@@ -449,7 +449,7 @@ int main() {
             def libs(env):
                 return env.get('LIBS', [])
 
-            env = sconf.env.Copy()
+            env = sconf.env.Clone()
 
             try:
                 r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=1 )
@@ -458,7 +458,7 @@ int main() {
                 got = libs(sconf.env)
                 assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
 
-                sconf.env = env.Copy()
+                sconf.env = env.Clone()
                 r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
                 assert r, "did not find math.h with %s" % existing_lib
                 expect = libs(env)

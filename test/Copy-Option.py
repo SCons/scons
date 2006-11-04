@@ -47,7 +47,7 @@ opts.AddOptions(
         gpib_options),
     )
 env = Environment(options = opts, CPPPATH = ['#/'])
-new_env=env.Copy()
+new_env=env.Clone()
 """)
 
 test.run(arguments = '.')

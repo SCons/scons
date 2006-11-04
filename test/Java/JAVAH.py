@@ -126,7 +126,7 @@ foo = Environment(tools = ['javac', 'javah'],
                   JAVAC = r'%(where_javac)s',
                   JAVAH = r'%(where_javah)s')
 javah = foo.Dictionary('JAVAH')
-bar = foo.Copy(JAVAH = r'%(_python_)s wrapper.py ' + javah)
+bar = foo.Clone(JAVAH = r'%(_python_)s wrapper.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 foo_classes = foo.Java(target = 'class3', source = 'src')

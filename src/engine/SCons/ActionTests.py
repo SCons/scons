@@ -152,7 +152,7 @@ class Environment:
         return self.d.items()
     def Dictionary(self):
         return self.d
-    def Copy(self, **kw):
+    def Clone(self, **kw):
         res = Environment()
         res.d = SCons.Environment.our_deepcopy(self.d)
         for k, v in kw.items():
@@ -908,7 +908,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd1 = r'%s %s %s xyzzy' % (_python_, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd1)
-        r = act([], [], env.Copy())
+        r = act([], [], env.Clone())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'xyzzy'\n", c
@@ -916,7 +916,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd2 = r'%s %s %s $TARGET' % (_python_, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd2)
-        r = act(DummyNode('foo'), [], env.Copy())
+        r = act(DummyNode('foo'), [], env.Clone())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'foo'\n", c
@@ -924,7 +924,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd3 = r'%s %s %s ${TARGETS}' % (_python_, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd3)
-        r = act(map(DummyNode, ['aaa', 'bbb']), [], env.Copy())
+        r = act(map(DummyNode, ['aaa', 'bbb']), [], env.Clone())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'aaa' 'bbb'\n", c
@@ -932,7 +932,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s $SOURCES' % (_python_, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd4)
-        r = act([], [DummyNode('one'), DummyNode('two')], env.Copy())
+        r = act([], [DummyNode('one'), DummyNode('two')], env.Clone())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'one' 'two'\n", c
@@ -941,7 +941,7 @@ class CommandActionTestCase(unittest.TestCase):
 
         act = SCons.Action.CommandAction(cmd4)
         sources = [DummyNode('three'), DummyNode('four'), DummyNode('five')]
-        env2 = env.Copy()
+        env2 = env.Clone()
         r = act([], source = sources, env = env2)
         assert r == 0
         c = test.read(outfile, 'r')
@@ -964,7 +964,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction(cmd5)
         r = act(target = DummyNode('out5'),
                 source = [],
-                env = env.Copy(ENV = {'XYZZY' : 'xyzzy5',
+                env = env.Clone(ENV = {'XYZZY' : 'xyzzy5',
                                       'PATH' : PATH}))
         assert r == 0
         c = test.read(outfile, 'r')
@@ -985,7 +985,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction(cmd6)
         r = act(target = [Obj('111'), Obj('222')],
                         source = [Obj('333'), Obj('444'), Obj('555')],
-                        env = env.Copy())
+                        env = env.Clone())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: '222' '111' '333' '444'\n", c
@@ -1004,18 +1004,18 @@ class CommandActionTestCase(unittest.TestCase):
 
         # Test that a nonexistent command returns 127
         act = SCons.Action.CommandAction(python + "_no_such_command_")
-        r = act([], [], env.Copy(out = outfile))
+        r = act([], [], env.Clone(out = outfile))
         assert r == expect_nonexistent, "r == %d" % r
 
         # Test that trying to execute a directory returns 126
         dir, tail = os.path.split(python)
         act = SCons.Action.CommandAction(dir)
-        r = act([], [], env.Copy(out = outfile))
+        r = act([], [], env.Clone(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
         # Test that trying to execute a non-executable file returns 126
         act = SCons.Action.CommandAction(outfile)
-        r = act([], [], env.Copy(out = outfile))
+        r = act([], [], env.Clone(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
         act = SCons.Action.CommandAction('%s %s 1' % (_python_, exit_py))

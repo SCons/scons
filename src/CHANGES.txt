@@ -89,6 +89,10 @@ RELEASE 0.97 - XXX
   - Document the difference in construction variable expansion between
     {Action,Builder}() and env.{Action,Builder}().
 
+  - Change the name of env.Copy() to env.Clone(), keeping the old name
+    around for backwards compatibility (with the intention of eventually
+    phasing it out to avoid confusion with the Copy() Action factory).
+
   From Arve Knudsen:
 
   - Support cleaning and scanning SWIG-generated files.

@@ -63,7 +63,7 @@ import os.path
 
 Import('env')
 
-local = env.Copy(WINDOWS_INSERT_DEF = 1)
+local = env.Clone(WINDOWS_INSERT_DEF = 1)
 
 barsrc = [
     'BarObject.cpp',
