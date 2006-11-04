@@ -124,11 +124,11 @@ $ svn commit
 $ cd ..
 $ svn co $SVN/branches/new_branch
 $ cd new_branch
-$ svnmerge init -S $SVN/trunk -f commit.txt
-$ cd ../trunk
-$ svnmerge init -S $SVN/branches/new_branch -f commit.txt
+$ svnmerge init -f commit.txt $SVN/trunk
+$ cd ../../trunk
+$ svnmerge init -f commit.txt $SVN/branches/new_branch
 $ svn commit -F commit.txt && rm commit.txt
-$ cd ../new_branch
+$ cd ../branches/new_branch
 $ svn commit -F commit.txt && rm commit.txt
 </pre>
 
@@ -158,8 +158,16 @@ $ svnmerge avail -b -S $SVN/trunk -l
 $ svnmerge merge -b -S $SVN/trunk -f commit.txt
 $ svn resolved .
 $ svn diff
+$ python runtest.py -a
 $ svn commit -F commit.txt && rm commit.txt
 </pre>
+
+<p>
+The <tt>svn resolved .</tt> is there because there may be a
+conflict on the <tt>svnmerge-integrated</tt>property
+that's attached to the directory to track what changes
+have or have not already been merged from the trunk.
+</p>
 
 <h2>How to merge changes from a development branch to the trunk</h2>
 
@@ -181,11 +189,12 @@ $ svnmerge avail -b -S $SVN/branches/new_branch -l
 $ svnmerge merge -b -S $SVN/branches/new_branch -f commit.txt
 $ svn resolved .
 $ svn diff
+$ python runtest.py -a
 $ svn commit -F commit.txt && rm commit.txt
 </pre>
 
 <p>
-The <tt>svn resolved .</tt> is there because there will be a
+The <tt>svn resolved .</tt> is there because there may be a
 conflict on the <tt>svnmerge-integrated</tt>property
 that's attached to the directory to track what changes
 have or have not already been merged from the development branch.
