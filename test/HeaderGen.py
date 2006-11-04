@@ -66,7 +66,7 @@ def gen_a_h(target, source, env):
     t.write(s.readline()[:-1] + ';\\n')
 
 MakeHeader = Builder(action = gen_a_h)
-env_no_scan = env.Copy(SCANNERS=[], BUILDERS={'MakeHeader' : MakeHeader})
+env_no_scan = env.Clone(SCANNERS=[], BUILDERS={'MakeHeader' : MakeHeader})
 env_no_scan.MakeHeader('a.h', 'a.c')
 
 env.StaticObject('a.c')

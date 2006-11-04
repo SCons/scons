@@ -159,7 +159,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(LIBS = %(FTN_LIB)s)
 f90 = foo.Dictionary('F90')
-bar = foo.Copy(F90 = r'%(_python_)s wrapper.py ' + f90)
+bar = foo.Clone(F90 = r'%(_python_)s wrapper.py ' + f90)
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
 """ % locals())

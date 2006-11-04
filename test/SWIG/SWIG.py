@@ -73,7 +73,7 @@ test.write('SConstruct', """
 env = Environment(tools=['default', 'swig'], SWIG = r'%(_python_)s myswig.py')
 env.Program(target = 'test1', source = 'test1.i')
 env.CFile(target = 'test2', source = 'test2.i')
-env.Copy(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
+env.Clone(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
 """ % locals())
 
 test.write('test1.i', r"""
@@ -151,7 +151,7 @@ foo = Environment(SWIGFLAGS='-python',
                   )
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Copy(SWIG = r'%(_python_)s wrapper.py ' + swig)
+bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
 foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
 bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])
 """ % locals())
@@ -258,7 +258,7 @@ foo = Environment(SWIGFLAGS='-python',
                   )
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Copy(SWIG = r'%(_python_)s wrapper.py ' + swig)
+bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
 foo.CFile(target = 'dependent', source = ['dependent.i'])
 """ % locals())
 

@@ -638,7 +638,7 @@ make no difference to the build.
 
       <sconstruct>
         Import('env', 'debug')
-        env = env.Copy(DEBUG = debug)
+        env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
       </sconstruct>
 
@@ -652,7 +652,7 @@ make no difference to the build.
 
       <sconstruct>
         Import('env debug')
-        env = env.Copy(DEBUG = debug)
+        env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
       </sconstruct>
 
@@ -667,7 +667,7 @@ make no difference to the build.
 
       <sconstruct>
         Import('*')
-        env = env.Copy(DEBUG = debug)
+        env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
       </sconstruct>
 

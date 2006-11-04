@@ -834,7 +834,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert built_it['out2']
         assert built_it['out3']
 
-        env4 = env3.Copy()
+        env4 = env3.Clone()
         assert env4.builder1.env is env4, "builder1.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
         assert env4.builder2.env is env4, "builder2.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
 
@@ -915,7 +915,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         s = map(env.get_scanner, suffixes)
         assert s == [s1, s1, None, s2, s3], s
 
-        env = env.Copy(SCANNERS = [s2])
+        env = env.Clone(SCANNERS = [s2])
         s = map(env.get_scanner, suffixes)
         assert s == [None, None, None, s2, None], s
 
@@ -1468,19 +1468,19 @@ def exists(env):
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
 
-    def test_Copy(self):
+    def test_Clone(self):
         """Test construction environment copying
 
         Update the copy independently afterwards and check that
         the original remains intact (that is, no dangling
         references point to objects in the copied environment).
-        Copy the original with some construction variable
+        Clone the original with some construction variable
         updates and check that the original remains intact
         and the copy has the updated values.
         """
         env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
-        env2 = env1.Copy()
-        env1copy = env1.Copy()
+        env2 = env1.Clone()
+        env1copy = env1.Clone()
         assert env1copy == env1copy
         assert env2 == env2
         env2.Replace(YYY = 'yyy')
@@ -1488,7 +1488,7 @@ def exists(env):
         assert env1 != env2
         assert env1 == env1copy
 
-        env3 = env1.Copy(XXX = 'x3', ZZZ = 'z3')
+        env3 = env1.Clone(XXX = 'x3', ZZZ = 'z3')
         assert env3 == env3
         assert env3.Dictionary('XXX') == 'x3'
         assert env3.Dictionary('YYY') == 'y'
@@ -1501,7 +1501,7 @@ def exists(env):
             pass
         env1 = self.TestEnvironment(XXX=TestA(), YYY = [ 1, 2, 3 ],
                            ZZZ = { 1:2, 3:4 })
-        env2=env1.Copy()
+        env2=env1.Clone()
         env2.Dictionary('YYY').append(4)
         env2.Dictionary('ZZZ')[5] = 6
         assert env1.Dictionary('XXX') is env2.Dictionary('XXX')
@@ -1514,7 +1514,7 @@ def exists(env):
         env1 = self.TestEnvironment(BUILDERS = {'b1' : 1})
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
         assert env1.b1.env == env1, "b1.env doesn't point to env1"
-        env2 = env1.Copy(BUILDERS = {'b2' : 2})
+        env2 = env1.Clone(BUILDERS = {'b2' : 2})
         assert env2 is env2
         assert env2 == env2
         assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
@@ -1529,8 +1529,8 @@ def exists(env):
         def bar(env): env['BAR'] = 2
         def baz(env): env['BAZ'] = 3
         env1 = self.TestEnvironment(tools=[foo])
-        env2 = env1.Copy()
-        env3 = env1.Copy(tools=[bar, baz])
+        env2 = env1.Clone()
+        env3 = env1.Clone(tools=[bar, baz])
 
         assert env1.get('FOO') is 1
         assert env1.get('BAR') is None
@@ -1545,7 +1545,7 @@ def exists(env):
         # Ensure that recursive variable substitution when copying
         # environments works properly.
         env1 = self.TestEnvironment(CCFLAGS = '-DFOO', XYZ = '-DXYZ')
-        env2 = env1.Copy(CCFLAGS = '$CCFLAGS -DBAR',
+        env2 = env1.Clone(CCFLAGS = '$CCFLAGS -DBAR',
                          XYZ = ['-DABC', 'x $XYZ y', '-DDEF'])
         x = env2.get('CCFLAGS')
         assert x == '-DFOO -DBAR', x
@@ -1557,7 +1557,7 @@ def exists(env):
         env1 = self.TestEnvironment(FLAGS = CLVar('flag1 flag2'))
         x = env1.get('FLAGS')
         assert x == ['flag1', 'flag2'], x
-        env2 = env1.Copy()
+        env2 = env1.Clone()
         env2.Append(FLAGS = 'flag3 flag4')
         x = env2.get('FLAGS')
         assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
@@ -1582,8 +1582,20 @@ def generate(env):
 
         env = self.TestEnvironment(tools=['xxx'], toolpath=[test.workpath('')])
         assert env['XXX'] == 'one', env['XXX']
-        env = env.Copy(tools=['yyy'])
+        env = env.Clone(tools=['yyy'])
         assert env['YYY'] == 'two', env['YYY']
+
+    def test_Copy(self):
+        """Test copying using the old env.Copy() method"""
+        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
+        env2 = env1.Copy()
+        env1copy = env1.Copy()
+        assert env1copy == env1copy
+        assert env2 == env2
+        env2.Replace(YYY = 'yyy')
+        assert env2 == env2
+        assert env1 != env2
+        assert env1 == env1copy
 
     def test_Detect(self):
         """Test Detect()ing tools"""
@@ -3166,11 +3178,11 @@ def generate(env):
         for x in added:
             assert env.has_key(x), bad_msg % x
 
-        copy = env.Copy(TARGETS = 'targets',
-                        SOURCES = 'sources',
-                        SOURCE = 'source',
-                        TARGET = 'target',
-                        COPY = 'copy')
+        copy = env.Clone(TARGETS = 'targets',
+                         SOURCES = 'sources',
+                         SOURCE = 'source',
+                         TARGET = 'target',
+                         COPY = 'copy')
         for x in reserved:
             assert not copy.has_key(x), env[x]
         for x in added + ['COPY']:
@@ -3341,10 +3353,10 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     # SourceSignatures()
     # TargetSignatures()
 
-    # It's unlikely Copy() will ever be called this way, so let the
+    # It's unlikely Clone() will ever be called this way, so let the
     # other methods test that handling overridden values works.
-    #def test_Copy(self):
-    #    """Test the OverrideEnvironment Copy() method"""
+    #def test_Clone(self):
+    #    """Test the OverrideEnvironment Clone() method"""
     #    pass
 
     def test_FindIxes(self):

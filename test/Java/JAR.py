@@ -150,7 +150,7 @@ foo = Environment(tools = ['javac', 'jar'],
                   JAVAC = r'%(where_javac)s',
                   JAR = r'%(where_jar)s')
 jar = foo.Dictionary('JAR')
-bar = foo.Copy(JAR = r'%(_python_)s wrapper.py ' + jar)
+bar = foo.Clone(JAR = r'%(_python_)s wrapper.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')

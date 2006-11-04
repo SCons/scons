@@ -57,7 +57,7 @@ env = Environment()
 env['BUILDERS']['TestDir'] = test_bld_dir
 env['BUILDERS']['TestFile'] = test_bld_file
 
-env_bsig = env.Copy()
+env_bsig = env.Clone()
 env_bsig.TargetSignatures('build')
 env_bsig.TestFile(source='junk.txt', target='bsig/junk.out')
 env_bsig.TestDir(source='bsig', target='bsig.out')
@@ -65,7 +65,7 @@ env_bsig.Command('cmd-bsig-noscan.out', 'cmd-bsig', writeTarget)
 env_bsig.Command('cmd-bsig.out', 'cmd-bsig', writeTarget,
                  source_scanner=DirScanner)
 
-env_csig = env.Copy()
+env_csig = env.Clone()
 env_csig.TargetSignatures('content')
 env_csig.TestFile(source='junk.txt', target='csig/junk.out')
 env_csig.TestDir(source='csig', target='csig.out')

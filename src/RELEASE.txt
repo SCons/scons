@@ -467,6 +467,45 @@ RELEASE 0.96.92 - Mon, 10 Apr 2006 21:08:22 -0400
 
             SourceFileScanner.add_scanner('.x', XScanner)
 
+    --  THE env.Copy() METHOD WILL CHANGE OR GO AWAY ENTIRELY
+
+        The env.Copy() method (to make a copy of a construction
+        environment) is being replaced by the env.Clone() method.
+
+        In some future release, a deprecation warning will be added
+        to current uses of the env.Copy() method.  At some point after
+        the deprecation warning, the env.Copy() method will either be
+        removed entirely or have its behavior changed.
+
+        You can prepare for this by changing all your uses of env.Copy()
+        to env.Clone(), which has the exact same calling arguments.
+
+        NOTE:  CHANGING USES OF env.Copy() TO env.Clone() WILL MAKE YOUR
+        SConscript FILES NOT WORK ON EARLIER VERSIONS OF SCons.
+
+        If you change SConscript files in software that you make available
+        for download or otherwise distribute, other users may try to
+        build your software with an earlier version of SCons that does
+        not have the env.Clone() method.  We recommend preparing for
+        this in one of two ways:
+
+            --  Make your SConscript files backwards-compatible by
+                including the following code near the beginning of your
+                top-level SConstruct file:
+
+                    import SCons.Environment
+                    try:
+                        SCons.Environment.Environment.Clone
+                    except AttributeError:
+                        SCons.Environment.Environment.Clone = \
+                              SCons.Environment.Environment.Copy
+
+            --  Use the EnsureSConsVersion() function to provide a
+                descriptive error message if your SConscript files
+                are executed by an earlier version of SCons:
+
+                    EnsureSConsVersion(0, 96, 93)
+
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it

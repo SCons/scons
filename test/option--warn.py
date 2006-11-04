@@ -112,7 +112,7 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env2 = env.Copy(DIFFERENT_VARIABLE = 'true')
+env2 = env.Clone(DIFFERENT_VARIABLE = 'true')
 env.B(target = 'file1.out', source = 'file1a.in')
 env2.B(target = 'file1.out', source = 'file1b.in')
 """)

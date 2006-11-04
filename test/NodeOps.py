@@ -83,7 +83,7 @@ if %(_E)s:
 foo.SharedLibrary(target = 'foo', source = 'foo%(_obj)s')
 bar.SharedLibrary(target = 'bar', source = 'bar%(_obj)s')
 
-fooMain = foo.Copy(LIBS='foo', LIBPATH='.')
+fooMain = foo.Clone(LIBS='foo', LIBPATH='.')
 foo_obj = fooMain.Object(target='foomain', source='main.c')
 fooMain.Program(target='fooprog', source=foo_obj)
 

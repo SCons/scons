@@ -97,7 +97,7 @@ env.Command('foo', 'foo.k', r'%(_python_)s build.py $SOURCES $TARGET')
 ##########################################################
 # Test resetting the environment scanners (and specifying as a list).
 
-env2 = env.Copy()
+env2 = env.Clone()
 env2.Append(SCANNERS = [k2scan])
 env2.Command('junk', 'junk.k2', r'%(_python_)s build.py $SOURCES $TARGET')
 

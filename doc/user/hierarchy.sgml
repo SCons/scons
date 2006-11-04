@@ -602,7 +602,7 @@ make no difference to the build.
 
       <programlisting>
         Import('env', 'debug')
-        env = env.Copy(DEBUG = debug)
+        env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
       </programlisting>
 
@@ -616,7 +616,7 @@ make no difference to the build.
 
       <programlisting>
         Import('env debug')
-        env = env.Copy(DEBUG = debug)
+        env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
       </programlisting>
 
@@ -631,7 +631,7 @@ make no difference to the build.
 
       <programlisting>
         Import('*')
-        env = env.Copy(DEBUG = debug)
+        env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
       </programlisting>
 

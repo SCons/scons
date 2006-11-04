@@ -59,7 +59,7 @@ def subrevision(target, source ,env):
 SubRevision = Action(subrevision)
 
 env=Environment()
-content_env=env.Copy()
+content_env=env.Clone()
 content_env.TargetSignatures('content')
 content_env.Command('revision.in', [], '%(_python_)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')

@@ -64,7 +64,7 @@ def my_install(dest, source, env):
 
 env1 = Environment()
 env1.Append(BUILDERS={'Cat':Builder(action=cat)})
-env3 = env1.Copy(INSTALL = my_install)
+env3 = env1.Clone(INSTALL = my_install)
 
 t = env1.Cat(target='f1.out', source='f1.in')
 env1.Install(dir='export', source=t)
@@ -74,7 +74,7 @@ Install(dir='export', source=t)
 t = env3.Cat(target='f3.out', source='f3.in')
 env3.Install(dir='export', source=t)
 
-env4 = env1.Copy(EXPORT='export', SUBDIR='sub')
+env4 = env1.Clone(EXPORT='export', SUBDIR='sub')
 t = env4.Cat(target='sub/f4.out', source='sub/f4.in')
 env4.Install(dir='$EXPORT', source=r'%(_SUBDIR_f4_out)s')
 

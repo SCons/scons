@@ -59,7 +59,7 @@ env = Environment(LATEX = r'%(_python_)s mylatex.py',
                   LATEXFLAGS = '-x',
                   tools=['latex'])
 env.DVI(target = 'test1.dvi', source = 'test1.ltx')
-env.Copy(LATEXFLAGS = '-t').DVI(target = 'test2.dvi', source = 'test2.latex')
+env.Clone(LATEXFLAGS = '-t').DVI(target = 'test2.dvi', source = 'test2.latex')
 """ % locals())
 
 test.write('test1.ltx', r"""This is a .ltx test.

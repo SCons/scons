@@ -233,18 +233,31 @@ runtest.py:  No tests were specified.
 """)
     sys.exit(1)
 
+if sys.platform in ('win32', 'cygwin'):
 
-def whereis(file):
-    for dir in string.split(os.environ['PATH'], os.pathsep):
-        f = os.path.join(dir, file)
-        if os.path.isfile(f):
-            try:
-                st = os.stat(f)
-            except OSError:
-                continue
-            if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
-                return f
-    return None
+    def whereis(file):
+        pathext = [''] + string.split(os.environ['PATHEXT'])
+        for dir in string.split(os.environ['PATH'], os.pathsep):
+            f = os.path.join(dir, file)
+            for ext in pathext:
+                fext = f + ext
+                if os.path.isfile(fext):
+                    return fext
+        return None
+
+else:
+
+    def whereis(file):
+        for dir in string.split(os.environ['PATH'], os.pathsep):
+            f = os.path.join(dir, file)
+            if os.path.isfile(f):
+                try:
+                    st = os.stat(f)
+                except OSError:
+                    continue
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                    return f
+        return None
 
 try:
     qmtest

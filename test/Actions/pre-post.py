@@ -121,7 +121,7 @@ print "B =", B
 print "B.env =", B.env
 env1.Append(BUILDERS = {'B' : B})
 env2.Append(BUILDERS = {'B' : B})
-env3 = env1.Copy(X='333')
+env3 = env1.Clone(X='333')
 print "env1 =", env1
 print "env2 =", env2
 print "env3 =", env3

@@ -474,7 +474,7 @@ class SubstitutionEnvironment:
         the overrides dictionaries.  "overrides" is a dictionary that
         will override the variables of this environment.
 
-        This function is much more efficient than Copy() or creating
+        This function is much more efficient than Clone() or creating
         a new Environment because it doesn't copy the construction
         environment dictionary, it just wraps the underlying construction
         environment, and doesn't even create a wrapper object if there
@@ -999,7 +999,7 @@ class Base(SubstitutionEnvironment):
                     self._dict[key] = self._dict[key] + val
         self.scanner_map_delete(kw)
 
-    def Copy(self, tools=[], toolpath=None, **kw):
+    def Clone(self, tools=[], toolpath=None, **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -1023,8 +1023,11 @@ class Base(SubstitutionEnvironment):
         for key, value in kw.items():
             new[key] = SCons.Subst.scons_subst_once(value, self, key)
         apply(clone.Replace, (), new)
-        if __debug__: logInstanceCreation(self, 'Environment.EnvironmentCopy')
+        if __debug__: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
+
+    def Copy(self, *args, **kw):
+        return apply(self.Clone, args, kw)
 
     def Detect(self, progs):
         """Return the first available program in progs.  __cacheable__

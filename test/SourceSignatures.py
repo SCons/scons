@@ -131,7 +131,7 @@ def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 B = Builder(action = build)
 env = Environment(BUILDERS = { 'B' : B })
-env2 = env.Copy()
+env2 = env.Clone()
 env2.SourceSignatures('MD5')
 env.B(target = 'f5.out', source = 'f5.in')
 env.B(target = 'f6.out', source = 'f6.in')

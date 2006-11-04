@@ -31,7 +31,7 @@ import string
 
 Import('env', 'whereis')
 
-env = env.Copy()
+env = env.Clone()
 
 env.TargetSignatures('content')
 
@@ -103,9 +103,9 @@ def scansgml(node, env, target):
 s = Scanner(name = 'sgml', function = scansgml, skeys = ['.sgml', '.mod'])
 
 orig_env = env
-env = orig_env.Copy(SCANNERS = [s],
-                    SCONS_PROC_PY = File('#bin/scons-proc.py').rfile(),
-                    SCONSOUTPUT_PY = File('#bin/sconsoutput.py').rfile())
+env = orig_env.Clone(SCANNERS = [s],
+                     SCONS_PROC_PY = File('#bin/scons-proc.py').rfile(),
+                     SCONSOUTPUT_PY = File('#bin/sconsoutput.py').rfile())
 
 # Fetch the list of files in the build engine that contain
 # SCons documentation XML for processing.

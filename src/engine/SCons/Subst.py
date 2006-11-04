@@ -795,7 +795,7 @@ def scons_subst_once(strSubst, env, key):
     in an Environment.  We want to capture (expand) the old value before
     we override it, so people can do things like:
 
-        env2 = env.Copy(CCFLAGS = '$CCFLAGS -g')
+        env2 = env.Clone(CCFLAGS = '$CCFLAGS -g')
 
     We do this with some straightforward, brute-force code here...
     """

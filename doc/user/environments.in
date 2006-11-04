@@ -620,7 +620,7 @@ environment undisturbed.
    to share the same values for one or more variables.
    Rather than always having to repeat all of the common
    variables when you create each construction environment,
-   you can use the &Copy; method
+   you can use the &Clone; method
    to create a copy of a construction environment.
 
    </para>
@@ -628,7 +628,7 @@ environment undisturbed.
    <para>
 
    Like the &Environment; call that creates a construction environment,
-   the &Copy; method takes &consvar; assignments,
+   the &Clone; method takes &consvar; assignments,
    which will override the values in the copied construction environment.
    For example, suppose we want to use &gcc;
    to create three versions of a program,
@@ -644,8 +644,8 @@ environment undisturbed.
    <scons_example name="ex5">
      <file name="SConstruct" printme="1">
       env = Environment(CC = 'gcc')
-      opt = env.Copy(CCFLAGS = '-O2')
-      dbg = env.Copy(CCFLAGS = '-g')
+      opt = env.Clone(CCFLAGS = '-O2')
+      dbg = env.Clone(CCFLAGS = '-g')
 
       env.Program('foo', 'foo.c')
 

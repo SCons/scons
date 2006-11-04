@@ -148,7 +148,7 @@ os.system(string.join(sys.argv[1:], " "))
     test.write('SConstruct', """
 foo = Environment(LIBS = 'g2c')
 shf77 = foo.Dictionary('SHF77')
-bar = foo.Copy(SHF77 = r'%(_python_)s wrapper.py ' + shf77)
+bar = foo.Clone(SHF77 = r'%(_python_)s wrapper.py ' + shf77)
 foo.SharedObject(target = 'foo/foo', source = 'foo.f')
 bar.SharedObject(target = 'bar/bar', source = 'bar.f')
 """ % locals())

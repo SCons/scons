@@ -128,7 +128,7 @@ foo.RMIC(target = 'outdir1',
           JAVACLASSDIR = 'class1')
 
 rmic = foo.Dictionary('RMIC')
-bar = foo.Copy(RMIC = r'%(_python_)s wrapper.py ' + rmic)
+bar = foo.Clone(RMIC = r'%(_python_)s wrapper.py ' + rmic)
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant
 # does with its "excludes" attribute.  We should probably find

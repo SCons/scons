@@ -50,7 +50,7 @@ test.Qt_create_SConstruct('SConstruct')
 
 test.write('SConscript', """\
 Import("env")
-env = env.Copy(tools=['qt'])
+env = env.Clone(tools=['qt'])
 env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 """)
 

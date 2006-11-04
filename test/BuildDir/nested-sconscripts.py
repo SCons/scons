@@ -43,7 +43,7 @@ BUILD_DIR = '../build'
 base_env = Environment()
 
 for flavor in ['prod', 'debug']:
-    build_env = base_env.Copy()
+    build_env = base_env.Clone()
     # In real life, we would modify build_env appropriately here
     FLAVOR_DIR = BUILD_DIR + '/' + flavor
     Export('build_env')

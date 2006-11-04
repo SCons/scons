@@ -42,7 +42,7 @@ test.write('SConscript', """\
 Import("env")
 env.Append(CPPDEFINES = ['FOOBAZ'])
                                                                                 
-copy = env.Copy()
+copy = env.Clone()
 copy.Append(CPPDEFINES = ['MYLIB_IMPL'])
                                                                                 
 copy.SharedLibrary(
