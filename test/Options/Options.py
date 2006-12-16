@@ -47,6 +47,14 @@ def validator(key, value, environ):
     environ[key] = "v"
     environ["valid_key"] = "v"
 
+
+def old_converter (value):
+    return "old_converter"
+
+def new_converter (value, env):
+    return "new_converter"
+
+
 opts = Options('custom.py')
 opts.Add('RELEASE_BUILD',
          'Set to 1 to build a release build',
@@ -68,6 +76,18 @@ opts.Add('VALIDATE',
          "notset",
          validator,
          None)
+
+opts.Add('OLD_CONVERTER',
+         'An option for testing converters that take one parameter',
+         "foo",
+         None,
+         old_converter)
+
+opts.Add('NEW_CONVERTER',
+         'An option for testing converters that take two parameters',
+         "foo",
+         None,
+         new_converter)
 
 opts.Add('UNSPECIFIED',
          'An option with no value')
@@ -167,6 +187,14 @@ CC: The C compiler
 VALIDATE: An option for testing validation
     default: notset
     actual: v
+
+OLD_CONVERTER: An option for testing converters that take one parameter
+    default: foo
+    actual: old_converter
+
+NEW_CONVERTER: An option for testing converters that take two parameters
+    default: foo
+    actual: new_converter
 
 UNSPECIFIED: An option with no value
     default: None

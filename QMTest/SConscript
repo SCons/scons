@@ -37,6 +37,8 @@ files = [
     'TestCommon.py',
     'TestRuntest.py',
     'TestSCons.py',
+    'TestSConsign.py',
+    'TestSCons_time.py',
     'unittest.py',
 ]
 

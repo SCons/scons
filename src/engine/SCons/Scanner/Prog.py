@@ -80,8 +80,9 @@ def scan(node, env, libpath = ()):
 
     result = []
 
-    if callable(libpath): libpath = libpath()
-    
+    if callable(libpath):
+        libpath = libpath()
+
     find_file = SCons.Node.FS.find_file
     adjustixes = SCons.Util.adjustixes
     for lib in libs:

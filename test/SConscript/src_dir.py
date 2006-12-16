@@ -67,6 +67,7 @@ for source in sources:
 
 test.write(['samples', 'goodbye.c'], """\
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
@@ -77,6 +78,7 @@ int main(int argc, char *argv[])
 
 test.write(['src', 'hello.c'], """\
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {

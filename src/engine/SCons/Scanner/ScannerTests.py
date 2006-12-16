@@ -31,27 +31,23 @@ import SCons.Sig
 import SCons.Scanner
 
 class DummyFS:
-    def __init__(self, search_result=[]):
-        self.search_result = search_result
     def File(self, name):
         return DummyNode(name)
-    def Rfindalldirs(self, pathlist, cwd):
-        return self.search_result + pathlist
 
 class DummyEnvironment(UserDict.UserDict):
     def __init__(self, dict=None, **kw):
         UserDict.UserDict.__init__(self, dict)
         self.data.update(kw)
         self.fs = DummyFS()
-    def subst(self, strSubst):
+    def subst(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return self.data[strSubst[1:]]
         return strSubst
-    def subst_list(self, strSubst):
+    def subst_list(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return [self.data[strSubst[1:]]]
         return [[strSubst]]
-    def subst_path(self, path, target=None, source=None):
+    def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
@@ -61,20 +57,24 @@ class DummyEnvironment(UserDict.UserDict):
         return factory or self.fs.File
 
 class DummyNode:
-    def __init__(self, name):
+    def __init__(self, name, search_result=()):
         self.name = name
+        self.search_result = tuple(search_result)
     def rexists(self):
         return 1
     def __str__(self):
         return self.name
+    def Rfindalldirs(self, pathlist):
+        return self.search_result + pathlist
 
 class FindPathDirsTestCase(unittest.TestCase):
     def test_FindPathDirs(self):
         """Test the FindPathDirs callable class"""
 
         env = DummyEnvironment(LIBPATH = [ 'foo' ])
-        env.fs = DummyFS(['xxx'])
+        env.fs = DummyFS()
 
+        dir = DummyNode('dir', ['xxx'])
         fpd = SCons.Scanner.FindPathDirs('LIBPATH')
         result = fpd(env, dir)
         assert str(result) == "('xxx', 'foo')", result
@@ -473,10 +473,11 @@ class ClassicTestCase(unittest.TestCase):
         ret = s.function(n, env, ('foo3',))
         assert ret == ['def'], ret
 
-        # Verify that overall scan results are cached even if individual
-        # results are de-cached
-        ret = s.function(n, env, ('foo2',))
-        assert ret == ['abc'], 'caching inactive; got: %s'%ret
+        # We no longer cache overall scan results, which would be returned
+        # if individual results are de-cached.  If we ever restore that
+        # functionality, this test goes back here.
+        #ret = s.function(n, env, ('foo2',))
+        #assert ret == ['abc'], 'caching inactive; got: %s'%ret
 
         # Verify that it sorts what it finds.
         n.includes = ['xyz', 'uvw']
@@ -501,8 +502,6 @@ class ClassicCPPTestCase(unittest.TestCase):
         s = SCons.Scanner.ClassicCPP("Test", [], None, "")
 
         def _find_file(filename, paths):
-            if callable(paths):
-                paths = paths()
             return paths[0]+'/'+filename
 
         save = SCons.Node.FS.find_file

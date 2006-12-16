@@ -70,7 +70,7 @@ if os.environ.has_key("SCONS_LIB_DIR"):
 local = 'scons-local-' + __version__
 if script_dir:
     local = os.path.join(script_dir, local)
-libs.append(local)
+libs.append(os.path.abspath(local))
 
 scons_version = 'scons-%s' % __version__
 
@@ -166,6 +166,8 @@ import whichdb
 import SCons.SConsign
 
 def my_whichdb(filename):
+    if filename[-7:] == ".dblite":
+        return "SCons.dblite"
     try:
         f = open(filename + ".dblite", "rb")
         f.close()

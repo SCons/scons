@@ -28,7 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that we only scan generated .h files once.
 
 This originated as a real-life bug report submitted by Scott Lystig
-Fritchie.  It's been left as-is, rather than stripped down to bear
+Fritchie.  It's been left as-is, rather than stripped down to bare
 minimum, partly because it wasn't completely clear what combination of
 factors triggered the bug Scott saw, and partly because the real-world
 complexity is valuable in its own right.

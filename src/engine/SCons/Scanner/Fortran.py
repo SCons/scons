@@ -78,7 +78,6 @@ class F90Scanner(SCons.Scanner.Classic):
         apply(SCons.Scanner.Current.__init__, (self,) + args, kw)
 
     def scan(self, node, env, path=()):
-        "__cacheable__"
 
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
@@ -112,6 +111,8 @@ class F90Scanner(SCons.Scanner.Classic):
         # is actually found in a Repository or locally.
         nodes = []
         source_dir = node.get_dir()
+        if callable(path):
+            path = path()
         for dep in mods_and_includes:
             n, i = self.find_include(dep, source_dir, path)
 

@@ -29,7 +29,13 @@ import stat
 import string
 import sys
 
-Version = "0.96.92"
+Version = "0.96.93"
+
+man_pages = [
+    'scons.1',
+    'sconsign.1',
+    'scons-time.1',
+]
 
 (head, tail) = os.path.split(sys.argv[0])
 
@@ -331,7 +337,7 @@ class install_data(_install_data):
                 dir = 'Doc'
             else:
                 dir = os.path.join('man', 'man1')
-            self.data_files = [(dir, ["scons.1", "sconsign.1"])]
+            self.data_files = [(dir, man_pages)]
             man_dir = os.path.join(self.install_dir, dir)
             msg = "Installed SCons man pages into %s" % man_dir
             Installed.append(msg)
@@ -351,9 +357,10 @@ arguments = {
                           "SCons.Sig",
                           "SCons.Tool"],
     'package_dir'      : {'' : 'engine'},
-    'data_files'       : [('man/man1', ["scons.1", "sconsign.1"])],
+    'data_files'       : [('man/man1', man_pages)],
     'scripts'          : ['script/scons',
                           'script/sconsign',
+                          'script/scons-time',
                           'script/scons.bat'],
     'cmdclass'         : {'install'         : install,
                           'install_lib'     : install_lib,

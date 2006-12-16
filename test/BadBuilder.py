@@ -58,6 +58,8 @@ foo.b
 built
 """)
 
+python_file_line = test.python_file_line(SConstruct_path, 14)
+
 ### Gross mistake in Builder spec
 
 test.write(SConstruct_path, sconstruct % '\
@@ -66,8 +68,7 @@ b2 = Builder(act__ion=buildop, src_suffix=".b", suffix=".c")')
 expect_stderr = """\
 
 scons: *** Builder b2 must have an action to build ['foo.c'].
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + python_file_line
 
 test.run(arguments='.', stderr=expect_stderr, status = 2)
 
@@ -79,8 +80,7 @@ b2 = Builder(actoin=buildop, src_suffix=".b", suffix=".c")')
 expect_stderr="""\
 
 scons: *** Builder b2 must have an action to build ['foo.c'].
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + python_file_line
 
 test.run(arguments='test2', stderr=expect_stderr, status=2)
 
@@ -92,8 +92,7 @@ b2 = Builder(src_suffix=".b", suffix=".c")')
 expect_stderr = """\
 
 scons: *** Builder b2 must have an action to build ['foo.c'].
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + python_file_line
 
 test.run(arguments='test2', stderr=expect_stderr, status = 2)
 

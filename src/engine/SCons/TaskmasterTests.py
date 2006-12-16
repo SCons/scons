@@ -374,7 +374,7 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = SCons.Taskmaster.Taskmaster([n1,n2,n3,n4,n5])
         t = tm.next_task()
         assert t.get_target() == n1
-        assert n4.state == SCons.Node.pending, n4.state
+        assert n4.state == SCons.Node.executing, n4.state
         t.executed()
         t.postprocess()
         t = tm.next_task()

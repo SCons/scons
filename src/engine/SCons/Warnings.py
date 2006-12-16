@@ -54,6 +54,9 @@ class DuplicateEnvironmentWarning(Warning):
 class MissingSConscriptWarning(Warning):
     pass
 
+class NoMetaclassSupportWarning(Warning):
+    pass
+
 class NoParallelSupportWarning(Warning):
     pass
 

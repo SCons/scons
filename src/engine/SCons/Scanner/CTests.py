@@ -179,17 +179,17 @@ class DummyEnvironment(UserDict.UserDict):
     def Dictionary(self, *args):
         return self.data
 
-    def subst(self, strSubst):
+    def subst(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return self.data[strSubst[1:]]
         return strSubst
 
-    def subst_list(self, strSubst):
+    def subst_list(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return [self.data[strSubst[1:]]]
         return [[strSubst]]
 
-    def subst_path(self, path, target=None, source=None):
+    def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
@@ -401,9 +401,12 @@ class CScannerTestCase13(unittest.TestCase):
     def runTest(self):
         """Find files in directories named in a substituted environment variable"""
         class SubstEnvironment(DummyEnvironment):
-            def subst(self, arg, test=test):
-                return test.workpath("d1")
-        env = SubstEnvironment(CPPPATH=["blah"])
+            def subst(self, arg, target=None, source=None, conv=None, test=test):
+                if arg == "$blah":
+                    return test.workpath("d1")
+                else:
+                    return arg
+        env = SubstEnvironment(CPPPATH=["$blah"])
         s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(env.File('f1.cpp'), env, path)

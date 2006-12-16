@@ -54,25 +54,6 @@ def Scanner(function, *args, **kw):
         return apply(Base, (function,) + args, kw)
 
 
-class _Binder:
-    def __init__(self, bindval):
-        self._val = bindval
-    def __call__(self):
-        return self._val
-    def __str__(self):
-        return str(self._val)
-        #debug: return 'B<%s>'%str(self._val)
-
-BinderDict = {}
-
-def Binder(path):
-    try:
-        return BinderDict[path]
-    except KeyError:
-        b = _Binder(path)
-        BinderDict[path] = b
-        return b
-
 
 class FindPathDirs:
     """A class to bind a specific *PATH variable name to a function that
@@ -80,25 +61,23 @@ class FindPathDirs:
     def __init__(self, variable):
         self.variable = variable
     def __call__(self, env, dir, target=None, source=None, argument=None):
-        # The goal is that we've made caching this unnecessary
-        # because the caching takes place at higher layers.
+        import SCons.PathList
         try:
             path = env[self.variable]
         except KeyError:
             return ()
 
-        path = env.subst_path(path, target=target, source=source)
-        path_tuple = tuple(env.fs.Rfindalldirs(path, dir))
-        return Binder(path_tuple)
+        dir = dir or env.fs._cwd
+        path = SCons.PathList.PathList(path).subst_path(env, target, source)
+        return tuple(dir.Rfindalldirs(path))
+
+
 
 class Base:
     """
     The base class for dependency scanners.  This implements
     straightforward, single-pass scanning of a single file.
     """
-
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self,
                  function,
@@ -257,14 +236,6 @@ class Base:
 
     recurse_nodes = _recurse_no_nodes
 
-if SCons.Memoize.use_old_memoization():
-    _Base = Base
-    class Base(SCons.Memoize.Memoizer, _Base):
-        "Cache-backed version of Scanner Base"
-        def __init__(self, *args, **kw):
-            apply(_Base.__init__, (self,)+args, kw)
-            SCons.Memoize.Memoizer.__init__(self)
-
 
 class Selector(Base):
     """
@@ -333,8 +304,6 @@ class Classic(Current):
         apply(Current.__init__, (self,) + args, kw)
 
     def find_include(self, include, source_dir, path):
-        "__cacheable__"
-        if callable(path): path = path()
         n = SCons.Node.FS.find_file(include, (source_dir,) + tuple(path))
         return n, include
 
@@ -342,7 +311,6 @@ class Classic(Current):
         return SCons.Node.FS._my_normcase(include)
 
     def scan(self, node, path=()):
-        "__cacheable__"
 
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
@@ -359,6 +327,8 @@ class Classic(Current):
         # is actually found in a Repository or locally.
         nodes = []
         source_dir = node.get_dir()
+        if callable(path):
+            path = path()
         for include in includes:
             n, i = self.find_include(include, source_dir, path)
 
@@ -384,14 +354,10 @@ class ClassicCPP(Classic):
     the contained filename in group 1.
     """
     def find_include(self, include, source_dir, path):
-        "__cacheable__"
-        if callable(path):
-            path = path()   #kwq: extend callable to find_file...
-
         if include[0] == '"':
-            paths = Binder( (source_dir,) + tuple(path) )
+            paths = (source_dir,) + tuple(path)
         else:
-            paths = Binder( tuple(path) + (source_dir,) )
+            paths = tuple(path) + (source_dir,)
 
         n = SCons.Node.FS.find_file(include[1], paths)
 

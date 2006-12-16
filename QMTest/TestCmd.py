@@ -176,8 +176,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.22.D001 2006/02/26 15:45:18 knight"
-__version__ = "0.22"
+__revision__ = "TestCmd.py 0.23.D001 2006/11/30 13:57:29 knight"
+__version__ = "0.23"
 
 import os
 import os.path
@@ -193,9 +193,17 @@ import traceback
 import types
 import UserList
 
-__all__ = [ 'fail_test', 'no_result', 'pass_test',
-            'match_exact', 'match_re', 'match_re_dotall',
-            'python_executable', 'TestCmd' ]
+__all__ = [
+    'diff_re',
+    'fail_test',
+    'no_result',
+    'pass_test',
+    'match_exact',
+    'match_re',
+    'match_re_dotall',
+    'python_executable',
+    'TestCmd'
+]
 
 def is_List(e):
     return type(e) is types.ListType \
@@ -361,6 +369,31 @@ def match_re_dotall(lines = None, res = None):
         res = string.join(res, "\n")
     if re.compile("^" + res + "$", re.DOTALL).match(lines):
         return 1
+
+def diff_re(a, b, fromfile='', tofile='',
+                fromfiledate='', tofiledate='', n=3, lineterm='\n'):
+    """
+    A simple "diff" of two sets of lines when the expected lines
+    are regular expressions.  This is a really dumb thing that
+    just compares each line in turn, so it doesn't look for
+    chunks of matching lines and the like--but at least it lets
+    you know exactly which line first didn't compare correctl...
+    """
+    result = []
+    diff = len(a) - len(b)
+    if diff < 0:
+        a = a + ['']*(-diff)
+    elif diff > 0:
+        b = b + ['']*diff
+    i = 0
+    for aline, bline in zip(a, b):
+        if not re.compile("^" + aline + "$").search(bline):
+            result.append("%sc%s" % (i+1, i+1))
+            result.append('< ' + repr(a[i]))
+            result.append('---')
+            result.append('> ' + repr(b[i]))
+        i = i+1
+    return result
 
 if os.name == 'java':
 

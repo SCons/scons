@@ -240,7 +240,7 @@ class Task:
         for t in self.targets:
             t.disambiguate().set_state(SCons.Node.executing)
             for s in t.side_effects:
-                s.set_state(SCons.Node.pending)
+                s.set_state(SCons.Node.executing)
 
     def make_ready_current(self):
         """Mark all targets in a task ready for execution if any target
@@ -256,7 +256,7 @@ class Task:
                 self.out_of_date.append(t)
                 t.set_state(SCons.Node.executing)
                 for s in t.side_effects:
-                    s.set_state(SCons.Node.pending)
+                    s.set_state(SCons.Node.executing)
 
     make_ready = make_ready_current
 
@@ -268,7 +268,7 @@ class Task:
                 parents[p] = parents.get(p, 0) + 1
         for t in self.targets:
             for s in t.side_effects:
-                if s.get_state() == SCons.Node.pending:
+                if s.get_state() == SCons.Node.executing:
                     s.set_state(SCons.Node.no_state)
                     for p in s.waiting_parents.keys():
                         if not parents.has_key(p):
@@ -515,12 +515,11 @@ class Taskmaster:
                     T.write(' waiting on unfinished children:\n    %s\n' % c)
                 continue
 
-            # Skip this node if it has side-effects that are
-            # currently being built:
-            side_effects = reduce(lambda E,N:
-                                  E or N.get_state() == SCons.Node.executing,
-                                  node.side_effects,
-                                  0)
+            # Skip this node if it has side-effects that are currently being
+            # built  themselves or waiting for something else being built.
+            side_effects = filter(lambda N:
+                                  N.get_state() == SCons.Node.executing,
+                                  node.side_effects)
             if side_effects:
                 map(lambda n, P=node: n.add_to_waiting_s_e(P), side_effects)
                 if S: S.side_effects = S.side_effects + 1

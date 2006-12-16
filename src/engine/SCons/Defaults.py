@@ -48,9 +48,10 @@ import sys
 import SCons.Action
 import SCons.Builder
 import SCons.Environment
-import SCons.Tool
+import SCons.PathList
 import SCons.Sig
 import SCons.Subst
+import SCons.Tool
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -214,7 +215,10 @@ def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
 
     if SCons.Util.is_List(list):
         list = SCons.Util.flatten(list)
-    list = f(env.subst_path(list, target=target, source=source))
+
+    l = f(SCons.PathList.PathList(list).subst_path(env, target, source))
+    if not l is None:
+        list = l
 
     result = []
 

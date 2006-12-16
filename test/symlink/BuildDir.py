@@ -50,10 +50,14 @@ Program('hello', ['obj/subdir/main.c'])
 """)
 
 test.write(['srcdir', 'main.c'], r"""
+#include <stdio.h>
+#include <stdlib.h>
+
 int
 main(int ac, char *argv[])
 {
     printf("srcdir/main.c\n");
+    exit(0);
 }
 """)
 

@@ -58,7 +58,9 @@ def generate(env):
     
     env['DVIPS']      = 'dvips'
     env['DVIPSFLAGS'] = SCons.Util.CLVar('')
-    env['PSCOM']      = '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCE'
+    # I'm not quite sure I got the directories and filenames right for build_dir
+    # We need to be in the correct directory for the sake of latex \includegraphics eps included files.
+    env['PSCOM']      = 'cd ${TARGET.dir} && $DVIPS $DVIPSFLAGS -o ${TARGET.file} ${SOURCE.file}'
     env['PSPREFIX'] = ''
     env['PSSUFFIX'] = '.ps'
 

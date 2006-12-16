@@ -49,19 +49,20 @@ def swigSuffixEmitter(env, source):
     else:
         return '$SWIGCFILESUFFIX'
 
-_reSwig = re.compile(r"%include\s+(\S+)")
+_reInclude = re.compile(r'%include\s+(\S+)')
+_reModule = re.compile(r'%module\s+(.+)')
 
 def recurse(path, searchPath):
-    global _reSwig
+    global _reInclude
     f = open(path)
     try: contents = f.read()
     finally: f.close()
 
     found = []
     # Better code for when we drop Python 1.5.2.
-    #for m in _reSwig.finditer(contents):
+    #for m in _reInclude.finditer(contents):
     #    fname = m.group(1)
-    for fname in _reSwig.findall(contents):
+    for fname in _reInclude.findall(contents):
         for dpath in searchPath:
             absPath = os.path.join(dpath, fname)
             if os.path.isfile(absPath):
@@ -88,7 +89,7 @@ def _swigEmitter(target, source, env):
             f = open(src)
             try:
                 for l in f.readlines():
-                    m = re.match("%module (.+)", l)
+                    m = _reModule.match(l)
                     if m:
                         mname = m.group(1)
             finally:

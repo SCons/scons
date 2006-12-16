@@ -1,5 +1,5 @@
 %define name scons
-%define version 0.96.92
+%define version 0.96.93
 %define release 1
 
 Summary: an Open Source software construction tool
@@ -50,3 +50,4 @@ rm -rf $RPM_BUILD_ROOT
 __RPM_FILES__
 %doc %{_mandir}/man1/scons.1*
 %doc %{_mandir}/man1/sconsign.1*
+%doc %{_mandir}/man1/scons-time.1*

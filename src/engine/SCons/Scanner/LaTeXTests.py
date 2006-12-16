@@ -70,17 +70,17 @@ class DummyEnvironment(UserDict.UserDict):
     def Dictionary(self, *args):
         return self.data
 
-    def subst(self, strSubst):
+    def subst(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return self.data[strSubst[1:]]
         return strSubst
 
-    def subst_list(self, strSubst):
+    def subst_list(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return [self.data[strSubst[1:]]]
         return [[strSubst]]
 
-    def subst_path(self, path, target=None, source=None):
+    def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)

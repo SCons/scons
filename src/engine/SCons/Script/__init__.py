@@ -44,29 +44,33 @@ import string
 import sys
 import UserList
 
-# Special chicken-and-egg handling of the "--debug=memoizer"
-# and "--debug=nomemoizer" flags:
+# Special chicken-and-egg handling of the "--debug=memoizer" flag:
 #
 # SCons.Memoize contains a metaclass implementation that affects how
-# the other classes are instantiated.  The Memoizer handles optional
-# counting of the hits and misses by using a different, parallel set of
-# functions, so we don't slow down normal operation any more than we
-# have to.  We can also tell it disable memoization completely.
+# the other classes are instantiated.  The Memoizer may add shim methods
+# to classes that have methods that cache computed values in order to
+# count and report the hits and misses.
 #
-# If we wait to enable the counting or disable memoization completely
-# until we've parsed the command line options normally, it will be too
-# late, because the Memoizer will have already analyzed the classes
-# that it's Memoizing and bound the (non-counting) versions of the
-# functions.  So we have to use a special-case, up-front check for
-# the "--debug=memoizer" and "--debug=nomemoizer" flags and do what's
-# appropriate before we import any of the other modules that use it.
+# If we wait to enable the Memoization until after we've parsed the
+# command line options normally, it will be too late, because the Memoizer
+# will have already analyzed the classes that it's Memoizing and decided
+# to not add the shims.  So we use a special-case, up-front check for
+# the "--debug=memoizer" flag and enable Memoizer before we import any
+# of the other modules that use it.
+
 _args = sys.argv + string.split(os.environ.get('SCONSFLAGS', ''))
 if "--debug=memoizer" in _args:
     import SCons.Memoize
-    SCons.Memoize.EnableCounting()
-if "--debug=nomemoizer" in _args:
-    import SCons.Memoize
-    SCons.Memoize.DisableMemoization()
+    import SCons.Warnings
+    try:
+        SCons.Memoize.EnableMemoization()
+    except SCons.Warnings.Warning:
+        # Some warning was thrown (inability to --debug=memoizer on
+        # Python 1.5.2 because it doesn't have metaclasses).  Arrange
+        # for it to be displayed or not after warnings are configured.
+        import Main
+        exc_type, exc_value, tb = sys.exc_info()
+        Main.delayed_warnings.append(exc_type, exc_value)
 del _args
 
 import SCons.Action
@@ -77,6 +81,7 @@ import SCons.Options
 import SCons.Platform
 import SCons.Scanner
 import SCons.SConf
+import SCons.Subst
 import SCons.Tool
 import SCons.Util
 import SCons.Defaults
@@ -127,6 +132,7 @@ call_stack              = _SConscript.call_stack
 
 #
 Action                  = SCons.Action.Action
+AllowSubstExceptions    = SCons.Subst.SetAllowableExceptions
 BoolOption              = SCons.Options.BoolOption
 Builder                 = SCons.Builder.Builder
 Configure               = _SConscript.Configure

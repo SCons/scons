@@ -130,7 +130,7 @@ ${EXECUTE} cd $module
 # and so will not be readily compilable.
 #
 # gunzip < $baseline/export/${project}.tar.gz | tardy -rp ${project} | tar xf -
-aetar -send -o - | tar xzf -
+aetar -send -comp-alg=gzip -o - | tar xzf -
 
 #
 # If any new directories have been created we will need to add them
@@ -145,9 +145,9 @@ then
     xargs --max-args=1 |
     while read dir
     do
-        if [ ! -d $dir/.svn ]
+        if [ ! -d "$dir/.svn" ]
         then
-            Command svn add -N $dir
+            Command svn add -N "$dir"
         fi
     done
 fi
@@ -213,9 +213,23 @@ do
 done
 
 #
+# Extract the brief description.  We'd like to do this using aesub
+# or something, like so:
+#
+#      message=`aesub '${version} - ${change description}'`
+#
+# but the expansion of ${change description} has a lame hard-coded max of
+# 80 characters, so we have to do this by hand.  (This has the slight
+# benefit of preserving backslashes in front of any double-quotes in
+# the text; that will have to be handled if we go back to using aesub.)
+#
+description=`aegis -ca -l | sed -n 's/brief_description = "\(.*\)";$/\1/p'`
+version=`aesub '${version}'`
+message="$version - $description"
+
+#
 # Now commit all the changes.
 #
-message=`aesub '${version} - ${change description}'`
 Command svn commit -m \"$message\"
 
 #

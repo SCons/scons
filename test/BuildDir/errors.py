@@ -165,8 +165,7 @@ BuildDir('build', 'src2')
 
 expect_stderr = """
 scons: *** 'build' already has a source directory: 'src1'.
-File "%(duplicate_SConstruct_path)s", line 2, in ?
-""" % locals()
+""" + test.python_file_line(duplicate_SConstruct_path, 2)
 
 test.run(chdir = 'duplicate',
          arguments = ".",

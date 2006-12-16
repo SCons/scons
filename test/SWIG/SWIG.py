@@ -182,7 +182,7 @@ bar_string()
 """)
 
     test.write("bar.i", """\
-%module bar
+%module \t bar
 %{
 /* Put header files here (optional) */
 %}

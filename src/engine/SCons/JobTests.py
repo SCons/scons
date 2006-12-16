@@ -259,16 +259,14 @@ class ParallelTestCase(unittest.TestCase):
             jobs.run()
 
             # The key here is that we get(1) and get(2) from the
-            # resultsQueue before we put(3).
+            # resultsQueue before we put(3), but get(1) and get(2) can
+            # be in either order depending on how the first two parallel
+            # tasks get scheduled by the operating system.
             expect = [
-                'put(1)',
-                'put(2)',
-                'get(1)',
-                'get(2)',
-                'put(3)',
-                'get(3)',
+                ['put(1)', 'put(2)', 'get(1)', 'get(2)', 'put(3)', 'get(3)'],
+                ['put(1)', 'put(2)', 'get(2)', 'get(1)', 'put(3)', 'get(3)'],
             ]
-            assert ThreadPoolCallList == expect, ThreadPoolCallList
+            assert ThreadPoolCallList in expect, ThreadPoolCallList
 
         finally:
             SCons.Job.ThreadPool = SaveThreadPool

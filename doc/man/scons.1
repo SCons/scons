@@ -31,7 +31,7 @@
 .fi
 .RE
 ..
-.TH SCONS 1 "December 2005"
+.TH SCONS 1 "December 2006"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -602,10 +602,11 @@ $ scons --debug=includes foo.o
 
 .TP
 --debug=memoizer
-Prints a summary of hits and misses in the Memoizer,
-the internal SCons subsystem for caching
-various values in memory instead of
-recomputing them each time they're needed.
+Prints a summary of hits and misses using the Memoizer,
+an internal subsystem that counts
+how often SCons uses cached values in memory
+instead of recomputing them each time they're needed.
+Only available when using Python 2.2 or later.
 
 .TP
 --debug=memory
@@ -615,19 +616,7 @@ and before and after building targets.
 
 .TP
 --debug=nomemoizer
-Disables use of the Memoizer,
-the internal SCons subsystem for caching
-various values in memory instead of
-recomputing them each time they're needed.
-This provides more accurate counts of the
-underlying function calls in the 
-Python profiler output when using the
-.RI --profile=
-option.
-(When the Memoizer is used,
-the profiler counts all
-memoized functions as being executed
-by the Memoizer's wrapper calls.)
+A deprecated option preserved for backwards compatibility.
 
 .TP
 --debug=objects
@@ -1382,6 +1371,28 @@ env.Program(source = 'bar.c')
 env.Program('bar.c')
 .EE
 
+As a convenience, a
+.B srcdir
+keyword argument may be specified
+when calling a Builder.
+When specified,
+all source file strings that are not absolute paths
+will be interpreted relative to the specified
+.BR srcdir .
+The following example will build the
+.B build/prog
+(or
+.B build/prog.exe
+on Windows)
+program from the files
+.B src/f1.c
+and
+.BR src/f2.c :
+
+.ES
+env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
+.EE
+
 It is possible to override or add construction variables when calling a
 builder method by passing additional keyword arguments.
 These overridden or added
@@ -1812,6 +1823,41 @@ env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 env.Alias('install', ['/usr/local/man'])
 
 env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI AllowSubstExceptions([ exception ", ...])"
+Specifies the exceptions that will be allowed
+when expanding construction variables.
+By default,
+any construction variable expansions that generate a
+.B NameError
+or
+.BR IndexError
+exception will expand to a
+.B ''
+(a null string) and not cause scons to fail.
+All exceptions not in the specified list
+will generate an error message
+and terminate processing.
+
+If
+.B AllowSubstExceptions
+is called multiple times,
+each call completely overwrites the previous list
+of allowed exceptions.
+Example:
+
+.ES
+# Requires that all construction variable names exist.
+# (You may wish to do this if you want to enforce strictly
+# that all construction variables must be defined before use.)
+AllowSubstExceptions()
+
+# Also allow a string containing a zero-division expansion
+# like '${1 / 0}' to evalute to ''.
+AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4925,7 +4971,7 @@ The recommended way to handle an invalid value is
 to raise an exception (see example below).
 .I converter
 is called to convert the value before putting it in the environment, and
-should take a single argument: value.
+should take either a value, or the value and environment, as parameters.
 The
 .I converter
 must return a value,
