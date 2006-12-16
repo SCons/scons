@@ -728,6 +728,10 @@ sys.exit(1)
         env.MergeFlags('-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
 
+        env = SubstitutionEnvironment(CCFLAGS=None)
+        env.MergeFlags('-Y')
+        assert env['CCFLAGS'] == ['-Y'], env['CCFLAGS']
+
         env = SubstitutionEnvironment()
         env.MergeFlags({'A':['aaa'], 'B':['bbb']})
         assert env['A'] == ['aaa'], env['A']
@@ -992,7 +996,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
                           LIBLINKSUFFIX = 'bar')
 
         def RDirs(pathlist, fs=env.fs):
-            return fs.Rfindalldirs(pathlist, fs.Dir('xx'))
+            return fs.Dir('xx').Rfindalldirs(pathlist)
 
         env['RDirs'] = RDirs
         flags = env.subst_list('$_LIBFLAGS', 1)[0]
@@ -2782,7 +2786,7 @@ def generate(env):
         tgt = env.Install('export', 'build')
         paths = map(str, tgt)
         paths.sort()
-        expect = ['export/build']
+        expect = [os.path.join('export', 'build')]
         assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
@@ -2790,7 +2794,10 @@ def generate(env):
         tgt = env.Install('export', ['build', 'build/foo1'])
         paths = map(str, tgt)
         paths.sort()
-        expect = ['export/build', 'export/foo1']
+        expect = [
+            os.path.join('export', 'build'),
+            os.path.join('export', 'foo1'),
+        ]
         assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder

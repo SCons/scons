@@ -69,7 +69,7 @@ if os.environ.has_key("SCONS_LIB_DIR"):
 local = 'scons-local-' + __version__
 if script_dir:
     local = os.path.join(script_dir, local)
-libs.append(local)
+libs.append(os.path.abspath(local))
 
 scons_version = 'scons-%s' % __version__
 

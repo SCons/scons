@@ -33,7 +33,23 @@ import string
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re)
+
+# Find out if we support metaclasses (Python 2.2 and later).
+
+class M:
+    def __init__(cls, name, bases, cls_dict):
+        cls.has_metaclass = 1
+
+class A:
+    __metaclass__ = M
+
+try:
+    has_metaclass = A.has_metaclass
+except AttributeError:
+    has_metaclass = None
+
+
 
 test.write('SConstruct', """
 def cat(target, source, env):
@@ -50,21 +66,47 @@ test.write('file.in', "file.in\n")
 # change this test...
 expect = [
     "Memoizer (memory cache) hits and misses",
-    "Dir.exists()",
+    "Base.stat()",
+    "Dir.srcdir_list()",
     "File.exists()",
-    "SConsEnvironment.Detect()",
+    "FS._doLookup()",
+    "Node._children_get()",
 ]
 
+expect_no_metaclasses = """
+scons: warning: memoization is not supported in this version of Python \\(no metaclasses\\)
+""" + TestSCons.file_expr
+
+
+if has_metaclass:
+
+    def run_and_check(test, args, desc):
+        test.run(arguments = args)
+        stdout = test.stdout()
+        missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
+        if missing:
+            print "Missing the following strings in the %s output:" % desc
+            print "    " + string.join(missing, "\n    ")
+            print "STDOUT ============"
+            print stdout
+            test.fail_test()
+
+else:
+
+    def run_and_check(test, args, desc):
+        test.run(arguments = args, stderr = expect_no_metaclasses)
+        stdout = test.stdout()
+        present = filter(lambda e, s=stdout: string.find(s, e) != -1, expect)
+        if present:
+            print "The following unexpected strings are present in the %s output:" % desc
+            print "    " + string.join(present, "\n    ")
+            print "STDOUT ============"
+            print stdout
+            test.fail_test()
+
+
 for args in ['-h --debug=memoizer', '--debug=memoizer']:
-    test.run(arguments = args)
-    stdout = test.stdout()
-    missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
-    if missing:
-        print "Missing the following strings in the command line '%s' output:" % args
-        print "    " + string.join(missing, "\n    ")
-        print "STDOUT ============"
-        print stdout
-        test.fail_test(1)
+    run_and_check(test, args, "command line '%s'" % args)
 
 test.must_match('file.out', "file.in\n")
 
@@ -72,17 +114,13 @@ test.must_match('file.out', "file.in\n")
 
 test.unlink("file.out")
 
+
+
 os.environ['SCONSFLAGS'] = '--debug=memoizer'
 
-test.run()
-stdout = test.stdout()
-missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
-if missing:
-    print "Missing the following strings in the SCONSFLAGS=--debug=memoizer output:"
-    print "    " + string.join(missing, "\n    ")
-    print "STDOUT ============"
-    print stdout
-    test.fail_test(1)
+run_and_check(test, '', 'SCONSFLAGS=--debug=memoizer')
+
+test.must_match('file.out', "file.in\n")
 
 
 

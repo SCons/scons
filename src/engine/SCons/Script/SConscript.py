@@ -183,6 +183,7 @@ def _SConscript(fs, *files, **kw):
                     # the builder so that it doesn't get built *again*
                     # during the actual build phase.
                     f.build()
+                    f.built()
                     f.builder_set(None)
                     if f.exists():
                         _file_ = open(f.get_abspath(), "r")
@@ -286,9 +287,12 @@ def SConscript_exception(file=sys.stderr):
         # in SCons itself.  Show the whole stack.
         tb = exc_tb
     stack = traceback.extract_tb(tb)
-    type = str(exc_type)
-    if type[:11] == "exceptions.":
-        type = type[11:]
+    try:
+        type = exc_type.__name__
+    except AttributeError:
+        type = str(exc_type)
+        if type[:11] == "exceptions.":
+            type = type[11:]
     file.write('%s: %s:\n' % (type, exc_value))
     for fname, line, func, text in stack:
         file.write('  File "%s", line %d:\n' % (fname, line))

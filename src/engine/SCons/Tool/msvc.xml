@@ -55,6 +55,7 @@ The default value expands expands to the appropriate
 Microsoft Visual C++ command-line options
 when the &cv-PCH; construction variable is set.
 </summary>
+</cvar>
 
 <cvar name="CCPDBFLAGS">
 <summary>
@@ -93,6 +94,7 @@ the &cv-CCPDBFLAGS; variable as follows:
 env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
 </example>
 </summary>
+</cvar>
 
 <cvar name="PCH">
 <summary>

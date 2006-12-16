@@ -233,9 +233,6 @@ class ActionBase:
     """Base class for all types of action objects that can be held by
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
-    
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other)
@@ -265,15 +262,6 @@ class ActionBase:
         """Return the Executor for this Action."""
         return SCons.Executor.Executor(self, env, overrides,
                                        tlist, slist, executor_kw)
-
-if SCons.Memoize.use_old_memoization():
-    _Base = ActionBase
-    class ActionBase(SCons.Memoize.Memoizer, _Base):
-        "Cache-backed version of ActionBase"
-        def __init__(self, *args, **kw):
-            apply(_Base.__init__, (self,)+args, kw)
-            SCons.Memoize.Memoizer.__init__(self)
-
 
 class _ActionAction(ActionBase):
     """Base class for actions that create output objects."""
@@ -563,9 +551,6 @@ class CommandGeneratorAction(ActionBase):
 
 class LazyAction(CommandGeneratorAction, CommandAction):
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
     def __init__(self, var, *args, **kw):
         if __debug__: logInstanceCreation(self, 'Action.LazyAction')
         apply(CommandAction.__init__, (self, '$'+var)+args, kw)
@@ -580,7 +565,6 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         return CommandGeneratorAction
 
     def _generate_cache(self, env):
-        """__cacheable__"""
         c = env.get(self.var, '')
         gen_cmd = apply(Action, (c,)+self.gen_args, self.gen_kw)
         if not gen_cmd:
@@ -598,13 +582,6 @@ class LazyAction(CommandGeneratorAction, CommandAction):
     def get_contents(self, target, source, env):
         c = self.get_parent_class(env)
         return c.get_contents(self, target, source, env)
-
-if not SCons.Memoize.has_metaclass:
-    _Base = LazyAction
-    class LazyAction(SCons.Memoize.Memoizer, _Base):
-        def __init__(self, *args, **kw):
-            SCons.Memoize.Memoizer.__init__(self)
-            apply(_Base.__init__, (self,)+args, kw)
 
 
 

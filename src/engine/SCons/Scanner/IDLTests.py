@@ -199,10 +199,10 @@ class DummyEnvironment:
         else:
             raise KeyError, "Dummy environment only has CPPPATH attribute."
 
-    def subst(self, arg):
+    def subst(self, arg, target=None, source=None, conv=None):
         return arg
 
-    def subst_path(self, path, target=None, source=None):
+    def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
@@ -411,9 +411,12 @@ class IDLScannerTestCase11(unittest.TestCase):
 class IDLScannerTestCase12(unittest.TestCase):
     def runTest(self):
         class SubstEnvironment(DummyEnvironment):
-            def subst(self, arg, test=test):
-                return test.workpath("d1")
-        env = SubstEnvironment(["blah"])
+            def subst(self, arg, target=None, source=None, conv=None, test=test):
+                if arg == "$blah":
+                    return test.workpath("d1")
+                else:
+                    return arg
+        env = SubstEnvironment(["$blah"])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(env.File('t1.idl'), env, path)

@@ -25,19 +25,12 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test calling the --debug=nomemoizer option.
+Test calling the (deprecated) --debug=nomemoizer option.
 """
-
-import pstats
-import string
-import StringIO
-import sys
 
 import TestSCons
 
-test = TestSCons.TestSCons()
-
-scons_prof = test.workpath('scons.prof')
+test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.write('SConstruct', """
 def cat(target, source, env):
@@ -48,25 +41,12 @@ env.Cat('file.out', 'file.in')
 
 test.write('file.in', "file.in\n")
 
-test.run(arguments = "--profile=%s --debug=nomemoizer " % scons_prof)
+expect = """
+scons: warning: The --debug=nomemoizer option is deprecated and has no effect.
+""" + TestSCons.file_expr
 
-stats = pstats.Stats(scons_prof)
-stats.sort_stats('time')
+test.run(arguments = "--debug=nomemoizer", stderr = expect)
 
-try:
-    save_stdout = sys.stdout
-    sys.stdout = StringIO.StringIO()
-
-    stats.strip_dirs().print_stats()
-
-    s = sys.stdout.getvalue()
-finally:
-    sys.stdout = save_stdout
-
-test.fail_test(string.find(s, '_MeMoIZeR_init') != -1)
-test.fail_test(string.find(s, '_MeMoIZeR_reset') != -1)
-test.fail_test(string.find(s, 'Count_cache_get') != -1)
-test.fail_test(string.find(s, 'Count_cache_get_self') != -1)
-test.fail_test(string.find(s, 'Count_cache_get_one') != -1)
+test.must_match('file.out', "file.in\n")
 
 test.pass_test()

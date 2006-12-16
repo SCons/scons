@@ -26,6 +26,7 @@ SCons/Options/EnumOption.py
 SCons/Options/ListOption.py
 SCons/Options/PackageOption.py
 SCons/Options/PathOption.py
+SCons/PathList.py
 SCons/Platform/__init__.py
 SCons/Platform/aix.py
 SCons/Platform/cygwin.py

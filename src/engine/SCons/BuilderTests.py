@@ -339,6 +339,11 @@ class BuilderTestCase(unittest.TestCase):
         else:
             raise "Did not catch expected UserError."
 
+        builder = SCons.Builder.Builder(action="foo")
+        target = builder(env, None, source='n22', srcdir='src_dir')[0]
+        p = target.sources[0].path
+        assert p == os.path.join('src_dir', 'n22'), p
+
     def test_mistaken_variables(self):
         """Test keyword arguments that are often mistakes
         """
@@ -1182,6 +1187,13 @@ class BuilderTestCase(unittest.TestCase):
                                        target_factory=MyNode,
                                        source_factory=MyNode)
 
+        builder2a=SCons.Builder.Builder(action='foo',
+                                        emitter="$FOO",
+                                        target_factory=MyNode,
+                                        source_factory=MyNode)
+
+        assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
+
         tgt = builder2(env2, target='foo5', source='bar')[0]
         assert str(tgt) == 'foo5', str(tgt)
         assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
@@ -1196,12 +1208,6 @@ class BuilderTestCase(unittest.TestCase):
         assert len(tgt.sources) == 2, len(tgt.sources)
         assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
-
-        builder2a=SCons.Builder.Builder(action='foo',
-                                        emitter="$FOO",
-                                        target_factory=MyNode,
-                                        source_factory=MyNode)
-        assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
 
         # Test that, if an emitter sets a builder on the passed-in
         # targets and passes back new targets, the new builder doesn't
@@ -1595,7 +1601,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [
-#        BuilderTestCase,
+        BuilderTestCase,
         CompositeBuilderTestCase
     ]
     for tclass in tclasses:

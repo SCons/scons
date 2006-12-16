@@ -222,8 +222,14 @@ def generate(env):
     env['LDMODULECOM'] = compositeLinkAction
 
 def exists(env):
+    platform = env.get('PLATFORM', '')
     if SCons.Tool.msvs.is_msvs_installed():
         # there's at least one version of MSVS installed.
         return 1
-    else:
+    elif platform in ('win32', 'cygwin'):
+        # Only explicitly search for a 'link' executable on Windows
+        # systems.  Some other systems (e.g. Ubuntu Linux) have an
+        # executable named 'link' and we don't want that to make SCons
+        # think Visual Studio is installed.
         return env.Detect('link')
+    return None

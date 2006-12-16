@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestCmd
 import TestSCons
+import re
 import string
 import sys
 
@@ -33,26 +34,38 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
+# Construct the standard copyright marker so it doesn't get replaced
+# by the packaging build.
+copyright_marker = '__' + 'COPYRIGHT' + '__'
+
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006'
+
+fmt = '(%s|Copyright \\(c\\) %s The SCons Foundation)\n'
+
+copyright_line = fmt % (copyright_marker, copyright_years)
+
 # Windows may or may not print a line for the script version
 # depending on whether it's invoked through scons.py or scons.bat.
 expect1 = r"""SCons by Steven Knight et al.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
-(__COPYRIGHT__|Copyright \(c\) 2001, 2002, 2003, 2004 The SCons Foundation)
-"""
+""" + copyright_line
 
 expect2 = r"""SCons by Steven Knight et al.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
-(__COPYRIGHT__|Copyright \(c\) 2001, 2002, 2003, 2004 The SCons Foundation)
-"""
+""" + copyright_line
 
 test.run(arguments = '-v')
-test.fail_test(not test.match_re(test.stdout(), expect1) and
-               not test.match_re(test.stdout(), expect2))
+stdout = test.stdout()
+if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
+    print stdout
+    test.fail_test()
 
 test.run(arguments = '--version')
-test.fail_test(not test.match_re(test.stdout(), expect1) and
-               not test.match_re(test.stdout(), expect2))
+stdout = test.stdout()
+if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
+    print stdout
+    test.fail_test()
 
 test.pass_test()
  

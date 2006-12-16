@@ -126,6 +126,7 @@ import SCons.Action
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 import SCons.Executor
+import SCons.Memoize
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
@@ -370,6 +371,8 @@ class BuilderBase:
     if SCons.Memoize.use_memoizer:
         __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
+    memoizer_counters = []
+
     def __init__(self,  action = None,
                         prefix = '',
                         suffix = '',
@@ -387,6 +390,7 @@ class BuilderBase:
                         is_explicit = 1,
                         **overrides):
         if __debug__: logInstanceCreation(self, 'Builder.BuilderBase')
+        self._memo = {}
         self.action = action
         self.multi = multi
         if SCons.Util.is_Dict(prefix):
@@ -604,6 +608,16 @@ class BuilderBase:
             ekw = self.executor_kw.copy()
             ekw['chdir'] = chdir
         if kw:
+            if kw.has_key('srcdir'):
+                def prependDirIfRelative(f, srcdir=kw['srcdir']):
+                    import os.path
+                    if SCons.Util.is_String(f) and not os.path.isabs(f):
+                        f = os.path.join(srcdir, f)
+                    return f
+                if not SCons.Util.is_List(source):
+                    source = [source]
+                source = map(prependDirIfRelative, source)
+                del kw['srcdir']
             if self.overrides:
                 env_kw = self.overrides.copy()
                 env_kw.update(kw)
@@ -636,9 +650,34 @@ class BuilderBase:
             suffix = suffix(env, sources)
         return env.subst(suffix)
 
+    def _src_suffixes_key(self, env):
+        return id(env)
+
+    memoizer_counters.append(SCons.Memoize.CountDict('src_suffixes', _src_suffixes_key))
+
     def src_suffixes(self, env):
-        "__cacheable__"
-        return map(lambda x, s=self, e=env: e.subst(x), self.src_suffix)
+        """
+        Returns the list of source suffixes for this Builder.
+
+        The suffix list may contain construction variable expansions,
+        so we have to evaluate the individual strings.  To avoid doing
+        this over and over, we memoize the results for each construction
+        environment.
+        """
+        memo_key = id(env)
+        try:
+            memo_dict = self._memo['src_suffixes']
+        except KeyError:
+            memo_dict = {}
+            self._memo['src_suffixes'] = memo_dict
+        else:
+            try:
+                return memo_dict[memo_key]
+            except KeyError:
+                pass
+        result = map(lambda x, s=self, e=env: e.subst(x), self.src_suffix)
+        memo_dict[memo_key] = result
+        return result
 
     def set_src_suffix(self, src_suffix):
         if not src_suffix:
@@ -673,13 +712,7 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
-if SCons.Memoize.use_old_memoization():
-    _Base = BuilderBase
-    class BuilderBase(SCons.Memoize.Memoizer, _Base):
-        "Cache-backed version of BuilderBase"
-        def __init__(self, *args, **kw):
-            apply(_Base.__init__, (self,)+args, kw)
-            SCons.Memoize.Memoizer.__init__(self)
+
 
 class ListBuilder(SCons.Util.Proxy):
     """A Proxy to support building an array of targets (for example,
@@ -718,6 +751,9 @@ class MultiStepBuilder(BuilderBase):
     builder is NOT invoked if the suffix of a source file matches
     src_suffix.
     """
+
+    memoizer_counters = []
+
     def __init__(self,  src_builder,
                         action = None,
                         prefix = '',
@@ -738,8 +774,32 @@ class MultiStepBuilder(BuilderBase):
             src_builder = [ src_builder ]
         self.src_builder = src_builder
 
+    def _get_sdict_key(self, env):
+        return id(env)
+
+    memoizer_counters.append(SCons.Memoize.CountDict('_get_sdict', _get_sdict_key))
+
     def _get_sdict(self, env):
-        "__cacheable__"
+        """
+        Returns a dictionary mapping all of the source suffixes of all
+        src_builders of this Builder to the underlying Builder that
+        should be called first.
+
+        This dictionary is used for each target specified, so we save a
+        lot of extra computation by memoizing it for each construction
+        environment.
+        """
+        memo_key = id(env)
+        try:
+            memo_dict = self._memo['_get_sdict']
+        except KeyError:
+            memo_dict = {}
+            self._memo['_get_sdict'] = memo_dict
+        else:
+            try:
+                return memo_dict[memo_key]
+            except KeyError:
+                pass
         sdict = {}
         for bld in self.src_builder:
             if SCons.Util.is_String(bld):
@@ -749,6 +809,7 @@ class MultiStepBuilder(BuilderBase):
                     continue
             for suf in bld.src_suffixes(env):
                 sdict[suf] = bld
+        memo_dict[memo_key] = sdict
         return sdict
         
     def _execute(self, env, target, source, overwarn={}, executor_kw={}):
@@ -810,14 +871,36 @@ class MultiStepBuilder(BuilderBase):
             ret.append(bld)
         return ret
 
+    def _src_suffixes_key(self, env):
+        return id(env)
+
+    memoizer_counters.append(SCons.Memoize.CountDict('src_suffixes', _src_suffixes_key))
+
     def src_suffixes(self, env):
-        """Return a list of the src_suffix attributes for all
-        src_builders of this Builder.
-        __cacheable__
         """
+        Returns the list of source suffixes for all src_builders of this
+        Builder.
+
+        The suffix list may contain construction variable expansions,
+        so we have to evaluate the individual strings.  To avoid doing
+        this over and over, we memoize the results for each construction
+        environment.
+        """
+        memo_key = id(env)
+        try:
+            memo_dict = self._memo['src_suffixes']
+        except KeyError:
+            memo_dict = {}
+            self._memo['src_suffixes'] = memo_dict
+        else:
+            try:
+                return memo_dict[memo_key]
+            except KeyError:
+                pass
         suffixes = BuilderBase.src_suffixes(self, env)
         for builder in self.get_src_builders(env):
             suffixes.extend(builder.src_suffixes(env))
+        memo_dict[memo_key] = suffixes
         return suffixes
 
 class CompositeBuilder(SCons.Util.Proxy):

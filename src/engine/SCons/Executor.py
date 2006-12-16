@@ -47,6 +47,8 @@ class Executor:
     if SCons.Memoize.use_memoizer:
         __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
+    memoizer_counters = []
+
     def __init__(self, action, env=None, overridelist=[{}],
                  targets=[], sources=[], builder_kw={}):
         if __debug__: logInstanceCreation(self, 'Executor.Executor')
@@ -58,6 +60,7 @@ class Executor:
         self.targets = targets
         self.sources = sources[:]
         self.builder_kw = builder_kw
+        self._memo = {}
 
     def set_action_list(self, action):
         if not SCons.Util.is_List(action):
@@ -72,7 +75,6 @@ class Executor:
     def get_build_env(self):
         """Fetch or create the appropriate build Environment
         for this Executor.
-        __cacheable__
         """
         # Create the build environment instance with appropriate
         # overrides.  These get evaluated against the current
@@ -125,8 +127,7 @@ class Executor:
         self.do_execute(target, exitstatfunc, kw)
 
     def cleanup(self):
-        "__reset_cache__"
-        pass
+        self._memo = {}
 
     def add_sources(self, sources):
         """Add source files to this Executor's list.  This is necessary
@@ -151,25 +152,30 @@ class Executor:
 
 
     def __str__(self):
-        "__cacheable__"
         return self.my_str()
 
     def nullify(self):
-        "__reset_cache__"
+        self.cleanup()
         self.do_execute = self.do_nothing
         self.my_str     = lambda S=self: ''
 
+    memoizer_counters.append(SCons.Memoize.CountValue('get_contents'))
+
     def get_contents(self):
-        """Fetch the signature contents.  This, along with
-        get_raw_contents(), is the real reason this class exists, so we
-        can compute this once and cache it regardless of how many target
-        or source Nodes there are.
-        __cacheable__
+        """Fetch the signature contents.  This is the main reason this
+        class exists, so we can compute this once and cache it regardless
+        of how many target or source Nodes there are.
         """
+        try:
+            return self._memo['get_contents']
+        except KeyError:
+            pass
         env = self.get_build_env()
         get = lambda action, t=self.targets, s=self.sources, e=env: \
                      action.get_contents(t, s, e)
-        return string.join(map(get, self.get_action_list()), "")
+        result = string.join(map(get, self.get_action_list()), "")
+        self._memo['get_contents'] = result
+        return result
 
     def get_timestamp(self):
         """Fetch a time stamp for this Executor.  We don't have one, of
@@ -219,20 +225,58 @@ class Executor:
 
     def get_missing_sources(self):
         """
-        __cacheable__
         """
         return filter(lambda s: s.missing(), self.sources)
 
-    def get_unignored_sources(self, ignore):
-        """__cacheable__"""
+    def _get_unignored_sources_key(self, ignore=()):
+        return tuple(ignore)
+
+    memoizer_counters.append(SCons.Memoize.CountDict('get_unignored_sources', _get_unignored_sources_key))
+
+    def get_unignored_sources(self, ignore=()):
+        ignore = tuple(ignore)
+        try:
+            memo_dict = self._memo['get_unignored_sources']
+        except KeyError:
+            memo_dict = {}
+            self._memo['get_unignored_sources'] = memo_dict
+        else:
+            try:
+                return memo_dict[ignore]
+            except KeyError:
+                pass
+
         sourcelist = self.sources
         if ignore:
             sourcelist = filter(lambda s, i=ignore: not s in i, sourcelist)
+
+        memo_dict[ignore] = sourcelist
+
         return sourcelist
 
-    def process_sources(self, func, ignore=[]):
-        """__cacheable__"""
-        return map(func, self.get_unignored_sources(ignore))
+    def _process_sources_key(self, func, ignore=()):
+        return (func, tuple(ignore))
+
+    memoizer_counters.append(SCons.Memoize.CountDict('process_sources', _process_sources_key))
+
+    def process_sources(self, func, ignore=()):
+        memo_key = (func, tuple(ignore))
+        try:
+            memo_dict = self._memo['process_sources']
+        except KeyError:
+            memo_dict = {}
+            self._memo['process_sources'] = memo_dict
+        else:
+            try:
+                return memo_dict[memo_key]
+            except KeyError:
+                pass
+
+        result = map(func, self.get_unignored_sources(ignore))
+
+        memo_dict[memo_key] = result
+
+        return result
 
 
 _Executor = Executor
@@ -258,13 +302,3 @@ class Null(_Executor):
         return None
     def cleanup(self):
         pass
-
-
-
-if SCons.Memoize.use_old_memoization():
-    _Base = Executor
-    class Executor(SCons.Memoize.Memoizer, _Base):
-        def __init__(self, *args, **kw):
-            SCons.Memoize.Memoizer.__init__(self)
-            apply(_Base.__init__, (self,)+args, kw)
-

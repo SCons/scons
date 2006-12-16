@@ -71,7 +71,7 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
-    def subst(self, s):
+    def subst(self, s, target=None, source=None, conv=None):
         try:
             if s[0] == '$':
                 return self._dict[s[1:]]
@@ -79,7 +79,7 @@ class DummyEnvironment:
             return ''
         return s
 
-    def subst_path(self, path, target=None, source=None):
+    def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
@@ -165,12 +165,12 @@ class ProgramScannerTestCase3(unittest.TestCase):
 class ProgramScannerTestCase5(unittest.TestCase):
     def runTest(self):
         class SubstEnvironment(DummyEnvironment):
-            def subst(self, arg, path=test.workpath("d1")):
-                if arg == "blah":
+            def subst(self, arg, target=None, source=None, conv=None, path=test.workpath("d1")):
+                if arg == "$blah":
                     return test.workpath("d1")
                 else:
                     return arg
-        env = SubstEnvironment(LIBPATH=[ "blah" ],
+        env = SubstEnvironment(LIBPATH=[ "$blah" ],
                                LIBS=string.split('l2 l3'))
         s = SCons.Scanner.Prog.ProgramScanner()
         path = s.path(env)

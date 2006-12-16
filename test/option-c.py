@@ -177,10 +177,27 @@ test.must_match(test.workpath('foo4.out'), "foo4.in\n")
 test.must_exist(test.workpath('touch1.out'))
 test.must_exist(test.workpath('touch2.out'))
 
+
+expect1 = "scons: Could not remove 'foo1.out': Permission denied\n"
+expect2 = "scons: Could not remove 'foo1.out': The process cannot access the file because it is being used by another process\n"
+
+expect = [
+    test.wrap_stdout(expect1, cleaning=1),
+    test.wrap_stdout(expect2, cleaning=1),
+]
+
 test.writable('.', 0)
 f = open(test.workpath('foo1.out'))
-test.run(arguments = '-c foo1.out',
-         stdout = test.wrap_stdout("scons: Could not remove 'foo1.out': Permission denied\n", cleaning=1))
+test.run(arguments = '-c foo1.out')
+stdout = test.stdout()
+matched = None
+for e in expect:
+    if stdout == e:
+        matched = 1
+        break
+if not matched:
+    print stdout
+    test.fail_test()
 test.must_exist(test.workpath('foo1.out'))
 f.close()
 test.writable('.', 1)

@@ -78,6 +78,9 @@ def visit(collect, dirname, names):
 check = {
     build_scons : [
         'build',
+        'build-stamp',
+        'configure-stamp',
+        'debian',
         'dist',
         'engine/SCons/Conftest.py',
         'engine/SCons/dblite.py',

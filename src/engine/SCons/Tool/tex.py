@@ -43,7 +43,13 @@ import SCons.Node.FS
 import SCons.Util
 
 warning_rerun_re = re.compile("^LaTeX Warning:.*Rerun", re.MULTILINE)
-undefined_references_re = re.compile("^LaTeX Warning:.*undefined references", re.MULTILINE)
+
+rerun_citations_str = "^LaTeX Warning:.*\n.*Rerun to get citations correct"
+rerun_citations_re = re.compile(rerun_citations_str, re.MULTILINE)
+
+undefined_references_str = '(^LaTeX Warning:.*undefined references)|(^Package \w+ Warning:.*undefined citations)'
+undefined_references_re = re.compile(undefined_references_str, re.MULTILINE)
+
 openout_aux_re = re.compile(r"\\openout.*`(.*\.aux)'")
 
 # An Action sufficient to build any generic tex file.
@@ -63,7 +69,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     """A builder for LaTeX files that checks the output in the aux file
     and decides how many times to use LaTeXAction, and BibTeXAction."""
 
-    basename, ext = SCons.Util.splitext(str(target[0]))
+    basename = SCons.Util.splitext(str(source[0]))[0]
+    basedir = os.path.split(str(source[0]))[0]
 
     # Run LaTeX once to generate a new aux file.
     XXXLaTeXAction(target, source, env)
@@ -82,11 +89,11 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     # Now decide if bibtex will need to be run.
     for auxfilename in auxfiles:
-        if os.path.exists(auxfilename):
-            content = open(auxfilename, "rb").read()
+        if os.path.exists(os.path.join(basedir, auxfilename)):
+            content = open(os.path.join(basedir, auxfilename), "rb").read()
             if string.find(content, "bibdata") != -1:
                 bibfile = env.fs.File(basename)
-                BibTeXAction(None, bibfile, env)
+                BibTeXAction(bibfile, bibfile, env)
                 break
 
     # Now decide if makeindex will need to be run.
@@ -94,7 +101,13 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     if os.path.exists(idxfilename):
         idxfile = env.fs.File(basename)
         # TODO: if ( idxfile has changed) ...
-        MakeIndexAction(None, idxfile, env)
+        MakeIndexAction(idxfile, idxfile, env)
+        XXXLaTeXAction(target, source, env)
+
+    # Now decide if latex will need to be run again due to table of contents.
+    tocfilename = basename + '.toc'
+    if os.path.exists(tocfilename):
+        # TODO: if ( tocfilename has changed) ...
         XXXLaTeXAction(target, source, env)
 
     # Now decide if latex needs to be run yet again.
@@ -104,6 +117,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             break
         content = open(logfilename, "rb").read()
         if not warning_rerun_re.search(content) and \
+           not rerun_citations_re.search(content) and \
            not undefined_references_re.search(content):
             break
         XXXLaTeXAction(target, source, env)
@@ -135,9 +149,12 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
 def tex_emitter(target, source, env):
     base = SCons.Util.splitext(str(source[0]))[0]
     target.append(base + '.aux')
+    env.Precious(base + '.aux')
     target.append(base + '.log')
     for f in source:
         content = f.get_contents()
+        if string.find(content, r'\tableofcontents') != -1:
+            target.append(base + '.toc')
         if string.find(content, r'\makeindex') != -1:
             target.append(base + '.ilg')
             target.append(base + '.ind')
@@ -151,7 +168,10 @@ def tex_emitter(target, source, env):
     if os.path.exists(logfilename):
         content = open(logfilename, "rb").read()
         aux_files = openout_aux_re.findall(content)
-        target.extend(filter(lambda f, b=base+'.aux': f != b, aux_files))
+        aux_files = filter(lambda f, b=base+'.aux': f != b, aux_files)
+        dir = os.path.split(base)[0]
+        aux_files = map(lambda f, d=dir: d+os.sep+f, aux_files)
+        target.extend(aux_files)
 
     return (target, source)
 
@@ -194,21 +214,21 @@ def generate(env):
 
     env['TEX']      = 'tex'
     env['TEXFLAGS'] = SCons.Util.CLVar('')
-    env['TEXCOM']   = '$TEX $TEXFLAGS $SOURCE'
+    env['TEXCOM']   = 'cd ${TARGET.dir} && $TEX $TEXFLAGS ${SOURCE.file}'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['LATEX']        = 'latex'
     env['LATEXFLAGS']   = SCons.Util.CLVar('')
-    env['LATEXCOM']     = '$LATEX $LATEXFLAGS $SOURCE'
+    env['LATEXCOM']     = 'cd ${TARGET.dir} && $LATEX $LATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES'] = 3
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
-    env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS ${SOURCE.base}'
+    env['BIBTEXCOM']   = 'cd ${TARGET.dir} && $BIBTEX $BIBTEXFLAGS ${SOURCE.filebase}'
 
     env['MAKEINDEX']      = 'makeindex'
     env['MAKEINDEXFLAGS'] = SCons.Util.CLVar('')
-    env['MAKEINDEXCOM']   = '$MAKEINDEX $MAKEINDEXFLAGS $SOURCES'
+    env['MAKEINDEXCOM']   = 'cd ${TARGET.dir} && $MAKEINDEX $MAKEINDEXFLAGS ${SOURCE.file}'
 
 def exists(env):
     return env.Detect('tex')

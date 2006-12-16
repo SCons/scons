@@ -4,7 +4,9 @@
 # See the README file for an overview of how SCons is built and tested.
 #
 
-copyright_years = '2001, 2002, 2003, 2004'
+# When this gets changed, you also need to change test/option-v.py
+# so it looks for the right string.
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006'
 
 #
 # __COPYRIGHT__
@@ -40,7 +42,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.96.92'
+default_version = '0.96.93'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 Default('.')
@@ -453,6 +455,7 @@ scons_script = {
                             'LICENSE.txt'       : '../LICENSE.txt',
                             'scons'             : 'scons.py',
                             'sconsign'          : 'sconsign.py',
+                            'scons-time'        : 'scons-time.py',
                            },
 
         'buildermap'    : {},
@@ -460,6 +463,7 @@ scons_script = {
         'extra_rpm_files' : [
                             'scons-' + version,
                             'sconsign-' + version,
+                            'scons-time-' + version,
                           ],
 
         'explicit_deps' : {
@@ -490,6 +494,7 @@ scons = {
                             'os_spawnv_fix.diff',
                             'scons.1',
                             'sconsign.1',
+                            'scons-time.1',
                             'script/scons.bat',
                             'setup.cfg',
                             'setup.py',
@@ -498,11 +503,13 @@ scons = {
         'filemap'       : {
                             'scons.1' : '../build/doc/man/scons.1',
                             'sconsign.1' : '../build/doc/man/sconsign.1',
+                            'scons-time.1' : '../build/doc/man/scons-time.1',
                           },
 
         'buildermap'    : {
                             'scons.1' : env.SOElim,
                             'sconsign.1' : env.SOElim,
+                            'scons-time.1' : env.SOElim,
                           },
 
         'subpkgs'       : [ python_scons, scons_script ],

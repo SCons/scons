@@ -290,7 +290,6 @@ class SubstTestCase(unittest.TestCase):
             "${FFF[0]}",            "G",
             "${FFF[7]}",            "",
             "${NOTHING[1]}",        "",
-            "${NONE[2]}",           "",
 
             # Test various combinations of strings and lists.
             #None,                   '',
@@ -336,7 +335,11 @@ class SubstTestCase(unittest.TestCase):
         while cases:
             input, expect = cases[:2]
             expect = cvt(expect)
-            result = apply(scons_subst, (input, env), kwargs)
+            try:
+                result = apply(scons_subst, (input, env), kwargs)
+            except Exception, e:
+                print "    input %s generated %s %s" % (repr(input), e.__class__.__name__, str(e))
+                failed = failed + 1
             if result != expect:
                 if failed == 0: print
                 print "    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect))
@@ -459,8 +462,8 @@ class SubstTestCase(unittest.TestCase):
             scons_subst('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError, e:
             expect = [
-                "Error trying to evaluate `${foo.bar}': bar",
-                "Error trying to evaluate `${foo.bar}': Foo instance has no attribute 'bar'",
+                "AttributeError `bar' trying to evaluate `${foo.bar}'",
+                "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
             ]
             assert str(e) in expect, e
         else:
@@ -470,9 +473,44 @@ class SubstTestCase(unittest.TestCase):
         try:
             scons_subst('$foo.bar.3.0', env)
         except SCons.Errors.UserError, e:
-            expect1 = "Syntax error `invalid syntax' trying to evaluate `$foo.bar.3.0'"
-            expect2 = "Syntax error `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'"
-            assert str(e) in [expect1, expect2], e
+            expect = [
+                # Python 1.5
+                "SyntaxError `invalid syntax' trying to evaluate `$foo.bar.3.0'",
+                # Python 2.2, 2.3, 2.4
+                "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
+                # Python 2.5
+                "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
+            ]
+            assert str(e) in expect, e
+        else:
+            raise AssertionError, "did not catch expected UserError"
+
+        # Test that we handle type errors 
+        try:
+            scons_subst("${NONE[2]}", env, gvars={'NONE':None})
+        except SCons.Errors.UserError, e:
+            expect = [
+                # Python 1.5, 2.2, 2.3, 2.4
+                "TypeError `unsubscriptable object' trying to evaluate `${NONE[2]}'",
+                # Python 2.5 and later
+                "TypeError `'NoneType' object is unsubscriptable' trying to evaluate `${NONE[2]}'",
+            ]
+            assert str(e) in expect, e
+        else:
+            raise AssertionError, "did not catch expected UserError"
+
+        try:
+            def func(a, b, c):
+                pass
+            scons_subst("${func(1)}", env, gvars={'func':func})
+        except SCons.Errors.UserError, e:
+            expect = [
+                # Python 1.5
+                "TypeError `not enough arguments; expected 3, got 1' trying to evaluate `${func(1)}'",
+                # Python 2.2, 2.3, 2.4, 2.5
+                "TypeError `func() takes exactly 3 arguments (1 given)' trying to evaluate `${func(1)}'"
+            ]
+            assert str(e) in expect, repr(str(e))
         else:
             raise AssertionError, "did not catch expected UserError"
 
@@ -933,8 +971,8 @@ class SubstTestCase(unittest.TestCase):
             scons_subst_list('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError, e:
             expect = [
-                "Error trying to evaluate `${foo.bar}': bar",
-                "Error trying to evaluate `${foo.bar}': Foo instance has no attribute 'bar'",
+                "AttributeError `bar' trying to evaluate `${foo.bar}'",
+                "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
             ]
             assert str(e) in expect, e
         else:
@@ -944,9 +982,12 @@ class SubstTestCase(unittest.TestCase):
         try:
             scons_subst_list('$foo.bar.3.0', env)
         except SCons.Errors.UserError, e:
-            expect1 = "Syntax error `invalid syntax' trying to evaluate `$foo.bar.3.0'"
-            expect2 = "Syntax error `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'"
-            assert str(e) in [expect1, expect2], e
+            expect = [
+                "SyntaxError `invalid syntax' trying to evaluate `$foo.bar.3.0'",
+                "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
+                "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
+            ]
+            assert str(e) in expect, e
         else:
             raise AssertionError, "did not catch expected SyntaxError"
 

@@ -232,12 +232,12 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
-    def subst(self, arg):
+    def subst(self, arg, target=None, source=None, conv=None):
         if arg[0] == '$':
             return self[arg[1:]]
         return arg
 
-    def subst_path(self, path, target=None, source=None):
+    def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
@@ -461,10 +461,13 @@ class FortranScannerTestCase14(unittest.TestCase):
 class FortranScannerTestCase15(unittest.TestCase):
     def runTest(self):
         class SubstEnvironment(DummyEnvironment):
-            def subst(self, arg, test=test):
-                return test.workpath("d1")
+            def subst(self, arg, target=None, source=None, conv=None, test=test):
+                if arg == "$junk":
+                    return test.workpath("d1")
+                else:
+                    return arg
         test.write(['d1', 'f2.f'], "      INCLUDE 'fi.f'\n")
-        env = SubstEnvironment(["junk"])
+        env = SubstEnvironment(["$junk"])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(env.File('fff1.f'), env, path)

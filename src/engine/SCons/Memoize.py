@@ -1,66 +1,3 @@
-"""Memoizer
-
-Memoizer -- base class to provide automatic, optimized caching of
-method return values for subclassed objects.  Caching is activated by
-the presence of "__cacheable__" in the doc of a method (acts like a
-decorator).  The presence of "__cache_reset__" or "__reset_cache__"
-in the doc string instead indicates a method that should reset the
-cache, discarding any currently cached values.
-
-Note: current implementation is optimized for speed, not space.  The
-cache reset operation does not actually discard older results, and in
-fact, all cached results (and keys) are held indefinitely.
-
-Most of the work for this is done by copying and modifying the class
-definition itself, rather than the object instances.  This will
-therefore allow all instances of a class to get caching activated
-without requiring lengthy initialization or other management of the
-instance.
-
-[This could also be done using metaclassing (which would require
-Python 2.2) and decorators (which would require Python 2.4).  Current
-implementation is used due to Python 1.5.2 compatability requirement
-contraint.]
-
-A few notes:
-
-    * All local methods/attributes use a prefix of "_MeMoIZeR" to avoid
-      namespace collisions with the attributes of the objects
-      being cached.
-
-    * Based on performance evaluations of dictionaries, caching is
-      done by providing each object with a unique key attribute and
-      using the value of that attribute as an index for dictionary
-      lookup.  If an object doesn't have one of these attributes,
-      fallbacks are utilized (although they will be somewhat slower).
-
-      * To support this unique-value attribute correctly, it must be
-        removed whenever a __cmp__ operation is performed, and it must
-        be updated whenever a copy.copy or copy.deepcopy is performed,
-        so appropriate manipulation is provided by the Caching code
-        below.
-
-    * Cached values are stored in the class (indexed by the caching
-      key attribute, then by the name of the method called and the
-      constructed key of the arguments passed).  By storing them here
-      rather than on the instance, the instance can be compared,
-      copied, and pickled much easier.
-
-Some advantages:
-
-    * The method by which caching is implemented can be changed in a
-      single location and it will apply globally.
-
-    * Greatly simplified client code: remove lots of try...except or
-      similar handling of cached lookup.  Also usually more correct in
-      that it based caching on all input arguments whereas many
-      hand-implemented caching operations often miss arguments that
-      might affect results.
-
-    * Caching can be globally disabled very easily (for testing, etc.)
-
-"""
-
 #
 # __COPYRIGHT__
 #
@@ -86,752 +23,247 @@ Some advantages:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-#TBD: for pickling, should probably revert object to unclassed state...
+__doc__ = """Memoizer
 
-import copy
-import os
-import string
-import sys
+A metaclass implementation to count hits and misses of the computed
+values that various methods cache in memory.
+
+Use of this modules assumes that wrapped methods be coded to cache their
+values in a consistent way.  Here is an example of wrapping a method
+that returns a computed value, with no input parameters:
+
+    memoizer_counters = []                                      # Memoization
+
+    memoizer_counters.append(SCons.Memoize.CountValue('foo'))   # Memoization
+
+    def foo(self):
+
+        try:                                                    # Memoization
+            return self._memo['foo']                            # Memoization
+        except KeyError:                                        # Memoization
+            pass                                                # Memoization
+
+        result = self.compute_foo_value()
+
+        self._memo['foo'] = result                              # Memoization
+
+        return result
+
+Here is an example of wrapping a method that will return different values
+based on one or more input arguments:
+
+    def _bar_key(self, argument):                               # Memoization
+        return argument                                         # Memoization
+
+    memoizer_counters.append(SCons.Memoize.CountDict('bar', _bar_key)) # Memoization
+
+    def bar(self, argument):
+
+        memo_key = argument                                     # Memoization
+        try:                                                    # Memoization
+            memo_dict = self._memo['bar']                       # Memoization
+        except KeyError:                                        # Memoization
+            memo_dict = {}                                      # Memoization
+            self._memo['dict'] = memo_dict                      # Memoization
+        else:                                                   # Memoization
+            try:                                                # Memoization
+                return memo_dict[memo_key]                      # Memoization
+            except KeyError:                                    # Memoization
+                pass                                            # Memoization
+
+        result = self.compute_bar_value(argument)
+
+        memo_dict[memo_key] = result                            # Memoization
+
+        return result
+
+At one point we avoided replicating this sort of logic in all the methods
+by putting it right into this module, but we've moved away from that at
+present (see the "Historical Note," below.).
+
+Deciding what to cache is tricky, because different configurations
+can have radically different performance tradeoffs, and because the
+tradeoffs involved are often so non-obvious.  Consequently, deciding
+whether or not to cache a given method will likely be more of an art than
+a science, but should still be based on available data from this module.
+Here are some VERY GENERAL guidelines about deciding whether or not to
+cache return values from a method that's being called a lot:
+
+    --  The first question to ask is, "Can we change the calling code
+        so this method isn't called so often?"  Sometimes this can be
+        done by changing the algorithm.  Sometimes the *caller* should
+        be memoized, not the method you're looking at.
+
+    --  The memoized function should be timed with multiple configurations
+        to make sure it doesn't inadvertently slow down some other
+        configuration.
+
+    --  When memoizing values based on a dictionary key composed of
+        input arguments, you don't need to use all of the arguments
+        if some of them don't affect the return values.
+
+Historical Note:  The initial Memoizer implementation actually handled
+the caching of values for the wrapped methods, based on a set of generic
+algorithms for computing hashable values based on the method's arguments.
+This collected caching logic nicely, but had two drawbacks:
+
+    Running arguments through a generic key-conversion mechanism is slower
+    (and less flexible) than just coding these things directly.  Since the
+    methods that need memoized values are generally performance-critical,
+    slowing them down in order to collect the logic isn't the right
+    tradeoff.
+
+    Use of the memoizer really obscured what was being called, because
+    all the memoized methods were wrapped with re-used generic methods.
+    This made it more difficult, for example, to use the Python profiler
+    to figure out how to optimize the underlying methods.
+"""
+
+import new
 
 # A flag controlling whether or not we actually use memoization.
-use_memoizer = 1
+use_memoizer = None
 
-#
-# Generate a key for an object that is to be used as the caching key
-# for that object.
-#
-# Current implementation: singleton generating a monotonically
-# increasing integer
+CounterList = []
 
-class MemoizerKey:
-    def __init__(self):
-        self._next_keyval = 0
-    def __call__(self):
-        r = self._next_keyval
-        self._next_keyval = self._next_keyval + 1
-        return str(r)
-Next_Memoize_Key = MemoizerKey()
+class Counter:
+    """
+    Base class for counting memoization hits and misses.
 
-
-#
-# Memoized Class management.
-#
-# Classes can be manipulated just like object instances; we are going
-# to do some of that here, without the benefit of metaclassing
-# introduced in Python 2.2 (it would be nice to use that, but this
-# attempts to maintain backward compatibility to Python 1.5.2).
-#
-# The basic implementation therefore is to update the class definition
-# for any objects that we want to enable caching for.  The updated
-# definition performs caching activities for those methods
-# appropriately marked in the original class.
-#
-# When an object is created, its class is switched to this updated,
-# cache-enabled class definition, thereby enabling caching operations.
-#
-# To get an instance to used the updated, caching class, the instance
-# must declare the Memoizer as a base class and make sure to call the
-# Memoizer's __init__ during the instance's __init__.  The Memoizer's
-# __init__ will perform the class updating.
-
-# For Python 2.2 and later, where metaclassing is supported, it is
-# sufficient to provide a "__metaclass__ = Memoized_Metaclass" as part
-# of the class definition; the metaclassing will automatically invoke
-# the code herein properly.
-
-##import cPickle
-##def ALT0_MeMoIZeR_gen_key(argtuple, kwdict):
-##    return cPickle.dumps( (argtuple,kwdict) )
-
-def ALT1_MeMoIZeR_gen_key(argtuple, kwdict):
-    return repr(argtuple) + '|' + repr(kwdict)
-
-def ALT2_MeMoIZeR_gen_key(argtuple, kwdict):
-    return string.join(map(lambda A:
-                           getattr(A, '_MeMoIZeR_Key', str(A)),
-                           argtuple) + \
-                       map(lambda D:
-                           str(D[0])+
-                           getattr(D[1], '_MeMoIZeR_Key', str(D[1])),
-                           kwdict.items()),
-                       '|')
-
-def ALT3_MeMoIZeR_gen_key(argtuple, kwdict):
-    ret = []
-    for A in argtuple:
-        X = getattr(A, '_MeMoIZeR_Key', None)
-        if X:
-            ret.append(X)
-        else:
-            ret.append(str(A))
-    for K,V in kwdict.items():
-        ret.append(str(K))
-        X = getattr(V, '_MeMoIZeR_Key', None)
-        if X:
-            ret.append(X)
-        else:
-            ret.append(str(V))
-    return string.join(ret, '|')
-
-def ALT4_MeMoIZeR_gen_key(argtuple, kwdict):
-    if kwdict:
-        return string.join(map(lambda A:
-                               getattr(A, '_MeMoIZeR_Key', None) or str(A),
-                               argtuple) + \
-                           map(lambda D:
-                               str(D[0])+
-                               (getattr(D[1], '_MeMoIZeR_Key', None) or str(D[1])),
-                               kwdict.items()),
-                           '|')
-    return string.join(map(lambda A:
-                        getattr(A, '_MeMoIZeR_Key', None) or str(A),
-                        argtuple),
-                       '!')
-
-def ALT5_MeMoIZeR_gen_key(argtuple, kwdict):
-    A = string.join(map(str, argtuple), '|')
-    K = ''
-    if kwdict:
-        I = map(lambda K,D=kwdict: str(K)+'='+str(D[K]), kwdict.keys())
-        K = string.join(I, '|')
-    return string.join([A,K], '!')
-
-def ALT6_MeMoIZeR_gen_key(argtuple, kwdict):
-    A = string.join(map(str, map(id, argtuple)), '|')
-    K = ''
-    if kwdict:
-        I = map(lambda K,D=kwdict: str(K)+'='+str(id(D[K])), kwdict.keys())
-        K = string.join(I, '|')
-    return string.join([A,K], '!')
-
-def ALT7_MeMoIZeR_gen_key(argtuple, kwdict):
-    A = string.join(map(repr, argtuple), '|')
-    K = ''
-    if kwdict:
-        I = map(lambda K,D=kwdict: repr(K)+'='+repr(D[K]), kwdict.keys())
-        K = string.join(I, '|')
-    return string.join([A,K], '!')
-
-def ALT8_MeMoIZeR_gen_key(argtuple, kwdict):
-    ret = []
-    for A in argtuple:
-        X = getattr(A, '_MeMoIZeR_Key', None)
-        if X:
-            ret.append(X)
-        else:
-            ret.append(repr(A))
-    for K,V in kwdict.items():
-        ret.append(str(K))
-        X = getattr(V, '_MeMoIZeR_Key', None)
-        if X:
-            ret.append(X)
-        else:
-            ret.append(repr(V))
-    return string.join(ret, '|')
-
-def ALT9_MeMoIZeR_gen_key(argtuple, kwdict):
-    ret = []
-    for A in argtuple:
-        try:
-            X = A.__dict__.get('_MeMoIZeR_Key', None) or repr(A)
-        except (AttributeError, KeyError):
-            X = repr(A)
-        ret.append(X)
-    for K,V in kwdict.items():
-        ret.append(str(K))
-        ret.append('=')
-        try:
-            X = V.__dict__.get('_MeMoIZeR_Key', None) or repr(V)
-        except (AttributeError, KeyError):
-            X = repr(V)
-        ret.append(X)
-    return string.join(ret, '|')
-
-#_MeMoIZeR_gen_key = ALT9_MeMoIZeR_gen_key    # 8.8, 0.20
-_MeMoIZeR_gen_key = ALT8_MeMoIZeR_gen_key    # 8.5, 0.18
-#_MeMoIZeR_gen_key = ALT7_MeMoIZeR_gen_key    # 8.7, 0.17
-#_MeMoIZeR_gen_key = ALT6_MeMoIZeR_gen_key    #
-#_MeMoIZeR_gen_key = ALT5_MeMoIZeR_gen_key    # 9.7, 0.20
-#_MeMoIZeR_gen_key = ALT4_MeMoIZeR_gen_key    # 8.6, 0.19
-#_MeMoIZeR_gen_key = ALT3_MeMoIZeR_gen_key    # 8.5, 0.20
-#_MeMoIZeR_gen_key = ALT2_MeMoIZeR_gen_key    # 10.1, 0.22
-#_MeMoIZeR_gen_key = ALT1_MeMoIZeR_gen_key    # 8.6 0.18
-
-
-
-## This is really the core worker of the Memoize module.  Any
-## __cacheable__ method ends up calling this function which tries to
-## return a previously cached value if it exists, and which calls the
-## actual function and caches the return value if it doesn't already
-## exist.
-##
-## This function should be VERY efficient: it will get called a lot
-## and its job is to be faster than what would be called.
-
-def Memoizer_cache_get(func, cdict, args, kw):
-    """Called instead of name to see if this method call's return
-    value has been cached.  If it has, just return the cached
-    value; if not, call the actual method and cache the return."""
-
-    obj = args[0]
-
-    ckey = obj._MeMoIZeR_Key + ':' + _MeMoIZeR_gen_key(args, kw)
-
-##    try:
-##        rval = cdict[ckey]
-##    except KeyError:
-##        rval = cdict[ckey] = apply(func, args, kw)
-
-    rval = cdict.get(ckey, "_MeMoIZeR")
-    if rval is "_MeMoIZeR":
-        rval = cdict[ckey] = apply(func, args, kw)
-
-##    rval = cdict.setdefault(ckey, apply(func, args, kw))
-
-##    if cdict.has_key(ckey):
-##        rval = cdict[ckey]
-##    else:
-##        rval = cdict[ckey] = apply(func, args, kw)
-
-    return rval
-
-def Memoizer_cache_get_self(func, cdict, self):
-    """Called instead of func(self) to see if this method call's
-    return value has been cached.  If it has, just return the cached
-    value; if not, call the actual method and cache the return.
-    Optimized version of Memoizer_cache_get for methods that take the
-    object instance as the only argument."""
-
-    ckey = self._MeMoIZeR_Key
-
-##    try:
-##        rval = cdict[ckey]
-##    except KeyError:
-##        rval = cdict[ckey] = func(self)
-
-    rval = cdict.get(ckey, "_MeMoIZeR")
-    if rval is "_MeMoIZeR":
-        rval = cdict[ckey] = func(self)
-
-##    rval = cdict.setdefault(ckey, func(self)))
-
-##    if cdict.has_key(ckey):
-##        rval = cdict[ckey]
-##    else:
-##        rval = cdict[ckey] = func(self)
-
-    return rval
-
-def Memoizer_cache_get_one(func, cdict, self, arg):
-    """Called instead of func(self, arg) to see if this method call's
-    return value has been cached.  If it has, just return the cached
-    value; if not, call the actual method and cache the return.
-    Optimized version of Memoizer_cache_get for methods that take the
-    object instance and one other argument only."""
-
-##    X = getattr(arg, "_MeMoIZeR_Key", None)
-##    if X:
-##        ckey = self._MeMoIZeR_Key +':'+ X
-##    else:
-##        ckey = self._MeMoIZeR_Key +':'+ str(arg)
-    ckey = self._MeMoIZeR_Key + ':' + \
-           (getattr(arg, "_MeMoIZeR_Key", None) or repr(arg))
-
-##    try:
-##        rval = cdict[ckey]
-##    except KeyError:
-##        rval = cdict[ckey] = func(self, arg)
-
-    rval = cdict.get(ckey, "_MeMoIZeR")
-    if rval is "_MeMoIZeR":
-        rval = cdict[ckey] = func(self, arg)
-
-##    rval = cdict.setdefault(ckey, func(self, arg)))
-
-##    if cdict.has_key(ckey):
-##        rval = cdict[ckey]
-##    else:
-##        rval = cdict[ckey] = func(self, arg)
-
-    return rval
-
-#
-# Caching stuff is tricky, because the tradeoffs involved are often so
-# non-obvious, so we're going to support an alternate set of functions
-# that also count the hits and misses, to try to get a concrete idea of
-# which Memoizations seem to pay off.
-#
-# Because different configurations can have such radically different
-# performance tradeoffs, interpreting the hit/miss results will likely be
-# more of an art than a science.  In other words, don't assume that just
-# because you see no hits in one configuration that it's not worthwhile
-# Memoizing that method.
-#
-# Note that these are essentially cut-and-paste copies of the above
-# Memozer_cache_get*() implementations, with the addition of the
-# counting logic.  If the above implementations change, the
-# corresponding change should probably be made down below as well,
-# just to try to keep things in sync.
-#
-
-class CounterEntry:
-    def __init__(self):
+    We expect that the metaclass initialization will have filled in
+    the .name attribute that represents the name of the function
+    being counted.
+    """
+    def __init__(self, method_name):
+        """
+        """
+        self.method_name = method_name
         self.hit = 0
         self.miss = 0
-
-import UserDict
-class Counter(UserDict.UserDict):
-    def __call__(self, obj, methname):
-        k = obj.__class__.__name__ + '.' + methname
-        try:
-            return self[k]
-        except KeyError:
-            c = self[k] = CounterEntry()
-            return c
-
-CacheCount = Counter()
-CacheCountSelf = Counter()
-CacheCountOne = Counter()
-
-def Dump():
-    items = CacheCount.items() + CacheCountSelf.items() + CacheCountOne.items()
-    items.sort()
-    for k, v in items:
-        print "    %7d hits %7d misses   %s()" % (v.hit, v.miss, k)
-
-def Count_cache_get(name, func, cdict, args, kw):
-    """Called instead of name to see if this method call's return
-    value has been cached.  If it has, just return the cached
-    value; if not, call the actual method and cache the return."""
-
-    obj = args[0]
-
-    ckey = obj._MeMoIZeR_Key + ':' + _MeMoIZeR_gen_key(args, kw)
-
-    c = CacheCount(obj, name)
-    rval = cdict.get(ckey, "_MeMoIZeR")
-    if rval is "_MeMoIZeR":
-        rval = cdict[ckey] = apply(func, args, kw)
-        c.miss = c.miss + 1
-    else:
-        c.hit = c.hit + 1
-
-    return rval
-
-def Count_cache_get_self(name, func, cdict, self):
-    """Called instead of func(self) to see if this method call's
-    return value has been cached.  If it has, just return the cached
-    value; if not, call the actual method and cache the return.
-    Optimized version of Memoizer_cache_get for methods that take the
-    object instance as the only argument."""
-
-    ckey = self._MeMoIZeR_Key
-
-    c = CacheCountSelf(self, name)
-    rval = cdict.get(ckey, "_MeMoIZeR")
-    if rval is "_MeMoIZeR":
-        rval = cdict[ckey] = func(self)
-        c.miss = c.miss + 1
-    else:
-        c.hit = c.hit + 1
-
-    return rval
-
-def Count_cache_get_one(name, func, cdict, self, arg):
-    """Called instead of func(self, arg) to see if this method call's
-    return value has been cached.  If it has, just return the cached
-    value; if not, call the actual method and cache the return.
-    Optimized version of Memoizer_cache_get for methods that take the
-    object instance and one other argument only."""
-
-    ckey = self._MeMoIZeR_Key + ':' + \
-           (getattr(arg, "_MeMoIZeR_Key", None) or repr(arg))
-
-    c = CacheCountOne(self, name)
-    rval = cdict.get(ckey, "_MeMoIZeR")
-    if rval is "_MeMoIZeR":
-        rval = cdict[ckey] = func(self, arg)
-        c.miss = c.miss + 1
-    else:
-        c.hit = c.hit + 1
-
-    return rval
-
-MCG_dict = {
-    'MCG'  : Memoizer_cache_get,
-    'MCGS' : Memoizer_cache_get_self,
-    'MCGO' : Memoizer_cache_get_one,
-}
-
-MCG_lambda = "lambda *args, **kw: MCG(methcode, methcached, args, kw)"
-MCGS_lambda = "lambda self: MCGS(methcode, methcached, self)"
-MCGO_lambda = "lambda self, arg: MCGO(methcode, methcached, self, arg)"
-
-def EnableCounting():
-    """Enable counting of Memoizer hits and misses by overriding the
-    globals that hold the non-counting versions of the functions and
-    lambdas we call with the counting versions.
-    """
-    global MCG_dict
-    global MCG_lambda
-    global MCGS_lambda
-    global MCGO_lambda
-
-    MCG_dict = {
-        'MCG'  : Count_cache_get,
-        'MCGS' : Count_cache_get_self,
-        'MCGO' : Count_cache_get_one,
-    }
-
-    MCG_lambda = "lambda *args, **kw: MCG(methname, methcode, methcached, args, kw)"
-    MCGS_lambda = "lambda self: MCGS(methname, methcode, methcached, self)"
-    MCGO_lambda = "lambda self, arg: MCGO(methname, methcode, methcached, self, arg)"
-
-
-
-class _Memoizer_Simple:
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.__dict__['_MeMoIZeR_Key'] = Next_Memoize_Key()
-        #kwq: need to call original's setstate if it had one...
-
-    def _MeMoIZeR_reset(self):
-        self.__dict__['_MeMoIZeR_Key'] = Next_Memoize_Key()
-        return 1
-
-
-class _Memoizer_Comparable:
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.__dict__['_MeMoIZeR_Key'] = Next_Memoize_Key()
-        #kwq: need to call original's setstate if it had one...
-
-    def _MeMoIZeR_reset(self):
-        self.__dict__['_MeMoIZeR_Key'] = Next_Memoize_Key()
-        return 1
-
+        CounterList.append(self)
+    def display(self):
+        fmt = "    %7d hits %7d misses    %s()"
+        print fmt % (self.hit, self.miss, self.name)
     def __cmp__(self, other):
-        """A comparison might use the object dictionaries to
-        compare, so the dictionaries should contain caching
-        entries.  Make new dictionaries without those entries
-        to use with the underlying comparison."""
+        return cmp(self.name, other.name)
 
-        if self is other:
-            return 0
+class CountValue(Counter):
+    """
+    A counter class for simple, atomic memoized values.
 
-        # We are here as a cached object, but cmp will flip its
-        # arguments back and forth and recurse attempting to get base
-        # arguments for the comparison, so we might have already been
-        # stripped.
+    A CountValue object should be instantiated in a class for each of
+    the class's methods that memoizes its return value by simply storing
+    the return value in its _memo dictionary.
 
-        try:
-            saved_d1 = self.__dict__
-            d1 = copy.copy(saved_d1)
-            del d1['_MeMoIZeR_Key']
-        except KeyError:
-            return self._MeMoIZeR_cmp(other)
-        self.__dict__ = d1
-
-        # Same thing for the other, but we should try to convert it
-        # here in case the _MeMoIZeR_cmp compares __dict__ objects
-        # directly.
-
-        saved_other = None
-        try:
-            if other.__dict__.has_key('_MeMoIZeR_Key'):
-                saved_other = other.__dict__
-                d2 = copy.copy(saved_other)
-                del d2['_MeMoIZeR_Key']
-                other.__dict__ = d2
-        except (AttributeError, KeyError):
-            pass
-
-        # Both self and other have been prepared: perform the test,
-        # then restore the original dictionaries and exit
-
-        rval = self._MeMoIZeR_cmp(other)
-
-        self.__dict__ = saved_d1
-        if saved_other:
-            other.__dict__ = saved_other
-
-        return rval
-
-
-def Analyze_Class(klass):
-    if klass.__dict__.has_key('_MeMoIZeR_converted'): return klass
-
-    original_name = str(klass)
-
-    D,R,C = _analyze_classmethods(klass.__dict__, klass.__bases__)
-
-    if C:
-        modelklass = _Memoizer_Comparable
-        lcldict = {'_MeMoIZeR_cmp':C}
-    else:
-        modelklass = _Memoizer_Simple
-        lcldict = {}
-
-    klass.__dict__.update(memoize_classdict(klass, modelklass, lcldict, D, R))
-
-    return klass
-
-
-# Note that each eval("lambda...") has a few \n's prepended to the
-# lambda, and furthermore that each of these evals has a different
-# number of \n's prepended.  This is to provide a little bit of info
-# for traceback or profile output, which generate things like 'File
-# "<string>", line X'.  X will be the number of \n's plus 1.
-
-# Also use the following routine to specify the "filename" portion so
-# that it provides useful information.  In addition, make sure it
-# contains 'os.sep + "SCons" + os.sep' for the
-# SCons.Script.find_deepest_user_frame operation.
-
-def whoami(memoizer_funcname, real_funcname):
-    return '...'+os.sep+'SCons'+os.sep+'Memoizer-'+ \
-           memoizer_funcname+'-lambda<'+real_funcname+'>'
-
-def memoize_classdict(klass, modelklass, new_klassdict, cacheable, resetting):
-    new_klassdict.update(modelklass.__dict__)
-    new_klassdict['_MeMoIZeR_converted'] = 1
-
-    for name,code in cacheable.items():
-        eval_dict = {
-            'methname' : name,
-            'methcode' : code,
-            'methcached' : {},
-        }
-        eval_dict.update(MCG_dict)
-        fc = code.func_code
-        if fc.co_argcount == 1 and not fc.co_flags & 0xC:
-            compiled = compile("\n"*1 + MCGS_lambda,
-                               whoami('cache_get_self', name),
-                               "eval")
-        elif fc.co_argcount == 2 and not fc.co_flags & 0xC:
-            compiled = compile("\n"*2 + MCGO_lambda,
-                               whoami('cache_get_one', name),
-                               "eval")
+    We expect that the metaclass initialization will fill in the
+    .underlying_method attribute with the method that we're wrapping.
+    We then call the underlying_method method after counting whether
+    its memoized value has already been set (a hit) or not (a miss).
+    """
+    def __call__(self, *args, **kw):
+        obj = args[0]
+        if obj._memo.has_key(self.method_name):
+            self.hit = self.hit + 1
         else:
-            compiled = compile("\n"*3 + MCG_lambda,
-                               whoami('cache_get', name),
-                               "eval")
-        newmethod = eval(compiled, eval_dict, {})
-        new_klassdict[name] = newmethod
+            self.miss = self.miss + 1
+        return apply(self.underlying_method, args, kw)
 
-    for name,code in resetting.items():
-        newmethod = eval(
-            compile(
-            "lambda obj_self, *args, **kw: (obj_self._MeMoIZeR_reset(), apply(rmethcode, (obj_self,)+args, kw))[1]",
-            whoami('cache_reset', name),
-            'eval'),
-            {'rmethcode':code}, {})
-        new_klassdict[name] = newmethod
+class CountDict(Counter):
+    """
+    A counter class for memoized values stored in a dictionary, with
+    keys based on the method's input arguments.
 
-    return new_klassdict
+    A CountDict object is instantiated in a class for each of the
+    class's methods that memoizes its return value in a dictionary,
+    indexed by some key that can be computed from one or more of
+    its input arguments.
 
-def _analyze_classmethods(klassdict, klassbases):
-    """Given a class, performs a scan of methods for that class and
-    all its base classes (recursively). Returns aggregated results of
-    _scan_classdict calls where subclass methods are superimposed over
-    base class methods of the same name (emulating instance->class
-    method lookup)."""
-
-    D = {}
-    R = {}
-    C = None
-
-    # Get cache/reset/cmp methods from subclasses
-
-    for K in klassbases:
-        if K.__dict__.has_key('_MeMoIZeR_converted'): continue
-        d,r,c = _analyze_classmethods(K.__dict__, K.__bases__)
-        D.update(d)
-        R.update(r)
-        C = c or C
-
-    # Delete base method info if current class has an override
-
-    for M in D.keys():
-        if M == '__cmp__': continue
-        if klassdict.has_key(M):
-            del D[M]
-    for M in R.keys():
-        if M == '__cmp__': continue
-        if klassdict.has_key(M):
-            del R[M]
-
-    # Get cache/reset/cmp from current class
-
-    d,r,c = _scan_classdict(klassdict)
-
-    # Update accumulated cache/reset/cmp methods
-
-    D.update(d)
-    R.update(r)
-    C = c or C
-
-    return D,R,C
-
-
-def _scan_classdict(klassdict):
-    """Scans the method dictionary of a class to find all methods
-    interesting to caching operations.  Returns a tuple of these
-    interesting methods:
-
-      ( dict-of-cachable-methods,
-        dict-of-cache-resetting-methods,
-        cmp_method_val or None)
-
-    Each dict has the name of the method as a key and the corresponding
-    value is the method body."""
-
-    cache_setters = {}
-    cache_resetters = {}
-    cmp_if_exists = None
-    already_cache_modified = 0
-
-    for attr,val in klassdict.items():
-        if not callable(val): continue
-        if attr == '__cmp__':
-            cmp_if_exists = val
-            continue  # cmp can't be cached and can't reset cache
-        if attr == '_MeMoIZeR_cmp':
-            already_cache_modified = 1
-            continue
-        if not val.__doc__: continue
-        if string.find(val.__doc__, '__cache_reset__') > -1:
-            cache_resetters[attr] = val
-            continue
-        if string.find(val.__doc__, '__reset_cache__') > -1:
-            cache_resetters[attr] = val
-            continue
-        if string.find(val.__doc__, '__cacheable__') > -1:
-            cache_setters[attr] = val
-            continue
-    if already_cache_modified: cmp_if_exists = 'already_cache_modified'
-    return cache_setters, cache_resetters, cmp_if_exists
-
-#
-# Primary Memoizer class.  This should be a base-class for any class
-# that wants method call results to be cached.  The sub-class should
-# call this parent class's __init__ method, but no other requirements
-# are made on the subclass (other than appropriate decoration).
+    We expect that the metaclass initialization will fill in the
+    .underlying_method attribute with the method that we're wrapping.
+    We then call the underlying_method method after counting whether the
+    computed key value is already present in the memoization dictionary
+    (a hit) or not (a miss).
+    """
+    def __init__(self, method_name, keymaker):
+        """
+        """
+        Counter.__init__(self, method_name)
+        self.keymaker = keymaker
+    def __call__(self, *args, **kw):
+        obj = args[0]
+        try:
+            memo_dict = obj._memo[self.method_name]
+        except KeyError:
+            self.miss = self.miss + 1
+        else:
+            key = apply(self.keymaker, args, kw)
+            if memo_dict.has_key(key):
+                self.hit = self.hit + 1
+            else:
+                self.miss = self.miss + 1
+        return apply(self.underlying_method, args, kw)
 
 class Memoizer:
     """Object which performs caching of method calls for its 'primary'
     instance."""
 
     def __init__(self):
-        self.__class__ = Analyze_Class(self.__class__)
-        self._MeMoIZeR_Key =  Next_Memoize_Key()
+        pass
 
-# Find out if we are pre-2.2
+# Find out if we support metaclasses (Python 2.2 and later).
+
+class M:
+    def __init__(cls, name, bases, cls_dict):
+        cls.has_metaclass = 1
+
+class A:
+    __metaclass__ = M
 
 try:
-    vinfo = sys.version_info
+    has_metaclass = A.has_metaclass
 except AttributeError:
-    """Split an old-style version string into major and minor parts.  This
-    is complicated by the fact that a version string can be something
-    like 3.2b1."""
-    import re
-    version = string.split(string.split(sys.version, ' ')[0], '.')
-    vinfo = (int(version[0]), int(re.match('\d+', version[1]).group()))
-    del re
+    has_metaclass = None
 
-need_version = (2, 2) # actual
-#need_version = (33, 0)  # always
-#need_version = (0, 0)  # never
-
-has_metaclass =  (vinfo[0] > need_version[0] or \
-                  (vinfo[0] == need_version[0] and
-                   vinfo[1] >= need_version[1]))
+del M
+del A
 
 if not has_metaclass:
+
+    def Dump(title):
+        pass
 
     class Memoized_Metaclass:
         # Just a place-holder so pre-metaclass Python versions don't
         # have to have special code for the Memoized classes.
         pass
 
+    def EnableMemoization():
+        import SCons.Warnings
+        msg = 'memoization is not supported in this version of Python (no metaclasses)'
+        raise SCons.Warnings.NoMetaclassSupportWarning, msg
+
 else:
 
-    # Initialization is a wee bit of a hassle.  We want to do some of
-    # our own work for initialization, then pass on to the actual
-    # initialization function.  However, we have to be careful we
-    # don't interfere with (a) the super()'s initialization call of
-    # it's superclass's __init__, and (b) classes we are Memoizing
-    # that don't have their own __init__ but which have a super that
-    # has an __init__.  To do (a), we eval a lambda below where the
-    # actual init code is locally bound and the __init__ entry in the
-    # class's dictionary is replaced with the _MeMoIZeR_init call.  To
-    # do (b), we use _MeMoIZeR_superinit as a fallback if the class
-    # doesn't have it's own __init__.  Note that we don't use getattr
-    # to obtain the __init__ because we don't want to re-instrument
-    # parent-class __init__ operations (and we want to avoid the
-    # Object object's slot init if the class has no __init__).
-
-    def _MeMoIZeR_init(actual_init, self, args, kw):
-        self.__dict__['_MeMoIZeR_Key'] =  Next_Memoize_Key()
-        apply(actual_init, (self,)+args, kw)
-
-    def _MeMoIZeR_superinit(self, cls, args, kw):
-        apply(super(cls, self).__init__, args, kw)
+    def Dump(title=None):
+        if title:
+            print title
+        CounterList.sort()
+        for counter in CounterList:
+            counter.display()
 
     class Memoized_Metaclass(type):
         def __init__(cls, name, bases, cls_dict):
-            # Note that cls_dict apparently contains a *copy* of the
-            # attribute dictionary of the class; modifying cls_dict
-            # has no effect on the actual class itself.
-            D,R,C = _analyze_classmethods(cls_dict, bases)
-            if C:
-                modelklass = _Memoizer_Comparable
-                cls_dict['_MeMoIZeR_cmp'] = C
-            else:
-                modelklass = _Memoizer_Simple
-            klassdict = memoize_classdict(cls, modelklass, cls_dict, D, R)
+            super(Memoized_Metaclass, cls).__init__(name, bases, cls_dict)
 
-            init = klassdict.get('__init__', None)
-            if not init:
-                # Make sure filename has os.sep+'SCons'+os.sep so that
-                # SCons.Script.find_deepest_user_frame doesn't stop here
-                import inspect # It's OK, can't get here for Python < 2.1
-                filename = inspect.getsourcefile(_MeMoIZeR_superinit)
-                if not filename:
-                    # This file was compiled at a path name different from
-                    # how it's invoked now, so just make up something.
-                    filename = whoami('superinit', '???')
-                superinitcode = compile(
-                    "lambda self, *args, **kw: MPI(self, cls, args, kw)",
-                    filename,
-                    "eval")
-                superinit = eval(superinitcode,
-                                 {'cls':cls,
-                                  'MPI':_MeMoIZeR_superinit})
-                init = superinit
+            for counter in cls_dict.get('memoizer_counters', []):
+                method_name = counter.method_name
 
-            newinitcode = compile(
-                "\n"*(init.func_code.co_firstlineno-1) +
-                "lambda self, args, kw: _MeMoIZeR_init(real_init, self, args, kw)",
-                whoami('init', init.func_code.co_filename),
-                'eval')
-            newinit = eval(newinitcode,
-                           {'real_init':init,
-                            '_MeMoIZeR_init':_MeMoIZeR_init},
-                           {})
-            klassdict['__init__'] = lambda self, *args, **kw: newinit(self, args, kw)
+                counter.name = cls.__name__ + '.' + method_name
+                counter.underlying_method = cls_dict[method_name]
 
-            super(Memoized_Metaclass, cls).__init__(name, bases, klassdict)
-            # Now, since klassdict doesn't seem to have affected the class
-            # definition itself, apply klassdict.
-            for attr in klassdict.keys():
-                setattr(cls, attr, klassdict[attr])
+                replacement_method = new.instancemethod(counter, None, cls)
+                setattr(cls, method_name, replacement_method)
 
-def DisableMemoization():
-    global use_memoizer
-    use_memoizer = None
-
-def use_old_memoization():
-    return use_memoizer and not has_metaclass
+    def EnableMemoization():
+        global use_memoizer
+        use_memoizer = 1

@@ -309,6 +309,7 @@ command_time = 0
 exit_status = 0 # exit status, assume success by default
 repositories = []
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
+delayed_warnings = []
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 diskcheck_option_set = None
@@ -671,12 +672,13 @@ class OptParser(OptionParser):
                              "build all Default() targets.")
 
         debug_options = ["count", "dtree", "explain", "findlibs",
-                         "includes", "memoizer", "memory",
-                         "nomemoizer", "objects",
+                         "includes", "memoizer", "memory", "objects",
                          "pdb", "presub", "stacktrace", "stree",
                          "time", "tree"]
 
-        def opt_debug(option, opt, value, parser, debug_options=debug_options):
+        deprecated_debug_options = [ "nomemoizer", ]
+
+        def opt_debug(option, opt, value, parser, debug_options=debug_options, deprecated_debug_options=deprecated_debug_options):
             if value in debug_options:
                 try:
                     if parser.values.debug is None:
@@ -684,6 +686,9 @@ class OptParser(OptionParser):
                 except AttributeError:
                     parser.values.debug = []
                 parser.values.debug.append(value)
+            elif value in deprecated_debug_options:
+                w = "The --debug=%s option is deprecated and has no effect." % value
+                delayed_warnings.append((SCons.Warnings.DeprecatedWarning, w))
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
         self.add_option('--debug', action="callback", type="string",
@@ -945,6 +950,8 @@ class SConscriptSettableOptions:
     
 
 def _main(args, parser):
+    global exit_status
+
     # Here's where everything really happens.
 
     # First order of business:  set up default warnings and and then
@@ -954,6 +961,7 @@ def _main(args, parser):
                          SCons.Warnings.DeprecatedWarning,
                          SCons.Warnings.DuplicateEnvironmentWarning,
                          SCons.Warnings.MissingSConscriptWarning,
+                         SCons.Warnings.NoMetaclassSupportWarning,
                          SCons.Warnings.NoParallelSupportWarning,
                          SCons.Warnings.MisleadingKeywordsWarning, ]
     for warning in default_warnings:
@@ -961,6 +969,9 @@ def _main(args, parser):
     SCons.Warnings._warningOut = _scons_internal_warning
     if options.warn:
         _setup_warn(options.warn)
+
+    for warning_type, message in delayed_warnings:
+        SCons.Warnings.warn(warning_type, message)
 
     # Next, we want to create the FS object that represents the outside
     # world's file system, as that's central to a lot of initialization.
@@ -1019,7 +1030,8 @@ def _main(args, parser):
             # Give them the options usage now, before we fail
             # trying to read a non-existent SConstruct file.
             parser.print_help()
-            sys.exit(0)
+            exit_status = 0
+            return
         raise SCons.Errors.UserError, "No SConstruct file found."
 
     if scripts[0] == "-":
@@ -1105,7 +1117,6 @@ def _main(args, parser):
         # reading SConscript files and haven't started building
         # things yet, stop regardless of whether they used -i or -k
         # or anything else.
-        global exit_status
         sys.stderr.write("scons: *** %s  Stop.\n" % e)
         exit_status = 2
         sys.exit(exit_status)
@@ -1134,7 +1145,8 @@ def _main(args, parser):
         else:
             print help_text
             print "Use scons -H for help about command-line options."
-        sys.exit(0)
+        exit_status = 0
+        return
 
     # Now that we've read the SConscripts we can set the options
     # that are SConscript settable:
@@ -1285,12 +1297,9 @@ def _main(args, parser):
     count_stats.append(('post-', 'build'))
 
 def _exec_main():
-    all_args = sys.argv[1:]
-    try:
-        all_args = string.split(os.environ['SCONSFLAGS']) + all_args
-    except KeyError:
-            # it's OK if there's no SCONSFLAGS
-            pass
+    sconsflags = os.environ.get('SCONSFLAGS', '')
+    all_args = string.split(sconsflags) + sys.argv[1:]
+
     parser = OptParser()
     global options
     options, args = parser.parse_args(all_args)
@@ -1353,8 +1362,7 @@ def main():
         #SCons.Debug.dumpLoggedInstances('*')
 
     if print_memoizer:
-        print "Memoizer (memory cache) hits and misses:"
-        SCons.Memoize.Dump()
+        SCons.Memoize.Dump("Memoizer (memory cache) hits and misses:")
 
     # Dump any development debug info that may have been enabled.
     # These are purely for internal debugging during development, so

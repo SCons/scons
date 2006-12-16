@@ -163,7 +163,10 @@ class Options:
             if option.converter and values.has_key(option.key):
                 value = env.subst('${%s}'%option.key)
                 try:
-                    env[option.key] = option.converter(value)
+                    try:
+                        env[option.key] = option.converter(value)
+                    except TypeError:
+                        env[option.key] = option.converter(value, env)
                 except ValueError, x:
                     raise SCons.Errors.UserError, 'Error converting option: %s\n%s'%(option.key, x)
 

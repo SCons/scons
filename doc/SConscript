@@ -376,7 +376,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 #
 # Man page(s), in good ol' troff format.
 #
-man_page_list = ['scons.1', 'sconsign.1']
+man_page_list = ['scons.1', 'sconsign.1', 'scons-time.1']
 
 for m in man_page_list:
     orig_env.SCons_revision(os.path.join(build, 'man', m),

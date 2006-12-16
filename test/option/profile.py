@@ -24,7 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import pstats
 import string
 import StringIO
 import sys
@@ -32,6 +31,11 @@ import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+try:
+    import pstats
+except ImportError:
+    test.skip_test('No pstats module, skipping test.\n')
 
 test.write('SConstruct', """\
 Command('file.out', 'file.in', Copy("$TARGET", "$SOURCE"))

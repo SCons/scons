@@ -166,6 +166,10 @@ def _set_BUILDERS(env, key, value):
         env._dict[key] = BuilderDict(kwbd, env)
     env._dict[key].update(value)
 
+def _del_SCANNERS(env, key):
+    del env._dict[key]
+    env.scanner_map_delete()
+
 def _set_SCANNERS(env, key, value):
     env._dict[key] = value
     env.scanner_map_delete()
@@ -279,29 +283,35 @@ class SubstitutionEnvironment:
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = kw.copy()
         self._init_special()
+        #self._memo = {}
 
     def _init_special(self):
-        """Initial the dispatch table for special handling of
+        """Initial the dispatch tables for special handling of
         special construction variables."""
-        self._special = {}
+        self._special_del = {}
+        self._special_del['SCANNERS'] = _del_SCANNERS
+
+        self._special_set = {}
         for key in reserved_construction_var_names:
-            self._special[key] = _set_reserved
-        self._special['BUILDERS'] = _set_BUILDERS
-        self._special['SCANNERS'] = _set_SCANNERS
+            self._special_set[key] = _set_reserved
+        self._special_set['BUILDERS'] = _set_BUILDERS
+        self._special_set['SCANNERS'] = _set_SCANNERS
 
     def __cmp__(self, other):
         return cmp(self._dict, other._dict)
 
     def __delitem__(self, key):
-        "__cache_reset__"
-        del self._dict[key]
+        special = self._special_del.get(key)
+        if special:
+            special(self, key)
+        else:
+            del self._dict[key]
 
     def __getitem__(self, key):
         return self._dict[key]
 
     def __setitem__(self, key, value):
-        "__cache_reset__"
-        special = self._special.get(key)
+        special = self._special_set.get(key)
         if special:
             special(self, key, value)
         else:
@@ -663,8 +673,10 @@ class SubstitutionEnvironment:
             except KeyError:
                 orig = value
             else:
-                if len(orig) == 0: orig = []
-                elif not SCons.Util.is_List(orig): orig = [orig]
+                if not orig:
+                    orig = []
+                elif not SCons.Util.is_List(orig): 
+                    orig = [orig]
                 orig = orig + value
             t = []
             if key[-4:] == 'PATH':
@@ -693,6 +705,8 @@ class Base(SubstitutionEnvironment):
 
     if SCons.Memoize.use_memoizer:
         __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
+    memoizer_counters = []
 
     #######################################################################
     # This is THE class for interacting with the SCons build engine,
@@ -725,6 +739,7 @@ class Base(SubstitutionEnvironment):
         with the much simpler base class initialization.
         """
         if __debug__: logInstanceCreation(self, 'Environment.Base')
+        self._memo = {}
         self.fs = SCons.Node.FS.default_fs or SCons.Node.FS.FS()
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
@@ -786,7 +801,6 @@ class Base(SubstitutionEnvironment):
             return None
 
     def get_calculator(self):
-        "__cacheable__"
         try:
             module = self._calc_module
             c = apply(SCons.Sig.Calculator, (module,), CalculatorArgs)
@@ -800,7 +814,6 @@ class Base(SubstitutionEnvironment):
     def get_factory(self, factory, default='File'):
         """Return a factory function for creating Nodes for this
         construction environment.
-        __cacheable__
         """
         name = default
         try:
@@ -827,50 +840,54 @@ class Base(SubstitutionEnvironment):
             factory = getattr(self.fs, name)
         return factory
 
+    memoizer_counters.append(SCons.Memoize.CountValue('_gsm'))
+
     def _gsm(self):
-        "__cacheable__"
+        try:
+            return self._memo['_gsm']
+        except KeyError:
+            pass
+
+        result = {}
+
         try:
             scanners = self._dict['SCANNERS']
         except KeyError:
-            return None
-
-        sm = {}
-        # Reverse the scanner list so that, if multiple scanners
-        # claim they can scan the same suffix, earlier scanners
-        # in the list will overwrite later scanners, so that
-        # the result looks like a "first match" to the user.
-        if not SCons.Util.is_List(scanners):
-            scanners = [scanners]
+            pass
         else:
-            scanners = scanners[:] # copy so reverse() doesn't mod original
-        scanners.reverse()
-        for scanner in scanners:
-            for k in scanner.get_skeys(self):
-                sm[k] = scanner
-        return sm
+            # Reverse the scanner list so that, if multiple scanners
+            # claim they can scan the same suffix, earlier scanners
+            # in the list will overwrite later scanners, so that
+            # the result looks like a "first match" to the user.
+            if not SCons.Util.is_List(scanners):
+                scanners = [scanners]
+            else:
+                scanners = scanners[:] # copy so reverse() doesn't mod original
+            scanners.reverse()
+            for scanner in scanners:
+                for k in scanner.get_skeys(self):
+                    result[k] = scanner
+
+        self._memo['_gsm'] = result
+
+        return result
         
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).
         """
-        sm = self._gsm()
-        try: return sm[skey]
-        except (KeyError, TypeError): return None
+        return self._gsm().get(skey)
 
-    def _smd(self):
-        "__reset_cache__"
-        pass
-    
     def scanner_map_delete(self, kw=None):
         """Delete the cached scanner map (if we need to).
         """
-        if not kw is None and not kw.has_key('SCANNERS'):
-            return
-        self._smd()
+        try:
+            del self._memo['_gsm']
+        except KeyError:
+            pass
 
     def _update(self, dict):
         """Update an environment's values directly, bypassing the normal
         checks that occur when users try to set items.
-        __cache_reset__
         """
         self._dict.update(dict)
 
@@ -1014,7 +1031,9 @@ class Base(SubstitutionEnvironment):
             clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
         except KeyError:
             pass
-        
+
+        clone._memo = {}
+
         apply_tools(clone, tools, toolpath)
 
         # Apply passed-in variables after the new tools.
@@ -1030,7 +1049,7 @@ class Base(SubstitutionEnvironment):
         return apply(self.Clone, args, kw)
 
     def Detect(self, progs):
-        """Return the first available program in progs.  __cacheable__
+        """Return the first available program in progs.
         """
         if not SCons.Util.is_List(progs):
             progs = [ progs ]
@@ -1306,7 +1325,7 @@ class Base(SubstitutionEnvironment):
         tool(self)
 
     def WhereIs(self, prog, path=None, pathext=None, reject=[]):
-        """Find prog in the path.  __cacheable__
+        """Find prog in the path.
         """
         if path is None:
             try:
@@ -1841,12 +1860,3 @@ def NoSubstitutionProxy(subject):
             self.raw_to_mode(nkw)
             return apply(SCons.Subst.scons_subst, nargs, nkw)
     return _NoSubstitutionProxy(subject)
-
-if SCons.Memoize.use_old_memoization():
-    _Base = Base
-    class Base(SCons.Memoize.Memoizer, _Base):
-        def __init__(self, *args, **kw):
-            SCons.Memoize.Memoizer.__init__(self)
-            apply(_Base.__init__, (self,)+args, kw)
-    Environment = Base
-

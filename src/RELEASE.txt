@@ -20,11 +20,25 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.96.92 - Mon, 10 Apr 2006 21:08:22 -0400
+RELEASE 0.97 - XXX
 
   This is a pre-release for testing the eighth beta release of SCons.
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
+
+  Please note the following important changes since release 0.96.93:
+
+    --  THE --debug=memoizer OPTION NOW REQUIRES PYTHON 2.2 OR LATER
+
+        The --debug=memoizer option now prints a warning message and
+        does nothing if SCons is run on a version of Python that does
+        not support metaclasses (earlier than Python 2.2).
+
+    --  THE --debug=nomemoizer OPTION DOES NOTHING AND IS NOW DEPRECATED
+
+        The --debug=nomemoizer no longer does anything and instead
+        now generates a warning message about being deprecated.  The
+        --debug=nomemoizer will be removed completely in a future release.
 
   Please note the following important changes since release 0.96.91:
 
