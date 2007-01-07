@@ -6,7 +6,10 @@
 
 # When this gets changed, you also need to change test/option-v.py
 # so it looks for the right string.
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006'
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007'
+
+# This gets inserted into the man pages to reflect the month of release.
+month_year = 'January 2007'
 
 #
 # __COPYRIGHT__
@@ -252,6 +255,7 @@ def SCons_revision(target, source, env):
     contents = string.replace(contents, '__DATE'      + '__', env['DATE'])
     contents = string.replace(contents, '__DEVELOPER' + '__', env['DEVELOPER'])
     contents = string.replace(contents, '__FILE'      + '__', str(source[0]))
+    contents = string.replace(contents, '__MONTH_YEAR'+ '__', env['MONTH_YEAR'])
     contents = string.replace(contents, '__REVISION'  + '__', env['REVISION'])
     contents = string.replace(contents, '__VERSION'   + '__', env['VERSION'])
     contents = string.replace(contents, '__NULL'      + '__', '')
@@ -305,6 +309,7 @@ env = Environment(
                    COPYRIGHT           = copyright,
                    DATE                = date,
                    DEVELOPER           = developer,
+                   MONTH_YEAR          = month_year,
                    REVISION            = revision,
                    VERSION             = version,
                    DH_COMPAT           = 2,

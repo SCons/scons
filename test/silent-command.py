@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,7 +26,7 @@
 Test the use of a preceding @ to suppress printing a command.
 """
 
-__revision__ = "/home/scons/scons/branch.0/branch.96/baseline/test/option-n.py 0.96.C352 2005/03/26 00:09:23 knight"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path

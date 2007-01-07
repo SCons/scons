@@ -48,7 +48,6 @@ import SCons.Action
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Node
-import SCons.Sig.MD5
 import SCons.Subst
 import SCons.Util
 import SCons.Warnings
@@ -776,7 +775,7 @@ class Entry(Base):
     def diskcheck_match(self):
         pass
 
-    def disambiguate(self):
+    def disambiguate(self, must_exist=None):
         """
         """
         if self.isdir():
@@ -802,6 +801,9 @@ class Entry(Base):
                self.srcnode().isdir():
                 self.__class__ = Dir
                 self._morph()
+            elif must_exist:
+                msg = "No such file or directory: '%s'" % self.abspath
+                raise SCons.Errors.UserError, msg
             else:
                 self.__class__ = File
                 self._morph()
@@ -825,18 +827,17 @@ class Entry(Base):
         Since this should return the real contents from the file
         system, we check to see into what sort of subclass we should
         morph this Entry."""
-        if self.isfile():
-            self.__class__ = File
-            self._morph()
+        try:
+            self = self.disambiguate(must_exist=1)
+        except SCons.Errors.UserError, e:
+            # There was nothing on disk with which to disambiguate
+            # this entry.  Leave it as an Entry, but return a null
+            # string so calls to get_contents() in emitters and the
+            # like (e.g. in qt.py) don't have to disambiguate by hand
+            # or catch the exception.
+            return ''
+        else:
             return self.get_contents()
-        if self.isdir():
-            self.__class__ = Dir
-            self._morph()
-            return self.get_contents()
-        if self.islink():
-            return ''             # avoid errors for dangling symlinks
-        msg = "No such file or directory: '%s'" % self.abspath
-        raise SCons.Errors.UserError, msg
 
     def must_be_a_Dir(self):
         """Called to make sure a Node is a Dir.  Since we're an
@@ -1259,7 +1260,13 @@ class FS(LocalFS):
         self.CacheDebug = self.CacheDebugWrite
 
     def CacheDir(self, path):
-        self.CachePath = path
+        try:
+            import SCons.Sig.MD5
+        except ImportError:
+            msg = "No MD5 module available, CacheDir() not supported"
+            SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
+        else:
+            self.CachePath = path
 
     def build_dir_target_climb(self, orig, dir, tail):
         """Create targets in corresponding build directories
@@ -2026,16 +2033,23 @@ class File(Base):
         b = self.is_derived()
         if not b and not self.has_src_builder():
             return None
+
+        retrieved = None
         if b and self.fs.CachePath:
             if self.fs.cache_show:
                 if CacheRetrieveSilent(self, [], None, execute=1) == 0:
                     self.build(presub=0, execute=0)
-                    self.set_state(SCons.Node.executed)
-                    return 1
-            elif CacheRetrieve(self, [], None, execute=1) == 0:
+                    retrieved = 1
+            else:
+                if CacheRetrieve(self, [], None, execute=1) == 0:
+                    retrieved = 1
+            if retrieved:
+                # Record build signature information, but don't
+                # push it out to cache.  (We just got it from there!)
                 self.set_state(SCons.Node.executed)
-                return 1
-        return None
+                SCons.Node.Node.built(self)
+
+        return retrieved
 
 
     def built(self):
@@ -2285,12 +2299,15 @@ class File(Base):
             return None, None
         ninfo = self.get_binfo().ninfo
         if not hasattr(ninfo, 'bsig'):
+            import SCons.Errors
             raise SCons.Errors.InternalError, "cachepath(%s) found no bsig" % self.path
         elif ninfo.bsig is None:
+            import SCons.Errors
             raise SCons.Errors.InternalError, "cachepath(%s) found a bsig of None" % self.path
         # Add the path to the cache signature, because multiple
         # targets built by the same action will all have the same
         # build signature, and we have to differentiate them somehow.
+        import SCons.Sig.MD5
         cache_sig = SCons.Sig.MD5.collect([ninfo.bsig, self.path])
         subdir = string.upper(cache_sig[0])
         dir = os.path.join(self.fs.CachePath, subdir)

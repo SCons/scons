@@ -50,89 +50,26 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(LEX = r'%(_python_)s mylex.py', tools=['default', 'lex'])
-env.Program(target = 'aaa', source = 'aaa.l')
-env.Program(target = 'bbb', source = 'bbb.lex')
+env.CFile(target = 'aaa', source = 'aaa.l')
+env.CFile(target = 'bbb', source = 'bbb.lex')
+env.CXXFile(target = 'ccc', source = 'ccc.ll')
+env.CXXFile(target = 'ddd', source = 'ddd.lm')
 """ % locals())
 
-test.write('aaa.l', r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEX\n");
-        printf("aaa.l\n");
-        exit (0);
-}
-""")
-
-test.write('bbb.lex', r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEX\n");
-        printf("bbb.lex\n");
-        exit (0);
-}
-""")
+test.write('aaa.l',         "aaa.l\nLEX\n")
+test.write('bbb.lex',       "bbb.lex\nLEX\n")
+test.write('ccc.ll',        "ccc.ll\nLEX\n")
+test.write('ddd.lm',        "ddd.lm\nLEX\n")
 
 test.run(arguments = '.', stderr = None)
 
-test.run(program = test.workpath('aaa' + _exe), stdout = "mylex.py\naaa.l\n")
-test.run(program = test.workpath('bbb' + _exe), stdout = "mylex.py\nbbb.lex\n")
+# Read in with mode='r' because mylex.py implicitley wrote to stdout
+# with mode='w'.
+test.must_match('aaa.c',    "aaa.l\nmylex.py\n",        mode='r')
+test.must_match('bbb.c',    "bbb.lex\nmylex.py\n",      mode='r')
+test.must_match('ccc.cc',   "ccc.ll\nmylex.py\n",       mode='r')
+test.must_match('ddd.m',    "ddd.lm\nmylex.py\n",       mode='r')
 
 
-
-lex = test.where_is('lex')
-
-if lex:
-
-    test.write("wrapper.py", """import os
-import string
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
-
-    test.write('SConstruct', """
-foo = Environment()
-lex = foo.Dictionary('LEX')
-bar = Environment(LEX = r'%(_python_)s wrapper.py ' + lex)
-foo.Program(target = 'foo', source = 'foo.l')
-bar.Program(target = 'bar', source = 'bar.l')
-""" % locals())
-
-    lex = r"""
-%%%%
-a       printf("A%sA");
-b       printf("B%sB");
-%%%%
-int
-yywrap()
-{
-    return 1;
-}
-
-main()
-{
-    yylex();
-}
-"""
-
-    test.write('foo.l', lex % ('foo.l', 'foo.l'))
-
-    test.write('bar.l', lex % ('bar.l', 'bar.l'))
-
-    test.run(arguments = 'foo' + _exe, stderr = None)
-
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
-    test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
-
-    test.run(arguments = 'bar' + _exe)
-
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
-
-    test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
 
 test.pass_test()

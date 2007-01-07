@@ -1224,12 +1224,9 @@ class FSTestCase(_tempdirTestCase):
 
         # test Entry.get_contents()
         e = fs.Entry('does_not_exist')
-        exc_caught = 0
-        try:
-            e.get_contents()
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "Should have caught an IOError"
+        c = e.get_contents()
+        assert c == "", c
+        assert e.__class__ == SCons.Node.FS.Entry
 
         test.write("file", "file\n")
         try:
@@ -1250,7 +1247,7 @@ class FSTestCase(_tempdirTestCase):
             os.symlink('nonexistent', test.workpath('dangling_symlink'))
             e = fs.Entry('dangling_symlink')
             c = e.get_contents()
-            assert e.__class__ == SCons.Node.FS.Entry
+            assert e.__class__ == SCons.Node.FS.Entry, e.__class__
             assert c == "", c
 
         test.write("tstamp", "tstamp\n")
@@ -1866,12 +1863,8 @@ class EntryTestCase(_tempdirTestCase):
         assert e3f.__class__ is SCons.Node.FS.File, e3f.__class__
 
         e3n = fs.Entry('e3n')
-        exc_caught = None
-        try:
-            e3n.get_contents()
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected SCons.Errors.UserError"
+        e3n.get_contents()
+        assert e3n.__class__ is SCons.Node.FS.Entry, e3n.__class__
 
         test.subdir('e4d')
         test.write('e4f', "e4f\n")

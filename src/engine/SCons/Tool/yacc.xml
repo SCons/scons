@@ -79,3 +79,20 @@ The default value is
 <filename>.hpp</filename>.
 </summary>
 </cvar>
+
+<cvar name="YACCVCGFILESUFFIX">
+<summary>
+The suffix of the file
+containing the VCG grammar automaton definition
+when the
+<option>--graph=</option>
+option is used.
+Note that setting this variable does not cause
+the parser generator to generate a VCG
+file with the specified suffix,
+it exists to allow you to specify
+what suffix the parser generator will use of its own accord.
+The default value is
+<filename>.vcg</filename>.
+</summary>
+</cvar>

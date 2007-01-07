@@ -687,10 +687,12 @@ def generate(env):
     env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
     env['CCFLAGS']    = SCons.Util.CLVar('/nologo')
-    env['CCCOM']      = '$CC $CCFLAGS $CCCOMFLAGS'
+    env['CFLAGS']     = SCons.Util.CLVar('')
+    env['CCCOM']      = '$CC $CFLAGS $CCFLAGS $CCCOMFLAGS'
     env['SHCC']       = '$CC'
     env['SHCCFLAGS']  = SCons.Util.CLVar('$CCFLAGS')
-    env['SHCCCOM']    = '$SHCC $SHCCFLAGS $CCCOMFLAGS'
+    env['SHCFLAGS']   = SCons.Util.CLVar('$CFLAGS')
+    env['SHCCCOM']    = '$SHCC $SHCFLAGS $SHCCFLAGS $CCCOMFLAGS'
     env['CXX']        = '$CC'
     env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS $( /TP $)')
     env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'

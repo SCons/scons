@@ -16,20 +16,9 @@ building new types of files in their configurations, without having to
 dive any deeper into this subsystem.
 
 The base class here is BuilderBase.  This is a concrete base class which
-does, in fact, represent most Builder objects that we (or users) create.
+does, in fact, represent the Builder objects that we (or users) create.
 
-There is (at present) one subclasses:
-
-    MultiStepBuilder
-
-        This is a Builder that knows how to "chain" Builders so that
-        users can specify a source file that requires multiple steps
-        to turn into a target file.  A canonical example is building a
-        program from yacc input file, which requires invoking a builder
-        to turn the .y into a .c, the .c into a .o, and the .o into an
-        executable program.
-
-There is also two proxies that look like Builders:
+There is also a proxy that looks like a Builder:
 
     CompositeBuilder
 
@@ -38,11 +27,6 @@ There is also two proxies that look like Builders:
         action.  This is so that we can invoke different actions
         (compilers, compile options) for different flavors of source
         files.
-
-    ListBuilder
-
-        This proxies for a Builder *invocation* where the target
-        is a list of files, not a single file.
 
 Builders and their proxies have the following public interface methods
 used by other modules:
@@ -227,10 +211,9 @@ class OverrideWarner(UserDict.UserDict):
     """A class for warning about keyword arguments that we use as
     overrides in a Builder call.
 
-    This class exists to handle the fact that a single MultiStepBuilder
-    call can actually invoke multiple builders as a result of a single
-    user-level Builder call.  This class only emits the warnings once,
-    no matter how many Builders are invoked.
+    This class exists to handle the fact that a single Builder call
+    can actually invoke multiple builders.  This class only emits the
+    warnings once, no matter how many Builders are invoked.
     """
     def __init__(self, dict):
         UserDict.UserDict.__init__(self, dict)
@@ -240,13 +223,10 @@ class OverrideWarner(UserDict.UserDict):
         if self.already_warned:
             return
         for k in self.keys():
-            try:
+            if misleading_keywords.has_key(k):
                 alt = misleading_keywords[k]
-            except KeyError:
-                pass
-            else:
-                SCons.Warnings.warn(SCons.Warnings.MisleadingKeywordsWarning,
-                                    "Did you mean to use `%s' instead of `%s'?" % (alt, k))
+                msg = "Did you mean to use `%s' instead of `%s'?" % (alt, k)
+                SCons.Warnings.warn(SCons.Warnings.MisleadingKeywordsWarning, msg)
         self.already_warned = 1
 
 def Builder(**kw):
@@ -284,15 +264,12 @@ def Builder(**kw):
         elif SCons.Util.is_List(emitter):
             kw['emitter'] = ListEmitter(emitter)
 
-    if kw.has_key('src_builder'):
-        ret = apply(MultiStepBuilder, (), kw)
-    else:
-        ret = apply(BuilderBase, (), kw)
+    result = apply(BuilderBase, (), kw)
 
     if not composite is None:
-        ret = CompositeBuilder(ret, composite)
+        result = CompositeBuilder(result, composite)
 
-    return ret
+    return result
 
 def _node_errors(builder, env, tlist, slist):
     """Validate that the lists of target and source nodes are
@@ -304,7 +281,7 @@ def _node_errors(builder, env, tlist, slist):
     # were specified.
     for t in tlist:
         if t.side_effect:
-            raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
+            raise UserError, "Multiple ways to build the same target were specified for: %s" % t
         if t.has_explicit_builder():
             if not t.env is None and not t.env is env:
                 action = t.builder.action
@@ -312,22 +289,21 @@ def _node_errors(builder, env, tlist, slist):
                 contents = action.get_contents(tlist, slist, env)
 
                 if t_contents == contents:
-                    SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning,
-                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), action.genstring(tlist, slist, t.env)))
-
+                    msg = "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s" % (t, action.genstring(tlist, slist, t.env))
+                    SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning, msg)
                 else:
-                    raise UserError, "Two environments with different actions were specified for the same target: %s"%str(t)
-
+                    msg = "Two environments with different actions were specified for the same target: %s" % t
+                    raise UserError, msg
             if builder.multi:
                 if t.builder != builder:
-                    if isinstance(t.builder, ListBuilder) and isinstance(builder, ListBuilder) and t.builder.builder == builder.builder:
-                        raise UserError, "Two different target sets have a target in common: %s"%str(t)
-                    else:
-                        raise UserError, "Two different builders (%s and %s) were specified for the same target: %s"%(t.builder.get_name(env), builder.get_name(env), str(t))
-                elif isinstance(t.builder, ListBuilder) ^ isinstance(builder, ListBuilder):
-                    raise UserError, "Cannot build same target `%s' as singular and list"%str(t)
+                    msg = "Two different builders (%s and %s) were specified for the same target: %s" % (t.builder.get_name(env), builder.get_name(env), t)
+                    raise UserError, msg
+                if t.get_executor().targets != tlist:
+                    msg = "Two different target lists have a target in common: %s  (from %s and from %s)" % (t, map(str, t.get_executor().targets), map(str, tlist))
+                    raise UserError, msg
             elif t.sources != slist:
-                raise UserError, "Multiple ways to build the same target were specified for: %s  (from %s and from %s)" % (str(t), map(str,t.sources), map(str,slist))
+                msg = "Multiple ways to build the same target were specified for: %s  (from %s and from %s)" % (t, map(str, t.sources), map(str, slist))
+                raise UserError, msg
 
     if builder.single_source:
         if len(slist) > 1:
@@ -388,6 +364,7 @@ class BuilderBase:
                         name = None,
                         chdir = _null,
                         is_explicit = 1,
+                        src_builder = [],
                         **overrides):
         if __debug__: logInstanceCreation(self, 'Builder.BuilderBase')
         self._memo = {}
@@ -431,6 +408,10 @@ class BuilderBase:
         if not chdir is _null:
             self.executor_kw['chdir'] = chdir
         self.is_explicit = is_explicit
+
+        if not SCons.Util.is_List(src_builder):
+            src_builder = [ src_builder ]
+        self.src_builder = src_builder
 
     def __nonzero__(self):
         raise InternalError, "Do not test for the Node.builder attribute directly; use Node.has_builder() instead"
@@ -557,6 +538,9 @@ class BuilderBase:
 
     def _execute(self, env, target, source, overwarn={}, executor_kw={}):
         # We now assume that target and source are lists or None.
+        if self.src_builder:
+            source = self.src_builder_sources(env, source, overwarn)
+
         if self.single_source and len(source) > 1 and target is None:
             result = []
             if target is None: target = [None]*len(source)
@@ -570,31 +554,26 @@ class BuilderBase:
         
         tlist, slist = self._create_nodes(env, target, source)
 
-        if len(tlist) == 1:
-            builder = self
-        else:
-            builder = ListBuilder(self, env, tlist)
-
         # Check for errors with the specified target/source lists.
-        _node_errors(builder, env, tlist, slist)
+        _node_errors(self, env, tlist, slist)
 
         # The targets are fine, so find or make the appropriate Executor to
         # build this particular list of targets from this particular list of
         # sources.
-        if builder.multi:
-            get_executor = builder.get_multi_executor
+        if self.multi:
+            get_executor = self.get_multi_executor
         else:
-            get_executor = builder.get_single_executor
+            get_executor = self.get_single_executor
         executor = get_executor(env, tlist, slist, executor_kw)
 
         # Now set up the relevant information in the target Nodes themselves.
         for t in tlist:
             t.cwd = env.fs.getcwd()
-            t.builder_set(builder)
+            t.builder_set(self)
             t.env_set(env)
             t.add_source(slist)
             t.set_executor(executor)
-            t.set_explicit(builder.is_explicit)
+            t.set_explicit(self.is_explicit)
 
         return SCons.Node.NodeList(tlist)
 
@@ -650,35 +629,6 @@ class BuilderBase:
             suffix = suffix(env, sources)
         return env.subst(suffix)
 
-    def _src_suffixes_key(self, env):
-        return id(env)
-
-    memoizer_counters.append(SCons.Memoize.CountDict('src_suffixes', _src_suffixes_key))
-
-    def src_suffixes(self, env):
-        """
-        Returns the list of source suffixes for this Builder.
-
-        The suffix list may contain construction variable expansions,
-        so we have to evaluate the individual strings.  To avoid doing
-        this over and over, we memoize the results for each construction
-        environment.
-        """
-        memo_key = id(env)
-        try:
-            memo_dict = self._memo['src_suffixes']
-        except KeyError:
-            memo_dict = {}
-            self._memo['src_suffixes'] = memo_dict
-        else:
-            try:
-                return memo_dict[memo_key]
-            except KeyError:
-                pass
-        result = map(lambda x, s=self, e=env: e.subst(x), self.src_suffix)
-        memo_dict[memo_key] = result
-        return result
-
     def set_src_suffix(self, src_suffix):
         if not src_suffix:
             src_suffix = []
@@ -712,72 +662,15 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
-
-
-class ListBuilder(SCons.Util.Proxy):
-    """A Proxy to support building an array of targets (for example,
-    foo.o and foo.h from foo.y) from a single Action execution.
-    """
-
-    def __init__(self, builder, env, tlist):
-        if __debug__: logInstanceCreation(self, 'Builder.ListBuilder')
-        SCons.Util.Proxy.__init__(self, builder)
-        self.builder = builder
-        self.target_scanner = builder.target_scanner
-        self.source_scanner = builder.source_scanner
-        self.env = env
-        self.tlist = tlist
-        self.multi = builder.multi
-        self.single_source = builder.single_source
-
-    def targets(self, node):
-        """Return the list of targets for this builder instance.
+    def add_src_builder(self, builder):
         """
-        return self.tlist
+        Add a new Builder to the list of src_builders.
 
-    def get_name(self, env):
-        """Attempts to get the name of the Builder."""
-
-        return "ListBuilder(%s)" % self.builder.get_name(env)
-
-class MultiStepBuilder(BuilderBase):
-    """This is a builder subclass that can build targets in
-    multiple steps.  The src_builder parameter to the constructor
-    accepts a builder that is called to build sources supplied to
-    this builder.  The targets of that first build then become
-    the sources of this builder.
-
-    If this builder has a src_suffix supplied, then the src_builder
-    builder is NOT invoked if the suffix of a source file matches
-    src_suffix.
-    """
-
-    memoizer_counters = []
-
-    def __init__(self,  src_builder,
-                        action = None,
-                        prefix = '',
-                        suffix = '',
-                        src_suffix = '',
-                        target_factory = None,
-                        source_factory = None,
-                        target_scanner = None,
-                        source_scanner = None,
-                        emitter=None,
-                        single_source=0):
-        if __debug__: logInstanceCreation(self, 'Builder.MultiStepBuilder')
-        BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
-                             target_factory, source_factory,
-                             target_scanner, source_scanner, emitter,
-                             single_source = single_source)
-        if not SCons.Util.is_List(src_builder):
-            src_builder = [ src_builder ]
-        self.src_builder = src_builder
-
-    def _get_sdict_key(self, env):
-        return id(env)
-
-    memoizer_counters.append(SCons.Memoize.CountDict('_get_sdict', _get_sdict_key))
+        This requires wiping out cached values so that the computed
+        lists of source suffixes get re-calculated.
+        """
+        self._memo = {}
+        self.src_builder.append(builder)
 
     def _get_sdict(self, env):
         """
@@ -788,35 +681,26 @@ class MultiStepBuilder(BuilderBase):
         This dictionary is used for each target specified, so we save a
         lot of extra computation by memoizing it for each construction
         environment.
+
+        Note that this is re-computed each time, not cached, because there
+        might be changes to one of our source Builders (or one of their
+        source Builders, and so on, and so on...) that we can't "see."
+
+        The underlying methods we call cache their computed values,
+        though, so we hope repeatedly aggregating them into a dictionary
+        like this won't be too big a hit.  We may need to look for a
+        better way to do this if performance data show this has turned
+        into a significant bottleneck.
         """
-        memo_key = id(env)
-        try:
-            memo_dict = self._memo['_get_sdict']
-        except KeyError:
-            memo_dict = {}
-            self._memo['_get_sdict'] = memo_dict
-        else:
-            try:
-                return memo_dict[memo_key]
-            except KeyError:
-                pass
         sdict = {}
-        for bld in self.src_builder:
-            if SCons.Util.is_String(bld):
-                try:
-                    bld = env['BUILDERS'][bld]
-                except KeyError:
-                    continue
+        for bld in self.get_src_builders(env):
             for suf in bld.src_suffixes(env):
                 sdict[suf] = bld
-        memo_dict[memo_key] = sdict
         return sdict
         
-    def _execute(self, env, target, source, overwarn={}, executor_kw={}):
-        # We now assume that target and source are lists or None.
+    def src_builder_sources(self, env, source, overwarn={}):
         source_factory = env.get_factory(self.source_factory)
         slist = env.arg2nodes(source, source_factory)
-        final_sources = []
 
         sdict = self._get_sdict(env)
 
@@ -834,13 +718,15 @@ class MultiStepBuilder(BuilderBase):
                     return suf
             return None
 
+        result = []
+
         for snode in slist:
             match_suffix = match_src_suffix(snode)
             if match_suffix:
                 try:
                     bld = sdict[match_suffix]
                 except KeyError:
-                    final_sources.append(snode)
+                    result.append(snode)
                 else:
                     tlist = bld._execute(env, None, [snode], overwarn)
                     # If the subsidiary Builder returned more than one
@@ -848,39 +734,56 @@ class MultiStepBuilder(BuilderBase):
                     # Builder isn't capable of building.
                     if len(tlist) > 1:
                         tlist = filter(match_src_suffix, tlist)
-                    final_sources.extend(tlist)
+                    result.extend(tlist)
             else:
-                final_sources.append(snode)
+                result.append(snode)
 
-        return BuilderBase._execute(self, env, target, final_sources, overwarn)
+        return result
+
+    def _get_src_builders_key(self, env):
+        return id(env)
+
+    memoizer_counters.append(SCons.Memoize.CountDict('get_src_builders', _get_src_builders_key))
 
     def get_src_builders(self, env):
-        """Return all the src_builders for this Builder.
-
-        This is essentially a recursive descent of the src_builder "tree."
         """
-        ret = []
+        Returns the list of source Builders for this Builder.
+
+        This exists mainly to look up Builders referenced as
+        strings in the 'BUILDER' variable of the construction
+        environment and cache the result.
+        """
+        memo_key = id(env)
+        try:
+            memo_dict = self._memo['get_src_builders']
+        except KeyError:
+            memo_dict = {}
+            self._memo['get_src_builders'] = memo_dict
+        else:
+            try:
+                return memo_dict[memo_key]
+            except KeyError:
+                pass
+
+        builders = []
         for bld in self.src_builder:
             if SCons.Util.is_String(bld):
-                # All Environments should have a BUILDERS
-                # variable, so no need to check for it.
                 try:
                     bld = env['BUILDERS'][bld]
                 except KeyError:
                     continue
-            ret.append(bld)
-        return ret
+            builders.append(bld)
 
-    def _src_suffixes_key(self, env):
+        memo_dict[memo_key] = builders
+        return builders
+
+    def _subst_src_suffixes_key(self, env):
         return id(env)
 
-    memoizer_counters.append(SCons.Memoize.CountDict('src_suffixes', _src_suffixes_key))
+    memoizer_counters.append(SCons.Memoize.CountDict('subst_src_suffixes', _subst_src_suffixes_key))
 
-    def src_suffixes(self, env):
+    def subst_src_suffixes(self, env):
         """
-        Returns the list of source suffixes for all src_builders of this
-        Builder.
-
         The suffix list may contain construction variable expansions,
         so we have to evaluate the individual strings.  To avoid doing
         this over and over, we memoize the results for each construction
@@ -888,19 +791,31 @@ class MultiStepBuilder(BuilderBase):
         """
         memo_key = id(env)
         try:
-            memo_dict = self._memo['src_suffixes']
+            memo_dict = self._memo['subst_src_suffixes']
         except KeyError:
             memo_dict = {}
-            self._memo['src_suffixes'] = memo_dict
+            self._memo['subst_src_suffixes'] = memo_dict
         else:
             try:
                 return memo_dict[memo_key]
             except KeyError:
                 pass
-        suffixes = BuilderBase.src_suffixes(self, env)
+        suffixes = map(lambda x, s=self, e=env: e.subst(x), self.src_suffix)
+        memo_dict[memo_key] = suffixes
+        return suffixes
+
+    def src_suffixes(self, env):
+        """
+        Returns the list of source suffixes for all src_builders of this
+        Builder.
+
+        This is essentially a recursive descent of the src_builder "tree."
+        (This value isn't cached because there may be changes in a
+        src_builder many levels deep that we can't see.)
+        """
+        suffixes = self.subst_src_suffixes(env)
         for builder in self.get_src_builders(env):
             suffixes.extend(builder.src_suffixes(env))
-        memo_dict[memo_key] = suffixes
         return suffixes
 
 class CompositeBuilder(SCons.Util.Proxy):

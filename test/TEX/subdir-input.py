@@ -38,11 +38,20 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+latex = test.where_is('latex')
+if not latex:
+    test.skip_test("Could not find 'latex'; skipping test.\n")
+
+pdflatex = test.where_is('pdflatex')
+if not pdflatex:
+    test.skip_test("Could not find 'pdflatex'; skipping test.\n")
+
 test.subdir('sub')
 
 test.write('SConstruct', """\
-PDF( 'sub/x.tex' )
-DVI( 'sub/x.tex' )
+env = Environment(TOOLS = ['tex', 'pdftex'])
+env.PDF( 'sub/x.tex' )
+env.DVI( 'sub/x.tex' )
 """)
 
 test.write(['sub', 'x.tex'],

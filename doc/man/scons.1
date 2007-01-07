@@ -31,7 +31,7 @@
 .fi
 .RE
 ..
-.TH SCONS 1 "December 2006"
+.TH SCONS 1 "__MONTH_YEAR__"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -639,7 +639,7 @@ Output looks something like this:
 .ES
 $ scons --debug=presub
 Building myprog.o with action(s):
-  $SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+  $SHCC $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
 ...
 .EE
 
@@ -3149,6 +3149,7 @@ and added to the following construction variables:
 -mno-cygwin         CCFLAGS, LINKFLAGS
 -mwindows           LINKFLAGS
 -pthread            CCFLAGS, LINKFLAGS
+-std=               CFLAGS
 -Wa,                ASFLAGS, CCFLAGS
 -Wl,-rpath=         RPATH
 -Wl,-R,             RPATH

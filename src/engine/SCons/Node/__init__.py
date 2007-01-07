@@ -219,7 +219,7 @@ class Node:
         # what line in what file created the node, for example).
         Annotate(self)
 
-    def disambiguate(self):
+    def disambiguate(self, must_exist=None):
         return self
 
     def get_suffix(self):

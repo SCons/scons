@@ -961,6 +961,7 @@ def _main(args, parser):
                          SCons.Warnings.DeprecatedWarning,
                          SCons.Warnings.DuplicateEnvironmentWarning,
                          SCons.Warnings.MissingSConscriptWarning,
+                         SCons.Warnings.NoMD5ModuleWarning,
                          SCons.Warnings.NoMetaclassSupportWarning,
                          SCons.Warnings.NoParallelSupportWarning,
                          SCons.Warnings.MisleadingKeywordsWarning, ]

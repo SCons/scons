@@ -11,9 +11,9 @@ from those classes, as well as any overridden or additional methods or
 attributes defined in this subclass.
 """
 
-# Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
+# __COPYRIGHT__
 
-__revision__ = "QMTest/TestSCons_time.py 0.96.C629 2006/11/19 06:39:17 knight"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path

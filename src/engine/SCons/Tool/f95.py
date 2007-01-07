@@ -119,6 +119,13 @@ def add_to_env(env):
 
 def generate(env):
     fortran.add_to_env(env)
+
+    import f77
+    f77.add_to_env(env)
+
+    import f90
+    f90.add_to_env(env)
+
     add_to_env(env)
 
     env['_FORTRAND']        = env.Detect(compilers) or 'f95'

@@ -162,6 +162,13 @@ class Node:
     def postprocess(self):
         self.postprocessed = 1
 
+    def get_executor(self):
+        class Executor:
+            pass
+        e = Executor()
+        e.targets = self.targets
+        return e
+
 class OtherError(Exception):
     pass
 

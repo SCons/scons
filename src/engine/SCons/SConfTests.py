@@ -201,6 +201,12 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def calc_signature(self, calc):
                         pass
+                    def get_executor(self):
+                        class Executor:
+                            pass
+                        e = Executor()
+                        e.targets = [self]
+                        return e
                 return [MyNode('n1'), MyNode('n2')]
         try:
             self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})

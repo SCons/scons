@@ -122,13 +122,21 @@ system, populate the build/scons/ directory by running:
 
         $ scons build/scons
 
-If you don't have SCons version 0.96 or later already installed on your
-system, you can use SCons itself to populate the build/scons/ directory
-with a little more typing.  You must first set the SCONS_LIB_DIR
-environment variable to the local src/engine subdirectory, and then
-execute the local src/script/scons.py script to populate the build/scons/
-subdirectory.  You would do this as follows on a Linux or UNIX system
-(using sh or a derivative like bash or ksh):
+You can also use this version of SCons to populate its own build directory
+by using a supplied bootstrap.py script:
+
+        $ python bootstrap.py build/scons
+
+The bootstrap.py keeps the src/ subdirectory free of compiled Python
+(*.pyc or *.pyo) files by copying the necessary SCons files to a local
+bootstrap/ subdirectory and executing it from there.
+
+You can also execute the local SCons directly from the src/ subdirectory
+by first setting the SCONS_LIB_DIR environment variable to the local
+src/engine subdirectory, and then execute the local src/script/scons.py
+script to populate the build/scons/ subdirectory.  You would do this as
+follows on a Linux or UNIX system (using sh or a derivative like bash
+or ksh):
 
         $ export SCONS_LIB_DIR=`pwd`/src/engine
         $ python src/script/scons.py build/scons
@@ -136,11 +144,11 @@ subdirectory.  You would do this as follows on a Linux or UNIX system
 Or as follows on Windows:
         
         C:\scons\>set SCONS_LIB_DIR=%cd%\src\engine
-        C:\scons\>python src/script/scons.py build/scons
+        C:\scons\>python src\script\scons.py build/scons
 
-Either command will populate the build/scons/ directory with the necessary
-files and directory structure to use the Python-standard setup script
-as follows on Linux or UNIX:
+Any of the above commands will populate the build/scons/ directory with
+the necessary files and directory structure to use the Python-standard
+setup script as follows on Linux or UNIX:
 
         # cd build/scons
         # python setup.py install
@@ -238,9 +246,14 @@ modules that make up SCons.  The src/script/scons.py wrapper script exists
 mainly to find the appropriate build engine library and then execute it.
 
 In order to make your own change locally and test them by hand, simply
-edit modules in the local src/engine/SCons and set the SCONS_LIB_DIR
-to point to that directory.  Here is one way you can set up environment
-variables to do this on a UNIX or Linux system:
+edit modules in the local src/engine/SCons subdirectory tree and
+either use the local bootstrap.py script:
+
+    $ python bootstrap.py [arguments]
+
+Or set the SCONS_LIB_DIR to point to the src/engine/SCons directory and
+then execute the src/script/scons.py script.  Here is one way you can
+set up environment variables to do this on a UNIX or Linux system:
 
     $ setenv MYSCONS=`pwd`/src
     $ setenv SCONS_LIB_DIR=$MYSCONS
@@ -258,7 +271,7 @@ if the SCons configuration for your project seems to be blocked by
 an SCons bug, and you want to see if a patch you make actually fixes
 that bug):
 
-    $ python $MYSCONS/script/scons.py -C /some/other/location [arguments]
+    $ python bootstrap.py -C /some/other/location [arguments]
 
 Lastly, if you want to be able to just execute your modified version
 of SCons from the command line, you can make it executable and add its

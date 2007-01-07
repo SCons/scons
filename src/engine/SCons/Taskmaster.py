@@ -546,10 +546,7 @@ class Taskmaster:
         if node is None:
             return None
 
-        try:
-            tlist = node.builder.targets(node)
-        except AttributeError:
-            tlist = [node]
+        tlist = node.get_executor().targets
 
         task = self.tasker(self, tlist, node is self.current_top, node)
         try:
@@ -580,10 +577,7 @@ class Taskmaster:
         pass
 
     def executed(self, node):
-        try:
-            tlist = node.builder.targets(node)
-        except AttributeError:
-            tlist = [node]
+        pass
 
     def exception_raise(self, exception):
         exc = exception[:]

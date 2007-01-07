@@ -55,68 +55,17 @@ test.write('SConstruct', """
 env = Environment(LEX = r'%(_python_)s mylex.py',
                   LEXFLAGS = '-x',
                   tools=['default', 'lex'])
-env.Program(target = 'aaa', source = 'aaa.l')
+env.CFile(target = 'aaa', source = 'aaa.l')
 """ % locals())
 
-test.write('aaa.l', r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEXFLAGS\n");
-        printf("aaa.l\n");
-        exit (0);
-}
-""")
+test.write('aaa.l',             "aaa.l\nLEXFLAGS\n")
 
-test.run(arguments = 'aaa' + _exe, stderr = None)
+test.run('.', stderr = None)
 
-test.run(program = test.workpath('aaa' + _exe), stdout = " -x -t\naaa.l\n")
+# Read in with mode='r' because mylex.py implicitley wrote to stdout
+# with mode='w'.
+test.must_match('aaa.c',        "aaa.l\n -x -t\n",      mode='r')
 
 
-
-lex = test.where_is('lex')
-
-if lex:
-
-    test.write('SConstruct', """
-foo = Environment()
-bar = Environment(LEXFLAGS = '-b')
-foo.Program(target = 'foo', source = 'foo.l')
-bar.Program(target = 'bar', source = 'bar.l')
-""")
-
-    lex = r"""
-%%%%
-a       printf("A%sA");
-b       printf("B%sB");
-%%%%
-int
-yywrap()
-{
-    return 1;
-}
-
-main()
-{
-    yylex();
-}
-"""
-
-    test.write('foo.l', lex % ('foo.l', 'foo.l'))
-
-    test.write('bar.l', lex % ('bar.l', 'bar.l'))
-
-    test.run(arguments = 'foo' + _exe, stderr = None)
-
-    test.fail_test(os.path.exists(test.workpath('lex.backup')))
-
-    test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
-
-    test.run(arguments = 'bar' + _exe)
-
-    test.fail_test(not os.path.exists(test.workpath('lex.backup')))
-
-    test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
 
 test.pass_test()
