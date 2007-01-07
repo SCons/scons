@@ -171,14 +171,15 @@ def generate(env):
     env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -nolink -o $TARGET $SOURCES'
 
     env['CC']         = 'mwcc'
-    env['CCCOM']      = '$CC $CCFLAGS $CCCOMFLAGS'
+    env['CCCOM']      = '$CC $CFLAGS $CCFLAGS $CCCOMFLAGS'
 
     env['CXX']        = 'mwcc'
     env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'
 
     env['SHCC']       = '$CC'
     env['SHCCFLAGS']  = '$CCFLAGS'
-    env['SHCCCOM']    = '$SHCC $SHCCFLAGS $CCCOMFLAGS'
+    env['SHCFLAGS']   = '$CFLAGS'
+    env['SHCCCOM']    = '$SHCC $SHCFLAGS $SHCCFLAGS $CCCOMFLAGS'
 
     env['SHCXX']       = '$CXX'
     env['SHCXXFLAGS']  = '$CXXFLAGS'

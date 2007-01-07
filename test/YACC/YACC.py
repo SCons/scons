@@ -65,155 +65,25 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(YACC = r'%(_python_)s myyacc.py', tools=['default', 'yacc'])
-env.Program(target = 'aaa', source = 'aaa.y')
-env.Program(target = 'bbb', source = 'bbb.yacc')
+env.CFile(target = 'aaa', source = 'aaa.y')
+env.CFile(target = 'bbb', source = 'bbb.yacc')
+env.CXXFile(target = 'ccc', source = 'ccc.yy')
+env.CFile(target = 'ddd', source = 'ddd.ym')
 """ % locals())
 
-test.write('aaa.y', r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("YACC\n");
-        printf("aaa.y\n");
-        exit (0);
-}
-""")
-
-test.write('bbb.yacc', r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("YACC\n");
-        printf("bbb.yacc\n");
-        exit (0);
-}
-""")
+test.write('aaa.y',             "aaa.y\nYACC\n")
+test.write('bbb.yacc',          "bbb.yacc\nYACC\n")
+test.write('ccc.yy',            "ccc.yacc\nYACC\n")
+test.write('ddd.ym',            "ddd.yacc\nYACC\n")
 
 test.run(arguments = '.', stderr = None)
 
-test.run(program = test.workpath('aaa' + _exe), stdout = "myyacc.py\naaa.y\n")
-test.run(program = test.workpath('bbb' + _exe), stdout = "myyacc.py\nbbb.yacc\n")
+test.must_match('aaa.c',        "aaa.y\nmyyacc.py\n")
+test.must_match('bbb.c',        "bbb.yacc\nmyyacc.py\n")
+test.must_match('ccc.cc',       "ccc.yacc\nmyyacc.py\n")
+test.must_match('ddd.m',        "ddd.yacc\nmyyacc.py\n")
 
 
 
-yacc = test.where_is('yacc')
-
-if yacc:
-
-    test.write("wrapper.py",
-"""import os
-import string
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
-
-    test.write('SConstruct', """
-foo = Environment(YACCFLAGS='-d')
-yacc = foo.Dictionary('YACC')
-bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc)
-foo.Program(target = 'foo', source = 'foo.y')
-bar.Program(target = 'bar', source = 'bar.y')
-foo.Program(target = 'hello', source = ['hello.cpp']) 
-foo.CXXFile(target = 'file.cpp', source = ['file.yy'], YACCFLAGS='-d')
-foo.CFile(target = 'not_foo', source = 'foo.y')
-""" % locals())
-
-    yacc = r"""
-%%{
-#include <stdio.h>
-
-main()
-{
-    yyparse();
-}
-
-yyerror(s)
-char *s;
-{
-    fprintf(stderr, "%%s\n", s);
-    return 0;
-}
-
-yylex()
-{
-    int c;
-
-    c = fgetc(stdin);
-    return (c == EOF) ? 0 : c;
-}
-%%}
-%%%%
-input:  letter newline { printf("%s\n"); };
-letter:  'a' | 'b';
-newline: '\n';
-"""
-
-    test.write("file.yy", """\
-%token   GRAPH_T NODE_T EDGE_T DIGRAPH_T EDGEOP_T SUBGRAPH_T
-
-%pure_parser
-
-%%
-graph:        GRAPH_T
-              ;
-
-%%
-""")
-
-    test.write("hello.cpp", """\
-#include "file.hpp"
-
-int main()
-{
-}
-""")
-
-    test.write('foo.y', yacc % 'foo.y')
-
-    test.write('bar.y', yacc % 'bar.y')
-
-    # Build the foo program
-    test.run(arguments = 'foo' + _exe, stderr = None)
-
-    test.up_to_date(arguments = 'foo' + _exe)
-
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
-    test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "foo.y\n")
-
-    test.fail_test(not os.path.exists(test.workpath('foo.h')))
-
-    test.run(arguments = '-c .')
-
-    test.fail_test(os.path.exists(test.workpath('foo.h')))
-
-    #
-    test.run(arguments = 'not_foo.c')
-
-    test.up_to_date(arguments = 'not_foo.c')
-
-    test.fail_test(os.path.exists(test.workpath('foo.h')))
-    test.fail_test(not os.path.exists(test.workpath('not_foo.h')))
-
-    test.run(arguments = '-c .')
-
-    test.fail_test(os.path.exists(test.workpath('not_foo.h')))
-
-    #
-    test.run(arguments = 'bar' + _exe)
-
-    test.up_to_date(arguments = 'bar' + _exe)
-
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
-
-    test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
-
-    #
-    test.run(arguments = '.')
-
-    test.up_to_date(arguments = '.')
 
 test.pass_test()

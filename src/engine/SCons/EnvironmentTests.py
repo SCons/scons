@@ -658,6 +658,7 @@ sys.exit(1)
 
         empty = {
             'ASFLAGS'       : [],
+            'CFLAGS'        : [],
             'CCFLAGS'       : [],
             'CPPDEFINES'    : [],
             'CPPFLAGS'      : [],
@@ -686,6 +687,7 @@ sys.exit(1)
             "-Wl,-R,rpath2 " + \
             "-Wl,-Rrpath3 " + \
             "-Wp,-cpp " + \
+            "-std=c99 " + \
             "-framework Carbon " + \
             "-frameworkdir=fwd1 " + \
             "-Ffwd2 " + \
@@ -698,6 +700,7 @@ sys.exit(1)
         d = env.ParseFlags(s)
 
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
+        assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
                                   '-pthread', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),

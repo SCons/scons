@@ -18,9 +18,10 @@ The C compiler.
 
 <cvar name="CCCOM">
 <summary>
-The command line used to compile a C source file to a (static) object file.
-Any options specified in the &cv-CCFLAGS; and &cv-CPPFLAGS; construction variables
-are included on this command line.
+The command line used to compile a C source file to a (static) object
+file.  Any options specified in the &cv-CFLAGS;, &cv-CCFLAGS; and
+&cv-CPPFLAGS; construction variables are included on this command
+line.
 </summary>
 </cvar>
 
@@ -38,7 +39,13 @@ env = Environment(CCCOMSTR = "Compiling static object $TARGET")
 
 <cvar name="CCFLAGS">
 <summary>
-General options that are passed to the C compiler.
+General options that are passed to the C and C++ compilers.
+</summary>
+</cvar>
+
+<cvar name="CFLAGS">
+<summary>
+General options that are passed to the C compiler (C only; not C++).
 </summary>
 </cvar>
 
@@ -92,7 +99,7 @@ The C compiler used for generating shared-library objects.
 <summary>
 The command line used to compile a C source file
 to a shared-library object file.
-Any options specified in the &cv-SHCCFLAGS; and &cv-CPPFLAGS; construction variables
+Any options specified in the &cv-SHCFLAGS;, &cv-SHCCFLAGS; and &cv-CPPFLAGS; construction variables
 are included on this command line.
 </summary>
 </cvar>
@@ -111,7 +118,14 @@ env = Environment(SHCCCOMSTR = "Compiling shared object $TARGET")
 
 <cvar name="SHCCFLAGS">
 <summary>
-Options that are passed to the C compiler
+Options that are passed to the C and C++ compilers
+to generate shared-library objects.
+</summary>
+</cvar>
+
+<cvar name="SHCFLAGS">
+<summary>
+Options that are passed to the C compiler (only; not C++)
 to generate shared-library objects.
 </summary>
 </cvar>

@@ -1,20 +1,3 @@
-"""bootstrap.py
-
-This is an Aegis-to-SCons build script that collects a copy of the
-current SCons into a bootstrap/ subdirectory and then executes it with
-the supplied command-line options.
-
-Right now, it only understands the SCons -Y option, which is the only
-one currently used.  It collects the repositories specified by -Y and
-searches them, in order, for the pieces of SCons to copy into the local
-bootstrap/ subdirectory.
-
-This is essentially a minimal build of SCons to bootstrap ourselves into
-executing it for the full build of all the packages, as specified in our
-local SConstruct file.
-
-"""
-
 #
 # __COPYRIGHT__
 #
@@ -44,13 +27,97 @@ import getopt
 import string
 import sys
 
+__doc__ = """bootstrap.py
+
+This script supports "bootstrap" execution of the current SCons in
+this local source tree by copying of all necessary Python scripts and
+modules from underneath the src/ subdirectory into a subdirectory (named
+"bootstrap/" by default), and then executing the copied SCons with the
+supplied command-line arguments.
+
+There are a handful of options that are specific to this bootstrap.py
+script and which are *not* passed on to the underlying SCons script.
+All of these begin with the string "bootstrap_":
+
+    --bootstrap_dir=DIR
+
+        Sets the name of the directory into which the SCons files will
+        be copied.  The default is "bootstrap" in the local subdirectory.
+
+    --bootstrap_force
+
+        Forces a copy of all necessary files.  By default, the
+        bootstrap.py script only updates the bootstrap copy if the
+        content of the source copy is different.
+
+    --bootstrap_update
+
+        Only updates the bootstrap subdirectory, and then exits.
+
+In addition to the above options, the bootstrap.py script understands
+the -Y and --repository= options, which are used under Aegis to specify
+a search path for the source files that may not have been copied in to
+the Aegis change.
+
+This is essentially a minimal build of SCons to bootstrap ourselves into
+executing it for the full build of all the packages, as specified in our
+local SConstruct file.
+"""
+
+bootstrap_dir = 'bootstrap'
+pass_through_args = []
 search = ['.']
+update_only = None
 
-opts, args = getopt.getopt(sys.argv[1:], "Y:", [])
+requires_an_argument = 'bootstrap.py:  %s requires an argument\n'
 
-for o, a in opts:
-    if o == '-Y':
-        search.append(a)
+command_line_args = sys.argv[1:]
+
+def must_copy(dst, src):
+    if not os.path.exists(dst):
+        return 1
+    return open(dst, 'rb').read() != open(src, 'rb').read()
+
+while command_line_args:
+    arg = command_line_args.pop(0)
+
+    if arg == '--bootstrap_dir':
+        try:
+            bootstrap_dir = command_line_args.pop(0)
+        except IndexError:
+            sys.stderr.write(requires_an_argument % arg)
+            sys.exit(1)
+
+    elif arg[:16] == '--bootstrap_dir=':
+        bootstrap_dir = arg[16:]
+
+    elif arg == '--bootstrap_force':
+        def must_copy(dst, src):
+            return 1
+
+    elif arg == '--bootstrap_update':
+        update_only = 1
+
+    elif arg in ('-Y', '--repository'):
+        try:
+            dir = command_line_args.pop(0)
+        except IndexError:
+            sys.stderr.write(requires_an_argument % arg)
+            sys.exit(1)
+        else:
+            search.append(dir)
+        pass_through_args.extend([arg, dir])
+
+    elif arg[:2] == '-Y':
+        search.append(arg[2:])
+        pass_through_args.append(arg)
+
+    elif arg[:13] == '--repository=':
+        search.append(arg[13:])
+        pass_through_args.append(arg)
+
+    else:
+        pass_through_args.append(arg)
 
 def find(file, search=search):
     for dir in search:
@@ -68,24 +135,28 @@ MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
 files = [ scons_py ] + map(lambda x: os.path.join(src_engine, x[:-1]),
                            open(MANIFEST_in).readlines())
 
-subdir = 'bootstrap'
-
 for file in files:
     src = find(file)
-    dst = os.path.join(subdir, file)
-    dir, _ = os.path.split(dst)
-    if not os.path.isdir(dir):
-        os.makedirs(dir)
-    contents = open(src, 'rb').read()
-    try: os.unlink(dst)
-    except: pass
-    open(dst, 'wb').write(contents)
+    dst = os.path.join(bootstrap_dir, file)
+    if must_copy(dst, src):
+        dir = os.path.split(dst)[0]
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
+        try: os.unlink(dst)
+        except: pass
+        open(dst, 'wb').write( open(src, 'rb').read() )
 
-args = [ sys.executable, os.path.join(subdir, scons_py) ] + sys.argv[1:]
+if update_only:
+    sys.exit(0)
+
+args = [
+            os.path.split(sys.executable)[1],
+            os.path.join(bootstrap_dir, scons_py)
+       ] + pass_through_args
 
 sys.stdout.write(string.join(args, " ") + '\n')
 sys.stdout.flush()
 
-os.environ['SCONS_LIB_DIR'] = os.path.join(subdir, src_engine)
+os.environ['SCONS_LIB_DIR'] = os.path.join(bootstrap_dir, src_engine)
 
 os.execve(sys.executable, args, os.environ)

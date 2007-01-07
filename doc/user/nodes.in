@@ -296,7 +296,7 @@
       import os.path
       program_list = Program('hello.c')
       program_name = str(program_list[0])
-      if not os.path.exists(program_name)
+      if not os.path.exists(program_name):
           print program_name, "does not exist!"
       </file>
       <file name="hello.c">

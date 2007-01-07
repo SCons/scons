@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
 
 import SCons.Defaults
 import SCons.Tool
@@ -42,18 +43,43 @@ import SCons.Util
 YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
 def _yaccEmitter(target, source, env, ysuf, hsuf):
+    flags = SCons.Util.CLVar(env.subst("$YACCFLAGS"))
+    targetBase, targetExt = os.path.splitext(SCons.Util.to_String(target[0]))
+
+    if '.ym' in ysuf:                # If using Objective-C
+        target = [targetBase + ".m"] # the extension is ".m".
+
+
     # If -d is specified on the command line, yacc will emit a .h
-    # or .hpp file as well as a .c or .cpp file, depending on whether
-    # the input file is a .y or .yy, respectively.
-    if len(source) and '-d' in SCons.Util.CLVar(env.subst("$YACCFLAGS")):
+    # or .hpp file with the same name as the .c or .cpp output file.
+    if '-d' in flags:
+        target.append(targetBase + env.subst(hsuf))
+
+    # If -g is specified on the command line, yacc will emit a .vcg
+    # file with the same base name as the .y, .yacc, .ym or .yy file.
+    if "-g" in flags:
         base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
-        if ext in ysuf:
-            base, ext = os.path.splitext(SCons.Util.to_String(target[0]))
-            target.append(base + env.subst(hsuf))
+        target.append(base + env.subst("$YACCVCGFILESUFFIX"))
+
+    # With --defines and --graph, the name of the file is totally defined
+    # in the options.
+    fileGenOptions = ["--defines=", "--graph="]
+    for option in flags:
+        for fileGenOption in fileGenOptions:
+            l = len(fileGenOption)
+            if option[:l] == fileGenOption:
+                # A file generating option is present, so add the file
+                # name to the list of targets.
+                fileName = string.strip(option[l:])
+                target.append(fileName)
+
     return (target, source)
 
 def yEmitter(target, source, env):
     return _yaccEmitter(target, source, env, ['.y', '.yacc'], '$YACCHFILESUFFIX')
+
+def ymEmitter(target, source, env):
+    return _yaccEmitter(target, source, env, ['.ym'], '$YACCHFILESUFFIX')
 
 def yyEmitter(target, source, env):
     return _yaccEmitter(target, source, env, ['.yy'], '$YACCHXXFILESUFFIX')
@@ -61,12 +87,20 @@ def yyEmitter(target, source, env):
 def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
-    
+
+    # C
     c_file.add_action('.y', YaccAction)
-    c_file.add_action('.yacc', YaccAction)
-    cxx_file.add_action('.yy', YaccAction)
     c_file.add_emitter('.y', yEmitter)
+
+    c_file.add_action('.yacc', YaccAction)
     c_file.add_emitter('.yacc', yEmitter)
+
+    # Objective-C
+    c_file.add_action('.ym', YaccAction)
+    c_file.add_emitter('.ym', ymEmitter)
+
+    # C++
+    cxx_file.add_action('.yy', YaccAction)
     cxx_file.add_emitter('.yy', yyEmitter)
 
     env['YACC']      = env.Detect('bison') or 'yacc'
@@ -74,6 +108,7 @@ def generate(env):
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
     env['YACCHXXFILESUFFIX'] = '.hpp'
+    env['YACCVCGFILESUFFIX'] = '.vcg'
 
 def exists(env):
     return env.Detect(['bison', 'yacc'])

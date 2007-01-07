@@ -35,13 +35,18 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+latex = test.where_is('latex')
+if not latex:
+    test.skip_test("Could not find 'latex'; skipping test.\n")
+
 test.subdir(['docs'])
 
 
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+                  TOOLS = ['tex', 'latex', 'dvipdf'])
 Export(['env'])
 
 SConscript(os.path.join('docs', 'SConscript'),

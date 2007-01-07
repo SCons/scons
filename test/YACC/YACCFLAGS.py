@@ -65,83 +65,15 @@ test.write('SConstruct', """
 env = Environment(YACC = r'%(_python_)s myyacc.py',
                   YACCFLAGS = '-x',
                   tools=['yacc', '%(linker)s', '%(compiler)s'])
-env.Program(target = 'aaa', source = 'aaa.y')
+env.CFile(target = 'aaa', source = 'aaa.y')
 """ % locals())
 
-test.write('aaa.y', r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("YACCFLAGS\n");
-        printf("aaa.y\n");
-        exit (0);
-}
-""")
+test.write('aaa.y',             "aaa.y\nYACCFLAGS\n")
 
-test.run(arguments = 'aaa' + _exe, stderr = None)
+test.run('.', stderr = None)
 
-test.run(program = test.workpath('aaa' + _exe), stdout = " -x\naaa.y\n")
+test.must_match('aaa.c',        "aaa.y\n -x\n")
 
 
-
-yacc = test.where_is('yacc')
-
-if yacc:
-
-    test.write('SConstruct', """
-foo = Environment()
-bar = Environment(YACCFLAGS = '-v')
-foo.Program(target = 'foo', source = 'foo.y')
-bar.Program(target = 'bar', source = 'bar.y')
-""")
-
-    yacc = r"""
-%%{
-#include <stdio.h>
-
-main()
-{
-    yyparse();
-}
-
-yyerror(s)
-char *s;
-{
-    fprintf(stderr, "%%s\n", s);
-    return 0;
-}
-
-yylex()
-{
-    int c;
-
-    c = fgetc(stdin);
-    return (c == EOF) ? 0 : c;
-}
-%%}
-%%%%
-input:  letter newline { printf("%s\n"); };
-letter:  'a' | 'b';
-newline: '\n';
-"""
-
-    test.write('foo.y', yacc % 'foo.y')
-
-    test.write('bar.y', yacc % 'bar.y')
-
-    test.run(arguments = 'foo' + _exe, stderr = None)
-
-    test.fail_test(os.path.exists(test.workpath('foo.output'))
-               or os.path.exists(test.workpath('y.output')))
-
-    test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "foo.y\n")
-
-    test.run(arguments = 'bar' + _exe)
-
-    test.fail_test(not os.path.exists(test.workpath('bar.output'))
-               and not os.path.exists(test.workpath('y.output')))
-
-    test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
 
 test.pass_test()

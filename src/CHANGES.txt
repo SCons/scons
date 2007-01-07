@@ -14,6 +14,11 @@ RELEASE 0.97 - XXX
 
   - Allow arbitrary white space after a SWIG %module declaration.
 
+  From Paul:
+
+  - When compiling resources under MinGW, make sure there's a space 
+    between the --include-dir option and its argument.
+
   From Jay Kint:
 
   - Alleviate long command line issues on Windows by executing command
@@ -65,6 +70,19 @@ RELEASE 0.97 - XXX
     files control over what exceptions cause a string to expand to ''
     vs. terminating processing with an error.
 
+  - Allow the f90.py and f95.py Tool modules to compile earlier source
+    source files of earlier Fortran version.
+
+  - Fix storing signatures of files retrieved from CacheDir() so they're
+    correctly identified as up-to-date next invocation.
+
+  - Make sure lists of computed source suffixes cached by Builder objects
+    don't persist across changes to the list of source Builders (so the
+    addition of suffixes like .ui by the qt.py Tool module take effect).
+
+  - Enhance the bootstrap.py script to allow it to be used to execute
+    SCons more easily from a checked-out source tree.
+
   From Ben Leslie:
 
   - Fix post-Memoizer value caching misspellings in Node.FS._doLookup().
@@ -93,6 +111,9 @@ RELEASE 0.97 - XXX
 
   - Eliminate some unnecessary os.path.normpath() calls.
 
+  - Add a $CFLAGS variable for C-specific options, leaving $CCFLAGS
+    for options common to C and C++.
+
   From Tom Parker:
 
   - Have the error message print the missing file that Qt can't find.
@@ -106,6 +127,17 @@ RELEASE 0.97 - XXX
   - Fix the "sconsign" script when the .sconsign.dblite file is explicitly
     specified on the command line (and not intuited from the old way of
     calling it with just ".sconsign").
+
+  From Jose Pablo Ezequiel "Pupeno" Fernandez Silva:
+
+  - Give the 'lex' tool knowledge of the additional target files produced
+    by the flex "--header-file=" and "--tables-file=" options.
+
+  - Give the 'yacc' tool knowledge of the additional target files produced
+    by the bison "-g", "--defines=" and "--graph=" options.
+
+  - Generate intermediate files with Objective C file suffixes (.m) when
+    the lex and yacc source files have appropriate suffixes (.lm and .ym).
 
   From Sohail Somain:
 

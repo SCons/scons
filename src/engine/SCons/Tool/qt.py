@@ -313,8 +313,8 @@ def generate(env):
     env['BUILDERS']['Uic'] = uicBld
     env['BUILDERS']['Moc'] = mocBld
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-    static_obj.src_builder.append('Uic')
-    shared_obj.src_builder.append('Uic')
+    static_obj.add_src_builder('Uic')
+    shared_obj.add_src_builder('Uic')
 
     # We use the emitters of Program / StaticLibrary / SharedLibrary
     # to scan for moc'able files

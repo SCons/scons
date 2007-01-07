@@ -63,10 +63,12 @@ def generate(env):
 
     env['CC']        = 'cc'
     env['CCFLAGS']   = SCons.Util.CLVar('')
-    env['CCCOM']     = '$CC -o $TARGET -c $CCFLAGS $_CCCOMCOM $SOURCES'
+    env['CFLAGS']    = SCons.Util.CLVar('')
+    env['CCCOM']     = '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCC']      = '$CC'
     env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
-    env['SHCCCOM']   = '$SHCC -o $TARGET -c $SHCCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCFLAGS'] = SCons.Util.CLVar('$CFLAGS')
+    env['SHCCCOM']   = '$SHCC -o $TARGET -c $SHCFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''
