@@ -347,8 +347,10 @@ Things to do to release a new X.Y version of SCons:
 
             download.php:   new version number
 
-            versions.php:   add new version number do $docversions[],
-                            shift index numbers :-(
+            includes/versions.php:
+                            update $stablerelease and/or $latestrelease
+                            add new version number do $docversions[],
+                            SHIFT $docversions[] INDEX NUMBERS :-(
 
             index.php:      announcement on the home page
                             remove out-of-date announcements
@@ -404,6 +406,32 @@ Things to do to release a new X.Y version of SCons:
 
 
     Add news item to the SourceForge project page
+
+        Pull down "Project => News"
+
+        Click "Submit"
+
+        Fill in the "Subject:" box
+
+        Cut-and-paste the announcement text into the "Details:" box
+
+        Click "submit"
+
+
+
+    Add news item to the tigris.org project page
+
+        Click "Announcements"
+
+        Click "Add new announcement"
+
+        Double-check the date (probably already set)
+
+        Fill in the "Headline" box
+
+        Fill in the "Body" box (probably short)
+
+        Click "Add new announcement"
 
 
 
