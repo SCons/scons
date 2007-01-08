@@ -83,12 +83,12 @@ In this case, your options are:
     --  (Optional.)  Install from a pre-packaged SCons package that
         does not require distutils:
 
-            Red Hat Linux       scons-0.96.93.noarch.rpm
+            Red Hat Linux       scons-0.96.94.noarch.rpm
 
-            Debian GNU/Linux    scons_0.96.93_all.deb
+            Debian GNU/Linux    scons_0.96.94_all.deb
                                 (or use apt-get)
 
-            Windows             scons-0.96.93.win32.exe
+            Windows             scons-0.96.94.win32.exe
 
     --  (Recommended.)  Download the latest distutils package from the
         following URL:
@@ -160,7 +160,7 @@ And on Windows:
 
 By default, the above commands will do the following:
 
-    --  Install the version-numbered "scons-0.96.93" and "sconsign-0.96.93"
+    --  Install the version-numbered "scons-0.96.94" and "sconsign-0.96.94"
         scripts in the default system script directory (/usr/bin or
         C:\Python*\Scripts, for example).  This can be disabled by
         specifying the "--no-version-script" option on the command
@@ -173,15 +173,15 @@ By default, the above commands will do the following:
         if you want to install and experiment with a new version before
         making it the default on your system.  On UNIX or Linux systems,
         you can have the "scons" and "sconsign" scripts be hard links or
-        symbolic links to the "scons-0.96.93" and "sconsign-0.96.93" scripts
+        symbolic links to the "scons-0.96.94" and "sconsign-0.96.94" scripts
         by specifying the "--hardlink-scons" or "--symlink-scons"
         options on the command line.
 
-    --  Install "scons-0.96.93.bat" and "scons.bat" wrapper scripts in the
+    --  Install "scons-0.96.94.bat" and "scons.bat" wrapper scripts in the
         Python prefix directory on Windows (C:\Python*, for example).
         This can be disabled by specifying the "--no-install-bat" option
         on the command line.  On UNIX or Linux systems, the
-        "--install-bat" option may be specified to have "scons-0.96.93.bat"
+        "--install-bat" option may be specified to have "scons-0.96.94.bat"
         and "scons.bat" files installed in the default system script
         directory, which is useful if you want to install SCons in a
         shared file system directory that can be used to execute SCons
@@ -189,7 +189,7 @@ By default, the above commands will do the following:
 
     --  Install the SCons build engine (a Python module) in an
         appropriate version-numbered SCons library directory
-        (/usr/lib/scons-0.96.93 or C:\Python*\scons-0.96.93, for example).
+        (/usr/lib/scons-0.96.94 or C:\Python*\scons-0.96.94, for example).
         See below for more options related to installing the build
         engine library.
 
@@ -504,7 +504,15 @@ you can build everything by simply running it:
         $ scons
 
 If you don't have SCons version 0.96.93 later already installed on your
-system, you can build this version of SCons with itself with a little more
+system, you can use the supplied bootstrap.py script:
+
+        $ python bootstrap.py build/scons
+
+The bootstrap.py keeps the src/ subdirectory free of compiled Python
+(*.pyc or *.pyo) files by copying the necessary SCons files to a local
+bootstrap/ subdirectory and executing it from there.
+
+You can also build this version of SCons by hand with a little more
 typing.  On UNIX or Linux (using sh or a derivative like bash or ksh):
 
         $ export SCONS_LIB_DIR=`pwd`/src/engine
@@ -518,18 +526,18 @@ On Windows:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.96.93-1.noarch.rpm
-        build/dist/scons-0.96.93-1.src.rpm
-        build/dist/scons-0.96.93.linux-i686.tar.gz
-        build/dist/scons-0.96.93.tar.gz
-        build/dist/scons-0.96.93.win32.exe
-        build/dist/scons-0.96.93.zip
-        build/dist/scons-doc-0.96.93.tar.gz
-        build/dist/scons-local-0.96.93.tar.gz
-        build/dist/scons-local-0.96.93.zip
-        build/dist/scons-src-0.96.93.tar.gz
-        build/dist/scons-src-0.96.93.zip
-        build/dist/scons_0.96.93-1_all.deb
+        build/dist/scons-0.96.94-1.noarch.rpm
+        build/dist/scons-0.96.94-1.src.rpm
+        build/dist/scons-0.96.94.linux-i686.tar.gz
+        build/dist/scons-0.96.94.tar.gz
+        build/dist/scons-0.96.94.win32.exe
+        build/dist/scons-0.96.94.zip
+        build/dist/scons-doc-0.96.94.tar.gz
+        build/dist/scons-local-0.96.94.tar.gz
+        build/dist/scons-local-0.96.94.zip
+        build/dist/scons-src-0.996.94tar.gz
+        build/dist/scons-src-0.96.94.zip
+        build/dist/scons_0.96.94-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.

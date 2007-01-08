@@ -1,5 +1,5 @@
 %define name scons
-%define version 0.96.93
+%define version 0.96.94
 %define release 1
 
 Summary: an Open Source software construction tool

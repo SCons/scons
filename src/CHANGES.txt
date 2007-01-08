@@ -8,7 +8,159 @@
 
 
 
-RELEASE 0.97 - XXX
+RELEASE 0.96.94 - Sun, 07 Jan 2007 18:36:20 -0600
+
+  NOTE:  This is a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Allow arbitrary white space after a SWIG %module declaration.
+
+  From Paul:
+
+  - When compiling resources under MinGW, make sure there's a space 
+    between the --include-dir option and its argument.
+
+  From Jay Kint:
+
+  - Alleviate long command line issues on Windows by executing command
+    lines directly via os.spawnv() if the command line doesn't need
+    shell interpretation (has no pipes, redirection, etc.).
+
+  From Walter Franzini:
+
+  - Exclude additional Debian packaging files from the copyright check.
+
+  From Fawad Halim:
+
+  - Handle the conflict between the impending Python 2.6 'as' keyword
+    and our Tool/as.py module name.
+
+  From Steven Knight:
+
+  - Speed up the Node.FS.Dir.rel_path() method used to generate path names
+    that get put into the .sconsign* file(s).
+
+  - Optimize Node.FS.Base.get_suffix() by computing the suffix once, up
+    front, when we set the Node's name.  (Duh...)
+
+  - Reduce the Memoizer's responsibilities to simply counting hits and
+    misses when the --debug=memoizer option is used, not to actually
+    handling the key calculation and memoization itself.  This speeds
+    up some configurations significantly, and should cause no functional
+    differences.
+
+  - Add a new scons-time script with subcommands for generating
+    consistent timing output from SCons configurations, extracting
+    various information from those timings, and displaying them in
+    different formats.
+
+  - Reduce some unnecessary stat() calls from on-disk entry type checks.
+
+  - Fix SideEffect() when used with -j, which was badly broken in 0.96.93.
+
+  - Propagate TypeError exceptions when evaluating construction variable
+    expansions up the stack, so users can see what's going on.
+
+  - When disambiguating a Node.FS.Entry into a Dir or File, don't look
+    in the on-disk source directory until we've confirmed there's no
+    on-disk entry locally and there *is* one in the srcdir.  This avoids
+    creating a phantom Node that can interfere with dependencies on
+    directory contents.
+
+  - Add an AllowSubstExceptions() function that gives the SConscript
+    files control over what exceptions cause a string to expand to ''
+    vs. terminating processing with an error.
+
+  - Allow the f90.py and f95.py Tool modules to compile earlier source
+    source files of earlier Fortran version.
+
+  - Fix storing signatures of files retrieved from CacheDir() so they're
+    correctly identified as up-to-date next invocation.
+
+  - Make sure lists of computed source suffixes cached by Builder objects
+    don't persist across changes to the list of source Builders (so the
+    addition of suffixes like .ui by the qt.py Tool module take effect).
+
+  - Enhance the bootstrap.py script to allow it to be used to execute
+    SCons more easily from a checked-out source tree.
+
+  From Ben Leslie:
+
+  - Fix post-Memoizer value caching misspellings in Node.FS._doLookup().
+
+  From Rob Managan, Dmitry Mikhin and Joel B. Mohler:
+
+  - Handle TeX/LaTeX files in subdirectories by changing directory
+    before invoking TeX/LaTeX.
+
+  - Scan LaTeX files for \bibliography lines.
+
+  - Support multiple file names in a "\bibliography{file1,file2}" string.
+
+  - Handle TeX warnings about undefined citations.
+
+  - Support re-running LaTeX if necessary due to a Table of Contents.
+
+  From Dmitry Mikhin:
+
+  - Return LaTeX if "Rerun to get citations correct" shows up on the next
+    line after the "Warning:" string.
+
+  From Gary Oberbrunner:
+
+  - Add #include lines to fix portability issues in two tests.
+
+  - Eliminate some unnecessary os.path.normpath() calls.
+
+  - Add a $CFLAGS variable for C-specific options, leaving $CCFLAGS
+    for options common to C and C++.
+
+  From Tom Parker:
+
+  - Have the error message print the missing file that Qt can't find.
+
+  From John Pye:
+
+  - Fix env.MergeFlags() appending to construction variable value of None.
+
+  From Steve Robbins:
+
+  - Fix the "sconsign" script when the .sconsign.dblite file is explicitly
+    specified on the command line (and not intuited from the old way of
+    calling it with just ".sconsign").
+
+  From Jose Pablo Ezequiel "Pupeno" Fernandez Silva:
+
+  - Give the 'lex' tool knowledge of the additional target files produced
+    by the flex "--header-file=" and "--tables-file=" options.
+
+  - Give the 'yacc' tool knowledge of the additional target files produced
+    by the bison "-g", "--defines=" and "--graph=" options.
+
+  - Generate intermediate files with Objective C file suffixes (.m) when
+    the lex and yacc source files have appropriate suffixes (.lm and .ym).
+
+  From Sohail Somain:
+
+  - Have the mslink.py Tool only look for a 'link' executable on Windows
+    systems.
+
+  From Vaclav Smilauer:
+
+  - Add support for a "srcdir" keyword argument when calling a Builder,
+    which will add a srcdir prefix to all non-relative string sources.
+
+  From Jonathan Ultis:
+
+  - Allow Options converters to take the construction environment as
+    an optional argument.
+
+
+
+RELEASE 0.96.93 - Mon, 06 Nov 2006 00:44:11 -0600
+
+  NOTE:  This is a pre-release of 0.97 for testing purposes.
 
   From Anonymous:
 
