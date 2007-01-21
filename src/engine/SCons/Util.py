@@ -29,7 +29,8 @@ Various utility functions go here.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import __builtin__
+import SCons.compat
+
 import copy
 import os
 import os.path
@@ -41,6 +42,7 @@ import types
 
 from UserDict import UserDict
 from UserList import UserList
+from UserString import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
@@ -49,68 +51,6 @@ InstanceType    = types.InstanceType
 ListType        = types.ListType
 StringType      = types.StringType
 TupleType       = types.TupleType
-
-try:
-    from UserString import UserString
-except ImportError:
-    # "Borrowed" from the Python 2.2 UserString module
-    # and modified slightly for use with SCons.
-    class UserString:
-        def __init__(self, seq):
-            if is_String(seq):
-                self.data = seq
-            elif isinstance(seq, UserString):
-                self.data = seq.data[:]
-            else:
-                self.data = str(seq)
-        def __str__(self): return str(self.data)
-        def __repr__(self): return repr(self.data)
-        def __int__(self): return int(self.data)
-        def __long__(self): return long(self.data)
-        def __float__(self): return float(self.data)
-        def __complex__(self): return complex(self.data)
-        def __hash__(self): return hash(self.data)
-
-        def __cmp__(self, string):
-            if isinstance(string, UserString):
-                return cmp(self.data, string.data)
-            else:
-                return cmp(self.data, string)
-        def __contains__(self, char):
-            return char in self.data
-
-        def __len__(self): return len(self.data)
-        def __getitem__(self, index): return self.__class__(self.data[index])
-        def __getslice__(self, start, end):
-            start = max(start, 0); end = max(end, 0)
-            return self.__class__(self.data[start:end])
-
-        def __add__(self, other):
-            if isinstance(other, UserString):
-                return self.__class__(self.data + other.data)
-            elif is_String(other):
-                return self.__class__(self.data + other)
-            else:
-                return self.__class__(self.data + str(other))
-        def __radd__(self, other):
-            if is_String(other):
-                return self.__class__(other + self.data)
-            else:
-                return self.__class__(str(other) + self.data)
-        def __mul__(self, n):
-            return self.__class__(self.data*n)
-        __rmul__ = __mul__
-
-#
-try:
-    __builtin__.zip
-except AttributeError:
-    def zip(*lists):
-        result = []
-        for i in xrange(len(lists[0])):
-            result.append(tuple(map(lambda l, i=i: l[i], lists)))
-        return result
-    __builtin__.zip = zip
 
 _altsep = os.altsep
 if _altsep is None and sys.platform == 'win32':

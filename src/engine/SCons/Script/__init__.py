@@ -138,6 +138,7 @@ Builder                 = SCons.Builder.Builder
 Configure               = _SConscript.Configure
 EnumOption              = SCons.Options.EnumOption
 Environment             = SCons.Environment.Environment
+FindPathDirs            = SCons.Scanner.FindPathDirs
 ListOption              = SCons.Options.ListOption
 PackageOption           = SCons.Options.PackageOption
 PathOption              = SCons.Options.PathOption

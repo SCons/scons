@@ -114,6 +114,7 @@ check_list = [
         'src',
         search_list = [ '*.py' ],
         remove_list = [
+            'engine/SCons/compat/_subprocess.py',
             'engine/SCons/Conftest.py',
             'engine/SCons/dblite.py',
             'engine/SCons/Optik',
@@ -133,6 +134,7 @@ check_list = [
             'configure-stamp',
             'debian',
             'dist',
+            'engine/SCons/compat/_subprocess.py',
             'engine/SCons/Conftest.py',
             'engine/SCons/dblite.py',
             'engine/SCons/Optik',
@@ -145,6 +147,7 @@ check_list = [
     CheckExpandedCopyright(
         build_local,
         remove_list = [
+            'SCons/compat/_subprocess.py',
             'SCons/Conftest.py',
             'SCons/dblite.py',
             'SCons/Optik',
@@ -180,6 +183,7 @@ check_list = [
             'src/engine/MANIFEST.in',
             'src/engine/MANIFEST-xml.in',
             'src/engine/setup.cfg',
+            'src/engine/SCons/compat/_subprocess.py',
             'src/engine/SCons/Conftest.py',
             'src/engine/SCons/dblite.py',
             'src/engine/SCons/Optik',

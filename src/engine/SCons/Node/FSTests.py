@@ -1473,7 +1473,22 @@ class FSTestCase(_tempdirTestCase):
                 d1_d2_f,        d3_d4_f,        '../../d3/d4/f',
         ]
 
-        d1.rel_path(d3)
+        if sys.platform in ('win32',):
+            x_d1        = fs.Dir(r'X:\d1')
+            x_d1_d2     = x_d1.Dir('d2')
+            y_d1        = fs.Dir(r'Y:\d1')
+            y_d1_d2     = y_d1.Dir('d2')
+            y_d2        = fs.Dir(r'Y:\d2')
+
+            win32_cases = [
+                x_d1,           x_d1,           '.',
+                x_d1,           x_d1_d2,        'd2',
+                x_d1,           y_d1,           r'Y:\d1',
+                x_d1,           y_d1_d2,        r'Y:\d1\d2',
+                x_d1,           y_d2,           r'Y:\d2',
+            ]
+
+            cases.extend(win32_cases)
 
         failed = 0
         while cases:
@@ -1501,6 +1516,8 @@ class FSTestCase(_tempdirTestCase):
         p = Proxy(f1)
         f2 = self.fs.Entry(p)
         assert f1 is f2, (f1, f2)
+
+
 
 class DirTestCase(_tempdirTestCase):
 
