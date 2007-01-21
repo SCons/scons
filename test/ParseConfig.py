@@ -67,7 +67,7 @@ print env['CCFLAGS']
 
 test.write('SConstruct2', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
-                  PYTHON = '%(_python_)s')
+                  PYTHON = r'%(_python_)s')
 env.ParseConfig(r"$PYTHON %(test_config1)s --libs --cflags")
 env.ParseConfig(r"$PYTHON %(test_config2)s --libs --cflags")
 print env['CPPPATH']
@@ -78,7 +78,7 @@ print env['CCFLAGS']
 
 test.write('SConstruct3', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
-                  PYTHON = '%(_python_)s')
+                  PYTHON = r'%(_python_)s')
 env.ParseConfig(r"$PYTHON %(test_config3)s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']

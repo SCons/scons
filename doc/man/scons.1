@@ -2704,6 +2704,60 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI FindPathDirs( variable )
+Returns a function
+(actually a callable Python object)
+intended to be used as the
+.B path_function
+of a Scanner object.
+The returned object will look up the specified
+.I variable
+in a construction environment
+and treat the construction variable's value as a list of
+directory paths that should be searched
+(like
+.BR CPPPATH ,
+.BR LIBPATH ,
+etc.).
+
+Note that use of
+.BR FindPathDirs ()
+is generally preferable to
+writing your own
+.B path_function
+for the following reasons:
+1) The returned list will contain all appropriate directories
+found in source trees
+(when
+.BR BuildDir ()
+is used)
+or in code repositories
+(when
+.BR Repository ()
+or the
+.B \-Y
+option are used).
+2) scons will identify expansions of
+.I variable
+that evaluate to the same list of directories as,
+in fact, the same list,
+and avoid re-scanning the directories for files,
+when possible.
+
+Example:
+
+.ES
+def my_scan(node, env, path, arg):
+    # Code to scan file contents goes here...
+    return include_files
+
+scanner = Scanner(name = 'myscanner',
+                  function = my_scan,
+                  path_function = FindPathDirs('MYPATH'))
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI Flatten( sequence )
 .TP
 .RI env.Flatten( sequence )
@@ -6508,6 +6562,15 @@ ${SOURCE.rsrcpath}   => /usr/repository/src/file.x
 ${SOURCE.rsrcdir}    => /usr/repository/src
 .EE
 
+Note that curly braces braces may also be used
+to enclose arbitrary Python code to be evaluated.
+(In fact, this is how the above modifiers are substituted,
+they are simply attributes of the Python objects
+that represent TARGET, SOURCES, etc.)
+See the section "Python Code Substitution," below,
+for more thorough examples of
+how this can be used.
+
 Lastly, a variable name
 may be a callable Python function
 associated with a
@@ -6601,6 +6664,48 @@ but the command signature added to any target files would be:
 
 .ES
 echo Last build occurred  . > $TARGET
+.EE
+
+.SS Python Code Substitution
+
+Any python code within
+.BR "${" - "}"
+pairs gets evaluated by python 'eval', with the python globals set to
+the current environment's set of construction variables.
+So in the following case:
+.ES
+env['COND'] = 0
+env.Command('foo.out', 'foo.in',
+   '''echo ${COND==1 and 'FOO' or 'BAR'} > $TARGET''')
+.EE
+the command executed will be either
+.ES
+echo FOO > foo.out
+.EE
+or
+.ES
+echo BAR > foo.out
+.EE
+according to the current value of env['COND'] when the command is
+executed.  The evaluation occurs when the target is being
+built, not when the SConscript is being read.  So if env['COND'] is changed
+later in the SConscript, the final value will be used.
+
+Here's a more interesting example.  Note that all of COND, FOO, and
+BAR are environment variables, and their values are substituted into
+the final command.  FOO is a list, so its elements are interpolated
+separated by spaces.
+
+.ES
+env=Environment()
+env['COND'] = 0
+env['FOO'] = ['foo1', 'foo2']
+env['BAR'] = 'barbar'
+env.Command('foo.out', 'foo.in',
+    'echo ${COND==1 and FOO or BAR} > $TARGET')
+
+# Will execute this:
+#  echo foo1 foo2 > foo.out
 .EE
 
 SCons uses the following rules when converting construction variables into
@@ -6722,6 +6827,12 @@ The
 returns a tuple of directories
 that can be searched for files to be returned
 by this Scanner object.
+(Note that the
+.BR FindPathDirs ()
+function can be used to return a ready-made
+.B path_function
+for a given construction variable name,
+instead of having to write your own function from scratch.)
 
 .IP node_class
 The class of Node that should be returned
@@ -7047,6 +7158,17 @@ env['BUILDERS]['PDFBuilder'] = bld
 
 .SS Defining Your Own Scanner Object
 
+The following example shows an extremely simple scanner (the
+.BR kfile_scan ()
+function)
+that doesn't use a search path at all
+and simply returns the
+file names present on any
+.B include
+lines in the scanned file.
+This would implicitly assume that all included
+files live in the top-level directory:
+
 .ES
 import re
 
@@ -7071,6 +7193,72 @@ env.Command('foo', 'foo.k', 'kprocess < $SOURCES > $TARGET')
 bar_in = File('bar.in')
 env.Command('bar', bar_in, 'kprocess $SOURCES > $TARGET')
 bar_in.target_scanner = kscan
+.EE
+
+Here is a similar but more complete example that searches
+a path of directories
+(specified as the
+.B MYPATH
+construction variable)
+for files that actually exist:
+
+.ES
+include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
+
+def my_scan(node, env, path, arg):
+   contents = node.get_contents()
+   includes = include_re.findall(contents)
+   if includes == []:
+        return []
+    results = []
+    for inc in includes:
+        for dir in path:
+            file = dir + os.sep + inc
+            if os.path.exists(file):  
+                results.append(file)
+                break
+    return results
+
+scanner = Scanner(name = 'myscanner',
+                 function = my_scan,
+                 argument = None,
+                 skeys = ['.x'],
+                 path_function = FindPathDirs('MYPATH'),
+                 )
+scanners = Environment().Dictionary('SCANNERS')
+env = Environment(SCANNERS = scanners + [scanner])
+.EE
+
+The
+.BR FindPathDirs ()
+function used in the previous example returns a function
+(actually a callable Python object)
+that will return a list of directories
+specified in the
+.B $MYPATH
+construction variable.
+If you need to customize how the search path is derived,
+you would provide your own
+.B path_function
+argument when creating the Scanner object,
+as follows:
+
+.ES
+# MYPATH is a list of directories to search for files in
+def pf(env, dir, target, source, arg):
+    top_dir = Dir('#').abspath
+    results = []
+    if env.has_key('MYPATH'):
+        for p in env['MYPATH']:
+            results.append(top_dir + os.sep + p)
+    return results
+
+scanner = Scanner(name = 'myscanner',
+                 function = my_scan,
+                 argument = None,
+                 skeys = ['.x'],
+                 path_function = pf,
+                 )
 .EE
 
 .SS Creating a Hierarchical Build

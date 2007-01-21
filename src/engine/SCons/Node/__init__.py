@@ -44,7 +44,7 @@ be able to depend on any other type of "thing."
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-
+import SCons.compat
 
 import copy
 import string

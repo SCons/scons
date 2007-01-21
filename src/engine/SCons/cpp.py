@@ -27,24 +27,12 @@ __doc__ = """
 SCons C Pre-Processor module
 """
 
+import SCons.compat
+
 import os
 import re
 import string
 import sys
-
-
-
-import __builtin__
-try:
-    __builtin__.zip
-except AttributeError:
-    def zip(*lists):
-        result = []
-        for i in xrange(len(lists[0])):
-            result.append(tuple(map(lambda l, i=i: l[i], lists)))
-        return result
-
-
 
 #
 # First "subsystem" of regular expressions that we set up:

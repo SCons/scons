@@ -1450,15 +1450,18 @@ class Dir(Base):
         elif not other in self.path_elements:
 
             try:
-                other_dir = other.dir
+                other_dir = other.get_dir()
             except AttributeError:
                 result = str(other)
             else:
-                dir_rel_path = self.rel_path(other_dir)
-                if dir_rel_path == '.':
+                if other_dir is None:
                     result = other.name
                 else:
-                    result = dir_rel_path + os.sep + other.name
+                    dir_rel_path = self.rel_path(other_dir)
+                    if dir_rel_path == '.':
+                        result = other.name
+                    else:
+                        result = dir_rel_path + os.sep + other.name
 
         else:
 

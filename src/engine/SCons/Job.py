@@ -31,6 +31,8 @@ stop, and wait on jobs.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 class Jobs:
     """An instance of this class initializes N jobs, and provides
     methods for starting, stopping, and waiting on all N jobs.
@@ -153,9 +155,9 @@ else:
                     ok = False
                 except:
                     task.exception_set()
-                    ok = 0
+                    ok = False
                 else:
-                    ok = 1
+                    ok = True
 
                 self.resultsQueue.put((task, ok))
 
@@ -175,7 +177,7 @@ else:
             """Put task into request queue."""
             self.requestQueue.put(obj)
 
-        def get(self, block = 1):
+        def get(self, block = True):
             """Remove and return a result tuple from the results queue."""
             return self.resultsQueue.get(block)
 

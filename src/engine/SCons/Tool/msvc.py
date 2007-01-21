@@ -599,7 +599,7 @@ def get_msvc_default_paths(env, version=None, use_mfc_dirs=0):
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(version)
     if version_num >= 8.0:
         suite = SCons.Tool.msvs.get_default_visualstudio8_suite(env)
-        defpaths = _get_msvc8_default_paths(env, version, suite, use_mfc_dirs)
+        return _get_msvc8_default_paths(env, version, suite, use_mfc_dirs)
     elif version_num >= 7.0:
         return _get_msvc7_default_paths(env, version, use_mfc_dirs)
     else:

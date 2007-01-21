@@ -354,6 +354,7 @@ arguments = {
     'name'             : "scons",
     'version'          : Version,
     'packages'         : ["SCons",
+                          "SCons.compat",
                           "SCons.Node",
                           "SCons.Optik",
                           "SCons.Options",

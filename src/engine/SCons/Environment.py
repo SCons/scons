@@ -450,31 +450,28 @@ class SubstitutionEnvironment:
     subst_target_source = subst
 
     def backtick(self, command):
-        try:
-            popen2.Popen3
-        except AttributeError:
-            (tochild, fromchild, childerr) = os.popen3(self.subst(command))
-            tochild.close()
-            err = childerr.read()
-            out = fromchild.read()
-            fromchild.close()
-            status = childerr.close()
+        import subprocess
+        if SCons.Util.is_List(command): 
+            p = subprocess.Popen(command,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 universal_newlines=True)
         else:
-            p = popen2.Popen3(command, 1)
-            p.tochild.close()
-            out = p.fromchild.read()
-            err = p.childerr.read()
-            status = p.wait()
+            p = subprocess.Popen(command,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 universal_newlines=True,
+                                 shell=True)
+        out = p.stdout.read()
+        p.stdout.close()
+        err = p.stderr.read()
+        p.stderr.close()
+        status = p.wait()
         if err:
             import sys
             sys.stderr.write(err)
         if status:
-            try:
-                if os.WIFEXITED(status):
-                    status = os.WEXITSTATUS(status)
-            except AttributeError:
-                pass
-            raise OSError("'%s' exited %s" % (command, status))
+            raise OSError("'%s' exited %d" % (command, status))
         return out
 
     def Override(self, overrides):
