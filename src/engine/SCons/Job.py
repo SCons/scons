@@ -170,7 +170,7 @@ else:
             self.resultsQueue = Queue.Queue(0)
 
             # Create worker threads
-            for i in range(num):
+            for _ in range(num):
                 Worker(self.requestQueue, self.resultsQueue)
 
         def put(self, obj):

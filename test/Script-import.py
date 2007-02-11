@@ -65,12 +65,12 @@ SCons.Script.OptParser
 SCons.Script.SConscriptSettableOptions
 
 SCons.Script.keep_going_on_error
-SCons.Script.print_dtree
+#SCons.Script.print_dtree
 SCons.Script.print_explanations
 SCons.Script.print_includes
 SCons.Script.print_objects
 SCons.Script.print_time
-SCons.Script.print_tree
+#SCons.Script.print_tree
 SCons.Script.memory_stats
 SCons.Script.ignore_errors
 #SCons.Script.sconscript_time

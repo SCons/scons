@@ -23,118 +23,6 @@
 
 -->
 
-<!--
-
-
-=head2 Repository dependency analysis
-
-Due to its built-in scanning, Cons will search the specified repository
-trees for included F<.h> files.  Unless the compiler also knows about the
-repository trees, though, it will be unable to find F<.h> files that only
-exist in a repository.  If, for example, the F<hello.c> file includes the
-F<hello.h> file in its current directory:
-
-  % cons -R /usr/all/repository hello
-  gcc -c /usr/all/repository/hello.c -o hello.o
-  /usr/all/repository/hello.c:1: hello.h: No such file or directory
-
-Solving this problem forces some requirements onto the way construction
-environments are defined and onto the way the C C<#include> preprocessor
-directive is used to include files.
-
-In order to inform the compiler about the repository trees, Cons will add
-appropriate C<-I> flags to the compilation commands.  This means that the
-C<CPPPATH> variable in the construction environment must explicitly specify
-all subdirectories which are to be searched for included files, including the
-current directory.  Consequently, we can fix the above example by changing
-the environment creation in the F<Construct> file as follows:
-
-  $env = new cons(
-	CC	=> 'gcc',
-	CPPPATH	=> '.',
-	LIBS	=> 'libworld.a',
-  );
-
-Due to the definition of the C<CPPPATH> variable, this yields, when we
-re-execute the command:
-
-  % cons -R /usr/all/repository hello
-  gcc -c -I. -I/usr/all/repository /usr/all/repository/hello.c -o hello.o
-  gcc -o hello hello.o /usr/all/repository/libworld.a
-
-The order of the C<-I> flags replicates, for the C preprocessor, the same
-repository-directory search path that Cons uses for its own dependency
-analysis.  If there are multiple repositories and multiple C<CPPPATH>
-directories, Cons will append the repository directories to the beginning of
-each C<CPPPATH> directory, rapidly multiplying the number of C<-I> flags.
-As an extreme example, a F<Construct> file containing:
-
-  Repository qw(
-	/u1
-	/u2
-  );
-
-  $env = new cons(
-	CPPPATH	=> 'a:b:c',
-  );
-
-Would yield a compilation command of:
-
-  cc -Ia -I/u1/a -I/u2/a -Ib -I/u1/b -I/u2/b -Ic -I/u1/c -I/u2/c -c hello.c -o hello.o
-
-In order to shorten the command lines as much as possible, Cons will
-remove C<-I> flags for any directories, locally or in the repositories,
-which do not actually exist.  (Note that the C<-I> flags are not included
-in the MD5 signature calculation for the target file, so the target will
-not be recompiled if the compilation command changes due to a directory
-coming into existence.)
-
-Because Cons relies on the compiler's C<-I> flags to communicate the
-order in which repository directories must be searched, Cons' handling
-of repository directories is fundamentally incompatible with using
-double-quotes on the C<#include> directives in any C source code that
-you plan to modify:
-
-  #include "file.h"	/* DON'T USE DOUBLE-QUOTES LIKE THIS */
-
-This is because most C preprocessors, when faced with such a directive, will
-always first search the directory containing the source file.  This
-undermines the elaborate C<-I> options that Cons constructs to make the
-preprocessor conform to its preferred search path.
-
-Consequently, when using repository trees in Cons, B<always> use
-angle-brackets for included files in any C source (.c or .h) files that
-you plan to modify locally:
-
-  #include <file.h>	/* USE ANGLE-BRACKETS INSTEAD */
-
-Code that will not change can still safely use double quotes on #include
-lines.
-
-
-=head2 Repository_List
-
-Cons provides a C<Repository_List> command to return a list of all
-repository directories in their current search order.  This can be used for
-debugging, or to do more complex Perl stuff:
-
-  @list = Repository_List;
-  print join(' ', @list), "\n";
-
-
-=head2 Repository interaction with other Cons features
-
-Cons' handling of repository trees interacts correctly with other Cons
-features, which is to say, it generally does what you would expect.
-
-Most notably, repository trees interact correctly, and rather powerfully,
-with the 'Link' command.  A repository tree may contain one or more
-subdirectories for version builds established via C<Link> to a source
-subdirectory.  Cons will search for derived files in the appropriate build
-subdirectories under the repository tree.
-
--->
-
   <para>
 
   Often, a software project will have
@@ -170,11 +58,13 @@ subdirectories under the repository tree.
     a directory copy of the source code tree.
     (Note that this is not the sort of repository
     maintained by a source code management system
-    like BitKeeper, CVS, or Subversion.
+    like BitKeeper, CVS, or Subversion.)
+    <!--
     For information about using &SCons;
     with these systems, see the section,
     "Fetching Files From Source Code Management Systems,"
     below.)
+    -->
     You use the &Repository; method
     to tell &SCons; to search one or more
     central code repositories (in order)
@@ -187,7 +77,7 @@ subdirectories under the repository tree.
       <file name="SConstruct" printme="1">
        env = Environment()
        env.Program('hello.c')
-       Repository('/usr/repository1', '/usr/repository2')
+       Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
       </file>
       <file name="hello.c">
       int main() { printf("Hello, world!\n"); }
@@ -256,17 +146,15 @@ subdirectories under the repository tree.
       <file name="SConstruct">
        env = Environment()
        env.Program('hello.c')
-       Repository('/usr/repository1', '/usr/repository2')
+       Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
       </file>
-      <file name="hello.c">
+      <file name="__ROOT__/usr/repository1/hello.c">
       int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
     <scons_output example="ex2">
       <scons_output_command>scons -Q</scons_output_command>
-      gcc -c /usr/repository1/hello.c -o hello.o
-      gcc -o hello hello.o
     </scons_output>
 
     <para>
@@ -281,9 +169,9 @@ subdirectories under the repository tree.
       <file name="SConstruct">
        env = Environment()
        env.Program('hello.c')
-       Repository('/usr/repository1', '/usr/repository2')
+       Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
       </file>
-      <file name="hello.c">
+      <file name="__ROOT__/usr/repository2/hello.c">
       int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
@@ -295,6 +183,252 @@ subdirectories under the repository tree.
     <para>
 
     </para>
+
+  </section>
+
+  <section>
+  <title>Finding <literal>#include</literal> files in repositories</title>
+
+    <para>
+
+    We've already seen that SCons will scan the contents of
+    a source file for <literal>#include</literal> file names
+    and realize that targets built from that source file
+    also depend on the <literal>#include</literal> file(s).
+    For each directory in the &cv-CPPPATH; list,
+    &SCons; will actually search the corresponding directories
+    in any repository trees and establish the
+    correct dependencies on any
+    <literal>#include</literal> files that it finds
+    in repository directory.
+
+    </para>
+
+    <para>
+
+    Unless the C compiler also knows about these directories
+    in the repository trees, though,
+    it will be unable to find the <literal>#include</literal> files.
+    If, for example, the &hello_c; file in
+    our previous example includes the &hello.h;
+    in its current directory,
+    and the &hello.h; only exists in the repository:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o hello.o -c hello.c
+      hello.c:1: hello.h: No such file or directory
+    </screen>
+
+    <para>
+
+    In order to inform the C compiler about the repositories,
+    &SCons; will add appropriate
+    <literal>-I</literal> flags to the compilation commands
+    for each directory in the &cv-CPPPATH; list.
+    So if we add the current directory to the
+    construction environment &cv-CPPPATH; like so:
+
+    </para>
+
+    <scons_example name="CPPPATH">
+      <file name="SConstruct" printme="1">
+       env = Environment(CPPPATH = ['.'])
+       env.Program('hello.c')
+       Repository('__ROOT__/usr/repository1')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then re-executing &SCons; yields:
+
+    </para>
+
+    <scons_output example="CPPPATH">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The order of the <literal>-I</literal> options replicates,
+    for the C preprocessor,
+    the same repository-directory search path
+    that &SCons; uses for its own dependency analysis.
+    If there are multiple repositories and multiple &cv-CPPPATH;
+    directories, &SCons; will add the repository directories
+    to the beginning of each &cv-CPPPATH; directory,
+    rapidly multiplying the number of <literal>-I</literal> flags.
+    If, for example, the &cv-CPPPATH; contains three directories
+    (and shorter repository path names!):
+
+    </para>
+
+    <scons_example name="CPPPATH3">
+      <file name="SConstruct" printme="1">
+       env = Environment(CPPPATH = ['dir1', 'dir2', 'dir3'])
+       env.Program('hello.c')
+       Repository('__ROOT__/r1', '__ROOT__/r2')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then we'll end up with nine <literal>-I</literal> options
+    on the command line,
+    three (for each of the &cv-CPPPATH; directories)
+    times three (for the local directory plus the two repositories):
+
+    </para>
+
+    <scons_output example="CPPPATH3">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+<!--
+
+Cons classic did the following, does SCons?
+
+In order to shorten the command lines as much as possible, Cons will
+remove C<-I> flags for any directories, locally or in the repositories,
+which do not actually exist.  (Note that the C<-I> flags are not included
+in the MD5 signature calculation for the target file, so the target will
+not be recompiled if the compilation command changes due to a directory
+coming into existence.)
+
+-->
+
+    <section>
+    <title>Limitations on <literal>#include</literal> files in repositories</title>
+
+      <para>
+
+      &SCons; relies on the C compiler's
+      <literal>-I</literal> options to control the order in which
+      the preprocessor will search the repository directories
+      for <literal>#include</literal> files.
+      This causes a problem, however, with how the C preprocessor
+      handles <literal>#include</literal> lines with
+      the file name included in double-quotes.
+
+      </para>
+
+      <para>
+
+      As we've seen,
+      &SCons; will compile the &hello_c; file from
+      the repository if it doesn't exist in
+      the local directory.
+      If, however, the &hello_c; file in the repository contains
+      a <literal>#include</literal> line with the file name in
+      double quotes:
+
+      </para>
+
+      <programlisting>
+        #include "hello.h"
+        int
+        main(int argc, char *argv[])
+        {
+            printf(HELLO_MESSAGE);
+            return (0);
+        }
+      </programlisting>
+
+      <para>
+
+      Then the C preprocessor will <emphasis>always</emphasis>
+      use a &hello_h; file from the repository directory first,
+      even if there is a &hello_h; file in the local directory,
+      despite the fact that the command line specifies
+      <literal>-I</literal> as the first option:
+
+      </para>
+
+      <scons_example name="quote1">
+        <file name="SConstruct">
+         env = Environment(CPPPATH = ['.'])
+         env.Program('hello.c')
+         Repository('__ROOT__/usr/repository1')
+        </file>
+        <file name="__ROOT__/usr/repository1/hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
+
+      <scons_output example="quote1">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      This behavior of the C preprocessor--always search
+      for a <literal>#include</literal> file in double-quotes
+      first in the same directory as the source file,
+      and only then search the <literal>-I</literal>--can
+      not, in general, be changed.
+      In other words, it's a limitation
+      that must be lived with if you want to use
+      code repositories in this way.
+      There are three ways you can possibly
+      work around this C preprocessor behavior:
+
+      </para>
+
+      <orderedlist>
+
+        <listitem>
+        <para>
+
+        Some modern versions of C compilers do have an option
+        to disable or control this behavior.
+        If so, add that option to &cv-CFLAGS;
+        (or &cv-CXXFLAGS; or both) in your construction environment(s).
+        Make sure the option is used for all construction
+        environments that use C preprocessing!
+
+        </para>
+        </listitem>
+
+        <listitem>
+        <para>
+
+        Change all occurrences of <literal>#include "file.h"</literal>
+        to <literal>#include &amp;lt;file.h&amp;gt;</literal>.
+        Use of <literal>#include</literal> with angle brackets
+        does not have the same behavior--the <literal>-I</literal>
+        directories are searched first
+        for <literal>#include</literal> files--which
+        gives &SCons; direct control over the list of
+        directories the C preprocessor will search.
+
+        </para>
+        </listitem>
+
+        <listitem>
+        <para>
+
+        Require that everyone working with compilation from
+        repositories check out and work on entire directories of files,
+        not individual files.
+        (If you use local wrapper scripts around
+        your source code control system's command,
+        you could add logic to enforce this restriction there.
+
+        </para>
+        </listitem>
+
+      </orderedlist>
+
+    </section>
 
   </section>
 

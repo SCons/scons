@@ -91,7 +91,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       scons: done building targets.
    </screen>
@@ -179,7 +179,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       scons: done building targets.
    </screen>
 
@@ -275,7 +275,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       scons: done building targets.
       % <userinput>scons -c</userinput>
@@ -469,9 +469,9 @@
        Finished calling Program()
        scons: done reading SConscript files.
        scons: Building targets ...
-       cc -c -o goodbye.o goodbye.c
+       cc -o goodbye.o -c goodbye.c
        cc -o goodbye goodbye.o
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
        scons: done building targets.
      </screen>

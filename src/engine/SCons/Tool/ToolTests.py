@@ -45,6 +45,8 @@ class ToolTestCase(unittest.TestCase):
                 return self.dict[key]
             def __setitem__(self, key, val):
                 self.dict[key] = val
+            def has_key(self, key):
+                return self.dict.has_key(key)
         env = Environment()
         env['BUILDERS'] = {}
         env['ENV'] = {}

@@ -125,7 +125,7 @@ UNIX system are:
   ENV		=> { 'PATH' => '/bin:/usr/bin' },
 
 
-And on a Win32 system (Windows NT), the default construction variables
+And on a Windows system (Windows NT), the default construction variables
 are (unless the default rule style is set using the B<DefaultRules>
 method):
 
@@ -473,7 +473,7 @@ environment undisturbed.
 
  <screen>
     % <userinput>scons -Q</userinput>
-    gcc -O2 -c -o foo.o foo.c
+    gcc -o foo.o -c -O2 foo.c
     gcc -o foo foo.o
  </screen>
 
@@ -505,9 +505,9 @@ environment undisturbed.
 
    <screen>
       % <userinput>scons -Q</userinput>
-      cc -g -c -o bar.o bar.c
+      cc -o bar.o -c -g bar.c
       cc -o bar bar.o
-      cc -O2 -c -o foo.o foo.c
+      cc -o foo.o -c -O2 foo.c
       cc -o foo foo.o
    </screen>
 
@@ -540,7 +540,7 @@ environment undisturbed.
       % <userinput>scons -Q</userinput>
       
       scons: *** Two environments with different actions were specified for the same target: foo.o
-      File "SConstruct", line 6, in ?
+      File "/home/my/project/SConstruct", line 6, in ?
    </screen>
 
    <para>
@@ -593,9 +593,9 @@ environment undisturbed.
 
    <screen>
       % <userinput>scons -Q</userinput>
-      cc -g -c -o foo-dbg.o foo.c
+      cc -o foo-dbg.o -c -g foo.c
       cc -o foo-dbg foo-dbg.o
-      cc -O2 -c -o foo-opt.o foo.c
+      cc -o foo-opt.o -c -O2 foo.c
       cc -o foo-opt foo-opt.o
    </screen>
 
@@ -653,11 +653,11 @@ environment undisturbed.
 
    <screen>
       % <userinput>scons -Q</userinput>
-      gcc -c -o foo.o foo.c
+      gcc -o foo.o -c foo.c
       gcc -o foo foo.o
-      gcc -g -c -o foo-dbg.o foo.c
+      gcc -o foo-dbg.o -c -g foo.c
       gcc -o foo-dbg foo-dbg.o
-      gcc -O2 -c -o foo-opt.o foo.c
+      gcc -o foo-opt.o -c -O2 foo.c
       gcc -o foo-opt foo-opt.o
    </screen>
 
@@ -728,7 +728,7 @@ environment undisturbed.
 
    <para>
 
-   And on Win32:
+   And on Windows:
 
    </para>
 
@@ -889,7 +889,7 @@ environment undisturbed.
 
      <screen>
         % <userinput>scons -Q</userinput>
-        cc -DDEFINE2 -c -o foo.o foo.c
+        cc -o foo.o -c -DDEFINE2 foo.c
         cc -o foo foo.o
      </screen>
 
@@ -965,9 +965,9 @@ environment undisturbed.
         CCFLAGS = -DDEFINE2
         scons: done reading SConscript files.
         scons: Building targets ...
-        cc -DDEFINE2 -c -o bar.o bar.c
+        cc -o bar.o -c -DDEFINE2 bar.c
         cc -o bar bar.o
-        cc -DDEFINE2 -c -o foo.o foo.c
+        cc -o foo.o -c -DDEFINE2 foo.c
         cc -o foo foo.o
         scons: done building targets.
      </screen>
@@ -1014,7 +1014,7 @@ environment undisturbed.
 
      <screen>
         % <userinput>scons -Q</userinput>
-        cc -DMY_VALUE -DLAST -c -o foo.o foo.c
+        cc -o foo.o -c -DMY_VALUE -DLAST foo.c
         cc -o foo foo.o
      </screen>
 
@@ -1071,7 +1071,7 @@ environment undisturbed.
 
      <screen>
         % <userinput>scons -Q</userinput>
-        cc -DFIRST -DMY_VALUE -c -o foo.o foo.c
+        cc -o foo.o -c -DFIRST -DMY_VALUE foo.c
         cc -o foo foo.o
      </screen>
 

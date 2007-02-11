@@ -310,7 +310,7 @@
 
     </para>
 
-    <scons_output example="print" os="posix">
+    <scons_output example="exists" os="posix">
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
@@ -328,7 +328,7 @@
 
     </para>
 
-    <scons_example name="exists">
+    <scons_example name="read">
       <file name="SConstruct" printme="1">
       hello_c = File('hello.c')
       contents = hello_c.read()
@@ -346,7 +346,7 @@
 
     </para>
 
-    <scons_output example="print" os="posix">
+    <scons_output example="read" os="posix">
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 

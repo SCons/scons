@@ -31,6 +31,15 @@ Test the Options help messages.
 import os.path
 import string
 
+try:
+    True, False
+except NameError:
+    True = (0 == 0)
+    False = (0 != 0)
+
+str_True = str(True)
+str_False = str(False)
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -50,7 +59,7 @@ from SCons.Options import BoolOption, EnumOption, ListOption, \
    PackageOption, PathOption
 
 list_of_libs = Split('x11 gl qt ical')
-qtdir = r'%(qtdir)s'
+qtdir = r'%(qtpath)s'
 
 opts = Options(args=ARGUMENTS)
 opts.AddOptions(
@@ -85,23 +94,23 @@ print env['warnings']
 print env['profile']
 
 Default(env.Alias('dummy', None))
-""" % {'qtdir': qtpath, 'libdirvar': libdirvar, 'libdir': libpath})
+""" % locals())
 
 
 test.run(arguments='-h',
          stdout = """\
 scons: Reading SConscript files ...
-1
-0
+%(str_True)s
+%(str_False)s
 scons: done reading SConscript files.
 
 warnings: compilation with -Wall and similiar (yes|no)
     default: 1
-    actual: 1
+    actual: %(str_True)s
 
 profile: create profiling informations (yes|no)
     default: 0
-    actual: 0
+    actual: %(str_False)s
 
 debug: debug output and symbols (yes|no|full)
     default: no
@@ -124,19 +133,18 @@ shared: libraries to build as shared libraries
 x11: use X11 installed here (yes = search some places)
     ( yes | no | /path/to/x11 )
     default: yes
-    actual: 1
+    actual: %(str_True)s
 
 qtdir: where the root of Qt is installed ( /path/to/qtdir )
-    default: %(qtdir)s
-    actual: %(qtdir)s
+    default: %(qtpath)s
+    actual: %(qtpath)s
 
 qt_libraries: where the Qt library is installed ( /path/to/qt_libraries )
-    default: %(qtdir_lib)s
-    actual: %(libdir)s
+    default: %(libdirvar)s
+    actual: %(libpath)s
 
 Use scons -H for help about command-line options.
-""" % {'qtdir': qtpath, 'qtdir_lib' : os.path.join('$qtdir', 'lib'),
-       'libdirvar': libdirvar, 'libdir': libpath})
+""" % locals())
 
 
 

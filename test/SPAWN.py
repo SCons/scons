@@ -46,21 +46,42 @@ test.write('SConstruct', """
 import os
 import string
 import sys
-def my_spawn(sh, escape, cmd, args, env):
-    s = string.join(args + ['extra.txt'])
+def my_spawn1(sh, escape, cmd, args, env):
+    s = string.join(args + ['extra1.txt'])
     if sys.platform in ['win32']:
         s = '"' + s + '"'
     os.system(s)
-env = Environment(SPAWN = my_spawn)
-env.Command('file.out', 'file.in', '%(_python_)s cat.py $TARGET $SOURCES')
-env = Environment()
+def my_spawn2(sh, escape, cmd, args, env):
+    s = string.join(args + ['extra2.txt'])
+    if sys.platform in ['win32']:
+        s = '"' + s + '"'
+    os.system(s)
+env = Environment(MY_SPAWN1 = my_spawn1,
+                  MY_SPAWN2 = my_spawn2,
+                  COMMAND = r'%(_python_)s cat.py $TARGET $SOURCES')
+env1 = env.Clone(SPAWN = my_spawn1)
+env1.Command('file1.out', 'file1.in', '$COMMAND')
+
+env2 = env.Clone(SPAWN = '$MY_SPAWN2')
+env2.Command('file2.out', 'file2.in', '$COMMAND')
+
+env3 = env.Clone(SPAWN = '${USE_TWO and MY_SPAWN2 or MY_SPAWN1}')
+env3.Command('file3.out', 'file3.in', '$COMMAND', USE_TWO=0)
+env3.Command('file4.out', 'file4.in', '$COMMAND', USE_TWO=1)
 """ % locals())
 
-test.write('file.in', "file.in\n")
-test.write('extra.txt', "extra.txt\n")
+test.write('file1.in', "file1.in\n")
+test.write('file2.in', "file2.in\n")
+test.write('file3.in', "file3.in\n")
+test.write('file4.in', "file4.in\n")
+test.write('extra1.txt', "extra1.txt\n")
+test.write('extra2.txt', "extra2.txt\n")
 
 test.run(arguments = '.')
 
-test.must_match('file.out', "file.in\nextra.txt\n")
+test.must_match('file1.out', "file1.in\nextra1.txt\n")
+test.must_match('file2.out', "file2.in\nextra2.txt\n")
+test.must_match('file3.out', "file3.in\nextra1.txt\n")
+test.must_match('file4.out', "file4.in\nextra2.txt\n")
 
 test.pass_test()

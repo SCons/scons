@@ -38,7 +38,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 import os
 import os.path
-import popen2
 import string
 from UserDict import UserDict
 
@@ -47,6 +46,7 @@ import SCons.Builder
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
 import SCons.Errors
+import SCons.Memoize
 import SCons.Node
 import SCons.Node.Alias
 import SCons.Node.FS
@@ -54,7 +54,6 @@ import SCons.Node.Python
 import SCons.Platform
 import SCons.SConsign
 import SCons.Sig
-import SCons.Sig.TimeStamp
 import SCons.Subst
 import SCons.Tool
 import SCons.Util
@@ -508,17 +507,17 @@ class SubstitutionEnvironment:
         the result of that evaluation is then added to the dict.
         """
         dict = {
-            'ASFLAGS'       : [],
-            'CFLAGS'        : [],
-            'CCFLAGS'       : [],
+            'ASFLAGS'       : SCons.Util.CLVar(''),
+            'CFLAGS'        : SCons.Util.CLVar(''),
+            'CCFLAGS'       : SCons.Util.CLVar(''),
             'CPPDEFINES'    : [],
-            'CPPFLAGS'      : [],
+            'CPPFLAGS'      : SCons.Util.CLVar(''),
             'CPPPATH'       : [],
-            'FRAMEWORKPATH' : [],
-            'FRAMEWORKS'    : [],
+            'FRAMEWORKPATH' : SCons.Util.CLVar(''),
+            'FRAMEWORKS'    : SCons.Util.CLVar(''),
             'LIBPATH'       : [],
             'LIBS'          : [],
-            'LINKFLAGS'     : [],
+            'LINKFLAGS'     : SCons.Util.CLVar(''),
             'RPATH'         : [],
         }
 
@@ -620,7 +619,7 @@ class SubstitutionEnvironment:
                     if arg[2:]:
                         append_define(arg[2:])
                     else:
-                        appencd_next_arg_to = 'CPPDEFINES'
+                        append_next_arg_to = 'CPPDEFINES'
                 elif arg == '-framework':
                     append_next_arg_to = 'FRAMEWORKS'
                 elif arg[:14] == '-frameworkdir=':
@@ -665,7 +664,7 @@ class SubstitutionEnvironment:
             apply(self.Append, (), args)
             return self
         for key, value in args.items():
-            if value == '':
+            if not value:
                 continue
             try:
                 orig = self[key]
@@ -673,10 +672,24 @@ class SubstitutionEnvironment:
                 orig = value
             else:
                 if not orig:
-                    orig = []
-                elif not SCons.Util.is_List(orig): 
-                    orig = [orig]
-                orig = orig + value
+                    orig = value
+                elif value:
+                    # Add orig and value.  The logic here was lifted from
+                    # part of env.Append() (see there for a lot of comments
+                    # about the order in which things are tried) and is
+                    # used mainly to handle coercion of strings to CLVar to
+                    # "do the right thing" given (e.g.) an original CCFLAGS
+                    # string variable like '-pipe -Wall'.
+                    try:
+                        orig = orig + value
+                    except (KeyError, TypeError):
+                        try:
+                            add_to_orig = orig.append
+                        except AttributeError:
+                            value.insert(0, orig)
+                            orig = value
+                        else:
+                            add_to_orig(value)
             t = []
             if key[-4:] == 'PATH':
                 ### keep left-most occurence
@@ -1314,12 +1327,15 @@ class Base(SubstitutionEnvironment):
                 del kw[k]
         apply(self.Replace, (), kw)
 
+    def _find_toolpath_dir(self, tp):
+        return self.fs.Dir(self.subst(tp)).srcnode().abspath
+
     def Tool(self, tool, toolpath=None, **kw):
         if SCons.Util.is_String(tool):
             tool = self.subst(tool)
             if toolpath is None:
                 toolpath = self.get('toolpath', [])
-            toolpath = map(self.subst, toolpath)
+            toolpath = map(self._find_toolpath_dir, toolpath)
             tool = apply(SCons.Tool.Tool, (tool, toolpath), kw)
         tool(self)
 
@@ -1514,6 +1530,15 @@ class Base(SubstitutionEnvironment):
             t.set_noclean()
         return tlist
 
+    def NoCache(self, *targets):
+        """Tags a target so that it will not be cached"""
+        tlist = []
+        for t in targets:
+            tlist.extend(self.arg2nodes(t, self.fs.Entry))
+        for t in tlist:
+            t.set_nocache()
+        return tlist
+
     def Entry(self, name, *args, **kw):
         """
         """
@@ -1575,7 +1600,10 @@ class Base(SubstitutionEnvironment):
         tgt = []
         for dnode in dnodes:
             for src in sources:
-                target = self.fs.Entry(src.name, dnode)
+                # Prepend './' so the lookup doesn't interpret an initial
+                # '#' on the file name portion as meaning the Node should
+                # be relative to the top-level SConstruct directory.
+                target = self.fs.Entry('.'+os.sep+src.name, dnode)
                 tgt.extend(InstallBuilder(self, target, src))
         return tgt
 
@@ -1631,7 +1659,7 @@ class Base(SubstitutionEnvironment):
                 arg = self.subst(arg)
             nargs.append(arg)
         nkw = self.subst_kw(kw)
-        return apply(SCons.Scanner.Scanner, nargs, nkw)
+        return apply(SCons.Scanner.Base, nargs, nkw)
 
     def SConsignFile(self, name=".sconsign", dbm_module=None):
         if not name is None:
@@ -1746,7 +1774,7 @@ class OverrideEnvironment(Base):
     def __getattr__(self, name):
         return getattr(self.__dict__['__subject'], name)
     def __setattr__(self, name, value):
-        return setattr(self.__dict__['__subject'], name, value)
+        setattr(self.__dict__['__subject'], name, value)
 
     # Methods that make this class act like a dictionary.
     def __getitem__(self, key):

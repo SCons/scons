@@ -35,6 +35,7 @@ Do the Right Thing (almost) regardless of how the variable is specified.
 import os
 import string
 
+import SCons.Memoize
 import SCons.Util
 
 #

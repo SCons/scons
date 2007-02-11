@@ -154,7 +154,7 @@ program using the F<build/foo.c> path name.
       % <userinput>ls src</userinput>
       SConscript  hello.c
       % <userinput>scons -Q</userinput>
-      cc -c -o build/hello.o build/hello.c
+      cc -o build/hello.o -c build/hello.c
       cc -o build/hello build/hello.o
       % <userinput>ls build</userinput>
       SConscript  hello  hello.c  hello.o
@@ -350,7 +350,7 @@ program using the F<build/foo.c> path name.
       % <userinput>ls src</userinput>
       hello.c
       % <userinput>scons -Q</userinput>
-      cc -c -o build/hello.o build/hello.c
+      cc -o build/hello.o -c build/hello.c
       cc -o build/hello build/hello.o
       % <userinput>ls build</userinput>
       hello  hello.c  hello.o
@@ -380,7 +380,7 @@ program using the F<build/foo.c> path name.
       % <userinput>ls src</userinput>
       hello.c
       % <userinput>scons -Q</userinput>
-      cc -c -o build/hello.o src/hello.c
+      cc -o build/hello.o -c src/hello.c
       cc -o build/hello build/hello.o
       % <userinput>ls build</userinput>
       hello  hello.o
@@ -429,7 +429,7 @@ program using the F<build/foo.c> path name.
       % <userinput>ls src</userinput>
       SConscript  hello.c
       % <userinput>scons -Q</userinput>
-      cc -c -o build/hello.o build/hello.c
+      cc -o build/hello.o -c build/hello.c
       cc -o build/hello build/hello.o
       % <userinput>ls build</userinput>
       SConscript  hello  hello.c  hello.o

@@ -82,28 +82,36 @@ class FindPathDirsTestCase(unittest.TestCase):
 class ScannerTestCase(unittest.TestCase):
 
     def test_creation(self):
-        """Test creation of Scanner objects through the Scanner() function"""
+        """Test creation of Scanner objects"""
         def func(self):
             pass
-        s = SCons.Scanner.Scanner(func)
+        s = SCons.Scanner.Base(func)
         assert isinstance(s, SCons.Scanner.Base), s
-        s = SCons.Scanner.Scanner({})
-        assert isinstance(s, SCons.Scanner.Selector), s
+        s = SCons.Scanner.Base({})
+        assert isinstance(s, SCons.Scanner.Base), s
 
-        s = SCons.Scanner.Scanner(func, name='fooscan')
+        s = SCons.Scanner.Base(func, name='fooscan')
         assert str(s) == 'fooscan', str(s)
-        s = SCons.Scanner.Scanner({}, name='barscan')
+        s = SCons.Scanner.Base({}, name='barscan')
         assert str(s) == 'barscan', str(s)
 
-        s = SCons.Scanner.Scanner(func, name='fooscan', argument=9)
+        s = SCons.Scanner.Base(func, name='fooscan', argument=9)
         assert str(s) == 'fooscan', str(s)
         assert s.argument == 9, s.argument
-        s = SCons.Scanner.Scanner({}, name='fooscan', argument=888)
+        s = SCons.Scanner.Base({}, name='fooscan', argument=888)
         assert str(s) == 'fooscan', str(s)
         assert s.argument == 888, s.argument
 
         
 class BaseTestCase(unittest.TestCase):
+
+    class skey_node:
+        def __init__(self, key):
+            self.key = key
+        def scanner_key(self):
+            return self.key
+        def rexists(self):
+            return 1
 
     def func(self, filename, env, target, *args):
         self.filename = filename
@@ -131,6 +139,29 @@ class BaseTestCase(unittest.TestCase):
             self.failUnless(self.arg == args[0], "the argument was passed incorrectly")
         else:
             self.failIf(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
+
+    def test___call__dict(self):
+        """Test calling Scanner.Base objects with a dictionary"""
+        called = []
+        def s1func(node, env, path, called=called):
+            called.append('s1func')
+            called.append(node)
+            return []
+        def s2func(node, env, path, called=called):
+            called.append('s2func')
+            called.append(node)
+            return []
+        s1 = SCons.Scanner.Base(s1func)
+        s2 = SCons.Scanner.Base(s2func)
+        selector = SCons.Scanner.Base({'.x' : s1, '.y' : s2})
+        nx = self.skey_node('.x')
+        env = DummyEnvironment()
+        selector(nx, env, [])
+        assert called == ['s1func', nx], called
+        del called[:]
+        ny = self.skey_node('.y')
+        selector(ny, env, [])
+        assert called == ['s2func', ny], called
 
     def test_path(self):
         """Test the Scanner.Base path() method"""
@@ -276,6 +307,23 @@ class BaseTestCase(unittest.TestCase):
         scanner = SCons.Scanner.Base(function = self.func)
         s = scanner.select('.x')
         assert s is scanner, s
+
+        selector = SCons.Scanner.Base({'.x' : 1, '.y' : 2})
+        s = selector.select(self.skey_node('.x'))
+        assert s == 1, s
+        s = selector.select(self.skey_node('.y'))
+        assert s == 2, s
+        s = selector.select(self.skey_node('.z'))
+        assert s is None, s
+
+    def test_add_scanner(self):
+        """Test the Scanner.Base add_scanner() method"""
+        selector = SCons.Scanner.Base({'.x' : 1, '.y' : 2})
+        s = selector.select(self.skey_node('.z'))
+        assert s is None, s
+        selector.add_scanner('.z', 3)
+        s = selector.select(self.skey_node('.z'))
+        assert s == 3, s
 
     def test___str__(self):
         """Test the Scanner.Base __str__() method"""

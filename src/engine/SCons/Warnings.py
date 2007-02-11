@@ -35,6 +35,7 @@ class Warning(SCons.Errors.UserError):
     pass
 
 
+# NOTE:  If you add a new warning class, add it to the man page, too!
 
 class CacheWriteErrorWarning(Warning):
     pass
@@ -51,6 +52,9 @@ class DeprecatedWarning(Warning):
 class DuplicateEnvironmentWarning(Warning):
     pass
 
+class MisleadingKeywordsWarning(Warning):
+    pass
+
 class MissingSConscriptWarning(Warning):
     pass
 
@@ -64,9 +68,6 @@ class NoParallelSupportWarning(Warning):
     pass
 
 class ReservedVariableWarning(Warning):
-    pass
-
-class MisleadingKeywordsWarning(Warning):
     pass
 
 _warningAsException = 0

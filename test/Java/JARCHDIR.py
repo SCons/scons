@@ -58,7 +58,13 @@ env = Environment(tools    = ['javac', 'jar'],
                   JARCHDIR = dir)
 bin = env.Java(dir, Dir('./'))
 jar = env.Jar(File('c.jar', dir), bin)
-Default(bin, jar)
+
+# Make sure we handle class files with $ in them, such as typically
+# created for inner classes.
+env = env.Clone(JARCHDIR = '.')
+inner = env.Jar('inner.jar', 'Inner$$Class.class')
+
+Default(bin, jar, inner)
 """ % locals())
 
 test.write('a.java', """\
@@ -70,6 +76,8 @@ test.write('b.java', """\
 package foo.bar;
 public class b {}
 """)
+
+test.write('Inner$Class.class', "Inner$Class.class\n")
 
 test.run(arguments = '.')
 

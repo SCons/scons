@@ -77,7 +77,6 @@ def recurse(path, searchPath):
     return found
 
 def _scanSwig(node, env, path):
-    import sys
     r = recurse(str(node), [os.path.abspath(os.path.dirname(str(node))), os.path.abspath(os.path.join("include", "swig"))])
     return r
 
@@ -85,7 +84,8 @@ def _swigEmitter(target, source, env):
     for src in source:
         src = str(src)
         mname = None
-        if "-python" in SCons.Util.CLVar(env.subst("$SWIGFLAGS")):
+        flags = SCons.Util.CLVar(env.subst("$SWIGFLAGS"))
+        if "-python" in flags and "-noproxy" not in flags:
             f = open(src)
             try:
                 for l in f.readlines():

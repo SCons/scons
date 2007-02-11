@@ -442,7 +442,9 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     # This probably indicates that it's a callable
                     # object that doesn't match our calling arguments
                     # (like an Action).
-                    s = str(s)
+                    if self.mode == SUBST_RAW:
+                        return s
+                    s = self.conv(s)
                 return self.substitute(s, lvars)
             elif s is None:
                 return ''
@@ -646,7 +648,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     # This probably indicates that it's a callable
                     # object that doesn't match our calling arguments
                     # (like an Action).
-                    s = str(s)
+                    if self.mode == SUBST_RAW:
+                        self.append(s)
+                        return
+                    s = self.conv(s)
                 self.substitute(s, lvars, within_list)
             elif s is None:
                 self.this_word()

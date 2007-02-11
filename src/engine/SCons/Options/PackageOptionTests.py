@@ -23,12 +23,13 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import sys
 import unittest
 
 import SCons.Errors
 import SCons.Options
-from SCons.Options.BoolOption import True, False
 
 import TestCmd
 
@@ -96,7 +97,7 @@ class PackageOptionTestCase(unittest.TestCase):
 
         o = opts.options[0]
 
-        env = {'F':0, 'T':1, 'X':'x'}
+        env = {'F':False, 'T':True, 'X':'x'}
 
         exists = test.workpath('exists')
         does_not_exist = test.workpath('does_not_exist')

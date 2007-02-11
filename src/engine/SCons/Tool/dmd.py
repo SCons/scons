@@ -201,6 +201,8 @@ def generate(env):
                         env.Append(LIBS = ['phobos'])
                     if 'pthread' not in libs:
                         env.Append(LIBS = ['pthread'])
+                    if 'm' not in libs:
+                        env.Append(LIBS = ['m'])
                 return defaultLinker
             env['SMART_LINKCOM'] = smart_link[linkcom] = _smartLink
 

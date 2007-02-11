@@ -33,7 +33,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Tool
-import SCons.Tool.mwcc
 
 
 def generate(env):
@@ -60,7 +59,8 @@ def generate(env):
 
 
 def exists(env):
-    return mwcc.set_versions(env)
+    import SCons.Tool.mwcc
+    return SCons.Tool.mwcc.set_vars(env)
 
 
 def shlib_generator(target, source, env, for_signature):

@@ -101,8 +101,8 @@ import string
 import sys
 import time
 
-sys.path.append(os.path.join(os.getcwd(), 'etc'))
-sys.path.append(os.path.join(os.getcwd(), 'build', 'etc'))
+sys.path.append(os.path.join(os.getcwd(), 'QMTest'))
+sys.path.append(os.path.join(os.getcwd(), 'build', 'QMTest'))
 
 scons_py = os.path.join('bootstrap', 'src', 'script', 'scons.py')
 if not os.path.exists(scons_py):
@@ -341,7 +341,7 @@ def JarCom(target, source, env):
 ToolList = {
     'posix' :   [('cc', ['CCCOM', 'SHCCCOM'], CCCom, ['CCFLAGS', 'CPPDEFINES', 'COLOR', 'COLORS', 'PACKAGE']),
                  ('link', ['LINKCOM', 'SHLINKCOM'], Cat, []),
-                 ('ar', 'ARCOM', Cat, []),
+                 ('ar', ['ARCOM', 'RANLIBCOM'], Cat, []),
                  ('tar', 'TARCOM', Null, []),
                  ('zip', 'ZIPCOM', Null, []),
                  ('BitKeeper', 'BITKEEPERCOM', Cat, []),
@@ -416,7 +416,10 @@ def command_scons(args, c, test, dict):
     os.environ.update(save_vals)
     for key in delete_keys:
         del(os.environ[key])
-    out = string.replace(test.stdout(), test.workpath('ROOT'), '')
+    out = test.stdout()
+    out = string.replace(out, test.workpath('ROOT'), '')
+    out = string.replace(out, test.workpath('WORK/SConstruct'),
+                              '/home/my/project/SConstruct')
     lines = string.split(out, '\n')
     if lines:
         while lines[-1] == '':

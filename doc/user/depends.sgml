@@ -61,7 +61,7 @@ operating system on which the build is performed (as reported by C<uname
 
   <screen>
      % <userinput>scons -Q</userinput>
-     cc -c -o hello.o hello.c
+     cc -o hello.o -c hello.c
      cc -o hello hello.o
      % <userinput>scons -Q</userinput>
      scons: `.' is up to date.
@@ -80,7 +80,7 @@ operating system on which the build is performed (as reported by C<uname
 
   <screen>
      % <userinput>scons -Q hello</userinput>
-     cc -c -o hello.o hello.c
+     cc -o hello.o -c hello.c
      cc -o hello hello.o
      % <userinput>scons -Q hello</userinput>
      scons: `hello' is up to date.
@@ -132,7 +132,7 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>touch hello.c</userinput>
          % <userinput>scons -Q hello</userinput>
@@ -157,12 +157,12 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>edit hello.c</userinput>
              [CHANGE THE CONTENTS OF hello.c]
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
       </screen>
 
@@ -212,11 +212,11 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>touch hello.c</userinput>
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
       </screen>
 
@@ -259,12 +259,12 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>edit hello.c</userinput>
              [CHANGE THE CONTENTS OF hello.c]
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
       </screen>
 
@@ -346,12 +346,12 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>edit hello.c</userinput>
            [CHANGE A COMMENT IN hello.c]
          % <userinput>scons -Q hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          scons: `hello' is up to date.
       </screen>
 
@@ -433,14 +433,14 @@ operating system on which the build is performed (as reported by C<uname
 
     <screen>
        % <userinput>scons -Q hello</userinput>
-       cc -I. -c -o hello.o hello.c
+       cc -o hello.o -c -I. hello.c
        cc -o hello hello.o
        % <userinput>scons -Q hello</userinput>
        scons: `hello' is up to date.
        % <userinput>edit hello.h</userinput>
            [CHANGE THE CONTENTS OF hello.h]
        % <userinput>scons -Q hello</userinput>
-       cc -I. -c -o hello.o hello.c
+       cc -o hello.o -c -I. hello.c
        cc -o hello hello.o
     </screen>
 
@@ -499,7 +499,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <screen>
        % <userinput>scons -Q hello</userinput>
-       cc -Iinclude -I/home/project/inc -c -o hello.o hello.c
+       cc -o hello.o -c -Iinclude -I/home/project/inc hello.c
        cc -o hello hello.o
     </screen>
 
@@ -567,7 +567,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <screen>
        % <userinput>scons -Q --implicit-cache hello</userinput>
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
        % <userinput>scons -Q hello</userinput>
        scons: `hello' is up to date.
@@ -626,7 +626,7 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q --implicit-deps-changed hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>scons -Q hello</userinput>
          scons: `hello' is up to date.
@@ -664,7 +664,7 @@ operating system on which the build is performed (as reported by C<uname
 
       <screen>
          % <userinput>scons -Q --implicit-deps-unchanged hello</userinput>
-         cc -c -o hello.o hello.c
+         cc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>scons -Q hello</userinput>
          scons: `hello' is up to date.

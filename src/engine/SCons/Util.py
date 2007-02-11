@@ -37,7 +37,6 @@ import os.path
 import re
 import string
 import sys
-import stat
 import types
 
 from UserDict import UserDict
@@ -234,9 +233,6 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
 
     rname = str(root)
 
-    if visited.has_key(rname):
-        return ""
-
     children = child_func(root)
     retval = ""
     for pipe in margin[:-1]:
@@ -244,6 +240,9 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
             retval = retval + "| "
         else:
             retval = retval + "  "
+
+    if visited.has_key(rname):
+        return retval + "+-[" + rname + "]\n"
 
     retval = retval + "+-" + rname + "\n"
     if not prune:
@@ -278,21 +277,19 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
 
     rname = str(root)
 
-    if visited.has_key(rname):
-        return
-
     if showtags:
 
         if showtags == 2:
-            print ' E        = exists'
-            print '  R       = exists in repository only'
-            print '   b      = implicit builder'
-            print '   B      = explicit builder'
-            print '    S     = side effect'
-            print '     P    = precious'
-            print '      A   = always build'
-            print '       C  = current'
-            print '        N = no clean'
+            print ' E         = exists'
+            print '  R        = exists in repository only'
+            print '   b       = implicit builder'
+            print '   B       = explicit builder'
+            print '    S      = side effect'
+            print '     P     = precious'
+            print '      A    = always build'
+            print '       C   = current'
+            print '        N  = no clean'
+            print '         H = no cache'
             print ''
 
         tags = ['[']
@@ -305,6 +302,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
         tags.append(' A'[IDX(root.always_build)])
         tags.append(' C'[IDX(root.current())])
         tags.append(' N'[IDX(root.noclean)])
+        tags.append(' H'[IDX(root.nocache)])
         tags.append(']')
 
     else:
@@ -313,6 +311,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     def MMM(m):
         return ["  ","| "][m]
     margins = map(MMM, margin[:-1])
+
+    if visited.has_key(rname):
+        print string.join(tags + margins + ['+-[', rname, ']'], '')
+        return
 
     print string.join(tags + margins + ['+-', rname], '')
 
@@ -567,6 +569,7 @@ elif os.name == 'os2':
 else:
 
     def WhereIs(file, path=None, pathext=None, reject=[]):
+        import stat
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -864,9 +867,10 @@ def unique(s):
         for x in s:
             u[x] = 1
     except TypeError:
-        del u  # move on to the next method
+        pass    # move on to the next method
     else:
         return u.keys()
+    del u
 
     # We can't hash all the elements.  Second fastest is to sort,
     # which brings the equal elements together; then duplicates are
@@ -879,7 +883,7 @@ def unique(s):
         t = list(s)
         t.sort()
     except TypeError:
-        del t  # move on to the next method
+        pass    # move on to the next method
     else:
         assert n > 0
         last = t[0]
@@ -890,6 +894,7 @@ def unique(s):
                 lasti = lasti + 1
             i = i + 1
         return t[:lasti]
+    del t
 
     # Brute force is all that's left.
     u = []
@@ -926,3 +931,16 @@ class LogicalLines:
                 break
             result.append(line)
         return result
+
+class Unbuffered:
+    """
+    A proxy class that wraps a file object, flushing after every write,
+    and delegating everything else to the wrapped object.
+    """
+    def __init__(self, file):
+        self.file = file
+    def write(self, arg):
+        self.file.write(arg)
+        self.file.flush()
+    def __getattr__(self, attr):
+        return getattr(self.file, attr)

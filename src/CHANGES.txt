@@ -10,13 +10,29 @@
 
 RELEASE 0.97 - XXX
 
+  From Anatoly:
+
+  - Add the scons.org URL and a package description to the setup.py
+    arguments.
+
+  - Have the Windows installer add a registry entry for scons.bat in the
+    "App Paths" key, so scons.bat can be executed without adding the
+    directory to the %PATH%.  (Python itself works this way.)
+
   From Anonymous:
 
   - Fix looking for default paths in Visual Studio 8.0 (and later).
 
+  - Add -lm to the list of default D libraries for linking.
+
   From Matt Doar:
 
   - Provide a more complete write-your-own-Scanner example in the man page.
+
+  From Ralf W. Grosse-Kunstleve:
+
+  - Contributed upstream Python change to our copied subprocess.py module
+    for more efficient standard input processing.
 
   From Steven Knight:
 
@@ -24,14 +40,60 @@ RELEASE 0.97 - XXX
     different drive letters.  (This caused an infinite loop when
     trying to write .sconsign files.)
 
+  - Fully support Scanners that use a dictionary to map file suffixes
+    to other scanners.
+
+  - Support delayed evaluation of the $SPAWN variable to allow selection
+    of a function via ${} string expansions.
+
+  - Add --srcdir as a synonym for -Y/--repository.
+
+  - Document limitations of #include "file.h" with Repository().
+
+  - Fix use of a toolpath under the source directory of a BuildDir().
+
+  - Fix env.Install() with a file name portion that begins with '#'.
+
+  - Fix ParseConfig()'s handling of multiple options in a string that's
+    replaced a *FLAGS construction variable.
+
+  - Have the C++ tools initialize common C compilation variables ($CCFLAGS,
+    $SHCCFLAGS and $_CCCOMCOM) even if the 'cc' Tool isn't loaded.
+
+  From Leanid Nazdrynau:
+
+  - Fix detection of Java anonymous classes if a newline precedes the
+    opening brace.
+
   From Gary Oberbrunner:
 
   - Document use of ${} to execute arbitrary Python code.
+
+  - Add support for:
+    1) automatically adding a site_scons subdirectory (in the top-level
+       SConstruct directory) to sys.path (PYTHONPATH);
+    2) automatically importing site_scons/site_init.py;
+    3) automatically adding site_scons/site_tools to the toolpath.
 
   From John Pye:
 
   - Change ParseConfig() to preserve white space in arguments passed in
     as a list.
+
+  From a smith:
+
+  - Fix adding explicitly-named Java inner class files (and any
+    other file names that may contain a '$') to Jar files.
+
+  From David Vitek:
+
+  - Add a NoCache() function to mark targets as unsuitable for propagating
+    to (or retrieving from) a CacheDir().
+
+  From Ben Webb:
+
+  - If the swig -noproxy option is used, it won't generate a .py file,
+    so don't emit it as a target that we expect to be built.
 
 
 

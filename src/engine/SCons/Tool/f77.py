@@ -54,6 +54,7 @@ F77Scan = SCons.Scanner.Fortran.FortranScan("F77PATH")
 
 for suffix in F77Suffixes + F77PPSuffixes:
     SCons.Tool.SourceFileScanner.add_scanner(suffix, F77Scan)
+del suffix
 
 #
 fVLG = fortran.VariableListGenerator

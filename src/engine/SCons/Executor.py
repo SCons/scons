@@ -33,7 +33,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import string
 
 from SCons.Debug import logInstanceCreation
-import SCons.Util
+import SCons.Memoize
 
 
 class Executor:
@@ -63,8 +63,10 @@ class Executor:
         self._memo = {}
 
     def set_action_list(self, action):
+        import SCons.Util
         if not SCons.Util.is_List(action):
             if not action:
+                import SCons.Errors
                 raise SCons.Errors.UserError, "Executor must have an action."
             action = [action]
         self.action_list = action

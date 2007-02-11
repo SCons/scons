@@ -341,7 +341,6 @@ def CheckLib(context, libs, func_name = None, header = None,
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
     Returns an empty string for success, an error message for failure.
     """
-    from SCons.Debug import Trace
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
     if context.headerfilename:
         includetext = '#include "%s"' % context.headerfilename

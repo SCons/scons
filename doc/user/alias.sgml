@@ -46,7 +46,7 @@
 
   <screen>
      % <userinput>scons -Q install</userinput>
-     cc -c -o hello.o hello.c
+     cc -o hello.o -c hello.c
      cc -o hello hello.o
      Install file: "hello" as "/usr/bin/hello"
   </screen>
@@ -86,12 +86,12 @@
 
   <screen>
      % <userinput>scons -Q install-bin</userinput>
-     cc -c -o foo.o foo.c
+     cc -o foo.o -c foo.c
      cc -o foo foo.o
      Install file: "foo" as "/usr/bin/foo"
      % <userinput>scons -Q install-lib</userinput>
-     cc -c -o bar.o bar.c
-     ar r libbar.a bar.o
+     cc -o bar.o -c bar.c
+     ar rc libbar.a bar.o
      ranlib libbar.a
      Install file: "libbar.a" as "/usr/lib/libbar.a"
      % <userinput>scons -Q -c /</userinput>
@@ -102,11 +102,11 @@
      Removed libbar.a
      Removed /usr/lib/libbar.a
      % <userinput>scons -Q install</userinput>
-     cc -c -o foo.o foo.c
+     cc -o foo.o -c foo.c
      cc -o foo foo.o
      Install file: "foo" as "/usr/bin/foo"
-     cc -c -o bar.o bar.c
-     ar r libbar.a bar.o
+     cc -o bar.o -c bar.c
+     ar rc libbar.a bar.o
      ranlib libbar.a
      Install file: "libbar.a" as "/usr/lib/libbar.a"
   </screen>

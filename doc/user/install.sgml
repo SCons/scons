@@ -58,7 +58,7 @@
 
   <screen>
      % <userinput>scons -Q</userinput>
-     cc -c -o hello.o hello.c
+     cc -o hello.o -c hello.c
      cc -o hello hello.o
      % <userinput>scons -Q /usr/bin</userinput>
      Install file: "hello" as "/usr/bin/hello"
@@ -95,7 +95,7 @@
 
   <screen>
      % <userinput>scons -Q</userinput>
-     cc -c -o hello.o hello.c
+     cc -o hello.o -c hello.c
      cc -o hello hello.o
      % <userinput>scons -Q install</userinput>
      Install file: "hello" as "/usr/bin/hello"
@@ -144,10 +144,10 @@
 
     <screen>
        % <userinput>scons -Q install</userinput>
-       cc -c -o goodbye.o goodbye.c
+       cc -o goodbye.o -c goodbye.c
        cc -o goodbye goodbye.o
        Install file: "goodbye" as "/usr/bin/goodbye"
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello"
     </screen>
@@ -184,7 +184,7 @@
 
     <screen>
        % <userinput>scons -Q install</userinput>
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello-new"
     </screen>
@@ -226,10 +226,10 @@
 
     <screen>
        % <userinput>scons -Q install</userinput>
-       cc -c -o goodbye.o goodbye.c
+       cc -o goodbye.o -c goodbye.c
        cc -o goodbye goodbye.o
        Install file: "goodbye" as "/usr/bin/goodbye-new"
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello-new"
     </screen>

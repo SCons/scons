@@ -2,6 +2,8 @@ SCons/__init__.py
 SCons/Action.py
 SCons/Builder.py
 SCons/compat/__init__.py
+SCons/compat/_sets.py
+SCons/compat/_sets15.py
 SCons/compat/_subprocess.py
 SCons/compat/_UserString.py
 SCons/compat/builtins.py

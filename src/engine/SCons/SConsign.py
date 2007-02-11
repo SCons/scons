@@ -32,8 +32,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import cPickle
 import os
 import os.path
-import string
-import time
 
 import SCons.dblite
 import SCons.Sig

@@ -52,15 +52,15 @@ Usage example:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__all__ = ('PackageOption', 'True', 'False')
+__all__ = ('PackageOption')
 
 import string
 
-from BoolOption import True, False
+import SCons.compat
 import SCons.Errors
 
-__enable_strings  = (str(True), 'yes', 'true',  'on', 'enable', 'search')
-__disable_strings = (str(False), 'no',  'false', 'off', 'disable')
+__enable_strings  = ('1', 'yes', 'true',  'on', 'enable', 'search')
+__disable_strings = ('0', 'no',  'false', 'off', 'disable')
 
 def _converter(val):
     """
@@ -78,12 +78,10 @@ def _validator(key, val, env, searchfunc):
     """
     # todo: write validator, check for path
     import os
-    if env[key] == False:
-        pass
-    elif env[key] == True:
+    if env[key] is True:
         if searchfunc:
             env[key] = searchfunc(key, val)
-    elif not os.path.exists(val):
+    elif env[key] and not os.path.exists(val):
         raise SCons.Errors.UserError(
             'Path does not exist for option %s: %s' % (key, val))
 

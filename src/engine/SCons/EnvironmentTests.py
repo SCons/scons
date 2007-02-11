@@ -695,7 +695,7 @@ sys.exit(1)
             "-pthread " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp +DD64 " + \
-            "-DFOO -DBAR=value"
+            "-DFOO -DBAR=value -D BAZ"
 
         d = env.ParseFlags(s)
 
@@ -705,7 +705,7 @@ sys.exit(1)
                                   '-pthread', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),
                                   '+DD64'], d['CCFLAGS']
-        assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value']], d['CPPDEFINES']
+        assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
         assert d['CPPPATH'] == ['/usr/include/fum', 'bar'], d['CPPPATH']
         assert d['FRAMEWORKPATH'] == ['fwd1', 'fwd2', 'fwd3'], d['FRAMEWORKPATH']
@@ -725,7 +725,7 @@ sys.exit(1)
         """
         env = SubstitutionEnvironment()
         env.MergeFlags('')
-        assert env['CCFLAGS'] == [], env['CCFLAGS']
+        assert not env.has_key('CCFLAGS'), env['CCFLAGS']
         env.MergeFlags('-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
         env.MergeFlags('-X')
@@ -2804,6 +2804,9 @@ def generate(env):
         assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
+
+        tgt = env.Install('export', 'subdir/#file')
+        assert str(tgt[0]) == os.path.normpath('export/#file'), str(tgt[0])
 
         env.File('export/foo1')
 

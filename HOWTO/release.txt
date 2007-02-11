@@ -45,6 +45,12 @@ Things to do to release a new X.Y version of SCons:
 
         Check in any changes necessary to make everything work
 
+    Update the user's guide
+
+        sh bin/docdiff
+
+        sh bin/docupdate
+
     END THE CURRENT DEVELOPMENT BRANCH
 
         ae_p scons.0

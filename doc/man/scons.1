@@ -92,6 +92,26 @@ rules exist for building common software components (executable
 programs, object files, libraries), so that for most software
 projects, only the target and input files need be specified.
 
+Before reading the
+.I SConstruct
+file,
+.B scons
+adds looks for a dir named
+.I site_scons
+in the dir containing the
+.I SConstruct
+file; it adds that
+.I site_scons
+to sys.path, reads the file
+.IR site_scons/site_init.py ,
+and adds the directory
+.I site_scons/site_tools
+to the default toolpath, if those exist.  See the
+.I --no-site-dir
+and
+.I --site-dir
+options for more details.
+
 .B scons
 reads and executes the SConscript files as Python scripts,
 so you may use normal Python scripting capabilities
@@ -570,8 +590,11 @@ This only works when run under Python 2.1 or later.
 
 .TP
 --debug=dtree
-Print the dependency tree
-after each top-level target is built. This prints out only derived files.
+A synonym for the newer
+.B --tree=derived
+option.
+This will be deprecated in some future release
+and ultimately removed.
 
 .TP
 --debug=explain
@@ -650,9 +673,11 @@ when encountering an otherwise unexplained error.
 
 .TP
 --debug=stree
-Print the dependency tree along with status information.  This is the
-same as the debug=tree option, but additional status information is
-provided for each node in the tree.
+A synonym for the newer
+.B --tree=all,status
+option.
+This will be deprecated in some future release
+and ultimately removed.
 
 .TP
 --debug=time
@@ -663,10 +688,11 @@ SConscript files, and the total time spent executing SCons itself.
 
 .TP
 --debug=tree
-Print the dependency tree
-after each top-level target is built. This prints out the complete
-dependency tree including implicit dependencies and ignored
-dependencies.
+A synonym for the newer
+.B --tree=all
+option.
+This will be deprecated in some future release
+and ultimately removed.
 
 .TP
 .RI --diskcheck= types
@@ -747,6 +773,18 @@ imported Python modules.  If several
 .B -I
 options
 are used, the directories are searched in the order specified.
+
+.TP 
+.RI --no-site-dir
+Prevents the automatic addition of the standard
+.I site_scons
+dir to
+.IR sys.path .
+Also prevents loading the
+.I site_scons/site_init.py
+module if it exists, and prevents adding
+.I site_scons/site_tools
+to the toolpath.
 
 .TP
 --implicit-cache
@@ -939,6 +977,18 @@ Also suppresses SCons status messages.
 Ignored for compatibility with GNU 
 .BR make .
 
+.TP 
+.RI --site-dir= dir
+Uses the named dir as the site dir rather than the default
+.I site_scons
+dir.  This dir will get prepended to
+.IR sys.path ,
+the module
+.IR dir /site_init.py
+will get loaded if it exists, and
+.IR dir /site_tools
+will get added to the default toolpath.
+
 .TP
 -t, --touch
 Ignored for compatibility with GNU
@@ -956,6 +1006,56 @@ evaluates and controls the order in which Nodes are built.
 A file name of
 .B -
 may be used to specify the standard output.
+
+.TP
+.RI -tree= options
+Prints a tree of the dependencies
+after each top-level target is built.
+This prints out some or all of the tree,
+in various formats,
+depending on the
+.I options
+specified:
+
+.TP
+--tree=all
+Print the entire dependency tree
+after each top-level target is built.
+This prints out the complete dependency tree,
+including implicit dependencies and ignored dependencies.
+
+.TP
+--tree=derived
+Restricts the tree output to only derived (target) files,
+not source files.
+
+.TP
+--tree=status
+Prints status information for each displayed node.
+
+.TP
+--tree=prune
+Prunes the tree to avoid repeating dependency information
+for nodes that have already been displayed.
+Any node that has already been displayed
+will have its name printed in
+.BR "[square brackets]" ,
+as an indication that the dependencies
+for that node can be found by searching
+for the relevant output higher up in the tree.
+
+.IP
+Multiple options may be specified,
+separated by commas:
+
+.ES
+# Prints only derived files, with status information:
+scons --tree=derived,status
+
+# Prints all dependencies of target, with status information
+# and pruning dependencies of already-visited Nodes:
+scons --tree=all,prune,status target
+.EE
 
 .TP
 -u, --up, --search-up
@@ -994,6 +1094,10 @@ Print a message containing the working directory before and
 after other processing.
 
 .TP
+--no-print-directory
+Turn off -w, even if it was turned on implicitly.
+
+.TP
 .RI --warn= type ", --warn=no-" type
 Enable or disable warnings.
 .I type
@@ -1002,6 +1106,20 @@ specifies the type of warnings to be enabled or disabled:
 .TP
 --warn=all, --warn=no-all
 Enables or disables all warnings.
+
+.TP
+--warn=cache-write-error, --warn=no-cache-write-error
+Enables or disables warnings about errors trying to
+write a copy of a built file to a specified
+.BR CacheDir ().
+These warnings are disabled by default.
+
+.TP
+--warn=corrupt-sconsign, --warn=no-corrupt-sconsign
+Enables or disables warnings about unfamiliar signature data in
+.B .sconsign
+files.
+These warnings are enabled by default.
 
 .TP
 --warn=dependency, --warn=no-dependency
@@ -1014,13 +1132,63 @@ Enables or disables warnings about use of deprecated features.
 These warnings are enabled by default.
 
 .TP
---warn=missing-sconscript, --warn=no-missing-sconscript
+--warn=duplicate-environment, --warn=no-duplicate-environment
 Enables or disables warnings about missing SConscript files.
+
+.TP
+--warn=misleading-keywords, --warn=no-misleading-keywords
+Enables or disables warnings about use of the misspelled keywords
+.B targets
+and
+.B sources
+when calling Builders.
+(Note the last
+.B s
+characters, the correct spellings are
+.B target
+and
+.B source.)
 These warnings are enabled by default.
 
 .TP
---no-print-directory
-Turn off -w, even if it was turned on implicitly.
+--warn=missing-sconscript, --warn=no-missing-sconscript
+Enables or disables warnings about attempts to specify a build
+of a target with two different construction environments
+that use the same action.
+These warnings are enabled by default.
+
+.TP
+--warn=no-md5-module, --warn=no-no-md5-module
+Enables or disables warnings about the version of Python
+not having an MD5 checksum module available.
+These warnings are enabled by default.
+
+.TP
+--warn=no-metaclass-support, --warn=no-no-metaclass-support
+Enables or disables warnings about the version of Python
+not supporting metaclasses when the
+.B --debug=memoizer
+option is used.
+These warnings are enabled by default.
+
+.TP
+--warn=no-parallel-support, --warn=no-no-parallel-support
+Enables or disables warnings about the version of Python
+not being able to support parallel builds when the
+.B -j
+option is used.
+These warnings are enabled by default.
+
+.TP
+--warn=reserved-variable, --warn=no-reserved-variable
+Enables or disables warnings about attempts to set the
+reserved construction variable names
+.BR TARGET ,
+.BR TARGETS ,
+.BR SOURCE
+or
+.BR SOURCES .
+These warnings are disabled by default.
 
 .\" .TP
 .\" .RI --write-filenames= file
@@ -1045,7 +1213,7 @@ Turn off -w, even if it was turned on implicitly.
 .\" Warn when an undefined variable is referenced.
 
 .TP 
-.RI -Y " repository" ", --repository=" repository
+.RI -Y " repository" ", --repository=" repository ", --srcdir=" repository
 Search the specified repository for any input and target
 files not found in the local directory hierarchy.  Multiple
 .B -Y
@@ -2174,6 +2342,12 @@ that are equivalent regardless of whether
 a given derived file has been built in-place
 or retrieved from the cache.
 
+The
+.BR NoCache ()
+method can be used to disable caching of specific files.  This can be
+useful if inputs and/or outputs of some tool are impossible to
+predict or prohibitively large.
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI Clean( targets ", " files_or_dirs )
@@ -2282,6 +2456,7 @@ env.Command('baz.out', 'baz.in',
 	     rename ])
 .EE
 
+.IP
 Note that the
 .BR Command ()
 function will usually assume, by default,
@@ -2304,6 +2479,7 @@ env['DISTDIR'] = 'destination/directory'
 env.Command(env.Dir('$DISTDIR')), None, make_distdir)
 .EE
 
+.IP
 (Also note that SCons will usually
 automatically create any directory necessary to hold a target file,
 so you normally don't need to create directories by hand.)
@@ -2513,6 +2689,7 @@ This SConstruct:
 env=Environment()
 print env.Dump('CCCOM')
 .EE
+.IP
 will print:
 .ES
 '$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
@@ -2522,6 +2699,7 @@ will print:
 env=Environment()
 print env.Dump()
 .EE
+.IP
 will print:
 .ES
 { 'AR': 'ar',
@@ -3026,6 +3204,46 @@ env.MergeFlags(['-O3',
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI NoCache( target ", ...)"
+.TP
+.RI env.NoCache( target ", ...)"
+Specifies a list of files which should
+.I not
+be cached whenever the 
+.BR CacheDir ()
+method has been activated.
+The specified targets may be a list
+or an individual target.
+Multiple calls to
+.BR NoCache ()
+are legal,
+and prevent each specified target
+from being removed by calls to the
+.B -c
+option.
+
+Multiple files should be specified
+either as separate arguments to the
+.BR NoCache ()
+method, or as a list.
+.BR NoCache ()
+will also accept the return value of any of the construction environment
+Builder methods.
+
+Calling
+.BR NoCache ()
+on directories and other non-File Node types has no effect because
+only File Nodes are cached.
+
+Examples:
+
+.ES
+NoCache('foo.elf')
+NoCache(env.Program('hello', 'hello.c'))
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI NoClean( target ", ...)"
 .TP
 .RI env.NoClean( target ", ...)"
@@ -3214,6 +3432,7 @@ and added to the following construction variables:
 +                   CCFLAGS, LINKFLAGS
 .EE
 
+.IP
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
@@ -5347,10 +5566,15 @@ which verifies that the specified path exists;
 which verifies that the specified path is an existing file;
 .BR PathOption.PathIsDir ,
 which verifies that the specified path is an existing directory;
-and
 .BR PathOption.PathIsDirCreate ,
-which verifies that the specified path is a directory,
-and will create the specified directory if the path does not exist.
+which verifies that the specified path is a directory
+and will create the specified directory if the path does not exist;
+and
+.BR PathOption.PathAccept ,
+which simply accepts the specific path name argument without validation,
+and which is suitable if you want your users
+to be able to specify a directory path that will be
+created as part of the build process, for example.
 You may supply your own
 .I validator
 function,
@@ -5636,6 +5860,7 @@ env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 .EE
 
+.IP
 Note that the call to the MakeDirectory Builder
 needs to specify an empty source list
 to make the string represent the builder's target;
@@ -6739,16 +6964,23 @@ new file types for implicit dependencies.
 Scanner accepts the following arguments:
 
 .IP function
-A Python function that will process
+This can be either:
+1) a Python function that will process
 the Node (file)
 and return a list of strings (file names)
 representing the implicit
-dependencies found in the contents.
-The function takes three or four arguments:
+dependencies found in the contents;
+or:
+2) a dictionary that maps keys
+(typically the file suffix, but see below for more discussion)
+to other Scanners that should be called.
+
+If the argument is actually a Python function,
+the function must take three or four arguments:
 
     def scanner_function(node, env, path):
 
-    def scanner_function(node, env, path, arg):
+    def scanner_function(node, env, path, arg=None):
 
 The
 .B node

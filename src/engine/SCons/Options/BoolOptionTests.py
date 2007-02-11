@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import sys
 import unittest
 
@@ -91,8 +93,8 @@ class BoolOptionTestCase(unittest.TestCase):
         o = opts.options[0]
 
         env = {
-            'T' : SCons.Options.True,
-            'F' : SCons.Options.False,
+            'T' : True,
+            'F' : False,
             'N' : 'xyzzy',
         }
 

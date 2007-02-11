@@ -32,11 +32,11 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
 import os
 import os.path
 import string
 
+import SCons.Util
 
 def set_vars(env):
     """Set MWCW_VERSION, MWCW_VERSIONS, and some codewarrior environment vars
@@ -155,6 +155,8 @@ CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 
 def generate(env):
     """Add Builders and construction variables for the mwcc to an Environment."""
+    import SCons.Defaults
+    import SCons.Tool
 
     set_vars(env)
 

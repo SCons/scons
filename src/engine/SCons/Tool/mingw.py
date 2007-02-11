@@ -39,6 +39,7 @@ import string
 
 import SCons.Action
 import SCons.Builder
+import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 

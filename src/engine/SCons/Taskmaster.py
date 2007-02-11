@@ -41,7 +41,8 @@ interface and the SCons build engine.  There are two key classes here:
         which has Task subclasses that handle its specific behavior,
         like printing "`foo' is up to date" when a top-level target
         doesn't need to be built, and handling the -c option by removing
-        targets as its "build" action.
+        targets as its "build" action.  There is also a separate subclass
+        for suppressing this output when the -q option is used.
 
         The Taskmaster instantiates a Task object for each (set of)
         target(s) that it decides need to be evaluated and/or built.
@@ -58,6 +59,8 @@ import SCons.Errors
 
 StateString = SCons.Node.StateString
 
+
+
 # A subsystem for recording stats about how different Nodes are handled by
 # the main Taskmaster loop.  There's no external control here (no need for
 # a --debug= option); enable it by changing the value of CollectStats.
@@ -68,7 +71,7 @@ class Stats:
     """
     A simple class for holding statistics about the disposition of a
     Node by the Taskmaster.  If we're collecting statistics, each Node
-    processed by the Taskmaster gets one of these attached, in which
+    processed by the Taskmaster gets one of these attached, in which case
     the Taskmaster records its decision each time it processes the Node.
     (Ideally, that's just once per Node.)
     """
@@ -100,8 +103,11 @@ def dump_stats():
     for n in StatsNodes:
         print (fmt % n.stats.__dict__) + str(n)
 
+
+
 class Task:
-    """Default SCons build engine task.
+    """
+    Default SCons build engine task.
 
     This controls the interaction of the actual building of node
     and the rest of the engine.
@@ -116,7 +122,8 @@ class Task:
 
     Note that it's generally a good idea for sub-classes to call
     these methods explicitly to update state, etc., rather than
-    roll their own interaction with Taskmaster from scratch."""
+    roll their own interaction with Taskmaster from scratch.
+    """
     def __init__(self, tm, targets, top, node):
         self.tm = tm
         self.targets = targets
@@ -125,15 +132,26 @@ class Task:
         self.exc_clear()
 
     def display(self, message):
-        """Allow the calling interface to display a message
+        """
+        Hook to allow the calling interface to display a message.
+
+        This hook gets called as part of preparing a task for execution
+        (that is, a Node to be built).  As part of figuring out what Node
+        should be built next, the actually target list may be altered,
+        along with a message describing the alteration.  The calling
+        interface can subclass Task and provide a concrete implementation
+        of this method to see those messages.
         """
         pass
 
     def prepare(self):
-        """Called just before the task is executed.
+        """
+        Called just before the task is executed.
 
-        This unlinks all targets and makes all directories before
-        building anything."""
+        This is mainly intended to give the target Nodes a chance to
+        unlink underlying files and make all necessary directories before
+        the Action is actually called to build the targets.
+        """
 
         # Now that it's the appropriate time, give the TaskMaster a
         # chance to raise any exceptions it encountered while preparing
@@ -155,11 +173,13 @@ class Task:
         return self.node
 
     def execute(self):
-        """Called to execute the task.
+        """
+        Called to execute the task.
 
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here.  Do thread unsafe stuff in
-        prepare(), executed() or failed()."""
+        prepare(), executed() or failed().
+        """
 
         try:
             everything_was_cached = 1
@@ -183,13 +203,13 @@ class Task:
                                                    sys.exc_info())
 
     def executed(self):
-        """Called when the task has been successfully executed.
+        """
+        Called when the task has been successfully executed.
 
-        This may have been a do-nothing operation (to preserve
-        build order), so check the node's state before updating
-        things.  Most importantly, this calls back to the
-        Taskmaster to put any node tasks waiting on this one
-        back on the pending list."""
+        This may have been a do-nothing operation (to preserve build
+        order), so we have to check the node's state before deciding
+        whether it was "built" or just "visited."
+        """
         for t in self.targets:
             if t.get_state() == SCons.Node.executing:
                 t.set_state(SCons.Node.executed)
@@ -197,17 +217,18 @@ class Task:
             else:
                 t.visited()
 
-        self.tm.executed(self.node)
-
     def failed(self):
-        """Default action when a task fails:  stop the build."""
+        """
+        Default action when a task fails:  stop the build.
+        """
         self.fail_stop()
 
     def fail_stop(self):
-        """Explicit stop-the-build failure."""
+        """
+        Explicit stop-the-build failure.
+        """
         for t in self.targets:
             t.set_state(SCons.Node.failed)
-        self.tm.failed(self.node)
         self.tm.stop()
 
         # We're stopping because of a build failure, but give the
@@ -217,7 +238,8 @@ class Task:
         self.top = 1
 
     def fail_continue(self):
-        """Explicit continue-the-build failure.
+        """
+        Explicit continue-the-build failure.
 
         This sets failure status on the target nodes and all of
         their dependent parent nodes.
@@ -228,10 +250,9 @@ class Task:
             def set_state(node): node.set_state(SCons.Node.failed)
             t.call_for_all_waiting_parents(set_state)
 
-        self.tm.executed(self.node)
-
     def make_ready_all(self):
-        """Mark all targets in a task ready for execution.
+        """
+        Marks all targets in a task ready for execution.
 
         This is used when the interface needs every target Node to be
         visited--the canonical example being the "scons -c" option.
@@ -243,7 +264,8 @@ class Task:
                 s.set_state(SCons.Node.executing)
 
     def make_ready_current(self):
-        """Mark all targets in a task ready for execution if any target
+        """
+        Marks all targets in a task ready for execution if any target
         is not current.
 
         This is the default behavior for building only what's necessary.
@@ -261,11 +283,28 @@ class Task:
     make_ready = make_ready_current
 
     def postprocess(self):
-        """Post process a task after it's been executed."""
+        """
+        Post-processes a task after it's been executed.
+
+        This examines all the targets just built (or not, we don't care
+        if the build was successful, or even if there was no build
+        because everything was up-to-date) to see if they have any
+        waiting parent Nodes, or Nodes waiting on a common side effect,
+        that can be put back on the candidates list.
+        """
+
+        # We may have built multiple targets, some of which may have
+        # common parents waiting for this build.  Count up how many
+        # targets each parent was waiting for so we can subtract the
+        # values later, and so we *don't* put waiting side-effect Nodes
+        # back on the candidates list if the Node is also a waiting
+        # parent.
+
         parents = {}
         for t in self.targets:
             for p in t.waiting_parents.keys():
                 parents[p] = parents.get(p, 0) + 1
+
         for t in self.targets:
             for s in t.side_effects:
                 if s.get_state() == SCons.Node.executing:
@@ -276,21 +315,47 @@ class Task:
                 for p in s.waiting_s_e.keys():
                     if p.ref_count == 0:
                         self.tm.candidates.append(p)
+
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract
             if p.ref_count == 0:
                 self.tm.candidates.append(p)
+
         for t in self.targets:
             t.postprocess()
 
+    # Exception handling subsystem.
+    #
+    # Exceptions that occur while walking the DAG or examining Nodes
+    # must be raised, but must be raised at an appropriate time and in
+    # a controlled manner so we can, if necessary, recover gracefully,
+    # possibly write out signature information for Nodes we've updated,
+    # etc.  This is done by having the Taskmaster tell us about the
+    # exception, and letting
+
     def exc_info(self):
+        """
+        Returns info about a recorded exception.
+        """
         return self.exception
 
     def exc_clear(self):
+        """
+        Clears any recorded exception.
+
+        This also changes the "exception_raise" attribute to point
+        to the appropriate do-nothing method.
+        """
         self.exception = (None, None, None)
         self.exception_raise = self._no_exception_to_raise
 
     def exception_set(self, exception=None):
+        """
+        Records an exception to be raised at the appropriate time.
+
+        This also changes the "exception_raise" attribute to point
+        to the method that will, in fact
+        """
         if not exception:
             exception = sys.exc_info()
         self.exception = exception
@@ -300,14 +365,17 @@ class Task:
         pass
 
     def _exception_raise(self):
-        """Raise a pending exception that was recorded while
-        getting a Task ready for execution."""
-        self.tm.exception_raise(self.exc_info())
-
-
-def order(dependencies):
-    """Re-order a list of dependencies (if we need to)."""
-    return dependencies
+        """
+        Raises a pending exception that was recorded while getting a
+        Task ready for execution.
+        """
+        exc = self.exc_info()[:]
+        try:
+            exc_type, exc_value, exc_traceback = exc
+        except ValueError:
+            exc_type, exc_value = exc
+            exc_traceback = None
+        raise exc_type, exc_value, exc_traceback
 
 
 def find_cycle(stack):
@@ -322,24 +390,41 @@ def find_cycle(stack):
 
 
 class Taskmaster:
-    """A generic Taskmaster for handling a bunch of targets.
-
-    Classes that override methods of this class should call
-    the base class method, so this class can do its thing.
+    """
+    The Taskmaster for walking the dependency DAG.
     """
 
-    def __init__(self, targets=[], tasker=Task, order=order, trace=None):
+    def __init__(self, targets=[], tasker=Task, order=None, trace=None):
         self.top_targets = targets[:]
         self.top_targets.reverse()
         self.candidates = []
         self.tasker = tasker
-        self.ready = None # the next task that is ready to be executed
+        if not order:
+            order = lambda l: l
         self.order = order
         self.message = None
         self.trace = trace
         self.next_candidate = self.find_next_candidate
 
     def find_next_candidate(self):
+        """
+        Returns the next candidate Node for (potential) evaluation.
+
+        The candidate list (really a stack) initially consists of all of
+        the top-level (command line) targets provided when the Taskmaster
+        was initialized.  While we walk the DAG, visiting Nodes, all the
+        children that haven't finished processing get pushed on to the
+        candidate list.  Each child can then be popped and examined in
+        turn for whether *their* children are all up-to-date, in which
+        case a Task will be created for their actual evaluation and
+        potential building.
+
+        Here is where we also allow candidate Nodes to alter the list of
+        Nodes that should be examined.  This is used, for example, when
+        invoking SCons in a source directory.  A source directory Node can
+        return its corresponding build directory Node, essentially saying,
+        "Hey, you really need to build this thing over here instead."
+        """
         try:
             return self.candidates.pop()
         except IndexError:
@@ -358,13 +443,32 @@ class Taskmaster:
         return node
 
     def no_next_candidate(self):
+        """
+        Stops Taskmaster processing by not returning a next candidate.
+        """
         return None
 
     def _find_next_ready_node(self):
-        """Find the next node that is ready to be built"""
+        """
+        Finds the next node that is ready to be built.
 
-        if self.ready:
-            return
+        This is *the* main guts of the DAG walk.  We loop through the
+        list of candidates, looking for something that has no un-built
+        children (i.e., that is a leaf Node or has dependencies that are
+        all leaf Nodes or up-to-date).  Candidate Nodes are re-scanned
+        (both the target Node itself and its sources, which are always
+        scanned in the context of a given target) to discover implicit
+        dependencies.  A Node that must wait for some children to be
+        built will be put back on the candidates list after the children
+        have finished building.  A Node that has been put back on the
+        candidates list in this way may have itself (or its sources)
+        re-scanned, in order to handle generated header files (e.g.) and
+        the implicit dependencies therein.
+
+        Note that this method does not do any signature calculation or
+        up-to-date check itself.  All of that is handled by the Task
+        class.  This is purely concerned with the dependency graph walk.
+        """
 
         self.ready_exc = None
 
@@ -373,8 +477,7 @@ class Taskmaster:
         while 1:
             node = self.next_candidate()
             if node is None:
-                self.ready = None
-                break
+                return None
 
             node = node.disambiguate()
             state = node.get_state()
@@ -405,9 +508,8 @@ class Taskmaster:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
-                self.ready = node
                 if T: T.write(' SystemExit\n')
-                break
+                return node
             except KeyboardInterrupt:
                 if T: T.write(' KeyboardInterrupt\n')
                 raise
@@ -417,10 +519,9 @@ class Taskmaster:
                 # BuildDir, or a Scanner threw something).  Arrange to
                 # raise the exception when the Task is "executed."
                 self.ready_exc = sys.exc_info()
-                self.ready = node
                 if S: S.problem = S.problem + 1
                 if T: T.write(' exception\n')
-                break
+                return node
 
             if T and children:
                 c = map(str, children)
@@ -516,7 +617,7 @@ class Taskmaster:
                 continue
 
             # Skip this node if it has side-effects that are currently being
-            # built  themselves or waiting for something else being built.
+            # built themselves or waiting for something else being built.
             side_effects = filter(lambda N:
                                   N.get_state() == SCons.Node.executing,
                                   node.side_effects)
@@ -531,17 +632,20 @@ class Taskmaster:
 
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
-            self.ready = node
             if S: S.build = S.build + 1
             if T: T.write(' evaluating %s\n' % node)
-            break
+            return node
+
+        return None
 
     def next_task(self):
-        """Return the next task to be executed."""
+        """
+        Returns the next task to be executed.
 
-        self._find_next_ready_node()
-
-        node = self.ready
+        This simply asks for the next Node to be evaluated, and then wraps
+        it in the specific Task subclass with which we were initialized.
+        """
+        node = self._find_next_ready_node()
 
         if node is None:
             return None
@@ -563,27 +667,12 @@ class Taskmaster:
         if self.ready_exc:
             task.exception_set(self.ready_exc)
 
-        self.ready = None
         self.ready_exc = None
 
         return task
 
     def stop(self):
-        """Stop the current build completely."""
+        """
+        Stops the current build completely.
+        """
         self.next_candidate = self.no_next_candidate
-        self.ready = None
-
-    def failed(self, node):
-        pass
-
-    def executed(self, node):
-        pass
-
-    def exception_raise(self, exception):
-        exc = exception[:]
-        try:
-            exc_type, exc_value, exc_traceback = exc
-        except ValueError:
-            exc_type, exc_value = exc
-            exc_traceback = None
-        raise exc_type, exc_value, exc_traceback

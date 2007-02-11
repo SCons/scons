@@ -60,6 +60,8 @@ def generate(env):
     Add Builders and construction variables for Visual Age C++ compilers
     to an Environment.
     """
+    import SCons.Tool
+    import SCons.Tool.cc
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     for suffix in CXXSuffixes:
@@ -67,6 +69,8 @@ def generate(env):
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
+
+    SCons.Tool.cc.add_common_cc_variables(env)
         
     env['CXX']        = 'c++'
     env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS')

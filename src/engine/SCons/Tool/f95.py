@@ -53,6 +53,7 @@ F95Scan = SCons.Scanner.Fortran.FortranScan("F95PATH")
 
 for suffix in F95Suffixes + F95PPSuffixes:
     SCons.Tool.SourceFileScanner.add_scanner(suffix, F95Scan)
+del suffix
 
 #
 fVLG = fortran.VariableListGenerator

@@ -133,11 +133,11 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o foo.o foo.c
+      cc -o foo.o -c foo.c
       cc -o foo foo.o
       % <userinput>scons -Q bar</userinput>
       Don't forget to copy `bar' to the archive!
-      cc -c -o bar.o bar.c
+      cc -o bar.o -c bar.c
       cc -o bar bar.o
     </screen>
 
@@ -192,12 +192,12 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
        % <userinput>scons -Q</userinput>
        scons: `hello' is up to date.
        % <userinput>scons -Q goodbye</userinput>
-       cc -c -o goodbye.o goodbye.c
+       cc -o goodbye.o -c goodbye.c
        cc -o goodbye goodbye.o
     </screen>
 
@@ -214,9 +214,9 @@
 
     <screen>
        % <userinput>scons -Q .</userinput>
-       cc -c -o goodbye.o goodbye.c
+       cc -o goodbye.o -c goodbye.c
        cc -o goodbye goodbye.o
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o hello hello.o
     </screen>
 
@@ -266,12 +266,12 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o prog1.o prog1.c
+       cc -o prog1.o -c prog1.c
        cc -o prog1 prog1.o
-       cc -c -o prog3.o prog3.c
+       cc -o prog3.o -c prog3.c
        cc -o prog3 prog3.o
        % <userinput>scons -Q .</userinput>
-       cc -c -o prog2.o prog2.c
+       cc -o prog2.o -c prog2.c
        cc -o prog2 prog2.o
     </screen>
 
@@ -298,14 +298,14 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o prog1/foo.o prog1/foo.c
-       cc -c -o prog1/main.o prog1/main.c
+       cc -o prog1/foo.o -c prog1/foo.c
+       cc -o prog1/main.o -c prog1/main.c
        cc -o prog1/main prog1/main.o prog1/foo.o
        % <userinput>scons -Q</userinput>
        scons: `prog1' is up to date.
        % <userinput>scons -Q .</userinput>
-       cc -c -o prog2/bar.o prog2/bar.c
-       cc -c -o prog2/main.o prog2/main.c
+       cc -o prog2/bar.o -c prog2/bar.c
+       cc -o prog2/main.o -c prog2/main.c
        cc -o prog2/main prog2/main.o prog2/bar.o
     </screen>
 
@@ -335,9 +335,9 @@
        % <userinput>scons -Q</userinput>
        scons: *** No targets specified and no Default() targets found.  Stop.
        % <userinput>scons -Q .</userinput>
-       cc -c -o prog1.o prog1.c
+       cc -o prog1.o -c prog1.c
        cc -o prog1 prog1.o
-       cc -c -o prog2.o prog2.c
+       cc -o prog2.o -c prog2.c
        cc -o prog2 prog2.o
     </screen>
 
@@ -382,7 +382,7 @@
          DEFAULT_TARGETS is ['prog1']
          scons: done reading SConscript files.
          scons: Building targets ...
-         cc -c -o prog1.o prog1.c
+         cc -o prog1.o -c prog1.c
          cc -o prog1 prog1.o
          scons: done building targets.
       </screen>
@@ -418,9 +418,9 @@
          DEFAULT_TARGETS is now ['prog1', 'prog2']
          scons: done reading SConscript files.
          scons: Building targets ...
-         cc -c -o prog1.o prog1.c
+         cc -o prog1.o -c prog1.c
          cc -o prog1 prog1.o
-         cc -c -o prog2.o prog2.c
+         cc -o prog2.o -c prog2.c
          cc -o prog2 prog2.o
          scons: done building targets.
       </screen>
@@ -509,11 +509,11 @@
     <screen>
       % <userinput>scons -Q</userinput>
       BUILD_TARGETS is ['prog1']
-      cc -c -o prog1.o prog1.c
+      cc -o prog1.o -c prog1.c
       cc -o prog1 prog1.o
       % <userinput>scons -Q prog2</userinput>
       BUILD_TARGETS is ['prog2']
-      cc -c -o prog2.o prog2.c
+      cc -o prog2.o -c prog2.c
       cc -o prog2 prog2.o
       % <userinput>scons -Q -c .</userinput>
       BUILD_TARGETS is ['.']
@@ -593,12 +593,12 @@
 
     <screen>
        % <userinput>scons -Q debug=0</userinput>
-       cc -c -o prog.o prog.c
+       cc -o prog.o -c prog.c
        cc -o prog prog.o
        % <userinput>scons -Q debug=0</userinput>
        scons: `.' is up to date.
        % <userinput>scons -Q debug=1</userinput>
-       cc -g -c -o prog.o prog.c
+       cc -o prog.o -c -g prog.c
        cc -o prog prog.o
        % <userinput>scons -Q debug=1</userinput>
        scons: `.' is up to date.
@@ -693,8 +693,8 @@
 
     <screen>
       % <userinput>scons -Q RELEASE=1</userinput>
-      cc -DRELEASE_BUILD=1 -c -o bar.o bar.c
-      cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
+      cc -o bar.o -c -DRELEASE_BUILD=1 bar.c
+      cc -o foo.o -c -DRELEASE_BUILD=1 foo.c
       cc -o foo foo.o bar.o
     </screen>
 
@@ -808,8 +808,8 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -DRELEASE_BUILD=1 -c -o bar.o bar.c
-      cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
+      cc -o bar.o -c -D['RELEASE_BUILD=', 1] bar.c
+      cc -o foo.o -c -D['RELEASE_BUILD=', 1] foo.c
       cc -o foo foo.o bar.o
     </screen>
 
@@ -832,8 +832,8 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -DRELEASE_BUILD=0 -c -o bar.o bar.c
-      cc -DRELEASE_BUILD=0 -c -o foo.o foo.c
+      cc -o bar.o -c -D['RELEASE_BUILD=', 0] bar.c
+      cc -o foo.o -c -D['RELEASE_BUILD=', 0] foo.c
       cc -o foo foo.o bar.o
     </screen>
 
@@ -898,12 +898,12 @@
 
       <screen>
         % <userinput>scons -Q RELEASE=yes foo.o</userinput>
-        cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
+        cc -o foo.o -c -D['RELEASE_BUILD=', True] foo.c
       </screen>
 
       <screen>
         % <userinput>scons -Q RELEASE=t foo.o</userinput>
-        cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
+        cc -o foo.o -c -D['RELEASE_BUILD=', True] foo.c
       </screen>
 
       <para>
@@ -929,12 +929,12 @@
 
       <screen>
         % <userinput>scons -Q RELEASE=no foo.o</userinput>
-        cc -DRELEASE_BUILD=0 -c -o foo.o foo.c
+        cc -o foo.o -c -D['RELEASE_BUILD=', False] foo.c
       </screen>
 
       <screen>
         % <userinput>scons -Q RELEASE=f foo.o</userinput>
-        cc -DRELEASE_BUILD=0 -c -o foo.o foo.c
+        cc -o foo.o -c -D['RELEASE_BUILD=', False] foo.c
       </screen>
 
       <para>
@@ -961,7 +961,7 @@
         
         scons: *** Error converting option: RELEASE
         Invalid value for boolean option: bad_value
-        File "SConstruct", line 4, in ?
+        File "/home/my/project/SConstruct", line 4, in ?
       </screen>
 
     </section>
@@ -1004,11 +1004,11 @@
 
       <screen>
         % <userinput>scons -Q COLOR=red foo.o</userinput>
-        cc -DCOLOR="red" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="red" foo.c
         % <userinput>scons -Q COLOR=blue foo.o</userinput>
-        cc -DCOLOR="blue" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="blue" foo.c
         % <userinput>scons -Q COLOR=green foo.o</userinput>
-        cc -DCOLOR="green" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="green" foo.c
       </screen>
 
       <para>
@@ -1024,7 +1024,7 @@
         % <userinput>scons -Q COLOR=magenta foo.o</userinput>
         
         scons: *** Invalid value for option COLOR: magenta
-        File "SConstruct", line 5, in ?
+        File "/home/my/project/SConstruct", line 5, in ?
       </screen>
 
       <para>
@@ -1063,7 +1063,7 @@
 
       <screen>
         % <userinput>scons -Q COLOR=navy foo.o</userinput>
-        cc -DCOLOR="blue" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="blue" foo.c
       </screen>
 
       <para>
@@ -1080,15 +1080,15 @@
         % <userinput>scons -Q COLOR=Red foo.o</userinput>
         
         scons: *** Invalid value for option COLOR: Red
-        File "SConstruct", line 5, in ?
+        File "/home/my/project/SConstruct", line 5, in ?
         % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
         
         scons: *** Invalid value for option COLOR: BLUE
-        File "SConstruct", line 5, in ?
+        File "/home/my/project/SConstruct", line 5, in ?
         % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
         
         scons: *** Invalid value for option COLOR: nAvY
-        File "SConstruct", line 5, in ?
+        File "/home/my/project/SConstruct", line 5, in ?
       </screen>
 
       <para>
@@ -1120,13 +1120,13 @@
 
       <screen>
         % <userinput>scons -Q COLOR=Red foo.o</userinput>
-        cc -DCOLOR="Red" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="Red" foo.c
         % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
-        cc -DCOLOR="BLUE" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="BLUE" foo.c
         % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-        cc -DCOLOR="blue" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="blue" foo.c
         % <userinput>scons -Q COLOR=green foo.o</userinput>
-        cc -DCOLOR="green" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="green" foo.c
       </screen>
 
       <para>
@@ -1164,11 +1164,11 @@
 
       <screen>
         % <userinput>scons -Q COLOR=Red foo.o</userinput>
-        cc -DCOLOR="red" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="red" foo.c
         % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-        cc -DCOLOR="blue" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="blue" foo.c
         % <userinput>scons -Q COLOR=GREEN foo.o</userinput>
-        cc -DCOLOR="green" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLOR="green" foo.c
       </screen>
 
     </section>
@@ -1207,9 +1207,9 @@
 
       <screen>
         % <userinput>scons -Q COLORS=red,blue foo.o</userinput>
-        cc -DCOLORS="red blue" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLORS="red blue" foo.c
         % <userinput>scons -Q COLORS=blue,green,red foo.o</userinput>
-        cc -DCOLORS="blue green red" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLORS="blue green red" foo.c
       </screen>
 
       <para>
@@ -1224,9 +1224,9 @@
 
       <screen>
         % <userinput>scons -Q COLORS=all foo.o</userinput>
-        cc -DCOLORS="red green blue" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLORS="red green blue" foo.c
         % <userinput>scons -Q COLORS=none foo.o</userinput>
-        cc -DCOLORS="" -c -o foo.o foo.c
+        cc -o foo.o -c -DCOLORS="" foo.c
       </screen>
 
       <para>
@@ -1241,7 +1241,7 @@
         
         scons: *** Error converting option: COLORS
         Invalid value(s) for option: magenta
-        File "SConstruct", line 5, in ?
+        File "/home/my/project/SConstruct", line 5, in ?
       </screen>
 
     </section>
@@ -1281,7 +1281,7 @@
 
       <screen>
         % <userinput>scons -Q foo.o</userinput>
-        cc -DCONFIG_FILE="/etc/my_config" -c -o foo.o foo.c
+        cc -o foo.o -c -DCONFIG_FILE="/etc/my_config" foo.c
         % <userinput>scons -Q CONFIG=/usr/local/etc/other_config foo.o</userinput>
         scons: `foo.o' is up to date.
       </screen>
@@ -1298,7 +1298,7 @@
         % <userinput>scons -Q CONFIG=/does/not/exist foo.o</userinput>
         
         scons: *** Path for option CONFIG does not exist: /does/not/exist
-        File "SConstruct", line 6, in ?
+        File "/home/my/project/SConstruct", line 6, in ?
       </screen>
 
       <para>
@@ -1426,13 +1426,13 @@
 
       <screen>
         % <userinput>scons -Q foo.o</userinput>
-        cc -DPACKAGE="/opt/location" -c -o foo.o foo.c
+        cc -o foo.o -c -DPACKAGE="/opt/location" foo.c
         % <userinput>scons -Q PACKAGE=/usr/local/location foo.o</userinput>
-        cc -DPACKAGE="/usr/local/location" -c -o foo.o foo.c
+        cc -o foo.o -c -DPACKAGE="/usr/local/location" foo.c
         % <userinput>scons -Q PACKAGE=yes foo.o</userinput>
-        cc -DPACKAGE="1" -c -o foo.o foo.c
+        cc -o foo.o -c -D['PACKAGE="', True, '"'] foo.c
         % <userinput>scons -Q PACKAGE=no foo.o</userinput>
-        cc -DPACKAGE="0" -c -o foo.o foo.c
+        cc -o foo.o -c -D['PACKAGE="', False, '"'] foo.c
       </screen>
 
     </section>

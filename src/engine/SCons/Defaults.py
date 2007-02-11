@@ -40,7 +40,6 @@ import os
 import os.path
 import shutil
 import stat
-import string
 import time
 import types
 import sys
