@@ -99,8 +99,11 @@ import time
 if not hasattr(os, 'WEXITSTATUS'):
     os.WEXITSTATUS = lambda x: x
 
+cwd = os.getcwd()
+
 all = 0
 baseline = 0
+builddir = os.path.join(cwd, 'build')
 debug = ''
 execute_tests = 1
 format = None
@@ -118,14 +121,13 @@ python = None
 sp = None
 spe = None
 
-cwd = os.getcwd()
-
 helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
   -a, --all                   Run all tests.
   --aegis                     Print results in Aegis format.
   -b BASE, --baseline BASE    Run test scripts against baseline BASE.
+  --builddir DIR              Directory in which packages were built.
   -d, --debug                 Run test scripts under the Python debugger.
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
@@ -160,7 +162,7 @@ Options:
 """
 
 opts, args = getopt.getopt(sys.argv[1:], "ab:df:hlno:P:p:qv:Xx:t",
-                            ['all', 'aegis', 'baseline=',
+                            ['all', 'aegis', 'baseline=', 'builddir=',
                              'debug', 'file=', 'help',
                              'list', 'no-exec', 'noqmtest', 'output=',
                              'package=', 'passed', 'python=',
@@ -173,6 +175,10 @@ for o, a in opts:
         all = 1
     elif o in ['-b', '--baseline']:
         baseline = a
+    elif o in ['--builddir']:
+        builddir = a
+        if not os.path.isabs(builddir):
+            builddir = os.path.normpath(os.path.join(cwd, builddir))
     elif o in ['-d', '--debug']:
         for dir in sys.path:
             pdb = os.path.join(dir, 'pdb.py')
@@ -288,6 +294,7 @@ if sp is None:
 if spe is None:
     spe = []
 
+sp.append(builddir)
 sp.append(cwd)
 
 #
@@ -413,7 +420,7 @@ if package:
         sys.stderr.write("Unknown package '%s'\n" % package)
         sys.exit(2)
 
-    test_dir = os.path.join(cwd, 'build', 'test-%s' % package)
+    test_dir = os.path.join(builddir, 'test-%s' % package)
 
     if dir[package] is None:
         scons_script_dir = test_dir
@@ -433,7 +440,7 @@ if package:
         scons_lib_dir = os.path.join(test_dir, dir[package], 'lib', l)
         pythonpath_dir = scons_lib_dir
 
-    scons_runtest_dir = os.path.join(cwd, 'build')
+    scons_runtest_dir = builddir
 
 else:
     sd = None
@@ -616,7 +623,7 @@ if qmtest:
     qmtest_args = [ qmtest, ]
 
     if format == '--aegis':
-        dir = os.path.join(cwd, 'build')
+        dir = builddir
         if not os.path.isdir(dir):
             dir = cwd
         qmtest_args.extend(['-D', dir])

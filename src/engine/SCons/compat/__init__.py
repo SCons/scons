@@ -80,6 +80,25 @@ def import_as(module, name):
 import builtins
 
 try:
+    set
+except NameError:
+    # Pre-2.4 Python has no native set type
+    try:
+        # Python 2.2 and 2.3 can use the copy of the 2.[45] sets module
+        # that we grabbed.
+        import_as('_sets', 'sets')
+    except (ImportError, SyntaxError):
+        # Python 1.5 (ImportError, no __future_ module) and 2.1
+        # (SyntaxError, no generators in __future__) will blow up
+        # trying to import the 2.[45] sets module, so back off to a
+        # custom sets module that can be discarded easily when we
+        # stop supporting those versions.
+        import_as('_sets15', 'sets')
+    import __builtin__
+    import sets
+    __builtin__.set = sets.Set
+
+try:
     import subprocess
 except ImportError:
     # Pre-2.4 Python has no subprocess module.

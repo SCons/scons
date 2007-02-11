@@ -91,9 +91,9 @@ is pretty smart about rebuilding things when you change options.
   <screen>
     % <userinput>scons -Q OS=linux</userinput>
     Install file: "build/linux/world/world.h" as "export/linux/include/world.h"
-    cc -Iexport/linux/include -c -o build/linux/hello/hello.o build/linux/hello/hello.c
-    cc -Iexport/linux/include -c -o build/linux/world/world.o build/linux/world/world.c
-    ar r build/linux/world/libworld.a build/linux/world/world.o
+    cc -o build/linux/hello/hello.o -c -Iexport/linux/include build/linux/hello/hello.c
+    cc -o build/linux/world/world.o -c -Iexport/linux/include build/linux/world/world.c
+    ar rc build/linux/world/libworld.a build/linux/world/world.o
     ranlib build/linux/world/libworld.a
     Install file: "build/linux/world/libworld.a" as "export/linux/lib/libworld.a"
     cc -o build/linux/hello/hello build/linux/hello/hello.o -Lexport/linux/lib -lworld

@@ -1,0 +1,107 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+[
+
+    <!ENTITY % version SYSTEM "../version.sgml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+    <!ENTITY architecture SYSTEM "architecture.sgml">
+    <!ENTITY branches SYSTEM "branches.sgml">
+    <!ENTITY copyright SYSTEM "copyright.sgml">
+    <!ENTITY cycle SYSTEM "cycle.sgml">
+    <!ENTITY packaging SYSTEM "packaging.sgml">
+    <!ENTITY preface SYSTEM "preface.sgml">
+    <!ENTITY sourcetree SYSTEM "sourcetree.sgml">
+    <!ENTITY testing SYSTEM "testing.sgml">
+
+]>
+
+<book>
+  <bookinfo>
+    <title>SCons Developer's Guide &buildversion;</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <edition>Revision &buildrevision; (&builddate;)</edition>
+
+    <pubdate>2007</pubdate>
+
+    <copyright>
+      <year>2007</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <legalnotice>
+      &copyright;
+    </legalnotice>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </bookinfo>
+
+  <preface id="chap-preface">
+    <title>Preface</title>
+    &preface;
+  </preface>
+
+  <chapter id="chap-development-cycle">
+    <title>Development Cycle</title>
+    &cycle;
+  </chapter>
+
+  <chapter id="chap-source-tree">
+    <title>Source Tree</title>
+    &sourcetree;
+  </chapter>
+
+  <chapter id="chap-testing">
+    <title>Testing</title>
+    &testing;
+  </chapter>
+
+  <chapter id="chap-branches">
+    <title>Branches</title>
+    &branches;
+  </chapter>
+
+  <chapter id="chap-packaging">
+    <title>Packaging</title>
+    &packaging;
+  </chapter>
+
+  <chapter id="chap-architecture">
+    <title>Architecture</title>
+    &architecture;
+  </chapter>
+
+</book>

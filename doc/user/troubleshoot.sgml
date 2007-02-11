@@ -133,15 +133,15 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o file1.o file1.c
-      cc -c -o file2.o file2.c
-      cc -c -o file3.o file3.c
+      cc -o file1.o -c file1.c
+      cc -o file2.o -c file2.c
+      cc -o file3.o -c file3.c
       cc -o prog file1.o file2.o file3.o
       % <userinput>edit file2.c</userinput>
           [CHANGE THE CONTENTS OF file2.c]
       % <userinput>scons -Q --debug=explain</userinput>
       scons: rebuilding `file2.o' because `file2.c' changed
-      cc -c -o file2.o file2.c
+      cc -o file2.o -c file2.c
       scons: rebuilding `prog' because `file2.o' changed
       cc -o prog file1.o file2.o file3.o
     </screen>
@@ -167,17 +167,17 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -I. -c -o file1.o file1.c
-      cc -I. -c -o file2.o file2.c
-      cc -I. -c -o file3.o file3.c
+      cc -o file1.o -c -I. file1.c
+      cc -o file2.o -c -I. file2.c
+      cc -o file3.o -c -I. file3.c
       cc -o prog file1.o file2.o file3.o
       % <userinput>edit hello.h</userinput>
           [CHANGE THE CONTENTS OF hello.h]
       % <userinput>scons -Q --debug=explain</userinput>
       scons: rebuilding `file1.o' because `hello.h' changed
-      cc -I. -c -o file1.o file1.c
+      cc -o file1.o -c -I. file1.c
       scons: rebuilding `file3.o' because `hello.h' changed
-      cc -I. -c -o file3.o file3.c
+      cc -o file3.o -c -I. file3.c
       scons: rebuilding `prog' because:
                  `file1.o' changed
                  `file3.o' changed
@@ -226,6 +226,8 @@
       % <userinput>scons</userinput>
       scons: Reading SConscript files ...
       { 'BUILDERS': {},
+        'CONFIGUREDIR': '#/.sconf_temp',
+        'CONFIGURELOG': '#/config.log',
         'CPPSUFFIXES': [ '.c',
                          '.C',
                          '.cxx',
@@ -240,48 +242,52 @@
                          '.F',
                          '.fpp',
                          '.FPP',
+                         '.m',
+                         '.mm',
                          '.S',
                          '.spp',
                          '.SPP'],
         'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x829dcb4&gt;,
-        'ENV': {'PATH': '/usr/local/bin:/bin:/usr/bin'},
-        'ESCAPE': &lt;function escape at 0x837d2a4&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x829e0fc&gt;,
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c43bec&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c43c0c&gt;,
+        'ENV': {'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
+        'ESCAPE': &lt;function escape at 0xb7b66c34&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c43c2c&gt;,
         'IDLSUFFIXES': ['.idl', '.IDL'],
-        'INSTALL': &lt;function copyFunc at 0x829db9c&gt;,
+        'INSTALL': &lt;function installFunc at 0xb7c41f0c&gt;,
+        'INSTALLSTR': &lt;function installStr at 0xb7c41f44&gt;,
+        'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': 'lib',
         'LIBPREFIXES': '$LIBPREFIX',
         'LIBSUFFIX': '.a',
         'LIBSUFFIXES': ['$LIBSUFFIX', '$SHLIBSUFFIX'],
+        'MAXLINELENGTH': 128072,
         'OBJPREFIX': '',
         'OBJSUFFIX': '.o',
-        'PDFPREFIX': '',
-        'PDFSUFFIX': '.pdf',
         'PLATFORM': 'posix',
         'PROGPREFIX': '',
         'PROGSUFFIX': '',
-        'PSPAWN': &lt;function piped_env_spawn at 0x837d384&gt;,
-        'PSPREFIX': '',
-        'PSSUFFIX': '.ps',
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x829e46c&gt;,
+        'PSPAWN': &lt;function piped_env_spawn at 0xb7b66fb4&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c43c4c&gt;,
         'SCANNERS': [],
         'SHELL': 'sh',
         'SHLIBPREFIX': '$LIBPREFIX',
         'SHLIBSUFFIX': '.so',
         'SHOBJPREFIX': '$OBJPREFIX',
         'SHOBJSUFFIX': '$OBJSUFFIX',
-        'SPAWN': &lt;function spawnvpe_spawn at 0x8377fdc&gt;,
-        'TEMPFILE': &lt;class SCons.Defaults.NullCmdGenerator at 0x829ddec&gt;,
+        'SPAWN': &lt;function spawnvpe_spawn at 0xb7b66a74&gt;,
+        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0xb7bd37ac&gt;,
+        'TEMPFILEPREFIX': '@',
         'TOOLS': [],
         '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET)} $)',
-        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET)} $)',
+        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
         '__RPATH': '$_RPATH',
-        '_concat': &lt;function _concat at 0x829dc0c&gt;,
-        '_defines': &lt;function _defines at 0x829dc7c&gt;,
-        '_stripixes': &lt;function _stripixes at 0x829dc44&gt;}
+        '_concat': &lt;function _concat at 0xb7c41fb4&gt;,
+        '_defines': &lt;function _defines at 0xb7c47064&gt;,
+        '_installStr': &lt;function installStr at 0xb7c41f44&gt;,
+        '_stripixes': &lt;function _stripixes at 0xb7c4702c&gt;}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.
@@ -298,14 +304,17 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'BUILDERS': {'Object': &lt;SCons.Memoize.MultiStepBuilder object at 0x83493e4&gt;, 'SharedObject': &lt;SCons.Memoize.MultiStepBuilder object at 0x8349fec&gt;, 'StaticObject': &lt;SCons.Memoize.MultiStepBuilder object at 0x83493e4&gt;, 'PCH': &lt;SCons.Memoize.BuilderBase object at 0x83418cc&gt;, 'RES': &lt;SCons.Memoize.BuilderBase object at 0x8367cec&gt;},
+      { 'BUILDERS': {'Object': &lt;SCons.Builder.CompositeBuilder instance at 0xb7b6024c&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0xb7b603cc&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0xb7b6024c&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0xb7bd2eac&gt;, 'RES': &lt;SCons.Builder.BuilderBase instance at 0xb7b596ec&gt;},
         'CC': 'cl',
-        'CCCOM': &lt;SCons.Memoize.FunctionAction object at 0x8340454&gt;,
+        'CCCOM': &lt;SCons.Action.FunctionAction instance at 0xb7b6086c&gt;,
         'CCCOMFLAGS': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS',
         'CCFLAGS': ['/nologo'],
         'CCPCHFLAGS': ['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'],
         'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
         'CFILESUFFIX': '.c',
+        'CFLAGS': [],
+        'CONFIGUREDIR': '#/.sconf_temp',
+        'CONFIGURELOG': '#/config.log',
         'CPPDEFPREFIX': '/D',
         'CPPDEFSUFFIX': '',
         'CPPSUFFIXES': [ '.c',
@@ -322,6 +331,8 @@
                          '.F',
                          '.fpp',
                          '.FPP',
+                         '.m',
+                         '.mm',
                          '.S',
                          '.spp',
                          '.SPP'],
@@ -330,17 +341,21 @@
         'CXXFILESUFFIX': '.cc',
         'CXXFLAGS': ['$CCFLAGS', '$(', '/TP', '$)'],
         'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x829dcb4&gt;,
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c58bec&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c58c0c&gt;,
         'ENV': { 'INCLUDE': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\include',
                  'LIB': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\lib',
                  'PATH': 'C:\\Program Files\\Microsoft Visual Studio\\Common\\tools\\WIN95;C:\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\bin;C:\\Program Files\\Microsoft Visual Studio\\Common\\tools;C:\\Program Files\\Microsoft Visual Studio/VC98\\bin',
-                 'PATHEXT': '.COM;.EXE;.BAT;.CMD'},
-        'ESCAPE': &lt;function &lt;lambda&gt; at 0x82339ec&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x829e0fc&gt;,
+                 'PATHEXT': '.COM;.EXE;.BAT;.CMD',
+                 'SystemRoot': 'C:/WINDOWS'},
+        'ESCAPE': &lt;function escape at 0xb7bc917c&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c58c2c&gt;,
         'IDLSUFFIXES': ['.idl', '.IDL'],
         'INCPREFIX': '/I',
         'INCSUFFIX': '',
-        'INSTALL': &lt;function copyFunc at 0x829db9c&gt;,
+        'INSTALL': &lt;function installFunc at 0xb7c56f0c&gt;,
+        'INSTALLSTR': &lt;function installStr at 0xb7c56f44&gt;,
+        'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': '',
         'LIBPREFIXES': ['$LIBPREFIX'],
         'LIBSUFFIX': '.lib',
@@ -352,22 +367,19 @@
         'OBJSUFFIX': '.obj',
         'PCHCOM': '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS',
         'PCHPDBFLAGS': ['${(PDB and "/Yd") or ""}'],
-        'PDFPREFIX': '',
-        'PDFSUFFIX': '.pdf',
         'PLATFORM': 'win32',
         'PROGPREFIX': '',
         'PROGSUFFIX': '.exe',
-        'PSPAWN': &lt;function piped_spawn at 0x8372bc4&gt;,
-        'PSPREFIX': '',
-        'PSSUFFIX': '.ps',
+        'PSPAWN': &lt;function piped_spawn at 0xb7bc90d4&gt;,
         'RC': 'rc',
         'RCCOM': '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES',
         'RCFLAGS': [],
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x829e46c&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c58c4c&gt;,
         'SCANNERS': [],
         'SHCC': '$CC',
-        'SHCCCOM': &lt;SCons.Memoize.FunctionAction object at 0x83494bc&gt;,
+        'SHCCCOM': &lt;SCons.Action.FunctionAction instance at 0xb7b608cc&gt;,
         'SHCCFLAGS': ['$CCFLAGS'],
+        'SHCFLAGS': ['$CFLAGS'],
         'SHCXX': '$CXX',
         'SHCXXCOM': '$SHCXX $SHCXXFLAGS $CCCOMFLAGS',
         'SHCXXFLAGS': ['$CXXFLAGS'],
@@ -376,17 +388,19 @@
         'SHLIBSUFFIX': '.dll',
         'SHOBJPREFIX': '$OBJPREFIX',
         'SHOBJSUFFIX': '$OBJSUFFIX',
-        'SPAWN': &lt;function spawn at 0x8374c34&gt;,
+        'SPAWN': &lt;function spawn at 0xb7bc9144&gt;,
         'STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME': 1,
-        'TEMPFILE': &lt;class SCons.Platform.win32.TempFileMunge at 0x835edc4&gt;,
+        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0xb7be87ac&gt;,
+        'TEMPFILEPREFIX': '@',
         'TOOLS': ['msvc'],
         '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET)} $)',
-        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET)} $)',
+        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-        '_concat': &lt;function _concat at 0x829dc0c&gt;,
-        '_defines': &lt;function _defines at 0x829dc7c&gt;,
-        '_stripixes': &lt;function _stripixes at 0x829dc44&gt;}
+        '_concat': &lt;function _concat at 0xb7c56fb4&gt;,
+        '_defines': &lt;function _defines at 0xb7c5c064&gt;,
+        '_installStr': &lt;function installStr at 0xb7c56f44&gt;,
+        '_stripixes': &lt;function _stripixes at 0xb7c5c02c&gt;}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.
@@ -431,7 +445,7 @@
     <screen>
       % <userinput>scons</userinput>
       scons: Reading SConscript files ...
-      {'PATH': '/usr/local/bin:/bin:/usr/bin'}
+      {'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.
@@ -450,7 +464,8 @@
       { 'INCLUDE': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\include',
         'LIB': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\lib',
         'PATH': 'C:\\Program Files\\Microsoft Visual Studio\\Common\\tools\\WIN95;C:\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\bin;C:\\Program Files\\Microsoft Visual Studio\\Common\\tools;C:\\Program Files\\Microsoft Visual Studio/VC98\\bin',
-        'PATHEXT': '.COM;.EXE;.BAT;.CMD'}
+        'PATHEXT': '.COM;.EXE;.BAT;.CMD',
+        'SystemRoot': 'C:/WINDOWS'}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.

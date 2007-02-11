@@ -317,13 +317,13 @@ make no difference to the build.
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o prog1/foo1.o prog1/foo1.c
-       cc -c -o prog1/foo2.o prog1/foo2.c
-       cc -c -o prog1/main.o prog1/main.c
+       cc -o prog1/foo1.o -c prog1/foo1.c
+       cc -o prog1/foo2.o -c prog1/foo2.c
+       cc -o prog1/main.o -c prog1/main.c
        cc -o prog1/prog1 prog1/main.o prog1/foo1.o prog1/foo2.o
-       cc -c -o prog2/bar1.o prog2/bar1.c
-       cc -c -o prog2/bar2.o prog2/bar2.c
-       cc -c -o prog2/main.o prog2/main.c
+       cc -o prog2/bar1.o -c prog2/bar1.c
+       cc -o prog2/bar2.o -c prog2/bar2.c
+       cc -o prog2/main.o -c prog2/main.c
        cc -o prog2/prog2 prog2/main.o prog2/bar1.o prog2/bar2.o
     </screen>
 
@@ -382,9 +382,9 @@ make no difference to the build.
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o lib/foo1.o lib/foo1.c
-       cc -c -o src/prog/foo2.o src/prog/foo2.c
-       cc -c -o src/prog/main.o src/prog/main.c
+       cc -o lib/foo1.o -c lib/foo1.c
+       cc -o src/prog/foo2.o -c src/prog/foo2.c
+       cc -o src/prog/main.o -c src/prog/main.c
        cc -o src/prog/prog src/prog/main.o lib/foo1.o src/prog/foo2.o
     </screen>
 
@@ -423,9 +423,9 @@ make no difference to the build.
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o src/prog/foo2.o src/prog/foo2.c
-       cc -c -o src/prog/main.o src/prog/main.c
-       cc -c -o /usr/joe/lib/foo1.o /usr/joe/lib/foo1.c
+       cc -o src/prog/foo2.o -c src/prog/foo2.c
+       cc -o src/prog/main.o -c src/prog/main.c
+       cc -o /usr/joe/lib/foo1.o -c /usr/joe/lib/foo1.c
        cc -o src/prog/prog src/prog/main.o /usr/joe/lib/foo1.o src/prog/foo2.o
     </screen>
 
@@ -716,9 +716,9 @@ make no difference to the build.
 
       <screen>
         % <userinput>scons -Q</userinput>
-        cc -c -o bar/bar.o bar/bar.c
-        cc -c -o foo/foo.o foo/foo.c
-        ar r libprog.a foo/foo.o bar/bar.o
+        cc -o bar/bar.o -c bar/bar.c
+        cc -o foo/foo.o -c foo/foo.c
+        ar rc libprog.a foo/foo.o bar/bar.o
         ranlib libprog.a
       </screen>
 

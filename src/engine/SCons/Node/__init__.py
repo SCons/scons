@@ -52,6 +52,7 @@ import UserList
 
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
+import SCons.Memoize
 import SCons.SConsign
 import SCons.Util
 
@@ -202,14 +203,13 @@ class Node:
         self.state = no_state
         self.precious = None
         self.noclean = 0
+        self.nocache = 0
         self.always_build = None
         self.found_includes = {}
         self.includes = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
         self.side_effects = [] # the side effects of building this target
-        self.pre_actions = []
-        self.post_actions = []
         self.linked = 0 # is this node linked to the build directory?
 
         self.clear_memoized_values()
@@ -764,6 +764,12 @@ class Node:
         # Make sure noclean is an integer so the --debug=stree
         # output in Util.py can use it as an index.
         self.noclean = noclean and 1 or 0
+
+    def set_nocache(self, nocache = 1):
+        """Set the Node's nocache value."""
+        # Make sure nocache is an integer so the --debug=stree
+        # output in Util.py can use it as an index.
+        self.nocache = nocache and 1 or 0
 
     def set_always_build(self, always_build = 1):
         """Set the Node's always_build value."""

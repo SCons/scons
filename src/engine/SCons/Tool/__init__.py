@@ -41,6 +41,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import imp
 import sys
 
+import SCons.Builder
 import SCons.Errors
 import SCons.Scanner
 import SCons.Scanner.C
@@ -48,11 +49,13 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 
+DefaultToolpath=[]
+
 CScanner = SCons.Scanner.C.CScanner()
 DScanner = SCons.Scanner.D.DScanner()
 LaTeXScanner = SCons.Scanner.LaTeX.LaTeXScanner()
 ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
-SourceFileScanner = SCons.Scanner.Scanner({}, name='SourceFileScanner')
+SourceFileScanner = SCons.Scanner.Base({}, name='SourceFileScanner')
 
 CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
              ".h", ".H", ".hxx", ".hpp", ".hh",
@@ -78,7 +81,7 @@ for suffix in LaTeXSuffixes:
 class Tool:
     def __init__(self, name, toolpath=[], **kw):
         self.name = name
-        self.toolpath = toolpath
+        self.toolpath = toolpath + DefaultToolpath
         # remember these so we can merge them into the call
         self.init_kw = kw
 

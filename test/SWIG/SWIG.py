@@ -24,6 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify that the swig tool generates file names that we expect.
+"""
+
 import os
 import string
 import sys
@@ -37,18 +41,10 @@ if sys.platform =='darwin':
     python = "/System/Library/Frameworks/Python.framework/Versions/Current/bin/python"
     _python_ = '"' + python + '"'
 else:
-    python = TestSCons.python
     _python_ = TestSCons._python_
     
 _exe   = TestSCons._exe
 _obj   = TestSCons._obj
-
-# swig-python expects specific filenames.
-# the platform specific suffix won't necessarily work.
-if sys.platform == 'win32':
-    _dll = '.dll'
-else:
-    _dll   = '.so' 
 
 test = TestSCons.TestSCons()
 
@@ -105,168 +101,13 @@ swig
 test.run(arguments = '.', stderr = None)
 
 test.run(program = test.workpath('test1' + _exe), stdout = "test1.i\n")
-test.fail_test(not os.path.exists(test.workpath('test1_wrap.c')))
-test.fail_test(not os.path.exists(test.workpath('test1_wrap' + _obj)))
+test.must_exist(test.workpath('test1_wrap.c'))
+test.must_exist(test.workpath('test1_wrap' + _obj))
 
-test.fail_test(test.read('test2_wrap.c') != "test2.i\n")
+test.must_match('test2_wrap.c', "test2.i\n")
 
 test.run(program = test.workpath('test3' + _exe), stdout = "test3.i\n")
-test.fail_test(not os.path.exists(test.workpath('test3_wrap.cc')))
-test.fail_test(not os.path.exists(test.workpath('test3_wrap' + _obj)))
-
-
-
-swig = test.where_is('swig')
-
-if swig:
-
-    version = sys.version[:3] # see also sys.prefix documentation
-
-    # handle testing on other platforms:
-    ldmodule_prefix = '_'
-
-    frameworks = ''
-    platform_sys_prefix = sys.prefix
-    if sys.platform == 'darwin':
-        # OS X has a built-in Python but no static libpython
-        # so you should link to it using apple's 'framework' scheme.
-        # (see top of file for further explanation)
-        frameworks = '-framework Python'
-        platform_sys_prefix = '/System/Library/Frameworks/Python.framework/Versions/%s/' % version
-    
-    test.write("wrapper.py",
-"""import os
-import string
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
-
-    test.write('SConstruct', """
-foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
-                  LDMODULEPREFIX='%(ldmodule_prefix)s',
-                  LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(frameworks)s',
-                  )
-
-swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
-foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
-bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])
-""" % locals())
-
-    test.write("foo.c", """\
-char *
-foo_string()
-{
-    return "This is foo.c!";
-}
-""")
-
-    test.write("foo.i", """\
-%module foo
-%{
-/* Put header files here (optional) */
-%}
-
-extern char *foo_string();
-""")
-
-    test.write("bar.c", """\
-char *
-bar_string()
-{
-    return "This is bar.c!";
-}
-""")
-
-    test.write("bar.i", """\
-%module \t bar
-%{
-/* Put header files here (optional) */
-%}
-
-extern char *bar_string();
-""")
-
-    test.run(arguments = ldmodule_prefix+'foo' + _dll)
-
-    test.must_not_exist(test.workpath('wrapper.out'))
-
-    test.run(program = python, stdin = """\
-import foo
-print foo.foo_string()
-""", stdout="""\
-This is foo.c!
-""")
-
-    test.up_to_date(arguments = ldmodule_prefix+'foo' + _dll)
-
-    test.run(arguments = ldmodule_prefix+'bar' + _dll)
-
-    test.must_match('wrapper.out', "wrapper.py\n")
-
-    test.run(program = python, stdin = """\
-import foo
-import bar
-print foo.foo_string()
-print bar.bar_string()
-""", stdout="""\
-This is foo.c!
-This is bar.c!
-""")
-
-    test.up_to_date(arguments = '.')
-
-    # Test that swig-generated modules are removed
-    # The %module directive specifies the module name
-    test.write("module.i", """\
-%module modulename
-""")
-    test.write('SConstruct', """
-foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
-                  LDMODULEPREFIX='%(ldmodule_prefix)s',
-                  LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(frameworks)s',
-                  )
-
-foo.LoadableModule(target = 'modulename', source = ['module.i'])
-""" % locals())
-    test.run()
-    test.must_exist(test.workpath("modulename.py"))
-    test.run(arguments = "-c")
-    test.must_not_exist(test.workpath("modulename.py"))
-
-    # Test that implicit dependencies are caught
-
-    test.write("dependency.i", """\
-%module dependency
-""")
-    test.write("dependent.i", """\
-%module dependent
-
-%include dependency.i
-""")
-    test.write('SConstruct', """
-foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
-                  LDMODULEPREFIX='%(ldmodule_prefix)s',
-                  LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(frameworks)s',
-                  )
-
-swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
-foo.CFile(target = 'dependent', source = ['dependent.i'])
-""" % locals())
-
-    test.run()
-    test.write("dependency.i", """%module dependency
-
-extern char *dependency_string();
-""")
-    test.not_up_to_date(arguments = "dependent_wrap.c")
+test.must_exist(test.workpath('test3_wrap.cc'))
+test.must_exist(test.workpath('test3_wrap' + _obj))
 
 test.pass_test()

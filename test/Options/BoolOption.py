@@ -31,6 +31,12 @@ Test the BoolOption canned Option type.
 import os.path
 import string
 
+try:
+    True, False
+except NameError:
+    True = (0 == 0)
+    False = (0 != 0)
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -64,10 +70,10 @@ Default(env.Alias('dummy', None))
 
 
 test.run()
-check(['1', '0'])
+check([str(True), str(False)])
 
 test.run(arguments='warnings=0 profile=no profile=true')
-check(['0', '1'])
+check([str(False), str(True)])
 
 expect_stderr = """
 scons: *** Error converting option: warnings

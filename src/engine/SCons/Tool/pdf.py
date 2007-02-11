@@ -36,7 +36,7 @@ PDFBuilder = None
 
 def generate(env):
     try:
-        bld = env['BUILDERS']['PDF']
+        env['BUILDERS']['PDF']
     except KeyError:
         global PDFBuilder
         if PDFBuilder is None:

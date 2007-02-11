@@ -31,6 +31,12 @@ Test the PackageOption canned Option type.
 import os.path
 import string
 
+try:
+    True, False
+except NameError:
+    True = (0 == 0)
+    False = (0 != 0)
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -61,10 +67,16 @@ Default(env.Alias('dummy', None))
 """)
 
 test.run()
-check(['1'])
-test.run(arguments='x11=no'); check(['0'])
-test.run(arguments='x11=0'); check(['0'])
-test.run(arguments=['x11=%s' % test.workpath()]); check([test.workpath()])
+check([str(True)])
+
+test.run(arguments='x11=no')
+check([str(False)])
+
+test.run(arguments='x11=0')
+check([str(False)])
+
+test.run(arguments=['x11=%s' % test.workpath()])
+check([test.workpath()])
 
 expect_stderr = """
 scons: *** Path does not exist for option x11: /non/existing/path/

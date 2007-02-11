@@ -32,7 +32,6 @@ import SCons.compat
 import os
 import re
 import string
-import sys
 
 #
 # First "subsystem" of regular expressions that we set up:

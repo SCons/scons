@@ -27,7 +27,7 @@
 
 import os.path
 
-Import('env')
+Import('build_dir', 'env')
 
 files = [
     'classes.qmc',
@@ -51,9 +51,10 @@ for file in files:
     # Guarantee that real copies of these files always exist in
     # build/QMTest.  If there's a symlink there, then this is an Aegis
     # build and we blow them away now so that they'll get "built" later.
-    p = os.path.join('build', 'QMTest', file)
+    p = os.path.join(build_dir, 'QMTest', file)
     if os.path.islink(p):
         os.unlink(p)
-    sp = '#' + p
-    env.Command(sp, file, copy)
-    Local(sp)
+    if not os.path.isabs(p):
+        p = '#' + p
+    env.Command(p, file, copy)
+    Local(p)

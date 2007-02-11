@@ -151,7 +151,7 @@ def get_intel_registry_value(valuename, version=None, abi=None):
         return v  # or v.encode('iso-8859-1', 'replace') to remove unicode?
     except SCons.Util.RegError:
         raise MissingRegistryError, \
-              "%s\\%s was not found in the registry."%(K, value)
+              "%s\\%s was not found in the registry."%(K, valuename)
 
 
 def get_all_compiler_versions():

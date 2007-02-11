@@ -82,7 +82,7 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       % <userinput>scons -Q -c</userinput>
       Removed hello.o
@@ -124,13 +124,13 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
       % <userinput>scons -Q --cache-show</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
     </screen>
 
@@ -177,7 +177,7 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       % <userinput>scons -Q -c</userinput>
       Removed hello.o
@@ -189,7 +189,7 @@
       Removed hello.o
       Removed hello
       % <userinput>scons -Q --cache-disable</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
     </screen>
 
@@ -228,13 +228,13 @@
 
     <screen>
       % <userinput>scons -Q --cache-disable</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
       % <userinput>scons -Q --cache-disable</userinput>
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
       % <userinput>scons -Q --cache-force</userinput>
       scons: `.' is up to date.

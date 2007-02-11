@@ -87,7 +87,7 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o hello.o hello.c
+       cc -o hello.o -c hello.c
        cc -o new_hello hello.o
     </screen>
 
@@ -135,9 +135,9 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o file1.o file1.c
-       cc -c -o file2.o file2.c
-       cc -c -o main.o main.c
+       cc -o file1.o -c file1.c
+       cc -o file2.o -c file2.c
+       cc -o main.o -c main.c
        cc -o main main.o file1.o file2.o
     </screen>
 
@@ -175,9 +175,9 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o file1.o file1.c
-       cc -c -o file2.o file2.c
-       cc -c -o main.o main.c
+       cc -o file1.o -c file1.c
+       cc -o file2.o -c file2.c
+       cc -o main.o -c main.c
        cc -o program main.o file1.o file2.o
     </screen>
 
@@ -459,10 +459,10 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o bar1.o bar1.c
-       cc -c -o bar2.o bar2.c
+       cc -o bar1.o -c bar1.c
+       cc -o bar2.o -c bar2.c
        cc -o bar bar1.o bar2.o
-       cc -c -o foo.o foo.c
+       cc -o foo.o -c foo.c
        cc -o foo foo.o
     </screen>
 
@@ -522,12 +522,12 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -c -o bar1.o bar1.c
-       cc -c -o bar2.o bar2.c
-       cc -c -o common1.o common1.c
-       cc -c -o common2.o common2.c
+       cc -o bar1.o -c bar1.c
+       cc -o bar2.o -c bar2.c
+       cc -o common1.o -c common1.c
+       cc -o common2.o -c common2.c
        cc -o bar bar1.o bar2.o common1.o common2.o
-       cc -c -o foo.o foo.c
+       cc -o foo.o -c foo.c
        cc -o foo foo.o common1.o common2.o
     </screen>
 

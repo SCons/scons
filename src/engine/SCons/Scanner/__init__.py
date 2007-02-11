@@ -45,9 +45,17 @@ class _Null:
 _null = _Null
 
 def Scanner(function, *args, **kw):
-    """Public interface factory function for creating different types
+    """
+    Public interface factory function for creating different types
     of Scanners based on the different types of "functions" that may
-    be supplied."""
+    be supplied.
+
+    TODO:  Deprecate this some day.  We've moved the functionality
+    inside the Base class and really don't need this factory function
+    any more.  It was, however, used by some of our Tool modules, so
+    the call probably ended up in various people's custom modules
+    patterned on SCons code.
+    """
     if SCons.Util.is_Dict(function):
         return apply(Selector, (function,) + args, kw)
     else:
@@ -83,7 +91,7 @@ class Base:
                  function,
                  name = "NONE",
                  argument = _null,
-                 skeys = [],
+                 skeys = _null,
                  path_function = None,
                  node_class = SCons.Node.FS.Entry,
                  node_factory = None,
@@ -159,7 +167,14 @@ class Base:
         self.path_function = path_function
         self.name = name
         self.argument = argument
+
+        if skeys is _null:
+            if SCons.Util.is_Dict(function):
+                skeys = function.keys()
+            else:
+                skeys = []
         self.skeys = skeys
+
         self.node_class = node_class
         self.node_factory = node_factory
         self.scan_check = scan_check
@@ -188,10 +203,13 @@ class Base:
         if self.scan_check and not self.scan_check(node, env):
             return []
 
+        self = self.select(node)
+
         if not self.argument is _null:
             list = self.function(node, env, path, self.argument)
         else:
             list = self.function(node, env, path)
+
         kw = {}
         if hasattr(node, 'dir'):
             kw['directory'] = node.dir
@@ -221,12 +239,19 @@ class Base:
         self.skeys.append(skey)
 
     def get_skeys(self, env=None):
-        if SCons.Util.is_String(self.skeys):
+        if env and SCons.Util.is_String(self.skeys):
             return env.subst_list(self.skeys)[0]
         return self.skeys
 
     def select(self, node):
-        return self
+        if SCons.Util.is_Dict(self.function):
+            key = node.scanner_key()
+            try:
+                return self.function[key]
+            except KeyError:
+                return None
+        else:
+            return self
 
     def _recurse_all_nodes(self, nodes):
         return nodes
@@ -236,15 +261,27 @@ class Base:
 
     recurse_nodes = _recurse_no_nodes
 
+    def add_scanner(self, skey, scanner):
+        self.function[skey] = scanner
+        self.add_skey(skey)
+
 
 class Selector(Base):
     """
     A class for selecting a more specific scanner based on the
     scanner_key() (suffix) for a specific Node.
+
+    TODO:  This functionality has been moved into the inner workings of
+    the Base class, and this class will be deprecated at some point.
+    (It was never exposed directly as part of the public interface,
+    although it is used by the Scanner() factory function that was
+    used by various Tool modules and therefore was likely a template
+    for custom modules that may be out there.)
     """
     def __init__(self, dict, *args, **kw):
         apply(Base.__init__, (self, None,)+args, kw)
         self.dict = dict
+        self.skeys = dict.keys()
 
     def __call__(self, node, env, path = ()):
         return self.select(node)(node, env, path)
@@ -257,6 +294,7 @@ class Selector(Base):
 
     def add_scanner(self, skey, scanner):
         self.dict[skey] = scanner
+        self.add_skey(skey)
 
 
 class Current(Base):

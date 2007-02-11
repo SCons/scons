@@ -301,12 +301,12 @@ def SConscript_exception(file=sys.stderr):
 def annotate(node):
     """Annotate a node with the stack frame describing the
     SConscript file and line number that created it."""
-    tb = exc_tb = sys.exc_info()[2]
+    tb = sys.exc_info()[2]
     while tb and not tb.tb_frame.f_locals.has_key(stack_bottom):
         tb = tb.tb_next
     if not tb:
         # We did not find any exec of an SConscript file: what?!
-        raise InternalError, "could not find SConscript stack frame"
+        raise SCons.Errors.InternalError, "could not find SConscript stack frame"
     node.creator = traceback.extract_stack(tb)[0]
 
 # The following line would cause each Node to be annotated using the

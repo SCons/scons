@@ -29,18 +29,18 @@ import os.path
 import re
 import string
 
-Import('env', 'whereis')
+Import('build_dir', 'env', 'whereis')
 
 env = env.Clone()
 
 env.TargetSignatures('content')
 
-build = os.path.join('#build', 'doc')
+build = os.path.join(build_dir, 'doc')
 
 #
 #
 #
-doc_tar_gz = os.path.join('#build',
+doc_tar_gz = os.path.join(build_dir,
                           'dist',
                           'scons-doc-%s.tar.gz' % env.Dictionary('VERSION'))
 
@@ -210,12 +210,21 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 'pdf'       : 1,
                 'text'      : 0,
         },
+        # For whenever (if ever?) we start putting developer guide
+        # information in a printable document instead of the wiki.
+        #'developer' : {
+        #        'htmlindex' : 'book1.html',
+        #        'html'      : 1,
+        #        'ps'        : 1,
+        #        'pdf'       : 1,
+        #        'text'      : 0,
+        #},
         'user' : {
                 'htmlindex' : 'book1.html',
                 'html'      : 1,
                 'ps'        : 1,
                 'pdf'       : 1,
-                'text'      : 0,
+                'text'      : 1,
                 'graphics'  : [
                                 'SCons-win32-install-1.jpg',
                                 'SCons-win32-install-2.jpg',
@@ -268,7 +277,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
         # Hard-coding the scons-src path is a bit of a hack.  This can
         # be reworked when a better solution presents itself.
-        scons_src_main = os.path.join('#build', 'scons-src', 'doc', main)
+        scons_src_main = os.path.join(build_dir, 'scons-src', 'doc', main)
         env.Ignore(scons_src_main, version_sgml)
 
         htmldir = os.path.join(build, 'HTML', 'scons-%s' % doc)
@@ -379,7 +388,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 man_page_list = ['scons.1', 'sconsign.1', 'scons-time.1']
 
 for m in man_page_list:
-    orig_env.SCons_revision(os.path.join(build, 'man', m),
+    x = orig_env.SCons_revision(os.path.join(build, 'man', m),
                             os.path.join('man', m))
 
 man_i_files = ['builders.man', 'tools.man', 'variables.man']
@@ -425,7 +434,7 @@ for man_1 in man_page_list:
             return 0
 
         cmds = [
-            "( cd build/doc/man && cp %s .. )" % string.join(man_i_files),
+            "( cd %s/man && cp %s .. )" % (build, string.join(man_i_files)),
             "( cd ${SOURCE.dir} && man2html ${SOURCE.file} ) > $TARGET",
             Action(strip_to_first_html_tag),
         ]

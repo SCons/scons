@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 
 import SCons.Builder
+import SCons.Defaults
 import SCons.Node.FS
 import SCons.Util
 

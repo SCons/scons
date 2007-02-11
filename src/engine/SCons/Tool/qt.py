@@ -75,7 +75,6 @@ def checkMocIncluded(target, source, env):
             (str(moc), str(cpp)))
 
 def find_file(filename, paths, node_factory):
-    retval = None
     for dir in paths:
         node = node_factory(filename, dir)
         if node.rexists():
@@ -219,7 +218,6 @@ def uicEmitter(target, source, env):
     return target, source
 
 def uicScannerFunc(node, env, path):
-    dir = node.dir
     lookout = []
     lookout.extend(env['CPPPATH'])
     lookout.append(str(node.rfile().dir))
@@ -231,18 +229,17 @@ def uicScannerFunc(node, env, path):
             result.append(dep)
     return result
 
-uicScanner = SCons.Scanner.Scanner(uicScannerFunc,
-                                   name = "UicScanner", 
-                                   node_class = SCons.Node.FS.File,
-                                   node_factory = SCons.Node.FS.File,
-                                   recursive = 0)
+uicScanner = SCons.Scanner.Base(uicScannerFunc,
+                                name = "UicScanner", 
+                                node_class = SCons.Node.FS.File,
+                                node_factory = SCons.Node.FS.File,
+                                recursive = 0)
 
 def generate(env):
     """Add Builders and construction variables for qt to an Environment."""
     CLVar = SCons.Util.CLVar
     Action = SCons.Action.Action
     Builder = SCons.Builder.Builder
-    splitext = SCons.Util.splitext
 
     env.SetDefault(QTDIR  = _detect(env),
                    QT_BINPATH = os.path.join('$QTDIR', 'bin'),

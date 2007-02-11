@@ -265,6 +265,27 @@ public enum a {}
         assert classes == ['a'], classes
 
 
+    def test_anon_classes(self):
+        """Test anonymous classes"""
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+public abstract class TestClass
+{
+    public void completed()
+    {
+        new Thread()
+        {
+        }.start();
+
+        new Thread()
+        {
+        }.start();
+    }
+}
+""")
+        assert pkg_dir == None, pkg_dir
+        assert classes == ['TestClass$1', 'TestClass$2', 'TestClass'], classes
+
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

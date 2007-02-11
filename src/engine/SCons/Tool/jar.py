@@ -35,11 +35,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Builder
+import SCons.Subst
 import SCons.Util
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
     jarchdir = env.subst('$JARCHDIR')
+    if jarchdir:
+        jarchdir = env.fs.Dir(jarchdir)
     result = []
     for src in source:
         contents = src.get_contents()
@@ -47,7 +50,7 @@ def jarSources(target, source, env, for_signature):
             if jarchdir:
                 # If we are changing the dir with -C, then sources should
                 # be relative to that directory.
-                src = src.get_path(src.fs.Dir(jarchdir))
+                src = SCons.Subst.Literal(src.get_path(jarchdir))
                 result.append('-C')
                 result.append(jarchdir)
             result.append(src)

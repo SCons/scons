@@ -73,40 +73,41 @@ test.write('bar.h', """
 """)
 
 stree = """
-[E B   C ]+-foo.xxx
-[E B   C ]  +-foo.ooo
-[E       ]  | +-foo.c
-[E       ]  | +-foo.h
-[E       ]  | +-bar.h
-[E B   C ]  +-bar.ooo
-[E       ]    +-bar.c
-[E       ]    +-bar.h
-[E       ]    +-foo.h
+[E B   C  ]+-foo.xxx
+[E B   C  ]  +-foo.ooo
+[E        ]  | +-foo.c
+[E        ]  | +-foo.h
+[E        ]  | +-bar.h
+[E B   C  ]  +-bar.ooo
+[E        ]    +-bar.c
+[E        ]    +-bar.h
+[E        ]    +-foo.h
 """
 
 test.run(arguments = "--debug=stree foo.xxx")
 test.fail_test(string.find(test.stdout(), stree) == -1)
 
 stree2 = """
- E        = exists
-  R       = exists in repository only
-   b      = implicit builder
-   B      = explicit builder
-    S     = side effect
-     P    = precious
-      A   = always build
-       C  = current
-        N = no clean
+ E         = exists
+  R        = exists in repository only
+   b       = implicit builder
+   B       = explicit builder
+    S      = side effect
+     P     = precious
+      A    = always build
+       C   = current
+        N  = no clean
+         H = no cache
 
-[  B     ]+-foo.xxx
-[  B     ]  +-foo.ooo
-[E       ]  | +-foo.c
-[E       ]  | +-foo.h
-[E       ]  | +-bar.h
-[  B     ]  +-bar.ooo
-[E       ]    +-bar.c
-[E       ]    +-bar.h
-[E       ]    +-foo.h
+[  B      ]+-foo.xxx
+[  B      ]  +-foo.ooo
+[E        ]  | +-foo.c
+[E        ]  | +-foo.h
+[E        ]  | +-bar.h
+[  B      ]  +-bar.ooo
+[E        ]    +-bar.c
+[E        ]    +-bar.h
+[E        ]    +-foo.h
 """
 
 test.run(arguments = '-c foo.xxx')

@@ -205,7 +205,7 @@ class _DSPGenerator:
         if len(buildtarget) == 1:
             bt = buildtarget[0]
             buildtarget = []
-            for v in variants:
+            for _ in variants:
                 buildtarget.append(bt)
 
         if not env.has_key('outdir') or env['outdir'] == None:
@@ -1010,7 +1010,6 @@ class _GenerateV7DSW(_DSWGenerator):
             self.file.write('\tGlobalSection(ProjectConfiguration) = postSolution\n')
 
         for name in confkeys:
-            name = name
             variant = self.configs[name].variant
             platform = self.configs[name].platform
             if self.version_num >= 8.0:
@@ -1279,7 +1278,7 @@ def get_visualstudio8_suites():
     try:
         idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
             r'Software\Microsoft\VisualStudio\8.0')
-        id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+        SCons.Util.RegQueryValueEx(idk, 'InstallDir')
         editions = { 'PRO': r'Setup\VS\Pro' }       # ToDo: add standard and team editions
         edition_name = 'STD'
         for name, key_suffix in editions.items():
@@ -1297,7 +1296,7 @@ def get_visualstudio8_suites():
     try:
         idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
             r'Software\Microsoft\VCExpress\8.0')
-        id = SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+        SCons.Util.RegQueryValueEx(idk, 'InstallDir')
         suites.append('EXPRESS')
     except SCons.Util.RegError:
         pass

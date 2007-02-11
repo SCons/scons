@@ -148,8 +148,10 @@ if java_parsing:
             self.outer_state = outer_state
             self.tokens_to_find = 2
         def parseToken(self, token):
-            # This is an anonymous class if and only if the next token
-            # is a bracket
+            # This is an anonymous class if and only if the next  
+            # non-whitespace token is a bracket            
+            if token == '\n':
+                return self
             if token == '{':
                 self.outer_state.addAnonClass()
             elif token in ['"', "'"]:

@@ -93,7 +93,6 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
             try:
                 ret = exitvalmap[e[0]]
             except KeyError:
-                result = 127
                 sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e[0], cmd, e[1]))
             if stderr != None:
                 stderr.write("scons: %s: %s\n" % (cmd, e[1]))

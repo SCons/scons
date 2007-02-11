@@ -115,8 +115,8 @@
 
     <screen>
        % <userinput>scons -Q</userinput>
-       cc -DGOODBYE -c -o goodbye.o goodbye.c
-       cc -DHELLO -c -o hello.o hello.c
+       cc -o goodbye.o -c -DGOODBYE goodbye.c
+       cc -o hello.o -c -DHELLO hello.c
        cc -o hello hello.o goodbye.o
     </screen>
 
@@ -254,7 +254,7 @@
       % <userinput>scons -Q</userinput>
       The object file is: hello.o
       The program file is: hello
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
     </screen>
 
@@ -312,9 +312,8 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      The object file is: hello.o
-      The program file is: hello
-      cc -c -o hello.o hello.c
+      hello does not exist!
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
     </screen>
 
@@ -332,7 +331,7 @@
 
     </para>
 
-    <scons_example name="exists">
+    <scons_example name="read">
       <file name="SConstruct" printme="1">
       hello_c = File('hello.c')
       contents = hello_c.read()
@@ -350,7 +349,7 @@
 
     </para>
 
-    <scons_output example="print" os="posix">
+    <scons_output example="read" os="posix">
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 

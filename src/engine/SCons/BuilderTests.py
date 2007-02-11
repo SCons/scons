@@ -864,7 +864,7 @@ class BuilderTestCase(unittest.TestCase):
         def func(self):
             pass
         
-        scanner = SCons.Scanner.Scanner(func, name='fooscan')
+        scanner = SCons.Scanner.Base(func, name='fooscan')
 
         b1 = SCons.Builder.Builder(action='bld', target_scanner=scanner)
         b2 = SCons.Builder.Builder(action='bld', target_scanner=scanner)

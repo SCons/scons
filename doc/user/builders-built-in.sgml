@@ -144,8 +144,8 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o goodbye.o goodbye.c
-      cc -c -o hello.o hello.c
+      cc -o goodbye.o -c goodbye.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o goodbye.o -L/usr/dir1 -Ldir2 -lfoo1 -lfoo2
     </screen>
 

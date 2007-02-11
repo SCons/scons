@@ -109,12 +109,12 @@ OptParser               = Main.OptParser
 SConscriptSettableOptions = Main.SConscriptSettableOptions
 
 keep_going_on_error     = Main.keep_going_on_error
-print_dtree             = Main.print_dtree
+#print_dtree             = Main.print_dtree
 print_explanations      = Main.print_explanations
 print_includes          = Main.print_includes
 print_objects           = Main.print_objects
 print_time              = Main.print_time
-print_tree              = Main.print_tree
+#print_tree              = Main.print_tree
 memory_stats            = Main.memory_stats
 ignore_errors           = Main.ignore_errors
 #sconscript_time         = Main.sconscript_time
@@ -289,6 +289,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Depends',
     'Dir',
     'NoClean',
+    'NoCache',
     'Entry',
     'Execute',
     'File',
@@ -341,6 +342,7 @@ GlobalDefaultBuilders = [
 
 for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
     exec "%s = _SConscript.DefaultEnvironmentCall(%s)" % (name, repr(name))
+del name
 
 # There are a handful of variables that used to live in the
 # Script/SConscript.py module that some SConscript files out there were
@@ -351,6 +353,10 @@ for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
 # maintain backwards compatibility for SConscripts that were reaching in
 # this way by hanging some attributes off the "SConscript" object here.
 SConscript = _SConscript.DefaultEnvironmentCall('SConscript')
+
+# Make SConscript look enough like the module it used to be so
+# that pychecker doesn't barf.
+SConscript.__name__ = 'SConscript'
 
 SConscript.Arguments = ARGUMENTS
 SConscript.ArgList = ARGLIST

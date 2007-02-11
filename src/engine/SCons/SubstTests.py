@@ -145,6 +145,8 @@ class SubstTestCase(unittest.TestCase):
                    MyNode("/bar/ack.cpp"),
                    MyNode("../foo/ack.c") ]
 
+        callable_object = TestCallable('callable-1')
+
         loc = {
             'xxx'       : None,
             'null'      : '',
@@ -203,7 +205,7 @@ class SubstTestCase(unittest.TestCase):
             'SSS'       : '$RRR',
 
             # Test callables that don't match the calling arguments.
-            'CALLABLE'  : TestCallable('callable-1'),
+            'CALLABLE'  : callable_object,
         }
 
         env = DummyEnv(loc)
@@ -514,6 +516,16 @@ class SubstTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
+        # Test that the combination of SUBST_RAW plus a pass-through
+        # conversion routine allows us to fetch a function through the
+        # dictionary.  CommandAction uses this to allow delayed evaluation
+        # of $SPAWN variables.
+        x = lambda x: x
+        r = scons_subst("$CALLABLE", env, mode=SUBST_RAW, conv=x, gvars=gvars)
+        assert r is callable_object, repr(r)
+        r = scons_subst("$CALLABLE", env, mode=SUBST_RAW, gvars=gvars)
+        assert r == 'callable-1', repr(r)
+
         # Test how we handle overriding the internal conversion routines.
         def s(obj):
             return obj
@@ -594,6 +606,8 @@ class SubstTestCase(unittest.TestCase):
                    MyNode("/bar/ack.cpp"),
                    MyNode("../foo/ack.c") ]
 
+        callable_object = TestCallable('callable-2')
+
         def _defines(defs):
             l = []
             for d in defs:
@@ -653,7 +667,7 @@ class SubstTestCase(unittest.TestCase):
             'SSS'       : '$RRR',
 
             # Test callable objects that don't match our calling arguments.
-            'CALLABLE'  : TestCallable('callable-2'),
+            'CALLABLE'  : callable_object,
 
             '_defines'  : _defines,
             'DEFS'      : [ ('Q1', '"q1"'), ('Q2', '"$AAA"') ],
@@ -791,8 +805,6 @@ class SubstTestCase(unittest.TestCase):
 
             # Test callables that don't match our calling arguments.
             '$CALLABLE',            [['callable-2']],
-
-            # Test
 
             # Test handling of quotes.
             # XXX Find a way to handle this in the future.
@@ -990,6 +1002,15 @@ class SubstTestCase(unittest.TestCase):
             assert str(e) in expect, e
         else:
             raise AssertionError, "did not catch expected SyntaxError"
+
+        # Test that the combination of SUBST_RAW plus a pass-through
+        # conversion routine allows us to fetch a function through the
+        # dictionary.
+        x = lambda x: x
+        r = scons_subst_list("$CALLABLE", env, mode=SUBST_RAW, conv=x, gvars=gvars)
+        assert r == [[callable_object]], repr(r)
+        r = scons_subst_list("$CALLABLE", env, mode=SUBST_RAW, gvars=gvars)
+        assert r == [['callable-2']], repr(r)
 
         # Test we handle overriding the internal conversion routines.
         def s(obj):

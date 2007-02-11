@@ -112,7 +112,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     # Now decide if latex needs to be run yet again.
     logfilename = basename + '.log'
-    for trial in range(int(env.subst('$LATEXRETRIES'))):
+    for _ in range(int(env.subst('$LATEXRETRIES'))):
         if not os.path.exists(logfilename):
             break
         content = open(logfilename, "rb").read()

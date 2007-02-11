@@ -266,7 +266,7 @@ This functionality could be invoked as in the following example:
     <screen>
       % <userinput>scons -Q</userinput>
       foobuild &lt; file.input &gt; file.foo
-      cc -c -o hello.o hello.c
+      cc -o hello.o -c hello.c
       cc -o hello hello.o
     </screen>
 

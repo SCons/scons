@@ -36,7 +36,7 @@ DVIBuilder = None
 
 def generate(env):
     try:
-        bld = env['BUILDERS']['DVI']
+        env['BUILDERS']['DVI']
     except KeyError:
         global DVIBuilder
 

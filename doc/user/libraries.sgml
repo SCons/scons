@@ -57,10 +57,10 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o f1.o f1.c
-      cc -c -o f2.o f2.c
-      cc -c -o f3.o f3.c
-      ar r libfoo.a f1.o f2.o f3.o
+      cc -o f1.o -c f1.c
+      cc -o f2.o -c f2.c
+      cc -o f3.o -c f3.c
+      ar rc libfoo.a f1.o f2.o f3.o
       ranlib libfoo.a
     </screen>
 
@@ -139,10 +139,10 @@
 
       <screen>
         % <userinput>scons -Q</userinput>
-        cc -c -o f1.os f1.c
-        cc -c -o f2.os f2.c
-        cc -c -o f3.os f3.c
-        cc -shared -o libfoo.so f1.os f2.os f3.os
+        cc -o f1.os -c f1.c
+        cc -o f2.os -c f2.c
+        cc -o f3.os -c f3.c
+        cc -o libfoo.so -shared f1.os f2.os f3.os
       </screen>
 
       <para>
@@ -212,12 +212,12 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o f1.o f1.c
-      cc -c -o f2.o f2.c
-      cc -c -o f3.o f3.c
-      ar r libfoo.a f1.o f2.o f3.o
+      cc -o f1.o -c f1.c
+      cc -o f2.o -c f2.c
+      cc -o f3.o -c f3.c
+      ar rc libfoo.a f1.o f2.o f3.o
       ranlib libfoo.a
-      cc -c -o prog.o prog.c
+      cc -o prog.o -c prog.c
       cc -o prog prog.o -L. -lfoo -lbar
     </screen>
 
@@ -345,7 +345,7 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -c -o prog.o prog.c
+      cc -o prog.o -c prog.c
       cc -o prog prog.o -L/usr/lib -L/usr/local/lib -lm
     </screen>
 
