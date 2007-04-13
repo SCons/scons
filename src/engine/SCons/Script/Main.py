@@ -74,6 +74,9 @@ import SCons.Warnings
 display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
 
+first_command_start = None
+last_command_end = None
+
 # Task control.
 #
 class BuildTask(SCons.Taskmaster.Task):
@@ -88,12 +91,17 @@ class BuildTask(SCons.Taskmaster.Task):
             if target.has_builder() and not hasattr(target.builder, 'status'):
                 if print_time:
                     start_time = time.time()
+                    global first_command_start
+                    if first_command_start is None:
+                        first_command_start = start_time
                 SCons.Taskmaster.Task.execute(self)
                 if print_time:
+                    global cumulative_command_time
+                    global last_command_end
                     finish_time = time.time()
-                    global command_time
-                    command_time = command_time+finish_time-start_time
-                    print "Command execution time: %f seconds"%(finish_time-start_time)
+                    last_command_end = finish_time
+                    cumulative_command_time = cumulative_command_time+finish_time-start_time
+                    sys.stdout.write("Command execution time: %f seconds\n"%(finish_time-start_time))
                 break
         else:
             if self.top and target.has_builder():
@@ -320,10 +328,10 @@ print_stacktrace = 0
 print_time = 0
 ignore_errors = 0
 sconscript_time = 0
-command_time = 0
+cumulative_command_time = 0
 exit_status = 0 # exit status, assume success by default
 repositories = []
-num_jobs = 1 # this is modifed by SConscript.SetJobs()
+num_jobs = None
 delayed_warnings = []
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
@@ -617,7 +625,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     site_init_filename = "site_init.py"
     site_init_modname = "site_init"
     site_tools_dirname = "site_tools"
-    sys.path = [site_dir] + sys.path
+    sys.path = [os.path.abspath(site_dir)] + sys.path
     site_init_file = os.path.join(site_dir, site_init_filename)
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
     if os.path.exists(site_init_file):
@@ -1354,9 +1362,10 @@ def _main(args, parser):
         tmtrace = None
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)
 
-    nj = ssoptions.get('num_jobs')
-    jobs = SCons.Job.Jobs(nj, taskmaster)
-    if nj > 1 and jobs.num_jobs == 1:
+    global num_jobs
+    num_jobs = ssoptions.get('num_jobs')
+    jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+    if num_jobs > 1 and jobs.num_jobs == 1:
         msg = "parallel builds are unsupported by this version of Python;\n" + \
               "\tignoring -j or num_jobs option.\n"
         SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
@@ -1413,6 +1422,7 @@ def _exec_main():
 
 def main():
     global exit_status
+    global first_command_start
     
     try:
         _exec_main()
@@ -1453,11 +1463,15 @@ def main():
     SCons.Taskmaster.dump_stats()
 
     if print_time:
-        total_time = time.time()-SCons.Script.start_time
-        scons_time = total_time-sconscript_time-command_time
+        total_time = time.time() - SCons.Script.start_time
+        if num_jobs == 1:
+            ct = cumulative_command_time
+        else:
+            ct = last_command_end - first_command_start
+        scons_time = total_time - sconscript_time - ct
         print "Total build time: %f seconds"%total_time
         print "Total SConscript file execution time: %f seconds"%sconscript_time
         print "Total SCons execution time: %f seconds"%scons_time
-        print "Total command execution time: %f seconds"%command_time
+        print "Total command execution time: %f seconds"%ct
 
     sys.exit(exit_status)

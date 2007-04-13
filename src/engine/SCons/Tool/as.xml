@@ -27,7 +27,7 @@ from an assembly-language source file.
 <summary>
 The string displayed when an object file
 is generated from an assembly-language source file.
-If this is not set, then &cv-ASCOM; (the command line) is displayed.
+If this is not set, then &cv-link-ASCOM; (the command line) is displayed.
 
 <example>
 env = Environment(ASCOMSTR = "Assembling $TARGET")
@@ -46,7 +46,8 @@ General options passed to the assembler.
 The command line used to assemble an assembly-language
 source file into an object file
 after first running the file through the C preprocessor.
-Any options specified in the &cv-ASFLAGS; and &cv-CPPFLAGS; construction variables
+Any options specified
+in the &cv-link-ASFLAGS; and &cv-link-CPPFLAGS; construction variables
 are included on this command line.
 </summary>
 </cvar>
@@ -56,7 +57,7 @@ are included on this command line.
 The string displayed when an object file
 is generated from an assembly-language source file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-ASPPCOM; (the command line) is displayed.
+If this is not set, then &cv-link-ASPPCOM; (the command line) is displayed.
 
 <example>
 env = Environment(ASPPCOMSTR = "Assembling $TARGET")
@@ -69,6 +70,6 @@ env = Environment(ASPPCOMSTR = "Assembling $TARGET")
 General options when an assembling an assembly-language
 source file into an object file
 after first running the file through the C preprocessor.
-The default is to use the value of &cv-ASFLAGS;.
+The default is to use the value of &cv-link-ASFLAGS;.
 </summary>
 </cvar>

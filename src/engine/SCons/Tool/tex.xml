@@ -29,7 +29,7 @@ typesetter.
 <summary>
 The string displayed when generating a bibliography
 for TeX or LaTeX.
-If this is not set, then &cv-BIBTEXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-BIBTEXCOM; (the command line) is displayed.
 
 <example>
 env = Environment(BIBTEXCOMSTR = "Generating bibliography $TARGET")
@@ -64,7 +64,7 @@ typesetter.
 The string displayed when calling the makeindex generator for the
 TeX formatter and typesetter
 and the LaTeX structured formatter and typesetter.
-If this is not set, then &cv-MAKEINDEXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-MAKEINDEXCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -91,7 +91,7 @@ The command line used to call the TeX formatter and typesetter.
 <summary>
 The string displayed when calling
 the TeX formatter and typesetter.
-If this is not set, then &cv-TEXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-TEXCOM; (the command line) is displayed.
 
 <example>
 env = Environment(TEXCOMSTR = "Building $TARGET from TeX input $SOURCES")

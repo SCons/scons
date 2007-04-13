@@ -42,7 +42,7 @@ latex = test.where_is('latex')
 if not tex and not latex:
     test.skip_test("Could not find tex or latex; skipping test(s).\n")
 
-test.subdir('work1', 'work2')
+test.subdir('work1', 'work2', 'work4')
 
 
 input_file = r"""
@@ -52,6 +52,15 @@ input_file = r"""
 As stated in \cite{X}, this is a bug-a-boo.
 \bibliography{fooref}
 \bibliographystyle{plain}
+\end{document}
+"""
+
+input_file2 = r"""
+\documentclass{article}
+\begin{document}
+Hello world.
+% \bibliography{fooref}
+% \bibliographystyle{plain}
 \end{document}
 """
 
@@ -86,6 +95,8 @@ PDF( "foo.tex" )
         print foo_log
         test.fail_test(1)
 
+
+
 if latex:
 
     test.write(['work2', 'SConstruct'], """\
@@ -105,5 +116,17 @@ PDF( "foo.ltx" )
         print 'foo.log contains "undefined references":'
         print foo_log
         test.fail_test(1)
+
+
+
+    test.write(['work4', 'SConstruct'], """\
+DVI( "foo.ltx" )
+""")
+    test.write(['work4', 'foo.ltx'], input_file2)
+
+    test.run(chdir = 'work4', arguments = '.')
+
+    test.up_to_date(chdir = 'work4', arguments = '.')
+
 
 test.pass_test()

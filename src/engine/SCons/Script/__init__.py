@@ -122,7 +122,6 @@ ignore_errors           = Main.ignore_errors
 #exit_status             = Main.exit_status
 #profiling               = Main.profiling
 repositories            = Main.repositories
-#num_jobs                = Main.num_jobs     # settable by SConscript.SetJobs()
 
 #
 import SConscript

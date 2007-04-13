@@ -45,7 +45,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.96.94'
+default_version = '0.96.96'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
@@ -504,7 +504,7 @@ scons = {
                             'sconsign.1',
                             'scons-time.1',
                             'script/scons.bat',
-                            'script/scons-post-install.py',
+                            #'script/scons-post-install.py',
                             'setup.cfg',
                             'setup.py',
                           ],
@@ -862,7 +862,7 @@ for p in [ scons ]:
                     ])
 
         old = os.path.join('lib', 'scons', '')
-        new = os.path.join('lib', 'python2.2', 'site-packages', '')
+        new = os.path.join('lib', 'python' + python_ver, 'site-packages', '')
         def xxx(s, old=old, new=new):
             if s[:len(old)] == old:
                 s = new + s[len(old):]

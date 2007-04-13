@@ -55,10 +55,10 @@ other uses.  (That said, making these more nearly the same as later,
 official versions is still a desirable goal, we just don't need to be
 obsessive about it.)
 
-We name the compatibility modules with an initial underscore (for
-example, _subprocess.py is our compatibility module for subprocess)
-so that we can still try to import the real module name and fall back
-to our compatibility module if we get an ImportError.  The import_as()
+We name the compatibility modules with an initial '_scons_' (for example,
+_scons_subprocess.py is our compatibility module for subprocess) so
+that we can still try to import the real module name and fall back to
+our compatibility module if we get an ImportError.  The import_as()
 function defined below loads the module as the "real" name (without the
 underscore), after which all of the "import {module}" statements in the
 rest of our code will find our pre-loaded compatibility module.
@@ -86,14 +86,14 @@ except NameError:
     try:
         # Python 2.2 and 2.3 can use the copy of the 2.[45] sets module
         # that we grabbed.
-        import_as('_sets', 'sets')
+        import_as('_scons_sets', 'sets')
     except (ImportError, SyntaxError):
         # Python 1.5 (ImportError, no __future_ module) and 2.1
         # (SyntaxError, no generators in __future__) will blow up
         # trying to import the 2.[45] sets module, so back off to a
         # custom sets module that can be discarded easily when we
         # stop supporting those versions.
-        import_as('_sets15', 'sets')
+        import_as('_scons_sets15', 'sets')
     import __builtin__
     import sets
     __builtin__.set = sets.Set
@@ -102,10 +102,10 @@ try:
     import subprocess
 except ImportError:
     # Pre-2.4 Python has no subprocess module.
-    import_as('_subprocess', 'subprocess')
+    import_as('_scons_subprocess', 'subprocess')
 
 try:
     import UserString
 except ImportError:
     # Pre-1.6 Python has no UserString module.
-    import_as('_UserString', 'UserString')
+    import_as('_scons_UserString', 'UserString')

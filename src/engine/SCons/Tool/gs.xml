@@ -27,7 +27,7 @@ The Ghostscript command line used to convert PostScript to PDF files.
 The string displayed when
 Ghostscript is used to convert
 a PostScript file to a PDF file.
-If this is not set, then &cv-GSCOM; (the command line) is displayed.
+If this is not set, then &cv-link-GSCOM; (the command line) is displayed.
 </summary>
 </cvar>
 

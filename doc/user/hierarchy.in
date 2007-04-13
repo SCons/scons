@@ -419,7 +419,7 @@ make no difference to the build.
     (Notice that the <literal>lib/foo1.o</literal> object file
     is built in the same directory as its source file.
     See <xref linkend="chap-separate">, below,
-    for information about 
+    for information about
     how to build the object file in a different subdirectory.)
 
     </para>
@@ -471,7 +471,7 @@ make no difference to the build.
     notice that the <literal>/usr/joe/lib/foo1.o</literal> object file
     is built in the same directory as its source file.
     See <xref linkend="chap-separate">, below,
-    for information about 
+    for information about
     how to build the object file in a different subdirectory.)
 
     </para>
@@ -773,3 +773,18 @@ make no difference to the build.
     </section>
 
   </section>
+
+  <!--
+
+  <section>
+  <title>Executing From a Subdirectory:  the -D, -u and -U Options</title>
+
+    <para>
+
+    XXX -D, -u and -U
+
+    </para>
+
+  </section>
+
+  -->

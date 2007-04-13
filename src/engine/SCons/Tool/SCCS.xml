@@ -27,7 +27,7 @@ fetch source files from SCCS.
 <summary>
 The string displayed when fetching
 a source file from a CVS repository.
-If this is not set, then &cv-SCCSCOM;
+If this is not set, then &cv-link-SCCSCOM;
 (the command line) is displayed.
 </summary>
 </cvar>

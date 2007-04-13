@@ -214,7 +214,7 @@
 
     &SCons; provides separate Builder objects
     to create static and shared object files.
-    The distinction becomes especially important when 
+    The distinction becomes especially important when
     archiving object files into different types of libraries.
 
     </para>
@@ -568,7 +568,7 @@
 
     <para>
 
-    XXX
+    XXX PCH()
 
     </para>
 
@@ -579,7 +579,7 @@
 
     <para>
 
-    XXX
+    XXX RES()
 
     </para>
 
@@ -604,16 +604,16 @@
 
       <para>
 
-      XXX
+      XXX CFile()
 
       </para>
 
       <programlisting>
-        XXX
+        XXX CFile() programlisting
       </programlisting>
 
       <screen>
-        XXX
+        XXX CFile() screen
       </screen>
 
     </section>
@@ -623,16 +623,16 @@
 
       <para>
 
-      XXX
+      XXX CXXFILE()
 
       </para>
 
       <programlisting>
-        XXX
+        XXX CXXFILE() programlisting
       </programlisting>
 
       <screen>
-        XXX
+        XXX CXXFILE() screen
       </screen>
 
     </section>
@@ -654,16 +654,16 @@
 
       <para>
 
-      XXX
+      XXX DVI() para
 
       </para>
 
       <programlisting>
-        XXX
+        XXX DVI() programlisting
       </programlisting>
 
       <screen>
-        XXX
+        XXX DVI() screen
       </screen>
 
     </section>
@@ -673,7 +673,7 @@
 
       <para>
 
-      XXX
+      XXX PDF() para
 
       </para>
 
@@ -684,16 +684,16 @@
 
       <para>
 
-      XXX
+      XXX PostScript() para
 
       </para>
 
       <programlisting>
-        XXX
+        XXX PostScript() programlisting
       </programlisting>
 
       <screen>
-        XXX
+        XXX PostScript() screen
       </screen>
 
     </section>
@@ -896,7 +896,7 @@
       </para>
 
       <screen>
-        XXX
+        XXX Java() screen
       </screen>
 
     </section>
@@ -906,7 +906,7 @@
 
       <para>
 
-      The &Jar; builder object XXX
+      XXX The &Jar; builder object
 
       </para>
 
@@ -917,7 +917,7 @@
       </programlisting>
 
       <screen>
-        XXX
+        XXX Jar() screen
       </screen>
 
     </section>
@@ -927,16 +927,16 @@
 
       <para>
 
-      XXX
+      XXX JavaH() para
 
       </para>
 
       <programlisting>
-        XXX
+        XXX JavaH() programlisting
       </programlisting>
 
       <screen>
-        XXX
+        XXX JavaH() screen
       </screen>
 
     </section>
@@ -946,16 +946,16 @@
 
       <para>
 
-      XXX
+      XXX RMIC() para
 
       </para>
 
       <programlisting>
-        XXX
+        XXX RMIC() programlisting
       </programlisting>
 
       <screen>
-        XXX
+        XXX RMIC() screen
       </screen>
 
     </section>

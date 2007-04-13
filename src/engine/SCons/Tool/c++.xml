@@ -19,7 +19,8 @@ The C++ compiler.
 <cvar name="CXXCOM">
 <summary>
 The command line used to compile a C++ source file to an object file.
-Any options specified in the &cv-CXXFLAGS; and &cv-CPPFLAGS; construction variables
+Any options specified in the &cv-link-CXXFLAGS; and
+&cv-link-CPPFLAGS; construction variables
 are included on this command line.
 </summary>
 </cvar>
@@ -28,7 +29,7 @@ are included on this command line.
 <summary>
 The string displayed when a C++ source file
 is compiled to a (static) object file.
-If this is not set, then &cv-CXXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-CXXCOM; (the command line) is displayed.
 
 <example>
 env = Environment(CXXCOMSTR = "Compiling static object $TARGET")
@@ -39,10 +40,10 @@ env = Environment(CXXCOMSTR = "Compiling static object $TARGET")
 <cvar name="CXXFLAGS">
 <summary>
 General options that are passed to the C++ compiler.
-By default, this includes the value of &cv-CCFLAGS;,
+By default, this includes the value of &cv-link-CCFLAGS;,
 so that setting &cv-CCFLAGS; affects both C and C++ compilation.
 If you want to add C++-specific flags,
-you must set or override the value of &cv-CXXFLAGS;.
+you must set or override the value of &cv-link-CXXFLAGS;.
 </summary>
 </cvar>
 
@@ -56,7 +57,8 @@ The C++ compiler used for generating shared-library objects.
 <summary>
 The command line used to compile a C++ source file
 to a shared-library object file.
-Any options specified in the &cv-SHCXXFLAGS; and &cv-CPPFLAGS; construction variables
+Any options specified in the &cv-link-SHCXXFLAGS; and
+&cv-link-CPPFLAGS; construction variables
 are included on this command line.
 </summary>
 </cvar>
@@ -65,7 +67,7 @@ are included on this command line.
 <summary>
 The string displayed when a C++ source file
 is compiled to a shared object file.
-If this is not set, then &cv-SHCXXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-SHCXXCOM; (the command line) is displayed.
 
 <example>
 env = Environment(SHCXXCOMSTR = "Compiling shared object $TARGET")

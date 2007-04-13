@@ -27,7 +27,7 @@ fetch source files from Perforce.
 <summary>
 The string displayed when
 fetching a source file from Perforce.
-If this is not set, then &cv-P4COM; (the command line) is displayed.
+If this is not set, then &cv-link-P4COM; (the command line) is displayed.
 </summary>
 </cvar>
 

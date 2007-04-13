@@ -65,7 +65,7 @@ The command line used to call the tar archiver.
 <summary>
 The string displayed when archiving files
 using the tar archiver.
-If this is not set, then &cv-TARCOM; (the command line) is displayed.
+If this is not set, then &cv-link-TARCOM; (the command line) is displayed.
 
 <example>
 env = Environment(TARCOMSTR = "Archiving $TARGET")

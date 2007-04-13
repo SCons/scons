@@ -52,6 +52,10 @@ undefined_references_re = re.compile(undefined_references_str, re.MULTILINE)
 
 openout_aux_re = re.compile(r"\\openout.*`(.*\.aux)'")
 
+makeindex_re = re.compile(r"^[^%]*\\makeindex", re.MULTILINE)
+tableofcontents_re = re.compile(r"^[^%]*\\tableofcontents", re.MULTILINE)
+bibliography_re = re.compile(r"^[^%]*\\bibliography", re.MULTILINE)
+
 # An Action sufficient to build any generic tex file.
 TeXAction = None
 
@@ -71,6 +75,24 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     basename = SCons.Util.splitext(str(source[0]))[0]
     basedir = os.path.split(str(source[0]))[0]
+
+    # Notice that all the filenames are not prefixed with the basedir.
+    # That's because the *COM variables have the cd command in the prolog.
+
+    bblfilename = basename + '.bbl'
+    bblContents = ""
+    if os.path.exists(bblfilename):
+        bblContents = open(bblfilename, "rb").read()
+
+    idxfilename = basename + '.idx'
+    idxContents = ""
+    if os.path.exists(idxfilename):
+        idxContents = open(idxfilename, "rb").read()
+
+    tocfilename = basename + '.toc'
+    tocContents = ""
+    if os.path.exists(tocfilename):
+        tocContents = open(tocfilename, "rb").read()
 
     # Run LaTeX once to generate a new aux file.
     XXXLaTeXAction(target, source, env)
@@ -96,21 +118,26 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 BibTeXAction(bibfile, bibfile, env)
                 break
 
-    # Now decide if makeindex will need to be run.
-    idxfilename = basename + '.idx'
-    if os.path.exists(idxfilename):
-        idxfile = env.fs.File(basename)
-        # TODO: if ( idxfile has changed) ...
-        MakeIndexAction(idxfile, idxfile, env)
-        XXXLaTeXAction(target, source, env)
-
+    must_rerun_latex = 0
     # Now decide if latex will need to be run again due to table of contents.
-    tocfilename = basename + '.toc'
-    if os.path.exists(tocfilename):
-        # TODO: if ( tocfilename has changed) ...
+    if os.path.exists(tocfilename) and tocContents != open(tocfilename, "rb").read():
+        must_rerun_latex = 1
+
+    # Now decide if latex will need to be run again due to bibliography.
+    if os.path.exists(bblfilename) and bblContents != open(bblfilename, "rb").read():
+        must_rerun_latex = 1
+
+    # Now decide if latex will need to be run again due to index.
+    if os.path.exists(idxfilename) and idxContents != open(idxfilename, "rb").read():
+        # We must run makeindex
+        idxfile = env.fs.File(basename)
+        MakeIndexAction(idxfile, idxfile, env)
+        must_rerun_latex = 1
+
+    if must_rerun_latex == 1:
         XXXLaTeXAction(target, source, env)
 
-    # Now decide if latex needs to be run yet again.
+    # Now decide if latex needs to be run yet again to resolve warnings.
     logfilename = basename + '.log'
     for _ in range(int(env.subst('$LATEXRETRIES'))):
         if not os.path.exists(logfilename):
@@ -153,25 +180,30 @@ def tex_emitter(target, source, env):
     target.append(base + '.log')
     for f in source:
         content = f.get_contents()
-        if string.find(content, r'\tableofcontents') != -1:
+        if tableofcontents_re.search(content):
             target.append(base + '.toc')
-        if string.find(content, r'\makeindex') != -1:
+            env.Precious(base + '.toc')
+        if makeindex_re.search(content):
             target.append(base + '.ilg')
             target.append(base + '.ind')
             target.append(base + '.idx')
-        if string.find(content, r'\bibliography') != -1:
+            env.Precious(base + '.idx')
+        if bibliography_re.search(content):
             target.append(base + '.bbl')
+            env.Precious(base + '.bbl')
             target.append(base + '.blg')
 
     # read log file to get all .aux files
     logfilename = base + '.log'
+    dir, base_nodir = os.path.split(base)
     if os.path.exists(logfilename):
         content = open(logfilename, "rb").read()
         aux_files = openout_aux_re.findall(content)
-        aux_files = filter(lambda f, b=base+'.aux': f != b, aux_files)
-        dir = os.path.split(base)[0]
+        aux_files = filter(lambda f, b=base_nodir+'.aux': f != b, aux_files)
         aux_files = map(lambda f, d=dir: d+os.sep+f, aux_files)
         target.extend(aux_files)
+        for a in aux_files:
+            env.Precious( a )
 
     return (target, source)
 

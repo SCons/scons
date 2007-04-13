@@ -594,7 +594,7 @@ This functionality could be invoked as in the following example:
       generator is being called to contribute to a build signature,
       as opposed to actually executing the command.
 
-      <!-- XXX NEED MORE HERE -->
+      <!-- XXX NEED MORE HERE, describe generators use in signatures -->
 
       </para>
       </listitem>
@@ -720,7 +720,7 @@ This functionality could be invoked as in the following example:
     </scons_output>
 
     <programlisting>
-       bld = Builder(action = 'XXX',
+       bld = Builder(action = 'my_command',
                      suffix = '.foo',
                      src_suffix = '.input',
                      emitter = 'MY_EMITTER')
@@ -745,14 +745,14 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    XXX
+    XXX para
 
     </para>
 
     <scons_example name="ex8">
        <file name="SConstruct" printme="1">
        env = Environment()
-       #env.SourceCode('.', env.BitKeeper('XXX'))
+       #env.SourceCode('.', env.BitKeeper('my_command'))
        env.Program('hello.c')
        </file>
        <file name="hello.c">

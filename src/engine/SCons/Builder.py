@@ -815,9 +815,15 @@ class BuilderBase:
         (This value isn't cached because there may be changes in a
         src_builder many levels deep that we can't see.)
         """
+        sdict = {}
         suffixes = self.subst_src_suffixes(env)
+        for s in suffixes:
+            sdict[s] = 1
         for builder in self.get_src_builders(env):
-            suffixes.extend(builder.src_suffixes(env))
+            for s in builder.src_suffixes(env):
+                if not sdict.has_key(s):
+                    sdict[s] = 1
+                    suffixes.append(s)
         return suffixes
 
 class CompositeBuilder(SCons.Util.Proxy):

@@ -27,7 +27,7 @@
 
   There are two occasions when &SCons; will,
   by default, remove target files.
-  The first is when &SCons; determines that 
+  The first is when &SCons; determines that
   an target file needs to be rebuilt
   and removes the existing version of the target
   before executing
@@ -44,7 +44,7 @@
   <title>Preventing target removal during build: the &Precious; Function</title>
 
     <para>
-    
+
     By default, &SCons; removes targets before building them.
     Sometimes, however, this is not what you want.
     For example, you may want to update a library incrementally,
@@ -53,23 +53,23 @@
     In such cases, you can use the
     &Precious; method to prevent
     &SCons; from removing the target before it is built:
-    
+
     </para>
-    
+
     <programlisting>
         env = Environment(RANLIBCOM='')
         lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
         env.Precious(lib)
     </programlisting>
-    
+
     <para>
-    
+
     Although the output doesn't look any different,
     &SCons; does not, in fact,
     delete the target library before rebuilding it:
-    
+
     </para>
-    
+
     <screen>
         % <userinput>scons -Q</userinput>
         cc -o f1.o -c f1.c
@@ -77,22 +77,21 @@
         cc -o f3.o -c f3.c
         ar rc libfoo.a f1.o f2.o f3.o
     </screen>
-    
+
     <para>
-    
+
     &SCons; will, however, still delete files marked as &Precious;
     when the <literal>-c</literal> option is used.
-    
+
     </para>
 
   </section>
-
 
   <section>
   <title>Preventing target removal during clean: the &NoClean; Function</title>
 
     <para>
-    
+
     By default, &SCons; removes all built targets when invoked
     with the <literal>-c</literal> option to clean a source tree
     of built tragets.
@@ -102,25 +101,25 @@
     but leave the final targets
     (the libraries)
     untouched.
-    
+
     In such cases, you can use the &NoClean; method to prevent &SCons;
     from removing a target during a clean:
-    
+
     </para>
-    
+
     <programlisting>
         env = Environment(RANLIBCOM='')
         lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
         env.NoClean(lib)
     </programlisting>
-    
+
     <para>
-    
+
     Notice that the <filename>libfoo.a</filename>
     is not listed as a removed file:
-    
+
     </para>
-    
+
     <screen>
         % <userinput>scons -Q</userinput>
         cc -o f1.o -c f1.c
@@ -139,3 +138,65 @@
 
   </section>
 
+  <section>
+  <title>Removing additional files during clean: the &Clean; Function</title>
+
+    <para>
+
+    There may be additional files that you want removed
+    when the <literal>-c</literal> option is used,
+    but which &SCons; doesn't know about
+    because they're not normal target files.
+    For example, perhaps a command you invoke
+    creates a log file as
+    part of building the target file you want.
+    You would like the log file cleaned,
+    but you don't want to have to teach
+    SCons that the command
+    "builds" two files.
+
+    </para>
+
+    <para>
+
+    You can use the &Clean; function to arrange for additional files
+    to be removed when the <literal>-c</literal> option is used.
+    Notice, however, that the &Clean; function takes two arguments,
+    and the <emphasis>second</emphasis> argument
+    is the name of the additional file you want cleaned
+    (<filename>foo.log</filename> in this example):
+
+    </para>
+
+    <programlisting>
+        t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
+        Clean(t, 'foo.log')
+    </programlisting>
+
+    <para>
+
+    The first argument is the target with which you want
+    the cleaning of this additional file associated.
+    In the above example,
+    we've used the return value from the
+    &Command; function,
+    which represents the
+    <filename>foo.out</filename>
+    target.
+    Now whenever the
+    <filename>foo.out</filename> target is cleaned
+    by the <literal>-c</literal> option,
+    the <filename>foo.log</filename> file
+    will be removed as well:
+
+    </para>
+
+    <screen>
+        % <userinput>scons -Q</userinput>
+        build -o foo.out foo.in
+        % <userinput>scons -Q -c</userinput>
+        Removed foo.out
+        Removed foo.log
+    </screen>
+
+  </section>

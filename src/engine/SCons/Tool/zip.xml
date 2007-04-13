@@ -58,7 +58,7 @@ zip archive.
 <summary>
 The string displayed when archiving files
 using the zip utility.
-If this is not set, then &cv-ZIPCOM;
+If this is not set, then &cv-link-ZIPCOM;
 (the command line or internal Python function) is displayed.
 
 <example>

@@ -29,13 +29,7 @@ import stat
 import string
 import sys
 
-Version = "0.96.94"
-
-man_pages = [
-    'scons.1',
-    'sconsign.1',
-    'scons-time.1',
-]
+Version = "0.96.96"
 
 man_pages = [
     'scons.1',
@@ -367,10 +361,10 @@ scripts = [
     'script/scons.bat',
 ]
 
-if is_win32:
-    scripts = scripts + [
-        'script/scons-post-install.py'
-    ]
+#if is_win32:
+#    scripts = scripts + [
+#        'script/scons-post-install.py'
+#    ]
 
 arguments = {
     'name'             : "scons",

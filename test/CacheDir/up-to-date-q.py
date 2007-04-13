@@ -60,7 +60,7 @@ int main(){ return 0; }
 
 sconstruct = """
 import os
-CacheDir('%s')
+CacheDir(r'%s')
 Program('foo', 'foo.c')
 """ % test.workpath('cache')
 

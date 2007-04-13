@@ -85,7 +85,7 @@ The RPC protocol compiler.
 Options passed to the RPC protocol compiler
 when generating client side stubs.
 These are in addition to any flags specified in the
-&cv-RPCGENFLAGS;
+&cv-link-RPCGENFLAGS;
 construction variable.
 </summary>
 </cvar>
@@ -101,7 +101,7 @@ General options passed to the RPC protocol compiler.
 Options passed to the RPC protocol compiler
 when generating a header file.
 These are in addition to any flags specified in the
-&cv-RPCGENFLAGS;
+&cv-link-RPCGENFLAGS;
 construction variable.
 </summary>
 </cvar>
@@ -111,7 +111,7 @@ construction variable.
 Options passed to the RPC protocol compiler
 when generating server side stubs.
 These are in addition to any flags specified in the
-&cv-RPCGENFLAGS;
+&cv-link-RPCGENFLAGS;
 construction variable.
 </summary>
 </cvar>
@@ -121,7 +121,7 @@ construction variable.
 Options passed to the RPC protocol compiler
 when generating XDR routines.
 These are in addition to any flags specified in the
-&cv-RPCGENFLAGS;
+&cv-link-RPCGENFLAGS;
 construction variable.
 </summary>
 </cvar>

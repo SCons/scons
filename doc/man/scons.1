@@ -184,7 +184,7 @@ complete external environment:
 
 .ES
 import os
-env = Environment(ENV = os.environ['PATH'])
+env = Environment(ENV = os.environ)
 .EE
 
 This comes at the expense of making your build
@@ -681,10 +681,38 @@ and ultimately removed.
 
 .TP
 --debug=time
-Prints various time profiling information: the time spent
-executing each build command, the total build time, the total time spent
-executing build commands, the total time spent executing SConstruct and
-SConscript files, and the total time spent executing SCons itself.
+Prints various time profiling information:
+the time spent executing each individual build command;
+the total build time (time SCons ran from beginning to end);
+the total time spent reading and executing SConscript files;
+the total time spent SCons itself spend running
+(that is, not counting reading and executing SConscript files);
+and both the total time spent executing all build commands
+and the elapsed wall-clock time spent executing those build commands.
+(When
+.B scons
+is executed without the
+.B -j
+option,
+the elapsed wall-clock time will typically
+be slightly longer than the total time spent
+executing all the build commands,
+due to the SCons processing that takes place
+in between executing each command.
+When
+.B scons
+is executed
+.I with
+the
+.B -j
+option,
+and your build configuration allows good parallelization,
+the elapsed wall-clock time should
+be significantly smaller than the
+total time spent executing all the build commands,
+since multiple build commands and
+intervening SCons processing
+should take place in parallel.)
 
 .TP
 --debug=tree
@@ -735,6 +763,24 @@ found in SCCS or RCS, for example,
 or if a file really does exist
 where the SCons configuration expects a directory).
 
+.TP
+.RI --duplicate= ORDER
+There are three ways to duplicate files in a build tree: hard links,
+soft (symbolic) links and copies. The default behaviour of SCons is to 
+prefer hard links to soft links to copies. You can specify different
+behaviours with this option.
+.IR ORDER 
+must be one of 
+.IR hard-soft-copy
+(the default),
+.IR soft-hard-copy ,
+.IR hard-copy ,
+.IR soft-copy
+or
+.IR copy .
+SCons will attempt to duplicate files using
+the mechanisms in the specified order.
+
 .\" .TP
 .\" -e, --environment-overrides
 .\" Variables from the execution environment override construction
@@ -774,29 +820,35 @@ imported Python modules.  If several
 options
 are used, the directories are searched in the order specified.
 
-.TP 
-.RI --no-site-dir
-Prevents the automatic addition of the standard
-.I site_scons
-dir to
-.IR sys.path .
-Also prevents loading the
-.I site_scons/site_init.py
-module if it exists, and prevents adding
-.I site_scons/site_tools
-to the toolpath.
-
 .TP
 --implicit-cache
-Cache implicit dependencies. This can cause 
+Cache implicit dependencies.
+This causes
 .B scons
-to miss changes in the implicit dependencies in cases where a new implicit
+to use the implicit (scanned) dependencies
+from the last time it was run
+instead of scanning the files for implicit dependencies.
+This can significantly speed up SCons,
+but with the following limitations:
+.IP
+.B scons
+will not detect changes to implicit dependency search paths
+(e.g.
+.BR CPPPATH ", " LIBPATH )
+that would ordinarily
+cause different versions of same-named files to be used.
+.IP
+.B scons
+will miss changes in the implicit dependencies
+in cases where a new implicit
 dependency is added earlier in the implicit dependency search path
-(e.g. CPPPATH) than a current implicit dependency with the same name.
+(e.g.
+.BR CPPPATH ", " LIBPATH )
+than a current implicit dependency with the same name.
 
 .TP
 --implicit-deps-changed
-Force SCons to ignore the cached implicit dependencies. This causes the
+Forces SCons to ignore the cached implicit dependencies. This causes the
 implicit dependencies to be rescanned and recached. This implies
 .BR --implicit-cache .
 
@@ -834,24 +886,6 @@ targets specified on the command line will still be processed.
 .\" average is at least 
 .\" .I N
 .\" (a floating-point number).
-
-.TP
-.RI --duplicate= ORDER
-There are three ways to duplicate files in a build tree: hard links,
-soft (symbolic) links and copies. The default behaviour of SCons is to 
-prefer hard links to soft links to copies. You can specify different
-behaviours with this option.
-.IR ORDER 
-must be one of 
-.IR hard-soft-copy
-(the default),
-.IR soft-hard-copy ,
-.IR hard-copy ,
-.IR soft-copy
-or
-.IR copy .
-SCons will attempt to duplicate files using
-the mechanisms in the specified order.
 
 .\"
 .\" .TP
@@ -901,6 +935,18 @@ no matter how old the file is.
 -n, --just-print, --dry-run, --recon
 No execute.  Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.
+
+.TP 
+.RI --no-site-dir
+Prevents the automatic addition of the standard
+.I site_scons
+dir to
+.IR sys.path .
+Also prevents loading the
+.I site_scons/site_init.py
+module if it exists, and prevents adding
+.I site_scons/site_tools
+to the toolpath.
 
 .\" .TP
 .\" .RI -o " file" ", --old-file=" file ", --assume-old=" file
@@ -3214,13 +3260,6 @@ be cached whenever the
 method has been activated.
 The specified targets may be a list
 or an individual target.
-Multiple calls to
-.BR NoCache ()
-are legal,
-and prevent each specified target
-from being removed by calls to the
-.B -c
-option.
 
 Multiple files should be specified
 either as separate arguments to the
@@ -3324,9 +3363,9 @@ for a table of options and construction variables.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI ParseDepends( filename ", [" must_exist ])
+.RI ParseDepends( filename ", [" must_exist ", " only_one ])
 .TP
-.RI env.ParseDepends( filename ", [" must_exist " " only_one ])
+.RI env.ParseDepends( filename ", [" must_exist ", " only_one ])
 Parses the contents of the specified
 .I filename
 as a list of dependencies in the style of
@@ -3341,7 +3380,7 @@ if the specified
 .I filename
 does not exist.
 The optional
-.I must_exit
+.I must_exist
 argument may be set to a non-zero
 value to have
 scons

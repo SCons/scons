@@ -63,7 +63,7 @@ The Java compiler.
 The command line used to compile a directory tree containing
 Java source files to
 corresponding Java class files.
-Any options specified in the &cv-JAVACFLAGS; construction variable
+Any options specified in the &cv-link-JAVACFLAGS; construction variable
 are included on this command line.
 </summary>
 </cvar>
@@ -73,7 +73,7 @@ are included on this command line.
 The string displayed when compiling
 a directory tree of Java source files to
 corresponding Java class files.
-If this is not set, then &cv-JAVACCOM; (the command line) is displayed.
+If this is not set, then &cv-link-JAVACCOM; (the command line) is displayed.
 
 <example>
 env = Environment(JAVACCOMSTR = "Compiling class files $TARGETS from $SOURCES")

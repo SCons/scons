@@ -50,6 +50,8 @@ interface and the SCons build engine.  There are two key classes here:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import string
 import sys
 import traceback
@@ -272,7 +274,11 @@ class Task:
         """
         self.out_of_date = []
         for t in self.targets:
-            if t.disambiguate().current():
+            try:
+                is_up_to_date = t.disambiguate().current()
+            except EnvironmentError, e:
+                raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
+            if is_up_to_date:
                 t.set_state(SCons.Node.up_to_date)
             else:
                 self.out_of_date.append(t)
@@ -572,7 +578,7 @@ class Taskmaster:
                 # list will get cleared and we'll re-scan the newly-built
                 # file(s) for updated implicit dependencies.
                 map(lambda n, P=node: n.add_to_waiting_parents(P), not_started)
-                node.ref_count = len(not_started)
+                node.ref_count = len(set(not_started))
 
                 # Now we add these derived targets to the candidates
                 # list so they can be examined and built.  We have to
@@ -607,7 +613,7 @@ class Taskmaster:
                 # dependency list will get cleared and we'll re-scan the
                 # newly-built file(s) for updated implicit dependencies.
                 map(lambda n, P=node: n.add_to_waiting_parents(P), not_built)
-                node.ref_count = len(not_built)
+                node.ref_count = len(set(not_built))
 
                 if S: S.not_built = S.not_built + 1
                 if T:

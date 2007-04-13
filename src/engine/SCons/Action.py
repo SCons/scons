@@ -268,8 +268,6 @@ class _ActionAction(ActionBase):
     def __init__(self, strfunction=_null, presub=_null, chdir=None, exitstatfunc=None, **kw):
         if not strfunction is _null:
             self.strfunction = strfunction
-        if presub is _null:
-            presub = print_actions_presub
         self.presub = presub
         self.chdir = chdir
         if not exitstatfunc:
@@ -290,7 +288,10 @@ class _ActionAction(ActionBase):
         if not SCons.Util.is_List(source):
             source = [source]
         if exitstatfunc is _null: exitstatfunc = self.exitstatfunc
-        if presub is _null:  presub = self.presub
+        if presub is _null:
+            presub = self.presub
+        if presub is _null:
+            presub = print_actions_presub
         if show is _null:  show = print_actions
         if execute is _null:  execute = execute_actions
         if chdir is _null: chdir = self.chdir

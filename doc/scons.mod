@@ -79,10 +79,18 @@
 
 -->
 
+<!ENTITY config "<literal>--config</literal>">
 <!ENTITY debug-explain "<literal>--debug=explain</literal>">
+<!ENTITY debug-findlibs "<literal>--debug=findlibs</literal>">
+<!ENTITY debug-includes "<literal>--debug=includes</literal>">
+<!ENTITY debug-presub "<literal>--debug=presub</literal>">
+<!ENTITY debug-stacktrace "<literal>--debug=stacktrace</literal>">
 <!ENTITY implicit-cache "<literal>--implicit-cache</literal>">
 <!ENTITY implicit-deps-changed "<literal>--implicit-deps-changed</literal>">
 <!ENTITY implicit-deps-unchanged "<literal>--implicit-deps-unchanged</literal>">
+<!ENTITY profile "<literal>--profile</literal>">
+<!ENTITY taskmastertrace "<literal>--taskmastertrace</literal>">
+<!ENTITY tree "<literal>--tree</literal>">
 <!ENTITY Q "<literal>-Q</literal>">
 
 <!--
@@ -123,10 +131,15 @@
 -->
 
 <!ENTITY Add "<function>Add</function>">
+<!ENTITY AddPostAction "<function>AddPostAction</function>">
+<!ENTITY AddPreAction "<function>AddPreAction</function>">
 <!ENTITY AddOptions "<function>AddOptions</function>">
 <!ENTITY Alias "<function>Alias</function>">
 <!ENTITY Aliases "<function>Aliases</function>">
+<!ENTITY AlwaysBuild "<function>AlwaysBuild</function>">
 <!ENTITY Append "<function>Append</function>">
+<!ENTITY AppendENVPath "<function>AppendENVPath</function>">
+<!ENTITY AppendUnique "<function>AppendUnique</function>">
 <!ENTITY BoolOption "<function>BoolOption</function>">
 <!ENTITY Build "<function>Build</function>">
 <!ENTITY CacheDir "<function>CacheDir</function>">
@@ -148,6 +161,7 @@
 <!ENTITY Execute "<function>Execute</function>">
 <!ENTITY Export "<function>Export</function>">
 <!ENTITY File "<function>File</function>">
+<!ENTITY FindFile "<function>FindFile</function>">
 <!ENTITY Finish "<function>Finish</function>">
 <!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
 <!ENTITY GetOption "<function>GetOption</function>">
@@ -163,6 +177,7 @@
 <!ENTITY Module "<function>Module</function>">
 <!ENTITY Move "<function>Move</function>">
 <!ENTITY NoClean "<function>NoClean</function>">
+<!ENTITY NoCache "<function>NoCache</function>">
 <!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Options "<function>Options</function>">
 <!ENTITY PackageOption "<function>PackageOption</function>">
@@ -175,6 +190,8 @@
 <!ENTITY PathOption_PathIsFile "<function>PathOption.PathIsFile</function>">
 <!ENTITY Precious "<function>Precious</function>">
 <!ENTITY Prepend "<function>Prepend</function>">
+<!ENTITY PrependENVPath "<function>PrependENVPath</function>">
+<!ENTITY PrependUnique "<function>PrependUnique</function>">
 <!ENTITY Replace "<function>Replace</function>">
 <!ENTITY Repository "<function>Repository</function>">
 <!ENTITY Return "<function>Return</function>">
@@ -182,6 +199,7 @@
 <!ENTITY Salt "<function>Salt</function>">
 <!ENTITY SetBuildSignatureType "<function>SetBuildSignatureType</function>">
 <!ENTITY SetContentSignatureType "<function>SetContentSignatureType</function>">
+<!ENTITY SideEffect "<function>SideEffect</function>">
 <!ENTITY SourceSignature "<function>SourceSignature</function>">
 <!ENTITY SourceSignatures "<function>SourceSignatures</function>">
 <!ENTITY Split "<function>Split</function>">

@@ -23,7 +23,7 @@ import SConsDoc
 base_sys_path = [os.getcwd() + '/build/test-tar-gz/lib/scons'] + sys.path
 
 helpstr = """\
-Usage: scons-varlist.py [--man|--sgml] \
+Usage: scons-proc.py [--man|--sgml] \
                         [-b file(s)] [-t file(s)] [-v file(s)] [infile ...]
 Options:
   -b file(s)        dump builder information to the specified file(s)

@@ -50,7 +50,7 @@
  *
  * Look in aesub(5) for more information about command substitutions.
  */
-build_command = "python2.4 ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "python2.1 ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * SCons removes its targets before constructing them, which qualifies it

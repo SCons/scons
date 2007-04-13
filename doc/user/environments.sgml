@@ -305,11 +305,7 @@ by the MD5 signature calculation on the actual file contents.
 
 =back
 
-XXX
-
-DESCRIBE THE Literal() FUNCTION, TOO
-
-XXX
+XXX DESCRIBE THE Literal() FUNCTION, TOO XXX
 
 =head2 Expanding construction variables in file names
 
@@ -454,7 +450,7 @@ environment undisturbed.
   </programlisting>
 
  <para>
-   
+
    The construction environment in this example
    is still initialized with the same default
    construction variable values,
@@ -988,6 +984,21 @@ environment undisturbed.
 
    </section>
 
+   <!--
+
+   <section>
+   <title>Setting Values Only If They're Not Already Defined</title>
+
+     <para>
+
+     XXX SetDefault()
+
+     </para>
+
+   </section>
+
+   -->
+
    <section>
    <title>Appending to the End of Values in a &ConsEnv;</title>
 
@@ -1043,6 +1054,12 @@ environment undisturbed.
         scons: `.' is up to date.
      </screen>
 
+     <!--
+
+     XXX AppendUnique()
+
+     -->
+
    </section>
 
    <section>
@@ -1050,7 +1067,7 @@ environment undisturbed.
 
      <para>
 
-     You can append a value to the beginning
+     You can append a value to the beginning of
      an existing construction variable
      using the &Prepend; method:
 
@@ -1100,6 +1117,29 @@ environment undisturbed.
         scons: `.' is up to date.
      </screen>
 
+     <!--
+
+     XXX PrependUnique()
+
+     -->
+
    </section>
+
+   <!--
+
+   <section>
+   <title>Adding to Values in the Execution Environment</title>
+
+     <para>
+
+     XXX AppendENVPath()
+
+     XXX PrependENVPath()
+
+     </para>
+
+   </section>
+
+   -->
 
  </section>

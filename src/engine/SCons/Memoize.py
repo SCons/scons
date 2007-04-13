@@ -145,7 +145,10 @@ class Counter:
         fmt = "    %7d hits %7d misses    %s()"
         print fmt % (self.hit, self.miss, self.name)
     def __cmp__(self, other):
-        return cmp(self.name, other.name)
+        try:
+            return cmp(self.name, other.name)
+        except AttributeError:
+            return 0
 
 class CountValue(Counter):
     """

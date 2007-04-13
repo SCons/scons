@@ -582,7 +582,9 @@ class BuilderTestCase(unittest.TestCase):
                 "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
 
         b2 = SCons.Builder.Builder(src_suffix = '.2', src_builder = b1)
-        assert b2.src_suffixes(env) == ['.2', '.c'], b2.src_suffixes(env)
+        r = b2.src_suffixes(env)
+        r.sort()
+        assert r == ['.2', '.c'], r
 
         b3 = SCons.Builder.Builder(action = {'.3a' : '', '.3b' : ''})
         s = b3.src_suffixes(env)
@@ -804,11 +806,6 @@ class BuilderTestCase(unittest.TestCase):
         s = map(str, tgt.sources[0].sources)
         assert s == ['aaa.bar'], s
 
-        builder3 = SCons.Builder.Builder(action = 'foo',
-                                         src_builder = 'xyzzy',
-                                         src_suffix = '.xyzzy')
-        assert builder3.get_src_builders(Environment()) == []
-
         builder4 = SCons.Builder.Builder(action='bld4',
                                          src_suffix='.i',
                                          suffix='_wrap.c')
@@ -979,8 +976,6 @@ class BuilderTestCase(unittest.TestCase):
         assert r == '', r
         r = builder.src_suffixes(env)
         assert r == [], r
-        r = builder.targets('foo')
-        assert r == ['foo'], r
 
         # src_suffix can be a single string or a list of strings
         # src_suffixes() caches its return value, so we use a new
@@ -1011,6 +1006,7 @@ class BuilderTestCase(unittest.TestCase):
         r = bld.get_src_suffix(env)
         assert r == '.bar', r
         r = bld.src_suffixes(env)
+        r.sort()
         assert r == ['.bar', '.foo'], r
 
         # adjust_suffix normalizes the suffix, adding a `.' if needed
@@ -1131,6 +1127,7 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.get_src_suffix(env)
         assert r == '.src_sfx1', r
         r = builder.src_suffixes(env)
+        r.sort()
         assert r == ['.src_sfx1', '.src_sfx2'], r
 
 
@@ -1404,11 +1401,6 @@ class BuilderTestCase(unittest.TestCase):
 
         assert b5.get_name(None) == 'builder5', b5.get_name(None)
         assert b6.get_name(None) in b6_names, b6.get_name(None)
-
-        for B in b3.get_src_builders(env):
-            assert B.get_name(env) == 'bldr1'
-        for B in b3.get_src_builders(env2):
-            assert B.get_name(env2) == 'B1'
 
         tgt = b4(env, target = 'moo', source='cow')
         assert tgt[0].builder.get_name(env) == 'bldr4'

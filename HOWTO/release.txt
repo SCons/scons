@@ -353,10 +353,13 @@ Things to do to release a new X.Y version of SCons:
 
             download.php:   new version number
 
+            includes/templates.php:
+                            update $latestrelease
+
             includes/versions.php:
                             update $stablerelease and/or $latestrelease
-                            add new version number do $docversions[],
-                            SHIFT $docversions[] INDEX NUMBERS :-(
+                            add new version number to $docversions[],
+                            IMPORTANT:  SHIFT $docversions[] INDEX NUMBERS :-(
 
             index.php:      announcement on the home page
                             remove out-of-date announcements
@@ -386,7 +389,7 @@ Things to do to release a new X.Y version of SCons:
         [point your browser to http://www.scons.org/]
 
 
-    Update the tigris.org web site:
+    Update the project pages at tigris.org:
 
         svn co http://scons.tigris.org/svn/scons/trunk
 

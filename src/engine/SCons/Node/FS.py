@@ -1929,7 +1929,14 @@ class File(Base):
     def get_contents(self):
         if not self.rexists():
             return ''
-        return open(self.rfile().abspath, "rb").read()
+        fname = self.rfile().abspath
+        try:
+            r = open(fname, "rb").read()
+        except EnvironmentError, e:
+            if not e.filename:
+                e.filename = fname
+            raise
+        return r
 
     def get_timestamp(self):
         if self.rexists():

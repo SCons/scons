@@ -24,8 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import sys
+import os.path
+
 import TestSCons
 
 _exe = TestSCons._exe
@@ -154,7 +154,7 @@ foobar/ttt.h
 
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
-test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
+test.must_not_exist(test.workpath('variant', 'prog.c'))
 
 test.up_to_date(arguments = args)
 
@@ -196,7 +196,7 @@ foobar/ttt.h
 
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
-test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
+test.must_not_exist(test.workpath('variant', 'prog.c'))
 
 test.up_to_date(arguments = args)
 
@@ -238,7 +238,7 @@ foobar/ttt.h
 """)
 
 # Make sure we didn't duplicate the source file in the variant subdirectory.
-test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
+test.must_not_exist(test.workpath('variant', 'prog.c'))
 
 test.up_to_date(arguments = args)
 
@@ -298,27 +298,6 @@ foobar/ttt.h
 """)
 
 test.up_to_date(arguments = args)
-
-
-
-# Check that neither a null-string CPPPATH nor a
-# a CPPPATH containing null values blows up.
-test.write('SConstruct', """
-env = Environment(CPPPATH = '')
-env.Library('one', source = 'empty1.c')
-env = Environment(CPPPATH = [None])
-env.Library('two', source = 'empty2.c')
-env = Environment(CPPPATH = [''])
-env.Library('three', source = 'empty3.c')
-""")
-
-test.write('empty1.c', "int a=0;\n")
-test.write('empty2.c', "int b=0;\n")
-test.write('empty3.c', "int c=0;\n")
-
-test.run(arguments = '.',
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
 
 
 

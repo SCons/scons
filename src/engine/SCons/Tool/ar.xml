@@ -26,7 +26,7 @@ The command line used to generate a static library from object files.
 <summary>
 The string displayed when an object file
 is generated from an assembly-language source file.
-If this is not set, then &cv-ARCOM; (the command line) is displayed.
+If this is not set, then &cv-link-ARCOM; (the command line) is displayed.
 
 <example>
 env = Environment(ARCOMSTR = "Archiving $TARGET")
@@ -55,7 +55,7 @@ The command line used to index a static library archive.
 <cvar name="RANLIBCOMSTR">
 <summary>
 The string displayed when a static library archive is indexed.
-If this is not set, then &cv-RANLIBCOM; (the command line) is displayed.
+If this is not set, then &cv-link-RANLIBCOM; (the command line) is displayed.
 
 <example>
 env = Environment(RANLIBCOMSTR = "Indexing $TARGET")
