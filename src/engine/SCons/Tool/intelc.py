@@ -353,7 +353,9 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
     else:
         env['CC']        = 'icc'
         env['CXX']       = 'icpc'
-        env['LINK']      = '$CC'
+        # Don't reset LINK here;
+        # use smart_link which should already be here from link.py.
+        #env['LINK']      = '$CC'
         env['AR']        = 'xiar'
         env['LD']        = 'xild' # not used by default
 

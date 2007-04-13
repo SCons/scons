@@ -114,7 +114,7 @@
     found in the local build tree,
     &SCons; will search first for
     a <filename>/usr/repository1/hello.c</filename> file
-    and then for a <filename>/usr/repository1/hello.c</filename> file
+    and then for a <filename>/usr/repository2/hello.c</filename> file
     to use in its place.
 
     </para>
@@ -195,7 +195,7 @@
     a source file for <literal>#include</literal> file names
     and realize that targets built from that source file
     also depend on the <literal>#include</literal> file(s).
-    For each directory in the &cv-CPPPATH; list,
+    For each directory in the &cv-link-CPPPATH; list,
     &SCons; will actually search the corresponding directories
     in any repository trees and establish the
     correct dependencies on any
@@ -390,8 +390,8 @@ coming into existence.)
 
         Some modern versions of C compilers do have an option
         to disable or control this behavior.
-        If so, add that option to &cv-CFLAGS;
-        (or &cv-CXXFLAGS; or both) in your construction environment(s).
+        If so, add that option to &cv-link-CFLAGS;
+        (or &cv-link-CXXFLAGS; or both) in your construction environment(s).
         Make sure the option is used for all construction
         environments that use C preprocessing!
 

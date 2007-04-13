@@ -33,7 +33,7 @@ fetch source files from a CVS repository.
 <summary>
 The string displayed when fetching
 a source file from a CVS repository.
-If this is not set, then &cv-CVSCOM;
+If this is not set, then &cv-link-CVSCOM;
 (the command line) is displayed.
 </summary>
 </cvar>
@@ -51,6 +51,6 @@ to specify from where the files must be fetched.
 <summary>
 The path to the CVS repository.
 This is referenced in the default
-&cv-CVSFLAGS; value.
+&cv-link-CVSFLAGS; value.
 </summary>
 </cvar>

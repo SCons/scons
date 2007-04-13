@@ -32,12 +32,12 @@ The command line used to convert TeX DVI files into a PDF file.
 <summary>
 The string displayed when a TeX DVI file
 is converted into a PDF file.
-If this is not set, then &cv-DVIPDFCOM; (the command line) is displayed.
+If this is not set, then &cv-link-DVIPDFCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
 <cvar name="PDFCOM">
 <summary>
-A deprecated synonym for &cv-DVIPDFCOM;.
+A deprecated synonym for &cv-link-DVIPDFCOM;.
 </summary>
 </cvar>

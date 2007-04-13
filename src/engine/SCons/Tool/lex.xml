@@ -27,7 +27,7 @@ to generate a source file.
 <summary>
 The string displayed when generating a source file
 using the lexical analyzer generator.
-If this is not set, then &cv-LEXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-LEXCOM; (the command line) is displayed.
 
 <example>
 env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")

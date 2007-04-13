@@ -8,7 +8,7 @@ See its __doc__ string for a discussion of the format.
 <summary>
 Builds a C source file given a lex (<filename>.l</filename>)
 or yacc (<filename>.y</filename>) input file.
-The suffix specified by the &cv-CFILESUFFIX; construction variable
+The suffix specified by the &cv-link-CFILESUFFIX; construction variable
 (<filename>.c</filename> by default)
 is automatically added to the target
 if it is not already present.
@@ -28,7 +28,7 @@ env.CFile(target = 'bar', source = 'bar.y')
 Builds a C++ source file given a lex (<filename>.ll</filename>)
 or yacc (<filename>.yy</filename>)
 input file.
-The suffix specified by the &cv-CXXFILESUFFIX; construction variable
+The suffix specified by the &cv-link-CXXFILESUFFIX; construction variable
 (<filename>.cc</filename> by default)
 is automatically added to the target
 if it is not already present.
@@ -82,9 +82,9 @@ see that builder method's description for
 a list of legal source file suffixes
 and how they are interpreted.
 The target executable file prefix
-(specified by the &cv-PROGPREFIX; construction variable; nothing by default)
+(specified by the &cv-link-PROGPREFIX; construction variable; nothing by default)
 and suffix
-(specified by the &cv-PROGSUFFIX; construction variable;
+(specified by the &cv-link-PROGSUFFIX; construction variable;
 by default, <filename>.exe</filename> on Windows systems,
 nothing on POSIX systems)
 are automatically added to the target if not already present.
@@ -109,11 +109,11 @@ compiled to object files.
 The static library prefix and suffix (if any)
 are automatically added to the target.
 The target library file prefix
-(specified by the &cv-SHLIBPREFIX; construction variable;
+(specified by the &cv-link-SHLIBPREFIX; construction variable;
 by default, <filename>lib</filename> on POSIX systems,
 nothing on Windows systems)
 and suffix
-(specified by the &cv-SHLIBSUFFIX; construction variable;
+(specified by the &cv-link-SHLIBSUFFIX; construction variable;
 by default, <filename>.dll</filename> on Windows systems,
 <filename>.so</filename> on POSIX systems)
 are automatically added to the target if not already present.
@@ -146,12 +146,12 @@ On Windows systems, specifying
 will cause the <filename>.dll</filename> to be
 registered after it is built using REGSVR32.
 The command that is run
-("regsvr32" by default) is determined by &cv-REGSVR; construction
-variable, and the flags passed are determined by &cv-REGSVRFLAGS;.  By
-default, &cv-REGSVRFLAGS; includes the <option>/s</option> option,
+("regsvr32" by default) is determined by &cv-link-REGSVR; construction
+variable, and the flags passed are determined by &cv-link-REGSVRFLAGS;.  By
+default, &cv-link-REGSVRFLAGS; includes the <option>/s</option> option,
 to prevent dialogs from popping
 up and requiring user attention when it is run.  If you change
-&cv-REGSVRFLAGS;, be sure to include the <option>/s</option> option.
+&cv-link-REGSVRFLAGS;, be sure to include the <option>/s</option> option.
 For example,
 
 <example>
@@ -186,10 +186,10 @@ and shared objects to be linked into a
 shared library, and will use the same suffix for shared and normal
 (static) objects.
 The target object file prefix
-(specified by the &cv-SHOBJPREFIX; construction variable;
-by default, the same as &cv-OBJPREFIX;)
+(specified by the &cv-link-SHOBJPREFIX; construction variable;
+by default, the same as &cv-link-OBJPREFIX;)
 and suffix
-(specified by the &cv-SHOBJSUFFIX; construction variable)
+(specified by the &cv-link-SHOBJSUFFIX; construction variable)
 are automatically added to the target if not already present.
 Examples:
 
@@ -218,11 +218,11 @@ compiled to object files.
 The static library prefix and suffix (if any)
 are automatically added to the target.
 The target library file prefix
-(specified by the &cv-LIBPREFIX; construction variable;
+(specified by the &cv-link-LIBPREFIX; construction variable;
 by default, <filename>lib</filename> on POSIX systems,
 nothing on Windows systems)
 and suffix
-(specified by the &cv-LIBSUFFIX; construction variable;
+(specified by the &cv-link-LIBSUFFIX; construction variable;
 by default, <filename>.lib</filename> on Windows systems,
 <filename>.a</filename> on POSIX systems)
 are automatically added to the target if not already present.
@@ -279,9 +279,9 @@ Source files must have one of the following extensions:
 </example>
 
 The target object file prefix
-(specified by the &cv-OBJPREFIX; construction variable; nothing by default)
+(specified by the &cv-link-OBJPREFIX; construction variable; nothing by default)
 and suffix
-(specified by the &cv-OBJSUFFIX; construction variable;
+(specified by the &cv-link-OBJSUFFIX; construction variable;
 <filename>.obj</filename> on Windows systems,
 <filename>.o</filename> on POSIX systems)
 are automatically added to the target if not already present.

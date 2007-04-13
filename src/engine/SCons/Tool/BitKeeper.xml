@@ -27,14 +27,14 @@ fetching source files using BitKeeper.
 <summary>
 The string displayed when fetching
 a source file using BitKeeper.
-If this is not set, then &cv-BITKEEPERCOM;
+If this is not set, then &cv-link-BITKEEPERCOM;
 (the command line) is displayed.
 </summary>
 </cvar>
 
 <cvar name="BITKEEPERGET">
 <summary>
-The command (&cv-BITKEEPER;) and subcommand
+The command (&cv-link-BITKEEPER;) and subcommand
 for fetching source files using BitKeeper.
 </summary>
 </cvar>

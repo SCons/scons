@@ -1049,8 +1049,20 @@ class Popen(object):
 
                     # Close pipe fds.  Make sure we don't close the same
                     # fd more than once, or standard fds.
-                    for fd in set((p2cread, c2pwrite, errwrite))-set((0,1,2)):
-                        if fd: os.close(fd)
+                    try:
+                        set
+                    except NameError:
+                        # Fall-back for earlier Python versions, so epydoc
+                        # can use this module directly to execute things.
+                        if p2cread:
+                            os.close(p2cread)
+                        if c2pwrite and c2pwrite not in (p2cread,):
+                            os.close(c2pwrite)
+                        if errwrite and errwrite not in (p2cread, c2pwrite):
+                            os.close(errwrite)
+                    else:
+                        for fd in set((p2cread, c2pwrite, errwrite))-set((0,1,2)):
+                            if fd: os.close(fd)
 
                     # Close all other fds, if asked for
                     if close_fds:

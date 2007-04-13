@@ -32,6 +32,28 @@
   the tool is behaving a certain way,
   and how to get it to behave the way you want.
   &SCons; is no different.
+  This appendix contains a number of
+  different ways in which you can
+  get some additional insight into &SCons' behavior.
+
+  </para>
+
+  <para>
+
+  Note that we're always interested in trying to
+  improve how you can troubleshoot configuration problems.
+  If you run into a problem that has
+  you scratching your head,
+  and which there just doesn't seem to be a good way to debug,
+  odds are pretty good that someone else will run into
+  the same problem, too.
+  If so, please let the SCons development team know
+  (preferably by filing a bug report
+  or feature request at our project pages at tigris.org)
+  so that we can use your feedback
+  to try to come up with a better way to help you,
+  and others, get the necessary insight into &SCons; behavior
+  to help identify and fix configuration issues.
 
   </para>
 
@@ -40,7 +62,7 @@
 
     <para>
 
-    Let's take a simple example of
+    Let's look at a simple example of
     a misconfigured build
     that causes a target to be rebuilt
     every time &SCons; is run:
@@ -70,7 +92,7 @@
 
     <para>
 
-    Now if we run &SCons; multiple on this example,
+    Now if we run &SCons; multiple times on this example,
     we see that it re-runs the &cp;
     command every time:
 
@@ -193,6 +215,17 @@
       <scons_output_command>scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
+    <para>
+
+    (Note that the &debug-explain; option will only tell you
+    why &SCons; decided to rebuild necessary targets.
+    It does not tell you what files it examined
+    when deciding <emphasis>not</emphasis>
+    to rebuild a target file,
+    which is often a more valuable question to answer.)
+
+    </para>
+
   </section>
 
   <section>
@@ -223,7 +256,7 @@
     </para>
 
     <scons_example name="Dump">
-      <file name="SConstruct" print="1">
+      <file name="SConstruct" printme="1">
          env = Environment()
          print env.Dump()
       </file>
@@ -279,7 +312,7 @@
     </para>
 
     <scons_example name="Dump_ENV">
-      <file name="SConstruct" print="1">
+      <file name="SConstruct" printme="1">
          env = Environment()
          print env.Dump('ENV')
       </file>
@@ -306,3 +339,533 @@
     </scons_output>
 
   </section>
+
+  <section>
+
+  <title>What Dependencies Does &SCons; Know About?  the &tree; Option</title>
+
+    <para>
+
+    Sometimes the best way to try to figure out what
+    &SCons; is doing is simply to take a look at the
+    dependency graph that it constructs
+    based on your &SConscript; files.
+    The <literal>--tree</literal> option
+    will display all or part of the
+    &SCons; dependency graph in an
+    "ASCII art" graphical format
+    that shows the dependency hierarchy.
+
+    </para>
+
+    <para>
+
+    For example, given the following input &SConstruct; file:
+
+    </para>
+
+    <scons_example name="tree1">
+      <file name="SConstruct" printme="1">
+         env = Environment(CPPPATH = ['.'])
+         env.Program('prog', ['f1.c', 'f2.c', 'f3.c'])
+      </file>
+      <file name="f1.c">
+      #include "inc.h"
+      </file>
+      <file name="f2.c">
+      #include "inc.h"
+      </file>
+      <file name="f3.c">
+      #include "inc.h"
+      </file>
+      <file name="inc.h">
+      inc.h
+      </file>
+    </scons_example>
+
+    <para>
+
+    Running &SCons; with the <literal>--tree=all</literal>
+    option yields:
+
+    </para>
+
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=all</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The tree will also be printed when the
+    <literal>-n</literal> (no execute) option is used,
+    which allows you to examine the dependency graph
+    for a configuration without actually
+    rebuilding anything in the tree.
+
+    </para>
+
+    <para>
+
+    The <literaL>--tree</literal> option only prints
+    the dependency graph for the specified targets
+    (or the default target(s) if none are specified on the command line).
+    So if you specify a target like <filename>f2.o</filename>
+    on the command line,
+    the <literaL>--tree</literal> option will only
+    print the dependency graph for that file:
+
+    </para>
+
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=all f2.o</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    This is, of course, useful for
+    restricting the output from a very large
+    build configuration to just a
+    portion in which you're interested.
+    Multiple targets are fine,
+    in which case a tree will be printed
+    for each specified target:
+
+    </para>
+
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=all f1.o f3.o</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The <literal>status</literal> argument may be used
+    to tell &SCons; to print status information about
+    each file in the dependency graph:
+
+    </para>
+
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=status</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    Note that <literal>--tree=all,status</literal> is equivalent;
+    the <literal>all</literal>
+    is assumed if only <literal>status</literal> is present.
+    As an alternative to <literal>all</literal>,
+    you can specify <literal>--tree=derived</literal>
+    to have &SCons; only print derived targets
+    in the tree output,
+    skipping source files
+    (like <filename>.c</filename> and <filename>.h</filename> files):
+
+    </para>
+
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=derived</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    You can use the <literal>status</literal>
+    modifier with <literal>derived</literal> as well:
+
+    </para>
+
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=derived,status</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    Note that the order of the <literal>--tree=</literal>
+    arguments doesn't matter;
+    <literal>--tree=status,derived</literal> is
+    completely equivalent.
+
+    </para>
+
+    <para>
+
+    The default behavior of the <literal>--tree</literal> option
+    is to repeat all of the dependencies each time the library dependency
+    (or any other dependency file) is encountered in the tree.
+    If certain target files share other target files,
+    such as two programs that use the same library:
+
+    </para>
+
+    <scons_example name="tree2">
+      <file name="SConstruct" printme="1">
+         env = Environment(CPPPATH = ['.'],
+                           LIBS = ['foo'],
+                           LIBPATH = ['.'])
+         env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+         env.Program('prog1.c')
+         env.Program('prog2.c')
+      </file>
+      <file name="prog1.c">
+      #include "inc.h"
+      </file>
+      <file name="prog2.c">
+      #include "inc.h"
+      </file>
+      <file name="f1.c">
+      #include "inc.h"
+      </file>
+      <file name="f2.c">
+      #include "inc.h"
+      </file>
+      <file name="f3.c">
+      #include "inc.h"
+      </file>
+      <file name="inc.h">
+      inc.h
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then there can be a <emphasis>lot</emphasis> of repetition in the
+    <literal>--tree=</literal> output:
+
+    </para>
+
+    <scons_output example="tree2">
+      <scons_output_command>scons -Q --tree=all</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    In a large configuration with many internal libraries
+    and include files,
+    this can very quickly lead to huge output trees.
+    To help make this more manageable,
+    a <literal>prune</literal> modifier may
+    be added to the option list,
+    in which case &SCons;
+    will print the name of a target that has
+    already been visited during the tree-printing
+    in <literal>[square brackets]</literal>
+    as an indication that the dependencies
+    of the target file may be found
+    by looking farther up the tree:
+
+    </para>
+
+    <scons_output example="tree2">
+      <scons_output_command>scons -Q --tree=prune</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    Like the <literal>status</literal> keyword,
+    the <literal>prune</literal> argument by itself
+    is equivalent to <literal>--tree=all,prune</literal>.
+
+    </para>
+
+  </section>
+
+  <section>
+
+  <title>How is &SCons; Constructing the Command Lines It Executes?  the &debug-presub; Option</title>
+
+    <para>
+
+    Sometimes it's useful to look at the
+    pre-substitution string
+    that &SCons; uses to generate
+    the command lines it executes.
+    This can be done with the &debug-presub; option:
+
+    </para>
+
+    <scons_example name="presub">
+      <file name="SConstruct">
+         env = Environment(CPPPATH = ['.'])
+         env.Program('prog', 'prog.c')
+      </file>
+      <file name="prog.c">
+      prog.c
+      </file>
+    </scons_example>
+
+    <!--
+
+    Have to capture output here, otherwise the - -debug=presub output
+    shows the Python functions from the sconsdoc.py execution wrapper
+    used to generate this manual, not the underlying command-line strings.
+
+    <scons_output example="presub">
+      <scons_output_command>scons -Q - -debug=presub</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q --debug=presub</userinput>
+      Building prog.o with action:
+        $CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCOMCOM $SOURCES
+      cc -o prog.o -c -I. prog.c
+      Building prog with action:
+        $SMART_LINKCOM
+      cc -o prog prog.o
+    </screen>
+
+  </section>
+
+  <section>
+
+  <title>Where is &SCons; Searching for Libraries?  the &debug-findlibs; Option</title>
+
+    <para>
+
+    To get some insight into what library names
+    &SCons; is searching for,
+    and in which directories it is searching,
+    Use the <literal>--debug=findlibs</literal> option.
+    Given the following input &SConstruct; file:
+
+    </para>
+
+    <scons_example name="findlibs">
+      <file name="SConstruct" printme="1">
+        env = Environment(LIBPATH = ['libs1', 'libs2'])
+        env.Program('prog.c', LIBS=['foo', 'bar'])
+      </file>
+      <file name="prog.c">
+      prog.c
+      </file>
+      <file name="libs1/libfoo.a">
+      libs1/libfoo.a
+      </file>
+      <file name="libs2/libbar.a">
+      libs2/libbar.a
+      </file>
+    </scons_example>
+
+    <para>
+
+    And the libraries <filename>libfoo.a</filename>
+    and <filename>libbar.a</filename>
+    in <filename>libs1</filename> and <filename>libs2</filename>,
+    respectively,
+    use of the <literal>--debug=findlibs</literal> option yields:
+
+    </para>
+
+    <scons_output example="findlibs">
+      <scons_output_command>scons -Q --debug=findlibs</scons_output_command>
+    </scons_output>
+
+  </section>
+
+  <!--
+
+  <section>
+
+  <title>What Implicit Dependencies Did the &SCons; Scanner find?  the &debug-includes; Option</title>
+
+    <para>
+
+    XXX explain the - - debug=includes option
+
+    </para>
+
+    <scons_example name="includes">
+      <file name="SConstruct" printme="1">
+        env = Environment(CPPPATH = ['inc1', 'inc2'])
+        env.Program('prog.c')
+      </file>
+      <file name="prog.c">
+      #include "file1.h"
+      #include "file2.h"
+      prog.c
+      </file>
+      <file name="inc1/file1.h">
+      inc1/file1.h
+      </file>
+      <file name="inc2/file2.h">
+      inc2/file2.h
+      </file>
+    </scons_example>
+
+    <scons_output example="includes">
+      <scons_output_command>scons -Q - - debug=includes prog</scons_output_command>
+    </scons_output>
+
+  </section>
+
+  -->
+
+  <section>
+
+  <title>Where is &SCons; Blowing Up?  the &debug-stacktrace; Option</title>
+
+    <para>
+
+    In general, &SCons; tries to keep its error
+    messages short and informative.
+    That means we usually try to avoid showing
+    the stack traces that are familiar
+    to experienced Python programmers,
+    since they usually contain much more
+    information than is useful to most people.
+
+    </para>
+
+    <para>
+
+    For example, the following &SConstruct file:
+
+    </para>
+
+    <scons_example name="stacktrace">
+      <file name="SConstruct" printme="1">
+         Program('prog.c')
+      </file>
+    </scons_example>
+
+    <para>
+
+    Generates the following error if the
+    <filename>prog.c</filename> file
+    does not exist:
+
+    </para>
+
+    <scons_output example="stacktrace">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    In this case,
+    the error is pretty obvious.
+    But if it weren't,
+    and you wanted to try to get more information
+    about the error,
+    the &debug-stacktrace; option
+    would show you exactly where in the &SCons; source code
+    the problem occurs:
+
+    </para>
+
+    <scons_output example="stacktrace">
+      <scons_output_command>scons -Q --debug=stacktrace</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    Of course, if you do need to dive into the &SCons; source code,
+    we'd like to know if, or how,
+    the error messages or troubleshooting options
+    could have been improved to avoid that.
+    Not everyone has the necessary time or
+    Python skill to dive into the source code,
+    and we'd like to improve &SCons;
+    for those people as well...
+
+    </para>
+
+  </section>
+
+  <section>
+
+  <title>How is &SCons; Making Its Decisions?  the &taskmastertrace; Option</title>
+
+    <para>
+
+    The internal &SCons; subsystem that handles walking
+    the dependency graph
+    and controls the decision-making about what to rebuild
+    is the <literal>Taskmaster</literal>.
+    &SCons; supports a <literal>--taskmastertrace</literal>
+    option that tells the Taskmaster to print
+    information about the children (dependencies)
+    of the various Nodes on its walk down the graph,
+    which specific dependent Nodes are being evaluated,
+    and in what order.
+
+    </para>
+
+    <para>
+
+    The <literal>--taskmastertrace</literal> option
+    takes as an argument the name of a file in
+    which to put the trace output,
+    with <filename>-</filename> (a single hyphen)
+    indicating that the trace messages
+    should be printed to the standard output:
+
+    </para>
+
+    <scons_example name="taskmastertrace">
+      <file name="SConstruct" printme="1">
+      env = Environment(CPPPATH = ['.'])
+      env.Program('prog.c')
+      </file>
+      <file name="prog.c">
+      #include "inc.h"
+      prog.c
+      </file>
+      <file name="inc.h">
+      #define   STRING  "one"
+      </file>
+    </scons_example>
+
+    <scons_output example="taskmastertrace" os="posix">
+      <scons_output_command>scons -Q --taskmastertrace=- prog</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The <literal>--taskmastertrace</literal> option
+    doesn't provide information about the actual
+    calculations involved in deciding if a file is up-to-date,
+    but it does show all of the dependencies
+    it knows about for each Node,
+    and the order in which those dependencies are evaluated.
+    This can be useful as an alternate way to determine
+    whether or not your &SCons; configuration,
+    or the implicit dependency scan,
+    has actually identified all the correct dependencies
+    you want it to.
+
+    </para>
+
+  </section>
+
+  <!--
+
+  <section>
+
+  <title>Where Are My Build Bottlenecks?  the &profile; Option</title>
+
+    <para>
+
+    XXX explain the - - profile= option
+
+    </para>
+
+  </section>
+
+  -->
+
+  <!--
+
+  <section>
+  <title>Troubleshooting Shared Caching:  the &cache-debug; Option</title>
+
+    <para>
+
+    XXX describe the - - cache-debug option
+    XXX maybe point to the caching.in chapter?
+
+    </para>
+
+  </section>
+
+  -->

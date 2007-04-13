@@ -23,27 +23,6 @@
 
 -->
 
-<!--
-
-=head2 The C<Salt> method
-
-The C<Salt> method adds a constant value to the signature calculation
-for every derived file.  It is invoked as follows:
-
-  Salt $string;
-
-Changing the Salt value will force a complete rebuild of every derived
-file.  This can be used to force rebuilds in certain desired
-circumstances.  For example,
-
-  Salt `uname -s`;
-
-Would force a complete rebuild of every derived file whenever the
-operating system on which the build is performed (as reported by C<uname
--s>) changes.
-
--->
-
   <para>
 
   So far we've seen how &SCons; handles one-time builds.
@@ -230,7 +209,7 @@ operating system on which the build is performed (as reported by C<uname
     <para>
 
     As you've just seen,
-    &SCons; uses signatures to decide whether a 
+    &SCons; uses signatures to decide whether a
     target file is up to date or must be rebuilt.
     When a target file depends on another target file,
     &SCons; allows you to configure separately
@@ -422,7 +401,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    The &cv-CPPPATH; value
+    The &cv-link-CPPPATH; value
     tells &SCons; to look in the current directory
     (<literal>'.'</literal>)
     for any files included by C source files
@@ -475,7 +454,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    Like the &cv-LIBPATH; variable,
+    Like the &cv-link-LIBPATH; variable,
     the &cv-CPPPATH; variable
     may be a list of directories,
     or a string separated by
@@ -587,22 +566,46 @@ operating system on which the build is performed (as reported by C<uname
        SetOption('implicit_cache', 1)
     </programlisting>
 
-    <!--
-
-    <para>
-    
-    XXX
-
-    </para>
-
     <para>
 
     &SCons; does not cache implicit dependencies like this by default
-    because XXX
-    
+    because the &implicit-cache; causes &SCons; to simply use the implicit
+    dependencies stored during the last run, without any checking
+    for whether or not those dependencies are still correct.
+    Specifically, this means &implicit-cache; instructs &SCons;
+    to <emphasis>not</emphasis> rebuild "correctly" in the
+    following cases:
+
+
     </para>
 
-    -->
+    <itemizedlist>
+
+      <listitem>
+        <para>
+
+        When &implicit-cache; is used, &SCons; will ignore any changes that
+        may have been made to search paths
+        (like &cv-CPPPATH; or &cv-LIBPATH;,).
+        This can lead to &SCons; not rebuilding a file if a change to
+        &cv-CPPPATH; would normally cause a different, same-named file from
+        a different directory to be used.
+
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+
+        When &implicit-cache; is used, &SCons; will not detect if a
+        same-named file has been added to a directory that is earlier in
+        the search path than the directory in which the file was found
+        last time.
+
+        </para>
+      </listitem>
+
+    </itemizedlist>
 
     <section>
     <title>The &implicit-deps-changed; Option</title>
@@ -651,7 +654,7 @@ operating system on which the build is performed (as reported by C<uname
       and re-scans the file for any updated
       implicit dependency information.
       Sometimes, however, you may want
-      to force &SCons; to use the cached implicit dependencies, 
+      to force &SCons; to use the cached implicit dependencies,
       even if the source files changed.
       This can speed up a build for example,
       when you have changed your source files
@@ -686,6 +689,17 @@ operating system on which the build is performed (as reported by C<uname
 
     </section>
 
+    <!--
+
+    <section>
+    <title>XXX max drift</title>
+
+      XXX SetOption('max_drift')
+
+    </section>
+
+    -->
+
   </section>
 
   <section>
@@ -693,7 +707,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    Sometimes it makes sense 
+    Sometimes it makes sense
     to not rebuild a program,
     even if a dependency file changes.
     In this case,
@@ -797,14 +811,104 @@ operating system on which the build is performed (as reported by C<uname
 
   </section>
 
-  <!-->
+  <section>
+  <title>The &AlwaysBuild; Method</title>
+
+    <para>
+
+    How &SCons; handles dependencies can also be affected
+    by the &AlwaysBuild; method.
+    When a file is passed to the &AlwaysBuild; method,
+    like so:
+
+    </para>
+
+    <programlisting>
+      hello = Program('hello.c')
+      AlwaysBuild(hello)
+    </programlisting>
+
+    <para>
+
+    Then the specified target file (&hello; in our example)
+    will always be considered out-of-date and
+    rebuilt whenever that target file is evaluated
+    while walking the dependency graph:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o hello.o -c hello.c
+      cc -o hello hello.o
+      % <userinput>scons -Q</userinput>
+      cc -o hello hello.o
+    </screen>
+
+    <para>
+
+    The &AlwaysBuild; function has a somewhat misleading name,
+    because it does not actually mean the target file will
+    be rebuilt every single time &SCons; is invoked.
+    Instead, it means that the target will, in fact,
+    be rebuilt whenever the target file is encountered
+    while evaluating the targets specified on
+    the command line (and their dependencies).
+    So specifying some other target on the command line,
+    a target that does <emphasis>not</emphasis>
+    itself depend on the &AlwaysBuild; target,
+    will still be rebuilt only if it's out-of-date
+    with respect to its dependencies:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o hello.o -c hello.c
+      cc -o hello hello.o
+      % <userinput>scons -Q hello.o</userinput>
+      scons: `hello.o' is up to date.
+    </screen>
+
+    <!--
+
+      XXX AlwaysBuild() and Alias Nodes
+
+      XXX AlwaysBuild() and Dir Nodes
+
+      XXX AlwaysBuild() with no sources
+
+    -->
+
+  </section>
+
+  <!--
 
   <section>
   <title>The &Salt; Method</title>
 
     <para>
 
-    XXX
+    XXX Salt() (are we going to implement this ?)
+
+        original Cons classic POD documentation:
+
+=head2 The C<Salt> method
+
+The C<Salt> method adds a constant value to the signature calculation
+for every derived file.  It is invoked as follows:
+
+  Salt $string;
+
+Changing the Salt value will force a complete rebuild of every derived
+file.  This can be used to force rebuilds in certain desired
+circumstances.  For example,
+
+  Salt `uname -s`;
+
+Would force a complete rebuild of every derived file whenever the
+operating system on which the build is performed (as reported by C<uname
+-s>) changes.
 
     </para>
 

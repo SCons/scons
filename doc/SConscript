@@ -49,6 +49,7 @@ doc_tar_gz = os.path.join(build_dir,
 # if lynx is available to do the dump.
 #
 fig2dev = whereis('fig2dev')
+epydoc = whereis('epydoc')
 groff = whereis('groff')
 lynx = whereis('lynx')
 man2html = whereis('man2html')
@@ -447,12 +448,63 @@ for man_1 in man_page_list:
         tar_deps.append(html)
         tar_list.append(html)
 
+if epydoc:
+    # XXX Should be in common with reading the same thing in
+    # the SConstruct file.
+    e = os.path.join('#src', 'engine')
+    manifest_in = File(os.path.join(e, 'MANIFEST.in')).rstr()
+    sources = map(lambda x: x[:-1], open(manifest_in).readlines())
+    sources = filter(lambda x: string.find(x, 'Optik') == -1, sources)
+    sources = filter(lambda x: string.find(x, 'Platform') == -1, sources)
+    sources = filter(lambda x: string.find(x, 'Tool') == -1, sources)
+    # XXX
+    sources = filter(lambda x: string.find(x, 'Options') == -1, sources)
+
+    e = os.path.join(build, '..', 'scons', 'engine')
+    sources = map(lambda x, e=e: os.path.join(e, x), sources)
+
+    epydoc_commands = [
+        Delete('$OUTDIR'),
+        '$EPYDOC $EPYDOCFLAGS --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',
+        Touch('$TARGET'),
+    ]
+
+    htmldir = os.path.join(build, 'HTML', 'scons-api')
+    env.Command('${OUTDIR}/index.html', sources, epydoc_commands,
+                EPYDOC=epydoc, EPYDOCFLAGS='--html', OUTDIR=htmldir)
+    tar_deps.append(htmldir)
+    tar_list.append(htmldir)
+
+    # PDF and PostScript and TeX are built from the
+    # same invocation.
+    api_dir = os.path.join(build, 'scons-api')
+    api_pdf = os.path.join(api_dir, 'api.pdf')
+    api_ps = os.path.join(api_dir, 'api.ps')
+    api_tex = os.path.join(api_dir, 'api.tex')
+    api_targets = [api_pdf, api_ps, api_tex]
+    env.Command(api_targets, sources, epydoc_commands,
+                EPYDOC=epydoc, EPYDOCFLAGS='--pdf', OUTDIR=api_dir)
+    Local(api_targets)
+
+    pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
+    env.InstallAs(pdf_install, api_pdf)
+    tar_deps.append(pdf_install)
+    tar_list.append(pdf_install)
+    Local(pdf_install)
+
+    ps_install = os.path.join(build, 'PS', 'scons-api.ps')
+    env.InstallAs(ps_install, api_ps)
+    tar_deps.append(ps_install)
+    tar_list.append(ps_install)
+    Local(ps_install)
+
 #
 # Now actually create the tar file of the documentation,
 # for easy distribution to the web site.
 #
 if tar_deps:
-    tar_list = string.join(map(lambda x: x[11:], tar_list))
+    tar_list = string.join(map(lambda x, b=build+'/': string.replace(x, b, ''),
+                           tar_list))
     env.Command(doc_tar_gz, tar_deps,
-                "tar cf${TAR_HFLAG} - -C build/doc %s | gzip > $TARGET" % tar_list)
+                "tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list))
     Local(doc_tar_gz)

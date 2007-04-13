@@ -58,7 +58,7 @@
     <para>
 
     Notice that the action returned by the &Copy; factory
-    will expand the &cv-TARGET; and &cv-SOURCE; strings
+    will expand the &cv-link-TARGET; and &cv-link-SOURCE; strings
     at the time &file_out; is built,
     and that the order of the arguments
     is the same as that of a builder itself--that is,
@@ -180,7 +180,7 @@
 
     Of course, like all of these &Action; factories,
     the &Delete; factory also expands
-    &cv-TARGET; and &cv-SOURCE; variables appropriately.
+    &cv-link-TARGET; and &cv-link-SOURCE; variables appropriately.
     For example:
 
     </para>

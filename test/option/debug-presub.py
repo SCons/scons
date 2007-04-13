@@ -24,59 +24,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
-import string
-import re
-import time
-
 import TestSCons
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
-
-test.write('SConstruct', """
-env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
-env.Program('foo', Split('foo.c bar.c'))
-""")
-
-test.write('foo.c', r"""
-#include "foo.h"
-int main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("f1.c\n");
-        exit (0);
-}
-""")
-
-test.write('bar.c', """
-#include "bar.h"
-""")
-
-test.write('foo.h', """
-#ifndef FOO_H
-#define FOO_H
-#include "bar.h"
-#endif
-""")
-
-test.write('bar.h', """
-#ifndef BAR_H
-#define BAR_H
-#include "foo.h"
-#endif
-""")
-
-############################
-# test --debug=pdb
-
-test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
-test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)
-test.fail_test(string.find(test.stdout(), "SCons") == -1)
-
-############################
-# test --debug=presub
 
 test.write('cat.py', """\
 import sys
@@ -96,7 +48,7 @@ FILE = Builder(action="$FILECOM")
 TEMP = Builder(action="$TEMPCOM")
 LIST = Builder(action="$LISTCOM")
 FUNC = Builder(action=cat)
-env = Environment(PYTHON='%(_python_)s',
+env = Environment(PYTHON=r'%(_python_)s',
                   BUILDERS = {'FILE':FILE, 'TEMP':TEMP, 'LIST':LIST, 'FUNC':FUNC},
                   FILECOM="$PYTHON cat.py $SOURCES $TARGET",
                   TEMPCOM="$PYTHON cat.py $SOURCES temp\\n$PYTHON cat.py temp $TARGET",
@@ -119,6 +71,10 @@ env.LIST('file15.out', 'file15.in')
 env.LIST('file16.out', 'file16.in')
 env.FUNC('file17.out', 'file17.in')
 env.FUNC('file18.out', 'file18.in')
+
+env2 = Environment(PYTHON=r'%(_python_)s',
+                   CCCOM="$PYTHON cat.py $SOURCES $TARGET")
+env2.Object('file20.obj', 'file20.c')
 """ % locals())
 
 test.write('file01.in', "file01.in\n")
@@ -138,6 +94,8 @@ test.write('file15.in', "file15.in\n")
 test.write('file16.in', "file16.in\n")
 test.write('file17.in', "file17.in\n")
 test.write('file18.in', "file18.in\n")
+
+test.write('file20.c', "file20.c\n")
 
 expect = """\
 Building file01.out with action:
@@ -215,6 +173,9 @@ cat(["file17.out"], ["file17.in"])
 Building file18.out with action:
   cat(target, source, env)
 cat(["file18.out"], ["file18.in"])
+Building file20.obj with action:
+  $PYTHON cat.py $SOURCES $TARGET
+%(_python_)s cat.py file20.c file20.obj
 """ % locals()
 
 test.run(arguments = "--debug=presub .", stdout=test.wrap_stdout(expect))
@@ -236,5 +197,7 @@ test.must_match('file15.out', "file15.in\n")
 test.must_match('file16.out', "file16.in\n")
 test.must_match('file17.out', "file17.in\n")
 test.must_match('file18.out', "file18.in\n")
+
+test.must_match('file20.obj', "file20.c\n")
 
 test.pass_test()

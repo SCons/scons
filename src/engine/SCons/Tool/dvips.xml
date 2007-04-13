@@ -18,7 +18,7 @@ from a <filename>.dvi</filename> input file
 <filename>.ltx</filename>,
 or
 <filename>.latex</filename> input file).
-The suffix specified by the &cv-PSSUFFIX; construction variable
+The suffix specified by the &cv-link-PSSUFFIX; construction variable
 (<filename>.ps</filename> by default)
 is added automatically to the target
 if it is not already present.  Example:
@@ -54,7 +54,7 @@ The command line used to convert TeX DVI files into a PostScript file.
 <summary>
 The string displayed when a TeX DVI file
 is converted into a PostScript file.
-If this is not set, then &cv-PSCOM; (the command line) is displayed.
+If this is not set, then &cv-link-PSCOM; (the command line) is displayed.
 </summary>
 </cvar>
 

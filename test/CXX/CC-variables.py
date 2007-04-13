@@ -34,7 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment(tools = ['g++'])
+env = Environment(tools = ['g++'], CXX = 'g++')
 env.Object(target = 'test.obj', source = 'test.cxx')
 env.MergeFlags('+for_CCFLAGS -Wp,-for_CPPFLAGS')
 """)

@@ -17,24 +17,24 @@ if the string
 or
 <literal>\documentstyle</literal>
 is found, the file is assumed to be a LaTeX file and
-the target is built by invoking the &cv-LATEXCOM; command line;
-otherwise, the &cv-TEXCOM; command line is used.
+the target is built by invoking the &cv-link-LATEXCOM; command line;
+otherwise, the &cv-link-TEXCOM; command line is used.
 If the file is a LaTeX file,
 the
 &b-DVI;
 builder method will also examine the contents
 of the
 <filename>.aux</filename>
-file and invoke the &cv-BIBTEX; command line
+file and invoke the &cv-link-BIBTEX; command line
 if the string
 <literal>bibdata</literal>
 is found,
-start &cv-MAKEINDEX; to generate an index if a
+start &cv-link-MAKEINDEX; to generate an index if a
 <filename>.ind</filename>
 file is found
 and will examine the contents
 <filename>.log</filename>
-file and re-run the &cv-LATEXCOM; command
+file and re-run the &cv-link-LATEXCOM; command
 if the log file says it is necessary.
 
 The suffix <filename>.dvi</filename>

@@ -138,12 +138,13 @@ def _parse_msvc8_overrides(version,platform,suite):
     if not SCons.Util.can_read_reg:
         raise SCons.Errors.InternalError, "No Windows registry module was found"
 
-    s = ''
+    # XXX This code assumes anything that isn't EXPRESS uses the default
+    # registry key string.  Is this really true for all VS suites?
     if suite == 'EXPRESS':
         s = '\\VCExpress\\'
+    else:
+        s = '\\VisualStudio\\'
 
-    # ToDo: add registry key strings for the other versions of visual
-    # studio 2005.
     settings_path = ""
     try:
         (settings_path, t) = SCons.Util.RegGetValue(SCons.Util.HKEY_CURRENT_USER,

@@ -13,23 +13,24 @@ XXX
 <cvar name="LDMODULE">
 <summary>
 The linker for building loadable modules.
-By default, this is the same as &cv-SHLINK;.
+By default, this is the same as &cv-link-SHLINK;.
 </summary>
 </cvar>
 
 <cvar name="LDMODULECOM">
 <summary>
 The command line for building loadable modules.
-On Mac OS X, this uses the &cv-LDMODULE;,
-&cv-LDMODULEFLAGS; and &cv-FRAMEWORKSFLAGS; variables.
-On other systems, this is the same as &cv-SHLINK;.
+On Mac OS X, this uses the &cv-link-LDMODULE;,
+&cv-link-LDMODULEFLAGS; and
+&cv-link-FRAMEWORKSFLAGS; variables.
+On other systems, this is the same as &cv-link-SHLINK;.
 </summary>
 </cvar>
 
 <cvar name="LDMODULECOMSTR">
 <summary>
 The string displayed when building loadable modules.
-If this is not set, then &cv-LDMODULECOM; (the command line) is displayed.
+If this is not set, then &cv-link-LDMODULECOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -44,7 +45,7 @@ General user options passed to the linker for building loadable modules.
 The prefix used for loadable module file names.
 On Mac OS X, this is null;
 on other systems, this is
-the same as &cv-SHLIBPREFIX;.
+the same as &cv-link-SHLIBPREFIX;.
 </summary>
 </cvar>
 
@@ -73,7 +74,7 @@ The command line used to link object files into an executable.
 <summary>
 The string displayed when object files
 are linked into an executable.
-If this is not set, then &cv-LINKCOM; (the command line) is displayed.
+If this is not set, then &cv-link-LINKCOM; (the command line) is displayed.
 
 <example>
 env = Environment(LINKCOMSTR = "Linking $TARGET")
@@ -88,17 +89,17 @@ Note that this variable should
 <emphasis>not</emphasis>
 contain
 <option>-l</option>
-(or similar) options for linking with the libraries listed in &cv-LIBS;,
+(or similar) options for linking with the libraries listed in &cv-link-LIBS;,
 nor
 <option>-L</option>
 (or similar) library search path options
-that scons generates automatically from &cv-LIBPATH;.
+that scons generates automatically from &cv-link-LIBPATH;.
 See
-&cv-_LIBFLAGS;
+&cv-link-_LIBFLAGS;
 above,
 for the variable that expands to library-link options,
 and
-&cv-_LIBDIRFLAGS;
+&cv-link-_LIBDIRFLAGS;
 above,
 for the variable that expands to library search path options.
 </summary>
@@ -119,7 +120,7 @@ The command line used to link programs using shared libaries.
 <cvar name="SHLINKCOMSTR">
 <summary>
 The string displayed when programs using shared libraries are linked.
-If this is not set, then &cv-SHLINKCOM; (the command line) is displayed.
+If this is not set, then &cv-link-SHLINKCOM; (the command line) is displayed.
 
 <example>
 env = Environment(SHLINKCOMSTR = "Linking shared $TARGET")
@@ -134,17 +135,17 @@ Note that this variable should
 <emphasis>not</emphasis>
 contain
 <option>-l</option>
-(or similar) options for linking with the libraries listed in &cv-LIBS;,
+(or similar) options for linking with the libraries listed in &cv-link-LIBS;,
 nor
 <option>-L</option>
 (or similar) include search path options
-that scons generates automatically from &cv-LIBPATH;.
+that scons generates automatically from &cv-link-LIBPATH;.
 See
-&cv-_LIBFLAGS;
+&cv-link-_LIBFLAGS;
 above,
 for the variable that expands to library-link options,
 and
-&cv-_LIBDIRFLAGS;
+&cv-link-_LIBDIRFLAGS;
 above,
 for the variable that expands to library search path options.
 </summary>

@@ -367,6 +367,12 @@ def is_List(obj):
     return t is ListType \
         or (t is InstanceType and isinstance(obj, UserList))
 
+def is_Sequence(obj):
+    t = type(obj)
+    return t is ListType \
+        or t is TupleType \
+        or (t is InstanceType and isinstance(obj, UserList))
+
 def is_Tuple(obj):
     t = type(obj)
     return t is TupleType

@@ -21,8 +21,11 @@ for all versions of Fortran.
 <summary>
 The command line used to compile a Fortran source file to an object file.
 By default, any options specified
-in the &cv-FORTRANFLAGS;, &cv-CPPFLAGS;, &cv-_CPPDEFFLAGS;,
-&cv-_FORTRANMODFLAG;, and &cv-_FORTRANINCFLAGS; construction variables
+in the &cv-link-FORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS; construction variables
 are included on this command line.
 </summary>
 </cvar>
@@ -31,7 +34,7 @@ are included on this command line.
 <summary>
 The string displayed when a Fortran source file
 is compiled to an object file.
-If this is not set, then &cv-FORTRANCOM;
+If this is not set, then &cv-link-FORTRANCOM;
 (the command line) is displayed.
 </summary>
 </cvar>
@@ -44,9 +47,9 @@ Note that this variable does
 contain
 <option>-I</option>
 (or similar) include or module search path options
-that scons generates automatically from &cv-FORTRANPATH;.
+that scons generates automatically from &cv-link-FORTRANPATH;.
 See
-&cv-_FORTRANINCFLAGS; and &cv-_FORTRANMODFLAG;,
+&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
 below,
 for the variables that expand those options.
 </summary>
@@ -58,10 +61,10 @@ An automatically-generated construction variable
 containing the Fortran compiler command-line options
 for specifying directories to be searched for include
 files and module files.
-The value of &cv-_FORTRANINCFLAGS; is created
-by prepending/appending &cv-INCPREFIX; and &cv-INCSUFFIX;
+The value of &cv-link-_FORTRANINCFLAGS; is created
+by prepending/appending &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
 to the beginning and end
-of each directory in &cv-FORTRANPATH;.
+of each directory in &cv-link-FORTRANPATH;.
 </summary>
 </cvar>
 
@@ -79,8 +82,8 @@ for module files, as well.
 The prefix used to specify a module directory on the Fortran compiler command
 line.
 This will be appended to the beginning of the directory
-in the &cv-FORTRANMODDIR; construction variables
-when the &cv-_FORTRANMODFLAG; variables is automatically generated.
+in the &cv-link-FORTRANMODDIR; construction variables
+when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </summary>
 </cvar>
 
@@ -89,8 +92,8 @@ when the &cv-_FORTRANMODFLAG; variables is automatically generated.
 The suffix used to specify a module directory on the Fortran compiler command
 line.
 This will be appended to the beginning of the directory
-in the &cv-FORTRANMODDIR; construction variables
-when the &cv-_FORTRANMODFLAG; variables is automatically generated.
+in the &cv-link-FORTRANMODDIR; construction variables
+when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </summary>
 </cvar>
 
@@ -101,9 +104,10 @@ containing the Fortran compiler command-line option
 for specifying the directory location where the Fortran
 compiler should place any module files that happen to get
 generated during compilation.
-The value of &cv-_FORTRANMODFLAG; is created
-by prepending/appending &cv-FORTRANMODDIRPREFIX; and &cv-FORTRANMODDIRSUFFIX;
-to the beginning and end of the directory in &cv-FORTRANMODDIR;.
+The value of &cv-link-_FORTRANMODFLAG; is created
+by prepending/appending &cv-link-FORTRANMODDIRPREFIX; and
+&cv-link-FORTRANMODDIRSUFFIX;
+to the beginning and end of the directory in &cv-link-FORTRANMODDIR;.
 </summary>
 </cvar>
 
@@ -162,17 +166,17 @@ env = Environment(FORTRANPATH=include)
 
 The directory list will be added to command lines
 through the automatically-generated
-&cv-_FORTRANINCFLAGS;
+&cv-link-_FORTRANINCFLAGS;
 construction variable,
 which is constructed by
 appending the values of the
-&cv-INCPREFIX; and &cv-INCSUFFIX;
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
 construction variables
 to the beginning and end
-of each directory in &cv-FORTRANPATH;.
+of each directory in &cv-link-FORTRANPATH;.
 Any command lines you define that need
 the FORTRANPATH directory list should
-include &cv-_FORTRANINCFLAGS;:
+include &cv-link-_FORTRANINCFLAGS;:
 
 <example>
 env = Environment(FORTRANCOM="my_compiler $_FORTRANINCFLAGS -c -o $TARGET $SOURCE")
@@ -184,8 +188,11 @@ env = Environment(FORTRANCOM="my_compiler $_FORTRANINCFLAGS -c -o $TARGET $SOURC
 <summary>
 The command line used to compile a Fortran source file to an object file
 after first running the file through the C preprocessor.
-By default, any options specified in the &cv-FORTRANFLAGS;, &cv-CPPFLAGS;,
-_CPPDEFFLAGS, &cv-_FORTRANMODFLAG;, and &cv-_FORTRANINCFLAGS;
+By default, any options specified in the &cv-link-FORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
 construction variables are included on this command line.
 </summary>
 </cvar>
@@ -221,7 +228,7 @@ to a shared-library object file.
 <summary>
 The string displayed when a Fortran source file
 is compiled to a shared-library object file.
-If this is not set, then &cv-SHFORTRANCOM;
+If this is not set, then &cv-link-SHFORTRANCOM;
 (the command line) is displayed.
 </summary>
 </cvar>
@@ -239,7 +246,8 @@ The command line used to compile a Fortran source file to a
 shared-library object file
 after first running the file through the C preprocessor.
 Any options specified
-in the &cv-SHFORTRANFLAGS; and &cv-CPPFLAGS; construction variables
+in the &cv-link-SHFORTRANFLAGS; and
+&cv-link-CPPFLAGS; construction variables
 are included on this command line.
 </summary>
 </cvar>

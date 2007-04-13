@@ -14,7 +14,7 @@ XXX
 <summary>
 Builds a Java archive (<filename>.jar</filename>) file
 from a source tree of <filename>.class</filename> files.
-If the &cv-JARCHDIR; value is set, the
+If the &cv-link-JARCHDIR; value is set, the
 &jar;
 command will change to the specified directory using the
 <option>-C</option>
@@ -59,7 +59,7 @@ The command line used to call the Java archive tool.
 <summary>
 The string displayed when the Java archive tool
 is called
-If this is not set, then &cv-JARCOM; (the command line) is displayed.
+If this is not set, then &cv-link-JARCOM; (the command line) is displayed.
 
 <example>
 env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")

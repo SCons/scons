@@ -50,13 +50,13 @@ test.write('SConstruct', """\
 test_list = [
     'xyz',
     ['x', 'y', 'z'],
-    ['x', ['y', 123], 'z'],
+    ['x', ['y', 123], 'z', ('int', '$INTEGER')],
     { 'c' : 3, 'b': None, 'a' : 1 },
 ]
-env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='')
+env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0)
 for i in test_list:
     print env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS')
-env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|')
+env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1)
 for i in test_list:
     print env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS')
 """)
@@ -65,18 +65,18 @@ expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                           read_str = """\
 -Dxyz
 -Dx -Dy -Dz
--Dx -Dy=123 -Dz
+-Dx -Dy=123 -Dz -Dint=0
 -Da=1 -Db -Dc=3
 |xyz|
 |x| |y| |z|
-|x| |y=123| |z|
+|x| |y=123| |z| |int=1|
 |a=1| |b| |c=3|
 """)
 
 test.run(arguments = '.', stdout=expect)
 
 test.write('SConstruct', """\
-foo = Environment(CPPDEFINES = ['FOO', ('VAL', 7)])
+foo = Environment(CPPDEFINES = ['FOO', ('VAL', '$VALUE')], VALUE=7)
 bar = Environment(CPPDEFINES = {'BAR':None, 'VAL':8})
 baz = Environment(CPPDEFINES = ['BAZ', ('VAL', 9)])
 f = foo.Object(target = 'foo', source = 'prog.c')

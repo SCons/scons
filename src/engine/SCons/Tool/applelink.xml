@@ -11,8 +11,8 @@ general user-supplied frameworks options to be added at
 the end of a command
 line building a loadable module.
 (This has been largely superceded by
-the &cv-FRAMEWORKPATH;, &cv-FRAMEWORKPATHPREFIX;,
-&cv-FRAMEWORKPREFIX; and &cv-FRAMEWORKS; variables
+the &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKPATHPREFIX;,
+&cv-link-FRAMEWORKPREFIX; and &cv-link-FRAMEWORKS; variables
 described above.)
 </summary>
 </cvar>
@@ -35,7 +35,7 @@ For example:
 <summary>
 On Mac OS X with gcc,
 the prefix to be used for linking in frameworks
-(see &cv-FRAMEWORKS;).
+(see &cv-link-FRAMEWORKS;).
 The default value is
 <option>-framework</option>.
 </summary>
@@ -57,7 +57,7 @@ a list containing the paths to search for frameworks.
 Used by the compiler to find framework-style includes like
 #include &lt;Fmwk/Header.h&gt;.
 Used by the linker to find user-specified frameworks when linking (see
-&cv-FRAMEWORKS;).
+&cv-link-FRAMEWORKS;).
 For example:
 
 <example>
@@ -77,7 +77,7 @@ to the compiler and linker command lines.
 <cvar name="FRAMEWORKPATHPREFIX">
 <summary>
 On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
-(see &cv-FRAMEWORKPATH;).
+(see &cv-link-FRAMEWORKPATH;).
 The default value is
 <option>-F</option>.
 </summary>
@@ -87,6 +87,6 @@ The default value is
 <summary>
 On Mac OS X with gcc, an automatically-generated construction variable
 containing the linker command-line options corresponding to
-&cv-FRAMEWORKPATH;.
+&cv-link-FRAMEWORKPATH;.
 </summary>
 </cvar>

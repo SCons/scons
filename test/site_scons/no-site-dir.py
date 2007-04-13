@@ -71,9 +71,14 @@ e=Environment()
 print e.subst('no site: M4 is $M4, M4_MINE is $M4_MINE')
 """)
 
-test.run(arguments = '-Q --no-site-dir .',
-stdout = """no site: M4 is m4, M4_MINE is
-scons: `.' is up to date.\n""")
+test.run(arguments = '-Q --no-site-dir .')
+
+not_expected = """Hi there, I am in site_scons/site_init.py!
+no site: M4 is my_m4, M4_MINE is 1
+scons: `.' is up to date.
+"""
+
+test.fail_test(test.stdout() == not_expected)
 
 
 

@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import unittest
 
 import SCons.PathList
@@ -48,12 +49,30 @@ class subst_pathTestCase(unittest.TestCase):
 
         self.env = FakeEnvironment(AAA = 'aaa')
 
-    def test_object(self):
-        """Test the subst_path() method on an object
+    def test_node(self):
+        """Test the subst_path() method on a Node
         """
+
+        import SCons.Node
 
         class A:
             pass
+
+        n = SCons.Node.Node()
+
+        pl = SCons.PathList.PathList((n,))
+
+        result = pl.subst_path(self.env, 'y', 'z')
+
+        assert result == (n,), result
+
+    def test_object(self):
+        """Test the subst_path() method on a non-Node object
+        """
+
+        class A:
+            def __str__(self):
+                return '<object A>'
 
         a = A()
 
@@ -61,7 +80,7 @@ class subst_pathTestCase(unittest.TestCase):
 
         result = pl.subst_path(self.env, 'y', 'z')
 
-        assert result == (a,), result
+        assert result == ('<object A>',), result
 
     def test_object_get(self):
         """Test the subst_path() method on an object with a get() method

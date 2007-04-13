@@ -14,7 +14,7 @@ XXX
 <summary>
 Builds an output file from a moc input file. Moc input files are either
 header files or cxx files. This builder is only available after using the
-tool 'qt'. See the &cv-QTDIR; variable for more information.
+tool 'qt'. See the &cv-link-QTDIR; variable for more information.
 Example:
 
 <example>
@@ -35,7 +35,7 @@ files to the &b-Program;,
 without using this builder. Using this builder lets you override the standard
 naming conventions (be careful: prefixes are always prepended to names of
 built files; if you don't want prefixes, you may set them to ``).
-See the &cv-QTDIR; variable for more information.
+See the &cv-link-QTDIR; variable for more information.
 Example:
 
 <example>
@@ -56,7 +56,9 @@ with python's os.path.join() method,
 but are listed here with the '/' separator
 for easier reading.)
 In addition, the construction environment
-variables &cv-CPPPATH;, &cv-LIBPATH; and &cv-LIBS; may be modified
+variables &cv-link-CPPPATH;,
+&cv-link-LIBPATH; and
+&cv-link-LIBS; may be modified
 and the variables
 PROGEMITTER, SHLIBEMITTER and LIBEMITTER
 are modified. Because the build-performance is affected when using this tool,
@@ -110,15 +112,16 @@ specify files to run moc on.
 <cvar name="QT_BINPATH">
 <summary>
 The path where the qt binaries are installed.
-The default value is '&cv-QTDIR;/bin'.
+The default value is '&cv-link-QTDIR;/bin'.
 </summary>
 </cvar>
 
 <cvar name="QT_CPPPATH">
 <summary>
 The path where the qt header files are installed.
-The default value is '&cv-QTDIR;/include'.
-Note: If you set this variable to None, the tool won't change the &cv-CPPPATH;
+The default value is '&cv-link-QTDIR;/include'.
+Note: If you set this variable to None,
+the tool won't change the &cv-link-CPPPATH;
 construction variable.
 </summary>
 </cvar>
@@ -132,22 +135,23 @@ Prints lots of debugging information while scanning for moc files.
 <cvar name="QT_LIB">
 <summary>
 Default value is 'qt'. You may want to set this to 'qt-mt'. Note: If you set
-this variable to None, the tool won't change the &cv-LIBS; variable.
+this variable to None, the tool won't change the &cv-link-LIBS; variable.
 </summary>
 </cvar>
 
 <cvar name="QT_LIBPATH">
 <summary>
 The path where the qt libraries are installed.
-The default value is '&cv-QTDIR;/lib'.
-Note: If you set this variable to None, the tool won't change the &cv-LIBPATH;
+The default value is '&cv-link-QTDIR;/lib'.
+Note: If you set this variable to None,
+the tool won't change the &cv-link-LIBPATH;
 construction variable.
 </summary>
 </cvar>
 
 <cvar name="QT_MOC">
 <summary>
-Default value is '&cv-QT_BINPATH;/moc'.
+Default value is '&cv-link-QT_BINPATH;/moc'.
 </summary>
 </cvar>
 
@@ -180,7 +184,7 @@ Command to generate a moc file from a cpp file.
 <cvar name="QT_MOCFROMCXXCOMSTR">
 <summary>
 The string displayed when generating a moc file from a cpp file.
-If this is not set, then &cv-QT_MOCFROMCXXCOM; (the command line) is displayed.
+If this is not set, then &cv-link-QT_MOCFROMCXXCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -193,7 +197,7 @@ Command to generate a moc file from a header.
 <cvar name="QT_MOCFROMHCOMSTR">
 <summary>
 The string displayed when generating a moc file from a cpp file.
-If this is not set, then &cv-QT_MOCFROMHCOM; (the command line) is displayed.
+If this is not set, then &cv-link-QT_MOCFROMHCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -212,14 +216,14 @@ Default value is 'moc_'. Prefix for moc output files, when source is a header.
 
 <cvar name="QT_MOCHSUFFIX">
 <summary>
-Default value is '&cv-CXXFILESUFFIX;'. Suffix for moc output files, when source is
+Default value is '&cv-link-CXXFILESUFFIX;'. Suffix for moc output files, when source is
 a header.
 </summary>
 </cvar>
 
 <cvar name="QT_UIC">
 <summary>
-Default value is '&cv-QT_BINPATH;/uic'.
+Default value is '&cv-link-QT_BINPATH;/uic'.
 </summary>
 </cvar>
 
@@ -232,7 +236,7 @@ Command to generate header files from .ui files.
 <cvar name="QT_UICCOMSTR">
 <summary>
 The string displayed when generating header files from .ui files.
-If this is not set, then &cv-QT_UICCOM; (the command line) is displayed.
+If this is not set, then &cv-link-QT_UICCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -270,7 +274,7 @@ Default value is 'uic_'. Prefix for uic generated implementation files.
 
 <cvar name="QT_UICIMPLSUFFIX">
 <summary>
-Default value is '&cv-CXXFILESUFFIX;'. Suffix for uic generated implementation
+Default value is '&cv-link-CXXFILESUFFIX;'. Suffix for uic generated implementation
 files.
 </summary>
 </cvar>

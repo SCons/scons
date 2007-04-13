@@ -1385,10 +1385,7 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
         # try and enumerate the installed versions of the .NET framework.
         contents = os.listdir(rv['FRAMEWORKDIR'])
         l = re.compile('v[0-9]+.*')
-        versions = []
-        for entry in contents:
-            if l.match(entry):
-                versions.append(entry)
+        installed_framework_versions = filter(lambda e, l=l: l.match(e), contents)
 
         def versrt(a,b):
             # since version numbers aren't really floats...
@@ -1403,23 +1400,51 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
                     c = int(bbl[2]) - int(aal[2])
             return c
 
-        versions.sort(versrt)
+        installed_framework_versions.sort(versrt)
 
-        rv['FRAMEWORKVERSIONS'] = versions
-        # assume that the highest version is the latest version installed
-        rv['FRAMEWORKVERSION'] = versions[0]
+        rv['FRAMEWORKVERSIONS'] = installed_framework_versions
+
+        # TODO: allow a specific framework version to be set
+
+        # Choose a default framework version based on the Visual
+        # Studio version.
+        DefaultFrameworkVersionMap = {
+            '7.0'   : 'v1.0',
+            '7.1'   : 'v1.1',
+            '8.0'   : 'v2.0',
+            # TODO: Does .NET 3.0 need to be worked into here somewhere?
+        }
+        try:
+            default_framework_version = DefaultFrameworkVersionMap[version[:3]]
+        except (KeyError, TypeError):
+            pass
+        else:
+            # Look for the first installed directory in FRAMEWORKDIR that
+            # begins with the framework version string that's appropriate
+            # for the Visual Studio version we're using.
+            for v in installed_framework_versions:
+                if v[:4] == default_framework_version:
+                    rv['FRAMEWORKVERSION'] = v
+                    break
+
+        # If the framework version couldn't be worked out by the previous
+        # code then fall back to using the latest version of the .NET
+        # framework
+        if not rv.has_key('FRAMEWORKVERSION'):
+            rv['FRAMEWORKVERSION'] = installed_framework_versions[0]
 
     # .NET framework SDK install dir
-    try:
-        if rv.has_key('FRAMEWORKVERSION') and rv['FRAMEWORKVERSION'][:4] == 'v1.1':
-            key = r'Software\Microsoft\.NETFramework\sdkInstallRootv1.1'
-        else:
-            key = r'Software\Microsoft\.NETFramework\sdkInstallRoot'
-
-        (rv['FRAMEWORKSDKDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,key)
-
-    except SCons.Util.RegError:
-        pass
+    if rv.has_key('FRAMEWORKVERSION'):
+        # The .NET SDK version used must match the .NET version used,
+        # so we deliberately don't fall back to other .NET framework SDK
+        # versions that might be present.
+        ver = rv['FRAMEWORKVERSION'][:4]
+        key = r'Software\Microsoft\.NETFramework\sdkInstallRoot' + ver
+        try:
+            (rv['FRAMEWORKSDKDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,
+                key)
+        except SCons.Util.RegError:
+            pass
 
     # MS Platform SDK dir
     try:
@@ -1704,9 +1729,9 @@ def generate(env):
     env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, getExecScriptMain(env))
     env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.abspath}" -f ${MSVSSCONSCRIPT.name}'
     env['MSVSSCONSCOM'] = '$MSVSSCONS $MSVSSCONSFLAGS'
-    env['MSVSBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'
-    env['MSVSREBUILDCOM'] = '$MSVSSCONSCOM $MSVSBUILDTARGET'
-    env['MSVSCLEANCOM'] = '$MSVSSCONSCOM -c $MSVSBUILDTARGET'
+    env['MSVSBUILDCOM'] = '$MSVSSCONSCOM "$MSVSBUILDTARGET"'
+    env['MSVSREBUILDCOM'] = '$MSVSSCONSCOM "$MSVSBUILDTARGET"'
+    env['MSVSCLEANCOM'] = '$MSVSSCONSCOM -c "$MSVSBUILDTARGET"'
     env['MSVSENCODING'] = 'Windows-1252'
 
     try:
@@ -1746,7 +1771,11 @@ def exists(env):
         if env.has_key('MSVS_VERSION'):
             version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
         if version_num >= 7.0:
-            return env.Detect('devenv')
+            # The executable is 'devenv' in Visual Studio Pro,
+            # Team System and others.  Express Editions have different
+            # executable names.  Right now we're only going to worry
+            # about Visual C++ 2005 Express Edition.
+            return env.Detect('devenv') or env.Detect('vcexpress')
         else:
             return env.Detect('msdev')
     else:

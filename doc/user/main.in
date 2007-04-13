@@ -51,7 +51,6 @@
     <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
     <!ENTITY caching SYSTEM "caching.sgml">
     <!ENTITY command-line SYSTEM "command-line.sgml">
-    <!ENTITY cons SYSTEM "cons.sgml">
     <!ENTITY copyright SYSTEM "copyright.sgml">
     <!ENTITY depends SYSTEM "depends.sgml">
     <!ENTITY ENV_file SYSTEM "ENV.sgml">
@@ -89,6 +88,53 @@
     <!ENTITY variables-gen SYSTEM "variables.gen">
 
 ]>
+
+  <!--
+
+  XXX AllowSubstExceptions()
+  XXX EnsurePythonVersion()
+  XXX EnsureSConsVersion()
+  XXX Exit()
+  XXX FindFile()
+  XXX FindPathDirs()
+  XXX Flatten()
+  XXX GetBuildPath()
+  XXX GetLaunchDir()
+
+  XXX MergeFlags()
+  XXX ParseFlags()
+
+  XXX ParseDepends()
+  XXX Platform()
+  XXX SConsignFile()
+  XXX SideEffect()
+  XXX Tools()
+
+  XXX GetOption('clean')
+  XXX SetOption('clean')
+
+  XXX GetOption('duplicate')
+  XXX SetOption('duplicate')
+  XXX - - duplicate=
+
+  XXX GetOption('num_jobs')
+  XXX SetOption('num_jobs')
+
+  XXX - - diskcheck=
+
+  XXX site_scons
+  XXX - - site-dir
+  XXX - - no-site-dir
+
+  XXX - - warn=
+
+  XXX ARGLIST
+  XXX ARGUMENTS
+  XXX BUILD_TARGETS
+  XXX COMMAND_LINE_TARGETS
+  XXX DEFAULT_TARGETS
+
+  -->
 
 <book>
   <bookinfo>
@@ -231,6 +277,10 @@
 
   <!--
 
+  XXX Action()
+  XXX AddPostAction()
+  XXX AddPreAction()
+
   <chapter id="chap-actions">
     <title>&SCons; Actions</title>
     &actions;
@@ -290,21 +340,6 @@
     <title>Troubleshooting</title>
     &troubleshoot;
   </chapter>
-
-  <!--
-  AddPostAction()
-  AddPreAction()
-  Clean()
-  Dir()
-  File()
-  FindFile()
-  GetJobs()
-  SetJobs()
-  SideEffect()
-  ParseConfig()
-  Platform()
-  Tools()
-  -->
 
   <appendix id="app-variables">
     <title>Construction Variables</title>

@@ -484,6 +484,13 @@ class _ActionActionTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result == 7, result
             s = sio.getvalue()
+            assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            result = a("out", "in", env, presub=0)
+            assert result == 7, result
+            s = sio.getvalue()
             assert s == 'execfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()

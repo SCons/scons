@@ -8,7 +8,106 @@
 
 
 
-RELEASE 0.97 - XXX
+RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
+
+  NOTE:  This is (Yet) a(nother) pre-release of 0.97 for testing purposes.
+
+  From Joe Bloggs:
+
+  - Man page fix:  remove cut-and-paste sentence in NoCache() description.
+
+  From Dmitry Grigorenko and Gary Oberbrunner:
+
+  - Use the Intel C++ compiler, not $CC, to link C++ source.
+
+  From Helmut Grohne:
+
+  - Fix the man page example of propagating a user's external environment.
+
+  From Steven Knight:
+
+  - Back out (most of) the Windows registry installer patch, which
+    seems to not work on some versions of Windows.
+
+  - Don't treat Java ".class" attributes as defining an inner class.
+
+  - Fix detecting an erroneous Java anonymous class when the first
+    non-skipped token after a "new" keyword is a closing brace.
+
+  - Fix a regression when a CPPDEFINES list contains a tuple, the second
+    item of which (the option value) is a construction variable expansion
+    (e.g. $VALUE) and the value of the variable isn't a string.
+
+  - Improve the error message if an IOError (like trying to read a
+    directory as a file) occurs while deciding if a node is up-to-date.
+
+  - Fix "maximum recursion" / "unhashable type" errors in $CPPPATH
+    PathList expansion if a subsidiary expansion yields a stringable,
+    non-Node object.
+
+  - Generate API documentation from the docstrings (using epydoc).
+
+  - Fix use of --debug=presub with Actions for out-of-the-box Builders.
+
+  - Fix handling nested lists within $CPPPATH, $LIBPATH, etc.
+
+  - Fix a "builders_used" AttributeError that real-world Qt initialization
+    triggered in the refactored suffix handling for Builders.
+
+  - Make the reported --debug=time timings meaningful when used with -j.
+    Better documentation of what the times mean.
+
+  - User Guide updates: --random, AlwaysBuild(), --tree=,
+    --debug=findlibs, --debug=presub, --debug=stacktrace,
+    --taskmastertrace.
+
+  - Document (in both man page and User's Guide) that --implicit-cache
+    ignores changes in $CPPPATH, $LIBPATH, etc.
+
+  From Jean-Baptiste Lab:
+
+  - Remove hard-coded dependency on Python 2.2 from Debian packaging files.
+
+  From Jeff Mahovsky:
+
+  - Handle spaces in the build target name in Visual Studio project files.
+
+  From Rob Managan:
+
+  - Re-run LaTeX after BibTeX has been re-run in response to a changed
+    .bib file.
+
+  From Joel B. Mohler:
+
+  - Make additional TeX auxiliary files (.toc, .idx and .bbl files)
+    Precious so their removal doesn't affect whether the necessary
+    sections are included in output PDF or PostScript files.
+
+  From Gary Oberbrunner:
+
+  - Fix the ability to import modules in the site_scons directory from
+    a subdirectory.
+
+  From Adam Simpkins:
+
+  - Make sure parallel (-j) builds all targets even if they show up
+    multiple times in the child list (as a source and a dependency).
+
+  From Matthias Troffaes:
+
+  - Don't re-run TeX if the triggering strings (\makeindex, \bibliography
+    \tableofcontents) are commented out.
+
+  From Richard Viney:
+
+  - Fix use of custom include and lib paths with Visual Studio 8.
+
+  - Select the default .NET Framework SDK Dir based on the version of
+    Visual Studio being used.
+
+
+
+RELEASE 0.96.95 - Mon, 12 Feb 2007 20:25:16 -0600
 
   From Anatoly:
 
@@ -98,156 +197,6 @@ RELEASE 0.97 - XXX
 
 
 RELEASE 0.96.94 - Sun, 07 Jan 2007 18:36:20 -0600
-
-  NOTE:  This is a pre-release of 0.97 for testing purposes.
-
-  From Anonymous:
-
-  - Allow arbitrary white space after a SWIG %module declaration.
-
-  From Paul:
-
-  - When compiling resources under MinGW, make sure there's a space 
-    between the --include-dir option and its argument.
-
-  From Jay Kint:
-
-  - Alleviate long command line issues on Windows by executing command
-    lines directly via os.spawnv() if the command line doesn't need
-    shell interpretation (has no pipes, redirection, etc.).
-
-  From Walter Franzini:
-
-  - Exclude additional Debian packaging files from the copyright check.
-
-  From Fawad Halim:
-
-  - Handle the conflict between the impending Python 2.6 'as' keyword
-    and our Tool/as.py module name.
-
-  From Steven Knight:
-
-  - Speed up the Node.FS.Dir.rel_path() method used to generate path names
-    that get put into the .sconsign* file(s).
-
-  - Optimize Node.FS.Base.get_suffix() by computing the suffix once, up
-    front, when we set the Node's name.  (Duh...)
-
-  - Reduce the Memoizer's responsibilities to simply counting hits and
-    misses when the --debug=memoizer option is used, not to actually
-    handling the key calculation and memoization itself.  This speeds
-    up some configurations significantly, and should cause no functional
-    differences.
-
-  - Add a new scons-time script with subcommands for generating
-    consistent timing output from SCons configurations, extracting
-    various information from those timings, and displaying them in
-    different formats.
-
-  - Reduce some unnecessary stat() calls from on-disk entry type checks.
-
-  - Fix SideEffect() when used with -j, which was badly broken in 0.96.93.
-
-  - Propagate TypeError exceptions when evaluating construction variable
-    expansions up the stack, so users can see what's going on.
-
-  - When disambiguating a Node.FS.Entry into a Dir or File, don't look
-    in the on-disk source directory until we've confirmed there's no
-    on-disk entry locally and there *is* one in the srcdir.  This avoids
-    creating a phantom Node that can interfere with dependencies on
-    directory contents.
-
-  - Add an AllowSubstExceptions() function that gives the SConscript
-    files control over what exceptions cause a string to expand to ''
-    vs. terminating processing with an error.
-
-  - Allow the f90.py and f95.py Tool modules to compile earlier source
-    source files of earlier Fortran version.
-
-  - Fix storing signatures of files retrieved from CacheDir() so they're
-    correctly identified as up-to-date next invocation.
-
-  - Make sure lists of computed source suffixes cached by Builder objects
-    don't persist across changes to the list of source Builders (so the
-    addition of suffixes like .ui by the qt.py Tool module take effect).
-
-  - Enhance the bootstrap.py script to allow it to be used to execute
-    SCons more easily from a checked-out source tree.
-
-  From Ben Leslie:
-
-  - Fix post-Memoizer value caching misspellings in Node.FS._doLookup().
-
-  From Rob Managan, Dmitry Mikhin and Joel B. Mohler:
-
-  - Handle TeX/LaTeX files in subdirectories by changing directory
-    before invoking TeX/LaTeX.
-
-  - Scan LaTeX files for \bibliography lines.
-
-  - Support multiple file names in a "\bibliography{file1,file2}" string.
-
-  - Handle TeX warnings about undefined citations.
-
-  - Support re-running LaTeX if necessary due to a Table of Contents.
-
-  From Dmitry Mikhin:
-
-  - Return LaTeX if "Rerun to get citations correct" shows up on the next
-    line after the "Warning:" string.
-
-  From Gary Oberbrunner:
-
-  - Add #include lines to fix portability issues in two tests.
-
-  - Eliminate some unnecessary os.path.normpath() calls.
-
-  - Add a $CFLAGS variable for C-specific options, leaving $CCFLAGS
-    for options common to C and C++.
-
-  From Tom Parker:
-
-  - Have the error message print the missing file that Qt can't find.
-
-  From John Pye:
-
-  - Fix env.MergeFlags() appending to construction variable value of None.
-
-  From Steve Robbins:
-
-  - Fix the "sconsign" script when the .sconsign.dblite file is explicitly
-    specified on the command line (and not intuited from the old way of
-    calling it with just ".sconsign").
-
-  From Jose Pablo Ezequiel "Pupeno" Fernandez Silva:
-
-  - Give the 'lex' tool knowledge of the additional target files produced
-    by the flex "--header-file=" and "--tables-file=" options.
-
-  - Give the 'yacc' tool knowledge of the additional target files produced
-    by the bison "-g", "--defines=" and "--graph=" options.
-
-  - Generate intermediate files with Objective C file suffixes (.m) when
-    the lex and yacc source files have appropriate suffixes (.lm and .ym).
-
-  From Sohail Somain:
-
-  - Have the mslink.py Tool only look for a 'link' executable on Windows
-    systems.
-
-  From Vaclav Smilauer:
-
-  - Add support for a "srcdir" keyword argument when calling a Builder,
-    which will add a srcdir prefix to all non-relative string sources.
-
-  From Jonathan Ultis:
-
-  - Allow Options converters to take the construction environment as
-    an optional argument.
-
-
-
-RELEASE 0.96.93 - Mon, 06 Nov 2006 00:44:11 -0600
 
   NOTE:  This is a pre-release of 0.97 for testing purposes.
 

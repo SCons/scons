@@ -49,7 +49,7 @@ Using the <option>/Zi</option> instead may yield improved
 link-time performance,
 although parallel builds will no longer work.
 You can generate PDB files with the <option>/Zi</option>
-switch by overriding the default &cv-CCPDBFLAGS; variable;
+switch by overriding the default &cv-link-CCPDBFLAGS; variable;
 see the entry for that variable for specific examples.
 </summary>
 </cvar>
@@ -75,7 +75,7 @@ is passed a keyword argument of <literal>register=1</literal>.
 <cvar name="REGSVRCOMSTR">
 <summary>
 The string displayed when registering a newly-built DLL file.
-If this is not set, then &cv-REGSVRCOM; (the command line) is displayed.
+If this is not set, then &cv-link-REGSVRCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -92,31 +92,31 @@ and requiring user attention.
 
 <cvar name="WIN32_INSERT_DEF">
 <summary>
-A deprecated synonym for &cv-WINDOWS_INSERT_DEF;.
+A deprecated synonym for &cv-link-WINDOWS_INSERT_DEF;.
 </summary>
 </cvar>
 
 <cvar name="WIN32DEFPREFIX">
 <summary>
-A deprecated synonym for &cv-WINDOWSDEFPREFIX;.
+A deprecated synonym for &cv-link-WINDOWSDEFPREFIX;.
 </summary>
 </cvar>
 
 <cvar name="WIN32DEFSUFFIX">
 <summary>
-A deprecated synonym for &cv-WINDOWSDEFSUFFIX;.
+A deprecated synonym for &cv-link-WINDOWSDEFSUFFIX;.
 </summary>
 </cvar>
 
 <cvar name="WIN32EXPPREFIX">
 <summary>
-A deprecated synonym for &cv-WINDOWSEXPSUFFIX;.
+A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
 </summary>
 </cvar>
 
 <cvar name="WIN32EXPSUFFIX">
 <summary>
-A deprecated synonym for &cv-WINDOWSEXPSUFFIX;.
+A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
 </summary>
 </cvar>
 

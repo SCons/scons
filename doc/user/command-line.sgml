@@ -808,8 +808,8 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -o bar.o -c -D['RELEASE_BUILD=', 1] bar.c
-      cc -o foo.o -c -D['RELEASE_BUILD=', 1] foo.c
+      cc -o bar.o -c -DRELEASE_BUILD=1 bar.c
+      cc -o foo.o -c -DRELEASE_BUILD=1 foo.c
       cc -o foo foo.o bar.o
     </screen>
 
@@ -832,8 +832,8 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      cc -o bar.o -c -D['RELEASE_BUILD=', 0] bar.c
-      cc -o foo.o -c -D['RELEASE_BUILD=', 0] foo.c
+      cc -o bar.o -c -DRELEASE_BUILD=0 bar.c
+      cc -o foo.o -c -DRELEASE_BUILD=0 foo.c
       cc -o foo foo.o bar.o
     </screen>
 
@@ -898,12 +898,12 @@
 
       <screen>
         % <userinput>scons -Q RELEASE=yes foo.o</userinput>
-        cc -o foo.o -c -D['RELEASE_BUILD=', True] foo.c
+        cc -o foo.o -c -DRELEASE_BUILD=True foo.c
       </screen>
 
       <screen>
         % <userinput>scons -Q RELEASE=t foo.o</userinput>
-        cc -o foo.o -c -D['RELEASE_BUILD=', True] foo.c
+        cc -o foo.o -c -DRELEASE_BUILD=True foo.c
       </screen>
 
       <para>
@@ -929,12 +929,12 @@
 
       <screen>
         % <userinput>scons -Q RELEASE=no foo.o</userinput>
-        cc -o foo.o -c -D['RELEASE_BUILD=', False] foo.c
+        cc -o foo.o -c -DRELEASE_BUILD=False foo.c
       </screen>
 
       <screen>
         % <userinput>scons -Q RELEASE=f foo.o</userinput>
-        cc -o foo.o -c -D['RELEASE_BUILD=', False] foo.c
+        cc -o foo.o -c -DRELEASE_BUILD=False foo.c
       </screen>
 
       <para>
@@ -1430,9 +1430,9 @@
         % <userinput>scons -Q PACKAGE=/usr/local/location foo.o</userinput>
         cc -o foo.o -c -DPACKAGE="/usr/local/location" foo.c
         % <userinput>scons -Q PACKAGE=yes foo.o</userinput>
-        cc -o foo.o -c -D['PACKAGE="', True, '"'] foo.c
+        cc -o foo.o -c -DPACKAGE="True" foo.c
         % <userinput>scons -Q PACKAGE=no foo.o</userinput>
-        cc -o foo.o -c -D['PACKAGE="', False, '"'] foo.c
+        cc -o foo.o -c -DPACKAGE="False" foo.c
       </screen>
 
     </section>

@@ -268,7 +268,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-  </section> 
+  </section>
 
   <section>
   <title>Telling &SCons; to Not Duplicate Source Files in the Build Directory</title>
@@ -460,8 +460,8 @@ program using the F<build/foo.c> path name.
   <title>Why You'd Want to Call &BuildDir; Instead of &SConscript;</title>
 
     <para>
-    
-    XXX
+
+    XXX why call BuildDir() instead of SConscript(build_dir=)
 
     </para>
 

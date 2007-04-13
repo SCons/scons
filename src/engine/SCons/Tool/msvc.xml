@@ -53,7 +53,7 @@ Options added to the compiler command line
 to support building with precompiled headers.
 The default value expands expands to the appropriate
 Microsoft Visual C++ command-line options
-when the &cv-PCH; construction variable is set.
+when the &cv-link-PCH; construction variable is set.
 </summary>
 </cvar>
 
@@ -64,7 +64,7 @@ to support storing debugging information in a
 Microsoft Visual C++ PDB file.
 The default value expands expands to appropriate
 Microsoft Visual C++ command-line options
-when the &cv-PDB; construction variable is set.
+when the &cv-link-PDB; construction variable is set.
 
 The Visual C++ compiler option that SCons uses by default
 to generate PDB information is <option>/Z7</option>.
@@ -78,7 +78,7 @@ link-time performance,
 although parallel builds will no longer work.
 
 You can generate PDB files with the <option>/Zi</option>
-switch by overriding the default &cv-CCPDBFLAGS; variable as follows:
+switch by overriding the default &cv-link-CCPDBFLAGS; variable as follows:
 
 <example>
 import SCons.Util
@@ -88,7 +88,7 @@ env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Zi /Fd%s" % File(PDB)) or ""
 An alternative would be to use the <option>/Zi</option>
 to put the debugging information in a separate <filename>.pdb</filename>
 file for each object file by overriding
-the &cv-CCPDBFLAGS; variable as follows:
+the &cv-link-CCPDBFLAGS; variable as follows:
 
 <example>
 env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
@@ -123,7 +123,7 @@ builder to generated a precompiled header.
 <cvar name="PCHCOMSTR">
 <summary>
 The string displayed when generating a precompiled header.
-If this is not set, then &cv-PCHCOM; (the command line) is displayed.
+If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
@@ -160,7 +160,7 @@ a Microsoft Visual C++ resource file.
 <summary>
 The string displayed when invoking the resource compiler
 to build a Microsoft Visual C++ resource file.
-If this is not set, then &cv-RCCOM; (the command line) is displayed.
+If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
 </summary>
 </cvar>
 

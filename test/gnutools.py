@@ -31,10 +31,13 @@ Testing the gnu tool chain, i.e. the tools 'gcc', 'g++' and 'gnulink'.
 import TestSCons
 import string
 import sys
+
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
-_dll = TestSCons._dll
-dll_ = TestSCons.dll_
+
+def dll(s):
+    return TestSCons.dll_ + s + TestSCons._dll
+
 test = TestSCons.TestSCons()
 
 test.subdir('gnutools')
@@ -111,40 +114,32 @@ env.SharedLibrary('c-and-cpp', Split('cfile1.c cppfile1.cpp'))
 
 test.run(chdir='work1')
 
-def testObject(test, obj, command, flags):
+def testObject(test, obj, expect):
     contents = test.read(test.workpath('work1', obj))
     line1 = string.split(contents,'\n')[0]
-    items = string.split(line1, ' ')
-    cmd = ''
-    for i in items:
-        if i != '':
-            if cmd:
-                cmd = cmd + ' ' + i
-            else:
-                cmd = i
-    res = ((flags and (cmd == command + ' ' + flags)) or
-           (not flags and (cmd == command)))
-    if not res: print "'"+obj+command+flags+"'"+"!='"+str(line1)+"'"
-    return res
+    actual = string.join(string.split(line1))
+    if not expect == actual:
+        print "%s:  %s != %s\n" % (obj, repr(expect), repr(actual))
+        test.fail_test()
 
-if sys.platform == 'cygwin':
-    fpic = ''
+if sys.platform in ('win32', 'cygwin'):
+    c_fpic = ''
 else:
-    fpic = ' -fPIC'
+    c_fpic = ' -fPIC'
 
-test.fail_test(not testObject(test, 'cfile1.o', 'gcc', '-c') or
-               not testObject(test, 'cfile2.o', 'gcc', '-c') or
-               not testObject(test, 'cppfile1.o', 'g++', '-c') or
-               not testObject(test, 'cppfile2.o', 'g++', '-c') or
-               not testObject(test, 'cfile1.os', 'gcc', '-c' + fpic) or
-               not testObject(test, 'cfile2.os', 'gcc', '-c' + fpic) or
-               not testObject(test, 'cppfile1.os', 'g++', '-c' + fpic) or
-               not testObject(test, 'cppfile2.os', 'g++', '-c' + fpic) or
-               not testObject(test, 'c-only' + _exe, 'gcc', '') or
-               not testObject(test, 'cpp-only' + _exe, 'g++', '') or
-               not testObject(test, 'c-and-cpp' + _exe, 'g++', '') or
-               not testObject(test, dll_ + 'c-only' + _dll, 'gcc', '-shared') or
-               not testObject(test, dll_ + 'cpp-only' + _dll, 'g++', '-shared') or
-               not testObject(test, dll_ + 'c-and-cpp' + _dll, 'g++', '-shared'))
+testObject(test, 'cfile1.o',            'gcc -c')
+testObject(test, 'cfile2.o',            'gcc -c')
+testObject(test, 'cppfile1.o',          'g++ -c')
+testObject(test, 'cppfile2.o',          'g++ -c')
+testObject(test, 'cfile1.os',           'gcc -c' + c_fpic)
+testObject(test, 'cfile2.os',           'gcc -c' + c_fpic)
+testObject(test, 'cppfile1.os',         'g++ -c -fPIC')
+testObject(test, 'cppfile2.os',         'g++ -c -fPIC')
+testObject(test, 'c-only' + _exe,       'gcc')
+testObject(test, 'cpp-only' + _exe,     'g++')
+testObject(test, 'c-and-cpp' + _exe,    'g++')
+testObject(test, dll('c-only'),         'gcc -shared')
+testObject(test, dll('cpp-only'),       'g++ -shared')
+testObject(test, dll('c-and-cpp'),      'g++ -shared')
 
 test.pass_test()

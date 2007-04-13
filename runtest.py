@@ -274,6 +274,7 @@ except NameError:
         qmtest = q
     else:
         sys.stderr.write('Warning:  %s not found on $PATH, assuming --noqmtest option.\n' % q)
+        sys.stderr.flush()
 
 aegis = whereis('aegis')
 

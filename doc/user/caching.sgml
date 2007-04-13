@@ -68,6 +68,12 @@
     every time a file is built,
     it is stored in the shared cache directory
     along with its MD5 build signature.
+      <footnote>
+      <para>
+      Actually, the MD5 signature is used as the name of the file
+      in the shared cache directory in which the contents are stored.
+      </para>
+      </footnote>
     On subsequent builds,
     before an action is invoked to build a file,
     &SCons; will check the shared cache directory
@@ -100,8 +106,8 @@
     <para>
 
     One potential drawback to using a shared cache
-    is that your build output can be inconsistent
-    from invocation to invocation,
+    is that the output printed by &SCons;
+    can be inconsistent from invocation to invocation,
     because any given file may be rebuilt one time
     and retrieved from the shared cache the next time.
     This can make analyzing build output more difficult,
@@ -146,7 +152,67 @@
   </section>
 
   <section>
-  <title>Not Retrieving Files From a Shared Cache</title>
+  <title>Not Using the Shared Cache for Specific Files</title>
+
+    <para>
+
+    You may want to disable caching for certain
+    specific files in your configuration.
+    For example, if you only want to put
+    executable files in a central cache,
+    but not the intermediate object files,
+    you can use the &NoCache;
+    function to specify that the
+    object files should not be cached:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       obj = env.Object('hello.c')
+       env.Program('hello.c')
+       CacheDir('cache')
+       NoCache('hello.o')
+    </programlisting>
+
+    <para>
+
+    Then when you run &scons; after cleaning
+    the built targets,
+    it will recompile the object file locally
+    (since it doesn't exist in the shared cache directory),
+    but still realize that the shared cache directory
+    contains an up-to-date executable program
+    that can be retrieved instead of re-linking:
+
+    </para>
+
+    <!--
+
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o hello.o -c hello.c
+      cc -o hello hello.o
+      % <userinput>scons -Q -c</userinput>
+      Removed hello.o
+      Removed hello
+      % <userinput>scons -Q</userinput>
+      cc -o hello.o -c hello.c
+      Retrieved `hello' from cache
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Disabling the Shared Cache</title>
 
     <para>
 
@@ -221,8 +287,8 @@
     In this case, you can use the
     the <literal>--cache-force</literal> option
     to tell &SCons; to put all derived files in the cache,
-    even if the files had already been built
-    by a previous invocation:
+    even if the files already exist in your local tree
+    from having been built by a previous invocation:
 
     </para>
 
@@ -238,12 +304,8 @@
       cc -o hello hello.o
       % <userinput>scons -Q --cache-force</userinput>
       scons: `.' is up to date.
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
       % <userinput>scons -Q</userinput>
-      Retrieved `hello.o' from cache
-      Retrieved `hello' from cache
+      scons: `.' is up to date.
     </screen>
 
     <para>
@@ -252,7 +314,7 @@
     demonstrates that the <literal>--cache-disable</literal>
     option avoids putting the built
     <filename>hello.o</filename>
-    and 
+    and
     <filename>hello</filename> files in the cache,
     but after using the <literal>--cache-force</literal> option,
     the files have been put in the cache
@@ -261,3 +323,150 @@
     </para>
 
   </section>
+
+  <section>
+  <title>Minimizing Cache Contention:  the <literal>--random</literal> Option</title>
+
+    <para>
+
+    If you allow multiple builds to update the
+    shared cache directory simultaneously,
+    two builds that occur at the same time
+    can sometimes start "racing"
+    with one another to build the same files
+    in the same order.
+    If, for example,
+    you are linking multiple files into an executable program:
+
+    </para>
+
+    <programlisting>
+       Program('prog',
+               ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
+    </programlisting>
+
+    <para>
+
+    &SCons; will normally build the input object files
+    on which the program depends in their normal, sorted order:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o f1.o -c f1.c
+      cc -o f2.o -c f2.c
+      cc -o f3.o -c f3.c
+      cc -o f4.o -c f4.c
+      cc -o f5.o -c f5.c
+      cc -o prog f1.o f2.o f3.o f4.o f5.o
+    </screen>
+
+    <para>
+
+    But if two such builds take place simultaneously,
+    they may each look in the cache at nearly the same
+    time and both decide that <filename>f1.o</filename>
+    must be rebuilt and pushed into the shared cache directory,
+    then both decide that <filename>f2.o</filename>
+    must be rebuilt (and pushed into the shared cache directory),
+    then both decide that <filename>f3.o</filename>
+    must be rebuilt...
+    This won't cause any actual build problems--both
+    builds will succeed,
+    generate correct output files,
+    and populate the cache--but
+    it does represent wasted effort.
+
+    </para>
+
+    <para>
+
+    To alleviate such contention for the cache,
+    you can use the <literal>--random</literal> command-line option
+    to tell &SCons; to build dependencies
+    in a random order:
+
+    </para>
+
+    <!--
+
+    The following <screen> output was generated by this:
+
+    <scons_output example="ex-random">
+      <scons_output_command>scons -Q - -random</scons_output_command>
+    </scons_output>
+
+    We captured it directly here to guarantee a "random" order,
+    guarding against the potential for - -random to happen
+    to return things in the original sorted order.
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q --random</userinput>
+      cc -o f3.o -c f3.c
+      cc -o f1.o -c f1.c
+      cc -o f5.o -c f5.c
+      cc -o f2.o -c f2.c
+      cc -o f4.o -c f4.c
+      cc -o prog f1.o f2.o f3.o f4.o f5.o
+    </screen>
+
+    <para>
+
+    Multiple builds using the <literal>--random</literal> option
+    will usually build their dependencies in different,
+    random orders,
+    which minimizes the chances for a lot of
+    contention for same-named files
+    in the shared cache directory.
+    Multiple simultaneous builds might still race to try to build
+    the same target file on occasion,
+    but long sequences of inefficient contention
+    should be rare.
+
+    </para>
+
+    <para>
+
+    Note, of course,
+    the <literal>--random</literal> option
+    will cause the output that &SCons; prints
+    to be inconsistent from invocation to invocation,
+    which may be an issue when
+    trying to compare output from different build runs.
+
+    </para>
+
+  </section>
+
+  <!--
+
+  <section>
+  <title>Troubleshooting Shared Caching:  the &cache-debug; Option</title>
+
+    <para>
+
+    XXX describe the - - cache-debug option
+    XXX maybe point to the troubleshooting appendix?
+
+    </para>
+
+  </section>
+
+  -->
+
+  <!--
+
+  <section>
+
+    <para>
+
+    XXX describe CacheDir management:  monitoring, deleting, etc.
+
+    </para>
+
+  </section>
+
+  -->
