@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="CVS">
 <summary>
-XXX
+Sets construction variables for the CVS source code
+management system.
 </summary>
+<sets>
+CVS
+CVSCOM
+CVSFLAGS
+CVSCOFLAGS
+</sets>
+<uses>
+CVSCOMSTR
+</uses>
 </tool>
 
 <cvar name="CVS">

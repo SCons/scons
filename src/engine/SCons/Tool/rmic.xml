@@ -6,8 +6,17 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="rmic">
 <summary>
-XXX
+Sets construction variables for the &rmic; utility.
 </summary>
+<sets>
+RMIC
+RMICFLAGS
+RMICCOM
+JAVACLASSSUFFIX
+</sets>
+<uses>
+RMICCOMSTR
+</uses>
 </tool>
 
 <builder name="RMIC">

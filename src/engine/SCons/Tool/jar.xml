@@ -6,8 +6,17 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="jar">
 <summary>
-XXX
+Sets construction variables for the &jar; utility.
 </summary>
+<sets>
+JAR
+JARFLAGS
+JARCOM
+JARSUFFIX
+</sets>
+<uses>
+JARCOMSTR
+</uses>
 </tool>
 
 <builder name="Jar">

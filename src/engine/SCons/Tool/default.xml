@@ -6,6 +6,7 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="default">
 <summary>
-XXX
+Sets variables by calling a default list of Tool modules
+for the platform on which SCons is running.
 </summary>
 </tool>

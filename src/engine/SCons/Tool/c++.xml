@@ -4,10 +4,29 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
-<tool name="c++">
+<tool name="cXX">
 <summary>
-XXX
+Sets construction variables for generic POSIX C++ compilers.
 </summary>
+<sets>
+CXX
+CXXFLAGS
+CXXCOM
+SHCXX
+SHCXXFLAGS
+SHCXXCOM
+CPPDEFPREFIX
+CPPDEFSUFFIX
+INCPREFIX
+INCSUFFIX
+SHOBJSUFFIX
+OBJSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+CXXFILESUFFIX
+</sets>
+<uses>
+CXXCOMSTR
+</uses>
 </tool>
 
 <cvar name="CXX">

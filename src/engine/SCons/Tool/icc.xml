@@ -6,6 +6,25 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="icc">
 <summary>
-XXX
+Sets construction variables for the
+<application>icc</application> compiler on OS/2 systems.
 </summary>
+<sets>
+CC
+CCCOM
+CXXCOM
+CPPDEFPREFIX
+CPPDEFSUFFIX
+INCPREFIX
+INCSUFFIX
+CFILESUFFIX
+CXXFILESUFFIX
+</sets>
+<uses>
+CFLAGS
+CCFLAGS
+CPPFLAGS
+_CPPDEFFLAGS
+_CPPINCFLAGS
+</uses>
 </tool>

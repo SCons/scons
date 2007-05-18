@@ -6,6 +6,11 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="sunlink">
 <summary>
-XXX
+Sets construction variables for the Sun linker.
 </summary>
+<sets>
+SHLINKFLAGS
+RPATHPREFIX
+RPATHSUFFIX
+</sets>
 </tool>

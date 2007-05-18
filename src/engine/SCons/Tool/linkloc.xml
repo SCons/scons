@@ -6,6 +6,26 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="linkloc">
 <summary>
-XXX
+Sets construction variables for the
+<application>LinkLoc</application>
+linker for the Phar Lap ETS embedded operating system.
 </summary>
+<sets>
+<!--SUBST_CMD_FILE-->
+SHLINK
+SHLINKFLAGS
+SHLINKCOM
+<!--SHLINKEMITTER-->
+LINK
+LINKFLAGS
+LINKCOM
+LIBDIRPREFIX
+LIBDIRSUFFIX
+LIBLINKPREFIX
+LIBLINKSUFFIX
+</sets>
+<uses>
+SHLINKCOMSTR
+LINKCOMSTR
+</uses>
 </tool>

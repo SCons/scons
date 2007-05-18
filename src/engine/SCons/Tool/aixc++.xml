@@ -6,6 +6,14 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="aixc++">
 <summary>
-XXX
+Sets construction variables for the IMB xlc / Visual Age C++ compiler.
 </summary>
+<sets>
+CXX
+SHCXX
+CXXVERSION
+SHOBJSUFFIX
+</sets>
+<uses>
+</uses>
 </tool>

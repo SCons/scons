@@ -20,11 +20,10 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
+RELEASE 0.97 - Thu, 12 Apr 2007 12:36:25 -0500
 
-  This is a pre-release for testing the eighth beta release of SCons.
-  Please consult the CHANGES.txt file for a list of specific changes
-  since last release.
+  This is the eighth beta release of SCons.  Please consult the
+  CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.96.93:
 
@@ -47,9 +46,9 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
         On all POSIX systems, the default execution PATH variable has had
         the /opt/bin directory added after the /usr/local/bin directory
         and before /bin and /usr/bin directories.  This may cause SCons
-        to find and/or different compilers, linkers, etc. if you have
-        any same-named utilities installed in /opt/bin that it previously
-        found in /bin or /usr/bin.
+        to find and/or use different compilers, linkers, etc., if you
+        have any same-named utilities installed in /opt/bin that SCons
+        previously found in /bin or /usr/bin.
 
         On Mac OS X (Darwin) systems, the /sw/bin directory has been added
         to the end of the default execution PATH.  This may cause SCons
@@ -147,11 +146,12 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
 
           --  NORMALIZED PATHS IN SConsignFile() DATABASES ON WINDOWS
 
-              When using an SConsignFile() database, instead of individual
-              .sconsign files in each directory, the path names are
-              stored in normalized form with / (forward slash) separating
-              the elements.  This may cause rebuilds on Windows systems
-              with hierarchical configurations.
+              When using an SConsignFile() database, instead of
+              individual .sconsign files in each directory, the path
+              names are stored in normalized form with / (forward slash)
+              separating the elements.  This may cause rebuilds when
+              upgrading to SCons 0.97 on Windows systems with hierarchical
+              build configurations.
 
           --  STORED DEPENDENCY PATHS ARE NOW RELATIVE TO THE TARGET
 
@@ -163,26 +163,27 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
               causing unnecessary rebuilds due to an intermediate file in
               one build being treated as a source file in a nother build.
 
-              This a step towards making it possible to write a hierarchy
-              of SConstruct files that allow developers to build just
-              one portion of a tree wherever there's an SConstruct file.
-              (Note that this would still require some specific code at
-              the top of each SConstruct file, but we hope to make this
-              an easier/more naturally supported thing in the future.)
+              This is a step towards making it possible to write a
+              hierarchy of SConstruct files that allow developers
+              to build just one portion of a tree wherever there's an
+              SConstruct file.  (Note that this would still require some
+              specific code at the top of each SConstruct file, but we
+              hope to make this an easier/more naturally supported thing
+              in the future.)
 
           --  PYTHON FUNCTION ACTION SIGNATURES HAVE CHANGED TO AVOID
               FUTURE REBUILDS AND REBUILDS BETWEEN PYTHON VERSIONS
 
-              SCons Actions for Python functions use the functions byte
-              code to generate their signature.  The byte code in older
-              versions of Python includes indications of the line numbers
-              at which the function's code appeared in its original
-              source file, which means that changes in the location of
-              an otherwise unmodified Python function would trigger
-              rebuilds.  The line number byte codes are now removed
-              from the signature, which will cause any targets built by
-              Python function Actions (including various pre-supplied
-              SCons Actions) be rebuilt.
+              SCons Actions for Python functions use the function's
+              byte code to generate their signature.  The byte code
+              in older versions of Python includes indications of the
+              line numbers at which the function's code appeared in
+              its original source file, which means that changes in the
+              location of an otherwise unmodified Python function would
+              trigger rebuilds.  The line number byte codes are now
+              removed from the signature, which will cause any targets
+              built by Python function Actions (including various
+              pre-supplied SCons Actions) to be rebuilt.
 
           --  REMOVED CONVERSION FROM PRE-0.96 .sconsign FORMATS
 
@@ -193,10 +194,11 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
 
           --  ORDER OF -o FLAGS ON CERTAIN LINK COMMAND LINES HAS CHANGED
 
-              The -o flag that specifies an output file has been moved on
-              certain linker command lines to place it consistently after
-              the link command itself.  This will cause recompilation
-              of target files created by these changed lines.
+              The -o flag that specifies an output file has been moved
+              on certain linker command lines to place it consistently
+              right after the link command itself.  This will cause
+              recompilation of target files created by these changed
+              lines.
 
     --  F95 AND F90 COMPILERS ARE NOW PREFERRED OVER F77
 
@@ -561,10 +563,10 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
 
   KNOWN PROBLEMS IN THIS RELEASE:
 
-    For a complete list of known problems, consult the SCons bug tracker
-    page at SourceForge:
+    For a complete list of known problems, consult the SCons Issue Tracker
+    at tigris.org:
 
-        http://sourceforge.net/tracker/?atid=398971&group_id=30337&func=browse
+        http://scons.tigris.org/project_issues.html
 
     - Support for parallel builds (-j) does not work on WIN32 systems
       prior to *official* Python release 2.2 (not 2.2 pre-releases).
@@ -617,15 +619,6 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
       file has been corrupted from outside and should be rebuilt.
 
     - Unicode characters in path names do not work in all circumstances.
-
-    - A stray source file in a BuildDir can prevent targets from being
-      (re)built when they should.
-
-    - SCons does not automatically rebuild LaTeX files when the file
-      has an undefined reference on the first build.
-
-    - Use of --implicit-cache with TargetSignatures('content') can,
-      for some changes, not rebuild a file when necessary.
 
     - SCons does not currently automatically check out SConstruct or
       SConscript files from SCCS, RCS or BitKeeper.

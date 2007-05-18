@@ -6,8 +6,16 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="lex">
 <summary>
-XXX
+Sets construction variables for the &lex; lexical analyser.
 </summary>
+<sets>
+LEX
+LEXFLAGS
+LEXCOM
+</sets>
+<uses>
+LEXCOMSTR
+</uses>
 </tool>
 
 <cvar name="LEX">

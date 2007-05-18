@@ -6,8 +6,31 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="link">
 <summary>
-XXX
+Sets construction variables for generic POSIX linkers.
 </summary>
+<sets>
+SHLINK
+SHLINKFLAGS
+SHLINKCOM
+LINK
+LINKFLAGS
+LINKCOM
+LIBDIRPREFIX
+LIBDIRSUFFIX
+LIBLINKPREFIX
+LIBLINKSUFFIX
+SHLIBSUFFIX
+LDMODULE
+LDMODULEPREFIX
+LDMODULESUFFIX
+LDMODULEFLAGS
+LDMODULECOM
+</sets>
+<uses>
+SHLINKCOMSTR
+LINKCOMSTR
+LDMODULECOMSTR
+</uses>
 </tool>
 
 <cvar name="LDMODULE">

@@ -6,6 +6,11 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="gcc">
 <summary>
-XXX
+Set construction variables for the &gcc; C compiler.
 </summary>
+<sets>
+CC
+SHCCFLAGS
+CCVERSION
+</sets>
 </tool>

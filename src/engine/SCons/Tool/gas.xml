@@ -6,6 +6,10 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="gas">
 <summary>
-XXX
+Sets construction variables for the &gas; assembler.
+Calls the &t-as; module.
 </summary>
+<sets>
+AS
+</sets>
 </tool>

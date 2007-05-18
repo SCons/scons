@@ -8,6 +8,20 @@
 
 
 
+RELEASE 0.97 - Thu, 17 May 2007 08:59:41 -0500
+
+  From Steven Knight:
+
+  - Fix a bug that would make parallel builds stop in their tracks if
+    Nodes that depended on lists that contained some Nodes built together
+    caused the reference count to drop below 0 if the Nodes were visited
+    and commands finished in the wrong order.
+
+  - Make sure the DirEntryScanner doesn't choke if it's handed something
+    that's not a directory (Node.FS.Dir) Node.
+
+
+
 RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
 
   NOTE:  This is (Yet) a(nother) pre-release of 0.97 for testing purposes.

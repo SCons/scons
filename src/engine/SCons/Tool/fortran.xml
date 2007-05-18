@@ -6,8 +6,23 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="fortran">
 <summary>
-XXX
+Set construction variables for generic POSIX Fortran compilers.
 </summary>
+<sets>
+FORTRAN
+FORTRANFLAGS
+FORTRANCOM
+SHFORTRAN
+SHFORTRANFLAGS
+SHFORTRANCOM
+SHFORTRANPPCOM
+</sets>
+<uses>
+FORTRANCOMSTR
+FORTRANPPCOMSTR
+SHFORTRANCOMSTR
+SHFORTRANPPCOMSTR
+</uses>
 </tool>
 
 <cvar name="FORTRAN">
@@ -197,6 +212,16 @@ construction variables are included on this command line.
 </summary>
 </cvar>
 
+<cvar name="FORTRANPPCOMSTR">
+<summary>
+The string displayed when a Fortran source file
+is compiled to an object file
+after first running the file throught the C preprocessor.
+If this is not set, then &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
 <cvar name="FORTRANSUFFIXES">
 <summary>
 The list of suffixes of files that will be scanned
@@ -249,5 +274,15 @@ Any options specified
 in the &cv-link-SHFORTRANFLAGS; and
 &cv-link-CPPFLAGS; construction variables
 are included on this command line.
+</summary>
+</cvar>
+
+<cvar name="SHFORTRANPPCOMSTR">
+<summary>
+The string displayed when a Fortran source file
+is compiled to a shared-library object file
+after first running the file throught the C preprocessor.
+If this is not set, then &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
 </summary>
 </cvar>

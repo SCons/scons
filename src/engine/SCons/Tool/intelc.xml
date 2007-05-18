@@ -6,8 +6,22 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="intelc">
 <summary>
-XXX
+Sets construction variables for the Intel C/C++ compiler
+(Linux and Windows, version 7 and later).
+Calls the &t-gcc; or &t-msvc;
+(on Linux and Windows, respectively)
+to set underlying variables.
 </summary>
+<sets>
+CC
+CXX
+LINK
+AR
+<!--LD-->
+INTEL_C_COMPILER_VERSION
+</sets>
+<uses>
+</uses>
 </tool>
 
 <cvar name="INTEL_C_COMPILER_VERSION">

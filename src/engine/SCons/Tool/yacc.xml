@@ -6,8 +6,19 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="yacc">
 <summary>
-XXX
+Sets construction variables for the &yacc; parse generator.
 </summary>
+<sets>
+YACC
+YACCFLAGS
+YACCCOM
+YACCHFILESUFFIX
+YACCHXXFILESUFFIX
+YACCVCGFILESUFFIX
+</sets>
+<uses>
+YACCCOMSTR
+</uses>
 </tool>
 
 <cvar name="YACC">

@@ -6,8 +6,16 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="dvipdf">
 <summary>
-XXX
+Sets construction variables for the dvipdf utility.
 </summary>
+<sets>
+DVIPDF
+DVIPDFFLAGS
+DVIPDFCOM
+</sets>
+<uses>
+DVIPDFCOMSTR
+</uses>
 </tool>
 
 <cvar name="DVIPDF">

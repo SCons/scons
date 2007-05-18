@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="BitKeeper">
 <summary>
-XXX
+Sets construction variables for the BitKeeper
+source code control system.
 </summary>
+<sets>
+BITKEEPER
+BITKEEPERGET
+BITKEEPERGETFLAGS
+BITKEEPERCOM
+</sets>
+<uses>
+BITKEEPERCOMSTR
+</uses>
 </tool>
 
 <cvar name="BITKEEPER">

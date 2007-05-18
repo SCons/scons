@@ -6,6 +6,25 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="cvf">
 <summary>
-XXX
+Sets construction variables for the Compaq Visual Fortran compiler.
 </summary>
+<sets>
+FORTRAN
+FORTRANCOM
+FORTRANPPCOM
+SHFORTRANCOM
+SHFORTRANPPCOM
+OBJSUFFIX
+FORTRANMODDIR
+FORTRANMODDIRPREFIX
+FORTRANMODDIRSUFFIX
+</sets>
+<uses>
+FORTRANFLAGS
+SHFORTRANFLAGS
+_FORTRANMODFLAG
+_FORTRANINCFLAGS
+CPPFLAGS
+_CPPDEFFLAGS
+</uses>
 </tool>

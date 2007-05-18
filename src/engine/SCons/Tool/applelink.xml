@@ -4,6 +4,28 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+<tool name="applelink">
+<summary>
+Sets construction variables for the Apple linker
+(similar to the GNU linker).
+</summary>
+<sets>
+FRAMEWORKPATHPREFIX
+_FRAMEWORKPATH
+_FRAMEWORKS
+LINKCOM
+SHLINKFLAGS
+SHLINKCOM
+LDMODULEPREFIX
+LDMODULESUFFIX
+LDMODULEFLAGS
+LDMODULECOM
+</sets>
+<uses>
+FRAMEWORKSFLAGS
+</uses>
+</tool>
+
 <cvar name="FRAMEWORKSFLAGS">">
 <summary>
 On Mac OS X with gcc,

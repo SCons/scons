@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="SCCS">
 <summary>
-XXX
+Sets construction variables for interacting with the
+Source Code Control System.
 </summary>
+<sets>
+SCCS
+SCCSFLAGS
+SCCSGETFLAGS
+SCCSCOM
+</sets>
+<uses>
+SCCSCOMSTR
+</uses>
 </tool>
 
 <cvar name="SCCS">

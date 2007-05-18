@@ -23,8 +23,8 @@ import SConsDoc
 base_sys_path = [os.getcwd() + '/build/test-tar-gz/lib/scons'] + sys.path
 
 helpstr = """\
-Usage: scons-proc.py [--man|--sgml] \
-                        [-b file(s)] [-t file(s)] [-v file(s)] [infile ...]
+Usage: scons-proc.py [--man|--sgml]
+                     [-b file(s)] [-t file(s)] [-v file(s)] [infile ...]
 Options:
   -b file(s)        dump builder information to the specified file(s)
   -t file(s)        dump tool information to the specified file(s)
@@ -36,8 +36,9 @@ Options:
 """
 
 opts, args = getopt.getopt(sys.argv[1:],
-                           "b:t:v:",
-                           ['builders=', 'man', 'sgml', 'tools=', 'variables='])
+                           "b:ht:v:",
+                           ['builders=', 'help',
+                            'man', 'sgml', 'tools=', 'variables='])
 
 buildersfiles = None
 output_type = '--sgml'
@@ -47,6 +48,9 @@ variablesfiles = None
 for o, a in opts:
     if o in ['-b', '--builders']:
         buildersfiles = a
+    elif o in ['-h', '--help']:
+        sys.stdout.write(helpstr)
+        sys.exit(0)
     elif o in ['--man', '--sgml']:
         output_type = o
     elif o in ['-t', '--tools']:
@@ -146,11 +150,16 @@ class SCons_XML_to_SGML(SCons_XML):
             f.write('<listitem>\n')
             for chunk in v.summary.body:
                 f.write(str(chunk))
-            #if v.uses:
-            #    u = map(lambda x, s: '&%slink-%s;' % (s.prefix, x), v.uses)
-            #    f.write('<para>\n')
-            #    f.write('Uses:  ' + ', '.join(u) + '.\n')
-            #    f.write('</para>\n')
+            if v.sets:
+                s = map(lambda x: '&cv-link-%s;' % x, v.sets)
+                f.write('<para>\n')
+                f.write('Sets:  ' + ', '.join(s) + '.\n')
+                f.write('</para>\n')
+            if v.uses:
+                u = map(lambda x: '&cv-link-%s;' % x, v.uses)
+                f.write('<para>\n')
+                f.write('Uses:  ' + ', '.join(u) + '.\n')
+                f.write('</para>\n')
             f.write('</listitem>\n')
             f.write('</varlistentry>\n')
     def write_mod(self, filename):

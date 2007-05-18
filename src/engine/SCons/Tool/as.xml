@@ -6,8 +6,21 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="as">
 <summary>
-XXX
+Sets construction variables for the &as; assembler.
 </summary>
+<sets>
+AS
+ASFLAGS
+ASCOM
+ASPPFLAGS
+ASPPCOM
+</sets>
+<uses>
+CC
+CPPFLAGS
+_CPPDEFFLAGS
+_CPPINCFLAGS
+</uses>
 </tool>
 
 <cvar name="AS">

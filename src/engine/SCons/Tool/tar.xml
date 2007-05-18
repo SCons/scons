@@ -6,8 +6,17 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="tar">
 <summary>
-XXX
+Sets construction variables for the &tar; archiver.
 </summary>
+<sets>
+TAR
+TARFLAGS
+TARCOM
+TARSUFFIX
+</sets>
+<uses>
+TARCOMSTR
+</uses>
 </tool>
 
 <builder name="Tar">

@@ -6,8 +6,16 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="m4">
 <summary>
-XXX
+Sets construction variables for the &m4; macro processor.
 </summary>
+<sets>
+M4
+M4FLAGS
+M4COM
+</sets>
+<uses>
+M4COMSTR
+</uses>
 </tool>
 
 <builder name="M4">

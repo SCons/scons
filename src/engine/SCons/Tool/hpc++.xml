@@ -6,6 +6,6 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="hpc++">
 <summary>
-XXX
+Set construction variables for the compilers aCC on HP/UX systems.
 </summary>
 </tool>

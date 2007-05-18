@@ -6,6 +6,12 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="suncc">
 <summary>
-XXX
+Sets construction variables for the Sun C compiler.
 </summary>
+<sets>
+CXX
+SHCCFLAGS
+SHOBJPREFIX
+SHOBJSUFFIX
+</sets>
 </tool>

@@ -6,8 +6,16 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="gs">
 <summary>
-XXX
+Set construction variables for Ghostscript.
 </summary>
+<sets>
+GS
+GSFLAGS
+GSCOM
+</sets>
+<uses>
+GSCOMSTR
+</uses>
 </tool>
 
 <cvar name="GS">

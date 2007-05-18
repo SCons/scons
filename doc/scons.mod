@@ -16,30 +16,42 @@
 
 -->
 
-<!ENTITY Aegis "<application>Aegis</application>">
-<!ENTITY Ant "<application>Ant</application>">
-<!ENTITY Autoconf "<application>Autoconf</application>">
-<!ENTITY Automake "<application>Automake</application>">
-<!ENTITY cc "<application>cc</application>">
-<!ENTITY Cons "<application>Cons</application>">
-<!ENTITY cp "<application>cp</application>">
-<!ENTITY csh "<application>csh</application>">
-<!ENTITY gcc "<application>gcc</application>">
-<!ENTITY Jam "<application>Jam</application>">
-<!ENTITY jar "<application>jar</application>">
-<!ENTITY javac "<application>javac</application>">
-<!ENTITY javah "<application>javah</application>">
-<!ENTITY Make "<application>Make</application>">
-<!ENTITY Makepp "<application>Make++</application>">
-<!ENTITY Python "<application>Python</application>">
-<!ENTITY ranlib "<application>ranlib</application>">
-<!ENTITY rmic "<application>rmic</application>">
-<!ENTITY SCons "<application>SCons</application>">
-<!ENTITY scons "<application>scons</application>">
-<!ENTITY ScCons "<application>ScCons</application>">
-<!ENTITY tar "<application>tar</application>">
-<!ENTITY touch "<application>touch</application>">
-<!ENTITY zip "<application>zip</application>">
+<!ENTITY Aegis          "<application>Aegis</application>">
+<!ENTITY Ant            "<application>Ant</application>">
+<!ENTITY ar             "<application>ar</application>">
+<!ENTITY as             "<application>as</application>">
+<!ENTITY Autoconf       "<application>Autoconf</application>">
+<!ENTITY Automake       "<application>Automake</application>">
+<!ENTITY cc             "<application>cc</application>">
+<!ENTITY Cons           "<application>Cons</application>">
+<!ENTITY cp             "<application>cp</application>">
+<!ENTITY csh            "<application>csh</application>">
+<!ENTITY gas            "<application>gas</application>">
+<!ENTITY gcc            "<application>gcc</application>">
+<!ENTITY g77            "<application>g77</application>">
+<!ENTITY gXX            "<application>gXX</application>">
+<!ENTITY Jam            "<application>Jam</application>">
+<!ENTITY jar            "<application>jar</application>">
+<!ENTITY javac          "<application>javac</application>">
+<!ENTITY javah          "<application>javah</application>">
+<!ENTITY latex          "<application>latex</application>">
+<!ENTITY lex            "<application>lex</application>">
+<!ENTITY m4             "<application>m4</application>">
+<!ENTITY Make           "<application>Make</application>">
+<!ENTITY Makepp         "<application>Make++</application>">
+<!ENTITY pdflatex       "<application>pdflatex</application>">
+<!ENTITY pdftex         "<application>pdftex</application>">
+<!ENTITY Python         "<application>Python</application>">
+<!ENTITY ranlib         "<application>ranlib</application>">
+<!ENTITY rmic           "<application>rmic</application>">
+<!ENTITY SCons          "<application>SCons</application>">
+<!ENTITY scons          "<application>scons</application>">
+<!ENTITY ScCons         "<application>ScCons</application>">
+<!ENTITY tar            "<application>tar</application>">
+<!ENTITY tex            "<application>tex</application>">
+<!ENTITY touch          "<application>touch</application>">
+<!ENTITY yacc           "<application>yacc</application>">
+<!ENTITY zip            "<application>zip</application>">
 
 
 <!--

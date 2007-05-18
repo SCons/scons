@@ -6,8 +6,50 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="msvc">
 <summary>
-XXX
+Sets construction variables for the Microsoft Visual C/C++ compiler.
 </summary>
+<sets>
+CCPDBFLAGS
+CCPCHFLAGS
+<!--CCCOMFLAGS-->
+CC
+CCFLAGS
+CFLAGS
+CCCOM
+SHCC
+SHCCFLAGS
+SHCFLAGS
+SHCCCOM
+CXX
+CXXFLAGS
+CXXCOM
+SHCXX
+SHCXXFLAGS
+SHCXXCOM
+CPPDEFPREFIX
+CPPDEFSUFFIX
+INCPREFIX
+INCSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+RC
+RCFLAGS
+RCCOM
+BUILDERS
+OBJPREFIX
+OBJSUFFIX
+SHOBJPREFIX
+SHOBJSUFFIX
+CFILESUFFIX
+CXXFILESUFFIX
+PCHPDBFLAGS
+PCHCOM
+</sets>
+<uses>
+CCCOMSTR
+SHCCCOMSTR
+CXXCOMSTR
+SHCXXCOMSTR
+</uses>
 </tool>
 
 <builder name="PCH">
@@ -127,6 +169,14 @@ If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
+<cvar name="PCHPDBFLAGS">
+<summary>
+A construction variable that, when expanded,
+adds the <literal>/yD</literal> flag to the command line
+only if the &cv-PDB; construction variable is set.
+</summary>
+</cvar>
+
 <cvar name="PCHSTOP">
 <summary>
 This variable specifies how much of a source file is precompiled. This
@@ -167,5 +217,38 @@ If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
 <cvar name="RCFLAGS">
 <summary>
 The flags passed to the resource compiler by the RES builder.
+</summary>
+</cvar>
+
+<cvar name="RCINCFLAGS">
+<summary>
+An automatically-generated construction variable
+containing the command-line options
+for specifying directories to be searched
+by the resource compiler.
+The value of &cv-RCINCFLAGS; is created
+by appending &cv-RCINCPREFIX; and &cv-RCINCSUFFIX;
+to the beginning and end
+of each directory in &cv-CPPPATH;.
+</summary>
+</cvar>
+
+<cvar name="RCINCPREFIX">
+<summary>
+The prefix (flag) used to specify an include directory
+on the resource compiler command line.
+This will be appended to the beginning of each directory
+in the &cv-CPPPATH; construction variable
+when the &cv-RCINCFLAGS; variable is expanded.
+</summary>
+</cvar>
+
+<cvar name="RCINCSUFFIX">
+<summary>
+The suffix used to specify an include directory
+on the resource compiler command line.
+This will be appended to the end of each directory
+in the &cv-CPPPATH; construction variable
+when the &cv-RCINCFLAGS; variable is expanded.
 </summary>
 </cvar>

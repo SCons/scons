@@ -143,11 +143,12 @@ tools = [
     'zip',
 ]
 
-if sys.platform == 'win32':
-    tools.extend([
-        '386asm',
-        'linkloc',
-    ])
+#if sys.platform == 'win32':
+# Just comment out (for now?) due to registry dependency.
+#    tools.extend([
+#        '386asm',
+#        'linkloc',
+#    ])
 
 # Intel no compiler warning..
 intel_no_compiler_warning = """

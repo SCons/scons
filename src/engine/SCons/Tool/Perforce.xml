@@ -6,8 +6,17 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="Perforce">
 <summary>
-XXX
+Sets construction variables for interacting with the
+Perforce source code management system.
 </summary>
+<sets>
+P4
+P4FLAGS
+P4COM
+</sets>
+<uses>
+P4COMSTR
+</uses>
 </tool>
 
 <cvar name="P4">

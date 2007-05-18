@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="rpcgen">
 <summary>
-XXX
+Sets construction variables for building with RPCGEN.
 </summary>
+<sets>
+RPCGEN
+RPCGENFLAGS
+RPCGENCLIENTFLAGS
+RPCGENHEADERFLAGS
+RPCGENSERVICEFLAGS
+RPCGENXDRFLAGS
+</sets>
+<uses>
+</uses>
 </tool>
 
 <builder name="RPCGenClient">

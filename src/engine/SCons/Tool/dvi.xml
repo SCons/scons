@@ -4,6 +4,17 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+<tool name="dvi">
+<summary>
+Attaches the &b-DVI; builder to the
+construction environment.
+</summary>
+<sets>
+</sets>
+<uses>
+</uses>
+</tool>
+
 <builder name="DVI">
 <summary>
 Builds a <filename>.dvi</filename> file

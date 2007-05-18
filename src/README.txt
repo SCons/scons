@@ -99,21 +99,24 @@ By default, the above command will do the following:
         for example).  This can be disabled by specifying the
         "--no-scons-script" option on the command line, which is useful
         if you want to install and experiment with a new version before
-        making it the default on your system.  On UNIX or Linux systems,
-        you can have the "scons" and "sconsign" scripts be hard links or
-        symbolic links to the "scons-__VERSION__" and "sconsign-__VERSION__" scripts
-        by specifying the "--hardlink-scons" or "--symlink-scons"
-        options on the command line.
+        making it the default on your system.
+
+        On UNIX or Linux systems, you can have the "scons" and "sconsign"
+        scripts be hard links or symbolic links to the "scons-__VERSION__" and
+        "sconsign-__VERSION__" scripts by specifying the "--hardlink-scons"
+        or "--symlink-scons" options on the command line.
 
     --  Install "scons-__VERSION__.bat" and "scons.bat" wrapper scripts in the
         Python prefix directory on Windows (C:\Python*, for example).
         This can be disabled by specifying the "--no-install-bat" option
-        on the command line.  On UNIX or Linux systems, the
-        "--install-bat" option may be specified to have "scons-__VERSION__.bat"
-        and "scons.bat" files installed in the default system script
-        directory, which is useful if you want to install SCons in a
-        shared file system directory that can be used to execute SCons
-        from both UNIX/Linux and Windows systems.
+        on the command line.
+
+        On UNIX or Linux systems, the "--install-bat" option may be
+        specified to have "scons-__VERSION__.bat" and "scons.bat" files
+        installed in the default system script directory, which is useful
+        if you want to install SCons in a shared file system directory
+        that can be used to execute SCons from both UNIX/Linux and
+        Windows systems.
 
     --  Install the SCons build engine (a Python module) in an
         appropriate version-numbered SCons library directory
@@ -196,18 +199,18 @@ available at:
 REPORTING BUGS
 ==============
 
-Please report bugs by following the "Tracker - Bugs" link on the SCons
-project page and filling out the form:
+Please report bugs by following the detailed instructions on our Bug
+Submission page:
 
-        http://sourceforge.net/projects/scons/
+        http://scons.tigris.org/bug-submission.html
 
-You can also send mail to the SCons developers mailing list:
+You can also send mail to the SCons developers' mailing list:
 
-        scons-devel@lists.sourceforge.net
+        dev@scons.tigris.org
 
-But please make sure that you also submit a bug report to the project
-page bug tracker, because bug reports in email can sometimes get lost
-in the general flood of messages.
+But even if you send email to the mailing list please make sure that you
+ALSO submit a bug report to the project page bug tracker, because bug
+reports in email often get overlooked in the general flood of messages.
 
 
 MAILING LISTS
@@ -262,12 +265,9 @@ With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc
-        Baptiste Lepilleur
-        Elliot Murphy
+        Greg Noel
         Gary Oberbrunner
         Anthony Roach
-        Greg Noel
-        Kevin Quick
         Greg Spencer
         Christoph Wiedemann
 

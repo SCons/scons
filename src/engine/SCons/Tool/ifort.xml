@@ -6,6 +6,11 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="ifort">
 <summary>
-XXX
+Sets construction variables for newer versions
+of the Intel Fortran compiler for Linux.
 </summary>
+<sets>
+SHLINK
+SHLINKFLAGS
+</sets>
 </tool>

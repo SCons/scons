@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="zip">
 <summary>
-XXX
+Sets construction variables for the &zip; archiver.
 </summary>
+<sets>
+ZIP
+ZIPFLAGS
+ZIPCOM
+ZIPCOMPRESSION
+ZIPSUFFIX
+</sets>
+<uses>
+ZIPCOMSTR
+</uses>
 </tool>
 
 <builder name="Zip">
@@ -90,5 +100,11 @@ module is otherwise unavailable.
 <cvar name="ZIPFLAGS">
 <summary>
 General options passed to the zip utility.
+</summary>
+</cvar>
+
+<cvar name="ZIPSUFFIX">
+<summary>
+The suffix used for zip file names.
 </summary>
 </cvar>

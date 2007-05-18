@@ -6,8 +6,16 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="midl">
 <summary>
-XXX
+Sets construction variables for the Microsoft IDL compiler.
 </summary>
+<sets>
+MIDL
+MIDLFLAGS
+MIDLCOM
+</sets>
+<uses>
+MIDLCOMSTR
+</uses>
 </tool>
 
 <builder name="TypeLibrary">
@@ -32,3 +40,29 @@ and
 files.
 </summary>
 </builder>
+
+<cvar name="MIDL">
+<summary>
+The Microsoft IDL compiler.
+</summary>
+</cvar>
+
+<cvar name="MIDLCOM">
+<summary>
+The command line used to pass files to the Microsoft IDL compiler.
+</summary>
+</cvar>
+
+<cvar name="MIDLCOMSTR">
+<summary>
+The string displayed when
+the Microsoft IDL copmiler is called.
+If this is not set, then &cv-link-MIDLCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="MIDLFLAGS">
+<summary>
+General options passed to the Microsoft IDL compiler.
+</summary>
+</cvar>

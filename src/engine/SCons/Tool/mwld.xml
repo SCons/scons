@@ -6,6 +6,22 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="mwld">
 <summary>
-XXX
+Sets construction variables for the Metrowerks CodeWarrior linker.
 </summary>
+<sets>
+AR
+ARCOM
+LIBDIRPREFIX
+LIBDIRSUFFIX
+LIBLINKPREFIX
+LIBLINKSUFFIX
+LINK
+LINKCOM
+SHLINK
+SHLINKFLAGS
+SHLINKCOM
+<!--SHLIBEMITTER-->
+</sets>
+<uses>
+</uses>
 </tool>

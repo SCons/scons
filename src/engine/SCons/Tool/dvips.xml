@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="dvips">
 <summary>
-XXX
+Sets construction variables for the dvips utility.
 </summary>
+<sets>
+DVIPS
+DVIPSFLAGS
+PSCOM
+PSPREFIX
+PSSUFFIX
+</sets>
+<uses>
+PSCOMSTR
+</uses>
 </tool>
 
 <builder name="PostScript">

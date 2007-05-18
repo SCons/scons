@@ -6,6 +6,19 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="sgiar">
 <summary>
-XXX
+Sets construction variables for the SGI library archiver.
 </summary>
+<sets>
+AR
+ARFLAGS
+ARCOMSTR
+SHLINK
+SHLINKFLAGS
+LIBPREFIX
+LIBSUFFIX
+</sets>
+<uses>
+ARCOMSTR
+SHLINKCOMSTR
+</uses>
 </tool>

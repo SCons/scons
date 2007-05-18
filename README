@@ -10,12 +10,12 @@ If all you want to do is install and run SCons, it will be easier for you
 to download and install the scons-{version}.tar.gz or scons-{version}.zip
 package rather than to work with the packaging logic in this tree.
 
-To the extent that this tree is about building SCons packages, the
-*full* development cycle (enforced by Aegis) is not to test the code
-directly, but to package SCons, unpack the package, "install" SCons in
-a test subdirectory, and then to run the tests against the unpacked and
-installed software.  This helps eliminate problems caused by, for example,
-failure to update the list of files to be packaged.
+To the extent that this tree is about building SCons packages, the *full*
+development cycle is not just to test the code directly, but to package
+SCons, unpack the package, "install" SCons in a test subdirectory,
+and then to run the tests against the unpacked and installed software.
+This helps eliminate problems caused by, for example, failure to update
+the list of files to be packaged.
 
 For just working on making an individual change to the SCons source,
 however, you don't actually need to build or install SCons; you
@@ -83,11 +83,11 @@ In this case, your options are:
     --  (Optional.)  Install from a pre-packaged SCons package that
         does not require distutils:
 
-            Red Hat Linux       scons-0.96.96.noarch.rpm
+            Red Hat Linux       scons-0.97.noarch.rpm
 
             Debian GNU/Linux    use apt-get to get the official package
 
-            Windows             scons-0.96.96.win32.exe
+            Windows             scons-0.97.win32.exe
 
     --  (Recommended.)  Download the latest distutils package from the
         following URL:
@@ -132,7 +132,7 @@ bootstrap/ subdirectory and executing it from there.
 
 You can also execute the local SCons directly from the src/ subdirectory
 by first setting the SCONS_LIB_DIR environment variable to the local
-src/engine subdirectory, and then execute the local src/script/scons.py
+src/engine subdirectory, and then executing the local src/script/scons.py
 script to populate the build/scons/ subdirectory.  You would do this as
 follows on a Linux or UNIX system (using sh or a derivative like bash
 or ksh):
@@ -159,7 +159,7 @@ And on Windows:
 
 By default, the above commands will do the following:
 
-    --  Install the version-numbered "scons-0.96.96" and "sconsign-0.96.96"
+    --  Install the version-numbered "scons-0.97" and "sconsign-0.97"
         scripts in the default system script directory (/usr/bin or
         C:\Python*\Scripts, for example).  This can be disabled by
         specifying the "--no-version-script" option on the command
@@ -170,25 +170,27 @@ By default, the above commands will do the following:
         for example).  This can be disabled by specifying the
         "--no-scons-script" option on the command line, which is useful
         if you want to install and experiment with a new version before
-        making it the default on your system.  On UNIX or Linux systems,
-        you can have the "scons" and "sconsign" scripts be hard links or
-        symbolic links to the "scons-0.96.96" and "sconsign-0.96.96" scripts
-        by specifying the "--hardlink-scons" or "--symlink-scons"
-        options on the command line.
+        making it the default on your system.
 
-    --  Install "scons-0.96.96.bat" and "scons.bat" wrapper scripts in the
+        On UNIX or Linux systems, you can have the "scons" and "sconsign"
+        scripts be hard links or symbolic links to the "scons-0.97" and
+        "sconsign-0.97" scripts by specifying the "--hardlink-scons" or
+        "--symlink-scons" options on the command line.
+
+    --  Install "scons-0.97.bat" and "scons.bat" wrapper scripts in the
         Python prefix directory on Windows (C:\Python*, for example).
         This can be disabled by specifying the "--no-install-bat" option
-        on the command line.  On UNIX or Linux systems, the
-        "--install-bat" option may be specified to have "scons-0.96.96.bat"
-        and "scons.bat" files installed in the default system script
-        directory, which is useful if you want to install SCons in a
-        shared file system directory that can be used to execute SCons
-        from both UNIX/Linux and Windows systems.
+        on the command line.
+
+        On UNIX or Linux systems, the "--install-bat" option may be
+        specified to have "scons-0.97.bat" and "scons.bat" files installed
+        in the default system script directory, which is useful if you
+        want to install SCons in a shared file system directory that can
+        be used to execute SCons from both UNIX/Linux and Windows systems.
 
     --  Install the SCons build engine (a Python module) in an
         appropriate version-numbered SCons library directory
-        (/usr/lib/scons-0.96.96 or C:\Python*\scons-0.96.96, for example).
+        (/usr/lib/scons-0.97 or C:\Python*\scons-0.97, for example).
         See below for more options related to installing the build
         engine library.
 
@@ -244,9 +246,9 @@ the src/engine/SCons subdirectory hierarchy that contains all of the
 modules that make up SCons.  The src/script/scons.py wrapper script exists
 mainly to find the appropriate build engine library and then execute it.
 
-In order to make your own change locally and test them by hand, simply
-edit modules in the local src/engine/SCons subdirectory tree and
-either use the local bootstrap.py script:
+In order to make your own changes locally and test them by hand, simply
+edit modules in the local src/engine/SCons subdirectory tree and either
+use the local bootstrap.py script:
 
     $ python bootstrap.py [arguments]
 
@@ -255,13 +257,13 @@ then execute the src/script/scons.py script.  Here is one way you can
 set up environment variables to do this on a UNIX or Linux system:
 
     $ setenv MYSCONS=`pwd`/src
-    $ setenv SCONS_LIB_DIR=$MYSCONS
+    $ setenv SCONS_LIB_DIR=$MYSCONS/engine
     $ python $MYSCONS/script/scons.py [arguments]
 
 Or on Windows:
 
     C:\scons>set MYSCONS=%cd%\src
-    C:\scons>set SCONS_LIB_DIR=%MYSCONS%
+    C:\scons>set SCONS_LIB_DIR=%MYSCONS%\engine
     C:\scons>python %MYSCONS%\script\scons.py [arguments]
 
 You can use the -C option to have SCons change directory to another
@@ -329,7 +331,7 @@ will print messages to your console screen ("/dev/tty" on UNIX or Linux,
 "con" on Windows).  By adding Trace() calls to the SCons source code:
 
     def sample_method(self, value):
-        fromn SCons.Debug import Trace
+        from SCons.Debug import Trace
         Trace('called sample_method(%s, %s)\n' % (self, value))
 
 You can then run automated tests that print any arbitrary information
@@ -340,7 +342,7 @@ The Trace() function can also redirect its output to a file, rather than
 the screen:
 
     def sample_method(self, value):
-        fromn SCons.Debug import Trace
+        from SCons.Debug import Trace
         Trace('called sample_method(%s, %s)\n' % (self, value),
               file='trace.out')
 
@@ -461,7 +463,7 @@ development platform, Windows users can translate as appropriate)):
             ^D
             $
 
-   --   Now debug the test failures and fix them, either by changing
+    --  Now debug the test failures and fix them, either by changing
         SCons, or by making necessary changes to the tests (if, for
         example, you have a strong reason to change functionality, or
         if you find that the bug really is in the test script itself).
@@ -475,10 +477,10 @@ development platform, Windows users can translate as appropriate)):
         Repeat this until all of the tests that originally failed
         now pass.
 
-   --   Now you need to go back and validate that any changes you
-        made while getting the tests to pass didn't break the fix you
-        originally put in, or introduce any *additional* unintended side
-        effects that broke other tests:
+    --  Now you need to go back and validate that any changes you
+        made while getting the tests to pass didn't break the fix
+        you originally put in, and didn't introduce any *additional*
+        unintended side effects that broke other tests:
 
             $ python script/scons.py -C /home/me/broken_project .
             $ python runtest.py -a
@@ -486,8 +488,8 @@ development platform, Windows users can translate as appropriate)):
         If you find any newly-broken tests, add them to your "failed.txt"
         file and go back to the previous step.
 
-Of course, the above is only one suggested workflow.  In practice, there's
-a lot of room for judgment and experience to make things go quicker.
+Of course, the above is only one suggested workflow.  In practice, there
+is a lot of room for judgment and experience to make things go quicker.
 For example, if you're making a change to just the Java support, you
 might start looking for regressions by just running the test/Java/*.py
 tests instead of running all of "runtest.py -a".
@@ -525,18 +527,18 @@ On Windows:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.96.96-1.noarch.rpm
-        build/dist/scons-0.96.96-1.src.rpm
-        build/dist/scons-0.96.96.linux-i686.tar.gz
-        build/dist/scons-0.96.96.tar.gz
-        build/dist/scons-0.96.96.win32.exe
-        build/dist/scons-0.96.96.zip
-        build/dist/scons-doc-0.96.96.tar.gz
-        build/dist/scons-local-0.96.96.tar.gz
-        build/dist/scons-local-0.96.96.zip
-        build/dist/scons-src-0.96.96.tar.gz
-        build/dist/scons-src-0.96.96.zip
-        build/dist/scons_0.96.96-1_all.deb
+        build/dist/scons-0.97-1.noarch.rpm
+        build/dist/scons-0.97-1.src.rpm
+        build/dist/scons-0.97.linux-i686.tar.gz
+        build/dist/scons-0.97.tar.gz
+        build/dist/scons-0.97.win32.exe
+        build/dist/scons-0.97.zip
+        build/dist/scons-doc-0.97.tar.gz
+        build/dist/scons-local-0.97.tar.gz
+        build/dist/scons-local-0.97.zip
+        build/dist/scons-src-0.97.tar.gz
+        build/dist/scons-src-0.97.zip
+        build/dist/scons_0.97-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.
@@ -609,6 +611,9 @@ bin/
                 SCons itself
             --  a copy of xml_export, which can retrieve project data
                 from SourceForge
+            --  scripts and a Python module for translating the SCons
+                home-brew XML documentation tags into DocBook and
+                man page format
 
 bootstrap.py
         A build script for use with Aegis.  This collects a current copy
@@ -636,12 +641,6 @@ doc/
         SCons documentation.  A variety of things here, in various
         stages of (in)completeness.
 
-etc/
-        A subdirectory for miscellaneous things that we need.  Right
-        now, it has copies of Python modules that we use for testing,
-        and which we don't want to force people to have to install on
-        their own just to help out with SCons development.
-
 gentoo/
         Stuff to generate files for Gentoo Linux.
 
@@ -660,6 +659,10 @@ LICENSE-local
         This is the same as LICENSE with a preamble that specifies
         the licensing terms are for SCons itself, not any other
         package that includes SCons.
+
+QMTest/
+        The Python modules we use for testing, some generic modules
+        originating elsewhere and some specific to SCons.
 
 README
         What you're looking at right now.
@@ -738,18 +741,18 @@ available at:
 REPORTING BUGS
 ==============
 
-Please report bugs by following the "Tracker - Bugs" link on the SCons
-project page and filling out the form:
+Please report bugs by following the detailed instructions on our Bug
+Submission page:
 
-        http://sourceforge.net/projects/scons/
+        http://scons.tigris.org/bug-submission.html
 
-You can also send mail to the SCons developers mailing list:
+You can also send mail to the SCons developers' mailing list:
 
-        scons-devel@lists.sourceforge.net
+        dev@scons.tigris.org
 
-But please make sure that you also submit a bug report to the project
-page bug tracker, because bug reports in email can sometimes get lost
-in the general flood of messages.
+But even if you send email to the mailing list please make sure that you
+ALSO submit a bug report to the project page bug tracker, because bug
+reports in email often get overlooked in the general flood of messages.
 
 
 MAILING LISTS

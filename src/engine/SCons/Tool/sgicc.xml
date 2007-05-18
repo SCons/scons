@@ -6,6 +6,13 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="sgicc">
 <summary>
-XXX
+Sets construction variables for the SGI C compiler.
 </summary>
+<sets>
+CXX
+SHOBJSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+</sets>
+<uses>
+</uses>
 </tool>
