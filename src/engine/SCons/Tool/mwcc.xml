@@ -6,8 +6,36 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="mwcc">
 <summary>
-XXX
+Sets construction variables for the Metrowerks CodeWarrior compiler.
 </summary>
+<sets>
+MWCW_VERSIONS
+MWCW_VERSION
+<!--CCCOMFLAGS-->
+CC
+CCCOM
+CXX
+CXXCOM
+SHCC
+SHCCFLAGS
+SHCFLAGS
+SHCCCOM
+SHCXX
+SHCXXFLAGS
+SHCXXCOM
+CFILESUFFIX
+CXXFILESUFFIX
+CPPDEFPREFIX
+CPPDEFSUFFIX
+INCPREFIX
+INCSUFFIX
+</sets>
+<uses>
+CCCOMSTR
+CXXCOMSTR
+SHCCCOMSTR
+SHCXXCOMSTR
+</uses>
 </tool>
 
 <cvar name="MWCW_VERSION">

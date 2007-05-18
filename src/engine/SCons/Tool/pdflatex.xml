@@ -6,6 +6,44 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="pdflatex">
 <summary>
-XXX
+Sets construction variables for the &pdflatex; utility.
 </summary>
+<sets>
+PDFLATEX
+PDFLATEXFLAGS
+PDFLATEXCOM
+LATEXRETRIES
+</sets>
+<uses>
+PDFLATEXCOMSTR
+</uses>
 </tool>
+
+<cvar name="PDFLATEX">
+<summary>
+The &pdflatex; utility.
+</summary>
+</cvar>
+
+<cvar name="PDFLATEXCOM">
+<summary>
+The command line used to call the &pdflatex; utility.
+</summary>
+</cvar>
+
+<cvar name="PDFLATEXCOMSTR">
+<summary>
+The string displayed when calling the &pdflatex; utility.
+If this is not set, then &cv-link-PDFLATEXCOM; (the command line) is displayed.
+
+<example>
+env = Environment(PDFLATEX;COMSTR = "Building $TARGET from LaTeX input $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="PDFLATEXFLAGS">
+<summary>
+General options passed to the &pdflatex; utility.
+</summary>
+</cvar>

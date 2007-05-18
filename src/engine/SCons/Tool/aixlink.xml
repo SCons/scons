@@ -6,6 +6,14 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="aixlink">
 <summary>
-XXX
+Sets construction variables for the IBM Visual Age linker.
 </summary>
+<sets>
+<!--SMARTLINKFLAGS-->
+LINKFLAGS
+SHLINKFLAGS
+SHLIBSUFFIX
+</sets>
+<uses>
+</uses>
 </tool>

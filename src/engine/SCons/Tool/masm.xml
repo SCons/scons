@@ -6,6 +6,21 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="masm">
 <summary>
-XXX
+Sets construction variables for the Microsoft assembler.
 </summary>
+<sets>
+AS
+ASFLAGS
+ASPPFLAGS
+ASCOM
+ASPPCOM
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+</sets>
+<uses>
+ASCOMSTR
+ASPPCOMSTR
+CPPFLAGS
+_CPPDEFFLAGS
+_CPPINCFLAGS
+</uses>
 </tool>

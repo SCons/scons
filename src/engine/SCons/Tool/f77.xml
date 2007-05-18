@@ -6,8 +6,36 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="f77">
 <summary>
-XXX
+Set construction variables for generic POSIX Fortran 77 compilers.
 </summary>
+<sets>
+F77
+F77FLAGS
+F77COM
+F77PPCOM
+FORTRAN
+FORTRANFLAGS
+FORTRANCOM
+SHF77
+SHF77FLAGS
+SHF77COM
+SHF77PPCOM
+SHFORTRAN
+SHFORTRANFLAGS
+SHFORTRANCOM
+SHFORTRANPPCOM
+_F77INCFLAGS
+</sets>
+<uses>
+F77COMSTR
+F77PPCOMSTR
+FORTRANCOMSTR
+FORTRANPPCOMSTR
+SHF77COMSTR
+SHF77PPCOMSTR
+SHFORTRANCOMSTR
+SHFORTRANPPCOMSTR
+</uses>
 </tool>
 
 <cvar name="F77">
@@ -140,6 +168,16 @@ for all Fortran versions.
 </summary>
 </cvar>
 
+<cvar name="F77PPCOMSTR">
+<summary>
+The string displayed when a Fortran 77 source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If this is not set, then &cv-link-F77PPCOM; or &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
 <cvar name="SHF77">
 <summary>
 The Fortran 77 compiler used for generating shared-library objects.
@@ -197,5 +235,15 @@ C-preprocessor command line for Fortran 77 files.
 You should normally set the &cv-link-SHFORTRANPPCOM; variable,
 which specifies the default C-preprocessor command line
 for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="SHF77PPCOMSTR">
+<summary>
+The string displayed when a Fortran 77 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If this is not set, then &cv-link-SHF77PPCOM; or &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
 </summary>
 </cvar>

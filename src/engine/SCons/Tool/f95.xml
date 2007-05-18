@@ -6,8 +6,25 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="f95">
 <summary>
-XXX
+Set construction variables for generic POSIX Fortran 95 compilers.
 </summary>
+<sets>
+F95
+F95FLAGS
+F95COM
+F95PPCOM
+SHF95
+SHF95FLAGS
+SHF95COM
+SHF95PPCOM
+_F95INCFLAGS
+</sets>
+<uses>
+F95COMSTR
+F95PPCOMSTR
+SHF95COMSTR
+SHF95PPCOMSTR
+</uses>
 </tool>
 
 <cvar name="F95">
@@ -140,6 +157,16 @@ for all Fortran versions.
 </summary>
 </cvar>
 
+<cvar name="F95PPCOMSTR">
+<summary>
+The string displayed when a Fortran 95 source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If this is not set, then &cv-link-F95PPCOM; or &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
 <cvar name="SHF95">
 <summary>
 The Fortran 95 compiler used for generating shared-library objects.
@@ -197,5 +224,15 @@ C-preprocessor command line for Fortran 95 files.
 You should normally set the &cv-link-SHFORTRANPPCOM; variable,
 which specifies the default C-preprocessor command line
 for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="SHF95PPCOMSTR">
+<summary>
+The string displayed when a Fortran 95 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If this is not set, then &cv-link-SHF95PPCOM; or &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
 </summary>
 </cvar>

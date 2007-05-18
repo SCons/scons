@@ -36,8 +36,14 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+pdflatex = test.where_is('pdflatex')
+
+if not pdflatex:
+    test.skip_test("Could not find pdflatex; skipping test(s).\n")
+
 test.write(['SConstruct'], """\
-PDF( 'bibtest.tex' )
+env = Environment(tools=['pdflatex', 'tex'])
+env.PDF( 'bibtest.tex' )
 """)
 
 test.write(['bibtest.tex'], r"""

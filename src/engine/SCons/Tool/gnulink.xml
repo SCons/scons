@@ -6,6 +6,11 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="gnulink">
 <summary>
-XXX
+Set construction variables for GNU linker/loader.
 </summary>
+<sets>
+SHLINKFLAGS
+RPATHPREFIX
+RPATHSUFFIX
+</sets>
 </tool>

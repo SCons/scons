@@ -6,22 +6,31 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="cc">
 <summary>
-&cv-link-CC;
-&cv-link-CFLAGS;
-&cv-link-CCCOM;
-&cv-link-SHCC;
-&cv-link-SHCFLAGS;
-&cv-link-SHCCCOM;
-
-&cv-link-CPPDEFPREFIX;
-&cv-link-CPPDEFSUFFIX;
-&cv-link-INCPREFIX;
-&cv-link-INCSUFFIX;
-&cv-link-SHOBJSUFFIX;
-<!-- &cv-link-STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME; -->
-
-&cv-link-CFILESUFFIX;
+Sets construction variables for generic POSIX C copmilers.
 </summary>
+<sets>
+<!--_CCCOMCOM-->
+FRAMEWORKS
+FRAMEWORKPATH
+CC
+CFLAGS
+CCFLAGS
+CCCOM
+SHCC
+SHCFLAGS
+SHCCFLAGS
+SHCCCOM
+CPPDEFPREFIX
+CPPDEFSUFFIX
+INCPREFIX
+INCSUFFIX
+SHOBJSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+CFILESUFFIX
+</sets>
+<uses>
+PLATFORM
+</uses>
 </tool>
 
 <cvar name="CC">

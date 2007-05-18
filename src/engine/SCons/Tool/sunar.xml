@@ -6,6 +6,20 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="sunar">
 <summary>
-XXX
+Sets construction variables for the Sun library archiver.
 </summary>
+<sets>
+AR
+ARFLAGS
+ARCOM
+SHLINK
+SHLINKFLAGS
+SHLINKCOM
+LIBPREFIX
+LIBSUFFIX
+</sets>
+<uses>
+ARCOMSTR
+SHLINKCOMSTR
+</uses>
 </tool>

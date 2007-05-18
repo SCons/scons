@@ -1314,8 +1314,11 @@ class NodeTestCase(unittest.TestCase):
         n1 = SCons.Node.Node()
         n2 = SCons.Node.Node()
         assert n1.waiting_parents == {}, n1.waiting_parents
-        n1.add_to_waiting_parents(n2)
+        r = n1.add_to_waiting_parents(n2)
+        assert r == 1, r
         assert n1.waiting_parents == {n2:1}, n1.waiting_parents
+        r = n1.add_to_waiting_parents(n2)
+        assert r == 0, r
 
     def test_call_for_all_waiting_parents(self):
         """Test the call_for_all_waiting_parents() method"""

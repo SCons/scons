@@ -6,8 +6,16 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="latex">
 <summary>
-XXX
+Sets construction variables for the &latex; utility.
 </summary>
+<sets>
+LATEX
+LATEXFLAGS
+LATEXCOM
+</sets>
+<uses>
+LATEXCOMSTR
+</uses>
 </tool>
 
 <cvar name="LATEX">

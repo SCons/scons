@@ -6,8 +6,22 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="msvs">
 <summary>
-XXX
+Sets construction variables for Microsoft Visual Studio.
 </summary>
+<sets>
+MSVSPROJECTCOM
+MSVSSOLUTIONCOM
+MSVSSCONSCRIPT
+MSVSSCONS
+MSVSSCONSFLAGS
+MSVSSCONSCOM
+MSVSBUILDCOM
+MSVSREBUILDCOM
+MSVSCLEANCOM
+MSVSENCODING
+</sets>
+<uses>
+</uses>
 </tool>
 
 <builder name ="MSVSProject">
@@ -373,9 +387,15 @@ There is no default value.
 Tells the MS Visual Studio tool(s) to use
 the MFC directories in its default paths
 for compiling and linking.
-Under MSVS version 6,
+The &cv-MSVS_USE_MFC_DIRS; variable has no effect if the
+<envar>INCLUDE</envar>
+or
+<envar>LIB</envar>
+environment variables are set explictly.
+
+Under Visual Studio version 6,
 setting
-<envar>MSVS_USE_MFC_DIRS</envar>
+&cv-MSVS_USE_MFC_DIRS;
 to a non-zero value
 adds the
 <filename>ATL\include</filename>
@@ -386,42 +406,57 @@ the default
 <envar>INCLUDE</envar>
 external environment variable,
 and adds the
-<envar>MFC\lib</envar>
+<filename>MFC\lib</filename>
 directory to
 the default
 <envar>LIB</envar>
 external environment variable.
-Under MSVS version 7,
+
+Under Visual Studio version 7,
 setting
-<envar>MSVS_USE_MFC_DIRS</envar>
+&cv-MSVS_USE_MFC_DIRS;
 to a non-zero value
 adds the
-<envar>atlmfc\include</envar>
+<filename>atlmfc\include</filename>
 directory to the default
 <envar>INCLUDE</envar>
 external environment variable,
 and adds the
-<envar>atlmfc\lib</envar>
+<filename>atlmfc\lib</filename>
 directory to the default
 <envar>LIB</envar>
 external environment variable.
-The current default value is
-<literal>1</literal>,
-which means these directories
-are added to the paths by default.
-This default value is likely to change
-in a future release,
-so users who want the ATL and MFC
-values included in their paths
-are encouraged to enable the
-<envar>MSVS_USE_MFC_DIRS</envar>
-value explicitly
-to avoid future incompatibility.
-This variable has no effect if the
+
+Under Visual Studio version 8,
+setting
+&cv-MSVS_USE_MFC_DIRS;
+to a non-zero value will,
+by default,
+add the
+<filename>atlmfc\include</filename>
+directory to the default
 <envar>INCLUDE</envar>
-or
+external environment variable,
+and the
+<filename>atlmfc\lib</filename>
+directory to the default
 <envar>LIB</envar>
-environment variables are set explictly.
+external environment variable.
+If, however, the
+<envar>['MSVS']['PLATFORMSDKDIR']</envar>
+variable is set,
+then the
+<filename>mfc</filename>
+and the
+<filename>atl</filename>
+subdirectories of the
+<envar>PLATFORMSDKDIR</envar>
+are added to the default value of the
+<envar>INCLUDE</envar>
+external environment variable,
+and the default value of the
+<envar>LIB</envar>
+external environment variable is left untouched.
 </summary>
 </cvar>
 

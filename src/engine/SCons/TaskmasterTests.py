@@ -54,6 +54,7 @@ class Node:
         self.csig = None
         self.state = SCons.Node.no_state
         self.prepared = None
+        self.ref_count = 0
         self.waiting_parents = {}
         self.waiting_s_e = {}
         self.side_effect = 0
@@ -112,7 +113,13 @@ class Node:
         return self.name
 
     def add_to_waiting_parents(self, node):
-        self.waiting_parents[node] = 1
+        wp = self.waiting_parents
+        if wp.has_key(node):
+            result = 0
+        else:
+            result = 1
+        wp[node] = 1
+        return result
 
     def call_for_all_waiting_parents(self, func):
         func(self)

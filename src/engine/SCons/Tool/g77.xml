@@ -6,6 +6,8 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="g77">
 <summary>
-XXX
+Set construction variables for the &g77; Fortran compiler.
+Calls the &t-f77; Tool module
+to set variables.
 </summary>
 </tool>

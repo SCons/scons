@@ -6,8 +6,25 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="f90">
 <summary>
-XXX
+Set construction variables for generic POSIX Fortran 90 compilers.
 </summary>
+<sets>
+F90
+F90FLAGS
+F90COM
+F90PPCOM
+SHF90
+SHF90FLAGS
+SHF90COM
+SHF90PPCOM
+_F90INCFLAGS
+</sets>
+<uses>
+F90COMSTR
+F90PPCOMSTR
+SHF90COMSTR
+SHF90PPCOMSTR
+</uses>
 </tool>
 
 <cvar name="F90">
@@ -140,6 +157,15 @@ for all Fortran versions.
 </summary>
 </cvar>
 
+<cvar name="F90PPCOMSTR">
+<summary>
+The string displayed when a Fortran 90 source file
+is compiled after first running the file through the C preprocessor.
+If this is not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
 <cvar name="SHF90">
 <summary>
 The Fortran 90 compiler used for generating shared-library objects.
@@ -197,5 +223,15 @@ C-preprocessor command line for Fortran 90 files.
 You should normally set the &cv-link-SHFORTRANPPCOM; variable,
 which specifies the default C-preprocessor command line
 for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="SHF90PPCOMSTR">
+<summary>
+The string displayed when a Fortran 90 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If this is not set, then &cv-link-SHF90PPCOM; or &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
 </summary>
 </cvar>

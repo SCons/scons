@@ -6,8 +6,36 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="qt">
 <summary>
-XXX
+Sets construction variables for building Qt applications.
 </summary>
+<sets>
+QTDIR
+QT_BINPATH
+QT_CPPPATH
+QT_LIBPATH
+QT_MOC
+QT_UIC
+QT_LIB
+QT_AUTOSCAN
+QT_UICIMPLFLAGS
+QT_UICDECLFLAGS
+QT_MOCFROMHFLAGS
+QT_MOCFROMCXXFLAGS
+QT_UICDECLPREFIX
+QT_UICDECLSUFFIX
+QT_UICIMPLPREFIX
+QT_UICIMPLSUFFIX
+QT_MOCHPREFIX
+QT_MOCHSUFFIX
+QT_MOCCXXPREFIX
+QT_MOCCXXSUFFIX
+QT_UISUFFIX
+QT_UICCOM
+QT_MOCFROMHCOM
+QT_MOCFROMCXXCOM
+</sets>
+<uses>
+</uses>
 </tool>
 
 <builder name="Moc">
@@ -168,10 +196,10 @@ file.
 </summary>
 </cvar>
 
-<cvar name="QT_MOCFROMCPPFLAGS">
+<cvar name="QT_MOCFROMCXXFLAGS">
 <summary>
 Default value is '-i'. These flags are passed to moc, when moccing a
-cpp file.
+C++ file.
 </summary>
 </cvar>
 

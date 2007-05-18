@@ -6,8 +6,28 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="tex">
 <summary>
-XXX
+Sets construction variables for the TeX formatter and typesetter.
 </summary>
+<sets>
+TEX
+TEXFLAGS
+TEXCOM
+LATEX
+LATEXFLAGS
+LATEXCOM
+BIBTEX
+BIBTEXFLAGS
+BIBTEXCOM
+MAKEINDEX
+MAKEINDEXFLAGS
+MAKEINDEXCOM
+</sets>
+<uses>
+TEXCOMSTR
+LATEXCOMSTR
+BIBTEXCOMSTR
+MAKEINDEXCOMSTR
+</uses>
 </tool>
 
 <cvar name="BIBTEX">

@@ -336,7 +336,20 @@ class Node:
         self.waiting_s_e[node] = 1
 
     def add_to_waiting_parents(self, node):
-        self.waiting_parents[node] = 1
+        """
+        Returns the number of nodes added to our waiting parents list:
+        1 if we add a unique waiting parent, 0 if not.  (Note that the
+        returned values are intended to be used to increment a reference
+        count, so don't think you can "clean up" this function by using
+        True and False instead...)
+        """
+        wp = self.waiting_parents
+        if wp.has_key(node):
+            result = 0
+        else:
+            result = 1
+        wp[node] = 1
+        return result
 
     def call_for_all_waiting_parents(self, func):
         func(self)

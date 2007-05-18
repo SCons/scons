@@ -6,6 +6,12 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="sgilink">
 <summary>
-XXX
+Sets construction variables for the SGI linker.
 </summary>
+<sets>
+LINK
+SHLINKFLAGS
+RPATHPREFIX
+RPATHSUFFIX
+</sets>
 </tool>

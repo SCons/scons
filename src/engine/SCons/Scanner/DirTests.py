@@ -50,6 +50,8 @@ class DummyEnvironment:
         return self.fs.Dir(name)
     def Entry(self, name):
         return self.fs.Entry(name)
+    def File(self, name):
+        return self.fs.File(name)
     def get_factory(self, factory):
         return factory or self.fs.Entry
 
@@ -77,7 +79,7 @@ class DirScannerTestBase(unittest.TestCase):
         self.test.write(['dir', 'sub', '.sconsign.dir'], "dir/.sconsign.dir\n")
         self.test.write(['dir', 'sub', '.sconsign.pag'], "dir/.sconsign.pag\n")
 
-class DirScannerTestCase1(DirScannerTestBase):
+class DirScannerTestCase(DirScannerTestBase):
     def runTest(self):
         env = DummyEnvironment(self.test.workpath())
 
@@ -100,7 +102,7 @@ class DirScannerTestCase1(DirScannerTestBase):
         sss = map(str, deps)
         assert sss == expect, sss
 
-class DirScannerTestCase2(DirScannerTestBase):
+class DirEntryScannerTestCase(DirScannerTestBase):
     def runTest(self):
         env = DummyEnvironment(self.test.workpath())
 
@@ -114,10 +116,15 @@ class DirScannerTestCase2(DirScannerTestBase):
         sss = map(str, deps)
         assert sss == [], sss
 
+        # Make sure we don't blow up if handed a non-Dir node.
+        deps = s(env.File('dir/f1'), env, ())
+        sss = map(str, deps)
+        assert sss == [], sss
+
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(DirScannerTestCase1())
-    suite.addTest(DirScannerTestCase2())
+    suite.addTest(DirScannerTestCase())
+    suite.addTest(DirEntryScannerTestCase())
     return suite
 
 if __name__ == "__main__":

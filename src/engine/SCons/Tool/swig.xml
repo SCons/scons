@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="swig">
 <summary>
-XXX
+Sets construction variables for the SWIG interface generator.
 </summary>
+<sets>
+SWIG
+SWIGFLAGS
+SWIGCFILESUFFIX
+SWIGCXXFILESUFFIX
+SWIGCOM
+</sets>
+<uses>
+SWIGCOMSTR
+</uses>
 </tool>
 
 <cvar name="SWIG">

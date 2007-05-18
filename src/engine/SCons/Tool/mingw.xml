@@ -6,6 +6,32 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="mingw">
 <summary>
-XXX
+Sets construction variables for MinGW (Minimal Gnu on Windows).
 </summary>
+<sets>
+CC
+SHCCFLAGS
+CXX
+SHCXXFLAGS
+SHLINKFLAGS
+SHLINKCOM
+AS
+WINDOWSDEFPREFIX
+WINDOWSDEFSUFFIX
+SHOBJSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+RC
+RCFLAGS
+RCINCFLAGS
+RCINCPREFIX
+RCINCSUFFIX
+RCCOM
+OBJSUFFIX
+LIBPREFIX
+LIBSUFFIX
+</sets>
+<uses>
+SHLINKCOMSTR
+RCCOMSTR
+</uses>
 </tool>

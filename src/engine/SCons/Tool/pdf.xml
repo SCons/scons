@@ -4,6 +4,16 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+<tool name="pdf">
+<summary>
+Sets construction variables for the Portable Document Format builder.
+</summary>
+<sets>
+PDFPREFIX
+PDFSUFFIX
+</sets>
+</tool>
+
 <builder name="PDF">
 <summary>
 Builds a <filename>.pdf</filename> file

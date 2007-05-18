@@ -6,8 +6,18 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="RCS">
 <summary>
-XXX
+Sets construction variables for the interaction
+with the Revision Control System.
 </summary>
+<sets>
+RCS
+RCS_CO
+RCS_COFLAGS
+RCS_COCOM
+</sets>
+<uses>
+RCS_COCOMSTR
+</uses>
 </tool>
 
 <cvar name="RCS">

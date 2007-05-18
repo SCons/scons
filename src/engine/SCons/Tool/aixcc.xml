@@ -6,6 +6,13 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="aixcc">
 <summary>
-XXX
+Sets construction variables for the IBM xlc / Visual Age C compiler.
 </summary>
+<sets>
+CC
+SHCC
+CCVERSION
+</sets>
+<uses>
+</uses>
 </tool>

@@ -81,7 +81,17 @@ class TestPerforce(TestSCons.TestSCons):
                 spawnv(os.P_NOWAIT, self.p4d, args)
                 self.sleep(2)
         else:
-            self.p4portflags = ['-p', self.host + ':1666']
+            import socket
+            s = socket.socket()
+            host_port = (self.host, 1666)
+            try:
+                s.connect(host_port)
+            except socket.error:
+                self.skip_test("No Perforce server found; skipping test(s).\n")
+            else:
+                s.close()
+
+            self.p4portflags = ['-p', '%s:%s' % host_port]
             try:
                 self.p4('obliterate -y //%s/...' % self.depot)
                 self.p4('depot -d %s' % self.depot)

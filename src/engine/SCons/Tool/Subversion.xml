@@ -4,11 +4,21 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+<!--
 <tool name="Subversion">
 <summary>
-XXX
+Sets construction variables for interacting with Subversion.
 </summary>
+<sets>
+SVN
+SVNFLAGS
+SVNCOM
+</sets>
+<uses>
+SVNCOMSTR
+</uses>
 </tool>
+-->
 
 <!--
 <cvar name="SVN">

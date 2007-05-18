@@ -6,6 +6,7 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="icl">
 <summary>
-XXX
+Sets construction variables for the Intel C/C++ compiler.
+Calls the &t-intelc; Tool module to set its variables.
 </summary>
 </tool>

@@ -6,8 +6,17 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="javah">
 <summary>
-XXX
+Sets construction variables for the &javah; tool.
 </summary>
+<sets>
+JAVAH
+JAVAHFLAGS
+JAVAHCOM
+JAVACLASSSUFFIX
+</sets>
+<uses>
+JAVAHCOMSTR
+</uses>
 </tool>
 
 <builder name="JavaH">

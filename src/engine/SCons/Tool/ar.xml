@@ -6,8 +6,20 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="ar">
 <summary>
-XXX
+Sets construction variables for the &ar; library archiver.
 </summary>
+<sets>
+AR
+ARFLAGS
+ARCOM
+LIBPREFIX
+LIBSUFFIX
+RANLIB
+RANLIBFLAGS
+RANLIBCOM
+</sets>
+<uses>
+</uses>
 </tool>
 
 <cvar name="AR">

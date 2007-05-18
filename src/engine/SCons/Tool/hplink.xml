@@ -6,6 +6,11 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="hplink">
 <summary>
-XXX
+Sets construction variables for the linker on HP/UX systems.
 </summary>
+<sets>
+LINKFLAGS
+SHLINKFLAGS
+SHLIBSUFFIX
+</sets>
 </tool>

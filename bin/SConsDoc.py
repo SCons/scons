@@ -94,6 +94,7 @@ class Item:
         if self.sort_name[0] == '_':
             self.sort_name = self.sort_name[1:]
         self.summary = []
+        self.sets = None
         self.uses = None
     def cmp_name(self, name):
         if name[0] == '_':
@@ -284,6 +285,14 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
         self.begin_collecting([])
     def end_uses(self):
         self.current_object.uses = ''.join(self.collect).split()
+        self.current_object.uses.sort()
+        self.end_collecting()
+
+    def start_sets(self, attrs):
+        self.begin_collecting([])
+    def end_sets(self):
+        self.current_object.sets = ''.join(self.collect).split()
+        self.current_object.sets.sort()
         self.end_collecting()
 
     # Stuff for the ErrorHandler portion.

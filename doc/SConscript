@@ -295,7 +295,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             ]
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
-            env.Command(htmlindex, main, cmds)
+            env.Command(htmlindex, File(main), cmds)
             Local(htmlindex)
 
             cmds = [
@@ -305,7 +305,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             ]
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
-            env.Command(html, main, cmds)
+            env.Command(html, File(main), cmds)
             Local(html)
 
             env.Ignore([html, htmlindex], version_sgml)

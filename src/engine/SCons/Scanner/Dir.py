@@ -92,6 +92,14 @@ def scan_in_memory(node, env, path=()):
     """
     "Scans" a Node.FS.Dir for its in-memory entries.
     """
-    entry_list = filter(do_not_scan, node.entries.keys())
+    try:
+        entries = node.entries
+    except AttributeError:
+        # It's not a Node.FS.Dir (or doesn't look enough like one for
+        # our purposes), which can happen if a target list containing
+        # mixed Node types (Dirs and Files, for example) has a Dir as
+        # the first entry.
+        return []
+    entry_list = filter(do_not_scan, entries.keys())
     entry_list.sort()
-    return map(lambda n, e=node.entries: e[n], entry_list)
+    return map(lambda n, e=entries: e[n], entry_list)

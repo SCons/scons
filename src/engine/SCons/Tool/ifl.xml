@@ -6,6 +6,19 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="ifl">
 <summary>
-XXX
+Sets construction variables for the Intel Fortran compiler.
 </summary>
+<sets>
+FORTRAN
+FORTRANCOM
+FORTRANPPCOM
+SHFORTRANCOM
+SHFORTRANPPCOM
+</sets>
+<uses>
+FORTRANFLAGS
+_FORTRANINCFLAGS
+CPPFLAGS
+_CPPDEFFLAGS
+</uses>
 </tool>
