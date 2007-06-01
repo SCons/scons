@@ -1261,6 +1261,14 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         """Test the pre-substitution strings for command generator Actions
         """
         def f(target, source, env, for_signature, self=self):
+
+            # See if "env" is really a construction environment (or
+            # looks like one) by accessing the FindIxes attribute.
+            # (The Tool/mingw.py module has a generator that uses this,
+            # and the __str__() method used to cause problems by passing
+            # us a regular dictionary as a fallback.)
+
+            env.FindIxes
             return "FOO"
         a = SCons.Action.CommandGeneratorAction(f)
         s = str(a)

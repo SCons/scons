@@ -1975,6 +1975,59 @@ until the Action object is actually used.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
+.RI AddMethod( object, function ", [" name ])
+.TP
+.RI env.AddMethod( function ", [" name ])
+When called with the
+.BR AddMethod ()
+form,
+adds the specified
+.I function
+to the specified
+.I object
+as the specified method
+.IR name .
+When called with the
+.BR env.AddMethod ()
+form,
+adds the specified
+.I function
+to the construction environment
+.I env
+as the specified method
+.IR name .
+In both cases, if
+.I name
+is omitted or
+.BR None ,
+the name of the
+specified
+.I function
+itself is used for the method name.
+
+.ES
+# Note that the first argument to the function to
+# be attached as a method must be the object through
+# which the method will be called; the Python
+# convention is to call it 'self'.
+def my_method(self, arg):
+    print "my_method() got", arg
+
+# Use the global AddMethod() function to add a method
+# to the Environment class.  This
+AddMethod(Environment, my_method)
+env = Environment()
+env.my_method('arg')
+
+# Add the function as a method, using the function
+# name for the method call.
+env = Environment()
+env.AddMethod(my_method, 'other_method_name')
+env.other_method_name('another arg')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
 .RI AddPostAction( target ", " action )
 .TP
 .RI env.AddPostAction( target ", " action )
@@ -4048,16 +4101,19 @@ if not env.has_key('FOO'): env['FOO'] = 'foo'
 This function provides a way to set a select subset of the scons command
 line options from a SConscript file. The options supported are:
 .B clean
-which corresponds to -c, --clean, and --remove;
+which corresponds to -c, --clean and --remove;
 .B duplicate
-which 
-corresponds to --duplicate;
+which corresponds to --duplicate;
+.B help
+which corresponds to -h and --help;
 .B implicit_cache
 which corresponds to --implicit-cache;
 .B max_drift
 which corresponds to --max-drift;
 .B num_jobs
 which corresponds to -j and --jobs.
+.B random
+which corresponds to --random.
 See the documentation for the
 corresponding command line object for information about each specific
 option. Example:

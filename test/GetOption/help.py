@@ -1,12 +1,4 @@
-"""engine.SCons.Platform.sunos
-
-Platform-specific initialization for Sun systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,13 +24,31 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+"""
+Test use of GetOption('help') to short-circuit work.
+"""
 
-def generate(env):
-    posix.generate(env)
-    # Based on sunSparc 8:32bit
-    # ARG_MAX=1048320 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 1045320
-    env['PKGINFO'] = 'pkginfo'
-    env['PKGCHK'] = '/usr/sbin/pkgchk'
-    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
+import string
+
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+test.write('SConstruct', """\
+if GetOption('help'):
+   print "GetOption('help') set"
+else:
+    print "no help for you"
+""")
+
+test.run(arguments = '-q -Q', stdout = "no help for you\n")
+
+expect = "GetOption('help') set"
+
+test.run(arguments = '-q -Q -h')
+test.fail_test(string.split(test.stdout(), '\n')[0] != expect)
+
+test.run(arguments = '-q -Q --help')
+test.fail_test(string.split(test.stdout(), '\n')[0] != expect)
+
+test.pass_test()

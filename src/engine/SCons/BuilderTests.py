@@ -33,6 +33,7 @@ def Func():
 import os.path
 import sys
 import types
+import StringIO
 import unittest
 import UserList
 
@@ -42,6 +43,8 @@ import SCons.Action
 import SCons.Builder
 import SCons.Environment
 import SCons.Errors
+
+sys.stdout = StringIO.StringIO()
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -95,7 +98,7 @@ class Environment:
                    source=None, dict=None, conv=None):
         return SCons.Util.scons_subst_list(string, self, raw, target,
                                            source, dict, conv)
-    def arg2nodes(self, args, factory):
+    def arg2nodes(self, args, factory, **kw):
         global env_arg2nodes_called
         env_arg2nodes_called = 1
         if not SCons.Util.is_List(args):
@@ -1210,28 +1213,32 @@ class BuilderTestCase(unittest.TestCase):
         assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
-        # Test that, if an emitter sets a builder on the passed-in
-        # targets and passes back new targets, the new builder doesn't
-        # get overwritten.
+    def test_emitter_preserve_builder(self):
+        """Test an emitter not overwriting a newly-set builder"""
+        env = Environment()
+
         new_builder = SCons.Builder.Builder(action='new')
         node = MyNode('foo8')
         new_node = MyNode('foo8.new')
-        def emit3(target, source, env, nb=new_builder, nn=new_node):
+
+        def emit(target, source, env, nb=new_builder, nn=new_node):
             for t in target:
                 t.builder = nb
             return [nn], source
             
-        builder3=SCons.Builder.Builder(action='foo',
-                                       emitter=emit3,
-                                       target_factory=MyNode,
-                                       source_factory=MyNode)
-        tgt = builder3(env, target=node, source='bar')[0]
+        builder=SCons.Builder.Builder(action='foo',
+                                      emitter=emit,
+                                      target_factory=MyNode,
+                                      source_factory=MyNode)
+        tgt = builder(env, target=node, source='bar')[0]
         assert tgt is new_node, tgt
-        assert tgt.builder is builder3, tgt.builder
+        assert tgt.builder is builder, tgt.builder
         assert node.builder is new_builder, node.builder
 
-        # Test use of a dictionary mapping file suffixes to
-        # emitter functions
+    def test_emitter_suffix_map(self):
+        """Test mapping file suffixes to emitter functions"""
+        env = Environment()
+
         def emit4a(target, source, env):
             source = map(str, source)
             target = map(lambda x: 'emit4a-' + x[:-3], source)
@@ -1240,61 +1247,86 @@ class BuilderTestCase(unittest.TestCase):
             source = map(str, source)
             target = map(lambda x: 'emit4b-' + x[:-3], source)
             return (target, source)
-        builder4 = SCons.Builder.Builder(action='foo',
-                                         emitter={'.4a':emit4a,
-                                                  '.4b':emit4b},
-                                         target_factory=MyNode,
-                                         source_factory=MyNode)
-        tgt = builder4(env, None, source='aaa.4a')[0]
+
+        builder = SCons.Builder.Builder(action='foo',
+                                        emitter={'.4a':emit4a,
+                                                 '.4b':emit4b},
+                                        target_factory=MyNode,
+                                        source_factory=MyNode)
+        tgt = builder(env, None, source='aaa.4a')[0]
         assert str(tgt) == 'emit4a-aaa', str(tgt)
-        tgt = builder4(env, None, source='bbb.4b')[0]
+        tgt = builder(env, None, source='bbb.4b')[0]
         assert str(tgt) == 'emit4b-bbb', str(tgt)
-        tgt = builder4(env, None, source='ccc.4c')[0]
+        tgt = builder(env, None, source='ccc.4c')[0]
         assert str(tgt) == 'ccc', str(tgt)
 
         def emit4c(target, source, env):
             source = map(str, source)
             target = map(lambda x: 'emit4c-' + x[:-3], source)
             return (target, source)
-        builder4.add_emitter('.4c', emit4c)
-        tgt = builder4(env, None, source='ccc.4c')[0]
+
+        builder.add_emitter('.4c', emit4c)
+        tgt = builder(env, None, source='ccc.4c')[0]
         assert str(tgt) == 'emit4c-ccc', str(tgt)
 
-        # Test a list of emitter functions.
-        def emit5a(target, source, env):
+    def test_emitter_function_list(self):
+        """Test lists of emitter functions"""
+        env = Environment()
+
+        def emit1a(target, source, env):
             source = map(str, source)
-            target = target + map(lambda x: 'emit5a-' + x[:-2], source)
+            target = target + map(lambda x: 'emit1a-' + x[:-2], source)
             return (target, source)
-        def emit5b(target, source, env):
+        def emit1b(target, source, env):
             source = map(str, source)
-            target = target + map(lambda x: 'emit5b-' + x[:-2], source)
+            target = target + map(lambda x: 'emit1b-' + x[:-2], source)
             return (target, source)
-        builder5 = SCons.Builder.Builder(action='foo',
-                                         emitter=[emit5a, emit5b],
+        builder1 = SCons.Builder.Builder(action='foo',
+                                         emitter=[emit1a, emit1b],
                                          node_factory=MyNode)
 
-        tgts = builder5(env, target='target-5', source='aaa.5')
+        tgts = builder1(env, target='target-1', source='aaa.1')
         tgts = map(str, tgts)
-        assert tgts == ['target-5', 'emit5a-aaa', 'emit5b-aaa'], tgts
+        assert tgts == ['target-1', 'emit1a-aaa', 'emit1b-aaa'], tgts
 
         # Test a list of emitter functions through the environment.
-        def emit6a(target, source, env):
+        def emit2a(target, source, env):
             source = map(str, source)
-            target = target + map(lambda x: 'emit6a-' + x[:-2], source)
+            target = target + map(lambda x: 'emit2a-' + x[:-2], source)
             return (target, source)
-        def emit6b(target, source, env):
+        def emit2b(target, source, env):
             source = map(str, source)
-            target = target + map(lambda x: 'emit6b-' + x[:-2], source)
+            target = target + map(lambda x: 'emit2b-' + x[:-2], source)
             return (target, source)
-        builder6 = SCons.Builder.Builder(action='foo',
+        builder2 = SCons.Builder.Builder(action='foo',
                                          emitter='$EMITTERLIST',
                                          node_factory=MyNode)
                                          
-        env = Environment(EMITTERLIST = [emit6a, emit6b])
+        env = Environment(EMITTERLIST = [emit2a, emit2b])
 
-        tgts = builder6(env, target='target-6', source='aaa.6')
+        tgts = builder2(env, target='target-2', source='aaa.2')
         tgts = map(str, tgts)
-        assert tgts == ['target-6', 'emit6a-aaa', 'emit6b-aaa'], tgts
+        assert tgts == ['target-2', 'emit2a-aaa', 'emit2b-aaa'], tgts
+
+    def test_emitter_TARGET_SOURCE(self):
+        """Test use of $TARGET and $SOURCE in emitter results"""
+
+        env = SCons.Environment.Environment()
+
+        def emit(target, source, env):
+            return (target + ['${SOURCE}.s1', '${TARGET}.t1'],
+                    source + ['${TARGET}.t2', '${SOURCE}.s2'])
+
+        builder = SCons.Builder.Builder(action='foo',
+                                        emitter = emit,
+                                        node_factory = MyNode)
+
+        targets = builder(env, target = 'TTT', source ='SSS')
+        sources = targets[0].sources
+        targets = map(str, targets)
+        sources = map(str, sources)
+        assert targets == ['TTT', 'SSS.s1', 'TTT.t1'], targets
+        assert sources == ['SSS', 'TTT.t2', 'SSS.s2'], targets
 
     def test_no_target(self):
         """Test deducing the target from the source."""

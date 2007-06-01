@@ -275,8 +275,9 @@ class Task:
         """
         self.out_of_date = []
         for t in self.targets:
+            t.disambiguate()
             try:
-                is_up_to_date = t.disambiguate().current()
+                is_up_to_date = not t.always_build and t.current()
             except EnvironmentError, e:
                 raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
             if is_up_to_date:

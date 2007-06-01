@@ -462,7 +462,7 @@ def _Have(context, key, have):
     key_up = re.sub('[^A-Z0-9_]', '_', key_up)
     context.havedict[key_up] = have
     if have == 1:
-        line = "#define %s\n" % key_up
+        line = "#define %s 1\n" % key_up
     elif have == 0:
         line = "/* #undef %s */\n" % key_up
     elif type(have) == IntType:

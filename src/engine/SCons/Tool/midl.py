@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
+
 import SCons.Action
 import SCons.Builder
 import SCons.Defaults
@@ -46,11 +48,17 @@ def midl_emitter(target, source, env):
     tlb = target[0]
     incl = base + '.h'
     interface = base + '_i.c'
-    proxy = base + '_p.c'
-    dlldata = base + '_data.c'
+    t = [tlb, incl, interface]
 
-    t = [tlb, incl, interface, proxy, dlldata]
+    midlcom = env['MIDLCOM']
 
+    if string.find(midlcom, '/proxy') != -1:
+        proxy = base + '_p.c'
+        t.append(proxy)
+    if string.find(midlcom, '/dlldata') != -1:
+        dlldata = base + '_data.c'
+        t.append(dlldata)
+    
     return (t,source)
 
 idl_scanner = SCons.Scanner.IDL.IDLScan()

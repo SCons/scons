@@ -1018,8 +1018,10 @@ class _GenerateV7DSW(_DSWGenerator):
                     self.file.write('\t\t%s.%s|%s.ActiveCfg = %s|%s\n'
                                     '\t\t%s.%s|%s.Build.0 = %s|%s\n'  % (guid,variant,platform,variant,platform,guid,variant,platform,variant,platform))
             else:
-                self.file.write('\t\t%s.%s.ActiveCfg = %s|%s\n'
-                                '\t\t%s.%s.Build.0 = %s|%s\n'  %(self.slnguid,variant,variant,platform,self.slnguid,variant,variant,platform))
+                for p in self.dspfiles:
+                    guid = _generateGUID(p, '')
+                    self.file.write('\t\t%s.%s.ActiveCfg = %s|%s\n'
+                                    '\t\t%s.%s.Build.0 = %s|%s\n'  %(guid,variant,variant,platform,guid,variant,variant,platform))
 
         self.file.write('\tEndGlobalSection\n')
 

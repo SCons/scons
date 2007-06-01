@@ -520,6 +520,9 @@ class BuilderBase:
                     t.builder_set(self)
                     new_targets.append(t)
 
+            orig_tlist = tlist[:]
+            orig_slist = slist[:]
+
             target, source = self.emitter(target=tlist, source=slist, env=env)
 
             # Now delete the temporary builders that we attached to any
@@ -533,8 +536,10 @@ class BuilderBase:
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
-            tlist = env.arg2nodes(target, target_factory)
-            slist = env.arg2nodes(source, source_factory)
+            tlist = env.arg2nodes(target, target_factory,
+                                  target=orig_tlist, source=orig_slist)
+            slist = env.arg2nodes(source, source_factory,
+                                  target=orig_tlist, source=orig_slist)
 
         return tlist, slist
 

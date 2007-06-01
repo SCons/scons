@@ -329,6 +329,30 @@ public class A {
         assert pkg_dir == None, pkg_dir
         assert classes == ['A$B', 'A'], classes
 
+    def test_anonymous_classes_with_parentheses(self):
+        """Test finding anonymous classes marked by parentheses"""
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+import java.io.File;
+
+public class Foo {
+    public static void main(String[] args) {
+        File f = new File(
+            new File("a") {
+                public String toString() {
+                    return "b";
+                }
+            } to String()
+        ) {
+            public String toString() {
+                return "c";
+            }
+        };
+    }
+}
+""")
+        assert classes == ['Foo$1', 'Foo$2', 'Foo'], classes
+
+
 
 
 if __name__ == "__main__":

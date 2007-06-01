@@ -131,6 +131,7 @@ call_stack              = _SConscript.call_stack
 
 #
 Action                  = SCons.Action.Action
+AddMethod               = SCons.Util.AddMethod
 AllowSubstExceptions    = SCons.Subst.SetAllowableExceptions
 BoolOption              = SCons.Options.BoolOption
 Builder                 = SCons.Builder.Builder

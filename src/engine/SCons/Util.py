@@ -950,3 +950,79 @@ class Unbuffered:
         self.file.flush()
     def __getattr__(self, attr):
         return getattr(self.file, attr)
+
+# The original idea for AddMethod() and RenameFunction() come from the
+# following post to the ActiveState Python Cookbook:
+#
+#	ASPN: Python Cookbook : Install bound methods in an instance
+#	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
+#
+# That code was a little fragile, though, so the following changes
+# have been wrung on it:
+#
+# * Switched the installmethod() "object" and "function" arguments,
+#   so the order reflects that the left-hand side is the thing being
+#   "assigned to" and the right-hand side is the value being assigned.
+#
+# * Changed explicit type-checking to the "try: klass = object.__class__"
+#   block in installmethod() below so that it still works with the
+#   old-style classes that SCons uses.
+#
+# * Replaced the by-hand creation of methods and functions with use of
+#   the "new" module, as alluded to in Alex Martelli's response to the
+#   following Cookbook post:
+#
+#	ASPN: Python Cookbook : Dynamically added methods to a class
+#	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+
+def AddMethod(object, function, name = None):
+    """
+    Adds either a bound method to an instance or an unbound method to
+    a class. If name is ommited the name of the specified function
+    is used by default.
+    Example:
+      a = A()
+      def f(self, x, y):
+        self.z = x + y
+      AddMethod(f, A, "add")
+      a.add(2, 4)
+      print a.z
+      AddMethod(lambda self, i: self.l[i], a, "listIndex")
+      print a.listIndex(5)
+    """
+    import new
+
+    if name is None:
+        name = function.func_name
+    else:
+        function = RenameFunction(function, name)
+
+    try:
+        klass = object.__class__
+    except AttributeError:
+        # "object" is really a class, so it gets an unbound method.
+        object.__dict__[name] = new.instancemethod(function, None, object)
+    else:
+        # "object" is really an instance, so it gets a bound method.
+        object.__dict__[name] = new.instancemethod(function, object, klass)
+
+def RenameFunction(function, name):
+    """
+    Returns a function identical to the specified function, but with
+    the specified name.
+    """
+    import new
+
+    # Compatibility for Python 1.5 and 2.1.  Can be removed in favor of
+    # passing function.func_defaults directly to new.function() once
+    # we base on Python 2.2 or later.
+    func_defaults = function.func_defaults
+    if func_defaults is None:
+        func_defaults = ()
+
+    return new.function(function.func_code,
+                        function.func_globals,
+                        name,
+                        func_defaults)
+
+del __revision__

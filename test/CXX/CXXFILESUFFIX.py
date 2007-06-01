@@ -49,6 +49,13 @@ test.write('SConstruct', """
 env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
 env.CXXFile(target = 'foo', source = 'foo.ll')
 env.Clone(CXXFILESUFFIX = '.xyz').CXXFile(target = 'bar', source = 'bar.ll')
+
+# Make sure that calling a Tool on a construction environment *after*
+# we've set CXXFILESUFFIX doesn't overwrite the value.
+env2 = Environment(tools = [], CXXFILESUFFIX = '.env2')
+env2.Tool('lex')
+env2['LEX'] = r'%(_python_)s mylex.py'
+env2.CXXFile(target = 'f3', source = 'f3.ll')
 """ % locals())
 
 input = r"""
@@ -66,10 +73,14 @@ test.write('foo.ll', input % 'foo.ll')
 
 test.write('bar.ll', input % 'bar.ll')
 
+test.write('f3.ll', input % 'f3.ll')
+
 test.run(arguments = '.')
 
-test.fail_test(not os.path.exists(test.workpath('foo.cc')))
+test.must_exist(test.workpath('foo.cc'))
 
-test.fail_test(not os.path.exists(test.workpath('bar.xyz')))
+test.must_exist(test.workpath('bar.xyz'))
+
+test.must_exist(test.workpath('f3.env2'))
 
 test.pass_test()

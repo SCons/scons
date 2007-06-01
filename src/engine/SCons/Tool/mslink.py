@@ -45,10 +45,10 @@ import SCons.Tool.msvs
 import SCons.Util
 
 def pdbGenerator(env, target, source, for_signature):
-    if target and env.has_key('PDB') and env['PDB']:
-        return ['/PDB:%s'%target[0].File(env['PDB']).get_string(for_signature),
-                '/DEBUG']
-    return None
+    try:
+        return ['/PDB:%s' % target[0].attributes.pdb, '/DEBUG']
+    except (AttributeError, IndexError):
+        return None
 
 def windowsShlinkTargets(target, source, env, for_signature):
     listCmd = []
@@ -99,7 +99,9 @@ def windowsLibEmitter(target, source, env):
                                       "WINDOWSSHLIBMANIFESTPREFIX", "WINDOWSSHLIBMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
-        target.append(env['PDB'])
+        pdb = env.arg2nodes('$PDB', target=target, source=source)[0]
+        target.append(pdb)
+        target[0].attributes.pdb = pdb
 
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
@@ -129,7 +131,9 @@ def prog_emitter(target, source, env):
                                       "WINDOWSPROGMANIFESTPREFIX", "WINDOWSPROGMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
-        target.append(env['PDB'])
+        pdb = env.arg2nodes('$PDB', target=target, source=source)[0]
+        target.append(pdb)
+        target[0].attributes.pdb = pdb
 
     return (target,source)
 

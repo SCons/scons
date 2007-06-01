@@ -25,6 +25,33 @@ RELEASE 0.97 - Thu, 12 Apr 2007 12:36:25 -0500
   This is the eighth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
+  Please note the following important changes since release 0.97:
+
+    --  THE DEFAULT EXECUTION PATH FOR Solaris HAS CHANGED
+
+        On Solaris systems, SCons now adds the "/opt/SUNWspro/bin"
+        directory to the default execution $PATH variable before the
+        "/usr/ccs/bin" directory.  This was done to reflect the fact
+        that /opt/SUNWspro/ is the default for SUN tools, but it may
+        cause a different compiler to be used if you have compilers
+        installed in both directories.
+
+    --  GENERATED config.h FILES NOW SAY "#define HAVE_{FEATURE} 1"
+
+        When generating a "config.h" file, SCons now defines values that
+        record the existence of a feature with a "1" value:
+
+            #define HAVE_FEATURE 1
+
+        Instead of printing the line without a "1", as it used to:
+
+            #define HAVE_FEATURE
+
+        This should not cause any problems in the normal use of "#ifdef
+        HAVE_{FEATURE}" statements interpreted by a C preprocessor, but
+        might cause a compatibility issue if a script or other utility
+        was looking for an exact match of the previous text.
+
   Please note the following important changes since release 0.96.93:
 
     --  THE --debug=memoizer OPTION NOW REQUIRES PYTHON 2.2 OR LATER

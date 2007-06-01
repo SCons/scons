@@ -357,6 +357,22 @@ class SubstitutionTestCase(unittest.TestCase):
         assert not hasattr(nodes[1], 'bbbb'), nodes[0]
         assert nodes[1].c == 1, nodes[1]
 
+    def test_arg2nodes_target_source(self):
+        """Test the arg2nodes method with target= and source= keywords
+        """
+        targets = [DummyNode('t1'), DummyNode('t2')]
+        sources = [DummyNode('s1'), DummyNode('s2')]
+        env = SubstitutionEnvironment()
+        nodes = env.arg2nodes(['${TARGET}-a',
+                               '${SOURCE}-b',
+                               '${TARGETS[1]}-c',
+                               '${SOURCES[1]}-d'],
+                              DummyNode,
+                              target=targets,
+                              source=sources)
+        names = map(lambda n: n.name, nodes)
+        assert names == ['t1-a', 's1-b', 't2-c', 's2-d'], names
+
     def test_gvars(self):
         """Test the base class gvars() method"""
         env = SubstitutionEnvironment()
@@ -625,6 +641,38 @@ sys.exit(1)
 
         finally:
             sys.stderr = save_stderr
+
+    def test_AddMethod(self):
+        """Test the AddMethod() method"""
+        env = SubstitutionEnvironment(FOO = 'foo')
+
+        def func(self):
+            return 'func-' + self['FOO']
+
+        assert not hasattr(env, 'func')
+        env.AddMethod(func)
+        r = env.func()
+        assert r == 'func-foo', r
+
+        assert not hasattr(env, 'bar')
+        env.AddMethod(func, 'bar')
+        r = env.bar()
+        assert r == 'func-foo', r
+
+        def func2(self, arg=''):
+            return 'func2-' + self['FOO'] + arg
+
+        env.AddMethod(func2)
+        r = env.func2()
+        assert r == 'func2-foo', r
+        r = env.func2('-xxx')
+        assert r == 'func2-foo-xxx', r
+
+        env.AddMethod(func2, 'func')
+        r = env.func()
+        assert r == 'func2-foo', r
+        r = env.func('-yyy')
+        assert r == 'func2-foo-yyy', r
 
     def test_Override(self):
         "Test overriding construction variables"
@@ -2390,22 +2438,29 @@ def generate(env):
     def test_AlwaysBuild(self):
         """Test the AlwaysBuild() method"""
         env = self.TestEnvironment(FOO='fff', BAR='bbb')
-        t = env.AlwaysBuild('a', 'b$FOO', ['c', 'd'], '$BAR')
-        assert t[0].__class__.__name__ == 'File'
+        t = env.AlwaysBuild('a', 'b$FOO', ['c', 'd'], '$BAR',
+                            env.fs.Dir('dir'), env.fs.File('file'))
+        assert t[0].__class__.__name__ == 'Entry'
         assert t[0].path == 'a'
         assert t[0].always_build
-        assert t[1].__class__.__name__ == 'File'
+        assert t[1].__class__.__name__ == 'Entry'
         assert t[1].path == 'bfff'
         assert t[1].always_build
-        assert t[2].__class__.__name__ == 'File'
+        assert t[2].__class__.__name__ == 'Entry'
         assert t[2].path == 'c'
         assert t[2].always_build
-        assert t[3].__class__.__name__ == 'File'
+        assert t[3].__class__.__name__ == 'Entry'
         assert t[3].path == 'd'
         assert t[3].always_build
-        assert t[4].__class__.__name__ == 'File'
+        assert t[4].__class__.__name__ == 'Entry'
         assert t[4].path == 'bbb'
         assert t[4].always_build
+        assert t[5].__class__.__name__ == 'Dir'
+        assert t[5].path == 'dir'
+        assert t[5].always_build
+        assert t[6].__class__.__name__ == 'File'
+        assert t[6].path == 'file'
+        assert t[6].always_build
 
     def test_BuildDir(self):
         """Test the BuildDir() method"""

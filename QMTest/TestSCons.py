@@ -18,8 +18,20 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import re
 import string
 import sys
+
+import __builtin__
+try:
+    __builtin__.zip
+except AttributeError:
+    def zip(*lists):
+        result = []
+        for i in xrange(len(lists[0])):
+            result.append(tuple(map(lambda l, i=i: l[i], lists)))
+        return result
+    __builtin__.zip = zip
 
 from TestCommon import *
 from TestCommon import __all__
@@ -575,6 +587,131 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
             if os.path.exists(p):
                 return p
         return apply(os.path.join, [vs_path] + sub_paths[version][0])
+
+
+    NCR = 0 # non-cached rebuild
+    CR  = 1 # cached rebuild (up to date)
+    NCF = 2 # non-cached build failure
+    CF  = 3 # cached build failure
+
+    if sys.platform == 'win32':
+        Configure_lib = 'msvcrt'
+    else:
+        Configure_lib = 'm'
+
+    # to use cygwin compilers on cmd.exe -> uncomment following line
+    #Configure_lib = 'm'
+
+    def checkLogAndStdout(self, checks, results, cached,
+                          logfile, sconf_dir, sconstruct,
+                          doCheckLog=1, doCheckStdout=1):
+
+        class NoMatch:
+            def __init__(self, p):
+                self.pos = p
+
+        def matchPart(log, logfile, lastEnd):
+            m = re.match(log, logfile[lastEnd:])
+            if not m:
+                raise NoMatch, lastEnd
+            return m.end() + lastEnd
+        try:
+            #print len(os.linesep)
+            ls = os.linesep
+            nols = "("
+            for i in range(len(ls)):
+                nols = nols + "("
+                for j in range(i):
+                    nols = nols + ls[j]
+                nols = nols + "[^" + ls[i] + "])"
+                if i < len(ls)-1:
+                    nols = nols + "|"
+            nols = nols + ")"
+            lastEnd = 0
+            logfile = self.read(self.workpath(logfile))
+            if (doCheckLog and
+                string.find( logfile, "scons: warning: The stored build "
+                             "information has an unexpected class." ) >= 0):
+                self.fail_test()
+            sconf_dir = sconf_dir
+            sconstruct = sconstruct
+
+            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
+            if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            rdstr = ""
+            cnt = 0
+            for check,result,cache_desc in zip(checks, results, cached):
+                log   = re.escape("scons: Configure: " + check) + ls
+                if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+                log = ""
+                result_cached = 1
+                for bld_desc in cache_desc: # each TryXXX
+                    for ext, flag in bld_desc: # each file in TryBuild
+                        file = os.path.join(sconf_dir,"conftest_%d%s" % (cnt, ext))
+                        if flag == self.NCR:
+                            # rebuild will pass
+                            if ext in ['.c', '.cpp']:
+                                log=log + re.escape(file + " <-") + ls
+                                log=log + r"(  \|" + nols + "*" + ls + ")+?"
+                            else:
+                                log=log + "(" + nols + "*" + ls +")*?"
+                            result_cached = 0
+                        if flag == self.CR:
+                            # up to date
+                            log=log + \
+                                 re.escape("scons: Configure: \"%s\" is up to date." 
+                                           % file) + ls
+                            log=log+re.escape("scons: Configure: The original builder "
+                                              "output was:") + ls
+                            log=log+r"(  \|.*"+ls+")+"
+                        if flag == self.NCF:
+                            # non-cached rebuild failure
+                            log=log + "(" + nols + "*" + ls + ")*?"
+                            result_cached = 0
+                        if flag == self.CF:
+                            # cached rebuild failure
+                            log=log + \
+                                 re.escape("scons: Configure: Building \"%s\" failed "
+                                           "in a previous run and all its sources are"
+                                           " up to date." % file) + ls
+                            log=log+re.escape("scons: Configure: The original builder "
+                                              "output was:") + ls
+                            log=log+r"(  \|.*"+ls+")+"
+                    cnt = cnt + 1
+                if result_cached:
+                    result = "(cached) " + result
+                rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
+                log=log + re.escape("scons: Configure: " + result) + ls + ls
+                if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+                log = ""
+            if doCheckLog: lastEnd = matchPart(ls, logfile, lastEnd)
+            if doCheckLog and lastEnd != len(logfile):
+                raise NoMatch, lastEnd
+            
+        except NoMatch, m:
+            print "Cannot match log file against log regexp."
+            print "log file: "
+            print "------------------------------------------------------"
+            print logfile[m.pos:]
+            print "------------------------------------------------------"
+            print "log regexp: "
+            print "------------------------------------------------------"
+            print log
+            print "------------------------------------------------------"
+            self.fail_test()
+
+        if doCheckStdout:
+            exp_stdout = self.wrap_stdout(".*", rdstr)
+            if not self.match_re_dotall(self.stdout(), exp_stdout):
+                print "Unexpected stdout: "
+                print "-----------------------------------------------------"
+                print repr(self.stdout())
+                print "-----------------------------------------------------"
+                print repr(exp_stdout)
+                print "-----------------------------------------------------"
+                self.fail_test()
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One

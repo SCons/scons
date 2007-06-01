@@ -76,11 +76,13 @@ try:
     dict
 except NameError:
     # Pre-2.2 Python has no dict() keyword.
-    def dict(*arg, **kwargs):
+    def dict(seq=[], **kwargs):
         """
         New dictionary initialization.
         """
-        d = apply(types.DictType, arg)
+        d = {}
+        for k, v in seq:
+            d[k] = v
         d.update(kwargs)
         return d
     __builtin__.dict = dict

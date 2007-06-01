@@ -117,6 +117,9 @@
   XXX SetOption('duplicate')
   XXX - - duplicate=
 
+  XXX GetOption('help')
+  XXX SetOption('help')
+
   XXX GetOption('num_jobs')
   XXX SetOption('num_jobs')
 

@@ -1,12 +1,4 @@
-"""engine.SCons.Platform.sunos
-
-Platform-specific initialization for Sun systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,13 +24,51 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+"""
+Verify that Configure contexts from multiple subsidiary SConscript
+files work without error.
+"""
 
-def generate(env):
-    posix.generate(env)
-    # Based on sunSparc 8:32bit
-    # ARG_MAX=1048320 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 1045320
-    env['PKGINFO'] = 'pkginfo'
-    env['PKGCHK'] = '/usr/sbin/pkgchk'
-    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+test.subdir(['dir1'],
+            ['dir2'],
+            ['dir2', 'sub1'],
+            ['dir2', 'sub1', 'sub2'])
+
+test.write('SConstruct', """\
+env = Environment()
+SConscript(dirs=['dir1', 'dir2'], exports="env")
+""")
+
+test.write(['dir1', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+""")
+
+test.write(['dir2', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+SConscript(dirs=['sub1'], exports="env")
+""")
+
+test.write(['dir2', 'sub1', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+SConscript(dirs=['sub2'], exports="env")
+""")
+
+test.write(['dir2', 'sub1', 'sub2', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+""")
+
+test.run()
+
+test.pass_test()

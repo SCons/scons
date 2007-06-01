@@ -34,7 +34,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.write('SConscript', """\
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -53,23 +53,66 @@ test.write('aaa.in', "aaa.in\n")
 test.write('bbb.in', "bbb.in\n")
 test.write('ccc.in', "ccc.in\n")
 
-test.run(arguments = '--random .')
 
-test.fail_test(test.read('all') != "aaa.in\nbbb.in\nccc.in\n")
+
+test.write('SConstruct', """\
+SetOption('random', 1)
+SConscript('SConscript')
+""")
+
+test.run(arguments = '-n -Q')
+non_random_output = test.stdout()
+
+tries = 0
+max_tries = 3
+while test.stdout() == non_random_output:
+    if tries >= max_tries:
+        print "--random generated the non-random output %s times!" % max_tries
+        test.fail_test()
+    tries = tries + 1
+    test.run(arguments = '-n -Q --random')
+
+
+
+test.write('SConstruct', """\
+SConscript('SConscript')
+""")
+
+test.run(arguments = '-n -Q')
+non_random_output = test.stdout()
+
+tries = 0
+max_tries = 3
+while test.stdout() == non_random_output:
+    if tries >= max_tries:
+        print "--random generated the non-random output %s times!" % max_tries
+        test.fail_test()
+    tries = tries + 1
+    test.run(arguments = '-n -Q --random')
+
+
+
+test.run(arguments = '-Q --random')
+
+test.must_match('all', "aaa.in\nbbb.in\nccc.in\n")
 
 test.run(arguments = '-q --random .')
 
 test.run(arguments = '-c --random .')
 
-test.fail_test(os.path.exists(test.workpath('aaa.out')))
-test.fail_test(os.path.exists(test.workpath('bbb.out')))
-test.fail_test(os.path.exists(test.workpath('ccc.out')))
-test.fail_test(os.path.exists(test.workpath('all')))
+test.must_not_exist(test.workpath('aaa.out'))
+test.must_not_exist(test.workpath('bbb.out'))
+test.must_not_exist(test.workpath('ccc.out'))
+test.must_not_exist(test.workpath('all'))
 
 test.run(arguments = '-q --random .', status = 1)
 
 test.run(arguments = '--random .')
 
-test.fail_test(test.read('all') != "aaa.in\nbbb.in\nccc.in\n")
+test.must_match('all', "aaa.in\nbbb.in\nccc.in\n")
+
+test.run(arguments = '-c --random .')
+
+
 
 test.pass_test()

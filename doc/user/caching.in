@@ -430,6 +430,31 @@
 
     </para>
 
+    <para>
+
+    If you want to make sure dependencies will be built
+    in a random order without having to specify
+    the <literal>--random</literal> on very command line,
+    you can use the &SetOption; function to
+    set the <literal>random</litera> option
+    within any &SConscript; file:
+
+    </para>
+
+    <scons_example name="ex-random">
+       <file name="SConstruct" printme="1">
+       SetOption('random', 1)
+       Program('prog',
+               ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
+       </file>
+       <file name="f1.c">f1.c</file>
+       <file name="f2.c">f2.c</file>
+       <file name="f3.c">f3.c</file>
+       <file name="f4.c">f4.c</file>
+       <file name="f5.c">f5.c</file>
+       <file name="f6.c">f6.c</file>
+    </scons_example>
+
   </section>
 
   <!--

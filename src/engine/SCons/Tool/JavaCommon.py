@@ -53,7 +53,7 @@ if java_parsing:
     #     array declarations "[]";
     #     semi-colons;
     #     periods.
-    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.]|' +
+    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.\(\)]|' +
                           r'[A-Za-z_][\w\.]*|/\*|\*/|\[\])')
 
     class OuterState:
@@ -90,6 +90,7 @@ if java_parsing:
             try:
                 return self.anonState
             except AttributeError:
+                self.outer_state = self
                 ret = SkipState(1, AnonClassState(self))
                 self.anonState = ret
                 return ret
@@ -154,23 +155,36 @@ if java_parsing:
 
     class AnonClassState:
         """A state that looks for anonymous inner classes."""
-        def __init__(self, outer_state):
+        def __init__(self, old_state):
             # outer_state is always an instance of OuterState
-            self.outer_state = outer_state
-            self.tokens_to_find = 2
+            self.outer_state = old_state.outer_state
+            self.old_state = old_state
+            self.brace_level = 0
         def parseToken(self, token):
-            # This is an anonymous class if and only if the next  
-            # non-whitespace token is a bracket            
-            if token == '\n':
+            # This is an anonymous class if and only if the next
+            # non-whitespace token is a bracket. Everything between
+            # braces should be parsed as normal java code.
+            if token[:2] == '//':
+                return IgnoreState('\n', self)
+            elif token == '/*':
+                return IgnoreState('*/', self)
+            elif token == '\n':
+                return self
+            elif token == '(':
+                self.brace_level = self.brace_level + 1
+                return self
+            if self.brace_level > 0:
+                if token == 'new':
+                    # look further for anonymous inner class
+                    return SkipState(1, AnonClassState(self))
+                elif token in [ '"', "'" ]:
+                    return IgnoreState(token, self)
+                elif token == ')':
+                    self.brace_level = self.brace_level - 1
                 return self
             if token == '{':
-                self.outer_state.openBracket()
                 self.outer_state.addAnonClass()
-            elif token == '}':
-                self.outer_state.closeBracket()
-            elif token in ['"', "'"]:
-                return IgnoreState(token, self)
-            return self.outer_state
+            return self.old_state.parseToken(token)
 
     class SkipState:
         """A state that will skip a specified number of tokens before
