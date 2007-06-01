@@ -8,6 +8,71 @@
 
 
 
+RELEASE 0.97.X - XXX
+
+  From Mark Bertoglio:
+
+  - Fix listing multiple projects in Visual Studio 7.[01] solution files,
+    including generating individual project GUIDs instead of re-using
+    the solution GUID.
+
+  From Jean Brouwers:
+
+  - Add /opt/SUNWspro/bin to the default execution PATH on Solaris.
+
+  From Allan Erskine:
+
+  - Only expect the Microsoft IDL compiler to emit *_p.c and *_data.c
+    files if the /proxy and /dlldata switches are used (respectively).
+
+  From Steven Knight:
+
+  - Have --debug=explain report if a target is being rebuilt because
+    AlwaysBuild() is specified (instead of "unknown reasons").
+
+  - Support {Get,Set}Option('help') to make it easier for SConscript
+    files to tell if a help option (-h, --help, etc.) has been specified.
+
+  - Support {Get,Set}Option('random') so random-dependency interaction
+    with CacheDir() is controllable from SConscript files.
+
+  - Push and retrieve built symlinks to/from a CacheDir() as actual
+    symlinks, not by copying the file contents.
+
+  - Fix how the Action module handles stringifying the shared library
+    generator in the Tool/mingw.py module.
+
+  - When generating a config.h file, print "#define HAVE_{FEATURE} 1"
+    instad of just "#define HAVE_{FEATURE}", for more compatibility
+    with Autoconf-style projects.
+
+  - Fix expansion of $TARGET, $TARGETS, $SOURCE and $SOURCES keywords in
+    Visual C/C++ PDB file names.
+    
+  - Fix locating Visual C/C++ PDB files in build directories.
+
+  - Support an env.AddMethod() method and an AddMethod() global function
+    for adding a new method, respectively, to a construction environment
+    or an arbitrary object (such as a class).
+
+  From Leanid Nazdrynau:
+
+  - When applying Tool modules after a construction environment has
+    already been created, don't overwrite existing $CFILESUFFIX and
+    $CXXFILESUFFIX value.
+
+  From Jan Nijtmans:
+
+  - Find Java anonymous classes when the next token after the name is
+    an open parenthesis.
+
+  From Sohail Somani:
+
+  - Add LaTeX scanner support for finding dependencies specified with
+    the \usepackage{} directive.
+
+
+
 RELEASE 0.97 - Thu, 17 May 2007 08:59:41 -0500
 
   From Steven Knight:

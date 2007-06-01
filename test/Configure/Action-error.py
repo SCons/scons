@@ -1,12 +1,4 @@
-"""engine.SCons.Platform.sunos
-
-Platform-specific initialization for Sun systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,13 +24,25 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+"""
+Verify that calling Configure from an Action results in a readable error.
+"""
 
-def generate(env):
-    posix.generate(env)
-    # Based on sunSparc 8:32bit
-    # ARG_MAX=1048320 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 1045320
-    env['PKGINFO'] = 'pkginfo'
-    env['PKGCHK'] = '/usr/sbin/pkgchk'
-    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+test.write('SConstruct', """\
+def ConfigureAction(target, source, env):
+    env.Configure()
+    return 0
+env = Environment(BUILDERS = {'MyAction' :
+                          Builder(action=Action(ConfigureAction))})
+env.MyAction('target', [])
+""")
+
+expect = "scons: *** Calling Configure from Builders is not supported.\n"
+
+test.run(status=2, stderr=expect)
+
+test.pass_test()

@@ -232,7 +232,10 @@ def CacheRetrieveFunc(target, source, env):
         return 1
     fs.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
-        fs.copy2(cachefile, t.path)
+        if fs.islink(cachefile):
+            fs.symlink(fs.readlink(cachefile), t.path)
+        else:
+            fs.copy2(cachefile, t.path)
         st = fs.stat(cachefile)
         fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
@@ -272,7 +275,10 @@ def CachePushFunc(target, source, env):
 
     tempfile = cachefile+'.tmp'
     try:
-        fs.copy2(t.path, tempfile)
+        if fs.islink(t.path):
+            fs.symlink(fs.readlink(t.path), tempfile)
+        else:
+            fs.copy2(t.path, tempfile)
         fs.rename(tempfile, cachefile)
         st = fs.stat(t.path)
         fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
@@ -2269,8 +2275,6 @@ class File(Base):
         self.binfo = self.gen_binfo(calc)
         return self._cur2()
     def _cur2(self):
-        if self.always_build:
-            return None
         if not self.exists():
             # The file doesn't exist locally...
             r = self.rfile()

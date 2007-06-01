@@ -25,66 +25,33 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we can set CFILESUFFIX to arbitrary values.
+Verify that calling normal Builders from an actual Configure
+context environment works correctly.
 """
 
-import os
-import os.path
-import string
-import sys
 import TestSCons
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('mylex.py', """
-import getopt
-import string
+test.write('cmd.py', r"""
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
-for a in args:
-    contents = open(a, 'rb').read()
-    sys.stdout.write(string.replace(contents, 'LEX', 'mylex.py'))
-sys.exit(0)
+sys.stderr.write( 'Hello World on stderr\n' )
+sys.stdout.write( 'Hello World on stdout\n' )
+open(sys.argv[1], 'w').write( 'Hello World\n' )
 """)
 
-test.write('SConstruct', """
-env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
-env.CFile(target = 'foo', source = 'foo.l')
-env.Clone(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
-
-# Make sure that calling a Tool on a construction environment *after*
-# we've set CFILESUFFIX doesn't overwrite the value.
-env2 = Environment(tools = [], CFILESUFFIX = '.env2')
-env2.Tool('lex')
-env2['LEX'] = r'%(_python_)s mylex.py'
-env2.CFile(target = 'f3', source = 'f3.l')
+test.write('SConstruct', """\
+env = Environment()
+def CustomTest(*args):
+    return 0
+conf = env.Configure(custom_tests = {'MyTest' : CustomTest})
+if not conf.MyTest():
+    env.Command("hello", [], '%(_python_)s cmd.py $TARGET')
+env = conf.Finish()
 """ % locals())
 
-input = r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEX\n");
-        printf("%s\n");
-        exit (0);
-}
-"""
-
-test.write('foo.l', input % 'foo.l')
-
-test.write('bar.l', input % 'bar.l')
-
-test.write('f3.l', input % 'f3.l')
-
-test.run(arguments = '.')
-
-test.must_exist(test.workpath('foo.c'))
-
-test.must_exist(test.workpath('bar.xyz'))
-
-test.must_exist(test.workpath('f3.env2'))
+test.run(stderr="Hello World on stderr\n")
 
 test.pass_test()

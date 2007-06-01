@@ -1,12 +1,4 @@
-"""engine.SCons.Platform.sunos
-
-Platform-specific initialization for Sun systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,13 +24,38 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+"""
+Verify use of the AddMethod() global function (specifically, to add
+an unbound method to the Environment class) and its counterpart
+construction environment method.
+"""
 
-def generate(env):
-    posix.generate(env)
-    # Based on sunSparc 8:32bit
-    # ARG_MAX=1048320 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 1045320
-    env['PKGINFO'] = 'pkginfo'
-    env['PKGCHK'] = '/usr/sbin/pkgchk'
-    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+test.write('SConstruct', """
+def foo(self):
+    return 'foo-' + env['FOO']
+
+AddMethod(Environment, foo)
+env = Environment(FOO = '111')
+print env.foo()
+
+env = Environment(FOO = '222')
+print env.foo()
+
+env.AddMethod(foo, 'bar')
+print env.bar()
+
+""")
+
+expect = """\
+foo-111
+foo-222
+foo-222
+"""
+
+test.run(arguments = '-Q -q', stdout = expect)
+
+test.pass_test()

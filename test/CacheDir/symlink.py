@@ -1,12 +1,4 @@
-"""engine.SCons.Platform.sunos
-
-Platform-specific initialization for Sun systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,13 +24,45 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+"""
+Verify that we push and retrieve a built symlink to/from a CacheDir()
+as an actualy symlink, not by copying the file contents.
+"""
 
-def generate(env):
-    posix.generate(env)
-    # Based on sunSparc 8:32bit
-    # ARG_MAX=1048320 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 1045320
-    env['PKGINFO'] = 'pkginfo'
-    env['PKGCHK'] = '/usr/sbin/pkgchk'
-    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
+import os
+import os.path
+
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+if not hasattr(os, 'symlink'):
+    import sys
+    test.skip_test('%s has no os.symlink() method; skipping test\n' % sys.executable)
+
+test.write('SConstruct', """\
+CacheDir('cache')
+import os
+Symlink = Action(lambda target, source, env:
+                        os.symlink(str(source[0]), str(target[0])),
+                 "os.symlink($SOURCE, $TARGET)")
+Command('file.symlink', 'file.txt', Symlink)
+""")
+
+test.write('file.txt', "file.txt\n")
+
+test.run(arguments = '.')
+
+test.fail_test(not os.path.islink('file.symlink'))
+test.must_match('file.symlink', "file.txt\n")
+
+test.run(arguments = '-c .')
+
+test.must_not_exist('file.symlink')
+
+test.run(arguments = '.')
+
+test.fail_test(not os.path.islink('file.symlink'))
+test.must_match('file.symlink', "file.txt\n")
+
+test.pass_test()

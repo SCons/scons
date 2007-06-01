@@ -40,7 +40,6 @@ import SCons.compat
 
 import os
 import os.path
-import random
 import string
 import sys
 import time
@@ -789,7 +788,7 @@ class OptParser(OptionParser):
                         help="Read FILE as the top-level SConstruct file.")
 
         self.add_option('-h', '--help', action="store_true", default=0,
-                        dest="help_msg",
+                        dest="help",
                         help="Print defined help message, or this one.")
 
         self.add_option("-H", "--help-options",
@@ -988,13 +987,18 @@ class SConscriptSettableOptions:
 
         # This dictionary stores the defaults for all the SConscript
         # settable options, as well as indicating which options
-        # are SConscript settable. 
-        self.settable = {'num_jobs':1,
-                         'max_drift':SCons.Node.FS.default_max_drift,
-                         'implicit_cache':0,
-                         'clean':0,
-                         'duplicate':'hard-soft-copy',
-                         'diskcheck':diskcheck_all}
+        # are SConscript settable (and gettable, which for options
+        # like 'help' is far more important than being settable). 
+        self.settable = {
+            'clean'             : 0,
+            'diskcheck'         : diskcheck_all,
+            'duplicate'         : 'hard-soft-copy',
+            'help'              : 0,
+            'implicit_cache'    : 0,
+            'max_drift'         : SCons.Node.FS.default_max_drift,
+            'num_jobs'          : 1,
+            'random'            : 0,
+        }
 
     def get(self, name):
         if not self.settable.has_key(name):
@@ -1118,7 +1122,7 @@ def _main(args, parser):
             scripts.append(sfile)
 
     if not scripts:
-        if options.help_msg:
+        if options.help:
             # There's no SConstruct, but they specified -h.
             # Give them the options usage now, before we fail
             # trying to read a non-existent SConstruct file.
@@ -1225,7 +1229,7 @@ def _main(args, parser):
 
     fs.chdir(fs.Top)
 
-    if options.help_msg:
+    if ssoptions.get('help'):
         help_text = SCons.Script.help_text
         if help_text is None:
             # They specified -h, but there was no Help() inside the
@@ -1341,6 +1345,7 @@ def _main(args, parser):
     if options.random:
         def order(dependencies):
             """Randomize the dependencies."""
+            import random
             # This is cribbed from the implementation of
             # random.shuffle() in Python 2.X.
             d = dependencies

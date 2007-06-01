@@ -39,7 +39,7 @@ def LaTeXScanner(fs = SCons.Node.FS.default_fs):
     ds = LaTeX(name = "LaTeXScanner",
                suffixes =  '$LATEXSUFFIXES',
                path_variable = 'TEXINPUTS',
-               regex = '\\\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography){([^}]*)}',
+               regex = '\\\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}',
                recursive = 0)
     return ds
 
@@ -72,6 +72,10 @@ class LaTeX(SCons.Scanner.Classic):
             base, ext = os.path.splitext( filename )
             if ext == "":
                 filename = filename + '.bib'
+        if include[0] == 'usepackage':
+            base, ext = os.path.splitext( filename )
+            if ext == "":
+                filename = filename + '.sty'
         return filename
     def sort_key(self, include):
         return SCons.Node.FS._my_normcase(self.latex_name(include))

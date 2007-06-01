@@ -94,6 +94,66 @@
     </para>
 
     <section>
+    <title>Building Libraries From Source Code or Object Files</title>
+
+      <para>
+
+      The previous example shows building a library from a
+      list of source files.
+      You can, however, also give the &b-link-Library; call
+      object files,
+      and it will correctly realize
+      In fact, you can arbitrarily mix source code files
+      and object files in the source list:
+
+      </para>
+
+      <para>
+
+      <scons_example name="objects" printme="1">
+        <file name="SConstruct" printme="1">
+        Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])
+        </file>
+        <file name="f1.c">
+        void f1() { printf("f1.c\n"); }
+        </file>
+        <file name="f2.o">
+        object file
+        </file>
+        <file name="f3.c">
+        void f3() { printf("f3.c\n"); }
+        </file>
+        <file name="f4.o">
+        object file
+        </file>
+      </scons_example>
+
+      <para>
+
+      And SCons realizes that only the source code files
+      must be compiled into object files
+      before creating the final library:
+
+      </para>
+
+      <scons_output example="objects" os="posix">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      Of course, in this example, the object files
+      must already exist for the build to succeed.
+      See <xref linkend="chap-nodes">, below,
+      for information about how you can
+      build object files explicitly
+      and include the built files in a library.
+
+      </para>
+
+    </section>
+
+    <section>
     <title>Building Static Libraries Explicitly:  the &b-StaticLibrary; Builder</title>
 
       <para>

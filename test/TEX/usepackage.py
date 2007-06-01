@@ -25,7 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we can set CFILESUFFIX to arbitrary values.
+Validate that we can set the LATEX string to our own utility, that
+the produced .dvi, .aux and .log files get removed by the -c option,
+and that we can use this to wrap calls to the real latex utility.
 """
 
 import os
@@ -38,53 +40,35 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('mylex.py', """
-import getopt
-import string
-import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
-for a in args:
-    contents = open(a, 'rb').read()
-    sys.stdout.write(string.replace(contents, 'LEX', 'mylex.py'))
-sys.exit(0)
-""")
+latex = test.where_is('latex')
+
+if not latex:
+    test.skip_test('could not find latex; skipping test\n')
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
-env.CFile(target = 'foo', source = 'foo.l')
-env.Clone(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
-
-# Make sure that calling a Tool on a construction environment *after*
-# we've set CFILESUFFIX doesn't overwrite the value.
-env2 = Environment(tools = [], CFILESUFFIX = '.env2')
-env2.Tool('lex')
-env2['LEX'] = r'%(_python_)s mylex.py'
-env2.CFile(target = 'f3', source = 'f3.l')
+import os
+ENV = { 'PATH' : os.environ['PATH'],
+        'TEXINPUTS' : [ 'subdir', os.environ.get('TEXINPUTS', '') ] }
+foo = Environment(ENV = ENV)
+foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 """ % locals())
 
-input = r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEX\n");
-        printf("%s\n");
-        exit (0);
-}
-"""
+test.write('foo.ltx', r"""
+\documentclass{letter}
+\usepackage{bar}
+\begin{document}
+This is the foo.ltx file.
+\end{document}
+""")
 
-test.write('foo.l', input % 'foo.l')
+test.write('bar.sty', "\n")
 
-test.write('bar.l', input % 'bar.l')
+test.run(arguments = 'foo.dvi', stderr = None)
 
-test.write('f3.l', input % 'f3.l')
+test.write('bar.sty', "\n\n\n")
 
-test.run(arguments = '.')
+test.not_up_to_date(arguments = 'foo.dvi', stderr = None)
 
-test.must_exist(test.workpath('foo.c'))
 
-test.must_exist(test.workpath('bar.xyz'))
-
-test.must_exist(test.workpath('f3.env2'))
 
 test.pass_test()

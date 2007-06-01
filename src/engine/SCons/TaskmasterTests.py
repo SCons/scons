@@ -63,6 +63,7 @@ class Node:
         self.postprocessed = None
         self._bsig_val = None
         self._current_val = 0
+        self.always_build = None
 
     def disambiguate(self):
         return self
@@ -495,7 +496,10 @@ class TaskmasterTestCase(unittest.TestCase):
         n3 = Node("n3")
         c4 = Node("c4")
         c4._current_val = 1
-        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
+        a5 = Node("a5")
+        a5._current_val = 1
+        a5.always_build = 1
+        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4, a5],
                                          tasker = TaskGen)
 
         del ood[:]
@@ -514,6 +518,9 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert ood == [], ood
 
+        del ood[:]
+        t = tm.next_task()
+        assert ood == [a5], ood
 
     def test_make_ready_exception(self):
         """Test handling exceptions from Task.make_ready()

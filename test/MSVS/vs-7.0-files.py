@@ -53,8 +53,8 @@ Global
 \tGlobalSection(ProjectDependencies) = postSolution
 \tEndGlobalSection
 \tGlobalSection(ProjectConfiguration) = postSolution
-\t\t{SLNGUID}.Release.ActiveCfg = Release|Win32
-\t\t{SLNGUID}.Release.Build.0 = Release|Win32
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.ActiveCfg = Release|Win32
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.Build.0 = Release|Win32
 \tEndGlobalSection
 \tGlobalSection(ExtensibilityGlobals) = postSolution
 \tEndGlobalSection

@@ -1046,32 +1046,27 @@ class Node:
         if not self.exists():
             return "building `%s' because it doesn't exist\n" % self
 
+        if self.always_build:
+            return "rebuilding `%s' because AlwaysBuild() is specified\n" % self
+
         old = self.get_stored_info()
         if old is None:
             return None
         old.prepare_dependencies()
 
-        def dictify(result, kids, sigs):
-            for k, s in zip(kids, sigs):
-                result[k] = s
-
         try:
-            osig = {}
-            dictify(osig, old.bsources, old.bsourcesigs)
-            dictify(osig, old.bdepends, old.bdependsigs)
-            dictify(osig, old.bimplicit, old.bimplicitsigs)
+            old_bkids    = old.bsources    + old.bdepends    + old.bimplicit
+            old_bkidsigs = old.bsourcesigs + old.bdependsigs + old.bimplicitsigs
         except AttributeError:
             return "Cannot explain why `%s' is being rebuilt: No previous build information found\n" % self
 
         new = self.get_binfo()
 
-        nsig = {}
-        dictify(nsig, new.bsources, new.bsourcesigs)
-        dictify(nsig, new.bdepends, new.bdependsigs)
-        dictify(nsig, new.bimplicit, new.bimplicitsigs)
+        new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
+        new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        old_bkids = old.bsources + old.bdepends + old.bimplicit
-        new_bkids = new.bsources + new.bdepends + new.bimplicit
+        osig = dict(zip(old_bkids, old_bkidsigs))
+        nsig = dict(zip(new_bkids, new_bkidsigs))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to

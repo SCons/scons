@@ -33,6 +33,9 @@ test = TestSCons.TestSCons()
 
 test.subdir('sub')
 
+sub_f3_out = os.path.join('sub', 'f3.out')
+_SUBDIR_f3_out = os.path.join('$SUBDIR', 'f3.out')
+
 test.write('SConstruct', """\
 def bfunc(target, source, env):
     import shutil
@@ -43,30 +46,37 @@ env = Environment(BUILDERS = { 'B' : B }, SUBDIR='sub')
 env.B('f1.out', source='f1.in')
 AlwaysBuild('f1.out')
 
-env.B(r'%s', source='f3.in')
-env.AlwaysBuild(r'%s')
+env.B(r'%(sub_f3_out)s', source='f3.in')
+env.AlwaysBuild(r'%(_SUBDIR_f3_out)s')
 
 env.Alias('clean1', [], Delete('clean1-target'))
 env.AlwaysBuild('clean1')
 c2 = env.Alias('clean2', [], [Delete('clean2-t1'), Delete('clean2-t2')])
 env.AlwaysBuild(c2)
-""" % (os.path.join('sub', 'f3.out'),
-       os.path.join('$SUBDIR', 'f3.out')
-      ))
+
+def dir_build(target, source, env):
+    open('dir_build.txt', 'ab').write('dir_build()\\n')
+env.Command(Dir('dir'), None, dir_build)
+env.AlwaysBuild('dir')
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "1")
 test.write('f3.in', "f3.in\n")
 
+test.subdir('dir')
+
 test.run(arguments = ".")
-test.fail_test(test.read('f1.out') != '1')
-test.fail_test(test.read(['sub', 'f3.out']) != '1')
+test.must_match('f1.out', '1')
+test.must_match(['sub', 'f3.out'], '1')
+test.must_match('dir_build.txt', "dir_build()\n")
 
 test.write('f2.in', "2")
 
 test.run(arguments = ".")
-test.fail_test(test.read('f1.out') != '2')
-test.fail_test(test.read(['sub', 'f3.out']) != '2')
+test.must_match('f1.out', '2')
+test.must_match(['sub', 'f3.out'], '2')
+test.must_match('dir_build.txt', "dir_build()\ndir_build()\n")
 
 test.run(arguments = 'clean1', stdout=test.wrap_stdout("""\
 Delete("clean1-target")
@@ -76,5 +86,9 @@ test.run(arguments = 'clean2', stdout=test.wrap_stdout("""\
 Delete("clean2-t1")
 Delete("clean2-t2")
 """))
+
+test.not_up_to_date(arguments = 'dir')
+
+test.must_match('dir_build.txt', "dir_build()\ndir_build()\ndir_build()\n")
 
 test.pass_test()

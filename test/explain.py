@@ -41,8 +41,8 @@ test.subdir('work1', ['work1', 'src'], ['work1', 'src', 'subdir'],
             'work4', ['work4', 'src'], ['work4', 'src', 'subdir'],
             'work5')
 
-subdir_file6 = os.path.join('subdir', 'file6')
-subdir_file6_in = os.path.join('subdir', 'file6.in')
+subdir_file7 = os.path.join('subdir', 'file7')
+subdir_file7_in = os.path.join('subdir', 'file7.in')
 cat_py = test.workpath('cat.py')
 
 test.write(cat_py, r"""
@@ -113,7 +113,9 @@ env.Command('file4', 'file4.in',
              r'%(_python_)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES',
              FILE4FLAG='-')
 env.Cat('file5', 'file5.k')
-env.Cat('subdir/file6', 'subdir/file6.in')
+file6 = env.Cat('file6', 'file6.in')
+AlwaysBuild(file6)
+env.Cat('subdir/file7', 'subdir/file7.in')
 """ % locals())
 
 test.write(['work1', 'src', 'aaa'], "aaa 1\n")
@@ -149,7 +151,9 @@ include ../inc/bbb.k
 file5.k 1 line 4
 """)
 
-test.write(['work1', 'src', 'subdir', 'file6.in'], "subdir/file6.in 1\n")
+test.write(['work1', 'src', 'file6.in'], "file6.in 1\n")
+
+test.write(['work1', 'src', 'subdir', 'file7.in'], "subdir/file7.in 1\n")
 
 work1_inc_aaa = test.workpath('work1', 'inc', 'aaa')
 work1_inc_ddd = test.workpath('work1', 'inc', 'ddd')
@@ -176,8 +180,10 @@ scons: building `%(work1_inc_bbb_k)s' because it doesn't exist
 Install file: "bbb.k" as "%(work1_inc_bbb_k)s"
 scons: building `file5' because it doesn't exist
 %(_python_)s %(cat_py)s file5 file5.k
-scons: building `%(subdir_file6)s' because it doesn't exist
-%(_python_)s %(cat_py)s %(subdir_file6)s %(subdir_file6_in)s
+scons: building `file6' because it doesn't exist
+%(_python_)s %(cat_py)s file6 file6.in
+scons: building `%(subdir_file7)s' because it doesn't exist
+%(_python_)s %(cat_py)s %(subdir_file7)s %(subdir_file7_in)s
 """ % locals())
 
 test.run(chdir='work1/src', arguments=args, stdout=expect)
@@ -200,6 +206,7 @@ ddd 1
 eee.in 1
 file5.k 1 line 4
 """)
+test.must_match(['work1', 'src', 'file6'], "file6.in 1\n")
 
 #
 test.write(['work1', 'src', 'file1.in'], "file1.in 2\n")
@@ -223,6 +230,8 @@ scons: rebuilding `%(work1_inc_bbb_k)s' because:
 Install file: "bbb.k" as "%(work1_inc_bbb_k)s"
 scons: rebuilding `file5' because `%(work1_inc_bbb_k)s' changed
 %(_python_)s %(cat_py)s file5 file5.k
+scons: rebuilding `file6' because AlwaysBuild() is specified
+%(_python_)s %(cat_py)s file6 file6.in
 """ % locals())
 
 test.run(chdir='work1/src', arguments=args, stdout=expect)

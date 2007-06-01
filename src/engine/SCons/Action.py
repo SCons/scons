@@ -515,9 +515,11 @@ class CommandGeneratorAction(ActionBase):
 
     def __str__(self):
         try:
-            env = self.presub_env or {}
+            env = self.presub_env
         except AttributeError:
-            env = {}
+            env = None
+        if env is None:
+            env = SCons.Defaults.DefaultEnvironment()
         act = self._generate([], [], env, 1)
         return str(act)
 
