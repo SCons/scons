@@ -64,6 +64,9 @@ class NoMD5ModuleWarning(Warning):
 class NoMetaclassSupportWarning(Warning):
     pass
 
+class NoObjectCountWarning(Warning):
+    pass
+
 class NoParallelSupportWarning(Warning):
     pass
 

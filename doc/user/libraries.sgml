@@ -106,8 +106,6 @@
 
       </para>
 
-      <para>
-
       <programlisting>
         Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])
       </programlisting>

@@ -95,10 +95,16 @@ test.run()
 
 pdf_output_3 = test.read('bibtest.pdf')
 
-# If the PDF file is now different than the second run, then something
-# else odd has happened, so fail.  (Note that this test will be incorrect
-# if the tool does something like insert a timestamp in the PDF file.)
-test.fail_test(pdf_output_2 != pdf_output_3)
+
+
+# If the PDF file is now different than the second run, modulo the
+# creation timestamp and the ID, then something else odd has happened,
+# so fail.
+
+pdf_output_2 = test.normalize_pdf(pdf_output_2)
+pdf_output_3 = test.normalize_pdf(pdf_output_3)
+
+assert pdf_output_2 == pdf_output_3,    test.diff_substr(pdf_output_2, pdf_output_3, 80, 80)
 
 
 

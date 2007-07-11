@@ -90,17 +90,18 @@ test.run(arguments=['qtdir=%s' % qtpath, 'qt_libraries=%s' % libpath])
 check([qtpath, libpath, libpath])
 
 qtpath = os.path.join(workpath, 'non', 'existing', 'path')
+SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 11)[:-1]
 
 expect_stderr = """
 scons: *** Path for option qtdir does not exist: %(qtpath)s
-File "%(SConstruct_path)s", line 11, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['qtdir=%s' % qtpath], stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Path for option qt_libraries does not exist: %(qtpath)s
-File "%(SConstruct_path)s", line 11, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['qt_libraries=%s' % qtpath], stderr=expect_stderr, status=2)
@@ -167,9 +168,11 @@ print env['X']
 Default(env.Alias('dummy', None))
 """ % default_file)
 
+SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 6)[:-1]
+
 expect_stderr = """
 scons: *** File path for option X does not exist: %(default_file)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(status=2, stderr=expect_stderr)
@@ -181,7 +184,7 @@ check([default_file])
 
 expect_stderr = """
 scons: *** File path for option X is a directory: %(existing_subdir)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['X=%s' % existing_subdir], status=2, stderr=expect_stderr)
@@ -191,7 +194,7 @@ check([existing_file])
 
 expect_stderr = """
 scons: *** File path for option X does not exist: %(non_existing_file)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['X=%s' % non_existing_file], status=2, stderr=expect_stderr)
@@ -213,7 +216,7 @@ Default(env.Alias('dummy', None))
 
 expect_stderr = """
 scons: *** Directory path for option X does not exist: %(default_subdir)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(status=2, stderr=expect_stderr)
@@ -225,7 +228,7 @@ check([default_subdir])
 
 expect_stderr = """
 scons: *** Directory path for option X is a file: %(existing_file)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['X=%s' % existing_file],
@@ -237,7 +240,7 @@ check([existing_subdir])
 
 expect_stderr = """
 scons: *** Directory path for option X does not exist: %(non_existing_subdir)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['X=%s' % non_existing_subdir],
@@ -264,7 +267,7 @@ check([default_subdir])
 
 expect_stderr = """
 scons: *** Path for option X is a file, not a directory: %(existing_file)s
-File "%(SConstruct_path)s", line 6, in ?
+%(SConstruct_file_line)s
 """ % locals()
 
 test.run(arguments=['X=%s' % existing_file], status=2, stderr=expect_stderr)

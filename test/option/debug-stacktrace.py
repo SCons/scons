@@ -51,7 +51,7 @@ def must_contain_all_lines(content, lines):
 
 test.write('SConstruct', """\
 def kfile_scan(node, env, target):
-    raise "kfile_scan error"
+    raise Exception, "kfile_scan error"
 
 kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
@@ -74,7 +74,7 @@ test.run(arguments = "--debug=stacktrace",
 lines = [
     "scons: *** kfile_scan error",
     "scons: internal stack trace:",
-    'raise "kfile_scan error"',
+    'raise Exception, "kfile_scan error"',
 ]
 
 err = must_contain_all_lines(test.stderr(), lines)

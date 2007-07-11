@@ -258,91 +258,46 @@ def _concat_ixes(prefix, list, suffix, env):
     return result
 
 def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
-    """This is a wrapper around _concat() that checks for the existence
-    of prefixes or suffixes on list elements and strips them where it
-    finds them.  This is used by tools (like the GNU linker) that need
-    to turn something like 'libfoo.a' into '-lfoo'."""
+    """
+    This is a wrapper around _concat()/_concat_ixes() that checks for the
+    existence of prefixes or suffixes on list elements and strips them
+    where it finds them.  This is used by tools (like the GNU linker)
+    that need to turn something like 'libfoo.a' into '-lfoo'.
+    """
     
-    if not callable(c):
-        if callable(env["_concat"]):
-            c = env["_concat"]
-        else:
-            c = _concat
-    def f(list, sp=stripprefix, ss=stripsuffix):
-        result = []
-        for l in list:
-            if isinstance(l, SCons.Node.FS.File):
-                result.append(l)
-                continue
-            if not SCons.Util.is_String(l):
-                l = str(l)
-            if l[:len(sp)] == sp:
-                l = l[len(sp):]
-            if l[-len(ss):] == ss:
-                l = l[:-len(ss)]
-            result.append(l)
-        return result
-    return c(prefix, list, suffix, env, f)
+    if not list:
+        return list
 
-# This is an alternate _stripixes() function that passes all of our tests
-# (as of 21 February 2007), like the current version above.  It's more
-# straightforward because it does its manipulation directly, not using
-# the funky f call-back function to _concat().  (In this respect it's
-# like the updated _defines() function below.)
-#
-# The most convoluted thing is that it still uses a custom _concat()
-# function if one was placed in the construction environment; there's
-# a specific test for that functionality, but it might be worth getting
-# rid of.
-#
-# Since this work was done while trying to get 0.97 out the door
-# (just prior to 0.96.96), I decided to be cautious and leave the old
-# function as is, to minimize the chance of other corner-case regressions.
-# The updated version is captured here so we can uncomment it and start
-# using it at a less sensitive time in the development cycle (or when
-# it's clearly required to fix something).
-#
-#def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
-#    """
-#    This is a wrapper around _concat()/_concat_ixes() that checks for the
-#    existence of prefixes or suffixes on list elements and strips them
-#    where it finds them.  This is used by tools (like the GNU linker)
-#    that need to turn something like 'libfoo.a' into '-lfoo'.
-#    """
-#    
-#    if not list:
-#        return list
-#
-#    if not callable(c):
-#        env_c = env['_concat']
-#        if env_c != _concat and callable(env_c):
-#            # There's a custom _concat() method in the construction
-#            # environment, and we've allowed people to set that in
-#            # the past (see test/custom-concat.py), so preserve the
-#            # backwards compatibility.
-#            c = env_c
-#        else:
-#            c = _concat_ixes
-#    
-#    if SCons.Util.is_List(list):
-#        list = SCons.Util.flatten(list)
-#
-#    lsp = len(stripprefix)
-#    lss = len(stripsuffix)
-#    stripped = []
-#    for l in SCons.PathList.PathList(list).subst_path(env, None, None):
-#        if isinstance(l, SCons.Node.FS.File):
-#            stripped.append(l)
-#            continue
-#        if not SCons.Util.is_String(l):
-#            l = str(l)
-#        if l[:lsp] == stripprefix:
-#            l = l[lsp:]
-#        if l[-lss:] == stripsuffix:
-#            l = l[:-lss]
-#        stripped.append(l)
-#
-#    return c(prefix, stripped, suffix, env)
+    if not callable(c):
+        env_c = env['_concat']
+        if env_c != _concat and callable(env_c):
+            # There's a custom _concat() method in the construction
+            # environment, and we've allowed people to set that in
+            # the past (see test/custom-concat.py), so preserve the
+            # backwards compatibility.
+            c = env_c
+        else:
+            c = _concat_ixes
+    
+    if SCons.Util.is_List(list):
+        list = SCons.Util.flatten(list)
+
+    lsp = len(stripprefix)
+    lss = len(stripsuffix)
+    stripped = []
+    for l in SCons.PathList.PathList(list).subst_path(env, None, None):
+        if isinstance(l, SCons.Node.FS.File):
+            stripped.append(l)
+            continue
+        if not SCons.Util.is_String(l):
+            l = str(l)
+        if l[:lsp] == stripprefix:
+            l = l[lsp:]
+        if l[-lss:] == stripsuffix:
+            l = l[:-lss]
+        stripped.append(l)
+
+    return c(prefix, stripped, suffix, env)
 
 def _defines(prefix, defs, suffix, env, c=_concat_ixes):
     """A wrapper around _concat_ixes that turns a list or string

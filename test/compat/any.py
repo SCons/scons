@@ -25,44 +25,33 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that setting illegal construction variables fails in ways that are
-useful to the user.
+Verify that we can use the any() function (in any supported Python
+version we happen to be testing).
+
+This test can be retired at some point in the distant future when Python
+2.5 becomes the minimum version supported by SCons.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-SConstruct_path = test.workpath('SConstruct')
-SConscript_path = test.workpath('SConscript')
-
-test.write(SConstruct_path, """\
-env = Environment()
-env['foo-bar'] = 1
-""")
-
-expect_stderr = """
-scons: *** Illegal construction variable `foo-bar'
-""" + test.python_file_line(SConstruct_path, 2)
-
-test.run(arguments='.', status=2, stderr=expect_stderr)
-
-
-
-test.write(SConstruct_path, """\
+test.write('SConstruct', """\
+print any([True, False]) and "YES" or "NO"
+print any([1]) and "YES" or "NO"
 SConscript('SConscript')
 """)
 
 test.write('SConscript', """\
-env = Environment()
-env['foo(bar)'] = 1
+print any([0, False]) and "YES" or "NO"
 """)
 
+expect = """\
+YES
+YES
+NO
+"""
 
-expect_stderr = """
-scons: *** Illegal construction variable `foo(bar)'
-""" + test.python_file_line(SConscript_path, 2)
-
-test.run(arguments='.', status=2, stderr=expect_stderr)
+test.run(arguments = '-Q -q', stdout = expect)
 
 test.pass_test()

@@ -586,7 +586,15 @@ Print how many objects are created
 of the various classes used internally by SCons
 before and after reading the SConscript files
 and before and after building targets.
-This only works when run under Python 2.1 or later.
+This is not supported when run under Python versions earlier than 2.1,
+when SCons is executed with the Python
+.B -O
+(optimized) option,
+or when the SCons modules
+have been compiled with optimization
+(that is, when executing from
+.B *.pyo
+files).
 
 .TP
 --debug=dtree
@@ -2024,6 +2032,84 @@ env.my_method('arg')
 env = Environment()
 env.AddMethod(my_method, 'other_method_name')
 env.other_method_name('another arg')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI AddOption( arguments )
+This function adds a new command-line option to be recognized.
+The specified
+.I arguments
+are the same as supported by the standard Python
+.B optparse.add_option
+method;
+see the documentation for
+.B optparse
+for a thorough discussion of its option-processing capabities.
+(Note that although the
+.B optparse
+module was not a standard module until Python 2.3,
+.B scons
+contains a compatible version of the module
+that is used to provide identical functionality
+when run by earlier Python versions.)
+
+If no
+.B default=
+keyword argument is supplied when calling
+.BR AddOption (),
+the option will have a default value of
+.BR None .
+
+Once a new command-line option has been added with
+.BR AddOption (),
+the option value may be accessed using
+.BR GetOption ()
+or
+.BR env.GetOption ().
+The value may also be set, using
+.BR SetOption ()
+or
+.BR env.SetOption (),
+if conditions in a
+.B SConscript
+require overriding any default value.
+Note, however, that a
+value specified on the command line will
+.I always
+override a value set by any SConscript file.
+
+Any specified
+.B help=
+strings for the new option(s)
+will be displayed by the
+.B -H
+or
+.B -h
+options
+(the latter only if no other help text is
+specified in the SConscript files).
+The help text for the local options specified by
+.BR AddOption ()
+will appear below the SCons options themselves,
+under a separate
+.B "Local Options"
+heading.
+The options will appear in the help text
+in the order in which the
+.BR AddOption ()
+calls occur.
+
+Example:
+
+.ES
+AddOption('--prefix',
+          dest='prefix',
+          nargs=1, type='string',
+          action='store',
+          metavar='DIR',
+          help='installation prefix')
+env = Environment(PREFIX = GetOption('prefix'))
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4110,6 +4196,8 @@ which corresponds to -h and --help;
 which corresponds to --implicit-cache;
 .B max_drift
 which corresponds to --max-drift;
+.B no_exec
+which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
 .B num_jobs
 which corresponds to -j and --jobs.
 .B random

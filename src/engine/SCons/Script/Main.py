@@ -61,7 +61,6 @@ import SCons.Errors
 import SCons.Job
 import SCons.Node
 import SCons.Node.FS
-from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
 import SCons.SConf
 import SCons.Script
 import SCons.Sig
@@ -70,6 +69,10 @@ import SCons.Util
 import SCons.Warnings
 
 #
+
+class SConsPrintHelpException(Exception):
+    pass
+
 display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
 
@@ -108,9 +111,9 @@ class BuildTask(SCons.Taskmaster.Task):
 
     def do_failed(self, status=2):
         global exit_status
-        if ignore_errors:
+        if self.options.ignore_errors:
             SCons.Taskmaster.Task.executed(self)
-        elif keep_going_on_error:
+        elif self.options.keep_going:
             SCons.Taskmaster.Task.fail_continue(self)
             exit_status = status
         else:
@@ -122,7 +125,7 @@ class BuildTask(SCons.Taskmaster.Task):
         if self.top and not t.has_builder() and not t.side_effect:
             if not t.exists():
                 sys.stderr.write("scons: *** Do not know how to make target `%s'." % t)
-                if not keep_going_on_error:
+                if not self.options.keep_going:
                     sys.stderr.write("  Stop.")
                 sys.stderr.write("\n")
                 self.do_failed()
@@ -175,7 +178,7 @@ class BuildTask(SCons.Taskmaster.Task):
             if e is None:
                 e = t
             s = str(e)
-            if t == SCons.Errors.StopError and not keep_going_on_error:
+            if t == SCons.Errors.StopError and not self.options.keep_going:
                 s = s + '  Stop.'
             sys.stderr.write("scons: *** %s\n" % s)
 
@@ -190,9 +193,9 @@ class BuildTask(SCons.Taskmaster.Task):
     def postprocess(self):
         if self.top:
             t = self.targets[0]
-            for tp in tree_printers:
+            for tp in self.options.tree_printers:
                 tp.display(t)
-            if print_includes:
+            if self.options.debug_includes:
                 tree = t.render_include_tree()
                 if tree:
                     print
@@ -202,7 +205,7 @@ class BuildTask(SCons.Taskmaster.Task):
     def make_ready(self):
         """Make a task ready for execution"""
         SCons.Taskmaster.Task.make_ready(self)
-        if self.out_of_date and print_explanations:
+        if self.out_of_date and self.options.debug_explain:
             explanation = self.out_of_date[0].explain()
             if explanation:
                 sys.stdout.write("scons: " + explanation)
@@ -316,43 +319,23 @@ class TreePrinter:
 
 # Global variables
 
-tree_printers = []
-
-keep_going_on_error = 0
-print_explanations = 0
-print_includes = 0
 print_objects = 0
 print_memoizer = 0
 print_stacktrace = 0
 print_time = 0
-ignore_errors = 0
 sconscript_time = 0
 cumulative_command_time = 0
 exit_status = 0 # exit status, assume success by default
-repositories = []
 num_jobs = None
 delayed_warnings = []
 
-diskcheck_all = SCons.Node.FS.diskcheck_types()
-diskcheck_option_set = None
+OptionsParser = None
 
-def diskcheck_convert(value):
-    if value is None:
-        return []
-    if not SCons.Util.is_List(value):
-        value = string.split(value, ',')
-    result = []
-    for v in map(string.lower, value):
-        if v == 'all':
-            result = diskcheck_all
-        elif v == 'none':
-            result = []
-        elif v in diskcheck_all:
-            result.append(v)
-        else:
-            raise ValueError, v
+def AddOption(*args, **kw):
+    if not kw.has_key('default'):
+        kw['default'] = None
+    result = apply(OptionsParser.add_local_option, args, kw)
     return result
-
 #
 class Stats:
     def __init__(self):
@@ -482,15 +465,6 @@ def _scons_internal_error():
     traceback.print_exc()
     sys.exit(2)
 
-def _varargs(option, parser):
-    value = None
-    if parser.rargs:
-        arg = parser.rargs[0]
-        if arg[0] != "-":
-            value = arg
-            del parser.rargs[0]
-    return value
-
 def _setup_warn(arg):
     """The --warn option.  An argument to this option
     should be of the form <warning-class> or no-<warning-class>.
@@ -536,12 +510,11 @@ def _setup_warn(arg):
         else:
             SCons.Warnings.suppressWarningClass(clazz)
 
-def _SConstruct_exists(dirname=''):
+def _SConstruct_exists(dirname='', repositories=[]):
     """This function checks that an SConstruct file exists in a directory.
     If so, it returns the path of the file. By default, it checks the
     current directory.
     """
-    global repositories
     for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):
@@ -552,49 +525,44 @@ def _SConstruct_exists(dirname=''):
                     return sfile
     return None
 
-def _set_globals(options):
-    global keep_going_on_error, ignore_errors
-    global count_stats
-    global print_explanations, print_includes, print_memoizer
-    global print_objects, print_stacktrace, print_time
-    global tree_printers
-    global memory_stats
+def _set_debug_values(options):
+    global print_memoizer, print_objects, print_stacktrace, print_time
 
-    keep_going_on_error = options.keep_going
-    try:
-        debug_values = options.debug
-        if debug_values is None:
-            debug_values = []
-    except AttributeError:
-        pass
-    else:
-        if "count" in debug_values:
+    debug_values = options.debug
+
+    if "count" in debug_values:
+        # All of the object counts are within "if __debug__:" blocks,
+        # which get stripped when running optimized (with python -O or
+        # from compiled *.pyo files).  Provide a warning if __debug__ is
+        # stripped, so it doesn't just look like --debug=count is broken.
+        enable_count = False
+        if __debug__: enable_count = True
+        if enable_count:
             count_stats.enable(sys.stdout)
-        if "dtree" in debug_values:
-            tree_printers.append(TreePrinter(derived=True))
-        if "explain" in debug_values:
-            print_explanations = 1
-        if "findlibs" in debug_values:
-            SCons.Scanner.Prog.print_find_libs = "findlibs"
-        if "includes" in debug_values:
-            print_includes = 1
-        if "memoizer" in debug_values:
-            print_memoizer = 1
-        if "memory" in debug_values:
-            memory_stats.enable(sys.stdout)
-        if "objects" in debug_values:
-            print_objects = 1
-        if "presub" in debug_values:
-            SCons.Action.print_actions_presub = 1
-        if "stacktrace" in debug_values:
-            print_stacktrace = 1
-        if "stree" in debug_values:
-            tree_printers.append(TreePrinter(status=True))
-        if "time" in debug_values:
-            print_time = 1
-        if "tree" in debug_values:
-            tree_printers.append(TreePrinter())
-    ignore_errors = options.ignore_errors
+        else:
+            msg = "--debug=count is not supported when running SCons\n" + \
+                  "\twith the python -O option or optimized (.pyo) modules."
+            SCons.Warnings.warn(SCons.Warnings.NoObjectCountWarning, msg)
+    if "dtree" in debug_values:
+        options.tree_printers.append(TreePrinter(derived=True))
+    options.debug_explain = ("explain" in debug_values)
+    if "findlibs" in debug_values:
+        SCons.Scanner.Prog.print_find_libs = "findlibs"
+    options.debug_includes = ("includes" in debug_values)
+    print_memoizer = ("memoizer" in debug_values)
+    if "memory" in debug_values:
+        memory_stats.enable(sys.stdout)
+    print_objects = ("objects" in debug_values)
+    if "presub" in debug_values:
+        SCons.Action.print_actions_presub = 1
+    if "stacktrace" in debug_values:
+        print_stacktrace = 1
+    if "stree" in debug_values:
+        options.tree_printers.append(TreePrinter(status=True))
+    if "time" in debug_values:
+        print_time = 1
+    if "tree" in debug_values:
+        options.tree_printers.append(TreePrinter())
 
 def _create_path(plist):
     path = '.'
@@ -655,410 +623,25 @@ def version_string(label, module):
                   module.__developer__,
                   module.__buildsys__)
 
-class OptParser(OptionParser):
-    def __init__(self):
-        import __main__
-
-        parts = ["SCons by Steven Knight et al.:\n"]
-        try:
-            parts.append(version_string("script", __main__))
-        except KeyboardInterrupt:
-            raise
-        except:
-            # On Windows there is no scons.py, so there is no
-            # __main__.__version__, hence there is no script version.
-            pass 
-        parts.append(version_string("engine", SCons))
-        parts.append("__COPYRIGHT__")
-        OptionParser.__init__(self, version=string.join(parts, ''),
-                              usage="usage: scons [OPTION] [TARGET] ...")
-
-        # options ignored for compatibility
-        def opt_ignore(option, opt, value, parser):
-            sys.stderr.write("Warning:  ignoring %s option\n" % opt)
-        self.add_option("-b", "-m", "-S", "-t", "--no-keep-going", "--stop",
-                        "--touch", action="callback", callback=opt_ignore,
-                        help="Ignored for compatibility.")
-
-        self.add_option('-c', '--clean', '--remove', action="store_true",
-                        dest="clean",
-                        help="Remove specified targets and dependencies.")
-
-        self.add_option('-C', '--directory', type="string", action = "append",
-                        metavar="DIR",
-                        help="Change to DIR before doing anything.")
-
-        self.add_option('--cache-debug', action="store",
-                        dest="cache_debug", metavar="FILE",
-                        help="Print CacheDir debug info to FILE.")
-
-        self.add_option('--cache-disable', '--no-cache',
-                        action="store_true", dest='cache_disable', default=0,
-                        help="Do not retrieve built targets from CacheDir.")
-
-        self.add_option('--cache-force', '--cache-populate',
-                        action="store_true", dest='cache_force', default=0,
-                        help="Copy already-built targets into the CacheDir.")
-
-        self.add_option('--cache-show',
-                        action="store_true", dest='cache_show', default=0,
-                        help="Print build actions for files from CacheDir.")
-
-        config_options = ["auto", "force" ,"cache"]
-
-        def opt_config(option, opt, value, parser, c_options=config_options):
-            if value in c_options:
-                parser.values.config = value
-            else:
-                raise OptionValueError("Warning:  %s is not a valid config type" % value)
-        self.add_option('--config', action="callback", type="string",
-                        callback=opt_config, nargs=1, dest="config",
-                        metavar="MODE", default="auto",
-                        help="Controls Configure subsystem: "
-                             "%s." % string.join(config_options, ", "))
-
-        def opt_not_yet(option, opt, value, parser):
-            sys.stderr.write("Warning:  the %s option is not yet implemented\n" % opt)
-            sys.exit(0)
-        self.add_option('-d', action="callback",
-                        callback=opt_not_yet,
-                        help = "Print file dependency information.")
-        
-        self.add_option('-D', action="store_const", const=2, dest="climb_up",
-                        help="Search up directory tree for SConstruct,       "
-                             "build all Default() targets.")
-
-        debug_options = ["count", "dtree", "explain", "findlibs",
-                         "includes", "memoizer", "memory", "objects",
-                         "pdb", "presub", "stacktrace", "stree",
-                         "time", "tree"]
-
-        deprecated_debug_options = {
-            "nomemoizer" : ' and has no effect',
-        }
-
-        def opt_debug(option, opt, value, parser, debug_options=debug_options, deprecated_debug_options=deprecated_debug_options):
-            if value in debug_options:
-                try:
-                    if parser.values.debug is None:
-                        parser.values.debug = []
-                except AttributeError:
-                    parser.values.debug = []
-                parser.values.debug.append(value)
-            elif value in deprecated_debug_options.keys():
-                msg = deprecated_debug_options[value]
-                w = "The --debug=%s option is deprecated%s." % (value, msg)
-                delayed_warnings.append((SCons.Warnings.DeprecatedWarning, w))
-            else:
-                raise OptionValueError("Warning:  %s is not a valid debug type" % value)
-        self.add_option('--debug', action="callback", type="string",
-                        callback=opt_debug, nargs=1, dest="debug",
-                        metavar="TYPE",
-                        help="Print various types of debugging information: "
-                             "%s." % string.join(debug_options, ", "))
-
-        def opt_diskcheck(option, opt, value, parser):
-            try:
-                global diskcheck_option_set
-                diskcheck_option_set = diskcheck_convert(value)
-                SCons.Node.FS.set_diskcheck(diskcheck_option_set)
-            except ValueError, e:
-                raise OptionValueError("Warning: `%s' is not a valid diskcheck type" % e)
-
-            
-        self.add_option('--diskcheck', action="callback", type="string",
-                        callback=opt_diskcheck, dest='diskcheck',
-                        metavar="TYPE",
-                        help="Enable specific on-disk checks.")
-
-        def opt_duplicate(option, opt, value, parser):
-            if not value in SCons.Node.FS.Valid_Duplicates:
-                raise OptionValueError("`%s' is not a valid duplication style." % value)
-            parser.values.duplicate = value
-            # Set the duplicate style right away so it can affect linking
-            # of SConscript files.
-            SCons.Node.FS.set_duplicate(value)
-        self.add_option('--duplicate', action="callback", type="string",
-                        callback=opt_duplicate, nargs=1, dest="duplicate",
-                        help="Set the preferred duplication methods. Must be one of "
-                        + string.join(SCons.Node.FS.Valid_Duplicates, ", "))
-
-        self.add_option('-f', '--file', '--makefile', '--sconstruct',
-                        action="append", nargs=1,
-                        help="Read FILE as the top-level SConstruct file.")
-
-        self.add_option('-h', '--help', action="store_true", default=0,
-                        dest="help",
-                        help="Print defined help message, or this one.")
-
-        self.add_option("-H", "--help-options",
-                        action="help",
-                        help="Print this message and exit.")
-
-        self.add_option('-i', '--ignore-errors', action="store_true",
-                        default=0, dest='ignore_errors',
-                        help="Ignore errors from build actions.")
-
-        self.add_option('-I', '--include-dir', action="append",
-                        dest='include_dir', metavar="DIR",
-                        help="Search DIR for imported Python modules.")
-
-        self.add_option('--implicit-cache', action="store_true",
-                        dest='implicit_cache',
-                        help="Cache implicit dependencies")
-
-        self.add_option('--implicit-deps-changed', action="store_true",
-                        default=0, dest='implicit_deps_changed',
-                        help="Ignore cached implicit dependencies.")
-        self.add_option('--implicit-deps-unchanged', action="store_true",
-                        default=0, dest='implicit_deps_unchanged',
-                        help="Ignore changes in implicit dependencies.")
-
-        def opt_j(option, opt, value, parser):
-            value = int(value)
-            parser.values.num_jobs = value
-        self.add_option('-j', '--jobs', action="callback", type="int",
-                        callback=opt_j, metavar="N",
-                        help="Allow N jobs at once.")
-
-        self.add_option('-k', '--keep-going', action="store_true", default=0,
-                        dest='keep_going',
-                        help="Keep going when a target can't be made.")
-
-        self.add_option('--max-drift', type="int", action="store",
-                        dest='max_drift', metavar="N",
-                        help="Set maximum system clock drift to N seconds.")
-
-        self.add_option('-n', '--no-exec', '--just-print', '--dry-run',
-                        '--recon', action="store_true", dest='noexec',
-                        default=0, help="Don't build; just print commands.")
-
-        self.add_option('--no-site-dir', action="store_true",
-                        dest='no_site_dir', default=0,
-                        help="Don't search or use the usual site_scons dir.")
-
-        self.add_option('--profile', action="store",
-                        dest="profile_file", metavar="FILE",
-                        help="Profile SCons and put results in FILE.")
-
-        self.add_option('-q', '--question', action="store_true", default=0,
-                        help="Don't build; exit status says if up to date.")
-
-        self.add_option('-Q', dest='no_progress', action="store_true",
-                        default=0,
-                        help="Suppress \"Reading/Building\" progress messages.")
-
-        self.add_option('--random', dest="random", action="store_true",
-                        default=0, help="Build dependencies in random order.")
-
-        self.add_option('-s', '--silent', '--quiet', action="store_true",
-                        default=0, help="Don't print commands.")
-
-        self.add_option('--site-dir', action="store",
-                        dest='site_dir', metavar="DIR",
-                        help="Use DIR instead of the usual site_scons dir.")
-
-        self.add_option('--taskmastertrace', action="store",
-                        dest="taskmastertrace_file", metavar="FILE",
-                        help="Trace Node evaluation to FILE.")
-
-        tree_options = ["all", "derived", "prune", "status"]
-
-        def opt_tree(option, opt, value, parser, tree_options=tree_options):
-            tp = TreePrinter()
-            for o in string.split(value, ','):
-                if o == 'all':
-                    tp.derived = False
-                elif o == 'derived':
-                    tp.derived = True
-                elif o == 'prune':
-                    tp.prune = True
-                elif o == 'status':
-                    tp.status = True
-                else:
-                    raise OptionValueError("Warning:  %s is not a valid --tree option" % o)
-            tree_printers.append(tp)
-
-        self.add_option('--tree', action="callback", type="string",
-                        callback=opt_tree, nargs=1, metavar="OPTIONS",
-                        help="Print a dependency tree in various formats: "
-                             "%s." % string.join(tree_options, ", "))
-
-        self.add_option('-u', '--up', '--search-up', action="store_const",
-                        dest="climb_up", default=0, const=1,
-                        help="Search up directory tree for SConstruct,       "
-                             "build targets at or below current directory.")
-        self.add_option('-U', action="store_const", dest="climb_up",
-                        default=0, const=3,
-                        help="Search up directory tree for SConstruct,       "
-                             "build Default() targets from local SConscript.")
-
-        self.add_option("-v", "--version",
-                        action="version",
-                        help="Print the SCons version number and exit.")
-
-        self.add_option('--warn', '--warning', nargs=1, action="store",
-                        metavar="WARNING-SPEC",
-                        help="Enable or disable warnings.")
-
-        self.add_option('-Y', '--repository', '--srcdir',
-                        nargs=1, action="append",
-                        help="Search REPOSITORY for source and target files.")
-
-        self.add_option('-e', '--environment-overrides', action="callback",
-                        callback=opt_not_yet,
-                        # help="Environment variables override makefiles."
-                        help=SUPPRESS_HELP)
-        self.add_option('-l', '--load-average', '--max-load', action="callback",
-                        callback=opt_not_yet, type="int", dest="load_average",
-                        # action="store",
-                        # help="Don't start multiple jobs unless load is below "
-                        #      "LOAD-AVERAGE."
-                        # type="int",
-                        help=SUPPRESS_HELP)
-        self.add_option('--list-derived', action="callback",
-                        callback=opt_not_yet,
-                        # help="Don't build; list files that would be built."
-                        help=SUPPRESS_HELP)
-        self.add_option('--list-actions', action="callback",
-                        callback=opt_not_yet,
-                        # help="Don't build; list files and build actions."
-                        help=SUPPRESS_HELP)
-        self.add_option('--list-where', action="callback",
-                        callback=opt_not_yet,
-                        # help="Don't build; list files and where defined."
-                        help=SUPPRESS_HELP)
-        self.add_option('-o', '--old-file', '--assume-old', action="callback",
-                        callback=opt_not_yet, type="string", dest="old_file",
-                        # help = "Consider FILE to be old; don't rebuild it."
-                        help=SUPPRESS_HELP)
-        self.add_option('--override', action="callback", dest="override",
-                        callback=opt_not_yet, type="string",
-                        # help="Override variables as specified in FILE."
-                        help=SUPPRESS_HELP)
-        self.add_option('-p', action="callback",
-                        callback=opt_not_yet,
-                        # help="Print internal environments/objects."
-                        help=SUPPRESS_HELP)
-        self.add_option('-r', '-R', '--no-builtin-rules',
-                        '--no-builtin-variables', action="callback",
-                        callback=opt_not_yet,
-                        # help="Clear default environments and variables."
-                        help=SUPPRESS_HELP)
-        self.add_option('-w', '--print-directory', action="callback",
-                        callback=opt_not_yet,
-                        # help="Print the current directory."
-                        help=SUPPRESS_HELP)
-        self.add_option('--no-print-directory', action="callback",
-                        callback=opt_not_yet,
-                        # help="Turn off -w, even if it was turned on implicitly."
-                        help=SUPPRESS_HELP)
-        self.add_option('--write-filenames', action="callback",
-                        callback=opt_not_yet, type="string", dest="write_filenames",
-                        # help="Write all filenames examined into FILE."
-                        help=SUPPRESS_HELP)
-        self.add_option('-W', '--what-if', '--new-file', '--assume-new',
-                        dest="new_file",
-                        action="callback", callback=opt_not_yet, type="string",
-                        # help="Consider FILE to be changed."
-                        help=SUPPRESS_HELP)
-        self.add_option('--warn-undefined-variables', action="callback",
-                        callback=opt_not_yet,
-                        # help="Warn when an undefined variable is referenced."
-                        help=SUPPRESS_HELP)
-
-    def parse_args(self, args=None, values=None):
-        opt, arglist = OptionParser.parse_args(self, args, values)
-        if opt.implicit_deps_changed or opt.implicit_deps_unchanged:
-            opt.implicit_cache = 1
-        return opt, arglist
-
-class SConscriptSettableOptions:
-    """This class wraps an OptParser instance and provides
-    uniform access to options that can be either set on the command
-    line or from a SConscript file. A value specified on the command
-    line always overrides a value set in a SConscript file.
-    Not all command line options are SConscript settable, and the ones
-    that are must be explicitly added to settable dictionary and optionally
-    validated and coerced in the set() method."""
-    
-    def __init__(self, options):
-        self.options = options
-
-        # This dictionary stores the defaults for all the SConscript
-        # settable options, as well as indicating which options
-        # are SConscript settable (and gettable, which for options
-        # like 'help' is far more important than being settable). 
-        self.settable = {
-            'clean'             : 0,
-            'diskcheck'         : diskcheck_all,
-            'duplicate'         : 'hard-soft-copy',
-            'help'              : 0,
-            'implicit_cache'    : 0,
-            'max_drift'         : SCons.Node.FS.default_max_drift,
-            'num_jobs'          : 1,
-            'random'            : 0,
-        }
-
-    def get(self, name):
-        if not self.settable.has_key(name):
-            raise SCons.Errors.UserError, "This option is not settable from a SConscript file: %s"%name
-        if hasattr(self.options, name) and getattr(self.options, name) is not None:
-            return getattr(self.options, name)
-        else:
-            return self.settable[name]
-
-    def set(self, name, value):
-        if not self.settable.has_key(name):
-            raise SCons.Errors.UserError, "This option is not settable from a SConscript file: %s"%name
-
-        if name == 'num_jobs':
-            try:
-                value = int(value)
-                if value < 1:
-                    raise ValueError
-            except ValueError:
-                raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(value)
-        elif name == 'max_drift':
-            try:
-                value = int(value)
-            except ValueError:
-                raise SCons.Errors.UserError, "An integer is required: %s"%repr(value)
-        elif name == 'duplicate':
-            try:
-                value = str(value)
-            except ValueError:
-                raise SCons.Errors.UserError, "A string is required: %s"%repr(value)
-            if not value in SCons.Node.FS.Valid_Duplicates:
-                raise SCons.Errors.UserError, "Not a valid duplication style: %s" % value
-            # Set the duplicate stye right away so it can affect linking
-            # of SConscript files.
-            SCons.Node.FS.set_duplicate(value)
-        elif name == 'diskcheck':
-            try:
-                value = diskcheck_convert(value)
-            except ValueError, v:
-                raise SCons.Errors.UserError, "Not a valid diskcheck value: %s"%v
-            if not diskcheck_option_set:
-                SCons.Node.FS.set_diskcheck(value)
-
-        self.settable[name] = value
-    
-
-def _main(args, parser):
+def _main(parser):
     global exit_status
+
+    options = parser.values
 
     # Here's where everything really happens.
 
-    # First order of business:  set up default warnings and and then
-    # handle the user's warning options, so we can warn about anything
-    # that happens appropriately.
+    # First order of business:  set up default warnings and then
+    # handle the user's warning options, so that we can issue (or
+    # suppress) appropriate warnings about anything that might happen,
+    # as configured by the user.
+
     default_warnings = [ SCons.Warnings.CorruptSConsignWarning,
                          SCons.Warnings.DeprecatedWarning,
                          SCons.Warnings.DuplicateEnvironmentWarning,
                          SCons.Warnings.MissingSConscriptWarning,
                          SCons.Warnings.NoMD5ModuleWarning,
                          SCons.Warnings.NoMetaclassSupportWarning,
+                         SCons.Warnings.NoObjectCountWarning,
                          SCons.Warnings.NoParallelSupportWarning,
                          SCons.Warnings.MisleadingKeywordsWarning, ]
     for warning in default_warnings:
@@ -1067,8 +650,20 @@ def _main(args, parser):
     if options.warn:
         _setup_warn(options.warn)
 
+    # Now that we have the warnings configuration set up, we can actually
+    # issue (or suppress) any warnings about warning-worthy things that
+    # occurred while the command-line options were getting parsed.
+    try:
+        dw = options.delayed_warnings
+    except AttributeError:
+        pass
+    else:
+        delayed_warnings.extend(dw)
     for warning_type, message in delayed_warnings:
         SCons.Warnings.warn(warning_type, message)
+
+    if options.diskcheck:
+        SCons.Node.FS.set_diskcheck(options.diskcheck)
 
     # Next, we want to create the FS object that represents the outside
     # world's file system, as that's central to a lot of initialization.
@@ -1082,17 +677,11 @@ def _main(args, parser):
         except OSError:
             sys.stderr.write("Could not change directory to %s\n" % cdir)
 
-    # The SConstruct file may be in a repository, so initialize those
-    # before we start the search up our path for one.
-    global repositories
-    if options.repository:
-        repositories.extend(options.repository)
-
     target_top = None
     if options.climb_up:
         target_top = '.'  # directory to prepend to targets
         script_dir = os.getcwd()  # location of script
-        while script_dir and not _SConstruct_exists(script_dir):
+        while script_dir and not _SConstruct_exists(script_dir, options.repository):
             script_dir, last_part = os.path.split(script_dir)
             if last_part:
                 target_top = os.path.join(last_part, target_top)
@@ -1107,7 +696,7 @@ def _main(args, parser):
     # and make it the build engine default.
     fs = SCons.Node.FS.default_fs = SCons.Node.FS.FS()
 
-    for rep in repositories:
+    for rep in options.repository:
         fs.Repository(rep)
 
     # Now that we have the FS object, the next order of business is to
@@ -1117,7 +706,7 @@ def _main(args, parser):
     if options.file:
         scripts.extend(options.file)
     if not scripts:
-        sfile = _SConstruct_exists()
+        sfile = _SConstruct_exists(repositories=options.repository)
         if sfile:
             scripts.append(sfile)
 
@@ -1126,9 +715,7 @@ def _main(args, parser):
             # There's no SConstruct, but they specified -h.
             # Give them the options usage now, before we fail
             # trying to read a non-existent SConstruct file.
-            parser.print_help()
-            exit_status = 0
-            return
+            raise SConsPrintHelpException
         raise SCons.Errors.UserError, "No SConstruct file found."
 
     if scripts[0] == "-":
@@ -1137,16 +724,11 @@ def _main(args, parser):
         d = fs.File(scripts[0]).dir
     fs.set_SConstruct_dir(d)
 
-    # Now that we have the FS object and it's intialized, set up (most
-    # of) the rest of the options.
-    global ssoptions
-    ssoptions = SConscriptSettableOptions(options)
-
-    _set_globals(options)
+    _set_debug_values(options)
     SCons.Node.implicit_cache = options.implicit_cache
     SCons.Node.implicit_deps_changed = options.implicit_deps_changed
     SCons.Node.implicit_deps_unchanged = options.implicit_deps_unchanged
-    if options.noexec:
+    if options.no_exec:
         SCons.SConf.dryrun = 1
         SCons.Action.execute_actions = None
         CleanTask.execute = CleanTask.show
@@ -1185,18 +767,22 @@ def _main(args, parser):
     # read and execute have access to them.
     targets = []
     xmit_args = []
-    for a in args:
+    for a in parser.largs:
+        if a[0] == '-':
+            continue
         if '=' in a:
             xmit_args.append(a)
         else:
             targets.append(a)
-    SCons.Script._Add_Targets(targets)
+    SCons.Script._Add_Targets(targets + parser.rargs)
     SCons.Script._Add_Arguments(xmit_args)
 
     sys.stdout = SCons.Util.Unbuffered(sys.stdout)
 
     memory_stats.append('before reading SConscript files:')
     count_stats.append(('pre-', 'read'))
+
+    # And here's where we (finally) read the SConscript files.
 
     progress_display("scons: Reading SConscript files ...")
 
@@ -1215,37 +801,50 @@ def _main(args, parser):
         sys.exit(exit_status)
     global sconscript_time
     sconscript_time = time.time() - start_time
-    SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
-    progress_display("scons: done reading SConscript files.")
 
-    # Tell the Node.FS subsystem that we're all done reading the
-    # SConscript files and calling Repository() and BuildDir() and the
-    # like, so it can go ahead and start memoizing the string values of
-    # file system nodes.
-    SCons.Node.FS.save_strings(1)
+    progress_display("scons: done reading SConscript files.")
 
     memory_stats.append('after reading SConscript files:')
     count_stats.append(('post-', 'read'))
 
-    fs.chdir(fs.Top)
+    SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
 
-    if ssoptions.get('help'):
+    # Now re-parse the command-line options (any to the left of a '--'
+    # argument, that is) with any user-defined command-line options that
+    # the SConscript files may have added to the parser object.  This will
+    # emit the appropriate error message and exit if any unknown option
+    # was specified on the command line.
+
+    parser.preserve_unknown_options = False
+    parser.parse_args(parser.largs, options)
+
+    if options.help:
         help_text = SCons.Script.help_text
         if help_text is None:
             # They specified -h, but there was no Help() inside the
             # SConscript files.  Give them the options usage.
-            parser.print_help(sys.stdout)
+            raise SConsPrintHelpException
         else:
             print help_text
             print "Use scons -H for help about command-line options."
         exit_status = 0
         return
 
+    # Change directory to the top-level SConstruct directory, then tell
+    # the Node.FS subsystem that we're all done reading the SConscript
+    # files and calling Repository() and BuildDir() and changing
+    # directories and the like, so it can go ahead and start memoizing
+    # the string values of file system nodes.
+
+    fs.chdir(fs.Top)
+
+    SCons.Node.FS.save_strings(1)
+
     # Now that we've read the SConscripts we can set the options
     # that are SConscript settable:
-    SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
-    SCons.Node.FS.set_duplicate(ssoptions.get('duplicate'))
-    fs.set_max_drift(ssoptions.get('max_drift'))
+    SCons.Node.implicit_cache = options.implicit_cache
+    SCons.Node.FS.set_duplicate(options.duplicate)
+    fs.set_max_drift(options.max_drift)
 
     lookup_top = None
     if targets or SCons.Script.BUILD_TARGETS != SCons.Script._build_plus_default:
@@ -1324,18 +923,18 @@ def _main(args, parser):
     task_class = BuildTask      # default action is to build targets
     opening_message = "Building targets ..."
     closing_message = "done building targets."
-    if keep_going_on_error:
+    if options.keep_going:
         failure_message = "done building targets (errors occurred during build)."
     else:
         failure_message = "building terminated because of errors."
     if options.question:
         task_class = QuestionTask
     try:
-        if ssoptions.get('clean'):
+        if options.clean:
             task_class = CleanTask
             opening_message = "Cleaning targets ..."
             closing_message = "done cleaning targets."
-            if keep_going_on_error:
+            if options.keep_going:
                 closing_message = "done cleaning targets (errors occurred during clean)."
             else:
                 failure_message = "cleaning terminated because of errors."
@@ -1367,8 +966,12 @@ def _main(args, parser):
         tmtrace = None
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)
 
+    # Let the BuildTask objects get at the options to respond to the
+    # various print_* settings, tree_printer list, etc.
+    BuildTask.options = options
+
     global num_jobs
-    num_jobs = ssoptions.get('num_jobs')
+    num_jobs = options.num_jobs
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     if num_jobs > 1 and jobs.num_jobs == 1:
         msg = "parallel builds are unsupported by this version of Python;\n" + \
@@ -1381,26 +984,26 @@ def _main(args, parser):
     try:
         jobs.run()
     finally:
+        jobs.cleanup()
         if exit_status:
             progress_display("scons: " + failure_message)
         else:
             progress_display("scons: " + closing_message)
-        if not options.noexec:
+        if not options.no_exec:
             SCons.SConsign.write()
 
     memory_stats.append('after building targets:')
     count_stats.append(('post-', 'build'))
 
-def _exec_main():
+def _exec_main(parser, values):
     sconsflags = os.environ.get('SCONSFLAGS', '')
     all_args = string.split(sconsflags) + sys.argv[1:]
 
-    parser = OptParser()
-    global options
-    options, args = parser.parse_args(all_args)
+    options, args = parser.parse_args(all_args, values)
+
     if type(options.debug) == type([]) and "pdb" in options.debug:
         import pdb
-        pdb.Pdb().runcall(_main, args, parser)
+        pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
         from profile import Profile
 
@@ -1418,19 +1021,42 @@ def _exec_main():
 
         prof = Profile()
         try:
-            prof.runcall(_main, args, parser)
+            prof.runcall(_main, parser)
+        except SConsPrintHelpException, e:
+            prof.dump_stats(options.profile_file)
+            raise e
         except SystemExit:
             pass
         prof.dump_stats(options.profile_file)
     else:
-        _main(args, parser)
+        _main(parser)
 
 def main():
+    global OptionsParser
     global exit_status
     global first_command_start
+
+    parts = ["SCons by Steven Knight et al.:\n"]
+    try:
+        parts.append(version_string("script", __main__))
+    except KeyboardInterrupt:
+        raise
+    except:
+        # On Windows there is no scons.py, so there is no
+        # __main__.__version__, hence there is no script version.
+        pass 
+    parts.append(version_string("engine", SCons))
+    parts.append("__COPYRIGHT__")
+    version = string.join(parts, '')
+
+    import SConsOptions
+    parser = SConsOptions.Parser(version)
+    values = SConsOptions.SConsValues(parser.get_default_values())
+
+    OptionsParser = parser
     
     try:
-        _exec_main()
+        _exec_main(parser, values)
     except SystemExit, s:
         if s:
             exit_status = s
@@ -1443,6 +1069,9 @@ def main():
         _scons_internal_error()
     except SCons.Errors.UserError, e:
         _scons_user_error(e)
+    except SConsPrintHelpException:
+        parser.print_help()
+        exit_status = 0
     except:
         # An exception here is likely a builtin Python exception Python
         # code in an SConscript file.  Show them precisely what the
@@ -1472,7 +1101,10 @@ def main():
         if num_jobs == 1:
             ct = cumulative_command_time
         else:
-            ct = last_command_end - first_command_start
+            if last_command_end is None or first_command_start is None:
+                ct = 0.0
+            else:
+                ct = last_command_end - first_command_start
         scons_time = total_time - sconscript_time - ct
         print "Total build time: %f seconds"%total_time
         print "Total SConscript file execution time: %f seconds"%sconscript_time

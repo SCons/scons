@@ -108,8 +108,6 @@
 
       </para>
 
-      <para>
-
       <scons_example name="objects" printme="1">
         <file name="SConstruct" printme="1">
         Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])

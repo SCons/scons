@@ -60,11 +60,14 @@ test.write(['include', 'non_system_header1.h'], """
 """)
 
 conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
+SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
 
-test.run(arguments='--config=cache', status=2, stderr="""
+expect = """
 scons: *** "%(conftest_0_c)s" is not yet built and cache is forced.
-File "%(SConstruct_path)s", line 6, in ?
-""" % locals())
+%(SConstruct_file_line)s
+""" % locals()
+
+test.run(arguments='--config=cache', status=2, stderr=expect)
 
 test.run(arguments='--config=auto')
 test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",

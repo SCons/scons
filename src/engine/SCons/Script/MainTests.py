@@ -37,37 +37,9 @@ import SCons.Script.Main
 # have to reach into SCons.Script.Main for various classes or other bits
 # of private functionality.
 
-class SConscriptSettableOptionsTestCase(unittest.TestCase):
-
-    def setUp(self):
-        class fake_option:
-            pass
-        option = fake_option()
-        self.ssoptions = SCons.Script.Main.SConscriptSettableOptions(option)
-
-    def test_get(self):
-        """Test trying to get an option that is not SConscript-gettable"""
-        try:
-            self.ssoptions.get('memoizer')
-        except SCons.Errors.UserError:
-            pass
-        else:
-            raise ValueError, "expected a UserError trying to get('memoizer')"
-
-    def test_set(self):
-        """Test trying to set an option that is not SConscript-settable"""
-        try:
-            self.ssoptions.set('count', 1)
-        except SCons.Errors.UserError:
-            pass
-        else:
-            raise ValueError, "expected a UserError trying to set('count', 1)"
-
-
-
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ SConscriptSettableOptionsTestCase, ]
+    tclasses = []
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))

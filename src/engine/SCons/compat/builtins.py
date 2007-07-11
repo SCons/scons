@@ -35,6 +35,8 @@ the earliest ones we support.
 
 This module checks for the following __builtin__ names:
 
+        all()
+        any()
         bool()
         dict()
         True
@@ -56,6 +58,36 @@ to this version of Python and we don't need to add them from this module.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import __builtin__
+
+try:
+    all
+except NameError:
+    # Pre-2.5 Python has no all() function.
+    def all(iterable):
+        """
+        Returns True if all elements of the iterable are true.
+        """
+        for element in iterable:
+            if not element:
+                return False
+        return True
+    __builtin__.all = all
+    all = all
+
+try:
+    any
+except NameError:
+    # Pre-2.5 Python has no any() function.
+    def any(iterable):
+        """
+        Returns True if any element of the iterable is true.
+        """
+        for element in iterable:
+            if element:
+                return True
+        return False
+    __builtin__.any = any
+    any = any
 
 try:
     bool

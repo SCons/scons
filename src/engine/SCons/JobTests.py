@@ -121,7 +121,7 @@ class ExceptionTask:
         self.was_prepared = 1
 
     def execute(self):
-        raise "exception"
+        raise Exception
 
     def executed(self):
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
@@ -381,7 +381,7 @@ class badnode (goodnode):
         goodnode.__init__(self)
         self.expect_to_be = SCons.Node.failed
     def build(self, **kw):
-        raise 'badnode exception'
+        raise Exception, 'badnode exception'
 
 class slowbadnode (badnode):
     def build(self, **kw):
@@ -390,11 +390,11 @@ class slowbadnode (badnode):
         # it is faster than slowgoodnode then these could complete
         # while the scheduler is sleeping.
         time.sleep(0.05)
-        raise 'slowbadnode exception'
+        raise Exception, 'slowbadnode exception'
 
 class badpreparenode (badnode):
     def prepare(self):
-        raise 'badpreparenode exception'
+        raise Exception, 'badpreparenode exception'
 
 class _SConsTaskTest(unittest.TestCase):
 

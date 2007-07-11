@@ -572,6 +572,16 @@ class Base(SCons.Node.Node):
         self.cwd = None # will hold the SConscript directory for target nodes
         self.duplicate = directory.duplicate
 
+    def must_be_same(self, klass):
+        """
+        This node, which already existed, is being looked up as the
+        specified klass.  Raise an exception if it isn't.
+        """
+        if self.__class__ is klass or klass is Entry:
+            return
+        raise TypeError, "Tried to lookup %s '%s' as a %s." %\
+              (self.__class__.__name__, self.path, klass.__name__)
+
     def get_dir(self):
         return self.dir
 
@@ -668,8 +678,8 @@ class Base(SCons.Node.Node):
         name=self.name
         while dir:
             if dir.srcdir:
-                srcnode = self.fs.Entry(name, dir.srcdir,
-                                        klass=self.__class__)
+                srcnode = dir.srcdir.Entry(name)
+                srcnode.must_be_same(self.__class__)
                 return srcnode
             name = dir.name + os.sep + name
             dir = dir.up()
@@ -848,12 +858,13 @@ class Entry(Base):
         else:
             return self.get_contents()
 
-    def must_be_a_Dir(self):
+    def must_be_same(self, klass):
         """Called to make sure a Node is a Dir.  Since we're an
         Entry, we can morph into one."""
-        self.__class__ = Dir
-        self._morph()
-        return self
+        if not self.__class__ is klass:
+            self.__class__ = klass
+            self._morph()
+            self.clear
 
     # The following methods can get called before the Taskmaster has
     # had a chance to call disambiguate() directly to see if this Entry
@@ -1011,16 +1022,6 @@ class FS(LocalFS):
     def getcwd(self):
         return self._cwd
 
-    def __checkClass(self, node, klass):
-        if isinstance(node, klass) or klass == Entry:
-            return node
-        if node.__class__ == Entry:
-            node.__class__ = klass
-            node._morph()
-            return node
-        raise TypeError, "Tried to lookup %s '%s' as a %s." % \
-              (node.__class__.__name__, node.path, klass.__name__)
-        
     def _doLookup_key(self, fsclass, name, directory = None, create = 1):
         return (fsclass, name, directory)
 
@@ -1099,7 +1100,7 @@ class FS(LocalFS):
                 # We tried to look up the entry in either an Entry or
                 # a File.  Give whatever it is a chance to do what's
                 # appropriate: morph into a Dir or raise an exception.
-                directory.must_be_a_Dir()
+                directory.must_be_same(Dir)
                 entries = directory.entries
             try:
                 directory = entries[norm]
@@ -1117,7 +1118,7 @@ class FS(LocalFS):
                 directory.add_wkid(d)
                 directory = d
 
-        directory.must_be_a_Dir()
+        directory.must_be_same(Dir)
 
         try:
             e = directory.entries[last_norm]
@@ -1135,7 +1136,8 @@ class FS(LocalFS):
             directory.entries[last_norm] = result 
             directory.add_wkid(result)
         else:
-            result = self.__checkClass(e, fsclass)
+            e.must_be_same(fsclass)
+            result = e
 
         memo_dict[memo_key] = result
 
@@ -1151,15 +1153,18 @@ class FS(LocalFS):
         If directory is None, and name is a relative path,
         then the same applies.
         """
-        if not SCons.Util.is_String(name):
-            # This handles cases where the object is a Proxy wrapping
-            # a Node.FS.File object (e.g.).  It would be good to handle
-            # this more directly some day by having the callers of this
-            # function recognize that a Proxy can be treated like the
-            # underlying object (that is, get rid of the isinstance()
-            # calls that explicitly look for a Node.FS.Base object).
+        try:
+            # Decide if this is a top-relative look up.  The normal case
+            # (by far) is handed a non-zero-length string to look up,
+            # so just (try to) check for the initial '#'.
+            top_relative = (name[0] == '#')
+        except (AttributeError, IndexError):
+            # The exceptions we may encounter in unusual cases:
+            #   AttributeError: a proxy without a __getitem__() method.
+            #   IndexError: a null string.
+            top_relative = False
             name = str(name)
-        if name and name[0] == '#':
+        if top_relative:
             directory = self.Top
             name = name[1:]
             if name and (name[0] == os.sep or name[0] == '/'):
@@ -1199,7 +1204,8 @@ class FS(LocalFS):
             klass = Entry
 
         if isinstance(name, Base):
-            return self.__checkClass(name, klass)
+            name.must_be_same(klass)
+            return name
         else:
             if directory and not isinstance(directory, Dir):
                 directory = self.Dir(directory)
@@ -1628,11 +1634,6 @@ class Dir(Base):
     def entry_tpath(self, name):
         return self.tpath + os.sep + name
 
-    def must_be_a_Dir(self):
-        """Called to make sure a Node is a Dir.  Since we're already
-        one, this is a no-op for us."""
-        return self
-
     def entry_exists_on_disk(self, name):
         try:
             d = self.on_disk_entries
@@ -1777,6 +1778,11 @@ class RootDir(Dir):
         self.tpath = name + os.sep
         self._morph()
 
+    def must_be_same(self, klass):
+        if klass is Dir:
+            return
+        Base.must_be_same(self, klass)
+
     def __str__(self):
         return self.abspath
 
@@ -1856,14 +1862,25 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         as dependency info.  Convert the strings to actual Nodes (for
         use by the --debug=explain code and --implicit-cache).
         """
-        Entry_func = self.node.dir.Entry
+        def str_to_node(s, entry=self.node.dir.Entry):
+            # This is a little bogus; we're going to mimic the lookup
+            # order of env.arg2nodes() by hard-coding an Alias lookup
+            # before we assume it's an Entry.  This should be able to
+            # go away once the Big Signature Refactoring pickles the
+            # actual NodeInfo object, which will let us know precisely
+            # what type of Node to turn it into.
+            import SCons.Node.Alias
+            n = SCons.Node.Alias.default_ans.lookup(s)
+            if not n:
+                n = entry(s)
+            return n
         for attr in ['bsources', 'bdepends', 'bimplicit']:
             try:
                 val = getattr(self, attr)
             except AttributeError:
                 pass
             else:
-                setattr(self, attr, map(Entry_func, val))
+                setattr(self, attr, map(str_to_node, val))
     def format(self):
         result = [ self.ninfo.format() ]
         bkids = self.bsources + self.bdepends + self.bimplicit
@@ -1899,12 +1916,12 @@ class File(Base):
     def Entry(self, name):
         """Create an entry node named 'name' relative to
         the SConscript directory of this file."""
-        return self.fs.Entry(name, self.cwd)
+        return self.cwd.Entry(name)
 
     def Dir(self, name):
         """Create a directory node named 'name' relative to
         the SConscript directory of this file."""
-        return self.fs.Dir(name, self.cwd)
+        return self.cwd.Dir(name)
 
     def Dirs(self, pathlist):
         """Create a list of directories relative to the SConscript
@@ -1914,7 +1931,7 @@ class File(Base):
     def File(self, name):
         """Create a file node named 'name' relative to
         the SConscript directory of this file."""
-        return self.fs.File(name, self.cwd)
+        return self.cwd.File(name)
 
     #def generate_build_dict(self):
     #    """Return an appropriate dictionary of values for building
@@ -2032,7 +2049,7 @@ class File(Base):
 
         Note that there's a special trick here with the execute flag
         (one that's not normally done for other actions).  Basically
-        if the user requested a noexec (-n) build, then
+        if the user requested a no_exec (-n) build, then
         SCons.Action.execute_actions is set to 0 and when any action
         is called, it does its showing but then just returns zero
         instead of actually calling the action execution operation.
@@ -2333,11 +2350,6 @@ class File(Base):
         subdir = string.upper(cache_sig[0])
         dir = os.path.join(self.fs.CachePath, subdir)
         return dir, os.path.join(dir, cache_sig)
-
-    def must_be_a_Dir(self):
-        """Called to make sure a Node is a Dir.  Since we're already a
-        File, this is a TypeError..."""
-        raise TypeError, "Tried to lookup File '%s' as a Dir." % self.path
 
 default_fs = None
 

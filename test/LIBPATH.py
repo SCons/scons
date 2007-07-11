@@ -45,7 +45,7 @@ env1 = Environment(LIBS = [ 'foo1' ],
                    LIBPATH = [ '$FOO' ],
                    FOO='./lib1')
 
-f1 = env1.Object('f1', 'f1.c')
+f1 = env1.SharedObject('f1', 'f1.c')
 
 env1.Program(target = 'prog', source = 'prog.c')
 env1.Library(target = './lib1/foo1', source = f1)
@@ -127,7 +127,7 @@ test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
                   LIBPATH = [ './lib1', './lib2' ])
 
-f1 = env1.Object('f1', 'f1.c')
+f1 = env1.SharedObject('f1', 'f1.c')
 
 env1.Program(target = 'prog', source = 'prog.c')
 env1.Library(target = './lib1/foo1', source = f1)

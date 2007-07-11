@@ -70,6 +70,18 @@ def num(s, match):
 def within_tolerance(expected, actual, tolerance):
     return abs((expected-actual)/actual) <= tolerance
 
+def get_total_time(stdout):
+    return num(stdout, r'Total build time: (\d+\.\d+) seconds')
+
+def get_sconscript_time(stdout):
+    return num(stdout, r'Total SConscript file execution time: (\d+\.\d+) seconds')
+
+def get_scons_time(stdout):
+    return num(stdout, r'Total SCons execution time: (\d+\.\d+) seconds')
+
+def get_command_time(stdout):
+    return num(stdout, r'Total command execution time: (\d+\.\d+) seconds')
+
 
 
 # Try to make our results a little more accurate and repeatable by
@@ -99,10 +111,10 @@ expected_command_time = reduce(lambda x, y: x + y, times, 0.0)
 
 stdout = test.stdout()
 
-total_time      = num(stdout, r'Total build time: (\d+\.\d+) seconds')
-sconscript_time = num(stdout, r'Total SConscript file execution time: (\d+\.\d+) seconds')
-scons_time      = num(stdout, r'Total SCons execution time: (\d+\.\d+) seconds')
-command_time    = num(stdout, r'Total command execution time: (\d+\.\d+) seconds')
+total_time      = get_total_time(stdout)
+sconscript_time = get_sconscript_time(stdout)
+scons_time      = get_scons_time(stdout)
+command_time    = get_command_time(stdout)
 
 failures = []
 
@@ -133,6 +145,13 @@ if failures:
     print string.join([test.stdout()] + failures, '\n')
     test.fail_test(1)
 
+test.run(arguments = "--debug=time . SLEEP=0")
+
+command_time = get_command_time(test.stdout())
+if command_time != 0.0:
+    print "Up-to-date run received non-zero command time of %s" % command_time
+    test.fail_test()
+
 
 
 test.run(arguments = "-c")
@@ -143,10 +162,10 @@ test.run(arguments = "-j4 --debug=time . SLEEP=1")
 
 stdout = test.stdout()
 
-total_time      = num(stdout, r'Total build time: (\d+\.\d+) seconds')
-sconscript_time = num(stdout, r'Total SConscript file execution time: (\d+\.\d+) seconds')
-scons_time      = num(stdout, r'Total SCons execution time: (\d+\.\d+) seconds')
-command_time    = num(stdout, r'Total command execution time: (\d+\.\d+) seconds')
+total_time      = get_total_time(stdout)
+sconscript_time = get_sconscript_time(stdout)
+scons_time      = get_scons_time(stdout)
+command_time    = get_command_time(stdout)
 
 failures = []
 
@@ -161,6 +180,13 @@ outside of the 1%% tolerance.
 if failures:
     print string.join([test.stdout()] + failures, '\n')
     test.fail_test(1)
+
+test.run(arguments = "-j4 --debug=time . SLEEP=1")
+
+command_time = get_command_time(test.stdout())
+if command_time != 0.0:
+    print "Up-to-date run received non-zero command time of %s" % command_time
+    test.fail_test()
 
 
 test.pass_test()

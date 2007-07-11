@@ -85,13 +85,13 @@ if moc:
 
     expect = """
 scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
-File "%s", line \d+, in \?
+File "%s", line \d+, in (\?|<module>)
 """ % (qtdir, re.escape(SConstruct_path))
 else:
 
-    expect = """
+    expect = r"""
 scons: warning: Could not detect qt, using empty QTDIR
-File "%s", line \d+, in \?
+File "%s", line \d+, in (\?|<module>)
 """ % re.escape(SConstruct_path)
 
 test.fail_test(not test.match_re(test.stderr(), expect))

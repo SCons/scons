@@ -80,8 +80,7 @@ check([test.workpath()])
 
 expect_stderr = """
 scons: *** Path does not exist for option x11: /non/existing/path/
-File "%(SConstruct_path)s", line 10, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 10)
 
 test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
 

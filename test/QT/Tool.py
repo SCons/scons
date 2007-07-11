@@ -30,13 +30,19 @@ works properly.  This was broken in 0.96.95.
 
 The configuration here is a moderately stripped-down version of the
 real-world configuration for lprof (lprof.sourceforge.net).  It's probably
-not completely minimal, but we're leaving it as since it represents a
+not completely minimal, but we're leaving it as-is since it represents a
 good real-world sanity check on the interaction of some key subsystems.
 """
+
+import os
 
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+if not os.environ.get('QTDIR', None):
+    x ="External environment variable $QTDIR not set; skipping test(s).\n"
+    test.skip_test(x)
 
 test.write('SConstruct', """
 import os
