@@ -329,13 +329,39 @@ exit_status = 0 # exit status, assume success by default
 num_jobs = None
 delayed_warnings = []
 
-OptionsParser = None
+class FakeOptionParser:
+    """
+    A do-nothing option parser, used for the initial OptionsParser variable.
+
+    During normal SCons operation, the OptionsParser is created right
+    away by the main() function.  Certain tests scripts however, can
+    introspect on different Tool modules, the initialization of which
+    can try to add a new, local option to an otherwise uninitialized
+    OptionsParser object.  This allows that introspection to happen
+    without blowing up.
+
+    """
+    class FakeOptionValues:
+        def __getattr__(self, attr):
+            return None
+    values = FakeOptionValues()
+    def add_local_option(self, *args, **kw):
+        pass
+
+OptionsParser = FakeOptionParser()
 
 def AddOption(*args, **kw):
     if not kw.has_key('default'):
         kw['default'] = None
     result = apply(OptionsParser.add_local_option, args, kw)
     return result
+
+def GetOption(name):
+    return getattr(OptionsParser.values, name)
+
+def SetOption(name, value):
+    return OptionsParser.values.set_option(name, value)
+
 #
 class Stats:
     def __init__(self):

@@ -106,7 +106,10 @@ CleanTask               = Main.CleanTask
 QuestionTask            = Main.QuestionTask
 #PrintHelp               = Main.PrintHelp
 #SConscriptSettableOptions = Main.SConscriptSettableOptions
+
 AddOption               = Main.AddOption
+GetOption               = Main.GetOption
+SetOption               = Main.SetOption
 
 #keep_going_on_error     = Main.keep_going_on_error
 #print_dtree             = Main.print_dtree
@@ -271,12 +274,10 @@ GlobalDefaultEnvironmentFunctions = [
     'Exit',
     'Export',
     'GetLaunchDir',
-    'GetOption',
     'Help',
     'Import',
     #'SConscript', is handled separately, below.
     'SConscriptChdir',
-    'SetOption',
 
     # Methods from the Environment.Base class.
     'AddPostAction',
