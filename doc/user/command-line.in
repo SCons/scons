@@ -978,7 +978,7 @@
 
       <para>
 
-      Other values that equate to &true; include
+      Other values that equate to &false; include
       <literal>n</literal>,
       <literal>0</literal>,
       <literal>off</literal>
