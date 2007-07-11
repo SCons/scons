@@ -25,44 +25,57 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that setting illegal construction variables fails in ways that are
-useful to the user.
+Verify a lot of the basic operation of the --debug=explain option.
 """
 
 import TestSCons
 
+_python_ = TestSCons._python_
+
 test = TestSCons.TestSCons()
 
-SConstruct_path = test.workpath('SConstruct')
-SConscript_path = test.workpath('SConscript')
+args = '--debug=explain target2.dat'
 
-test.write(SConstruct_path, """\
+test.subdir('src')
+test.write(['src', 'SConstruct'],"""
 env = Environment()
-env['foo-bar'] = 1
+
+def action( source, target, env ):
+    f = open( str(target[0]), 'w' )
+    f.write( source[0].get_contents())
+    f.close()
+
+builder = env.Builder( action=action )
+
+builder( env, target = "target1.dat", source = "source1.dat" )
+alias = env.Alias( "alias", "source2.dat" )
+builder( env, target = "target2.dat", source = ["target1.dat"] )
+env.Depends( "target2.dat", alias )
+"""
+)
+
+test.write(["src", "source1.dat"], "a" )
+test.write(["src", "source2.dat"], "a" )
+
+expect = test.wrap_stdout("""\
+scons: building `target1.dat' because it doesn't exist
+action(["target1.dat"], ["source1.dat"])
+scons: building `target2.dat' because it doesn't exist
+action(["target2.dat"], ["target1.dat"])
 """)
 
-expect_stderr = """
-scons: *** Illegal construction variable `foo-bar'
-""" + test.python_file_line(SConstruct_path, 2)
+test.run(chdir='src', arguments=args, stdout=expect)
 
-test.run(arguments='.', status=2, stderr=expect_stderr)
+test.write(["src", "source1.dat"], "b" )
 
-
-
-test.write(SConstruct_path, """\
-SConscript('SConscript')
+expect = test.wrap_stdout("""\
+scons: rebuilding `target1.dat' because `source1.dat' changed
+action(["target1.dat"], ["source1.dat"])
+scons: rebuilding `target2.dat' because `target1.dat' changed
+action(["target2.dat"], ["target1.dat"])
 """)
 
-test.write('SConscript', """\
-env = Environment()
-env['foo(bar)'] = 1
-""")
+test.run(chdir='src', arguments=args, stdout=expect)
 
-
-expect_stderr = """
-scons: *** Illegal construction variable `foo(bar)'
-""" + test.python_file_line(SConscript_path, 2)
-
-test.run(arguments='.', status=2, stderr=expect_stderr)
 
 test.pass_test()

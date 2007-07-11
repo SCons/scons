@@ -76,6 +76,9 @@ class Jobs:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
             raise
 
+    def cleanup(self):
+        self.job.cleanup()
+
 class Serial:
     """This class is used to execute tasks in series, and is more efficient
     than Parallel, but is only appropriate for non-parallel builds. Only
@@ -122,6 +125,8 @@ class Serial:
 
             task.postprocess()
 
+    def cleanup(self):
+        pass
 
 # Trap import failure so that everything in the Job module but the
 # Parallel class (and its dependent classes) will work if the interpreter
@@ -148,6 +153,12 @@ else:
             while 1:
                 task = self.requestQueue.get()
 
+                if not task:
+                    # The "None" value is used as a sentinel by
+                    # ThreadPool.cleanup().  This indicates that there
+                    # are no more tasks, so we should quit.
+                    break
+
                 try:
                     task.execute()
                 except KeyboardInterrupt:
@@ -170,8 +181,10 @@ else:
             self.resultsQueue = Queue.Queue(0)
 
             # Create worker threads
+            self.workers = []
             for _ in range(num):
-                Worker(self.requestQueue, self.resultsQueue)
+                worker = Worker(self.requestQueue, self.resultsQueue)
+                self.workers.append(worker)
 
         def put(self, obj):
             """Put task into request queue."""
@@ -182,7 +195,36 @@ else:
             return self.resultsQueue.get(block)
 
         def preparation_failed(self, obj):
-            self.resultsQueue.put((obj, 0))
+            self.resultsQueue.put((obj, False))
+
+        def cleanup(self):
+            """
+            Shuts down the thread pool, giving each worker thread a
+            chance to shut down gracefully.
+            """
+            # For each worker thread, put a sentinel "None" value
+            # on the requestQueue (indicating that there's no work
+            # to be done) so that each worker thread will get one and
+            # terminate gracefully.
+            for _ in self.workers:
+                self.requestQueue.put(None)
+
+            # Wait for all of the workers to terminate.
+            # 
+            # If we don't do this, later Python versions (2.4, 2.5) often
+            # seem to raise exceptions during shutdown.  This happens
+            # in requestQueue.get(), as an assertion failure that
+            # requestQueue.not_full is notified while not acquired,
+            # seemingly because the main thread has shut down (or is
+            # in the process of doing so) while the workers are still
+            # trying to pull sentinels off the requestQueue.
+            #
+            # Normally these terminations should happen fairly quickly,
+            # but we'll stick a one-second timeout on here just in case
+            # someone gets hung.
+            for worker in self.workers:
+                worker.join(1.0)
+            self.workers = []
 
     class Parallel:
         """This class is used to execute tasks in parallel, and is somewhat 
@@ -261,3 +303,6 @@ else:
 
                     if self.tp.resultsQueue.empty():
                         break
+
+        def cleanup(self):
+            self.tp.cleanup()

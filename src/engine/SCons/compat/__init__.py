@@ -98,6 +98,20 @@ except NameError:
     import sets
     __builtin__.set = sets.Set
 
+# If we need the compatibility version of textwrap, it  must be imported
+# before optparse, which uses it.
+try:
+    import textwrap
+except ImportError:
+    # Pre-2.3 Python has no textwrap module.
+    import_as('_scons_textwrap', 'textwrap')
+
+try:
+    import optparse
+except ImportError:
+    # Pre-2.3 Python has no optparse module.
+    import_as('_scons_optparse', 'optparse')
+
 try:
     import subprocess
 except ImportError:

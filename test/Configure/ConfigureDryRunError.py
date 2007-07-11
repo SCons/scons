@@ -57,20 +57,24 @@ if not (r1 and not r2):
  Exit(1)
 """ % (lib))
 
-test.run(arguments='-n', status=2, stderr="""
+expect = """
 scons: *** Cannot create configure directory ".sconf_temp" within a dry-run.
-File "%(SConstruct_path)s", line 5, in ?
-""" % locals())
+""" + test.python_file_line(SConstruct_path, 5)
+
+test.run(arguments='-n', status=2, stderr=expect)
 
 test.must_not_exist('config.log')
 test.subdir('.sconf_temp')
 
 conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
+SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
 
-test.run(arguments='-n', status=2, stderr="""
+expect = """
 scons: *** Cannot update configure test "%(conftest_0_c)s" within a dry-run.
-File "%(SConstruct_path)s", line 6, in ?
-""" % locals())
+%(SConstruct_file_line)s
+""" % locals()
+
+test.run(arguments='-n', status=2, stderr=expect)
 
 test.run()
 test.checkLogAndStdout( ["Checking for C library %s... " % lib,

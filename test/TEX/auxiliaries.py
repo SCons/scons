@@ -123,9 +123,8 @@ pdf_output_1 = test.read(['build', 'docs', 'test.pdf'])
 ps_output_1 = test.read(['build', 'docs', 'test.ps'])
 
 # Adding blank lines will cause SCons to re-run the builds, but the
-# actual contents of the output files shouldn't be any different.
-# This assumption won't work if it's ever used with a toolchain that does
-# something to the output like put a commented-out timestamp in a header.
+# actual contents of the output files should be the same modulo
+# the CreationDate header.
 test.write(['docs', 'test.tex'], tex_input + "\n\n\n")
 
 test.run(stderr=None)
@@ -133,7 +132,14 @@ test.run(stderr=None)
 pdf_output_2 = test.read(['build', 'docs', 'test.pdf'])
 ps_output_2 = test.read(['build', 'docs', 'test.ps'])
 
-test.fail_test(pdf_output_1 != pdf_output_2)
-test.fail_test(ps_output_1 != ps_output_2)
+
+
+pdf_output_1 = test.normalize_pdf(pdf_output_1)
+pdf_output_2 = test.normalize_pdf(pdf_output_2)
+
+assert pdf_output_1 == pdf_output_2,    test.diff_substr(pdf_output_1, pdf_output_2, 80, 80)
+assert ps_output_1 == ps_output_2,      test.diff_substr(ps_output_1, ps_output_2, 80, 80)
+
+
 
 test.pass_test()

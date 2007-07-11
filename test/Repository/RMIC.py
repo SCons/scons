@@ -47,7 +47,7 @@ if not where_javac:
     test.skip_test("Could not find Java javac, skipping test(s).\n")
 
 if test.detect_tool('rmic', ENV=ENV):
-    where_rmic = test.detect('JAVAC', 'rmic', ENV=ENV)
+    where_rmic = test.detect('RMIC', 'rmic', ENV=ENV)
 else:
     where_rmic = test.where_is('rmic')
 if not where_rmic:

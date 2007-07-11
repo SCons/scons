@@ -60,24 +60,33 @@ import SCons.Script
 SCons.Script.BuildTask
 SCons.Script.CleanTask
 SCons.Script.QuestionTask
-#SCons.Script.PrintHelp
-SCons.Script.OptParser
-SCons.Script.SConscriptSettableOptions
 
-SCons.Script.keep_going_on_error
-#SCons.Script.print_dtree
-SCons.Script.print_explanations
-SCons.Script.print_includes
-SCons.Script.print_objects
-SCons.Script.print_time
-#SCons.Script.print_tree
-SCons.Script.memory_stats
-SCons.Script.ignore_errors
-#SCons.Script.sconscript_time
-#SCons.Script.command_time
-#SCons.Script.exit_status
-#SCons.Script.profiling
-SCons.Script.repositories
+old_SCons_Script_variables = [
+    'PrintHelp',
+    'OptParser',
+    'keep_going_on_error',
+    'print_explanations',
+    'print_includes',
+    'print_objects',
+    'print_time',
+    'memory_stats',
+    'ignore_errors',
+    'repositories',
+    'print_dtree',
+    'print_tree',
+    'sconscript_time',
+    'command_time',
+    'exit_status',
+    'profiling',
+]
+
+for var in old_SCons_Script_variables:
+    try:
+        getattr(SCons.Script, var)
+    except AttributeError:
+        pass
+    else:
+        raise Exception, "unexpected variable SCons.Script.%s" % var
 """)
 
 test.write("m4.py", """\

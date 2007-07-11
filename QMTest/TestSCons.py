@@ -80,7 +80,7 @@ def gccFortranLibs():
     for l in stderr.readlines():
         list = string.split(l)
         if len(list) > 3 and list[:2] == ['gcc', 'version']:
-            if list[2][:2] == '3.':
+            if list[2][:2] in ('3.', '4.'):
                 libs = ['frtbegin'] + libs
                 break
     return libs
@@ -304,14 +304,15 @@ class TestSCons(TestCommon):
             # we call test.no_result().
             self.no_result(skip=1)
 
-    def diff_substr(self, expect, actual):
+    def diff_substr(self, expect, actual, prelen=20, postlen=40):
         i = 0
         for x, y in zip(expect, actual):
             if x != y:
                 return "Actual did not match expect at char %d:\n" \
                        "    Expect:  %s\n" \
                        "    Actual:  %s\n" \
-                       % (i, repr(expect[i-20:i+40]), repr(actual[i-20:i+40]))
+                       % (i, repr(expect[i-prelen:i+postlen]),
+                             repr(actual[i-prelen:i+postlen]))
             i = i + 1
         return "Actual matched the expected output???"
 
@@ -336,6 +337,13 @@ class TestSCons(TestCommon):
         x = string.replace(x, '<string>', file)
         x = string.replace(x, 'line 1,', 'line %s,' % line)
         return x
+
+    def normalize_pdf(self, s):
+        s = re.sub(r'/CreationDate \(D:[^)]*\)',
+                   r'/CreationDate (D:XXXX)', s)
+        s = re.sub(r'/ID \[<[0-9a-fA-F]*> <[0-9a-fA-F]*>\]',
+                   r'/ID [<XXXX> <XXXX>]', s)
+        return s
 
     def java_ENV(self):
         """
@@ -384,6 +392,7 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
+    a = string.replace(a, '\\\\', '\\\\\\\\')
     subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
     if impl:
         contents = re.sub( r'#include.*', '', contents )
@@ -445,7 +454,11 @@ void my_qt_symbol(const char *arg) {
 
         self.write([dir, 'lib', 'SConstruct'], r"""
 env = Environment()
-env.SharedLibrary( 'myqt', 'my_qobject.cpp' )
+import sys
+if sys.platform == 'win32':
+    env.StaticLibrary( 'myqt', 'my_qobject.cpp' )
+else:
+    env.SharedLibrary( 'myqt', 'my_qobject.cpp' )
 """)
 
         self.run(chdir = self.workpath(dir, 'lib'),

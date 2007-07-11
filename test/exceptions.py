@@ -39,7 +39,7 @@ SConstruct_path = test.workpath('SConstruct')
 
 test.write(SConstruct_path, """\
 def func(source = None, target = None, env = None):
-    raise "func exception"
+    raise Exception, "func exception"
 B = Builder(action = func)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
@@ -55,8 +55,8 @@ Traceback \((most recent call|innermost) last\):
 )*(  File ".+", line \d+, in \S+
     [^\n]+
 )*  File "%s", line 2, in func
-    raise "func exception"
-func exception
+    raise Exception, "func exception"
+Exception: func exception
 """ % re.escape(SConstruct_path)
 
 test.run(arguments = "foo.out", stderr = expected_stderr, status = 2)

@@ -25,44 +25,46 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that setting illegal construction variables fails in ways that are
-useful to the user.
+Verify the help text when the AddOption() function is used (and when
+it's not).
 """
+
+import string
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-SConstruct_path = test.workpath('SConstruct')
-SConscript_path = test.workpath('SConscript')
-
-test.write(SConstruct_path, """\
+test.write('SConstruct', """\
 env = Environment()
-env['foo-bar'] = 1
+AddOption('--force',
+          action="store_true",
+          help='force installation (overwrite any existing files)')
+AddOption('--prefix',
+          nargs=1,
+          dest='prefix',
+          action='store',
+          type='string',
+          metavar='DIR',
+          help='installation prefix')
+f = GetOption('force')
+if f:
+    f = "True"
+print f
+print GetOption('prefix')
 """)
 
-expect_stderr = """
-scons: *** Illegal construction variable `foo-bar'
-""" + test.python_file_line(SConstruct_path, 2)
+test.run('-Q -q .',
+         stdout="None\nNone\n")
 
-test.run(arguments='.', status=2, stderr=expect_stderr)
+test.run('-Q -q . --force',
+         stdout="True\nNone\n")
 
+test.run('-Q -q . --prefix=/home/foo',
+         stdout="None\n/home/foo\n")
 
-
-test.write(SConstruct_path, """\
-SConscript('SConscript')
-""")
-
-test.write('SConscript', """\
-env = Environment()
-env['foo(bar)'] = 1
-""")
-
-
-expect_stderr = """
-scons: *** Illegal construction variable `foo(bar)'
-""" + test.python_file_line(SConscript_path, 2)
-
-test.run(arguments='.', status=2, stderr=expect_stderr)
+test.run('-Q -q . -- --prefix=/home/foo --force',
+         status=1,
+         stdout="None\nNone\n")
 
 test.pass_test()

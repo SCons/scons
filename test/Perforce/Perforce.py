@@ -40,6 +40,8 @@ class TestPerforce(TestSCons.TestSCons):
     def __init__(self, *args, **kw):
         apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
 
+        self.p4d = None
+
         self.p4path = self.where_is('p4')
         if not self.p4path:
             self.skip_test("Could not find 'p4'; skipping test(s).\n")

@@ -36,6 +36,9 @@ RELEASE 0.97.X - XXX
   - Support {Get,Set}Option('random') so random-dependency interaction
     with CacheDir() is controllable from SConscript files.
 
+  - Add a new AddOption() function to support user-defined command-
+    line flags (like --prefix=, --force, etc.).
+
   - Push and retrieve built symlinks to/from a CacheDir() as actual
     symlinks, not by copying the file contents.
 
@@ -55,6 +58,9 @@ RELEASE 0.97.X - XXX
     for adding a new method, respectively, to a construction environment
     or an arbitrary object (such as a class).
 
+  - Fix the --debug=time option when the -j option is specified and all
+    files are up to date.
+
   From Leanid Nazdrynau:
 
   - When applying Tool modules after a construction environment has
@@ -65,6 +71,11 @@ RELEASE 0.97.X - XXX
 
   - Find Java anonymous classes when the next token after the name is
     an open parenthesis.
+
+  From Adam Simpkins:
+
+  - Allow worker threads to terminate gracefully when all jobs are
+    finished.
 
   From Sohail Somani:
 

@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test SWIG behavior with a live, installed SWIG.
 """
 
+import os.path
 import string
 import sys
 
@@ -73,6 +74,14 @@ if sys.platform == 'darwin':
     # (see top of file for further explanation)
     frameworks = '-framework Python'
     platform_sys_prefix = '/System/Library/Frameworks/Python.framework/Versions/%s/' % version
+
+python_include_dir = os.path.join(platform_sys_prefix,
+                                  'include',
+                                  'python' + version)
+Python_h = os.path.join(python_include_dir, 'Python.h')
+
+if not os.path.exists(Python_h):
+    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
     
 test.write("wrapper.py",
 """import os
@@ -84,7 +93,7 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
+                  CPPPATH='%(python_include_dir)s/',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   FRAMEWORKSFLAGS='%(frameworks)s',
@@ -108,6 +117,12 @@ test.write("foo.i", """\
 %module foo
 %{
 /* Put header files here (optional) */
+/*
+ * This duplication shouldn't be necessary, I guess, but it seems
+ * to suppress "cast to pointer from integer of different size"
+ * warning messages on some systems.
+ */
+extern char *foo_string();
 %}
 
 extern char *foo_string();
@@ -125,6 +140,12 @@ test.write("bar.i", """\
 %module \t bar
 %{
 /* Put header files here (optional) */
+/*
+ * This duplication shouldn't be necessary, I guess, but it seems
+ * to suppress "cast to pointer from integer of different size"
+ * warning messages on some systems.
+ */
+extern char *bar_string();
 %}
 
 extern char *bar_string();

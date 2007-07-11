@@ -78,8 +78,7 @@ check([str(False), str(True)])
 expect_stderr = """
 scons: *** Error converting option: warnings
 Invalid value for boolean option: irgendwas
-File "%(SConstruct_path)s", line 9, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 9)
 
 test.run(arguments='warnings=irgendwas', stderr = expect_stderr, status=2)
 

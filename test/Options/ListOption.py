@@ -96,8 +96,7 @@ check(['gl,qt', '0', 'gl qt', 'gl qt'])
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 14)
 
 test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 
@@ -106,32 +105,28 @@ test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 14)
 
 test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 14)
 
 test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 14)
 
 test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo,bar
-File "%(SConstruct_path)s", line 14, in ?
-""" % locals()
+""" + test.python_file_line(SConstruct_path, 14)
 
 test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
 

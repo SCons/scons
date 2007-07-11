@@ -31,6 +31,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from __future__ import nested_scopes
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import getopt
@@ -42,6 +44,34 @@ import string
 import sys
 import tempfile
 import time
+
+try:
+    False
+except NameError:
+    # Pre-2.2 Python has no False keyword.
+    import __builtin__
+    __builtin__.False = not 1
+
+try:
+    True
+except NameError:
+    # Pre-2.2 Python has no True keyword.
+    import __builtin__
+    __builtin__.True = not 0
+
+def make_temp_file(**kw):
+    try:
+        result = tempfile.mktemp(**kw)
+    except TypeError:
+        try:
+            save_template = tempfile.template
+            prefix = kw['prefix']
+            del kw['prefix']
+            tempfile.template = prefix
+            result = tempfile.mktemp(**kw)
+        finally:
+            tempfile.template = save_template
+    return result
 
 class Plotter:
     def increment_size(self, largest):
@@ -751,13 +781,13 @@ class SConsTimer:
             elif o in ('-?', '-h', '--help'):
                 self.do_help(['help', 'func'])
                 sys.exit(0)
-            elif o in ('--max'):
+            elif o in ('--max',):
                 max_time = int(a)
             elif o in ('-p', '--prefix'):
                 self.prefix = a
             elif o in ('-t', '--tail'):
                 tail = int(a)
-            elif o in ('--title'):
+            elif o in ('--title',):
                 self.title = a
 
         if self.config_file:
@@ -870,14 +900,14 @@ class SConsTimer:
                 sys.exit(0)
             elif o in ('-p', '--prefix'):
                 self.prefix = a
-            elif o in ('--stage'):
+            elif o in ('--stage',):
                 if not a in self.stages:
                     sys.stderr.write('%s: mem: Unrecognized stage "%s".\n' % (self.name, a))
                     sys.exit(1)
                 stage = a
             elif o in ('-t', '--tail'):
                 tail = int(a)
-            elif o in ('--title'):
+            elif o in ('--title',):
                 self.title = a
 
         if self.config_file:
@@ -982,7 +1012,7 @@ class SConsTimer:
                 sys.exit(0)
             elif o in ('-p', '--prefix'):
                 self.prefix = a
-            elif o in ('--stage'):
+            elif o in ('--stage',):
                 if not a in self.stages:
                     sys.stderr.write('%s: obj: Unrecognized stage "%s".\n' % (self.name, a))
                     sys.stderr.write('%s       Type "%s help obj" for help.\n' % (self.name_spaces, self.name))
@@ -990,7 +1020,7 @@ class SConsTimer:
                 stage = a
             elif o in ('-t', '--tail'):
                 tail = int(a)
-            elif o in ('--title'):
+            elif o in ('--title',):
                 self.title = a
 
         if not args:
@@ -1103,7 +1133,7 @@ class SConsTimer:
         opts, args = getopt.getopt(argv[1:], short_opts, long_opts)
 
         for o, a in opts:
-            if o in ('--aegis'):
+            if o in ('--aegis',):
                 self.aegis_project = a
             elif o in ('-f', '--file'):
                 self.config_file = a
@@ -1112,19 +1142,19 @@ class SConsTimer:
                 sys.exit(0)
             elif o in ('-n', '--no-exec'):
                 self.execute = self._do_not_execute
-            elif o in ('--number'):
+            elif o in ('--number',):
                 run_number_list = self.split_run_numbers(a)
-            elif o in ('--outdir'):
+            elif o in ('--outdir',):
                 self.outdir = a
             elif o in ('-p', '--prefix'):
                 self.prefix = a
-            elif o in ('--python'):
+            elif o in ('--python',):
                 self.python = a
             elif o in ('-q', '--quiet'):
                 self.display = self._do_not_display
             elif o in ('-s', '--subdir'):
                 self.subdir = a
-            elif o in ('--scons'):
+            elif o in ('--scons',):
                 self.scons = a
             elif o in ('--svn', '--subversion'):
                 self.subversion_url = a
@@ -1179,7 +1209,7 @@ class SConsTimer:
         return os.path.join(dir, 'src', 'engine')
 
     def prep_aegis_run(self, commands, removals):
-        self.aegis_tmpdir = tempfile.mktemp(prefix = self.name + '-aegis-')
+        self.aegis_tmpdir = make_temp_file(prefix = self.name + '-aegis-')
         removals.append((shutil.rmtree, 'rm -rf %%s', self.aegis_tmpdir))
 
         self.aegis_parent_project = os.path.splitext(self.aegis_project)[0]
@@ -1194,7 +1224,7 @@ class SConsTimer:
         ])
 
     def prep_subversion_run(self, commands, removals):
-        self.svn_tmpdir = tempfile.mktemp(prefix = self.name + '-svn-')
+        self.svn_tmpdir = make_temp_file(prefix = self.name + '-svn-')
         removals.append((shutil.rmtree, 'rm -rf %%s', self.svn_tmpdir))
 
         self.scons = self.scons_path(self.svn_tmpdir)
@@ -1248,7 +1278,7 @@ class SConsTimer:
         if self.targets2 is None:
             self.targets2 = self.targets
 
-        self.tmpdir = tempfile.mktemp(prefix = self.name + '-')
+        self.tmpdir = make_temp_file(prefix = self.name + '-')
 
         commands.extend([
             'mkdir %(tmpdir)s',
@@ -1364,9 +1394,9 @@ class SConsTimer:
                 self.prefix = a
             elif o in ('-t', '--tail'):
                 tail = int(a)
-            elif o in ('--title'):
+            elif o in ('--title',):
                 self.title = a
-            elif o in ('--which'):
+            elif o in ('--which',):
                 if not a in self.time_strings.keys():
                     sys.stderr.write('%s: time: Unrecognized timer "%s".\n' % (self.name, a))
                     sys.stderr.write('%s  Type "%s help time" for help.\n' % (self.name_spaces, self.name))

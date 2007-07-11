@@ -179,8 +179,8 @@ if moc:
 
     qtdir = os.path.dirname(os.path.dirname(moc))
 
-    qt_err = """
-scons: warning: Could not detect qt, using moc executable as a hint (QTDIR=%(qtdir)s)
+    qt_err = r"""
+scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%(qtdir)s\)
 """ % locals()
 
 else:
