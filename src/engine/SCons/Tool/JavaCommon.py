@@ -36,6 +36,8 @@ import string
 
 java_parsing = 1
 
+default_java_version = '1.4'
+
 if java_parsing:
     # Parse Java files for class names.
     #
@@ -59,12 +61,20 @@ if java_parsing:
     class OuterState:
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
-        def __init__(self):
+        def __init__(self, version=default_java_version):
+
+            if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6'):
+                msg = "Java version %s not supported" % version
+                raise NotImplementedError, msg
+
+            self.version = version
             self.listClasses = []
             self.listOutputs = []
             self.stackBrackets = []
             self.brackets = 0
             self.nextAnon = 1
+            self.stackAnonClassBrackets = []
+            self.anonStacksStack = [[0]]
             self.package = None
 
         def trace(self):
@@ -102,6 +112,9 @@ if java_parsing:
                 ret = SkipState(1, self)
                 self.skipState = ret
                 return ret
+        
+        def __getAnonStack(self):
+            return self.anonStacksStack[-1]
 
         def openBracket(self):
             self.brackets = self.brackets + 1
@@ -112,7 +125,12 @@ if java_parsing:
                self.brackets == self.stackBrackets[-1]:
                 self.listOutputs.append(string.join(self.listClasses, '$'))
                 self.listClasses.pop()
+                self.anonStacksStack.pop()
                 self.stackBrackets.pop()
+            if len(self.stackAnonClassBrackets) and \
+               self.brackets == self.stackAnonClassBrackets[-1]:
+                self.__getAnonStack().pop()
+                self.stackAnonClassBrackets.pop()
 
         def parseToken(self, token):
             if token[:2] == '//':
@@ -146,9 +164,20 @@ if java_parsing:
 
         def addAnonClass(self):
             """Add an anonymous inner class"""
-            clazz = self.listClasses[0]
-            self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
+            if self.version in ('1.1', '1.2', '1.3', '1.4'):
+                clazz = self.listClasses[0]
+                self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
+            elif self.version in ('1.5', '1.6'):
+                self.stackAnonClassBrackets.append(self.brackets)
+                className = []
+                className.extend(self.listClasses)
+                self.__getAnonStack()[-1] = self.__getAnonStack()[-1] + 1
+                for anon in self.__getAnonStack():
+                    className.append(str(anon))
+                self.listOutputs.append(string.join(className, '$'))
+
             self.nextAnon = self.nextAnon + 1
+            self.__getAnonStack().append(0)
 
         def setPackage(self, package):
             self.package = package
@@ -208,6 +237,7 @@ if java_parsing:
             if token == '\n':
                 return self
             self.outer_state.listClasses.append(token)
+            self.outer_state.anonStacksStack.append([0])
             return self.outer_state
 
     class IgnoreState:
@@ -231,15 +261,15 @@ if java_parsing:
             self.outer_state.setPackage(token)
             return self.outer_state
 
-    def parse_java_file(fn):
-        return parse_java(open(fn, 'r').read())
+    def parse_java_file(fn, version=default_java_version):
+        return parse_java(open(fn, 'r').read(), version)
 
-    def parse_java(contents, trace=None):
+    def parse_java(contents, version=default_java_version, trace=None):
         """Parse a .java file and return a double of package directory,
         plus a list of .class files that compiling that .java file will
         produce"""
         package = None
-        initial = OuterState()
+        initial = OuterState(version)
         currstate = initial
         for token in _reToken.findall(contents):
             # The regex produces a bunch of groups, but only one will

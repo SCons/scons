@@ -83,19 +83,21 @@ def _scanSwig(node, env, path):
 def _swigEmitter(target, source, env):
     for src in source:
         src = str(src)
-        mname = None
         flags = SCons.Util.CLVar(env.subst("$SWIGFLAGS"))
+        mnames = None
         if "-python" in flags and "-noproxy" not in flags:
-            f = open(src)
-            try:
-                for l in f.readlines():
-                    m = _reModule.match(l)
-                    if m:
-                        mname = m.group(1)
-            finally:
-                f.close()
-            if mname is not None:
-                target.append(mname + ".py")
+            if mnames is None:
+                mnames = _reModule.findall(open(src).read())
+            target.extend(map(lambda m: m + ".py", mnames))
+        if "-java" in flags:
+            if mnames is None:
+                mnames = _reModule.findall(open(src).read())
+            java_files = map(lambda m: [m + ".java", m + "JNI.java"], mnames)
+            java_files = SCons.Util.flatten(java_files)
+            outdir = env.subst('$SWIGOUTDIR')
+            if outdir:
+                 java_files = map(lambda j, o=outdir: os.path.join(o, j), java_files)
+            target.extend(java_files)
     return (target, source)
 
 def generate(env):
@@ -114,7 +116,8 @@ def generate(env):
     env['SWIGFLAGS']         = SCons.Util.CLVar('')
     env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
     env['SWIGCXXFILESUFFIX'] = '_wrap$CXXFILESUFFIX'
-    env['SWIGCOM']           = '$SWIG $SWIGFLAGS -o $TARGET $SOURCES'
+    env['_SWIGOUTDIR']       = '${"-outdir " + SWIGOUTDIR}'
+    env['SWIGCOM']           = '$SWIG -o $TARGET ${_SWIGOUTDIR} $SWIGFLAGS $SOURCES'
     env.Append(SCANNERS=Scanner(function=_scanSwig, skeys=[".i"]))
 
 def exists(env):

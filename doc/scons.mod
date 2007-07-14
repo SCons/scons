@@ -47,6 +47,7 @@
 <!ENTITY SCons          "<application>SCons</application>">
 <!ENTITY scons          "<application>scons</application>">
 <!ENTITY ScCons         "<application>ScCons</application>">
+<!ENTITY swig           "<application>swig</application>">
 <!ENTITY tar            "<application>tar</application>">
 <!ENTITY tex            "<application>tex</application>">
 <!ENTITY touch          "<application>touch</application>">

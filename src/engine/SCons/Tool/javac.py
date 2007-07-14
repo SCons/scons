@@ -71,7 +71,8 @@ def emit_java_classes(target, source, env):
 
     tlist = []
     for f in slist:
-        pkg_dir, classes = parse_java_file(f.get_abspath())
+        version = env.get('JAVAVERSION', '1.4')
+        pkg_dir, classes = parse_java_file(f.get_abspath(), version)
         if pkg_dir:
             for c in classes:
                 t = target[0].Dir(pkg_dir).File(c+class_suffix)

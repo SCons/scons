@@ -25,61 +25,41 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that SWIG implicit dependencies are caught.
+Verify that use of the $SWIGOUTDIR variable causes SCons to recognize
+that Java files are created in the specified output directory.
 """
-
-import sys
 
 import TestSCons
 
-if sys.platform =='darwin':
-    # change to make it work with stock OS X python framework
-    # we can't link to static libpython because there isn't one on OS X
-    # so we link to a framework version. However, testing must also
-    # use the same version, or else you get interpreter errors.
-    python = "/System/Library/Frameworks/Python.framework/Versions/Current/bin/python"
-    _python_ = '"' + python + '"'
-else:
-    python = TestSCons.python
-    _python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
-swig = test.where_is('swig')
+test.write(['SConstruct'], """\
+env = Environment(tools = ['default', 'swig'])
 
-if not swig:
-    test.skip_test('Can not find installed "swig", skipping test.\n')
-
-
-
-version = sys.version[:3] # see also sys.prefix documentation
-
-
-test.write("dependency.i", """\
-%module dependency
-""")
-
-test.write("dependent.i", """\
-%module dependent
-
-%include dependency.i
-""")
-
-test.write('SConstruct', """
-foo = Environment(SWIGFLAGS='-python')
-swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
-foo.CFile(target = 'dependent', source = ['dependent.i'])
+Java_foo_interface = env.SharedLibrary(
+    'Java_foo_interface', 
+    'Java_foo_interface.i', 
+    SWIGOUTDIR = 'java/build',
+    SWIGFLAGS = '-c++ -java -Wall',
+    SWIGCXXFILESUFFIX = "_wrap.cpp")
 """ % locals())
 
-test.run()
-
-test.write("dependency.i", """%module dependency
-
-extern char *dependency_string();
+test.write('Java_foo_interface.i', """\
+%module foopack
 """)
 
-test.not_up_to_date(arguments = "dependent_wrap.c")
+# SCons should realize that it needs to create the java/build
+# subdirectory to hold the generate .java files.
+test.run(arguments = '.')
+
+# SCons should remove the built .java files.
+test.run(arguments = '-c java/build/foopack.java java/build/foopackJNI.java')
+
+test.must_not_exist('java/build/foopackJNI.java')
+test.must_not_exist('java/build/foopack.java') 
+
+# SCons should realize it needs to rebuild the removed .java files.
+test.not_up_to_date(arguments = '.')
 
 
 
