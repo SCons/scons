@@ -466,6 +466,7 @@ class SubstTestCase(unittest.TestCase):
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
                 "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
+                "AttributeError `'Foo' instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
             ]
             assert str(e) in expect, e
         else:
@@ -985,6 +986,7 @@ class SubstTestCase(unittest.TestCase):
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
                 "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
+                "AttributeError `'Foo' instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
             ]
             assert str(e) in expect, e
         else:

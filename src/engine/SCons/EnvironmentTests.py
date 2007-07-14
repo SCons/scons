@@ -1499,13 +1499,13 @@ def exists(env):
         env['CLVar'] = CLVar([])
         env.AppendUnique(CLVar = 'bar')
         result = env['CLVar']
-        if sys.version[0] == '1':
-            # Python 1.5.2 has a quirky behavior where CLVar([]) actually
-            # matches '' and [] due to different __coerce__() semantics
-            # in the UserList implementation.  It isn't worth a lot of
-            # effort to get this corner case to work identically (support
-            # for Python 1.5 support will die soon anyway), so just treat
-            # it separately for now.
+        if sys.version[0] == '1' or sys.version[:3] == '2.0':
+            # Python 2.0 and before have a quirky behavior where CLVar([])
+            # actually matches '' and [] due to different __coerce__()
+            # semantics in the UserList implementation.  It isn't worth a
+            # lot of effort to get this corner case to work identically
+            # (support for Python 1.5 support will die soon anyway),
+            # so just treat it separately for now.
             assert result == 'bar', result
         else:
             assert isinstance(result, CLVar), repr(result)
@@ -2125,13 +2125,13 @@ f5: \
         env['CLVar'] = CLVar([])
         env.PrependUnique(CLVar = 'bar')
         result = env['CLVar']
-        if sys.version[0] == '1':
-            # Python 1.5.2 has a quirky behavior where CLVar([]) actually
-            # matches '' and [] due to different __coerce__() semantics
-            # in the UserList implementation.  It isn't worth a lot of
-            # effort to get this corner case to work identically (support
-            # for Python 1.5 support will die soon anyway), so just treat
-            # it separately for now.
+        if sys.version[0] == '1' or sys.version[:3] == '2.0':
+            # Python 2.0 and before have a quirky behavior where CLVar([])
+            # actually matches '' and [] due to different __coerce__()
+            # semantics in the UserList implementation.  It isn't worth a
+            # lot of effort to get this corner case to work identically
+            # (support for Python 1.5 support will die soon anyway),
+            # so just treat it separately for now.
             assert result == 'bar', result
         else:
             assert isinstance(result, CLVar), repr(result)

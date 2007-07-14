@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test Java compilation with a live "javac" compiler.
+Test Java compilation with a live Java 1.5 "javac" compiler.
 """
 
 import os
@@ -39,6 +39,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 ENV = test.java_ENV()
+ENV['PATH'] = '/usr/lib/jvm/java-1.5.0-sun-1.5.0.11/bin' + os.pathsep + os.environ['PATH']
 
 if test.detect_tool('javac', ENV=ENV):
     where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
@@ -51,6 +52,7 @@ if not where_javac:
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac'],
+                  JAVAVERSION = '1.5',
                   JAVAC = r'%(where_javac)s')
 env.Java(target = 'class1', source = 'com/sub/foo')
 env.Java(target = 'class2', source = 'com/sub/bar')
@@ -308,16 +310,16 @@ expect_3 = [
     test.workpath('class3', 'Listener.class'),
     test.workpath('class3', 'Private$1.class'),
     test.workpath('class3', 'Private.class'),
+    test.workpath('class3', 'Test$1$1.class'),
     test.workpath('class3', 'Test$1.class'),
-    test.workpath('class3', 'Test$2.class'),
-    test.workpath('class3', 'Test$3.class'),
+    test.workpath('class3', 'Test$Inner$1.class'),
     test.workpath('class3', 'Test$Inner.class'),
     test.workpath('class3', 'Test.class'),
 ]
 
 expect_4 = [
+    test.workpath('class4', 'NestedExample$1$1.class'),
     test.workpath('class4', 'NestedExample$1.class'),
-    test.workpath('class4', 'NestedExample$2.class'),
     test.workpath('class4', 'NestedExample.class'),
 ]
 
@@ -325,6 +327,8 @@ expect_5 = [
     test.workpath('class5', 'Foo.class'),
     test.workpath('class5', 'TestSCons.class'),
 ]
+
+failed = None
 
 def classes_must_match(dir, expect, got):
     if expect != got:
@@ -334,13 +338,15 @@ def classes_must_match(dir, expect, got):
         sys.stderr.write("Got the following class files in '%s':\n" % dir)
         for c in got:
             sys.stderr.write('    %s\n' % c)
-        test.fail_test()
+        failed = 1
 
 classes_must_match('class1', expect_1, classes_1)
 classes_must_match('class2', expect_2, classes_2)
 classes_must_match('class3', expect_3, classes_3)
 classes_must_match('class4', expect_4, classes_4)
 
-test.up_to_date(arguments = '.')
+test.fail_test(failed)
+
+test.up_to_date(options='--debug=explain', arguments = '.')
 
 test.pass_test()

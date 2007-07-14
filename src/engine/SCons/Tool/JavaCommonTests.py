@@ -30,9 +30,9 @@ import unittest
 import SCons.Tool.JavaCommon
 
 
-# Adding this trace to any of the calls below to the parse_java() method
-# will cause the parser to spit out trace messages of the tokens it sees
-# and state transitions.
+# Adding trace=trace to any of the parse_jave() calls below will cause
+# the parser to spit out trace messages of the tokens it sees and the
+# attendant transitions.
 
 def trace(token, newstate):
     from SCons.Debug import Trace
@@ -44,7 +44,7 @@ class parse_javaTestCase(unittest.TestCase):
     def test_bare_bones(self):
         """Test a bare-bones class"""
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 package com.sub.bar;
 
 public class Foo
@@ -59,7 +59,8 @@ public class Foo
      }
 
 }
-""")
+"""
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == os.path.join('com', 'sub', 'bar'), pkg_dir
         assert classes == ['Foo'], classes
 
@@ -67,7 +68,7 @@ public class Foo
     def test_inner_classes(self):
         """Test parsing various forms of inner classes"""
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 class Empty {
 }
 
@@ -132,8 +133,9 @@ class Private {
     };
   }
 }
-""")
-    
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.4')
         assert pkg_dir is None, pkg_dir
         expect = [
                    'Empty',
@@ -150,11 +152,29 @@ class Private {
                  ]
         assert classes == expect, classes
 
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
+        assert pkg_dir is None, pkg_dir
+        expect = [
+                   'Empty',
+                   'Listener',
+                   'Test$Inner$1',
+                   'Test$Inner',
+                   'Test$Inner2',
+                   'Test$Inner3',
+                   'Test$1',
+                   'Test$1$1',
+                   'Test',
+                   'Private$1',
+                   'Private',
+                 ]
+        assert classes == expect, (expect, classes)
+
+
 
     def test_comments(self):
         """Test a class with comments"""
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 package com.sub.foo;
 
 import java.rmi.Naming;
@@ -189,8 +209,9 @@ public class Example1 extends UnicastRemoteObject implements Hello {
         }
     }
 }
-""")
+"""
 
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == os.path.join('com', 'sub', 'foo'), pkg_dir
         assert classes == ['Example1'], classes
 
@@ -198,7 +219,7 @@ public class Example1 extends UnicastRemoteObject implements Hello {
     def test_arrays(self):
         """Test arrays of class instances"""
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 public class Test {
     MyClass abc = new MyClass();
     MyClass xyz = new MyClass();
@@ -207,41 +228,18 @@ public class Test {
         xyz
     }
 }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == None, pkg_dir
         assert classes == ['Test'], classes
 
-
-# This test comes from bug report #1197470:
-#
-#    http://sourceforge.net/tracker/index.php?func=detail&aid=1194740&group_id=30337&atid=398971
-#
-# I've captured it here so that someone with a better grasp of Java syntax
-# and the parse_java() state machine can uncomment it and fix it some day.
-#
-#    def test_arrays_in_decls(self):
-#        """Test how arrays in method declarations affect class detection"""
-#
-#        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
-#public class A {
-#    public class B{
-#        public void F(Object[] o) {
-#            F(new Object[] {Object[].class});
-#        }
-#        public void G(Object[] o) {
-#            F(new Object[] {});
-#        }
-#    }
-#}
-#""")
-#        assert pkg_dir == None, pkg_dir
-#        assert classes == ['A$B', 'A'], classes
 
 
     def test_backslash(self):
         """Test backslash handling"""
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 public class MyTabs
 {
         private class MyInternal
@@ -249,7 +247,9 @@ public class MyTabs
         }
         private final static String PATH = "images\\\\";
 }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == None, pkg_dir
         assert classes == ['MyTabs$MyInternal', 'MyTabs'], classes
 
@@ -257,17 +257,20 @@ public class MyTabs
     def test_enum(self):
         """Test the Java 1.5 enum keyword"""
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 package p;
 public enum a {}
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == 'p', pkg_dir
         assert classes == ['a'], classes
 
 
     def test_anon_classes(self):
         """Test anonymous classes"""
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+
+        input = """\
 public abstract class TestClass
 {
     public void completed()
@@ -281,14 +284,17 @@ public abstract class TestClass
         }.start();
     }
 }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == None, pkg_dir
         assert classes == ['TestClass$1', 'TestClass$2', 'TestClass'], classes
 
 
     def test_closing_bracket(self):
         """Test finding a closing bracket instead of an anonymous class"""
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+
+        input = """\
 class TestSCons {
     public static void main(String[] args) {
         Foo[] fooArray = new Foo[] { new Foo() };
@@ -296,14 +302,17 @@ class TestSCons {
 }
 
 class Foo { }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == None, pkg_dir
         assert classes == ['TestSCons', 'Foo'], classes
 
 
     def test_dot_class_attributes(self):
         """Test handling ".class" attributes"""
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+
+        input = """\
 public class Test extends Object
 {
     static {
@@ -311,10 +320,12 @@ public class Test extends Object
         Object[] s = new Object[] {};
     }
 }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert classes == ['Test'], classes
 
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+        input = """\
 public class A {
     public class B {
         public void F(Object[] o) {
@@ -325,13 +336,16 @@ public class A {
         }
     }
 }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
         assert pkg_dir == None, pkg_dir
         assert classes == ['A$B', 'A'], classes
 
     def test_anonymous_classes_with_parentheses(self):
         """Test finding anonymous classes marked by parentheses"""
-        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+
+        input = """\
 import java.io.File;
 
 public class Foo {
@@ -349,9 +363,60 @@ public class Foo {
         };
     }
 }
-""")
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.4')
         assert classes == ['Foo$1', 'Foo$2', 'Foo'], classes
 
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
+        assert classes == ['Foo$1', 'Foo$1$1', 'Foo'], classes
+
+
+
+    def test_nested_anonymous_inner_classes(self):
+        """Test finding nested anonymous inner classes"""
+
+        input = """\
+// import java.util.*;
+
+public class NestedExample
+{
+        public NestedExample()
+        {
+                Thread t = new Thread() {
+                        public void start()
+                        {
+                                Thread t = new Thread() {
+                                        public void start()
+                                        {
+                                                try {Thread.sleep(200);}
+                                                catch (Exception e) {}
+                                        }
+                                };
+                                while (true)
+                                {
+                                        try {Thread.sleep(200);}
+                                        catch (Exception e) {}
+                                }
+                        }
+                };
+        }
+
+
+        public static void main(String argv[])
+        {
+                NestedExample e = new NestedExample();
+        }
+}
+"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.4')
+        expect = [ 'NestedExample$1', 'NestedExample$2', 'NestedExample' ]
+        assert expect == classes, (expect, classes)
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
+        expect = [ 'NestedExample$1', 'NestedExample$1$1', 'NestedExample' ]
+        assert expect == classes, (expect, classes)
 
 
 

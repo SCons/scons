@@ -99,6 +99,11 @@ foo = Environment(SWIGFLAGS='-python',
                   FRAMEWORKSFLAGS='%(frameworks)s',
                   )
 
+import sys
+if sys.version[0] == '1':
+    # SWIG requires the -classic flag on pre-2.0 Python versions.
+    foo.Append(SWIGFLAGS = ' -classic')
+
 swig = foo.Dictionary('SWIG')
 bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
 foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
