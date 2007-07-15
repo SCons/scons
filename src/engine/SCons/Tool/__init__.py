@@ -15,7 +15,7 @@ tool definition.
 
 #
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -88,8 +88,11 @@ class Tool:
         module = self._tool_module()
         self.generate = module.generate
         self.exists = module.exists
+        if hasattr(module, 'options'):
+            self.options = module.options
 
     def _tool_module(self):
+        # TODO: Interchange zipimport with normal initilization for better error reporting
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
 
@@ -102,6 +105,8 @@ class Tool:
                     if file:
                         file.close()
             except ImportError, e:
+                if str(e)!="No module named %s"%self.name:
+                    raise SCons.Errors.EnvironmentError, e
                 try:
                     import zipimport
                 except ImportError:
@@ -130,6 +135,8 @@ class Tool:
                         file.close()
                     return module
                 except ImportError, e:
+                    if e!="No module named %s"%self.name:
+                        raise SCons.Errors.EnvironmentError, e
                     try:
                         import zipimport
                         importer = zipimport.zipimporter( sys.modules['SCons.Tool'].__path__[0] )
@@ -138,10 +145,10 @@ class Tool:
                         return module
                     except ImportError, e:
                         m = "No tool named '%s': %s" % (self.name, e)
-                        raise SCons.Errors.UserError, m
+                        raise SCons.Errors.EnvironmentError, m
             except ImportError, e:
                 m = "No tool named '%s': %s" % (self.name, e)
-                raise SCons.Errors.UserError, m
+                raise SCons.Errors.EnvironmentError, m
 
     def __call__(self, env, *args, **kw):
         if self.init_kw is not None:
@@ -154,6 +161,16 @@ class Tool:
             else:
                 kw = self.init_kw
         env.Append(TOOLS = [ self.name ])
+        if hasattr(self, 'options'):
+            from SCons.Options import Options
+            if not env.has_key('options'):
+                from SCons.Script import ARGUMENTS
+                env['options']=Options(args=ARGUMENTS)
+            opts=env['options']
+
+            self.options(opts)
+            opts.Update(env)
+
         apply(self.generate, ( env, ) + args, kw)
 
     def __str__(self):
@@ -341,7 +358,7 @@ def FindAllTools(tools, env):
     def ToolExists(tool, env=env):
         return Tool(tool).exists(env)
     return filter (ToolExists, tools)
-             
+
 def tool_list(platform, env):
 
     # XXX this logic about what tool to prefer on which platform
@@ -415,11 +432,11 @@ def tool_list(platform, env):
         ars = ['ar', 'mslib']
 
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]
- 
+
     # XXX this logic about what tool provides what should somehow be
     #     moved into the tool files themselves.
     if c_compiler and c_compiler == 'mingw':
-        # MinGW contains a linker, C compiler, C++ compiler, 
+        # MinGW contains a linker, C compiler, C++ compiler,
         # Fortran compiler, archiver and assembler:
         cxx_compiler = None
         linker = None
@@ -439,6 +456,7 @@ def tool_list(platform, env):
 
     other_tools = FindAllTools(['BitKeeper', 'CVS',
                                 'dmd',
+                                'install', 'filesystem',
                                 'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac', 'javah',
                                 'latex', 'lex',
@@ -449,11 +467,11 @@ def tool_list(platform, env):
                                 # 'Subversion',
                                 'swig',
                                 'tar', 'tex',
-                                'yacc', 'zip'],
+                                'yacc', 'zip', 'rpm', 'wix'],
                                env)
 
     tools = ([linker, c_compiler, cxx_compiler,
               fortran_compiler, assembler, ar]
              + other_tools)
-    
+
     return filter(lambda x: x, tools)

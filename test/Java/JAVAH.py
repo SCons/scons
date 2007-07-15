@@ -122,7 +122,7 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
 test.write('SConstruct', """
-foo = Environment(tools = ['javac', 'javah'],
+foo = Environment(tools = ['javac', 'javah', 'install'],
                   JAVAC = r'%(where_javac)s',
                   JAVAH = r'%(where_javah)s')
 javah = foo.Dictionary('JAVAH')

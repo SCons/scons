@@ -48,6 +48,9 @@ class UserError(Exception):
 class StopError(Exception):
     pass
 
+class EnvironmentError(Exception):
+    pass
+
 class ExplicitExit(Exception):
     def __init__(self, node=None, status=None, *args):
         self.node = node

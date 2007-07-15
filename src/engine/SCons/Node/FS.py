@@ -488,7 +488,7 @@ class EntryProxy(SCons.Util.Proxy):
 
     def __get_dir(self):
         return EntryProxy(self.get().dir)
-    
+
     dictSpecialAttrs = { "base"     : __get_base_path,
                          "posix"    : __get_posix_path,
                          "windows"  : __get_windows_path,
@@ -543,7 +543,7 @@ class Base(SCons.Node.Node):
 
     def __init__(self, name, directory, fs):
         """Initialize a generic Node.FS.Base object.
-        
+
         Call the superclass initialization, take care of setting up
         our relative and absolute paths, identify our parent
         directory, and indicate that this node should use
@@ -842,7 +842,7 @@ class Entry(Base):
 
     def get_contents(self):
         """Fetch the contents of the entry.
-        
+
         Since this should return the real contents from the file
         system, we check to see into what sort of subclass we should
         morph this Entry."""
@@ -898,7 +898,7 @@ class LocalFS:
 
     if SCons.Memoize.use_memoizer:
         __metaclass__ = SCons.Memoize.Memoized_Metaclass
-    
+
     # This class implements an abstraction layer for operations involving
     # a local file system.  Essentially, this wraps any function in
     # the os, os.path or shutil modules that we use to actually go do
@@ -1009,7 +1009,7 @@ class FS(LocalFS):
         self.Top.path = '.'
         self.Top.tpath = '.'
         self._cwd = self.Top
-    
+
     def set_SConstruct_dir(self, dir):
         self.SConstruct_dir = dir
 
@@ -1091,7 +1091,7 @@ class FS(LocalFS):
 
         last_orig = path_orig.pop()     # strip last element
         last_norm = path_norm.pop()     # strip last element
-            
+
         # Lookup the directory
         for orig, norm in map(None, path_orig, path_norm):
             try:
@@ -1133,7 +1133,7 @@ class FS(LocalFS):
             # disk where we just created a File node, and vice versa.
             result.diskcheck_match()
 
-            directory.entries[last_norm] = result 
+            directory.entries[last_norm] = result
             directory.add_wkid(result)
         else:
             e.must_be_same(fsclass)
@@ -1211,7 +1211,7 @@ class FS(LocalFS):
                 directory = self.Dir(directory)
             name, directory = self._transformPath(name, directory)
             return self._doLookup(klass, name, directory, create)
-    
+
     def File(self, name, directory = None, create = 1):
         """Lookup or create a File node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
@@ -1223,7 +1223,7 @@ class FS(LocalFS):
         specified path.
         """
         return self.Entry(name, directory, create, File)
-    
+
     def Dir(self, name, directory = None, create = 1):
         """Lookup or create a Dir node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
@@ -1235,11 +1235,11 @@ class FS(LocalFS):
         specified path.
         """
         return self.Entry(name, directory, create, Dir)
-    
+
     def BuildDir(self, build_dir, src_dir, duplicate=1):
         """Link the supplied build directory to the source directory
         for purposes of building files."""
-        
+
         if not isinstance(src_dir, SCons.Node.Node):
             src_dir = self.Dir(src_dir)
         if not isinstance(build_dir, SCons.Node.Node):
@@ -1377,7 +1377,7 @@ class Dir(Base):
                         pass
                     if duplicate != None:
                         node.duplicate=duplicate
-    
+
     def __resetDuplicate(self, node):
         if node != self:
             node.duplicate = node.get_dir().duplicate
@@ -1388,7 +1388,8 @@ class Dir(Base):
 
     def Dir(self, name):
         """Create a directory node named 'name' relative to this directory."""
-        return self.fs.Dir(name, self)
+        dir = self.fs.Dir(name, self)
+        return dir
 
     def File(self, name):
         """Create a file node named 'name' relative to this directory."""
@@ -1484,7 +1485,7 @@ class Dir(Base):
 
             path_elems = ['..'] * (len(self.path_elements) - i) \
                          + map(lambda n: n.name, other.path_elements[i:])
-             
+
             result = string.join(path_elems, os.sep)
 
         memo_dict[other] = result
@@ -2154,7 +2155,7 @@ class File(Base):
     def _rmv_existing(self):
         self.clear_memoized_values()
         Unlink(self, [], None)
-        
+
     def prepare(self):
         """Prepare for this file to be created."""
         SCons.Node.Node.prepare(self)

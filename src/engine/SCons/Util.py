@@ -951,6 +951,23 @@ class Unbuffered:
     def __getattr__(self, attr):
         return getattr(self.file, attr)
 
+def make_path_relative(path):
+    """ makes an absolute path name to a relative pathname.
+    """
+    if os.path.isabs(path):
+        drive_s,path = os.path.splitdrive(path)
+
+        import re
+        if not drive_s:
+            path=re.compile("/*(.*)").findall(path)[0]
+        else:
+            path=path[1:]
+
+    assert( not os.path.isabs( path ) ), path
+    return path
+
+
+
 # The original idea for AddMethod() and RenameFunction() come from the
 # following post to the ActiveState Python Cookbook:
 #
@@ -1024,5 +1041,7 @@ def RenameFunction(function, name):
                         function.func_globals,
                         name,
                         func_defaults)
+
+
 
 del __revision__

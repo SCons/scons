@@ -67,7 +67,7 @@ class ToolTestCase(unittest.TestCase):
 
         try:
             p = SCons.Tool.Tool('_does_not_exist_')
-        except SCons.Errors.UserError:
+        except SCons.Errors.EnvironmentError:
             pass
         else:
             raise

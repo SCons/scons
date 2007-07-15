@@ -47,7 +47,6 @@ scons_prof = test.workpath('scons.prof')
 
 test.run(arguments = "--profile=%s -h" % scons_prof)
 test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
-test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
 
 try:
     save_stdout = sys.stdout

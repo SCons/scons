@@ -74,14 +74,14 @@ arguments = [
     test.workpath('outside', 'd4'),
 ]
 
-expect = test.wrap_stdout("""
+expect = test.wrap_stdout("""\
 Install directory: "dir1" as "%s"
 Install directory: "dir2" as "%s"
 Install directory: "dir3" as "%s"
 Install directory: "dir4" as "%s"
 """ % tuple(arguments))
 
-test.run(chdir = 'work', arguments = arguments)
+test.run(chdir = 'work', arguments = arguments, stdout = expect)
 
 test.must_match(test.workpath('outside', 'dir1', 'f2'),         "work/dir1/f2\n")
 test.must_match(test.workpath('outside', 'dir1', 'sub', 'f3'),  "work/dir1/sub/f3\n")

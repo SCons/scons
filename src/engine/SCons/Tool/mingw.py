@@ -107,15 +107,7 @@ def generate(env):
     mingw = find(env)
     if mingw:
         dir = os.path.dirname(mingw)
-
-        # The mingw bin directory must be added to the path:
-        path = env['ENV'].get('PATH', [])
-        if not path: 
-            path = []
-        if SCons.Util.is_String(path):
-            path = string.split(path, os.pathsep)
-
-        env['ENV']['PATH'] = string.join([dir] + path, os.pathsep)
+        env.PrependENVPath('PATH', dir )
         
 
     # Most of mingw is the same as gcc and friends...
