@@ -313,6 +313,9 @@ GlobalDefaultEnvironmentFunctions = [
     'Split',
     'TargetSignatures',
     'Value',
+    'Tag',
+    'FindInstalledFiles',
+    'FindSourceFiles',
 ]
 
 GlobalDefaultBuilders = [
@@ -340,6 +343,7 @@ GlobalDefaultBuilders = [
     'Tar',
     'TypeLibrary',
     'Zip',
+    'Package',
 ]
 
 for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:

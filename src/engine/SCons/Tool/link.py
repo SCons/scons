@@ -48,7 +48,7 @@ def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
     SCons.Tool.createSharedLibBuilder(env)
     SCons.Tool.createProgBuilder(env)
-    
+
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'

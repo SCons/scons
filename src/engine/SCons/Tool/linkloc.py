@@ -96,8 +96,8 @@ def generate(env):
 
     msvs_version = env.get('MSVS_VERSION')
     include_path, lib_path, exe_path = get_msvc_paths(env, version = msvs_version)
-    env['ENV']['LIB']            = lib_path
-    env['ENV']['PATH']           = exe_path
+    env['ENV']['LIB'] = lib_path
+    env.PrependENVPath('PATH', exe_path)
 
     addPharLapPaths(env)
 

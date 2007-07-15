@@ -73,6 +73,18 @@ def generate(env):
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
+#<<<<<<< .working
+#
+#    env['_CCCOMCOM'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS'
+#    # It's a hack to test for darwin here, but the alternative of creating
+#    # an applecc.py to contain this seems overkill.  Maybe someday the Apple
+#    # platform will require more setup and this logic will be moved.
+#    env['FRAMEWORKS'] = SCons.Util.CLVar('')
+#    env['FRAMEWORKPATH'] = SCons.Util.CLVar('')
+#    if env['PLATFORM'] == 'darwin':
+#        env['_CCCOMCOM'] = env['_CCCOMCOM'] + ' $_FRAMEWORKPATH'
+#=======
+#>>>>>>> .merge-right.r1907
 
     add_common_cc_variables(env)
 

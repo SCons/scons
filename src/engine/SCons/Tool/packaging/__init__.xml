@@ -1,0 +1,522 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="Packaging">
+<summary>
+TODO
+</summary>
+</tool>
+
+<builder name="Package">
+Builds software distribution packages. Packages consist of files to install
+and packaging information. The former may be specified with the source
+parameter and may be left out, in which case the &-bFindInstalledFiles;
+function will collect all files that have an &-bInstall; or
+&-bInstallAs; Builder attached. The target, if not specified will be deduced
+from additional information given to this Builder.
+
+The packaging information is specified with the help of construction Variables
+documented below. This information is called a tag to stress that some of them
+can also be attached to files with the &-bTag; Builder.The mandatory ones will
+complain if they were not specified. They vary depending on chosen target
+packager.
+
+The target packager may be selected with the "PACKAGETYPE" command line option
+or with the &-tPACKAGETYPE; construction variable. Currently there are six
+packagers available:
+
+ * msi - Microsoft Installer
+ * rpm - Redhat Package Manger
+ * ipkg - Itsy Package Management System
+ * tarbz, tarbz and zip
+
+An updated list is always available under the "package_type" option when
+running "scons --help" on a project that has packaging activated.
+
+<example>
+env = Environment(tools=['default', 'packaging'])
+env.Install('/bin/', 'my_program')
+env.Package( NAME           = 'foo',
+             VERSION        = '1.2.3',
+             PACKAGEVERSION = 0,
+             PACKAGETYPE    = 'rpm',
+             LICENSE        = 'gpl',
+             SUMMARY        = 'balalalalal',
+             DESCRIPTION    = 'this should be really really long',
+             X_RPM_GROUP    = 'Application/fu',
+             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
+        )
+</example>
+
+<cvar name="DESCRIPTION">
+<summary>
+A long description of what the project is about.
+</summary>
+</cvar>
+
+<cvar name="DESCRIPTION_<lang>">
+<summary>
+TODO
+</summary>
+</cvar>
+
+
+<cvar name="SUMMARY">
+<summary>
+A short summary of what the project is about.
+</summary>
+</cvar>
+
+<cvar name="LICENSE">
+<summary>
+The shorthand of the license this project is under (gpl, lpgl, bsd etc.).
+</summary>
+</cvar>
+
+<cvar name="NAME">
+<summary>
+Specfies the name of the project to package.
+</summary>
+</cvar>
+
+<cvar name="VERSION">
+<summary>
+The version of the project, given as a string.
+</summary>
+</cvar>
+
+<cvar name="PACKAGEVERSION">
+<summary>
+The version of the package, if only changes in the package were done. Currently
+only used by the rpm packager.
+</summary>
+</cvar>
+
+<cvar name="PACKAGETYPE">
+<summary>
+Selects the package type to build. Currently those are available:
+
+ * msi - Microsoft Installer
+ * rpm - Redhat Package Manger
+ * ipkg - Itsy Package Management System
+ * tarbz2, targz and zip - tarball and zip packager
+ * src_tarbz2, src_targz and src_zip - source tarbarll and zip packager
+
+This may be overridden with the "package_type" command line option.
+</summary>
+</cvar>
+
+<cvar name="VENDOR">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="SOURCE_URL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="ARCHITECURE">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="PACKAGEROOT">
+<summary>
+defines the directory where all files in resulting archive will be placed if
+applicable. The default value is "$NAME-$VERSION".
+</summary>
+</cvar>
+
+<cvar name="LICENSE">
+<summary>
+Short name of the license your package is under. Example: gpl, lgpl, bsd ...
+See http://www.opensource.org/licenses/alphabetical
+</summary>
+</cvar>
+
+<cvar name="CHANGE_SPECFILE">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="CHANGELOG">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_PREINSTALL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_DEFATTR">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_POSTINSTALL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_PREUNINSTALL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_POSTUNINSTALL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_VERIFY">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_PREP">
+<summary>
+internal, but overridable
+</summary>
+</cvar>
+
+<cvar name="X_RPM_BUILD">
+<summary>
+internal, but overridable
+</summary>
+</cvar>
+
+<cvar name="X_RPM_INSTALL">
+<summary>
+internal, but overridable
+</summary>
+</cvar>
+
+<cvar name="X_RPM_CLEAN">
+<summary>
+internal, but overridable
+</summary>
+</cvar>
+
+<cvar name="X_RPM_URL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_GROUP">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_GROUP_<lang>">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_DISTRIBUTION">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_ICON">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_PACKAGER">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_REQUIRES">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_PROVIDES">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_CONFLICTS">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_BUILDREQUIRES">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_SERIAL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_EPOCH">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_AUTOREQPROV">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_EXCLUDEARCH">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_EXLUSIVEARCH">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_PREFIX">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_CONFLICTS">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_BUILDROOT">
+<summary>
+internal, but overridable
+</summary>
+</cvar>
+
+<cvar name="X_RPM_GROUP_<lang>">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_LICENSE_TEXT">
+<summary>
+The text of the software license in rtf format. Carriage return chars will be
+replaced with the rtf equivalent \\par.
+</summary>
+</cvar>
+
+<cvar name="X_MSI_LANGUAGE">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_UPGRADE_CODE">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_PRIORITY">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_SECTION">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_MAINTAINER">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_DEPENDS">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_DESCRIPTION">
+<summary>
+default is "$SUMMARY\n$DESCRIPTION"
+</summary>
+</cvar>
+
+<cvar name="X_IPK_POSTRM">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_PRERM">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_POSTINST">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_IPK_PREINST">
+<summary>
+TODO
+</summary>
+</cvar>
+
+</builder>
+
+<builder name="Tag">
+Leaves hints for the Package() Builder on how specific should be packaged.
+All those tags are optional.
+<example>
+Tag( Library( 'lib.c' ), unix-attr="0644" )  # makes sure the built library will
+                                             # be installed with 0644 file
+                                             # access mode
+Tag( 'file2.txt', doc )  # marks file2.txt to be a documentation file
+</example>
+
+<cvar name="INSTALL_LOCATION">
+<summary>
+internal, but overridable, TODO
+</summary>
+</cvar>
+
+<cvar name="CONFIG">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="CONFIG_NOREPLACE">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="DOC">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="UNIX_ATTR=">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="LANG_<lang>">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_VERIFY">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_DIR">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_DOCDIR">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_RPM_GHOST">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_FEATURE=">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_VITAL">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_FILEID">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_LONGNAME">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_SHORTNAME">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="X_MSI_SHORTNAME">
+<summary>
+TODO
+</summary>
+</cvar>
+
+</builder>
+
+<builder name="FindSourceFiles">
+A convenience function which returns all leafs of the build tree.
+</builder>
+
+<builder name="FindInstalledFiles">
+Returns all files "build" by the install builder.
+</builder>
+
+</tool>
+

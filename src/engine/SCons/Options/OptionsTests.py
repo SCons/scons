@@ -472,8 +472,8 @@ B: b - alpha test
         """Test generating custom format help text"""
         opts = SCons.Options.Options()
 
-        def my_format(env, opt, help, default, actual):
-            return '%s %s %s %s\n' % (opt, default, actual, help)
+        def my_format(env, opt, help, default, actual, aliases):
+            return '%s %s %s %s %s\n' % (opt, default, actual, help, aliases)
 
         opts.FormatOptionHelpText = my_format
 
@@ -499,18 +499,18 @@ B: b - alpha test
         opts.Update(env, {})
 
         expect = """\
-ANSWER 42 54 THE answer to THE question
-B 42 54 b - alpha test
-A 42 54 a - alpha test
+ANSWER 42 54 THE answer to THE question ['ANSWER']
+B 42 54 b - alpha test ['B']
+A 42 54 a - alpha test ['A']
 """
 
         text = opts.GenerateHelpText(env)
         assert text == expect, text
 
         expectAlpha = """\
-A 42 54 a - alpha test
-ANSWER 42 54 THE answer to THE question
-B 42 54 b - alpha test
+A 42 54 a - alpha test ['A']
+ANSWER 42 54 THE answer to THE question ['ANSWER']
+B 42 54 b - alpha test ['B']
 """
         text = opts.GenerateHelpText(env, sort=cmp)
         assert text == expectAlpha, text

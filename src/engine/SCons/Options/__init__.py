@@ -44,31 +44,47 @@ from PathOption import PathOption # okay
 
 
 class Options:
+    instance=None
+
     """
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
-    def __init__(self, files=None, args={}):
+    def __init__(self, files=None, args={}, is_global=1):
         """
         files - [optional] List of option configuration files to load
-            (backward compatibility) If a single string is passed it is 
+            (backward compatibility) If a single string is passed it is
                                      automatically placed in a file list
         """
-
         self.options = []
         self.args = args
         self.files = None
         if SCons.Util.is_String(files):
-           self.files = [ files ]
+            self.files = [ files ]
         elif files:
-           self.files = files
+            self.files = files
+
+        # create the singleton instance
+        if is_global:
+            self=Options.instance
+
+            if not Options.instance:
+                Options.instance=self
 
     def _do_add(self, key, help="", default=None, validator=None, converter=None):
         class Option:
             pass
 
         option = Option()
-        option.key = key
+
+        # if we get a list or a tuple, we take the first element as the
+        # option key and store the remaining in aliases.
+        if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
+          option.key     = key[0]
+          option.aliases = key[1:]
+        else:
+          option.key     = key
+          option.aliases = [ key ]
         option.help = help
         option.default = default
         option.validator = validator
@@ -111,7 +127,7 @@ class Options:
 
         Each list element is a tuple/list of arguments to be passed on
         to the underlying method for adding options.
-        
+
         Example:
           opt.AddOptions(
             ('debug', '', 0),
@@ -147,11 +163,14 @@ class Options:
         # finally set the values specified on the command line
         if args is None:
             args = self.args
-        values.update(args)
+
+        for arg, value in args.items():
+          for option in self.options:
+            if arg in option.aliases + [ option.key ]:
+              values[option.key]=value
 
         # put the variables in the environment:
-        # (don't copy over variables that are not declared
-        #  as options)
+        # (don't copy over variables that are not declared as options)
         for option in self.options:
             try:
                 env[option.key] = values[option.key]
@@ -204,7 +223,7 @@ class Options:
                             # Convert stuff that has a repr() that
                             # cannot be evaluated into a string
                             value = SCons.Util.to_String(value)
-                        
+
                         defaultVal = env.subst(SCons.Util.to_String(option.default))
                         if option.converter:
                             defaultVal = option.converter(defaultVal)
@@ -238,12 +257,19 @@ class Options:
                 actual = env.subst('${%s}' % opt.key)
             else:
                 actual = None
-            return self.FormatOptionHelpText(env, opt.key, opt.help, opt.default, actual)
+            return self.FormatOptionHelpText(env, opt.key, opt.help, opt.default, actual, opt.aliases)
         lines = filter(None, map(format, options))
 
         return string.join(lines, '')
 
-    format = '\n%s: %s\n    default: %s\n    actual: %s\n'
+    format  = '\n%s: %s\n    default: %s\n    actual: %s\n'
+    format_ = '\n%s: %s\n    default: %s\n    actual: %s\n    aliases: %s\n'
 
-    def FormatOptionHelpText(self, env, key, help, default, actual):
-        return self.format % (key, help, default, actual)
+    def FormatOptionHelpText(self, env, key, help, default, actual, aliases=[]):
+        # Don't display the key name itself as an alias.
+        aliases = filter(lambda a, k=key: a != k, aliases)
+        if len(aliases)==0:
+            return self.format % (key, help, default, actual)
+        else:
+            return self.format_ % (key, help, default, actual, aliases)
+

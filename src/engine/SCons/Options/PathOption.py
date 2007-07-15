@@ -128,7 +128,12 @@ class _PathOptionClass:
         """
         if validator is None:
             validator = self.PathExists
-        return (key, '%s ( /path/to/%s )' % (help, key), default,
-                validator, None)
+
+        if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
+            return (key, '%s ( /path/to/%s )' % (help, key[0]), default,
+                    validator, None)
+        else:
+            return (key, '%s ( /path/to/%s )' % (help, key), default,
+                    validator, None)
 
 PathOption = _PathOptionClass()

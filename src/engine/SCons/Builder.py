@@ -669,6 +669,16 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
+    def push_emitter(self, emitter):
+        """Add a emitter to the beginning of the emitter list of this Builder.
+
+        This creates an empty list if the emitter is None.
+        """
+        if not self.emitter:
+            self.emitter = ListEmitter( [emitter] )
+        else:
+            self.emitter.insert(0, emitter)
+
     def add_src_builder(self, builder):
         """
         Add a new Builder to the list of src_builders.
@@ -704,7 +714,7 @@ class BuilderBase:
             for suf in bld.src_suffixes(env):
                 sdict[suf] = bld
         return sdict
-        
+
     def src_builder_sources(self, env, source, overwarn={}):
         source_factory = env.get_factory(self.source_factory)
         slist = env.arg2nodes(source, source_factory)

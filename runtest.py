@@ -165,8 +165,6 @@ opts, args = getopt.getopt(sys.argv[1:], "ab:df:hlno:P:p:qv:Xx:t",
                             ['all', 'aegis', 'baseline=', 'builddir=',
                              'debug', 'file=', 'help',
                              'list', 'no-exec', 'noqmtest', 'output=',
-                             'package=', 'passed', 'python=',
-                             'qmtest', 'quiet', 'spe=',
                              'version=', 'exec=', 'time',
                              'verbose=', 'xml'])
 
@@ -525,6 +523,11 @@ os.environ['SCONS_VERSION'] = version
 
 old_pythonpath = os.environ.get('PYTHONPATH')
 
+# FIXME: the following is necessary to pull in half of the testing
+#        harness from $srcdir/etc. Those modules should be transfered
+#        to QMTest/ once we completely cut over to using that as
+#        the harness, in which case this manipulation of PYTHONPATH
+#        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
 for dir in sp:

@@ -133,7 +133,11 @@ Chmod = ActionFactory(os.chmod,
                       lambda dest, mode: 'Chmod("%s", 0%o)' % (dest, mode))
 
 def copy_func(dest, src):
-    if os.path.isfile(src):
+    if SCons.Util.is_List(src) and os.path.isdir(dest):
+        for file in src:
+            shutil.copy(file, dest)
+        return 0
+    elif os.path.isfile(src):
         return shutil.copy(src, dest)
     else:
         return shutil.copytree(src, dest, 1)
@@ -173,33 +177,6 @@ Touch = ActionFactory(touch_func,
                       lambda file: 'Touch("%s")' % file)
 
 # Internal utility functions
-def installFunc(dest, source, env):
-    """Install a source file or directory into a destination by copying,
-    (including copying permission/mode bits)."""
-
-    if os.path.isdir(source):
-        if os.path.exists(dest):
-            if not os.path.isdir(dest):
-                raise SCons.Errors.UserError, "cannot overwrite non-directory `%s' with a directory `%s'" % (str(dest), str(source))
-        else:
-            parent = os.path.split(dest)[0]
-            if not os.path.exists(parent):
-                os.makedirs(parent)
-        shutil.copytree(source, dest)
-    else:
-        shutil.copy2(source, dest)
-        st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
-
-    return 0
-
-def installStr(dest, source, env):
-    source = str(source)
-    if os.path.isdir(source):
-        type = 'directory'
-    else:
-        type = 'file'
-    return 'Install %s: "%s" as "%s"' % (type, source, dest)
 
 def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
     """
@@ -385,9 +362,6 @@ ConstructionEnvironment = {
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'ENV'           : {},
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
-    'INSTALL'       : installFunc,
-    'INSTALLSTR'    : installStr,
-    '_installStr'   : installStr,
     'LATEXSUFFIXES' : SCons.Tool.LaTeXSuffixes,
     '_concat'       : _concat,
     '_defines'      : _defines,

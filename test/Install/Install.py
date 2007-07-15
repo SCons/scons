@@ -91,7 +91,7 @@ test.write(['work', 'sub', 'f4.in'], "sub/f4.in\n")
 test.write(f5_txt, "f5.txt\n")
 test.write(f6_txt, "f6.txt\n")
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work', arguments = '--debug=stacktrace .')
 
 test.fail_test(test.read(f1_out) != "f1.in\n")
 test.fail_test(test.read(f2_out) != "f2.in\n")

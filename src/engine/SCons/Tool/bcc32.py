@@ -42,12 +42,7 @@ def findIt(program, env):
     borwin = env.WhereIs(program) or SCons.Util.WhereIs(program)
     if borwin:
         dir = os.path.dirname(borwin)
-        path = env['ENV'].get('PATH', [])
-        if not path:
-            path = []
-        if SCons.Util.is_String(path):
-            path = string.split(path, os.pathsep)
-        env['ENV']['PATH'] = string.join([dir]+path, os.pathsep)
+        env.PrependENVPath('PATH', dir)
     return borwin
 
 def generate(env):

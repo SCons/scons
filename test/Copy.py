@@ -54,6 +54,10 @@ env.Command('bar.out', 'bar.in', [Cat,
 env = Environment(OUTPUT = 'f7.out', INPUT = 'f7.in')
 env.Command('f8.out', 'f8.in', [Copy('$OUTPUT', '$INPUT'), Cat])
 env.Command('f9.out', 'f9.in', [Cat, Copy('${TARGET}-Copy', '$SOURCE')])
+
+env.CopyTo( 'd4', 'f10.in' )
+env.CopyAs( 'd4/f11.out', 'f11.in')
+env.CopyAs( 'd4/f12.out', 'd5/f12.in')
 """)
 
 test.write('f1.in', "f1.in\n")
@@ -70,6 +74,10 @@ test.subdir('d6.out')
 test.write('f7.in', "f7.in\n")
 test.write('f8.in', "f8.in\n")
 test.write('f9.in', "f9.in\n")
+test.write('f10.in', "f10.in\n")
+test.write('f11.in', "f11.in\n")
+test.subdir('d5')
+test.write(['d5', 'f12.in'], "f12.in\n")
 
 expect = test.wrap_stdout(read_str = """\
 Copy("f1.out", "f1.in")
@@ -81,6 +89,9 @@ cat(["bar.out"], ["bar.in"])
 Copy("f4.out", "f4.in")
 Copy("d5.out", "d5.in")
 Copy("d6.out", "f6.in")
+Copy file(s): "f10.in" to "d4/f10.in"
+Copy file(s): "f11.in" to "d4/f11.out"
+Copy file(s): "d5/f12.in" to "d4/f12.out"
 Copy("f7.out", "f7.in")
 cat(["f8.out"], ["f8.in"])
 cat(["f9.out"], ["f9.in"])
@@ -98,6 +109,9 @@ test.must_not_exist('f7.out')
 test.must_not_exist('f8.out')
 test.must_not_exist('f9.out')
 test.must_not_exist('f9.out-Copy')
+test.must_not_exist('d4/f10.in')
+test.must_not_exist('d4/f11.out')
+test.must_not_exist('d4/f12.out')
 
 test.run()
 
@@ -111,5 +125,8 @@ test.must_match('f7.out', "f7.in\n")
 test.must_match('f8.out', "f8.in\n")
 test.must_match('f9.out', "f9.in\n")
 test.must_match('f9.out-Copy', "f9.in\n")
+test.must_match('d4/f10.in', 'f10.in\n')
+test.must_match('d4/f11.out', 'f11.in\n')
+test.must_match('d4/f12.out', 'f12.in\n')
 
 test.pass_test()
