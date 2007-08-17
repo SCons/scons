@@ -312,16 +312,16 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
         return ["  ","| "][m]
     margins = map(MMM, margin[:-1])
 
-    if visited.has_key(rname):
+    children = child_func(root)
+
+    if prune and visited.has_key(rname) and children:
         print string.join(tags + margins + ['+-[', rname, ']'], '')
         return
 
     print string.join(tags + margins + ['+-', rname], '')
 
-    if prune:
-        visited[rname] = 1
+    visited[rname] = 1
 
-    children = child_func(root)
     if children:
         margin.append(1)
         map(lambda C, cf=child_func, p=prune, i=IDX(showtags), m=margin, v=visited:
@@ -403,6 +403,64 @@ def flatten(sequence, scalarp=is_Scalar, result=None):
         else:
             flatten(item, scalarp, result)
     return result
+
+
+
+# The SCons "semi-deep" copy.
+#
+# This makes separate copies of lists (including UserList objects)
+# dictionaries (including UserDict objects) and tuples, but just copies
+# references to anything else it finds.
+#
+# A special case is any object that has a __semi_deepcopy__() method,
+# which we invoke to create the copy, which is used by the BuilderDict
+# class because of its extra initialization argument.
+#
+# The dispatch table approach used here is a direct rip-off from the
+# normal Python copy module.
+
+_semi_deepcopy_dispatch = d = {}
+
+def _semi_deepcopy_dict(x):
+    copy = {}
+    for key, val in x.items():
+        # The regular Python copy.deepcopy() also deepcopies the key,
+        # as follows:
+        #
+        #    copy[semi_deepcopy(key)] = semi_deepcopy(val)
+        #
+        # Doesn't seem like we need to, but we'll comment it just in case.
+        copy[key] = semi_deepcopy(val)
+    return copy
+d[types.DictionaryType] = _semi_deepcopy_dict
+
+def _semi_deepcopy_list(x):
+    return map(semi_deepcopy, x)
+d[types.ListType] = _semi_deepcopy_list
+
+def _semi_deepcopy_tuple(x):
+    return tuple(map(semi_deepcopy, x))
+d[types.TupleType] = _semi_deepcopy_tuple
+
+def _semi_deepcopy_inst(x):
+    if hasattr(x, '__semi_deepcopy__'):
+        return x.__semi_deepcopy__()
+    elif isinstance(x, UserDict):
+        return x.__class__(_semi_deepcopy_dict(x))
+    elif isinstance(x, UserList):
+        return x.__class__(_semi_deepcopy_list(x))
+    else:
+        return x
+d[types.InstanceType] = _semi_deepcopy_inst
+
+def semi_deepcopy(x):
+    copier = _semi_deepcopy_dispatch.get(type(x))
+    if copier:
+        return copier(x)
+    else:
+        return x
+
+
 
 class Proxy:
     """A simple generic Proxy class, forwarding all calls to
@@ -1041,6 +1099,37 @@ def RenameFunction(function, name):
                         function.func_globals,
                         name,
                         func_defaults)
+
+
+
+# From Dinu C. Gherman,
+# Python Cookbook, second edition, recipe 6.17, p. 277.
+# Also:
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
+# ASPN: Python Cookbook: Null Object Design Pattern
+
+class Null:
+    """ Null objects always and reliably "do nothging." """
+
+    def __new__(cls, *args, **kwargs):
+        if not '_inst' in vars(cls):
+            #cls._inst = type.__new__(cls, *args, **kwargs)
+            cls._inst = apply(type.__new__, (cls,) + args, kwargs)
+        return cls._inst
+    def __init__(self, *args, **kwargs):
+        pass
+    def __call__(self, *args, **kwargs):
+        return self
+    def __repr__(self):
+        return "Null()"
+    def __nonzero__(self):
+        return False
+    def __getattr__(self, mname):
+        return self
+    def __setattr__(self, name, value):
+        return self
+    def __delattr__(self, name):
+        return self
 
 
 

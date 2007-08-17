@@ -418,7 +418,7 @@ make no difference to the build.
 
     (Notice that the <literal>lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See <xref linkend="chap-separate">, below,
+    See <xref linkend="chap-separate"></xref>, below,
     for information about
     how to build the object file in a different subdirectory.)
 
@@ -470,7 +470,7 @@ make no difference to the build.
     (As was the case with top-relative path names,
     notice that the <literal>/usr/joe/lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See <xref linkend="chap-separate">, below,
+    See <xref linkend="chap-separate"></xref>, below,
     for information about
     how to build the object file in a different subdirectory.)
 

@@ -175,6 +175,15 @@ def Package(env, target=None, source=None, **kw):
     targets.extend(env.Alias( 'package', targets ))
     return targets
 
+def build_source(ss, sources):
+    for s in ss:
+        if s.__class__==SCons.Node.FS.Dir:
+            build_source(s.all_children())
+        elif not s.has_builder() and s.__class__==SCons.Node.FS.File:
+            sources.append(s)
+        else:
+            build_source(s.sources)
+
 def FindSourceFiles(env, target=None, source=None ):
     """ returns a list of all children of the target nodes, which have no
     children. This selects all leaves of the DAG that gets build by SCons for
@@ -185,17 +194,8 @@ def FindSourceFiles(env, target=None, source=None ):
     nodes = env.arg2nodes(target, env.fs.Entry)
 
     sources = []
-    def build_source(ss):
-        for s in ss:
-            if s.__class__==SCons.Node.FS.Dir:
-                build_source(s.all_children())
-            elif not s.has_builder() and s.__class__==SCons.Node.FS.File:
-                sources.append(s)
-            else:
-                build_source(s.sources)
-
     for node in nodes:
-        build_source(node.all_children())
+        build_source(node.all_children(), sources)
 
     # now strip the build_node from the sources by calling the srcnode
     # function

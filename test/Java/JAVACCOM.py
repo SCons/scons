@@ -60,7 +60,7 @@ test.write(['src', 'file3.java'], "file3.java\n/*javac*/\n")
 
 test.run()
 
-test.must_match(['classes', 'src', 'file1.class'],
+test.must_match(['classes', 'file1.class'],
                 "file1.java\nfile2.java\nfile3.java\n")
 
 

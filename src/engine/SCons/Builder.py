@@ -467,28 +467,28 @@ class BuilderBase:
             executor.add_sources(slist)
             return executor
 
+    def _adjustixes(self, files, pre, suf):
+        if not files:
+            return []
+        result = []
+        if not SCons.Util.is_List(files):
+            files = [files]
+
+        for f in files:
+            if SCons.Util.is_String(f):
+                f = SCons.Util.adjustixes(f, pre, suf)
+            result.append(f)
+        return result
+
     def _create_nodes(self, env, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
-        def _adjustixes(files, pre, suf):
-            if not files:
-                return []
-            result = []
-            if not SCons.Util.is_List(files):
-                files = [files]
-
-            for f in files:
-                if SCons.Util.is_String(f):
-                    f = SCons.Util.adjustixes(f, pre, suf)
-                result.append(f)
-            return result
-
         src_suf = self.get_src_suffix(env)
 
         target_factory = env.get_factory(self.target_factory)
         source_factory = env.get_factory(self.source_factory)
 
-        source = _adjustixes(source, None, src_suf)
+        source = self._adjustixes(source, None, src_suf)
         slist = env.arg2nodes(source, source_factory)
 
         pre = self.get_prefix(env, slist)
@@ -505,7 +505,7 @@ class BuilderBase:
                 splitext = lambda S,self=self,env=env: self.splitext(S,env)
                 tlist = [ t_from_s(pre, suf, splitext) ]
         else:
-            target = _adjustixes(target, pre, suf)
+            target = self._adjustixes(target, pre, suf)
             tlist = env.arg2nodes(target, target_factory)
 
         if self.emitter:
@@ -558,7 +558,7 @@ class BuilderBase:
             return result
 
         overwarn.warn()
-        
+
         tlist, slist = self._create_nodes(env, target, source)
 
         # Check for errors with the specified target/source lists.
@@ -716,20 +716,14 @@ class BuilderBase:
         return sdict
 
     def src_builder_sources(self, env, source, overwarn={}):
-        source_factory = env.get_factory(self.source_factory)
-        slist = env.arg2nodes(source, source_factory)
-
         sdict = self._get_sdict(env)
 
         src_suffixes = self.src_suffixes(env)
 
-        lengths_dict = {}
-        for l in map(len, src_suffixes):
-            lengths_dict[l] = None
-        lengths = lengths_dict.keys()
+        lengths = list(set(map(len, src_suffixes)))
 
-        def match_src_suffix(node, src_suffixes=src_suffixes, lengths=lengths):
-            node_suffixes = map(lambda l, n=node: n.name[-l:], lengths)
+        def match_src_suffix(name, src_suffixes=src_suffixes, lengths=lengths):
+            node_suffixes = map(lambda l, n=name: n[-l:], lengths)
             for suf in src_suffixes:
                 if suf in node_suffixes:
                     return suf
@@ -737,25 +731,38 @@ class BuilderBase:
 
         result = []
 
-        for snode in slist:
-            match_suffix = match_src_suffix(snode)
+        if SCons.Util.is_List(source):
+            source = SCons.Util.flatten(source)
+        else:
+            source = [source]
+        for s in source:
+            if SCons.Util.is_String(s):
+                match_suffix = match_src_suffix(s)
+                if not match_suffix and not '.' in s:
+                    src_suf = self.get_src_suffix(env)
+                    s = self._adjustixes(s, None, src_suf)[0]
+            else:
+                match_suffix = match_src_suffix(s.name)
             if match_suffix:
                 try:
                     bld = sdict[match_suffix]
                 except KeyError:
-                    result.append(snode)
+                    result.append(s)
                 else:
-                    tlist = bld._execute(env, None, [snode], overwarn)
+                    tlist = bld._execute(env, None, [s], overwarn)
                     # If the subsidiary Builder returned more than one
                     # target, then filter out any sources that this
                     # Builder isn't capable of building.
                     if len(tlist) > 1:
-                        tlist = filter(match_src_suffix, tlist)
+                        mss = lambda t, m=match_src_suffix: m(t.name)
+                        tlist = filter(mss, tlist)
                     result.extend(tlist)
             else:
-                result.append(snode)
+                result.append(s)
 
-        return result
+        source_factory = env.get_factory(self.source_factory)
+
+        return env.arg2nodes(result, source_factory)
 
     def _get_src_builders_key(self, env):
         return id(env)

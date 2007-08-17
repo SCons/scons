@@ -232,12 +232,13 @@ for k in fromdict.keys():
         # do env.subst on:
         #       $RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} ...
         # When $TARGET is None, so $TARGET.attributes would throw an
-        # exception.
+        # exception, which SCons would turn into a UserError.  They're
+        # not important for this test, so just catch 'em.
         f = fromdict[k]
-        if SCons.Util.is_String(f) and \
-           string.find(f, "TARGET") == -1 and \
-           string.find(f, "SOURCE") == -1:
+        try:
              todict[k] = env.subst(f)
+        except SCons.Errors.UserError:
+             pass
 todict["CFLAGS"] = fromdict["CPPFLAGS"] + " " + \
     string.join(map(lambda x: "-I" + x, env["CPPPATH"])) + " " + \
     string.join(map(lambda x: "-L" + x, env["LIBPATH"])) 

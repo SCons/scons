@@ -46,6 +46,13 @@ elif sys.platform == 'cygwin':
     arflag = 'o'
     linkflag_init = '-L' + test.workpath()
     linkflag = ' -L' + test.workpath()
+elif sys.platform in ('darwin', 'irix6'):
+    lib_shared_dll = 'libshared' + TestSCons._dll
+    lib_static_lib = 'libstatic.a'
+    arflag_init = 'r'
+    arflag = 'v'
+    linkflag_init = '-L' + test.workpath()
+    linkflag = ' -L' + test.workpath()
 else:
     lib_shared_dll = 'libshared.so'
     lib_static_lib = 'libstatic.a'

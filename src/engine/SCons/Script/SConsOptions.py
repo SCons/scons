@@ -166,6 +166,65 @@ class SConsValues(optparse.Values):
 
         self.__SConscript_settings__[name] = value
 
+class SConsOption(optparse.Option):
+    def convert_value(self, opt, value):
+        if value is not None:
+            if self.nargs in (1, '?'):
+                return self.check_value(opt, value)
+            else:
+                return tuple(map(lambda v, o=opt, s=self: s.check_value(o, v), value))
+
+    def process(self, opt, value, values, parser):
+
+        # First, convert the value(s) to the right type.  Howl if any
+        # value(s) are bogus.
+        value = self.convert_value(opt, value)
+
+        # And then take whatever action is expected of us.
+        # This is a separate method to make life easier for
+        # subclasses to add new actions.
+        return self.take_action(
+            self.action, self.dest, opt, value, values, parser)
+
+    def _check_nargs_optional(self):
+        if self.nargs == '?' and self._short_opts:
+            fmt = "option %s: nargs='?' is incompatible with short options"
+            raise SCons.Errors.UserError, fmt % self._short_opts[0]
+
+    try:
+        _orig_CONST_ACTIONS = optparse.Option.CONST_ACTIONS
+
+        _orig_CHECK_METHODS = optparse.Option.CHECK_METHODS
+
+    except AttributeError:
+        # optparse.Option had no CONST_ACTIONS before Python 2.5.
+
+        _orig_CONST_ACTIONS = ("store_const",)
+
+        def _check_const(self):
+            if self.action not in self.CONST_ACTIONS and self.const is not None:
+                raise OptionError(
+                    "'const' must not be supplied for action %r" % self.action,
+                    self)
+
+        # optparse.Option collects its list of unbound check functions
+        # up front.  This sucks because it means we can't just override
+        # the _check_const() function like a normal method, we have to
+        # actually replace it in the list.  This seems to be the most
+        # straightforward way to do that.
+
+        _orig_CHECK_METHODS = [optparse.Option._check_action,
+                     optparse.Option._check_type,
+                     optparse.Option._check_choice,
+                     optparse.Option._check_dest,
+                     _check_const,
+                     optparse.Option._check_nargs,
+                     optparse.Option._check_callback]
+
+    CHECK_METHODS = _orig_CHECK_METHODS + [_check_nargs_optional]
+
+    CONST_ACTIONS = _orig_CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
+
 class SConsOptionGroup(optparse.OptionGroup):
     """
     A subclass for SCons-specific option groups.
@@ -232,7 +291,12 @@ class SConsOptionParser(optparse.OptionParser):
         option = self._long_opt[opt]
         if option.takes_value():
             nargs = option.nargs
-            if len(rargs) < nargs:
+            if nargs == '?':
+                if had_explicit_value:
+                    value = rargs.pop(0)
+                else:
+                    value = option.const
+            elif len(rargs) < nargs:
                 if nargs == 1:
                     self.error(_("%s option requires an argument") % opt)
                 else:
@@ -396,7 +460,8 @@ def Parser(version):
 
     formatter = SConsIndentedHelpFormatter(max_help_position=30)
 
-    op = SConsOptionParser(add_help_option=False,
+    op = SConsOptionParser(option_class=SConsOption,
+                           add_help_option=False,
                            formatter=formatter,
                            usage="usage: scons [OPTION] [TARGET] ...",)
 

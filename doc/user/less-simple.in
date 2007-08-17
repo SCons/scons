@@ -126,10 +126,10 @@
 
     <scons_example name="ex2">
        <file name="SConstruct" printme="1">
-       Program(['main.c', 'file1.c', 'file2.c'])
+       Program(['prog.c', 'file1.c', 'file2.c'])
        </file>
-       <file name="main.c">
-       int main() { printf("main.c\n"); }
+       <file name="prog.c">
+       int main() { printf("prog.c\n"); }
        </file>
        <file name="file1.c">
        void file1() { printf("file1.c\n"); }
@@ -173,9 +173,9 @@
 
     <scons_example name="ex3">
        <file name="SConstruct" printme="1">
-       Program('program', ['main.c', 'file1.c', 'file2.c'])
+       Program('program', ['prog.c', 'file1.c', 'file2.c'])
        </file>
-       <file name="main.c">
+       <file name="prog.c">
        int main() { printf("prog.c\n"); }
        </file>
        <file name="file1.c">
@@ -509,7 +509,7 @@
     from the common source files,
     which can then be linked into resulting programs.
     (Creating libraries is discussed in
-    <xref linkend="chap-libraries">, below.)
+    <xref linkend="chap-libraries"></xref>, below.)
 
     </para>
 

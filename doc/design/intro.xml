@@ -93,7 +93,7 @@
 
  </para>
 
-<REMARK>
+<!--
 Sections marked like this
 (prefixed with <literal>RATIONALE:</literal> in the HTML,
 surrounded by <literal>BEGIN RATIONALE:</literal>
@@ -106,6 +106,6 @@ I've used these to mark sections that need work,
 but also to cite some open design issues.
 If you have input on any of these marked issues,
 I'm especially eager to hear it.
-</REMARK>
+-->
 
 </section>

@@ -54,6 +54,8 @@ test.write('SConstruct', """
 env = Environment(FORTRANCOM = r'%(_python_)s myfortran.py $FORTRANMODDIR $SOURCE $TARGET',
                   FORTRANMODDIR = 'modules')
 env.Object(target = 'test1.obj', source = 'test1.f')
+env.Object(target = 'sub/test2.obj', source = 'test1.f',
+           FORTRANMODDIR='${TARGET.dir}')
 """ % locals())
 
 test.write('test1.f', """\
@@ -85,6 +87,9 @@ test.run(arguments = '.', stderr = None)
 test.must_match('test1.obj', "myfortran.py wrote test1.obj\n")
 test.must_match(['modules', 'mod_foo.mod'], "myfortran.py wrote mod_foo.mod\n")
 test.must_not_exist(['modules', 'mod_bar.mod'])
+
+test.must_match(['sub', 'test2.obj'], "myfortran.py wrote test2.obj\n")
+test.must_match(['sub', 'mod_foo.mod'], "myfortran.py wrote mod_foo.mod\n")
 
 test.up_to_date(arguments = '.')
 

@@ -130,7 +130,7 @@
 
       Of course, in this example, the object files
       must already exist for the build to succeed.
-      See <xref linkend="chap-nodes">, below,
+      See <xref linkend="chap-nodes"></xref>, below,
       for information about how you can
       build object files explicitly
       and include the built files in a library.
@@ -147,7 +147,7 @@
       The &b-link-Library; function builds a traditional static library.
       If you want to be explicit about the type of library being built,
       you can use the synonym &b-link-StaticLibrary; function
-      instead of &b-Library:
+      instead of &b-Library;:
 
       </para>
 

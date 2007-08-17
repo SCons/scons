@@ -29,9 +29,20 @@ Verify that use of the $SWIGOUTDIR variable causes SCons to recognize
 that Java files are created in the specified output directory.
 """
 
+import sys
+
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+test = TestSCons.TestSCons()
+
+swig = test.where_is('swig')
+
+if not swig:
+    test.skip_test('Can not find installed "swig", skipping test.\n')
+
+
 
 test.write(['SConstruct'], """\
 env = Environment(tools = ['default', 'swig'])

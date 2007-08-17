@@ -43,6 +43,7 @@ import sys
 
 import SCons.Builder
 import SCons.Errors
+import SCons.Node.FS
 import SCons.Scanner
 import SCons.Scanner.C
 import SCons.Scanner.D
@@ -175,6 +176,9 @@ class Tool:
 
     def __str__(self):
         return self.name
+
+##########################################################################
+#  Create common executable program / library / object builders
 
 def createProgBuilder(env):
     """This is a utility function that creates the Program
@@ -346,6 +350,79 @@ def createCFileBuilders(env):
         env.SetDefault(CXXFILESUFFIX = '.cc')
 
     return (c_file, cxx_file)
+
+##########################################################################
+#  Create common Java builders
+
+def CreateJarBuilder(env):
+    try:
+        java_jar = env['BUILDERS']['Jar']
+    except KeyError:
+        fs = SCons.Node.FS.get_default_fs()
+        jar_com = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
+        java_jar = SCons.Builder.Builder(action = jar_com,
+                                         suffix = '$JARSUFFIX',
+                                         src_suffix = '$JAVACLASSSUFIX',
+                                         src_builder = 'JavaClassFile',
+                                         source_factory = fs.Entry)
+        env['BUILDERS']['Jar'] = java_jar
+    return java_jar
+
+def CreateJavaHBuilder(env):
+    try:
+        java_javah = env['BUILDERS']['JavaH']
+    except KeyError:
+        fs = SCons.Node.FS.get_default_fs()
+        java_javah_com = SCons.Action.Action('$JAVAHCOM', '$JAVAHCOMSTR')
+        java_javah = SCons.Builder.Builder(action = java_javah_com,
+                                           src_suffix = '$JAVACLASSSUFFIX',
+                                           target_factory = fs.Entry,
+                                           source_factory = fs.File,
+                                           src_builder = 'JavaClassFile')
+        env['BUILDERS']['JavaH'] = java_javah
+    return java_javah
+
+def CreateJavaClassFileBuilder(env):
+    try:
+        java_class_file = env['BUILDERS']['JavaClassFile']
+    except KeyError:
+        fs = SCons.Node.FS.get_default_fs()
+        javac_com = SCons.Action.Action('$JAVACCOM', '$JAVACCOMSTR')
+        java_class_file = SCons.Builder.Builder(action = javac_com,
+                                                emitter = {},
+                                                #suffix = '$JAVACLASSSUFFIX',
+                                                src_suffix = '$JAVASUFFIX',
+                                                src_builder = ['JavaFile'],
+                                                target_factory = fs.Entry,
+                                                source_factory = fs.File)
+        env['BUILDERS']['JavaClassFile'] = java_class_file
+    return java_class_file
+
+def CreateJavaClassDirBuilder(env):
+    try:
+        java_class_dir = env['BUILDERS']['JavaClassDir']
+    except KeyError:
+        fs = SCons.Node.FS.get_default_fs()
+        javac_com = SCons.Action.Action('$JAVACCOM', '$JAVACCOMSTR')
+        java_class_dir = SCons.Builder.Builder(action = javac_com,
+                                               emitter = {},
+                                               target_factory = fs.Dir,
+                                               source_factory = fs.Dir)
+        env['BUILDERS']['JavaClassDir'] = java_class_dir
+    return java_class_dir
+
+def CreateJavaFileBuilder(env):
+    try:
+        java_file = env['BUILDERS']['JavaFile']
+    except KeyError:
+        java_file = SCons.Builder.Builder(action = {},
+                                          emitter = {},
+                                          suffix = {None:'$JAVASUFFIX'})
+        env['BUILDERS']['JavaFile'] = java_file
+        env['JAVASUFFIX'] = '.java'
+    return java_file
+
+
 
 def FindTool(tools, env):
     for tool in tools:

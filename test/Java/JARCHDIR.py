@@ -28,7 +28,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that when JARCHDIR that our command to create .jar files
 correctly finds all the .class files (by putting -C in front
 of each class file argument).
+
+Includes logic to make sure that expansions of $JARCHDIR that include
+${TARGET} or ${SOURCE} work.
 """
+
+import os
+import string
 
 import TestSCons
 
@@ -50,6 +56,8 @@ else:
 if not where_jar:
     test.skip_test("Could not find Java jar, skipping test(s).\n")
 
+
+
 test.write('SConstruct', """
 dir = 'dist'
 env = Environment(tools    = ['javac', 'jar'],
@@ -64,8 +72,18 @@ jar = env.Jar(File('c.jar', dir), bin)
 env = env.Clone(JARCHDIR = '.')
 inner = env.Jar('inner.jar', 'Inner$$Class.class')
 
+target_env = env.Clone(JARCHDIR = '${TARGET.dir}')
+target_env.Jar('out/t.jar', 'in/t.class')
+
+source_env = env.Clone(JARCHDIR = '${SOURCE.dir}')
+source_env.Jar('out/s.jar', 'in/s.class')
+
 Default(bin, jar, inner)
 """ % locals())
+
+
+
+test.subdir('in')
 
 test.write('a.java', """\
 package foo.bar;
@@ -77,8 +95,36 @@ package foo.bar;
 public class b {}
 """)
 
+test.write(['in', 's.class'], "s.class\n")
+
+# Okay, this is bogus, but we're going with it for testing purposes.
+# If jar gets a command line like:
+#
+#	jar cf out/t.jar -C out /tmp/tmpXYZZY/in/t.class
+#
+# Empirically, it doesn't seem to treat the absolute path name
+# of the argument class file as an absolute path, but looks for
+# "out/tmp/tmpXYZZY/in/t.class".  SCons, however, still looks for it in
+# the path name specified on the command line.  To make this test work,
+# we're going to just create the t.class file in both locations, and
+# we can revisit this if someone actually tries to use ${TARGET.dir}
+# in a real-life expansion.  Right now, it at least makes sure things
+# don't blow up (i.e., validates that we pass the right arguments to
+# env.subst() in the code that handle jar).
+
+p = test.workpath('out')
+for d in string.split(test.workpath('in'), os.sep):
+    p = p + d
+    test.subdir(p)
+    p = p + os.sep
+
+test.write([p, 't.class'], "t.class\n")
+test.write(['in', 't.class'], "t.class\n")
+
 test.write('Inner$Class.class', "Inner$Class.class\n")
 
 test.run(arguments = '.')
+
+
 
 test.pass_test()

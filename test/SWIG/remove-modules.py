@@ -50,27 +50,17 @@ if not swig:
 
 
 
-version = sys.version[:3] # see also sys.prefix documentation
-
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
-frameworks = ''
-platform_sys_prefix = sys.prefix
-if sys.platform == 'darwin':
-    # OS X has a built-in Python but no static libpython
-    # so you should link to it using apple's 'framework' scheme.
-    # (see top of file for further explanation)
-    frameworks = '-framework Python'
-    platform_sys_prefix = '/System/Library/Frameworks/Python.framework/Versions/%s/' % version
+python_include_dir = test.get_python_inc()
 
-python_include_dir = os.path.join(platform_sys_prefix,
-                                  'include',
-                                  'python' + version)
 Python_h = os.path.join(python_include_dir, 'Python.h')
 
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
+
+python_frameworks_flags = test.get_python_frameworks_flags()
     
 
 test.write("module.i", """\
@@ -79,10 +69,10 @@ test.write("module.i", """\
 
 test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
+                  CPPPATH='%(python_include_dir)s',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(frameworks)s',
+                  FRAMEWORKSFLAGS='%(python_frameworks_flags)s',
                   )
 
 import sys

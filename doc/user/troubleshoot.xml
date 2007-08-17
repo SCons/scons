@@ -261,7 +261,7 @@
     <screen>
       % <userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'BUILDERS': {},
+      { 'BUILDERS': {'InstallAs': &lt;function InstallAsBuilderWrapper at 0xb23a28&gt;, 'Install': &lt;function InstallBuilderWrapper at 0xb1b7d0&gt;},
         'CONFIGUREDIR': '#/.sconf_temp',
         'CONFIGURELOG': '#/config.log',
         'CPPSUFFIXES': [ '.c',
@@ -284,14 +284,13 @@
                          '.spp',
                          '.SPP'],
         'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c3fdac&gt;,
-        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c3fdcc&gt;,
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1eb48&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1eb90&gt;,
         'ENV': {'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
-        'ESCAPE': &lt;function escape at 0xb7ba1f0c&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c3fdec&gt;,
+        'ESCAPE': &lt;function escape at 0xb1fa28&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1ebd8&gt;,
         'IDLSUFFIXES': ['.idl', '.IDL'],
-        'INSTALL': &lt;function installFunc at 0xb7c4317c&gt;,
-        'INSTALLSTR': &lt;function installStr at 0xb7c431b4&gt;,
+        'INSTALL': &lt;function copyFunc at 0xb23aa0&gt;,
         'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': 'lib',
         'LIBPREFIXES': '$LIBPREFIX',
@@ -303,27 +302,26 @@
         'PLATFORM': 'posix',
         'PROGPREFIX': '',
         'PROGSUFFIX': '',
-        'PSPAWN': &lt;function piped_env_spawn at 0xb7bb12cc&gt;,
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c3fe0c&gt;,
+        'PSPAWN': &lt;function piped_env_spawn at 0xb23230&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1ec20&gt;,
         'SCANNERS': [],
         'SHELL': 'sh',
         'SHLIBPREFIX': '$LIBPREFIX',
         'SHLIBSUFFIX': '.so',
         'SHOBJPREFIX': '$OBJPREFIX',
         'SHOBJSUFFIX': '$OBJSUFFIX',
-        'SPAWN': &lt;function spawnvpe_spawn at 0xb7ba1d4c&gt;,
-        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0xb7bce89c&gt;,
+        'SPAWN': &lt;function spawnvpe_spawn at 0xb1f7d0&gt;,
+        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0xa4e170&gt;,
         'TEMPFILEPREFIX': '@',
-        'TOOLS': [],
+        'TOOLS': ['install', 'install'],
         '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
         '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
         '__RPATH': '$_RPATH',
-        '_concat': &lt;function _concat at 0xb7c43224&gt;,
-        '_defines': &lt;function _defines at 0xb7c432cc&gt;,
-        '_installStr': &lt;function installStr at 0xb7c431b4&gt;,
-        '_stripixes': &lt;function _stripixes at 0xb7c43294&gt;}
+        '_concat': &lt;function _concat at 0xa3d398&gt;,
+        '_defines': &lt;function _defines at 0xa3d500&gt;,
+        '_stripixes': &lt;function _stripixes at 0xa3d488&gt;}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.
@@ -340,9 +338,9 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'BUILDERS': {'Object': &lt;SCons.Builder.CompositeBuilder instance at 0xb7b6354c&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0xb7b636cc&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0xb7b6354c&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0xb7bd6e8c&gt;, 'RES': &lt;SCons.Builder.BuilderBase instance at 0xb7b5b9ec&gt;},
+      { 'BUILDERS': {'RES': &lt;SCons.Builder.BuilderBase instance at 0xb39518&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder instance at 0xb4a710&gt;, 'InstallAs': &lt;function InstallAsBuilderWrapper at 0xb45c08&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0xb1cef0&gt;, 'Install': &lt;function InstallBuilderWrapper at 0xb1b7d0&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0xb4aa28&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0xb4a710&gt;},
         'CC': 'cl',
-        'CCCOM': &lt;SCons.Action.FunctionAction instance at 0xb7b63b6c&gt;,
+        'CCCOM': &lt;SCons.Action.FunctionAction instance at 0xb4c290&gt;,
         'CCCOMFLAGS': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS',
         'CCFLAGS': ['/nologo'],
         'CCPCHFLAGS': ['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'],
@@ -377,20 +375,19 @@
         'CXXFILESUFFIX': '.cc',
         'CXXFLAGS': ['$CCFLAGS', '$(', '/TP', '$)'],
         'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c5adac&gt;,
-        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c5adcc&gt;,
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1eb48&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1eb90&gt;,
         'ENV': { 'INCLUDE': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\include',
                  'LIB': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\lib',
                  'PATH': 'C:\\Program Files\\Microsoft Visual Studio\\Common\\tools\\WIN95;C:\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\bin;C:\\Program Files\\Microsoft Visual Studio\\Common\\tools;C:\\Program Files\\Microsoft Visual Studio/VC98\\bin',
                  'PATHEXT': '.COM;.EXE;.BAT;.CMD',
                  'SystemRoot': 'C:/WINDOWS'},
-        'ESCAPE': &lt;function escape at 0xb7bcf454&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c5adec&gt;,
+        'ESCAPE': &lt;function escape at 0xb24848&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1ebd8&gt;,
         'IDLSUFFIXES': ['.idl', '.IDL'],
         'INCPREFIX': '/I',
         'INCSUFFIX': '',
-        'INSTALL': &lt;function installFunc at 0xb7c5e17c&gt;,
-        'INSTALLSTR': &lt;function installStr at 0xb7c5e1b4&gt;,
+        'INSTALL': &lt;function copyFunc at 0xb45c80&gt;,
         'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': '',
         'LIBPREFIXES': ['$LIBPREFIX'],
@@ -406,14 +403,14 @@
         'PLATFORM': 'win32',
         'PROGPREFIX': '',
         'PROGSUFFIX': '.exe',
-        'PSPAWN': &lt;function piped_spawn at 0xb7bcf3ac&gt;,
+        'PSPAWN': &lt;function piped_spawn at 0xb20488&gt;,
         'RC': 'rc',
         'RCCOM': '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES',
         'RCFLAGS': [],
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xb7c5ae0c&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0xa1ec20&gt;,
         'SCANNERS': [],
         'SHCC': '$CC',
-        'SHCCCOM': &lt;SCons.Action.FunctionAction instance at 0xb7b63bcc&gt;,
+        'SHCCCOM': &lt;SCons.Action.FunctionAction instance at 0xb4c320&gt;,
         'SHCCFLAGS': ['$CCFLAGS'],
         'SHCFLAGS': ['$CFLAGS'],
         'SHCXX': '$CXX',
@@ -424,19 +421,18 @@
         'SHLIBSUFFIX': '.dll',
         'SHOBJPREFIX': '$OBJPREFIX',
         'SHOBJSUFFIX': '$OBJSUFFIX',
-        'SPAWN': &lt;function spawn at 0xb7bcf41c&gt;,
+        'SPAWN': &lt;function spawn at 0xb247d0&gt;,
         'STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME': 1,
-        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0xb7be989c&gt;,
+        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0xa4e170&gt;,
         'TEMPFILEPREFIX': '@',
-        'TOOLS': ['msvc'],
+        'TOOLS': ['msvc', 'install', 'install'],
         '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
         '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-        '_concat': &lt;function _concat at 0xb7c5e224&gt;,
-        '_defines': &lt;function _defines at 0xb7c5e2cc&gt;,
-        '_installStr': &lt;function installStr at 0xb7c5e1b4&gt;,
-        '_stripixes': &lt;function _stripixes at 0xb7c5e294&gt;}
+        '_concat': &lt;function _concat at 0xa3d398&gt;,
+        '_defines': &lt;function _defines at 0xa3d500&gt;,
+        '_stripixes': &lt;function _stripixes at 0xa3d488&gt;}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.
@@ -891,17 +887,17 @@
         +-SConstruct
         +-f1.c
         +-f1.o
-        | +-[f1.c]
+        | +-f1.c
         | +-inc.h
         +-f2.c
         +-f2.o
-        | +-[f2.c]
-        | +-[inc.h]
+        | +-f2.c
+        | +-inc.h
         +-f3.c
         +-f3.o
-        | +-[f3.c]
-        | +-[inc.h]
-        +-[inc.h]
+        | +-f3.c
+        | +-inc.h
+        +-inc.h
         +-libfoo.a
         | +-[f1.o]
         | +-[f2.o]
@@ -909,16 +905,16 @@
         +-prog1
         | +-prog1.o
         | | +-prog1.c
-        | | +-[inc.h]
+        | | +-inc.h
         | +-[libfoo.a]
-        +-[prog1.c]
+        +-prog1.c
         +-[prog1.o]
         +-prog2
         | +-prog2.o
         | | +-prog2.c
-        | | +-[inc.h]
+        | | +-inc.h
         | +-[libfoo.a]
-        +-[prog2.c]
+        +-prog2.c
         +-[prog2.o]
     </screen>
 
@@ -1112,14 +1108,10 @@
       % <userinput>scons -Q --debug=stacktrace</userinput>
       scons: *** Source `prog.c' not found, needed by target `prog.o'.  Stop.
       scons: internal stack trace:
-        File "/home/knight/SCons/scons.0.96.C763/bootstrap/src/engine/SCons/Job.py", line 111, in start
-          task.prepare()
-        File "/home/knight/SCons/scons.0.96.C763/bootstrap/src/engine/SCons/Taskmaster.py", line 166, in prepare
-          t.prepare()
-        File "/home/knight/SCons/scons.0.96.C763/bootstrap/src/engine/SCons/Node/FS.py", line 2137, in prepare
-          SCons.Node.Node.prepare(self)
-        File "/home/knight/SCons/scons.0.96.C763/bootstrap/src/engine/SCons/Node/__init__.py", line 806, in prepare
-          raise SCons.Errors.StopError, desc
+        File "bootstrap/src/engine/SCons/Job.py", line 114, in start
+        File "bootstrap/src/engine/SCons/Taskmaster.py", line 169, in prepare
+        File "bootstrap/src/engine/SCons/Node/FS.py", line 2220, in prepare
+        File "bootstrap/src/engine/SCons/Node/__init__.py", line 819, in prepare
     </screen>
 
     <para>

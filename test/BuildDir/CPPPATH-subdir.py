@@ -58,6 +58,7 @@ env.Library('foo', 'foo.c')
 
 test.write(['src', 'glscry', 'foo.c'], """\
 #include <foo.h>
+int foo(void) { return 0; }
 """)
 
 

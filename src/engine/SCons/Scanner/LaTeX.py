@@ -29,12 +29,12 @@ This module implements the dependency scanner for LaTeX code.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+import string
 
 import SCons.Scanner
-import string
-import os.path
 
-def LaTeXScanner(fs = SCons.Node.FS.default_fs):
+def LaTeXScanner():
     """Return a prototype Scanner instance for scanning LaTeX source files"""
     ds = LaTeX(name = "LaTeXScanner",
                suffixes =  '$LATEXSUFFIXES',

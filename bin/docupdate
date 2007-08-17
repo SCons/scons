@@ -2,15 +2,15 @@
 
 if test $# -eq 0; then
     for f in doc/user/*.in; do
-        sgml=doc/user/`basename $f .in`.sgml
+        xml=doc/user/`basename $f .in`.xml
         echo $f:
-        python bin/sconsoutput.py $f > $sgml
+        python bin/sconsoutput.py $f > $xml
     done
 else
     for a in $*; do
         f=doc/user/$a.in
-        sgml=doc/user/$a.sgml
+        xml=doc/user/$a.xml
         echo $f:
-        python bin/sconsoutput.py $f > $sgml
+        python bin/sconsoutput.py $f > $xml
     done
 fi

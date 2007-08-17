@@ -156,7 +156,7 @@ class Environment:
         return self.d
     def Clone(self, **kw):
         res = Environment()
-        res.d = SCons.Environment.our_deepcopy(self.d)
+        res.d = SCons.Util.semi_deepcopy(self.d)
         for k, v in kw.items():
             res.d[k] = v
         return res

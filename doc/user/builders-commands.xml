@@ -74,6 +74,15 @@
      env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE &gt; $TARGET")
   </programlisting>
 
+  <para>
+
+  When executed,
+  &SCons; runs the specified command,
+  substituting &cv-link-SOURCE; and &cv-link-TARGET;
+  as expected:
+
+  </para>
+
   <screen>
     % <userinput>scons -Q</userinput>
     sed 's/x/y/' &lt; foo.in &gt; foo.out
@@ -90,7 +99,9 @@
 
   <para>
 
-  Note that the action you 
+  Note that the action you specify to the
+  &Command; &Builder; can be any legal &SCons; &Action;,
+  such as a Python function:
 
   </para>
 
@@ -101,6 +112,12 @@
          return None
      env.Command('foo.out', 'foo.in', build)
   </programlisting>
+
+  <para>
+
+  Which executes as follows:
+
+  </para>
 
   <screen>
     % <userinput>scons -Q</userinput>

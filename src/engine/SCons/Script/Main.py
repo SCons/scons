@@ -54,6 +54,7 @@ import traceback
 #                         'lib',
 #                         'scons-%d' % SCons.__version__)] + sys.path[1:]
 
+import SCons.CacheDir
 import SCons.Debug
 import SCons.Defaults
 import SCons.Environment
@@ -641,10 +642,15 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
         SCons.Tool.DefaultToolpath.append(os.path.abspath(site_tools_dir))
 
 def version_string(label, module):
-    fmt = "\t%s: v%s.%s, %s, by %s on %s\n"
+    version = module.__version__
+    build = module.__build__
+    if build:
+        if build[0] != '.':
+            build = '.' + build
+        version = version + build
+    fmt = "\t%s: v%s, %s, by %s on %s\n"
     return fmt % (label,
-                  module.__version__,
-                  module.__build__,
+                  version,
                   module.__date__,
                   module.__developer__,
                   module.__buildsys__)
@@ -720,7 +726,7 @@ def _main(parser):
     # Now that we're in the top-level SConstruct directory, go ahead
     # and initialize the FS object that represents the file system,
     # and make it the build engine default.
-    fs = SCons.Node.FS.default_fs = SCons.Node.FS.FS()
+    fs = SCons.Node.FS.get_default_fs()
 
     for rep in options.repository:
         fs.Repository(rep)
@@ -770,15 +776,14 @@ def _main(parser):
     if options.silent:
         SCons.Action.print_actions = None
 
-    if options.cache_debug:
-        fs.CacheDebugEnable(options.cache_debug)
     if options.cache_disable:
-        def disable(self): pass
-        fs.CacheDir = disable
+        SCons.CacheDir.CacheDir = SCons.Util.Null()
+    if options.cache_debug:
+        SCons.CacheDir.cache_debug = options.cache_debug
     if options.cache_force:
-        fs.cache_force = 1
+        SCons.CacheDir.cache_force = True
     if options.cache_show:
-        fs.cache_show = 1
+        SCons.CacheDir.cache_show = True
 
     if options.site_dir:
         _load_site_scons_dir(d, options.site_dir)

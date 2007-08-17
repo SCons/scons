@@ -96,14 +96,8 @@ Things to do to release a new X.Y version of SCons:
         aecp SConstruct
         vi SConstruct
 
-        aecp rpm/scons.spec.in
-        vi rpm/scons.spec.in
-
         aecp QMTest/TestSCons.py
         vi QMTest/TestSCons.py
-
-        aecp src/setup.py
-        vi src/setup.py
 
         # Read through and update the README files if necessary
         [optional] aecp README

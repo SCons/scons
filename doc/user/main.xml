@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
   __COPYRIGHT__
@@ -23,10 +24,11 @@
 
 -->
 
-<!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
 
-    <!ENTITY % version SYSTEM "../version.sgml">
+    <!ENTITY % version SYSTEM "../version.xml">
     %version;
 
     <!ENTITY % scons SYSTEM "../scons.mod">
@@ -41,47 +43,47 @@
     <!ENTITY % variables-mod SYSTEM "variables.mod">
     %variables-mod;
 
-    <!ENTITY actions SYSTEM "actions.sgml">
-    <!ENTITY alias SYSTEM "alias.sgml">
-    <!ENTITY ant SYSTEM "ant.sgml">
-    <!ENTITY build-install SYSTEM "build-install.sgml">
-    <!ENTITY builders SYSTEM "builders.sgml">
-    <!ENTITY builders-built-in SYSTEM "builders-built-in.sgml">
-    <!ENTITY builders-commands SYSTEM "builders-commands.sgml">
-    <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
-    <!ENTITY caching SYSTEM "caching.sgml">
-    <!ENTITY command-line SYSTEM "command-line.sgml">
-    <!ENTITY copyright SYSTEM "copyright.sgml">
-    <!ENTITY depends SYSTEM "depends.sgml">
-    <!ENTITY ENV_file SYSTEM "ENV.sgml">
-    <!ENTITY environments SYSTEM "environments.sgml">
-    <!ENTITY errors SYSTEM "errors.sgml">
-    <!ENTITY example SYSTEM "example.sgml">
-    <!ENTITY factories SYSTEM "factories.sgml">
-    <!ENTITY file-removal SYSTEM "file-removal.sgml">
-    <!ENTITY help SYSTEM "help.sgml">
-    <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
-    <!ENTITY java SYSTEM "java.sgml">
-    <!ENTITY install SYSTEM "install.sgml">
-    <!ENTITY less-simple SYSTEM "less-simple.sgml">
-    <!ENTITY libraries SYSTEM "libraries.sgml">
-    <!ENTITY make SYSTEM "make.sgml">
-    <!ENTITY nodes SYSTEM "nodes.sgml">
-    <!ENTITY parseconfig SYSTEM "parseconfig.sgml">
-    <!ENTITY preface SYSTEM "preface.sgml">
-    <!ENTITY python SYSTEM "python.sgml">
-    <!ENTITY repositories SYSTEM "repositories.sgml">
-    <!ENTITY run SYSTEM "run.sgml">
-    <!ENTITY scanners SYSTEM "scanners.sgml">
-    <!ENTITY sconf SYSTEM "sconf.sgml">
-    <!ENTITY separate SYSTEM "separate.sgml">
-    <!ENTITY simple SYSTEM "simple.sgml">
-    <!ENTITY sourcecode SYSTEM "sourcecode.sgml">
-    <!ENTITY tasks SYSTEM "tasks.sgml">
-    <!ENTITY tools SYSTEM "tools.sgml">
-    <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
-    <!ENTITY variables SYSTEM "variables.sgml">
-    <!ENTITY variants SYSTEM "variants.sgml">
+    <!ENTITY actions SYSTEM "actions.xml">
+    <!ENTITY alias SYSTEM "alias.xml">
+    <!ENTITY ant SYSTEM "ant.xml">
+    <!ENTITY build-install SYSTEM "build-install.xml">
+    <!ENTITY builders SYSTEM "builders.xml">
+    <!ENTITY builders-built-in SYSTEM "builders-built-in.xml">
+    <!ENTITY builders-commands SYSTEM "builders-commands.xml">
+    <!ENTITY builders-writing SYSTEM "builders-writing.xml">
+    <!ENTITY caching SYSTEM "caching.xml">
+    <!ENTITY command-line SYSTEM "command-line.xml">
+    <!ENTITY copyright SYSTEM "copyright.xml">
+    <!ENTITY depends SYSTEM "depends.xml">
+    <!ENTITY ENV_file SYSTEM "ENV.xml">
+    <!ENTITY environments SYSTEM "environments.xml">
+    <!ENTITY errors SYSTEM "errors.xml">
+    <!ENTITY example SYSTEM "example.xml">
+    <!ENTITY factories SYSTEM "factories.xml">
+    <!ENTITY file-removal SYSTEM "file-removal.xml">
+    <!ENTITY help SYSTEM "help.xml">
+    <!ENTITY hierarchy SYSTEM "hierarchy.xml">
+    <!ENTITY java SYSTEM "java.xml">
+    <!ENTITY install SYSTEM "install.xml">
+    <!ENTITY less-simple SYSTEM "less-simple.xml">
+    <!ENTITY libraries SYSTEM "libraries.xml">
+    <!ENTITY make SYSTEM "make.xml">
+    <!ENTITY nodes SYSTEM "nodes.xml">
+    <!ENTITY parseconfig SYSTEM "parseconfig.xml">
+    <!ENTITY preface SYSTEM "preface.xml">
+    <!ENTITY python SYSTEM "python.xml">
+    <!ENTITY repositories SYSTEM "repositories.xml">
+    <!ENTITY run SYSTEM "run.xml">
+    <!ENTITY scanners SYSTEM "scanners.xml">
+    <!ENTITY sconf SYSTEM "sconf.xml">
+    <!ENTITY separate SYSTEM "separate.xml">
+    <!ENTITY simple SYSTEM "simple.xml">
+    <!ENTITY sourcecode SYSTEM "sourcecode.xml">
+    <!ENTITY tasks SYSTEM "tasks.xml">
+    <!ENTITY tools SYSTEM "tools.xml">
+    <!ENTITY troubleshoot SYSTEM "troubleshoot.xml">
+    <!ENTITY variables SYSTEM "variables.xml">
+    <!ENTITY variants SYSTEM "variants.xml">
 
     <!ENTITY builders-gen SYSTEM "builders.gen">
     <!ENTITY tools-gen SYSTEM "tools.gen">
@@ -116,6 +118,9 @@
   XXX GetOption('duplicate')
   XXX SetOption('duplicate')
   XXX - - duplicate=
+
+  XXX GetOption('help')
+  XXX SetOption('help')
 
   XXX GetOption('num_jobs')
   XXX SetOption('num_jobs')

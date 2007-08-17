@@ -39,7 +39,7 @@ test.diff_function = TestSCons_time.diff_re
 
 
 def tempdir_re(*args):
-    import os
+    import os,sys
     import os.path
     import string
     import tempfile
@@ -49,6 +49,9 @@ def tempdir_re(*args):
     x = apply(os.path.join, args)
     x = re.escape(x)
     x = string.replace(x, 'time\\-', 'time\\-[^%s]*' % sep)
+    if sys.platform=='darwin':
+        # OSX has /tmp in /private/tmp.
+        x = '(/private)?' + x
     return x
 
 scons_py = re.escape(test.workpath('src', 'script', 'scons.py'))

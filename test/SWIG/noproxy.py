@@ -33,17 +33,6 @@ import sys
 
 import TestSCons
 
-if sys.platform =='darwin':
-    # change to make it work with stock OS X python framework
-    # we can't link to static libpython because there isn't one on OS X
-    # so we link to a framework version. However, testing must also
-    # use the same version, or else you get interpreter errors.
-    python = "/System/Library/Frameworks/Python.framework/Versions/Current/bin/python"
-    _python_ = '"' + python + '"'
-else:
-    python = TestSCons.python
-    _python_ = TestSCons._python_
-
 # swig-python expects specific filenames.
 # the platform specific suffix won't necessarily work.
 if sys.platform == 'win32':
@@ -58,21 +47,14 @@ swig = test.where_is('swig')
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
-
-
-version = sys.version[:3] # see also sys.prefix documentation
+_python_ = test.get_quoted_platform_python()
 
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
-frameworks = ''
-platform_sys_prefix = sys.prefix
-if sys.platform == 'darwin':
-    # OS X has a built-in Python but no static libpython
-    # so you should link to it using apple's 'framework' scheme.
-    # (see top of file for further explanation)
-    frameworks = '-framework Python'
-    platform_sys_prefix = '/System/Library/Frameworks/Python.framework/Versions/%s/' % version
+python_include_dir = test.get_python_inc()
+
+python_frameworks_flags = test.get_python_frameworks_flags()
 
 test.write("dependency.i", """\
 %module dependency
@@ -86,10 +68,10 @@ test.write("dependent.i", """\
 
 test.write('SConstruct', """
 foo = Environment(SWIGFLAGS=['-python', '-noproxy'],
-                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
+                  CPPPATH='%(python_include_dir)s',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(frameworks)s',
+                  FRAMEWORKSFLAGS='%(python_frameworks_flags)s',
                   )
 
 swig = foo.Dictionary('SWIG')

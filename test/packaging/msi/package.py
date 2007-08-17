@@ -42,14 +42,16 @@ except ImportError:
 
 wix = test.Environment().WhereIs('candle')
 
-if wix:
-  #
-  # build with minimal tag set and test for the given package meta-data
-  #
-  test.write( 'file1.exe', "file1" )
-  test.write( 'file2.exe', "file2" )
+if not wix:
+    test.skip_test("No 'candle' found; skipping test\n")
 
-  test.write('SConstruct', """
+#
+# build with minimal tag set and test for the given package meta-data
+#
+test.write( 'file1.exe', "file1" )
+test.write( 'file2.exe', "file2" )
+
+test.write('SConstruct', """
 import os
 
 env  = Environment(tools=['default', 'packaging'])
@@ -69,32 +71,32 @@ env.Package( NAME         = 'foo',
 env.Alias( 'install', [ f1, f2 ] )
 """)
 
-  test.run(arguments='', stderr = None)
+test.run(arguments='', stderr = None)
 
-  test.must_exist( 'foo-1.2.wxs' )
-  test.must_exist( 'foo-1.2.msi' )
+test.must_exist( 'foo-1.2.wxs' )
+test.must_exist( 'foo-1.2.msi' )
 
-  dom     = parse( test.workpath( 'foo-1.2.wxs' ) )
-  Product = dom.getElementsByTagName( 'Product' )[0]
-  Package = dom.getElementsByTagName( 'Package' )[0]
+dom     = parse( test.workpath( 'foo-1.2.wxs' ) )
+Product = dom.getElementsByTagName( 'Product' )[0]
+Package = dom.getElementsByTagName( 'Package' )[0]
 
-  test.fail_test( not Product.attributes['Manufacturer'].value == 'Nanosoft_2000' )
-  test.fail_test( not Product.attributes['Version'].value      == '1.2' )
-  test.fail_test( not Product.attributes['Name'].value         == 'foo' )
+test.fail_test( not Product.attributes['Manufacturer'].value == 'Nanosoft_2000' )
+test.fail_test( not Product.attributes['Version'].value      == '1.2' )
+test.fail_test( not Product.attributes['Name'].value         == 'foo' )
 
-  test.fail_test( not Package.attributes['Description'].value == 'balalalalal' )
-  test.fail_test( not Package.attributes['Comments'].value    == 'this should be reallly really long' )
+test.fail_test( not Package.attributes['Description'].value == 'balalalalal' )
+test.fail_test( not Package.attributes['Comments'].value    == 'this should be reallly really long' )
 
-  #
-  # build with file tags resulting in multiple components in the msi installer
-  #
-  test.write( 'file1.exe', "file1" )
-  test.write( 'file2.exe', "file2" )
-  test.write( 'file3.html', "file3" )
-  test.write( 'file4.dll', "file4" )
-  test.write( 'file5.dll', "file5" )
+#
+# build with file tags resulting in multiple components in the msi installer
+#
+test.write( 'file1.exe', "file1" )
+test.write( 'file2.exe', "file2" )
+test.write( 'file3.html', "file3" )
+test.write( 'file4.dll', "file4" )
+test.write( 'file5.dll', "file5" )
 
-  test.write('SConstruct', """
+test.write('SConstruct', """
 import os
 env = Environment(tools=['default', 'packaging'])
 f1  = env.Install( '/usr/' , 'file1.exe'  )
@@ -121,18 +123,19 @@ env.Package( NAME        = 'foo',
 env.Alias( 'install', [ f1, f2, f3, f4, f5 ] )
 """)
 
-  test.run(arguments='', stderr = None)
+test.run(arguments='', stderr = None)
 
-  test.must_exist( 'foo-1.2.wxs' )
-  test.must_exist( 'foo-1.2.msi' )
+test.must_exist( 'foo-1.2.wxs' )
+test.must_exist( 'foo-1.2.msi' )
 
-  dom      = parse( test.workpath( 'foo-1.2.wxs' ) )
-  elements = dom.getElementsByTagName( 'Feature' )
-  test.fail_test( not elements[1].attributes['Title'].value == 'Main Part' )
-  test.fail_test( not elements[2].attributes['Title'].value == 'Documentation' )
-  test.fail_test( not elements[3].attributes['Title'].value == 'Another Feature' )
-  test.fail_test( not elements[3].attributes['Description'].value == 'with a long description' )
-  test.fail_test( not elements[4].attributes['Title'].value == 'Java Part' )
+dom      = parse( test.workpath( 'foo-1.2.wxs' ) )
+elements = dom.getElementsByTagName( 'Feature' )
+test.fail_test( not elements[1].attributes['Title'].value == 'Main Part' )
+test.fail_test( not elements[2].attributes['Title'].value == 'Documentation' )
+test.fail_test( not elements[3].attributes['Title'].value == 'Another Feature' )
+test.fail_test( not elements[3].attributes['Description'].value == 'with a long description' )
+test.fail_test( not elements[4].attributes['Title'].value == 'Java Part' )
 
-else:
-  test.no_result()
+
+
+test.pass_test()

@@ -16,6 +16,7 @@ JAVACLASSSUFFIX
 </sets>
 <uses>
 JAVAHCOMSTR
+JAVACLASSPATH
 </uses>
 </tool>
 
@@ -27,7 +28,10 @@ The target can be either a directory
 in which the header files will be written,
 or a header file name which
 will contain all of the definitions.
-The source can be either the names of <filename>.class</filename> files,
+The source can be the names of <filename>.class</filename> files,
+the names of <filename>.java</filename> files
+to be compiled into <filename>.class</filename> files
+by calling the &b-link-Java; builder method,
 or the objects returned from the
 &b-Java;
 builder method.

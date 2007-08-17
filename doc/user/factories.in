@@ -298,9 +298,8 @@
       <file name="S" printme="1">
       Command("file.out", "file.in",
               [
-                Copy("tempfile", "$SOURCE"),
-                "modify tempfile",
-                Move("$TARGET", "tempfile"),
+                Copy("$TARGET", "$SOURCE"),
+                Touch("$TARGET"),
               ])
       </file>
       <file name="SConstruct">
@@ -310,9 +309,6 @@
       SConscript('S')
       </file>
       <file name="file.in">file.in</file>
-      <file name="modify" chmod="0755">
-      touch $*
-      </file>
     </scons_example>
 
     <para>

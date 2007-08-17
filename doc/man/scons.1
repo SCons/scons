@@ -2041,8 +2041,8 @@ This function adds a new command-line option to be recognized.
 The specified
 .I arguments
 are the same as supported by the standard Python
-.B optparse.add_option
-method;
+.BR optparse.add_option ()
+method (with a few additional capabilities noted below);
 see the documentation for
 .B optparse
 for a thorough discussion of its option-processing capabities.
@@ -2053,6 +2053,31 @@ module was not a standard module until Python 2.3,
 contains a compatible version of the module
 that is used to provide identical functionality
 when run by earlier Python versions.)
+
+In addition to the arguments and values supported by the
+.B optparse.add_option ()
+method,
+the SCons
+.BR AddOption ()
+function allows you to set the
+.B nargs
+keyword value to
+.B '?'
+(a string with just the question mark)
+to indicate that the specified long option(s) take(s) an
+.I optional
+argument.
+When 
+.B "nargs = '?'"
+is passed to the
+.BR AddOption ()
+function, the
+.B const
+keyword argument
+may be used to supply the "default"
+value that should be used when the
+option is specified on the command line
+without an explicit argument.
 
 If no
 .B default=
@@ -2459,6 +2484,26 @@ The derived files in the cache will be shared
 among all the builds using the same
 .BR CacheDir ()
 call.
+Specifying a
+.I cache_dir
+of
+.B None
+disables derived file caching.
+
+Calling
+.BR env.CacheDir ()
+will only affect targets built
+through the specified construction environment.
+Calling
+.BR CacheDir ()
+sets a global default
+that will be used by all targets built
+through construction environments
+that do
+.I not
+have an
+.BR env.CacheDir ()
+specified.
 
 When a
 .BR CacheDir ()
@@ -3276,43 +3321,6 @@ Import("env")
 Import("env", "variable")
 Import(["env", "variable"])
 Import("*")
-.EE
-
-'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP
-.RI Install( dir ", " source )
-.TP
-.RI env.Install( dir ", " source )
-Installs one or more source files or directories
-in a destination directory
-.IR dir .
-The names of the specified source files or directories
-remain the same within the destination directory.
-
-.ES
-env.Install(dir = '/usr/local/bin', source = ['foo', 'bar'])
-.EE
-
-'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP
-.RI InstallAs( target ", " source )
-.TP
-.RI env.InstallAs( target ", " source )
-Installs one or more source files or directories
-to specific names,
-allowing changing a file or directory name
-as part of the installation.
-It is an error if the
-.I target
-and
-.I source
-arguments list different numbers of files or directories.
-
-.ES
-env.InstallAs(target = '/usr/local/bin/foo',
-              source = 'foo_debug')
-env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
-              source = ['libFOO.a', 'libBAR.a'])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4491,6 +4499,26 @@ files = Split("""
 	f9.c
 """)
 .EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Tag( node ", " tags )
+Annotates file or directory Nodes with
+information about how the
+.BR Package ()
+Builder should package those files or directories.
+All tags are optional.
+
+.ES
+# makes sure the built library will be installed with 0644 file
+# access mode
+Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
+
+# marks file2.txt to be a documentation file
+Tag( 'file2.txt', DOC )
+.EE
+</summary>
+</builder>
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -7026,7 +7054,7 @@ class foo:
         self.arg = arg
 
     def __call__(self, target, source, env, for_signature):
-        return arg + " bar"
+        return self.arg + " bar"
 
 # Will expand $BAR to "my argument bar baz"
 env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")

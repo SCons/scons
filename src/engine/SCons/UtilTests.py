@@ -106,7 +106,7 @@ class UtilTestCase(unittest.TestCase):
 
         return foo, expect, withtags
 
-    def tree_case_2(self):
+    def tree_case_2(self, prune=1):
         """Fixture for the render_tree() and print_tree() tests."""
 
         stdlib_h = self.Node("stdlib.h")
@@ -123,6 +123,10 @@ class UtilTestCase(unittest.TestCase):
     +-bar.h
       +-[stdlib.h]
 """
+
+        if not prune:
+            expect = string.replace(expect, '[', '')
+            expect = string.replace(expect, ']', '')
 
         lines = string.split(expect, '\n')[:-1]
         lines = map(lambda l: '[E BSPACN ]'+l, lines)
@@ -163,7 +167,7 @@ class UtilTestCase(unittest.TestCase):
             actual = sys.stdout.getvalue()
             assert withtags == actual, (withtags, actual)
 
-            node, expect, withtags = self.tree_case_2()
+            node, expect, withtags = self.tree_case_2(prune=0)
 
             sys.stdout = StringIO.StringIO()
             print_tree(node, get_children, 1)

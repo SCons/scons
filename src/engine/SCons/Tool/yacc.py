@@ -43,7 +43,8 @@ import SCons.Util
 YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
 def _yaccEmitter(target, source, env, ysuf, hsuf):
-    flags = SCons.Util.CLVar(env.subst("$YACCFLAGS"))
+    yaccflags = env.subst("$YACCFLAGS", target=target, source=source)
+    flags = SCons.Util.CLVar(yaccflags)
     targetBase, targetExt = os.path.splitext(SCons.Util.to_String(target[0]))
 
     if '.ym' in ysuf:                # If using Objective-C

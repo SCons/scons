@@ -29,8 +29,14 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+import os
+import shutil
+import stat
+
 import SCons.Action
-import shutil, os, stat
 from SCons.Util import make_path_relative
 
 #

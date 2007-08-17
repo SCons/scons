@@ -536,7 +536,7 @@ environment undisturbed.
       % <userinput>scons -Q</userinput>
       
       scons: *** Two environments with different actions were specified for the same target: foo.o
-      File "/home/my/project/SConstruct", line 6, in ?
+      File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
    </screen>
 
    <para>

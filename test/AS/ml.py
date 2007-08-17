@@ -39,7 +39,7 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-if sys.platform == 'win32':
+if sys.platform != 'win32':
     test.skip_test("Skipping ml test on non-win32 platform '%s'\n" % sys.platform)
 
 ml = test.where_is('ml')

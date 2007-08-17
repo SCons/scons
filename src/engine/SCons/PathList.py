@@ -138,7 +138,8 @@ class _PathList:
                     value = string.join(map(str, value), '')
             elif type == TYPE_OBJECT:
                 value = node_conv(value)
-            result.append(value)
+            if value:
+                result.append(value)
         return tuple(result)
 
 

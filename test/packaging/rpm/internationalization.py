@@ -47,6 +47,8 @@ rpm = test.Environment().WhereIs('rpm')
 if not rpm:
     test.skip_test('rpm not found, skipping test\n')
 
+rpm_build_root = test.workpath('rpm_build_root')
+
 #
 # test INTERNATIONAL PACKAGE META-DATA
 #
@@ -64,6 +66,7 @@ import os
 env  = Environment(tools=['default', 'packaging'])
 
 env.Prepend(RPM = 'TAR_OPTIONS=--wildcards ')
+env.Append(RPMFLAGS = r' --buildroot %(rpm_build_root)s')
 
 prog = env.Install( '/bin', Program( 'main.c' ) )
 
