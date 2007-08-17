@@ -65,6 +65,9 @@ void bar() {
 }
 """)
 
+if sys.platform == 'darwin':
+    test.skip_test("Skipping test on Darwin/OSX; it has partial case sensitivity.")
+
 if sys.platform in ['cygwin', 'win32']:
     sys.stdout.write("Using case-insensitive filesystem, testing for failure\n")
     sys.stdout.flush()

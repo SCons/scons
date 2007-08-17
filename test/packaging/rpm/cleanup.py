@@ -45,6 +45,8 @@ rpm = test.Environment().WhereIs('rpm')
 if not rpm:
     test.skip_test('rpm not found, skipping test\n')
 
+rpm_build_root = test.workpath('rpm_build_root')
+
 test.subdir('src')
 
 test.write( [ 'src', 'main.c' ], r"""
@@ -57,7 +59,10 @@ int main( int argc, char* argv[] )
 test.write('SConstruct', """
 env=Environment(tools=['default', 'packaging'])
 
+env['ENV']['RPM_BUILD_ROOT'] = r'%(rpm_build_root)s/foo-1.2.3'
+
 env.Prepend(RPM = 'TAR_OPTIONS=--wildcards ')
+env.Append(RPMFLAGS = r' --buildroot %(rpm_build_root)s')
 
 prog = env.Install( '/bin/' , Program( 'src/main.c')  )
 

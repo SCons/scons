@@ -20,12 +20,74 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.97 - Thu, 12 Apr 2007 12:36:25 -0500
+RELEASE 0.97.0d20070809 - Fri, 10 Aug 2007 10:51:27 -0500
 
   This is the eighth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.97:
+
+    --  env.CacheDir() NOW ONLY AFFECTS CONSTRUCTION ENVIRONMENT TARGETS
+
+        The env.CacheDir() method now only causes derived files to be
+        retrieved from the specified cache directory for targets built
+        with the specified specified construction environment ("env").
+
+        Previously, any call to env.CacheDir() or CacheDir() would modify
+        a global setting and cause all built targets to be retrieved
+        from the specified cache directory.  This behavior was changed so
+        that env.CacheDir() would be consistent with other construction
+        environment methods, which only affect targets built with the
+        specified construction environment.
+
+        The old behavior of changing the global behavior may be preserved
+        by changing any env.CacheDir() calls to:
+
+                CacheDir('/path/to/cache/directory')
+
+        The above change is backwards-compatible and works in all earlier
+        versions of SCons that support CacheDir().
+
+    --  INTERPRETATION OF SUFFIX-LESS SOURCE ARGUMENTS HAS CHANGED
+
+        The interpretation of source arguments (files) without suffixes
+        has changed in one specific configuration.
+
+        Previously, if a Builder had a src_suffix specified (indicating
+        that source files without suffixes should have that suffix
+        appended), the suffix would only be applied to suffix-less source
+        arguments if the Builder did *not* have one or more attached
+        source Builders (that is, the Builder was not a "multi-stage"
+        Builder).  So in the following configuration:
+
+                build_foo = Builder(src_suffix = '.foo')
+                build_bar = Builder(src_suffix = '.bar',
+                                    src_builder = build_bar)
+
+                env = Environment(BUILDERS = {
+                                   'Foo' : build_foo,
+                                   'Boo' : build_bar,
+                                  })
+
+                env.Foo('tgt1', 'src1')
+                env.Bar('tgt2', 'src2')
+        
+        SCons would have expected to find a source file 'src1.foo' for the
+        env.Foo() call, but a source file 'src2' for the env.Bar() call.
+
+        This behavior has now been made consistent, so that the two
+        above calls would expect source files named 'src1.foo' and
+        'src2.bar', respectively.
+
+        Note that, if genuinely desired, the old behavior of building
+        from a source file without a suffix at all (when the Builder has
+        a src_suffix *and* a src_builder) can be specified explicity by
+        turning the string into a File Node directly:
+
+                env.Bar('tgt2', File('src2'))
+
+        The above use of File() is backwards-compatible and will work
+        on earlier versions of SCons.
 
     --  THE DEFAULT EXECUTION PATH FOR Solaris HAS CHANGED
 

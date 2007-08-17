@@ -2507,18 +2507,13 @@ def generate(env):
 
     def test_CacheDir(self):
         """Test the CacheDir() method"""
-        class MyFS:
-            def CacheDir(self, path):
-                self.CD = path
-
         env = self.TestEnvironment(CD = 'CacheDir')
-        env.fs = MyFS()
 
         env.CacheDir('foo')
-        assert env.fs.CD == 'foo', env.fs.CD
+        assert env._CacheDir.path == 'foo', env._CacheDir.path
 
         env.CacheDir('$CD')
-        assert env.fs.CD == 'CacheDir', env.fs.CD
+        assert env._CacheDir.path == 'CacheDir', env._CacheDir.path
 
     def test_Clean(self):
         """Test the Clean() method"""

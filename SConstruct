@@ -35,17 +35,16 @@ month_year = 'January 2007'
 #
 
 import distutils.util
+import fnmatch
 import os
 import os.path
 import re
-import socket
 import stat
 import string
 import sys
-import time
 
 project = 'scons'
-default_version = '0.97'
+default_version = '0.97.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
@@ -67,89 +66,80 @@ def whereis(file):
     return None
 
 #
-# We let the presence or absence of various utilities determine
-# whether or not we bother to build certain pieces of things.
-# This should allow people to still do SCons work even if they
-# don't have Aegis or RPM installed, for example.
+# We let the presence or absence of various utilities determine whether
+# or not we bother to build certain pieces of things.  This should allow
+# people to still do SCons packaging work even if they don't have all
+# of the utilities installed (e.g. RPM).
 #
-aegis = whereis('aegis')
-aesub = whereis('aesub')
 dh_builddeb = whereis('dh_builddeb')
 fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
 rpmbuild = whereis('rpmbuild') or whereis('rpm')
+svn = whereis('svn')
 unzip = whereis('unzip')
 zip = whereis('zip')
 
 #
 # Now grab the information that we "build" into the files.
 #
-try:
-    date = ARGUMENTS['date']
-except:
+date = ARGUMENTS.get('DATE')
+if not date:
+    import time
     date = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
 
-if ARGUMENTS.has_key('developer'):
-    developer = ARGUMENTS['developer']
-elif os.environ.has_key('USERNAME'):
-    developer = os.environ['USERNAME']
-elif os.environ.has_key('LOGNAME'):
-    developer = os.environ['LOGNAME']
-elif os.environ.has_key('USER'):
-    developer = os.environ['USER']
+developer = ARGUMENTS.get('DEVELOPER')
+if not developer:
+    for variable in ['USERNAME', 'LOGNAME', 'USER']:
+        developer = os.environ.get(variable)
+        if developer:
+            break
 
-if ARGUMENTS.has_key('build_system'):
-    build_system = ARGUMENTS['build_system']
-else:
+build_system = ARGUMENTS.get('BUILD_SYSTEM')
+if not build_system:
+    import socket
     build_system = string.split(socket.gethostname(), '.')[0]
 
-if ARGUMENTS.has_key('version'):
-    revision = ARGUMENTS['version']
-elif aesub:
-    revision = os.popen(aesub + " \\$version", "r").read()[:-1]
+version = ARGUMENTS.get('VERSION', '')
+if not version:
+    version = default_version
+
+revision = ARGUMENTS.get('REVISION', '')
+if not revision and svn:
+    svn_info = os.popen("%s info 2> /dev/null" % svn, "r").read()
+    m = re.search('Revision: (\d+)', svn_info)
+    if m:
+        revision = m.group(1)
+
+checkpoint = ARGUMENTS.get('CHECKPOINT', '')
+if checkpoint:
+    if checkpoint == 'd':
+        import time
+        checkpoint = time.strftime('d%Y%m%d', time.localtime(time.time()))
+    elif checkpoint == 'r':
+        checkpoint = 'r' + revision
+    version = version + checkpoint
+
+if svn:
+    svn_status = os.popen("%s status --verbose 2> /dev/null" % svn, "r").read()
+    svn_status_lines = svn_status[:-1].split('\n')
 else:
-    revision = default_version
+    svn_status_lines = []
 
-# This is old code that adds an initial "0" to revision numbers < 10.
-#a = string.split(revision, '.')
-#arr = [a[0]]
-#for s in a[1:]:
-#    if len(s) == 1:
-#        s = '0' + s
-#    arr.append(s)
-#revision = string.join(arr, '.')
-
-# Here's how we'd turn the calculated $revision into our package $version.
-# This makes it difficult to coordinate with other files (debian/changelog
-# and rpm/scons.spec) that hard-code the version number, so just go with
-# the flow for now and hard code it here, too.
-#if len(arr) >= 2:
-#    arr = arr[:-1]
-#def xxx(str):
-#    if str[0] == 'C' or str[0] == 'D':
-#        str = str[1:]
-#    while len(str) > 2 and str[0] == '0':
-#        str = str[1:]
-#    return str
-#arr = map(lambda x, xxx=xxx: xxx(x), arr)
-#version = string.join(arr, '.')
-version = default_version
-
-build_id = string.replace(revision, version + '.', '')
-
-if ARGUMENTS.has_key('change'):
-    change = ARGUMENTS['change']
-elif aesub:
-    change = os.popen(aesub + " \\$change", "r").read()[:-1]
-else:
-    change = default_version
+build_id = ARGUMENTS.get('BUILD_ID')
+if build_id is None:
+    if revision:
+        build_id = 'r' + revision
+        if filter(lambda l: l[0] in 'ACDMR', svn_status_lines):
+            build_id = build_id + '[MODIFIED]'
+    else:
+        build_id = ''
 
 python_ver = sys.version[0:3]
 
 platform = distutils.util.get_platform()
 
 ENV = { 'PATH' : os.environ['PATH'] }
-for key in ['AEGIS_PROJECT', 'LOGNAME', 'PYTHONPATH']:
+for key in ['LOGNAME', 'PYTHONPATH']:
     if os.environ.has_key(key):
         ENV[key] = os.environ[key]
 
@@ -157,17 +147,68 @@ build_dir = ARGUMENTS.get('BUILDDIR', 'build')
 if not os.path.isabs(build_dir):
     build_dir = os.path.normpath(os.path.join(os.getcwd(), build_dir))
 
+command_line_variables = [
+    ("BUILDDIR=",       "The directory in which to build the packages.  " +
+                        "The default is the './build' subdirectory."),
+
+    ("BUILD_ID=",       "An identifier for the specific build." +
+                        "The default is the Subversion revision number."),
+
+    ("BUILD_SYSTEM=",   "The system on which the packages were built.  " +
+                        "The default is whatever hostname is returned " +
+                        "by socket.gethostname()."),
+
+    ("CHECKPOINT=",     "The specific checkpoint release being packaged.  " +
+                        "This will be appended to the VERSION string.  " +
+                        "A value of CHECKPOINT=d will generate a string " +
+                        "of 'd' plus today's date in the format YYYMMDD." +
+                        "A value of CHECKPOINT=r will generate a " +
+                        "string of 'r' plus the Subversion revision number.  " +
+                        "Any other CHECKPOINT= string will be used as is." +
+                        "There is no default value."),
+
+    ("DATE=",           "The date string representing when the packaging " +
+                        "build occurred.  The default is the day and time " +
+                        "the SConstruct file was invoked, in the format " +
+                        "YYYY/MM/DD HH:MM:SS."),
+
+    ("DEVELOPER=",      "The developer who created the packages.  " +
+                        "The default is the first set environment " +
+                        "variable from the list $USERNAME, $LOGNAME, $USER."),
+
+    ("REVISION=",       "The revision number of the source being built.  " +
+                        "The default is the Subversion revision returned " +
+                        "'svn info', with an appended string of " +
+                        "'[MODIFIED]' if there are any changes in the " +
+                        "working copy."),
+
+    ("VERSION=",        "The SCons version being packaged.  The default " +
+                        "is the hard-coded value '%s' " % default_version +
+                        "from this SConstruct file."),
+]
+
 Default('.', build_dir)
 
 packaging_flavors = [
-    'deb',
-    'rpm',
-    'tar-gz',
-    'src-tar-gz',
-    'local-tar-gz',
-    'zip',
-    'src-zip',
-    'local-zip',
+    ('deb',             "A .deb package.  (This is currently not supported.)"),
+
+    ('rpm',             "A RedHat Package Manager file."),
+
+    ('tar-gz',          "The normal .tar.gz file for end-user installation."),
+
+    ('src-tar-gz',      "A .tar.gz file containing all the source " +
+                        "(including tests and documentation)."),
+
+    ('local-tar-gz',    "A .tar.gz file for dropping into other software " +
+                        "for local use."),
+
+    ('zip',             "The normal .zip file for end-user installation."),
+
+    ('src-zip',         "A .zip file containing all the source " +
+                        "(including tests and documentation)."),
+
+    ('local-zip',       "A .zip file for dropping into other software " +
+                        "for local use."),
 ]
 
 test_deb_dir          = os.path.join(build_dir, "test-deb")
@@ -190,6 +231,44 @@ else:
     tar_hflag = 'h'
     python_project_subinst_dir = os.path.join("lib", project)
     project_script_subinst_dir = 'bin'
+
+
+
+import textwrap
+
+indent_fmt = '  %-26s  '
+
+Help("""
+The following aliases build packages of various types, and unpack the
+contents into build/test-$PACKAGE subdirectories, which can be used by the
+runtest.py -p option to run tests against what's been actually packaged:
+
+""")
+
+aliases = packaging_flavors + [('doc', 'The SCons documentation.')]
+aliases.sort()
+
+for alias, help_text in aliases:
+    tw = textwrap.TextWrapper(
+        width = 78,
+        initial_indent = indent_fmt % alias,
+        subsequent_indent = indent_fmt % '' + '  ',
+    )
+    Help(tw.fill(help_text) + '\n')
+
+Help("""
+The following command-line variables can be set:
+
+""")
+
+for variable, help_text in command_line_variables:
+    tw = textwrap.TextWrapper(
+        width = 78,
+        initial_indent = indent_fmt % variable,
+        subsequent_indent = indent_fmt % '' + '  ',
+    )
+    Help(tw.fill(help_text) + '\n')
+
 
 
 zcat = 'gzip -d -c'
@@ -312,6 +391,7 @@ env = Environment(
                    COPYRIGHT           = copyright,
                    DATE                = date,
                    DEVELOPER           = developer,
+                   DISTDIR             = os.path.join(build_dir, 'dist'),
                    MONTH_YEAR          = month_year,
                    REVISION            = revision,
                    VERSION             = version,
@@ -342,7 +422,7 @@ env = Environment(
                    BUILDERS            = { 'SCons_revision' : revbuilder,
                                            'SOElim' : soelimbuilder },
 
-                   PYTHON              = sys.executable,
+                   PYTHON              = '"%s"' % sys.executable,
                    PYTHONFLAGS         = '-tt',
                  )
 
@@ -393,10 +473,25 @@ python_scons = {
 
         'buildermap'    : {},
 
+        'extra_rpm_files' : [],
+
         'explicit_deps' : {
                             'SCons/__init__.py' : Version_values,
                           },
 }
+
+# The RPM spec file we generate will just execute "python", not
+# necessarily the one in sys.executable.  If that version of python has
+# a distutils that knows about Python eggs, then setup.py will generate
+# a .egg-info file.  Check for whether or not to add it to the expected
+# RPM files by executing "python" in a subshell.
+
+cmd = "python -c 'import distutils.command.install_egg_info' > /dev/null 2>&1"
+import_egg_error = os.system(cmd)
+
+if not import_egg_error:
+    egg_info_file = 'scons-' + version + '.egg-info'
+    python_scons['extra_rpm_files'].append(egg_info_file)
 
 #
 # The original packaging scheme would have have required us to push
@@ -568,7 +663,7 @@ for p in [ scons ]:
     setup_py = os.path.join(build, 'setup.py')
     env.Replace(PKG = pkg,
                 PKG_VERSION = pkg_version,
-                SETUP_PY = setup_py)
+                SETUP_PY = '"%s"' % setup_py)
     Local(setup_py)
 
     #
@@ -670,7 +765,7 @@ for p in [ scons ]:
 
     distutils_targets = [ win32_exe ]
 
-    install_targets = distutils_targets[:]
+    Local(env.Install('$DISTDIR', distutils_targets))
 
     if gzip:
 
@@ -679,7 +774,10 @@ for p in [ scons ]:
         src_deps.append(tar_gz)
 
         distutils_targets.extend([ tar_gz, platform_tar_gz ])
-        install_targets.extend([ tar_gz, platform_tar_gz ])
+
+        dist_tar_gz             = env.Install('$DISTDIR', tar_gz)
+        dist_platform_tar_gz    = env.Install('$DISTDIR', platform_tar_gz)
+        Local(dist_tar_gz, dist_platform_tar_gz)
 
         #
         # Unpack the tar.gz archive created by the distutils into
@@ -695,7 +793,7 @@ for p in [ scons ]:
         unpack_tar_gz_files = map(lambda x, u=unpack_tar_gz_dir, pv=pkg_version:
                                          os.path.join(u, pv, x),
                                   src_files)
-        env.Command(unpack_tar_gz_files, tar_gz, [
+        env.Command(unpack_tar_gz_files, dist_tar_gz, [
                     Delete(os.path.join(unpack_tar_gz_dir, pkg_version)),
                     "$ZCAT $SOURCES > .temp",
                     "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
@@ -760,7 +858,10 @@ for p in [ scons ]:
         src_deps.append(zip)
 
         distutils_targets.extend([ zip, platform_zip ])
-        install_targets.extend([ zip, platform_zip ])
+
+        dist_zip            = env.Install('$DISTDIR', zip)
+        dist_platform_zip   = env.Install('$DISTDIR', platform_zip)
+        Local(dist_zip, dist_platform_zip)
 
         #
         # Unpack the zip archive created by the distutils into
@@ -770,7 +871,7 @@ for p in [ scons ]:
                                       os.path.join(u, pv, x),
                                src_files)
 
-        env.Command(unpack_zip_files, zip, [
+        env.Command(unpack_zip_files, dist_zip, [
             Delete(os.path.join(unpack_zip_dir, pkg_version)),
             unzipit,
         ])
@@ -796,7 +897,10 @@ for p in [ scons ]:
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
-    if rpmbuild:
+    if not rpmbuild:
+        msg = "@echo \"Warning:  Can not build 'rpm':  no rpmbuild utility found\""
+        AlwaysBuild(Alias('rpm', [], msg))
+    else:
         topdir = os.path.join(build, 'build',
                               'bdist.' + platform, 'rpm')
 
@@ -822,7 +926,8 @@ for p in [ scons ]:
             maintain multiple lists.
             """
             c = open(str(source[0]), 'rb').read()
-            c = string.replace(c, '__RPM_FILES__', env['RPM_FILES'])
+            c = string.replace(c, '__VERSION' + '__', env['VERSION'])
+            c = string.replace(c, '__RPM_FILES' + '__', env['RPM_FILES'])
             open(str(target[0]), 'wb').write(c)
 
         rpm_files.sort()
@@ -838,20 +943,22 @@ for p in [ scons ]:
         cmd = "$RPMBUILD --define '_topdir $(%s$)' --buildroot %s -ba $SOURCES" % (topdir, buildroot)
         if not os.path.isdir(BUILDdir):
             cmd = ("$( mkdir -p %s; $)" % BUILDdir) + cmd
-        env.Command(targets, specfile, cmd)
-        env.Depends(targets, sourcefile)
+        t = env.Command(targets, specfile, cmd)
+        env.Depends(t, sourcefile)
 
-        install_targets.extend(targets)
+        dist_noarch_rpm = env.Install('$DISTDIR', noarch_rpm)
+        dist_src_rpm    = env.Install('$DISTDIR', src_rpm)
+        Local(dist_noarch_rpm, dist_src_rpm)
 
         dfiles = map(lambda x, d=test_rpm_dir: os.path.join(d, 'usr', x),
                      dst_files)
         env.Command(dfiles,
-                    noarch_rpm,
+                    dist_noarch_rpm,
                     "$RPM2CPIO $SOURCES | (cd $TEST_RPM_DIR && cpio -id)")
 
     if dh_builddeb and fakeroot:
         # Our Debian packaging builds directly into build/dist,
-        # so we don't need to add the .debs to install_targets.
+        # so we don't need to Install() the .debs.
         deb = os.path.join(build_dir, 'dist', "%s_%s-1_all.deb" % (pkg, version))
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
@@ -908,8 +1015,8 @@ for p in [ scons ]:
     build_dir_local = os.path.join(build_dir, local)
     build_dir_local_slv = os.path.join(build_dir, local, s_l_v)
 
-    local_tar_gz = os.path.join(build_dir, 'dist', "%s.tar.gz" % s_l_v)
-    local_zip = os.path.join(build_dir, 'dist', "%s.zip" % s_l_v)
+    dist_local_tar_gz = os.path.join("$DISTDIR/%s.tar.gz" % s_l_v)
+    dist_local_zip = os.path.join("$DISTDIR/%s.zip" % s_l_v)
 
     commands = [
         Delete(build_dir_local),
@@ -941,7 +1048,7 @@ for p in [ scons ]:
     Local(l)
 
     if gzip:
-        env.Command(local_tar_gz,
+        env.Command(dist_local_tar_gz,
                     local_targets,
                     "cd %s && tar czf $( ${TARGET.abspath} $) *" % build_dir_local)
 
@@ -952,10 +1059,10 @@ for p in [ scons ]:
                     Mkdir(test_local_tar_gz_dir),
                     "cd %s && tar xzf $( ${SOURCE.abspath} $)" % test_local_tar_gz_dir]
 
-        env.Command(unpack_targets, local_tar_gz, commands)
+        env.Command(unpack_targets, dist_local_tar_gz, commands)
 
     if zipit:
-        env.Command(local_zip, local_targets, zipit,
+        env.Command(dist_local_zip, local_targets, zipit,
                     CD = build_dir_local, PSV = '.')
 
         unpack_targets = map(lambda x, d=test_local_zip_dir:
@@ -965,15 +1072,8 @@ for p in [ scons ]:
                     Mkdir(test_local_zip_dir),
                     unzipit]
 
-        env.Command(unpack_targets, local_zip, unzipit,
+        env.Command(unpack_targets, dist_local_zip, unzipit,
                     UNPACK_ZIP_DIR = test_local_zip_dir)
-
-    #
-    # And, lastly, install the appropriate packages in the
-    # appropriate subdirectory.
-    #
-    b_d_files = env.Install(os.path.join(build_dir, 'dist'), install_targets)
-    Local(b_d_files)
 
 #
 #
@@ -1014,35 +1114,24 @@ Export('build_dir', 'env', 'whereis')
 SConscript('doc/SConscript')
 
 #
-# If we're running in the actual Aegis project, pack up a complete
-# source archive from the project files and files in the change,
-# so we can share it with helpful developers who don't use Aegis.
+# If we're running in a Subversion working directory, pack up a complete
+# source archive from the project files and files in the change.
 #
 
-if change:
-    df = []
-    cmd = "aegis -list -unf -c %s cf 2>/dev/null" % change
-    for line in map(lambda x: x[:-1], os.popen(cmd, "r").readlines()):
-        a = string.split(line)
-        if a[1] == "remove":
-            df.append(a[-1])
+if svn_status:
+    slines = filter(lambda l: l[0] in ' MA', svn_status_lines)
+    sentries = map(lambda l: l.split()[-1], slines)
+    sfiles = filter(os.path.isfile, sentries)
 
-    cmd = "aegis -list -terse pf 2>/dev/null"
-    pf = map(lambda x: x[:-1], os.popen(cmd, "r").readlines())
-    cmd = "aegis -list -terse -c %s cf 2>/dev/null" % change
-    cf = map(lambda x: x[:-1], os.popen(cmd, "r").readlines())
-    u = {}
-    for f in pf + cf:
-        u[f] = 1
-    for f in df:
-        try:
-            del u[f]
-        except KeyError:
-            pass
-    sfiles = filter(lambda x: x[-9:] != '.aeignore' and
-                              x[-9:] != '.sconsign' and
-                              x[-10:] != '.cvsignore',
-                    u.keys())
+    remove_patterns = [
+        '.svnt/*',
+        '*.aeignore',
+        '*.cvsignore',
+        'www/*',
+    ]
+
+    for p in remove_patterns:
+        sfiles = filter(lambda s, p=p: not fnmatch.fnmatch(s, p), sfiles)
 
     if sfiles:
         ps = "%s-src" % project
@@ -1123,7 +1212,7 @@ if change:
                                     'scons',
                                     'build')),
                 Delete("$TEST_SRC_TAR_GZ_DIR"),
-                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s"' % \
+                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
                     (os.path.join(unpack_tar_gz_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
@@ -1179,7 +1268,7 @@ if change:
                                     'scons',
                                     'build')),
                 Delete("$TEST_SRC_ZIP_DIR"),
-                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s"' % \
+                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
                     (os.path.join(unpack_zip_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
@@ -1192,5 +1281,9 @@ if change:
                 ],
                 ENV = ENV)
 
-for pf in packaging_flavors:
-    Alias(pf, ['build/test-'+pf, 'build/QMTest', 'build/runtest.py'])
+for pf, help_text in packaging_flavors:
+    Alias(pf, [
+        os.path.join(build_dir, 'test-'+pf),
+        os.path.join(build_dir, 'QMTest'),
+        os.path.join(build_dir, 'runtest.py'),
+    ])

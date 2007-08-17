@@ -33,6 +33,7 @@ import UserList
 
 import SCons.Errors
 import SCons.Node
+import SCons.Util
 
 
 
@@ -977,7 +978,7 @@ class NodeTestCase(unittest.TestCase):
         target = SCons.Node.Node()
         source = SCons.Node.Node()
         s = target.get_source_scanner(source)
-        assert s is None, s
+        assert isinstance(s, SCons.Util.Null), s
 
         ts1 = Scanner()
         ts2 = Scanner()

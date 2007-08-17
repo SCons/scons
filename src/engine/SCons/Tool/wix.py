@@ -69,6 +69,9 @@ def exists(env):
     # add the install directory to light libpath.
     #for path in os.environ['PATH'].split(os.pathsep):
     for path in string.split(os.environ['PATH'], os.pathsep):
+        if not path:
+            continue
+
         # workaround for some weird python win32 bug.
         if path[0] == '"' and path[-1:]=='"':
             path = path[1:-1]

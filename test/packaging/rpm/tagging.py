@@ -45,6 +45,8 @@ rpm = test.Environment().WhereIs('rpm')
 if not rpm:
     test.skip_test('rpm not found, skipping test\n')
 
+rpm_build_root = test.workpath('rpm_build_root')
+
 #
 # Test adding an attr tag to the built program.
 #
@@ -61,7 +63,10 @@ test.write('SConstruct', """
 import os
 
 env = Environment(tools=['default', 'packaging'])
+
 env.Prepend(RPM = 'TAR_OPTIONS=--wildcards ')
+env.Append(RPMFLAGS = r' --buildroot %(rpm_build_root)s')
+
 install_dir= os.path.join( ARGUMENTS.get('prefix', '/'), 'bin/' )
 prog_install = env.Install( install_dir , Program( 'src/main.c' ) )
 env.Tag( prog_install, UNIX_ATTR = '(0755, root, users)' )

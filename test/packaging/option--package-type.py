@@ -35,6 +35,8 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+rpm_build_root = test.workpath('rpm_build_root')
+
 scons = test.program
 
 rpm = test.Environment().WhereIs('rpm')
@@ -50,6 +52,7 @@ test.write('SConstruct', """
 # -*- coding: iso-8859-15 -*-
 env=Environment(tools=['default', 'packaging'])
 env.Prepend(RPM = 'TAR_OPTIONS=--wildcards ')
+env.Append(RPMFLAGS = r' --buildroot %(rpm_build_root)s')
 prog=env.Install( '/bin', 'main' )
 env.Package( NAME           = 'foo',
              VERSION        = '1.2.3',

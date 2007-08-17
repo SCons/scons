@@ -45,7 +45,7 @@ if not nasm:
     test.skip_test('nasm not found; skipping test\n')
 
 if string.find(sys.platform, 'linux') == -1:
-    test.skip_test("skipping test on non-Linux platform '%s'\n" % sys.platfrom)
+    test.skip_test("skipping test on non-Linux platform '%s'\n" % sys.platform)
 
 try:
     import popen2

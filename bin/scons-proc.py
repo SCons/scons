@@ -6,7 +6,7 @@
 # construction variables documented in the specified XML files.
 #
 # Dependening on the options, the lists are output in either
-# DocBook-formatted generated SGML files containing the summary text
+# DocBook-formatted generated XML files containing the summary text
 # and/or .mod files contining the ENTITY definitions for each item,
 # or in man-page-formatted output.
 #
@@ -23,7 +23,7 @@ import SConsDoc
 base_sys_path = [os.getcwd() + '/build/test-tar-gz/lib/scons'] + sys.path
 
 helpstr = """\
-Usage: scons-proc.py [--man|--sgml]
+Usage: scons-proc.py [--man|--xml]
                      [-b file(s)] [-t file(s)] [-v file(s)] [infile ...]
 Options:
   -b file(s)        dump builder information to the specified file(s)
@@ -31,17 +31,17 @@ Options:
   -v file(s)        dump variable information to the specified file(s)
   --man             print info in man page format, each -[btv] argument
                     is a single file name
-  --sgml            (default) print info in SGML format, each -[btv] argument
+  --xml             (default) print info in SML format, each -[btv] argument
                     is a pair of comma-separated .gen,.mod file names
 """
 
 opts, args = getopt.getopt(sys.argv[1:],
                            "b:ht:v:",
                            ['builders=', 'help',
-                            'man', 'sgml', 'tools=', 'variables='])
+                            'man', 'xml', 'tools=', 'variables='])
 
 buildersfiles = None
-output_type = '--sgml'
+output_type = '--xml'
 toolsfiles = None
 variablesfiles = None
 
@@ -51,7 +51,7 @@ for o, a in opts:
     elif o in ['-h', '--help']:
         sys.stdout.write(helpstr)
         sys.exit(0)
-    elif o in ['--man', '--sgml']:
+    elif o in ['--man', '--xml']:
         output_type = o
     elif o in ['-t', '--tools']:
         toolsfiles = a
@@ -132,7 +132,7 @@ class SCons_XML:
             return sys.stdout
         return open(name, 'w')
 
-class SCons_XML_to_SGML(SCons_XML):
+class SCons_XML_to_XML(SCons_XML):
     def write(self, files):
         gen, mod = string.split(files, ',')
         g.write_gen(gen)
@@ -232,8 +232,8 @@ class SCons_XML_to_man(SCons_XML):
 
 if output_type == '--man':
     processor_class = SCons_XML_to_man
-elif output_type == '--sgml':
-    processor_class = SCons_XML_to_SGML
+elif output_type == '--xml':
+    processor_class = SCons_XML_to_XML
 else:
     sys.stderr.write("Unknown output type '%s'\n" % output_type)
     sys.exit(1)

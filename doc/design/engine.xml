@@ -523,7 +523,7 @@
   </tgroup>
  </informaltable>
 
-<REMARK>
+<!--
 &Library; and &SharedLibrary; have nearly identical
 semantics, just different
 tools and &consenvs (paths, etc.) that they use.
@@ -532,7 +532,7 @@ using just the &Library; &Builder; object
 with a different environment.
 I think that's a better way to do it.
 Feedback?
-</REMARK>
+-->
 
  <para>
 
@@ -671,9 +671,9 @@ Feedback?
 
    &Builder; objects raise the following exceptions on error:
 
- <REMARK>
+ <!--
  LIST THESE ONCE WE FIGURE OUT WHAT THEY ARE FROM CODING THEM.
- </REMARK>
+ -->
 
   </para>
  </section>
@@ -735,9 +735,9 @@ Feedback?
 
   </para>
 
- <REMARK>
+ <!--
  NEED AN EXAMPLE HERE.
- </REMARK>
+ -->
 
   <para>
 
@@ -918,7 +918,7 @@ Feedback?
  <section>
   <title>&Builder; maps</title>
 
-<REMARK>
+<!--
 Do we even need this anymore?
 Now that the individual builders
 have specified <literal>suffix</literal>
@@ -929,7 +929,7 @@ I think this is a holdover from before I
 added the <literal>suffix</literal> arguments.
 If you want &MakeBuilder; to do something different,
 you set it up with another environment...
-</REMARK>
+-->
 
   <para>
 
@@ -1264,13 +1264,13 @@ you set it up with another environment...
  <section>
   <title>&Scanner; maps</title>
 
-<REMARK>
+<!--
 If the &BUILDERMAP; proves unnecessary,
 we could/should get rid of this one, too,
 by adding a parallel <literal>src_suffix</literal>
 argument to the &Scanner; factory...
 Comments?
-</REMARK>
+-->
 
   <para>
 
@@ -1543,7 +1543,7 @@ Comments?
 <section id="sect-custom">
  <title>Customizing output</title>
 
-<REMARK>
+<!--
 Take this whole section with a grain of salt.
 I whipped it up without a great deal of thought
 to try to add a "competitive advantage"
@@ -1554,7 +1554,7 @@ feels inflexible,
 but I can't think of another way it would be
 done effectively.
 I dunno, maybe this is fine as it is...
-</REMARK>
+-->
 
  <para>
 
@@ -1732,16 +1732,16 @@ I dunno, maybe this is fine as it is...
 <section id="separate">
  <title>Separate source and build trees</title>
 
-<REMARK>
+<!--
 I've never liked Cons' use of the name <literal>Link</literal>
 for this functionality,
 mainly because the term is overloaded
 with linking object files into an executable.
 Yet I've never come up with anything better.
 Any suggestions?
-</REMARK>
+-->
 
-<REMARK>
+<!--
 Also, I made this an &Environment; method because
 it logically belongs in the API reference
 (the build engine needs to know about it),
@@ -1754,7 +1754,7 @@ associated with a specific environment
 leaves it as a bare function call),
 so maybe we should just follow that example
 and not call it through an environment...
-</REMARK>
+-->
 
  <para>
 
@@ -1833,14 +1833,14 @@ and not call it through an environment...
 <section id="sect-repositories">
  <title>Code repositories</title>
 
-<REMARK>
+<!--
 Like &Link;, &Repository; and &Local; are part of the
 API reference, but not really tied to any specific environment.
 Is it better to be consistent about calling
 everything in the API through an environment,
 or to leave these independent so as
 not to complicate their calling interface?
-</REMARK>
+-->
 
  <para>
 
@@ -1900,10 +1900,10 @@ not to complicate their calling interface?
 <section id="sect-caching">
  <title>Derived-file caching</title>
 
-<REMARK>
+<!--
 There should be extensions to this part of the API for
 auxiliary functions like cleaning the cache.
-</REMARK>
+-->
 
  <para>
 
@@ -1943,12 +1943,12 @@ auxiliary functions like cleaning the cache.
 <section id="sect-jobs">
  <title>Job management</title>
 
-<REMARK>
+<!--
 This has been completely superseded by
 the more sophisticated &Task; manager
 that Anthony Roach has contributed.
 I need to write that up...
-</REMARK>
+-->
 
  <para>
 

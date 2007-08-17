@@ -124,7 +124,7 @@ ps_output_1 = test.read(['build', 'docs', 'test.ps'])
 
 # Adding blank lines will cause SCons to re-run the builds, but the
 # actual contents of the output files should be the same modulo
-# the CreationDate header.
+# the CreationDate header and some other PDF garp.
 test.write(['docs', 'test.tex'], tex_input + "\n\n\n")
 
 test.run(stderr=None)
@@ -137,7 +137,19 @@ ps_output_2 = test.read(['build', 'docs', 'test.ps'])
 pdf_output_1 = test.normalize_pdf(pdf_output_1)
 pdf_output_2 = test.normalize_pdf(pdf_output_2)
 
-assert pdf_output_1 == pdf_output_2,    test.diff_substr(pdf_output_1, pdf_output_2, 80, 80)
+if pdf_output_1 != pdf_output_2:
+    import sys
+    test.write(['build', 'docs', 'test.normalized.1.pdf'], pdf_output_1)
+    test.write(['build', 'docs', 'test.normalized.2.pdf'], pdf_output_2)
+    sys.stdout.write("***** 1 and 2 are different!\n")
+    sys.stdout.write(test.diff_substr(pdf_output_1, pdf_output_2, 80, 80) + '\n')
+    sys.stdout.write("Output from run 1:\n")
+    sys.stdout.write(test.stdout(-1) + '\n')
+    sys.stdout.write("Output from run 2:\n")
+    sys.stdout.write(test.stdout() + '\n')
+    sys.stdout.flush()
+    test.fail_test()
+
 assert ps_output_1 == ps_output_2,      test.diff_substr(ps_output_1, ps_output_2, 80, 80)
 
 

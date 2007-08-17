@@ -436,7 +436,7 @@
     in a random order without having to specify
     the <literal>--random</literal> on very command line,
     you can use the &SetOption; function to
-    set the <literal>random</litera> option
+    set the <literal>random</literal> option
     within any &SConscript; file:
 
     </para>

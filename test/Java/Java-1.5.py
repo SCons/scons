@@ -59,6 +59,7 @@ env.Java(target = 'class2', source = 'com/sub/bar')
 env.Java(target = 'class3', source = ['src1', 'src2'])
 env.Java(target = 'class4', source = ['src4'])
 env.Java(target = 'class5', source = ['src5'])
+env.Java(target = 'class6', source = ['src6'])
 """ % locals())
 
 test.subdir('com',
@@ -68,7 +69,8 @@ test.subdir('com',
             'src1',
             'src2',
             'src4',
-            'src5')
+            'src5',
+            'src6')
 
 test.write(['com', 'sub', 'foo', 'Example1.java'], """\
 package com.sub.foo;
@@ -274,23 +276,27 @@ class TestSCons {
 class Foo { }
 """)
 
+# Test private inner class instantiation, courtesy Tilo Prutz:
+#   http://scons.tigris.org/issues/show_bug.cgi?id=1594
+test.write(['src6', 'TestSCons.java'], """\
+class test
+{
+    test()
+    {
+        super();
+        new inner();
+    }
+
+    static class inner
+    {
+        private inner() {}
+    }
+}
+""")
+
+
+
 test.run(arguments = '.')
-
-def get_class_files(dir):
-    def find_class_files(arg, dirname, fnames):
-        for fname in fnames:
-            if fname[-6:] == '.class':
-                arg.append(os.path.join(dirname, fname))
-    result = []
-    os.path.walk(dir, find_class_files, result)
-    result.sort()
-    return result
-
-classes_1 = get_class_files(test.workpath('class1'))
-classes_2 = get_class_files(test.workpath('class2'))
-classes_3 = get_class_files(test.workpath('class3'))
-classes_4 = get_class_files(test.workpath('class4'))
-classes_5 = get_class_files(test.workpath('class5'))
 
 expect_1 = [
     test.workpath('class1', 'com', 'other', 'Example2.class'),
@@ -328,9 +334,27 @@ expect_5 = [
     test.workpath('class5', 'TestSCons.class'),
 ]
 
+expect_6 = [
+    test.workpath('class6', 'test$1.class'),
+    test.workpath('class6', 'test$inner.class'),
+    test.workpath('class6', 'test.class'),
+]
+
 failed = None
 
-def classes_must_match(dir, expect, got):
+def get_class_files(dir):
+    def find_class_files(arg, dirname, fnames):
+        for fname in fnames:
+            if fname[-6:] == '.class':
+                arg.append(os.path.join(dirname, fname))
+    result = []
+    os.path.walk(dir, find_class_files, result)
+    result.sort()
+    return result
+
+def classes_must_match(dir, expect):
+    global failed
+    got = get_class_files(test.workpath(dir))
     if expect != got:
         sys.stderr.write("Expected the following class files in '%s':\n" % dir)
         for c in expect:
@@ -340,13 +364,40 @@ def classes_must_match(dir, expect, got):
             sys.stderr.write('    %s\n' % c)
         failed = 1
 
-classes_must_match('class1', expect_1, classes_1)
-classes_must_match('class2', expect_2, classes_2)
-classes_must_match('class3', expect_3, classes_3)
-classes_must_match('class4', expect_4, classes_4)
+def classes_must_not_exist(dir, expect):
+    global failed
+    present = filter(os.path.exists, expect)
+    if present:
+        sys.stderr.write("Found the following unexpected class files in '%s' after cleaning:\n" % dir)
+        for c in present:
+            sys.stderr.write('    %s\n' % c)
+        failed = 1
+
+classes_must_match('class1', expect_1)
+classes_must_match('class2', expect_2)
+classes_must_match('class3', expect_3)
+classes_must_match('class4', expect_4)
+classes_must_match('class5', expect_5)
+classes_must_match('class6', expect_6)
 
 test.fail_test(failed)
 
 test.up_to_date(options='--debug=explain', arguments = '.')
+
+test.run(arguments = '-c .')
+
+classes_must_not_exist('class1', expect_1)
+classes_must_not_exist('class2', expect_2)
+classes_must_not_exist('class3', expect_3)
+classes_must_not_exist('class4', expect_4)
+classes_must_not_exist('class5', expect_5)
+# This test case should pass, but doesn't.
+# The expect_6 list contains the class files that the Java compiler
+# actually creates, apparently because of the "private" instantiation
+# of the "inner" class.  Our parser doesn't currently detect this, so
+# it doesn't know to remove that generated class file.
+#classes_must_not_exist('class6', expect_6)
+
+test.fail_test(failed)
 
 test.pass_test()

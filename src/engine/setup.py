@@ -63,7 +63,6 @@ software.""",
       keywords = "scons, cons, make, build tool, make tool",
       packages = ["SCons",
 		  "SCons.Node",
-		  "SCons.Optik",
 		  "SCons.Scanner",
 		  "SCons.Sig",
 		  "SCons.Script"])

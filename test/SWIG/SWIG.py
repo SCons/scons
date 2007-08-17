@@ -28,25 +28,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the swig tool generates file names that we expect.
 """
 
-import os
-import string
-import sys
 import TestSCons
 
-if sys.platform =='darwin':
-    # change to make it work with stock OS X python framework
-    # we can't link to static libpython because there isn't one on OS X
-    # so we link to a framework version. However, testing must also
-    # use the same version, or else you get interpreter errors.
-    python = "/System/Library/Frameworks/Python.framework/Versions/Current/bin/python"
-    _python_ = '"' + python + '"'
-else:
-    _python_ = TestSCons._python_
-    
 _exe   = TestSCons._exe
 _obj   = TestSCons._obj
 
 test = TestSCons.TestSCons()
+
+_python_ = test.get_quoted_platform_python()
 
 
 

@@ -40,9 +40,7 @@ build = os.path.join(build_dir, 'doc')
 #
 #
 #
-doc_tar_gz = os.path.join(build_dir,
-                          'dist',
-                          'scons-doc-%s.tar.gz' % env.Dictionary('VERSION'))
+dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
 
 #
 # We'll only try to build text files (for some documents)
@@ -53,7 +51,7 @@ epydoc = whereis('epydoc')
 groff = whereis('groff')
 lynx = whereis('lynx')
 man2html = whereis('man2html')
-jade = whereis('jade')
+jade = whereis('openjade') or whereis('jade')
 jadetex = whereis('jadetex')
 pdfjadetex = whereis('pdfjadetex')
 jw = whereis('jw')
@@ -66,9 +64,9 @@ entity_re = re.compile(r'<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">', re.
 format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format="([^"]*)")?')
 
 #
-# Find internal dependencies in .sgml files:
+# Find internal dependencies in .xml files:
 #
-#   <!entity bground SYSTEM "bground.sgml">
+#   <!entity bground SYSTEM "bground.xml">
 #   <graphic fileref="file.jpg">
 #   <imagedata fileref="file.jpg">
 #
@@ -76,7 +74,7 @@ format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format=
 # defined as a SYSTEM entity is, in fact, a file included
 # somewhere in the document.
 #
-def scansgml(node, env, target):
+def scanxml(node, env, target):
     includes = []
 
     contents = node.get_contents()
@@ -101,7 +99,7 @@ def scansgml(node, env, target):
 
     return includes
 
-s = Scanner(name = 'sgml', function = scansgml, skeys = ['.sgml', '.mod'])
+s = Scanner(name = 'xml', function = scanxml, skeys = ['.xml', '.mod'])
 
 orig_env = env
 env = orig_env.Clone(SCANNERS = [s],
@@ -127,14 +125,14 @@ scons_doc_files = map(lambda x: File('#src/engine/'+x).rstr(), scons_doc_files)
 
 if jw:
     #
-    # Always create a version.sgml file containing the version information
+    # Always create a version.xml file containing the version information
     # for this run.  Ignore it for dependency purposes so we don't
     # rebuild all the docs every time just because the date changes.
     #
     date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
-    version_sgml = File(os.path.join(build, "version.sgml"))
-    #version_sgml = File("version.sgml")
-    verfile = str(version_sgml)
+    version_xml = File(os.path.join(build, "version.xml"))
+    #version_xml = File("version.xml")
+    verfile = str(version_xml)
     try:
         os.unlink(verfile)
     except OSError:
@@ -170,7 +168,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                         variables_gen, variables_mod]
     b = env.Command(doc_output_files,
                     scons_doc_files,
-                    "$PYTHON $SCONS_PROC_PY --sgml -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
+                    "$PYTHON $SCONS_PROC_PY --xml -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
     env.Depends(b, "$SCONS_PROC_PY")
 
     env.Local(b)
@@ -237,8 +235,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     }
 
     #
-    # We have to tell SCons to scan the top-level SGML files which
-    # get included by the document SGML files in the subdirectories.
+    # We have to tell SCons to scan the top-level XML files which
+    # get included by the document XML files in the subdirectories.
     #
     manifest = File('MANIFEST').rstr()
     src_files = map(lambda x: x[:-1], open(manifest).readlines())
@@ -266,20 +264,20 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             if ext in ['.fig', '.jpg']:
                 orig_env.InstallAs(build_s, doc_s)
             else:
-                if build_doc and ext == '.sgml':
+                if build_doc and ext == '.xml':
                     env.Command(doc_s,
                                 base + '.in',
                                 "$PYTHON $SCONSOUTPUT_PY $SOURCE > $TARGET")
                 orig_env.SCons_revision(build_s, doc_s)
             Local(build_s)
 
-        main = os.path.join(build, doc, 'main.sgml')
+        main = os.path.join(build, doc, 'main.xml')
         out = 'main.out'
 
         # Hard-coding the scons-src path is a bit of a hack.  This can
         # be reworked when a better solution presents itself.
         scons_src_main = os.path.join(build_dir, 'scons-src', 'doc', main)
-        env.Ignore(scons_src_main, version_sgml)
+        env.Ignore(scons_src_main, version_xml)
 
         htmldir = os.path.join(build, 'HTML', 'scons-%s' % doc)
         htmlindex = os.path.join(htmldir, docs[doc]['htmlindex'])
@@ -289,12 +287,27 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
 
         if docs[doc].get('html') and jade:
+            def copy_index_html(target, source, env):
+                # Older versions of DocBook|jw|jade|whatever would
+                # create a book1.html file, while newer versions create
+                # an index.html file (logically enough).  The scons.org
+                # web site links expect book1.html, so we're going to
+                # leave the target as is, and run this post-processing
+                # action function to check that the target really did
+                # get created, and if it didn't, copy it from index.html.
+                t = str(target[0])
+                if not os.path.exists(t):
+                    i = os.path.join(os.path.split(t)[0], 'index.html')
+                    open(t, 'w').write(open(i, 'r').read())
+                return None
+
             cmds = [
                 Delete("${TARGET.dir}/*.html"),
                 "jw -b html -o ${TARGET.dir} $SOURCES",
             ]
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
+            cmds.append(Action(copy_index_html))
             env.Command(htmlindex, File(main), cmds)
             Local(htmlindex)
 
@@ -308,7 +321,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             env.Command(html, File(main), cmds)
             Local(html)
 
-            env.Ignore([html, htmlindex], version_sgml)
+            env.Ignore([html, htmlindex], version_xml)
 
             tar_deps.extend([html, htmlindex])
             tar_list.extend([html, htmldir])
@@ -339,7 +352,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             ])
             Local(ps)
 
-            env.Ignore(ps, version_sgml)
+            env.Ignore(ps, version_xml)
 
             tar_deps.append(ps)
             tar_list.append(ps)
@@ -369,7 +382,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             ])
             Local(pdf)
 
-            env.Ignore(pdf, version_sgml)
+            env.Ignore(pdf, version_xml)
 
             tar_deps.append(pdf)
             tar_list.append(pdf)
@@ -378,7 +391,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             env.Command(text, html, "lynx -dump ${SOURCE.abspath} > $TARGET")
             Local(text)
 
-            env.Ignore(text, version_sgml)
+            env.Ignore(text, version_xml)
 
             tar_deps.append(text)
             tar_list.append(text)
@@ -505,6 +518,9 @@ if epydoc:
 if tar_deps:
     tar_list = string.join(map(lambda x, b=build+'/': string.replace(x, b, ''),
                            tar_list))
-    env.Command(doc_tar_gz, tar_deps,
+    t = env.Command(dist_doc_tar_gz, tar_deps,
                 "tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list))
-    Local(doc_tar_gz)
+    Local(t)
+    Alias('doc', t)
+else:
+    Alias('doc', os.path.join(build_dir, 'doc'))

@@ -72,10 +72,6 @@ ignore = [
     'SCons/compat/__init__.py',
     'SCons/compat/builtins.py',
     'SCons/compat/_subprocess.py',
-    'SCons/Optik/__init__.py',
-    'SCons/Optik/errors.py',
-    'SCons/Optik/option.py',
-    'SCons/Optik/option_parser.py',
 ]
 
 u = {}

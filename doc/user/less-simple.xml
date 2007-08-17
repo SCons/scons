@@ -124,7 +124,7 @@
     </para>
 
     <programlisting>
-       Program(['main.c', 'file1.c', 'file2.c'])
+       Program(['prog.c', 'file1.c', 'file2.c'])
     </programlisting>
 
     <para>
@@ -137,8 +137,8 @@
        % <userinput>scons -Q</userinput>
        cc -o file1.o -c file1.c
        cc -o file2.o -c file2.c
-       cc -o main.o -c main.c
-       cc -o main main.o file1.o file2.o
+       cc -o prog.o -c prog.c
+       cc -o prog prog.o file1.o file2.o
     </screen>
 
     <para>
@@ -164,7 +164,7 @@
     </para>
 
     <programlisting>
-       Program('program', ['main.c', 'file1.c', 'file2.c'])
+       Program('program', ['prog.c', 'file1.c', 'file2.c'])
     </programlisting>
 
     <para>
@@ -177,8 +177,8 @@
        % <userinput>scons -Q</userinput>
        cc -o file1.o -c file1.c
        cc -o file2.o -c file2.c
-       cc -o main.o -c main.c
-       cc -o program main.o file1.o file2.o
+       cc -o prog.o -c prog.c
+       cc -o program prog.o file1.o file2.o
     </screen>
 
     <para>
@@ -191,8 +191,8 @@
        C:\><userinput>scons -Q</userinput>
        cl /nologo /c file1.c /Fofile1.obj
        cl /nologo /c file2.c /Fofile2.obj
-       cl /nologo /c main.c /Fomain.obj
-       link /nologo /OUT:program.exe main.obj file1.obj file2.obj
+       cl /nologo /c prog.c /Foprog.obj
+       link /nologo /OUT:program.exe prog.obj file1.obj file2.obj
     </screen>
 
   </section>
@@ -492,7 +492,7 @@
     from the common source files,
     which can then be linked into resulting programs.
     (Creating libraries is discussed in
-    <xref linkend="chap-libraries">, below.)
+    <xref linkend="chap-libraries"></xref>, below.)
 
     </para>
 

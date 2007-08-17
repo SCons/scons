@@ -1,3 +1,5 @@
+<?xml version="1.0"?>
+
 <!--
 
   Copyright (c) 2001, 2002, 2003 Steven Knight
@@ -23,39 +25,40 @@
 
 -->
 
-<!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
 
-    <!ENTITY % version SYSTEM "../version.sgml">
+    <!ENTITY % version SYSTEM "../version.xml">
     %version;
 
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
 
     <!-- Builders -->
-    <!ENTITY Alias_file SYSTEM "Alias.sgml">
-    <!ENTITY CFile_file SYSTEM "CFile.sgml">
-    <!ENTITY CXXFile_file SYSTEM "CXXFile.sgml">
-    <!ENTITY Command_file SYSTEM "Command.sgml">
-    <!ENTITY Install_file SYSTEM "Install.sgml">
-    <!ENTITY InstallAs_file SYSTEM "InstallAs.sgml">
-    <!ENTITY Library_file SYSTEM "Library.sgml">
-    <!ENTITY Object_file SYSTEM "Object.sgml">
-    <!ENTITY PCH_file SYSTEM "PCH.sgml">
-    <!ENTITY PDF_file SYSTEM "PDF.sgml">
-    <!ENTITY PostScript_file SYSTEM "PostScript.sgml">
-    <!ENTITY Program_file SYSTEM "Program.sgml">
-    <!ENTITY RES_file SYSTEM "RES.sgml">
-    <!ENTITY SharedLibrary_file SYSTEM "SharedLibrary.sgml">
-    <!ENTITY SharedObject_file SYSTEM "SharedObject.sgml">
-    <!ENTITY StaticLibrary_file SYSTEM "StaticLibrary.sgml">
-    <!ENTITY StaticObject_file SYSTEM "StaticObject.sgml">
+    <!ENTITY Alias_file SYSTEM "Alias.xml">
+    <!ENTITY CFile_file SYSTEM "CFile.xml">
+    <!ENTITY CXXFile_file SYSTEM "CXXFile.xml">
+    <!ENTITY Command_file SYSTEM "Command.xml">
+    <!ENTITY Install_file SYSTEM "Install.xml">
+    <!ENTITY InstallAs_file SYSTEM "InstallAs.xml">
+    <!ENTITY Library_file SYSTEM "Library.xml">
+    <!ENTITY Object_file SYSTEM "Object.xml">
+    <!ENTITY PCH_file SYSTEM "PCH.xml">
+    <!ENTITY PDF_file SYSTEM "PDF.xml">
+    <!ENTITY PostScript_file SYSTEM "PostScript.xml">
+    <!ENTITY Program_file SYSTEM "Program.xml">
+    <!ENTITY RES_file SYSTEM "RES.xml">
+    <!ENTITY SharedLibrary_file SYSTEM "SharedLibrary.xml">
+    <!ENTITY SharedObject_file SYSTEM "SharedObject.xml">
+    <!ENTITY StaticLibrary_file SYSTEM "StaticLibrary.xml">
+    <!ENTITY StaticObject_file SYSTEM "StaticObject.xml">
 
     <!-- Construction Variables -->
 
-    <!ENTITY copyright SYSTEM "copyright.sgml">
-    <!ENTITY errors SYSTEM "errors.sgml">
-    <!ENTITY preface SYSTEM "preface.sgml">
+    <!ENTITY copyright SYSTEM "copyright.xml">
+    <!ENTITY errors SYSTEM "errors.xml">
+    <!ENTITY preface SYSTEM "preface.xml">
 
 ]>
 

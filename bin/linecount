@@ -15,9 +15,7 @@
 #
 # A source file is anything under the src/engine/ or src/script/
 # directories that ends in '.py' but does NOT begin with 'test_'
-# or end in 'Tests.py'.  (We should probably ignore the stuff in
-# src/engine/SCons/Optik, since it doesn't originate with SCons, but
-# what the hell.)
+# or end in 'Tests.py'.
 #
 # We report the number of tests and sources, the total number of lines
 # in each category, the number of non-blank lines, and the number of

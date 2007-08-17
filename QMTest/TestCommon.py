@@ -427,3 +427,35 @@ class TestCommon(TestCmd):
             print self.stdout()
             self.diff(stderr, self.stderr(), 'STDERR ')
             raise TestFailed
+
+    def skip_test(self, message="Skipping test.\n"):
+        """Skips a test.
+
+        Proper test-skipping behavior is dependent on the external
+        TESTCOMMON_PASS_SKIPS environment variable.  If set, we treat
+        the skip as a PASS (exit 0), and otherwise treat it as NO RESULT.
+        In either case, we print the specified message as an indication
+        that the substance of the test was skipped.
+
+        (This was originally added to support development under Aegis.
+        Technically, skipping a test is a NO RESULT, but Aegis would
+        treat that as a test failure and prevent the change from going to
+        the next step.  Since we ddn't want to force anyone using Aegis
+        to have to install absolutely every tool used by the tests, we
+        would actually report to Aegis that a skipped test has PASSED
+        so that the workflow isn't held up.)
+        """
+        if message:
+            sys.stdout.write(message)
+            sys.stdout.flush()
+        pass_skips = os.environ.get('TESTCOMMON_PASS_SKIPS')
+        if pass_skips in [None, 0, '0']:
+            # skip=1 means skip this function when showing where this
+            # result came from.  They only care about the line where the
+            # script called test.skip_test(), not the line number where
+            # we call test.no_result().
+            self.no_result(skip=1)
+        else:
+            # We're under the development directory for this change,
+            # so this is an Aegis invocation; pass the test (exit 0).
+            self.pass_test()

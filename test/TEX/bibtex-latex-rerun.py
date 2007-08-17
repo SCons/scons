@@ -98,13 +98,24 @@ pdf_output_3 = test.read('bibtest.pdf')
 
 
 # If the PDF file is now different than the second run, modulo the
-# creation timestamp and the ID, then something else odd has happened,
-# so fail.
+# creation timestamp and the ID and some other PDF garp, then something
+# else odd has happened, so fail.
 
 pdf_output_2 = test.normalize_pdf(pdf_output_2)
 pdf_output_3 = test.normalize_pdf(pdf_output_3)
 
-assert pdf_output_2 == pdf_output_3,    test.diff_substr(pdf_output_2, pdf_output_3, 80, 80)
+if pdf_output_2 != pdf_output_3:
+    import sys
+    test.write('bibtest.normalized.2.pdf', pdf_output_2)
+    test.write('bibtest.normalized.3.pdf', pdf_output_3)
+    sys.stdout.write("***** 2 and 3 are different!\n")
+    sys.stdout.write(test.diff_substr(pdf_output_2, pdf_output_3, 80, 80) + '\n')
+    sys.stdout.write("Output from run 2:\n")
+    sys.stdout.write(test.stdout(-2) + '\n')
+    sys.stdout.write("Output from run 3:\n")
+    sys.stdout.write(test.stdout() + '\n')
+    sys.stdout.flush()
+    test.fail_test()
 
 
 

@@ -35,36 +35,42 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
+test.subdir('in')
+
 
 
 test.write('mylex.py', """
 import getopt
 import string
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'tx', [])
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'I:tx', [])
 opt_string = ''
+i_arguments = ''
 for opt, arg in cmd_opts:
-    opt_string = opt_string + ' ' + opt
+    if opt == '-I': i_arguments = i_arguments + ' ' + arg
+    else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
-    sys.stdout.write(string.replace(contents, 'LEXFLAGS', opt_string))
+    contents = string.replace(contents, 'LEXFLAGS', opt_string)
+    contents = string.replace(contents, 'I_ARGS', i_arguments)
+    sys.stdout.write(contents)
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
 env = Environment(LEX = r'%(_python_)s mylex.py',
-                  LEXFLAGS = '-x',
+                  LEXFLAGS = '-x -I${TARGET.dir} -I${SOURCE.dir}',
                   tools=['default', 'lex'])
-env.CFile(target = 'aaa', source = 'aaa.l')
+env.CFile(target = 'out/aaa', source = 'in/aaa.l')
 """ % locals())
 
-test.write('aaa.l',             "aaa.l\nLEXFLAGS\n")
+test.write(['in', 'aaa.l'],		"aaa.l\nLEXFLAGS\nI_ARGS\n")
 
 test.run('.', stderr = None)
 
 # Read in with mode='r' because mylex.py implicitley wrote to stdout
 # with mode='w'.
-test.must_match('aaa.c',        "aaa.l\n -x -t\n",      mode='r')
+test.must_match(['out', 'aaa.c'],	"aaa.l\n -x -t\n out in\n", mode='r')
 
 
 

@@ -1,6 +1,7 @@
 %define name scons
-%define version 0.97
+%define version __VERSION__
 %define release 1
+%define _unpackaged_files_terminate_build 0
 
 Summary: an Open Source software construction tool
 Name: %{name}

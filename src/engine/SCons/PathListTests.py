@@ -47,7 +47,7 @@ class subst_pathTestCase(unittest.TestCase):
                         s = self.kw[s]
                 return s
 
-        self.env = FakeEnvironment(AAA = 'aaa')
+        self.env = FakeEnvironment(AAA = 'aaa', NULL = '')
 
     def test_node(self):
         """Test the subst_path() method on a Node
@@ -111,10 +111,10 @@ class subst_pathTestCase(unittest.TestCase):
         assert result == ('x',), result
 
     def test_subst(self):
-        """Test the subst_path() method on a substitution string
+        """Test the subst_path() method on substitution strings
         """
 
-        pl = SCons.PathList.PathList(('$AAA',))
+        pl = SCons.PathList.PathList(('$AAA', '$NULL'))
 
         result = pl.subst_path(self.env, 'y', 'z')
 

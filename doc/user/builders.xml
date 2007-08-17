@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -23,6 +23,35 @@
 
 -->
 
-<REMARK>
-THIS CHAPTER NEEDS TO BE DISCUSSED AND WRITTEN.
-</REMARK>
+<!--
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+
+<refentry id="Command">
+
+<refmeta>
+<refentrytitle>Command</refentrytitle>
+</refmeta>
+
+<methodsynopsis>
+  <methodname>env.Command</methodname>
+  <methodparam>foo</methodparam>
+  <methodparam>bar</methodparam>
+</methodsynopsis>
+
+</refentry>
+-->
+
+<para>
+
+This appendix contains descriptions of all of the
+Builders that are <emphasis>potentially</emphasis>
+available "out of the box" in this version of SCons.
+
+</para>
+
+<variablelist>
+
+&builders-gen;
+
+</variablelist>

@@ -429,7 +429,7 @@ class Test(AegisTest):
         and fails otherwise. The program output is logged, but not validated."""
 
         command = RedirectedExecutable()
-        args = [context.get('python', sys.executable), self.script]
+        args = [context.get('python', sys.executable), '-tt', self.script]
         status = command.Run(args, os.environ)
         if not check_exit_status(result, 'Test.', self.script, status):
             # In case of failure record exit code, stdout, and stderr.

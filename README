@@ -606,7 +606,7 @@ bin/
                 of lines in each
             --  a script for synchronizing the Aegis tree to SourceForge
             --  a prototype script for capturing sample SCons output
-                in sgml files
+                in xml files
             --  a script that can profile and time a packaging build of
                 SCons itself
             --  a copy of xml_export, which can retrieve project data

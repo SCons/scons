@@ -122,14 +122,14 @@ tree3 = """
 +-.
   +-Bar.c
   +-Bar.ooo
-  | +-[Bar.c]
+  | +-Bar.c
   | +-Bar.h
   | +-Foo.h
   +-Foo.c
   +-Foo.ooo
-  | +-[Foo.c]
-  | +-[Foo.h]
-  | +-[Bar.h]
+  | +-Foo.c
+  | +-Foo.h
+  | +-Bar.h
   +-Foo.xxx
   | +-[Foo.ooo]
   | +-[Bar.ooo]

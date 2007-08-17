@@ -186,7 +186,7 @@
 	SConscript('src/SConscript', Export(env=env, debug=debug, installdir=installdir))
 	</programlisting>
 
-<REMARK>
+<!--
 The <literal>env=env</literal> stuff bugs me
 because it imposes extra work on the normal
 case where you <emphasis>don't</emphasis> rename
@@ -198,7 +198,7 @@ is split into variables that are passed
 through transparently?
 Equivalent to the above example:
 <literal>SConscript('src/SConscript', Export('env debug installdir'))</literal>
-</REMARK>
+-->
 
  <para>
 
@@ -342,10 +342,10 @@ Equivalent to the above example:
 
  </para>
 
-<REMARK>
+<!--
 These need to be specified and explained
 beyond what the man page will have.
-</REMARK>
+-->
 
   <!-- BEGIN HTML -->
 

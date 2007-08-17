@@ -78,8 +78,8 @@ def _fortranEmitter(target, source, env):
     # Remove unique items from the list
     modules = SCons.Util.unique(modules)
     # Convert module name to a .mod filename
-    suffix = env.subst('$FORTRANMODSUFFIX')
-    moddir = env.subst('$FORTRANMODDIR')
+    suffix = env.subst('$FORTRANMODSUFFIX', target=target, source=source)
+    moddir = env.subst('$FORTRANMODDIR', target=target, source=source)
     modules = map(lambda x, s=suffix: string.lower(x) + s, modules)
     for m in modules:
        target.append(env.fs.File(m, moddir))

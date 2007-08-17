@@ -239,7 +239,7 @@
    We'll cover Java builds in more detail,
    including building Java archive (<filename>.jar</filename>)
    and other types of file,
-   in <xref linkend="chap-java">.
+   in <xref linkend="chap-java"></xref>.
 
    </para>
 
@@ -389,7 +389,7 @@
      (and any other files) whenever it's necessary.
      (We'll learn more about how
      &SCons; decides when building or rebuilding a file
-     is necessary in <xref linkend="chap-depends">, below.)
+     is necessary in <xref linkend="chap-depends"></xref>, below.)
  
      </para>
  

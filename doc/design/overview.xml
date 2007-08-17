@@ -48,13 +48,13 @@
 
  </para>
 
-<REMARK>
+<!--
 Including this figure makes our PDF build blow up.
 The figure, however,
 is left over from the Software Carpentry contest
 and is therefore old, out-of-date, and needs to be redone anyway.
 This is where it will go, anyway...
-</REMARK>
+-->
 
    <!--
    YARG!  THIS MAKES THE PDF BUILD BLOW UP.  HELP!

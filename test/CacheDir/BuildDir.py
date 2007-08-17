@@ -39,11 +39,6 @@ test.subdir('cache', 'src')
 cache = test.workpath('cache')
 cat_out = test.workpath('cat.out')
 
-test.write(['src', 'SConstruct'], """\
-CacheDir(r'%(cache)s')
-SConscript('SConscript')
-""" % locals())
-
 test.write(['src', 'SConscript'], """\
 def cat(env, source, target):
     target = str(target[0])
@@ -72,7 +67,7 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 #
 test.write('SConstruct', """\
 env = Environment(TWO = '2')
-env.CacheDir(r'%s')
+CacheDir(r'%s')
 BuildDir('build', 'src', duplicate=0)
 SConscript('build/SConscript')
 """ % test.workpath('cache${TWO}'))

@@ -14,6 +14,8 @@ JAVACFLAGS
 JAVACCOM
 JAVACLASSSUFFIX
 JAVASUFFIX
+JAVACLASSPATH
+JAVASOURCEPATH
 </sets>
 <uses>
 JAVACCOMSTR
@@ -22,16 +24,21 @@ JAVACCOMSTR
 
 <builder name="Java">
 <summary>
-Builds one or more Java class files
-from one or more source trees of <filename>.java</filename> files.
-The class files will be placed underneath
-the specified target directory.
+Builds one or more Java class files.
+The sources may be any combination of explicit
+<filename>.java</filename> files,
+or directory trees which will be scanned
+for <filename>.java</filename> files.
+
 SCons will parse each source <filename>.java</filename> file
 to find the classes
 (including inner classes)
 defined within that file,
 and from that figure out the
 target <filename>.class</filename> files that will be created.
+The class files will be placed underneath
+the specified target directory.
+
 SCons will also search each Java file
 for the Java package name,
 which it assumes can be found on a line
@@ -58,6 +65,7 @@ Example:
 <example>
 env.Java(target = 'classes', source = 'src')
 env.Java(target = 'classes', source = ['src1', 'src2'])
+env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
 </example>
 </summary>
 </builder>
@@ -107,11 +115,53 @@ builder.
 </summary>
 </cvar>
 
+<cvar name="JAVACLASSPATH">
+<summary>
+Specifies the list of directories that
+will be searched for Java
+<filename>.class</filename> file.
+The directories in this list will be added to the
+&javac; and &javah; command lines
+via the <option>-classpath</option> option.
+The individual directory names will be
+separated by the operating system's path separate character
+(<filename>:</filename> on UNIX/Linux/POSIX,
+<filename>;</filename> on Windows).
+
+Note that this currently just adds the specified
+directory via the <option>-classpath</option> option.
+&SCons; does not currently search the
+&cv-JAVACLASSPATH; directories for dependency
+<filename>.class</filename> files.
+</summary>
+</cvar>
+
 <cvar name="JAVACLASSSUFFIX">
 <summary>
 The suffix for Java class files;
 <filename>.class</filename>
 by default.
+</summary>
+</cvar>
+
+<cvar name="JAVASOURCEPATH">
+<summary>
+Specifies the list of directories that
+will be searched for input
+<filename>.java</filename> file.
+The directories in this list will be added to the
+&javac; command line
+via the <option>-sourcepath</option> option.
+The individual directory names will be
+separated by the operating system's path separate character
+(<filename>:</filename> on UNIX/Linux/POSIX,
+<filename>;</filename> on Windows).
+
+Note that this currently just adds the specified
+directory via the <option>-sourcepath</option> option.
+&SCons; does not currently search the
+&cv-JAVASOURCEPATH; directories for dependency
+<filename>.java</filename> files.
 </summary>
 </cvar>
 

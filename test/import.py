@@ -29,12 +29,21 @@ Verify that we can import and use the contents of Platform and Tool
 modules directly.
 """
 
+import os
 import re
 import sys
 
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+# Before executing the any of the platform or tool modules, add some
+# null entries to the environment $PATH variable to make sure there's
+# no code that tries to index elements from the list before making sure
+# they're non-null.
+# (This was a problem in checkpoint release 0.97.d020070809.)
+os.environ['PATH'] = os.pathsep + os.environ['PATH'] + \
+                     os.pathsep + os.pathsep + '/no/such/dir' + os.pathsep
 
 SConstruct_path = test.workpath('SConstruct')
 
@@ -216,6 +225,7 @@ env = Environment(tools = ['%(tool)s'])
 
 import SCons.Tool.%(tool)s
 env = Environment()
+SCons.Tool.%(tool)s.exists(env)
 SCons.Tool.%(tool)s.generate(env)
 """
 

@@ -296,10 +296,8 @@ class Null(_Executor):
         kw['action'] = []
         apply(_Executor.__init__, (self,), kw)
     def get_build_env(self):
-        class NullEnvironment:
-            def get_scanner(self, key):
-                return None
-        return NullEnvironment()
+        import SCons.Util
+        return SCons.Util.Null()
     def get_build_scanner_path(self):
         return None
     def cleanup(self):

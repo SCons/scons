@@ -22,7 +22,13 @@ JARCOMSTR
 <builder name="Jar">
 <summary>
 Builds a Java archive (<filename>.jar</filename>) file
-from a source tree of <filename>.class</filename> files.
+from the specified list of sources.
+Any directories in the source list
+will be searched for <filename>.class</filename> files).
+Any <filename>.java</filename> files in the source list
+will be compiled  to <filename>.class</filename> files
+by calling the &b-link-Java; Builder.
+
 If the &cv-link-JARCHDIR; value is set, the
 &jar;
 command will change to the specified directory using the
@@ -39,6 +45,9 @@ option set.
 
 <example>
 env.Jar(target = 'foo.jar', source = 'classes')
+
+env.Jar(target = 'bar.jar',
+        source = ['bar1.java', 'bar2.java'])
 </example>
 </summary>
 </builder>

@@ -49,9 +49,11 @@ import stat
 env = Environment(XXX='bar%(_exe)s')
 
 def before(env, target, source):
-    f=open(str(target[0]), "wb")
+    a=str(target[0])
+    f=open(a, "wb")
     f.write("Foo\\n")
     f.close()
+    os.chmod(a, os.stat(a)[stat.ST_MODE] | stat.S_IXUSR)
     f=open("before.txt", "ab")
     f.write(os.path.splitext(str(target[0]))[0] + "\\n")
     f.close()

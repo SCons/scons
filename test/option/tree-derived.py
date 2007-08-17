@@ -98,8 +98,8 @@ dtree3 = """
   +-bar.ooo
   +-foo.ooo
   +-foo.xxx
-    +-[foo.ooo]
-    +-[bar.ooo]
+    +-foo.ooo
+    +-bar.ooo
 """
 
 test.run(arguments = "--tree=derived,prune .")

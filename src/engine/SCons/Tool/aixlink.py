@@ -44,7 +44,7 @@ cplusplus = __import__('c++', globals(), locals(), [])
 
 def smart_linkflags(source, target, env, for_signature):
     if cplusplus.iscplusplus(source):
-        build_dir = env.subst('$BUILDDIR')
+        build_dir = env.subst('$BUILDDIR', target=target, source=source)
         if build_dir:
             return '-qtempinc=' + os.path.join(build_dir, 'tempinc')
     return ''

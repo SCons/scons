@@ -33,14 +33,12 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Builder
 import SCons.Subst
 import SCons.Util
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
-    jarchdir = env.subst('$JARCHDIR')
+    jarchdir = env.subst('$JARCHDIR', target=target, source=source)
     if jarchdir:
         jarchdir = env.fs.Dir(jarchdir)
     result = []
@@ -67,7 +65,7 @@ def jarManifest(target, source, env, for_signature):
 def jarFlags(target, source, env, for_signature):
     """If we have a manifest, make sure that the 'm'
     flag is specified."""
-    jarflags = env.subst('$JARFLAGS')
+    jarflags = env.subst('$JARFLAGS', target=target, source=source)
     for src in source:
         contents = src.get_contents()
         if contents[:16] == "Manifest-Version":
@@ -76,25 +74,17 @@ def jarFlags(target, source, env, for_signature):
             break
     return jarflags
 
-JarAction = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
-
-JarBuilder = SCons.Builder.Builder(action = JarAction,
-                                   source_factory = SCons.Node.FS.Entry,
-                                   suffix = '$JARSUFFIX')
-
 def generate(env):
     """Add Builders and construction variables for jar to an Environment."""
-    try:
-        env['BUILDERS']['Jar']
-    except KeyError:
-        env['BUILDERS']['Jar'] = JarBuilder
+    SCons.Tool.CreateJarBuilder(env)
 
     env['JAR']        = 'jar'
     env['JARFLAGS']   = SCons.Util.CLVar('cf')
     env['_JARFLAGS']  = jarFlags
     env['_JARMANIFEST'] = jarManifest
     env['_JARSOURCES'] = jarSources
-    env['JARCOM']     = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARSOURCES'
+    env['_JARCOM']    = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARSOURCES'
+    env['JARCOM']     = "${TEMPFILE('$_JARCOM')}"
     env['JARSUFFIX']  = '.jar'
 
 def exists(env):

@@ -219,8 +219,31 @@ This functionality could be invoked as in the following example:
 
     </para>
 
+   <!--
+   The ToolSurrogate stuff that's used to capture output initializes
+   SCons.Defaults.ConstructionEnvironment with its own list of TOOLS.
+   In this next example, we want to show the user that when they
+   set the BUILDERS explicitly, the call to env.Program() generates
+   an AttributeError.  This won't happen with all of the default
+   ToolSurrogates in the default construction environment.  To make the
+   AttributeError show up, we have to overwite the default construction
+   environment's TOOLS variable so Program() builder doesn't show up.
+
+   We do this by executing a slightly different SConstruct file than the
+   one we print in the guide, with two extra statements at the front
+   that overwrite the TOOLS variable as described.  Note that we have
+   to jam those statements on to the first line to keep the line number
+   in the generated error consistent with what the user will see in the
+   User's Guide.
+   -->
     <scons_example name="ex2">
-       <file name="SConstruct" printme="1">
+       <file name="SConstruct">
+       import SCons.Defaults; SCons.Defaults.ConstructionEnvironment['TOOLS'] = {}; bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+       </file>
+       <file name="SConstruct.printme" printme="1">
        bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')

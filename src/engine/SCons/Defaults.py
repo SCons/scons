@@ -46,6 +46,7 @@ import sys
 
 import SCons.Action
 import SCons.Builder
+import SCons.CacheDir
 import SCons.Environment
 import SCons.PathList
 import SCons.Sig
@@ -66,6 +67,7 @@ def DefaultEnvironment(*args, **kw):
         _default_env = apply(SCons.Environment.Environment, args, kw)
         _default_env._build_signature = 1
         _default_env._calc_module = SCons.Sig.default_module
+        _default_env._CacheDir = SCons.CacheDir.Null()
     return _default_env
 
 # Emitters for setting the shared attribute on object files,

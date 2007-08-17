@@ -79,6 +79,15 @@
      </file>
   </scons_example>
 
+  <para>
+
+  When executed,
+  &SCons; runs the specified command,
+  substituting &cv-link-SOURCE; and &cv-link-TARGET;
+  as expected:
+
+  </para>
+
   <scons_output example="ex1">
     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
@@ -94,7 +103,9 @@
 
   <para>
 
-  Note that the action you 
+  Note that the action you specify to the
+  &Command; &Builder; can be any legal &SCons; &Action;,
+  such as a Python function:
 
   </para>
 
@@ -110,6 +121,12 @@
      foo.in
      </file>
   </scons_example>
+
+  <para>
+
+  Which executes as follows:
+
+  </para>
 
   <scons_output example="ex2">
     <scons_output_command>scons -Q</scons_output_command>

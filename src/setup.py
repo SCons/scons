@@ -29,7 +29,7 @@ import stat
 import string
 import sys
 
-Version = "0.97"
+Version = "__VERSION__"
 
 man_pages = [
     'scons.1',
@@ -376,13 +376,13 @@ arguments = {
     'packages'         : ["SCons",
                           "SCons.compat",
                           "SCons.Node",
-                          "SCons.Optik",
                           "SCons.Options",
                           "SCons.Platform",
                           "SCons.Scanner",
                           "SCons.Script",
                           "SCons.Sig",
-                          "SCons.Tool"],
+                          "SCons.Tool",
+                          "SCons.Tool.packaging"],
     'package_dir'      : {'' : 'engine'},
     'data_files'       : [('man/man1', man_pages)],
     'scripts'          : scripts,

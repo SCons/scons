@@ -42,37 +42,43 @@ else:
 
 test = TestSCons.TestSCons()
 
+test.subdir('in')
+
 
 
 test.write('myyacc.py', """
 import getopt
 import string
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:x', [])
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:I:x', [])
 output = None
 opt_string = ''
+i_arguments = ''
 for opt, arg in cmd_opts:
     if opt == '-o': output = open(arg, 'wb')
+    elif opt == '-I': i_arguments = i_arguments + ' ' + arg
     else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
-    output.write(string.replace(contents, 'YACCFLAGS', opt_string))
+    contents = string.replace(contents, 'YACCFLAGS', opt_string)
+    contents = string.replace(contents, 'I_ARGS', i_arguments)
+    output.write(contents)
 output.close()
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
 env = Environment(YACC = r'%(_python_)s myyacc.py',
-                  YACCFLAGS = '-x',
+                  YACCFLAGS = '-x -I${TARGET.dir} -I${SOURCE.dir}',
                   tools=['yacc', '%(linker)s', '%(compiler)s'])
-env.CFile(target = 'aaa', source = 'aaa.y')
+env.CFile(target = 'out/aaa', source = 'in/aaa.y')
 """ % locals())
 
-test.write('aaa.y',             "aaa.y\nYACCFLAGS\n")
+test.write(['in', 'aaa.y'],		"aaa.y\nYACCFLAGS\nI_ARGS\n")
 
 test.run('.', stderr = None)
 
-test.must_match('aaa.c',        "aaa.y\n -x\n")
+test.must_match(['out', 'aaa.c'],	"aaa.y\n -x\n out in\n")
 
 
 
