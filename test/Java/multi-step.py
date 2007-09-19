@@ -43,6 +43,13 @@ else:
 if not where_javac:
     test.skip_test("Could not find Java javac, skipping test(s).\n")
 
+if test.detect_tool('javah', ENV=ENV):
+    where_javah = test.detect('JAVAH', 'javah', ENV=ENV)
+else:
+    where_javah = test.where_is('javah')
+if not where_javah:
+    test.skip_test("Could not find Java javah, skipping test(s).\n")
+
 swig = test.where_is('swig')
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
@@ -70,7 +77,9 @@ test.subdir(['src'],
 
 test.write(['SConstruct'], """\
 import os,sys
-env=Environment(tools = ['default', 'javac', 'javah'])
+env=Environment(tools = ['default', 'javac', 'javah'],
+                JAVAC = r'%(where_javac)s',
+                JAVAH = r'%(where_javah)s')
 Export('env')
 env.PrependENVPath('PATH',os.environ.get('PATH',[]))
 env['INCPREFIX']='-I'
@@ -94,7 +103,7 @@ env.SConscript(['buildout/server/JavaSource/SConscript',
                 'buildout/HelloApplet/SConscript',
                 'buildout/jni/SConscript',
                 'buildout/javah/SConscript'])
-""")
+""" % locals())
 
 test.write(['src', 'HelloApplet', 'Hello.html'], """\
 <HTML>
@@ -559,8 +568,15 @@ test.must_exist(['buildout', 'jni', 'Sample.class'])
 test.must_exist(['buildout', 'jni', 'Sample.java'])
 test.must_exist(['buildout', 'jni', 'SampleJNI.class'])
 test.must_exist(['buildout', 'jni', 'SampleJNI.java'])
-test.must_exist(['buildout', 'jni', 'SampleTest.class'])
 test.must_exist(['buildout', 'jni', 'SampleTest.java'])
+
+# Some combinations of Java + SWIG apparently don't actually generate
+# a SampleTest.class file, while others do.  Only issue a warning if
+# it doesn't exist.
+p = test.workpath('buildout', 'jni', 'SampleTest.class')
+import os.path
+if not os.path.exists(p):
+    print 'Warning:  %s does not exist' % p
 
 test.up_to_date(arguments = '.')
 

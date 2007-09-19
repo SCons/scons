@@ -51,6 +51,11 @@ ListType        = types.ListType
 StringType      = types.StringType
 TupleType       = types.TupleType
 
+def dictify(keys, values, result={}):
+    for k, v in zip(keys, values):
+        result[k] = v
+    return result
+
 _altsep = os.altsep
 if _altsep is None and sys.platform == 'win32':
     # My ActivePython 2.0.1 doesn't set os.altsep!  What gives?
@@ -300,7 +305,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
         tags.append(' S'[IDX(root.side_effect)])
         tags.append(' P'[IDX(root.precious)])
         tags.append(' A'[IDX(root.always_build)])
-        tags.append(' C'[IDX(root.current())])
+        tags.append(' C'[IDX(root.is_up_to_date())])
         tags.append(' N'[IDX(root.noclean)])
         tags.append(' H'[IDX(root.nocache)])
         tags.append(']')
@@ -886,16 +891,25 @@ else:
     def case_sensitive_suffixes(s1, s2):
         return (os.path.normcase(s1) != os.path.normcase(s2))
 
-def adjustixes(fname, pre, suf):
+def adjustixes(fname, pre, suf, ensure_suffix=False):
     if pre:
         path, fn = os.path.split(os.path.normpath(fname))
         if fn[:len(pre)] != pre:
             fname = os.path.join(path, pre + fn)
-    # Only append a suffix if the file does not have one.
-    if suf and not splitext(fname)[1] and fname[-len(suf):] != suf:
+    # Only append a suffix if the suffix we're going to add isn't already
+    # there, and if either we've been asked to ensure the specific suffix
+    # is present or there's no suffix on it at all.
+    if suf and fname[-len(suf):] != suf and \
+       (ensure_suffix or not splitext(fname)[1]):
             fname = fname + suf
     return fname
 
+
+
+# From Tim Peters,
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+# ASPN: Python Cookbook: Remove duplicates from a sequence
+# (Also in the printed Python Cookbook.)
 
 def unique(s):
     """Return a list of the elements in s, but without duplicates.
@@ -967,6 +981,45 @@ def unique(s):
             u.append(x)
     return u
 
+
+
+# From Alex Martelli,
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+# ASPN: Python Cookbook: Remove duplicates from a sequence
+# First comment, dated 2001/10/13.
+# (Also in the printed Python Cookbook.)
+
+def uniquer(seq, idfun=None):
+    if idfun is None:
+        def idfun(x): return x
+    seen = {}
+    result = []
+    for item in seq:
+        marker = idfun(item)
+        # in old Python versions:
+        # if seen.has_key(marker)
+        # but in new ones:
+        if marker in seen: continue
+        seen[marker] = 1
+        result.append(item)
+    return result
+
+# A more efficient implementation of Alex's uniquer(), this avoids the
+# idfun() argument and function-call overhead by assuming that all
+# items in the sequence are hashable.
+
+def uniquer_hashables(seq):
+    seen = {}
+    result = []
+    for item in seq:
+        #if not item in seen:
+        if not seen.has_key(item):
+            seen[item] = 1
+            result.append(item)
+    return result
+
+
+
 # Much of the logic here was originally based on recipe 4.9 from the
 # Python CookBook, but we had to dumb it way down for Python 1.5.2.
 class LogicalLines:
@@ -995,6 +1048,8 @@ class LogicalLines:
                 break
             result.append(line)
         return result
+
+
 
 class Unbuffered:
     """
@@ -1099,6 +1154,35 @@ def RenameFunction(function, name):
                         function.func_globals,
                         name,
                         func_defaults)
+
+
+md5 = False
+def MD5signature(s):
+    return str(s)
+
+try:
+    import hashlib
+except ImportError:
+    pass
+else:
+    if hasattr(hashlib, 'md5'):
+        md5 = True
+        def MD5signature(s):
+            m = hashlib.md5()
+            m.update(str(s))
+            return m.hexdigest()
+
+def MD5collect(signatures):
+    """
+    Collects a list of signatures into an aggregate signature.
+
+    signatures - a list of signatures
+    returns - the aggregate signature
+    """
+    if len(signatures) == 1:
+        return signatures[0]
+    else:
+        return MD5signature(string.join(signatures, ', '))
 
 
 

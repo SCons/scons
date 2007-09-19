@@ -380,7 +380,6 @@ arguments = {
                           "SCons.Platform",
                           "SCons.Scanner",
                           "SCons.Script",
-                          "SCons.Sig",
                           "SCons.Tool",
                           "SCons.Tool.packaging"],
     'package_dir'      : {'' : 'engine'},

@@ -92,7 +92,6 @@ test.must_exist(test.workpath('build', moc))
 test.run(arguments = "build_dir=1 chdir=1 dup=0 " +
                      test.workpath('build_dup0', aaa_exe) )
 
-test.must_exist(['build_dup0', moc],
-                ['build_dup0', aaa_exe])
+test.must_exist(['build_dup0', moc])
 
 test.pass_test()

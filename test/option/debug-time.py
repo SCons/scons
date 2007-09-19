@@ -64,6 +64,12 @@ test.write('f4.in', "f4.in\n")
 
 
 
+# Before anything else, make sure we get valid --debug=time results
+# when just running the help option.
+test.run(arguments = "-h --debug=time")
+
+
+
 def num(s, match):
     return float(re.search(match, s).group(1))
 

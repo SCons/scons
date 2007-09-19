@@ -36,7 +36,7 @@ from SCons.Builder import Builder
 from xml.dom.minidom import *
 from xml.sax.saxutils import escape
 
-from SCons.Tool.packaging import stripinstall_emitter
+from SCons.Tool.packaging import stripinstallbuilder
 
 #
 # Utility functions
@@ -223,7 +223,7 @@ def build_wxsfile(target, source, env):
 #
 # setup function
 #
-def create_default_directory_layout(root, NAME, VERSION, vendor, filename_set):
+def create_default_directory_layout(root, NAME, VERSION, VENDOR, filename_set):
     """ Create the wix default target directory layout and return the innermost
     directory.
 
@@ -231,7 +231,7 @@ def create_default_directory_layout(root, NAME, VERSION, vendor, filename_set):
     the Product tag.
 
     Everything is put under the PFiles directory property defined by WiX.
-    After that a directory  with the 'vendor' tag is placed and then a
+    After that a directory  with the 'VENDOR' tag is placed and then a
     directory with the name of the project and its VERSION. This leads to the
     following TARGET Directory Layout:
     C:\<PFiles>\<Vendor>\<Projectname-Version>\
@@ -247,9 +247,9 @@ def create_default_directory_layout(root, NAME, VERSION, vendor, filename_set):
     d2.attributes['Name'] = 'PFiles'
 
     d3 = doc.createElement( 'Directory' )
-    d3.attributes['Id']       = 'vendor_folder'
-    d3.attributes['Name']     = escape( gen_dos_short_file_name( vendor, filename_set ) )
-    d3.attributes['LongName'] = escape( vendor )
+    d3.attributes['Id']       = 'VENDOR_folder'
+    d3.attributes['Name']     = escape( gen_dos_short_file_name( VENDOR, filename_set ) )
+    d3.attributes['LongName'] = escape( VENDOR )
 
     d4 = doc.createElement( 'Directory' )
     project_folder            = "%s-%s" % ( NAME, VERSION )
@@ -268,7 +268,7 @@ def create_default_directory_layout(root, NAME, VERSION, vendor, filename_set):
 #
 # mandatory and optional file tags
 #
-def build_wxsfile_file_section(root, files, NAME, VERSION, vendor, filename_set, id_set):
+def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set, id_set):
     """ builds the Component sections of the wxs file with their included files.
 
     Files need to be specified in 8.3 format and in the long name format, long
@@ -276,7 +276,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, vendor, filename_set,
 
     Features are specficied with the 'X_MSI_FEATURE' or 'DOC' FileTag.
     """
-    root       = create_default_directory_layout( root, NAME, VERSION, vendor, filename_set )
+    root       = create_default_directory_layout( root, NAME, VERSION, VENDOR, filename_set )
     components = create_feature_dict( files )
     factory    = Document()
 
@@ -470,7 +470,7 @@ def build_wxsfile_header_section(root, spec):
     # mandatory sections, will throw a KeyError if the tag is not available
     Product.attributes['Name']         = escape( spec['NAME'] )
     Product.attributes['Version']      = escape( spec['VERSION'] )
-    Product.attributes['Manufacturer'] = escape( spec['vendor'] )
+    Product.attributes['Manufacturer'] = escape( spec['VENDOR'] )
     Product.attributes['Language']     = escape( spec['X_MSI_LANGUAGE'] )
     Package.attributes['Description']  = escape( spec['SUMMARY'] )
 
@@ -490,12 +490,11 @@ def build_wxsfile_header_section(root, spec):
 
 # this builder is the entry-point for .wxs file compiler.
 wxs_builder = Builder(
-    action  = Action( build_wxsfile, string_wxsfile ),
-    emitter = stripinstall_emitter(),
-    suffix  = '.wxs' )
+    action         = Action( build_wxsfile, string_wxsfile ),
+    ensure_suffix  = '.wxs' )
 
 def package(env, target, source, PACKAGEROOT, NAME, VERSION,
-            DESCRIPTION, SUMMARY, **kw):
+            DESCRIPTION, SUMMARY, VENDOR, X_MSI_LANGUAGE, **kw):
     # make sure that the Wix Builder is in the environment
     SCons.Tool.Tool('wix').generate(env)
 
@@ -506,6 +505,9 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
     del loc['kw']
     kw.update(loc)
     del kw['source'], kw['target'], kw['env']
+
+    # strip the install builder from the source files
+    target, source = stripinstallbuilder(target, source, env)
 
     # put the arguments into the env and call the specfile builder.
     env['msi_spec'] = kw

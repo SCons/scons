@@ -51,6 +51,7 @@ undefined_references_str = '(^LaTeX Warning:.*undefined references)|(^Package \w
 undefined_references_re = re.compile(undefined_references_str, re.MULTILINE)
 
 openout_aux_re = re.compile(r"\\openout.*`(.*\.aux)'")
+openout_re = re.compile(r"\\openout.*`(.*)'")
 
 makeindex_re = re.compile(r"^[^%]*\\makeindex", re.MULTILINE)
 tableofcontents_re = re.compile(r"^[^%]*\\tableofcontents", re.MULTILINE)
@@ -193,17 +194,18 @@ def tex_emitter(target, source, env):
             env.Precious(base + '.bbl')
             target.append(base + '.blg')
 
-    # read log file to get all .aux files
+    # read log file to get all output file (include .aux files)
     logfilename = base + '.log'
     dir, base_nodir = os.path.split(base)
     if os.path.exists(logfilename):
         content = open(logfilename, "rb").read()
-        aux_files = openout_aux_re.findall(content)
-        aux_files = filter(lambda f, b=base_nodir+'.aux': f != b, aux_files)
-        aux_files = map(lambda f, d=dir: d+os.sep+f, aux_files)
-        target.extend(aux_files)
-        for a in aux_files:
-            env.Precious( a )
+        out_files = openout_re.findall(content)
+        out_files = filter(lambda f, b=base_nodir+'.aux': f != b, out_files)
+        if dir != '':
+            out_files = map(lambda f, d=dir: d+os.sep+f, out_files)
+        target.extend(out_files)
+        for f in out_files:
+            env.Precious( f )
 
     return (target, source)
 

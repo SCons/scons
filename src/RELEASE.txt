@@ -20,10 +20,92 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.97.0d20070809 - Fri, 10 Aug 2007 10:51:27 -0500
+RELEASE 0.97.0d200709XX - XXX
 
   This is the eighth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.97.0d20070809:
+
+    --  "content" SIGNATURES ARE NOW THE DEFAULT BEHAVIOR
+
+        The default behavior of SCons is now to use the MD5 checksum of
+        all file contents to decide if any files have changed and should
+        cause rebuilds of their source files.  This means that SCons may
+        decide not to rebuild "downstream" targets if a a given input
+        file is rebuilt to the exact same contents as the last time.
+        The old behavior may preserved by explicity specifying:
+
+            TargetSignatures("build")
+
+        In any of your SConscript files.
+
+    --  TARGETS NOW IMPLICITLY DEPEND ON THE COMMAND THAT BUILDS THEM
+
+        For all targets built by calling external commands (such as a
+        compiler or other utility), SCons now adds an implicit dependency
+        on the command(s) used to build the target.
+
+        This will cause rebuilds of all targets built by external commands
+        when running SCons in a tree built by previous version of SCons,
+        in order to update the recorded signatures.
+
+        The old behavior of not having targets depend on the external
+        commands that build them can be preserved by setting a new
+        $IMPLICIT_COMMAND_DEPENDENCIES construction variable to a
+        non-True value:
+
+            env = Environment(IMPLICIT_COMMAND_DEPENDENCIES = 0)
+        
+        or by adding Ignore() calls for any targets where the behavior
+        is desired:
+
+            Ignore('/usr/bin/gcc', 'foo.o')
+
+        Both of these settings are compatible with older versions
+        of SCons.
+
+    --  CHANGING SourceSignature() MAY CAUSE "UNECESSARY" REBUILDS
+
+        If you change the SourceSignature() value from 'timestamp' to
+        'MD5', SCons will now rebuild targets that were already up-to-date
+        with respect to their source files.
+
+        This will happen because SCons did not record the content
+        signatures of the input source files when the target was last
+        built--it only recorded the timestamps--and it must record them
+        to make sure the signature information is correct.  However,
+        the content of source files may have changed since the last
+        timestamp build was performed, and SCons would not have any way to
+        verify that.  (It would have had to open up the file and record
+        a content signature, which is one of the things you're trying to
+        avoid by specifying use of timestamps....)  So in order to make
+        sure the built targets reflect the contents of the source files,
+        the targets must be rebuilt.
+
+        Change the SourceSignature() value from 'MD5' to 'timestamp'
+        should correctly not rebuild target files, because the timestamp
+        of the files is always recorded.
+
+        In previous versions of SCons, changing the SourceSignature()
+        value would lead to unpredictable behavior, usually including
+        rebuilding targets.
+
+    --  THE Return() FUNCTION NOW ACTUALLY RETURNS IMMEDIATELY
+
+        The Return() function now immediately stops processing the
+        SConscript file in which it appears and returns the values of the
+        variables named in its arguments.  It used to continue processing
+        the rest of the SConscript file, and then return the values of the
+        specified variables at the point the Return() function was called.
+
+        The old behavior may be requested by adding a "stop=False"
+        keyword argument to the Return() call:
+
+                Return('value', stop=False)
+
+        The "stop=" keyword argument is *not* compatible with SCons
+        versions 0.97.0d20070809 or earlier.
 
   Please note the following important changes since release 0.97:
 
@@ -112,7 +194,7 @@ RELEASE 0.97.0d20070809 - Fri, 10 Aug 2007 10:51:27 -0500
         This should not cause any problems in the normal use of "#ifdef
         HAVE_{FEATURE}" statements interpreted by a C preprocessor, but
         might cause a compatibility issue if a script or other utility
-        was looking for an exact match of the previous text.
+        looks for an exact match of the previous text.
 
   Please note the following important changes since release 0.96.93:
 

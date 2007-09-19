@@ -74,9 +74,19 @@ class Node:
             cache_text.append(self.name + " retrieved")
         return self.cached
 
+    def make_ready(self):
+        pass
+
+    def prepare(self):
+        self.prepared = 1
+
     def build(self):
         global built_text
         built_text = self.name + " built"
+
+    def built(self):
+        global built_text
+        built_text = built_text + " really"
 
     def has_builder(self):
         return not self.builder is None
@@ -87,16 +97,9 @@ class Node:
     def alter_targets(self):
         return self.alttargets, None
 
-    def built(self):
-        global built_text
-        built_text = built_text + " really"
-
     def visited(self):
         global visited_nodes
         visited_nodes.append(self.name)
-
-    def prepare(self):
-        self.prepared = 1
 
     def children(self):
         if not self.scanned:
@@ -145,18 +148,11 @@ class Node:
     def store_bsig(self):
         pass
 
-    def calculator(self):
-        class Calc:
-            def bsig(self, node):
-                return node._bsig_val
-            def current(self, node, sig):
-                return node._current_val
-        return Calc()
+    def is_pseudo_derived(self):
+        pass
 
-    def current(self, calc=None):
-        if calc is None:
-            calc = self.calculator()
-        return calc.current(self, calc.bsig(self))
+    def is_up_to_date(self):
+        return self._current_val
     
     def depends_on(self, nodes):
         for node in nodes:
@@ -713,7 +709,7 @@ class TaskmasterTestCase(unittest.TestCase):
         s = n1.get_state()
         assert s == SCons.Node.executed, s
         assert built_text == "xxx really", built_text
-        assert visited_nodes == [], visited_nodes
+        assert visited_nodes == ['n1'], visited_nodes
 
         n2 = Node("n2")
         tm = SCons.Taskmaster.Taskmaster([n2])
@@ -744,7 +740,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert s == SCons.Node.up_to_date, s
         s = n4.get_state()
         assert s == SCons.Node.executed, s
-        assert visited_nodes == ['n3'], visited_nodes
+        assert visited_nodes == ['n3', 'n4'], visited_nodes
 
     def test_prepare(self):
         """Test preparation of multiple Nodes for a task
@@ -1017,11 +1013,19 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         t.prepare()
         t.execute()
+        t.postprocess()
         n1.set_state(SCons.Node.executed)
         t = tm.next_task()
         t.prepare()
         t.execute()
+        t.postprocess()
+        n2.set_state(SCons.Node.executed)
         t = tm.next_task()
+        t.prepare()
+        t.execute()
+        t.postprocess()
+        t = tm.next_task()
+        assert t is None
 
         value = trace.getvalue()
         expect = """\
@@ -1029,13 +1033,12 @@ Taskmaster: 'n1': evaluating n1
 Taskmaster: 'n1': already handled (executed)
 Taskmaster: 'n3': children:
     ['n1', 'n2']
-    waiting on unstarted children:
+    waiting on unfinished children:
     ['n2']
 Taskmaster: 'n2': evaluating n2
 Taskmaster: 'n3': children:
     ['n1', 'n2']
-    waiting on unfinished children:
-    ['n2']
+    evaluating n3
 """
         assert value == expect, value
 

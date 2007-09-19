@@ -53,8 +53,12 @@ import UserList
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
-import SCons.SConsign
 import SCons.Util
+
+from SCons.Debug import Trace
+
+def classname(obj):
+    return string.split(str(obj.__class__), '.')[-1]
 
 # Node states
 #
@@ -103,38 +107,53 @@ class NodeInfoBase:
     Node subclasses should subclass NodeInfoBase to provide their own
     logic for dealing with their own Node-specific signature information.
     """
+    current_version_id = 1
     def __init__(self, node):
-        """A null initializer so that subclasses have a superclass
-        initialization method to call for future use.
-        """
-        pass
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+        # Create an object attribute from the class attribute so it ends up
+        # in the pickled data in the .sconsign file.
+        self._version_id = self.current_version_id
     def update(self, node):
-        pass
-    def merge(self, other):
-        for key, val in other.__dict__.items():
-            self.__dict__[key] = val
-    def prepare_dependencies(self):
-        pass
-    def format(self):
         try:
             field_list = self.field_list
         except AttributeError:
-            field_list = self.__dict__.keys()
-            field_list.sort()
+            return
+        for f in field_list:
+            try:
+                delattr(self, f)
+            except AttributeError:
+                pass
+            try:
+                func = getattr(node, 'get_' + f)
+            except AttributeError:
+                pass
+            else:
+                setattr(self, f, func())
+    def convert(self, node, val):
+        pass
+    def merge(self, other):
+        self.__dict__.update(other.__dict__)
+    def format(self, field_list=None, names=0):
+        if field_list is None:
+            try:
+                field_list = self.field_list
+            except AttributeError:
+                field_list = self.__dict__.keys()
+                field_list.sort()
         fields = []
         for field in field_list:
             try:
                 f = getattr(self, field)
             except AttributeError:
                 f = None
-            fields.append(str(f))
-        return string.join(fields, " ")
+            f = str(f)
+            if names:
+                f = field + ': ' + f
+            fields.append(f)
+        return fields
 
 class BuildInfoBase:
     """
-    The generic base clasee for build information for a Node.
+    The generic base class for build information for a Node.
 
     This is what gets stored in a .sconsign file for each target file.
     It contains a NodeInfo instance for this node (signature information
@@ -142,22 +161,17 @@ class BuildInfoBase:
     generic build stuff we have to track:  sources, explicit dependencies,
     implicit dependencies, and action information.
     """
+    current_version_id = 1
     def __init__(self, node):
-        self.ninfo = node.NodeInfo(node)
+        # Create an object attribute from the class attribute so it ends up
+        # in the pickled data in the .sconsign file.
+        self._version_id = self.current_version_id
         self.bsourcesigs = []
         self.bdependsigs = []
         self.bimplicitsigs = []
         self.bactsig = None
-    def __cmp__(self, other):
-        return cmp(self.ninfo, other.ninfo)
     def merge(self, other):
-        for key, val in other.__dict__.items():
-            try:
-                merge = self.__dict__[key].merge
-            except (AttributeError, KeyError):
-                self.__dict__[key] = val
-            else:
-                merge(val)
+        self.__dict__.update(other.__dict__)
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -225,10 +239,18 @@ class Node:
     def get_suffix(self):
         return ''
 
+    memoizer_counters.append(SCons.Memoize.CountValue('get_build_env'))
+
     def get_build_env(self):
         """Fetch the appropriate Environment to build this node.
         """
-        return self.get_executor().get_build_env()
+        try:
+            return self._memo['get_build_env']
+        except KeyError:
+            pass
+        result = self.get_executor().get_build_env()
+        self._memo['get_build_env'] = result
+        return result
 
     def get_build_scanner_path(self, scanner):
         """Fetch the appropriate scanner path for this node."""
@@ -286,19 +308,64 @@ class Node:
         """
         return 0
 
+    #
+    # Taskmaster interface subsystem
+    #
+
+    def make_ready(self):
+        """Get a Node ready for evaluation.
+
+        This is called before the Taskmaster decides if the Node is
+        up-to-date or not.  Overriding this method allows for a Node
+        subclass to be disambiguated if necessary, or for an implicit
+        source builder to be attached.
+        """
+        pass
+
+    def prepare(self):
+        """Prepare for this Node to be built.
+
+        This is called after the Taskmaster has decided that the Node
+        is out-of-date and must be rebuilt, but before actually calling
+        the method to build the Node.
+
+        This default implemenation checks that all children either exist
+        or are derived, and initializes the BuildInfo structure that
+        will hold the information about how this node is, uh, built.
+
+        Overriding this method allows for for a Node subclass to remove
+        the underlying file from the file system.  Note that subclass
+        methods should call this base class method to get the child
+        check and the BuildInfo structure.
+        """
+        l = self.depends
+        if not self.implicit is None:
+            l = l + self.implicit
+        missing_sources = self.get_executor().get_missing_sources() \
+                          + filter(lambda c: c.missing(), l)
+        if missing_sources:
+            desc = "Source `%s' not found, needed by target `%s'." % (missing_sources[0], self)
+            raise SCons.Errors.StopError, desc
+
+        self.binfo = self.get_binfo()
+
     def build(self, **kw):
         """Actually build the node.
 
+        This is called by the Taskmaster after it's decided that the
+        Node is out-of-date and must be rebuilt, and after the prepare()
+        method has gotten everything, uh, prepared.
+
         This method is called from multiple threads in a parallel build,
-        so only do thread safe stuff here. Do thread unsafe stuff in
-        built().
+        so only do thread safe stuff here. Do thread unsafe stuff
+        in built().
+
         """
-        def exitstatfunc(stat, node=self):
-            if stat:
-                msg = "Error %d" % stat
-                raise SCons.Errors.BuildError(node=node, errstr=msg)
         executor = self.get_executor()
-        apply(executor, (self, exitstatfunc), kw)
+        stat = apply(executor, (self,), kw)
+        if stat:
+            msg = "Error %d" % stat
+            raise SCons.Errors.BuildError(node=self, errstr=msg)
 
     def built(self):
         """Called just after this node is successfully built."""
@@ -309,28 +376,26 @@ class Node:
             parent.implicit = None
             parent.del_binfo()
 
-        try:
-            new = self.binfo
-        except AttributeError:
-            # Node arrived here without build info; apparently it
-            # doesn't need it, so don't bother calculating or storing
-            # it.
-            new = None
-
-        # Reset this Node's cached state since it was just built and
-        # various state has changed.
         self.clear()
 
-        if new:
-            # It had build info, so it should be stored in the signature
-            # cache.  However, if the build info included a content
-            # signature then it must be recalculated before being stored.
-            if hasattr(new.ninfo, 'csig'):
-                self.get_csig()
-            else:
-                new.ninfo.update(self)
-                self.binfo = new
-            self.store_info(self.binfo)
+        self.ninfo.update(self)
+
+    def visited(self):
+        """Called just after this node has been visited (with or
+        without a build)."""
+        try:
+            binfo = self.binfo
+        except AttributeError:
+            # Apparently this node doesn't need build info, so
+            # don't bother calculating or storing it.
+            pass
+        else:
+            self.ninfo.update(self)
+            self.store_info()
+
+    #
+    #
+    #
 
     def add_to_waiting_s_e(self, node):
         self.waiting_s_e[node] = 1
@@ -367,27 +432,33 @@ class Node:
         can be re-evaluated by interfaces that do continuous integration
         builds).
         """
+        # Note in case it's important in the future:  We also used to clear
+        # the build information (the lists of dependencies) here like this:
+        #
+        #    self.del_binfo()
+        #
+        # But we now rely on the fact that we're going to look at that
+        # once before the build, and then store the results in the
+        # .sconsign file after the build.
         self.clear_memoized_values()
+        self.ninfo = self.new_ninfo()
         self.executor_cleanup()
-        self.del_binfo()
         try:
             delattr(self, '_calculated_sig')
         except AttributeError:
             pass
         self.includes = None
         self.found_includes = {}
-        self.implicit = None
 
     def clear_memoized_values(self):
         self._memo = {}
 
-    def visited(self):
-        """Called just after this node has been visited
-        without requiring a build.."""
-        pass
-
     def builder_set(self, builder):
         self.builder = builder
+        try:
+            del self.executor
+        except AttributeError:
+            pass
 
     def has_builder(self):
         """Return whether this Node has a builder or not.
@@ -405,8 +476,7 @@ class Node:
         except AttributeError:
             # There was no explicit builder for this Node, so initialize
             # the self.builder attribute to None now.
-            self.builder = None
-            b = self.builder
+            b = self.builder = None
         return not b is None
 
     def set_explicit(self, is_explicit):
@@ -445,14 +515,6 @@ class Node:
         and hence should not return true.
         """
         return self.has_builder() or self.side_effect
-
-    def is_pseudo_derived(self):
-        """
-        Returns true iff this node is built, but should use a source path
-        when duplicate=0 and should contribute a content signature (i.e.
-        source signature) when used as a source for other derived files.
-        """
-        return 0
 
     def alter_targets(self):
         """Return a list of alternate targets for this Node.
@@ -557,28 +619,15 @@ class Node:
         if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
             if implicit is not None:
-                factory = build_env.get_factory(self.builder.source_factory)
-                nodes = []
-                for i in implicit:
-                    try:
-                        n = factory(i)
-                    except TypeError:
-                        # The implicit dependency was cached as one type
-                        # of Node last time, but the configuration has
-                        # changed (probably) and it's a different type
-                        # this time.  Just ignore the mismatch and go
-                        # with what our current configuration says the
-                        # Node is.
-                        pass
-                    else:
-                        nodes.append(n)
-                self._add_child(self.implicit, self.implicit_dict, nodes)
-                calc = build_env.get_calculator()
-                if implicit_deps_unchanged or self.current(calc):
+                # We now add the implicit dependencies returned from the
+                # stored .sconsign entry to have already been converted
+                # to Nodes for us.  (We used to run them through a
+                # source_factory function here.)
+                self._add_child(self.implicit, self.implicit_dict, implicit)
+                if implicit_deps_unchanged or self.is_up_to_date():
                     return
-                # one of this node's sources has changed, so
-                # we need to recalculate the implicit deps,
-                # and the bsig:
+                # one of this node's sources has changed,
+                # so we must recalculate the implicit deps:
                 self.implicit = []
                 self.implicit_dict = {}
                 self._children_reset()
@@ -620,65 +669,24 @@ class Node:
     NodeInfo = NodeInfoBase
     BuildInfo = BuildInfoBase
 
-    def calculator(self):
-        import SCons.Defaults
-        
-        env = self.env or SCons.Defaults.DefaultEnvironment()
-        return env.get_calculator()
-
-    memoizer_counters.append(SCons.Memoize.CountValue('calc_signature'))
-
-    def calc_signature(self, calc=None):
-        """
-        Select and calculate the appropriate build signature for a node.
-
-        self - the node
-        calc - the signature calculation module
-        returns - the signature
-        """
-        try:
-            return self._memo['calc_signature']
-        except KeyError:
-            pass
-        if self.is_derived():
-            import SCons.Defaults
-
-            env = self.env or SCons.Defaults.DefaultEnvironment()
-            if env.use_build_signature():
-                result = self.get_bsig(calc)
-            else:
-                result = self.get_csig(calc)
-        elif not self.rexists():
-            result = None
-        else:
-            result = self.get_csig(calc)
-        self._memo['calc_signature'] = result
-        return result
-
     def new_ninfo(self):
-        return self.NodeInfo(self)
+        ninfo = self.NodeInfo(self)
+        return ninfo
+
+    def get_ninfo(self):
+        try:
+            return self.ninfo
+        except AttributeError:
+            self.ninfo = self.new_ninfo()
+            return self.ninfo
 
     def new_binfo(self):
-        return self.BuildInfo(self)
+        binfo = self.BuildInfo(self)
+        return binfo
 
     def get_binfo(self):
-        try:
-            return self.binfo
-        except AttributeError:
-            self.binfo = self.new_binfo()
-            return self.binfo
-
-    def del_binfo(self):
-        """Delete the build info from this node."""
-        try:
-            delattr(self, 'binfo')
-        except AttributeError:
-            pass
-
-    def gen_binfo(self, calc=None, scan=1):
         """
-        Generate a node's build signature, the digested signatures
-        of its dependency files and build information.
+        Fetch a node's build information.
 
         node - the node whose sources will be collected
         cache - alternate node to use for the signature cache
@@ -689,21 +697,17 @@ class Node:
         already built and updated by someone else, if that's
         what's wanted.
         """
+        try:
+            return self.binfo
+        except AttributeError:
+            pass
 
-        if calc is None:
-            calc = self.calculator()
-
-        binfo = self.get_binfo()
-
-        if scan:
-            self.scan()
+        binfo = self.new_binfo()
+        self.binfo = binfo
 
         executor = self.get_executor()
-        def calc_signature(node, calc=calc):
-            return node.calc_signature(calc)
 
         sources = executor.get_unignored_sources(self.ignore)
-        sourcesigs = executor.process_sources(calc_signature, self.ignore)
 
         depends = self.depends
         implicit = self.implicit or []
@@ -712,15 +716,16 @@ class Node:
             depends = filter(self.do_not_ignore, depends)
             implicit = filter(self.do_not_ignore, implicit)
 
-        dependsigs = map(calc_signature, depends)
-        implicitsigs = map(calc_signature, implicit)
+        def get_ninfo(node):
+            return node.get_ninfo()
 
-        sigs = sourcesigs + dependsigs + implicitsigs
+        sourcesigs = map(get_ninfo, sources)
+        dependsigs = map(get_ninfo, depends)
+        implicitsigs = map(get_ninfo, implicit)
 
         if self.has_builder():
             binfo.bact = str(executor)
-            binfo.bactsig = calc.module.signature(executor)
-            sigs.append(binfo.bactsig)
+            binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
         binfo.bsources = sources
         binfo.bdepends = depends
@@ -730,31 +735,32 @@ class Node:
         binfo.bdependsigs = dependsigs
         binfo.bimplicitsigs = implicitsigs
 
-        binfo.ninfo.bsig = calc.module.collect(filter(None, sigs))
-
         return binfo
 
-    def get_bsig(self, calc=None):
-        binfo = self.get_binfo()
+    def del_binfo(self):
+        """Delete the build info from this node."""
         try:
-            return binfo.ninfo.bsig
+            delattr(self, 'binfo')
         except AttributeError:
-            self.binfo = self.gen_binfo(calc)
-            return self.binfo.ninfo.bsig
+            pass
 
-    def get_csig(self, calc=None):
-        binfo = self.get_binfo()
+    def get_csig(self):
         try:
-            return binfo.ninfo.csig
+            return self.ninfo.csig
         except AttributeError:
-            if calc is None:
-                calc = self.calculator()
-            csig = binfo.ninfo.csig = calc.module.signature(self)
-            return csig
+            ninfo = self.get_ninfo()
+            ninfo.csig = SCons.Util.MD5signature(self.get_contents())
+            return self.ninfo.csig
 
-    def store_info(self, obj):
+    def get_cachedir_csig(self):
+        return self.get_csig()
+
+    def store_info(self):
         """Make the build signature permanent (that is, store it in the
         .sconsign file or equivalent)."""
+        pass
+
+    def do_not_store_info(self):
         pass
 
     def get_stored_info(self):
@@ -800,23 +806,8 @@ class Node:
 
     def missing(self):
         return not self.is_derived() and \
-               not self.is_pseudo_derived() and \
                not self.linked and \
                not self.rexists()
-    
-    def prepare(self):
-        """Prepare for this Node to be created.
-        The default implemenation checks that all children either exist
-        or are derived.
-        """
-        l = self.depends
-        if not self.implicit is None:
-            l = l + self.implicit
-        missing_sources = self.get_executor().get_missing_sources() \
-                          + filter(lambda c: c.missing(), l)
-        if missing_sources:
-            desc = "Source `%s' not found, needed by target `%s'." % (missing_sources[0], self)
-            raise SCons.Errors.StopError, desc
 
     def remove(self):
         """Remove this Node:  no-op by default."""
@@ -861,11 +852,11 @@ class Node:
     def _add_child(self, collection, dict, child):
         """Adds 'child' to 'collection', first checking 'dict' to see
         if it's already present."""
-        if type(child) is not type([]):
-            child = [child]
-        for c in child:
-            if not isinstance(c, Node):
-                raise TypeError, c
+        #if type(child) is not type([]):
+        #    child = [child]
+        #for c in child:
+        #    if not isinstance(c, Node):
+        #        raise TypeError, c
         added = None
         for c in child:
             if not dict.has_key(c):
@@ -883,7 +874,7 @@ class Node:
     def _children_reset(self):
         self.clear_memoized_values()
         # We need to let the Executor clear out any calculated
-        # bsig info that it's cached so we can re-calculate it.
+        # build info that it's cached so we can re-calculate it.
         self.executor_cleanup()
 
     def do_not_ignore(self, node):
@@ -944,19 +935,107 @@ class Node:
     def get_state(self):
         return self.state
 
-    def current(self, calc=None):
+    def state_has_changed(self, target, prev_ni):
+        return (self.state != SCons.Node.up_to_date)
+
+    def get_env(self):
+        env = self.env
+        if not env:
+            import SCons.Defaults
+            env = SCons.Defaults.DefaultEnvironment()
+        return env
+
+    def changed_since_last_build(self, target, prev_ni):
+        """
+
+        Must be overridden in a specific subclass to return True if this
+        Node (a dependency) has changed since the last time it was used
+        to build the specified target.  prev_ni is this Node's state (for
+        example, its file timestamp, length, maybe content signature)
+        as of the last time the target was built.
+
+        Note that this method is called through the dependency, not the
+        target, because a dependency Node must be able to use its own
+        logic to decide if it changed.  For example, File Nodes need to
+        obey if we're configured to use timestamps, but Python Value Nodes
+        never use timestamps and always use the content.  If this method
+        were called through the target, then each Node's implementation
+        of this method would have to have more complicated logic to
+        handle all the different Node types on which it might depend.
+        """
+        raise NotImplementedError
+
+    def Decider(self, function):
+        SCons.Util.AddMethod(self, function, 'changed_since_last_build')
+
+    def changed(self, node=None):
+        """
+        Returns if the node is up-to-date with respect to the BuildInfo
+        stored last time it was built.  The default behavior is to compare
+        it against our own previously stored BuildInfo, but the stored
+        BuildInfo from another Node (typically one in a Repository)
+        can be used instead.
+
+        Note that we now *always* check every dependency.  We used to
+        short-circuit the check by returning as soon as we detected
+        any difference, but we now rely on checking every dependency
+        to make sure that any necessary Node information (for example,
+        the content signature of an #included .h file) is updated.
+        """
+        t = 0
+        if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
+        if node is None:
+            node = self
+
+        result = False
+
+        bi = node.get_stored_info().binfo
+        then = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+        children = self.children()
+
+        diff = len(children) - len(then)
+        if diff:
+            # The old and new dependency lists are different lengths.
+            # This always indicates that the Node must be rebuilt.
+            # We also extend the old dependency list with enough None
+            # entries to equal the new dependency list, for the benefit
+            # of the loop below that updates node information.
+            then.extend([None] * diff)
+            result = True
+
+        for child, prev_ni in zip(children, then):
+            if child.changed_since_last_build(self, prev_ni):
+                if t: Trace(': %s changed' % child)
+                result = True
+
+        contents = self.get_executor().get_contents()
+        if self.has_builder():
+            import SCons.Util
+            newsig = SCons.Util.MD5signature(contents)
+            if bi.bactsig != newsig:
+                if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
+                result = True
+
+        if not result:
+            if t: Trace(': up to date')
+
+        if t: Trace('\n')
+
+        return result
+
+    def is_up_to_date(self):
         """Default check for whether the Node is current: unknown Node
         subtypes are always out of date, so they will always get built."""
         return None
 
-    def children_are_up_to_date(self, calc=None):
+    def children_are_up_to_date(self):
         """Alternate check for whether the Node is current:  If all of
         our children were up-to-date, then this Node was up-to-date, too.
 
         The SCons.Node.Alias and SCons.Node.Python.Value subclasses
         rebind their current() method to this method."""
         # Allow the children to calculate their signatures.
-        self.binfo = self.gen_binfo(calc)
+        self.binfo = self.get_binfo()
         if self.always_build:
             return None
         state = 0
@@ -1052,6 +1131,8 @@ class Node:
         old = self.get_stored_info()
         if old is None:
             return None
+
+        old = old.binfo
         old.prepare_dependencies()
 
         try:
@@ -1087,7 +1168,7 @@ class Node:
         for k in new_bkids:
             if not k in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
-            elif osig[k] != nsig[k]:
+            elif k.changed_since_last_build(self, osig[k]):
                 lines.append("`%s' changed\n" % stringify(k))
 
         if len(lines) == 0 and old_bkids != new_bkids:

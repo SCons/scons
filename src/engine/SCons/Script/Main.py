@@ -64,7 +64,6 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.SConf
 import SCons.Script
-import SCons.Sig
 import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
@@ -80,12 +79,76 @@ progress_display = SCons.Util.DisplayEngine()
 first_command_start = None
 last_command_end = None
 
+class Progressor:
+    prev = ''
+    count = 0
+    target_string = '$TARGET'
+
+    def __init__(self, obj, interval=1, file=None, overwrite=False):
+        if file is None:
+            file = sys.stdout
+
+        self.obj = obj
+        self.file = file
+        self.interval = interval
+        self.overwrite = overwrite
+
+        if callable(obj):
+            self.func = obj
+        elif SCons.Util.is_List(obj):
+            self.func = self.spinner
+        elif string.find(obj, self.target_string) != -1:
+            self.func = self.replace_string
+        else:
+            self.func = self.string
+
+    def write(self, s):
+        self.file.write(s)
+        self.file.flush()
+        self.prev = s
+
+    def erase_previous(self):
+        if self.prev:
+            length = len(self.prev)
+            if self.prev[-1] in ('\n', '\r'):
+                length = length - 1
+            self.write(' ' * length + '\r')
+            self.prev = ''
+
+    def spinner(self, node):
+        self.write(self.obj[self.count % len(self.obj)])
+
+    def string(self, node):
+        self.write(self.obj)
+
+    def replace_string(self, node):
+        self.write(string.replace(self.obj, self.target_string, str(node)))
+
+    def __call__(self, node):
+        self.count = self.count + 1
+        if (self.count % self.interval) == 0:
+            if self.overwrite:
+                self.erase_previous()
+            self.func(node)
+
+ProgressObject = SCons.Util.Null()
+
+def Progress(*args, **kw):
+    global ProgressObject
+    ProgressObject = apply(Progressor, args, kw)
+
 # Task control.
 #
 class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
+    progress = ProgressObject
+
     def display(self, message):
         display('scons: ' + message)
+
+    def prepare(self):
+        self.progress(self.targets[0])
+        return SCons.Taskmaster.Task.prepare(self)
 
     def execute(self):
         for target in self.targets:
@@ -276,6 +339,12 @@ class CleanTask(SCons.Taskmaster.Task):
 
     execute = remove
 
+    # We want the Taskmaster to update the Node states (and therefore
+    # handle reference counts, etc.), but we don't want to call
+    # back to the Node's post-build methods, which would do things
+    # we don't want, like store .sconsign information.
+    executed = SCons.Taskmaster.Task.executed_without_callbacks
+
     # Have the taskmaster arrange to "execute" all of the targets, because
     # we'll figure out ourselves (in remove() or show() above) whether
     # anything really needs to be done.
@@ -290,7 +359,8 @@ class QuestionTask(SCons.Taskmaster.Task):
         pass
     
     def execute(self):
-        if self.targets[0].get_state() != SCons.Node.up_to_date:
+        if self.targets[0].get_state() != SCons.Node.up_to_date or \
+           (self.top and not self.targets[0].exists()):
             global exit_status
             exit_status = 1
             self.tm.stop()
@@ -766,6 +836,12 @@ def _main(parser):
         CleanTask.execute = CleanTask.show
     if options.question:
         SCons.SConf.dryrun = 1
+    if options.clean or options.help:
+        # If they're cleaning targets or have asked for help, replace
+        # the whole SCons.SConf module with a Null object so that the
+        # Configure() calls when reading the SConscript files don't
+        # actually do anything.
+        SCons.SConf.SConf = SCons.Util.Null
     SCons.SConf.SetCacheMode(options.config)
     SCons.SConf.SetProgressDisplay(progress_display)
 
@@ -838,7 +914,8 @@ def _main(parser):
     memory_stats.append('after reading SConscript files:')
     count_stats.append(('post-', 'read'))
 
-    SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
+    if not options.help:
+        SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
 
     # Now re-parse the command-line options (any to the left of a '--'
     # argument, that is) with any user-defined command-line options that
@@ -971,6 +1048,8 @@ def _main(parser):
                 failure_message = "cleaning terminated because of errors."
     except AttributeError:
         pass
+
+    task_class.progress = ProgressObject
 
     if options.random:
         def order(dependencies):

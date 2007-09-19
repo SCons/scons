@@ -33,7 +33,9 @@ import string
 
 import SCons.Builder
 
-from SCons.Tool.packaging import stripinstall_emitter, packageroot_emitter, src_targz
+from SCons.Environment import OverrideEnvironment
+from SCons.Tool.packaging import stripinstallbuilder, src_targz
+from SCons.Errors import UserError
 
 def package(env, target, source, PACKAGEROOT, NAME, VERSION,
             PACKAGEVERSION, DESCRIPTION, SUMMARY, X_RPM_GROUP, LICENSE,
@@ -43,12 +45,13 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
 
     bld = env['BUILDERS']['Rpm']
 
-    bld.push_emitter(targz_emitter)
-    bld.push_emitter(specfile_emitter)
-    bld.push_emitter(stripinstall_emitter())
-
-    # override the default target, with the rpm specific ones.
-    if str(target[0])=="%s-%s"%(NAME, VERSION):
+    # Generate a UserError whenever the target name has been set explicitly,
+    # since rpm does not allow for controlling it. This is detected by
+    # checking if the target has been set to the default by the Package()
+    # Environment function.
+    if str(target[0])!="%s-%s"%(NAME, VERSION):
+        raise UserError( "Setting target is not supported for rpm." )
+    else:
         # This should be overridable from the construction environment,
         # which it is by using ARCHITECTURE=.
         # Guessing based on what os.uname() returns at least allows it
@@ -79,13 +82,19 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
 
     # if no "SOURCE_URL" tag is given add a default one.
     if not kw.has_key('SOURCE_URL'):
-        kw['SOURCE_URL']=(str(target[0])+".tar.gz").replace('.rpm', '')
+        #kw['SOURCE_URL']=(str(target[0])+".tar.gz").replace('.rpm', '')
+        kw['SOURCE_URL']=string.replace(str(target[0])+".tar.gz", '.rpm', '')
+
+    # mangle the source and target list for the rpmbuild
+    env = OverrideEnvironment(env, kw)
+    target, source = stripinstallbuilder(target, source, env)
+    target, source = addspecfile(target, source, env)
+    target, source = collectintargz(target, source, env)
 
     # now call the rpm builder to actually build the packet.
     return apply(bld, [env, target, source], kw)
 
-
-def targz_emitter(target, source, env):
+def collectintargz(target, source, env):
     """ Puts all source files into a tar.gz file. """
     # the rpm tool depends on a source package, until this is chagned
     # this hack needs to be here that tries to pack all sources in.
@@ -116,7 +125,7 @@ def targz_emitter(target, source, env):
 
     return (target, tarball)
 
-def specfile_emitter(target, source, env):
+def addspecfile(target, source, env):
     specfile = "%s-%s" % (env['NAME'], env['VERSION'])
 
     bld = SCons.Builder.Builder(action         = build_specfile,
@@ -180,7 +189,7 @@ def build_specfile_sections(spec):
     # Default prep, build, install and clean rules
     # TODO: optimize those build steps, to not compile the project a second time
     if not spec.has_key('X_RPM_PREP'):
-        spec['X_RPM_PREP'] = 'rm -rf "$RPM_BUILD_ROOT"' + '\n%setup -q'
+        spec['X_RPM_PREP'] = '[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"' + '\n%setup -q'
 
     if not spec.has_key('X_RPM_BUILD'):
         spec['X_RPM_BUILD'] = 'mkdir "$RPM_BUILD_ROOT"'
@@ -189,7 +198,7 @@ def build_specfile_sections(spec):
         spec['X_RPM_INSTALL'] = 'scons --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"'
 
     if not spec.has_key('X_RPM_CLEAN'):
-        spec['X_RPM_CLEAN'] = 'rm -rf "$RPM_BUILD_ROOT"'
+        spec['X_RPM_CLEAN'] = '[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"'
 
     str = str + SimpleTagCompiler(optional_sections, mandatory=0).compile( spec )
 

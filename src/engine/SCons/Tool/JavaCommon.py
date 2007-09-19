@@ -56,7 +56,7 @@ if java_parsing:
     #     semi-colons;
     #     periods.
     _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.\(\)]|' +
-                          r'[A-Za-z_][\w\.]*|/\*|\*/|\[\])')
+                          r'[A-Za-z_][\w\$\.]*|/\*|\*/|\[\])')
 
     class OuterState:
         """The initial state for parsing a Java file for classes,

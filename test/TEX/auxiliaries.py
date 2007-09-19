@@ -141,7 +141,7 @@ if pdf_output_1 != pdf_output_2:
     import sys
     test.write(['build', 'docs', 'test.normalized.1.pdf'], pdf_output_1)
     test.write(['build', 'docs', 'test.normalized.2.pdf'], pdf_output_2)
-    sys.stdout.write("***** 1 and 2 are different!\n")
+    sys.stdout.write("***** 1.pdf and 2.pdf are different!\n")
     sys.stdout.write(test.diff_substr(pdf_output_1, pdf_output_2, 80, 80) + '\n')
     sys.stdout.write("Output from run 1:\n")
     sys.stdout.write(test.stdout(-1) + '\n')
@@ -150,7 +150,16 @@ if pdf_output_1 != pdf_output_2:
     sys.stdout.flush()
     test.fail_test()
 
-assert ps_output_1 == ps_output_2,      test.diff_substr(ps_output_1, ps_output_2, 80, 80)
+if ps_output_1 != ps_output_2:
+    import sys
+    sys.stdout.write("***** 1.ps and 2.ps are different!\n")
+    sys.stdout.write(test.diff_substr(ps_output_1, ps_output_2, 80, 80) + '\n')
+    sys.stdout.write("Output from run 1:\n")
+    sys.stdout.write(test.stdout(-1) + '\n')
+    sys.stdout.write("Output from run 2:\n")
+    sys.stdout.write(test.stdout() + '\n')
+    sys.stdout.flush()
+    test.fail_test()
 
 
 

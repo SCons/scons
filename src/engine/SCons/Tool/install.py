@@ -42,6 +42,7 @@ from SCons.Util import make_path_relative
 #
 # We keep track of *all* installed files.
 _INSTALLED_FILES = []
+_UNIQUE_INSTALLED_FILES = None
 
 #
 # Functions doing the actual work of the Install Builder.
@@ -101,12 +102,9 @@ def add_targets_to_INSTALLED_FILES(target, source, env):
     _INSTALLED_FILES global variable. This way all installed files of one
     scons call will be collected.
     """
-    global _INSTALLED_FILES
-    files = _INSTALLED_FILES
-    #files.extend( [ x for x in target if not x in files ] )
-    for x in target:
-        if not x in files:
-            files.append(x)
+    global _INSTALLED_FILES, _UNIQUE_INSTALLED_FILES
+    _INSTALLED_FILES.extend(target)
+    _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 
 class DESTDIR_factory:
@@ -131,8 +129,41 @@ class DESTDIR_factory:
 install_action   = SCons.Action.Action(installFunc, stringFunc)
 installas_action = SCons.Action.Action(installFunc, stringFunc)
 
-InstallBuilder, InstallAsBuilder = None, None
 BaseInstallBuilder               = None
+
+def InstallBuilderWrapper(env, target, source, dir=None):
+    if target and dir:
+        raise SCons.Errors.UserError, "Both target and dir defined for Install(), only one may be defined."
+    if not dir:
+        dir=target
+
+    import SCons.Script
+    install_sandbox = SCons.Script.GetOption('install_sandbox')
+    if install_sandbox:
+        target_factory = DESTDIR_factory(env, install_sandbox)
+    else:
+        target_factory = env.fs
+
+    try:
+        dnodes = env.arg2nodes(dir, target_factory.Dir)
+    except TypeError:
+        raise SCons.Errors.UserError, "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir)
+    sources = env.arg2nodes(source, env.fs.Entry)
+    tgt = []
+    for dnode in dnodes:
+        for src in sources:
+            # Prepend './' so the lookup doesn't interpret an initial
+            # '#' on the file name portion as meaning the Node should
+            # be relative to the top-level SConstruct directory.
+            target = env.fs.Entry('.'+os.sep+src.name, dnode)
+            tgt.extend(BaseInstallBuilder(env, target, src))
+    return tgt
+
+def InstallAsBuilderWrapper(env, target, source):
+    result = []
+    for src, tgt in map(lambda x, y: (x, y), source, target):
+        result.extend(BaseInstallBuilder(env, tgt, src))
+    return result
 
 added = None
 
@@ -148,63 +179,31 @@ def generate(env):
                   action="store",
                   help='A directory under which all installed files will be placed.')
 
-    try:
-        env['BUILDERS']['Install']
-        env['BUILDERS']['InstallAs']
-
-    except KeyError, e:
+    global BaseInstallBuilder
+    if BaseInstallBuilder is None:
         install_sandbox = GetOption('install_sandbox')
         if install_sandbox:
             target_factory = DESTDIR_factory(env, install_sandbox)
         else:
             target_factory = env.fs
 
-        global BaseInstallBuilder
-        if BaseInstallBuilder is None:
-            BaseInstallBuilder = SCons.Builder.Builder(
-                                  action         = install_action,
-                                  target_factory = target_factory.Entry,
-                                  source_factory = env.fs.Entry,
-                                  multi          = 1,
-                                  emitter        = [ add_targets_to_INSTALLED_FILES, ],
-                                  name           = 'InstallBuilder')
+        BaseInstallBuilder = SCons.Builder.Builder(
+                              action         = install_action,
+                              target_factory = target_factory.Entry,
+                              source_factory = env.fs.Entry,
+                              multi          = 1,
+                              emitter        = [ add_targets_to_INSTALLED_FILES, ],
+                              name           = 'InstallBuilder')
 
-        global InstallBuilder
-        if InstallBuilder is None:
-            def InstallBuilderWrapper(env, target, source, dir=None, target_factory=target_factory):
-                if target and dir:
-                    raise SCons.Errors.UserError, "Both target and dir defined for Install(), only one may be defined."
-                if not dir:
-                    dir=target
-                try:
-                    dnodes = env.arg2nodes(dir, target_factory.Dir)
-                except TypeError:
-                    raise SCons.Errors.UserError, "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir)
-                sources = env.arg2nodes(source, env.fs.Entry)
-                tgt = []
-                for dnode in dnodes:
-                    for src in sources:
-                        # Prepend './' so the lookup doesn't interpret an initial
-                        # '#' on the file name portion as meaning the Node should
-                        # be relative to the top-level SConstruct directory.
-                        target = env.fs.Entry('.'+os.sep+src.name, dnode)
-                        tgt.extend(BaseInstallBuilder(env, target, src))
-                return tgt
+    try:
+        env['BUILDERS']['Install']
+    except KeyError, e:
+        env['BUILDERS']['Install']   = InstallBuilderWrapper
 
-            InstallBuilder = InstallBuilderWrapper
-
-        global InstallAsBuilder
-        if InstallAsBuilder is None:
-            def InstallAsBuilderWrapper(env, target, source):
-                result = []
-                for src, tgt in map(lambda x, y: (x, y), source, target):
-                    result.extend(BaseInstallBuilder(env, tgt, src))
-                return result
-
-            InstallAsBuilder = InstallAsBuilderWrapper
-
-        env['BUILDERS']['Install']   = InstallBuilder
-        env['BUILDERS']['InstallAs'] = InstallAsBuilder
+    try:
+        env['BUILDERS']['InstallAs']
+    except KeyError, e:
+        env['BUILDERS']['InstallAs'] = InstallAsBuilderWrapper
 
     # We'd like to initialize this doing something like the following,
     # but there isn't yet support for a ${SOURCE.type} expansion that

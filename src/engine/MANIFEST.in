@@ -2,6 +2,7 @@ SCons/__init__.py
 SCons/Action.py
 SCons/Builder.py
 SCons/compat/__init__.py
+SCons/compat/_scons_hashlib.py
 SCons/compat/_scons_optparse.py
 SCons/compat/_scons_sets.py
 SCons/compat/_scons_sets15.py
@@ -56,9 +57,7 @@ SCons/Script/__init__.py
 SCons/Script/Main.py
 SCons/Script/SConscript.py
 SCons/Script/SConsOptions.py
-SCons/Sig/__init__.py
-SCons/Sig/MD5.py
-SCons/Sig/TimeStamp.py
+SCons/Sig.py
 SCons/Subst.py
 SCons/Taskmaster.py
 SCons/Tool/__init__.py
@@ -125,7 +124,6 @@ SCons/Tool/nasm.py
 SCons/Tool/packaging/__init__.py
 SCons/Tool/packaging/ipk.py
 SCons/Tool/packaging/msi.py
-SCons/Tool/packaging/packager.py
 SCons/Tool/packaging/rpm.py
 SCons/Tool/packaging/src_tarbz2.py
 SCons/Tool/packaging/src_targz.py

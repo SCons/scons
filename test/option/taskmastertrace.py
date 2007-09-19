@@ -34,29 +34,35 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment()
-env.Command('file.out', 'file.mid', Copy('$TARGET', '$SOURCE'))
-env.Command('file.mid', 'file.in', Copy('$TARGET', '$SOURCE'))
+
+# We name the files 'Tfile' so that they will sort after the SConstruct
+# file regardless of whether the test is being run on a case-sensitive
+# or case-insensitive system.
+
+env.Command('Tfile.out', 'Tfile.mid', Copy('$TARGET', '$SOURCE'))
+env.Command('Tfile.mid', 'Tfile.in', Copy('$TARGET', '$SOURCE'))
 """)
 
-test.write('file.in', "file.in\n")
+test.write('Tfile.in', "Tfile.in\n")
 
 expect_stdout = test.wrap_stdout("""\
 Taskmaster: '.': children:
-    ['SConstruct', 'file.in', 'file.mid', 'file.out']
-    waiting on unstarted children:
-    ['file.mid', 'file.out']
-Taskmaster: 'file.mid': children:
-    ['file.in']
-    evaluating file.mid
-Copy("file.mid", "file.in")
-Taskmaster: 'file.out': children:
-    ['file.mid']
-    evaluating file.out
-Copy("file.out", "file.mid")
+    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
+    waiting on unfinished children:
+    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
+Taskmaster: 'SConstruct': evaluating SConstruct
+Taskmaster: 'Tfile.in': evaluating Tfile.in
+Taskmaster: 'Tfile.mid': children:
+    ['Tfile.in']
+    evaluating Tfile.mid
+Copy("Tfile.mid", "Tfile.in")
+Taskmaster: 'Tfile.out': children:
+    ['Tfile.mid']
+    evaluating Tfile.out
+Copy("Tfile.out", "Tfile.mid")
 Taskmaster: '.': children:
-    ['SConstruct', 'file.in', 'file.mid', 'file.out']
+    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
     evaluating .
-Taskmaster: '.': already handled (executed)
 """)
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
@@ -68,27 +74,28 @@ test.run(arguments='-c .')
 
 
 expect_stdout = test.wrap_stdout("""\
-Copy("file.mid", "file.in")
-Copy("file.out", "file.mid")
+Copy("Tfile.mid", "Tfile.in")
+Copy("Tfile.out", "Tfile.mid")
 """)
 
 test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
 
 expect_trace = """\
 Taskmaster: '.': children:
-    ['SConstruct', 'file.in', 'file.mid', 'file.out']
-    waiting on unstarted children:
-    ['file.mid', 'file.out']
-Taskmaster: 'file.mid': children:
-    ['file.in']
-    evaluating file.mid
-Taskmaster: 'file.out': children:
-    ['file.mid']
-    evaluating file.out
+    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
+    waiting on unfinished children:
+    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
+Taskmaster: 'SConstruct': evaluating SConstruct
+Taskmaster: 'Tfile.in': evaluating Tfile.in
+Taskmaster: 'Tfile.mid': children:
+    ['Tfile.in']
+    evaluating Tfile.mid
+Taskmaster: 'Tfile.out': children:
+    ['Tfile.mid']
+    evaluating Tfile.out
 Taskmaster: '.': children:
-    ['SConstruct', 'file.in', 'file.mid', 'file.out']
+    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
     evaluating .
-Taskmaster: '.': already handled (executed)
 """
 
 test.must_match('trace.out', expect_trace)

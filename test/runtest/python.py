@@ -46,17 +46,11 @@ head, dir = os.path.split(head)
 
 mypython = os.path.join(head, dir, os.path.pardir, dir, python)
 
-if re.search('\s', mypython):
-    _mypython_ = '"' + mypython + '"'
-else:
-    _mypython_ = mypython
-
 test.subdir('test')
 
 test.write_passing_test(['test', 'pass.py'])
 
-# NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
-# have spaces at the end.
+# NOTE:  The "test/pass.py : PASS" line has spaces at the end.
 
 expect = r"""qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" --context python="%(mypython)s" test
 --- TEST RESULTS -------------------------------------------------------------
@@ -75,6 +69,6 @@ expect = r"""qmtest.py run --output results.qmr --format none --result-stream="s
        1 (100%%) tests PASS
 """ % locals()
 
-test.run(arguments = '-P %s test' % _mypython_, stdout = expect)
+test.run(arguments = ['-P', mypython, 'test'], stdout = expect)
 
 test.pass_test()

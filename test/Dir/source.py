@@ -165,8 +165,6 @@ test.up_to_date(arguments='cmd-csig-noscan.out')
 
 test.write('junk.txt', 'junk.txt 2\n')
 test.not_up_to_date(arguments='bsig.out')
-# XXX For some reason, 'csig' is still reported as up to date.
-# XXX Comment out this test until someone can look at it.
-#test.not_up_to_date(arguments='csig.out')
+test.not_up_to_date(arguments='csig.out')
 
 test.pass_test()

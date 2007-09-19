@@ -56,14 +56,19 @@ dumps the entire contents of the
 specified file(s).
 Each entry is printed in the following format:
 
-    file: timestamp bsig csig
-            implicit_dependency_1
-            implicit_dependency_2
+    file: signature timestamp length
+            implicit_dependency_1: signature timestamp length
+            implicit_dependency_2: signature timestamp length
+            action_signature [action string]
 
-If the entry has no timestamp, bsig, or csig, a dash
 .B None
-is printed.
+is printed
+in place of any missing timestamp, bsig, or csig
+values for
+any entry
+or any of its dependencies.
 If the entry has no implicit dependencies,
+or no build action,
 the lines are simply omitted.
 
 By default,
@@ -100,8 +105,8 @@ Various options control what information is printed
 and the format:
 
 .TP
--b, --bsig
-Prints the build signature (bsig) information
+-a, --act, --action
+Prints the build action information
 for all entries or the specified entries.
 
 .TP
@@ -165,7 +170,9 @@ for all entries or the the specified entries.
 --raw
 Prints a pretty-printed representation
 of the raw Python dictionary that holds
-build information about an entry.
+build information about individual entry
+(both the entry itself or its implicit dependencies).
+An entry's build action is still printed in its usual format.
 
 .TP
 -r, --readable

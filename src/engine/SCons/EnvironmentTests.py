@@ -729,7 +729,9 @@ sys.exit(1)
         assert d == empty, d
 
         s = "-I/usr/include/fum -I bar -X\n" + \
+            '-I"C:\\Program Files\\ASCEND\\include" ' + \
             "-L/usr/fax -L foo -lxxx -l yyy " + \
+            '-L"C:\\Program Files\\ASCEND" -lascend ' + \
             "-Wa,-as -Wl,-link " + \
             "-Wl,-rpath=rpath1 " + \
             "-Wl,-R,rpath2 " + \
@@ -743,9 +745,43 @@ sys.exit(1)
             "-pthread " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp +DD64 " + \
-            "-DFOO -DBAR=value -D BAZ"
+            "-DFOO -DBAR=value -D BAZ "
 
         d = env.ParseFlags(s)
+
+        if sys.version[:3] in ('1.5', '1.6', '2.0', '2.1', '2.2'):
+            # Pre-2.3 Python has no shlex.split() function.
+            # The compatibility layer does its best can by wrapping
+            # the old shlex.shlex class, but that class doesn't really
+            # understand quoting within the body of a token.  We're just
+            # going to live with this; it's the behavior they'd
+            # have anyway if they use the shlex module...
+            #
+            # (Note that we must test the actual Python version numbers
+            # above, not just test for whether trying to use shlex.split()
+            # throws an AttributeError, because the compatibility layer
+            # adds our wrapper function to the module as shlex.split().)
+
+            expect_CPPPATH = ['/usr/include/fum',
+                              'bar',
+                              '"C:\\Program']
+            expect_LIBPATH = ['/usr/fax',
+                              'foo',
+                              '"C:\\Program']
+            expect_LIBS = ['Files\\ASCEND\\include"',
+                           'xxx',
+                           'yyy',
+                           'Files\\ASCEND"',
+                           'ascend']
+        else:
+            expect_CPPPATH = ['/usr/include/fum',
+                              'bar',
+                              'C:\\Program Files\\ASCEND\\include']
+            expect_LIBPATH = ['/usr/fax',
+                              'foo',
+                              'C:\\Program Files\\ASCEND']
+            expect_LIBS = ['xxx', 'yyy', 'ascend']
+
 
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
@@ -755,11 +791,12 @@ sys.exit(1)
                                   '+DD64'], d['CCFLAGS']
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
-        assert d['CPPPATH'] == ['/usr/include/fum', 'bar'], d['CPPPATH']
+        assert d['CPPPATH'] == expect_CPPPATH, d['CPPPATH']
         assert d['FRAMEWORKPATH'] == ['fwd1', 'fwd2', 'fwd3'], d['FRAMEWORKPATH']
         assert d['FRAMEWORKS'] == ['Carbon'], d['FRAMEWORKS']
-        assert d['LIBPATH'] == ['/usr/fax', 'foo'], d['LIBPATH']
-        assert d['LIBS'] == ['xxx', 'yyy'], d['LIBS']
+        assert d['LIBPATH'] == expect_LIBPATH, d['LIBPATH']
+        LIBS = map(str, d['LIBS'])
+        assert LIBS == expect_LIBS, (d['LIBS'], LIBS)
         assert d['LINKFLAGS'] == ['-Wl,-link', '-pthread',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
@@ -866,7 +903,11 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
 
 
-    def test_Builder_execs(self):
+    # This unit test is currently disabled because we don't think the
+    # underlying method it tests (Environment.BuilderWrapper.execute())
+    # is necessary, but we're leaving the code here for now in case
+    # that's mistaken.
+    def _DO_NOT_test_Builder_execs(self):
         """Test Builder execution through different environments
 
         One environment is initialized with a single
@@ -890,8 +931,10 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert built_it['out3']
 
         env4 = env3.Clone()
-        assert env4.builder1.env is env4, "builder1.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
-        assert env4.builder2.env is env4, "builder2.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
+        assert env4.builder1.env is env4, "builder1.env (%s) == env3 (%s)?" % (
+env4.builder1.env, env3)
+        assert env4.builder2.env is env4, "builder2.env (%s) == env3 (%s)?" % (
+env4.builder1.env, env3)
 
         # Now test BUILDERS as a dictionary.
         built_it = {}
@@ -910,6 +953,8 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         env6.bar.execute(target='out2')
         assert built_it['out1']
         assert built_it['out2']
+
+
 
     def test_Scanners(self):
         """Test setting SCANNERS in various ways
@@ -1568,15 +1613,15 @@ def exists(env):
         #
         env1 = self.TestEnvironment(BUILDERS = {'b1' : 1})
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
-        assert env1.b1.env == env1, "b1.env doesn't point to env1"
+        assert env1.b1.object == env1, "b1.object doesn't point to env1"
         env2 = env1.Clone(BUILDERS = {'b2' : 2})
         assert env2 is env2
         assert env2 == env2
         assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
-        assert env1.b1.env == env1, "b1.env was changed"
+        assert env1.b1.object == env1, "b1.object was changed"
         assert not hasattr(env2, 'b1'), "b1 was not cleared from env2"
         assert hasattr(env2, 'b2'), "env2.b2 was not set"
-        assert env2.b2.env == env2, "b2.env doesn't point to env2"
+        assert env2.b2.object == env2, "b2.object doesn't point to env2"
 
         # Ensure that specifying new tools in a copied environment
         # works.
@@ -1639,6 +1684,25 @@ def generate(env):
         assert env['XXX'] == 'one', env['XXX']
         env = env.Clone(tools=['yyy'])
         assert env['YYY'] == 'two', env['YYY']
+
+
+        # Test that
+        real_value = [4]
+
+        def my_tool(env, rv=real_value):
+            assert env['KEY_THAT_I_WANT'] == rv[0]
+            env['KEY_THAT_I_WANT'] = rv[0] + 1
+
+        env = self.TestEnvironment()
+
+        real_value[0] = 5
+        env = env.Clone(KEY_THAT_I_WANT=5, tools=[my_tool])
+        assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
+
+        real_value[0] = 6
+        env = env.Clone(KEY_THAT_I_WANT=6, tools=[my_tool])
+        assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
+
 
     def test_Copy(self):
         """Test copying using the old env.Copy() method"""
@@ -2999,6 +3063,8 @@ def generate(env):
 
     def test_SourceSignatures(type):
         """Test the SourceSignatures() method"""
+        import SCons.Errors
+
         env = type.TestEnvironment(M = 'MD5', T = 'timestamp')
 
         exc_caught = None
@@ -3007,19 +3073,31 @@ def generate(env):
         except SCons.Errors.UserError:
             exc_caught = 1
         assert exc_caught, "did not catch expected UserError"
-        assert not hasattr(env, '_calc_module')
 
         env.SourceSignatures('MD5')
-        m = env._calc_module
+        assert env.src_sig_type == 'MD5', env.src_sig_type
 
         env.SourceSignatures('$M')
-        assert env._calc_module is m
+        assert env.src_sig_type == 'MD5', env.src_sig_type
 
         env.SourceSignatures('timestamp')
-        t = env._calc_module
+        assert env.src_sig_type == 'timestamp', env.src_sig_type
 
         env.SourceSignatures('$T')
-        assert env._calc_module is t
+        assert env.src_sig_type == 'timestamp', env.src_sig_type
+
+        try:
+            import SCons.Util
+            save_md5 = SCons.Util.md5
+            SCons.Util.md5 = None
+            try:
+                env.SourceSignatures('MD5')
+            except SCons.Errors.UserError:
+                pass
+            else:
+                self.fail('Did not catch expected UserError')
+        finally:
+            SCons.Util.md5 = save_md5
 
     def test_Split(self):
         """Test the Split() method"""
@@ -3039,6 +3117,8 @@ def generate(env):
 
     def test_TargetSignatures(type):
         """Test the TargetSignatures() method"""
+        import SCons.Errors
+
         env = type.TestEnvironment(B = 'build', C = 'content')
 
         exc_caught = None
@@ -3050,16 +3130,41 @@ def generate(env):
         assert not hasattr(env, '_build_signature')
 
         env.TargetSignatures('build')
-        assert env._build_signature == 1, env._build_signature
-
-        env.TargetSignatures('content')
-        assert env._build_signature == 0, env._build_signature
+        assert env.tgt_sig_type == 'build', env.tgt_sig_type
 
         env.TargetSignatures('$B')
-        assert env._build_signature == 1, env._build_signature
+        assert env.tgt_sig_type == 'build', env.tgt_sig_type
+
+        env.TargetSignatures('content')
+        assert env.tgt_sig_type == 'content', env.tgt_sig_type
 
         env.TargetSignatures('$C')
-        assert env._build_signature == 0, env._build_signature
+        assert env.tgt_sig_type == 'content', env.tgt_sig_type
+
+        env.TargetSignatures('MD5')
+        assert env.tgt_sig_type == 'MD5', env.tgt_sig_type
+
+        env.TargetSignatures('timestamp')
+        assert env.tgt_sig_type == 'timestamp', env.tgt_sig_type
+
+        try:
+            import SCons.Util
+            save_md5 = SCons.Util.md5
+            SCons.Util.md5 = None
+            try:
+                env.TargetSignatures('MD5')
+            except SCons.Errors.UserError:
+                pass
+            else:
+                self.fail('Did not catch expected UserError')
+            try:
+                env.TargetSignatures('content')
+            except SCons.Errors.UserError:
+                pass
+            else:
+                self.fail('Did not catch expected UserError')
+        finally:
+            SCons.Util.md5 = save_md5
 
     def test_Value(self):
         """Test creating a Value() object

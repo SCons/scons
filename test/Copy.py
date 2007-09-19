@@ -79,6 +79,11 @@ test.write('f11.in', "f11.in\n")
 test.subdir('d5')
 test.write(['d5', 'f12.in'], "f12.in\n")
 
+d4_f10_in   = os.path.join('d4', 'f10.in')
+d4_f11_out  = os.path.join('d4', 'f11.out')
+d4_f12_out  = os.path.join('d4', 'f12.out')
+d5_f12_in   = os.path.join('d5', 'f12.in')
+
 expect = test.wrap_stdout(read_str = """\
 Copy("f1.out", "f1.in")
 Copy("d2.out", "d2.in")
@@ -89,14 +94,14 @@ cat(["bar.out"], ["bar.in"])
 Copy("f4.out", "f4.in")
 Copy("d5.out", "d5.in")
 Copy("d6.out", "f6.in")
-Copy file(s): "f10.in" to "d4/f10.in"
-Copy file(s): "f11.in" to "d4/f11.out"
-Copy file(s): "d5/f12.in" to "d4/f12.out"
+Copy file(s): "f10.in" to "%(d4_f10_in)s"
+Copy file(s): "f11.in" to "%(d4_f11_out)s"
+Copy file(s): "%(d5_f12_in)s" to "%(d4_f12_out)s"
 Copy("f7.out", "f7.in")
 cat(["f8.out"], ["f8.in"])
 cat(["f9.out"], ["f9.in"])
 Copy("f9.out-Copy", "f9.in")
-""")
+""" % locals())
 test.run(options = '-n', arguments = '.', stdout = expect)
 
 test.must_not_exist('f1.out')

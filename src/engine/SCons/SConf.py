@@ -28,6 +28,8 @@ Autoconf-like configuration support.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import os
 import re
 import string
@@ -45,6 +47,8 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Conftest
+
+from SCons.Debug import Trace
 
 # Turn off the Conftest error logging
 SCons.Conftest.LogInputFiles = 0
@@ -158,12 +162,10 @@ class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     """
     result = None # -> 0/None -> no error, != 0 error
     string = None # the stdout / stderr output when building the target
-    
-    def __init__(self, node, result, string, sig):
-        SCons.Node.FS.FileBuildInfo.__init__(self, node)
+
+    def set_build_result(self, result, string):
         self.result = result
         self.string = string
-        self.ninfo.bsig = sig
 
 
 class Streamer:
@@ -211,7 +213,7 @@ class SConfBuildTask(SCons.Taskmaster.Task):
         """
         if not isinstance(bi, SConfBuildInfo):
             SCons.Warnings.warn(SConfWarning,
-              "The stored build information has an unexpected class.")
+              "The stored build information has an unexpected class: %s" % bi.__class__)
         else:
             self.display("The original builder output was:\n" +
                          string.replace("  |" + str(bi.string),
@@ -245,30 +247,39 @@ class SConfBuildTask(SCons.Taskmaster.Task):
         #       cached_error  is 1, if the node(s) are up_to_date, but the
         #                           build will fail
         #       cachable      is 0, if some nodes are not in our cache
-        is_up_to_date = 1
-        cached_error = 0
-        cachable = 1
+        T = 0
+        changed = False
+        cached_error = False
+        cachable = True
         for t in self.targets:
-            bi = t.get_stored_info()
+            if T: Trace('%s' % (t))
+            bi = t.get_stored_info().binfo
             if isinstance(bi, SConfBuildInfo):
+                if T: Trace(': SConfBuildInfo')
                 if cache_mode == CACHE:
                     t.set_state(SCons.Node.up_to_date)
+                    if T: Trace(': set_state(up_to-date)')
                 else:
-                    new_bsig = t.calc_signature(sconf_global.calc)
-                    if t.env.use_build_signature():
-                        old_bsig = bi.ninfo.bsig
-                    else:
-                        old_bsig = bi.ninfo.csig
-                    is_up_to_date = (is_up_to_date and new_bsig == old_bsig)
+                    if T: Trace(': get_state() %s' % t.get_state())
+                    if T: Trace(': changed() %s' % t.changed())
+                    if (t.get_state() != SCons.Node.up_to_date and t.changed()):
+                        changed = True
+                    if T: Trace(': changed %s' % changed)
                 cached_error = cached_error or bi.result
             else:
+                if T: Trace(': else')
                 # the node hasn't been built in a SConf context or doesn't
                 # exist
-                cachable = 0
-                is_up_to_date = 0
-        return (is_up_to_date, cached_error, cachable)
+                cachable = False
+                changed = ( t.get_state() != SCons.Node.up_to_date )
+                if T: Trace(': changed %s' % changed)
+        if T: Trace('\n')
+        return (not changed, cached_error, cachable)
 
     def execute(self):
+        if not self.targets[0].has_builder():
+            return
+
         sconf = sconf_global
 
         is_up_to_date, cached_error, cachable = self.collect_node_states()
@@ -281,11 +292,13 @@ class SConfBuildTask(SCons.Taskmaster.Task):
         if cached_error and is_up_to_date:
             self.display("Building \"%s\" failed in a previous run and all "
                          "its sources are up to date." % str(self.targets[0]))
-            self.display_cached_string(self.targets[0].get_stored_info())
+            binfo = self.targets[0].get_stored_info().binfo
+            self.display_cached_string(binfo)
             raise SCons.Errors.BuildError # will be 'caught' in self.failed
         elif is_up_to_date:            
             self.display("\"%s\" is up to date." % str(self.targets[0]))
-            self.display_cached_string(self.targets[0].get_stored_info())
+            binfo = self.targets[0].get_stored_info().binfo
+            self.display_cached_string(binfo)
         elif dryrun:
             raise ConfigureDryRunError(self.targets[0])
         else:
@@ -305,19 +318,41 @@ class SConfBuildTask(SCons.Taskmaster.Task):
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 raise SCons.Errors.ExplicitExit(self.targets[0],exc_value.code)
-            except:
+            except Exception, e:
                 for t in self.targets:
-                    sig = t.calc_signature(sconf.calc)
-                    string = s.getvalue()
-                    binfo = SConfBuildInfo(t,1,string,sig)
-                    t.dir.sconsign().set_entry(t.name, binfo)
-                raise
+                    binfo = t.get_binfo()
+                    binfo.__class__ = SConfBuildInfo
+                    binfo.set_build_result(1, s.getvalue())
+                    sconsign_entry = SCons.SConsign.SConsignEntry()
+                    sconsign_entry.binfo = binfo
+                    #sconsign_entry.ninfo = self.get_ninfo()
+                    # We'd like to do this as follows:
+                    #    t.store_info(binfo)
+                    # However, we need to store it as an SConfBuildInfo
+                    # object, and store_info() will turn it into a
+                    # regular FileNodeInfo if the target is itself a
+                    # regular File.
+                    sconsign = t.dir.sconsign()
+                    sconsign.set_entry(t.name, sconsign_entry)
+                    sconsign.merge()
+                raise e
             else:
                 for t in self.targets:
-                    sig = t.calc_signature(sconf.calc)
-                    string = s.getvalue()
-                    binfo = SConfBuildInfo(t,0,string,sig)
-                    t.dir.sconsign().set_entry(t.name, binfo)
+                    binfo = t.get_binfo()
+                    binfo.__class__ = SConfBuildInfo
+                    binfo.set_build_result(0, s.getvalue())
+                    sconsign_entry = SCons.SConsign.SConsignEntry()
+                    sconsign_entry.binfo = binfo
+                    #sconsign_entry.ninfo = self.get_ninfo()
+                    # We'd like to do this as follows:
+                    #    t.store_info(binfo)
+                    # However, we need to store it as an SConfBuildInfo
+                    # object, and store_info() will turn it into a
+                    # regular FileNodeInfo if the target is itself a
+                    # regular File.
+                    sconsign = t.dir.sconsign()
+                    sconsign.set_entry(t.name, sconsign_entry)
+                    sconsign.merge()
 
 class SConf:
     """This is simply a class to represent a configure context. After
@@ -369,7 +404,6 @@ class SConf:
         self.AddTests(default_tests)
         self.AddTests(custom_tests)
         self.confdir = SConfFS.Dir(env.subst(conf_dir))
-        self.calc = None
         if not config_h is None:
             config_h = SConfFS.File(config_h)
         self.config_h = config_h
@@ -377,7 +411,8 @@ class SConf:
 
     def Finish(self):
         """Call this method after finished with your tests:
-        env = sconf.Finish()"""
+                env = sconf.Finish()
+        """
         self._shutdown()
         return self.env
 
@@ -397,6 +432,13 @@ class SConf:
         old_fs_dir = SConfFS.getcwd()
         old_os_dir = os.getcwd()
         SConfFS.chdir(SConfFS.Top, change_os_dir=1)
+
+        # Because we take responsibility here for writing out our
+        # own .sconsign info (see SConfBuildTask.execute(), above),
+        # we override the store_info() method with a null place-holder
+        # so we really control how it gets written.
+        for n in nodes:
+            n.store_info = n.do_not_store_info
 
         ret = 1
 

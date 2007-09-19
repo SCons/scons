@@ -37,6 +37,10 @@ import time
 
 test = TestSCons.TestSCons()
 
+CC = test.detect('CC')
+LINK = test.detect('LINK')
+if LINK is None: LINK = CC
+
 test.write('SConstruct', """
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
 env.Program('Foo', Split('Foo.c Bar.c'))
@@ -82,65 +86,92 @@ tree1 = """
   | +-Foo.c
   | +-Foo.h
   | +-Bar.h
-  +-Bar.ooo
-    +-Bar.c
-    +-Bar.h
-    +-Foo.h
-"""
-
-test.run(arguments = "--tree=all Foo.xxx")
-test.fail_test(string.find(test.stdout(), tree1) == -1)
-
-tree2 = """
-+-.
-  +-Bar.c
+  | +-%(CC)s
   +-Bar.ooo
   | +-Bar.c
   | +-Bar.h
   | +-Foo.h
+  | +-%(CC)s
+  +-%(LINK)s
+""" % locals()
+
+test.run(arguments = "--tree=all Foo.xxx")
+if string.find(test.stdout(), tree1) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
+
+tree2 = """
++-.
+  +-Bar.c
+  +-Bar.h
+  +-Bar.ooo
+  | +-Bar.c
+  | +-Bar.h
+  | +-Foo.h
+  | +-%(CC)s
   +-Foo.c
+  +-Foo.h
   +-Foo.ooo
   | +-Foo.c
   | +-Foo.h
   | +-Bar.h
+  | +-%(CC)s
   +-Foo.xxx
   | +-Foo.ooo
   | | +-Foo.c
   | | +-Foo.h
   | | +-Bar.h
+  | | +-%(CC)s
   | +-Bar.ooo
-  |   +-Bar.c
-  |   +-Bar.h
-  |   +-Foo.h
+  | | +-Bar.c
+  | | +-Bar.h
+  | | +-Foo.h
+  | | +-%(CC)s
+  | +-%(LINK)s
   +-SConstruct
-"""
+""" % locals()
 
 test.run(arguments = "--tree=all .")
-test.fail_test(string.find(test.stdout(), tree2) == -1)
+if string.find(test.stdout(), tree2) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 tree3 = """
 +-.
   +-Bar.c
+  +-Bar.h
   +-Bar.ooo
   | +-Bar.c
   | +-Bar.h
   | +-Foo.h
+  | +-%(CC)s
   +-Foo.c
+  +-Foo.h
   +-Foo.ooo
   | +-Foo.c
   | +-Foo.h
   | +-Bar.h
+  | +-%(CC)s
   +-Foo.xxx
   | +-[Foo.ooo]
   | +-[Bar.ooo]
+  | +-%(LINK)s
   +-SConstruct
-"""
+""" % locals()
 
 test.run(arguments = "--tree=all,prune .")
-test.fail_test(string.find(test.stdout(), tree3) == -1)
+if string.find(test.stdout(), tree3) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 test.run(arguments = "--tree=prune .")
-test.fail_test(string.find(test.stdout(), tree3) == -1)
+if string.find(test.stdout(), tree3) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 tree4 = """
  E         = exists
@@ -156,22 +187,31 @@ tree4 = """
 
 [  B      ]+-Foo.xxx
 [  B      ]  +-Foo.ooo
-[E        ]  | +-Foo.c
-[E        ]  | +-Foo.h
-[E        ]  | +-Bar.h
+[E     C  ]  | +-Foo.c
+[E     C  ]  | +-Foo.h
+[E     C  ]  | +-Bar.h
+[E     C  ]  | +-%(CC)s
 [  B      ]  +-Bar.ooo
-[E        ]    +-Bar.c
-[E        ]    +-Bar.h
-[E        ]    +-Foo.h
-"""
+[E     C  ]  | +-Bar.c
+[E     C  ]  | +-Bar.h
+[E     C  ]  | +-Foo.h
+[E     C  ]  | +-%(CC)s
+[E     C  ]  +-%(LINK)s
+""" % locals()
 
 test.run(arguments = '-c Foo.xxx')
 
 test.run(arguments = "--no-exec --tree=all,status Foo.xxx")
-test.fail_test(string.find(test.stdout(), tree4) == -1)
+if string.find(test.stdout(), tree4) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 test.run(arguments = "--no-exec --tree=status Foo.xxx")
-test.fail_test(string.find(test.stdout(), tree4) == -1)
+if string.find(test.stdout(), tree4) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 # Make sure we print the debug stuff even if there's a build failure.
 test.write('Bar.h', """
@@ -185,6 +225,9 @@ THIS SHOULD CAUSE A BUILD FAILURE
 test.run(arguments = "--tree=all Foo.xxx",
          status = 2,
          stderr = None)
-test.fail_test(string.find(test.stdout(), tree1) == -1)
+if string.find(test.stdout(), tree1) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 test.pass_test()

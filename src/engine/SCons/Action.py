@@ -31,8 +31,8 @@ other modules:
 
     get_contents()
         Fetches the "contents" of an Action for signature calculation.
-        This is what the Sig/*.py subsystem uses to decide if a target
-        needs to be rebuilt because its action changed.
+        This is what gets MD5 checksumm'ed to decide if a target needs
+        to be rebuilt because its action changed.
 
     genstring()
         Returns a string representation of the Action *without*
@@ -495,6 +495,22 @@ class CommandAction(_ActionAction):
             cmd = str(cmd)
         return env.subst_target_source(cmd, SUBST_SIG, target, source)
 
+    def get_implicit_deps(self, target, source, env):
+        icd = env.get('IMPLICIT_COMMAND_DEPENDENCIES', True)
+        if SCons.Util.is_String(icd) and icd[:1] == '$':
+            icd = env.subst(icd)
+        if not icd or icd in ('0', 'None'):
+            return []
+        from SCons.Subst import SUBST_SIG
+        cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, target, source)
+        res = []
+        for cmd_line in cmd_list:
+            if cmd_line:
+                d = env.WhereIs(str(cmd_line[0]))
+                if d:
+                    res.append(env.fs.File(d))
+        return res
+
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator, *args, **kw):
@@ -541,6 +557,9 @@ class CommandGeneratorAction(ActionBase):
         since those parts don't affect signatures.
         """
         return self._generate(target, source, env, 1).get_contents(target, source, env)
+
+    def get_implicit_deps(self, target, source, env):
+        return self._generate(target, source, env, 1).get_implicit_deps(target, source, env)
 
 
 
@@ -717,6 +736,9 @@ class FunctionAction(_ActionAction):
         return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
                                                      self.varlist)))
 
+    def get_implicit_deps(self, target, source, env):
+        return []
+
 class ListAction(ActionBase):
     """Class for lists of other actions."""
     def __init__(self, list):
@@ -759,6 +781,12 @@ class ListAction(ActionBase):
             if stat:
                 return stat
         return 0
+
+    def get_implicit_deps(self, target, source, env):
+        result = []
+        for act in self.list:
+            result.extend(act.get_implicit_deps(target, source, env))
+        return result
 
 class ActionCaller:
     """A class for delaying calling an Action function with specific

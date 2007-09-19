@@ -35,12 +35,20 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 ENV = test.java_ENV()
+
 if test.detect_tool('javac', ENV=ENV):
     where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
 else:
     where_javac = test.where_is('javac')
 if not where_javac:
     test.skip_test("Could not find Java javac, skipping test(s).\n")
+
+if test.detect_tool('javah', ENV=ENV):
+    where_javah = test.detect('JAVAH', 'javah', ENV=ENV)
+else:
+    where_javah = test.where_is('javah')
+if not where_javah:
+    test.skip_test("Could not find Java javah, skipping test(s).\n")
 
 if test.detect_tool('jar', ENV=ENV):
     where_jar = test.detect('JAR', 'jar', ENV=ENV)
@@ -57,7 +65,9 @@ test.subdir(['foo'],
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = os.environ)
+env = Environment(ENV = os.environ,
+                  JAVAC = r'%(where_javac)s',
+                  JAVAH = r'%(where_javah)s')
 
 env.Append(CPPFLAGS = ' -g -Wall')
         
@@ -65,7 +75,7 @@ Export('env')
 
 SConscript('#foo/SConscript')
 SConscript('#java/SConscript')
-""")
+""" % locals())
 
 test.write(['foo', 'SConscript'], """\
 Import('env')
@@ -123,7 +133,10 @@ env['JARCHDIR'] = 'java/classes'
 foopack_jar = env.Jar(target = 'foopack.jar', source = 'classes')
 """)
 
-test.run(arguments = '.')
+# Disable looking at stderr because some combinations of SWIG/gcc
+# generate a warning about the sWIG_JavaThrowException() function
+# being defined but not used.
+test.run(arguments = '.', stderr=None)
 
 #test.must_exist(['java', 'classes', 'foopack', 'foopack.class'])
 #test.must_exist(['java', 'classes', 'foopack', 'foopackJNI.class'])

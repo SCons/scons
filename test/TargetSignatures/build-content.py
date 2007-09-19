@@ -24,17 +24,26 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify basic interaction of the historic TargetSignatures('build')
+and TargetSignatures('content') settings, overriding one with
+the other in specific construction environments.
+"""
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+
+
+sconstruct_contents = """\
 env = Environment()
 
 def copy1(env, source, target):
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
+    %s
     return copy1(env, source, target)
 
 env['BUILDERS']['Copy1'] = Builder(action=copy1)
@@ -44,12 +53,20 @@ env.Copy2('foo.mid', 'foo.in')
 env.Copy1('foo.out', 'foo.mid')
 
 env2 = env.Clone()
-env2.TargetSignatures('build')
+env2.TargetSignatures('%s')
 env2.Copy2('bar.mid', 'bar.in')
 env2.Copy1('bar.out', 'bar.mid')
 
-TargetSignatures('content')
-""")
+TargetSignatures('%s')
+"""
+
+def write_SConstruct(test, *args):
+    contents = sconstruct_contents % args
+    test.write('SConstruct', contents)
+
+
+
+write_SConstruct(test, '', 'build', 'content')
 
 test.write('foo.in', 'foo.in')
 test.write('bar.in', 'bar.in')
@@ -64,29 +81,12 @@ copy1(["foo.out"], ["foo.mid"])
 
 test.up_to_date(arguments='bar.out foo.out')
 
-test.write('SConstruct', """
-env = Environment()
 
-def copy1(env, source, target):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
-def copy2(env, source, target):
-    x = 2 # added this line
-    return copy1(env, source, target)
+# Change the code in the the copy2() function, which should change
+# its content and trigger a rebuild of the targets built with it.
 
-env['BUILDERS']['Copy1'] = Builder(action=copy1)
-env['BUILDERS']['Copy2'] = Builder(action=copy2)
-
-env.Copy2('foo.mid', 'foo.in')
-env.Copy1('foo.out', 'foo.mid')
-
-env2 = env.Clone()
-env2.TargetSignatures('build')
-env2.Copy2('bar.mid', 'bar.in')
-env2.Copy1('bar.out', 'bar.mid')
-
-TargetSignatures('content')
-""")
+write_SConstruct(test, 'x = 2 # added this line', 'build', 'content')
 
 test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
@@ -96,58 +96,21 @@ copy2(["foo.mid"], ["foo.in"])
 scons: `foo.out' is up to date.
 """))
 
-test.write('SConstruct', """
-env = Environment()
 
-def copy1(env, source, target):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
-def copy2(env, source, target):
-    x = 2 # added this line
-    return copy1(env, source, target)
+# Swapping content and build signatures no longer causes a rebuild
+# because we record the right underlying information regardless.
 
-env['BUILDERS']['Copy1'] = Builder(action=copy1)
-env['BUILDERS']['Copy2'] = Builder(action=copy2)
+write_SConstruct(test, 'x = 2 # added this line', 'content', 'build')
 
-env.Copy2('foo.mid', 'foo.in')
-env.Copy1('foo.out', 'foo.mid')
+test.up_to_date(arguments="bar.out foo.out")
 
-env2 = env.Copy()
-env2.TargetSignatures('content')
-env2.Copy2('bar.mid', 'bar.in')
-env2.Copy1('bar.out', 'bar.mid')
 
-TargetSignatures('build')
-""")
 
-test.run(arguments="bar.out foo.out",
-         stdout=test.wrap_stdout("""\
-copy1(["bar.out"], ["bar.mid"])
-copy1(["foo.out"], ["foo.mid"])
-"""))
+# Change the code in the the copy2() function back again, which should
+# trigger another rebuild of the targets built with it.
 
-test.write('SConstruct', """
-env = Environment()
-
-def copy1(env, source, target):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
-
-def copy2(env, source, target):
-    return copy1(env, source, target)
-
-env['BUILDERS']['Copy1'] = Builder(action=copy1)
-env['BUILDERS']['Copy2'] = Builder(action=copy2)
-
-env.Copy2('foo.mid', 'foo.in')
-env.Copy1('foo.out', 'foo.mid')
-
-env2 = env.Copy()
-env2.TargetSignatures('content')
-env2.Copy2('bar.mid', 'bar.in')
-env2.Copy1('bar.out', 'bar.mid')
-
-TargetSignatures('build')
-""")
+write_SConstruct(test, '', 'content', 'build')
 
 test.run(arguments='bar.out foo.out',
          stdout=test.wrap_stdout("""\
@@ -156,6 +119,7 @@ scons: `bar.out' is up to date.
 copy2(["foo.mid"], ["foo.in"])
 copy1(["foo.out"], ["foo.mid"])
 """))
+
 
 
 test.pass_test()

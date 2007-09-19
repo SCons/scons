@@ -89,10 +89,19 @@ def CachePushFunc(target, source, env):
 
     cd.CacheDebug('CachePush(%s):  pushing to %s\n', t, cachefile)
 
-    if not fs.isdir(cachedir):
-        fs.makedirs(cachedir)
+    tempfile = cachefile+'.tmp'+str(os.getpid())
+    errfmt = "Unable to copy %s to cache. Cache file is %s"
 
-    tempfile = cachefile+'.tmp'
+    if not fs.isdir(cachedir):
+        try:
+            fs.makedirs(cachedir)
+        except EnvironmentError:
+            # We may have received an exception because another process
+            # has beaten us creating the directory.
+            if not fs.isdir(cachedir):
+                msg = errfmt % (str(target), cachefile)
+                raise SCons.Errors.EnvironmentError, msg
+
     try:
         if fs.islink(t.path):
             fs.symlink(fs.readlink(t.path), tempfile)
@@ -101,15 +110,14 @@ def CachePushFunc(target, source, env):
         fs.rename(tempfile, cachefile)
         st = fs.stat(t.path)
         fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
-    except (IOError, OSError):
+    except EnvironmentError:
         # It's possible someone else tried writing the file at the
         # same time we did, or else that there was some problem like
         # the CacheDir being on a separate file system that's full.
         # In any case, inability to push a file to cache doesn't affect
         # the correctness of the build, so just print a warning.
-        SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning,
-                            "Unable to copy %s to cache. Cache file is %s"
-                                % (str(target), cachefile))
+        msg = errfmt % (str(target), cachefile)
+        SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning, msg)
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
@@ -117,9 +125,9 @@ class CacheDir:
 
     def __init__(self, path):
         try:
-            import SCons.Sig.MD5
+            import hashlib
         except ImportError:
-            msg = "No MD5 module available, CacheDir() not supported"
+            msg = "No hashlib or MD5 module available, CacheDir() not supported"
             SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
         else:
             self.path = path
@@ -203,5 +211,7 @@ class CacheDir:
 class Null(SCons.Util.Null):
     def repr(self):
         return 'CacheDir.Null()'
+    def cachepath(self, node):
+        return None, None
     def retrieve(self, node):
         return False

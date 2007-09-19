@@ -302,6 +302,7 @@ _ws = re.compile('\s')
 def escape(s):
     if _ws.search(s):
         s = '"' + s + '"'
+    s = string.replace(s, '\\', '\\\\')
     return s
 
 # Set up lowest-common-denominator spawning of a process on both Windows

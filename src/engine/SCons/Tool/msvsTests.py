@@ -606,6 +606,7 @@ if __name__ == "__main__":
 
     # only makes sense to test this on win32
     if sys.platform != 'win32':
+        sys.stdout.write("NO RESULT for msvsTests.py:  '%s' is not win32\n" % sys.platform)
         sys.exit(0)
 
     SCons.Util.RegOpenKeyEx = DummyOpenKeyEx

@@ -119,11 +119,12 @@ if checkpoint:
         checkpoint = 'r' + revision
     version = version + checkpoint
 
+svn_status = None
+svn_status_lines = []
+
 if svn:
     svn_status = os.popen("%s status --verbose 2> /dev/null" % svn, "r").read()
     svn_status_lines = svn_status[:-1].split('\n')
-else:
-    svn_status_lines = []
 
 build_id = ARGUMENTS.get('BUILD_ID')
 if build_id is None:
@@ -158,14 +159,14 @@ command_line_variables = [
                         "The default is whatever hostname is returned " +
                         "by socket.gethostname()."),
 
-    ("CHECKPOINT=",     "The specific checkpoint release being packaged.  " +
-                        "This will be appended to the VERSION string.  " +
+    ("CHECKPOINT=",     "The specific checkpoint release being packaged, " +
+                        "which will be appended to the VERSION string.  " +
                         "A value of CHECKPOINT=d will generate a string " +
-                        "of 'd' plus today's date in the format YYYMMDD." +
+                        "of 'd' plus today's date in the format YYYMMDD.  " +
                         "A value of CHECKPOINT=r will generate a " +
-                        "string of 'r' plus the Subversion revision number.  " +
-                        "Any other CHECKPOINT= string will be used as is." +
-                        "There is no default value."),
+                        "string of 'r' plus the Subversion revision " +
+                        "number.  Any other CHECKPOINT= string will be " +
+                        "used as is.  There is no default value."),
 
     ("DATE=",           "The date string representing when the packaging " +
                         "build occurred.  The default is the day and time " +
@@ -238,7 +239,7 @@ import textwrap
 
 indent_fmt = '  %-26s  '
 
-Help("""
+Help("""\
 The following aliases build packages of various types, and unpack the
 contents into build/test-$PACKAGE subdirectories, which can be used by the
 runtest.py -p option to run tests against what's been actually packaged:

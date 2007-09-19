@@ -53,14 +53,18 @@ env.Command('f8.out', 'f8.in', [Delete("$FILE"), Delete("$DIR"), Cat])
 env.Command('f9.out', 'f9.in', [Cat,
                                 Delete("Delete-$SOURCE"),
                                 Delete("$TARGET-Delete")])
-env.Command('f10-nonexistent.out', 'f10.in', [Delete("$TARGET"),
-                                              Cat])
-env.Command('d11-nonexistent.out', 'd11.in', [Delete("$TARGET"),
-                                              Mkdir("$TARGET")])
-env.Command('f12-nonexistent.out', 'f12.in', [Delete("$TARGET", must_exist=0),
-                                              Cat])
-env.Command('d13-nonexistent.out', 'd13.in', [Delete("$TARGET", must_exist=0),
-                                              Mkdir("$TARGET")])
+
+env.Command('f10-nonexistent.out', 'f10.in',
+            [Delete("$TARGET"), Cat])
+
+env.Command(Dir('d11-nonexistent.out'), 'd11.in',
+            [Delete("$TARGET"), Mkdir("$TARGET")])
+
+env.Command('f12-nonexistent.out', 'f12.in',
+            [Delete("$TARGET", must_exist=0), Cat])
+
+env.Command(Dir('d13-nonexistent.out'), 'd13.in',
+            [Delete("$TARGET", must_exist=0), Mkdir("$TARGET")])
 """)
 
 test.write('f1', "f1\n")

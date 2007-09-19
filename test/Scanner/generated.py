@@ -411,18 +411,17 @@ int g_3()
 test.run(stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-# XXX Note that the generated .h files still get scanned twice,
-# once before they're generated and once after.  That's the
-# next thing to fix here.
+# Note that the generated .h files still get scanned twice,
+# but that's really once each as a child of libg_1.o and libg_2.o.
 
 test.must_match("MyCScan.out", """\
 libg_1.c: 1
 libg_2.c: 1
 libg_3.c: 1
-libg_gx.h: 1
+libg_gx.h: 2
 libg_gy.h: 1
 libg_gz.h: 1
-libg_w.h: 1
+libg_w.h: 2
 """)
 
 test.pass_test()

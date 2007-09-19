@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -23,27 +24,37 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import unittest
-import SCons.Sig
-import sys
+"""
+Test expected behavior of just telling a Progress() object to print
+a dot for every visited Node.
+"""
 
-class CalculatorTestCase(unittest.TestCase):
+import TestSCons
 
-    def runTest(self):
-        class MySigModule:
-            pass
-        calc = SCons.Sig.Calculator(MySigModule)
-        assert calc.module == MySigModule
+test = TestSCons.TestSCons()
 
+test.write('SConstruct', """\
+env = Environment()
+env['BUILDERS']['C'] = Builder(action=Copy('$TARGET', '$SOURCE'))
+Progress('.')
+env.C('S1.out', 'S1.in')
+env.C('S2.out', 'S2.in')
+env.C('S3.out', 'S3.in')
+env.C('S4.out', 'S4.in')
+""")
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(CalculatorTestCase())
-    return suite
+test.write('S1.in', "S1.in\n")
+test.write('S2.in', "S2.in\n")
+test.write('S3.in', "S3.in\n")
+test.write('S4.in', "S4.in\n")
 
-if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
-    if not result.wasSuccessful():
-        sys.exit(1)
+expect = """\
+..Copy("S1.out", "S1.in")
+..Copy("S2.out", "S2.in")
+..Copy("S3.out", "S3.in")
+..Copy("S4.out", "S4.in")
+.."""
 
+test.run(arguments = '-Q .', stdout=expect)
+
+test.pass_test()

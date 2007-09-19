@@ -50,12 +50,12 @@ def generate(env):
     env['WIXLIGHTCOM'] = "$WIXLIGHT $WIXLIGHTFLAGS -out ${TARGET} ${SOURCES}"
 
     object_builder = SCons.Builder.Builder(
-        action  = '$WIXCANDLECOM',
-        suffix  = '.wxiobj',
-        src_suffix = '.wxs')
+        action      = '$WIXCANDLECOM',
+        suffix      = '.wxiobj',
+        src_suffix  = '.wxs')
 
     linker_builder = SCons.Builder.Builder(
-        action = '$WIXLIGHTCOM',
+        action      = '$WIXLIGHTCOM',
         src_suffix  = '.wxiobj',
         src_builder = object_builder)
 

@@ -52,7 +52,7 @@ class ValueTestCase(unittest.TestCase):
         """Test "building" a Value Node
         """
         class fake_executor:
-            def __call__(self, node, exitstatfunc):
+            def __call__(self, node):
                 node.write('faked')
 
         v1 = SCons.Node.Python.Value('b', 'built')

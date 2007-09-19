@@ -24,6 +24,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify falling back to 'timestamp' behavior if there is no native
+hashlib and no underlying md5 module available.
+"""
+
 import imp
 import os
 import os.path
@@ -31,6 +36,15 @@ import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+try:
+    file, name, desc = imp.find_module('hashlib')
+except ImportError:
+    pass
+else:
+    msg = "This version of Python has a 'hashlib' module.\n" + \
+          "Skipping test of falling back to timestamps.\n"
+    test.skip_test(msg)
 
 try:
     file, name, desc = imp.find_module('md5')

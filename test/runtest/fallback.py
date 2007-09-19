@@ -68,12 +68,20 @@ if re.search('\s', python):
 else:
     expect_python = python
 
+def escape(s):
+    return string.replace(s, '\\', '\\\\')
+
+expect_python			= escape(expect_python)
+expect_workpath_pass_py		= escape(workpath_pass_py)
+expect_workpath_fail_py		= escape(workpath_fail_py)
+expect_workpath_no_result_py	= escape(workpath_no_result_py)
+
 expect_stdout = """\
-%(expect_python)s -tt %(workpath_fail_py)s
+%(expect_python)s -tt %(expect_workpath_fail_py)s
 FAILING TEST STDOUT
-%(expect_python)s -tt %(workpath_no_result_py)s
+%(expect_python)s -tt %(expect_workpath_no_result_py)s
 NO RESULT TEST STDOUT
-%(expect_python)s -tt %(workpath_pass_py)s
+%(expect_python)s -tt %(expect_workpath_pass_py)s
 PASSING TEST STDOUT
 
 Failed the following test:

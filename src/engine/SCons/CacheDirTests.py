@@ -35,17 +35,23 @@ import SCons.CacheDir
 built_it = None
 
 class Action:
-    def __call__(self, targets, sources, env, errfunc, **kw):
+    def __call__(self, targets, sources, env, **kw):
         global built_it
         if kw.get('execute', 1):
             built_it = 1
         return 0
+    def genstring(self, target, source, env):
+        return str(self)
+    def get_contents(self, target, source, env):
+        return ''
 
 class Builder:
     def __init__(self, environment, action):
         self.env = environment
         self.action = action
         self.overrides = {}
+        self.source_scanner = None
+        self.target_scanner = None
 
 class Environment:
     def __init__(self, cachedir):
@@ -71,8 +77,9 @@ class BaseTestCase(unittest.TestCase):
         node = self.fs.File(name)
         node.builder_set(Builder(Environment(self._CacheDir), action))
         if bsig:
-            node.binfo = node.BuildInfo(node)
-            node.binfo.ninfo.bsig = bsig
+            node.cachesig = bsig
+            #node.binfo = node.BuildInfo(node)
+            #node.binfo.ninfo.bsig = bsig
         return node
 
 class CacheDirTestCase(BaseTestCase):
@@ -86,8 +93,8 @@ class CacheDirTestCase(BaseTestCase):
         # of the file in cache.
         def my_collect(list):
             return list[0]
-        save_collect = SCons.Sig.MD5.collect
-        SCons.Sig.MD5.collect = my_collect
+        save_collect = SCons.Util.MD5collect
+        SCons.Util.MD5collect = my_collect
 
         try:
             f5 = self.File("cd.f5", 'a_fake_bsig')
@@ -96,7 +103,7 @@ class CacheDirTestCase(BaseTestCase):
             filename = os.path.join(dirname, 'a_fake_bsig')
             assert result == (dirname, filename), result
         finally:
-            SCons.Sig.MD5.collect = save_collect
+            SCons.Util.MD5collect = save_collect
 
 class FileTestCase(BaseTestCase):
     """
@@ -209,18 +216,6 @@ class FileTestCase(BaseTestCase):
             assert self.pushed == [f4], self.pushed
         finally:
             SCons.CacheDir.CachePush = save_CachePush
-
-    def test_no_bsig(self):
-        """Test that no bsig raises an InternalError"""
-
-        f6 = self.File("cd.f6")
-        f6.binfo = f6.BuildInfo(f6)
-        exc_caught = 0
-        try:
-            cp = self._CacheDir.cachepath(f6)
-        except SCons.Errors.InternalError:
-            exc_caught = 1
-        assert exc_caught
 
     def test_warning(self):
         """Test raising a warning if we can't copy a file to cache."""

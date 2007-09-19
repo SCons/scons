@@ -24,64 +24,25 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify operation of the -q (--question) option in conjunction
+with Configure tests.
+
+(This was originally mostly copied and pasted from test/option-n.py.)
+"""
+
 import os.path
 import re
-import string
-import sys
 
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
-_python_ = TestSCons._python_
+test.write('aaa.in', 'Hello world\n')
 
-test.write('build.py', r"""
-import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write(contents)
-file.close()
-""")
-
-test.write('SConstruct', """
-B = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'aaa.out', source = 'aaa.in')
-env.B(target = 'bbb.out', source = 'bbb.in')
-""" % locals())
-
-test.write('aaa.in', "aaa.in\n")
-test.write('bbb.in', "bbb.in\n")
-
-test.run(arguments = '-q aaa.out', status = 1)
-
-test.fail_test(os.path.exists(test.workpath('aaa.out')))
-
-test.run(arguments = 'aaa.out')
-
-test.fail_test(test.read('aaa.out') != "aaa.in\n")
-
-test.run(arguments = '-q aaa.out', status = 0)
-
-test.run(arguments = '--question bbb.out', status = 1)
-
-test.fail_test(os.path.exists(test.workpath('bbb.out')))
-
-test.run(arguments = 'bbb.out')
-
-test.fail_test(test.read('bbb.out') != "bbb.in\n")
-
-test.run(arguments = '--question bbb.out', status = 0)
-
-
-# test -q in conjunction with Configure Tests
-# mostly copy&paste from test/option-n.py
-test.subdir('configure')
-test.match_func = TestCmd.match_re_dotall
-test.write('configure/aaa.in', 'Hello world')
-test.write('configure/SConstruct',
-"""def userAction(target,source,env):
+test.write('SConstruct', """\
+def userAction(target,source,env):
     import shutil
     shutil.copyfile( str(source[0]), str(target[0]))
 
@@ -108,15 +69,16 @@ else:
 
 env.B(target='aaa.out', source='aaa.in')
 """)
+
 # test that conf_dir isn't created and an error is raised
 stderr=r"""
 scons: \*\*\* Cannot create configure directory "config\.test" within a dry-run\.
 File \S+, line \S+, in \S+
 """
-test.run(arguments="-q aaa.out",stderr=stderr,status=2,
-         chdir=test.workpath("configure"))
-test.fail_test(os.path.exists(test.workpath("configure", "config.test")))
-test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
+test.run(arguments="-q aaa.out",stderr=stderr,status=2)
+
+test.must_not_exist(test.workpath("config.test"))
+test.must_not_exist(test.workpath("config.log"))
 
 # test that targets are not built, if conf_dir exists.
 # verify that .cache and config.log are not created.
@@ -125,27 +87,28 @@ stderr=r"""
 scons: \*\*\* Cannot update configure test "%s" within a dry-run\.
 File \S+, line \S+, in \S+
 """ % re.escape(os.path.join("config.test", "conftest_0.in"))
-test.subdir(['configure','config.test'])
-test.run(arguments="-q aaa.out",stderr=stderr,status=2,
-         chdir=test.workpath("configure"))
-test.fail_test(os.path.exists(test.workpath("configure", "config.test",
-                                            ".cache")))
-test.fail_test(os.path.exists(test.workpath("configure", "config.test",
-                                            "conftest_0")))
-test.fail_test(os.path.exists(test.workpath("configure", "config.test",
-                                            "conftest_0.in")))
-test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
+
+test.subdir('config.test')
+
+test.run(arguments="-q aaa.out",stderr=stderr,status=2)
+
+test.must_not_exist(test.workpath("config.test", ".cache"))
+test.must_not_exist(test.workpath("config.test", "conftest_0"))
+test.must_not_exist(test.workpath("config.test", "conftest_0.in"))
+test.must_not_exist(test.workpath("config.log"))
 
 # test that no error is raised, if all targets are up-to-date. In this
 # case .cache and config.log shouldn't be created
 stdout=test.wrap_stdout(build_str='cp aaa.in aaa.out\n',
                         read_str="""Executing Custom Test ... yes
 """)
-test.run(stdout=stdout,arguments="aaa.out",status=0,chdir=test.workpath("configure"))
-log1_mtime = os.path.getmtime(test.workpath("configure","config.log"))
-test.run(arguments="-q aaa.out",status=0,
-         chdir=test.workpath("configure"))
-log2_mtime = os.path.getmtime(test.workpath("configure","config.log"))
+
+test.run(stdout=stdout,arguments="aaa.out",status=0)
+
+log1_mtime = os.path.getmtime(test.workpath("config.log"))
+
+test.run(arguments="-q aaa.out",status=0)
+log2_mtime = os.path.getmtime(test.workpath("config.log"))
 test.fail_test( log1_mtime != log2_mtime )
 
 test.pass_test()

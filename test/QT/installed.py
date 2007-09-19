@@ -191,10 +191,11 @@ if test.stdout() != "Hello World\n" or test.stderr() != '' or test.status:
     # If so, then print whatever it showed us (which is in and of itself
     # an indication that it built correctly) but don't fail the test.
     expect = 'cannot connect to X server'
-    test.fail_test(test.stdout() != '' or
-                   string.find(test.stderr(), expect) == -1 or \
-                   (test.status>>8) != 1)
-
+    test.fail_test(test.stdout())
+    test.fail_test(string.find(test.stderr(), expect) == -1)
+    if test.status != 1 and (test.status>>8) != 1:
+        sys.stdout.write('test_realqt returned status %s\n' % test.status)
+        test.fail_test()
 
 QTDIR = os.environ['QTDIR']
 PATH = os.environ['PATH']
