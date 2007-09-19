@@ -32,10 +32,19 @@ This is a test for fix of Issue 1004, reported by Matt Doar and
 packaged by Gary Oberbrunner.
 """
 
+import string
+
 import TestSCons
 
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
+
+test.write('strip.py', """\
+import string
+import sys
+print "strip.py: %s" % string.join(sys.argv[1:])
+""")
 
 test.write('SConstruct', """\
 env = Environment()
@@ -44,10 +53,12 @@ mylib = env.StaticLibrary('mytest', 'test_lib.c')
 
 myprog = env.Program('test1.c',
                      LIBPATH = ['.'],
-                     LIBS = ['mytest'])
+                     LIBS = ['mytest'],
+                     OBJSUFFIX = '.obj',
+                     PROGSUFFIX = '.exe')
 if ARGUMENTS['case']=='2':
-  AddPostAction(myprog, Action('strip ' + myprog[0].abspath))
-""")
+  AddPostAction(myprog, Action(r'%(_python_)s strip.py ' + myprog[0].abspath))
+""" % locals())
 
 test.write('test1.c', """\
 extern void test_lib_fn();
@@ -69,8 +80,11 @@ test.run(arguments="-Q case=1", stderr=None)
 
 test.run(arguments="-Q -c case=1")
 
-test.must_not_exist('test1.o')
+test.must_not_exist('test1.obj')
 
 test.run(arguments="-Q case=2", stderr=None)
+
+expect = 'strip.py: %s' % test.workpath('test1.exe')
+test.fail_test(string.find(test.stdout(), expect) == -1)
 
 test.pass_test()

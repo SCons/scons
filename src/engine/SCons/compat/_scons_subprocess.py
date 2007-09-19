@@ -373,7 +373,13 @@ class CalledProcessError(Exception):
 
 
 if mswindows:
-    import threading
+    try:
+        import threading
+    except ImportError:
+        # SCons:  the threading module is only used by the communicate()
+        # method, which we don't actually use, so don't worry if we
+        # can't import it.
+        pass
     import msvcrt
     if 0: # <-- change this to use pywin32 instead of the _subprocess driver
         import pywintypes

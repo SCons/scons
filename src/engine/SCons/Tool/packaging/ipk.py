@@ -30,7 +30,7 @@ import SCons.Builder
 import SCons.Node.FS
 import os
 
-from SCons.Tool.packaging import stripinstall_emitter, packageroot_emitter
+from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
 
 def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
             SUMMARY, X_IPK_PRIORITY, X_IPK_SECTION, SOURCE_URL,
@@ -42,8 +42,8 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
 
     # setup the Ipkg builder
     bld = env['BUILDERS']['Ipkg']
-    bld.push_emitter(packageroot_emitter(PACKAGEROOT))
-    bld.push_emitter(stripinstall_emitter())
+    target, source = stripinstallbuilder(target, source, env)
+    target, source = putintopackageroot(target, source, env, PACKAGEROOT)
 
     # This should be overridable from the construction environment,
     # which it is by using ARCHITECTURE=.
@@ -85,7 +85,7 @@ def gen_ipk_dir(proot, source, env, kw):
     #  create the specfile builder
     s_bld=SCons.Builder.Builder(
         action  = build_specfiles,
-        emitter = [stripinstall_emitter(), packageroot_emitter(proot)])
+        )
 
     # create the specfile targets
     spec_target=[]

@@ -104,12 +104,10 @@ test.must_not_exist( 'bin/main' )
 
 cmd = 'rpm -qp --queryformat \'%%{GROUP}-%%{SUMMARY}-%%{DESCRIPTION}\' %s'
 
-os.environ['LC_ALL']   = 'de_DE.utf8'
 os.environ['LANGUAGE'] = 'de'
 out = os.popen( cmd % test.workpath(machine_rpm) ).read()
 test.fail_test( out != 'Applikation/büro-hallo-das sollte wirklich lang sein' )
 
-os.environ['LC_ALL']   = 'fr_FR.utf8'
 os.environ['LANGUAGE'] = 'fr'
 out = os.popen( cmd % test.workpath(machine_rpm) ).read()
 test.fail_test( out != 'Application/bureau-bonjour-ceci devrait être vraiment long' )

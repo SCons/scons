@@ -46,13 +46,15 @@ class MyEnvironment:
 class MyAction:
     def __init__(self, actions=['action1', 'action2']):
         self.actions = actions
-    def __call__(self, target, source, env, errfunc, **kw):
+    def __call__(self, target, source, env, **kw):
         for action in self.actions:
-            apply(action, (target, source, env, errfunc), kw)
+            apply(action, (target, source, env), kw)
     def genstring(self, target, source, env):
         return string.join(['GENSTRING'] + map(str, self.actions) + target + source)
     def get_contents(self, target, source, env):
         return string.join(self.actions + target + source)
+    def get_implicit_deps(self, target, source, env):
+        return []
 
 class MyBuilder:
     def __init__(self, env, overrides):
@@ -69,7 +71,7 @@ class MyNode:
         self.missing_val = None
     def __str__(self):
         return self.name
-    def build(self, errfunc=None):
+    def build(self):
         executor = SCons.Executor.Executor(MyAction(self.pre_actions +
                                                     [self.builder.action] +
                                                     self.post_actions),
@@ -77,7 +79,7 @@ class MyNode:
                                            [],
                                            [self],
                                            ['s1', 's2'])
-        apply(executor, (self, errfunc), {})
+        apply(executor, (self), {})
     def get_env_scanner(self, env, kw):
         return MyScanner('dep-')
     def get_implicit_deps(self, env, scanner, path):
@@ -207,13 +209,13 @@ class ExecutorTestCase(unittest.TestCase):
     def test__call__(self):
         """Test calling an Executor"""
         result = []
-        def pre(target, source, env, errfunc, result=result, **kw):
+        def pre(target, source, env, result=result, **kw):
             result.append('pre')
-        def action1(target, source, env, errfunc, result=result, **kw):
+        def action1(target, source, env, result=result, **kw):
             result.append('action1')
-        def action2(target, source, env, errfunc, result=result, **kw):
+        def action2(target, source, env, result=result, **kw):
             result.append('action2')
-        def post(target, source, env, errfunc, result=result, **kw):
+        def post(target, source, env, result=result, **kw):
             result.append('post')
 
         env = MyEnvironment()
@@ -223,32 +225,18 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
         x.add_pre_action(pre)
         x.add_post_action(post)
-        x(t, lambda x: x)
+        x(t)
         assert result == ['pre', 'action1', 'action2', 'post'], result
         del result[:]
 
-        def pre_err(target, source, env, errfunc, result=result, **kw):
+        def pre_err(target, source, env, result=result, **kw):
             result.append('pre_err')
-            if errfunc:
-                errfunc(1)
             return 1
 
         x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
         x.add_pre_action(pre_err)
         x.add_post_action(post)
-        x(t, lambda x: x)
-        assert result == ['pre_err', 'action1', 'action2', 'post'], result
-        del result[:]
-
-        def errfunc(stat):
-            raise "errfunc %s" % stat
-
-        try:
-            x(t, errfunc)
-        except:
-            assert sys.exc_type == "errfunc 1", sys.exc_type
-        else:
-            assert 0, "did not catch expected exception"
+        x(t)
         assert result == ['pre_err'], result
         del result[:]
 
@@ -319,14 +307,14 @@ class ExecutorTestCase(unittest.TestCase):
         env = MyEnvironment(S='string')
 
         result = []
-        def action1(target, source, env, errfunc, result=result, **kw):
+        def action1(target, source, env, result=result, **kw):
             result.append('action1')
 
         env = MyEnvironment()
         a = MyAction([action1])
         x = SCons.Executor.Executor(a, env, [], ['t1', 't2'], ['s1', 's2'])
 
-        x(MyNode('', [], []), None)
+        x(MyNode('', [], []))
         assert result == ['action1'], result
         s = str(x)
         assert s[:10] == 'GENSTRING ', s
@@ -335,7 +323,7 @@ class ExecutorTestCase(unittest.TestCase):
         x.nullify()
 
         assert result == [], result
-        x(MyNode('', [], []), None)
+        x(MyNode('', [], []))
         assert result == [], result
         s = str(x)
         assert s == '', s
@@ -367,7 +355,7 @@ class ExecutorTestCase(unittest.TestCase):
         t1 = MyNode('t1')
         t2 = MyNode('t2')
         sources = [MyNode('s1'), MyNode('s2')]
-        x = SCons.Executor.Executor('b', env, [{}], [t1, t2], sources)
+        x = SCons.Executor.Executor(MyAction(), env, [{}], [t1, t2], sources)
 
         deps = x.scan_targets(None)
         assert t1.implicit == ['dep-t1', 'dep-t2'], t1.implicit
@@ -386,7 +374,7 @@ class ExecutorTestCase(unittest.TestCase):
         t1 = MyNode('t1')
         t2 = MyNode('t2')
         sources = [MyNode('s1'), MyNode('s2')]
-        x = SCons.Executor.Executor('b', env, [{}], [t1, t2], sources)
+        x = SCons.Executor.Executor(MyAction(), env, [{}], [t1, t2], sources)
 
         deps = x.scan_sources(None)
         assert t1.implicit == ['dep-s1', 'dep-s2'], t1.implicit

@@ -44,7 +44,7 @@ def generate(env):
 
     env['CXX']         = 'CC'
     env['CXXFLAGS']    = SCons.Util.CLVar('$CCFLAGS -LANG:std')
-    env['SHCXX']       = 'CC'
+    env['SHCXX']       = '$CXX'
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
     

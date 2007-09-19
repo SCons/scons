@@ -59,6 +59,7 @@ test.write(['w1', 'foo.in'], "foo.in 1")
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct1 foo.mid",
          stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
+
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct2 foo.out",
          stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
@@ -66,6 +67,7 @@ test.run(chdir='w1',
 test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct1",
                 arguments="foo.mid")
+
 test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct2",
                 arguments="foo.out")
@@ -73,28 +75,23 @@ test.up_to_date(chdir='w1',
 test.sleep()  # make sure foo.in rewrite has new mod-time
 test.write(['w1', 'foo.in'], "foo.in 2")
 
-test.run(chdir='w1',
-         arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
 # Because we're using --max-drift=0, we use the cached csig value
-# and think that foo.mid hasn't changed even though it has on disk.
+# and think that foo.in hasn't changed even though it has on disk.
 test.up_to_date(chdir='w1',
-                options="--max-drift=0 -f SConstruct2",
+         options="--max-drift=0 -f SConstruct1",
+         arguments="foo.mid")
+
+# Now try with --max-drift disabled.  The build of foo.out should still
+# be considered up-to-date, but the build of foo.mid now detects the
+# change and rebuilds, too, which then causes a rebuild of foo.out.
+test.up_to_date(chdir='w1',
+                options="--max-drift=-1 -f SConstruct2",
                 arguments="foo.out")
 
-test.up_to_date(chdir='w1',
-                options="--max-drift=0 -f SConstruct1",
-                arguments="foo.mid")
-test.up_to_date(chdir='w1',
-                options="--max-drift=0 -f SConstruct2",
-                arguments="foo.out")
+test.run(chdir='w1',
+         arguments="--max-drift=-1 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
 
-# Now try with --max-drift disabled.  The build of foo.mid should still
-# be considered up-to-date, but the build of foo.out now detects the
-# change and rebuilds, too.
-test.up_to_date(chdir='w1',
-                options="--max-drift=-1 -f SConstruct1",
-                arguments="foo.mid")
 test.run(chdir='w1',
          arguments="--max-drift=-1 -f SConstruct2 foo.out",
          stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))

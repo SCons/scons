@@ -35,19 +35,18 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-install = test.workpath('install')
-install_file = test.workpath('install', 'file')
-work_file = test.workpath('work', 'file')
+work_file_out = test.workpath('work', 'file.out')
 
 test.subdir('install', 'work')
 
 test.write(['work', 'SConstruct'], """\
-Alias("install", Install(r"%(install)s", File('file')))
+file_out = Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
+Alias("install", file_out)
 
 # Make a directory where we expect the File() to be.  This causes an
 # IOError or OSError when we try to open it to read its signature.
 import os
-os.mkdir(r'%(work_file)s')
+os.mkdir('file.in')
 """ % locals())
 
 if sys.platform == 'win32':
@@ -56,7 +55,7 @@ else:
     error_message = "Is a directory"
 
 expect = """\
-scons: *** [%(install_file)s] %(work_file)s: %(error_message)s
+scons: *** [install] %(work_file_out)s: %(error_message)s
 """ % locals()
 
 test.run(chdir = 'work',

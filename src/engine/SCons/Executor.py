@@ -74,10 +74,17 @@ class Executor:
     def get_action_list(self):
         return self.pre_actions + self.action_list + self.post_actions
 
+    memoizer_counters.append(SCons.Memoize.CountValue('get_build_env'))
+
     def get_build_env(self):
         """Fetch or create the appropriate build Environment
         for this Executor.
         """
+        try:
+            return self._memo['get_build_env']
+        except KeyError:
+            pass
+
         # Create the build environment instance with appropriate
         # overrides.  These get evaluated against the current
         # environment's construction variables so that users can
@@ -91,11 +98,12 @@ class Executor:
         env = self.env or SCons.Defaults.DefaultEnvironment()
         build_env = env.Override(overrides)
 
+        self._memo['get_build_env'] = build_env
+
         return build_env
 
     def get_build_scanner_path(self, scanner):
-        """Fetch the scanner path for this executor's targets
-        and sources.
+        """Fetch the scanner path for this executor's targets and sources.
         """
         env = self.get_build_env()
         try:
@@ -109,24 +117,26 @@ class Executor:
         result.update(kw)
         return result
 
-    def do_nothing(self, target, exitstatfunc, kw):
-        pass
+    def do_nothing(self, target, kw):
+        return 0
 
-    def do_execute(self, target, exitstatfunc, kw):
+    def do_execute(self, target, kw):
         """Actually execute the action list."""
         env = self.get_build_env()
         kw = self.get_kw(kw)
+        status = 0
         for act in self.get_action_list():
-            apply(act,
-                  (self.targets, self.sources, env, exitstatfunc),
-                  kw)
+            status = apply(act, (self.targets, self.sources, env), kw)
+            if status:
+                break
+        return status
 
     # use extra indirection because with new-style objects (Python 2.2
     # and above) we can't override special methods, and nullify() needs
     # to be able to do this.
 
-    def __call__(self, target, exitstatfunc, **kw):
-        self.do_execute(target, exitstatfunc, kw)
+    def __call__(self, target, **kw):
+        return self.do_execute(target, kw)
 
     def cleanup(self):
         self._memo = {}
@@ -218,9 +228,12 @@ class Executor:
         scanner_list = map(select_specific_scanner, scanner_list)
         scanner_list = filter(remove_null_scanners, scanner_list)
         scanner_path_list = map(add_scanner_path, scanner_list)
+
         deps = []
         for node, scanner, path in scanner_path_list:
             deps.extend(node.get_implicit_deps(env, scanner, path))
+
+        deps.extend(self.get_implicit_deps())
 
         for tgt in self.targets:
             tgt.add_to_implicit(deps)
@@ -280,6 +293,15 @@ class Executor:
 
         return result
 
+    def get_implicit_deps(self):
+        """Return the executor's implicit dependencies, i.e. the nodes of
+        the commands to be executed."""
+        result = []
+        build_env = self.get_build_env()
+        for act in self.get_action_list():
+            result.extend(act.get_implicit_deps(self.targets, self.sources, build_env))
+        return result
+
 
 _Executor = Executor
 
@@ -297,7 +319,15 @@ class Null(_Executor):
         apply(_Executor.__init__, (self,), kw)
     def get_build_env(self):
         import SCons.Util
-        return SCons.Util.Null()
+        class NullEnvironment(SCons.Util.Null):
+            #def get_scanner(self, key):
+            #    return None
+            #def changed_since_last_build(self, dependency, target, prev_ni):
+            #    return dependency.changed_since_last_buld(target, prev_ni)
+            def get_CacheDir(self):
+                import SCons.CacheDir
+                return SCons.CacheDir.Null()
+        return NullEnvironment()
     def get_build_scanner_path(self):
         return None
     def cleanup(self):

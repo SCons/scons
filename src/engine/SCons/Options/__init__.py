@@ -50,7 +50,7 @@ class Options:
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
-    def __init__(self, files=None, args={}, is_global=1):
+    def __init__(self, files=[], args={}, is_global=1):
         """
         files - [optional] List of option configuration files to load
             (backward compatibility) If a single string is passed it is
@@ -58,11 +58,12 @@ class Options:
         """
         self.options = []
         self.args = args
-        self.files = None
-        if SCons.Util.is_String(files):
-            self.files = [ files ]
-        elif files:
-            self.files = files
+        if not SCons.Util.is_List(files):
+            if files:
+                files = [ files ]
+            else:
+                files = []
+        self.files = files
 
         # create the singleton instance
         if is_global:
@@ -155,10 +156,9 @@ class Options:
                 values[option.key] = option.default
 
         # next set the value specified in the options file
-        if self.files:
-           for filename in self.files:
-              if os.path.exists(filename):
-                 execfile(filename, values)
+        for filename in self.files:
+            if os.path.exists(filename):
+                execfile(filename, values)
 
         # finally set the values specified on the command line
         if args is None:

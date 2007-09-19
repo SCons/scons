@@ -1,10 +1,4 @@
-"""SCons.Sig.TimeStamp
-
-The TimeStamp signature package for the SCons software construction
-utility.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -30,46 +24,52 @@ utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-def current(new, old):
-    """Return whether a new timestamp is up-to-date with
-    respect to an old timestamp.
-    """
-    return not old is None and new <= old
+"""
+Verify the behavior of passing our own function to Progress().
+"""
 
-def collect(signatures):
-    """
-    Collect a list of timestamps, returning
-    the most-recent timestamp from the list 
+import TestSCons
 
-    signatures - a list of timestamps
-    returns - the most recent timestamp
-    """
+test = TestSCons.TestSCons()
 
-    if len(signatures) == 0:
-        return 0
-    elif len(signatures) == 1:
-        return signatures[0]
-    else:
-        return max(signatures)
+test.write('SConstruct', """\
+import sys
+env = Environment()
+env['BUILDERS']['C'] = Builder(action=Copy('$TARGET', '$SOURCE'))
+def my_progress_function(node, *args, **kw):
+    sys.stderr.write('mpf: %s\\n' % node)
+Progress(my_progress_function)
+env.C('S1.out', 'S1.in')
+env.C('S2.out', 'S2.in')
+env.C('S3.out', 'S3.in')
+env.C('S4.out', 'S4.in')
+""")
 
-def signature(obj):
-    """Generate a timestamp.
-    """
-    return obj.get_timestamp()
+test.write('S1.in', "S1.in\n")
+test.write('S2.in', "S2.in\n")
+test.write('S3.in', "S3.in\n")
+test.write('S4.in', "S4.in\n")
 
-def to_string(signature):
-    """Convert a timestamp to a string"""
-    return str(signature)
+expect_stdout = """\
+Copy("S1.out", "S1.in")
+Copy("S2.out", "S2.in")
+Copy("S3.out", "S3.in")
+Copy("S4.out", "S4.in")
+"""
 
-def from_string(string):
-    """Convert a string to a timestamp"""
-    try:
-        return int(string)
-    except ValueError:
-        # if the signature isn't an int, then
-        # the user probably just switched from
-        # MD5 signatures to timestamp signatures,
-        # so ignore the error:
-        return None
+expect_stderr = """\
+mpf: S1.in
+mpf: S1.out
+mpf: S2.in
+mpf: S2.out
+mpf: S3.in
+mpf: S3.out
+mpf: S4.in
+mpf: S4.out
+mpf: SConstruct
+mpf: .
+"""
 
+test.run(arguments = '-Q .', stdout=expect_stdout, stderr=expect_stderr)
 
+test.pass_test()

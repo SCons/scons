@@ -83,9 +83,11 @@ env.Alias( 'install', prog )
 """ % locals())
 
 # first run: build the package
-# second run: test if the intermediate files have been cleaned
-test.run( arguments='' )
-test.run( arguments='-c' )
+# second run: make sure everything is up-to-date (sanity check)
+# third run: test if the intermediate files have been cleaned
+test.run( arguments='.' )
+test.up_to_date( arguments='.' )
+test.run( arguments='-c .' )
 
 src_rpm     = 'foo-1.2.3-0.src.rpm'
 machine_rpm = 'foo-1.2.3-0.%s.rpm' % machine

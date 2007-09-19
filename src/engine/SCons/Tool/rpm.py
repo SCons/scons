@@ -103,7 +103,6 @@ def string_rpm(target, source, env):
 rpmAction = SCons.Action.Action(build_rpm, string_rpm)
 
 RpmBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$RPMCOM', '$RPMCOMSTR'),
-                                   source_factory = SCons.Node.FS.Entry,
                                    source_scanner = SCons.Defaults.DirScanner,
                                    suffix = '$RPMSUFFIX')
 

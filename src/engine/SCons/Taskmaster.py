@@ -205,20 +205,40 @@ class Task:
             raise SCons.Errors.TaskmasterException(self.targets[0],
                                                    sys.exc_info())
 
-    def executed(self):
+    def executed_without_callbacks(self):
         """
-        Called when the task has been successfully executed.
-
-        This may have been a do-nothing operation (to preserve build
-        order), so we have to check the node's state before deciding
-        whether it was "built" or just "visited."
+        Called when the task has been successfully executed
+        and the Taskmaster instance doesn't want to call
+        the Node's callback methods.
         """
         for t in self.targets:
             if t.get_state() == SCons.Node.executing:
+                for side_effect in t.side_effects:
+                    side_effect.set_state(SCons.Node.no_state)
+                t.set_state(SCons.Node.executed)
+
+    def executed_with_callbacks(self):
+        """
+        Called when the task has been successfully executed and
+        the Taskmaster instance wants to call the Node's callback
+        methods.
+
+        This may have been a do-nothing operation (to preserve build
+        order), so we must check the node's state before deciding whether
+        it was "built", in which case we call the appropriate Node method.
+        In any event, we always call "visited()", which will handle any
+        post-visit actions that must take place regardless of whether
+        or not the target was an actual built target or a source Node.
+        """
+        for t in self.targets:
+            if t.get_state() == SCons.Node.executing:
+                for side_effect in t.side_effects:
+                    side_effect.set_state(SCons.Node.no_state)
                 t.set_state(SCons.Node.executed)
                 t.built()
-            else:
-                t.visited()
+            t.visited()
+
+    executed = executed_with_callbacks
 
     def failed(self):
         """
@@ -275,9 +295,10 @@ class Task:
         """
         self.out_of_date = []
         for t in self.targets:
-            t.disambiguate()
             try:
-                is_up_to_date = not t.always_build and t.current()
+                t.disambiguate().make_ready()
+                is_up_to_date = not t.has_builder() or \
+                                (not t.always_build and t.is_up_to_date())
             except EnvironmentError, e:
                 raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
             if is_up_to_date:
@@ -308,12 +329,14 @@ class Task:
         # back on the candidates list if the Node is also a waiting
         # parent.
 
+        targets = set(self.targets)
+
         parents = {}
-        for t in self.targets:
+        for t in targets:
             for p in t.waiting_parents.keys():
                 parents[p] = parents.get(p, 0) + 1
 
-        for t in self.targets:
+        for t in targets:
             for s in t.side_effects:
                 if s.get_state() == SCons.Node.executing:
                     s.set_state(SCons.Node.no_state)
@@ -329,7 +352,7 @@ class Task:
             if p.ref_count == 0:
                 self.tm.candidates.append(p)
 
-        for t in self.targets:
+        for t in targets:
             t.postprocess()
 
     # Exception handling subsystem.
@@ -403,8 +426,9 @@ class Taskmaster:
     """
 
     def __init__(self, targets=[], tasker=Task, order=None, trace=None):
-        self.top_targets = targets[:]
-        self.top_targets.reverse()
+        self.original_top = targets
+        self.top_targets_left = targets[:]
+        self.top_targets_left.reverse()
         self.candidates = []
         self.tasker = tasker
         if not order:
@@ -438,7 +462,7 @@ class Taskmaster:
         except IndexError:
             pass
         try:
-            node = self.top_targets.pop()
+            node = self.top_targets_left.pop()
         except IndexError:
             return None
         self.current_top = node
@@ -536,16 +560,14 @@ class Taskmaster:
                 c.sort()
                 T.write(' children:\n    %s\n   ' % c)
 
-            childinfo = map(lambda N: (N.get_state(),
-                                       N.is_derived() or N.is_pseudo_derived(),
-                                       N), children)
+            childstate = map(lambda N: (N, N.get_state()), children)
 
             # Skip this node if any of its children have failed.  This
             # catches the case where we're descending a top-level target
             # and one of our children failed while trying to be built
             # by a *previous* descent of an earlier top-level target.
-            failed_children = filter(lambda I: I[0] == SCons.Node.failed,
-                                     childinfo)
+            failed_children = filter(lambda I: I[1] == SCons.Node.failed,
+                                     childstate)
             if failed_children:
                 node.set_state(SCons.Node.failed)
                 if S: S.child_failed = S.child_failed + 1
@@ -556,76 +578,48 @@ class Taskmaster:
                 continue
 
             # Detect dependency cycles:
-            pending_nodes = filter(lambda I: I[0] == SCons.Node.pending, childinfo)
+            pending_nodes = filter(lambda I: I[1] == SCons.Node.pending, childstate)
             if pending_nodes:
                 for p in pending_nodes:
-                    cycle = find_cycle([p[2], node])
+                    cycle = find_cycle([p[0], node])
                     if cycle:
                         desc = "Dependency cycle: " + string.join(map(str, cycle), " -> ")
                         if T: T.write(' dependency cycle\n')
                         raise SCons.Errors.UserError, desc
 
-            # Select all of the dependencies that are derived targets
-            # (that is, children who have builders or are side effects).
-            derived_children = filter(lambda I: I[1], childinfo)
-
-            not_started = filter(lambda I: not I[0], derived_children)
-            if not_started:
-                not_started = map(lambda I: I[2], not_started)
-
-                # We're waiting on one more derived targets that have
-                # not yet started building.  Add this node to the
-                # waiting_parents lists of those derived files so that
-                # when they've finished building, our implicit dependency
-                # list will get cleared and we'll re-scan the newly-built
-                # file(s) for updated implicit dependencies.
-                added = map(lambda n, P=node: n.add_to_waiting_parents(P), not_started)
-                node.ref_count = node.ref_count + reduce(operator.add, added, 0)
-
-                # Now we add these derived targets to the candidates
-                # list so they can be examined and built.  We have to
-                # add ourselves back to the list first, though, so we get
-                # a chance to re-scan and build after the dependencies.
-                #
-                # We reverse the order in which the children are added
-                # to the candidates stack so the order in which they're
-                # popped matches the order in which they show up in our
-                # children's list.  This is more logical / efficient for
-                # builders with multiple targets, since the "primary"
-                # target will be examined first.
-                self.candidates.append(node)
-                not_started.reverse()
-                self.candidates.extend(self.order(not_started))
-
-                if S: S.not_started = S.not_started + 1
-                if T:
-                    c = map(str, not_started)
-                    c.sort()
-                    T.write(' waiting on unstarted children:\n    %s\n' % c)
-                continue
-
-            not_built = filter(lambda I: I[0] <= SCons.Node.executing, derived_children)
+            not_built = filter(lambda I: I[1] <= SCons.Node.executing, childstate)
             if not_built:
-                not_built = map(lambda I: I[2], not_built)
-
                 # We're waiting on one or more derived targets that have
-                # started building but not yet finished.  Add this node
-                # to the waiting parents lists of those derived files
-                # so that when they've finished building, our implicit
-                # dependency list will get cleared and we'll re-scan the
-                # newly-built file(s) for updated implicit dependencies.
-                added = map(lambda n, P=node: n.add_to_waiting_parents(P), not_built)
-                node.ref_count = node.ref_count + reduce(operator.add, added, 0)
+                # not yet finished building.
+
+                not_visited = filter(lambda I: not I[1], not_built)
+                if not_visited:
+                    # Some of them haven't even been visited yet.
+                    # Add them to the list so that on some next pass
+                    # we can take a stab at evaluating them (or
+                    # their children).
+                    not_visited = map(lambda I: I[0], not_visited)
+                    not_visited.reverse()
+                    self.candidates.extend(self.order(not_visited))
+
+                n_b_nodes = map(lambda I: I[0], not_built)
+
+                # Add this node to the waiting parents lists of anything
+                # we're waiting on, with a reference count so we can be
+                # put back on the list for re-evaluation when they've
+                # all finished.
+                map(lambda n, P=node: n.add_to_waiting_parents(P), n_b_nodes)
+                node.ref_count = len(set(n_b_nodes))
 
                 if S: S.not_built = S.not_built + 1
                 if T:
-                    c = map(str, not_built)
+                    c = map(str, n_b_nodes)
                     c.sort()
                     T.write(' waiting on unfinished children:\n    %s\n' % c)
                 continue
 
-            # Skip this node if it has side-effects that are currently being
-            # built themselves or waiting for something else being built.
+            # Skip this node if it has side-effects that are
+            # currently being built:
             side_effects = filter(lambda N:
                                   N.get_state() == SCons.Node.executing,
                                   node.side_effects)
@@ -660,7 +654,7 @@ class Taskmaster:
 
         tlist = node.get_executor().targets
 
-        task = self.tasker(self, tlist, node is self.current_top, node)
+        task = self.tasker(self, tlist, node in self.original_top, node)
         try:
             task.make_ready()
         except KeyboardInterrupt:

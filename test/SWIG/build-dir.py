@@ -37,6 +37,11 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+swig = test.where_is('swig')
+
+if not swig:
+    test.skip_test('Can not find installed "swig", skipping test.\n')
+
 # swig-python expects specific filenames.
 # the platform specific suffix won't necessarily work.
 if sys.platform == 'win32':
@@ -129,9 +134,6 @@ public:
   %extend
   {
     const char* __str__() { return "linalg.Vector()"; }
-    int __len__() { return $self->size(); }
-    double __getitem__(int key) { return $self->operator[](key); }
-    void __setitem__(int key, double value) { $self->operator[](key) = value; }
     
     %pythoncode %{
     def __iter__(self):

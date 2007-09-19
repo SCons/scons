@@ -359,14 +359,21 @@ import SCons.Taskmaster
 import SCons.Node
 import time
 
+class DummyNodeInfo:
+    def update(self, obj):
+        pass
 
 class testnode (SCons.Node.Node):
     def __init__(self):
         SCons.Node.Node.__init__(self)
         self.expect_to_be = SCons.Node.executed
+        self.ninfo = DummyNodeInfo()
 
 class goodnode (testnode):
-    pass
+    def __init__(self):
+        SCons.Node.Node.__init__(self)
+        self.expect_to_be = SCons.Node.up_to_date
+        self.ninfo = DummyNodeInfo()
 
 class slowgoodnode (goodnode):
     def prepare(self):
@@ -469,8 +476,9 @@ class _SConsTaskTest(unittest.TestCase):
         # mislabelling of results).
 
         for N in testnodes:
-            self.failUnless(N.get_state() in [SCons.Node.no_state, N.expect_to_be],
-                            "node ran but got unexpected result")
+            state = N.get_state()
+            self.failUnless(state in [SCons.Node.no_state, N.expect_to_be],
+                            "Node %s got unexpected result: %s" % (N, state))
 
         self.failUnless(filter(lambda N: N.get_state(), testnodes),
                         "no nodes ran at all.")

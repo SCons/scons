@@ -1,9 +1,5 @@
-"""SCons.Sig
 
-The Signature package for the scons software construction utility.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -29,25 +25,46 @@ The Signature package for the scons software construction utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-try:
-    import MD5
-    default_module = MD5
-except ImportError:
-    import TimeStamp
-    default_module = TimeStamp
+import os
+import os.path
 
-class Calculator:
-    """
-    Encapsulates signature calculations and .sconsign file generating
-    for the build engine.
-    """
+import TestSConsign
 
-    def __init__(self, module=default_module):
-        """
-        Initialize the calculator.
+test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
-        module - the signature module to use for signature calculations
-        """
-        self.module = module
 
-default_calc = Calculator()
+test.write('SConstruct', """\
+def build(env, target, source):
+    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+B = Builder(action = build)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'f1.out', source = 'f1.in')
+env.B(target = 'f2.out', source = 'f2.in')
+SourceSignatures('timestamp')
+""")
+
+test.write('f1.in', "f1.in\n")
+test.write('f2.in', "f2.in\n")
+
+test.run(arguments = '.')
+
+
+
+expect = r"""=== .:
+SConstruct: None \d+ \d+
+f1.in: None \d+ \d+
+f1.out: \S+ \d+ \d+
+        f1.in: None \d+ \d+
+        \S+ \[build\(target, source, env\)\]
+f2.in: None \d+ \d+
+f2.out: \S+ \d+ \d+
+        f2.in: None \d+ \d+
+        \S+ \[build\(target, source, env\)\]
+"""
+
+test.run_sconsign(arguments = test.workpath('.sconsign'),
+                  stdout = expect)
+
+
+
+test.pass_test()

@@ -32,9 +32,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 #    However, this should *not* occur during a dryrun (-n).  When not
 #    performed during a dryrun, this should not affect buildability.
 # 2) Calling is_derived() should not affect buildability.
-# 3) Calling is_pseudo_derived() may cause the sbuilder to be set, and
-#    it may caues the builder to be set as well, but it should not
-#    adversely affect buildability.
 
 import sys
 import TestSCons
@@ -73,13 +70,11 @@ SConscript('bld/SConscript', ['Nodes'])
 if %(_E)s:
   import os
   derived = map(lambda N: N.is_derived(), Nodes)
-  p_derived = map(lambda N: N.is_pseudo_derived(), Nodes)
   real1 = map(lambda N: os.path.exists(str(N)), Nodes)
   exists = map(lambda N: N.exists(), Nodes)
   real2 = map(lambda N: os.path.exists(str(N)), Nodes)
-  for N,D,P,R,E,F in map(None, Nodes, derived, p_derived,
-                               real1, exists, real2):
-    print '%%s: %%s %%s %%s %%s %%s'%%(N,D,P,R,E,F)
+  for N,D,R,E,F in map(None, Nodes, derived, real1, exists, real2):
+    print '%%s: %%s %%s %%s %%s'%%(N,D,R,E,F)
 foo.SharedLibrary(target = 'foo', source = 'foo%(_obj)s')
 bar.SharedLibrary(target = 'bar', source = 'bar%(_obj)s')
 
@@ -147,7 +142,6 @@ def exists_test(node):
     via_node = node.exists()            # side effect causes copy from src
     after = os.path.exists(str(node))
     node.is_derived()
-    node.is_pseudo_derived()
     import SCons.Script
     if GetOption('no_exec'):
         if (before,via_node,after) != (False,False,False):

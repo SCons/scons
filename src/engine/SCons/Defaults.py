@@ -49,7 +49,6 @@ import SCons.Builder
 import SCons.CacheDir
 import SCons.Environment
 import SCons.PathList
-import SCons.Sig
 import SCons.Subst
 import SCons.Tool
 
@@ -61,12 +60,40 @@ _default_env = None
 
 # Lazily instantiate the default environment so the overhead of creating
 # it doesn't apply when it's not needed.
+def _fetch_DefaultEnvironment(*args, **kw):
+    """
+    Returns the already-created default construction environment.
+    """
+    global _default_env
+    return _default_env
+
 def DefaultEnvironment(*args, **kw):
+    """
+    Initial public entry point for creating the default construction
+    Environment.
+
+    After creating the environment, we overwrite our name
+    (DefaultEnvironment) with the _fetch_DefaultEnvironment() function,
+    which more efficiently returns the initialized default construction
+    environment without checking for its existence.
+
+    (This function still exists with its _default_check because someone
+    else (*cough* Script/__init__.py *cough*) may keep a reference
+    to this function.  So we can't use the fully functional idiom of
+    having the name originally be a something that *only* creates the
+    construction environment and then overwrites the name.)
+    """
     global _default_env
     if not _default_env:
+        import SCons.Util
         _default_env = apply(SCons.Environment.Environment, args, kw)
-        _default_env._build_signature = 1
-        _default_env._calc_module = SCons.Sig.default_module
+        _default_env.TargetSignatures('source')
+        if SCons.Util.md5:
+            _default_env.SourceSignatures('MD5')
+        else:
+            _default_env.SourceSignatures('timestamp')
+        global DefaultEnvironment
+        DefaultEnvironment = _fetch_DefaultEnvironment
         _default_env._CacheDir = SCons.CacheDir.Null()
     return _default_env
 
@@ -106,9 +133,9 @@ LaTeXScan = SCons.Tool.LaTeXScanner
 ObjSourceScan = SCons.Tool.SourceFileScanner
 ProgScan = SCons.Tool.ProgramScanner
 
-# This isn't really a tool scanner, so it doesn't quite belong with
-# the rest of those in Tool/__init__.py, but I'm not sure where else it
-# should go.  Leave it here for now.
+# These aren't really tool scanners, so they don't quite belong with
+# the rest of those in Tool/__init__.py, but I'm not sure where else
+# they should go.  Leave them here for now.
 import SCons.Scanner.Dir
 DirScanner = SCons.Scanner.Dir.DirScanner()
 DirEntryScanner = SCons.Scanner.Dir.DirEntryScanner()

@@ -29,12 +29,13 @@ Writing and reading information to the .sconsign file or files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import cPickle
 import os
 import os.path
 
 import SCons.dblite
-import SCons.Sig
 import SCons.Warnings
 
 def corrupt_dblite_warning(filename):
@@ -107,6 +108,24 @@ def write():
         else:
             syncmethod()
 
+class SConsignEntry:
+    """
+    Wrapper class for the generic entry in a .sconsign file.
+    The Node subclass populates it with attributes as it pleases.
+
+    XXX As coded below, we do expect a '.binfo' attribute to be added,
+    but we'll probably generalize this in the next refactorings.
+    """
+    current_version_id = 1
+    def __init__(self):
+        # Create an object attribute from the class attribute so it ends up
+        # in the pickled data in the .sconsign file.
+        _version_id = self.current_version_id
+    def convert_to_sconsign(self):
+        self.binfo.convert_to_sconsign()
+    def convert_from_sconsign(self, dir, name):
+        self.binfo.convert_from_sconsign(dir, name)
+
 class Base:
     """
     This is the controlling class for the signatures for the collection of
@@ -116,14 +135,10 @@ class Base:
     methods for fetching and storing the individual bits of information
     that make up signature entry.
     """
-    def __init__(self, module=None):
-        """
-        module - the signature module being used
-        """
-
-        self.module = module or SCons.Sig.default_calc.module
+    def __init__(self):
         self.entries = {}
-        self.dirty = 0
+        self.dirty = False
+        self.to_be_merged = {}
 
     def get_entry(self, filename):
         """
@@ -136,19 +151,43 @@ class Base:
         Set the entry.
         """
         self.entries[filename] = obj
-        self.dirty = 1
+        self.dirty = True
 
     def do_not_set_entry(self, filename, obj):
         pass
+
+    def store_info(self, filename, node):
+        entry = node.get_stored_info()
+        entry.binfo.merge(node.get_binfo())
+        self.to_be_merged[filename] = node
+        self.dirty = True
+
+    def do_not_store_info(self, filename, node):
+        pass
+
+    def merge(self):
+        for key, node in self.to_be_merged.items():
+            entry = node.get_stored_info()
+            try:
+                ninfo = entry.ninfo
+            except AttributeError:
+                # This happens with SConf Nodes, because the configuration
+                # subsystem takes direct control over how the build decision
+                # is made and its information stored.
+                pass
+            else:
+                ninfo.merge(node.get_ninfo())
+            self.entries[key] = entry
+        self.to_be_merged = {}
 
 class DB(Base):
     """
     A Base subclass that reads and writes signature information
     from a global .sconsign.db* file--the actual file suffix is
-    determined by the specified database module.
+    determined by the database module.
     """
-    def __init__(self, dir, module=None):
-        Base.__init__(self, module)
+    def __init__(self, dir):
+        Base.__init__(self)
 
         self.dir = dir
 
@@ -182,6 +221,7 @@ class DB(Base):
             # a file there.  Don't actually set any entry info, so we
             # won't try to write to that .sconsign.dblite file.
             self.set_entry = self.do_not_set_entry
+            self.store_info = self.do_not_store_info
 
         global sig_files
         sig_files.append(self)
@@ -189,6 +229,8 @@ class DB(Base):
     def write(self, sync=1):
         if not self.dirty:
             return
+
+        self.merge()
 
         db, mode = Get_DataBase(self.dir)
 
@@ -211,27 +253,31 @@ class DB(Base):
                 syncmethod()
 
 class Dir(Base):
-    def __init__(self, fp=None, module=None):
+    def __init__(self, fp=None, dir=None):
         """
         fp - file pointer to read entries from
-        module - the signature module being used
         """
-        Base.__init__(self, module)
+        Base.__init__(self)
 
-        if fp:
-            self.entries = cPickle.load(fp)
-            if type(self.entries) is not type({}):
-                self.entries = {}
-                raise TypeError
+        if not fp:
+            return
+
+        self.entries = cPickle.load(fp)
+        if type(self.entries) is not type({}):
+            self.entries = {}
+            raise TypeError
+
+        if dir:
+            for key, entry in self.entries.items():
+                entry.convert_from_sconsign(dir, key)
 
 class DirFile(Dir):
     """
     Encapsulates reading and writing a per-directory .sconsign file.
     """
-    def __init__(self, dir, module=None):
+    def __init__(self, dir):
         """
         dir - the directory for the file
-        module - the signature module being used
         """
 
         self.dir = dir
@@ -243,7 +289,7 @@ class DirFile(Dir):
             fp = None
 
         try:
-            Dir.__init__(self, fp, module)
+            Dir.__init__(self, fp, dir)
         except KeyboardInterrupt:
             raise
         except:
@@ -252,15 +298,6 @@ class DirFile(Dir):
 
         global sig_files
         sig_files.append(self)
-
-    def get_entry(self, filename):
-        """
-        Fetch the specified entry attribute, converting from .sconsign
-        format to in-memory format.
-        """
-        entry = Dir.get_entry(self, filename)
-        entry.convert_from_sconsign(self.dir, filename)
-        return entry
 
     def write(self, sync=1):
         """
@@ -275,48 +312,52 @@ class DirFile(Dir):
         to the .sconsign file.  Either way, always try to remove
         the temporary file at the end.
         """
-        if self.dirty:
-            temp = os.path.join(self.dir.path, '.scons%d' % os.getpid())
+        if not self.dirty:
+            return
+
+        self.merge()
+
+        temp = os.path.join(self.dir.path, '.scons%d' % os.getpid())
+        try:
+            file = open(temp, 'wb')
+            fname = temp
+        except IOError:
             try:
-                file = open(temp, 'wb')
-                fname = temp
+                file = open(self.sconsign, 'wb')
+                fname = self.sconsign
             except IOError:
-                try:
-                    file = open(self.sconsign, 'wb')
-                    fname = self.sconsign
-                except IOError:
-                    return
-            for key, entry in self.entries.items():
-                entry.convert_to_sconsign()
-            cPickle.dump(self.entries, file, 1)
-            file.close()
-            if fname != self.sconsign:
-                try:
-                    mode = os.stat(self.sconsign)[0]
-                    os.chmod(self.sconsign, 0666)
-                    os.unlink(self.sconsign)
-                except (IOError, OSError):
-                    # Try to carry on in the face of either OSError
-                    # (things like permission issues) or IOError (disk
-                    # or network issues).  If there's a really dangerous
-                    # issue, it should get re-raised by the calls below.
-                    pass
-                try:
-                    os.rename(fname, self.sconsign)
-                except OSError:
-                    # An OSError failure to rename may indicate something
-                    # like the directory has no write permission, but
-                    # the .sconsign file itself might still be writable,
-                    # so try writing on top of it directly.  An IOError
-                    # here, or in any of the following calls, would get
-                    # raised, indicating something like a potentially
-                    # serious disk or network issue.
-                    open(self.sconsign, 'wb').write(open(fname, 'rb').read())
-                    os.chmod(self.sconsign, mode)
+                return
+        for key, entry in self.entries.items():
+            entry.convert_to_sconsign()
+        cPickle.dump(self.entries, file, 1)
+        file.close()
+        if fname != self.sconsign:
             try:
-                os.unlink(temp)
+                mode = os.stat(self.sconsign)[0]
+                os.chmod(self.sconsign, 0666)
+                os.unlink(self.sconsign)
             except (IOError, OSError):
+                # Try to carry on in the face of either OSError
+                # (things like permission issues) or IOError (disk
+                # or network issues).  If there's a really dangerous
+                # issue, it should get re-raised by the calls below.
                 pass
+            try:
+                os.rename(fname, self.sconsign)
+            except OSError:
+                # An OSError failure to rename may indicate something
+                # like the directory has no write permission, but
+                # the .sconsign file itself might still be writable,
+                # so try writing on top of it directly.  An IOError
+                # here, or in any of the following calls, would get
+                # raised, indicating something like a potentially
+                # serious disk or network issue.
+                open(self.sconsign, 'wb').write(open(fname, 'rb').read())
+                os.chmod(self.sconsign, mode)
+        try:
+            os.unlink(temp)
+        except (IOError, OSError):
+            pass
 
 ForDirectory = DB
 

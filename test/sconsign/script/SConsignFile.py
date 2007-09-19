@@ -29,11 +29,29 @@ Verify that the sconsign script works with files generated when
 using the signatures in an SConsignFile().
 """
 
+import os.path
+
 import TestSConsign
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
+CC = test.detect('CC', norm=1)
+CC_dir, CC_file = os.path.split(CC)
+LINK = test.detect('LINK', norm=1)
+if LINK is None: LINK = CC
+
 test.subdir('sub1', 'sub2')
+
+# Note:  We don't use os.path.join() representations of the file names
+# in the expected output because paths in the .sconsign files are
+# canonicalized to use / as the separator.
+
+sub1_hello_c    = 'sub1/hello.c'
+sub1_hello_obj  = 'sub1/hello.obj'
+sub2_hello_c    = 'sub2/hello.c'
+sub2_hello_obj  = 'sub2/hello.obj'
+sub2_inc1_h     = 'sub2/inc1.h'
+sub2_inc2_h     = 'sub2/inc2.h'
 
 test.write(['SConstruct'], """\
 SConsignFile()
@@ -79,182 +97,328 @@ test.write(['sub2', 'inc2.h'], r"""\
 
 test.run(arguments = '--implicit-cache .')
 
+sig_re = r'[0-9a-fA-F]{32}'
+
 test.run_sconsign(arguments = ".sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+SConstruct: None \d+ \d+
+=== %(CC_dir)s:
+%(CC_file)s: %(sig_re)s \d+ \d+
 === sub1:
-hello.exe: \S+ None \d+ \d+
-        hello.obj: \S+
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
+hello.c: %(sig_re)s \d+ \d+
+hello.exe: %(sig_re)s \d+ \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
+        %(LINK)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
 === sub2:
-hello.exe: \S+ None \d+ \d+
-        hello.obj: \S+
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
-        inc1.h: \S+
-        inc2.h: \S+
-""")
+hello.c: %(sig_re)s \d+ \d+
+hello.exe: %(sig_re)s \d+ \d+
+        %(sub2_hello_obj)s: %(sig_re)s \d+ \d+
+        %(LINK)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub2_hello_c)s: %(sig_re)s \d+ \d+
+        %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
+        %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+inc1.h: %(sig_re)s \d+ \d+
+inc2.h: %(sig_re)s \d+ \d+
+""" % locals())
 
 test.run_sconsign(arguments = "--raw .sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+SConstruct: {'csig': None, 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+=== %(CC_dir)s:
+%(CC_file)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
 === sub1:
-hello.exe: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
-        hello.obj: \S+
-hello.obj: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
-        hello.c: \S+
+hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+hello.exe: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sub1_hello_obj)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(LINK)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sig_re)s \[.*\]
+hello.obj: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sub1_hello_c)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(CC)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sig_re)s \[.*\]
 === sub2:
-hello.exe: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
-        hello.obj: \S+
-hello.obj: {'bsig': '\S+', 'size': \d+L?, 'timestamp': \d+}
-        hello.c: \S+
-        inc1.h: \S+
-        inc2.h: \S+
-""")
+hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+hello.exe: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sub2_hello_obj)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(LINK)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sig_re)s \[.*\]
+hello.obj: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sub2_hello_c)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sub2_inc1_h)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sub2_inc2_h)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(CC)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        %(sig_re)s \[.*\]
+inc1.h: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+inc2.h: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+""" % locals())
 
-test.run_sconsign(arguments = "-v .sconsign",
-         stdout = """\
+expect = r"""=== .:
+SConstruct:
+    csig: None
+    timestamp: \d+
+    size: \d+
+=== %(CC_dir)s:
+%(CC_file)s:
+    csig: %(sig_re)s
+    timestamp: \d+
+    size: \d+
 === sub1:
+hello.c:
+    csig: %(sig_re)s
+    timestamp: \d+
+    size: \d+
 hello.exe:
-    bsig: \S+
-    csig: None
+    csig: %(sig_re)s
     timestamp: \d+
     size: \d+
     implicit:
-        hello.obj: \S+
+        %(sub1_hello_obj)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+        %(LINK)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+    action: %(sig_re)s \[.*\]
 hello.obj:
-    bsig: \S+
-    csig: None
+    csig: %(sig_re)s
     timestamp: \d+
     size: \d+
     implicit:
-        hello.c: \S+
+        %(sub1_hello_c)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+        %(CC)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+    action: %(sig_re)s \[.*\]
 === sub2:
+hello.c:
+    csig: %(sig_re)s
+    timestamp: \d+
+    size: \d+
 hello.exe:
-    bsig: \S+
-    csig: None
+    csig: %(sig_re)s
     timestamp: \d+
     size: \d+
     implicit:
-        hello.obj: \S+
+        %(sub2_hello_obj)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+        %(LINK)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+    action: %(sig_re)s \[.*\]
 hello.obj:
-    bsig: \S+
-    csig: None
+    csig: %(sig_re)s
     timestamp: \d+
     size: \d+
     implicit:
-        hello.c: \S+
-        inc1.h: \S+
-        inc2.h: \S+
-""")
+        %(sub2_hello_c)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+        %(sub2_inc1_h)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+        %(sub2_inc2_h)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+        %(CC)s:
+            csig: %(sig_re)s
+            timestamp: \d+
+            size: \d+
+    action: %(sig_re)s \[.*\]
+inc1.h:
+    csig: %(sig_re)s
+    timestamp: \d+
+    size: \d+
+inc2.h:
+    csig: %(sig_re)s
+    timestamp: \d+
+    size: \d+
+""" % locals()
 
-test.run_sconsign(arguments = "-b -v .sconsign",
-         stdout = """\
-=== sub1:
-hello.exe:
-    bsig: \S+
-hello.obj:
-    bsig: \S+
-=== sub2:
-hello.exe:
-    bsig: \S+
-hello.obj:
-    bsig: \S+
-""")
+test.run_sconsign(arguments = "-v .sconsign", stdout=expect)
 
 test.run_sconsign(arguments = "-c -v .sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+SConstruct:
+    csig: None
+=== %(CC_dir)s:
+%(CC_file)s:
+    csig: %(sig_re)s
 === sub1:
+hello.c:
+    csig: %(sig_re)s
 hello.exe:
-    csig: None
+    csig: %(sig_re)s
 hello.obj:
-    csig: None
+    csig: %(sig_re)s
 === sub2:
+hello.c:
+    csig: %(sig_re)s
 hello.exe:
-    csig: None
+    csig: %(sig_re)s
 hello.obj:
-    csig: None
-""")
+    csig: %(sig_re)s
+inc1.h:
+    csig: %(sig_re)s
+inc2.h:
+    csig: %(sig_re)s
+""" % locals())
 
 test.run_sconsign(arguments = "-s -v .sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+SConstruct:
+    size: \d+
+=== %(CC_dir)s:
+%(CC_file)s:
+    size: \d+
 === sub1:
+hello.c:
+    size: \d+
 hello.exe:
     size: \d+
 hello.obj:
     size: \d+
 === sub2:
+hello.c:
+    size: \d+
 hello.exe:
     size: \d+
 hello.obj:
     size: \d+
-""")
+inc1.h:
+    size: \d+
+inc2.h:
+    size: \d+
+""" % locals())
 
 test.run_sconsign(arguments = "-t -v .sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+SConstruct:
+    timestamp: \d+
+=== %(CC_dir)s:
+%(CC_file)s:
+    timestamp: \d+
 === sub1:
+hello.c:
+    timestamp: \d+
 hello.exe:
     timestamp: \d+
 hello.obj:
     timestamp: \d+
 === sub2:
+hello.c:
+    timestamp: \d+
 hello.exe:
     timestamp: \d+
 hello.obj:
     timestamp: \d+
-""")
+inc1.h:
+    timestamp: \d+
+inc2.h:
+    timestamp: \d+
+""" % locals())
 
 test.run_sconsign(arguments = "-e hello.obj .sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+=== %(CC_dir)s:
 === sub1:
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
 === sub2:
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
-        inc1.h: \S+
-        inc2.h: \S+
-""")
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub2_hello_c)s: %(sig_re)s \d+ \d+
+        %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
+        %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+""" % locals(),
+        stderr = r"""sconsign: no entry `hello.obj' in `\.'
+sconsign: no entry `hello.obj' in `%(CC_dir)s'
+""" % locals())
 
 test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj .sconsign",
-         stdout = """\
+         stdout = r"""=== .:
+=== %(CC_dir)s:
 === sub1:
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
-hello.exe: \S+ None \d+ \d+
-        hello.obj: \S+
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+hello.exe: %(sig_re)s \d+ \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
+        %(LINK)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
 === sub2:
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
-        inc1.h: \S+
-        inc2.h: \S+
-hello.exe: \S+ None \d+ \d+
-        hello.obj: \S+
-hello.obj: \S+ None \d+ \d+
-        hello.c: \S+
-        inc1.h: \S+
-        inc2.h: \S+
-""")
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub2_hello_c)s: %(sig_re)s \d+ \d+
+        %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
+        %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+hello.exe: %(sig_re)s \d+ \d+
+        %(sub2_hello_obj)s: %(sig_re)s \d+ \d+
+        %(LINK)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub2_hello_c)s: %(sig_re)s \d+ \d+
+        %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
+        %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s \d+ \d+
+        %(sig_re)s \[.*\]
+""" % locals(),
+        stderr = r"""sconsign: no entry `hello.obj' in `\.'
+sconsign: no entry `hello.exe' in `\.'
+sconsign: no entry `hello.obj' in `\.'
+sconsign: no entry `hello.obj' in `%(CC_dir)s'
+sconsign: no entry `hello.exe' in `%(CC_dir)s'
+sconsign: no entry `hello.obj' in `%(CC_dir)s'
+""" % locals())
 
 #test.run_sconsign(arguments = "-i -v .sconsign",
-#         stdout = """\
-#=== sub1:
+#         stdout = r"""=== sub1:
 #hello.exe:
 #    implicit:
-#        hello.obj: \S+
+#        hello.obj: %(sig_re)s
 #hello.obj:
 #    implicit:
-#        hello.c: \S+
+#        hello.c: %(sig_re)s
 #=== sub2:
 #hello.exe:
 #    implicit:
-#        hello.obj: \S+
+#        hello.obj: %(sig_re)s
 #hello.obj:
 #    implicit:
-#        hello.c: \S+
-#        inc1.h: \S+
-#        inc2.h: \S+
-#""")
+#        hello.c: %(sig_re)s
+#        inc1.h: %(sig_re)s
+#        inc2.h: %(sig_re)s
+#inc1.h: %(sig_re)s
+#inc2.h: %(sig_re)s
+#""" % locals())
 
 test.pass_test()

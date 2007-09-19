@@ -32,10 +32,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Node
 
 class ValueNodeInfo(SCons.Node.NodeInfoBase):
-    pass
+    current_version_id = 1
+
+    field_list = ['csig']
+
+    def str_to_node(self, s):
+        return Value(s)
 
 class ValueBuildInfo(SCons.Node.BuildInfoBase):
-    pass
+    current_version_id = 1
 
 class Value(SCons.Node.Node):
     """A class for Python variables, typically passed on the command line 
@@ -54,11 +59,14 @@ class Value(SCons.Node.Node):
     def __str__(self):
         return repr(self.value)
 
+    def make_ready(self):
+        self.get_csig()
+
     def build(self, **kw):
         if not hasattr(self, 'built_value'):
             apply (SCons.Node.Node.build, (self,), kw)
 
-    current = SCons.Node.Node.children_are_up_to_date
+    is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
     def is_under(self, dir):
         # Make Value nodes get built regardless of 
@@ -88,17 +96,21 @@ class Value(SCons.Node.Node):
             contents = contents + kid.get_contents()
         return contents
 
+    def changed_since_last_build(self, target, prev_ni):
+        cur_csig = self.get_csig()
+        try:
+            return cur_csig != prev_ni.csig
+        except AttributeError:
+            return 1
+
     def get_csig(self, calc=None):
         """Because we're a Python value node and don't have a real
         timestamp, we get to ignore the calculator and just use the
         value contents."""
         try:
-            binfo = self.binfo
+            return self.ninfo.csig
         except AttributeError:
-            binfo = self.binfo = self.new_binfo()
-        try:
-            return binfo.ninfo.csig
-        except AttributeError:
-            binfo.ninfo.csig = self.get_contents()
-            self.store_info(binfo)
-            return binfo.ninfo.csig
+            pass
+        contents = self.get_contents()
+        self.get_ninfo().csig = contents
+        return contents

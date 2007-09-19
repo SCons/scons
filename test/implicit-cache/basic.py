@@ -41,7 +41,13 @@ test = TestSCons.TestSCons()
 
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
+# Set TargetSignatures('build') because a lot of the test below expect
+# the old behavior of non-essential changes in .h files will propagate
+# and cause the executable file to be re-linked as well (even if the
+# object file was rebuilt to the exact same contents as last time).
+
 test.write('SConstruct', """
+TargetSignatures('build')
 env = Environment(CPPPATH = Split('inc2 include'))
 obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)

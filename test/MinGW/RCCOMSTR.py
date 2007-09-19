@@ -29,13 +29,15 @@ Test that the $RCCOMSTR construction variable allows you to customize
 the displayed string when rc is called.
 """
 
+import sys
 import TestSCons
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
+if sys.platform in ('irix6',):
+    test.skip_test("Skipping mingw test on non-Windows %s platform."%sys.platform)
 
 test.write('myrc.py', """
 import sys

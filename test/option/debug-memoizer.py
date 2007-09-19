@@ -69,7 +69,6 @@ expect = [
     "Base.stat()",
     "Dir.srcdir_list()",
     "File.exists()",
-    "FS._doLookup()",
     "Node._children_get()",
 ]
 

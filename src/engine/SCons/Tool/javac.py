@@ -133,20 +133,28 @@ JavaBuilder = SCons.Builder.Builder(action = JavaAction,
                     target_factory = SCons.Node.FS.Entry,
                     source_factory = SCons.Node.FS.Entry)
 
-def getClassPath(env,target, source, for_signature):
-    path = ""
-    if env.has_key('JAVACLASSPATH') and env['JAVACLASSPATH']:
-        path = SCons.Util.AppendPath(path, env['JAVACLASSPATH'])
-        return "-classpath %s" % (path)
-    else:
-        return ""
+class pathopt:
+    """
+    Callable object for generating javac-style path options from
+    a construction variable (e.g. -classpath, -sourcepath).
+    """
+    def __init__(self, opt, var, default=None):
+        self.opt = opt
+        self.var = var
+        self.default = default
 
-def getSourcePath(env,target, source, for_signature):
-    path = ""
-    if env.has_key('JAVASOURCEPATH') and env['JAVASOURCEPATH']:
-        path = SCons.Util.AppendPath(path, env['JAVASOURCEPATH'])
-    path = SCons.Util.AppendPath(path,['${TARGET.attributes.java_sourcedir}'])
-    return "-sourcepath %s" % (path)
+    def __call__(self, target, source, env, for_signature):
+        path = env[self.var]
+        if path and not SCons.Util.is_List(path):
+            path = [path]
+        if self.default:
+            path = path + [ env[self.default] ]
+        if path:
+            return [self.opt, string.join(path, os.pathsep)]
+            #return self.opt + " " + string.join(path, os.pathsep)
+        else:
+            return []
+            #return ""
 
 def Java(env, target, source, *args, **kw):
     """
@@ -195,16 +203,20 @@ def generate(env):
 
     env.AddMethod(Java)
 
-    env['JAVAC']            = 'javac'
-    env['JAVACFLAGS']       = SCons.Util.CLVar('')
-    env['JAVACLASSPATH']    = []
-    env['JAVASOURCEPATH']   = []
-    env['_JAVACLASSPATH']   = getClassPath
-    env['_JAVASOURCEPATH']  = getSourcePath
-    env['_JAVACCOM']        = '$JAVAC $JAVACFLAGS $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
-    env['JAVACCOM']         = "${TEMPFILE('$_JAVACCOM')}"
-    env['JAVACLASSSUFFIX']  = '.class'
-    env['JAVASUFFIX']       = '.java'
+    env['JAVAC']                    = 'javac'
+    env['JAVACFLAGS']               = SCons.Util.CLVar('')
+    env['JAVABOOTCLASSPATH']        = []
+    env['JAVACLASSPATH']            = []
+    env['JAVASOURCEPATH']           = []
+    env['_javapathopt']             = pathopt
+    env['_JAVABOOTCLASSPATH']       = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
+    env['_JAVACLASSPATH']           = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
+    env['_JAVASOURCEPATH']          = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
+    env['_JAVASOURCEPATHDEFAULT']   = '${TARGET.attributes.java_sourcedir}'
+    env['_JAVACCOM']                = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
+    env['JAVACCOM']                 = "${TEMPFILE('$_JAVACCOM')}"
+    env['JAVACLASSSUFFIX']          = '.class'
+    env['JAVASUFFIX']               = '.java'
 
 def exists(env):
     return 1

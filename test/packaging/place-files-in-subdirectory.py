@@ -38,7 +38,7 @@ test = TestSCons.TestSCons()
 tar = test.detect('TAR', 'tar')
 
 if not tar:
-    test.skipt_test('tar not found, skipping test\n')
+    test.skip_test('tar not found, skipping test\n')
 
 #
 # TEST: subdir creation and file copying

@@ -2013,6 +2013,8 @@ specified
 .I function
 itself is used for the method name.
 
+Examples:
+
 .ES
 # Note that the first argument to the function to
 # be attached as a method must be the object through
@@ -2192,6 +2194,8 @@ can be called multiple times for the same
 alias to add additional targets to the alias,
 or additional actions to the list for this alias.
 
+Examples:
+
 .ES
 Alias('install')
 Alias('install', '/usr/bin')
@@ -2225,6 +2229,7 @@ If
 is called multiple times,
 each call completely overwrites the previous list
 of allowed exceptions.
+
 Example:
 
 .ES
@@ -2276,6 +2281,8 @@ are both coerced to lists,
 and the lists are added together.
 (See also the Prepend method, below.)
 
+Example:
+
 .ES
 env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
@@ -2298,6 +2305,7 @@ and
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
+
 Example:
 
 .ES
@@ -2325,6 +2333,8 @@ construction variable will
 .I not
 be added again to the list.
 
+Example:
+
 .ES
 env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 .EE
@@ -2340,6 +2350,8 @@ The returned Builder
 is intended to be passed to the
 .B SourceCode
 function.
+
+Example:
 
 .ES
 env.SourceCode('.', env.BitKeeper())
@@ -2666,6 +2678,7 @@ or by a
 .B \-
 (hyphen)
 to ignore the exit status of the external command.
+
 Examples:
 
 .ES
@@ -2700,7 +2713,9 @@ by using the
 .BR Dir ()
 or
 .BR env.Dir ()
-functions:
+functions.
+
+Examples:
 
 .ES
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE > $TARGET')
@@ -2733,6 +2748,8 @@ they are added to the returned copy,
 overwriting any existing values
 for the keywords.
 
+Example:
+
 .ES
 env2 = env.Clone()
 env3 = env.Clone(CCFLAGS = '-g')
@@ -2750,7 +2767,7 @@ env4 = env.Clone(tools = ['msvc', MyTool])
 .TP
 .RI env.Copy([ key = val ", ...])"
 A synonym for
-env.Clone().
+.BR env.Clone() .
 (This will probably be officially deprecated some day.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -2777,7 +2794,9 @@ from the repository path names,
 so that you only have to
 replicate part of the repository
 directory hierarchy in your
-local build directory:
+local build directory.
+
+Examples:
 
 .ES
 # Will fetch foo/bar/src.c
@@ -2791,6 +2810,163 @@ env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo'))
 # Will fetch src.c
 # from /usr/local/CVSROOT/foo/bar/src.c.
 env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI Decider( function )
+.TP
+.RI env.Decider( function )
+Specifies that all up-to-date decisions for
+targets built through this construction environment
+will be handled by the specified
+.IR function .
+The
+.I function
+can be one of the following strings
+that specify the type of decision function
+to be performed:
+
+.RS 10
+.B timestamp-newer
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's timestamp is newer than the target file's timestamp.
+This is the behavior of the classic Make utility,
+and
+.B make
+can be used a synonym for
+.BR timestamp-newer .
+
+.HP 6
+.B timestamp-match
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's timestamp is different than the
+timestamp recorded the last time the target was built.
+This provides behavior very similar to the classic Make utility
+(in particular, files are not opened up so that their
+contents can be checksummed)
+except that the target will also be rebuilt if a
+dependency file has been restored to a version with an
+.I earlier
+timestamp, such as can happen when restoring files from backup archives.
+
+.HP 6
+.B MD5
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's content has changed sine the last time
+the target was built,
+as determined be performing an MD5 checksum
+on the dependency's contents
+and comparing it to the checksum recorded the
+last time the target was built.
+.B content
+can be used as a synonym for
+.BR MD5 .
+
+.HP 6
+.B MD5-timestamp
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's content has changed sine the last time
+the target was built,
+except that dependencies with a timestamp that matches
+the last time the target was rebuilt will be
+assumed to be up-to-date and
+.I not
+rebuilt.
+This provides behavior very similar
+to the
+.B MD5
+behavior of always checksumming file contents,
+with an optimization of not checking
+the contents of files whose timestamps haven't changed.
+The drawback is that SCons will
+.I not
+detect if a file's content has changed
+but its timestamp is the same,
+as might happen in an automated script
+that runs a build,
+updates a file,
+and runs the build again,
+all within a single second.
+.RE
+
+Examples:
+
+.ES
+# Use exact timestamp matches by default.
+Decider('timestamp-match')
+
+# Use MD5 content signatures for any targets built
+# with the attached construction environment.
+env.Decider('content')
+.EE
+
+In addition to the above already-available functions,
+the
+.I function
+argument may be an actual Python function
+that takes the following three arguments:
+
+.IP dependency
+The Node (file) which
+should cause the
+.I target
+to be rebuilt
+if it has "changed" since the last tme
+.I target was built.
+
+.IP target
+The Node (file) being built.
+In the normal case,
+this is what should get rebuilt
+if the
+.I dependency
+has "changed."
+
+.IP prev_ni
+Stored information about the state of the
+.I dependency
+the last time the
+.I target
+was built.
+This can be consulted to match various
+file characteristics
+such as the timestamp,
+size, or content signature.
+
+The
+.I function
+should return a
+.B True
+(non-zero)
+value if the
+.I dependency
+has "changed" since the last time
+the
+.I target
+was built
+(indicating that the target
+.I should
+be rebuilt),
+and
+.B False
+(zero)
+otherwise
+(indicating that the target should
+.I not
+be rebuilt).
+Note that the decision can be made
+using whatever criteria are appopriate.
+Ignoring some or all of the function arguments
+is perfectly normal.
+
+Example:
+
+.ES
+def my_decider(dependency, target, prev_ni):
+    return not os.path.exists(str(target))
+
+env.Decider(my_decider)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -2815,6 +2991,7 @@ method, or as a list.
 will also accept the Node returned by any
 of a construction environment's
 builder methods.
+
 Examples:
 
 .ES
@@ -2863,6 +3040,8 @@ for cases where the dependency
 is not caught by a Scanner
 for the file.
 
+Example:
+
 .ES
 env.Depends('foo', 'other-input-file-for-foo')
 .EE
@@ -2876,6 +3055,8 @@ construction variables in the environment.
 If there are any variable names specified,
 only the specified construction
 variables are returned in the dictionary.
+
+Example:
 
 .ES
 dict = env.Dictionary()
@@ -2952,6 +3133,8 @@ This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual Python version is not late enough.
 
+Example:
+
 .ES
 EnsurePythonVersion(2,2)
 .EE
@@ -2971,6 +3154,8 @@ is specified.
 This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual SCons version is not late enough.
+
+Examples:
 
 .ES
 EnsureSConsVersion(0,14)
@@ -3042,6 +3227,7 @@ Multiple variable names can be passed to
 as separate arguments or as a list. A dictionary can be used to map
 variables to a different name when exported. Both local variables and
 global variables can be exported.
+
 Examples:
 
 .ES
@@ -3106,9 +3292,75 @@ may be a list of file names or a single file name. In addition to searching
 for files that exist in the filesytem, this function also searches for
 derived files that have not yet been built.
 
+Example:
+
 .ES
 foo = env.FindFile('foo', ['dir1', 'dir2'])
 .EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI FindInstalledFiles( )
+.TP
+.RI env.FindInstalledFiles( )
+Returns the list of targets setup by the
+.B Install()
+or
+.B InstallAs()
+builders.
+
+This function serves as a convenient method to select the contents of
+a Binary Package.
+
+Example:
+
+.ES
+Install( '/bin', [ 'executable_a', 'executable_b' ] )
+
+# will return the file node list
+# [ '/bin/executable_a', '/bin/executable_b' ]
+FindInstalledFiles()
+
+Install( '/lib', [ 'some_library' ] )
+
+# will return the file node list
+# [ '/bin/executable_a', '/bin/executable_b', '/lib/some_library' ]
+FindInstalledFiles()
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI FindSourceFiles( node = '"."' )
+.TP
+.RI env.FindSourceFiles( node = '"."' )
+
+Returns the list of nodes which serve as the source of the built files.
+It does so by inspecting the dependency tree starting at the optional
+argument
+.B node
+which defaults to the '"."'-node. It will then return all leafs of
+.B node.
+These are all children which have no further children.
+
+This function is a convenient method to select the contents of a Source
+Package.
+
+Example:
+
+.ES
+Program( 'src/main_a.c' )
+Program( 'src/main_b.c' )
+Program( 'main_c.c' )
+
+# returns ['main_c.c', 'src/main_a.c', 'SConstruct', 'src/main_b.c']
+FindSourceFiles()
+
+# returns ['src/main_b.c', 'src/main_a.c' ]
+FindSourceFiles( 'src' )
+.EE
+
+As you can see build support files (SConstruct in the above example)
+will also be returned by this function.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -3178,7 +3430,9 @@ the lists returned by calls to Builders;
 other Builders will automatically
 flatten lists specified as input,
 but direct Python manipulation of
-these lists does not:
+these lists does not.
+
+Examples:
 
 .ES
 foo = Object('foo.c')
@@ -3288,6 +3542,8 @@ The specified dependency file(s)
 will be ignored when deciding if
 the target file(s) need to be rebuilt.
 
+Examples:
+
 .ES
 env.Ignore('foo', 'foo.c')
 env.Ignore('bar', ['bar1.h', 'bar2.h'])
@@ -3314,6 +3570,7 @@ Multiple variable names can be passed to
 .BR Import ()
 as separate arguments or as a list. The variable "*" can be used
 to import all variables.
+
 Examples:
 
 .ES
@@ -3644,7 +3901,9 @@ from the Perforce source code management system.
 The returned Builder
 is intended to be passed to the
 .B SourceCode
-function:
+function.
+
+Example:
 
 .ES
 env.SourceCode('.', env.Perforce())
@@ -3673,7 +3932,9 @@ USERNAME.
 Returns a callable object
 that can be used to initialize
 a construction environment using the
-platform keyword of the Environment() method:
+platform keyword of the Environment() method.
+
+Example:
 
 .ES
 env = Environment(platform = Platform('win32'))
@@ -3707,6 +3968,124 @@ will work on Windows systems.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI Progress( callable ", [" interval ])
+.TP
+.RI Progress( string ", [" interval ", " file ", " overwrite ])
+.TP
+.RI Progress( list_of_strings ", [" interval ", " file ", " overwrite ])
+Allows SCons to show progress made during the build
+by displaying a string or calling a function while
+evaluating Nodes (e.g. files).
+
+If the first specified argument is a Python callable
+(a function or an object that has a
+.BR __call__ ()
+method),
+the function will be called
+once every
+.I interval
+times a Node is evaluated.
+The callable will be passed the evaluated Node
+as its only argument.
+(For future compatibility,
+it's a good idea to also add
+.B *args
+and
+.B **kw
+as arguments to your function or method.
+This will prevent the code from breaking
+if SCons ever changes the interface
+to call the function with additional arguments in the future.)
+
+An example of a simple custom progress function
+that prints a string containing the Node name
+every 10 Nodes:
+
+.ES
+def my_progress_function(node, *args, **kw):
+    print 'Evaluating node %s!' % node
+Progress(my_progress_function, interval=10)
+.EE
+.IP
+A more complicated example of a custom progress display object
+that prints a string containing a count
+every 100 evaluated Nodes.
+Note the use of
+.B \\\\r
+(a carriage return)
+at the end so that the string
+will overwrite itself on a display:
+
+.ES
+import sys
+class ProgressCounter:
+    count = 0
+    def __call__(self, node, *args, **kw):
+        self.count += 100
+        sys.stderr.write('Evaluated %s nodes\\r' % self.count)
+Progress(ProgressCounter(), interval=100)
+.EE
+.IP
+If the first argument
+.BR Progress ()
+is a string,
+the string will be displayed
+every
+.I interval
+evaluated Nodes.
+The default is to print the string on standard output;
+an alternate output stream
+may be specified with the
+.B file=
+argument.
+The following will print a series of dots
+on the error output,
+one dot for every 100 evaluated Nodes:
+
+.ES
+import sys
+Progress('.', interval=100, file=sys.stderr)
+.EE
+.IP
+If the string contains the verbatim substring
+.B $TARGET,
+it will be replaced with the Node.
+Note that, for performance reasons, this is
+.I not
+a regular SCons variable substition,
+so you can not use other variables
+or use curly braces.
+The following example will print the name of
+every evaluated Node,
+using a
+.B \\\\r
+(carriage return) to cause each line to overwritten by the next line,
+and the
+.B overwrite=
+keyword argument to make sure the previously-printed
+file name is overwritten with blank spaces:
+
+.ES
+import sys
+Progress('$TARGET\\r', overwrite=True)
+.EE
+.IP
+If the first argument to
+.BR Progress ()
+is a list of strings,
+then each string in the list will be displayed
+in rotating fashion every
+.I interval
+evaluated Nodes.
+This can be used to implement a "spinner"
+on the user's screen as follows:
+
+.ES
+Progress(['-\\r', '\\\\\\r', '|\\r', '/\\r'], interval=5)
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI Precious( target ", ...)"
 .TP
 .RI env.Precious( target ", ...)"
@@ -3735,6 +4114,8 @@ are both coerced to lists,
 and the lists are added together.
 (See also the Append method, above.)
 
+Example:
+
 .ES
 env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 .EE
@@ -3757,6 +4138,7 @@ and
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
+
 Example:
 
 .ES
@@ -3764,8 +4146,11 @@ print 'before:',env['ENV']['INCLUDE']
 include_path = '/foo/bar:/foo'
 env.PrependENVPath('INCLUDE', include_path)
 print 'after:',env['ENV']['INCLUDE']
+.EE
 
-yields:
+The above exmaple will print:
+
+.ES
 before: /biz:/foo
 after: /foo/bar:/foo:/biz
 .EE
@@ -3784,6 +4169,8 @@ construction variable will
 .I not
 be added again to the list.
 
+Example:
+
 .ES
 env.PrependUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 .EE
@@ -3799,6 +4186,8 @@ The returned Builder
 is intended to be passed to the
 .B SourceCode
 function:
+
+Examples:
 
 .ES
 env.SourceCode('.', env.RCS())
@@ -3823,6 +4212,8 @@ for a specific subdirectory.
 .RI env.Replace( key = val ", [...])"
 Replaces construction variables in the Environment
 with the specified keyword arguments.
+
+Example:
 
 .ES
 env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
@@ -3876,20 +4267,46 @@ method.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Return( vars )
-This tells
-.B scons
-what variable(s) to use as the return value(s) of the current SConscript
-file. These variables will be returned to the "calling" SConscript file
-as the return value(s) of 
-.BR SConscript ().
-Multiple variable names should be passed to 
+.RI Return([ vars "... , " stop= ])
+By default,
+this stops processing the current SConscript
+file and returns to the calling SConscript file
+the values of the variables named in the
+.I vars
+string arguments.
+Multiple strings contaning variable names may be passed to
+.BR Return ().
+Any strings that contain white space
+
+The optional
+.B stop=
+keyword argument may be set to a false value
+to continue processing the rest of the SConscript
+file after the
 .BR Return ()
-as a list. Example:
+call.
+This was the default behavior prior to SCons 0.98.
+However, the values returned
+are still the values of the variables in the named
+.I vars
+at the point
+.BR Return ()
+is called.
+
+Examples:
 
 .ES
+# Returns without returning a value.
+Return()
+
+# Returns the value of the 'foo' Python variable.
 Return("foo")
-Return(["foo", "bar"])
+
+# Returns the values of the Python variables 'foo' and 'bar'.
+Return("foo", "bar")
+
+# Returns the values of Python variables 'val1' and 'val2'.
+Return('val1 val2')
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -3913,7 +4330,9 @@ from SCCS.
 The returned Builder
 is intended to be passed to the
 .B SourceCode
-function:
+function.
+
+Example:
 
 .ES
 env.SourceCode('.', env.SCCS())
@@ -4090,11 +4509,12 @@ while reading all SConscript files.
 (This may be necessary when building from repositories,
 when all the directories in which SConscript files may be found
 don't necessarily exist locally.)
-
 You may enable and disable
 this ability by calling
 SConscriptChdir()
-multiple times:
+multiple times.
+
+Example:
 
 .ES
 env = Environment()
@@ -4212,7 +4632,9 @@ which corresponds to -j and --jobs.
 which corresponds to --random.
 See the documentation for the
 corresponding command line object for information about each specific
-option. Example:
+option.
+
+Example:
 
 .ES
 SetOption('max_drift', 1)
@@ -4393,6 +4815,8 @@ you can use the Python
 idiom to pass in an unnamed function
 that simply returns its unconverted argument.
 
+Example:
+
 .ES
 print env.subst("The C compiler is: $CC")
 
@@ -4428,7 +4852,9 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 '\"so that you only have to
 '\"replicate part of the repository
 '\"directory hierarchy in your
-'\"local build directory:
+'\"local build directory.
+'\"
+'\"Example:
 '\"
 '\".ES
 '\"# Will fetch foo/bar/src.c
@@ -4449,10 +4875,17 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 .RI SourceSignatures( type )
 .TP
 .RI env.SourceSignatures( type )
-This function tells SCons what type of signature to use for source files:
+This function tells
+.B scons
+how to decide if a source file
+(a file that is not built from any other files)
+has changed since the last time it
+was used to build a particular target file.
+Legal values are
 .B "MD5"
 or
 .BR "timestamp" .
+
 If the environment method is used,
 the specified type of source signature
 is only used when deciding whether targets
@@ -4462,17 +4895,48 @@ the specified type of source signature becomes the default
 used for all decisions
 about whether targets are up-to-date.
 
-"MD5" means the signature of a source file
-is the MD5 checksum of its contents.
-"timestamp" means the signature of a source file
-is its timestamp (modification time).
+.B "MD5"
+means
+.B scons
+decides that a source file has changed
+if the MD5 checksum of its contents has changed since
+the last time it was used to rebuild a particular target file.
+
+.B "timestamp"
+means
+.B scons
+decides that a source file has changed
+if its timestamp (modification time) is newer than
+the last time it was used to rebuild a particular target file.
+
 There is no different between the two behaviors
 for Python
 .BR Value ()
 node objects.
-"MD5" signatures take longer to compute,
-but are more accurate than "timestamp" signatures.
-The default is "MD5".
+
+.B "MD5"
+signatures take longer to compute,
+but are more accurate than
+.B "timestamp"
+signatures.
+The default value is
+.BR "MD5" .
+
+Note that the default
+.BR TargetSignatures ()
+setting (see below)
+is to use this
+.BR SourceSignatures ()
+setting for any target files that are used
+to build other target files.
+Consequently, changing the value of
+.BR SourceSignatures ()
+will, by default,
+affect the up-to-date decision for all files in the build
+(or all files built with a specific construction environment
+when
+.BR env.SourceSignatures ()
+is used).
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -4489,6 +4953,8 @@ the list will be returned untouched.
 If arg is any other type of object,
 it will be returned as a list
 containing just the object.
+
+Example:
 
 .ES
 files = Split("f1.c f2.c f3.c")
@@ -4509,6 +4975,8 @@ information about how the
 Builder should package those files or directories.
 All tags are optional.
 
+Examples:
+
 .ES
 # makes sure the built library will be installed with 0644 file
 # access mode
@@ -4525,13 +4993,25 @@ Tag( 'file2.txt', DOC )
 .RI TargetSignatures( type )
 .TP
 .RI env.TargetSignatures( type )
-This function tells SCons what type of signatures to use
-for target files:
-.B "build"
+This function tells
+.B scons
+how to decide if a target file
+(a file that
+.I is
+built from any other files)
+has changed since the last time it
+was used to build some other target file.
+Legal values are
+.BR "build" ;
+.BR "content"
+(or its synonym
+.BR "MD5" );
+.BR "timestamp" ;
 or
-.BR "content" .
+.BR "source" .
+
 If the environment method is used,
-the specified type of signature is only used
+the specified type of target signature is only used
 for targets built with that environment.
 If the global function is used,
 the specified type of signature becomes the default
@@ -4539,16 +5019,94 @@ used for all target files that
 don't have an explicit target signature type
 specified for their environments.
 
-"build" means the signature of a target file
-is made by concatenating all of the
-signatures of all its source files.
-"content" means the signature of a target
-file is an MD5 checksum of its contents.
-"build" signatures are usually faster to compute,
-but "content" signatures can prevent unnecessary rebuilds
+.B "content"
+(or its synonym
+.BR "MD5" )
+means
+.B scons
+decides that a target file has changed
+if the MD5 checksum of its contents has changed since
+the last time it was used to rebuild some other target file.
+This means
+.B scons
+will open up
+MD5 sum the contents
+of target files after they're built,
+and may decide that it does not need to rebuild
+"downstream" target files if a file was
+rebuilt with exactly the same contents as the last time.
+
+.B "timestamp"
+means
+.B scons
+decides that a target file has changed
+if its timestamp (modification time) is newer than
+the last time it was used to rebuild some other target file.
+
+.B "source"
+means
+.B scons
+decides that a target file has changed
+as specified by the corresponding
+.BR SourceSignatures ()
+setting
+.BR "" ( "MD5"
+or
+.BR "timestamp" ).
+This means that
+.B scons
+will treat all input files to a target the same way,
+regardless of whether they are source files
+or have been built from other files.
+
+.B "build"
+means
+.B scons
+decides that a target file has changed
+if it has been rebuilt in this invocation
+or if its content or timestamp have changed
+as specified by the corresponding
+.BR SourceSignatures ()
+setting.
+This "propagates" the status of a rebuilt file
+so that other "downstream" target files
+will always be rebuilt,
+even if the contents or the timestamp
+have not changed.
+
+.B "build"
+signatures are fastest because
+.B "content"
+(or
+.BR "MD5" )
+signatures take longer to compute,
+but are more accurate than
+.B "timestamp"
+signatures,
+and can prevent unnecessary "downstream" rebuilds
 when a target file is rebuilt to the exact same contents
 as the previous build.
-The default is "build".
+The
+.B "source"
+setting provides the most consistent behavior
+when other target files may be rebuilt from
+both source and target input files.
+The default value is
+.BR "source" .
+
+Because the default setting is
+.BR "source" ,
+using
+.BR SourceSignatures ()
+is generally preferable to
+.BR TargetSignatures () ,
+so that the up-to-date decision
+will be consistent for all files
+(or all files built with a specific construction environment).
+Use of
+.BR TargetSignatures ()
+provides specific control for how built target files
+affect their "downstream" dependencies.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -4569,6 +5127,8 @@ construction variable.
 Additional keyword arguments are passed to the tool's
 .B generate()
 method.
+
+Examples:
 
 .ES
 env = Environment(tools = [ Tool('msvc') ])
@@ -4605,7 +5165,10 @@ calling
 .BR str( value )
 changes between SCons runs, any targets depending on
 .BR Value( value )
-will be rebuilt.  When using timestamp source signatures, Value Nodes'
+will be rebuilt.
+(This is true even when using timestamps to decide if
+files are up-to-date.)
+When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
 
 The returned Value Node object has a
@@ -4622,22 +5185,38 @@ There is a corresponding
 .BR read ()
 method that will return the built value of the Node.
 
+Examples:
+
 .ES
+env = Environment()
+
 def create(target, source, env):
+    # A function that will write a 'prefix=$SOURCE'
+    # string into the file name specified as the
+    # $TARGET.
     f = open(str(target[0]), 'wb')
     f.write('prefix=' + source[0].get_contents())
     
+# Fetch the prefix= argument, if any, from the command
+# line, and use /usr/local as the default.
 prefix = ARGUMENTS.get('prefix', '/usr/local')
-env = Environment()
+
+# Attach a .Config() builder for the above function action
+# to the construction environment.
 env['BUILDERS']['Config'] = Builder(action = create)
 env.Config(target = 'package-config', source = Value(prefix))
 
 def build_value(target, source, env):
+    # A function that "builds" a Python Value by updating
+    # the the Python value with the contents of the file
+    # specified as the source of the Builder call ($SOURCE).
     target[0].write(source[0].get_contents())
 
 output = env.Value('before')
 input = env.Value('after')
 
+# Attach a .UpdateValue() builder for the above function
+# action to the construction environment.
 env['BUILDERS']['UpdateValue'] = Builder(action = build_value)
 env.UpdateValue(target = Value(output), source = Value(input))
 .EE
@@ -4711,6 +5290,8 @@ and
 .B [1]
 of the tuple, respectively.
 
+Example:
+
 .ES
 print "first keyword, value =", ARGLIST[0][0], ARGLIST[0][1]
 print "second keyword, value =", ARGLIST[1][0], ARGLIST[1][1]
@@ -4734,6 +5315,8 @@ the last (right-most) value is
 the one in the
 .B ARGUMENTS
 dictionary.
+
+Example:
 
 .ES
 if ARGUMENTS.get('debug', 0):
@@ -4771,6 +5354,8 @@ See the
 list, below,
 for additional information.
 
+Example:
+
 .ES
 if 'foo' in BUILD_TARGETS:
     print "Don't forget to test the `foo' program!"
@@ -4800,7 +5385,9 @@ the list is empty.
 This can be used, for example,
 to take specific actions only
 when a certain target or targets
-is explicitly being built:
+is explicitly being built.
+
+Example:
 
 .ES
 if 'foo' in COMMAND_LINE_TARGETS:
@@ -4821,6 +5408,8 @@ The elements of the list are nodes,
 so you need to run them through the Python
 .B str
 function to get at the path name for each Node.
+
+Example:
 
 .ES
 print str(DEFAULT_TARGETS[0])
@@ -6005,6 +6594,33 @@ b = Builder("build_it < $SOURCE > $TARGET",
 b = Builder("build_it < $SOURCE > $TARGET",
             suffix = { None: ".sfx1",
                        "$SRC_SFX_A": gen_suffix })
+.EE
+
+.IP ensure_suffix
+When set to any true value, causes 
+.B scons
+to add the target suffix specified by the
+.I suffix
+keyword to any target strings
+that have a different suffix.
+(The default behavior is to leave untouched
+any target file name that looks like it already has any suffix.)
+
+.ES
+b1 = Builder("build_it < $SOURCE > $TARGET"
+             suffix = ".out")
+b2 = Builder("build_it < $SOURCE > $TARGET"
+             suffix = ".out",
+             ensure_suffix)
+env = Environment()
+env['BUILDERS']['B1'] = b1
+env['BUILDERS']['B2'] = b2
+
+# Builds "foo.txt" because ensure_suffix is not set.
+env.B1('foo.txt', 'foo.in')
+
+# Builds "bar.txt.out" because ensure_suffix is set.
+env.B2('bar.txt', 'bar.in')
 .EE
 
 .IP src_suffix

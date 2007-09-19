@@ -34,6 +34,11 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
+tar = test.detect('TAR', 'tar')
+
+if not tar:
+    test.skip_test('tar not found, skipping test\n')
+
 test.write( 'main.c', '' )
 test.write('SConstruct', """
 prog = Install( '/bin', 'main.c' )

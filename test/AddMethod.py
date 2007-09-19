@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 def foo(self):
-    return 'foo-' + env['FOO']
+    return 'foo-' + self['FOO']
 
 AddMethod(Environment, foo)
 env = Environment(FOO = '111')
@@ -46,14 +46,20 @@ env = Environment(FOO = '222')
 print env.foo()
 
 env.AddMethod(foo, 'bar')
-print env.bar()
+env['FOO'] = '333'
 
+e = env.Clone()
+e['FOO'] = '444'
+
+print env.bar()
+print e.bar()
 """)
 
 expect = """\
 foo-111
 foo-222
-foo-222
+foo-333
+foo-444
 """
 
 test.run(arguments = '-Q -q', stdout = expect)

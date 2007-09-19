@@ -70,7 +70,6 @@ env = Environment(BUILDERS={'Build':Builder(action=cat)},
 # Do some Node test operations to ensure no side-effects cause failures
 File('file.in').exists()
 File('file.in').is_derived()
-File('file.in').is_pseudo_derived()
 
 env.Build('file.out', 'file.in')
 """)

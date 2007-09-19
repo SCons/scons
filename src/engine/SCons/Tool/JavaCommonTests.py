@@ -65,6 +65,21 @@ public class Foo
         assert classes == ['Foo'], classes
 
 
+
+    def test_dollar_sign(self):
+        """Test class names with $ in them"""
+
+        input = """\
+public class BadDep { 
+  public void new$rand () {}
+}
+"""
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
+        assert pkg_dir == None, pkg_dir
+        assert classes == ['BadDep'], classes
+
+
+
     def test_inner_classes(self):
         """Test parsing various forms of inner classes"""
 

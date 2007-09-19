@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+#
+# __COPYRIGHT__
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""
+Verify that we don't perform Configure context actions when the
+-H, -h or --help options have been specified.
+"""
+
+import string
+
+import TestSCons
+
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConstruct', """\
+env = Environment()
+import os
+env.AppendENVPath('PATH', os.environ['PATH'])
+conf = Configure(env)
+r1 = conf.CheckCHeader( 'math.h' )
+r2 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
+env = conf.Finish()
+Export( 'env' )
+SConscript( 'SConscript' )
+""")
+
+test.write('SConscript', """\
+Import( 'env' )
+env.Program( 'TestProgram', 'TestProgram.c' )
+""")
+
+test.write('TestProgram.c', """\
+#include <stdio.h>
+
+int main() {
+  printf( "Hello\\n" );
+}
+""")
+
+lines = [
+    "Checking for C header file math.h... ",
+    "Checking for C header file no_std_c_header.h... "
+]
+
+unexpected = []
+
+test.run(arguments = '-H')
+
+for line in lines:
+    if string.find(test.stdout(), line) != -1:
+        unexpected.append(line)
+
+if unexpected:
+    print "Unexpected lines in standard output:"
+    print string.join(unexpected, '\n')
+    print "STDOUT ============================================================"
+    print test.stdout()
+    test.fail_test()
+
+test.run(arguments = '-h')
+
+for line in lines:
+    if string.find(test.stdout(), line) != -1:
+        unexpected.append(line)
+
+if unexpected:
+    print "Unexpected lines in standard output:"
+    print string.join(unexpected, '\n')
+    print "STDOUT ============================================================"
+    print test.stdout()
+    test.fail_test()
+
+test.run(arguments = '--help')
+
+for line in lines:
+    if string.find(test.stdout(), line) != -1:
+        unexpected.append(line)
+
+if unexpected:
+    print "Unexpected lines in standard output:"
+    print string.join(unexpected, '\n')
+    print "STDOUT ============================================================"
+    print test.stdout()
+    test.fail_test()
+
+test.pass_test()

@@ -57,10 +57,13 @@ class AliasNameSpace(UserDict.UserDict):
             return None
 
 class AliasNodeInfo(SCons.Node.NodeInfoBase):
-    pass
+    current_version_id = 1
+    field_list = ['csig']
+    def str_to_node(self, s):
+        return default_ans.Alias(s)
 
 class AliasBuildInfo(SCons.Node.BuildInfoBase):
-    pass
+    current_version_id = 1
 
 class Alias(SCons.Node.Node):
 
@@ -74,8 +77,11 @@ class Alias(SCons.Node.Node):
     def __str__(self):
         return self.name
 
+    def make_ready(self):
+        self.get_csig()
+
     really_build = SCons.Node.Node.build
-    current = SCons.Node.Node.children_are_up_to_date
+    is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
     def is_under(self, dir):
         # Make Alias nodes get built regardless of
@@ -97,6 +103,13 @@ class Alias(SCons.Node.Node):
     #
     #
 
+    def changed_since_last_build(self, target, prev_ni):
+        cur_csig = self.get_csig()
+        try:
+            return cur_csig != prev_ni.csig
+        except AttributeError:
+            return 1
+
     def build(self):
         """A "builder" for aliases."""
         pass
@@ -106,6 +119,25 @@ class Alias(SCons.Node.Node):
         except AttributeError: pass
         self.reset_executor()
         self.build = self.really_build
+
+    def get_csig(self):
+        """
+        Generate a node's content signature, the digested signature
+        of its content.
+
+        node - the node
+        cache - alternate node to use for the signature cache
+        returns - the content signature
+        """
+        try:
+            return self.ninfo.csig
+        except AttributeError:
+            pass
+           
+        contents = self.get_contents()
+        csig = SCons.Util.MD5signature(contents)
+        self.get_ninfo().csig = csig
+        return csig
 
 default_ans = AliasNameSpace()
 

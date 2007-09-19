@@ -73,7 +73,6 @@ env.Cat(target = 'f4a.out', source = 'f4a.in')
 f4b_in = File('dir/f4b.in')
 f4b_in.exists()
 f4b_in.is_derived()
-f4b_in.is_pseudo_derived()
 env.Cat(target = 'dir/f4b.out', source = f4b_in)
 """)
 

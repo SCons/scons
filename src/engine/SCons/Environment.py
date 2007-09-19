@@ -38,6 +38,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 import os
 import os.path
+import shlex
 import string
 from UserDict import UserDict
 
@@ -53,7 +54,6 @@ import SCons.Node.FS
 import SCons.Node.Python
 import SCons.Platform
 import SCons.SConsign
-import SCons.Sig
 import SCons.Subst
 import SCons.Tool
 import SCons.Util
@@ -125,8 +125,9 @@ def _set_BUILDERS(env, key, value):
         for k in bd.keys():
             del bd[k]
     except KeyError:
-        env._dict[key] = BuilderDict(kwbd, env)
-    env._dict[key].update(value)
+        bd = BuilderDict(kwbd, env)
+        env._dict[key] = bd
+    bd.update(value)
 
 def _del_SCANNERS(env, key):
     del env._dict[key]
@@ -136,13 +137,72 @@ def _set_SCANNERS(env, key, value):
     env._dict[key] = value
     env.scanner_map_delete()
 
-class BuilderWrapper:
-    """Wrapper class that associates an environment with a Builder at
-    instantiation."""
-    def __init__(self, env, builder):
-        self.env = env
-        self.builder = builder
 
+
+# The following is partly based on code in a comment added by Peter
+# Shannon at the following page (there called the "transplant" class):
+#
+# ASPN : Python Cookbook : Dynamically added methods to a class
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+#
+# We had independently been using the idiom as BuilderWrapper, but
+# factoring out the common parts into this base class, and making
+# BuilderWrapper a subclass that overrides __call__() to enforce specific
+# Builder calling conventions, simplified some of our higher-layer code.
+
+class MethodWrapper:
+    """
+    A generic Wrapper class that associates a method (which can
+    actually be any callable) with an object.  As part of creating this
+    MethodWrapper object an attribute with the specified (by default,
+    the name of the supplied method) is added to the underlying object.
+    When that new "method" is called, our __call__() method adds the
+    object as the first argument, simulating the Python behavior of
+    supplying "self" on method calls.
+
+    We hang on to the name by which the method was added to the underlying
+    base class so that we can provide a method to "clone" ourselves onto
+    a new underlying object being copied (without which we wouldn't need
+    to save that info).
+    """
+    def __init__(self, object, method, name=None):
+        if name is None:
+            name = method.__name__
+        self.object = object
+        self.method = method
+        self.name = name
+        setattr(self.object, name, self)
+
+    def __call__(self, *args, **kwargs):
+        nargs = (self.object,) + args
+        return apply(self.method, nargs, kwargs)
+
+    def clone(self, new_object):
+        """
+        Returns an object that re-binds the underlying "method" to
+        the specified new object.
+        """
+        return self.__class__(new_object, self.method, self.name)
+
+class BuilderWrapper(MethodWrapper):
+    """
+    A MethodWrapper subclass that that associates an environment with
+    a Builder.
+
+    This mainly exists to wrap the __call__() function so that all calls
+    to Builders can have their argument lists massaged in the same way
+    (treat a lone argument as the source, treat two arguments as target
+    then source, make sure both target and source are lists) without
+    having to have cut-and-paste code to do it.
+
+    As a bit of obsessive backwards compatibility, we also intercept
+    attempts to get or set the "env" or "builder" attributes, which were
+    the names we used before we put the common functionality into the
+    MethodWrapper base class.  We'll keep this around for a while in case
+    people shipped Tool modules that reached into the wrapper (like the
+    Tool/qt.py module does, or did).  There shouldn't be a lot attribute
+    fetching or setting on these, so a little extra work shouldn't hurt.
+    """
     def __call__(self, target=None, source=_null, *args, **kw):
         if source is _null:
             source = target
@@ -151,7 +211,26 @@ class BuilderWrapper:
             target = [target]
         if not source is None and not SCons.Util.is_List(source):
             source = [source]
-        return apply(self.builder, (self.env, target, source) + args, kw)
+        return apply(MethodWrapper.__call__, (self, target, source) + args, kw)
+
+    def __repr__(self):
+        return '<BuilderWrapper %s>' % repr(self.name)
+
+    def __getattr__(self, name):
+        if name == 'env':
+            return self.object
+        elif name == 'builder':
+            return self.method
+        else:
+            return self.__dict__[name]
+
+    def __setattr__(self, name, value):
+        if name == 'env':
+            self.object = value
+        elif name == 'builder':
+            self.method = value
+        else:
+            self.__dict__[name] = value
 
     # This allows a Builder to be executed directly
     # through the Environment to which it's attached.
@@ -160,9 +239,9 @@ class BuilderWrapper:
     # But we do have a unit test for this, and can't
     # yet rule out that it would be useful in the
     # future, so leave it for now.
-    def execute(self, **kw):
-        kw['env'] = self.env
-        apply(self.builder.execute, (), kw)
+    #def execute(self, **kw):
+    #    kw['env'] = self.env
+    #    apply(self.builder.execute, (), kw)
 
 class BuilderDict(UserDict):
     """This is a dictionary-like class used by an Environment to hold
@@ -181,26 +260,7 @@ class BuilderDict(UserDict):
 
     def __setitem__(self, item, val):
         UserDict.__setitem__(self, item, val)
-        try:
-            self.setenvattr(item, val)
-        except AttributeError:
-            # Have to catch this because sometimes __setitem__ gets
-            # called out of __init__, when we don't have an env
-            # attribute yet, nor do we want one!
-            pass
-
-    def setenvattr(self, item, val):
-        """Set the corresponding environment attribute for this Builder.
-
-        If the value is already a BuilderWrapper, we pull the builder
-        out of it and make another one, so that making a copy of an
-        existing BuilderDict is guaranteed separate wrappers for each
-        Builder + Environment pair."""
-        try:
-            builder = val.builder
-        except AttributeError:
-            builder = val
-        setattr(self.env, item, BuilderWrapper(self.env, builder))
+        BuilderWrapper(self.env, val, item)
 
     def __delitem__(self, item):
         UserDict.__delitem__(self, item)
@@ -248,6 +308,7 @@ class SubstitutionEnvironment:
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = kw.copy()
         self._init_special()
+        self.added_methods = []
         #self._memo = {}
 
     def _init_special(self):
@@ -450,7 +511,16 @@ class SubstitutionEnvironment:
         environment with the specified name.  If the name is omitted,
         the default name is the name of the function itself.
         """
-        SCons.Util.AddMethod(self, function, name)
+        method = MethodWrapper(self, function, name)
+        self.added_methods.append(method)
+
+    def RemoveMethod(self, function):
+        """
+        Removes the specified function's MethodWrapper from the
+        added_methods list, so we don't re-bind it when making a clone.
+        """
+        is_not_func = lambda dm, f=function: not dm.method is f
+        self.added_methods = filter(is_not_func, self.added_methods)
 
     def Override(self, overrides):
         """
@@ -543,7 +613,7 @@ class SubstitutionEnvironment:
             #  -R dir          (deprecated linker rpath)
             # IBM compilers may also accept -qframeworkdir=foo
     
-            params = string.split(arg)
+            params = shlex.split(arg)
             append_next_arg_to = None   # for multi-word args
             for arg in params:
                 if append_next_arg_to:
@@ -695,6 +765,14 @@ def build_source(ss, result):
         elif isinstance(s.disambiguate(), SCons.Node.FS.File):
             result.append(s)
 
+def default_decide_source(dependency, target, prev_ni):
+    f = SCons.Defaults.DefaultEnvironment().decide_source
+    return f(dependency, target, prev_ni)
+
+def default_decide_target(dependency, target, prev_ni):
+    f = SCons.Defaults.DefaultEnvironment().decide_target
+    return f(dependency, target, prev_ni)
+
 class Base(SubstitutionEnvironment):
     """Base class for "real" construction Environments.  These are the
     primary objects used to communicate dependency and construction
@@ -747,6 +825,16 @@ class Base(SubstitutionEnvironment):
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = semi_deepcopy(SCons.Defaults.ConstructionEnvironment)
         self._init_special()
+        self.added_methods = []
+
+        # We don't use AddMethod, or define these as methods in this
+        # class, because we *don't* want these functions to be bound
+        # methods.  They need to operate independently so that the
+        # settings will work properly regardless of whether a given
+        # target ends up being built with a Base environment or an
+        # OverrideEnvironment or what have you.
+        self.decide_target = default_decide_target
+        self.decide_source = default_decide_source
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
@@ -777,6 +865,8 @@ class Base(SubstitutionEnvironment):
                 # reserved variable name like TARGETS.
                 pass
 
+        SCons.Tool.Initializers(self)
+
         if tools is None:
             tools = self._dict.get('TOOLS', None)
             if tools is None:
@@ -801,17 +891,6 @@ class Base(SubstitutionEnvironment):
             return self._dict['BUILDERS'][name]
         except KeyError:
             return None
-
-    def get_calculator(self):
-        try:
-            module = self._calc_module
-            c = apply(SCons.Sig.Calculator, (module,), CalculatorArgs)
-        except AttributeError:
-            # Note that we're calling get_calculator() here, so the
-            # DefaultEnvironment() must have a _calc_module attribute
-            # to avoid infinite recursion.
-            c = SCons.Defaults.DefaultEnvironment().get_calculator()
-        return c
 
     def get_CacheDir(self):
         try:
@@ -901,13 +980,21 @@ class Base(SubstitutionEnvironment):
         """
         self._dict.update(dict)
 
-    def use_build_signature(self):
+    def get_src_sig_type(self):
         try:
-            return self._build_signature
+            return self.src_sig_type
         except AttributeError:
-            b = SCons.Defaults.DefaultEnvironment()._build_signature
-            self._build_signature = b
-            return b
+            t = SCons.Defaults.DefaultEnvironment().src_sig_type
+            self.src_sig_type = t
+            return t
+
+    def get_tgt_sig_type(self):
+        try:
+            return self.tgt_sig_type
+        except AttributeError:
+            t = SCons.Defaults.DefaultEnvironment().tgt_sig_type
+            self.tgt_sig_type = t
+            return t
 
     #######################################################################
     # Public methods for manipulating an Environment.  These begin with
@@ -1040,27 +1127,83 @@ class Base(SubstitutionEnvironment):
         """
         clone = copy.copy(self)
         clone._dict = semi_deepcopy(self._dict)
+
         try:
             cbd = clone._dict['BUILDERS']
-            clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
         except KeyError:
             pass
+        else:
+            clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
+
+        clone.added_methods = []
+        for mw in self.added_methods:
+            mw.clone(clone)
 
         clone._memo = {}
 
-        apply_tools(clone, tools, toolpath)
-
-        # Apply passed-in variables after the new tools.
+        # Apply passed-in variables before the tools
+        # so the tools can use the new variables
         kw = copy_non_reserved_keywords(kw)
         new = {}
         for key, value in kw.items():
             new[key] = SCons.Subst.scons_subst_once(value, self, key)
         apply(clone.Replace, (), new)
+
+        apply_tools(clone, tools, toolpath)
+
+        # apply them again in case the tools overwrote them
+        apply(clone.Replace, (), new)        
+
         if __debug__: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
     def Copy(self, *args, **kw):
         return apply(self.Clone, args, kw)
+
+    def _changed_build(self, dependency, target, prev_ni):
+        if dependency.changed_state(target, prev_ni):
+            return 1
+        return self.decide_source(dependency, target, prev_ni)
+
+    def _changed_content(self, dependency, target, prev_ni):
+        return dependency.changed_content(target, prev_ni)
+
+    def _changed_source(self, dependency, target, prev_ni):
+        target_env = dependency.get_build_env()
+        type = target_env.get_tgt_sig_type()
+        if type == 'source':
+            return target_env.decide_source(dependency, target, prev_ni)
+        else:
+            return target_env.decide_target(dependency, target, prev_ni)
+
+    def _changed_timestamp_then_content(self, dependency, target, prev_ni):
+        return dependency.changed_timestamp_then_content(target, prev_ni)
+
+    def _changed_timestamp_newer(self, dependency, target, prev_ni):
+        return dependency.changed_timestamp_newer(target, prev_ni)
+
+    def _changed_timestamp_match(self, dependency, target, prev_ni):
+        return dependency.changed_timestamp_match(target, prev_ni)
+
+    def Decider(self, function):
+        if function in ('MD5', 'content'):
+            if not SCons.Util.md5:
+                raise UserError, "MD5 signatures are not available in this version of Python."
+            function = self._changed_content
+        elif function == 'MD5-timestamp':
+            function = self._changed_timestamp_then_content
+        elif function in ('timestamp-newer', 'make'):
+            function = self._changed_timestamp_newer
+        elif function == 'timestamp-match':
+            function = self._changed_timestamp_match
+        elif not callable(function):
+            raise UserError, "Unknown Decider value %s" % repr(function)
+
+        # We don't use AddMethod because we don't want to turn the
+        # function, which only expects three arguments, into a bound
+        # method, which would add self as an initial, fourth argument.
+        self.decide_target = function
+        self.decide_source = function
 
     def Detect(self, progs):
         """Return the first available program in progs.
@@ -1294,11 +1437,13 @@ class Base(SubstitutionEnvironment):
         with new construction variables and/or values.
         """
         try:
-            kwbd = semi_deepcopy(kw['BUILDERS'])
-            del kw['BUILDERS']
-            self.__setitem__('BUILDERS', kwbd)
+            kwbd = kw['BUILDERS']
         except KeyError:
             pass
+        else:
+            kwbd = semi_deepcopy(kwbd)
+            del kw['BUILDERS']
+            self.__setitem__('BUILDERS', kwbd)
         kw = copy_non_reserved_keywords(kw)
         self._update(semi_deepcopy(kw))
         self.scanner_map_delete(kw)
@@ -1659,21 +1804,15 @@ class Base(SubstitutionEnvironment):
 
     def SourceSignatures(self, type):
         type = self.subst(type)
+        self.src_sig_type = type
         if type == 'MD5':
-            try:
-                import SCons.Sig.MD5
-            except ImportError:
-                msg = "No MD5 module available, using time stamps"
-                SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
-                import SCons.Sig.TimeStamp
-                self._calc_module = SCons.Sig.TimeStamp
-            else:
-                self._calc_module = SCons.Sig.MD5
+            if not SCons.Util.md5:
+                raise UserError, "MD5 signatures are not available in this version of Python."
+            self.decide_source = self._changed_content
         elif type == 'timestamp':
-            import SCons.Sig.TimeStamp
-            self._calc_module = SCons.Sig.TimeStamp
+            self.decide_source = self._changed_timestamp_newer
         else:
-            raise UserError, "Unknown source signature type '%s'"%type
+            raise UserError, "Unknown source signature type '%s'" % type
 
     def Split(self, arg):
         """This function converts a string or list into a list of strings
@@ -1695,12 +1834,19 @@ class Base(SubstitutionEnvironment):
 
     def TargetSignatures(self, type):
         type = self.subst(type)
-        if type == 'build':
-            self._build_signature = 1
-        elif type == 'content':
-            self._build_signature = 0
+        self.tgt_sig_type = type
+        if type in ('MD5', 'content'):
+            if not SCons.Util.md5:
+                raise UserError, "MD5 signatures are not available in this version of Python."
+            self.decide_target = self._changed_content
+        elif type == 'timestamp':
+            self.decide_target = self._changed_timestamp_newer
+        elif type == 'build':
+            self.decide_target = self._changed_build
+        elif type == 'source':
+            self.decide_target = self._changed_source
         else:
-            raise SCons.Errors.UserError, "Unknown target signature type '%s'"%type
+            raise UserError, "Unknown target signature type '%s'"%type
 
     def Value(self, value, built_value=None):
         """
@@ -1739,6 +1885,14 @@ class Base(SubstitutionEnvironment):
 
         # remove duplicates
         return list(set(sources))
+
+    def FindInstalledFiles(self):
+        """ returns the list of all targets of the Install and InstallAs Builder.
+        """
+        from SCons.Tool import install
+        if install._UNIQUE_INSTALLED_FILES is None:
+            install._UNIQUE_INSTALLED_FILES = SCons.Util.uniquer_hashables(install._INSTALLED_FILES)
+        return install._UNIQUE_INSTALLED_FILES
 
 class OverrideEnvironment(Base):
     """A proxy that overrides variables in a wrapped construction

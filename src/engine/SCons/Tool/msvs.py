@@ -1763,6 +1763,9 @@ def generate(env):
     env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
 
 def exists(env):
+    if not env['PLATFORM'] in ('win32', 'cygwin'):
+        return 0
+
     try:
         v = SCons.Tool.msvs.get_visualstudio_versions()
     except (SCons.Util.RegError, SCons.Errors.InternalError):

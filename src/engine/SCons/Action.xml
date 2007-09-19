@@ -4,6 +4,41 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+<cvar name="IMPLICIT_COMMAND_DEPENDENCIES">
+<summary>
+Controls whether or not SCons will
+add implicit dependencies for the commands
+executed to build targets.
+
+By default, SCons will add
+to each target
+an implicit dependency on the command
+represented by the first argument on any
+command line it executes.
+The specific file for the dependency is
+found by searching the
+<varname>PATH</varname>
+variable in the
+<varname>ENV</varname>
+environment used to execute the command.
+
+If the construction variable
+&cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to a false value
+(<literal>None</literal>,
+<literal>False</literal>,
+<literal>0</literal>,
+etc.),
+then the implicit dependency will
+not be added to the targets
+built with that construction environment.
+
+<example>
+env = Environment(IMPLICIT_COMMAND_DEPENDENCIES = 0)
+</example>
+</summary>
+</cvar>
+
 <cvar name="PRINT_CMD_LINE_FUNC">
 <summary>
 A Python function used to print the command lines as they are executed

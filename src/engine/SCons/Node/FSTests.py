@@ -35,6 +35,7 @@ import stat
 
 import SCons.Errors
 import SCons.Node.FS
+import SCons.Util
 import SCons.Warnings
 
 built_it = None
@@ -80,15 +81,21 @@ class Environment:
         pass
 
 class Action:
-    def __call__(self, targets, sources, env, errfunc, **kw):
+    def __call__(self, targets, sources, env, **kw):
         global built_it
         if kw.get('execute', 1):
             built_it = 1
         return 0
     def show(self, string):
         pass
+    def get_contents(self, target, source, env):
+        return ""
+    def genstring(self, target, source, env):
+        return ""
     def strfunction(self, targets, sources, env):
         return ""
+    def get_implicit_deps(self, target, source, env):
+        return []
 
 class Builder:
     def __init__(self, factory, action=Action()):
@@ -296,7 +303,7 @@ class BuildDirTestCase(unittest.TestCase):
         class MkdirAction(Action):
             def __init__(self, dir_made):
                 self.dir_made = dir_made
-            def __call__(self, target, source, env, errfunc):
+            def __call__(self, target, source, env):
                 self.dir_made.extend(target)
 
         save_Link = SCons.Node.FS.Link
@@ -697,37 +704,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
         """Test FileNodeInfo initialization"""
         fff = self.fs.File('fff')
         ni = SCons.Node.FS.FileNodeInfo(fff)
-        assert hasattr(ni, 'timestamp')
-        assert hasattr(ni, 'size')
-
-    def test___cmp__(self):
-        """Test comparing File.NodeInfo objects"""
-        f1 = self.fs.File('f1')
-        f2 = self.fs.File('f2')
-
-        ni1 = SCons.Node.FS.FileNodeInfo(f1)
-        ni2 = SCons.Node.FS.FileNodeInfo(f2)
-
-        msg = "cmp(%s, %s) returned %s, not %s"
-
-        c = cmp(ni1, ni2)
-        assert c == 1, msg % (ni1, ni2, c, 1)
-
-        ni1.bsig = 777
-        c = cmp(ni1, ni2)
-        assert c == 1, msg % (ni1.bsig, ni2, c, 1)
-
-        ni2.bsig = 666
-        c = cmp(ni1, ni2)
-        assert c == 1, msg % (ni1.bsig, ni2.bsig, c, 1)
-
-        ni2.bsig = 777
-        c = cmp(ni1, ni2)
-        assert c == 0, msg % (ni1.bsig, ni2.bsig, c, 0)
-
-        ni2.bsig = 888
-        c = cmp(ni1, ni2)
-        assert c == -1, msg % (ni1.bsig, ni2.bsig, c, -1)
+        assert isinstance(ni, SCons.Node.FS.FileNodeInfo)
 
     def test_update(self):
         """Test updating a File.NodeInfo with on-disk information"""
@@ -736,10 +713,29 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         ni = SCons.Node.FS.FileNodeInfo(fff)
 
+        test.write('fff', "fff\n")
+
+        st = os.stat('fff')
+
+        ni.update(fff)
+
+        assert hasattr(ni, 'timestamp')
+        assert hasattr(ni, 'size')
+
+        ni.timestamp = 0
+        ni.size = 0
+
+        ni.update(fff)
+
+        mtime = st[stat.ST_MTIME]
+        assert ni.timestamp == mtime, (ni.timestamp, mtime)
+        size = st[stat.ST_SIZE]
+        assert ni.size == size, (ni.size, size)
+
         import time
         time.sleep(2)
 
-        test.write('fff', "fff\n")
+        test.write('fff', "fff longer size, different time stamp\n")
 
         st = os.stat('fff')
 
@@ -748,22 +744,22 @@ class FileNodeInfoTestCase(_tempdirTestCase):
         size = st[stat.ST_SIZE]
         assert ni.size != size, (ni.size, size)
 
-        fff.clear()
-        ni.update(fff)
+        #fff.clear()
+        #ni.update(fff)
 
-        st = os.stat('fff')
+        #st = os.stat('fff')
 
-        mtime = st[stat.ST_MTIME]
-        assert ni.timestamp == mtime, (ni.timestamp, mtime)
-        size = st[stat.ST_SIZE]
-        assert ni.size == size, (ni.size, size)
+        #mtime = st[stat.ST_MTIME]
+        #assert ni.timestamp == mtime, (ni.timestamp, mtime)
+        #size = st[stat.ST_SIZE]
+        #assert ni.size == size, (ni.size, size)
 
 class FileBuildInfoTestCase(_tempdirTestCase):
     def test___init__(self):
         """Test File.BuildInfo initialization"""
         fff = self.fs.File('fff')
-        bi = SCons.Node.FS.BuildInfo(fff)
-        assert bi.node is fff, bi.node
+        bi = SCons.Node.FS.FileBuildInfo(fff)
+        assert bi, bi
 
     def test_convert_to_sconsign(self):
         """Test converting to .sconsign file format"""
@@ -786,14 +782,14 @@ class FileBuildInfoTestCase(_tempdirTestCase):
     def test_format(self):
         """Test the format() method"""
         f1 = self.fs.File('f1')
-        bi1 = SCons.Node.FS.BuildInfo(f1)
+        bi1 = SCons.Node.FS.FileBuildInfo(f1)
 
         s1sig = SCons.Node.FS.FileNodeInfo(self.fs.File('n1'))
-        s1sig.a = 1
+        s1sig.csig = 1
         d1sig = SCons.Node.FS.FileNodeInfo(self.fs.File('n2'))
-        d1sig.a = 2
+        d1sig.timestamp = 2
         i1sig = SCons.Node.FS.FileNodeInfo(self.fs.File('n3'))
-        i1sig.a = 3
+        i1sig.size = 3
 
         bi1.bsources = [self.fs.File('s1')]
         bi1.bdepends = [self.fs.File('d1')]
@@ -801,17 +797,19 @@ class FileBuildInfoTestCase(_tempdirTestCase):
         bi1.bsourcesigs = [s1sig]
         bi1.bdependsigs = [d1sig]
         bi1.bimplicitsigs = [i1sig]
+        bi1.bact = 'action'
+        bi1.bactsig = 'actionsig'
 
         expect_lines = [
-            'None 0',
-            's1: 1 None 0',
-            'd1: 2 None 0',
-            'i1: 3 None 0',
+            's1: 1 None None',
+            'd1: None 2 None',
+            'i1: None None 3',
+            'actionsig [action]',
         ]
 
         expect = string.join(expect_lines, '\n')
         format = bi1.format()
-        assert format == expect, (repr(format), repr(expect))
+        assert format == expect, (repr(expect), repr(format))
 
 class FSTestCase(_tempdirTestCase):
     def test_runTest(self):
@@ -890,7 +888,7 @@ class FSTestCase(_tempdirTestCase):
         except TypeError:
             pass
         else:
-            assert 0
+            raise Exception, "did not catch expected TypeError"
 
         assert x1.Entry(x4) == x4
         try:
@@ -898,7 +896,7 @@ class FSTestCase(_tempdirTestCase):
         except TypeError:
             pass
         else:
-            assert 0
+            raise Exception, "did not catch expected TypeError"
 
         x6 = x1.File(x6)
         assert isinstance(x6, SCons.Node.FS.File)
@@ -989,16 +987,26 @@ class FSTestCase(_tempdirTestCase):
             except:
                 raise
 
-            # Test that just specifying the drive works to identify
-            # its root directory.
-            p = os.path.abspath(test.workpath('root_file'))
+        # Test that just specifying the drive works to identify
+        # its root directory.
+        p = os.path.abspath(test.workpath('root_file'))
+        drive, path = os.path.splitdrive(p)
+        if drive:
+            # The assert below probably isn't correct for the general
+            # case, but it works for Windows, which covers a lot
+            # of ground...
+            dir = fs.Dir(drive)
+            assert str(dir) == drive + os.sep, str(dir)
+
+            # Make sure that lookups with and without the drive are
+            # equivalent.
+            p = os.path.abspath(test.workpath('some/file'))
             drive, path = os.path.splitdrive(p)
-            if drive:
-                # The assert below probably isn't correct for the general
-                # case, but it works for Windows, which covers a lot
-                # of ground...
-                dir = fs.Dir(drive)
-                assert str(dir) == drive + os.sep, str(dir)
+
+            e1 = fs.Entry(p)
+            e2 = fs.Entry(path)
+            assert e1 is e2, (e1, e2)
+            assert str(e1) is str(e2), (str(e1), str(e2))
 
         # Test for a bug in 0.04 that did not like looking up
         # dirs with a trailing slash on Windows.
@@ -1179,7 +1187,7 @@ class FSTestCase(_tempdirTestCase):
             except SCons.Errors.UserError:
                 pass
             else:
-                raise TestFailed, "did not catch expected UserError"
+                raise Exception, "did not catch expected UserError"
 
         nonexistent(fs.Entry, 'nonexistent')
         nonexistent(fs.Entry, 'nonexistent/foo')
@@ -1213,15 +1221,15 @@ class FSTestCase(_tempdirTestCase):
         f = fs.File('f_local')
         assert f._local == 0
 
-        #XXX test current() for directories
+        #XXX test_is_up_to_date() for directories
 
-        #XXX test sconsign() for directories
+        #XXX test_sconsign() for directories
 
-        #XXX test set_signature() for directories
+        #XXX test_set_signature() for directories
 
-        #XXX test build() for directories
+        #XXX test_build() for directories
 
-        #XXX test root()
+        #XXX test_root()
 
         # test Entry.get_contents()
         e = fs.Entry('does_not_exist')
@@ -1318,9 +1326,7 @@ class FSTestCase(_tempdirTestCase):
             exc_caught = 1
         assert exc_caught, "Should have caught a TypeError"
 
-        # XXX test calc_signature()
-
-        # XXX test current()
+        # XXX test_is_up_to_date()
 
         d = fs.Dir('dir')
         r = d.remove()
@@ -1407,8 +1413,7 @@ class FSTestCase(_tempdirTestCase):
 
         subdir = fs.Dir('subdir')
         fs.chdir(subdir, change_os_dir=1)
-        path, dir = fs._transformPath('#build/file', subdir)
-        self.fs._doLookup(SCons.Node.FS.File, path, dir)
+        self.fs._lookup('#build/file', subdir, SCons.Node.FS.File)
 
     def test_above_root(self):
         """Testing looking up a path above the root directory"""
@@ -1421,7 +1426,13 @@ class FSTestCase(_tempdirTestCase):
         above_path = apply(os.path.join, ['..']*len(dirs) + ['above'])
         above = d2.Dir(above_path)
 
-    def test_rel_path(self):
+    # Note that the rel_path() method is not used right now, but we're
+    # leaving it commented out and disabling the unit here because
+    # it would be a shame to have to recreate the logic (or remember
+    # that it's buried in a long-past code checkin) if we ever need to
+    # resurrect it.
+
+    def DO_NOT_test_rel_path(self):
         """Test the rel_path() method"""
         test = self.test
         fs = self.fs
@@ -1570,6 +1581,27 @@ class DirTestCase(_tempdirTestCase):
                         os.path.join('ddd', 'f2'),
                         os.path.join('ddd', 'f3')], kids
 
+    def test_implicit_re_scans(self):
+        """Test that adding entries causes a directory to be re-scanned
+        """
+
+        fs = self.fs
+
+        dir = fs.Dir('ddd')
+
+        fs.File(os.path.join('ddd', 'f1'))
+        dir.scan()
+        kids = map(lambda x: x.path, dir.children())
+        kids.sort()
+        assert kids == [os.path.join('ddd', 'f1')], kids
+
+        fs.File(os.path.join('ddd', 'f2'))
+        dir.scan()
+        kids = map(lambda x: x.path, dir.children())
+        kids.sort()
+        assert kids == [os.path.join('ddd', 'f1'),
+                        os.path.join('ddd', 'f2')], kids
+
     def test_entry_exists_on_disk(self):
         """Test the Dir.entry_exists_on_disk() method
         """
@@ -1696,15 +1728,11 @@ class DirTestCase(_tempdirTestCase):
 
         derived_f = src0.File('derived-f')
         derived_f.is_derived = return_true
-        pseudo_f = src0.File('pseudo-f')
-        pseudo_f.is_pseudo_derived = return_true
         exists_f = src0.File('exists-f')
         exists_f.exists = return_true
 
         derived_e = src0.Entry('derived-e')
         derived_e.is_derived = return_true
-        pseudo_e = src0.Entry('pseudo-e')
-        pseudo_e.is_pseudo_derived = return_true
         exists_e = src0.Entry('exists-e')
         exists_e.exists = return_true
 
@@ -1719,8 +1747,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = src0.srcdir_find_file('derived-f')
         check(n, ['src0/derived-f', 'src0'])
-        n = src0.srcdir_find_file('pseudo-f')
-        check(n, ['src0/pseudo-f', 'src0'])
         n = src0.srcdir_find_file('exists-f')
         check(n, ['src0/exists-f', 'src0'])
         n = src0.srcdir_find_file('on-disk-f1')
@@ -1728,8 +1754,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = src0.srcdir_find_file('derived-e')
         check(n, ['src0/derived-e', 'src0'])
-        n = src0.srcdir_find_file('pseudo-e')
-        check(n, ['src0/pseudo-e', 'src0'])
         n = src0.srcdir_find_file('exists-e')
         check(n, ['src0/exists-e', 'src0'])
         n = src0.srcdir_find_file('on-disk-e1')
@@ -1741,8 +1765,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = bld0.srcdir_find_file('derived-f')
         check(n, ['src0/derived-f', 'bld0'])
-        n = bld0.srcdir_find_file('pseudo-f')
-        check(n, ['src0/pseudo-f', 'bld0'])
         n = bld0.srcdir_find_file('exists-f')
         check(n, ['src0/exists-f', 'bld0'])
         n = bld0.srcdir_find_file('on-disk-f2')
@@ -1750,8 +1772,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = bld0.srcdir_find_file('derived-e')
         check(n, ['src0/derived-e', 'bld0'])
-        n = bld0.srcdir_find_file('pseudo-e')
-        check(n, ['src0/pseudo-e', 'bld0'])
         n = bld0.srcdir_find_file('exists-e')
         check(n, ['src0/exists-e', 'bld0'])
         n = bld0.srcdir_find_file('on-disk-e2')
@@ -1769,15 +1789,11 @@ class DirTestCase(_tempdirTestCase):
 
         derived_f = src1.File('derived-f')
         derived_f.is_derived = return_true
-        pseudo_f = src1.File('pseudo-f')
-        pseudo_f.is_pseudo_derived = return_true
         exists_f = src1.File('exists-f')
         exists_f.exists = return_true
 
         derived_e = src1.Entry('derived-e')
         derived_e.is_derived = return_true
-        pseudo_e = src1.Entry('pseudo-e')
-        pseudo_e.is_pseudo_derived = return_true
         exists_e = src1.Entry('exists-e')
         exists_e.exists = return_true
 
@@ -1787,8 +1803,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = src1.srcdir_find_file('derived-f')
         check(n, ['src1/derived-f', 'src1'])
-        n = src1.srcdir_find_file('pseudo-f')
-        check(n, ['src1/pseudo-f', 'src1'])
         n = src1.srcdir_find_file('exists-f')
         check(n, ['src1/exists-f', 'src1'])
         n = src1.srcdir_find_file('on-disk-f1')
@@ -1796,8 +1810,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = src1.srcdir_find_file('derived-e')
         check(n, ['src1/derived-e', 'src1'])
-        n = src1.srcdir_find_file('pseudo-e')
-        check(n, ['src1/pseudo-e', 'src1'])
         n = src1.srcdir_find_file('exists-e')
         check(n, ['src1/exists-e', 'src1'])
         n = src1.srcdir_find_file('on-disk-e1')
@@ -1809,8 +1821,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = bld1.srcdir_find_file('derived-f')
         check(n, ['bld1/derived-f', 'src1'])
-        n = bld1.srcdir_find_file('pseudo-f')
-        check(n, ['bld1/pseudo-f', 'src1'])
         n = bld1.srcdir_find_file('exists-f')
         check(n, ['bld1/exists-f', 'src1'])
         n = bld1.srcdir_find_file('on-disk-f2')
@@ -1818,8 +1828,6 @@ class DirTestCase(_tempdirTestCase):
 
         n = bld1.srcdir_find_file('derived-e')
         check(n, ['bld1/derived-e', 'src1'])
-        n = bld1.srcdir_find_file('pseudo-e')
-        check(n, ['bld1/pseudo-e', 'src1'])
         n = bld1.srcdir_find_file('exists-e')
         check(n, ['bld1/exists-e', 'src1'])
         n = bld1.srcdir_find_file('on-disk-e2')
@@ -1916,19 +1924,6 @@ class EntryTestCase(_tempdirTestCase):
 
         test.subdir('e5d')
         test.write('e5f', "e5f\n")
-
-        e5f = fs.Entry('e5f')
-        sig = e5f.calc_signature(MyCalc(666))
-        assert e5f.__class__ is SCons.Node.FS.File, e5f.__class__
-        # This node has no builder, so it just calculates the
-        # signature once: the source content signature.
-        assert sig == 888, sig
-
-        e5n = fs.Entry('e5n')
-        sig = e5n.calc_signature(MyCalc(777))
-        assert e5n.__class__ is SCons.Node.FS.File, e5n.__class__
-        # Doesn't exist, no sources, and no builder: no sig
-        assert sig is None, sig
 
     def test_Entry_Entry_lookup(self):
         """Test looking up an Entry within another Entry"""
@@ -2299,9 +2294,7 @@ class RepositoryTestCase(_tempdirTestCase):
         finally:
             test.unlink(["rep3", "contents"])
 
-    #def test calc_signature(self):
-
-    #def test current(self):
+    #def test_is_up_to_date(self):
 
 
 
@@ -2402,8 +2395,7 @@ class stored_infoTestCase(unittest.TestCase):
         d = fs.Dir('sub')
         f = fs.File('file1', d)
         bi = f.get_stored_info()
-        assert bi.ninfo.timestamp == 0, bi.ninfo.timestamp
-        assert bi.ninfo.size == None, bi.ninfo.size
+        assert hasattr(bi, 'ninfo')
 
         class MySConsign:
             class Null:
@@ -2509,7 +2501,7 @@ class prepareTestCase(unittest.TestCase):
         class MkdirAction(Action):
             def __init__(self, dir_made):
                 self.dir_made = dir_made
-            def __call__(self, target, source, env, errfunc):
+            def __call__(self, target, source, env):
                 self.dir_made.extend(target)
 
         dir_made = []
@@ -2529,6 +2521,8 @@ class prepareTestCase(unittest.TestCase):
         dir = fs.Dir("dir")
         dir.prepare()
 
+
+
 class SConstruct_dirTestCase(unittest.TestCase):
     def runTest(self):
         """Test setting the SConstruct directory"""
@@ -2536,6 +2530,19 @@ class SConstruct_dirTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS()
         fs.set_SConstruct_dir(fs.Dir('xxx'))
         assert fs.SConstruct_dir.path == 'xxx'
+
+
+
+class CacheDirTestCase(unittest.TestCase):
+
+    def test_get_cachedir_csig(self):
+        fs = SCons.Node.FS.FS()
+
+        f9 = fs.File('f9')
+        r = f9.get_cachedir_csig()
+        assert r == 'd41d8cd98f00b204e9800998ecf8427e', r
+
+
 
 class clearTestCase(unittest.TestCase):
     def runTest(self):
@@ -2583,6 +2590,8 @@ class clearTestCase(unittest.TestCase):
         assert not f.exists()
         assert not f.rexists()
         assert str(f) == test.workpath('f'), str(f)
+
+
 
 class disambiguateTestCase(unittest.TestCase):
     def runTest(self):
@@ -2658,6 +2667,8 @@ class postprocessTestCase(unittest.TestCase):
 
         f = fs.File('f')
         f.postprocess()
+
+
 
 class SpecialAttrTestCase(unittest.TestCase):
     def runTest(self):
@@ -2744,7 +2755,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         assert s == os.path.normpath('baz/bar/baz.blat'), s
         assert f.srcpath.is_literal(), f.srcpath
         g = f.srcpath.get()
-        assert isinstance(g, SCons.Node.FS.Entry), g.__class__
+        assert isinstance(g, SCons.Node.FS.File), g.__class__
 
         s = str(f.srcdir)
         assert s == os.path.normpath('baz/bar'), s
@@ -2814,6 +2825,8 @@ class SpecialAttrTestCase(unittest.TestCase):
             caught = 1
         assert caught, "did not catch expected AttributeError"
 
+
+
 class SaveStringsTestCase(unittest.TestCase):
     def runTest(self):
         """Test caching string values of nodes."""
@@ -2873,6 +2886,8 @@ class SaveStringsTestCase(unittest.TestCase):
         expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
         assert s == expect, 'node str() not cached: %s'%s
 
+
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(BuildDirTestCase())
@@ -2889,6 +2904,7 @@ if __name__ == "__main__":
     suite.addTest(SaveStringsTestCase())
     tclasses = [
         BaseTestCase,
+        CacheDirTestCase,
         DirTestCase,
         DirBuildInfoTestCase,
         DirNodeInfoTestCase,

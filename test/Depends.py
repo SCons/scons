@@ -143,6 +143,9 @@ file2 = File('file2')
 env.Depends(file1, [[file2, 'file3']])
 """)
 
+test.write('file2', "file2\n")
+test.write('file3', "file3\n")
+
 test.up_to_date(arguments = '.')
 
 test.pass_test()

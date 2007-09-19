@@ -37,6 +37,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import math, sys, os.path, glob, string, re
 
 is_windows = sys.platform == 'win32'
+is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or 
+                           (os.environ.has_key('PROCESSOR_ARCHITEW6432') and
+                            os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64'))
 is_linux = sys.platform == 'linux2'
 
 if is_windows:
@@ -138,7 +141,10 @@ def get_intel_registry_value(valuename, version=None, abi=None):
     Return a value from the Intel compiler registry tree. (Windows only)
     """
     # Open the key:
-    K = 'Software\\Intel\\Compilers\\C++\\' + version + '\\'+abi.upper()
+    if is_win64:
+        K = 'Software\\Wow6432Node\\Intel\\Compilers\\C++\\' + version + '\\'+abi.upper()
+    else:
+        K = 'Software\\Intel\\Compilers\\C++\\' + version + '\\'+abi.upper()
     try:
         k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
     except SCons.Util.RegError:
@@ -160,7 +166,10 @@ def get_all_compiler_versions():
     """
     versions=[]
     if is_windows:
-        keyname = 'Software\\Intel\\Compilers\\C++'
+        if is_win64:
+            keyname = 'Software\\WoW6432Node\\Intel\\Compilers\\C++'
+        else:
+            keyname = 'Software\\Intel\\Compilers\\C++'
         try:
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                         keyname)
@@ -178,7 +187,7 @@ def get_all_compiler_versions():
                 # than uninstalling properly), so the registry values
                 # are still there.
                 ok = False
-                for try_abi in ('IA32', 'IA32e',  'IA64'):
+                for try_abi in ('IA32', 'IA32e',  'IA64', 'EM64T'):
                     try:
                         d = get_intel_registry_value('ProductDir', subkey, try_abi)
                     except MissingRegistryError:
@@ -212,6 +221,7 @@ def get_intel_compiler_top(version, abi):
     The compiler will be in <top>/bin/icl.exe (icc on linux),
     the include dir is <top>/include, etc.
     """
+
     if is_windows:
         if not SCons.Util.can_read_reg:
             raise NoRegistryModuleError, "No Windows registry module was found"
@@ -282,8 +292,10 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
             else:
                 abi = 'ia32'
         else:
-            # XXX: how would we do the same test on Windows?
-            abi = "ia32"
+            if is_win64:
+                abi = 'em64t'
+            else:
+                abi = 'ia32'
 
     if version and not topdir:
         try:

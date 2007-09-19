@@ -14,6 +14,7 @@ JAVACFLAGS
 JAVACCOM
 JAVACLASSSUFFIX
 JAVASUFFIX
+JAVABOOTCLASSPATH
 JAVACLASSPATH
 JAVASOURCEPATH
 </sets>
@@ -69,6 +70,19 @@ env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
 </example>
 </summary>
 </builder>
+
+<cvar name="JAVABOOTCLASSPATH">
+<summary>
+Specifies the list of directories that
+will be added to the
+&javac; command line
+via the <option>-bootclasspath</option> option.
+The individual directory names will be
+separated by the operating system's path separate character
+(<filename>:</filename> on UNIX/Linux/POSIX,
+<filename>;</filename> on Windows).
+</summary>
+</cvar>
 
 <cvar name="JAVAC">
 <summary>

@@ -33,7 +33,18 @@ import TestSConsign
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
+CC = test.detect('CC', norm=1)
+LINK = test.detect('LINK', norm=1)
+if LINK is None: LINK = CC
+
 test.subdir('sub1', 'sub2')
+
+# Note:  We don't use os.path.join() representations of the file names
+# in the expected output because paths in the .sconsign files are
+# canonicalized to use / as the separator.
+
+sub1_hello_c    = 'sub1/hello.c'
+sub1_hello_obj  = 'sub1/hello.obj'
 
 test.write('SConstruct', """
 SConsignFile('my_sconsign')
@@ -83,21 +94,30 @@ test.sleep()
 
 test.run(arguments = '. --max-drift=1')
 
-expect = """\
-=== sub1:
-hello.exe: \d+ None \d+ \d+
-        hello.obj: \d+
-hello.obj: \d+ None \d+ \d+
-        hello.c: \d+
-"""
+sig_re = r'[0-9a-fA-F]{32}'
+date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
-expect_r = """\
-=== sub1:
-hello.exe: \d+ None '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
-        hello.obj: \d+
-hello.obj: \d+ None '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' \d+
-        hello.c: \d+
-"""
+expect = r"""=== sub1:
+hello.exe: %(sig_re)s \d+ \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
+        %(LINK)s: None \d+ \d+
+        %(sig_re)s \[.*\]
+hello.obj: %(sig_re)s \d+ \d+
+        %(sub1_hello_c)s: None \d+ \d+
+        %(CC)s: None \d+ \d+
+        %(sig_re)s \[.*\]
+""" % locals()
+
+expect_r = """=== sub1:
+hello.exe: %(sig_re)s '%(date_re)s' \d+
+        %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
+        %(LINK)s: None '%(date_re)s' \d+
+        %(sig_re)s \[.*\]
+hello.obj: %(sig_re)s '%(date_re)s' \d+
+        %(sub1_hello_c)s: None '%(date_re)s' \d+
+        %(CC)s: None '%(date_re)s' \d+
+        %(sig_re)s \[.*\]
+""" % locals()
 
 common_flags = '-e hello.exe -e hello.obj -d sub1'
 

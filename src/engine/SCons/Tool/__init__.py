@@ -422,7 +422,54 @@ def CreateJavaFileBuilder(env):
         env['JAVASUFFIX'] = '.java'
     return java_file
 
+class ToolInitializer:
+    """
+    A class for delayed initialization of Tools modules.
 
+    This is intended to be added to a construction environment in
+    place of the method(s) normally called for a Builder (env.Object,
+    env.StaticObject, etc.).  When called, it searches the specified
+    list of tools, applies the first one that exists to the construction
+    environment, and calls whatever builder was (presumably) added the
+    construction environment in our place.
+    """
+    def __init__(self, name, tools):
+        """
+        Note:  we store the tool name as __name__ so it can be used by
+        the class that attaches this to a construction environment.
+        """
+        self.__name__ = name
+        if not SCons.Util.is_List(tools):
+            tools = [tools]
+        self.tools = tools
+    def __call__(self, env, *args, **kw):
+        for t in self.tools:
+            tool = SCons.Tool.Tool(t)
+            if tool.exists(env):
+                env.Tool(tool)
+                break
+
+        builder = getattr(env, self.__name__)
+        if builder is self:
+            # There was no Builder added, which means no valid Tool
+            # for this name was found (or possibly there's a mismatch
+            # between the name we were called by and the Builder name
+            # added by the Tool module).
+            #
+            # (Eventually this is where we'll put a more informative
+            # error message about the inability to find that tool
+            # as cut over more Builders+Tools to using this.
+            return [], []
+
+        # Let the construction environment remove the added method
+        # so we no longer copy and re-bind this method when the
+        # construction environment gets cloned.
+        env.RemoveMethod(self)
+        return apply(builder, args, kw)
+
+def Initializers(env):
+    env.AddMethod(ToolInitializer('Install', 'install'))
+    env.AddMethod(ToolInitializer('InstallAs', 'install'))
 
 def FindTool(tools, env):
     for tool in tools:
@@ -533,7 +580,7 @@ def tool_list(platform, env):
 
     other_tools = FindAllTools(['BitKeeper', 'CVS',
                                 'dmd',
-                                'install', 'filesystem',
+                                'filesystem',
                                 'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac', 'javah',
                                 'latex', 'lex',

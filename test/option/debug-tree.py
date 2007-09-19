@@ -37,6 +37,10 @@ import time
 
 test = TestSCons.TestSCons()
 
+CC = test.detect('CC')
+LINK = test.detect('LINK')
+if LINK is None: LINK = CC
+
 test.write('SConstruct', """
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
 env.Program('Foo', Split('Foo.c Bar.c'))
@@ -82,40 +86,57 @@ tree1 = """
   | +-Foo.c
   | +-Foo.h
   | +-Bar.h
-  +-Bar.ooo
-    +-Bar.c
-    +-Bar.h
-    +-Foo.h
-"""
-
-test.run(arguments = "--debug=tree Foo.xxx")
-test.fail_test(string.find(test.stdout(), tree1) == -1)
-
-tree2 = """
-+-.
-  +-Bar.c
+  | +-%(CC)s
   +-Bar.ooo
   | +-Bar.c
   | +-Bar.h
   | +-Foo.h
+  | +-%(CC)s
+  +-%(LINK)s
+""" % locals()
+
+test.run(arguments = "--debug=tree Foo.xxx")
+if string.find(test.stdout(), tree1) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
+
+tree2 = """
++-.
+  +-Bar.c
+  +-Bar.h
+  +-Bar.ooo
+  | +-Bar.c
+  | +-Bar.h
+  | +-Foo.h
+  | +-%(CC)s
   +-Foo.c
+  +-Foo.h
   +-Foo.ooo
   | +-Foo.c
   | +-Foo.h
   | +-Bar.h
+  | +-%(CC)s
   +-Foo.xxx
   | +-Foo.ooo
   | | +-Foo.c
   | | +-Foo.h
   | | +-Bar.h
+  | | +-%(CC)s
   | +-Bar.ooo
-  |   +-Bar.c
-  |   +-Bar.h
-  |   +-Foo.h
+  | | +-Bar.c
+  | | +-Bar.h
+  | | +-Foo.h
+  | | +-%(CC)s
+  | +-%(LINK)s
   +-SConstruct
-"""
+""" % locals()
+
 test.run(arguments = "--debug=tree .")
-test.fail_test(string.find(test.stdout(), tree2) == -1)
+if string.find(test.stdout(), tree2) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 # Make sure we print the debug stuff even if there's a build failure.
 test.write('Bar.h', """
@@ -129,6 +150,9 @@ THIS SHOULD CAUSE A BUILD FAILURE
 test.run(arguments = "--debug=tree Foo.xxx",
          status = 2,
          stderr = None)
-test.fail_test(string.find(test.stdout(), tree1) == -1)
+if string.find(test.stdout(), tree1) == -1:
+    sys.stdout.write('Did not find expected tree in the following output:\n')
+    sys.stdout.write(test.stdout())
+    test.fail_test()
 
 test.pass_test()

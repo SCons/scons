@@ -272,7 +272,7 @@ test.write(['src', 'component2', 'message2.c'], """\
 #include <stdio.h>
 #include "message1.h"
 
-int DisplayMessage2 (void)
+void DisplayMessage2 (void)
 {
     DisplayMessage1();
     printf ("src/component2/hello.c\\n");

@@ -197,3 +197,4 @@ def Trace(msg, file=None, mode='w'):
             # Assume we were passed an open file pointer.
             fp = file
     fp.write(msg)
+    fp.flush()

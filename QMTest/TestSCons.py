@@ -207,7 +207,7 @@ class TestSCons(TestCommon):
         except (SCons.Errors.UserError, SCons.Errors.InternalError):
             return None
 
-    def detect(self, var, prog=None, ENV=None):
+    def detect(self, var, prog=None, ENV=None, norm=None):
         """
         Detect a program named 'prog' by first checking the construction
         variable named 'var' and finally searching the path used by
@@ -224,7 +224,10 @@ class TestSCons(TestCommon):
             prog = v
         if v != prog:
             return None
-        return env.WhereIs(prog)
+        result = env.WhereIs(prog)
+        if norm and os.sep != '/':
+            result = string.replace(result, os.sep, '/')
+        return result
 
     def detect_tool(self, tool, prog=None, ENV=None):
         """
