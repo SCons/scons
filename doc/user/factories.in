@@ -246,7 +246,7 @@
     The &Move; factory
     allows you to rename a file or directory.
     For example, if we don't want to copy the temporary file,
-    we could:
+    we could use:
 
     </para>
 
@@ -334,7 +334,7 @@
     a file in a temporary directory
     in which the processing tool
     will create other files that we don't care about, 
-    you could:
+    you could use:
 
     </para>
 

@@ -482,7 +482,7 @@ make no difference to the build.
       so that it may be used by other &SConscript; files.
       First, you can call the &Export;
       function with a list of variables,
-      or a string white-space separated variable names.
+      or a string of white-space separated variable names.
       Each call to &Export; adds one
       or more variables to a global list
       of variables that are available for import
@@ -721,6 +721,10 @@ make no difference to the build.
         ar rc libprog.a foo/foo.o bar/bar.o
         ranlib libprog.a
       </screen>
+
+      <!--
+      XXX Return(stop=False)
+      -->
 
     </section>
 

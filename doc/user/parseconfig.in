@@ -50,7 +50,7 @@
  <scons_example name="ParseConfig1">
    <file name="SConstruct" printme="1">
     env = Environment()
-    env.ParseConfig("pkg-config")
+    env.ParseConfig("pkg-config x11")
    </file>
    <file name="f1.c">
    int f1() { }

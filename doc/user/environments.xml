@@ -391,7 +391,7 @@ environment undisturbed.
    enabled on the command line,
    or different executable programs need to be linked
    with different libraries.
-   &SCons; accomodates these different build
+   &SCons; accommodates these different build
    requirements by allowing you to create and
    configure multiple &consenvs;
    that control how the software is built.
@@ -416,7 +416,7 @@ environment undisturbed.
 
  <para>
 
-   By default, &SCons; intializes every
+   By default, &SCons; initializes every
    new construction environment
    with a set of &consvars;
    based on the tools that it finds on your system,
@@ -842,7 +842,7 @@ environment undisturbed.
    (Note that because we're not expanding this
    in the context of building something
    there are no target or source files
-   for &cv-link-TARGET; and &cv-link-SOURCES; to expand.
+   for &cv-link-TARGET; and &cv-link-SOURCES; to expand.)
 
    </para>
 

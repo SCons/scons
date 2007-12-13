@@ -53,7 +53,7 @@
     <para>
 
     If, for example,
-    and you're using a POSIX shell that's
+    you're using a POSIX shell that's
     compatible with the Bourne shell,
     and you always want &SCons; to use the
     <literal>-Q</literal> option,
@@ -96,7 +96,7 @@
 
     <para>
 
-    Windows users may typically want to set this
+    Windows users may typically want to set the
     &SCONSFLAGS; in the appropriate tab of the
     <literal>System Properties</literal> window.
 
@@ -1285,7 +1285,7 @@
       to control an expected path name.
       If, for example, you need to
       define a variable in the preprocessor
-      that control the location of a
+      that controls the location of a
       configuration file:
 
       </para>
@@ -1557,3 +1557,9 @@
     </para>
 
   </section>
+
+  <!--
+
+  AddOption() function for things like - -prefix=, - -force
+
+  -->

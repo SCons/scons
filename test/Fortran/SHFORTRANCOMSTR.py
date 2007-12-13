@@ -56,7 +56,7 @@ env = Environment(SHFORTRANCOM = r'%(_python_)s myfc.py fortran $TARGET $SOURCES
                   SHFORTRANCOMSTR = 'Building fortran $TARGET from $SOURCES',
                   SHFORTRANPPCOM = r'%(_python_)s myfc.py fortranpp $TARGET $SOURCES',
                   SHFORTRANPPCOMSTR = 'Building fortranpp $TARGET from $SOURCES',
-                  SHOBJSUFFIX='.shobj')
+                  SHOBJPREFIX='', SHOBJSUFFIX='.shobj')
 env.SharedObject(source = 'test01.f')
 env.SharedObject(source = 'test02.F')
 env.SharedObject(source = 'test03.for')

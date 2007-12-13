@@ -36,11 +36,15 @@ provided by the TestCommon class:
 
     test.must_contain('file', 'required text\n')
 
+    test.must_contain_lines(lines, output)
+
     test.must_exist('file1', ['file2', ...])
 
     test.must_match('file', "expected contents\n")
 
     test.must_not_be_writable('file1', ['file2', ...])
+
+    test.must_not_contain_lines(lines, output)
 
     test.must_not_exist('file1', ['file2', ...])
 
@@ -80,8 +84,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.26.D001 2007/08/20 21:58:58 knight"
-__version__ = "0.26"
+__revision__ = "TestCommon.py 0.30.D001 2007/10/01 16:53:55 knight"
+__version__ = "0.30"
 
 import os
 import os.path
@@ -95,8 +99,6 @@ from TestCmd import *
 from TestCmd import __all__
 
 __all__.extend([ 'TestCommon',
-                 'TestFailed',
-                 'TestNoResult',
                  'exe_suffix',
                  'obj_suffix',
                  'shobj_suffix',
@@ -196,24 +198,16 @@ def separate_files(flist):
             missing.append(f)
     return existing, missing
 
-class TestFailed(Exception):
-    def __init__(self, args=None):
-        self.args = args
-
-class TestNoResult(Exception):
-    def __init__(self, args=None):
-        self.args = args
-
 if os.name == 'posix':
     def _failed(self, status = 0):
         if self.status is None or status is None:
-            return None
-        if os.WIFSIGNALED(self.status):
             return None
         return _status(self) != status
     def _status(self):
         if os.WIFEXITED(self.status):
             return os.WEXITSTATUS(self.status)
+        elif os.WIFSIGNALED(self.status):
+            return os.WTERMSIG(self.status)
         else:
             return None
 elif os.name == 'nt':
@@ -301,6 +295,19 @@ class TestCommon(TestCmd):
             print file_contents
             self.fail_test(not contains)
 
+    def must_contain_lines(self, lines, output, title=None):
+        if title is None:
+            title = 'output'
+
+        missing = filter(lambda l, o=output: string.find(o, l) == -1, lines)
+
+        if missing:
+            print "Missing lines from %s:" % title
+            print string.join(missing, '\n')
+            print "%s ============================================================" % title
+            print output
+            self.fail_test()
+
     def must_exist(self, *files):
         """Ensures that the specified file(s) must exist.  An individual
         file be specified as a list of directory names, in which case the
@@ -328,6 +335,19 @@ class TestCommon(TestCmd):
             print "Unexpected contents of `%s'" % file
             self.diff(expect, file_contents, 'contents ')
             raise
+
+    def must_not_contain_lines(self, lines, output=None, title=None):
+        if title is None:
+            title = 'output'
+
+        unexpected = filter(lambda l, o=output: string.find(o, l) != -1, lines)
+
+        if unexpected:
+            print "Unexpected lines in %s:" % title
+            print string.join(unexpected, '\n')
+            print "%s ============================================================" % title
+            print output
+            self.fail_test()
 
     def must_not_exist(self, *files):
         """Ensures that the specified file(s) must not exist.
@@ -399,12 +419,18 @@ class TestCommon(TestCmd):
             apply(TestCmd.run, [self], kw)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception, e:
             print self.banner('STDOUT ')
-            print self.stdout()
+            try:
+                print self.stdout()
+            except IndexError:
+                pass
             print self.banner('STDERR ')
-            print self.stderr()
-            raise
+            try:
+                print self.stderr()
+            except IndexError:
+                pass
+            raise e
         if _failed(self, status):
             expect = ''
             if status != 0:
@@ -414,19 +440,19 @@ class TestCommon(TestCmd):
             print self.stdout()
             print self.banner('STDERR ')
             print self.stderr()
-            raise TestFailed
+            self.fail_test()
         if not stdout is None and not match(self.stdout(), stdout):
             self.diff(stdout, self.stdout(), 'STDOUT ')
             stderr = self.stderr()
             if stderr:
                 print self.banner('STDERR ')
                 print stderr
-            raise TestFailed
+            self.fail_test()
         if not stderr is None and not match(self.stderr(), stderr):
             print self.banner('STDOUT ')
             print self.stdout()
             self.diff(stderr, self.stderr(), 'STDERR ')
-            raise TestFailed
+            self.fail_test()
 
     def skip_test(self, message="Skipping test.\n"):
         """Skips a test.

@@ -91,9 +91,9 @@ class Alias(SCons.Node.Node):
 
     def get_contents(self):
         """The contents of an alias is the concatenation
-        of all the contents of its sources"""
-        contents = map(lambda n: n.get_contents(), self.children())
-        return string.join(contents, '')
+        of the content signatures of all its sources."""
+        childsigs = map(lambda n: n.get_csig(), self.children())
+        return string.join(childsigs, '')
 
     def sconsign(self):
         """An Alias is not recorded in .sconsign files"""
@@ -133,7 +133,7 @@ class Alias(SCons.Node.Node):
             return self.ninfo.csig
         except AttributeError:
             pass
-           
+
         contents = self.get_contents()
         csig = SCons.Util.MD5signature(contents)
         self.get_ninfo().csig = csig

@@ -1051,6 +1051,99 @@ class LogicalLines:
 
 
 
+class UniqueList(UserList):
+    def __init__(self, seq = []):
+        UserList.__init__(self, seq)
+        self.unique = True
+    def __make_unique(self):
+        if not self.unique:
+            self.data = uniquer_hashables(self.data)
+            self.unique = True
+    def __lt__(self, other):
+        self.__make_unique()
+        return UserList.__lt__(self, other)
+    def __le__(self, other):
+        self.__make_unique()
+        return UserList.__le__(self, other)
+    def __eq__(self, other):
+        self.__make_unique()
+        return UserList.__eq__(self, other)
+    def __ne__(self, other):
+        self.__make_unique()
+        return UserList.__ne__(self, other)
+    def __gt__(self, other):
+        self.__make_unique()
+        return UserList.__gt__(self, other)
+    def __ge__(self, other):
+        self.__make_unique()
+        return UserList.__ge__(self, other)
+    def __cmp__(self, other):
+        self.__make_unique()
+        return UserList.__cmp__(self, other)
+    def __len__(self):
+        self.__make_unique()
+        return UserList.__len__(self)
+    def __getitem__(self, i):
+        self.__make_unique()
+        return UserList.__getitem__(self, i)
+    def __setitem__(self, i, item):
+        UserList.__setitem__(self, i, item)
+        self.unique = False
+    def __getslice__(self, i, j):
+        self.__make_unique()
+        return UserList.__getslice__(self, i, j)
+    def __setslice__(self, i, j, other):
+        UserList.__setslice__(self, i, j, other)
+        self.unique = False
+    def __add__(self, other):
+        result = UserList.__add__(self, other)
+        result.unique = False
+        return result
+    def __radd__(self, other):
+        result = UserList.__radd__(self, other)
+        result.unique = False
+        return result
+    def __iadd__(self, other):
+        result = UserList.__iadd__(self, other)
+        result.unique = False
+        return result
+    def __mul__(self, other):
+        result = UserList.__mul__(self, other)
+        result.unique = False
+        return result
+    def __rmul__(self, other):
+        result = UserList.__rmul__(self, other)
+        result.unique = False
+        return result
+    def __imul__(self, other):
+        result = UserList.__imul__(self, other)
+        result.unique = False
+        return result
+    def append(self, item):
+        UserList.append(self, item)
+        self.unique = False
+    def insert(self, i):
+        UserList.insert(self, i)
+        self.unique = False
+    def count(self, item):
+        self.__make_unique()
+        return UserList.count(self, item)
+    def index(self, item):
+        self.__make_unique()
+        return UserList.index(self, item)
+    def reverse(self):
+        self.__make_unique()
+        UserList.reverse(self)
+    def sort(self, *args, **kwds):
+        self.__make_unique()
+        #return UserList.sort(self, *args, **kwds)
+        return apply(UserList.sort, (self,)+args, kwds)
+    def extend(self, other):
+        UserList.extend(self, other)
+        self.unique = False
+
+
+
 class Unbuffered:
     """
     A proxy class that wraps a file object, flushing after every write,

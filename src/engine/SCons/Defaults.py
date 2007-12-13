@@ -87,11 +87,10 @@ def DefaultEnvironment(*args, **kw):
     if not _default_env:
         import SCons.Util
         _default_env = apply(SCons.Environment.Environment, args, kw)
-        _default_env.TargetSignatures('source')
         if SCons.Util.md5:
-            _default_env.SourceSignatures('MD5')
+            _default_env.Decider('MD5')
         else:
-            _default_env.SourceSignatures('timestamp')
+            _default_env.Decider('timestamp-match')
         global DefaultEnvironment
         DefaultEnvironment = _fetch_DefaultEnvironment
         _default_env._CacheDir = SCons.CacheDir.Null()
@@ -158,7 +157,10 @@ LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
 # ways by creating ActionFactory instances.
 ActionFactory = SCons.Action.ActionFactory
 
-Chmod = ActionFactory(os.chmod,
+def chmod_func(path, mode):
+    return os.chmod(str(path), mode)
+
+Chmod = ActionFactory(chmod_func,
                       lambda dest, mode: 'Chmod("%s", 0%o)' % (dest, mode))
 
 def copy_func(dest, src):
@@ -172,9 +174,11 @@ def copy_func(dest, src):
         return shutil.copytree(src, dest, 1)
 
 Copy = ActionFactory(copy_func,
-                     lambda dest, src: 'Copy("%s", "%s")' % (dest, src))
+                     lambda dest, src: 'Copy("%s", "%s")' % (dest, src),
+                     convert=str)
 
 def delete_func(entry, must_exist=0):
+    entry = str(entry)
     if not must_exist and not os.path.exists(entry):
         return None
     if not os.path.exists(entry) or os.path.isfile(entry):
@@ -188,12 +192,15 @@ def delete_strfunc(entry, must_exist=0):
 Delete = ActionFactory(delete_func, delete_strfunc)
 
 Mkdir = ActionFactory(os.makedirs,
-                      lambda dir: 'Mkdir("%s")' % dir)
+                      lambda dir: 'Mkdir("%s")' % dir,
+                      convert=str)
 
 Move = ActionFactory(lambda dest, src: os.rename(src, dest),
-                     lambda dest, src: 'Move("%s", "%s")' % (dest, src))
+                     lambda dest, src: 'Move("%s", "%s")' % (dest, src),
+                     convert=str)
 
 def touch_func(file):
+    file = str(file)
     mtime = int(time.time())
     if os.path.exists(file):
         atime = os.path.getatime(file)

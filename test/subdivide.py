@@ -34,6 +34,8 @@ import os.path
 
 import TestSCons
 
+_python_ = TestSCons._python_
+
 test = TestSCons.TestSCons()
 
 #if os.path.exists('sconsign.py'):
@@ -46,58 +48,79 @@ test = TestSCons.TestSCons()
 
 test.subdir('src', ['src', 'sub'])
 
+test.write('fake_cc.py', """\
+import sys
+ofp = open(sys.argv[1], 'wb')
+ofp.write('fake_cc.py:  %s\\n' % sys.argv)
+for s in sys.argv[2:]:
+    ofp.write(open(s, 'rb').read())
+""")
+
+test.write('fake_link.py', """\
+import sys
+ofp = open(sys.argv[1], 'wb')
+ofp.write('fake_link.py:  %s\\n' % sys.argv)
+for s in sys.argv[2:]:
+    ofp.write(open(s, 'rb').read())
+""")
+
 test.write('SConstruct', """\
 SConsignFile(None)
 TargetSignatures('content')
-env = Environment()
+env = Environment(PROGSUFFIX = '.exe',
+                  OBJSUFFIX = '.obj',
+                  CCCOM = r'%(_python_)s fake_cc.py $TARGET $SOURCES',
+                  LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCES')
 env.SConscript('src/SConstruct', exports=['env'])
 env.Object('foo.c')
-""")
+""" % locals())
 
 test.write(['src', 'SConstruct'], """\
 SConsignFile(None)
 TargetSignatures('content')
-env = Environment()
-p = env.Program('prog', ['main.c', '../foo%s', 'sub/bar.c'])
+env = Environment(PROGSUFFIX = '.exe',
+                  OBJSUFFIX = '.obj',
+                  CCCOM = r'%(_python_)s fake_cc.py $TARGET $SOURCES',
+                  LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCES')
+p = env.Program('prog', ['main.c', '../foo$OBJSUFFIX', 'sub/bar.c'])
 env.Default(p)
-""" % TestSCons._obj)
+""" % locals())
 
 test.write('foo.c', """\
-#include <stdio.h>
-#include <stdlib.h>
-void
-foo(void) {
-    printf("foo.c\\n");
-}
+foo.c
 """)
 
 test.write(['src', 'main.c'], """\
-#include <stdio.h>
-#include <stdlib.h>
-extern void foo(void);
-extern void bar(void);
-int
-main(int argc, char *argv[]) {
-    foo();
-    bar();
-    printf("src/main.c\\n");
-    exit (0);
-}
+src/main.c
 """)
 
 test.write(['src', 'sub', 'bar.c'], """\
-#include <stdio.h>
-#include <stdlib.h>
-void
-bar(void) {
-    printf("bar.c\\n");
-}
+src/sub/bar.c
 """)
 
 test.run()
 
-test.run(program=test.workpath('src', 'prog'),
-         stdout="foo.c\nbar.c\nsrc/main.c\n")
+src_prog_exe    = os.path.join('src', 'prog.exe')
+src_main_c      = os.path.join('src', 'main.c')
+src_main_obj    = os.path.join('src', 'main.obj')
+src_sub_bar_c   = os.path.join('src', 'sub', 'bar.c')
+src_sub_bar_obj = os.path.join('src', 'sub', 'bar.obj')
+
+expect = """\
+fake_link.py:  ['fake_link.py', '%(src_prog_exe)s', '%(src_main_obj)s', 'foo.obj', '%(src_sub_bar_obj)s']
+fake_cc.py:  ['fake_cc.py', '%(src_main_obj)s', '%(src_main_c)s']
+src/main.c
+fake_cc.py:  ['fake_cc.py', 'foo.obj', 'foo.c']
+foo.c
+fake_cc.py:  ['fake_cc.py', '%(src_sub_bar_obj)s', '%(src_sub_bar_c)s']
+src/sub/bar.c
+""" % locals()
+
+if os.sep == '\\':
+    import string
+    expect = string.replace(expect, '\\', '\\\\')
+
+test.must_match(['src', 'prog.exe'], expect)
 
 test.up_to_date(chdir='src', arguments = test.workpath())
 

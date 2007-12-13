@@ -42,6 +42,7 @@ import re
 import stat
 import string
 import sys
+import tempfile
 
 project = 'scons'
 default_version = '0.97.0'
@@ -139,8 +140,11 @@ python_ver = sys.version[0:3]
 
 platform = distutils.util.get_platform()
 
+# Re-exporting LD_LIBRARY_PATH is necessary if the Python version was
+# built with the --enable-shared option.
+
 ENV = { 'PATH' : os.environ['PATH'] }
-for key in ['LOGNAME', 'PYTHONPATH']:
+for key in ['LOGNAME', 'PYTHONPATH', 'LD_LIBRARY_PATH']:
     if os.environ.has_key(key):
         ENV[key] = os.environ[key]
 
@@ -481,18 +485,54 @@ python_scons = {
                           },
 }
 
-# The RPM spec file we generate will just execute "python", not
-# necessarily the one in sys.executable.  If that version of python has
-# a distutils that knows about Python eggs, then setup.py will generate
-# a .egg-info file.  Check for whether or not to add it to the expected
-# RPM files by executing "python" in a subshell.
+# Figure out the name of a .egg-info file that might be generated
+# as part of the RPM package.  There are two complicating factors.
+#
+# First, the RPM spec file we generate will just execute "python", not
+# necessarily the one in sys.executable.  If *that* version of python has
+# a distutils that knows about Python eggs, then setup.py will generate a
+# .egg-info file, so we have to execute any distutils logic in a subshell.
+#
+# Second, we can't just have the subshell check for the existence of the
+# distutils.command.install_egg_info module and generate the expected
+# file name by hand, the way we used to, because different systems can
+# have slightly different .egg-info naming conventions.  (Specifically,
+# Ubuntu overrides the default behavior to remove the Python version
+# string from the .egg-info file name.)  The right way to do this is to
+# actually call into the install_egg_info() class to have it generate
+# the expected name for us.
+#
+# This is all complicated enough that we do it by writing an in-line
+# script to a temporary file and then feeding it to a separate invocation
+# of "python" to tell us the actual name of the generated .egg-info file.
 
-cmd = "python -c 'import distutils.command.install_egg_info' > /dev/null 2>&1"
-import_egg_error = os.system(cmd)
+print_egg_info_name = """
+try:
+    from distutils.dist import Distribution
+    from distutils.command.install_egg_info import install_egg_info
+except ImportError:
+    pass
+else:
+    dist = Distribution({'name' : "scons", 'version' : '%s'})
+    i = install_egg_info(dist)
+    i.finalize_options()
+    import os.path
+    print os.path.split(i.outputs[0])[1]
+""" % version
 
-if not import_egg_error:
-    egg_info_file = 'scons-' + version + '.egg-info'
-    python_scons['extra_rpm_files'].append(egg_info_file)
+try:
+    fd, tfname = tempfile.mkstemp()
+    tfp = os.fdopen(fd, "w")
+    tfp.write(print_egg_info_name)
+    tfp.close()
+    egg_info_file = os.popen("python %s" % tfname).read()[:-1]
+    if egg_info_file:
+        python_scons['extra_rpm_files'].append(egg_info_file)
+finally:
+    try:
+        os.unlink(tfname)
+    except EnvironmentError:
+        pass
 
 #
 # The original packaging scheme would have have required us to push

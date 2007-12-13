@@ -39,7 +39,7 @@ test.write('SConstruct', """\
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
-conf = Configure(env)
+conf = Configure(env, help=int(ARGUMENTS['help']))
 r1 = conf.CheckCHeader( 'math.h' )
 r2 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
 env = conf.Finish()
@@ -65,45 +65,26 @@ lines = [
     "Checking for C header file no_std_c_header.h... "
 ]
 
-unexpected = []
+# The help setting should have no effect on -H, so the -H output
+# should never contain the lines.
+test.run(arguments = '-H help=0')
+test.must_not_contain_lines(lines, test.stdout())
 
-test.run(arguments = '-H')
+test.run(arguments = '-H help=1')
+test.must_not_contain_lines(lines, test.stdout())
 
-for line in lines:
-    if string.find(test.stdout(), line) != -1:
-        unexpected.append(line)
+# For -h and --help, the lines appear or not depending on how Configure()
+# is initialized.
+test.run(arguments = '-h help=0')
+test.must_not_contain_lines(lines, test.stdout())
 
-if unexpected:
-    print "Unexpected lines in standard output:"
-    print string.join(unexpected, '\n')
-    print "STDOUT ============================================================"
-    print test.stdout()
-    test.fail_test()
+test.run(arguments = '-h help=1')
+test.must_contain_lines(lines, test.stdout())
 
-test.run(arguments = '-h')
+test.run(arguments = '--help help=0')
+test.must_not_contain_lines(lines, test.stdout())
 
-for line in lines:
-    if string.find(test.stdout(), line) != -1:
-        unexpected.append(line)
-
-if unexpected:
-    print "Unexpected lines in standard output:"
-    print string.join(unexpected, '\n')
-    print "STDOUT ============================================================"
-    print test.stdout()
-    test.fail_test()
-
-test.run(arguments = '--help')
-
-for line in lines:
-    if string.find(test.stdout(), line) != -1:
-        unexpected.append(line)
-
-if unexpected:
-    print "Unexpected lines in standard output:"
-    print string.join(unexpected, '\n')
-    print "STDOUT ============================================================"
-    print test.stdout()
-    test.fail_test()
+test.run(arguments = '--help help=1')
+test.must_contain_lines(lines, test.stdout())
 
 test.pass_test()

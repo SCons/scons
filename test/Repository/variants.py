@@ -204,7 +204,8 @@ test.write(['repository', 'src2', 'xxx', 'main.c'], r"""
 #ifdef  BAR
 #define MAIN_OS         "BAR"
 #endif
-main()
+int
+main(int argc, char *argv[])
 {
         printf(INCLUDE_STRING, INCLUDE_OS);
         printf(XXX_STRING, XXX_OS);

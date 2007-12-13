@@ -280,12 +280,23 @@ def Cat(target, source, env):
 
 def CCCom(target, source, env):
     target = str(target[0])
-    f = open(target, "wb")
+    fp = open(target, "wb")
+    def process(source_file, fp=fp):
+        for line in open(source_file, "rb").readlines():
+            m = re.match(r'#include\s[<"]([^<"]+)[>"]', line)
+            if m:
+                include = m.group(1)
+                for d in [str(env.Dir('$CPPPATH')), '.']:
+                    f = os.path.join(d, include)
+                    if os.path.exists(f):
+                        process(f)
+                        break
+            elif line[:11] != "STRIP CCCOM":
+                fp.write(line)
     for src in map(str, source):
-        lines = open(src, "rb").readlines()
-        lines = filter(lambda l: l[:11] != "STRIP CCCOM", lines)
-        f.write(string.join(lines))
-    f.close()
+        process(src)
+        fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')
+    fp.close()
 
 public_class_re = re.compile('^public class (\S+)', re.MULTILINE)
 
@@ -432,13 +443,19 @@ def command_scons(args, c, test, dict):
     return lines
 
 def command_touch(args, c, test, dict):
-    time.sleep(1)
+    if args[0] == '-t':
+        t = int(time.mktime(time.strptime(args[1], '%Y%m%d%H%M')))
+        times = (t, t)
+        args = args[2:]
+    else:
+        time.sleep(1)
+        times = None
     for file in args:
         if not os.path.isabs(file):
             file = os.path.join(test.workpath('WORK'), file)
         if not os.path.exists(file):
             open(file, 'wb')
-        os.utime(file, None)
+        os.utime(file, times)
     return []
 
 def command_edit(args, c, test, dict):
@@ -728,6 +745,7 @@ class MySGML(sgmllib.SGMLParser):
             elif lines:
                 content = string.join(lines, '\n' + p)
             if content:
+                content = re.sub(' at 0x[0-9a-fA-F]*\>', ' at 0x700000&gt;', content)
                 content = string.replace(content, '<', '&lt;')
                 content = string.replace(content, '>', '&gt;')
                 sys.stdout.write(p + content + '\n')

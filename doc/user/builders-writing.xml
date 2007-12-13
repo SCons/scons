@@ -239,7 +239,7 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    To be able use both our own defined &Builder; objects
+    To be able to use both our own defined &Builder; objects
     and the default &Builder; objects in the same &consenv;,
     you can either add to the &cv-BUILDERS; variable
     using the &Append; function:

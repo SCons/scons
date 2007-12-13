@@ -225,6 +225,9 @@ test.write(['test2', 'foo.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 
+extern void
+bar(void);
+
 int
 main(int argc, char *argv[]) {
         bar();

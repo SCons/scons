@@ -216,6 +216,9 @@ class BuilderWrapper(MethodWrapper):
     def __repr__(self):
         return '<BuilderWrapper %s>' % repr(self.name)
 
+    def __str__(self):
+        return self.__repr__()
+
     def __getattr__(self, name):
         if name == 'env':
             return self.object
@@ -259,6 +262,12 @@ class BuilderDict(UserDict):
         return self.__class__(self.data, self.env)
 
     def __setitem__(self, item, val):
+        try:
+            method = getattr(self.env, item).method
+        except AttributeError:
+            pass
+        else:
+            self.env.RemoveMethod(method)
         UserDict.__setitem__(self, item, val)
         BuilderWrapper(self.env, val, item)
 
@@ -773,6 +782,10 @@ def default_decide_target(dependency, target, prev_ni):
     f = SCons.Defaults.DefaultEnvironment().decide_target
     return f(dependency, target, prev_ni)
 
+def default_copy_from_cache(src, dst):
+    f = SCons.Defaults.DefaultEnvironment().copy_from_cache
+    return f(src, dst)
+
 class Base(SubstitutionEnvironment):
     """Base class for "real" construction Environments.  These are the
     primary objects used to communicate dependency and construction
@@ -835,6 +848,8 @@ class Base(SubstitutionEnvironment):
         # OverrideEnvironment or what have you.
         self.decide_target = default_decide_target
         self.decide_source = default_decide_source
+
+        self.copy_from_cache = default_copy_from_cache
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
@@ -1137,7 +1152,7 @@ class Base(SubstitutionEnvironment):
 
         clone.added_methods = []
         for mw in self.added_methods:
-            mw.clone(clone)
+            clone.added_methods.append(mw.clone(clone))
 
         clone._memo = {}
 
@@ -1185,7 +1200,14 @@ class Base(SubstitutionEnvironment):
     def _changed_timestamp_match(self, dependency, target, prev_ni):
         return dependency.changed_timestamp_match(target, prev_ni)
 
+    def _copy_from_cache(self, src, dst):
+        return self.fs.copy(src, dst)
+
+    def _copy2_from_cache(self, src, dst):
+        return self.fs.copy2(src, dst)
+
     def Decider(self, function):
+        copy_function = self._copy2_from_cache
         if function in ('MD5', 'content'):
             if not SCons.Util.md5:
                 raise UserError, "MD5 signatures are not available in this version of Python."
@@ -1194,6 +1216,7 @@ class Base(SubstitutionEnvironment):
             function = self._changed_timestamp_then_content
         elif function in ('timestamp-newer', 'make'):
             function = self._changed_timestamp_newer
+            copy_function = self._copy_from_cache
         elif function == 'timestamp-match':
             function = self._changed_timestamp_match
         elif not callable(function):
@@ -1204,6 +1227,8 @@ class Base(SubstitutionEnvironment):
         # method, which would add self as an initial, fourth argument.
         self.decide_target = function
         self.decide_source = function
+
+        self.copy_from_cache = copy_function
 
     def Detect(self, progs):
         """Return the first available program in progs.
@@ -1706,7 +1731,11 @@ class Base(SubstitutionEnvironment):
         """Directly execute an action through an Environment
         """
         action = apply(self.Action, (action,) + args, kw)
-        return action([], [], self)
+        result = action([], [], self)
+        if isinstance(result, SCons.Errors.BuildError):
+            return result.status
+        else:
+            return result
 
     def File(self, name, *args, **kw):
         """
@@ -1727,6 +1756,9 @@ class Base(SubstitutionEnvironment):
             return result
         else:
             return result[0]
+
+    def Glob(self, pattern, ondisk=True, source=False, strings=False):
+        return self.fs.Glob(self.subst(pattern), ondisk, source, strings)
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
@@ -1762,6 +1794,16 @@ class Base(SubstitutionEnvironment):
     def Repository(self, *dirs, **kw):
         dirs = self.arg2nodes(list(dirs), self.fs.Dir)
         apply(self.fs.Repository, dirs, kw)
+
+    def Requires(self, target, prerequisite):
+        """Specify that 'prerequisite' must be built before 'target',
+        (but 'target' does not actually depend on 'prerequisite'
+        and need not be rebuilt if it changes)."""
+        tlist = self.arg2nodes(target, self.fs.Entry)
+        plist = self.arg2nodes(prerequisite, self.fs.Entry)
+        for t in tlist:
+            t.add_prerequisite(plist)
+        return tlist
 
     def Scanner(self, *args, **kw):
         nargs = []
@@ -1810,7 +1852,7 @@ class Base(SubstitutionEnvironment):
                 raise UserError, "MD5 signatures are not available in this version of Python."
             self.decide_source = self._changed_content
         elif type == 'timestamp':
-            self.decide_source = self._changed_timestamp_newer
+            self.decide_source = self._changed_timestamp_match
         else:
             raise UserError, "Unknown source signature type '%s'" % type
 
@@ -1840,7 +1882,7 @@ class Base(SubstitutionEnvironment):
                 raise UserError, "MD5 signatures are not available in this version of Python."
             self.decide_target = self._changed_content
         elif type == 'timestamp':
-            self.decide_target = self._changed_timestamp_newer
+            self.decide_target = self._changed_timestamp_match
         elif type == 'build':
             self.decide_target = self._changed_build
         elif type == 'source':

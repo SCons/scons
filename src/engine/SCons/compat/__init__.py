@@ -111,6 +111,35 @@ except NameError:
     import sets
     __builtin__.set = sets.Set
 
+import fnmatch
+try:
+    fnmatch.filter
+except AttributeError:
+    # Pre-2.2 Python has no fnmatch.filter() function.
+    def filter(names, pat):
+        """Return the subset of the list NAMES that match PAT"""
+        import os,posixpath
+        result=[]
+        pat = os.path.normcase(pat)
+        if not fnmatch._cache.has_key(pat):
+            import re
+            res = fnmatch.translate(pat)
+            fnmatch._cache[pat] = re.compile(res)
+        match = fnmatch._cache[pat].match
+        if os.path is posixpath:
+            # normcase on posix is NOP. Optimize it away from the loop.
+            for name in names:
+                if match(name):
+                    result.append(name)
+        else:
+            for name in names:
+                if match(os.path.normcase(name)):
+                    result.append(name)
+        return result
+    fnmatch.filter = filter
+    del filter
+   
+
 # If we need the compatibility version of textwrap, it  must be imported
 # before optparse, which uses it.
 try:

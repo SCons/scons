@@ -251,6 +251,10 @@
     the library will be found in the 
     &cv-link-LIBPATH; construction variable:
 
+    <!-- In the preceding paragraph, the "$" notation for
+         LIBS, LIBPATH etc. is used for the first time.
+         Maybe some words of explanation would be nice. -->
+
     </para>
 
     <scons_example name="ex2">
@@ -427,6 +431,8 @@
     <scons_output example="ex3" os="win32">
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
+    <!-- The link command is too wide in the PDF version. 
+         There are some other examples of this throughout the document. -->
 
     <para>
 

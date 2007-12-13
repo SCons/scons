@@ -48,6 +48,8 @@ things.  Here is an overview of them:
 
     test.subdir('subdir', ...)
 
+    test.rmdir('subdir', ...)
+
     test.write('file', "contents\n")
     test.write(['subdir', 'file'], "contents\n")
 
@@ -179,8 +181,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.26.D001 2007/08/20 21:58:58 knight"
-__version__ = "0.26"
+__revision__ = "TestCmd.py 0.30.D001 2007/10/01 16:53:55 knight"
+__version__ = "0.30"
 
 import os
 import os.path
@@ -689,6 +691,17 @@ class TestCmd:
         if mode[0] != 'r':
             raise ValueError, "mode must begin with 'r'"
         return open(file, mode).read()
+
+    def rmdir(self, dir):
+        """Removes the specified dir name.
+        The dir name may be a list, in which case the elements are
+        concatenated with the os.path.join() method.  The dir is
+        assumed to be under the temporary working directory unless it
+        is an absolute path name.
+        The dir must be empty.
+        """
+        dir = self.canonicalize(dir)
+        os.rmdir(dir)
 
     def run(self, program = None,
                   interpreter = None,

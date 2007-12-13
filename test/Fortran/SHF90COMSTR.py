@@ -56,7 +56,7 @@ env = Environment(SHF90COM = r'%(_python_)s myfc.py f90 $TARGET $SOURCES',
                   SHF90COMSTR = 'Building f90 $TARGET from $SOURCES',
                   SHF90PPCOM = r'%(_python_)s myfc.py f90pp $TARGET $SOURCES',
                   SHF90PPCOMSTR = 'Building f90pp $TARGET from $SOURCES',
-                  SHOBJSUFFIX='.shobj')
+                  SHOBJPREFIX='', SHOBJSUFFIX='.shobj')
 env.SharedObject(source = 'test01.f90')
 env.SharedObject(source = 'test02.F90')
 """ % locals())

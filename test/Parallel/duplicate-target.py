@@ -41,34 +41,58 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.subdir('work')
+test.subdir('work', ['work', 'sub'])
 
 tar_output = test.workpath('work.tar')
 
-test.write(['work', 'copy.py'], """\
+test.write(['work', 'mycopy.py'], """\
 import sys
 import time
 time.sleep(int(sys.argv[1]))
 open(sys.argv[2], 'wb').write(open(sys.argv[3], 'rb').read())
 """)
 
+test.write(['work', 'mytar.py'], """\
+import sys
+import os.path
+
+def visit(arg, dirname, fnames):
+    fnames.sort()
+    for fn in fnames:
+        p = os.path.join(dirname, fn)
+        if os.path.isfile(p):
+            arg.write(open(p, 'rb').read())
+
+fp = open(sys.argv[1], 'wb')
+for s in sys.argv[2:]:
+    os.path.walk(s, visit, fp)
+""")
+
 test.write(['work', 'SConstruct'], """\
 env = Environment()
-out1 = File('f1.out')
-out2 = File('f2.out')
-env.Command([out1, out1], 'f1.in', r'%(_python_)s copy.py 3 $TARGET $SOURCE')
-env.Command([out2, out2], 'f2.in', r'%(_python_)s copy.py 3 $TARGET $SOURCE')
+out1 = File('sub/f1.out')
+out2 = File('sub/f2.out')
+env.Command([out1, out1], 'sub/f1.in',
+            r'%(_python_)s mycopy.py 3 $TARGET $SOURCE')
+env.Command([out2, out2], 'sub/f2.in',
+            r'%(_python_)s mycopy.py 3 $TARGET $SOURCE')
 
-env.Tar(r'%(tar_output)s', Dir('.'))
+env.Command(r'%(tar_output)s', Dir('sub'),
+            r'%(_python_)s mytar.py $TARGET $SOURCE')
 """ % locals())
 
-test.write(['work', 'f1.in'], "work/f1.in\n")
-test.write(['work', 'f2.in'], "work/f2.in\n")
+test.write(['work', 'sub', 'f1.in'], "work/sub/f1.in\n")
+test.write(['work', 'sub', 'f2.in'], "work/sub/f2.in\n")
 
 test.run(chdir = 'work', arguments = tar_output + ' -j2')
 
-test.must_match(['work', 'f1.out'], "work/f1.in\n")
-test.must_match(['work', 'f2.out'], "work/f2.in\n")
-test.must_exist(tar_output)
+test.must_match(['work', 'sub', 'f1.out'], "work/sub/f1.in\n")
+test.must_match(['work', 'sub', 'f2.out'], "work/sub/f2.in\n")
+test.must_match(tar_output, """\
+work/sub/f1.in
+work/sub/f1.in
+work/sub/f2.in
+work/sub/f2.in
+""")
 
 test.pass_test()

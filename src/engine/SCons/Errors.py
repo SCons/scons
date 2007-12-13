@@ -33,10 +33,16 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 class BuildError(Exception):
-    def __init__(self, node=None, errstr="Unknown error", filename=None, *args):
+    def __init__(self, node=None, errstr="Unknown error", status=0,
+                       filename=None, executor=None, action=None, command=None,
+                       *args):
         self.node = node
         self.errstr = errstr
+        self.status = status
         self.filename = filename
+        self.executor = executor
+        self.action = action
+        self.command = command
         apply(Exception.__init__, (self,) + args)
 
 class InternalError(Exception):

@@ -264,8 +264,8 @@ scons foo bar
 in which case only the specified targets will be built
 (along with any derived files on which they depend).
 
-Specifying "cleanup" targets in SConscript files is not
-necessary.  The 
+Specifying "cleanup" targets in SConscript files is not usually necessary.
+The 
 .B -c
 flag removes all files
 necessary to build the specified target:
@@ -1271,7 +1271,7 @@ These warnings are disabled by default.
 Search the specified repository for any input and target
 files not found in the local directory hierarchy.  Multiple
 .B -Y
-options may specified, in which case the
+options may be specified, in which case the
 repositories are searched in the order specified.
 
 .SH CONFIGURATION FILE REFERENCE
@@ -1340,7 +1340,7 @@ env = Environment(platform = my_platform)
 
 Additionally, a specific set of tools
 with which to initialize the environment
-may specified as an optional keyword argument:
+may be specified as an optional keyword argument:
 
 .ES
 env = Environment(tools = ['msvc', 'lex'])
@@ -1530,10 +1530,12 @@ Build rules are specified by calling a construction
 environment's builder methods.
 The arguments to the builder methods are
 .B target
-(a list of target files)
+(a list of targets to be built,
+usually file names)
 and
 .B source
-(a list of source files).
+(a list of sources to be built,
+usually file names).
 
 Because long lists of file names
 can lead to a lot of quoting,
@@ -1567,6 +1569,58 @@ env.Program(source =  ['bar.c', 'foo.c'], target = 'bar')
 env.Program(target = 'bar', Split('bar.c foo.c'))
 env.Program(target = 'bar', env.Split('bar.c foo.c'))
 env.Program('bar', source = string.split('bar.c foo.c'))
+.EE
+
+Target and source file names
+that are not absolute path names
+(that is, do not begin with
+.B /
+on POSIX systems
+or 
+.B \\
+on Windows systems,
+with or without
+an optional drive letter)
+are interpreted relative to the directory containing the
+.B SConscript
+file being read.
+An initial
+.B #
+(hash mark)
+on a path name means that the rest of the file name
+is interpreted relative to
+the directory containing
+the top-level
+.B SConstruct
+file,
+even if the
+.B #
+is followed by a directory separator character
+(slash or backslash).
+
+Examples:
+
+.ES
+# The comments describing the targets that will be built
+# assume these calls are in a SConscript file in the
+# a subdirectory named "subdir".
+
+# Builds the program "subdir/foo" from "subdir/foo.c":
+env.Program('foo', 'foo.c')
+
+# Builds the program "/tmp/bar" from "subdir/bar.c":
+env.Program('/tmp/bar', 'bar.c')
+
+# An initial '#' or '#/' are equivalent; the following
+# calls build the programs "foo" and "bar" (in the
+# top-level SConstruct directory) from "subdir/foo.c" and
+# "subdir/bar.c", respectively:
+env.Program('#foo', 'foo.c')
+env.Program('#/bar', 'bar.c')
+
+# Builds the program "other/foo" (relative to the top-level
+# SConstruct directory) from "subdir/foo.c":
+env.Program('#other/foo', 'foo.c')
 .EE
 
 When the target shares the same base name
@@ -1665,15 +1719,16 @@ to the Python module:
 from SCons.Script import *
 .EE
 
-All builder methods return a list of Nodes
-that represent the target or targets that will be built.
+All builder methods return a list-like object
+containing Nodes that
+represent the target or targets that will be built.
 A
 .I Node
 is an internal SCons object
 which represents
 build targets or sources.
 
-The returned Node(s)
+The returned Node-list object
 can be passed to other builder methods as source(s)
 or passed to any SCons function or method
 where a filename would normally be accepted.
@@ -1712,7 +1767,7 @@ for object in objects:
 
 Or you can use the
 .BR Flatten ()
-supplied by scons
+function supplied by scons
 to create a list containing just the Nodes,
 which may be more convenient:
 
@@ -1722,6 +1777,40 @@ bar = Object('bar.c')
 objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
 for object in objects:
     print str(object)
+.EE
+
+Note also that because Builder calls return
+a list-like object, not an actual Python list,
+you should
+.I not
+use the Python
+.B +=
+operator to append Builder results to a Python list.
+Because the list and the object are different types,
+Python will not update the original list in place,
+but will instead create a new Node-list object
+containing the concatenation of the list
+elements and the Builder results.
+This will cause problems for any other Python variables
+in your SCons configuration
+that still hold on to a reference to the original list.
+Instead, use the Python
+.B .extend()
+method to make sure the list is updated in-place.
+Example:
+
+.ES
+object_files = []
+
+# Do NOT use += as follows:
+#
+#    object_files += Object('bar.c')
+#
+# It will not update the object_files list in place.
+#
+# Instead, use the .extend() method:
+object_files.extend(Object('bar.c'))
+
 .EE
 
 The path name for a Node's file may be used
@@ -3303,14 +3392,14 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
 .RI FindInstalledFiles( )
 .TP
 .RI env.FindInstalledFiles( )
-Returns the list of targets setup by the
+Returns the list of targets set up by the
 .B Install()
 or
 .B InstallAs()
 builders.
 
 This function serves as a convenient method to select the contents of
-a Binary Package.
+a binary package.
 
 Example:
 
@@ -3338,7 +3427,7 @@ Returns the list of nodes which serve as the source of the built files.
 It does so by inspecting the dependency tree starting at the optional
 argument
 .B node
-which defaults to the '"."'-node. It will then return all leafs of
+which defaults to the '"."'-node. It will then return all leaves of
 .B node.
 These are all children which have no further children.
 
@@ -3453,6 +3542,111 @@ for object in Flatten(objects):
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI GetBuildFailures()
+Returns a list of exceptions for the
+actions that failed while
+attempting to build targets.
+Each element in the returned list is a
+.B BuildError
+object
+with the following attributes
+that record various aspects
+of the build failure:
+
+.B .node
+The node that was being built
+when the build failure occurred.
+
+.B .status
+The numeric exit status
+returned by the command or Python function
+that failed when trying to build the
+specified Node.
+
+.B .errstr
+The SCons error string
+describing the build failure.
+(This is often a generic
+message like "Error 2"
+to indicate that an executed
+command exited with a status of 2.)
+
+.B .filename
+The name of the file or
+directory that actually caused the failure.
+This may be different from the
+.B .node
+attribute.
+For example,
+if an attempt to build a target named
+.B sub/dir/target
+fails because the
+.B sub/dir
+directory could not be created,
+then the
+.B .node
+attribute will be
+.B sub/dir/target
+but the
+.B .filename
+attribute will be
+.BR sub/dir .
+
+.B .executor
+The SCons Executor object
+for the target Node
+being built.
+This can be used to retrieve
+the construction environment used
+for the failed action.
+
+.B .action
+The actual SCons Action object that failed.
+This will be one specific action
+out of the possible list of
+actions that would have been
+executed to build the target.
+
+.B .command
+The actual expanded command that was executed and failed,
+after expansion of
+.BR $TARGET ,
+.BR $SOURCE ,
+and other construction variables.
+
+Note that the
+.BR GetBuildFailures ()
+function
+will always return an empty list
+until any build failure has occurred,
+which means that
+.BR GetBuildFailures ()
+will always return an empty list
+while the
+.B SConscript
+files are being read.
+Its primary intended use is
+for functions that will be
+executed before SCons exits
+by passing them to the
+standard Python
+.BR atexit.register ()
+function.
+Example:
+
+.ES
+import atexit
+
+def print_build_failures():
+    from SCons.Script import GetBuildFailures
+    for bf in GetBuildFailures():
+        print "%s failed: %s" % (bf.node, bf.errstr)
+
+atexit.register(print_build_failures)
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI GetBuildPath( file ", [" ... ])
 .TP
@@ -3497,6 +3691,111 @@ This function provides a way to query a select subset of the scons command line
 options from a SConscript file. See 
 .IR SetOption () 
 for a description of the options available.
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Glob( pattern ", [" ondisk ", " source ", " strings ])
+.TP
+.RI env.Glob( pattern ", [" ondisk ", " source ", " strings ])
+Returns Nodes (or strings) that match the specified
+.IR pattern ,
+relative to the directory of the current
+.B SConscript
+file.
+The
+.BR env.Glob ()
+form performs string substition on
+.I pattern
+and returns whatever matches
+the resulting expanded pattern.
+
+The specified
+.I pattern
+uses Unix shell style metacharacters for matching:
+
+.ES
+  *       matches everything
+  ?       matches any single character
+  [seq]   matches any character in seq
+  [!seq]  matches any char not in seq
+.EE
+
+Character matches do
+.I not
+span directory separators.
+
+The
+.BR Glob ()
+knows about
+repositories
+(see the
+.BR Repository ()
+function)
+and source directories
+(see the
+.BR BuildDir ()
+function)
+and
+returns a Node (or string, if so configured)
+in the local (SConscript) directory
+if matching Node is found
+anywhere in a corresponding
+repository or source directory.
+
+The
+.B ondisk
+argument may be set to
+.B False
+(or any other non-true value)
+to disable the search for matches on disk,
+thereby only returning matches among
+already-configured File or Dir Nodes.
+The default behavior is to
+return corresponding Nodes
+for any on-disk matches found.
+
+The
+.B source
+argument may be set to
+.B True
+(or any equivalent value)
+to specify that,
+when the local directory is a
+.BR BuildDir (),
+the returned Nodes should be from the
+corresponding source directory,
+not the local directory.
+
+The
+.B strings
+argument may be set to
+.B True
+(or any equivalent value)
+to have the
+.BR Glob ()
+function return strings, not Nodes,
+that represent the matched files or directories.
+The returned strings will be relative to
+the local (SConscript) directory.
+(Note that This may make it easier to perform
+arbitrary manipulation of file names,
+but if the returned strings are
+passed to a different
+.B SConscript
+file,
+any Node translation will be relative
+to the other
+.B SConscript
+directory,
+not the original
+.B SConscript
+directory.)
+
+Example:
+
+.ES
+Program('foo', Glob('*.c'))
+.EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 '\".TP
@@ -4267,6 +4566,29 @@ method.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI Requires( target ", " prerequisite )
+.TP
+.RI env.Requires( target ", " prerequisite )
+Specifies an order-only relationship
+between the specified target file(s)
+and the specified prerequisite file(s).
+The prerequisite file(s)
+will be (re)built, if necessary,
+.I before
+the target file(s),
+but the target file(s) do not actually
+depend on the prerequisites
+and will not be rebuilt simply because
+the prerequisite file(s) change.
+
+Example:
+
+.ES
+env.Requires('foo', 'file-that-must-be-built-before-foo')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI Return([ vars "... , " stop= ])
 By default,
 this stops processing the current SConscript
@@ -4875,7 +5197,16 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 .RI SourceSignatures( type )
 .TP
 .RI env.SourceSignatures( type )
-This function tells
+Note:  Although it is not yet officially deprecated,
+use of this function is discouraged.
+See the
+.BR Decider ()
+function for a more flexible and straightforward way
+to configure SCons' decision-making.
+
+The
+.BR SourceSignatures ()
+function tells
 .B scons
 how to decide if a source file
 (a file that is not built from any other files)
@@ -4906,8 +5237,12 @@ the last time it was used to rebuild a particular target file.
 means
 .B scons
 decides that a source file has changed
-if its timestamp (modification time) is newer than
+if its timestamp (modification time) has changed since
 the last time it was used to rebuild a particular target file.
+(Note that although this is similar to the behavior of Make,
+by default it will also rebuild if the dependency is
+.I older
+than the last time it was used to rebuild the target file.)
 
 There is no different between the two behaviors
 for Python
@@ -4993,7 +5328,16 @@ Tag( 'file2.txt', DOC )
 .RI TargetSignatures( type )
 .TP
 .RI env.TargetSignatures( type )
-This function tells
+Note:  Although it is not yet officially deprecated,
+use of this function is discouraged.
+See the
+.BR Decider ()
+function for a more flexible and straightforward way
+to configure SCons' decision-making.
+
+The
+.BR TargetSignatures ()
+function tells
 .B scons
 how to decide if a target file
 (a file that
@@ -5040,8 +5384,12 @@ rebuilt with exactly the same contents as the last time.
 means
 .B scons
 decides that a target file has changed
-if its timestamp (modification time) is newer than
+if its timestamp (modification time) has changed since
 the last time it was used to rebuild some other target file.
+(Note that although this is similar to the behavior of Make,
+by default it will also rebuild if the dependency is
+.I older
+than the last time it was used to rebuild the target file.)
 
 .B "source"
 means
@@ -5476,7 +5824,7 @@ defined construction variables:
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 '\" BEGIN GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS
 '\"
-'\" The descriptions below of the various SCons contruction variables
+'\" The descriptions below of the various SCons construction variables
 '\" are generated from the .xml files that live next to the various
 '\" Python modules in the build enginer library.  If you're reading
 '\" this [gnt]roff file with an eye towards patching this man page,
@@ -5491,7 +5839,7 @@ defined construction variables:
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 '\" END GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS
 '\"
-'\" The descriptions above of the various SCons contruction variables
+'\" The descriptions above of the various SCons construction variables
 '\" are generated from the .xml files that live next to the various
 '\" Python modules in the build enginer library.  If you're reading
 '\" this [gnt]roff file with an eye towards patching this man page,
@@ -5554,9 +5902,9 @@ command line option.
 The following methods can be used to perform checks:
 
 .TP
-.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ", " config_h ])
+.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ", " config_h ", " clean ", " help])
 .TP
-.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ", " config_h ])
+.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ", " config_h ", " clean ", " help])
 This creates a configure context, which can be used to perform checks.
 .I env
 specifies the environment for building the tests.
@@ -5603,6 +5951,30 @@ but is only rebuilt if its contents will have changed
 and some target that depends on the
 .I config_h
 file is being built.
+
+The optional
+.B clean
+and
+.B help
+arguments can be used to suppress execution of the configuration
+tests when the
+.B -c/--clean
+or
+.B -H/-h/--help
+options are used, respectively.
+The default behavior is always to execute
+configure context tests,
+since the results of the tests may
+affect the list of targets to be cleaned
+or the help text.
+If the configure tests do not affect these,
+then you may add the
+.B clean=False
+or
+.B help=False
+arguments
+(or both)
+to avoid unnecessary test execution.
 
 .EE
 A created
@@ -5843,6 +6215,42 @@ if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++', 'QApplication qapp(0,0);' ):
 env = conf.Finish() 
 .EE
 
+.TP
+.RI Configure.CheckTypeSize( self ", " type_name ", [" header ", " language ", " expect ])
+Checks for the size of a type defined by
+.BR typedef .
+.I type_name
+specifies the typedef name to check for.
+The optional
+.I header
+argument is a string
+that will be
+placed at the top
+of the test file
+that will be compiled
+to check if the function exists;
+the default is empty.
+The optional
+.I language
+argument should be
+.B C
+or
+.B C++
+and selects the compiler to be used for the check;
+the default is "C".
+The optional
+.I expect
+argument should be an integer.
+If this argument is used,
+the function will only check whether the type
+given in type_name has the expected size (in bytes).
+For example,
+.B "CheckTypeSize('short', expect = 2)"
+will return success only if short is two bytes.
+
+.ES
+.EE
+
 .EE
 You can define your own custom checks. 
 in addition to the predefined checks.
@@ -5990,9 +6398,13 @@ written. For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
 compiler. 
 .B scons
-provides a mechanism for overridding construction variables from the
-command line or a text-based SConscript file through an Options
-object. To create an Options object, call the Options() function:
+provides an Options object for overridding construction variables
+on the command line:
+.ES
+$ scons VARIABLE=foo
+.EE
+The variable values can also be specified in a text-based SConscript file.
+To create an Options object, call the Options() function:
 
 .TP
 .RI Options([ files "], [" args ])
@@ -6091,8 +6503,17 @@ opt.AddOptions(
 .RI Update( env ", [" args ])
 This updates a construction environment
 .I env
-with the customized construction variables. Normally this method is not
-called directly, but is called indirectly by passing the Options object to
+with the customized construction variables.
+Any specified variables that are
+.I not
+configured for the Options object
+will be saved and may be
+retrieved with the
+.BR UnknownOptions ()
+method, below.
+
+Normally this method is not called directly,
+but is called indirectly by passing the Options object to
 the Environment() function:
 
 .ES
@@ -6105,10 +6526,26 @@ when the Options object was created
 are executed as Python scripts,
 and the values of (global) Python variables set in the file
 are added to the construction environment.
+
 Example:
 
 .ES
 CC = 'my_cc'
+.EE
+
+.TP
+.RI UnknownOptions( )
+Returns a dictionary containing any
+variables that were specified
+either in the files or the dictionary
+with which the Options object was intialized,
+but for which the Options object was
+not configured.
+
+.ES
+env = Environment(options=opts)
+for key, value in opts.UnknownOptions():
+    print "unknown variable:  %s=%s" % (key, value)
 .EE
 
 .TP
@@ -8436,7 +8873,7 @@ prefix and suffix for the current platform
 (for example, 'liba.a' on POSIX systems,
 'a.lib' on Windows).
 
-.SS Customizing contruction variables from the command line.
+.SS Customizing construction variables from the command line.
 
 The following would allow the C compiler to be specified on the command
 line or in the file custom.py. 

@@ -46,7 +46,7 @@ if sys.platform != 'win32':
     test.skip_test(msg)
 
 test.write('SConstruct', """\
-env = Environment(PDB = '${TARGET}.pdb')
+env = Environment(PDB = '${TARGET.base}.pdb')
 env.Program('test1.cpp')
 env.Program('test2.cpp')
 """)
@@ -75,9 +75,9 @@ main(int argc, char *argv)
 
 test.run(arguments = '.')
 
-test.must_exist('test1%s'     % _exe)
-test.must_exist('test1%s.pdb' % _exe)
-test.must_exist('test2%s'     % _exe)
-test.must_exist('test2%s.pdb' % _exe)
+test.must_exist('test1%s' % _exe)
+test.must_exist('test1.pdb')
+test.must_exist('test2%s' % _exe)
+test.must_exist('test2.pdb')
 
 test.pass_test()

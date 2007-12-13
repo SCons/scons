@@ -79,4 +79,21 @@ test.run(arguments='', stderr = None)
 test.must_exist( 'src-1.0.zip' )
 test.must_exist( 'src-1.0.tar.gz' )
 
+test.write('SConstruct', """
+Program( 'src/main.c' )
+env=Environment(tools=['default', 'packaging'])
+env.Package( PACKAGETYPE  = ['src_zip', 'src_targz'],
+             NAME = "src", VERSION = "1.0",
+             PACKAGEROOT  = 'test',
+             source       = [ 'src/main.c', 'SConstruct' ],
+             target       = 'src.zip' )
+""")
+
+test.run(arguments='', stderr = None)
+
+test.must_exist( 'src.zip' )
+test.must_exist( 'src-1.0.tar.gz' )
+
+
+
 test.pass_test()

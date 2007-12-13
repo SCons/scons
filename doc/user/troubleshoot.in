@@ -241,7 +241,7 @@
     Although this is usually helpful and what you want,
     it might be frustrating if &SCons;
     doesn't set certain variables that you
-    expect to be sit.
+    expect to be set.
     In situations like this,
     it's sometimes helpful to use the
     construction environment &Dump; method
@@ -292,6 +292,10 @@
     In a real-life situation,
     the construction environments will
     likely contain a great many more variables.
+    Also note that we've massaged the example output above
+    to make the memory address of all objects a constant 0x700000.
+    In reality, you would see a different hexadecimal
+    number for each object.
 
     </para>
 

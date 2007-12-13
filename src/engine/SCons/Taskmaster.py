@@ -535,7 +535,7 @@ class Taskmaster:
             node.set_state(SCons.Node.pending)
 
             try:
-                children = node.children()
+                children = node.children() + node.prerequisites
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)

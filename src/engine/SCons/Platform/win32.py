@@ -40,11 +40,51 @@ import tempfile
 
 from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
-
-# XXX See note below about why importing SCons.Action should be
-# eventually refactored.
-import SCons.Action
 import SCons.Util
+
+
+
+try:
+    import msvcrt
+    import win32api
+    import win32con
+
+    msvcrt.get_osfhandle
+    win32api.SetHandleInformation
+    win32con.HANDLE_FLAG_INHERIT
+except ImportError:
+    parallel_msg = \
+        "you do not seem to have the pywin32 extensions installed;\n" + \
+        "\tparallel (-j) builds may not work reliably with open Python files."
+except AttributeError:
+    parallel_msg = \
+        "your pywin32 extensions do not support file handle operations;\n" + \
+        "\tparallel (-j) builds may not work reliably with open Python files."
+else:
+    parallel_msg = None
+
+    import __builtin__
+
+    _builtin_file = __builtin__.file
+    _builtin_open = __builtin__.open
+
+    def _scons_file(*args, **kw):
+        fp = apply(_builtin_file, args, kw)
+        win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
+                                      win32con.HANDLE_FLAG_INHERIT,
+                                      0)
+        return fp
+
+    def _scons_open(*args, **kw):
+        fp = apply(_builtin_open, args, kw)
+        win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
+                                      win32con.HANDLE_FLAG_INHERIT,
+                                      0)
+        return fp
+
+    __builtin__.file = _scons_file
+    __builtin__.open = _scons_open
+
 
 
 # The upshot of all this is that, if you are using Python 1.5.2,

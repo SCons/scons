@@ -516,9 +516,37 @@ B 42 54 b - alpha test ['B']
         assert text == expectAlpha, text
 
 
-    
+
+class UnknownOptionsTestCase(unittest.TestCase):
+
+    def test_unknown(self):
+        """Test the UnknownOptions() method"""
+        opts = SCons.Options.Options()
         
+        opts.Add('ANSWER',
+                 'THE answer to THE question',
+                 "42")
+
+        args = {
+            'ANSWER'    : 'answer',
+            'UNKNOWN'   : 'unknown',
+        }
+
+        env = Environment()
+        opts.Update(env, args)
+
+        r = opts.UnknownOptions()
+        assert r == {'UNKNOWN' : 'unknown'}, r
+        assert env['ANSWER'] == 'answer', env['ANSWER']
+
+
+
 if __name__ == "__main__":
-    suite = unittest.makeSuite(OptionsTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [ OptionsTestCase,
+                 UnknownOptionsTestCase ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

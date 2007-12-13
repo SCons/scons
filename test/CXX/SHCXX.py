@@ -55,7 +55,7 @@ test.write('foo.cpp', r"""
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         printf("foo.c\n");
         exit (0);
 }
@@ -67,7 +67,7 @@ test.write('bar.cpp', r"""
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         printf("foo.c\n");
         exit (0);
 }

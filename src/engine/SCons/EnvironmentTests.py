@@ -674,6 +674,21 @@ sys.exit(1)
         r = env.func('-yyy')
         assert r == 'func2-foo-yyy', r
 
+        # Test that clones of clones correctly re-bind added methods.
+        env1 = Environment(FOO = '1')
+        env1.AddMethod(func2)
+        env2 = env1.Clone(FOO = '2')
+        env3 = env2.Clone(FOO = '3')
+        env4 = env3.Clone(FOO = '4')
+        r = env1.func2()
+        assert r == 'func2-1', r
+        r = env2.func2()
+        assert r == 'func2-2', r
+        r = env3.func2()
+        assert r == 'func2-3', r
+        r = env4.func2()
+        assert r == 'func2-4', r
+
     def test_Override(self):
         "Test overriding construction variables"
         env = SubstitutionEnvironment(ONE=1, TWO=2, THREE=3, FOUR=4)

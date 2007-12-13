@@ -8,7 +8,106 @@
 
 
 
-RELEASE 0.XX - XXX
+RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
+
+  From Benoit Belley:
+
+  - Fix occasional spurious rebuilds and inefficiency when using
+    --implicit-cache and Builders that produce multiple targets.
+
+  - Allow SCons to not have to know about the builders of generated
+    files when BuildDir(duplicate=0) is used, potentially allowing some
+    SConscript files to be ignored for smaller builds.
+
+  From David Cournapeau:
+
+  - Add a CheckTypeSize() call to configure contexts.
+
+  From Ken Deeter:
+
+  - Make the "contents" of Alias Nodes a concatenation of the children's
+    content signatures (MD5 checksums), not a concatenation of the
+    children's contents, to avoid using large amounts of memory during
+    signature calculation.
+
+  From Malte Helmert:
+
+  - Fix a lot of typos in the man page and User's Guide.
+
+  From Geoffrey Irving:
+
+  - Speed up conversion of paths in .sconsign files to File or Dir Nodes.
+
+  From Steven Knight:
+
+  - Add an Options.UnknownOptions() method that returns any settings
+    (from the command line, or whatever dictionary was passed in)
+    that aren't known to the Options object.
+
+  - Add a Glob() function.
+
+  - When removing targets with the -c option, use the absolute path (to
+    avoid problems interpreting BuildDir() when the top-level directory
+    is the source directory).
+
+  - Fix problems with Install() and InstallAs() when called through a
+    clone (of a clone, ...) of a cloned construction environment.
+
+  - When executing a file containing Options() settings, add the file's
+    directory to sys.path (so modules can be imported from there) and
+    explicity set __name__ to the name of the file so the statement's
+    in the file can deduce the location if they need to.
+
+  - Fix an O(n^2) performance problem when adding sources to a target
+    through calls to a multi Builder (including Aliases).
+
+  - Redefine the $WINDOWSPROGMANIFESTSUFFIX and
+    $WINDOWSSHLIBMANIFESTSUFFIX variables so they pick up changes to
+    the underlying $SHLIBSUFFIX and $PROGSUFFIX variables.
+
+  - Add a GetBuildFailures() function that can be called from functions
+    registered with the Python atexit module to print summary information
+    about any failures encountered while building.
+
+  - Return a NodeList object, not a Python list, when a single_source
+    Builder like Object() is called with more than one file.
+
+  - When searching for implicit dependency files in the directories
+    in a $*PATH list, don't create Dir Nodes for directories that
+    don't actually exist on-disk.
+
+  - Add a Requires() function to allow the specification of order-only
+    prerequisites, which will be updated before specified "downstream"
+    targets but which don't actually cause the target to be rebuilt.
+
+  - Restore the FS.{Dir,File,Entry}.rel_path() method.
+
+  - Make the default behavior of {Source,Target}Signatures('timestamp')
+    be equivalent to 'timestamp-match', not 'timestamp-newer'.
+
+  - Fix use of CacheDir with Decider('timestamp-newer') by updating
+    the modification time when copying files from the cache.
+
+  - Fix random issues with parallel (-j) builds on Windows when Python
+    holds open file handles (especially for SCons temporary files,
+    or targets built by Python function actions) across process creation.
+
+  From Maxim Kartashev:
+
+  - Fix test scripts when run on Solaris.
+
+  From Gary Oberbrunner:
+
+  - Fix Glob() when a pattern is in an explicitly-named subdirectory.
+
+  From Philipp Scholl:
+
+  - Fix setting up targets if multiple Package builders are specified
+    at once.
+
+
+
+RELEASE 0.97.0d20070918 - Tue, 18 Sep 2007 10:51:27 -0500
 
   From Steven Knight:
 

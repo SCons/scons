@@ -31,13 +31,12 @@ SourceSignatures() and TargetSignatures() values (timestamp and content,
 respectively).
 """
 
+import TestSCons
 import TestSConsign
 
-test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
+_python_ = TestSCons._python_
 
-CC = test.detect('CC', norm=1)
-LINK = test.detect('LINK', norm=1)
-if LINK is None: LINK = CC
+test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 # Note:  We don't use os.path.join() representations of the file names
 # in the expected output because paths in the .sconsign files are
@@ -46,47 +45,75 @@ if LINK is None: LINK = CC
 sub1_hello_c    = 'sub1/hello.c'
 sub1_hello_obj  = 'sub1/hello.obj'
 
-def re_sep(*args):
-    import os.path
-    import re
-    return re.escape(apply(os.path.join, args))
-
 test.subdir('sub1', 'sub2')
+
+test.write('fake_cc.py', r"""
+import os.path
+import re
+import string
+import sys
+
+path = string.split(sys.argv[1])
+output = open(sys.argv[2], 'wb')
+input = open(sys.argv[3], 'rb')
+
+output.write('fake_cc.py:  %s\n' % sys.argv)
+
+def find_file(f):
+    for dir in path:
+        p = dir + os.sep + f
+        if os.path.exists(p):
+            return open(p, 'rb')
+    return None
+
+def process(infp, outfp):
+    for line in infp.readlines():
+        m = re.match('#include <(.*)>', line)
+        if m:
+            file = m.group(1)
+            process(find_file(file), outfp)
+        else:
+            outfp.write(line)
+
+process(input, output)
+
+sys.exit(0)
+""")
+
+test.write('fake_link.py', r"""
+import sys
+
+output = open(sys.argv[1], 'wb')
+input = open(sys.argv[2], 'rb')
+
+output.write('fake_link.py:  %s\n' % sys.argv)
+
+output.write(input.read())
+
+sys.exit(0)
+""")
 
 test.write('SConstruct', """
 SConsignFile(None)
 SourceSignatures('timestamp')
 TargetSignatures('content')
-env1 = Environment(PROGSUFFIX = '.exe', OBJSUFFIX = '.obj')
+env1 = Environment(PROGSUFFIX = '.exe',
+                   OBJSUFFIX = '.obj',
+                   CCCOM = r'%(_python_)s fake_cc.py sub2 $TARGET $SOURCE',
+                   LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCE')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH = ['sub2'])
 env2.Program('sub2/hello.c')
-""")
+""" % locals())
 
 test.write(['sub1', 'hello.c'], r"""\
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("sub1/hello.c\n");
-        exit (0);
-}
+sub1/hello.c
 """)
 
 test.write(['sub2', 'hello.c'], r"""\
-#include <stdio.h>
-#include <stdlib.h>
 #include <inc1.h>
 #include <inc2.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("sub2/goodbye.c\n");
-        exit (0);
-}
+sub2/hello.c
 """)
 
 test.write(['sub2', 'inc1.h'], r"""\
@@ -107,22 +134,18 @@ date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/.sconsign",
          stdout = r"""hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        %(LINK)s: None \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: None \d+ \d+
-        %(CC)s: None \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r sub1/.sconsign",
          stdout = r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
-        %(LINK)s: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_c)s: None '%(date_re)s' \d+
-        %(CC)s: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
