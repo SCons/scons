@@ -236,7 +236,12 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
         x.add_pre_action(pre_err)
         x.add_post_action(post)
-        x(t)
+        try:
+            x(t)
+        except SCons.Errors.BuildError:
+            pass
+        else:
+            raise Exception, "Did not catch expected BuildError"
         assert result == ['pre_err'], result
         del result[:]
 
@@ -265,8 +270,19 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         assert x.sources == ['s1', 's2'], x.sources
         x.add_sources(['s1', 's2'])
+        assert x.sources == ['s1', 's2', 's1', 's2'], x.sources
+        x.add_sources(['s3', 's1', 's4'])
+        assert x.sources == ['s1', 's2', 's1', 's2', 's3', 's1', 's4'], x.sources
+
+    def test_get_sources(self):
+        """Test getting sources from an Executor"""
+        x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
+        assert x.sources == ['s1', 's2'], x.sources
+        x.add_sources(['s1', 's2'])
+        x.get_sources()
         assert x.sources == ['s1', 's2'], x.sources
         x.add_sources(['s3', 's1', 's4'])
+        x.get_sources()
         assert x.sources == ['s1', 's2', 's3', 's4'], x.sources
 
     def test_add_pre_action(self):

@@ -101,7 +101,7 @@
 
     By default, &SCons; removes all built targets when invoked
     with the <literal>-c</literal> option to clean a source tree
-    of built tragets.
+    of built targets.
     Sometimes, however, this is not what you want.
     For example, you may want to remove only intermediate generated files
     (such as object files),

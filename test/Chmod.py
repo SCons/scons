@@ -41,7 +41,9 @@ test = TestSCons.TestSCons()
 # oscillate between those values.
 test.write('SConstruct', """
 Execute(Chmod('f1', 0666))
+Execute(Chmod(('f1-File'), 0666))
 Execute(Chmod('d2', 0777))
+Execute(Chmod(Dir('d2-Dir'), 0777))
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -62,8 +64,11 @@ env.Command('f7.out', 'f7.in', [Cat,
 """)
 
 test.write('f1', "f1\n")
+test.write('f1-File', "f1-File\n")
 test.subdir('d2')
 test.write(['d2', 'file'], "d2/file\n")
+test.subdir('d2-Dir')
+test.write(['d2-Dir', 'file'], "d2-Dir/file\n")
 test.write('bar.in', "bar.in\n")
 test.write('f3', "f3\n")
 test.subdir('d4')
@@ -75,14 +80,21 @@ test.write('Chmod-f7.in', "Chmod-f7.in\n")
 test.write('f7.out-Chmod', "f7.out-Chmod\n")
 
 os.chmod(test.workpath('f1'), 0444)
+os.chmod(test.workpath('f1-File'), 0444)
 os.chmod(test.workpath('d2'), 0555)
+os.chmod(test.workpath('d2-Dir'), 0555)
 os.chmod(test.workpath('f3'), 0444)
 os.chmod(test.workpath('d4'), 0555)
 os.chmod(test.workpath('f5'), 0444)
 os.chmod(test.workpath('Chmod-f7.in'), 0444)
 os.chmod(test.workpath('f7.out-Chmod'), 0444)
 
-expect = test.wrap_stdout(read_str = 'Chmod("f1", 0666)\nChmod("d2", 0777)\n',
+expect = test.wrap_stdout(read_str = """\
+Chmod("f1", 0666)
+Chmod("f1-File", 0666)
+Chmod("d2", 0777)
+Chmod("d2-Dir", 0777)
+""",
                           build_str = """\
 cat(["bar.out"], ["bar.in"])
 Chmod("f3", 0666)
@@ -97,7 +109,11 @@ test.run(options = '-n', arguments = '.', stdout = expect)
 
 s = stat.S_IMODE(os.stat(test.workpath('f1'))[stat.ST_MODE])
 test.fail_test(s != 0444)
+s = stat.S_IMODE(os.stat(test.workpath('f1-File'))[stat.ST_MODE])
+test.fail_test(s != 0444)
 s = stat.S_IMODE(os.stat(test.workpath('d2'))[stat.ST_MODE])
+test.fail_test(s != 0555)
+s = stat.S_IMODE(os.stat(test.workpath('d2-Dir'))[stat.ST_MODE])
 test.fail_test(s != 0555)
 test.must_not_exist('bar.out')
 s = stat.S_IMODE(os.stat(test.workpath('f3'))[stat.ST_MODE])
@@ -117,7 +133,11 @@ test.run()
 
 s = stat.S_IMODE(os.stat(test.workpath('f1'))[stat.ST_MODE])
 test.fail_test(s != 0666)
+s = stat.S_IMODE(os.stat(test.workpath('f1-File'))[stat.ST_MODE])
+test.fail_test(s != 0666)
 s = stat.S_IMODE(os.stat(test.workpath('d2'))[stat.ST_MODE])
+test.fail_test(s != 0777)
+s = stat.S_IMODE(os.stat(test.workpath('d2-Dir'))[stat.ST_MODE])
 test.fail_test(s != 0777)
 test.must_match('bar.out', "bar.in\n")
 s = stat.S_IMODE(os.stat(test.workpath('f3'))[stat.ST_MODE])

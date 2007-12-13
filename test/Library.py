@@ -114,7 +114,7 @@ void f3c(void);
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         f1();
         f2a();
         f2b();

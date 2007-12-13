@@ -46,6 +46,7 @@ class Node:
         self.scanned = 0
         self.scanner = None
         self.targets = [self]
+        self.prerequisites = []
         class Builder:
             def targets(self, node):
                 return node.targets

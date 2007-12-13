@@ -430,7 +430,7 @@ class _ActionActionTestCase(unittest.TestCase):
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
-            assert result == 7, result
+            assert result.status == 7, result
             s = sio.getvalue()
             assert s == 'execfunc(["out"], ["in"])\n', s
 
@@ -440,14 +440,14 @@ class _ActionActionTestCase(unittest.TestCase):
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == expect % (repr('xyz'), repr(test.workpath())), s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, chdir='sub')
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == expect % (repr('sub'), repr(test.workpath())), s
 
@@ -456,7 +456,7 @@ class _ActionActionTestCase(unittest.TestCase):
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = b("out", "in", env)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'firstfunc(["out"], ["in"])\nexecfunc(["out"], ["in"])\n', s
 
@@ -482,35 +482,35 @@ class _ActionActionTestCase(unittest.TestCase):
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=0)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'execfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=1)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = b(["out"], "in", env, presub=1)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'Building out with action:\n  firstfunc(target, source, env)\nfirstfunc(["out"], ["in"])\nBuilding out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = b(["out", "list"], "in", env, presub=1)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'Building out and list with action:\n  firstfunc(target, source, env)\nfirstfunc(["out", "list"], ["in"])\nBuilding out and list with action:\n  execfunc(target, source, env)\nexecfunc(["out", "list"], ["in"])\n', s
 
@@ -519,14 +519,14 @@ class _ActionActionTestCase(unittest.TestCase):
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env, presub=0)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == 'execfunc(["out"], ["in"])\n', s
 
@@ -542,7 +542,7 @@ class _ActionActionTestCase(unittest.TestCase):
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=0, execute=1, show=0)
-            assert result == 7, result
+            assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == '', s
 
@@ -558,7 +558,7 @@ class _ActionActionTestCase(unittest.TestCase):
             assert exitstatfunc_result == [], exitstatfunc_result
 
             result = a("out", "in", env, execute=1, exitstatfunc=exitstatfunc)
-            assert result == 7, result
+            assert result.status == 7, result.status
             assert exitstatfunc_result == [7], exitstatfunc_result
 
             SCons.Action.execute_actions = 1
@@ -709,7 +709,7 @@ class CommandActionTestCase(unittest.TestCase):
             m = 'Invalid command display variable'
             assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
         else:
-            raise "did not catch expected UserError"
+            raise Exception, "did not catch expected UserError"
 
     def test___str__(self):
         """Test fetching the pre-substitution string for command Actions
@@ -1014,26 +1014,26 @@ class CommandActionTestCase(unittest.TestCase):
         # Test that a nonexistent command returns 127
         act = SCons.Action.CommandAction(python + "_no_such_command_")
         r = act([], [], env.Clone(out = outfile))
-        assert r == expect_nonexistent, "r == %d" % r
+        assert r.status == expect_nonexistent, r.status
 
         # Test that trying to execute a directory returns 126
         dir, tail = os.path.split(python)
         act = SCons.Action.CommandAction(dir)
         r = act([], [], env.Clone(out = outfile))
-        assert r == expect_nonexecutable, "r == %d" % r
+        assert r.status == expect_nonexecutable, r.status
 
         # Test that trying to execute a non-executable file returns 126
         act = SCons.Action.CommandAction(outfile)
         r = act([], [], env.Clone(out = outfile))
-        assert r == expect_nonexecutable, "r == %d" % r
+        assert r.status == expect_nonexecutable, r.status
 
         act = SCons.Action.CommandAction('%s %s 1' % (_python_, exit_py))
         r = act([], [], env)
-        assert r == 1, r
+        assert r.status == 1, r.status
 
         act = SCons.Action.CommandAction('@%s %s 1' % (_python_, exit_py))
         r = act([], [], env)
-        assert r == 1, r
+        assert r.status == 1, r.status
 
         act = SCons.Action.CommandAction('@-%s %s 1' % (_python_, exit_py))
         r = act([], [], env)
@@ -1045,7 +1045,7 @@ class CommandActionTestCase(unittest.TestCase):
 
         act = SCons.Action.CommandAction('@ %s %s 1' % (_python_, exit_py))
         r = act([], [], env)
-        assert r == 1, r
+        assert r.status == 1, r.status
 
         act = SCons.Action.CommandAction('@- %s %s 1' % (_python_, exit_py))
         r = act([], [], env)
@@ -1441,13 +1441,10 @@ class FunctionActionTestCase(unittest.TestCase):
             return 1
 
         act = SCons.Action.FunctionAction(function1)
-        r = None
-        try:
-            r = act(target = [outfile, outfile2], source=[], env=Environment())
-        except SCons.Errors.BuildError:
-            pass
-        assert r == 1
-        assert count == 1
+        r = act(target = [outfile, outfile2], source=[], env=Environment())
+        assert r.status == 1, r.status
+
+        assert count == 1, count
         c = test.read(outfile, 'r')
         assert c == "function1\n", c
         c = test.read(outfile2, 'r')
@@ -1459,7 +1456,7 @@ class FunctionActionTestCase(unittest.TestCase):
 
         act = SCons.Action.FunctionAction(class1a)
         r = act([], [], Environment(out = outfile))
-        assert r.__class__ == class1a
+        assert isinstance(r.status, class1a), r.status
         c = test.read(outfile, 'r')
         assert c == "class1a\n", c
 
@@ -1470,7 +1467,7 @@ class FunctionActionTestCase(unittest.TestCase):
 
         act = SCons.Action.FunctionAction(class1b())
         r = act([], [], Environment(out = outfile))
-        assert r == 2
+        assert r.status == 2, r.status
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
@@ -1611,7 +1608,7 @@ class ListActionTestCase(unittest.TestCase):
                 open(env['out'], 'a').write("class2b\n")
         act = SCons.Action.ListAction([cmd2, function2, class2a(), class2b])
         r = act([], [], Environment(out = outfile))
-        assert r.__class__ == class2b
+        assert isinstance(r.status, class2b), r.status
         c = test.read(outfile, 'r')
         assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
 

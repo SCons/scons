@@ -39,7 +39,7 @@ test.write('SConstruct', """\
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
-conf = Configure(env)
+conf = Configure(env, clean=int(ARGUMENTS['clean']))
 r1 = conf.CheckCHeader( 'math.h' )
 r2 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
 env = conf.Finish()
@@ -65,32 +65,16 @@ lines = [
     "Checking for C header file no_std_c_header.h... "
 ]
 
-unexpected = []
+test.run(arguments = '-c clean=0')
+test.must_not_contain_lines(lines, test.stdout())
 
-test.run(arguments = '-c')
+test.run(arguments = '-c clean=1')
+test.must_contain_lines(lines, test.stdout())
 
-for line in lines:
-    if string.find(test.stdout(), line) != -1:
-        unexpected.append(line)
+test.run(arguments = '--clean clean=0')
+test.must_not_contain_lines(lines, test.stdout())
 
-if unexpected:
-    print "Unexpected lines in standard output:"
-    print string.join(unexpected, '\n')
-    print "STDOUT ============================================================"
-    print test.stdout()
-    test.fail_test()
-
-test.run(arguments = '--clean')
-
-for line in lines:
-    if string.find(test.stdout(), line) != -1:
-        unexpected.append(line)
-
-if unexpected:
-    print "Unexpected lines in standard output:"
-    print string.join(unexpected, '\n')
-    print "STDOUT ============================================================"
-    print test.stdout()
-    test.fail_test()
+test.run(arguments = '--clean clean=1')
+test.must_contain_lines(lines, test.stdout())
 
 test.pass_test()

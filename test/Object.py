@@ -100,7 +100,7 @@ extern "C" void f3(void);
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         f1();
         f2();
         f3();

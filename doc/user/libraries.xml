@@ -235,6 +235,10 @@
     the library will be found in the 
     &cv-link-LIBPATH; construction variable:
 
+    <!-- In the preceding paragraph, the "$" notation for
+         LIBS, LIBPATH etc. is used for the first time.
+         Maybe some words of explanation would be nice. -->
+
     </para>
 
     <programlisting>
@@ -409,6 +413,8 @@
       cl /nologo /c prog.c /Foprog.obj
       link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
     </screen>
+    <!-- The link command is too wide in the PDF version. 
+         There are some other examples of this throughout the document. -->
 
     <para>
 

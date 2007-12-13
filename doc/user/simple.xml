@@ -542,7 +542,7 @@
 
    Because we want this User's Guide to focus
    on what &SCons; is actually doing,
-   we're going use the &Q; option
+   we're going to use the &Q; option
    to remove these messages from the
    output of all the remaining examples in this Guide.
 

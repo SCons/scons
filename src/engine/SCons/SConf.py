@@ -54,6 +54,14 @@ from SCons.Debug import Trace
 SCons.Conftest.LogInputFiles = 0
 SCons.Conftest.LogErrorMessages = 0
 
+# Set
+build_type = None
+build_types = ['clean', 'help']
+
+def SetBuildType(type):
+    global build_type
+    build_type = type
+
 # to be set, if we are in dry-run mode
 dryrun = 0
 
@@ -354,7 +362,7 @@ class SConfBuildTask(SCons.Taskmaster.Task):
                     sconsign.set_entry(t.name, sconsign_entry)
                     sconsign.merge()
 
-class SConf:
+class SConfBase:
     """This is simply a class to represent a configure context. After
     creating a SConf object, you can call any tests. After finished with your
     tests, be sure to call the Finish() method, which returns the modified
@@ -395,6 +403,7 @@ class SConf:
         default_tests = {
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
+                 'CheckTypeSize'      : CheckTypeSize,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
                  'CheckCXXHeader'     : CheckCXXHeader,
@@ -603,7 +612,7 @@ class SConf:
     def AddTest(self, test_name, test_instance):
         """Adds test_class to this SConf instance. It can be called with
         self.test_name(...)"""
-        setattr(self, test_name, SConf.TestWrapper(test_instance, self))
+        setattr(self, test_name, SConfBase.TestWrapper(test_instance, self))
 
     def AddTests(self, tests):
         """Adds all the tests given in the tests dictionary to this SConf
@@ -815,6 +824,19 @@ class CheckContext:
     #### End of stuff used by Conftest.py.
 
 
+def SConf(*args, **kw):
+    if kw.get(build_type, True):
+        kw['_depth'] = kw.get('_depth', 0) + 1
+        for bt in build_types:
+            try:
+                del kw[bt]
+            except KeyError:
+                pass
+        return apply(SConfBase, args, kw)
+    else:
+        return SCons.Util.Null()
+
+
 def CheckFunc(context, function_name, header = None, language = None):
     res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language)
     context.did_show_result = 1
@@ -825,6 +847,13 @@ def CheckType(context, type_name, includes = "", language = None):
                                         header = includes, language = language)
     context.did_show_result = 1
     return not res
+
+def CheckTypeSize(context, type_name, includes = "", language = None, expect = None):
+    res = SCons.Conftest.CheckTypeSize(context, type_name,
+                                       header = includes, language = language, 
+                                       expect = expect)
+    context.did_show_result = 1
+    return res
 
 def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include

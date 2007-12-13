@@ -33,6 +33,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import string
 
 from SCons.Debug import logInstanceCreation
+import SCons.Errors
 import SCons.Memoize
 
 
@@ -59,6 +60,7 @@ class Executor:
         self.overridelist = overridelist
         self.targets = targets
         self.sources = sources[:]
+        self.sources_need_sorting = False
         self.builder_kw = builder_kw
         self._memo = {}
 
@@ -110,7 +112,7 @@ class Executor:
             cwd = self.targets[0].cwd
         except (IndexError, AttributeError):
             cwd = None
-        return scanner.path(env, cwd, self.targets, self.sources)
+        return scanner.path(env, cwd, self.targets, self.get_sources())
 
     def get_kw(self, kw={}):
         result = self.builder_kw.copy()
@@ -126,9 +128,13 @@ class Executor:
         kw = self.get_kw(kw)
         status = 0
         for act in self.get_action_list():
-            status = apply(act, (self.targets, self.sources, env), kw)
-            if status:
-                break
+            status = apply(act, (self.targets, self.get_sources(), env), kw)
+            if isinstance(status, SCons.Errors.BuildError):
+                status.executor = self
+                raise status
+            elif status:
+                msg = "Error %s" % status
+                raise SCons.Errors.BuildError(errstr=msg, executor=self, action=act)
         return status
 
     # use extra indirection because with new-style objects (Python 2.2
@@ -145,8 +151,14 @@ class Executor:
         """Add source files to this Executor's list.  This is necessary
         for "multi" Builders that can be called repeatedly to build up
         a source file list for a given target."""
-        slist = filter(lambda x, s=self.sources: x not in s, sources)
-        self.sources.extend(slist)
+        self.sources.extend(sources)
+        self.sources_need_sorting = True
+
+    def get_sources(self):
+        if self.sources_need_sorting:
+            self.sources = SCons.Util.uniquer_hashables(self.sources)
+            self.sources_need_sorting = False
+        return self.sources
 
     def add_pre_action(self, action):
         self.pre_actions.append(action)
@@ -158,7 +170,7 @@ class Executor:
 
     def my_str(self):
         env = self.get_build_env()
-        get = lambda action, t=self.targets, s=self.sources, e=env: \
+        get = lambda action, t=self.targets, s=self.get_sources(), e=env: \
                      action.genstring(t, s, e)
         return string.join(map(get, self.get_action_list()), "\n")
 
@@ -183,7 +195,7 @@ class Executor:
         except KeyError:
             pass
         env = self.get_build_env()
-        get = lambda action, t=self.targets, s=self.sources, e=env: \
+        get = lambda action, t=self.targets, s=self.get_sources(), e=env: \
                      action.get_contents(t, s, e)
         result = string.join(map(get, self.get_action_list()), "")
         self._memo['get_contents'] = result
@@ -201,7 +213,7 @@ class Executor:
 
     def scan_sources(self, scanner):
         if self.sources:
-            self.scan(scanner, self.sources)
+            self.scan(scanner, self.get_sources())
 
     def scan(self, scanner, node_list):
         """Scan a list of this Executor's files (targets or sources) for
@@ -241,7 +253,7 @@ class Executor:
     def get_missing_sources(self):
         """
         """
-        return filter(lambda s: s.missing(), self.sources)
+        return filter(lambda s: s.missing(), self.get_sources())
 
     def _get_unignored_sources_key(self, ignore=()):
         return tuple(ignore)
@@ -261,9 +273,12 @@ class Executor:
             except KeyError:
                 pass
 
-        sourcelist = self.sources
+        sourcelist = self.get_sources()
         if ignore:
-            sourcelist = filter(lambda s, i=ignore: not s in i, sourcelist)
+            idict = {}
+            for i in ignore:
+                idict[i] = 1
+            sourcelist = filter(lambda s, i=idict: not i.has_key(s), sourcelist)
 
         memo_dict[ignore] = sourcelist
 
@@ -299,7 +314,7 @@ class Executor:
         result = []
         build_env = self.get_build_env()
         for act in self.get_action_list():
-            result.extend(act.get_implicit_deps(self.targets, self.sources, build_env))
+            result.extend(act.get_implicit_deps(self.targets, self.get_sources(), build_env))
         return result
 
 

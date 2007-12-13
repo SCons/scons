@@ -199,7 +199,7 @@ test.write('foo.cxx', r"""
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         printf("foo.cxx\n");
         exit (0);
 }
@@ -211,7 +211,7 @@ test.write('bar.cxx', r"""
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         printf("foo.cxx\n");
         exit (0);
 }

@@ -36,6 +36,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 Execute(Touch('f1'))
+Execute(Touch(File('f1-File')))
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -54,13 +55,18 @@ env.Command('f6.out', 'f6.in', [Cat,
 """)
 
 test.write('f1', "f1\n")
+test.write('f1-File', "f1-File\n")
 test.write('f2.in', "f2.in\n")
 test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
 
-oldtime = os.path.getmtime(test.workpath('f1'))
+old_f1_time = os.path.getmtime(test.workpath('f1'))
+old_f1_File_time = os.path.getmtime(test.workpath('f1-File'))
 
-expect = test.wrap_stdout(read_str = 'Touch("f1")\n',
+expect = test.wrap_stdout(read_str = """\
+Touch("f1")
+Touch("f1-File")
+""",
                           build_str = """\
 cat(["f2.out"], ["f2.in"])
 Touch("f3")
@@ -74,8 +80,10 @@ test.run(options = '-n', arguments = '.', stdout = expect)
 
 test.sleep(2)
 
-newtime = os.path.getmtime(test.workpath('f1'))
-test.fail_test(oldtime != newtime)
+new_f1_time = os.path.getmtime(test.workpath('f1'))
+test.fail_test(old_f1_time != new_f1_time)
+new_f1_File_time = os.path.getmtime(test.workpath('f1-File'))
+test.fail_test(old_f1_File_time != new_f1_File_time)
 
 test.must_not_exist(test.workpath('f2.out'))
 test.must_not_exist(test.workpath('f3'))
@@ -87,8 +95,10 @@ test.must_not_exist(test.workpath('f6.out-Touch'))
 
 test.run()
 
-newtime = os.path.getmtime(test.workpath('f1'))
-test.fail_test(oldtime == newtime)
+new_f1_time = os.path.getmtime(test.workpath('f1'))
+test.fail_test(old_f1_time == new_f1_time)
+new_f1_File_time = os.path.getmtime(test.workpath('f1-File'))
+test.fail_test(old_f1_File_time == new_f1_File_time)
 
 test.must_match('f2.out', "f2.in\n")
 test.must_exist(test.workpath('f3'))

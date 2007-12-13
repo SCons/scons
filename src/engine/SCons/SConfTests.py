@@ -95,7 +95,7 @@ class SConfTestCase(unittest.TestCase):
         # 'TryLink'), so we are aware of reloading modules.
         
         def checks(self, sconf, TryFuncString):
-            TryFunc = self.SConf.SConf.__dict__[TryFuncString]
+            TryFunc = self.SConf.SConfBase.__dict__[TryFuncString]
             res1 = TryFunc( sconf, "int main() { return 0; }\n", ".c" )
             res2 = TryFunc( sconf,
                             '#include "no_std_header.h"\nint main() {return 0; }\n',
@@ -493,6 +493,40 @@ int main() {
             assert r, "did not find strcpy"
             r = sconf.CheckFunc('hopefullynofunction')
             assert not r, "unexpectedly found hopefullynofunction"
+
+        finally:
+            sconf.Finish()
+
+    def test_CheckTypeSize(self):
+        """Test SConf.CheckTypeSize()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        try:
+            # CheckTypeSize()
+
+            # In ANSI C, sizeof(char) == 1.
+            r = sconf.CheckTypeSize('char', expect = 1)
+            assert r == 1, "sizeof(char) != 1 ??"
+            r = sconf.CheckTypeSize('char', expect = 0)
+            assert r == 0, "sizeof(char) == 0 ??"
+            r = sconf.CheckTypeSize('char', expect = 2)
+            assert r == 0, "sizeof(char) == 2 ??"
+            r = sconf.CheckTypeSize('char')
+            assert r == 1, "sizeof(char) != 1 ??"
+            r = sconf.CheckTypeSize('const unsigned char')
+            assert r == 1, "sizeof(const unsigned char) != 1 ??"
+
+            # Checking C++
+            r = sconf.CheckTypeSize('const unsigned char', language = 'C++')
+            assert r == 1, "sizeof(const unsigned char) != 1 ??"
+
+            # Checking Non-existing type
+            r = sconf.CheckTypeSize('thistypedefhasnotchancetosexist_scons')
+            assert r == 0, \
+                   "Checking size of thistypedefhasnotchancetosexist_scons succeeded ?"
 
         finally:
             sconf.Finish()

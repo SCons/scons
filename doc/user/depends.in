@@ -26,12 +26,12 @@
   <para>
 
   So far we've seen how &SCons; handles one-time builds.
-  But the real point of a build tool like &SCons;
+  But one of the main functions of a build tool like &SCons;
   is to rebuild only the necessary things
   when source files change--or, put another way,
   &SCons; should <emphasis>not</emphasis>
   waste time rebuilding things that have already been built.
-  You can see this at work simply be re-invoking &SCons;
+  You can see this at work simply by re-invoking &SCons;
   after building our simple &hello; example:
 
   </para>
@@ -75,33 +75,36 @@
   </para>
 
   <section>
-  <title>Deciding When a Source File Has Changed:  the &SourceSignatures; Function</title>
+  <title>Deciding When an Input File Has Changed:  the &Decider; Function</title>
 
     <para>
 
-    The other side of avoiding unnecessary rebuilds
+    Another aspect of avoiding unnecessary rebuilds
     is the fundamental build tool behavior
     of <emphasis>rebuilding</emphasis>
-    things when a source file changes,
+    things when an input file changes,
     so that the built software is up to date.
-    &SCons; keeps track of this through a
-    &signature; for each source file,
-    and allows you to configure
-    whether you want to use the source
-    file contents or the modification time (timestamp)
-    as the signature.
+    By default,
+    &SCons; keeps track of this through an
+    MD5 &signature;, or checksum, of the contents of each file,
+    although you can easily configure
+    &SCons; to use the
+    modification times (or time stamps)
+    instead.
+    You can even specify your own Python function
+    for deciding if an input file has changed.
 
     </para>
 
     <section>
-    <title>MD5 Source File Signatures</title>
+    <title>Using MD5 Signatures to Decide if a File Has Changed</title>
 
       <para>
 
       By default,
-      &SCons; keeps track of whether a source file has changed
-      based on the file's contents,
-      not the modification time.
+      &SCons; keeps track of whether a file has changed
+      based on an MD5 checksum of the file's contents,
+      not the file's modification time.
       This means that you may be surprised by the
       default &SCons; behavior if you are used to the
       &Make; convention of forcing
@@ -143,36 +146,110 @@
       Note that you can, if you wish,
       specify this default behavior
       (MD5 signatures) explicitly
-      using the &SourceSignatures; function as follows:
+      using the &Decider; function as follows:
 
       </para>
 
       <sconstruct>
         Program('hello.c')
-        SourceSignatures('MD5')
+        Decider('MD5')
       </sconstruct>
+
+      <para>
+
+      You can also use the string <literal>'content'</literal>
+      as a synonym for <literal>'MD5'</literal>
+      when calling the &Decider; function.
+
+      </para>
+
+      <section>
+      <title>Ramifications of Using MD5 Signatures</title>
+
+        <para>
+
+        Using MD5 Signatures to decide if an input file has changed
+        has one surprising benefit:
+        if a source file has been changed
+        in such a way that the contents of the
+        rebuilt target file(s)
+        will be exactly the same as the last time
+        the file was built,
+        then any "downstream" target files
+        that depend on the rebuilt-but-not-changed target
+        file actually need not be rebuilt.
+
+        </para>
+
+        <para>
+
+        So if, for example,
+        a user were to only change a comment in a &hello_c; file,
+        then the rebuilt &hello_o; file
+        would be exactly the same as the one previously built
+        (assuming the compiler doesn't put any build-specific
+        information in the object file).
+        &SCons; would then realize that it would not
+        need to rebuild the &hello; program as follows:
+
+        </para>
+
+        <scons_output example="ex1" os="posix">
+           <scons_output_command>scons -Q hello</scons_output_command>
+           <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</scons_output_command>
+           <scons_output_command>scons -Q hello</scons_output_command>
+        </scons_output>
+
+        <para>
+
+        In essence, &SCons;
+        "short-circuits" any dependent builds
+        when it realizes that a target file
+        has been rebuilt to exactly the same file as the last build.
+        This does take some extra processing time
+        to read the contents of the target (&hello_o;) file,
+        but often saves time when the rebuild that was avoided
+        would have been time-consuming and expensive.
+
+        </para>
+
+      </section>
 
     </section>
 
     <section>
-    <title>Source File Time Stamps</title>
+    <title>Using Time Stamps to Decide If a File Has Changed</title>
 
       <para>
 
       If you prefer, you can
       configure &SCons; to use the modification time
-      of source files,
-      not the file contents,
-      when deciding if something needs to be rebuilt.
-      To do this, call the &SourceSignatures;
+      of a file, not the file contents,
+      when deciding if a target needs to be rebuilt.
+      &SCons; gives you two ways to use time stamps
+      to decide if an input file has changed
+      since the last time a target has been built.
+
+      </para>
+
+      <para>
+
+      The most familiar way to use time stamps
+      is the way &Make; does:
+      that is, have &SCons; decide
+      and target must be rebuilt if
+      if a source file's modification time is
+      <emphasis>newer</emphasis>
+      than the target file.
+      To do this, call the &Decider;
       function as follows:
 
       </para>
 
-      <scons_example name="ex2">
+      <scons_example name="newer">
         <file name="SConstruct" printme="1">
         Program('hello.c')
-        SourceSignatures('timestamp')
+        Decider('timestamp-newer')
         </file>
         <file name="hello.c">
         int main() { printf("Hello, world!\n"); }
@@ -187,117 +264,61 @@
 
       </para>
 
-      <scons_output example="ex2" os="posix">
+      <scons_output example="newer" os="posix">
          <scons_output_command>scons -Q hello</scons_output_command>
          <scons_output_command>touch hello.c</scons_output_command>
          <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
-    </section>
-
-  </section>
-
-  <section>
-  <title>Deciding When a Target File Has Changed:  the &TargetSignatures; Function</title>
-
-    <para>
-
-    As you've just seen,
-    &SCons; uses signatures to decide whether a
-    target file is up to date or must be rebuilt.
-    When a target file depends on another target file,
-    &SCons; allows you to configure separately
-    how the signatures of "intermediate" target files
-    are used when deciding if a dependent target file
-    must be rebuilt.
-
-    </para>
-
-    <section>
-    <title>Build Signatures</title>
-
       <para>
 
-      Modifying a source file
-      will cause not only its direct target file to be rebuilt,
-      but also the target file(s)
-      that depend on that direct target file.
-      In our example,
-      changing the contents of the &hello_c; file causes
-      the &hello_o; file to be rebuilt,
-      which in turn causes the
-      &hello; program to be rebuilt:
-
-      </para>
-
-      <scons_output example="ex1" os="posix">
-         <scons_output_command>scons -Q hello</scons_output_command>
-         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
-      </scons_output>
-
-      <para>
-
-      What's not obvious, though,
-      is that &SCons; internally handles the signature of
-      the target file(s)
-      (&hello_o; in the above example)
-      differently from the signature of the source file
-      (&hello_c;).
-      By default,
-      &SCons; tracks whether a target file must be rebuilt
-      by using a &buildsignature;
-      that consists of the combined
-      signatures of all the files
-      that go into making the target file.
-      This is efficient because
-      the accumulated signatures
-      actually give &SCons; all of the
-      information it needs
-      to decide if the target file is out of date.
-
-      </para>
-
-      <para>
-
-      If you wish, you can
-      specify this default behavior
-      (build signatures) explicitly
-      using the &TargetSignatures; function:
+      And, in fact, because this behavior is the same
+      as the behavior of &Make;,
+      you can also use the string <literal>'make'</literal>
+      as a synonym for <literal>'timestamp-newer'</literal>
+      when calling the &Decider; function:
 
       </para>
 
       <sconstruct>
         Program('hello.c')
-        TargetSignatures('build')
+        Decider('make')
       </sconstruct>
-
-    </section>
-
-    <section>
-    <title>File Contents</title>
 
       <para>
 
-      Sometimes a source file can be changed
-      in such a way that the contents of the
-      rebuilt target file(s)
-      will be exactly the same as the last time
-      the file was built.
-      If so, then any other target files
-      that depend on such a built-but-not-changed target
-      file actually need not be rebuilt.
-      You can make &SCons;
-      realize that it does not need to rebuild
-      a dependent target file in this situation
-      using the &TargetSignatures; function as follows:
+      One drawback to using times stamps exactly like &Make;
+      is that if an input file's modification time suddenly
+      becomes <emphasis>older</emphasis> than a target file,
+      the target file will not be rebuilt.
+      This can happen if an old copy of a source file is restored
+      from a backup archive, for example.
+      The contents of the restored file will likely be different
+      than they were the last time a dependent target was built,
+      but the target won't be rebuilt
+      because the modification time of the source file
+      is not newer than the target.
 
       </para>
 
-      <scons_example name="ex3">
+      <para>
+
+      Because &SCons; actually stores information
+      about the source files' time stamps whenever a target is built,
+      it can handle this situation by checking for
+      an exact match of the source file time stamp,
+      instead of just whether or not the source file
+      is newer than the target file.
+      To do this, specify the argument
+      <literal>'timestamp-match'</literal>
+      when calling the &Decider; function:
+
+      </para>
+
+      <scons_example name="match">
         <file name="SConstruct" printme="1">
         Program('hello.c')
-        TargetSignatures('content')
+        Decider('timestamp-match')
         </file>
         <file name="hello.c">
         int main() { printf("Hello, world!\n"); }
@@ -306,35 +327,455 @@
 
       <para>
 
-      So if, for example,
-      a user were to only change a comment in a C file,
-      then the rebuilt &hello_o; file
-      would be exactly the same as the one previously built
-      (assuming the compiler doesn't put any build-specific
-      information in the object file).
-      &SCons; would then realize that it would not
-      need to rebuild the &hello; program as follows:
+      When configured this way,
+      &SCons; will rebuild a target whenever
+      a source file's modification time has changed.
+      So if we use the <literal>touch -t</literal>
+      option to change the modification time of
+      &hello_c; to an old date (January 1, 1989),
+      &SCons; will still rebuild the target file:
 
       </para>
 
-      <scons_output example="ex3" os="posix">
+      <scons_output example="match" os="posix">
          <scons_output_command>scons -Q hello</scons_output_command>
-         <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</scons_output_command>
+         <scons_output_command>touch -t 198901010000 hello.c</scons_output_command>
          <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
 
-      In essence, &SCons; has
-      "short-circuited" any dependent builds
-      when it realizes that a target file
-      has been rebuilt to exactly the same file as the last build.
-      So configured,
-      &SCons; does take some extra processing time
-      to scan the contents of the target (&hello_o;) file,
-      but this may save time
-      if the rebuild that was avoided
-      would have been very time-consuming and expensive.
+      In general, the only reason to prefer
+      <literal>timestamp-newer</literal>
+      instead of
+      <literal>timestamp-match</literal>,
+      would be if you have some specific reason
+      to require this &Make;-like behavior of 
+      not rebuilding a target when an otherwise-modified
+      source file is older.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Deciding If a File Has Changed Using Both MD Signatures and Time Stamps</title>
+
+      <para>
+
+      As a performance enhancement,
+      &SCons; provides a way to use
+      MD5 checksums of file contents
+      but to only read the contents
+      whenever the file's timestamp has changed.
+      To do this, call the &Decider;
+      function with <literal>'MD5-timestamp'</literal>
+      argument as follows:
+
+      </para>
+
+      <scons_example name="MD5-timestamp">
+        <file name="SConstruct" printme="1">
+        Program('hello.c')
+        Decider('MD5-timestamp')
+        </file>
+        <file name="hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
+
+      <para>
+
+      So configured, &SCons will still behave like
+      it does when using <literal>Decider('MD5')</literal>:
+
+      </para>
+
+      <scons_output example="MD5-timestamp" os="posix">
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      However, the second call to &SCons; in the above output,
+      when the build is up-to-date,
+      will have been performed by simply looking at the
+      modification time of the &hello_c; file,
+      not by opening it and performing
+      an MD5 checksum calcuation on its contents.
+      This can significantly speed up many up-to-date builds.
+
+      </para>
+
+      <para>
+
+      The only drawback to using
+      <literal>Decider('MD5-timestamp')</literal>
+      is that &SCons; will <emphasis>not</emphasis>
+      rebuild a target file if a source file was modified
+      within one second of the last time &SCons; built the file.
+      While most developers are programming,
+      this isn't a problem in practice,
+      since it's unlikely that someone will have built
+      and then thought quickly enought to make a substantive
+      change to a source file within one second.
+      Certain build scripts or
+      continuous integration tools may, however,
+      rely on the ability to applying changes to files
+      automatically and then rebuild as quickly as possible,
+      in which case use of
+      <literal>Decider('MD5-timestamp')</literal>
+      may not be appropriate.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Writing Your Own Custom &Decider; Function</title>
+
+      <para>
+
+      The different string values that we've passed to
+      the &Decider; function are essentially used by &SCons;
+      to pick one of several specific internal functions
+      that implement various ways of deciding if a dependency
+      (usually a source file)
+      has changed since a target file has been built.
+      As it turns out,
+      you can also supply your own function
+      to decide if a dependency has changed.
+
+      </para>
+
+      <para>
+
+      For example, suppose we have an input file
+      that contains a lot of data,
+      in some specific regular format,
+      that is used to rebuild a lot of different target files,
+      but each target file really only depends on
+      one particular section of the input file.
+      We'd like to have each target file depend on
+      only its section of the input file.
+      However, since the input file may contain a lot of data,
+      we only want to open the input file if its timestamp has changed.
+      This could done with a custom
+      &Decider; function that might look something like this:
+
+      </para>
+
+      <scons_example name="function">
+        <file name="SConstruct" printme="1">
+        Program('hello.c')
+        def decide_if_changed(dependency, target, prev_ni):
+            if self.get_timestamp() != prev_ni.timestamp:
+                dep = str(dependency)
+                tgt = str(target)
+                if specific_part_of_file_has_changed(dep, tgt):
+                    return True
+            return False
+        Decider(decide_if_changed)
+        </file>
+        <file name="hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
+
+      <para>
+
+      Note that in the function definition,
+      the <literal>dependency</literal>
+      (input file) is the first argument,
+      and then the <literal>target</literal>.
+      Both of these are passed to the functions as
+      SCons &Node; objects,
+      which we convert to strings using the Python
+      <function>str()</function>.
+      The third argument, <literal>prev_ni</literal>,
+      is an object that holds the
+      signature or timestamp information
+      that was recorded about the dependency
+      the last time the target was built.
+
+      </para>
+
+      <para>
+
+      Note that ignoring some of the arguments
+      in your custom &Decider; function
+      is a perfectly normal thing to do,
+      if they don't impact the way you want to
+      decide if the dependency file has changed.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Mixing Different Ways of Deciding If a File Has Changed</title>
+
+      <para>
+
+      The previous examples have all demonstrated calling
+      the global &Decider; function
+      to configure all dependency decisions that &SCons; makes.
+      Sometimes, however, you want to be able to configure
+      different decision-making for different targets.
+      When that's necessary, you can use the
+      <function>env.Decider</function>
+      method to affect only the configuration
+      decisions for targets built with a
+      specific construction environment.
+
+      </para>
+
+      <para>
+
+      For example, if we arbitrarily want to build
+      one program using MD5 checkums
+      and another use file modification times
+      from the same source
+      we might configure it this way:
+
+      </para>
+
+      <scons_example name="mixing">
+        <file name="SConstruct" printme="1">
+        env1 = Environment(CPPPATH = ['.'])
+        env2 = env1.Clone()
+        env2.Decider('timestamp-match')
+        env1.Program('prog-MD5', 'program1.c')
+        env2.Program('prog-timestamp', 'program2.c')
+        </file>
+        <file name="program1.c">
+        #include "inc.h"
+        int main() { printf("Hello, world!\n"); }
+        </file>
+        <file name="program2.c">
+        #include "inc.h"
+        int main() { printf("Hello, world!\n"); }
+        </file>
+        <file name="inc.h">
+        #define INC     1
+        </file>
+      </scons_example>
+
+      <para>
+
+      If both of the programs include the same
+      <filename>inc.h</filename> file,
+      then updating the modification time of
+      <filename>inc.h</filename>
+      (using the &touch; command)
+      will cause only <filename>prog-timestamp</filename>
+      to be rebuilt:
+
+      </para>
+
+      <scons_output example="mixing" os="posix">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>touch inc.h</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Older Functions for Deciding When an Input File Has Changed</title>
+
+    <para>
+
+    &SCons; still supports two functions that used to be the
+    primary methods for configuring the
+    decision about whether or not an input file has changed.
+    Although they're not officially deprecated yet,
+    their use is discouraged,
+    mainly because they rely on a somewhat
+    confusing distinction between how
+    source files and target files are handled.
+    These functions are documented here mainly in case you
+    encounter them in existing &SConscript; files.
+
+    </para>
+  
+    <section>
+    <title>The &SourceSignatures; Function</title>
+
+      <para>
+
+      The &SourceSignatures; function is fairly straightforward,
+      and supports two different argument values
+      to configure whether source file changes should be decided
+      using MD5 signatures:
+
+      </para>
+
+      <sconstruct>
+        Program('hello.c')
+        SourceSignatures('MD5')
+      </sconstruct>
+
+      <para>
+
+      Or using time stamps:
+
+      </para>
+
+      <sconstruct>
+        Program('hello.c')
+        SourceSignatures('timestamp')
+      </sconstruct>
+
+      <para>
+
+      These are roughly equivalent to specifying
+      <function>Decider('MD5')</function>
+      or
+      <function>Decider('timestamp-match')</function>,
+      respectively,
+      although it only affects how SCons makes
+      decisions about dependencies on
+      <emphasis>source</emphasis> files--that is,
+      files that are not built from any other files.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>The &TargetSignatures; Function</title>
+
+      <para>
+
+      The &TargetSignatures; function
+      specifies how &SCons; decides
+      when a target file has changed
+      <emphasis>when it is used as a
+      dependency of (input to) another target</emphasis>--that is,
+      the &TargetSignatures; function configures
+      how the signatures of "intermediate" target files
+      are used when deciding if a "downstream" target file
+      must be rebuilt.
+      <footnote><para>
+      This easily-overlooked distinction between
+      how &SCons; decides if the target itself must be rebuilt
+      and how the target is then used to decide if a different
+      target must be rebuilt is one of the confusing
+      things that has led to the &TargetSignatures;
+      and &SourceSignatures; functions being
+      replaced by the simpler &Decider; function.
+      </para></footnote>
+
+      </para>
+
+      <para>
+
+      The &TargetSignatures; function supports the same
+      <literal>'MD5'</literal> and <literal>'timestamp'</literal>
+      argument values that are supported by the &SourceSignatures;,
+      with the same meanings, but applied to target files.
+      That is, in the example:
+
+      </para>
+
+      <sconstruct>
+        Program('hello.c')
+        TargetSignatures('MD5')
+      </sconstruct>
+
+      <para>
+
+      The MD5 checksum of the &hello_o; target file
+      will be used to decide if it has changed since the last
+      time the "downstream" &hello; target file was built.
+      And in the example:
+      
+      </para>
+
+      <sconstruct>
+        Program('hello.c')
+        TargetSignatures('timestamp')
+      </sconstruct>
+
+      <para>
+
+      The modification time of the &hello_o; target file
+      will be used to decide if it has changed since the last
+      time the "downstream" &hello; target file was built.
+
+      </para>
+
+      <para>
+
+      The &TargetSignatures; function supports
+      two additional argument values:
+      <literal>'source'</literal> and <literal>'build'</literal>.
+      The <literal>'source'</literal> argument
+      specifies that decisions involving
+      whether target files have changed
+      since a previous build
+      should use the same behavior
+      for the decisions configured for source files
+      (using the &SourceSignatures; function).
+      So in the example:
+
+      </para>
+
+      <sconstruct>
+        Program('hello.c')
+        TargetSignatures('source')
+        SourceSignatures('timestamp')
+      </sconstruct>
+
+      <para>
+
+      All files, both targets and sources,
+      will use modification times
+      when deciding if an input file
+      has changed since the last
+      time a target was built.
+
+      </para>
+
+      <para>
+
+      Lastly, the <literal>'build'</literal> argument
+      specifies that &SCons; should examine
+      the build status of a target file
+      and always rebuild a "downstream" target
+      if the target file was itself rebuilt,
+      without re-examining the contents or timestamp
+      of the newly-built target file.
+      If the target file was not rebuilt during
+      this &scons; invocation,
+      then the target file will be examined
+      the same way as configured by
+      the &SourceSignature; call
+      to decide if it has changed.
+
+      </para>
+
+      <para>
+
+      This mimics the behavior of
+      <literal>build signatures</literal>
+      in earlier versions of &SCons;.
+      A &buildsignature; re-combined
+      signatures of all the input files
+      that went into making the target file,
+      so that the target file itself
+      did not need to have its contents read
+      to compute an MD5 signature.
+      This can improve performance for some configurations,
+      but is generally not as effective as using
+      <literal>Decider('MD5-timestamp')</literal>.
 
       </para>
 
@@ -348,12 +789,12 @@
     <para>
 
     Now suppose that our "Hello, World!" program
-    actually has a <literal>#include</literal> line
+    actually has an <literal>#include</literal> line
     to include the &hello_h; file in the compilation:
 
     </para>
 
-    <scons_example name="ex4">
+    <scons_example name="include">
       <file name="SConstruct">
        Program('hello.c', CPPPATH = '.')
       </file>
@@ -376,7 +817,7 @@
 
     </para>
 
-    <scons_example_file example="ex4"  name="hello.h">
+    <scons_example_file example="include"  name="hello.h">
     </scons_example_file>
 
     <para>
@@ -389,7 +830,7 @@
 
     </para>
 
-    <scons_example_file example="ex4"  name="SConstruct">
+    <scons_example_file example="include"  name="SConstruct">
     </scons_example_file>
 
     <para>
@@ -403,7 +844,7 @@
 
     </para>
 
-    <scons_output example="ex4" os="posix">
+    <scons_output example="include" os="posix">
        <scons_output_command>scons -Q hello</scons_output_command>
        <scons_output_command>scons -Q hello</scons_output_command>
        <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
@@ -445,7 +886,7 @@
     the &cv-CPPPATH; variable
     may be a list of directories,
     or a string separated by
-    the system-specific path separate character
+    the system-specific path separation character
     (':' on POSIX/Linux, ';' on Windows).
     Either way, &SCons; creates the
     right command-line options
@@ -682,7 +1123,44 @@
   </section>
 
   <section>
-  <title>Ignoring Dependencies:  the &Ignore; Method</title>
+  <title>Explicit Dependencies:  the &Depends; Function</title>
+
+    <para>
+
+    Sometimes a file depends on another file
+    that is not detected by an &SCons; scanner.
+    For this situation,
+    &SCons; allows you to specific explicitly that one file
+    depends on another file,
+    and must be rebuilt whenever that file changes.
+    This is specified using the &Depends; method:
+
+    </para>
+
+    <programlisting>
+       hello = Program('hello.c')
+       Depends(hello, 'other_file')
+    </programlisting>
+
+    <!-- XXX mention that you can use arrays for target and source? -->
+
+    <screen>
+       % <userinput>scons -Q hello</userinput>
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+       % <userinput>scons -Q hello</userinput>
+       scons: `hello' is up to date.
+       % <userinput>edit other_file</userinput>
+           [CHANGE THE CONTENTS OF other_file]
+       % <userinput>scons -Q hello</userinput>
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Ignoring Dependencies:  the &Ignore; Function</title>
 
     <para>
 
@@ -737,7 +1215,7 @@
 
     Now, the above example is a little contrived,
     because it's hard to imagine a real-world situation
-    where you wouldn't to rebuild &hello;
+    where you wouldn't want to rebuild &hello;
     if the &hello_h; file changed.
     A more realistic example
     might be if the &hello;
@@ -762,45 +1240,7 @@
   </section>
 
   <section>
-  <title>Explicit Dependencies:  the &Depends; Method</title>
-
-    <para>
-
-    On the other hand,
-    sometimes a file depends on another file
-    that is not detected by an &SCons; scanner.
-    For this situation,
-    &SCons; allows you to specific explicitly that one file
-    depends on another file,
-    and must be rebuilt whenever that file changes.
-    This is specified using the &Depends; method:
-
-    </para>
-
-    <programlisting>
-       hello = Program('hello.c')
-       Depends(hello, 'other_file')
-    </programlisting>
-
-    <!-- XXX mention that you can use arrays for target and source? -->
-
-    <screen>
-       % <userinput>scons -Q hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       % <userinput>scons -Q hello</userinput>
-       scons: `hello' is up to date.
-       % <userinput>edit other_file</userinput>
-           [CHANGE THE CONTENTS OF other_file]
-       % <userinput>scons -Q hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-    </screen>
-
-  </section>
-
-  <section>
-  <title>The &AlwaysBuild; Method</title>
+  <title>The &AlwaysBuild; Function</title>
 
     <para>
 

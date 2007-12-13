@@ -49,7 +49,7 @@
 
  <programlisting>
     env = Environment()
-    env.ParseConfig("pkg-config")
+    env.ParseConfig("pkg-config x11")
  </programlisting>
 
  <para>
@@ -62,7 +62,6 @@
  <screen>
     % <userinput>scons -Q</userinput>
     scons: `.' is up to date.
-    Must specify package names on the command line
  </screen>
 
  <para>

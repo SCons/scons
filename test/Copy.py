@@ -36,8 +36,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 Execute(Copy('f1.out', 'f1.in'))
-Execute(Copy('d2.out', 'd2.in'))
-Execute(Copy('d3.out', 'f3.in'))
+Execute(Copy(File('d2.out'), 'd2.in'))
+Execute(Copy('d3.out', File('f3.in')))
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)

@@ -518,7 +518,7 @@ make no difference to the build.
       so that it may be used by other &SConscript; files.
       First, you can call the &Export;
       function with a list of variables,
-      or a string white-space separated variable names.
+      or a string of white-space separated variable names.
       Each call to &Export; adds one
       or more variables to a global list
       of variables that are available for import
@@ -769,6 +769,10 @@ make no difference to the build.
       <scons_output example="Return">
         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
+
+      <!--
+      XXX Return(stop=False)
+      -->
 
     </section>
 

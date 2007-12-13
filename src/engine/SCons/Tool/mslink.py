@@ -186,9 +186,9 @@ def generate(env):
     env['WINDOWSEXPSUFFIX']      = '${WIN32EXPSUFFIX}'
 
     env['WINDOWSSHLIBMANIFESTPREFIX'] = ''
-    env['WINDOWSSHLIBMANIFESTSUFFIX'] = env['SHLIBSUFFIX'] + '.manifest'
+    env['WINDOWSSHLIBMANIFESTSUFFIX'] = '${SHLIBSUFFIX}.manifest'
     env['WINDOWSPROGMANIFESTPREFIX']  = ''
-    env['WINDOWSPROGMANIFESTSUFFIX']  = env['PROGSUFFIX'] + '.manifest'
+    env['WINDOWSPROGMANIFESTSUFFIX']  = '${PROGSUFFIX}.manifest'
 
     env['REGSVRACTION'] = regServerCheck
     env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')

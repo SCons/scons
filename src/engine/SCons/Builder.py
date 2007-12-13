@@ -554,7 +554,7 @@ class BuilderBase:
                 if not tgt is None: tgt = [tgt]
                 if not src is None: src = [src]
                 result.extend(self._execute(env, tgt, src, overwarn))
-            return result
+            return SCons.Node.NodeList(result)
 
         overwarn.warn()
 

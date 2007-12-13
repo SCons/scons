@@ -124,7 +124,7 @@
 
     Note that you can choose to terminate
     the build if a given header file doesn't exist,
-    or you can modify the contstruction environment
+    or you can modify the construction environment
     based on the existence of a header file.
 
     </para>

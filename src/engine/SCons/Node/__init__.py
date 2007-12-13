@@ -207,6 +207,7 @@ class Node:
         self.depends_dict = {}
         self.ignore = []        # dependencies to ignore
         self.ignore_dict = {}
+        self.prerequisites = SCons.Util.UniqueList()
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.waiting_parents = {}
         self.waiting_s_e = {}
@@ -361,11 +362,11 @@ class Node:
         in built().
 
         """
-        executor = self.get_executor()
-        stat = apply(executor, (self,), kw)
-        if stat:
-            msg = "Error %d" % stat
-            raise SCons.Errors.BuildError(node=self, errstr=msg)
+        try:
+            apply(self.get_executor(), (self,), kw)
+        except SCons.Errors.BuildError, e:
+            e.node = self
+            raise
 
     def built(self):
         """Called just after this node is successfully built."""
@@ -614,6 +615,7 @@ class Node:
             return
 
         build_env = self.get_build_env()
+        executor = self.get_executor()
 
         # Here's where we implement --implicit-cache.
         if implicit_cache and not implicit_deps_changed:
@@ -623,7 +625,14 @@ class Node:
                 # stored .sconsign entry to have already been converted
                 # to Nodes for us.  (We used to run them through a
                 # source_factory function here.)
-                self._add_child(self.implicit, self.implicit_dict, implicit)
+
+                # Update all of the targets with them.  This
+                # essentially short-circuits an N*M scan of the
+                # sources for each individual target, which is a hell
+                # of a lot more efficient.
+                for tgt in executor.targets:
+                    tgt.add_to_implicit(implicit)
+
                 if implicit_deps_unchanged or self.is_up_to_date():
                     return
                 # one of this node's sources has changed,
@@ -632,8 +641,6 @@ class Node:
                 self.implicit_dict = {}
                 self._children_reset()
                 self.del_binfo()
-
-        executor = self.get_executor()
 
         # Have the executor scan the sources.
         executor.scan_sources(self.builder.source_scanner)
@@ -824,6 +831,11 @@ class Node:
             else:
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node dependency to %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
+
+    def add_prerequisite(self, prerequisite):
+        """Adds prerequisites"""
+        self.prerequisites.extend(prerequisite)
+        self._children_reset()
 
     def add_ignore(self, depend):
         """Adds dependencies to ignore."""
@@ -1200,19 +1212,18 @@ class Node:
             lines = ["%s:\n" % preamble] + lines
             return string.join(lines, ' '*11)
 
-l = [1]
-ul = UserList.UserList([2])
 try:
-    l.extend(ul)
+    [].extend(UserList.UserList([]))
 except TypeError:
+    # Python 1.5.2 doesn't allow a list to be extended by list-like
+    # objects (such as UserList instances), so just punt and use
+    # real lists.
     def NodeList(l):
         return l
 else:
     class NodeList(UserList.UserList):
         def __str__(self):
             return str(map(str, self.data))
-del l
-del ul
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

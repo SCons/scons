@@ -38,6 +38,7 @@ test.subdir('work1', 'work2')
 
 test.write(['work1', 'SConstruct'], """
 Execute(Mkdir('d1'))
+Execute(Mkdir(Dir('#d1-Dir')))
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -64,7 +65,7 @@ test.write(['work1', 'f2.in'], "f2.in\n")
 test.write(['work1', 'f5.in'], "f5.in\n")
 test.write(['work1', 'f6.in'], "f6.in\n")
 
-expect = test.wrap_stdout(read_str = 'Mkdir("d1")\n',
+expect = test.wrap_stdout(read_str = 'Mkdir("d1")\nMkdir("d1-Dir")\n',
                           build_str = """\
 cat(["f2.out"], ["f2.in"])
 Mkdir("d3")
@@ -79,6 +80,7 @@ Touch("%s")
 test.run(chdir = 'work1', options = '-n', arguments = '.', stdout = expect)
 
 test.must_not_exist(['work1', 'd1'])
+test.must_not_exist(['work1', 'd1-Dir'])
 test.must_not_exist(['work1', 'f2.out'])
 test.must_not_exist(['work1', 'd3'])
 test.must_not_exist(['work1', 'd4'])
@@ -90,6 +92,7 @@ test.must_not_exist(['work1', 'f6.out-Mkdir'])
 test.run(chdir = 'work1')
 
 test.must_exist(['work1', 'd1'])
+test.must_exist(['work1', 'd1-Dir'])
 test.must_match(['work1', 'f2.out'], "f2.in\n")
 test.must_exist(['work1', 'd3'])
 test.must_exist(['work1', 'd4'])

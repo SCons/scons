@@ -86,14 +86,17 @@ def Tag(env, target, source, *more_tags, **kw_tags):
 def Package(env, target=None, source=None, **kw):
     """ Entry point for the package tool.
     """
-    # first check some arguments
+    # check if we need to find the source files ourself
     if not source:
         source = env.FindInstalledFiles()
 
     if len(source)==0:
         raise UserError, "No source for Package() given"
 
-    # has the option for this Tool been set?
+    # decide which types of packages shall be built. Can be defined through
+    # four mechanisms: command line argument, keyword argument,
+    # environment argument and default selection( zip or tar.gz ) in that
+    # order.
     try: kw['PACKAGETYPE']=env['PACKAGETYPE']
     except KeyError: pass
 
@@ -108,12 +111,12 @@ def Package(env, target=None, source=None, **kw):
             kw['PACKAGETYPE']='zip'
         else:
             raise UserError, "No type for Package() given"
+
     PACKAGETYPE=kw['PACKAGETYPE']
     if not is_List(PACKAGETYPE):
-        #PACKAGETYPE=PACKAGETYPE.split(',')
         PACKAGETYPE=string.split(PACKAGETYPE, ',')
 
-    # now load the needed packagers.
+    # load the needed packagers.
     def load_packager(type):
         try:
             file,path,desc=imp.find_module(type, __path__)
@@ -123,23 +126,24 @@ def Package(env, target=None, source=None, **kw):
 
     packagers=map(load_packager, PACKAGETYPE)
 
-    # now try to setup the default_target and the default PACKAGEROOT
-    # arguments.
+    # set up targets and the PACKAGEROOT
     try:
         # fill up the target list with a default target name until the PACKAGETYPE
         # list is of the same size as the target list.
-        if target==None or target==[]:
-            target=["%(NAME)s-%(VERSION)s"%kw]
+        if not target: target = []
 
-        size_diff=len(PACKAGETYPE)-len(target)
+        size_diff      = len(PACKAGETYPE)-len(target)
+        default_name   = "%(NAME)s-%(VERSION)s"
+
         if size_diff>0:
-            target.extend([target]*size_diff)
+            default_target = default_name%kw
+            target.extend( [default_target]*size_diff )
 
         if not kw.has_key('PACKAGEROOT'):
-            kw['PACKAGEROOT']="%(NAME)s-%(VERSION)s"%kw
+            kw['PACKAGEROOT'] = default_name%kw
 
     except KeyError, e:
-        raise SCons.Errors.UserError( "Missing PackageTag '%s'"%e.args[0] )
+        raise SCons.Errors.UserError( "Missing Packagetag '%s'"%e.args[0] )
 
     # setup the source files
     source=env.arg2nodes(source, env.fs.Entry)
@@ -148,11 +152,14 @@ def Package(env, target=None, source=None, **kw):
     targets=[]
     try:
         for packager in packagers:
-            t=apply(packager.package, [env,target,source], kw)
+            t=[target.pop(0)]
+            t=apply(packager.package, [env,t,source], kw)
             targets.extend(t)
 
+        assert( len(target) == 0 )
+
     except KeyError, e:
-        raise SCons.Errors.UserError( "Missing PackageTag '%s' for %s packager"\
+        raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
                                       % (e.args[0],packager.__name__) )
     except TypeError, e:
         # this exception means that a needed argument for the packager is
@@ -170,10 +177,10 @@ def Package(env, target=None, source=None, **kw):
         if len(args)==0:
             raise # must be a different error, so reraise
         elif len(args)==1:
-            raise SCons.Errors.UserError( "Missing PackageTag '%s' for %s packager"\
+            raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
                                           % (args[0],packager.__name__) )
         else:
-            raise SCons.Errors.UserError( "Missing PackageTags '%s' for %s packager"\
+            raise SCons.Errors.UserError( "Missing Packagetags '%s' for %s packager"\
                                           % (", ".join(args),packager.__name__) )
 
     target=env.arg2nodes(target, env.fs.Entry)

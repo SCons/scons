@@ -31,7 +31,6 @@ Test the ability to create a rpm package from a explicit target name.
 import os
 import TestSCons
 
-machine = TestSCons.machine
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
@@ -81,15 +80,10 @@ env.Package( NAME           = 'foo',
         )
 """ % locals())
 
-test.run(arguments='', stderr = None)
+expect = """
+scons: *** Setting target is not supported for rpm.
+""" + test.python_file_line(test.workpath('SConstruct'), 24)
 
-src_rpm = 'foo-1.2.3-0.src.rpm'
-machine_rpm = 'foo-1.2.3-0.%s.rpm' % machine
-
-test.must_exist( machine_rpm )
-test.must_exist( src_rpm )
-test.must_not_exist( 'bin/main' )
-test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
-test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
+test.run(arguments='', status=2, stderr=expect)
 
 test.pass_test()

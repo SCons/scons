@@ -209,7 +209,7 @@
     you can either call the &InstallAs; function
     multiple times, or as a shorthand,
     you can supply same-length lists
-    for the both the target and source arguments:
+    for both the target and source arguments:
 
     </para>
 

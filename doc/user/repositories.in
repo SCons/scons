@@ -487,8 +487,8 @@ coming into existence.)
     Usually, this would be done by a build integrator
     who would run &SCons; in the repository
     to create all of its derived files and &sconsign; files,
-    or who would &SCons; in a separate build directory
-    and copying the resulting tree to the desired repository:
+    or who would run &SCons; in a separate build directory
+    and copy the resulting tree to the desired repository:
 
     </para>
 
@@ -552,7 +552,7 @@ coming into existence.)
     <para>
 
     Notice that &SCons; realizes that it does not need to
-    rebuild local copies file1.o and file2.o files,
+    rebuild local copies <filename>file1.o</filename> and <filename>file2.o</filename> files,
     but instead uses the already-compiled files
     from the repository.
 

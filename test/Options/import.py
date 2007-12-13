@@ -25,24 +25,45 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that CacheDir() works even when using timestamp signatures.
+Verify that an Options file in a different directory can import
+a module in that directory.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-SourceSignatures('timestamp')
-TargetSignatures('content')
-CacheDir('cache')
-Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
+workpath = test.workpath('')
+
+test.subdir('bin', 'subdir')
+
+test.write('SConstruct', """\
+opts = Options('../bin/opts.cfg', ARGUMENTS)
+opts.Add('VARIABLE')
+Export("opts")
+SConscript('subdir/SConscript')
 """)
 
-test.write('file.in', "file.in\n")
+SConscript_contents = """\
+Import("opts")
+env = Environment()
+opts.Update(env)
+print "VARIABLE =", env.get('VARIABLE')
+"""
 
-test.run()
+test.write(['bin', 'opts.cfg'], """\
+import sys
+from local_options import VARIABLE
+""" % locals())
 
-test.must_match('file.out', "file.in\n")
+test.write(['bin', 'local_options.py'], """\
+VARIABLE = 'bin/local_options.py'
+""")
+
+test.write(['subdir', 'SConscript'], SConscript_contents)
+
+expect = "VARIABLE = bin/local_options.py\n"
+
+test.run(arguments = '-q -Q .', stdout = expect)
 
 test.pass_test()

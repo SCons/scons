@@ -162,6 +162,7 @@
 <!ENTITY Command "<function>Command</function>">
 <!ENTITY Configure "<function>Configure</function>">
 <!ENTITY Copy "<function>Copy</function>">
+<!ENTITY Decider "<function>Decider</function>">
 <!ENTITY Default "<function>Default</function>">
 <!ENTITY DefaultRules "<function>DefaultRules</function>">
 <!ENTITY Delete "<function>Delete</function>">

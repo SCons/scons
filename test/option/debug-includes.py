@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 
 test.write('bar.c', """
 #include "bar.h"
+int local = 1;
 """)
 
 test.write('foo.h', """

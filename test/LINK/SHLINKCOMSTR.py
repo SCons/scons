@@ -64,6 +64,7 @@ test.write('SConstruct', """
 env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCES',
                   SHLINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
                   SHLINKCOMSTR = 'Linking shared $TARGET from $SOURCES',
+                  SHOBJPREFIX = '',
                   SHOBJSUFFIX = '.obj',
                   SHLIBPREFIX = '',
                   SHLIBSUFFIX = '.dll')

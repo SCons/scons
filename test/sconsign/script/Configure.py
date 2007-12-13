@@ -30,6 +30,7 @@ info in them (which have different BuildInfo entries).
 """
 
 import os.path
+import re
 
 import TestSCons
 import TestSConsign
@@ -40,6 +41,8 @@ test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 CC = test.detect('CC', norm=1)
 CC_dir, CC_file = os.path.split(CC)
+CC_dir = re.escape(os.path.normcase(CC_dir))
+CC_file = re.escape(CC_file)
 
 # Note:  We don't use os.path.join() representations of the file names
 # in the expected output because paths in the .sconsign files are

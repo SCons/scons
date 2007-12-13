@@ -50,7 +50,6 @@
 
    <screen>
      % <userinput>scons -Q</userinput>
-     bk get -
      bk get hello.c
      cc -o hello.o -c hello.c
      cc -o hello hello.o
@@ -75,7 +74,6 @@
 
    <screen>
      % <userinput>scons -Q</userinput>
-     cvs -d /usr/local/CVS co -
      cvs -d /usr/local/CVS co hello.c
      cc -o hello.o -c hello.c
      cc -o hello hello.o
@@ -100,7 +98,6 @@
 
    <screen>
      % <userinput>scons -Q</userinput>
-     co -
      co hello.c
      cc -o hello.o -c hello.c
      cc -o hello hello.o
@@ -125,7 +122,6 @@
 
    <screen>
      % <userinput>scons -Q</userinput>
-     sccs get -
      sccs get hello.c
      cc -o hello.o -c hello.c
      cc -o hello hello.o

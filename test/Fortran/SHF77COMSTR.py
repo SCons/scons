@@ -56,7 +56,7 @@ env = Environment(SHF77COM = r'%(_python_)s myfc.py f77 $TARGET $SOURCES',
                   SHF77COMSTR = 'Building f77 $TARGET from $SOURCES',
                   SHF77PPCOM = r'%(_python_)s myfc.py f77pp $TARGET $SOURCES',
                   SHF77PPCOMSTR = 'Building f77pp $TARGET from $SOURCES',
-                  SHOBJSUFFIX='.shobj')
+                  SHOBJPREFIX='', SHOBJSUFFIX='.shobj')
 env.SharedObject(source = 'test01.f')
 env.SharedObject(source = 'test02.F')
 env.SharedObject(source = 'test03.for')

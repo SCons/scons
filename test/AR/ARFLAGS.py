@@ -78,6 +78,9 @@ library_function(void)
 test.write('main.c', r"""
 #include <stdlib.h>
 
+extern void
+library_function();
+
 int
 main(int argc, char *argv[])
 {

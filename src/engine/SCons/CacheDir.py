@@ -51,7 +51,7 @@ def CacheRetrieveFunc(target, source, env):
         if fs.islink(cachefile):
             fs.symlink(fs.readlink(cachefile), t.path)
         else:
-            fs.copy2(cachefile, t.path)
+            env.copy_from_cache(cachefile, t.path)
         st = fs.stat(cachefile)
         fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0

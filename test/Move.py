@@ -34,6 +34,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 Execute(Move('f1.out', 'f1.in'))
+Execute(Move('File-f1.out', File('f1.in-File')))
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -50,6 +51,7 @@ env.Command('f6.out', 'f6.in', [Cat, Move("Move-$TARGET", "$SOURCE-Move")])
 """)
 
 test.write('f1.in', "f1.in\n")
+test.write('f1.in-File', "f1.in-File\n")
 test.write('f2.in', "f2.in\n")
 test.write('f3.in', "f3.in\n")
 test.write('f4.in', "f4.in\n")
@@ -57,7 +59,10 @@ test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
 test.write('f6.in-Move', "f6.in-Move\n")
 
-expect = test.wrap_stdout(read_str = 'Move("f1.out", "f1.in")\n',
+expect = test.wrap_stdout(read_str = """\
+Move("f1.out", "f1.in")
+Move("File-f1.out", "f1.in-File")
+""",
                           build_str = """\
 cat(["f2.out"], ["f2.in"])
 Move("f3.out", "f3.in")
@@ -69,6 +74,7 @@ Move("Move-f6.out", "f6.in-Move")
 test.run(options = '-n', arguments = '.', stdout = expect)
 
 test.must_not_exist('f1.out')
+test.must_not_exist('File-f1.out')
 test.must_not_exist('f2.out')
 test.must_not_exist('f3.out')
 test.must_not_exist('f4.out')
@@ -79,6 +85,7 @@ test.must_not_exist('Move-f6.out')
 test.run()
 
 test.must_match('f1.out', "f1.in\n")
+test.must_match('File-f1.out', "f1.in-File\n")
 test.must_match('f2.out', "f2.in\n")
 test.must_not_exist('f3.in')
 test.must_match('f3.out', "f3.in\n")

@@ -54,6 +54,8 @@ class AliasTestCase(unittest.TestCase):
         class DummyNode:
             def __init__(self, contents):
                 self.contents = contents
+            def get_csig(self):
+                return self.contents
             def get_contents(self):
                 return self.contents
 
