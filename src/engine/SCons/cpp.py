@@ -45,10 +45,15 @@ import string
 # that we want to fetch, using the regular expressions to which the lists
 # of preprocessor directives map.
 cpp_lines_dict = {
-    # Fetch the rest of a #if/#elif/#ifdef/#ifndef/#import/#include/
-    # #include_next line as one argument.
-    ('if', 'elif', 'ifdef', 'ifndef', 'import', 'include', 'include_next',)
+    # Fetch the rest of a #if/#elif/#ifdef/#ifndef as one argument,
+    # separated from the keyword by white space.
+    ('if', 'elif', 'ifdef', 'ifndef',)
                         : '\s+(.+)',
+
+    # Fetch the rest of a #import/#include/#include_next line as one
+    # argument, with white space optional.
+    ('import', 'include', 'include_next',)
+                        : '\s*(.+)',
 
     # We don't care what comes after a #else or #endif line.
     ('else', 'endif',)  : '',
@@ -183,7 +188,13 @@ class FunctionEvaluator:
         """
         self.name = name
         self.args = function_arg_separator.split(args)
-        self.expansion = string.split(expansion, '##')
+        try:
+            expansion = string.split(expansion, '##')
+        except (AttributeError, TypeError):
+            # Python 1.5 throws TypeError if "expansion" isn't a string,
+            # later versions throw AttributeError.
+            pass
+        self.expansion = expansion
     def __call__(self, *values):
         """
         Evaluates the expansion of a #define macro function called
@@ -228,12 +239,14 @@ class PreProcessor:
     """
     The main workhorse class for handling C pre-processing.
     """
-    def __init__(self, current='.', cpppath=[], dict={}, all=0):
+    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0):
         global Table
 
+        cpppath = tuple(cpppath)
+
         self.searchpath = {
-            '"' :       [current] + cpppath,
-            '<' :       cpppath + [current],
+            '"' :       (current,) + cpppath,
+            '<' :       cpppath + (current,),
         }
 
         # Initialize our C preprocessor namespace for tracking the
@@ -254,7 +267,9 @@ class PreProcessor:
         # stack and changing what method gets called for each relevant
         # directive we might see next at this level (#else, #elif).
         # #endif will simply pop the stack.
-        d = {}
+        d = {
+            'scons_current_file'    : self.scons_current_file
+        }
         for op in Table.keys():
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
@@ -278,25 +293,34 @@ class PreProcessor:
                            (m[0],) + t[m[0]].match(m[1]).groups(),
                     cpp_tuples)
 
-    def __call__(self, contents):
+    def __call__(self, file):
+        """
+        Pre-processes a file.
+
+        This is the main public entry point.
+        """
+        self.current_file = file
+        return self.process_contents(self.read_file(file), file)
+
+    def process_contents(self, contents, fname=None):
         """
         Pre-processes a file contents.
 
-        This is the main entry point, which
+        This is the main internal entry point.
         """
         self.stack = []
         self.dispatch_table = self.default_table.copy()
+        self.current_file = fname
         self.tuples = self.tupleize(contents)
 
-        self.result = []
+        self.initialize_result(fname)
         while self.tuples:
             t = self.tuples.pop(0)
             # Uncomment to see the list of tuples being processed (e.g.,
             # to validate the CPP lines are being translated correctly).
             #print t
             self.dispatch_table[t[0]](t)
-
-        return self.result
+        return self.finalize_result(fname)
 
     # Dispatch table stack manipulation methods.
 
@@ -325,6 +349,9 @@ class PreProcessor:
         """
         pass
 
+    def scons_current_file(self, t):
+        self.current_file = t[1]
+
     def eval_expression(self, t):
         """
         Evaluates a C preprocessor expression.
@@ -337,16 +364,28 @@ class PreProcessor:
         try: return eval(t, self.cpp_namespace)
         except (NameError, TypeError): return 0
 
+    def initialize_result(self, fname):
+        self.result = [fname]
+
+    def finalize_result(self, fname):
+        return self.result[1:]
+
     def find_include_file(self, t):
         """
         Finds the #include file for a given preprocessor tuple.
         """
         fname = t[2]
         for d in self.searchpath[t[1]]:
-            f = os.path.join(d, fname)
+            if d == os.curdir:
+                f = fname
+            else:
+                f = os.path.join(d, fname)
             if os.path.isfile(f):
                 return f
         return None
+
+    def read_file(self, file):
+        return open(file).read()
 
     # Start and stop processing include lines.
 
@@ -478,8 +517,10 @@ class PreProcessor:
         if include_file:
             #print "include_file =", include_file
             self.result.append(include_file)
-            contents = open(include_file).read()
-            new_tuples = self.tupleize(contents)
+            contents = self.read_file(include_file)
+            new_tuples = [('scons_current_file', include_file)] + \
+                         self.tupleize(contents) + \
+                         [('scons_current_file', self.current_file)]
             self.tuples[:] = new_tuples + self.tuples
 
     # Date: Tue, 22 Nov 2005 20:26:09 -0500

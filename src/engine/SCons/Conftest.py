@@ -371,11 +371,10 @@ int main()
 }
 """
 
-        # XXX: Try* vs CompileProg ?
-        st = context.TryCompile(src % (type_name, expect), suffix)
-        if st:
-            _Have(context, "SIZEOF_" + type_name, str(expect))
+        st = context.CompileProg(src % (type_name, expect), suffix)
+        if not st:
             context.Display("yes\n")
+            _Have(context, "SIZEOF_%s" % type_name, expect)
             return expect
         else:
             context.Display("no\n")
@@ -400,20 +399,75 @@ int main() {
     return 0;
 }
     """
-        ret = context.TryRun(src, suffix)
-        st = ret[0]
+        st, out = context.RunProg(src, suffix)
         try:
-            size = int(ret[1])
-            _Have(context, "SIZEOF_" + type_name, str(size))
-            context.Display("%d\n" % size)
+            size = int(out)
         except ValueError:
+            # If cannot convert output of test prog to an integer (the size),
+            # something went wront, so just fail
+            st = 1
             size = 0
-            _LogFailed(context, src, st)
-            context.Display(" Failed !\n")
-        if st:
+
+        if not st:
+            context.Display("yes\n")
+            _Have(context, "SIZEOF_%s" % type_name, size)
             return size
         else:
+            context.Display("no\n")
+            _LogFailed(context, src, st)
             return 0
+
+    return 0
+
+def CheckDeclaration(context, symbol, includes = None, language = None):
+    """Checks whether symbol is declared.
+
+    Use the same test as autoconf, that is test whether the symbol is defined
+    as a macro or can be used as an r-value.
+
+    Arguments:
+        symbol : str
+            the symbol to check
+        includes : str
+            Optional "header" can be defined to include a header file.
+        language : str
+            only C and C++ supported.
+
+    Returns:
+        status : bool
+            True if the check failed, False if succeeded."""
+    
+    # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
+    if context.headerfilename:
+        includetext = '#include "%s"' % context.headerfilename
+    else:
+        includetext = ''
+
+    if not includes:
+        includes = ""
+
+    lang, suffix, msg = _lang2suffix(language)
+    if msg:
+        context.Display("Cannot check for declaration %s: %s\n" % (type_name, msg))
+        return msg
+
+    src = includetext + includes 
+    context.Display('Checking whether %s is declared... ' % symbol)
+
+    src = src + r"""
+int main()
+{
+#ifndef %s
+    (void) %s;
+#endif
+    ;
+    return 0;
+}
+""" % (symbol, symbol)
+
+    st = context.CompileProg(src, suffix)
+    _YesNoResult(context, st, "HAVE_DECL_" + symbol, src)
+    return st
 
 def CheckLib(context, libs, func_name = None, header = None,
                  extra_libs = None, call = None, language = None, autoadd = 1):

@@ -25,6 +25,43 @@ RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
   This is the eighth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
+  Please note the following important changes since release 0.97.0d20071212:
+
+    --  THE env.subst() METHOD NOW RETURNS A LIST WHEN THE INPUT IS A SEQUENCE
+
+        The env.subst() method now returns a list with the elements
+        expanded when given a list as input.  Previously, the env.subst()
+        method would always turn its result into a string.
+
+        This behavior was changed because way it interfered with
+        being able to include things like lists within the expansion
+        of variables like $CPPPATH and have SCons understand that the
+        elements of the "internal" lists still needed to be treated
+        separately.  This would show up as a list like ['subdir1',
+        'subdir'] showing up in a command line as "-Isubdir1 subdir".
+
+    --  THE Jar() BUILDER NOW USES THE Java() BUILDER CLASSDIR BY DEFAULT
+
+        By default, the Jar() Builder will now use the class directory
+        specified when the Java() builder is called.  So the following
+        input:
+
+            classes = env.Java('classes', 'src')
+            env.Jar('out.jar', classes)
+
+        Will cause "-C classes" to be passed the "jar" command invocation,
+        and the Java classes in the "out.jar" file will not be prefixed
+        "classes/".
+
+        Explicitly setting the $JARCHDIR variable overrides this default
+        behavior.  The old behavior of not passing any -C option to the
+        "jar" command can be preserved by explicitly setting $JARCHDIR
+        to None:
+
+            env = Environment(JARCHDIR = None)
+
+        The above setting is compatible with older versions of SCons.
+
   Please note the following important changes since release 0.97.0d20070918:
 
     --  SCons REDEFINES PYTHON open() AND file() ON Windows TO NOT PASS

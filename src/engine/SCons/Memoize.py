@@ -217,33 +217,47 @@ class Memoizer:
 
 class M:
     def __init__(cls, name, bases, cls_dict):
-        cls.has_metaclass = 1
-
-class A:
-    __metaclass__ = M
+        cls.use_metaclass = 1
+        def fake_method(self):
+            pass
+        new.instancemethod(fake_method, None, cls)
 
 try:
-    has_metaclass = A.has_metaclass
+    class A:
+        __metaclass__ = M
+
+    use_metaclass = A.use_metaclass
 except AttributeError:
-    has_metaclass = None
+    use_metaclass = None
+    reason = 'no metaclasses'
+except TypeError:
+    use_metaclass = None
+    reason = 'new.instancemethod() bug'
+else:
+    del A
 
 del M
-del A
 
-if not has_metaclass:
+if not use_metaclass:
 
     def Dump(title):
         pass
 
-    class Memoized_Metaclass:
-        # Just a place-holder so pre-metaclass Python versions don't
-        # have to have special code for the Memoized classes.
-        pass
+    try:
+        class Memoized_Metaclass(type):
+            # Just a place-holder so pre-metaclass Python versions don't
+            # have to have special code for the Memoized classes.
+            pass
+    except TypeError:
+        class Memoized_Metaclass:
+            # A place-holder so pre-metaclass Python versions don't
+            # have to have special code for the Memoized classes.
+            pass
 
     def EnableMemoization():
         import SCons.Warnings
-        msg = 'memoization is not supported in this version of Python (no metaclasses)'
-        raise SCons.Warnings.NoMetaclassSupportWarning, msg
+        msg = 'memoization is not supported in this version of Python (%s)'
+        raise SCons.Warnings.NoMetaclassSupportWarning, msg % reason
 
 else:
 

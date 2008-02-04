@@ -97,6 +97,7 @@ way for wrapping up the functions.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import cPickle
 import dis
 import os
 import os.path
@@ -149,6 +150,138 @@ else:
                 result.append(c)
                 i = i+1
         return string.join(result, '')
+
+
+def _callable_contents(obj):
+    """Return the signature contents of a callable Python object.
+    """
+    try:
+        # Test if obj is a method.
+        return _function_contents(obj.im_func)
+
+    except AttributeError:
+        try:
+            # Test if obj is a callable object.
+            return _function_contents(obj.__call__.im_func)
+
+        except AttributeError:
+            try:
+                # Test if obj is a code object.
+                return _code_contents(obj)
+
+            except AttributeError:
+                    # Test if obj is a function object.
+                    return _function_contents(obj)
+
+
+def _object_contents(obj):
+    """Return the signature contents of any Python object.
+    
+    We have to handle the case where object contains a code object
+    since it can be pickled directly.
+    """
+    try:
+        # Test if obj is a method.
+        return _function_contents(obj.im_func)
+
+    except AttributeError:
+        try:
+            # Test if obj is a callable object.
+            return _function_contents(obj.__call__.im_func)
+
+        except AttributeError:
+            try:
+                # Test if obj is a code object.
+                return _code_contents(obj)
+
+            except AttributeError:
+                try:
+                    # Test if obj is a function object.
+                    return _function_contents(obj)
+
+                except AttributeError:
+                    # Should be a pickable Python object. 
+                    try:
+                        return cPickle.dumps(obj)
+                    except (cPickle.PicklingError, TypeError):
+                        # This is weird, but it seems that nested classes
+                        # are unpickable. The Python docs say it should
+                        # always be a PicklingError, but some Python
+                        # versions seem to return TypeError.  Just do
+                        # the best we can.
+                        return str(obj)
+
+
+def _code_contents(code):
+    """Return the signature contents of a code object.
+
+    By providing direct access to the code object of the
+    function, Python makes this extremely easy.  Hooray!
+    
+    Unfortunately, older versions of Python include line
+    number indications in the compiled byte code.  Boo!
+    So we remove the line number byte codes to prevent
+    recompilations from moving a Python function.
+    """
+
+    contents = []
+
+    # The code contents depends on the number of local variables
+    # but not their actual names.
+    contents.append("%s,%s" % (code.co_argcount, len(code.co_varnames)))
+    try:
+        contents.append(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars)))
+    except AttributeError:
+        # Older versions of Python do not support closures.
+        contents.append(",0,0")
+
+    # The code contents depends on any constants accessed by the
+    # function. Note that we have to call _object_contents on each
+    # constants because the code object of nested functions can
+    # show-up among the constants. 
+    # 
+    # Note that we also always ignore the first entry of co_consts
+    # which contains the function doc string. We assume that the
+    # function does not access its doc string.
+    contents.append(',(' + string.join(map(_object_contents,code.co_consts[1:]),',') + ')')
+                                 
+    # The code contents depends on the variable names used to
+    # accessed global variable, as changing the variable name changes
+    # the variable actually accessed and therefore changes the
+    # function result.
+    contents.append(',(' + string.join(map(_object_contents,code.co_names),',') + ')')
+
+
+    # The code contents depends on its actual code!!!
+    contents.append(',(' + str(remove_set_lineno_codes(code.co_code)) + ')')
+
+    return string.join(contents, '')
+
+
+def _function_contents(func):
+    """Return the signature contents of a function."""
+
+    contents = [_code_contents(func.func_code)]
+
+    # The function contents depends on the value of defaults arguments
+    if func.func_defaults:
+        contents.append(',(' + string.join(map(_object_contents,func.func_defaults),',') + ')')
+    else:
+        contents.append(',()')
+
+    # The function contents depends on the closure captured cell values.
+    try:
+        closure = func.func_closure or []
+    except AttributeError:
+        # Older versions of Python do not support closures.
+        closure = []
+
+    #xxx = [_object_contents(x.cell_contents) for x in closure]
+    xxx = map(lambda x: _object_contents(x.cell_contents), closure)
+    contents.append(',(' + string.join(xxx, ',') + ')')
+
+    return string.join(contents, '')
+        
 
 def _actionAppend(act1, act2):
     # This function knows how to slap two actions together.
@@ -643,6 +776,16 @@ class FunctionAction(_ActionAction):
                     'accepts (target, source, env) as parameters.')
 
         self.execfunction = execfunction
+        try:
+            self.funccontents = _callable_contents(execfunction)
+        except AttributeError:
+            try:
+                # See if execfunction will do the heavy lifting for us.
+                self.gc = execfunction.get_contents
+            except AttributeError:
+                # This is weird, just do the best we can.
+                self.funccontents = _object_contents(execfunction)
+
         apply(_ActionAction.__init__, (self,)+args, kw)
         self.varlist = kw.get('varlist', [])
         self.cmdstr = cmdstr
@@ -716,46 +859,14 @@ class FunctionAction(_ActionAction):
         return result
 
     def get_contents(self, target, source, env):
-        """Return the signature contents of this callable action.
-
-        By providing direct access to the code object of the
-        function, Python makes this extremely easy.  Hooray!
-
-        Unfortunately, older versions of Python include line
-        number indications in the compiled byte code.  Boo!
-        So we remove the line number byte codes to prevent
-        recompilations from moving a Python function.
-        """
-        execfunction = self.execfunction
+        """Return the signature contents of this callable action."""
         try:
-            # Test if execfunction is a function.
-            code = execfunction.func_code.co_code
+            contents = self.gc(target, source, env)
         except AttributeError:
-            try:
-                # Test if execfunction is a method.
-                code = execfunction.im_func.func_code.co_code
-            except AttributeError:
-                try:
-                    # Test if execfunction is a callable object.
-                    code = execfunction.__call__.im_func.func_code.co_code
-                except AttributeError:
-                    try:
-                        # See if execfunction will do the heavy lifting for us.
-                        gc = self.execfunction.get_contents
-                    except AttributeError:
-                        # This is weird, just do the best we can.
-                        contents = str(self.execfunction)
-                    else:
-                        contents = gc(target, source, env)
-                else:
-                    contents = str(code)
-            else:
-                contents = str(code)
-        else:
-            contents = str(code)
-        contents = remove_set_lineno_codes(contents)
+            contents = self.funccontents
+
         return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
-                                                     self.varlist)))
+                                                    self.varlist)))
 
     def get_implicit_deps(self, target, source, env):
         return []

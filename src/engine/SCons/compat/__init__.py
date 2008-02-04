@@ -158,20 +158,14 @@ import shlex
 try:
     shlex.split
 except AttributeError:
-    # Pre-2.3 Python has no shlex.split function.
-    def split(s, comments=False):
-        import StringIO
-        lex = shlex.shlex(StringIO.StringIO(s))
-        lex.wordchars = lex.wordchars + '/\\-+,=:'
-        result = []
-        while True:
-            tt = lex.get_token()
-            if not tt:
-                break
-            result.append(tt)
-        return result
-    shlex.split = split
-    del split
+    # Pre-2.3 Python has no shlex.split() function.
+    #
+    # The full white-space splitting semantics of shlex.split() are
+    # complicated to reproduce by hand, so just use a compatibility
+    # version of the shlex module cribbed from Python 2.5 with some
+    # minor modifications for older Python versions.
+    del shlex
+    import_as('_scons_shlex', 'shlex')
 
 try:
     import subprocess

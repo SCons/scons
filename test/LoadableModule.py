@@ -105,7 +105,8 @@ test.run(arguments = '.',
 if string.find(sys.platform, 'darwin') != -1:
     test.run(program='/usr/bin/file',
              arguments = "foo1",
-             stdout="foo1: Mach-O bundle ppc\n")
+             match = TestCmd.match_re,
+             stdout="foo1: Mach-O bundle (ppc|i386)\n")
 
 if sys.platform in platforms_with_dlopen:
     os.environ['LD_LIBRARY_PATH'] = test.workpath()

@@ -59,6 +59,13 @@ def write_LIBDIRFLAGS(env, target, source):
     return 0
 env_zzz.Command('zzz.out', aaa_exe, write_LIBDIRFLAGS)
 env_yyy.Command('yyy.out', bbb_exe, write_LIBDIRFLAGS)
+
+if env_yyy['PLATFORM'] == 'darwin':
+    # The Mac OS X linker complains about nonexistent directories
+    # specified as -L arguments.  Suppress its warnings so we don't
+    # treat the warnings on stderr as a failure.
+    env_yyy.Append(LINKFLAGS=['-w'])
+    env_zzz.Append(LINKFLAGS=['-w'])
 """)
 
 test.write(['work', 'aaa.c'], r"""

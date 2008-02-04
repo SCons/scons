@@ -66,7 +66,7 @@ def checkMocIncluded(target, source, env):
     cpp = source[0]
     # looks like cpp.includes is cleared before the build stage :-(
     # not really sure about the path transformations (moc.cwd? cpp.cwd?) :-/
-    path = SCons.Defaults.CScan.path_function(env, moc.cwd)
+    path = SCons.Defaults.CScan.path(env, moc.cwd)
     includes = SCons.Defaults.CScan(cpp, env, path)
     if not moc in includes:
         SCons.Warnings.warn(

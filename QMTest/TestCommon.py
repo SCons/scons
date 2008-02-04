@@ -84,9 +84,10 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.30.D001 2007/10/01 16:53:55 knight"
-__version__ = "0.30"
+__revision__ = "TestCommon.py 0.31.D001 2008/01/01 09:05:59 knight"
+__version__ = "0.31"
 
+import copy
 import os
 import os.path
 import stat
@@ -378,6 +379,97 @@ class TestCommon(TestCmd):
             print "Writable files: `%s'" % string.join(writable, "', `")
         self.fail_test(missing + writable)
 
+    def _complete(self, actual_stdout, expected_stdout,
+                        actual_stderr, expected_stderr, status, match):
+        """
+        Post-processes running a subcommand, checking for failure
+        status and displaying output appropriately.
+        """
+        if _failed(self, status):
+            expect = ''
+            if status != 0:
+                expect = " (expected %s)" % str(status)
+            print "%s returned %s%s" % (self.program, str(_status(self)), expect)
+            print self.banner('STDOUT ')
+            print actual_stdout
+            print self.banner('STDERR ')
+            print actual_stderr
+            self.fail_test()
+        if not expected_stdout is None and not match(actual_stdout, expected_stdout):
+            self.diff(expected_stdout, actual_stdout, 'STDOUT ')
+            if actual_stderr:
+                print self.banner('STDERR ')
+                print actual_stderr
+            self.fail_test()
+        if not expected_stderr is None and not match(actual_stderr, expected_stderr):
+            print self.banner('STDOUT ')
+            print actual_stdout
+            self.diff(expected_stderr, actual_stderr, 'STDERR ')
+            self.fail_test()
+
+    def start(self, program = None,
+                    interpreter = None,
+                    arguments = None,
+                    universal_newlines = None,
+                    **kw):
+        """
+        Starts a program or script for the test environment.
+
+        This handles the "options" keyword argument and exceptions.
+        """
+        try:
+            options = kw['options']
+            del kw['options']
+        except KeyError:
+            pass
+        else:
+            if options:
+                if arguments is None:
+                    arguments = options
+                else:
+                    arguments = options + " " + arguments
+        try:
+            return apply(TestCmd.start,
+                         (self, program, interpreter, arguments, universal_newlines),
+                         kw)
+        except KeyboardInterrupt:
+            raise
+        except Exception, e:
+            print self.banner('STDOUT ')
+            try:
+                print self.stdout()
+            except IndexError:
+                pass
+            print self.banner('STDERR ')
+            try:
+                print self.stderr()
+            except IndexError:
+                pass
+            raise e
+
+    def finish(self, popen, stdout = None, stderr = '', status = 0, **kw):
+        """
+        Finishes and waits for the process being run under control of
+        the specified popen argument.  Additional arguments are similar
+        to those of the run() method:
+
+                stdout  The expected standard output from
+                        the command.  A value of None means
+                        don't test standard output.
+
+                stderr  The expected error output from
+                        the command.  A value of None means
+                        don't test error output.
+
+                status  The expected exit status from the
+                        command.  A value of None means don't
+                        test exit status.
+        """
+        apply(TestCmd.finish, (self, popen,), kw)
+        match = kw.get('match', self.match)
+        self._complete(self.stdout(), stdout,
+                       self.stderr(), stderr, status, match)
+
     def run(self, options = None, arguments = None,
                   stdout = None, stderr = '', status = 0, **kw):
         """Runs the program under test, checking that the test succeeded.
@@ -415,44 +507,9 @@ class TestCommon(TestCmd):
             del kw['match']
         except KeyError:
             match = self.match
-        try:
-            apply(TestCmd.run, [self], kw)
-        except KeyboardInterrupt:
-            raise
-        except Exception, e:
-            print self.banner('STDOUT ')
-            try:
-                print self.stdout()
-            except IndexError:
-                pass
-            print self.banner('STDERR ')
-            try:
-                print self.stderr()
-            except IndexError:
-                pass
-            raise e
-        if _failed(self, status):
-            expect = ''
-            if status != 0:
-                expect = " (expected %s)" % str(status)
-            print "%s returned %s%s" % (self.program, str(_status(self)), expect)
-            print self.banner('STDOUT ')
-            print self.stdout()
-            print self.banner('STDERR ')
-            print self.stderr()
-            self.fail_test()
-        if not stdout is None and not match(self.stdout(), stdout):
-            self.diff(stdout, self.stdout(), 'STDOUT ')
-            stderr = self.stderr()
-            if stderr:
-                print self.banner('STDERR ')
-                print stderr
-            self.fail_test()
-        if not stderr is None and not match(self.stderr(), stderr):
-            print self.banner('STDOUT ')
-            print self.stdout()
-            self.diff(stderr, self.stderr(), 'STDERR ')
-            self.fail_test()
+        apply(TestCmd.run, [self], kw)
+        self._complete(self.stdout(), stdout,
+                       self.stderr(), stderr, status, match)
 
     def skip_test(self, message="Skipping test.\n"):
         """Skips a test.

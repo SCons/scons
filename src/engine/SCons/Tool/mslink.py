@@ -76,6 +76,9 @@ def windowsShlinkSources(target, source, env, for_signature):
 def windowsLibEmitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
 
+    extratargets = []
+    extrasources = []
+
     dll = env.FindIxes(target, "SHLIBPREFIX", "SHLIBSUFFIX")
     no_import_lib = env.get('no_import_lib', 0)
 
@@ -87,37 +90,43 @@ def windowsLibEmitter(target, source, env):
        not env.FindIxes(source, "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"):
 
         # append a def file to the list of sources
-        source.append(env.ReplaceIxes(dll,
-                                      "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"))
+        extrasources.append(
+            env.ReplaceIxes(dll,
+                            "SHLIBPREFIX", "SHLIBSUFFIX",
+                            "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"))
 
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
     if version_num >= 8.0 and env.get('WINDOWS_INSERT_MANIFEST', 0):
         # MSVC 8 automatically generates .manifest files that must be installed
-        target.append(env.ReplaceIxes(dll,
-                                      "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "WINDOWSSHLIBMANIFESTPREFIX", "WINDOWSSHLIBMANIFESTSUFFIX"))
+        extratargets.append(
+            env.ReplaceIxes(dll,
+                            "SHLIBPREFIX", "SHLIBSUFFIX",
+                            "WINDOWSSHLIBMANIFESTPREFIX", "WINDOWSSHLIBMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
         pdb = env.arg2nodes('$PDB', target=target, source=source)[0]
-        target.append(pdb)
+        extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
         # Append an import library to the list of targets.
-        target.append(env.ReplaceIxes(dll,
-                                      "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "LIBPREFIX", "LIBSUFFIX"))
+        extratargets.append(
+            env.ReplaceIxes(dll,
+                            "SHLIBPREFIX", "SHLIBSUFFIX",
+                            "LIBPREFIX", "LIBSUFFIX"))
         # and .exp file is created if there are exports from a DLL
-        target.append(env.ReplaceIxes(dll,
-                                      "SHLIBPREFIX", "SHLIBSUFFIX",
-                                      "WINDOWSEXPPREFIX", "WINDOWSEXPSUFFIX"))
+        extratargets.append(
+            env.ReplaceIxes(dll,
+                            "SHLIBPREFIX", "SHLIBSUFFIX",
+                            "WINDOWSEXPPREFIX", "WINDOWSEXPSUFFIX"))
 
-    return (target, source)
+    return (target+extratargets, source+extrasources)
 
 def prog_emitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
+
+    extratargets = []
 
     exe = env.FindIxes(target, "PROGPREFIX", "PROGSUFFIX")
     if not exe:
@@ -126,16 +135,17 @@ def prog_emitter(target, source, env):
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
     if version_num >= 8.0 and env.get('WINDOWS_INSERT_MANIFEST', 0):
         # MSVC 8 automatically generates .manifest files that have to be installed
-        target.append(env.ReplaceIxes(exe,
-                                      "PROGPREFIX", "PROGSUFFIX",
-                                      "WINDOWSPROGMANIFESTPREFIX", "WINDOWSPROGMANIFESTSUFFIX"))
+        extratargets.append(
+            env.ReplaceIxes(exe,
+                            "PROGPREFIX", "PROGSUFFIX",
+                            "WINDOWSPROGMANIFESTPREFIX", "WINDOWSPROGMANIFESTSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
         pdb = env.arg2nodes('$PDB', target=target, source=source)[0]
-        target.append(pdb)
+        extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    return (target,source)
+    return (target+extratargets,source)
 
 def RegServerFunc(target, source, env):
     if env.has_key('register') and env['register']:

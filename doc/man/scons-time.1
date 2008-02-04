@@ -855,6 +855,19 @@ with the
 .B --aegis=
 command-line option.
 .TP
+.B archive_list
+A list of archives (files or directories)
+that will be copied to the temporary directory
+in which SCons will be invoked.
+.BR .tar ,
+.BR .tar.gz ,
+.BR .tgz
+and
+.BR .zip
+files will have their contents unpacked in
+the temporary directory.
+Directory trees and files will be copied as-is.
+.TP
 .B initial_commands
 A list of commands that will be executed
 before the actual timed

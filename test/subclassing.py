@@ -25,7 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we can trivially subclass our "public" classes.
+Verify that we can trivially subclass our "public" classes.  Also
+verify that we can use a trivial subclass of new-style str classes
+as well as UserString as Builder input.
 """
 
 import TestSCons
@@ -33,6 +35,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+copy_action = Copy('$TARGET', '$SOURCE')
+
 # Some day, we'd probably like people to be able to subclass Action and
 # Builder, but that's going to take some serious class-hackery to turn
 # our factory function into the class itself.
@@ -45,18 +49,31 @@ class my_Scanner(Scanner):
 class my_Environment(Environment):
     pass
 env = my_Environment()
-env.Program('hello', 'hello.c')
+env.Command('f0.out', 'f0.in', copy_action)
+
+from UserString import UserString
+try:
+    class mystr(str):
+        pass
+except TypeError:
+    class mystr(UserString):
+        pass
+
+Command(mystr('f1.out'),        mystr('f1.in'), copy_action)
+Command(UserString('f2.out'),   UserString('f2.in'),    copy_action)
+
+Install(mystr('install'),       mystr('f1.out'))
+Install(mystr('install'),       UserString('f2.out'))
 """)
 
-test.write('hello.c', """\
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[]) {
-    printf("hello.c\\n");
-}
-""")
+test.write('f0.in', "f0.in\n")
+test.write('f1.in', "f1.in\n")
+test.write('f2.in', "f2.in\n")
 
 test.run(arguments = '.')
+
+test.must_match('f0.out',              "f0.in\n")
+test.must_match(['install', 'f1.out'], "f1.in\n")
+test.must_match(['install', 'f2.out'], "f2.in\n")
 
 test.pass_test()

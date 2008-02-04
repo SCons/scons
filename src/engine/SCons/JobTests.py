@@ -293,7 +293,7 @@ class SerialTestCase(unittest.TestCase):
 class NoParallelTestCase(unittest.TestCase):
     def runTest(self):
         "test handling lack of parallel support"
-        def NoParallel(tm, num):
+        def NoParallel(tm, num, stack_size):
             raise NameError
         save_Parallel = SCons.Job.Parallel
         SCons.Job.Parallel = NoParallel

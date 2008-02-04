@@ -38,28 +38,11 @@ _python_ = re.escape(TestSCons_time._python_)
 test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re)
 test.diff_function = TestSCons_time.diff_re
 
-
-def tempdir_re(*args):
-    import os,sys
-    import os.path
-    import string
-    import tempfile
-
-    sep = re.escape(os.sep)
-    args = (tempfile.gettempdir(), 'scons-time-',) + args
-    x = apply(os.path.join, args)
-    x = re.escape(x)
-    x = string.replace(x, 'time\\-', 'time\\-[^%s]*' % sep)
-    if sys.platform=='darwin':
-        # OSX has /tmp in /private/tmp.
-        x = '(/private)?' + x
-    return x
-
 scons_py = re.escape(test.workpath('src', 'script', 'scons.py'))
 src_engine = re.escape(test.workpath('src', 'engine'))
 
-tmp_scons_time = tempdir_re()
-tmp_scons_time_foo = tempdir_re('foo')
+tmp_scons_time = test.tempdir_re()
+tmp_scons_time_foo = test.tempdir_re('foo')
 
 
 test.write_fake_scons_py()

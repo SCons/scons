@@ -122,6 +122,7 @@ class SConsValues(optparse.Values):
         'no_exec',
         'num_jobs',
         'random',
+        'stack_size',
     ]
 
     def set_option(self, name, value):
@@ -163,6 +164,11 @@ class SConsValues(optparse.Values):
                 # Set this right away so it can affect the rest of the
                 # file/Node lookups while processing the SConscript files.
                 SCons.Node.FS.set_diskcheck(value)
+        elif name == 'stack_size':
+            try:
+                value = int(value)
+            except ValueError:
+                raise SCons.Errors.UserError, "An integer is required: %s"%repr(value)
 
         self.__SConscript_settings__[name] = value
 
@@ -466,6 +472,7 @@ def Parser(version):
                            usage="usage: scons [OPTION] [TARGET] ...",)
 
     op.preserve_unknown_options = True
+    op.version = version
 
     # Add the options to the parser we just created.
     #
@@ -667,6 +674,11 @@ def Parser(version):
                   action="callback", callback=opt_implicit_deps,
                   help="Ignore changes in implicit dependencies.")
 
+    op.add_option('--interact', '--interactive',
+                  dest='interactive', default=False,
+                  action="store_true",
+                  help="Run in interactive mode.")
+
     op.add_option('-j', '--jobs',
                   nargs=1, type="int",
                   dest="num_jobs", default=1,
@@ -730,6 +742,13 @@ def Parser(version):
                   help="Use DIR instead of the usual site_scons dir.",
                   metavar="DIR")
 
+    op.add_option('--stack-size',
+                  nargs=1, type="int",
+                  dest='stack_size',
+                  action="store",
+                  help="Set the stack size of the threads used to run jobs to N kilobytes.",
+                  metavar="N")
+
     op.add_option('--taskmastertrace',
                   nargs=1,
                   dest="taskmastertrace_file", default=None,
@@ -777,8 +796,8 @@ def Parser(version):
                   help="Search up directory tree for SConstruct,       "
                        "build Default() targets from local SConscript.")
 
-    def opt_version(option, opt, value, parser, version=version):
-        sys.stdout.write(version + '\n')
+    def opt_version(option, opt, value, parser):
+        sys.stdout.write(parser.version + '\n')
         sys.exit(0)
     op.add_option("-v", "--version",
                   action="callback", callback=opt_version,

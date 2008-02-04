@@ -562,21 +562,6 @@ class Taskmaster:
 
             childstate = map(lambda N: (N, N.get_state()), children)
 
-            # Skip this node if any of its children have failed.  This
-            # catches the case where we're descending a top-level target
-            # and one of our children failed while trying to be built
-            # by a *previous* descent of an earlier top-level target.
-            failed_children = filter(lambda I: I[1] == SCons.Node.failed,
-                                     childstate)
-            if failed_children:
-                node.set_state(SCons.Node.failed)
-                if S: S.child_failed = S.child_failed + 1
-                if T:
-                    c = map(str, failed_children)
-                    c.sort()
-                    T.write(' children failed:\n    %s\n' % c)
-                continue
-
             # Detect dependency cycles:
             pending_nodes = filter(lambda I: I[1] == SCons.Node.pending, childstate)
             if pending_nodes:
@@ -630,6 +615,35 @@ class Taskmaster:
                     c = map(str, side_effects)
                     c.sort()
                     T.write(' waiting on side effects:\n    %s\n' % c)
+                continue
+
+            # Skip this node if any of its children have failed.
+            #
+            # This catches the case where we're descending a top-level
+            # target and one of our children failed while trying to be
+            # built by a *previous* descent of an earlier top-level
+            # target.
+            #
+            # It can also occur if a node is reused in multiple
+            # targets. One first descends though the one of the
+            # target, the next time occurs through the other target.
+            #
+            # Note that we can only have failed_children if the
+            # --keep-going flag was used, because without it the build
+            # will stop before diving in the other branch.
+            #
+            # Note that even if one of the children fails, we still
+            # added the other children to the list of candidate nodes
+            # to keep on building (--keep-going).
+            failed_children = filter(lambda I: I[1] == SCons.Node.failed,
+                                     childstate)
+            if failed_children:
+                node.set_state(SCons.Node.failed)
+                if S: S.child_failed = S.child_failed + 1
+                if T:
+                    c = map(lambda I: str(I[0]), failed_children)
+                    c.sort()
+                    T.write(' children failed:\n    %s\n' % c)
                 continue
 
             # The default when we've gotten through all of the checks above:

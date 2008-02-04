@@ -55,6 +55,8 @@ test.Qt_create_SConstruct('SConstruct')
 test.write('SConscript', """\
 Import("env")
 env.Program(target = 'aaa', source = 'aaa.cpp')
+if env['PLATFORM'] == 'darwin':
+    env.Install('.', 'qt/lib/libmyqt.dylib')
 """)
 
 test.write('aaa.cpp', r"""
@@ -67,7 +69,7 @@ test.write('aaa.h', r"""
 void aaa(void) Q_OBJECT;
 """)
 
-test.run(arguments = aaa_exe)
+test.run()
 
 test.up_to_date(options = '-n', arguments=aaa_exe)
 

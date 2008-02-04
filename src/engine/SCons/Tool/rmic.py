@@ -79,9 +79,13 @@ def emit_rmic_classes(target, source, env):
         s.attributes.java_classname = classname
         slist.append(s)
 
+    stub_suffixes = ['_Stub']
+    if env.get('JAVAVERSION') == '1.4':
+        stub_suffixes.append('_Skel')
+
     tlist = []
     for s in source:
-        for suff in ['_Skel', '_Stub']:
+        for suff in stub_suffixes:
             fname = string.replace(s.attributes.java_classname, '.', os.sep) + \
                     suff + class_suffix
             t = target[0].File(fname)

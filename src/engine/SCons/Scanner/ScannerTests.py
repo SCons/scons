@@ -70,9 +70,12 @@ class FindPathDirsTestCase(unittest.TestCase):
 
         env = DummyEnvironment(LIBPATH = [ 'foo' ])
         env.fs = DummyFS()
+        env.fs._cwd = DummyNode('cwd')
 
         dir = DummyNode('dir', ['xxx'])
         fpd = SCons.Scanner.FindPathDirs('LIBPATH')
+        result = fpd(env)
+        assert str(result) == "('foo',)", result
         result = fpd(env, dir)
         assert str(result) == "('xxx', 'foo')", result
 

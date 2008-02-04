@@ -50,7 +50,8 @@ def swigSuffixEmitter(env, source):
     else:
         return '$SWIGCFILESUFFIX'
 
-_reModule = re.compile(r'%module\s+(.+)')
+# Match '%module test', as well as '%module(directors="1") test'
+_reModule = re.compile(r'%module(?:\s*\(.*\))?\s+(.+)')
 
 def _swigEmitter(target, source, env):
     swigflags = env.subst("$SWIGFLAGS", target=target, source=source)

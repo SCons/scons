@@ -235,7 +235,7 @@ def generate(env):
     env['LIBSUFFIX']      = '.a'
     env['SHLIBPREFIX']    = '$LIBPREFIX'
     env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
+    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
     env['PSPAWN']         = pspawn
     env['SPAWN']          = spawn

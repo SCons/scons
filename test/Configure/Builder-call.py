@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('cmd.py', r"""
+test.write('mycommand.py', r"""
 import sys
 sys.stderr.write( 'Hello World on stderr\n' )
 sys.stdout.write( 'Hello World on stdout\n' )
@@ -48,7 +48,7 @@ def CustomTest(*args):
     return 0
 conf = env.Configure(custom_tests = {'MyTest' : CustomTest})
 if not conf.MyTest():
-    env.Command("hello", [], '%(_python_)s cmd.py $TARGET')
+    env.Command("hello", [], '%(_python_)s mycommand.py $TARGET')
 env = conf.Finish()
 """ % locals())
 

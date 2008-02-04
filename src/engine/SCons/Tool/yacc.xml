@@ -87,7 +87,13 @@ file with the specified suffix,
 it exists to allow you to specify
 what suffix the parser generator will use of its own accord.
 The default value is
-<filename>.hpp</filename>.
+<filename>.hpp</filename>,
+except on Mac OS X,
+where the default is
+<filename>${TARGET.suffix}.h</filename>.
+because the default &bison; parser generator just
+appends <filename>.h</filename>
+to the name of the generated C++ file.
 </summary>
 </cvar>
 

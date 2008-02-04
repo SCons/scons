@@ -40,9 +40,9 @@ test.subdir('src')
 
 
 
-out_file1 = os.path.join('out', 'file1', 'class_Skel.class')
-out_file2 = os.path.join('out', 'file2', 'class_Skel.class')
-out_file3 = os.path.join('out', 'file3', 'class_Skel.class')
+out_file1 = os.path.join('out', 'file1', 'class_Stub.class')
+out_file2 = os.path.join('out', 'file2', 'class_Stub.class')
+out_file3 = os.path.join('out', 'file3', 'class_Stub.class')
 
 
 

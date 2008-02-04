@@ -205,6 +205,13 @@ class UtilTestCase(unittest.TestCase):
     def test_is_Dict(self):
         assert is_Dict({})
         assert is_Dict(UserDict())
+        try:
+            class mydict(dict):
+                pass
+        except TypeError:
+            pass
+        else:
+            assert is_Dict(mydict({}))
         assert not is_Dict([])
         assert not is_Dict(())
         assert not is_Dict("")
@@ -215,6 +222,13 @@ class UtilTestCase(unittest.TestCase):
         assert is_List([])
         import UserList
         assert is_List(UserList.UserList())
+        try:
+            class mylist(list):
+                pass
+        except TypeError:
+            pass
+        else:
+            assert is_List(mylist([]))
         assert not is_List(())
         assert not is_List({})
         assert not is_List("")
@@ -231,12 +245,26 @@ class UtilTestCase(unittest.TestCase):
             pass
         else:
             assert is_String(UserString.UserString(''))
+        try:
+            class mystr(str):
+                pass
+        except TypeError:
+            pass
+        else:
+            assert is_String(mystr(''))
         assert not is_String({})
         assert not is_String([])
         assert not is_String(())
 
     def test_is_Tuple(self):
         assert is_Tuple(())
+        try:
+            class mytuple(tuple):
+                pass
+        except TypeError:
+            pass
+        else:
+            assert is_Tuple(mytuple(()))
         assert not is_Tuple([])
         assert not is_Tuple({})
         assert not is_Tuple("")

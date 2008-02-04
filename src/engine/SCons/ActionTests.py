@@ -1490,25 +1490,30 @@ class FunctionActionTestCase(unittest.TestCase):
         def LocalFunc():
             pass
 
-        matches = [
-            "d\000\000S",
-            "d\x00\x00S",
+        func_matches = [
+            "0,0,0,0,(),(),(d\000\000S),(),()",
+            "0,0,0,0,(),(),(d\x00\x00S),(),()",
+            ]
+        
+        meth_matches = [
+            "1,1,0,0,(),(),(d\000\000S),(),()",
+            "1,1,0,0,(),(),(d\x00\x00S),(),()",
         ]
 
         a = SCons.Action.FunctionAction(GlobalFunc)
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c in matches, repr(c)
+        assert c in func_matches, repr(c)
 
         a = SCons.Action.FunctionAction(LocalFunc)
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c in matches, repr(c)
+        assert c in func_matches, repr(c)
 
         a = SCons.Action.FunctionAction(GlobalFunc, varlist=['XYZ'])
 
-        matches_foo = map(lambda x: x + "foo", matches)
+        matches_foo = map(lambda x: x + "foo", func_matches)
 
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c in matches, repr(c)
+        assert c in func_matches, repr(c)
         c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
         assert c in matches_foo, repr(c)
 
@@ -1525,7 +1530,7 @@ class FunctionActionTestCase(unittest.TestCase):
         lc = LocalClass()
         a = SCons.Action.FunctionAction(lc.LocalMethod)
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c in matches, repr(c)
+        assert c in meth_matches, repr(c)
 
     def test_strfunction(self):
         """Test the FunctionAction.strfunction() method

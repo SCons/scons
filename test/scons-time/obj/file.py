@@ -53,15 +53,22 @@ test.run(arguments = 'obj -f st1.conf Node.FS.Base', stdout = expect1)
 test.write('st2.conf', """\
 prefix = 'foo'
 title = 'ST2.CONF TITLE'
+vertical_bars = (
+    ( 1.5, 7, None ),
+)
 """)
 
 expect2 = \
 r"""set title "ST2.CONF TITLE"
 set key bottom left
-plot '-' title "Startup" with lines lt 1
+plot '-' title "Startup" with lines lt 1, \
+     '-' notitle with lines lt 7
 # Startup
 1 16040.000
 2 16040.000
+e
+1.5 0
+1.5 18000
 e
 """
 

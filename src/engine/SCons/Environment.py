@@ -481,7 +481,7 @@ class SubstitutionEnvironment:
                         # We have an object plus a string, or multiple
                         # objects that we need to smush together.  No choice
                         # but to make them into a string.
-                        p = string.join(map(SCons.Util.to_String, p), '')
+                        p = string.join(map(SCons.Util.to_String_for_subst, p), '')
             else:
                 p = s(p)
             r.append(p)
@@ -909,11 +909,18 @@ class Base(SubstitutionEnvironment):
 
     def get_CacheDir(self):
         try:
-            return self._CacheDir
+            path = self._CacheDir_path
         except AttributeError:
-            cd = SCons.Defaults.DefaultEnvironment()._CacheDir
-            self._CacheDir = cd
-            return cd
+            path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
+        try:
+            if path == self._last_CacheDir_path:
+                return self._last_CacheDir
+        except AttributeError:
+            pass
+        cd = SCons.CacheDir.CacheDir(path)
+        self._last_CacheDir_path = path
+        self._last_CacheDir = cd
+        return cd
 
     def get_factory(self, factory, default='File'):
         """Return a factory function for creating Nodes for this
@@ -1645,10 +1652,9 @@ class Base(SubstitutionEnvironment):
 
     def CacheDir(self, path):
         import SCons.CacheDir
-        if path is None:
-            self._CacheDir = SCons.CacheDir.Null()
-        else:
-            self._CacheDir = SCons.CacheDir.CacheDir(self.subst(path))
+        if not path is None:
+            path = self.subst(path)
+        self._CacheDir_path = path
 
     def Clean(self, targets, files):
         global CleanTargets

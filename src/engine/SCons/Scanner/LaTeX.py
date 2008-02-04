@@ -56,7 +56,7 @@ class LaTeX(SCons.Scanner.Classic):
     but leave the file name untouched for "includegraphics." For
     the "bibliography" keyword we need to add .bib if there is
     no extension. (This need to be revisited since if there
-    is no extension for an :includegraphics" keyword latex will 
+    is no extension for an "includegraphics" keyword latex will 
     append .ps or .eps to find the file; while pdftex will use 
     other extensions.)
     """

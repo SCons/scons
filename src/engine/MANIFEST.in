@@ -6,6 +6,7 @@ SCons/compat/_scons_hashlib.py
 SCons/compat/_scons_optparse.py
 SCons/compat/_scons_sets.py
 SCons/compat/_scons_sets15.py
+SCons/compat/_scons_shlex.py
 SCons/compat/_scons_subprocess.py
 SCons/compat/_scons_textwrap.py
 SCons/compat/_scons_UserString.py
@@ -54,6 +55,7 @@ SCons/Scanner/Prog.py
 SCons/SConf.py
 SCons/SConsign.py
 SCons/Script/__init__.py
+SCons/Script/Interactive.py
 SCons/Script/Main.py
 SCons/Script/SConscript.py
 SCons/Script/SConsOptions.py
@@ -89,6 +91,7 @@ SCons/Tool/g++.py
 SCons/Tool/g77.py
 SCons/Tool/gas.py
 SCons/Tool/gcc.py
+SCons/Tool/gfortran.py
 SCons/Tool/gnulink.py
 SCons/Tool/gs.py
 SCons/Tool/hpc++.py

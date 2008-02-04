@@ -42,7 +42,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
-warning_rerun_re = re.compile("^LaTeX Warning:.*Rerun", re.MULTILINE)
+warning_rerun_re = re.compile('(^LaTeX Warning:.*Rerun)|(^Package \w+ Warning:.*Rerun)', re.MULTILINE)
 
 rerun_citations_str = "^LaTeX Warning:.*\n.*Rerun to get citations correct"
 rerun_citations_re = re.compile(rerun_citations_str, re.MULTILINE)
@@ -76,26 +76,52 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     basename = SCons.Util.splitext(str(source[0]))[0]
     basedir = os.path.split(str(source[0]))[0]
+    basefile = os.path.split(str(basename))[1]
+    abspath = os.path.abspath(basedir)
+    targetbase = SCons.Util.splitext(str(target[0]))[0]
+    targetdir = os.path.split(str(target[0]))[0]
 
-    # Notice that all the filenames are not prefixed with the basedir.
-    # That's because the *COM variables have the cd command in the prolog.
+    # Not sure if these environment changes should go here or make the
+    # user do them I undo all but TEXPICTS but there is still the side
+    # effect of creating the empty (':') entries in the environment.
 
-    bblfilename = basename + '.bbl'
+    def modify_env_var(env, var, abspath):
+        try:
+            save = env['ENV'][var]
+        except KeyError:
+            save = ':'
+            env['ENV'][var] = ''
+        if SCons.Util.is_List(env['ENV'][var]):
+            env['ENV'][var] = [abspath] + env['ENV'][var]
+        else:
+            env['ENV'][var] = abspath + os.pathsep + env['ENV'][var]
+        return save
+
+    texinputs_save = modify_env_var(env, 'TEXINPUTS', abspath)
+    bibinputs_save = modify_env_var(env, 'BIBINPUTS', abspath)
+    bstinputs_save = modify_env_var(env, 'BSTINPUTS', abspath)
+    texpicts_save = modify_env_var(env, 'TEXPICTS', abspath)
+
+    # Create these file names with the target directory since they will
+    # be made there.   That's because the *COM variables have the cd
+    # command in the prolog.
+
+    bblfilename = os.path.join(targetdir, basefile + '.bbl')
     bblContents = ""
     if os.path.exists(bblfilename):
         bblContents = open(bblfilename, "rb").read()
 
-    idxfilename = basename + '.idx'
+    idxfilename = os.path.join(targetdir, basefile + '.idx')
     idxContents = ""
     if os.path.exists(idxfilename):
         idxContents = open(idxfilename, "rb").read()
 
-    tocfilename = basename + '.toc'
+    tocfilename = os.path.join(targetdir, basefile + '.toc')
     tocContents = ""
     if os.path.exists(tocfilename):
         tocContents = open(tocfilename, "rb").read()
 
-    # Run LaTeX once to generate a new aux file.
+    # Run LaTeX once to generate a new aux file and log file.
     XXXLaTeXAction(target, source, env)
 
     # Decide if various things need to be run, or run again.  We check
@@ -104,7 +130,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # with stubs that don't necessarily generate all of the same files.
 
     # Read the log file to find all .aux files
-    logfilename = basename + '.log'
+    logfilename = os.path.join(targetbase + '.log')
     auxfiles = []
     if os.path.exists(logfilename):
         content = open(logfilename, "rb").read()
@@ -112,10 +138,11 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     # Now decide if bibtex will need to be run.
     for auxfilename in auxfiles:
-        if os.path.exists(os.path.join(basedir, auxfilename)):
-            content = open(os.path.join(basedir, auxfilename), "rb").read()
+        target_aux = os.path.join(targetdir, auxfilename)
+        if os.path.exists(target_aux):
+            content = open(target_aux, "rb").read()
             if string.find(content, "bibdata") != -1:
-                bibfile = env.fs.File(basename)
+                bibfile = env.fs.File(targetbase)
                 BibTeXAction(bibfile, bibfile, env)
                 break
 
@@ -131,7 +158,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # Now decide if latex will need to be run again due to index.
     if os.path.exists(idxfilename) and idxContents != open(idxfilename, "rb").read():
         # We must run makeindex
-        idxfile = env.fs.File(basename)
+        idxfile = env.fs.File(targetbase)
         MakeIndexAction(idxfile, idxfile, env)
         must_rerun_latex = 1
 
@@ -139,7 +166,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         XXXLaTeXAction(target, source, env)
 
     # Now decide if latex needs to be run yet again to resolve warnings.
-    logfilename = basename + '.log'
+    logfilename = targetbase + '.log'
     for _ in range(int(env.subst('$LATEXRETRIES'))):
         if not os.path.exists(logfilename):
             break
@@ -149,6 +176,15 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
            not undefined_references_re.search(content):
             break
         XXXLaTeXAction(target, source, env)
+
+    env['ENV']['TEXINPUTS'] = texinputs_save
+    env['ENV']['BIBINPUTS'] = bibinputs_save
+    env['ENV']['BSTINPUTS'] = bibinputs_save
+
+    # The TEXPICTS enviroment variable is needed by a dvi -> pdf step
+    # later on Mac OSX so leave it,
+    # env['ENV']['TEXPICTS']  = texpicts_save
+
     return 0
 
 def LaTeXAuxAction(target = None, source= None, env=None):
@@ -176,27 +212,29 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
 
 def tex_emitter(target, source, env):
     base = SCons.Util.splitext(str(source[0]))[0]
-    target.append(base + '.aux')
-    env.Precious(base + '.aux')
-    target.append(base + '.log')
+    targetbase = SCons.Util.splitext(str(target[0]))[0]
+
+    target.append(targetbase + '.aux')
+    env.Precious(targetbase + '.aux')
+    target.append(targetbase + '.log')
     for f in source:
         content = f.get_contents()
         if tableofcontents_re.search(content):
-            target.append(base + '.toc')
-            env.Precious(base + '.toc')
+            target.append(targetbase + '.toc')
+            env.Precious(targetbase + '.toc')
         if makeindex_re.search(content):
-            target.append(base + '.ilg')
-            target.append(base + '.ind')
-            target.append(base + '.idx')
-            env.Precious(base + '.idx')
+            target.append(targetbase + '.ilg')
+            target.append(targetbase + '.ind')
+            target.append(targetbase + '.idx')
+            env.Precious(targetbase + '.idx')
         if bibliography_re.search(content):
-            target.append(base + '.bbl')
-            env.Precious(base + '.bbl')
-            target.append(base + '.blg')
+            target.append(targetbase + '.bbl')
+            env.Precious(targetbase + '.bbl')
+            target.append(targetbase + '.blg')
 
-    # read log file to get all output file (include .aux files)
-    logfilename = base + '.log'
-    dir, base_nodir = os.path.split(base)
+    # read log file to get all .aux files
+    logfilename = targetbase + '.log'
+    dir, base_nodir = os.path.split(targetbase)
     if os.path.exists(logfilename):
         content = open(logfilename, "rb").read()
         out_files = openout_re.findall(content)

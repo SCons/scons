@@ -404,11 +404,12 @@ class SConfBase:
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
+                 'CheckDeclaration'   : CheckDeclaration,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
                  'CheckCXXHeader'     : CheckCXXHeader,
                  'CheckLib'           : CheckLib,
-                 'CheckLibWithHeader' : CheckLibWithHeader
+                 'CheckLibWithHeader' : CheckLibWithHeader,
                }
         self.AddTests(default_tests)
         self.AddTests(custom_tests)
@@ -424,6 +425,31 @@ class SConfBase:
         """
         self._shutdown()
         return self.env
+
+    def Define(self, name, value = None, comment = None):
+        """
+        Define a pre processor symbol name, with the optional given value in the
+        current config header.
+
+        If value is None (default), then #define name is written. If value is not
+        none, then #define name value is written.
+        
+        comment is a string which will be put as a C comment in the
+        header, to explain the meaning of the value (appropriate C comments /* and
+        */ will be put automatically."""
+        lines = []
+        if comment:
+            comment_str = "/* %s */" % comment
+            lines.append(comment_str)
+
+        if value is not None:
+            define_str = "#define %s %s" % (name, value)
+        else:
+            define_str = "#define %s" % name
+        lines.append(define_str)
+        lines.append('')
+
+        self.config_h_text = self.config_h_text + string.join(lines, '\n')
 
     def BuildNodes(self, nodes):
         """
@@ -797,6 +823,12 @@ class CheckContext:
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         return not self.TryBuild(self.env.Object, text, ext)
 
+    def RunProg(self, text, ext):
+        self.sconf.cached = 1
+        # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
+        st, out = self.TryRun(text, ext)
+        return not st, out
+
     def AppendLIBS(self, lib_name_list):
         oldLIBS = self.env.get( 'LIBS', [] )
         self.env.Append(LIBS = lib_name_list)
@@ -854,6 +886,13 @@ def CheckTypeSize(context, type_name, includes = "", language = None, expect = N
                                        expect = expect)
     context.did_show_result = 1
     return res
+
+def CheckDeclaration(context, declaration, includes = "", language = None):
+    res = SCons.Conftest.CheckDeclaration(context, declaration,
+                                          includes = includes, 
+                                          language = language)
+    context.did_show_result = 1
+    return not res
 
 def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include

@@ -59,7 +59,7 @@ def node_conv(obj):
     try:
         get = obj.get
     except AttributeError:
-        if isinstance(obj, SCons.Node.Node):
+        if isinstance(obj, SCons.Node.Node) or SCons.Util.is_Sequence( obj ):
             result = obj
         else:
             result = str(obj)
@@ -132,10 +132,9 @@ class _PathList:
                 value = env.subst(value, target=target, source=source,
                                   conv=node_conv)
                 if SCons.Util.is_Sequence(value):
-                    # It came back as a string or tuple, which in this
-                    # case usually means some variable expanded to an
-                    # actually Dir node.  Concatenate the values.
-                    value = string.join(map(str, value), '')
+                    result.extend(value)
+                    continue
+                    
             elif type == TYPE_OBJECT:
                 value = node_conv(value)
             if value:

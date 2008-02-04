@@ -48,9 +48,10 @@ file1_out       = target+os.path.join( target, destdir, 'file1.out' )
 #
 test.write('SConstruct', r"""
 env = Environment(SUBDIR='subdir')
-env.Install(r'%(destdir)s', 'file1.out')
-env.InstallAs(['file2.out', r'%(_SUBDIR_file3_out)s'],
-              ['file2.in', r'%(_SUBDIR_file3_in)s'])
+f1 = env.Install(r'%(destdir)s', 'file1.out')
+f2 = env.InstallAs(['file2.out', r'%(_SUBDIR_file3_out)s'],
+                   ['file2.in', r'%(_SUBDIR_file3_in)s'])
+env.Depends(f2, f1)
 """ % locals())
 
 test.write('file1.out', "file1.out\n")
@@ -58,9 +59,9 @@ test.write('file2.in', "file2.in\n")
 test.write(['subdir', 'file3.in'], "subdir/file3.in\n")
 
 expect = test.wrap_stdout("""\
+Install file: "file1.out" as "%(file1_out)s"
 Install file: "file2.in" as "%(target_file2_out)s"
 Install file: "%(subdir_file3_in)s" as "%(target_subdir_file3_out)s"
-Install file: "file1.out" as "%(file1_out)s"
 """ % locals())
 
 test.run(arguments = '--install-sandbox=%s' % destdir, stdout=expect)

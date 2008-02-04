@@ -32,7 +32,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.subdir('work1', 'work2')
+test.subdir('work1', 'work2', 'work3')
 
 
 
@@ -48,6 +48,11 @@ test.write('fail.py', r"""
 import sys
 sys.exit(1)
 """)
+
+
+#
+# Test: work1
+# 
 
 test.write(['work1', 'SConstruct'], """\
 Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
@@ -90,7 +95,27 @@ test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
 test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n")
 
+expect = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Cleaning targets ...
+Removed bbb.out
+scons: done cleaning targets.
+"""
 
+test.run(chdir = 'work1',
+         arguments = '--clean --keep-going aaa.out bbb.out',
+         stdout = expect)
+
+test.must_not_exist(test.workpath('work1', 'aaa.1'))
+test.must_not_exist(test.workpath('work1', 'aaa.out'))
+test.must_not_exist(test.workpath('work1', 'bbb.out'))
+
+
+
+#
+# Test: work2
+# 
 
 test.write(['work2', 'SConstruct'], """\
 Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
@@ -124,6 +149,147 @@ test.must_not_exist(['work2', 'bbb.out'])
 test.must_match(['work2', 'ccc.out'], "succeed.py: ccc.out\n")
 test.must_match(['work2', 'ddd.out'], "succeed.py: ddd.out\n")
 
+
+
+#
+# Test: work3
+#
+# Check that the -k (keep-going) switch works correctly when the Nodes
+# forms a DAG. The test case is the following
+#
+#               all
+#                |
+#          +-----+-----+-------------+
+#          |           |             |
+#         a1           a2           a3
+#          |           |             |
+#          +       +---+---+     +---+---+ 
+#          \       |      /      |       |
+#           \   bbb.out  /      a4    ccc.out
+#            \          /       /        
+#             \        /       /  
+#              \      /       /  
+#              aaa.out (fails)
+#
+
+test.write(['work3', 'SConstruct'], """\
+Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
+Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
+env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
+a = env.Fail('aaa.out', 'aaa.in')
+b = env.Succeed('bbb.out', 'bbb.in')
+c = env.Succeed('ccc.out', 'ccc.in')
+
+a1 = Alias( 'a1', a )
+a2 = Alias( 'a2', a+b) 
+a4 = Alias( 'a4', c) 
+a3 = Alias( 'a3', a4+c) 
+
+Alias('all', a1+a2+a3)
+""" % locals())
+
+test.write(['work3', 'aaa.in'], "aaa.in\n")
+test.write(['work3', 'bbb.in'], "bbb.in\n")
+test.write(['work3', 'ccc.in'], "ccc.in\n")
+
+
+# Test tegular build (i.e. without -k)
+test.run(chdir = 'work3',
+         arguments = '.',
+         status = 2,
+         stderr = None,
+         stdout = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+%(_python_)s ../fail.py aaa.out
+scons: building terminated because of errors.
+""" % locals())
+
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_not_exist(['work3', 'bbb.out'])
+test.must_not_exist(['work3', 'ccc.out'])
+
+
+test.run(chdir = 'work3',
+         arguments = '-c .')
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_not_exist(['work3', 'bbb.out'])
+test.must_not_exist(['work3', 'ccc.out'])
+
+
+# Current directory
+test.run(chdir = 'work3',
+         arguments = '-k .',
+         status = 2,
+         stderr = None,
+         stdout = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+%(_python_)s ../fail.py aaa.out
+%(_python_)s ../succeed.py bbb.out
+%(_python_)s ../succeed.py ccc.out
+scons: done building targets (errors occurred during build).
+""" % locals())
+
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_exist(['work3', 'bbb.out'])
+test.must_exist(['work3', 'ccc.out'])
+
+
+test.run(chdir = 'work3',
+         arguments = '-c .')
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_not_exist(['work3', 'bbb.out'])
+test.must_not_exist(['work3', 'ccc.out'])
+
+
+# Single target
+test.run(chdir = 'work3',
+         arguments = '--keep-going all',
+         status = 2,
+         stderr = None,
+         stdout = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+%(_python_)s ../fail.py aaa.out
+%(_python_)s ../succeed.py bbb.out
+%(_python_)s ../succeed.py ccc.out
+scons: done building targets (errors occurred during build).
+""" % locals())
+
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_exist(['work3', 'bbb.out'])
+test.must_exist(['work3', 'ccc.out'])
+
+
+test.run(chdir = 'work3',
+         arguments = '-c .')
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_not_exist(['work3', 'bbb.out'])
+test.must_not_exist(['work3', 'ccc.out'])
+
+
+# Separate top-level targets
+test.run(chdir = 'work3',
+         arguments = '-k a1 a2 a3',
+         status = 2,
+         stderr = None,
+         stdout = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+%(_python_)s ../fail.py aaa.out
+%(_python_)s ../succeed.py bbb.out
+%(_python_)s ../succeed.py ccc.out
+scons: done building targets (errors occurred during build).
+""" % locals())
+
+test.must_not_exist(['work3', 'aaa.out'])
+test.must_exist(['work3', 'bbb.out'])
+test.must_exist(['work3', 'ccc.out'])
 
 
 test.pass_test()

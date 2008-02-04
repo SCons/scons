@@ -79,7 +79,14 @@ includes = """
     +-bar.h
 """
 test.run(arguments = "--debug=includes foo.ooo")
-test.fail_test(string.find(test.stdout(), includes) == -1)
+
+if string.find(test.stdout(), includes) == -1:
+    print "Did not find expected string in standard output."
+    print "Expected =========================================================="
+    print includes
+    print "Actual ============================================================"
+    print test.stdout()
+    test.fail_test()
 
 # In an ideal world, --debug=includes would also work when there's a build
 # failure, but this would require even more complicated logic to scan

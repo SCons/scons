@@ -335,13 +335,11 @@ class Null(_Executor):
     def get_build_env(self):
         import SCons.Util
         class NullEnvironment(SCons.Util.Null):
-            #def get_scanner(self, key):
-            #    return None
-            #def changed_since_last_build(self, dependency, target, prev_ni):
-            #    return dependency.changed_since_last_buld(target, prev_ni)
+            import SCons.CacheDir
+            _CacheDir_path = None
+            _CacheDir = SCons.CacheDir.CacheDir(None)
             def get_CacheDir(self):
-                import SCons.CacheDir
-                return SCons.CacheDir.Null()
+                return self._CacheDir
         return NullEnvironment()
     def get_build_scanner_path(self):
         return None

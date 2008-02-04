@@ -868,6 +868,132 @@ This implies
 .BR --implicit-cache .
 
 .TP
+--interactive
+Starts SCons in interactive mode.
+The SConscript files are read once and a
+.B "scons>>>"
+prompt is printed.
+Targets may now be rebuilt by typing commands at interactive prompt
+without having to re-read the SConscript files
+and re-initialize the dependency graph from scratch.
+
+SCons interactive mode supports the following commands:
+
+.RS 10
+.TP 6
+.BI build "[OPTIONS] [TARGETS] ..."
+Builds the specified
+.I TARGETS
+(and their dependencies)
+with the specified
+SCons command-line
+.IR OPTIONS .
+.B b
+and
+.B scons
+are synonyms.
+
+The following SCons command-line options affect the
+.B build
+command:
+
+.ES
+--cache-debug=FILE
+--cache-disable, --no-cache
+--cache-force, --cache-populate
+--cache-show
+--debug=TYPE
+-i, --ignore-errors
+-j N, --jobs=N
+-k, --keep-going
+-n, --no-exec, --just-print, --dry-run, --recon
+-Q
+-s, --silent, --quiet
+-s, --silent, --quiet
+--taskmastertrace=FILE
+--tree=OPTIONS
+.EE
+
+.IP "" 6
+Any other SCons command-line options that are specified
+do not cause errors
+but have no effect on the
+.B build
+command
+(mainly because they affect how the SConscript files are read,
+which only happens once at the beginning of interactive mode).
+
+.TP 6
+.BI clean "[OPTIONS] [TARGETS] ..."
+Cleans the specified
+.I TARGETS
+(and their dependencies)
+with the specified options.
+.B c
+is a synonym.
+This command is itself a synonym for
+.B "build --clean"
+
+.TP 6
+.BI exit
+Exits SCons interactive mode.
+You can also exit by terminating input
+(CTRL+D on UNIX or Linux systems,
+CTRL+Z on Windows systems).
+
+.TP 6
+.BI help "[COMMAND]"
+Provides a help message about
+the commands available in SCons interactive mode.
+If
+.I COMMAND
+is specified,
+.B h
+and
+.B ?
+are synonyms.
+
+.TP 6
+.BI shell "[COMMANDLINE]"
+Executes the specified
+.I COMMANDLINE
+in a subshell.
+If no
+.I COMMANDLINE
+is specified,
+executes the interactive command interpreter
+specified in the
+.B SHELL
+environment variable
+(on UNIX and Linux systems)
+or the
+.B COMSPEC
+environment variable
+(on Windows systems).
+.B sh
+and
+.B !
+are synonyms.
+
+.TP 6
+.B version
+Prints SCons version information.
+.RE
+
+An empty line repeats the last typed command.
+Command-line editing can be used if the
+.B readline
+module is available.
+
+.ES
+$ scons --interactive
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons>>> build -n prog
+scons>>> exit
+.EE
+
+.TP
 .RI -j " N" ", --jobs=" N
 Specifies the number of jobs (commands) to run simultaneously.
 If there is more than one 
@@ -1042,6 +1168,26 @@ the module
 will get loaded if it exists, and
 .IR dir /site_tools
 will get added to the default toolpath.
+
+.TP
+.RI --stack-size= KILOBYTES
+Set the size stack used to run threads to
+.IR KILOBYTES . 
+This value determines the stack size of the threads used to run jobs.
+These are the threads that execute the actions of the builders for the
+nodes that are out-of-date.
+Note that this option has no effect unless the
+.B num_jobs
+option, which corresponds to -j and --jobs, is larger than one.  Using
+a stack size that is too small may cause stack overflow errors.  This
+usually shows up as segmentation faults that cause scons to abort
+before building anything.  Using a stack size that is too large will
+cause scons to use more memory than required and may slow down the entire
+build process.
+
+The default value is to use a stack size of 256 kilobytes, which should
+be appropriate for most uses.  You should not need to increase this value
+unless you encounter stack overflow errors.
 
 .TP
 -t, --touch
@@ -1243,6 +1389,12 @@ reserved construction variable names
 or
 .BR SOURCES .
 These warnings are disabled by default.
+
+.TP
+--warn=stack-size, --warn=no-stack-size
+Enables or disables warnings about requests to set the stack size
+that could not be honored.
+These warnings are enabled by default.
 
 .\" .TP
 .\" .RI --write-filenames= file
@@ -1462,6 +1614,7 @@ g++
 g77
 gas
 gcc
+gfortran
 gnulink
 gs
 hpc++
@@ -2917,6 +3070,7 @@ that specify the type of decision function
 to be performed:
 
 .RS 10
+.HP 6
 .B timestamp-newer
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's timestamp is newer than the target file's timestamp.
@@ -4949,9 +5103,11 @@ which corresponds to --max-drift;
 .B no_exec
 which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
 .B num_jobs
-which corresponds to -j and --jobs.
+which corresponds to -j and --jobs;
 .B random
-which corresponds to --random.
+which corresponds to --random; and
+.B stack_size
+which corresponds to --stack-size.
 See the documentation for the
 corresponding command line object for information about each specific
 option.
@@ -5066,9 +5222,10 @@ env.SourceCode('no_source.c', None)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.subst( string ", [" raw ", " target ", " source ", " conv ])
+.RI env.subst( input ", [" raw ", " target ", " source ", " conv ])
 Performs construction variable interpolation
-on the specified string argument.
+on the specified string or sequence argument
+.IR input .
 
 By default,
 leading or trailing white space will
@@ -5100,6 +5257,12 @@ and
 pairs
 (as is done for signature calculation).
 
+If the input is a sequence
+(list or tuple),
+the individual elements of
+the sequence will be expanded,
+and the results will be returned as a list.
+
 The optional
 .I target
 and
@@ -5120,9 +5283,8 @@ calling
 from within a Python function used
 as an SCons action.
 
-By default,
-all returned values are converted
-to their string representation.
+Returned string values or sequence elements
+are converted to their string representation by default.
 The optional
 .I conv
 argument
@@ -6249,6 +6411,82 @@ For example,
 will return success only if short is two bytes.
 
 .ES
+.EE
+
+.TP
+.RI Configure.CheckDeclaration( self ", " symbol ", [" includes ", " language ])
+Checks if the specified
+.I symbol
+is declared.
+.I includes
+is a string containing one or more
+.B #include
+lines that will be inserted into the program
+that will be run to test for the existence of the type.
+The optional
+.I language
+argument should be
+.B C
+or
+.B C++
+and selects the compiler to be used for the check;
+the default is "C".
+
+.TP
+.RI Configure.Define(self ", " symbol ", [" value ", " comment ])
+This function does not check for anything, but defines a
+preprocessor symbol that will be added to the configuration header file.
+It is the equivalent of AC_DEFINE,
+and defines the symbol
+.I name
+with the optional
+.B value
+and the optional comment
+.BR comment .
+
+.IP
+Examples:
+
+.ES
+env = Environment()
+conf = Configure( env )
+
+# Puts the following line in the config header file:
+#    #define A_SYMBOL
+conf.Define('A_SYMBOL')
+
+# Puts the following line in the config header file:
+#    #define A_SYMBOL 1
+conf.Define('A_SYMBOL', 1)
+.EE
+
+.IP
+Be careful about quoting string values, though:
+
+.ES
+env = Environment()
+conf = Configure( env )
+
+# Puts the following line in the config header file:
+#    #define A_SYMBOL YA
+conf.Define('A_SYMBOL', "YA")
+
+# Puts the following line in the config header file:
+#    #define A_SYMBOL "YA"
+conf.Define('A_SYMBOL', '"YA"')
+.EE
+
+.IP
+For comment:
+
+.ES
+env = Environment()
+conf = Configure( env )
+
+# Puts the following lines in the config header file:
+#    /* Set to 1 if you have a symbol */
+#    #define A_SYMBOL 1
+conf.Define('A_SYMBOL', 1, 'Set to 1 if you have a symbol')
 .EE
 
 .EE
