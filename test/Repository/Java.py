@@ -37,18 +37,8 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-ENV = test.java_ENV()
-
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
-
-where_java = test.where_is('java')
-if not where_java:
-    test.skip_test("Could not find Java java, skipping test(s).\n")
+where_javac, java_version = test.java_where_javac()
+where_java = test.java_where_java()
 
 
 java = where_java
@@ -114,6 +104,8 @@ test.writable('repository', 0)
 
 #
 test.run(chdir = 'work1', options = opts, arguments = ".")
+
+os.environ['JAVA_HOME'] = '/usr/lib/jvm/java-1.5.0-sun-1.5.0.11'
 
 test.run(program = java,
          arguments = "-cp %s Foo1" % work1_classes,

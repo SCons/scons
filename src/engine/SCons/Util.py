@@ -133,9 +133,16 @@ def to_String_for_signature(obj):
     try:
         f = obj.for_signature
     except AttributeError:
-        return to_String(obj)
+        return to_String_for_subst(obj)
     else:
         return f()
+
+def to_String_for_subst(s):
+    if is_Sequence( s ):
+        return string.join( map(to_String_for_subst, s) )
+    
+    return to_String( s )
+
 
 class CallableComposite(UserList):
     """A simple composite callable class that, when called, will invoke all
@@ -344,55 +351,80 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
 # Yes, all of this manual testing breaks polymorphism, and the real
 # Pythonic way to do all of this would be to just try it and handle the
 # exception, but handling the exception when it's not the right type is
-# too slow.
-#
-# The actual implementations here have been selected after timings
-# coded up in in bench/is_types.py (from the SCons source tree, see the
-# scons-src distribution).  Key results from those timings:
-#
-#   --  Storing the type of the object in a variable (t = type(obj))
-#       slows down the case where it's a native type and the first
-#       comparison will match, but nicely speeds up the case where
-#       it's a different native type.  Since that's going to be common,
-#       it's a good tradeoff.
-#
-#   --  The data show that calling isinstance() on an object that's
-#       a native type (dict, list or string) is expensive enough that
-#       checking up front for whether the object is of type InstanceType
-#       is a pretty big win, even though it does slow down the case
-#       where it really *is* an object instance a little bit.
+# often too slow.
 
-def is_Dict(obj):
-    t = type(obj)
-    return t is DictType or \
-           (t is InstanceType and isinstance(obj, UserDict))
-
-def is_List(obj):
-    t = type(obj)
-    return t is ListType \
-        or (t is InstanceType and isinstance(obj, UserList))
-
-def is_Sequence(obj):
-    t = type(obj)
-    return t is ListType \
-        or t is TupleType \
-        or (t is InstanceType and isinstance(obj, UserList))
-
-def is_Tuple(obj):
-    t = type(obj)
-    return t is TupleType
-
-if hasattr(types, 'UnicodeType'):
-    def is_String(obj):
+try:
+    class mystr(str):
+        pass
+except TypeError:
+    # An older Python version without new-style classes.
+    #
+    # The actual implementations here have been selected after timings
+    # coded up in in bench/is_types.py (from the SCons source tree,
+    # see the scons-src distribution), mostly against Python 1.5.2.
+    # Key results from those timings:
+    #
+    #   --  Storing the type of the object in a variable (t = type(obj))
+    #       slows down the case where it's a native type and the first
+    #       comparison will match, but nicely speeds up the case where
+    #       it's a different native type.  Since that's going to be
+    #       common, it's a good tradeoff.
+    #
+    #   --  The data show that calling isinstance() on an object that's
+    #       a native type (dict, list or string) is expensive enough
+    #       that checking up front for whether the object is of type
+    #       InstanceType is a pretty big win, even though it does slow
+    #       down the case where it really *is* an object instance a
+    #       little bit.
+    def is_Dict(obj):
         t = type(obj)
-        return t is StringType \
-            or t is UnicodeType \
-            or (t is InstanceType and isinstance(obj, UserString))
+        return t is DictType or \
+               (t is InstanceType and isinstance(obj, UserDict))
+
+    def is_List(obj):
+        t = type(obj)
+        return t is ListType \
+            or (t is InstanceType and isinstance(obj, UserList))
+
+    def is_Sequence(obj):
+        t = type(obj)
+        return t is ListType \
+            or t is TupleType \
+            or (t is InstanceType and isinstance(obj, UserList))
+
+    def is_Tuple(obj):
+        t = type(obj)
+        return t is TupleType
+
+    if hasattr(types, 'UnicodeType'):
+        def is_String(obj):
+            t = type(obj)
+            return t is StringType \
+                or t is UnicodeType \
+                or (t is InstanceType and isinstance(obj, UserString))
+    else:
+        def is_String(obj):
+            t = type(obj)
+            return t is StringType \
+                or (t is InstanceType and isinstance(obj, UserString))
 else:
+    # A modern Python version with new-style classes, so we can just use
+    # isinstance().
+    def is_Dict(obj):
+        return isinstance(obj, (dict, UserDict))
+
+    def is_List(obj):
+        return isinstance(obj, (list, UserList))
+
+    def is_Sequence(obj):
+        return isinstance(obj, (list, UserList, tuple))
+
+    def is_Tuple(obj):
+        return isinstance(obj, (tuple))
+
     def is_String(obj):
-        t = type(obj)
-        return t is StringType \
-            or (t is InstanceType and isinstance(obj, UserString))
+        # Empirically, Python versions with new-style classes all have unicode.
+        return isinstance(obj, (str, unicode, UserString))
 
 
 

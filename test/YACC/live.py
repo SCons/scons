@@ -103,13 +103,19 @@ graph:        GRAPH_T
 %%
 """)
 
+import sys
+if sys.platform == 'darwin':
+   file_hpp = 'file.cpp.h'
+else:
+   file_hpp = 'file.hpp'
+
 test.write("hello.cpp", """\
-#include "file.hpp"
+#include "%(file_hpp)s"
 
 int main()
 {
 }
-""")
+""" % locals())
 
 test.write('foo.y', yacc % 'foo.y')
 

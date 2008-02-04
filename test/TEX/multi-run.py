@@ -28,6 +28,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Validate that both .tex and .ltx files can handle a LaTeX-style
 bibliography (by calling $BIBTEX to generate a .bbl file) and
 correctly re-run to resolve undefined references.
+
+Also verifies that package warnings are caught and re-run as needed.
 """
 
 import string
@@ -42,7 +44,7 @@ latex = test.where_is('latex')
 if not tex and not latex:
     test.skip_test("Could not find tex or latex; skipping test(s).\n")
 
-test.subdir('work1', 'work2', 'work4')
+test.subdir('work1', 'work2', 'work3', 'work4')
 
 
 input_file = r"""
@@ -61,6 +63,62 @@ input_file2 = r"""
 Hello world.
 % \bibliography{fooref}
 % \bibliographystyle{plain}
+\end{document}
+"""
+
+input_file3 = r"""
+\documentclass{article}
+\usepackage{longtable}
+
+\begin{document}
+As stated in the last paper, this is a bug-a-boo.
+here is some more junk and another table
+here is some more junk and another table
+
+\begin{longtable}[l]{rlll}
+         Isotope  &\multicolumn{1}{c}{Abar}  &Name\\
+\\
+         1001    &1.0078    &Proton        &$p$\\
+         1002    &2.0141    &Deuterium     &$d$\\
+         1003    &3.0170    &Tritium       &$t$\\
+         2003    &3.0160    &Helium 3      &He$^3$\\
+         2004    &4.0026    &Helium 4      &He$^{4}$\\
+\end{longtable}
+
+and a closing comment
+
+ These parameters and arrays are filled in when the parameter \textbf{iftnrates}
+   is set to 1:
+
+\begin{longtable}[l]{ll}
+\\
+\textbf{nxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{pxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{nxxxxx}    &Total number of particles made by xxxxx reaction\\
+\textbf{nxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{pxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{nxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{pxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{nxxxxx}    &Total number of particles made by xxxxx reaction\\
+\textbf{nxxxx}     &Total number of particles made by xxxx reaction\\
+\textbf{pxxxx}     &Total number of particles made by xxxx reaction\\
+\\
+\textbf{rnxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rpxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rnxxxxx}   &Regional total of particles made by xxxxx reaction\\
+\textbf{rnxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rpxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rnxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rpxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rnxxxxx}   &Regional total of particles made by xxxxx reaction\\
+\textbf{rnxxxx}    &Regional total of particles made by xxxx reaction\\
+\textbf{rpxxxx}    &Regional total of particles made by xxxx reaction\\
+\\
+\textbf{reactot}(r)     &Total number of reactions for reaction r\\
+\textbf{reacreg}(r,ir)  &Total number of reactions for reaction r in region ir\\
+\end{longtable}
+
+
 \end{document}
 """
 
@@ -95,6 +153,20 @@ PDF( "foo.tex" )
         print foo_log
         test.fail_test(1)
 
+    test.write(['work3', 'SConstruct'], """\
+DVI( "foo3.tex" )
+""")
+
+    test.write(['work3', 'foo3.tex'], input_file3)
+
+    test.run(chdir = 'work3', arguments = '.')
+
+    foo_log = test.read(['work3', 'foo3.log'])
+    if string.find(foo_log, 'Rerun LaTeX') != -1:
+        print 'foo.log contains "Rerun LaTeX":'
+        print foo_log
+        test.fail_test(1)
+
 
 
 if latex:
@@ -117,6 +189,20 @@ PDF( "foo.ltx" )
         print foo_log
         test.fail_test(1)
 
+    test.write(['work3', 'SConstruct'], """\
+DVI( "foo3.tex" )
+PDF( "foo3.tex" )
+""")
+
+    test.write(['work3', 'foo3.tex'], input_file3)
+
+    test.run(chdir = 'work3', arguments = '.')
+
+    foo_log = test.read(['work3', 'foo3.log'])
+    if string.find(foo_log, 'Rerun LaTeX') != -1:
+        print 'foo.log contains "Rerun LaTeX":'
+        print foo_log
+        test.fail_test(1)
 
 
     test.write(['work4', 'SConstruct'], """\

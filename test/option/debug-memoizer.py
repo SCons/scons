@@ -29,6 +29,7 @@ Test calling the --debug=memoizer option.
 """
 
 import os
+import new
 import string
 
 import TestSCons
@@ -39,15 +40,22 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 class M:
     def __init__(cls, name, bases, cls_dict):
-        cls.has_metaclass = 1
-
-class A:
-    __metaclass__ = M
+        cls.use_metaclass = 1
+        def fake_method(self):
+            pass
+        new.instancemethod(fake_method, None, cls)
 
 try:
-    has_metaclass = A.has_metaclass
+    class A:
+        __metaclass__ = M
+
+    use_metaclass = A.use_metaclass
 except AttributeError:
-    has_metaclass = None
+    use_metaclass = None
+    reason = 'no metaclasses'
+except TypeError:
+    use_metaclass = None
+    reason = 'new.instancemethod\\(\\) bug'
 
 
 
@@ -72,12 +80,8 @@ expect = [
     "Node._children_get()",
 ]
 
-expect_no_metaclasses = """
-scons: warning: memoization is not supported in this version of Python \\(no metaclasses\\)
-""" + TestSCons.file_expr
 
-
-if has_metaclass:
+if use_metaclass:
 
     def run_and_check(test, args, desc):
         test.run(arguments = args)
@@ -91,6 +95,12 @@ if has_metaclass:
             test.fail_test()
 
 else:
+
+    expect_no_metaclasses = """
+scons: warning: memoization is not supported in this version of Python \\(%s\\)
+""" % reason
+
+    expect_no_metaclasses = expect_no_metaclasses + TestSCons.file_expr
 
     def run_and_check(test, args, desc):
         test.run(arguments = args, stderr = expect_no_metaclasses)

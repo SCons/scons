@@ -38,8 +38,10 @@ test.write_fake_scons_py()
 test.write_sample_project('foo.tar.gz')
 
 test.write('config', """\
-archive_list = ['foo.tar.gz']
+archive_list = ['foo.tar.gz', 'foo-file']
 """)
+
+test.write('foo-file', "foo-file\n")
 
 test.run(arguments = 'run -f config')
 
@@ -49,6 +51,8 @@ test.must_exist('foo-000-0.log',
                 'foo-000-1.prof',
                 'foo-000-2.log',
                 'foo-000-2.prof')
+
+test.must_exist('foo-file')
 
 
 test.write_sample_project('bar.tar.gz')

@@ -60,22 +60,9 @@ test.must_exist('foo-716-0.log',
                 'foo-716-2.log',
                 'foo-716-2.prof')
 
-def tempdir_re(*args):
-    import os
-    import os.path
-    import string
-    import tempfile
-
-    sep = re.escape(os.sep)
-    args = (tempfile.gettempdir(), 'scons-time-svn-',) + args
-    x = apply(os.path.join, args)
-    x = re.escape(x)
-    x = string.replace(x, 'svn\\-', 'svn\\-[^%s]*' % sep)
-    return x
-
 expect = [
-    tempdir_re('src', 'script', 'scons.py'),
-    'SCONS_LIB_DIR = %s' % tempdir_re('src', 'engine'),
+    test.tempdir_re('src', 'script', 'scons.py'),
+    'SCONS_LIB_DIR = %s' % test.tempdir_re('src', 'engine'),
 ]
 
 content = test.read(test.workpath('foo-617-2.log'), mode='r')

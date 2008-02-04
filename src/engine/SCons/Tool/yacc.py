@@ -54,7 +54,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
     # If -d is specified on the command line, yacc will emit a .h
     # or .hpp file with the same name as the .c or .cpp output file.
     if '-d' in flags:
-        target.append(targetBase + env.subst(hsuf))
+        target.append(targetBase + env.subst(hsuf, target=target, source=source))
 
     # If -g is specified on the command line, yacc will emit a .vcg
     # file with the same base name as the .y, .yacc, .ym or .yy file.
@@ -108,7 +108,14 @@ def generate(env):
     env['YACCFLAGS'] = SCons.Util.CLVar('')
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
-    env['YACCHXXFILESUFFIX'] = '.hpp'
+
+    if env['PLATFORM'] == 'darwin':
+        # Bison on Mac OS X just appends ".h" to the generated target .cc
+        # or .cpp file name.  Hooray for delayed expansion of variables.
+        env['YACCHXXFILESUFFIX'] = '${TARGET.suffix}.h'
+    else:
+        env['YACCHXXFILESUFFIX'] = '.hpp'
+
     env['YACCVCGFILESUFFIX'] = '.vcg'
 
 def exists(env):

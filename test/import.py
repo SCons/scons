@@ -96,6 +96,7 @@ tools = [
     'g77',
     'gas',
     'gcc',
+    'gfortran',
     'gnulink',
     'gs',
     'hpc++',

@@ -39,11 +39,11 @@ import UserString
 
 import SCons.Errors
 
-from SCons.Util import is_String, is_List, is_Tuple
+from SCons.Util import is_String, is_Sequence
 
 # Indexed by the SUBST_* constants below.
-_strconv = [SCons.Util.to_String,
-            SCons.Util.to_String,
+_strconv = [SCons.Util.to_String_for_subst,
+            SCons.Util.to_String_for_subst,
             SCons.Util.to_String_for_signature]
 
 
@@ -188,7 +188,7 @@ class NLWrapper:
         list = self.list
         if list is None:
             list = []
-        elif not is_List(list) and not is_Tuple(list):
+        elif not is_Sequence(list):
             list = [list]
         # The map(self.func) call is what actually turns
         # a list into appropriate proxies.
@@ -203,10 +203,10 @@ class Targets_or_Sources(UserList.UserList):
     wrapping a NLWrapper.  This class handles the different methods used
     to access the list, calling the NLWrapper to create proxies on demand.
 
-    Note that we subclass UserList.UserList purely so that the is_List()
-    function will identify an object of this class as a list during
-    variable expansion.  We're not really using any UserList.UserList
-    methods in practice.
+    Note that we subclass UserList.UserList purely so that the
+    is_Sequence() function will identify an object of this class as
+    a list during variable expansion.  We're not really using any
+    UserList.UserList methods in practice.
     """
     def __init__(self, nl):
         self.nl = nl
@@ -312,6 +312,25 @@ _remove = re.compile(r'\$\([^\$]*(\$[^\)][^\$]*)*\$\)')
 # Indexed by the SUBST_* constants above.
 _regex_remove = [ _rm, None, _remove ]
 
+def _rm_list(list):
+    #return [ l for l in list if not l in ('$(', '$)') ]
+    return filter(lambda l: not l in ('$(', '$)'), list)
+
+def _remove_list(list):
+    result = []
+    do_append = result.append
+    for l in list:
+        if l == '$(':
+            do_append = lambda x: None
+        elif l == '$)':
+            do_append = result.append
+        else:
+            do_append(l)
+    return result
+
+# Indexed by the SUBST_* constants above.
+_list_remove = [ _rm_list, None, _remove_list ]
+
 # Regular expressions for splitting strings and handling substitutions,
 # for use by the scons_subst() and scons_subst_list() functions:
 #
@@ -342,7 +361,8 @@ _separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
-    """Expand a string containing construction variable substitutions.
+    """Expand a string or list containing construction variable
+    substitutions.
 
     This is the work-horse function for substitutions in file names
     and the like.  The companion scons_subst_list() function (below)
@@ -427,11 +447,10 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     var = string.split(key, '.')[0]
                     lv[var] = ''
                     return self.substitute(s, lv)
-            elif is_List(s) or is_Tuple(s):
+            elif is_Sequence(s):
                 def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                     return conv(substitute(l, lvars))
-                r = map(func, s)
-                return string.join(r)
+                return map(func, s)
             elif callable(s):
                 try:
                     s = s(target=self.target,
@@ -458,6 +477,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
             separate tokens.
             """
             if is_String(args) and not isinstance(args, CmdStringHolder):
+                args = str(args)        # In case it's a UserString.
                 try:
                     def sub_match(match, conv=self.conv, expand=self.expand, lvars=lvars):
                         return conv(expand(match.group(1), lvars))
@@ -472,11 +492,10 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     result = []
                     for a in args:
                         result.append(self.conv(self.expand(a, lvars)))
-                    try:
-                        result = string.join(result, '')
-                    except TypeError:
-                        if len(result) == 1:
-                            result = result[0]
+                    if len(result) == 1:
+                        result = result[0]
+                    else:
+                        result = string.join(map(str, result), '')
                 return result
             else:
                 return self.expand(args, lvars)
@@ -524,6 +543,10 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
             # Compress strings of white space characters into
             # a single space.
             result = string.strip(_space_sep.sub(' ', result))
+    elif is_Sequence(result):
+        remove = _list_remove[mode]
+        if remove:
+            result = remove(result)
 
     return result
 
@@ -634,7 +657,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     lv[var] = ''
                     self.substitute(s, lv, 0)
                     self.this_word()
-            elif is_List(s) or is_Tuple(s):
+            elif is_Sequence(s):
                 for a in s:
                     self.substitute(a, lvars, 1)
                     self.next_word()
@@ -666,6 +689,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
             """
 
             if is_String(args) and not isinstance(args, CmdStringHolder):
+                args = str(args)        # In case it's a UserString.
                 args = _separate_args.findall(args)
                 for a in args:
                     if a[0] in ' \t\n\r\f\v':
@@ -827,18 +851,18 @@ def scons_subst_once(strSubst, env, key):
         a = match.group(1)
         if a in matchlist:
             a = val
-        if is_List(a) or is_Tuple(a):
+        if is_Sequence(a):
             return string.join(map(str, a))
         else:
             return str(a)
 
-    if is_List(strSubst) or is_Tuple(strSubst):
+    if is_Sequence(strSubst):
         result = []
         for arg in strSubst:
             if is_String(arg):
                 if arg in matchlist:
                     arg = val
-                    if is_List(arg) or is_Tuple(arg):
+                    if is_Sequence(arg):
                         result.extend(arg)
                     else:
                         result.append(arg)

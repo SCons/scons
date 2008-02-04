@@ -34,6 +34,11 @@ If the &cv-link-JARCHDIR; value is set, the
 command will change to the specified directory using the
 <option>-C</option>
 option.
+If &cv-JARCHDIR; is not set explicitly,
+&SCons; will use the top of any subdirectory tree
+in which Java <filename>.class</filename>
+were built by the &b-link-Java; Builder.
+
 If the contents any of the source files begin with the string
 <literal>Manifest-Version</literal>,
 the file is assumed to be a manifest

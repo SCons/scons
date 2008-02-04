@@ -145,10 +145,10 @@ test.fail_test(string.find(err, 'Exception') != -1 or \
 
 # Test bad shell ('./one' is a dir, so it can't be used as a shell).
 # This will also give an exit status not in exitvalmap,
-# with error "Permission denied".
+# with error "Permission denied" or "No such file or directory".
 test.write('SConstruct', """
 env=Environment()
-if env['PLATFORM'] == 'posix':
+if env['PLATFORM'] in ('posix', 'darwin'):
     from SCons.Platform.posix import fork_spawn
     env['SPAWN'] = fork_spawn
 env['SHELL'] = 'one'
@@ -157,10 +157,14 @@ env.Command(target='badshell.out', source=[], action='foo')
 
 test.run(status=2, stderr=None)
 err = test.stderr()
-test.fail_test(string.find(err, 'Exception') != -1 or \
-               string.find(err, 'Traceback') != -1)
-test.fail_test(string.find(err, "ermission") == -1 and \
-	       string.find(err, "such file") == -1)
+if string.find(err, 'Exception') != -1 or string.find(err, 'Traceback') != -1:
+    print "Exception or Traceback found in the following error output:"
+    print err
+    test.fail_test()
+if string.find(err, 'ermission') == -1 and string.find(err, 'such file') == -1:
+    print "Missing '[Pp]ermission' or 'such file' string in the following error output:"
+    print err
+    test.fail_test()
 
 
 # Test command with exit status -1.

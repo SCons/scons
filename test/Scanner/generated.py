@@ -318,10 +318,10 @@ def write_out(file, dict):
         f.write(file + ": " + str(dict[k]) + "\\n")
     f.close()
 
-orig_function = CScan.scan
+orig_function = CScan.__call__
 
-def MyCScan(node, paths, orig_function=orig_function):
-    deps = orig_function(node, paths)
+def MyCScan(node, paths, cwd, orig_function=orig_function):
+    deps = orig_function(node, paths, cwd)
 
     global Scanned
     n = str(node)
@@ -333,7 +333,7 @@ def MyCScan(node, paths, orig_function=orig_function):
 
     return deps
 
-CScan.scan = MyCScan
+CScan.__call__ = MyCScan
 
 env = Environment(CPPPATH = ".")
 l = env.StaticLibrary("g", Split("libg_1.c libg_2.c libg_3.c"))

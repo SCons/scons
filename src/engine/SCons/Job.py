@@ -33,6 +33,18 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+
+# The default stack size (in kilobytes) of the threads used to execute
+# jobs in parallel.
+#
+# We use a stack size of 256 kilobytes. The default on some platforms
+# is too large and prevents us from creating enough threads to fully
+# parallelized the build. For example, the default stack size on linux
+# is 8 MBytes.
+
+default_stack_size = 256
+
+
 class Jobs:
     """An instance of this class initializes N jobs, and provides
     methods for starting, stopping, and waiting on all N jobs.
@@ -55,7 +67,12 @@ class Jobs:
         self.job = None
         if num > 1:
             try:
-                self.job = Parallel(taskmaster, num)
+                stack_size = SCons.Job.stack_size
+            except AttributeError:
+                stack_size = default_stack_size
+                
+            try:
+                self.job = Parallel(taskmaster, num, stack_size)
                 self.num_jobs = num
             except NameError:
                 pass
@@ -175,16 +192,39 @@ else:
     class ThreadPool:
         """This class is responsible for spawning and managing worker threads."""
 
-        def __init__(self, num):
-            """Create the request and reply queues, and 'num' worker threads."""
+        def __init__(self, num, stack_size):
+            """Create the request and reply queues, and 'num' worker threads.
+            
+            One must specify the stack size of the worker threads. The
+            stack size is specified in kilobytes.
+            """
             self.requestQueue = Queue.Queue(0)
             self.resultsQueue = Queue.Queue(0)
+
+            try:
+                prev_size = threading.stack_size(stack_size*1024) 
+            except AttributeError, e:
+                # Only print a warning if the stack size has been
+                # explicitely set.
+                if hasattr(SCons.Job, 'stack_size'):
+                    msg = "Setting stack size is unsupported by this version of Python:\n    " + \
+                        e.args[0]
+                    SCons.Warnings.warn(SCons.Warnings.StackSizeWarning, msg)
+            except ValueError, e:
+                msg = "Setting stack size failed:\n    " + \
+                    e.message
+                SCons.Warnings.warn(SCons.Warnings.StackSizeWarning, msg)
 
             # Create worker threads
             self.workers = []
             for _ in range(num):
                 worker = Worker(self.requestQueue, self.resultsQueue)
                 self.workers.append(worker)
+
+            # Once we drop Python 1.5 we can change the following to:
+            #if 'prev_size' in locals():
+            if 'prev_size' in locals().keys():
+                threading.stack_size(prev_size)
 
         def put(self, obj):
             """Put task into request queue."""
@@ -233,7 +273,7 @@ else:
         This class is thread safe.
         """
 
-        def __init__(self, taskmaster, num):
+        def __init__(self, taskmaster, num, stack_size):
             """Create a new parallel job given a taskmaster.
 
             The taskmaster's next_task() method should return the next
@@ -249,7 +289,7 @@ else:
             multiple tasks simultaneously. """
 
             self.taskmaster = taskmaster
-            self.tp = ThreadPool(num)
+            self.tp = ThreadPool(num, stack_size)
 
             self.maxjobs = num
 

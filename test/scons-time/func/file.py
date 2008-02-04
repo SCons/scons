@@ -31,7 +31,7 @@ affect how the func subcommand processes things.
 
 import TestSCons_time
 
-test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re)
+test = TestSCons_time.TestSCons_time()
 
 try:
     import pstats
@@ -56,21 +56,42 @@ prefix = 'foo-001'
 
 expect1 = r'\d.\d\d\d prof1\.py:1\(_main\)' + '\n'
 
-test.run(arguments = 'func -f st1.conf', stdout = expect1)
+test.run(arguments = 'func -f st1.conf',
+         match = TestSCons_time.match_re,
+         stdout = expect1)
 
 
 test.write('st2.conf', """\
 prefix = 'foo'
 title = 'ST2.CONF TITLE'
+vertical_bars = (
+    ( 1.4, 7, None ),
+    ( 1.5, 7, "label 1.5" ),
+    ( 1.6, 7, "label 1.6" ),
+)
 """)
 
 expect2 = \
 r"""set title "ST2.CONF TITLE"
 set key bottom left
-plot '-' title "Startup" with lines lt 1
+set label 3 "label 1.5" at 0.5,1.5 right
+set label 4 "label 1.6" at 0.6,1.5 right
+plot '-' title "Startup" with lines lt 1, \
+     '-' notitle with lines lt 7, \
+     '-' title "label 1.5" with lines lt 7, \
+     '-' title "label 1.6" with lines lt 7
 # Startup
 1 0.000
 2 0.000
+e
+1.4 0
+1.4 1
+e
+1.5 0
+1.5 1
+e
+1.6 0
+1.6 1
 e
 """
 

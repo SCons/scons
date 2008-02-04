@@ -2469,38 +2469,20 @@ class File(Base):
             self.get_build_env().get_CacheDir().push_if_forced(self)
 
         ninfo = self.get_ninfo()
-        old = self.get_stored_info()
 
-        csig = None
-        mtime = self.get_timestamp()
-        size = self.get_size()
-
-        max_drift = self.fs.max_drift
-        if max_drift > 0:
-            if (time.time() - mtime) > max_drift:
-                try:
-                    n = old.ninfo
-                    if n.timestamp and n.csig and n.timestamp == mtime:
-                        csig = n.csig
-                except AttributeError:
-                    pass
-        elif max_drift == 0:
-            try:
-                csig = old.ninfo.csig
-            except AttributeError:
-                pass
-
+        csig = self.get_max_drift_csig()
         if csig:
             ninfo.csig = csig
 
-        ninfo.timestamp = mtime
-        ninfo.size = size
+        ninfo.timestamp = self.get_timestamp()
+        ninfo.size      = self.get_size()
 
         if not self.has_builder():
             # This is a source file, but it might have been a target file
             # in another build that included more of the DAG.  Copy
             # any build information that's stored in the .sconsign file
             # into our binfo object so it doesn't get lost.
+            old = self.get_stored_info()
             self.get_binfo().__dict__.update(old.binfo.__dict__)
 
         self.store_info()
@@ -2638,6 +2620,33 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
+    def get_max_drift_csig(self):
+        """
+        Returns the content signature currently stored for this node
+        if it's been unmodified longer than the max_drift value, or the
+        max_drift value is 0.  Returns None otherwise.
+        """
+        old = self.get_stored_info()
+        mtime = self.get_timestamp()
+
+        csig = None
+        max_drift = self.fs.max_drift
+        if max_drift > 0:
+            if (time.time() - mtime) > max_drift:
+                try:
+                    n = old.ninfo
+                    if n.timestamp and n.csig and n.timestamp == mtime:
+                        csig = n.csig
+                except AttributeError:
+                    pass
+        elif max_drift == 0:
+            try:
+                csig = old.ninfo.csig
+            except AttributeError:
+                pass
+
+        return csig
+
     def get_csig(self):
         """
         Generate a node's content signature, the digested signature
@@ -2653,16 +2662,19 @@ class File(Base):
         except AttributeError:
             pass
 
-        try:
-            contents = self.get_contents()
-        except IOError:
-            # This can happen if there's actually a directory on-disk,
-            # which can be the case if they've disabled disk checks,
-            # or if an action with a File target actually happens to
-            # create a same-named directory by mistake.
-            csig = ''
-        else:
-            csig = SCons.Util.MD5signature(contents)
+        csig = self.get_max_drift_csig()
+        if csig is None:
+
+            try:
+                contents = self.get_contents()
+            except IOError:
+                # This can happen if there's actually a directory on-disk,
+                # which can be the case if they've disabled disk checks,
+                # or if an action with a File target actually happens to
+                # create a same-named directory by mistake.
+                csig = ''
+            else:
+                csig = SCons.Util.MD5signature(contents)
 
         ninfo.csig = csig
 
@@ -2842,14 +2854,14 @@ class FileFinder:
         It would be more compact to just use this as a nested function
         with a default keyword argument (see the commented-out version
         below), but that doesn't work unless you have nested scopes,
-        so we define it here just this works work under Python 1.5.2.
+        so we define it here just so this work under Python 1.5.2.
         """
         if fd is None:
             fd = self.default_filedir
         dir, name = os.path.split(fd)
         drive, d = os.path.splitdrive(dir)
         if d in ('/', os.sep):
-            return p
+            return p.fs.get_root(drive).dir_on_disk(name)
         if dir:
             p = self.filedir_lookup(p, dir)
             if not p:

@@ -34,6 +34,7 @@ import sys
 
 import SCons.Action
 
+cache_enabled = True
 cache_debug = False
 cache_force = False
 cache_show = False
@@ -129,31 +130,33 @@ class CacheDir:
         except ImportError:
             msg = "No hashlib or MD5 module available, CacheDir() not supported"
             SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
+            self.path = None
         else:
             self.path = path
+        self.current_cache_debug = None
+        self.debugFP = None
 
-    def CacheDebugWrite(self, fmt, target, cachefile):
-        self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
-
-    def CacheDebugQuiet(self, fmt, target, cachefile):
-        pass
-
-    def CacheDebugInit(self, fmt, target, cachefile):
-        if cache_debug:
+    def CacheDebug(self, fmt, target, cachefile):
+        if cache_debug != self.current_cache_debug:
             if cache_debug == '-':
                 self.debugFP = sys.stdout
-            else:
+            elif cache_debug:
                 self.debugFP = open(cache_debug, 'w')
-            self.CacheDebug = self.CacheDebugWrite
-            self.CacheDebug(fmt, target, cachefile)
-        else:
-            self.CacheDebug = self.CacheDebugQuiet
+            else:
+                self.debugFP = None
+            self.current_cache_debug = cache_debug
+        if self.debugFP:
+            self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
 
-    CacheDebug = CacheDebugInit
+    def is_enabled(self):
+        return (cache_enabled and not self.path is None)
 
     def cachepath(self, node):
         """
         """
+        if not self.is_enabled():
+            return None, None
+
         sig = node.get_cachedir_bsig()
         subdir = string.upper(sig[0])
         dir = os.path.join(self.path, subdir)
@@ -184,6 +187,9 @@ class CacheDir:
         execute the CacheRetrieveFunc and then have the latter
         explicitly check SCons.Action.execute_actions itself.
         """
+        if not self.is_enabled():
+            return False
+
         retrieved = False
 
         if cache_show:
@@ -202,16 +208,10 @@ class CacheDir:
         return retrieved
 
     def push(self, node):
+        if not self.is_enabled():
+            return
         return CachePush(node, [], node.get_build_env())
 
     def push_if_forced(self, node):
         if cache_force:
             return self.push(node)
-
-class Null(SCons.Util.Null):
-    def repr(self):
-        return 'CacheDir.Null()'
-    def cachepath(self, node):
-        return None, None
-    def retrieve(self, node):
-        return False

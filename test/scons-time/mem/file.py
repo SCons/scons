@@ -53,15 +53,22 @@ test.run(arguments = 'mem -f st1.conf', stdout = expect1)
 test.write('st2.conf', """\
 prefix = 'foo'
 title = 'ST2.CONF TITLE'
+vertical_bars = (
+    ( 1.5, 7, None ),
+)
 """)
 
 expect2 = \
 r"""set title "ST2.CONF TITLE"
 set key bottom left
-plot '-' title "Startup" with lines lt 1
+plot '-' title "Startup" with lines lt 1, \
+     '-' notitle with lines lt 7
 # Startup
 1 4000.000
 2 4000.000
+e
+1.5 0
+1.5 4800
 e
 """
 

@@ -24,9 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
+import os.path
 import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -95,21 +95,11 @@ line 3
 
 
 
-ENV = test.java_ENV()
+where_javac, java_version = test.java_where_javac()
+where_javah = test.java_where_javah()
 
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
-
-if test.detect_tool('javah', ENV=ENV):
-    where_javah = test.detect('JAVAH', 'javah', ENV=ENV)
-else:
-    where_javah = test.where_is('javah')
-if not where_javah:
-    test.skip_test("Could not find Java javah, skipping test(s).\n")
+if java_version:
+    java_version = repr(java_version)
 
 
 
@@ -125,6 +115,9 @@ test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'javah', 'install'],
                   JAVAC = r'%(where_javac)s',
                   JAVAH = r'%(where_javah)s')
+jv = %(java_version)s
+if jv:
+    foo['JAVAVERSION'] = jv
 javah = foo.Dictionary('JAVAH')
 bar = foo.Clone(JAVAH = r'%(_python_)s wrapper.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')

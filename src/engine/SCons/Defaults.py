@@ -93,7 +93,7 @@ def DefaultEnvironment(*args, **kw):
             _default_env.Decider('timestamp-match')
         global DefaultEnvironment
         DefaultEnvironment = _fetch_DefaultEnvironment
-        _default_env._CacheDir = SCons.CacheDir.Null()
+        _default_env._CacheDir_path = None
     return _default_env
 
 # Emitters for setting the shared attribute on object files,
@@ -270,7 +270,7 @@ def _concat_ixes(prefix, list, suffix, env):
 
     return result
 
-def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
+def _stripixes(prefix, list, suffix, stripprefixes, stripsuffixes, env, c=None):
     """
     This is a wrapper around _concat()/_concat_ixes() that checks for the
     existence of prefixes or suffixes on list elements and strips them
@@ -295,19 +295,39 @@ def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
     if SCons.Util.is_List(list):
         list = SCons.Util.flatten(list)
 
-    lsp = len(stripprefix)
-    lss = len(stripsuffix)
+    if SCons.Util.is_List(stripprefixes):
+        stripprefixes = map(env.subst, SCons.Util.flatten(stripprefixes))
+    else:
+        stripprefixes = [env.subst(stripprefixes)]
+
+    if SCons.Util.is_List(stripsuffixes):
+        stripsuffixes = map(env.subst, SCons.Util.flatten(stripsuffixes))
+    else:
+        stripsuffixes = [stripsuffixes]
+
     stripped = []
     for l in SCons.PathList.PathList(list).subst_path(env, None, None):
         if isinstance(l, SCons.Node.FS.File):
             stripped.append(l)
             continue
+
         if not SCons.Util.is_String(l):
             l = str(l)
-        if l[:lsp] == stripprefix:
-            l = l[lsp:]
-        if l[-lss:] == stripsuffix:
-            l = l[:-lss]
+
+        for stripprefix in stripprefixes:
+            lsp = len(stripprefix)
+            if l[:lsp] == stripprefix:
+                l = l[lsp:]
+                # Do not strip more than one prefix
+                break
+
+        for stripsuffix in stripsuffixes:
+            lss = len(stripsuffix)
+            if l[-lss:] == stripsuffix:
+                l = l[:-lss]
+                # Do not strip more than one suffix
+                break
+
         stripped.append(l)
 
     return c(prefix, stripped, suffix, env)

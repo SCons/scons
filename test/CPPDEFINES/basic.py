@@ -25,27 +25,13 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-XXX Put a description of the test here.
+Verify basic use of CPPPDEFINES with various data types.
 """
-
-import string
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-# Make sure $_CPPDEFFLAGS doesn't barf when CPPDEFINES isn't defined.
-test.write('SConstruct', """\
-env = Environment()
-print env.subst('$_CPPDEFFLAGS')
-""")
-
-expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n", 
-                          read_str = "\n")
-
-test.run(arguments = '.', stdout=expect)
-
-# Test CPPDEFINES as a string and a list.
 test.write('SConstruct', """\
 test_list = [
     'xyz',
@@ -74,54 +60,5 @@ expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
 """)
 
 test.run(arguments = '.', stdout=expect)
-
-test.write('SConstruct', """\
-foo = Environment(CPPDEFINES = ['FOO', ('VAL', '$VALUE')], VALUE=7)
-bar = Environment(CPPDEFINES = {'BAR':None, 'VAL':8})
-baz = Environment(CPPDEFINES = ['BAZ', ('VAL', 9)])
-f = foo.Object(target = 'foo', source = 'prog.c')
-b = bar.Object(target = 'bar', source = 'prog.c')
-foo.Program(target = 'foo', source = f)
-bar.Program(target = 'bar', source = b)
-baz.Program(target = 'baz', source = 'baz.cpp')
-""")
-
-test.write('prog.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-#ifdef FOO
-        printf("prog.c:  FOO %d\n", VAL);
-#endif
-#ifdef BAR
-        printf("prog.c:  BAR %d\n", VAL);
-#endif
-        exit (0);
-}
-""")
-
-test.write('baz.cpp', r"""\
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-#ifdef  BAZ
-        printf("baz.cpp:  BAZ %d\n", VAL);
-#endif
-        return(0);
-}
-""")
-
-
-test.run(arguments = '.')
-
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO 7\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR 8\n")
-test.run(program = test.workpath('baz'), stdout = "baz.cpp:  BAZ 9\n")
 
 test.pass_test()

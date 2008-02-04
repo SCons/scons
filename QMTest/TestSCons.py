@@ -21,6 +21,7 @@ import os.path
 import re
 import string
 import sys
+import time
 
 import __builtin__
 try:
@@ -136,7 +137,6 @@ def re_escape(str):
     for c in ['.', '[', ']', '(', ')', '*', '+', '?']:  # Not an exhaustive list.
         str = string.replace(str, c, '\\' + c)
     return str
-
 
 
 class TestSCons(TestCommon):
@@ -337,8 +337,8 @@ class TestSCons(TestCommon):
         return x
 
     def normalize_pdf(self, s):
-        s = re.sub(r'/CreationDate \(D:[^)]*\)',
-                   r'/CreationDate (D:XXXX)', s)
+        s = re.sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
+                   r'/\1Date (D:XXXX)', s)
         s = re.sub(r'/ID \[<[0-9a-fA-F]*> <[0-9a-fA-F]*>\]',
                    r'/ID [<XXXX> <XXXX>]', s)
         s = re.sub(r'/(BaseFont|FontName) /[A-Z]{6}',
@@ -381,32 +381,113 @@ class TestSCons(TestCommon):
 
         return s
 
-    def java_ENV(self):
+    def java_ENV(self, version=None):
         """
-        Return a default external environment that uses a local Java SDK
-        in preference to whatever's found in the default PATH.
+        Initialize with a default external environment that uses a local
+        Java SDK in preference to whatever's found in the default PATH.
         """
+        try:
+            return self._java_env[version]['ENV']
+        except AttributeError:
+            self._java_env = {}
+        except KeyError:
+            pass
+
         import SCons.Environment
         env = SCons.Environment.Environment()
-        java_path = [
-            '/usr/local/j2sdk1.4.2/bin',
-            '/usr/local/j2sdk1.4.1/bin',
-            '/usr/local/j2sdk1.3.1/bin',
-            '/usr/local/j2sdk1.3.0/bin',
-            '/usr/local/j2sdk1.2.2/bin',
-            '/usr/local/j2sdk1.2/bin',
-            '/usr/local/j2sdk1.1.8/bin',
-            '/usr/local/j2sdk1.1.7/bin',
-            '/usr/local/j2sdk1.1.6/bin',
-            '/usr/local/j2sdk1.1.5/bin',
-            '/usr/local/j2sdk1.1.4/bin',
-            '/usr/local/j2sdk1.1.3/bin',
-            '/usr/local/j2sdk1.1.2/bin',
-            '/usr/local/j2sdk1.1.1/bin',
-            env['ENV']['PATH'],
-        ]
+        self._java_env[version] = env
+
+        def paths(patterns):
+            import glob
+            result = []
+            for p in patterns:
+                paths = glob.glob(p)
+                paths.sort()
+                result.extend(paths)
+            return result
+
+        if version:
+            patterns = [
+                '/usr/lib/jvm/*-%s*/bin' % version,
+                '/usr/local/j2sdk%s*/bin' % version,
+            ]
+            java_path = paths(patterns) + [env['ENV']['PATH']]
+        else:
+            patterns = [
+                '/usr/lib/jvm/*/bin',
+                '/usr/local/j2sdk*/bin',
+            ]
+            java_path = paths(patterns) + [env['ENV']['PATH']]
+
         env['ENV']['PATH'] = string.join(java_path, os.pathsep)
         return env['ENV']
+
+    def java_where_jar(self, version=None):
+        ENV = self.java_ENV(version)
+        if self.detect_tool('jar', ENV=ENV):
+            where_jar = self.detect('JAR', 'jar', ENV=ENV)
+        else:
+            where_jar = self.where_is('jar', ENV['PATH'])
+        if not where_jar:
+            self.skip_test("Could not find Java jar, skipping test(s).\n")
+        return where_jar
+
+    def java_where_java(self, version=None):
+        """
+        Return a path to the java executable.
+        """
+        ENV = self.java_ENV(version)
+        where_java = self.where_is('java', ENV['PATH'])
+        if not where_java:
+            self.skip_test("Could not find Java java, skipping test(s).\n")
+        return where_java
+
+    def java_where_javac(self, version=None):
+        """
+        Return a path to the javac compiler.
+        """
+        ENV = self.java_ENV(version)
+        if self.detect_tool('javac'):
+            where_javac = self.detect('JAVAC', 'javac', ENV=ENV)
+        else:
+            where_javac = self.where_is('javac', ENV['PATH'])
+        if not where_javac:
+            self.skip_test("Could not find Java javac, skipping test(s).\n")
+        self.run(program = where_javac,
+                 arguments = '-version',
+                 stderr=None,
+                 status=None)
+        if version:
+            if string.find(self.stderr(), 'javac %s' % version) == -1:
+                fmt = "Could not find javac for Java version %s, skipping test(s).\n"
+                self.skip_test(fmt % version)
+        else:
+            m = re.search(r'javac (\d\.\d)', self.stderr())
+            if m:
+                version = m.group(1)
+            else:
+                version = None
+        return where_javac, version
+
+    def java_where_javah(self, version=None):
+        ENV = self.java_ENV(version)
+        if self.detect_tool('javah'):
+            where_javah = self.detect('JAVAH', 'javah', ENV=ENV)
+        else:
+            where_javah = self.where_is('javah', ENV['PATH'])
+        if not where_javah:
+            self.skip_test("Could not find Java javah, skipping test(s).\n")
+        return where_javah
+
+    def java_where_rmic(self, version=None):
+        ENV = self.java_ENV(version)
+        if self.detect_tool('rmic'):
+            where_rmic = self.detect('RMIC', 'rmic', ENV=ENV)
+        else:
+            where_rmic = self.where_is('rmic', ENV['PATH'])
+        if not where_rmic:
+            self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
+        return where_rmic
 
     def Qt_dummy_installation(self, dir='qt'):
         # create a dummy qt installation
@@ -839,6 +920,22 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
                                 'python' + self.get_python_version())
         else:
             return distutils.sysconfig.get_python_inc()
+
+    def wait_for(self, fname, timeout=10.0, popen=None):
+        """
+        Waits for the specified file name to exist.
+        """
+        waited = 0.0
+        while not os.path.exists(fname):
+            if timeout and waited >= timeout:
+                sys.stderr.write('timed out waiting for %s to exist\n' % fname)
+                if popen:
+                    popen.stdin.close()
+                    self.status = 1
+                    self.finish(popen)
+                self.fail_test()
+            time.sleep(1.0)
+            waited = waited + 1.0
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One

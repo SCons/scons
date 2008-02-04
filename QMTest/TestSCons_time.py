@@ -246,6 +246,30 @@ class TestSCons_time(TestCommon):
         self.write(python_name, profile_py % d)
         self.run(program = python_name, interpreter = sys.executable)
 
+    def tempdir_re(self, *args):
+        """
+        Returns a regular expression to match a scons-time
+        temporary directory.
+        """
+        import re
+        import tempfile
+
+        sep = re.escape(os.sep)
+        tempdir = tempfile.gettempdir()
+
+        try:
+            realpath = os.path.realpath
+        except AttributeError:
+            pass
+        else:
+            tempdir = realpath(tempdir)
+
+        args = (tempdir, 'scons-time-',) + args
+        x = apply(os.path.join, args)
+        x = re.escape(x)
+        x = string.replace(x, 'time\\-', 'time\\-[^%s]*' % sep)
+        return x
+
     def write_fake_aegis_py(self, name):
         name = self.workpath(name)
         self.write(name, aegis_py)

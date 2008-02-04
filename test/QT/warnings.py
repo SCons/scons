@@ -59,9 +59,10 @@ match12 = r"""
 scons: warning: Generated moc file 'aaa.moc' is not included by 'aaa.cpp'
 """ + TestSCons.file_expr
 
-# In case 'ar' gives a warning about creating a library.
-test.fail_test(not test.match_re(test.stderr(), match12) and \
-               not test.match_re(test.stderr(), match12 + ".+\n"))
+if not re.search(match12, test.stderr()):
+    print "Did not find expected regular expression in stderr:"
+    print test.stderr()
+    test.fail_test()
 
 os.environ['QTDIR'] = test.QT
 

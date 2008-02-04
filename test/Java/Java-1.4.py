@@ -38,14 +38,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-ENV = test.java_ENV()
-
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
+where_javac, java_version = test.java_where_javac('1.4')
 
 
 
@@ -234,10 +227,10 @@ public class NestedExample
 {
         public NestedExample()
         {
-                Thread t = new Thread() {
+                new Thread() {
                         public void start()
                         {
-                                Thread t = new Thread() {
+                                new Thread() {
                                         public void start()
                                         {
                                                 try {Thread.sleep(200);}
@@ -256,7 +249,7 @@ public class NestedExample
 
         public static void main(String argv[])
         {
-                NestedExample e = new NestedExample();
+                new NestedExample();
         }
 }
 """)
@@ -268,7 +261,7 @@ public class NestedExample
 test.write(['src5', 'TestSCons.java'], """\
 class TestSCons {
     public static void main(String[] args) {
-        Foo[] fooArray = new Foo[] { new Foo() };
+        new Foo();
     }
 }
 
@@ -355,12 +348,16 @@ def classes_must_match(dir, expect):
     global failed
     got = get_class_files(test.workpath(dir))
     if expect != got:
-        sys.stderr.write("Expected the following class files in '%s':\n" % dir)
-        for c in expect:
-            sys.stderr.write('    %s\n' % c)
-        sys.stderr.write("Got the following class files in '%s':\n" % dir)
-        for c in got:
-            sys.stderr.write('    %s\n' % c)
+        missing = set(expect) - set(got)
+        if missing:
+            sys.stderr.write("Missing the following class files from '%s':\n" % dir)
+            for c in missing:
+                sys.stderr.write('    %s\n' % c)
+        unexpected = set(got) - set(expect)
+        if unexpected:
+            sys.stderr.write("Found the following unexpected class files in '%s':\n" % dir)
+            for c in unexpected:
+                sys.stderr.write('    %s\n' % c)
         failed = 1
 
 def classes_must_not_exist(dir, expect):

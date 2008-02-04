@@ -34,29 +34,14 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-ENV = test.java_ENV()
+swig = test.where_is('swig')
 
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
+if not swig:
+    test.skip_test('Can not find installed "swig", skipping test.\n')
 
-if test.detect_tool('javah', ENV=ENV):
-    where_javah = test.detect('JAVAH', 'javah', ENV=ENV)
-else:
-    where_javah = test.where_is('javah')
-if not where_javah:
-    test.skip_test("Could not find Java javah, skipping test(s).\n")
-
-if test.detect_tool('jar', ENV=ENV):
-    where_jar = test.detect('JAR', 'jar', ENV=ENV)
-else:
-    where_jar = test.where_is('jar')
-if not where_jar:
-    test.skip_test("Could not find Java jar, skipping test(s).\n")
-
+where_javac, java_version = test.java_where_javac()
+where_javah = test.java_where_javah()
+where_jar = test.java_where_jar()
 
 test.subdir(['foo'],
             ['java'],

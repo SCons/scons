@@ -1,0 +1,15 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="gfortran">
+<summary>
+Sets construction variables for the GNU F95/F2003 GNU compiler.
+</summary>
+<sets>
+FORTRAN
+SHFORTRANFLAGS
+</sets>
+</tool>

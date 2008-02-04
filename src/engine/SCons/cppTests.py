@@ -23,10 +23,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
 import sys
 import unittest
 
-print sys.path
 import cpp
 
 
@@ -297,6 +297,9 @@ macro_function_input = """
 
 #include FUNC39c(ZERO, ONE)
 #include FUNC40c(ZERO, ONE)
+
+/* Make sure we don't die if the expansion isn't a string. */
+#define FUNC_INTEGER(x)       1
 """
 
 
@@ -309,6 +312,12 @@ token_pasting_input = """
 
 #include FUNC41
 #include FUNC42
+"""
+
+
+no_space_input = """
+#include<file43-yes>
+#include"file44-yes"
 """
 
 
@@ -331,55 +340,61 @@ class cppTestCase(unittest.TestCase):
     def test_basic(self):
         """Test basic #include scanning"""
         expect = self.basic_expect
-        result = self.cpp(basic_input)
+        result = self.cpp.process_contents(basic_input)
         assert expect == result, (expect, result)
 
     def test_substitution(self):
         """Test substitution of #include files using CPP variables"""
         expect = self.substitution_expect
-        result = self.cpp(substitution_input)
+        result = self.cpp.process_contents(substitution_input)
         assert expect == result, (expect, result)
 
     def test_ifdef(self):
         """Test basic #ifdef processing"""
         expect = self.ifdef_expect
-        result = self.cpp(ifdef_input)
+        result = self.cpp.process_contents(ifdef_input)
         assert expect == result, (expect, result)
 
     def test_if_boolean(self):
         """Test #if with Boolean values"""
         expect = self.if_boolean_expect
-        result = self.cpp(if_boolean_input)
+        result = self.cpp.process_contents(if_boolean_input)
         assert expect == result, (expect, result)
 
     def test_if_defined(self):
         """Test #if defined() idioms"""
         expect = self.if_defined_expect
-        result = self.cpp(if_defined_input)
+        result = self.cpp.process_contents(if_defined_input)
         assert expect == result, (expect, result)
 
     def test_expression(self):
         """Test #if with arithmetic expressions"""
         expect = self.expression_expect
-        result = self.cpp(expression_input)
+        result = self.cpp.process_contents(expression_input)
         assert expect == result, (expect, result)
 
     def test_undef(self):
         """Test #undef handling"""
         expect = self.undef_expect
-        result = self.cpp(undef_input)
+        result = self.cpp.process_contents(undef_input)
         assert expect == result, (expect, result)
 
     def test_macro_function(self):
         """Test using macro functions to express file names"""
         expect = self.macro_function_expect
-        result = self.cpp(macro_function_input)
+        result = self.cpp.process_contents(macro_function_input)
         assert expect == result, (expect, result)
 
     def test_token_pasting(self):
-        """Test taken-pasting to construct file names"""
+        """Test token-pasting to construct file names"""
         expect = self.token_pasting_expect
-        result = self.cpp(token_pasting_input)
+        result = self.cpp.process_contents(token_pasting_input)
+        assert expect == result, (expect, result)
+
+    def test_no_space(self):
+        """Test no space between #include and the quote"""
+        expect = self.no_space_expect
+        result = self.cpp.process_contents(no_space_input)
         assert expect == result, (expect, result)
 
 class cppAllTestCase(cppTestCase):
@@ -458,6 +473,11 @@ class PreProcessorTestCase(cppAllTestCase):
     token_pasting_expect = [
         ('include', '"', 'file41-yes'),
         ('include', '<', 'file42-yes'),
+    ]
+
+    no_space_expect = [
+        ('include', '<', 'file43-yes'),
+        ('include', '"', 'file44-yes'),
     ]
 
 class DumbPreProcessorTestCase(cppAllTestCase):
@@ -560,14 +580,126 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '<', 'file42-yes'),
     ]
 
+    no_space_expect = [
+        ('include', '<', 'file43-yes'),
+        ('include', '"', 'file44-yes'),
+    ]
+
+
+
+import os
+import re
+import shutil
+import tempfile
+
+tempfile.template = 'cppTests.'
+if os.name in ('posix', 'nt'):
+    tempfile.template = 'cppTests.' + str(os.getpid()) + '.'
+else:
+    tempfile.template = 'cppTests.'
+
+_Cleanup = []
+
+def _clean():
+    for dir in _Cleanup:
+        if os.path.exists(dir):
+            shutil.rmtree(dir)
+
+sys.exitfunc = _clean
+
+class fileTestCase(unittest.TestCase):
+    cpp_class = cpp.DumbPreProcessor
+
+    def setUp(self):
+        try:
+            path = tempfile.mktemp(prefix=tempfile.template)
+        except TypeError:
+            # The tempfile.mktemp() function in earlier versions of Python
+            # has no prefix argument, but uses the tempfile.template
+            # value that we set above.
+            path = tempfile.mktemp()
+        _Cleanup.append(path)
+        os.mkdir(path)
+        self.tempdir = path
+        self.orig_cwd = os.getcwd()
+        os.chdir(path)
+
+    def tearDown(self):
+        shutil.rmtree(self.tempdir)
+        _Cleanup.remove(self.tempdir)
+        os.chdir(self.orig_cwd)
+
+    def strip_initial_spaces(self, s):
+        #lines = s.split('\n')
+        lines = string.split(s, '\n')
+        spaces = re.match(' *', lines[0]).group(0)
+        def strip_spaces(l, spaces=spaces):
+            #if l.startswith(spaces):
+            if l[:len(spaces)] == spaces:
+                l = l[len(spaces):]
+            return l
+        #return '\n'.join([ strip_spaces(l) for l in lines ])
+        return string.join(map(strip_spaces, lines), '\n')
+
+    def write(self, file, contents):
+        open(file, 'w').write(self.strip_initial_spaces(contents))
+
+    def test_basic(self):
+        """Test basic file inclusion"""
+        self.write('f1.h', """\
+        #include "f2.h"
+        """)
+        self.write('f2.h', """\
+        #include <f3.h>
+        """)
+        self.write('f3.h', """\
+        """)
+        p = cpp.DumbPreProcessor(current = os.curdir,
+                                 cpppath = [os.curdir])
+        result = p('f1.h')
+        assert result == ['f2.h', 'f3.h'], result
+
+    def test_current_file(self):
+        """Test use of the .current_file attribute"""
+        self.write('f1.h', """\
+        #include <f2.h>
+        """)
+        self.write('f2.h', """\
+        #include "f3.h"
+        """)
+        self.write('f3.h', """\
+        """)
+        class MyPreProcessor(cpp.DumbPreProcessor):
+            def __init__(self, *args, **kw):
+                apply(cpp.DumbPreProcessor.__init__, (self,) + args, kw)
+                self.files = []
+            def __call__(self, file):
+                self.files.append(file)
+                return cpp.DumbPreProcessor.__call__(self, file)
+            def scons_current_file(self, t):
+                r = cpp.DumbPreProcessor.scons_current_file(self, t)
+                self.files.append(self.current_file)
+                return r
+        p = MyPreProcessor(current = os.curdir, cpppath = [os.curdir])
+        result = p('f1.h')
+        assert result == ['f2.h', 'f3.h'], result
+        assert p.files == ['f1.h', 'f2.h', 'f3.h', 'f2.h', 'f1.h'], p.files
+
+
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     tclasses = [ PreProcessorTestCase,
                  DumbPreProcessorTestCase,
+                 fileTestCase,
                ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
+        try:
+            names = list(set(names))
+        except NameError:
+            pass
+        names.sort()
         suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
-

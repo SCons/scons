@@ -576,13 +576,13 @@ class SubstitutionTestCase(unittest.TestCase):
                           BAR=StringableObj("bar"))
 
         r = env.subst_path([ "${FOO}/bar", "${BAR}/baz" ])
-        assert r == [ "foo/bar", "bar/baz" ]
+        assert r == [ "foo/bar", "bar/baz" ], r
 
         r = env.subst_path([ "bar/${FOO}", "baz/${BAR}" ])
-        assert r == [ "bar/foo", "baz/bar" ]
+        assert r == [ "bar/foo", "baz/bar" ], r
 
         r = env.subst_path([ "bar/${FOO}/bar", "baz/${BAR}/baz" ])
-        assert r == [ "bar/foo/bar", "baz/bar/baz" ]
+        assert r == [ "bar/foo/bar", "baz/bar/baz" ], r
 
     def test_subst_target_source(self):
         """Test the base environment subst_target_source() method"""
@@ -764,40 +764,6 @@ sys.exit(1)
 
         d = env.ParseFlags(s)
 
-        if sys.version[:3] in ('1.5', '1.6', '2.0', '2.1', '2.2'):
-            # Pre-2.3 Python has no shlex.split() function.
-            # The compatibility layer does its best can by wrapping
-            # the old shlex.shlex class, but that class doesn't really
-            # understand quoting within the body of a token.  We're just
-            # going to live with this; it's the behavior they'd
-            # have anyway if they use the shlex module...
-            #
-            # (Note that we must test the actual Python version numbers
-            # above, not just test for whether trying to use shlex.split()
-            # throws an AttributeError, because the compatibility layer
-            # adds our wrapper function to the module as shlex.split().)
-
-            expect_CPPPATH = ['/usr/include/fum',
-                              'bar',
-                              '"C:\\Program']
-            expect_LIBPATH = ['/usr/fax',
-                              'foo',
-                              '"C:\\Program']
-            expect_LIBS = ['Files\\ASCEND\\include"',
-                           'xxx',
-                           'yyy',
-                           'Files\\ASCEND"',
-                           'ascend']
-        else:
-            expect_CPPPATH = ['/usr/include/fum',
-                              'bar',
-                              'C:\\Program Files\\ASCEND\\include']
-            expect_LIBPATH = ['/usr/fax',
-                              'foo',
-                              'C:\\Program Files\\ASCEND']
-            expect_LIBS = ['xxx', 'yyy', 'ascend']
-
-
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
@@ -806,12 +772,16 @@ sys.exit(1)
                                   '+DD64'], d['CCFLAGS']
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
-        assert d['CPPPATH'] == expect_CPPPATH, d['CPPPATH']
+        assert d['CPPPATH'] == ['/usr/include/fum',
+                                'bar',
+                                'C:\\Program Files\\ASCEND\\include'], d['CPPPATH']
         assert d['FRAMEWORKPATH'] == ['fwd1', 'fwd2', 'fwd3'], d['FRAMEWORKPATH']
         assert d['FRAMEWORKS'] == ['Carbon'], d['FRAMEWORKS']
-        assert d['LIBPATH'] == expect_LIBPATH, d['LIBPATH']
+        assert d['LIBPATH'] == ['/usr/fax',
+                                'foo',
+                                'C:\\Program Files\\ASCEND'], d['LIBPATH']
         LIBS = map(str, d['LIBS'])
-        assert LIBS == expect_LIBS, (d['LIBS'], LIBS)
+        assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
         assert d['LINKFLAGS'] == ['-Wl,-link', '-pthread',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
@@ -2589,10 +2559,10 @@ def generate(env):
         env = self.TestEnvironment(CD = 'CacheDir')
 
         env.CacheDir('foo')
-        assert env._CacheDir.path == 'foo', env._CacheDir.path
+        assert env._CacheDir_path == 'foo', env._CacheDir_path
 
         env.CacheDir('$CD')
-        assert env._CacheDir.path == 'CacheDir', env._CacheDir.path
+        assert env._CacheDir_path == 'CacheDir', env._CacheDir_path
 
     def test_Clean(self):
         """Test the Clean() method"""

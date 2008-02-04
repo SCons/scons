@@ -44,6 +44,11 @@ def smart_link(source, target, env, for_signature):
         return '$CXX'
     return '$CC'
 
+def shlib_emitter(target, source, env):
+    for tgt in target:
+        tgt.attributes.shared = 1
+    return (target, source)
+
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
     SCons.Tool.createSharedLibBuilder(env)
@@ -54,14 +59,14 @@ def generate(env):
     env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     # don't set up the emitter, cause AppendUnique will generate a list
     # starting with None :-(
-    #env['SHLIBEMITTER']= None
+    env.Append(SHLIBEMITTER = [shlib_emitter])
     env['SMARTLINK']   = smart_link
     env['LINK']        = "$SMARTLINK"
     env['LINKFLAGS']   = SCons.Util.CLVar('')
     env['LINKCOM']     = '$LINK -o $TARGET $LINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX']='-L'
     env['LIBDIRSUFFIX']=''
-    env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIX, LIBSUFFIX, __env__)}'
+    env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
     env['LIBLINKPREFIX']='-l'
     env['LIBLINKSUFFIX']=''
 

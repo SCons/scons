@@ -22,6 +22,7 @@
 <!ENTITY as             "<application>as</application>">
 <!ENTITY Autoconf       "<application>Autoconf</application>">
 <!ENTITY Automake       "<application>Automake</application>">
+<!ENTITY bison          "<application>bison</application>">
 <!ENTITY cc             "<application>cc</application>">
 <!ENTITY Cons           "<application>Cons</application>">
 <!ENTITY cp             "<application>cp</application>">

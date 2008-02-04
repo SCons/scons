@@ -190,6 +190,7 @@ class SubstTestCase(unittest.TestCase):
             'T'         : ('x', 'y'),
             'CS'        : cs,
             'CL'        : cl,
+            'US'        : UserString.UserString('us'),
 
             # Test function calls within ${}.
             'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
@@ -317,6 +318,12 @@ class SubstTestCase(unittest.TestCase):
             '$CS',                  'cs',
             '$CL',                  'cl',
 
+            # Various uses of UserString.
+            UserString.UserString('x'),         'x',
+            UserString.UserString('$X'),        'x',
+            UserString.UserString('$US'),       'us',
+            '$US',                              'us',
+
             # Test function calls within ${}.
             '$FUNCCALL',            'a xc b',
 
@@ -404,9 +411,9 @@ class SubstTestCase(unittest.TestCase):
                "This is test",
 
             ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
-                "| $( a | b $) | c 1",
-                "| a | b | c 1",
-                "| | c 1",
+                ["|", "$(", "a", "|", "b", "$)", "|", "c", "1"],
+                ["|", "a", "|", "b", "|", "c", "1"],
+                ["|", "|", "c", "1"],
         ]
 
         gvars = env.Dictionary()
@@ -570,7 +577,7 @@ class SubstTestCase(unittest.TestCase):
         cmd = SCons.Util.CLVar("test $FOO $BAR $CALL test")
 
         newcmd = scons_subst(cmd, env, gvars=env.Dictionary())
-        assert newcmd == 'test foo bar call test', newcmd
+        assert newcmd == ['test', 'foo', 'bar', 'call', 'test'], newcmd
 
         cmd_list = scons_subst_list(cmd, env, gvars=env.Dictionary())
         assert len(cmd_list) == 1, cmd_list
@@ -653,6 +660,7 @@ class SubstTestCase(unittest.TestCase):
             'L'         : ['x', 'y'],
             'CS'        : cs,
             'CL'        : cl,
+            'US'        : UserString.UserString('us'),
 
             # Test function calls within ${}.
             'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
@@ -785,6 +793,16 @@ class SubstTestCase(unittest.TestCase):
             ['$CS'],                [['cs']],
             '$CL',                  [['cl']],
             ['$CL'],                [['cl']],
+
+            # Various uses of UserString.
+            UserString.UserString('x'),         [['x']],
+            [UserString.UserString('x')],       [['x']],
+            UserString.UserString('$X'),        [['x']],
+            [UserString.UserString('$X')],      [['x']],
+            UserString.UserString('$US'),       [['us']],
+            [UserString.UserString('$US')],     [['us']],
+            '$US',                              [['us']],
+            ['$US'],                            [['us']],
 
             # Test function calls within ${}.
             '$FUNCCALL',            [['a', 'xc', 'b']],

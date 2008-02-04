@@ -67,7 +67,7 @@ class FindPathDirs:
     will return all of the *path directories."""
     def __init__(self, variable):
         self.variable = variable
-    def __call__(self, env, dir, target=None, source=None, argument=None):
+    def __call__(self, env, dir=None, target=None, source=None, argument=None):
         import SCons.PathList
         try:
             path = env[self.variable]
@@ -346,13 +346,16 @@ class Classic(Current):
     def sort_key(self, include):
         return SCons.Node.FS._my_normcase(include)
 
+    def find_include_names(self, node):
+        return self.cre.findall(node.get_contents())
+
     def scan(self, node, path=()):
 
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
             includes = node.includes
         else:
-            includes = self.cre.findall(node.get_contents())
+            includes = self.find_include_names (node)
             node.includes = includes
 
         # This is a hand-coded DSU (decorate-sort-undecorate, or

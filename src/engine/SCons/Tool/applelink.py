@@ -35,12 +35,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-import gnulink
+# Even though the Mac is based on the GNU toolchain, it doesn't understand
+# the -rpath option, so we use the "link" tool instead of "gnulink".
+import link
 
 def generate(env):
     """Add Builders and construction variables for applelink to an
     Environment."""
-    gnulink.generate(env)
+    link.generate(env)
 
     env['FRAMEWORKPATHPREFIX'] = '-F'
     env['_FRAMEWORKPATH'] = '${_concat(FRAMEWORKPATHPREFIX, FRAMEWORKPATH, "", __env__)}'

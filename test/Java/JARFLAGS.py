@@ -33,21 +33,10 @@ test = TestSCons.TestSCons()
 
 test.subdir('src')
 
-ENV = test.java_ENV()
+where_javac, java_version = test.java_where_javac()
+where_jar = test.java_where_jar()
 
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
 
-if test.detect_tool('jar', ENV=ENV):
-    where_jar = test.detect('JAR', 'jar', ENV=ENV)
-else:
-    where_jar = test.where_is('jar')
-if not where_jar:
-    test.skip_test("Could not find Java jar, skipping test(s).\n")
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'jar'],
@@ -75,9 +64,9 @@ public class Example1
 
 expect = test.wrap_stdout("""\
 %(where_javac)s -d classes -sourcepath src src/Example1\.java
-%(where_jar)s cvf test.jar classes/src/Example1\.class
+%(where_jar)s cvf test.jar -C classes src/Example1\.class
 .*
-adding: classes/src/Example1\.class.*
+adding: src/Example1\.class.*
 """ % locals())
 
 expect = string.replace(expect, '/', os.sep)

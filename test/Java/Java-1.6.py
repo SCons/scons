@@ -38,15 +38,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-ENV = test.java_ENV()
-ENV['PATH'] = '/usr/lib/jvm/java-6-sun-1.6.0.00/bin' + os.pathsep + os.environ['PATH']
-
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
+where_javac, java_version = test.java_where_javac('1.6')
 
 
 
@@ -235,10 +227,10 @@ public class NestedExample
 {
         public NestedExample()
         {
-                Thread t = new Thread() {
+                new Thread() {
                         public void start()
                         {
-                                Thread t = new Thread() {
+                                new Thread() {
                                         public void start()
                                         {
                                                 try {Thread.sleep(200);}
@@ -257,7 +249,7 @@ public class NestedExample
 
         public static void main(String argv[])
         {
-                NestedExample e = new NestedExample();
+                new NestedExample();
         }
 }
 """)

@@ -37,25 +37,9 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-ENV = test.java_ENV()
-
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
-
-if test.detect_tool('javah', ENV=ENV):
-    where_javah = test.detect('JAVAH', 'javah', ENV=ENV)
-else:
-    where_javah = test.where_is('javah')
-if not where_javah:
-    test.skip_test("Could not find Java javah, skipping test(s).\n")
-
-where_java = test.where_is('java')
-if not where_java:
-    test.skip_test("Could not find Java java, skipping test(s).\n")
+where_javac, java_version = test.java_where_javac()
+where_java = test.java_where_java()
+where_javah = test.java_where_javah()
 
 java = where_java
 javac = where_javac

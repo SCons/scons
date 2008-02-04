@@ -375,7 +375,6 @@ class Node:
         # waiting for this Node to be built.
         for parent in self.waiting_parents.keys():
             parent.implicit = None
-            parent.del_binfo()
 
         self.clear()
 
@@ -433,14 +432,10 @@ class Node:
         can be re-evaluated by interfaces that do continuous integration
         builds).
         """
-        # Note in case it's important in the future:  We also used to clear
-        # the build information (the lists of dependencies) here like this:
-        #
-        #    self.del_binfo()
-        #
-        # But we now rely on the fact that we're going to look at that
-        # once before the build, and then store the results in the
-        # .sconsign file after the build.
+        # The del_binfo() call here isn't necessary for normal execution,
+        # but is for interactive mode, where we might rebuild the same
+        # target and need to start from scratch.
+        self.del_binfo()
         self.clear_memoized_values()
         self.ninfo = self.new_ninfo()
         self.executor_cleanup()
@@ -639,8 +634,6 @@ class Node:
                 # so we must recalculate the implicit deps:
                 self.implicit = []
                 self.implicit_dict = {}
-                self._children_reset()
-                self.del_binfo()
 
         # Have the executor scan the sources.
         executor.scan_sources(self.builder.source_scanner)
@@ -1013,6 +1006,7 @@ class Node:
             # entries to equal the new dependency list, for the benefit
             # of the loop below that updates node information.
             then.extend([None] * diff)
+            if t: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
         for child, prev_ni in zip(children, then):

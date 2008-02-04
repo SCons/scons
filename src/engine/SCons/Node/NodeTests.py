@@ -630,13 +630,13 @@ class NodeTestCase(unittest.TestCase):
 
         # XXX additional tests for the guts of the functionality some day
 
-    def test_del_binfo(self):
-        """Test deleting the build information from a Node
-        """
-        node = SCons.Node.Node()
-        node.binfo = None
-        node.del_binfo()
-        assert not hasattr(node, 'binfo'), node
+    #def test_del_binfo(self):
+    #    """Test deleting the build information from a Node
+    #    """
+    #    node = SCons.Node.Node()
+    #    node.binfo = None
+    #    node.del_binfo()
+    #    assert not hasattr(node, 'binfo'), node
 
     def test_store_info(self):
         """Test calling the method to store build information

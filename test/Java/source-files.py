@@ -35,14 +35,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-ENV = test.java_ENV()
-
-if test.detect_tool('javac', ENV=ENV):
-    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
-else:
-    where_javac = test.where_is('javac')
-if not where_javac:
-    test.skip_test("Could not find Java javac, skipping test(s).\n")
+where_javac, java_version = test.java_where_javac()
 
 
 test.write('SConstruct', """
