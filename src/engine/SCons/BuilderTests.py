@@ -31,6 +31,7 @@ def Func():
     pass
 
 import os.path
+import re
 import sys
 import types
 import StringIO
@@ -84,14 +85,9 @@ class Environment:
     def subst(self, s):
         if not SCons.Util.is_String(s):
             return s
-        try:
-            if s[0] == '$':
-                return self.d.get(s[1:], '')
-            if s[1] == '$':
-                return s[0] + self.d.get(s[2:], '')
-        except IndexError:
-            pass
-        return self.d.get(s, s)
+        def substitute(m, d=self.d):
+            return d.get(m.group(1), '')
+        return re.sub(r'\$(\w+)', substitute, s)
     def subst_target_source(self, string, raw=0, target=None,
                             source=None, dict=None, conv=None):
         return SCons.Subst.scons_subst(string, self, raw, target,
@@ -107,7 +103,7 @@ class Environment:
         list = []
         for a in args:
             if SCons.Util.is_String(a):
-                a = factory(a)
+                a = factory(self.subst(a))
             list.append(a)
         return list
     def get_factory(self, factory):
@@ -163,6 +159,7 @@ class MyNode_without_target_from_source:
         self.builder = None
         self.is_explicit = None
         self.side_effect = 0
+        self.suffix = os.path.splitext(name)[1]
     def disambiguate(self):
         return self
     def __str__(self):
@@ -627,6 +624,21 @@ class BuilderTestCase(unittest.TestCase):
         b9.add_action('_altsrc.b', 'altaction')
         tgt = b9(env, target=None, source='foo_altsrc.b')
         assert str(tgt[0]) == 'foo.c', str(tgt[0])
+
+    def test_src_suffix_expansion(self):
+        """Test handling source suffixes when an expansion is involved"""
+        env = Environment(OBJSUFFIX = '.obj')
+
+        b1 = SCons.Builder.Builder(action = '',
+                                   src_suffix='.c',
+                                   suffix='.obj')
+        b2 = SCons.Builder.Builder(action = '',
+                                   src_builder=b1,
+                                   src_suffix='.obj',
+                                   suffix='.exe')
+        tgt = b2(env, target=None, source=['foo$OBJSUFFIX'])
+        s = map(str, tgt[0].sources)
+        assert s == ['foo.obj'], s
 
     def test_suffix(self):
         """Test Builder creation with a specified target suffix
@@ -1099,9 +1111,9 @@ class BuilderTestCase(unittest.TestCase):
         assert r == 'A_', r
         r = builder.get_suffix(env)
         assert r == '.B', r
-        r = builder.get_prefix(env, ['X.C'])
+        r = builder.get_prefix(env, [MyNode('X.C')])
         assert r == 'E_', r
-        r = builder.get_suffix(env, ['X.C'])
+        r = builder.get_suffix(env, [MyNode('X.C')])
         assert r == '.D', r
 
         builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
@@ -1132,7 +1144,7 @@ class BuilderTestCase(unittest.TestCase):
         assert r == 'A_', r
         r = builder.get_suffix(env)
         assert r == None, r
-        r = builder.get_suffix(env, ['X.src_sfx1'])
+        r = builder.get_suffix(env, [MyNode('X.src_sfx1')])
         assert r == None, r
         r = builder.get_src_suffix(env)
         assert r == '.src_sfx1', r

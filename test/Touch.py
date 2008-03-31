@@ -52,6 +52,13 @@ env.Command('f5.out', 'f5.in', [Touch("$FILE"), Cat])
 env.Command('f6.out', 'f6.in', [Cat,
                                 Touch("Touch-$SOURCE"),
                                 Touch("$TARGET-Touch")])
+
+# Make sure Touch works with a list of arguments
+env = Environment()
+env.Command('f7.out', 'f7.in', [Cat,
+                                Touch(["Touch-$SOURCE",
+                                       "$TARGET-Touch",
+                                       File("f8")])])
 """)
 
 test.write('f1', "f1\n")
@@ -59,6 +66,7 @@ test.write('f1-File', "f1-File\n")
 test.write('f2.in', "f2.in\n")
 test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
+test.write('f7.in', "f7.in\n")
 
 old_f1_time = os.path.getmtime(test.workpath('f1'))
 old_f1_File_time = os.path.getmtime(test.workpath('f1-File'))
@@ -75,6 +83,8 @@ cat(["f5.out"], ["f5.in"])
 cat(["f6.out"], ["f6.in"])
 Touch("Touch-f6.in")
 Touch("f6.out-Touch")
+cat(["f7.out"], ["f7.in"])
+Touch(["Touch-f7.in", "f7.out-Touch", "f8"])
 """)
 test.run(options = '-n', arguments = '.', stdout = expect)
 
@@ -92,6 +102,10 @@ test.must_not_exist(test.workpath('f5.out'))
 test.must_not_exist(test.workpath('f6.out'))
 test.must_not_exist(test.workpath('Touch-f6.in'))
 test.must_not_exist(test.workpath('f6.out-Touch'))
+test.must_not_exist(test.workpath('f7.out'))
+test.must_not_exist(test.workpath('Touch-f7.in'))
+test.must_not_exist(test.workpath('f7.out-Touch'))
+test.must_not_exist(test.workpath('f8'))
 
 test.run()
 
@@ -107,5 +121,9 @@ test.must_match('f5.out', "f5.in\n")
 test.must_match('f6.out', "f6.in\n")
 test.must_exist(test.workpath('Touch-f6.in'))
 test.must_exist(test.workpath('f6.out-Touch'))
+test.must_match('f7.out', "f7.in\n")
+test.must_exist(test.workpath('Touch-f7.in'))
+test.must_exist(test.workpath('f7.out-Touch'))
+test.must_exist(test.workpath('f8'))
 
 test.pass_test()

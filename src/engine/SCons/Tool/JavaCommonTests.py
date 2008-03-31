@@ -466,6 +466,75 @@ class test
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
         assert expect == classes, (expect, classes)
 
+    def test_floating_point_numbers(self):
+        """Test floating-point numbers in the input stream"""
+        input = """
+// Broken.java
+class Broken
+{
+  /**
+   * Detected.
+   */
+  Object anonymousInnerOK = new Runnable() { public void run () {} };
+
+  /**
+   * Detected.
+   */
+  class InnerOK { InnerOK () { } }
+  
+  {
+    System.out.println("a number: " + 1000.0 + "");
+  }
+
+  /**
+   * Not detected.
+   */
+  Object anonymousInnerBAD = new Runnable() { public void run () {} };
+
+  /**
+   * Not detected.
+   */
+  class InnerBAD { InnerBAD () { } }
+}
+"""
+
+        expect = ['Broken$1', 'Broken$InnerOK', 'Broken$2', 'Broken$InnerBAD', 'Broken']
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.4')
+        assert expect == classes, (expect, classes)
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
+        assert expect == classes, (expect, classes)
+
+
+    def test_genercis(self):
+        """Test that generics don't interfere with detecting anonymous classes"""
+
+        input = """\
+import java.util.Date;
+import java.util.Comparator;
+
+public class Foo
+{
+  public void foo()
+  {
+    Comparator<Date> comp = new Comparator<Date>()
+      {
+        static final long serialVersionUID = 1L;
+        public int compare(Date lhs, Date rhs)
+        {
+          return 0;
+        }
+      };
+  }
+}
+"""
+
+        expect = [ 'Foo$1', 'Foo' ]
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.6')
+        assert expect == classes, (expect, classes)
+
 
 
 if __name__ == "__main__":

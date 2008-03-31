@@ -46,7 +46,7 @@ try:
     SetOption('duplicate', duplicate)
 except KeyError:
     pass
-BuildDir('build', '.', duplicate=1)
+VariantDir('build', '.', duplicate=1)
 SConscript('build/SConscript')
 """)
 

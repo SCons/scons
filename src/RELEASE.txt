@@ -20,12 +20,169 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
+RELEASE 0.98 - Sun, 30 Mar 2008 23:33:05 -0700
 
-  This is the eighth beta release of SCons.  Please consult the
+  This is the ninth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.97.0d20071212:
+
+    --  SUPPORT FOR PYTHON VERSIONS BEFORE 2.2 IS NOW DEPRECATED
+
+        SCons now prints the following warning when it is run by any
+        Python 1.5, 2.0 or 2.1 release or sub-release:
+
+            scons: warning: Support for pre-2.2 Python (VERSION) is deprecated.
+                If this will cause hardship, contact dev@scons.tigris.org.
+
+        You may disable all warnings about deprecated features by adding
+        the option "--warn=no-deprecated" to the command line or to the
+        $SCONSFLAGS environment variable:
+
+            $ scons --warn=no-deprecated
+
+        Using '--warn=no-deprecated' is compatible with earlier versions
+        of SCons.
+
+        You may also, as of this version of SCons, disable all warnings
+        about deprecated features by adding the following to any
+        SConscript file:
+
+            SetOption('warn', 'no-deprecated')
+
+        You may disable only the specific warning about running under
+        a deprecated Python version by adding the following to any
+        SConscript file:
+
+            SetOption('warn', 'no-python-version')
+
+        The warning may also be suppressed on the command line:
+
+            $ scons --warn=no-python-version
+
+        Or by specifying the --warn=no-python-version option in the
+        $SCONSFLAGS environment variable.
+
+        Using SetOption('warn', ...), and the 'no-python-version'
+        command-line option for suppressing this specific warning,
+        are *not* backwards-compatible to earlier versions of SCons.
+
+    --  THE env.Copy() METHOD IS NOW OFFICIALLY DEPRECATED
+
+        The env.Copy() method is now officially deprecated and will
+        be removed in a future release.  Using the env.Copy() method
+        now generates the following message:
+
+            scons: warning: The env.Copy() method is deprecated; use the env.Clone() method instead.
+
+        You may disable all warnings about deprecated features by adding
+        the option "--warn=no-deprecated" to the command line or to the
+        $SCONSFLAGS environment variable:
+
+            $ scons --warn=no-deprecated
+
+        Using '--warn=no-deprecated' is compatible with earlier versions
+        of SCons.
+
+        You may also, as of this version of SCons, disable all warnings
+        about deprecated features by adding the following to any
+        SConscript file:
+
+            SetOption('warn', 'no-deprecated')
+
+	You may disable only the specific warning about the deprecated
+	env.Copy() method by adding the following to any SConscript
+	file:
+
+            SetOption('warn', 'no-deprecated-copy')
+
+        The warning may also be suppressed on the command line:
+
+            $ scons --warn=no-deprecated-copy
+
+        Or by specifying the --warn=no-deprecated-copy option in the
+        $SCONSFLAGS environment variable.
+
+        Using SetOption('warn', ...), and the 'no-deprecated-copy'
+        command-line option for suppressing this specific warning,
+        are *not* backwards-compatible to earlier versions of SCons.
+
+    --  THE --debug=dtree, --debug=stree AND --debug=tree OPTIONS ARE DEPRECATED
+
+        The --debug=dtree, --debug=stree and --debug=tree methods
+        are now officially deprecated and will be removed in a
+        future release.  Using these options now generate a warning
+        message recommending use of the --tree=derived, --tree=all,status
+        and --tree=all options, respectively.
+
+        You may disable these warnings, and all warnings about
+        deprecated features, by adding the option "--warn=no-deprecated"
+        to the command line or to the $SCONSFLAGS environment
+        variable:
+
+            $ scons --warn=no-deprecated
+
+        Using '--warn=no-deprecated' is compatible with earlier versions
+        of SCons.
+
+    --  THE TargetSignatures() AND SourceSignatures() FUNCTIONS ARE DEPRECATED
+
+	The TargetSignatures() and SourceSignatures() functions,
+	and their corresponding env.TargetSignatures() and
+	env.SourceSignatures() methods, are now officially deprecated
+	and will be be removed in a future release.  Using ahy of
+	these functions or methods now generates a message
+	similar to the following:
+
+            scons: warning: The env.TargetSignatures() method is deprecated;
+                    convert your build to use the env.Decider() method instead.
+
+        You may disable all warnings about deprecated features by adding
+        the option "--warn=no-deprecated" to the command line or to the
+        $SCONSFLAGS environment variable:
+
+            $ scons --warn=no-deprecated
+
+        Using '--warn=no-deprecated' is compatible with earlier versions
+        of SCons.
+
+        You may also, as of this version of SCons, disable all warnings
+        about deprecated features by adding the following to any
+        SConscript file:
+
+            SetOption('warn', 'no-deprecated')
+
+	You may disable only the specific warning about the use of
+	TargetSignatures() or SourceSignatures() by adding the
+	following to any SConscript file:
+
+            SetOption('warn', 'no-deprecated-target-signatures')
+            SetOption('warn', 'no-deprecated-source-signatures')
+
+        The warnings may also be suppressed on the command line:
+
+            $ scons --warn=no-deprecated-target-signatures --warn=no-deprecated-source-signatures
+
+	Or by specifying these options in the $SCONSFLAGS environment
+	variable.
+
+	Using SetOption('warn', ...), or the command-line options
+	for suppressing these warnings, is *not* backwards-compatible
+	to earlier versions of SCons.
+
+    --  File(), Dir() and Entry() NOW RETURN A LIST WHEN THE INPUT IS A SEQUENCE
+
+        Previously, if these methods were passed a list, the list was
+        substituted and stringified, then passed as a single string to
+        create a File/Dir/Entry Node.  This rarely if ever worked with
+        more than one element in the list.  They now return a list of
+        Nodes when passed a list.
+
+        One case that works differently now is a passing in a
+        single-element sequence; that formerly was stringified
+        (returning its only element) and then a single Node would be
+        returned.  Now a single-element list containing the Node will
+        be returned, for consistency.
 
     --  THE env.subst() METHOD NOW RETURNS A LIST WHEN THE INPUT IS A SEQUENCE
 
@@ -33,12 +190,12 @@ RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
         expanded when given a list as input.  Previously, the env.subst()
         method would always turn its result into a string.
 
-        This behavior was changed because way it interfered with
-        being able to include things like lists within the expansion
-        of variables like $CPPPATH and have SCons understand that the
-        elements of the "internal" lists still needed to be treated
-        separately.  This would show up as a list like ['subdir1',
-        'subdir'] showing up in a command line as "-Isubdir1 subdir".
+        This behavior was changed because it interfered with being able
+        to include things like lists within the expansion of variables
+        like $CPPPATH and then have SCons understand that the elements
+        of the "internal" lists still needed to be treated separately.
+        This would cause a $CPPPATH list like ['subdir1', 'subdir']
+        to show up in a command line as "-Isubdir1 subdir".
 
     --  THE Jar() BUILDER NOW USES THE Java() BUILDER CLASSDIR BY DEFAULT
 
@@ -698,6 +855,105 @@ RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
 
   Please note the following planned, future changes:
 
+    --  THE BuildDir() METHOD AND FUNCTION WILL BE DEPRECATED
+
+        The env.BuildDir() method and BuildDir() function are being
+        replaced by the new env.VariantDir() method and VariantDir()
+        function.
+
+        In some future release a deprecation warning will be added
+        to existing uses of the env.BuildDir() method and BuildDir()
+        function.  At some point after the deprecation warning, the
+        env.Builder() method and BuildDir() function will either
+        be removed entirely or have their behavior changed.
+
+	You can prepare for this by changing all your uses of the
+	env.BuildDir() method to env.VariantDir() and uses of the
+	global BuildDir() function to VariantDir().  If you use a
+	named keyword argument of "build_dir" when calling
+	env.BuildDir() or BuildDir():
+
+            env.BuildDir(build_dir='opt', src_dir='src')
+
+        The keyword must be changed to "variant_dir":
+
+            env.VariantDir(variant_dir='opt', src_dir='src')
+
+        NOTE:  CHANGING USES OF env.BuildDir() AND BuildDir() to
+        env.VariantDir() AND VariantDir() IS NOT BACKWARDS COMPATIBLE
+        TO VERSIONS OF SCons BEFORE 0.98.  YOUR SConscript FILES
+        WILL NOT WORK ON EARLIER VERSIONS OF SCons AFTER MAKING
+        THIS CHANGE.
+
+        If you change SConscript files in software that you make
+        available for download or otherwise distribute, other users
+        may try to build your software with an earlier version of
+        SCons that does not have the env.VariantDir() method or
+        VariantDir() fnction.  We recommend preparing for this in
+        one of two ways:
+
+            --  Make your SConscript files backwards-compatible by
+                including the following code near the beginning of your
+                top-level SConstruct file:
+
+                    import SCons.Environment
+                    try:
+                        SCons.Environment.Environment.VariantDir
+                    except AttributeError:
+                        SCons.Environment.Environment.VariantDir = \
+                              SCons.Environment.Environment.BuildDir
+
+            --  Use the EnsureSConsVersion() function to provide a
+                descriptive error message if your SConscript files
+                are executed by an earlier version of SCons:
+
+                    EnsureSConsVersion(0, 98)
+
+    --  THE SConscript() "build_dir" KEYWORD ARGUMENT WILL BE DEPRECATED
+
+	The "build_dir" keyword argument of the SConscript function
+	and env.SConscript() method are being replaced by a new
+	"variant_dir" keyword argument.
+
+	In some future release a deprecation warning will be added
+	to existing uses of the SConscript()/env.SConscript()
+	"build_dir" keyword argument.  At some point after the
+	deprecation warning, support for this keyword argument will
+	be removed entirely.
+
+	You can prepare for this by changing all your uses of the
+	SConscript()/env.SConscript() 'build_dir" keyword argument:
+
+            SConscript('src/SConscript', build_dir='opt')
+
+        To use the new "variant_dir" keyword argument:
+
+            SConscript('src/SConscript', variant_dir='opt')
+
+	NOTE:  USING THE NEW "variant_dir" KEYWORD IS NOT BACKWARDS
+	COMPATIBLE TO VERSIONS OF SCons BEFORE 0.98.  YOUR SConscript
+	FILES WILL NOT WORK ON EARLIER VERSIONS OF SCons AFTER
+	MAKING THIS CHANGE.
+
+	If you change SConscript files in software that you make
+	available for download or otherwise distribute, other users
+	may try to build your software with an earlier version of
+	SCons that does not support the "variant_dir" keyword.
+
+	If you can insist that users use a recent version of SCons
+	that supports "variant_dir", we recommend using the
+	EnsureSConsVersion() function to provide a descriptive error
+	message if your SConscript files are executed by an earlier
+	version of SCons:
+
+                    EnsureSConsVersion(0, 98)
+
+	If you want to make sure that your SConscript files will
+	still work with earlier versions of SCons, then your best
+	bet is to continue to use the "build_dir" keyword until the
+	support is removed (which, in all likelihood, won't happen
+	for quite some time).
+
     --  SCANNER NAMES HAVE BEEN DEPRECATED AND WILL BE REMOVED
 
         Several internal variable names in SCons.Defaults for various
@@ -724,22 +980,23 @@ RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
         The env.Copy() method (to make a copy of a construction
         environment) is being replaced by the env.Clone() method.
 
-        In some future release, a deprecation warning will be added
-        to current uses of the env.Copy() method.  At some point after
-        the deprecation warning, the env.Copy() method will either be
-        removed entirely or have its behavior changed.
+        As of SCons 0.98, a deprecation warning has been added to
+        current uses of the env.Copy() method.  At some point in
+        the future, the env.Copy() method will either be removed
+        entirely or have its behavior changed.
 
         You can prepare for this by changing all your uses of env.Copy()
         to env.Clone(), which has the exact same calling arguments.
 
-        NOTE:  CHANGING USES OF env.Copy() TO env.Clone() WILL MAKE YOUR
-        SConscript FILES NOT WORK ON EARLIER VERSIONS OF SCons.
+        NOTE:  CHANGING USES OF env.Copy() TO env.Clone() WILL MAKE
+        YOUR SConscript FILES NOT WORK ON VERSIONS OF SCons BEFORE
+        0.96.93.
 
-        If you change SConscript files in software that you make available
-        for download or otherwise distribute, other users may try to
-        build your software with an earlier version of SCons that does
-        not have the env.Clone() method.  We recommend preparing for
-        this in one of two ways:
+        If you change SConscript files in software that you make
+        available for download or otherwise distribute, other users
+        may try to build your software with an earlier version of
+        SCons that does not have the env.Clone() method.  We recommend
+        preparing for this in one of two ways:
 
             --  Make your SConscript files backwards-compatible by
                 including the following code near the beginning of your
@@ -834,10 +1091,6 @@ RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
     - The -c option does not clean up .sconsign files or directories
       created as part of the build, and also does not clean up
       SideEffect files (for example, Visual Studio .pdb files).
-
-    - Switching content signatures from "MD5" to "timestamp" and back
-      again can cause unusual errors.  These errors can be cleared up by
-      removing all .sconsign files.
 
     - When using multiple Repositories, changing the name of an include
       file can cause an old version of the file to be used.

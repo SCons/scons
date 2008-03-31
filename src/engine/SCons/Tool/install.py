@@ -75,7 +75,8 @@ def installFunc(target, source, env):
     except KeyError:
         raise SCons.Errors.UserError('Missing INSTALL construction variable.')
 
-    assert( len(target)==len(source) )
+    assert len(target)==len(source), \
+           "Installing source %s into target %s: target and source lists must have same length."%(map(str, source), map(str, target))
     for t,s in zip(target,source):
         if install(t.get_path(),s.get_path(),env):
             return 1
@@ -131,8 +132,9 @@ installas_action = SCons.Action.Action(installFunc, stringFunc)
 
 BaseInstallBuilder               = None
 
-def InstallBuilderWrapper(env, target, source, dir=None):
+def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
     if target and dir:
+        import SCons.Errors
         raise SCons.Errors.UserError, "Both target and dir defined for Install(), only one may be defined."
     if not dir:
         dir=target
@@ -156,13 +158,15 @@ def InstallBuilderWrapper(env, target, source, dir=None):
             # '#' on the file name portion as meaning the Node should
             # be relative to the top-level SConstruct directory.
             target = env.fs.Entry('.'+os.sep+src.name, dnode)
-            tgt.extend(BaseInstallBuilder(env, target, src))
+            #tgt.extend(BaseInstallBuilder(env, target, src, **kw))
+            tgt.extend(apply(BaseInstallBuilder, (env, target, src), kw))
     return tgt
 
-def InstallAsBuilderWrapper(env, target, source):
+def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
     result = []
     for src, tgt in map(lambda x, y: (x, y), source, target):
-        result.extend(BaseInstallBuilder(env, tgt, src))
+        #result.extend(BaseInstallBuilder(env, tgt, src, **kw))
+        result.extend(apply(BaseInstallBuilder, (env, tgt, src), kw))
     return result
 
 added = None
@@ -195,15 +199,8 @@ def generate(env):
                               emitter        = [ add_targets_to_INSTALLED_FILES, ],
                               name           = 'InstallBuilder')
 
-    try:
-        env['BUILDERS']['Install']
-    except KeyError, e:
-        env['BUILDERS']['Install']   = InstallBuilderWrapper
-
-    try:
-        env['BUILDERS']['InstallAs']
-    except KeyError, e:
-        env['BUILDERS']['InstallAs'] = InstallAsBuilderWrapper
+    env['BUILDERS']['_InternalInstall'] = InstallBuilderWrapper
+    env['BUILDERS']['_InternalInstallAs'] = InstallAsBuilderWrapper
 
     # We'd like to initialize this doing something like the following,
     # but there isn't yet support for a ${SOURCE.type} expansion that

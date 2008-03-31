@@ -24,12 +24,13 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
-import TestSCons
 import os
 import string
 
-test = TestSCons.TestSCons()
+import TestCmd
+import TestSCons
+
+test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
 wpath = test.workpath()
 
@@ -46,12 +47,18 @@ Use scons -H for help about command-line options.
 
 os.environ['SCONSFLAGS'] = ''
 
-test.run(arguments = '-h', stdout = expect)
+test.run(arguments = '-h',
+         stdout = expect,
+         stderr = TestSCons.deprecated_python_expr)
 
 os.environ['SCONSFLAGS'] = '-h'
 
-test.run(stdout = expect)
+test.run(stdout = expect,
+         stderr = TestSCons.deprecated_python_expr)
 
+# No TestSCons.deprecated_python_expr because the -H option gets
+# processed before the SConscript files and therefore before we check
+# for the deprecation warning.
 test.run(arguments = "-H")
 
 test.fail_test(string.find(test.stdout(), 'Help text.') >= 0)
@@ -59,10 +66,12 @@ test.fail_test(string.find(test.stdout(), '-H, --help-options') == -1)
 
 os.environ['SCONSFLAGS'] = '-Z'
 
-test.run(arguments = "-H", status = 2,
-         stderr = r"""usage: scons [OPTION] [TARGET] ...
+expect = r"""usage: scons [OPTION] [TARGET] ...
 
 SCons error: no such option: -Z
-""")
+"""
+
+test.run(arguments = "-H", status = 2,
+         stderr = TestSCons.re_escape(expect))
 
 test.pass_test()

@@ -1504,7 +1504,7 @@ def GenerateProject(target, source, env):
     builddspfile = target[0]
     dspfile = builddspfile.srcnode()
 
-    # this detects whether or not we're using a BuildDir
+    # this detects whether or not we're using a VariantDir
     if not dspfile is builddspfile:
         try:
             bdsp = open(str(builddspfile), "w+")

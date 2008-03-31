@@ -58,7 +58,7 @@ def cat(target, source, env):
 env=Environment()
 Export('env')
 env['BUILDERS']['Cat']=Builder(action=cat, multi=1)
-SConscript('src/SConscript',build_dir='build')
+SConscript('src/SConscript',variant_dir='build')
 """)
 
 test.subdir('src')

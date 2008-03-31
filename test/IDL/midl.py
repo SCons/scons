@@ -49,10 +49,10 @@ env = Environment(CCFLAGS = ' -nologo ',
                   MSVS_USE_MFC_DIRS = 1)
 Export('env')
 
-BuildDir('build', 'src')
+VariantDir('build', 'src')
 SConscript(os.path.join('build','SConscript'))
 
-BuildDir('build2', 'src', duplicate=0)
+VariantDir('build2', 'src', duplicate=0)
 SConscript(os.path.join('build2','SConscript'))
 """)
 

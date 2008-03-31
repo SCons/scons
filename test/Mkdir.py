@@ -59,13 +59,20 @@ env.Command('f6.out', 'f6.in', [Cat,
 # directory for another target.
 env.Command(Dir('hello'), None, [Mkdir('$TARGET')])
 env.Command('hello/world', None, [Touch('$TARGET')])
+
+# Make sure Mkdir works with a list of arguments
+Execute(Mkdir(['d7', Dir('d8')]))
 """)
 
 test.write(['work1', 'f2.in'], "f2.in\n")
 test.write(['work1', 'f5.in'], "f5.in\n")
 test.write(['work1', 'f6.in'], "f6.in\n")
 
-expect = test.wrap_stdout(read_str = 'Mkdir("d1")\nMkdir("d1-Dir")\n',
+expect = test.wrap_stdout(read_str = """\
+Mkdir("d1")
+Mkdir("d1-Dir")
+Mkdir(["d7", "d8"])
+""",
                           build_str = """\
 cat(["f2.out"], ["f2.in"])
 Mkdir("d3")
@@ -88,6 +95,8 @@ test.must_not_exist(['work1', 'f5.out'])
 test.must_not_exist(['work1', 'f6.out'])
 test.must_not_exist(['work1', 'Mkdir-f6.in'])
 test.must_not_exist(['work1', 'f6.out-Mkdir'])
+test.must_not_exist(['work1', 'd7'])
+test.must_not_exist(['work1', 'd8'])
 
 test.run(chdir = 'work1')
 
@@ -102,6 +111,8 @@ test.must_exist(['work1', 'Mkdir-f6.in'])
 test.must_exist(['work1', 'f6.out-Mkdir'])
 test.must_exist(['work1', 'hello'])
 test.must_exist(['work1', 'hello/world'])
+test.must_exist(['work1', 'd7'])
+test.must_exist(['work1', 'd8'])
 
 test.write(['work1', 'd1', 'file'], "d1/file\n")
 test.write(['work1', 'd3', 'file'], "d3/file\n")

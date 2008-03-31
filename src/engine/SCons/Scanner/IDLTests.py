@@ -296,7 +296,7 @@ class IDLScannerTestCase5(unittest.TestCase):
         deps = s(n, env, path)
 
         # Make sure rexists() got called on the file node being
-        # scanned, essential for cooperation with BuildDir functionality.
+        # scanned, essential for cooperation with VariantDir functionality.
         assert n.rexists_called
         
         headers =  ['d1/f1.idl', 'd1/f2.idl',
@@ -391,8 +391,8 @@ class IDLScannerTestCase11(unittest.TestCase):
     def runTest(self):
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
-        fs.BuildDir('build1', 'src', 1)
-        fs.BuildDir('build2', 'src', 0)
+        fs.VariantDir('build1', 'src', 1)
+        fs.VariantDir('build2', 'src', 0)
         fs.Repository(test.workpath('repository'))
         env = DummyEnvironment([])
         env.fs = fs

@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.XX - XXX
+RELEASE 0.98 - Sun, 30 Mar 2008 23:33:05 -0700
 
   From Benoit Belley:
 
@@ -43,6 +43,12 @@ RELEASE 0.XX - XXX
 
   - Add support for the Intel C compiler on Mac OS X.
 
+  - Speed up reading SConscript files by about 20% (for some
+    configurations) by:  1) optimizing the SCons.Util.is_*() and
+    SCons.Util.flatten() functions; 2) avoiding unnecessary os.stat()
+    calls by using a File's .suffix attribute directly instead of
+    stringifying it.
+
   From Jérôme Berger:
 
   - Have the D language scanner search for .di files as well as .d files.
@@ -56,7 +62,7 @@ RELEASE 0.XX - XXX
   From Konstantin Bozhikov:
 
   - Support expansion of construction variables that contain or refer
-    to lists of other variables or Nodes within expansions like $PCPPATH.
+    to lists of other variables or Nodes within expansions like $CPPPATH.
 
   - Change variable substitution (the env.subst() method) so that an
     input sequence (list or tuple) is preserved as a list in the output.
@@ -73,6 +79,9 @@ RELEASE 0.XX - XXX
   - Add a "gfortran" Tool module for the GNU F95/F2003 compiler.
 
   - Avoid use of -rpath with the Mac OS X linker.
+
+  - Add comment lines to the generated config.h file to describe what
+    the various #define/#undef lines are doing.
 
   From Steven Knight:
 
@@ -100,18 +109,73 @@ RELEASE 0.XX - XXX
   - On Mac OS X, account for the fact that the header file generated
     from a C++ file will be named (e.g.) file.cpp.h, not file.hpp.
 
+  - Fix floating-point numbers confusing the Java parser about
+    generated .class file names in some configurations.
+
+  - Document (nearly) all the values you can now fetch with GetOption().
+
+  - Fix use of file names containing strings of multiple spaces when
+    using ActionFactory instances like the Copy() or Move() function.
+
+  - Fix a 0.97 regression when using a variable expansion (like
+    $OBJSUFFIX) in a source file name to a builder with attached source
+    builders that match suffix (like Program()+Object()).
+
+  - Have the Java parser recognize generics (surrounded by angle brackets)
+    so they don't interfere with identifying anonymous inner classes.
+
+  - Avoid an infinite loop when trying to use saved copies of the
+    env.Install() or env.InstallAs() after replacing the method
+    attributes.
+
+  - Improve the performance of setting construction variables.
+
+  - When cloning a construction environment, avoid over-writing an
+    attribute for an added method if the user explicitly replaced it.
+
+  - Add a warning about deprecated support for Python 1.5, 2.0 and 2.1.
+
+  - Fix being able to SetOption('warn', ...) in SConscript files.
+
+  - Add a warning about env.Copy() being deprecated.
+
+  - Add warnings about the --debug={dtree,stree,tree} options
+    being deprecated.
+
+  - Add VariantDir() as the first step towards deprecating BuildDir().
+    Add the keyword argument "variant_dir" as the replacement for
+    "build_dir".
+
+  - Add warnings about the {Target,Source}Signatures() methods and
+    functions being deprecated.
+
   From Rob Managan:
 
   - Enhance TeX and LaTeX support to work with BuildDir(duplicate=0).
 
   - Re-run LaTeX when it issues a package warning that it must be re-run.
 
+  From Leanid Nazdrynau:
+
+  - Have the Copy() action factory preserve file modes and times
+    when copying individual files.
+
   From Jan Nijtmans:
 
   - If $JARCHDIR isn't set explicitly, use the .java_classdir attribute
     that was set when the Java() Builder built the .class files.
 
+  From Greg Noel:
+
+  - Document the Dir(), File() and Entry() methods of Dir and File Nodes.
+
+  - Add the parse_flags option when creating Environments
+
   From Gary Oberbrunner:
+
+  - Make File(), Dir() and Entry() return a list of Nodes when passed
+    a list of names, instead of trying to make a string from the name
+    list and making a Node from that string.
 
   - Fix the ability to build an Alias in --interactive mode.
 
@@ -126,6 +190,10 @@ RELEASE 0.XX - XXX
 
   - Handle Intel C compiler network license files (port@system).
 
+  From Jim Randall:
+
+  - Fix how Python Value Nodes are printed in --debug=explain output.
+
   From Adam Simpkins:
 
   - Add a --interactive option that starts a session for building (or
@@ -135,6 +203,18 @@ RELEASE 0.XX - XXX
 
   - Have the --interactive mode "build" command with no arguments
     build the specified Default() targets.
+
+  - Fix the Chmod(), Delete(), Mkdir() and Touch() Action factories to
+    take a list (of Nodes or strings) as arguments.
+
+  From Vaclav Smilauer:
+
+  - Fix saving and restoring an Options value of 'all' on Python
+    versions where all() is a builtin function.
+
+  From Daniel Svensson:
+
+  - Code correction in SCons.Util.is_List().
 
   From Ben Webb:
 

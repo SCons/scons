@@ -45,8 +45,8 @@ NCF = test.NCF  # non-cached build failure
 CF  = test.CF   # cached build failure
 
 test.write('SConstruct', """\
-if int(ARGUMENTS.get('target_signatures_content', 0)):
-    TargetSignatures('content')
+if not int(ARGUMENTS.get('target_signatures_content', 0)):
+    Decider('timestamp-newer')
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -58,6 +58,8 @@ if not (not r1 and not r2):
      print "FAIL: ", r1, r2
      Exit(1)
 """)
+
+# Verify correct behavior when we call Decider('timestamp-newer').
 
 test.run()
 test.checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
@@ -71,11 +73,11 @@ test.run()
 test.checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
                        "Checking for C library no_c_library_SAFFDG... "],
                       ["no"]*2,
-                      [[((".c", CR), (_obj, CF))],
-                       [((".c", CR), (_obj, CR), (_exe, CF))]],
+                      [[((".c", CR), (_obj, NCF))],
+                       [((".c", CR), (_obj, CR), (_exe, NCF))]],
                       "config.log", ".sconf_temp", "SConstruct")
 
-# same should be true for TargetSignatures('content')
+# Same should be true for the default behavior of Decider('content').
 
 test.run(arguments='--config=force target_signatures_content=1')
 test.checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",

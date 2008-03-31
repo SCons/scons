@@ -311,6 +311,7 @@
 <!ENTITY exports "<varname>exports</varname>">
 <!ENTITY source "<varname>source</varname>">
 <!ENTITY target "<varname>target</varname>">
+<!ENTITY variant_dir "<varname>variant_dir</varname>">
 
 
 
@@ -351,6 +352,7 @@
 <!ENTITY StaticLibrary "<function>StaticLibrary</function>">
 <!ENTITY StaticObject "<function>StaticObject</function>">
 <!ENTITY Tar "<function>Tar</function>">
+<!ENTITY VariantDir "<function>VariantDir</function>">
 <!ENTITY Zip "<function>Zip</function>">
 
 <!-- Obsolete, but referenced in old documents.  -->

@@ -33,8 +33,8 @@ test = TestSCons.TestSCons()
 test.subdir('src')
 
 test.write('SConstruct',"""
-BuildDir('var1', 'src', duplicate=0)
-BuildDir('var2', 'src', duplicate=1)
+VariantDir('var1', 'src', duplicate=0)
+VariantDir('var2', 'src', duplicate=1)
 SConscript('src/SConscript')
 SConscript('var1/SConscript')
 SConscript('var2/SConscript')
@@ -67,7 +67,7 @@ test.write(['src', 'g.in'], 'g.in')
 test.write(['src', 'h.in'], 'h.in')
 
 # Do 'src' last so that creation of the emitter files in there doesn't
-# interfere with searching for them in the BuildDirs.
+# interfere with searching for them in the VariantDirs.
 
 test.run(arguments='var2')
 

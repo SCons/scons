@@ -222,7 +222,7 @@ os.environ['PYTHON_ROOT'] = ''
 test.subdir('work2', ['work2', 'src'])
 
 test.write(['work2', 'SConstruct'], """\
-SConscript('src/SConscript', build_dir='build')
+SConscript('src/SConscript', variant_dir='build')
 """)
 
 test.write(['work2', 'src', 'SConscript'], SConscript_contents)

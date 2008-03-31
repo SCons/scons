@@ -35,6 +35,7 @@ import os.path
 import string
 import sys
 
+import SCons.Environment
 import SCons.Errors
 import SCons.Util
 import SCons.Warnings
@@ -121,7 +122,7 @@ class Options:
             return
 
         if not SCons.Util.is_String(key) or \
-           not SCons.Util.is_valid_construction_var(key):
+           not SCons.Environment.is_valid_construction_var(key):
             raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % str(key)
 
         self._do_add(key, help, default, validator, converter)
@@ -234,19 +235,25 @@ class Options:
             fh = open(filename, 'w')
 
             try:
-                # Make an assignment in the file for each option within the environment
-                # that was assigned a value other than the default.
+                # Make an assignment in the file for each option
+                # within the environment that was assigned a value
+                # other than the default.
                 for option in self.options:
                     try:
                         value = env[option.key]
                         try:
-                            eval(repr(value))
-                        except KeyboardInterrupt:
-                            raise
-                        except:
-                            # Convert stuff that has a repr() that
-                            # cannot be evaluated into a string
-                            value = SCons.Util.to_String(value)
+                            prepare = value.prepare_to_store
+                        except AttributeError:
+                            try:
+                                eval(repr(value))
+                            except KeyboardInterrupt:
+                                raise
+                            except:
+                                # Convert stuff that has a repr() that
+                                # cannot be evaluated into a string
+                                value = SCons.Util.to_String(value)
+                        else:
+                            value = prepare()
 
                         defaultVal = env.subst(SCons.Util.to_String(option.default))
                         if option.converter:

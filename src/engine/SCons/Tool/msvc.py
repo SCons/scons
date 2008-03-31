@@ -513,10 +513,6 @@ def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
                 include_paths.append( os.path.join( atlmfc_path, 'include' ) )
                 lib_paths.append( os.path.join( atlmfc_path, 'lib' ) )
 
-        env_include_path = SCons.Util.get_environment_var('INCLUDE')
-        if env_include_path:
-            include_paths.append( env_include_path )
-
         if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKSDKDIR'):
             fwdir = paths['FRAMEWORKSDKDIR']
             include_paths.append( os.path.join( fwdir, 'include' ) )

@@ -25,13 +25,13 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that an Alias for a BuildDir()'s source directory works as
+Verify that an Alias for a VariantDir()'s source directory works as
 expected.
 
 This tests for a 0.96.93 bug uncovered by the LilyPond project's build.
 
 The specific problem is that, in 0.96.93, the simple act of trying to
-disambiguate a target file in the BuildDir() would call srcnode(), which
+disambiguate a target file in the VariantDir() would call srcnode(), which
 would create a "phantom" Node for the target in the *source* directory:
 
         +-minimal
@@ -81,7 +81,7 @@ Export ('env')
 
 b = 'python/out-scons'
 
-env.BuildDir(b, 'python', duplicate=0)
+env.VariantDir(b, 'python', duplicate=0)
 
 SConscript(b + '/SConscript')
 """)

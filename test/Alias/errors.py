@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env=Environment()
-TargetSignatures('content')
+Decider('content')
 env.Alias('C', 'D')
 env.Alias('B', 'C')
 env.Alias('A', 'B')

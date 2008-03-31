@@ -980,6 +980,7 @@ are synonyms.
 Prints SCons version information.
 .RE
 
+.IP
 An empty line repeats the last typed command.
 Command-line editing can be used if the
 .B readline
@@ -1328,8 +1329,30 @@ These warnings are disabled by default.
 
 .TP
 --warn=deprecated, --warn=no-deprecated
-Enables or disables warnings about use of deprecated features.
+Enables or disables all warnings about use of deprecated features.
 These warnings are enabled by default.
+Warnings for some specific deprecated features
+may be enabled or disabled individually;
+see below.
+
+--warn=deprecated-copy, --warn=no-deprecated-copy
+Enables or disables warnings about use of the deprecated
+.B env.Copy()
+method.
+
+--warn=deprecated-source-signatures, --warn=no-deprecated-source-signatures
+Enables or disables warnings about use of the deprecated
+SourceSignatures() function
+or
+.B env.SourceSignatures()
+method.
+
+--warn=deprecated-target-signatures, --warn=no-deprecated-target-signatures
+Enables or disables warnings about use of the deprecated
+TargetSignatures() function
+or
+.B env.TargetSignatures()
+method.
 
 .TP
 --warn=duplicate-environment, --warn=no-duplicate-environment
@@ -1372,11 +1395,27 @@ option is used.
 These warnings are enabled by default.
 
 .TP
+--warn=no-object-count, --warn=no-no-object-count
+Enables or disables warnings about the
+.B --debug=object
+feature not working when
+.B scons
+is run with the python
+.B \-O
+option or from optimized Python (.pyo) modules.
+
+.TP
 --warn=no-parallel-support, --warn=no-no-parallel-support
 Enables or disables warnings about the version of Python
 not being able to support parallel builds when the
 .B -j
 option is used.
+These warnings are enabled by default.
+
+.TP
+--warn=python-version, --warn=no-python-version
+Enables or disables the warning about running
+SCons with a deprecated version of Python.
 These warnings are enabled by default.
 
 .TP
@@ -1440,6 +1479,40 @@ function:
 .ES
 env = Environment()
 .EE
+
+Variables, called
+.I construction
+.IR variables ,
+may be set in a construction environment
+either by specifyng them as keywords when the object is created
+or by assigning them a value after the object is created:
+
+.ES
+env = Environment(FOO = 'foo')
+env['BAR'] = 'bar'
+.EE
+
+As a convenience,
+construction variables may also be set or modified by the
+.I parse_flags
+keyword argument, which applies the
+.B ParseFlags
+method (described below) to the argument value
+after all other processing is completed.
+This is useful either if the exact content of the flags is unknown
+(for example, read from a control file)
+or if the flags are distributed to a number of construction variables.
+
+.ES
+env = Environment(parse_flags = '-Iinclude -DEBUG -lm')
+.EE
+
+This example adds 'include' to
+.BR CPPPATH ,
+\'EBUG' to
+.BR CPPDEFINES ,
+and 'm' to
+.BR LIBS .
 
 By default, a new construction environment is
 initialized with a set of builder methods
@@ -1846,6 +1919,21 @@ if you want SCons to search automatically
 for dependencies on the non-standard library names;
 see the descriptions of these variables, below, for more information.)
 
+It is also possible to use the
+.I parse_flags
+keyword argument in an override:
+
+.ES
+env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
+.EE
+
+This example adds 'include' to
+.BR CPPPATH ,
+\'EBUG' to
+.BR CPPDEFINES ,
+and 'm' to
+.BR LIBS .
+
 Although the builder methods defined by
 .B scons
 are, in fact,
@@ -2168,11 +2256,14 @@ calling the functionality through a construction environment will
 substitute construction variables into
 any supplied strings.
 For example:
+
 .ES
 env = Environment(FOO = 'foo')
 Default('$FOO')
 env.Default('$FOO')
 .EE
+
+In the above example,
 the first call to the global
 .B Default()
 function will actually add a target named
@@ -2604,97 +2695,19 @@ env.SourceCode('.', env.BitKeeper())
 .RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
 .TP
 .RI env.BuildDir( build_dir ", " src_dir ", [" duplicate ])
-This specifies a build directory
-.I build_dir
-in which to build all derived files
-that would normally be built under
-.IR src_dir .
-Multiple build directories can be set up for multiple build variants, for
-example. 
-.I src_dir
-must be underneath the SConstruct file's directory,
+Synonyms for
+.B VariantDir()
 and
+.BR env.VariantDir() .
+The
 .I build_dir
-may not be underneath the
-.I src_dir .
-
-The default behavior is for
-.B scons
-to duplicate all of the files in the tree underneath
-.I src_dir
-into
-.IR build_dir ,
-and then build the derived files within the copied tree.
-(The duplication is performed by
-linking or copying,
-depending on the platform; see also the
-.IR --duplicate
-option.)
-This guarantees correct builds
-regardless of whether intermediate source files
-are generated during the build,
-where preprocessors or other scanners search
-for included files,
-or whether individual compilers or other invoked tools
-are hard-coded to put derived files in the same directory as source files.
-
-This behavior of making a complete copy of the source tree
-may be disabled by setting
-.I duplicate
-to 0.
-This will cause
-.B scons
-to invoke Builders using the
-path names of source files in
-.I src_dir
-and the path names of derived files within
-.IR build_dir .
-This is always more efficient than
-.IR duplicate =1,
-and is usually safe for most builds.
-Specifying
-.IR duplicate =0,
-however,
-may cause build problems
-if source files are generated during the build,
-if any invoked tools are hard-coded to
-put derived files in the same directory as the source files.
-
-Note that specifying a
-.B BuildDir
-works most naturally
-with a subsidiary SConscript file
-in the source directory.
-However,
-you would then call the subsidiary SConscript file
-not in the source directory,
-but in the
-.I build_dir ,
-as if
-.B scons
-had made a virtual copy of the source tree
-regardless of the value of 
-.IR duplicate .
-This is how you tell
-.B scons
-which variant of a source tree to build.
-For example:
-
-.ES
-BuildDir('build-variant1', 'src')
-SConscript('build-variant1/SConscript')
-BuildDir('build-variant2', 'src')
-SConscript('build-variant2/SConscript')
-.EE
-
-.IP
-See also the
-.BR SConscript ()
-function, described below,
-for another way to 
-specify a build directory
-in conjunction with calling a subsidiary
-SConscript file.)
+argument bedomes the
+.I variant_dir
+argument of
+.B VariantDir()
+or
+.BR env.VariantDir() .
+(This will be officially deprecated some day.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
@@ -3005,12 +3018,20 @@ def MyTool(env): env['FOO'] = 'bar'
 env4 = env.Clone(tools = ['msvc', MyTool])
 .EE
 
+The
+.I parse_flags
+keyword argument is also recognized:
+
+.ES
+# create an environment for compiling programs that use wxWidgets
+wx_env = env.Clone(parse_flags = '!wx-config --cflags --cxxflags')
+.EE
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI env.Copy([ key = val ", ...])"
-A synonym for
+A now-deprecated synonym for
 .BR env.Clone() .
-(This will probably be officially deprecated some day.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -3133,6 +3154,7 @@ and runs the build again,
 all within a single second.
 .RE
 
+.IP
 Examples:
 
 .ES
@@ -3144,12 +3166,14 @@ Decider('timestamp-match')
 env.Decider('content')
 .EE
 
+.IP
 In addition to the above already-available functions,
 the
 .I function
 argument may be an actual Python function
 that takes the following three arguments:
 
+.RS 10
 .IP dependency
 The Node (file) which
 should cause the
@@ -3176,7 +3200,9 @@ This can be consulted to match various
 file characteristics
 such as the timestamp,
 size, or content signature.
+.RE
 
+.IP
 The
 .I function
 should return a
@@ -3321,6 +3347,12 @@ is an optional directory that will be used as the parent directory.
 If no
 .I directory
 is specified, the current script's directory is used as the parent.
+
+If 
+.I name
+is a list, SCons returns a list of Dir nodes.
+Construction variables are expanded in
+.IR name .
 
 Directory Nodes can be used anywhere you
 would supply a string as a directory name
@@ -3514,6 +3546,12 @@ can be a relative or absolute path.
 .I directory
 is an optional directory that will be used as the parent directory. 
 
+If 
+.I name
+is a list, SCons returns a list of File nodes.
+Construction variables are expanded in
+.IR name .
+
 File Nodes can be used anywhere you
 would supply a string as a file name
 to a Builder method or function.
@@ -3602,6 +3640,7 @@ FindSourceFiles()
 FindSourceFiles( 'src' )
 .EE
 
+.IP
 As you can see build support files (SConstruct in the above example)
 will also be returned by this function.
 
@@ -3632,7 +3671,7 @@ for the following reasons:
 1) The returned list will contain all appropriate directories
 found in source trees
 (when
-.BR BuildDir ()
+.BR VariantDir ()
 is used)
 or in code repositories
 (when
@@ -3841,12 +3880,113 @@ file is found.
 .RI GetOption( name )
 .TP
 .RI env.GetOption( name )
-This function provides a way to query a select subset of the scons command line
-options from a SConscript file. See 
+This function provides a way to query the value of
+SCons options set on scons command line
+(or set using the
 .IR SetOption () 
-for a description of the options available.
+function).
+The options supported are:
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.RS 10
+.TP 6
+.B cache_debug
+.TP 6
+which corresponds to --cache_debug;
+.TP 6
+.B cache_disable
+which corresponds to --cache_disable;
+.TP 6
+.B cache_force
+which corresponds to --cache_force;
+.TP 6
+.B cache_show
+which corresponds to --cache_show;
+.TP 6
+.B clean
+which corresponds to -c, --clean and --remove;
+.TP 6
+.B config
+which corresponds to --config;
+.TP 6
+.B directory
+which corresponds to -C and --directory;
+.TP 6
+.B diskcheck
+which corresponds to --diskcheck
+.TP 6
+.B duplicate
+which corresponds to --duplicate;
+.TP 6
+.B file
+which corresponds to -f, --file, --makefile and --sconstruct;
+.TP 6
+.B help
+which corresponds to -h and --help;
+.TP 6
+.B ignore_errors
+which corresponds to --ignore-errors;
+.TP 6
+.B implicit_cache
+which corresponds to --implicit-cache;
+.TP 6
+.B implicit_deps_changed
+which corresponds to --implicit-deps-changed;
+.TP 6
+.B implicit_deps_unchanged
+which corresponds to --implicit-deps-unchanged;
+.TP 6
+.B interactive
+which corresponds to --interact and --interactive;
+.TP 6
+.B keep_going
+which corresponds to -k and --keep-going;
+.TP 6
+.B max_drift
+which corresponds to --max-drift;
+.TP 6
+.B no_exec
+which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
+.TP 6
+.B no_site_dir
+which corresponds to --no-site-dir;
+.TP 6
+.B num_jobs
+which corresponds to -j and --jobs;
+.TP 6
+.B profile_file
+which corresponds to --profile;
+.TP 6
+.B question
+which corresponds to -q and --question;
+.TP 6
+.B random
+which corresponds to --random;
+.TP 6
+.B repository
+which corresponds to -Y, --repository and --srcdir;
+.TP 6
+.B silent
+which corresponds to -s, --silent and --quiet;
+.TP 6
+.B site_dir
+which corresponds to --site-dir;
+.TP 6
+.B stack_size
+which corresponds to --stack-size;
+.TP 6
+.B taskmastertrace_file
+which corresponds to --taskmastertrace; and
+.TP 6
+.B warn
+which corresponds to --warn and --warning.
+.RE
+
+.IP
+See the documentation for the
+corresponding command line object for information about each specific
+option.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Glob( pattern ", [" ondisk ", " source ", " strings ])
 .TP
@@ -3874,6 +4014,7 @@ uses Unix shell style metacharacters for matching:
   [!seq]  matches any char not in seq
 .EE
 
+.IP
 Character matches do
 .I not
 span directory separators.
@@ -3887,7 +4028,7 @@ repositories
 function)
 and source directories
 (see the
-.BR BuildDir ()
+.BR VariantDir ()
 function)
 and
 returns a Node (or string, if so configured)
@@ -3915,7 +4056,7 @@ argument may be set to
 (or any equivalent value)
 to specify that,
 when the local directory is a
-.BR BuildDir (),
+.BR VariantDir (),
 the returned Nodes should be from the
 corresponding source directory,
 not the local directory.
@@ -4100,6 +4241,8 @@ env.MergeFlags('-O3')
 # flag and merge the result into the construction variables.
 env.MergeFlags(['!pkg-config gtk+-2.0 --cflags', '-O3'])
 
+# Combine an optimization flag with the flags returned from running pkg-config
+# twice and merge the result into the construction variables.
 env.MergeFlags(['-O3',
                '!pkg-config gtk+-2.0 --cflags --libs',
                '!pkg-config libpng12 --cflags --libs'])
@@ -4830,13 +4973,13 @@ for a specific subdirectory.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
+.RI SConscript( scripts ", [" exports ", " variant_dir ", " src_dir ", " duplicate ])
 .TP
-.RI env.SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
+.RI env.SConscript( scripts ", [" exports ", " variant_dir ", " src_dir ", " duplicate ])
 .TP
-.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
+.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " src_dir ", " duplicate ])
 .TP
-.RI env.SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
+.RI env.SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " src_dir ", " duplicate ])
 This tells
 .B scons
 to execute
@@ -4895,15 +5038,15 @@ must use the
 function to import the variables.
 
 The optional
-.I build_dir
+.I variant_dir
 argument specifies that all of the target files
 (for example, object files and executables)
 that would normally be built in the subdirectory in which
 .I script
 resides should actually
 be built in
-.IR build_dir .
-.I build_dir
+.IR variant_dir .
+.I variant_dir
 is interpreted relative to the directory
 of the calling SConscript file.
 
@@ -4921,7 +5064,7 @@ of the calling SConscript file.
 By default,
 .B scons
 will link or copy (depending on the platform)
-all the source files into the build directory.
+all the source files into the variant directory tree.
 This behavior may be disabled by
 setting the optional
 .I duplicate
@@ -4954,7 +5097,7 @@ Examples:
 SConscript('subdir/SConscript')
 foo = SConscript('sub/SConscript', exports='env')
 SConscript('dir/SConscript', exports=['env', 'variable'])
-SConscript('src/SConscript', build_dir='build', duplicate=0)
+SConscript('src/SConscript', variant_dir='build', duplicate=0)
 SConscript('bld/SConscript', src_dir='src', exports='env variable')
 SConscript(dirs=['sub1', 'sub2'])
 SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
@@ -5090,24 +5233,38 @@ if not env.has_key('FOO'): env['FOO'] = 'foo'
 .RI env.SetOption( name ", " value )
 This function provides a way to set a select subset of the scons command
 line options from a SConscript file. The options supported are:
+
+.RS 10
+.TP 6
 .B clean
 which corresponds to -c, --clean and --remove;
+.TP 6
 .B duplicate
 which corresponds to --duplicate;
+.TP 6
 .B help
 which corresponds to -h and --help;
+.TP 6
 .B implicit_cache
 which corresponds to --implicit-cache;
+.TP 6
 .B max_drift
 which corresponds to --max-drift;
+.TP 6
 .B no_exec
 which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
+.TP 6
 .B num_jobs
 which corresponds to -j and --jobs;
+.TP 6
 .B random
 which corresponds to --random; and
+.TP 6
 .B stack_size
 which corresponds to --stack-size.
+.RE
+
+.IP
 See the documentation for the
 corresponding command line object for information about each specific
 option.
@@ -5733,6 +5890,103 @@ env.UpdateValue(target = Value(output), source = Value(input))
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI VariantDir( variant_dir ", " src_dir ", [" duplicate ])
+.TP
+.RI env.VariantDir( variant_dir ", " src_dir ", [" duplicate ])
+This specifies a variant directory tree
+.I variant_dir
+in which to build all derived files
+that would normally be built under
+.IR src_dir .
+Multiple directory trees
+can be set up for multiple build variants.
+.I src_dir
+must be underneath the SConstruct file's directory,
+and
+.I variant_dir
+may not be underneath the
+.I src_dir .
+
+The default behavior is for
+.B scons
+to duplicate all of the files in the tree underneath
+.I src_dir
+into
+.IR variant_dir ,
+and then build the derived files within the copied tree.
+(The duplication is performed by
+linking or copying,
+depending on the platform; see also the
+.IR --duplicate
+option.)
+This guarantees correct builds
+regardless of whether intermediate source files
+are generated during the build,
+where preprocessors or other scanners search
+for included files,
+or whether individual compilers or other invoked tools
+are hard-coded to put derived files in the same directory as source files.
+
+This behavior of making a complete copy of the source tree
+may be disabled by setting
+.I duplicate
+to 0.
+This will cause
+.B scons
+to invoke Builders using the
+path names of source files in
+.I src_dir
+and the path names of derived files within
+.IR variant_dir .
+This is always more efficient than
+.IR duplicate =1,
+and is usually safe for most builds.
+Specifying
+.IR duplicate =0,
+however,
+may cause build problems
+if source files are generated during the build,
+or if any invoked tools are hard-coded to
+put derived files in the same directory as the source files.
+
+Note that specifying a
+.B VariantDir
+works most naturally
+with a subsidiary SConscript file
+in the source directory.
+However,
+you would then call the subsidiary SConscript file
+not in the source directory,
+but in the
+.I variant_dir ,
+as if
+.B scons
+had made a virtual copy of the source tree
+regardless of the value of 
+.IR duplicate .
+This is how you tell
+.B scons
+which variant of a source tree to build.
+For example:
+
+.ES
+VariantDir('build-variant1', 'src')
+SConscript('build-variant1/SConscript')
+VariantDir('build-variant2', 'src')
+SConscript('build-variant2/SConscript')
+.EE
+
+.IP
+See also the
+.BR SConscript ()
+function, described below,
+for another way to 
+specify a variant directory
+in conjunction with calling a subsidiary
+SConscript file.)
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI WhereIs( program ", [" path  ", " pathext ", " reject ])
 .TP
 .RI env.WhereIs( program ", [" path  ", " pathext ", " reject ])
@@ -6086,9 +6340,9 @@ specifies a file which collects the output from commands
 that are executed to check for the existence of header files, libraries, etc.
 The default is the file #/config.log.
 If you are using the
-.B BuildDir
+.B VariantDir
 method,
-you may want to specify a subdirectory under your build directory.
+you may want to specify a subdirectory under your variant directory.
 .I config_h
 specifies a C header file where the results of tests 
 will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc. 
@@ -7116,7 +7370,7 @@ This path is relative to the top-level directory
 .B SConstruct
 file is found).
 The build path is the same as the source path if
-.I build_dir
+.I variant_dir
 is not being used.
 
 .IP abspath
@@ -7150,6 +7404,95 @@ File('foo.c').srcnode().path   # source path of the given source file.
 # Builders also return File objects:
 foo = env.Program('foo.c')
 print "foo will be built in %s"%foo.path
+.EE
+
+A
+.I Dir
+Node or
+.I File
+Node can also be used to create
+file and subdirectory Nodes relative to the generating Node.
+A
+.I Dir
+Node will place the new Nodes within the directory it represents.
+A
+.I File
+node will place the new Nodes within its parent directory
+(that is, "beside" the file in question).
+If
+.I d
+is a
+.I Dir
+(directory) Node and
+.I f
+is a
+.I File
+(file) Node,
+then these methods are available:
+
+.TP
+.IR d .Dir( name )
+Returns a directory Node for a subdirectory of
+.I d
+named
+.IR name .
+
+.TP
+.IR d .File( name )
+Returns a file Node for a file within
+.I d
+named
+.IR name .
+
+.TP
+.IR d .Entry( name )
+Returns an unresolved Node within
+.I d
+named
+.IR name .
+
+.TP
+.IR f .Dir( name )
+Returns a directory named
+.I name
+within the parent directory of
+.IR f .
+
+.TP
+.IR f .File( name )
+Returns a file named
+.I name
+within the parent directory of
+.IR f .
+
+.TP
+.IR f .Entry( name )
+Returns an unresolved Node named
+.I name
+within the parent directory of
+.IR f .
+
+.RE
+For example:
+
+.ES
+# Get a Node for a file within a directory
+incl = Dir('include')
+f = incl.File('header.h')
+
+# Get a Node for a subdirectory within a directory
+dist = Dir('project-3.2.1)
+src = dist.Dir('src')
+
+# Get a Node for a file in the same directory
+cfile = File('sample.c')
+hfile = cfile.File('sample.h')
+
+# Combined example
+docs = Dir('docs')
+html = docs.Dir('html')
+index = html.File('index.html')
+css = index.File('app.css')
 .EE
 
 .SH EXTENDING SCONS
@@ -8245,24 +8588,24 @@ when a path references a file on other (POSIX) systems.
 
 .IP srcpath
 The directory and file name to the source file linked to this file
-through BuildDir.  If this file isn't linked, it just returns the
+through VariantDir.  If this file isn't linked, it just returns the
 directory and filename unchanged.
 
 .IP srcdir
 The directory containing the source file linked to this file
-through BuildDir.  If this file isn't linked, it just returns the
+through VariantDir.  If this file isn't linked, it just returns the
 directory part of the filename.
 
 .IP rsrcpath
 The directory and file name to the source file linked to this file
-through BuildDir.  If the file does not exist locally but exists in
+through VariantDir.  If the file does not exist locally but exists in
 a Repository, the path in the Repository is returned.
 If this file isn't linked, it just returns the
 directory and filename unchanged.
 
 .IP rsrcdir
 The Repository directory containing the source file linked to this file
-through BuildDir.  If this file isn't linked, it just returns the
+through VariantDir.  If this file isn't linked, it just returns the
 directory part of the filename.
 
 .LP
@@ -8278,7 +8621,7 @@ ${TARGET.filebase}   => file
 ${TARGET.suffix}     => .x
 ${TARGET.abspath}    => /top/dir/sub/dir/file.x
 
-SConscript('src/SConscript', build_dir='sub/dir')
+SConscript('src/SConscript', variant_dir='sub/dir')
 $SOURCE              => sub/dir/file.x
 ${SOURCE.srcpath}    => src/file.x
 ${SOURCE.srcdir}     => src
@@ -9046,21 +9389,21 @@ subdirectory/SConscript:
 
 .SS Building Multiple Variants From the Same Source
 
-Use the build_dir keyword argument to
+Use the variant_dir keyword argument to
 the SConscript function to establish
-one or more separate build directories for
-a given source directory:
+one or more separate variant build directory trees
+for a given source directory:
 
 .ES
 SConstruct:
 
     cppdefines = ['FOO']
     Export("cppdefines")
-    SConscript('src/SConscript', build_dir='foo')
+    SConscript('src/SConscript', variant_dir='foo')
 
     cppdefines = ['BAR']
     Export("cppdefines")
-    SConscript('src/SConscript', build_dir='bar')
+    SConscript('src/SConscript', variant_dir='bar')
 
 src/SConscript:
 

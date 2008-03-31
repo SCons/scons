@@ -81,6 +81,9 @@ local SConstruct file.
 """
 
 bootstrap_dir = 'bootstrap'
+script_dir = os.path.split(__file__)[0]
+if script_dir:
+    bootstrap_dir = os.path.join(script_dir, bootstrap_dir)
 pass_through_args = []
 update_only = None
 

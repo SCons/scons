@@ -26,7 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test use of ${TARGET.dir} to specify a CPPPATH directory in
-combination BuildDirs and a generated .h file.
+combination VariantDirs and a generated .h file.
 """
 
 import TestSCons
@@ -51,9 +51,9 @@ def cat(env, source, target):
 env = Environment(CPPPATH='${TARGET.dir}')
 env.Append(BUILDERS = {'Cat' : Builder(action=cat)})
 Export('env')
-BuildDir('build1', 'src')
+VariantDir('build1', 'src')
 SConscript('build1/SConscript')
-BuildDir('build2', 'src')
+VariantDir('build2', 'src')
 SConscript('build2/SConscript', duplicate=0)
 """)
 

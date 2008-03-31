@@ -62,5 +62,4 @@ def generate(env):
 
 
 def exists(env):
-    import sys
-    return sys.platform == 'darwin'
+    return env['PLATFORM'] == 'darwin'

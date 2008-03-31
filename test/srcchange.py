@@ -27,6 +27,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Test changing the C source files based on an always-executed revision
 extraction and substitution.
+
+This makes sure we evaluate the content of intermediate files as
+expected.  We used to configure this explicitly using
+TargetSignatures('content') but we now rely on the default behavior
+being the equivalent of Decider('content').
 """
 
 import os.path
@@ -60,7 +65,6 @@ SubRevision = Action(subrevision)
 
 env=Environment()
 content_env=env.Clone()
-content_env.TargetSignatures('content')
 content_env.Command('revision.in', [], '%(_python_)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')
 env.Precious('main.c')

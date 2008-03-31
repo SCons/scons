@@ -165,7 +165,9 @@ opts, args = getopt.getopt(sys.argv[1:], "ab:df:hlno:P:p:qv:Xx:t",
                             ['all', 'aegis', 'baseline=', 'builddir=',
                              'debug', 'file=', 'help',
                              'list', 'no-exec', 'noqmtest', 'output=',
-                             'version=', 'exec=', 'time',
+                             'package=', 'passed', 'python=', 'qmtest',
+                             'quiet', 'sp=', 'spe=', 'time',
+                             'version=', 'exec=',
                              'verbose=', 'xml'])
 
 for o, a in opts:
@@ -207,7 +209,7 @@ for o, a in opts:
     elif o in ['-P', '--python']:
         python = a
     elif o in ['--qmtest']:
-        qmtest = 'qmtest.py'
+        qmtest = 'qmtest'
     elif o in ['-q', '--quiet']:
         printcommand = 0
     elif o in ['--sp']:
@@ -266,7 +268,7 @@ else:
 try:
     qmtest
 except NameError:
-    q = 'qmtest.py'
+    q = 'qmtest'
     qmtest = whereis(q)
     if qmtest:
         qmtest = q

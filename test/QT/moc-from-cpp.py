@@ -81,15 +81,15 @@ test.not_up_to_date(options = '-n', arguments = moc)
 
 test.run(options = '-c', arguments = lib_aaa)
 
-test.run(arguments = "build_dir=1 " + test.workpath('build', lib_aaa),
+test.run(arguments = "variant_dir=1 " + test.workpath('build', lib_aaa),
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.run(arguments = "build_dir=1 chdir=1 " + test.workpath('build', lib_aaa))
+test.run(arguments = "variant_dir=1 chdir=1 " + test.workpath('build', lib_aaa))
 
 test.must_exist(test.workpath('build', moc))
 
-test.run(arguments = "build_dir=1 dup=0 " +
+test.run(arguments = "variant_dir=1 dup=0 " +
                      test.workpath('build_dup0', lib_aaa),
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)

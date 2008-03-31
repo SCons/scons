@@ -54,10 +54,8 @@ def scan(node, env, libpath = ()):
         return []
     if SCons.Util.is_String(libs):
         libs = string.split(libs)
-    elif SCons.Util.is_List(libs):
-        libs = SCons.Util.flatten(libs)
     else:
-        libs = [libs]
+        libs = SCons.Util.flatten(libs)
 
     try:
         prefix = env['LIBPREFIXES']

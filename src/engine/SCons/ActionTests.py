@@ -1772,20 +1772,21 @@ class ActionCallerTestCase(unittest.TestCase):
     def test_strfunction(self):
         """Test calling the ActionCaller strfunction() method"""
         strfunc_args = []
-        def actfunc(a1, a2, a3):
+        def actfunc(a1, a2, a3, a4):
             pass
-        def strfunc(a1, a2, a3, args=strfunc_args):
-            args.extend([a1, a2, a3])
+        def strfunc(a1, a2, a3, a4, args=strfunc_args):
+            args.extend([a1, a2, a3, a4])
 
         af = SCons.Action.ActionFactory(actfunc, strfunc)
-        ac = SCons.Action.ActionCaller(af, [1, '$FOO', 3], {})
-        ac.strfunction([], [], Environment(FOO = 2))
-        assert strfunc_args == [1, '2', 3], strfunc_args
+        ac = SCons.Action.ActionCaller(af, [1, '$FOO', 3, '$WS'], {})
+        ac.strfunction([], [], Environment(FOO = 2, WS='white   space'))
+        assert strfunc_args == [1, '2', 3, 'white   space'], strfunc_args
 
         del strfunc_args[:]
-        ac = SCons.Action.ActionCaller(af, [], {'a3' : 6, 'a2' : '$BAR', 'a1' : 4})
-        ac.strfunction([], [], Environment(BAR = 5))
-        assert strfunc_args == [4, '5', 6], strfunc_args
+        d = {'a3' : 6, 'a2' : '$BAR', 'a1' : 4, 'a4' : '$WS'}
+        ac = SCons.Action.ActionCaller(af, [], d)
+        ac.strfunction([], [], Environment(BAR = 5, WS='w   s'))
+        assert strfunc_args == [4, '5', 6, 'w   s'], strfunc_args
 
 class ActionFactoryTestCase(unittest.TestCase):
     def test___init__(self):

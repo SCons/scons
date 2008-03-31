@@ -39,6 +39,7 @@ test = TestSCons.TestSCons()
 
 test.subdir(['src'], ['src', 'subdir'])
 
+subdir_file8 = os.path.join('subdir', 'file8')
 subdir_file7 = os.path.join('subdir', 'file7')
 subdir_file7_in = os.path.join('subdir', 'file7.in')
 
@@ -91,9 +92,10 @@ kscan = Scanner(name = 'kfile',
                 skeys = ['.k'])
 
 cat = Builder(action = r'%(_python_)s %(cat_py)s $TARGET $SOURCES')
+one_cat = Builder( action = r'%(_python_)s %(cat_py)s $TARGET ${SOURCES[0]}')
 
 env = Environment()
-env.Append(BUILDERS = {'Cat':cat},
+env.Append(BUILDERS = {'Cat':cat, 'OneCat':one_cat},
            SCANNERS = kscan)
 
 Export("env")
@@ -106,7 +108,8 @@ env.InstallAs('../inc/eee', 'eee.in')
 
 test.write(['src', 'SConstruct'], SConstruct_contents)
 
-test.write(['src', 'SConscript'], """\
+def WriteInitialTest( valueDict ) :
+    test.write(['src', 'SConscript'], """\
 Import("env")
 env.Cat('file1', 'file1.in')
 env.Cat('file2', 'file2.k')
@@ -118,7 +121,11 @@ env.Cat('file5', 'file5.k')
 file6 = env.Cat('file6', 'file6.in')
 AlwaysBuild(file6)
 env.Cat('subdir/file7', 'subdir/file7.in')
-""" % locals())
+env.OneCat('subdir/file8', ['subdir/file7.in', env.Value(%(test_value)s)] )
+""" % valueDict )
+
+test_value = '"first"'
+WriteInitialTest( locals() )
 
 test.write(['src', 'aaa'], "aaa 1\n")
 test.write(['src', 'bbb.k'], """\
@@ -186,6 +193,8 @@ scons: building `file6' because it doesn't exist
 %(_python_)s %(cat_py)s file6 file6.in
 scons: building `%(subdir_file7)s' because it doesn't exist
 %(_python_)s %(cat_py)s %(subdir_file7)s %(subdir_file7_in)s
+scons: building `%(subdir_file8)s' because it doesn't exist
+%(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -217,6 +226,9 @@ test.write(['src', 'yyy'], "yyy 2\n")
 test.write(['src', 'zzz'], "zzz 2\n")
 test.write(['src', 'bbb.k'], "bbb.k 2\ninclude ccc\n")
 
+test_value = '"second"'
+WriteInitialTest( locals() )
+
 expect = test.wrap_stdout("""\
 scons: rebuilding `file1' because `file1.in' changed
 %(_python_)s %(cat_py)s file1 file1.in
@@ -235,6 +247,10 @@ scons: rebuilding `file5' because `%(inc_bbb_k)s' changed
 %(_python_)s %(cat_py)s file5 file5.k
 scons: rebuilding `file6' because AlwaysBuild() is specified
 %(_python_)s %(cat_py)s file6 file6.in
+scons: rebuilding `%(subdir_file8)s' because:
+           `"'first'"' is no longer a dependency
+           `'second'' is a new dependency
+%(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)

@@ -48,8 +48,7 @@ sub1_hello_obj  = 'sub1/hello.obj'
 
 test.write('SConstruct', """
 SConsignFile('my_sconsign')
-SourceSignatures('timestamp')
-TargetSignatures('content')
+Decider('timestamp-newer')
 env1 = Environment(PROGSUFFIX = '.exe', OBJSUFFIX = '.obj')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH = ['sub2'])

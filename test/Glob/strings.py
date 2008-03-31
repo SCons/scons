@@ -37,8 +37,8 @@ test = TestSCons.TestSCons()
 test.subdir('src')
 
 test.write('SConstruct', """\
-BuildDir('var1', 'src')
-BuildDir('var2', 'src')
+VariantDir('var1', 'src')
+VariantDir('var2', 'src')
 
 SConscript('var1/SConscript')
 SConscript('var2/SConscript')

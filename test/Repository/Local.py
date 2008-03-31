@@ -58,7 +58,7 @@ env.Build('aaa.out', 'aaa.mid')
 Local('aaa.out')
 
 Export("env")
-BuildDir('build', 'src')
+VariantDir('build', 'src')
 SConscript('build/SConscript')
 """)
 

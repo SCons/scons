@@ -59,7 +59,7 @@ env = Environment(tools = ['pdftex', 'dvipdf', 'dvips', 'tex', 'latex'],
 # Use 'duplicate=1' because LaTeX toolchain does not work properly for
 # input/output files outside of the current directory
 
-env.BuildDir('$BUILD_DIR', 'docs', duplicate=1)
+env.VariantDir('$BUILD_DIR', 'docs', duplicate=1)
 env.SConscript('$BUILD_DIR/SConscript', exports = ['env'])
 """)
 

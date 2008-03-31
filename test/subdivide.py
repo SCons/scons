@@ -26,8 +26,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that rebuilds do not occur when SConsignFile(None) is used to
-put a .sconsign file in each directory, and TargetSignatures('content')
-is used to subdivide a dependency tree.
+put a .sconsign file in each directory and we subdvide the dependency
+tree with subsidiary *SConstruct* files in various subdirectories.
+
+This depends on using content signatures for evaluation of intermediate
+Nodes.  We used to configure this explicitly using
+TargetSignatures('content'), but we now rely on the default behavior
+being the equivalent of Decider('content').
 """
 
 import os.path
@@ -66,7 +71,6 @@ for s in sys.argv[2:]:
 
 test.write('SConstruct', """\
 SConsignFile(None)
-TargetSignatures('content')
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
                   CCCOM = r'%(_python_)s fake_cc.py $TARGET $SOURCES',
@@ -77,7 +81,6 @@ env.Object('foo.c')
 
 test.write(['src', 'SConstruct'], """\
 SConsignFile(None)
-TargetSignatures('content')
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
                   CCCOM = r'%(_python_)s fake_cc.py $TARGET $SOURCES',

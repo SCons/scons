@@ -73,7 +73,7 @@ if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
     if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
          Exit(0)
 env = conf.Finish()
-BuildDir('bld', '.')
+VariantDir('bld', '.')
 env.Program('bld/test_realqt', ['bld/mocFromCpp.cpp',
                                 'bld/mocFromH.cpp',
                                 'bld/anUiFile.ui',

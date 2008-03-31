@@ -49,14 +49,16 @@ if java_parsing:
     #     double-backslashes;
     #     a single-line comment "//";
     #     single or double quotes preceeded by a backslash;
-    #     single quotes, double quotes, open or close braces, semi-colons;
+    #     single quotes, double quotes, open or close braces, semi-colons,
+    #         periods, open or close parentheses;
+    #     floating-point numbers;
     #     any alphanumeric token (keyword, class name, specifier);
+    #     any alphanumeric token surrounded by angle brackets (generics);
     #     the multi-line comment begin and end tokens /* and */;
-    #     array declarations "[]";
-    #     semi-colons;
-    #     periods.
+    #     array declarations "[]".
     _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.\(\)]|' +
-                          r'[A-Za-z_][\w\$\.]*|/\*|\*/|\[\])')
+                          r'\d*\.\d*|[A-Za-z_][\w\$\.]*|<[A-Za-z_]\w+>|' +
+                          r'/\*|\*/|\[\])')
 
     class OuterState:
         """The initial state for parsing a Java file for classes,
@@ -198,6 +200,8 @@ if java_parsing:
             elif token == '/*':
                 return IgnoreState('*/', self)
             elif token == '\n':
+                return self
+            elif token[0] == '<' and token[-1] == '>':
                 return self
             elif token == '(':
                 self.brace_level = self.brace_level + 1

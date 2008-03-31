@@ -217,12 +217,12 @@ class SConsInteractiveCmd(cmd.Cmd):
         def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes):
             seen_nodes[node] = 1
 
-            # If this file is in a BuildDir and has a
+            # If this file is in a VariantDir and has a
             # corresponding source file in the source tree, remember the
             # node in the source tree, too.  This is needed in
             # particular to clear cached implicit dependencies on the
             # source file, since the scanner will scan it if the
-            # BuildDir was created with duplicate=0.
+            # VariantDir was created with duplicate=0.
             try:
                 rfile_method = node.rfile
             except AttributeError:

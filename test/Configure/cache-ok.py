@@ -43,8 +43,8 @@ NCF = test.NCF  # non-cached build failure
 CF  = test.CF   # cached build failure
 
 test.write('SConstruct', """\
-if int(ARGUMENTS.get('target_signatures_content', 0)):
-    TargetSignatures('content')
+if not int(ARGUMENTS.get('target_signatures_content', 0)):
+    Decider('timestamp-newer')
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -59,6 +59,8 @@ env = conf.Finish()
 if not (r1 and r2 and r3 and r4 and r5 and r6):
      Exit(1)
 """ % locals())
+
+# Verify correct behavior when we call Decider('timestamp-newer')
 
 test.run()
 test.checkLogAndStdout(["Checking for C library %s... " % lib,
@@ -87,7 +89,7 @@ test.checkLogAndStdout(["Checking for C library %s... " % lib,
                        [[((".cpp", CR), (_obj, CR))]],
                       "config.log", ".sconf_temp", "SConstruct")
 
-# same should be true for TargetSignatures('content')
+# same should be true for the default behavior of Decider('content')
 
 test.run(arguments='target_signatures_content=1 --config=force')
 test.checkLogAndStdout(["Checking for C library %s... " % lib,

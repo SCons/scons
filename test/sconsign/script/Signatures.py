@@ -27,8 +27,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Verify that the sconsign script works when using a .sconsign file in
 each subdirectory (SConsignFile(None)) written with the non-default
-SourceSignatures() and TargetSignatures() values (timestamp and content,
-respectively).
+value of Decider('timestamp-newer').
+
+This used to test the non-default combination of
+SourceSignatures('timestamp') with TargetSignatures('content').
 """
 
 import TestSCons
@@ -95,8 +97,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 SConsignFile(None)
-SourceSignatures('timestamp')
-TargetSignatures('content')
+Decider('timestamp-newer')
 env1 = Environment(PROGSUFFIX = '.exe',
                    OBJSUFFIX = '.obj',
                    CCCOM = r'%(_python_)s fake_cc.py sub2 $TARGET $SOURCE',

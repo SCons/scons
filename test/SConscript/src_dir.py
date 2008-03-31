@@ -46,7 +46,7 @@ env = Environment()
 for src_dir in ['src','samples']:
     SConscript('build/glob_build.py', 
                src_dir=src_dir,
-               build_dir='build/output/'+src_dir,
+               variant_dir='build/output/'+src_dir,
                duplicate=0,
                exports=['env'])
 """)

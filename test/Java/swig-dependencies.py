@@ -42,6 +42,7 @@ if not swig:
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
 where_jar = test.java_where_jar()
+where_java_include=test.java_where_includes()
 
 test.subdir(['foo'],
             ['java'],
@@ -51,6 +52,7 @@ test.write(['SConstruct'], """\
 import os
 
 env = Environment(ENV = os.environ,
+                  CPPPATH=%(where_java_include)s,                 
                   JAVAC = r'%(where_javac)s',
                   JAVAH = r'%(where_javah)s')
 
@@ -92,7 +94,7 @@ import os
 Import('env')
 
 # unnecessary?
-env = env.Copy()
+env = env.Clone()
 
 env.Prepend(CPPPATH = ['#foo',])
 

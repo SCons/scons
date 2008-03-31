@@ -57,7 +57,7 @@ opts = "-Y " + test.workpath('repository')
 test.write(['repository', 'SConstruct'], """\
 env = Environment(M4 = r'%(_python_)s %(mym4_py)s', tools=['default', 'm4'])
 env.M4(target = 'aaa.x', source = 'aaa.x.m4')
-SConscript('src/SConscript', "env", build_dir="build")
+SConscript('src/SConscript', "env", variant_dir="build")
 """ % locals())
 
 test.write(['repository', 'aaa.x.m4'], """\

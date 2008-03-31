@@ -548,7 +548,7 @@ class Taskmaster:
             except:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a
-                # BuildDir, or a Scanner threw something).  Arrange to
+                # VariantDir, or a Scanner threw something).  Arrange to
                 # raise the exception when the Task is "executed."
                 self.ready_exc = sys.exc_info()
                 if S: S.problem = S.problem + 1
@@ -675,7 +675,7 @@ class Taskmaster:
             raise
         except:
             # We had a problem just trying to get this task ready (like
-            # a child couldn't be linked in to a BuildDir when deciding
+            # a child couldn't be linked in to a VariantDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
             self.ready_exc = sys.exc_info()
