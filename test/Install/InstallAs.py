@@ -37,6 +37,7 @@ test = TestSCons.TestSCons()
 test.subdir('install', 'subdir')
 
 install = test.workpath('install')
+install_f1_out = os.path.join('install', 'f1.out')
 install_file1_out = test.workpath('install', 'file1.out')
 install_file2_out = test.workpath('install', 'file2.out')
 install_file3_out = test.workpath('install', 'file3.out')
@@ -66,7 +67,7 @@ install_file1a_out = os.path.join('install', 'f1.out')
 subdir_file3_in = os.path.join('subdir', 'file3.in')
 
 expect = test.wrap_stdout("""\
-Install file: "file1.in" as "install/f1.out"
+Install file: "file1.in" as "%(install_f1_out)s"
 Install file: "file1.in" as "%(install_file1_out)s"
 Install file: "file2.in" as "%(install_file2_out)s"
 Install file: "%(subdir_file3_in)s" as "%(install_file3_out)s"

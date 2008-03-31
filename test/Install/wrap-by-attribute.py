@@ -33,6 +33,8 @@ are replaced by wrappers that fetch the saved methods from a different
 environment.
 """
 
+import os.path
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -40,6 +42,8 @@ test = TestSCons.TestSCons()
 test.subdir('outside', 'sub')
 
 test.write('SConstruct', """\
+import os.path
+
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -55,9 +59,11 @@ env.SconsInternalInstallFunc = env.Install
 env.SconsInternalInstallAsFunc = env.InstallAs
 
 def InstallWithDestDir(dir, source):
-    return env.SconsInternalInstallFunc('$DESTDIR'+env.Dir(dir).abspath, source)
+    abspath = os.path.splitdrive(env.Dir(dir).abspath)[1]
+    return env.SconsInternalInstallFunc('$DESTDIR'+abspath, source)
 def InstallAsWithDestDir(target, source):
-    return env.SconsInternalInstallAsFunc('$DESTDIR'+env.File(target).abspath, source)
+    abspath = os.path.splitdrive(env.File(target).abspath)[1]
+    return env.SconsInternalInstallAsFunc('$DESTDIR'+abspath, source)
 
 # Add the wrappers directly as attributes.
 env.Install = InstallWithDestDir
@@ -86,10 +92,12 @@ test.write('f4.in', "f4.in\n")
 
 test.run(arguments = '.')
 
-f1_out     = test.workpath('dest') + test.workpath('export', 'f1.out')
-f2_new_out = test.workpath('dest') + test.workpath('export', 'f2-new.out')
-f3_out     = test.workpath('dest') + test.workpath('export', 'f3.out')
-f4_new_out = test.workpath('dest') + test.workpath('export', 'f4-new.out')
+export = os.path.splitdrive(test.workpath('export'))[1]
+
+f1_out     = test.workpath('dest') + os.path.join(export, 'f1.out')
+f2_new_out = test.workpath('dest') + os.path.join(export, 'f2-new.out')
+f3_out     = test.workpath('dest') + os.path.join(export, 'f3.out')
+f4_new_out = test.workpath('dest') + os.path.join(export, 'f4-new.out')
 
 test.must_match(f1_out,         "f1.in\n")
 test.must_match(f2_new_out,     "f2.in\n")

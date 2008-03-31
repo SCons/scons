@@ -43,7 +43,9 @@ _SUBDIR_file3_in = os.path.join('$SUBDIR', 'file3.in')
 target_file2_out = os.path.join(target, 'file2.out')
 subdir_file3_in = os.path.join('subdir', 'file3.in')
 target_subdir_file3_out = os.path.join(target, 'subdir', 'file3.out')
-file1_out       = target+os.path.join( target, destdir, 'file1.out' )
+file1_out       = target+os.path.join( target,
+                                       os.path.splitdrive(destdir)[1],
+                                       'file1.out' )
 
 #
 test.write('SConstruct', r"""
