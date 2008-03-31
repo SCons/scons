@@ -3317,13 +3317,13 @@ def generate(env):
     def test_parse_flags(self):
         '''Test the Base class parse_flags argument'''
         # all we have to show is that it gets to MergeFlags internally
-        env = Environment(parse_flags = '-X')
+        env = Environment(tools=[], parse_flags = '-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
 
-        env = Environment(CCFLAGS=None, parse_flags = '-Y')
+        env = Environment(tools=[], CCFLAGS=None, parse_flags = '-Y')
         assert env['CCFLAGS'] == ['-Y'], env['CCFLAGS']
 
-        env = Environment(CPPDEFINES = 'FOO', parse_flags = '-std=c99 -X -DBAR')
+        env = Environment(tools=[], CPPDEFINES = 'FOO', parse_flags = '-std=c99 -X -DBAR')
         assert env['CFLAGS']  == ['-std=c99'], env['CFLAGS']
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
         assert env['CPPDEFINES'] == ['FOO', 'BAR'], env['CPPDEFINES']

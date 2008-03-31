@@ -6,10 +6,10 @@
 
 # When this gets changed, you also need to change test/option-v.py
 # so it looks for the right string.
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007'
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'January 2007'
+month_year = 'March 2008'
 
 #
 # __COPYRIGHT__

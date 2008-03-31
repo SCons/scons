@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ListOption canned Option type.
 """
 
+import os
 import os.path
 import string
 
@@ -79,7 +80,7 @@ test.run()
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
 
-test.must_match(test.workpath('scons.options'), "shared = 'all'\n")
+test.must_match(test.workpath('scons.options'), "shared = 'all'"+os.linesep)
 
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
