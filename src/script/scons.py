@@ -157,5 +157,6 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import SCons.Script
-SCons.Script.main()
+if __name__ == "__main__":
+    import SCons.Script
+    SCons.Script.main()

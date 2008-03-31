@@ -38,6 +38,7 @@ except ImportError:
 _ = gettext
 
 import SCons.Node.FS
+import SCons.Warnings
 
 OptionValueError        = optparse.OptionValueError
 SUPPRESS_HELP           = optparse.SUPPRESS_HELP
@@ -123,6 +124,7 @@ class SConsValues(optparse.Values):
         'num_jobs',
         'random',
         'stack_size',
+        'warn',
     ]
 
     def set_option(self, name, value):
@@ -169,6 +171,11 @@ class SConsValues(optparse.Values):
                 value = int(value)
             except ValueError:
                 raise SCons.Errors.UserError, "An integer is required: %s"%repr(value)
+        elif name == 'warn':
+            if SCons.Util.is_String(value):
+                value = [value]
+            value = self.__SConscript_settings__.get(name, []) + value
+            SCons.Warnings.process_warn_strings(value)
 
         self.__SConscript_settings__[name] = value
 
@@ -563,29 +570,32 @@ def Parser(version):
                   help="Search up directory tree for SConstruct,       "
                        "build all Default() targets.")
 
-    debug_options = ["count", "dtree", "explain", "findlibs",
-                     "includes", "memoizer", "memory", "objects",
-                     "pdb", "presub", "stacktrace", "stree",
-                     "time", "tree"]
-
     deprecated_debug_options = {
-        "nomemoizer" : ' and has no effect',
+        "dtree"         : '; please use --tree=derived instead',
+        "nomemoizer"    : ' and has no effect',
+        "stree"         : '; please use --tree=all,status instead',
+        "tree"          : '; please use --tree=all instead',
     }
+
+    debug_options = ["count", "explain", "findlibs",
+                     "includes", "memoizer", "memory", "objects",
+                     "pdb", "presub", "stacktrace",
+                     "time"] + deprecated_debug_options.keys()
 
     def opt_debug(option, opt, value, parser,
                   debug_options=debug_options,
                   deprecated_debug_options=deprecated_debug_options):
         if value in debug_options:
             parser.values.debug.append(value)
-        elif value in deprecated_debug_options.keys():
-            try:
-                parser.values.delayed_warnings
-            except AttributeError:
-                parser.values.delayed_warnings = []
-            msg = deprecated_debug_options[value]
-            w = "The --debug=%s option is deprecated%s." % (value, msg)
-            t = (SCons.Warnings.DeprecatedWarning, w)
-            parser.values.delayed_warnings.append(t)
+            if value in deprecated_debug_options.keys():
+                try:
+                    parser.values.delayed_warnings
+                except AttributeError:
+                    parser.values.delayed_warnings = []
+                msg = deprecated_debug_options[value]
+                w = "The --debug=%s option is deprecated%s." % (value, msg)
+                t = (SCons.Warnings.DeprecatedWarning, w)
+                parser.values.delayed_warnings.append(t)
         else:
             raise OptionValueError("Warning:  %s is not a valid debug type" % value)
     opt_debug_help = "Print various types of debugging information: %s." \
@@ -803,10 +813,15 @@ def Parser(version):
                   action="callback", callback=opt_version,
                   help="Print the SCons version number and exit.")
 
+    def opt_warn(option, opt, value, parser, tree_options=tree_options):
+        if SCons.Util.is_String(value):
+            value = string.split(value, ',')
+        parser.values.warn.extend(value)
+
     op.add_option('--warn', '--warning',
-                  nargs=1,
-                  dest="warn", default=None,
-                  action="store",
+                  nargs=1, type="string",
+                  dest="warn", default=[],
+                  action="callback", callback=opt_warn,
                   help="Enable or disable warnings.",
                   metavar="WARNING-SPEC")
 

@@ -321,6 +321,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Tag',
     'TargetSignatures',
     'Value',
+    'VariantDir',
 ]
 
 GlobalDefaultBuilders = [

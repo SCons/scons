@@ -49,7 +49,7 @@ is pretty smart about rebuilding things when you change options.
 
   <para>
 
-  The &build_dir; keyword argument of
+  The &variant_dir; keyword argument of
   the &SConscript; function provides everything
   we need to show how easy it is to create
   variant builds using &SCons;.
@@ -79,7 +79,7 @@ is pretty smart about rebuilding things when you change options.
 
     Export('env')
 
-    env.SConscript('src/SConscript', build_dir='build/$PLATFORM')
+    env.SConscript('src/SConscript', variant_dir='build/$PLATFORM')
     </file>
     <directory name="src"></directory>
     <directory name="src/hello"></directory>
@@ -140,7 +140,7 @@ is pretty smart about rebuilding things when you change options.
     <file name="SConstruct" printme="1">
     env = Environment(OS = ARGUMENTS.get('OS'))
     for os in ['newell', 'post']:
-        SConscript('src/SConscript', build_dir='build/' + os)
+        SConscript('src/SConscript', variant_dir='build/' + os)
     </file>
   </scons_example>
 

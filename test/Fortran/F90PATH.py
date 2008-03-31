@@ -78,7 +78,7 @@ obj = env.Object(target='foobar/prog', source='subdir/prog.f90')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
-BuildDir('variant', 'subdir', 0)
+VariantDir('variant', 'subdir', 0)
 include = Dir('include')
 env = Environment(F90 = r'%s',
                   F90PATH=[include, '#foobar', '#subdir'],
@@ -270,7 +270,7 @@ obj = env.Object(target='foobar/prog', source='subdir/prog.f90')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
-BuildDir('variant', 'subdir', 0)
+VariantDir('variant', 'subdir', 0)
 include = Dir('include')
 env = Environment(F90 = r'%s',
                   F90PATH=['inc2', include, '#foobar', '#subdir'],

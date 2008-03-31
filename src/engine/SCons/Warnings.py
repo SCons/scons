@@ -29,6 +29,9 @@ This file implements the warnings framework for SCons.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
+import sys
+
 import SCons.Errors
 
 class Warning(SCons.Errors.UserError):
@@ -47,6 +50,15 @@ class DependencyWarning(Warning):
     pass
 
 class DeprecatedWarning(Warning):
+    pass
+
+class DeprecatedCopyWarning(DeprecatedWarning):
+    pass
+
+class DeprecatedSourceSignaturesWarning(DeprecatedWarning):
+    pass
+
+class DeprecatedTargetSignaturesWarning(DeprecatedWarning):
     pass
 
 class DuplicateEnvironmentWarning(Warning):
@@ -70,6 +82,9 @@ class NoObjectCountWarning(Warning):
 class NoParallelSupportWarning(Warning):
     pass
 
+class PythonVersionWarning(DeprecatedWarning):
+    pass
+
 class ReservedVariableWarning(Warning):
     pass
 
@@ -88,7 +103,7 @@ def suppressWarningClass(clazz):
     """Suppresses all warnings that are of type clazz or
     derived from clazz."""
     _enabled.insert(0, (clazz, 0))
-    
+
 def enableWarningClass(clazz):
     """Suppresses all warnings that are of type clazz or
     derived from clazz."""
@@ -110,7 +125,57 @@ def warn(clazz, *args):
             if flag:
                 if _warningAsException:
                     raise warning
-            
+
                 if _warningOut:
                     _warningOut(warning)
             break
+
+def process_warn_strings(arguments):
+    """Process string specifications of enabling/disabling warnings,
+    as passed to the --warn option or the SetOption('warn') function.
+    
+
+    An argument to this option should be of the form <warning-class>
+    or no-<warning-class>.  The warning class is munged in order
+    to get an actual class name from the classes above, which we
+    need to pass to the {enable,disable}WarningClass() functions.
+    The supplied <warning-class> is split on hyphens, each element
+    is capitalized, then smushed back together.  Then the string
+    "Warning" is appended to get the class name.
+
+    For example, 'deprecated' will enable the DeprecatedWarning
+    class.  'no-dependency' will disable the .DependencyWarning
+    class.
+
+    As a special case, --warn=all and --warn=no-all will enable or
+    disable (respectively) the base Warning class of all warnings.
+
+    """
+
+    def _capitalize(s):
+        if s[:5] == "scons":
+            return "SCons" + s[5:]
+        else:
+            return string.capitalize(s)
+
+    for arg in arguments:
+
+        elems = string.split(string.lower(arg), '-')
+        enable = 1
+        if elems[0] == 'no':
+            enable = 0
+            del elems[0]
+
+        if len(elems) == 1 and elems[0] == 'all':
+            class_name = "Warning"
+        else:
+            class_name = string.join(map(_capitalize, elems), '') + "Warning"
+        try:
+            clazz = globals()[class_name]
+        except KeyError:
+            sys.stderr.write("No warning type: '%s'\n" % arg)
+        else:
+            if enable:
+                enableWarningClass(clazz)
+            else:
+                suppressWarningClass(clazz)

@@ -206,7 +206,9 @@ int main() {
 
     context.Display("Checking for %s function %s()... " % (lang, function_name))
     ret = context.BuildProg(text, suffix)
-    _YesNoResult(context, ret, "HAVE_" + function_name, text)
+    _YesNoResult(context, ret, "HAVE_" + function_name, text,
+                 "Define to 1 if the system has the function `%s'." %\
+                 function_name)
     return ret
 
 
@@ -253,7 +255,8 @@ def CheckHeader(context, header_name, header = None, language = None,
 
     context.Display("Checking for %s header file %s... " % (lang, header_name))
     ret = context.CompileProg(text, suffix)
-    _YesNoResult(context, ret, "HAVE_" + header_name, text)
+    _YesNoResult(context, ret, "HAVE_" + header_name, text, 
+                 "Define to 1 if you have the <%s> header file." % header_name)
     return ret
 
 
@@ -310,7 +313,8 @@ int main() {
 
     context.Display("Checking for %s type %s... " % (lang, type_name))
     ret = context.BuildProg(text, suffix)
-    _YesNoResult(context, ret, "HAVE_" + type_name, text)
+    _YesNoResult(context, ret, "HAVE_" + type_name, text,
+                 "Define to 1 if the system has the type `%s'." % type_name)
     if ret and fallback and context.headerfilename:
         f = open(context.headerfilename, "a")
         f.write("typedef %s %s;\n" % (fallback, type_name))
@@ -374,7 +378,8 @@ int main()
         st = context.CompileProg(src % (type_name, expect), suffix)
         if not st:
             context.Display("yes\n")
-            _Have(context, "SIZEOF_%s" % type_name, expect)
+            _Have(context, "SIZEOF_%s" % type_name, expect, 
+                  "The size of `%s', as computed by sizeof." % type_name)
             return expect
         else:
             context.Display("no\n")
@@ -410,7 +415,8 @@ int main() {
 
         if not st:
             context.Display("yes\n")
-            _Have(context, "SIZEOF_%s" % type_name, size)
+            _Have(context, "SIZEOF_%s" % type_name, size,
+                  "The size of `%s', as computed by sizeof." % type_name)
             return size
         else:
             context.Display("no\n")
@@ -466,7 +472,8 @@ int main()
 """ % (symbol, symbol)
 
     st = context.CompileProg(src, suffix)
-    _YesNoResult(context, st, "HAVE_DECL_" + symbol, src)
+    _YesNoResult(context, st, "HAVE_DECL_" + symbol, src,
+                 "Set to 1 if %s is defined." % symbol)
     return st
 
 def CheckLib(context, libs, func_name = None, header = None,
@@ -563,7 +570,8 @@ return 0;
 
         ret = context.BuildProg(text, suffix)
 
-        _YesNoResult(context, ret, sym, text)
+        _YesNoResult(context, ret, sym, text,
+                     "Define to 1 if you have the `%s' library." % lib_name)
         if oldLIBS != -1 and (ret or not autoadd):
             context.SetLIBS(oldLIBS)
             
@@ -576,15 +584,17 @@ return 0;
 # END OF PUBLIC FUNCTIONS
 #
 
-def _YesNoResult(context, ret, key, text):
+def _YesNoResult(context, ret, key, text, comment = None):
     """
     Handle the result of a test with a "yes" or "no" result.
     "ret" is the return value: empty if OK, error message when not.
     "key" is the name of the symbol to be defined (HAVE_foo).
     "text" is the source code of the program used for testing.
+    "comment" is the C comment to add above the line defining the symbol (the
+    comment is automatically put inside a /* */). If None, no comment is added.
     """
     if key:
-        _Have(context, key, not ret)
+        _Have(context, key, not ret, comment)
     if ret:
         context.Display("no\n")
         _LogFailed(context, text, ret)
@@ -592,7 +602,7 @@ def _YesNoResult(context, ret, key, text):
         context.Display("yes\n")
 
 
-def _Have(context, key, have):
+def _Have(context, key, have, comment = None):
     """
     Store result of a test in context.havedict and context.headerfilename.
     "key" is a "HAVE_abc" name.  It is turned into all CAPITALS and non-
@@ -620,12 +630,17 @@ def _Have(context, key, have):
     else:
         line = "#define %s %s\n" % (key_up, str(have))
     
+    if comment is not None:
+        lines = "\n/* %s */\n" % comment + line
+    else:
+        lines = "\n" + line
+
     if context.headerfilename:
         f = open(context.headerfilename, "a")
-        f.write(line)
+        f.write(lines)
         f.close()
     elif hasattr(context,'config_h'):
-        context.config_h = context.config_h + line
+        context.config_h = context.config_h + lines
 
 
 def _LogFailed(context, text, msg):

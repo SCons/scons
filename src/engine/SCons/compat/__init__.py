@@ -173,6 +173,16 @@ except ImportError:
     # Pre-2.4 Python has no subprocess module.
     import_as('_scons_subprocess', 'subprocess')
 
+import sys
+try:
+    sys.version_info
+except AttributeError:
+    # Pre-1.6 Python has no sys.version_info
+    import string
+    version_string = string.split(sys.version)[0]
+    version_ints = map(int, string.split(version_string, '.'))
+    sys.version_info = tuple(version_ints + ['final', 0])
+
 try:
     import UserString
 except ImportError:

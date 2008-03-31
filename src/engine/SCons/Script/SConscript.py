@@ -403,16 +403,16 @@ class SConsEnvironment(SCons.Environment.Base):
         if kw.get('exports'):
             exports.extend(self.Split(kw['exports']))
 
-        build_dir = kw.get('build_dir')
-        if build_dir:
+        variant_dir = kw.get('variant_dir') or kw.get('build_dir')
+        if variant_dir:
             if len(files) != 1:
                 raise SCons.Errors.UserError, \
-                    "Invalid SConscript() usage - can only specify one SConscript with a build_dir"
+                    "Invalid SConscript() usage - can only specify one SConscript with a variant_dir"
             duplicate = kw.get('duplicate', 1)
             src_dir = kw.get('src_dir')
             if not src_dir:
                 src_dir, fname = os.path.split(str(files[0]))
-                files = [os.path.join(str(build_dir), fname)]
+                files = [os.path.join(str(variant_dir), fname)]
             else:
                 if not isinstance(src_dir, SCons.Node.Node):
                     src_dir = self.fs.Dir(src_dir)
@@ -422,11 +422,11 @@ class SConsEnvironment(SCons.Environment.Base):
                 if fn.is_under(src_dir):
                     # Get path relative to the source directory.
                     fname = fn.get_path(src_dir)
-                    files = [os.path.join(str(build_dir), fname)]
+                    files = [os.path.join(str(variant_dir), fname)]
                 else:
                     files = [fn.abspath]
-                kw['src_dir'] = build_dir
-            self.fs.BuildDir(build_dir, src_dir, duplicate)
+                kw['src_dir'] = variant_dir
+            self.fs.VariantDir(variant_dir, src_dir, duplicate)
 
         return (files, exports)
 

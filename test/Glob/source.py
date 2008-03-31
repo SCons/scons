@@ -25,9 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that use of the Glob() function within a BuildDir() returns the
+Verify that use of the Glob() function within a VariantDir() returns the
 file Nodes in the source directory when the source= keyword argument is
-specified (and duplicate=0 is specified for the BuildDir()).
+specified (and duplicate=0 is specified for the VariantDir()).
 """
 
 import TestSCons
@@ -49,8 +49,8 @@ env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
 
 Export("env")
 
-BuildDir('var1', 'src', duplicate=0)
-BuildDir('var2', 'src', duplicate=0)
+VariantDir('var1', 'src', duplicate=0)
+VariantDir('var2', 'src', duplicate=0)
 
 SConscript('var1/SConscript')
 SConscript('var2/SConscript')

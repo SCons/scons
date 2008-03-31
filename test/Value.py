@@ -38,7 +38,7 @@ test = TestSCons.TestSCons(match=TestCmd.match_re)
 python = TestSCons.python
 
 SConstruct_content = """
-SourceSignatures(r'%(source_signature)s')
+Decider(r'%(source_signature)s')
 
 class Custom:
     def __init__(self, value):  self.value = value
@@ -82,7 +82,7 @@ open(sys.argv[-1],'wb').write(string.join(sys.argv[1:-2]))
 
 # Run all of the tests with both types of source signature
 # to make sure there's no difference in behavior.
-for source_signature in ['MD5', 'timestamp']:
+for source_signature in ['MD5', 'timestamp-newer']:
 
     print "Testing Value node with source signatures:", source_signature
 

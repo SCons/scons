@@ -55,7 +55,7 @@ test.write('t.txt', """\
 # NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
 # have spaces at the end.
 
-expect = """qmtest.py run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" %(test_pass_py)s
+expect = """qmtest run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" %(test_pass_py)s
 --- TEST RESULTS -------------------------------------------------------------
 
   %(test_pass_py)s                                  : PASS    

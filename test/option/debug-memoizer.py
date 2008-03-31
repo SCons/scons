@@ -34,7 +34,7 @@ import string
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 # Find out if we support metaclasses (Python 2.2 and later).
 

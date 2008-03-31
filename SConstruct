@@ -45,7 +45,7 @@ import sys
 import tempfile
 
 project = 'scons'
-default_version = '0.97.0'
+default_version = '0.98.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
@@ -806,9 +806,13 @@ for p in [ scons ]:
 
     distutils_targets = [ win32_exe ]
 
-    Local(env.Install('$DISTDIR', distutils_targets))
+    dist_distutils_targets = env.Install('$DISTDIR', distutils_targets)
+    Local(dist_distutils_targets)
+    AddPostAction(dist_distutils_targets, Chmod(dist_distutils_targets, 0644))
 
-    if gzip:
+    if not gzip:
+        print "gzip not found; skipping .tar.gz package for %s." % pkg
+    else:
 
         distutils_formats.append('gztar')
 
@@ -819,6 +823,8 @@ for p in [ scons ]:
         dist_tar_gz             = env.Install('$DISTDIR', tar_gz)
         dist_platform_tar_gz    = env.Install('$DISTDIR', platform_tar_gz)
         Local(dist_tar_gz, dist_platform_tar_gz)
+        AddPostAction(dist_tar_gz, Chmod(dist_tar_gz, 0644))
+        AddPostAction(dist_platform_tar_gz, Chmod(dist_platform_tar_gz, 0644))
 
         #
         # Unpack the tar.gz archive created by the distutils into
@@ -892,7 +898,9 @@ for p in [ scons ]:
                                                                 bytes))
         env.Command(digest, tar_gz, Digestify)
 
-    if zipit:
+    if not zipit:
+        print "zip not found; skipping .zip package for %s." % pkg
+    else:
 
         distutils_formats.append('zip')
 
@@ -903,6 +911,8 @@ for p in [ scons ]:
         dist_zip            = env.Install('$DISTDIR', zip)
         dist_platform_zip   = env.Install('$DISTDIR', platform_zip)
         Local(dist_zip, dist_platform_zip)
+        AddPostAction(dist_zip, Chmod(dist_zip, 0644))
+        AddPostAction(dist_platform_zip, Chmod(dist_platform_zip, 0644))
 
         #
         # Unpack the zip archive created by the distutils into
@@ -990,6 +1000,8 @@ for p in [ scons ]:
         dist_noarch_rpm = env.Install('$DISTDIR', noarch_rpm)
         dist_src_rpm    = env.Install('$DISTDIR', src_rpm)
         Local(dist_noarch_rpm, dist_src_rpm)
+        AddPostAction(dist_noarch_rpm, Chmod(dist_noarch_rpm, 0644))
+        AddPostAction(dist_src_rpm, Chmod(dist_src_rpm, 0644))
 
         dfiles = map(lambda x, d=test_rpm_dir: os.path.join(d, 'usr', x),
                      dst_files)
@@ -1058,6 +1070,8 @@ for p in [ scons ]:
 
     dist_local_tar_gz = os.path.join("$DISTDIR/%s.tar.gz" % s_l_v)
     dist_local_zip = os.path.join("$DISTDIR/%s.zip" % s_l_v)
+    AddPostAction(dist_local_tar_gz, Chmod(dist_local_tar_gz, 0644))
+    AddPostAction(dist_local_zip, Chmod(dist_local_zip, 0644))
 
     commands = [
         Delete(build_dir_local),
@@ -1159,7 +1173,9 @@ SConscript('doc/SConscript')
 # source archive from the project files and files in the change.
 #
 
-if svn_status:
+if not svn_status:
+   "Not building in a Subversion tree; skipping building src package."
+else:
     slines = filter(lambda l: l[0] in ' MA', svn_status_lines)
     sentries = map(lambda l: l.split()[-1], slines)
     sfiles = filter(os.path.isfile, sentries)

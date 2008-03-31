@@ -77,7 +77,7 @@ e["EXPORT_INCLUDE"] = os.path.join(experimenttop, "export", "include")
 e["EXPORT_LIB"] = os.path.join(experimenttop, "export", "lib")
 e["INSTALL_BIN"] = os.path.join(experimenttop, "install", "bin")
 
-build_dir = os.path.join(experimenttop, "tmp-bld-dir")
+variant_dir = os.path.join(experimenttop, "tmp-bld-dir")
 src_dir = os.path.join(experimenttop, "src")
 
 env.Append(CPPPATH = [e["EXPORT_INCLUDE"]])

@@ -185,6 +185,7 @@ check_list = [
     CheckExpandedCopyright(
         build_src,
         remove_list = [
+            'bench/timeit.py',
             'bin',
             'config',
             'debian',

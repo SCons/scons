@@ -38,6 +38,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 import os
 import os.path
+import re
 import shlex
 import string
 from UserDict import UserDict
@@ -63,6 +64,10 @@ class _Null:
     pass
 
 _null = _Null
+
+_warn_copy_deprecated = True
+_warn_source_signatures_deprecated = True
+_warn_target_signatures_deprecated = True
 
 CleanTargets = {}
 CalculatorArgs = {}
@@ -279,6 +284,18 @@ class BuilderDict(UserDict):
         for i, v in dict.items():
             self.__setitem__(i, v)
 
+
+
+_is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
+
+def is_valid_construction_var(varstr):
+    """Return if the specified string is a legitimate construction
+    variable.
+    """
+    return _is_valid_var.match(varstr)
+
+
+
 class SubstitutionEnvironment:
     """Base class for different flavors of construction environments.
 
@@ -332,6 +349,11 @@ class SubstitutionEnvironment:
         self._special_set['BUILDERS'] = _set_BUILDERS
         self._special_set['SCANNERS'] = _set_SCANNERS
 
+        # Freeze the keys of self._special_set in a list for use by
+        # methods that need to check.  (Empirically, list scanning has
+        # gotten better than dict.has_key() in Python 2.5.)
+        self._special_set_keys = self._special_set.keys()
+
     def __cmp__(self, other):
         return cmp(self._dict, other._dict)
 
@@ -346,12 +368,28 @@ class SubstitutionEnvironment:
         return self._dict[key]
 
     def __setitem__(self, key, value):
-        special = self._special_set.get(key)
-        if special:
-            special(self, key, value)
+        # This is heavily used.  This implementation is the best we have
+        # according to the timings in bench/env.__setitem__.py.
+        #
+        # The "key in self._special_set_keys" test here seems to perform
+        # pretty well for the number of keys we have.  A hard-coded
+        # list works a little better in Python 2.5, but that has the
+        # disadvantage of maybe getting out of sync if we ever add more
+        # variable names.  Using self._special_set.has_key() works a
+        # little better in Python 2.4, but is worse then this test.
+        # So right now it seems like a good trade-off, but feel free to
+        # revisit this with bench/env.__setitem__.py as needed (and
+        # as newer versions of Python come out).
+        if key in self._special_set_keys:
+            self._special_set[key](self, key, value)
         else:
-            if not SCons.Util.is_valid_construction_var(key):
-                raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
+            # If we already have the entry, then it's obviously a valid
+            # key and we don't need to check.  If we do check, using a
+            # global, pre-compiled regular expression directly is more
+            # efficient than calling another function or a method.
+            if not self._dict.has_key(key) \
+               and not _is_valid_var.match(key):
+                    raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
             self._dict[key] = value
 
     def get(self, key, default=None):
@@ -373,10 +411,7 @@ class SubstitutionEnvironment:
         if not args:
             return []
 
-        if SCons.Util.is_List(args):
-            args = SCons.Util.flatten(args)
-        else:
-            args = [args]
+        args = SCons.Util.flatten(args)
 
         nodes = []
         for v in args:
@@ -465,7 +500,7 @@ class SubstitutionEnvironment:
             try:
                 get = obj.get
             except AttributeError:
-                pass
+                obj = SCons.Util.to_String_for_subst(obj)
             else:
                 obj = get()
             return obj
@@ -543,16 +578,19 @@ class SubstitutionEnvironment:
         environment, and doesn't even create a wrapper object if there
         are no overrides.
         """
-        if overrides:
-            o = copy_non_reserved_keywords(overrides)
-            overrides = {}
-            for key, value in o.items():
+        if not overrides: return self
+        o = copy_non_reserved_keywords(overrides)
+        if not o: return self
+        overrides = {}
+        merges = None
+        for key, value in o.items():
+            if key == 'parse_flags':
+                merges = value
+            else:
                 overrides[key] = SCons.Subst.scons_subst_once(value, self, key)
-        if overrides:
-            env = OverrideEnvironment(self, overrides)
-            return env
-        else:
-            return self
+        env = OverrideEnvironment(self, overrides)
+        if merges: env.MergeFlags(merges)
+        return env
 
     def ParseFlags(self, *flags):
         """
@@ -820,6 +858,7 @@ class Base(SubstitutionEnvironment):
                  tools=None,
                  toolpath=None,
                  options=None,
+                 parse_flags = None,
                  **kw):
         """
         Initialization of a basic SCons construction environment,
@@ -893,6 +932,9 @@ class Base(SubstitutionEnvironment):
         # should override any values set by the tools.
         for key, val in save.items():
             self._dict[key] = val
+
+        # Finally, apply any flags to be merged in
+        if parse_flags: self.MergeFlags(parse_flags)
 
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
@@ -1139,7 +1181,7 @@ class Base(SubstitutionEnvironment):
                     self._dict[key] = self._dict[key] + val
         self.scanner_map_delete(kw)
 
-    def Clone(self, tools=[], toolpath=None, **kw):
+    def Clone(self, tools=[], toolpath=None, parse_flags = None, **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -1157,9 +1199,14 @@ class Base(SubstitutionEnvironment):
         else:
             clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
 
+        # Check the methods added via AddMethod() and re-bind them to
+        # the cloned environment.  Only do this if the attribute hasn't
+        # been overwritten by the user explicitly and still points to
+        # the added method.
         clone.added_methods = []
         for mw in self.added_methods:
-            clone.added_methods.append(mw.clone(clone))
+            if mw == getattr(self, mw.name):
+                clone.added_methods.append(mw.clone(clone))
 
         clone._memo = {}
 
@@ -1176,10 +1223,18 @@ class Base(SubstitutionEnvironment):
         # apply them again in case the tools overwrote them
         apply(clone.Replace, (), new)        
 
+        # Finally, apply any flags to be merged in
+        if parse_flags: clone.MergeFlags(parse_flags)
+
         if __debug__: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
     def Copy(self, *args, **kw):
+        global _warn_copy_deprecated
+        if _warn_copy_deprecated:
+            msg = "The env.Copy() method is deprecated; use the env.Clone() method instead."
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedCopyWarning, msg)
+            _warn_copy_deprecated = False
         return apply(self.Clone, args, kw)
 
     def _changed_build(self, dependency, target, prev_ni):
@@ -1641,10 +1696,11 @@ class Base(SubstitutionEnvironment):
             t.set_always_build()
         return tlist
 
-    def BuildDir(self, build_dir, src_dir, duplicate=1):
-        build_dir = self.arg2nodes(build_dir, self.fs.Dir)[0]
-        src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]
-        self.fs.BuildDir(build_dir, src_dir, duplicate)
+    def BuildDir(self, *args, **kw):
+        if kw.has_key('build_dir'):
+            kw['variant_dir'] = kw['build_dir']
+            del kw['build_dir']
+        return apply(self.VariantDir, args, kw)
 
     def Builder(self, **kw):
         nkw = self.subst_kw(kw)
@@ -1705,7 +1761,13 @@ class Base(SubstitutionEnvironment):
     def Dir(self, name, *args, **kw):
         """
         """
-        return apply(self.fs.Dir, (self.subst(name),) + args, kw)
+        s = self.subst(name)
+        if SCons.Util.is_Sequence(s):
+            result=[]
+            for e in s:
+                result.append(apply(self.fs.Dir, (e,) + args, kw))
+            return result
+        return apply(self.fs.Dir, (s,) + args, kw)
 
     def NoClean(self, *targets):
         """Tags a target so that it will not be cleaned by -c"""
@@ -1728,7 +1790,13 @@ class Base(SubstitutionEnvironment):
     def Entry(self, name, *args, **kw):
         """
         """
-        return apply(self.fs.Entry, (self.subst(name),) + args, kw)
+        s = self.subst(name)
+        if SCons.Util.is_Sequence(s):
+            result=[]
+            for e in s:
+                result.append(apply(self.fs.Entry, (e,) + args, kw))
+            return result
+        return apply(self.fs.Entry, (s,) + args, kw)
 
     def Environment(self, **kw):
         return apply(SCons.Environment.Environment, [], self.subst_kw(kw))
@@ -1746,7 +1814,13 @@ class Base(SubstitutionEnvironment):
     def File(self, name, *args, **kw):
         """
         """
-        return apply(self.fs.File, (self.subst(name),) + args, kw)
+        s = self.subst(name)
+        if SCons.Util.is_Sequence(s):
+            result=[]
+            for e in s:
+                result.append(apply(self.fs.File, (e,) + args, kw))
+            return result
+        return apply(self.fs.File, (s,) + args, kw)
 
     def FindFile(self, file, dirs):
         file = self.subst(file)
@@ -1851,6 +1925,12 @@ class Base(SubstitutionEnvironment):
         return entries
 
     def SourceSignatures(self, type):
+        global _warn_source_signatures_deprecated
+        if _warn_source_signatures_deprecated:
+            msg = "The env.SourceSignatures() method is deprecated;\n" + \
+                  "\tconvert your build to use the env.Decider() method instead."
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedSourceSignaturesWarning, msg)
+            _warn_source_signatures_deprecated = False
         type = self.subst(type)
         self.src_sig_type = type
         if type == 'MD5':
@@ -1881,6 +1961,12 @@ class Base(SubstitutionEnvironment):
             return [self.subst(arg)]
 
     def TargetSignatures(self, type):
+        global _warn_target_signatures_deprecated
+        if _warn_target_signatures_deprecated:
+            msg = "The env.TargetSignatures() method is deprecated;\n" + \
+                  "\tconvert your build to use the env.Decider() method instead."
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedTargetSignaturesWarning, msg)
+            _warn_target_signatures_deprecated = False
         type = self.subst(type)
         self.tgt_sig_type = type
         if type in ('MD5', 'content'):
@@ -1900,6 +1986,11 @@ class Base(SubstitutionEnvironment):
         """
         """
         return SCons.Node.Python.Value(value, built_value)
+
+    def VariantDir(self, variant_dir, src_dir, duplicate=1):
+        variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]
+        src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]
+        self.fs.VariantDir(variant_dir, src_dir, duplicate)
 
     def FindSourceFiles(self, node='.'):
         """ returns a list of all source files.
@@ -1984,7 +2075,7 @@ class OverrideEnvironment(Base):
         except KeyError:
             return self.__dict__['__subject'].__getitem__(key)
     def __setitem__(self, key, value):
-        if not SCons.Util.is_valid_construction_var(key):
+        if not is_valid_construction_var(key):
             raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
         self.__dict__['overrides'][key] = value
     def __delitem__(self, key):

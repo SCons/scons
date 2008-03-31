@@ -82,6 +82,11 @@ env1.Install('.', r'%(f5_txt)s')
 env1.Install('export', r'%(f5_txt)s')
 env1.Install('.', r'%(f6_sep)s')
 env1.Install('export', r'%(f6_sep)s')
+
+# test passing a keyword arg (not used, but should be accepted)
+env7 = env1.Clone(EXPORT='export')
+env7.Install(dir='$EXPORT', source='./f1.in', FOO="bar")
+
 """ % locals())
 
 test.write(['work', 'f1.in'], "f1.in\n")
@@ -103,6 +108,7 @@ test.must_match(['work', 'f6.txt'],             "f6.txt\n")
 test.must_match(['work', 'export', 'f6.txt'],   "f6.txt\n")
 
 test.must_match(['work', 'my_install.out'], os.path.join('export', 'f3.out'))
+test.must_match(['work', 'export', 'f1.in'],   "f1.in\n")
 
 # make sure the programs didn't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(f1_out)

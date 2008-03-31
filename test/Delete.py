@@ -65,6 +65,10 @@ env.Command('f12-nonexistent.out', 'f12.in',
 
 env.Command(Dir('d13-nonexistent.out'), 'd13.in',
             [Delete("$TARGET", must_exist=0), Mkdir("$TARGET")])
+
+# Make sure Delete works with a list of arguments
+env = Environment(FILE='f14', DIR='d15')
+env.Command('f16.out', 'f16.in', [Delete(["$FILE", "$DIR"]), Cat])
 """)
 
 test.write('f1', "f1\n")
@@ -85,6 +89,9 @@ test.write('f10.in', "f10.in\n")
 test.subdir('d11.in')
 test.write('f12.in', "f12.in\n")
 test.subdir('d13.in')
+test.write('f14', "f14\n")
+test.subdir('d15')
+test.write('f16.in', "f16.in\n")
 
 expect = test.wrap_stdout(read_str = """\
 Delete("f1")
@@ -99,6 +106,8 @@ Delete("f10-nonexistent.out")
 cat(["f10-nonexistent.out"], ["f10.in"])
 Delete("f12-nonexistent.out")
 cat(["f12-nonexistent.out"], ["f12.in"])
+Delete(["f14", "d15"])
+cat(["f16.out"], ["f16.in"])
 cat(["f3.out"], ["f3.in"])
 Delete("f4")
 Delete("d5")
@@ -125,6 +134,9 @@ test.must_not_exist('f8.out')
 test.must_not_exist('f9.out')
 test.must_exist('Delete-f9.in')
 test.must_exist('f9.out-Delete')
+test.must_exist('f14')
+test.must_exist('d15')
+test.must_not_exist('f16.out')
 
 test.run()
 
@@ -146,6 +158,9 @@ test.must_exist('f10-nonexistent.out')
 test.must_exist('d11-nonexistent.out')
 test.must_exist('f12-nonexistent.out')
 test.must_exist('d13-nonexistent.out')
+test.must_not_exist('f14')
+test.must_not_exist('d15')
+test.must_match('f16.out', "f16.in\n")
 
 test.write("SConstruct", """\
 def cat(env, source, target):

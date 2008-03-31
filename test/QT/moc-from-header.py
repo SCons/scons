@@ -85,13 +85,13 @@ test.not_up_to_date(options='-n', arguments = moc)
 
 test.run(program = test.workpath(aaa_exe), stdout = 'aaa.h\n')
 
-test.run(arguments = "build_dir=1 " + build_aaa_exe)
+test.run(arguments = "variant_dir=1 " + build_aaa_exe)
 
-test.run(arguments = "build_dir=1 chdir=1 " + build_aaa_exe)
+test.run(arguments = "variant_dir=1 chdir=1 " + build_aaa_exe)
 
 test.must_exist(test.workpath('build', moc))
 
-test.run(arguments = "build_dir=1 chdir=1 dup=0 " +
+test.run(arguments = "variant_dir=1 chdir=1 dup=0 " +
                      test.workpath('build_dup0', aaa_exe) )
 
 test.must_exist(['build_dup0', moc])

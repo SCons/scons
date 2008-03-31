@@ -40,6 +40,10 @@ test = TestSCons.TestSCons()
 where_javac, java_version = test.java_where_javac()
 where_java = test.java_where_java()
 
+# where_java_home=test.java_where_java_home()
+os.environ['JAVA_HOME'] = test.java_where_java_home()
+
+
 
 java = where_java
 javac = where_javac
@@ -105,7 +109,6 @@ test.writable('repository', 0)
 #
 test.run(chdir = 'work1', options = opts, arguments = ".")
 
-os.environ['JAVA_HOME'] = '/usr/lib/jvm/java-1.5.0-sun-1.5.0.11'
 
 test.run(program = java,
          arguments = "-cp %s Foo1" % work1_classes,

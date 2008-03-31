@@ -112,7 +112,7 @@ As stated in the qt documentation, include the moc file at the end of
 the cxx file. Note that you have to include the file, which is generated
 by the transformation ${QT_MOCCXXPREFIX}&lt;basename&gt;${QT_MOCCXXSUFFIX}, by default
 &lt;basename&gt;.moc. A warning is generated after building the moc file, if you
-do not include the correct file. If you are using BuildDir, you may
+do not include the correct file. If you are using VariantDir, you may
 need to specify duplicate=1. You can turn off automatic moc file generation
 by setting QT_AUTOSCAN to 0. See also the corresponding
 &b-Moc;
@@ -123,7 +123,7 @@ The implementation files generated from .ui files are handled much the same
 as yacc or lex files. Each .ui file given as a source of Program, Library or
 SharedLibrary will generate three files, the declaration file, the
 implementation file and a moc file. Because there are also generated headers,
-you may need to specify duplicate=1 in calls to BuildDir.
+you may need to specify duplicate=1 in calls to VariantDir.
 See also the corresponding
 &b-Uic;
 builder method.

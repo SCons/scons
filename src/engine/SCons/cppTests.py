@@ -625,9 +625,9 @@ class fileTestCase(unittest.TestCase):
         os.chdir(path)
 
     def tearDown(self):
+        os.chdir(self.orig_cwd)
         shutil.rmtree(self.tempdir)
         _Cleanup.remove(self.tempdir)
-        os.chdir(self.orig_cwd)
 
     def strip_initial_spaces(self, s):
         #lines = s.split('\n')

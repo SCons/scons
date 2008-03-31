@@ -191,7 +191,7 @@ test.run(program=test.workpath('test.exe'), stdout='2003 test 2\n')
 test.subdir('src', 'build', 'out')
 
 test.write('SConstruct',"""
-BuildDir('build', 'src', duplicate=0)
+VariantDir('build', 'src', duplicate=0)
 SConscript('build/SConscript')
 """)
 

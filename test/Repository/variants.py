@@ -86,7 +86,7 @@ ccflags = {
 }
 env1 = Environment(CCFLAGS = default.subst('$CCFLAGS %s' % ccflags[OS]),
                    CPPPATH = build1_os)
-BuildDir(build1_os, 'src1')
+VariantDir(build1_os, 'src1')
 SConscript(build1_os + '/SConscript', "env1")
 
 SConscript('build2/foo/SConscript')
@@ -99,7 +99,7 @@ env1.Program('xxx', ['aaa.c', 'bbb.c', 'main.c'])
 """)
 
 test.write(['repository', 'build2', 'foo', 'SConscript'], r"""
-BuildDir('src2', '#src2')
+VariantDir('src2', '#src2')
 
 default = Environment()
 env2 = Environment(CCFLAGS = default.subst('$CCFLAGS -DFOO'),
@@ -109,7 +109,7 @@ SConscript('src2/xxx/SConscript', "env2")
 """)
 
 test.write(['repository', 'build2', 'bar', 'SConscript'], r"""
-BuildDir('src2', '#src2')
+VariantDir('src2', '#src2')
 
 default = Environment()
 env2 = Environment(CCFLAGS = default.subst('$CCFLAGS -DBAR'),

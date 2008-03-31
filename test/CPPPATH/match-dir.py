@@ -38,7 +38,7 @@ test.subdir(['src'],
             ['src', 'inc', 'inc2'])
 
 test.write('SConstruct', """\
-SConscript('src/SConscript', build_dir = 'build', duplicate = 0)
+SConscript('src/SConscript', variant_dir = 'build', duplicate = 0)
 """)
 
 test.write(['src', 'SConscript'], """\

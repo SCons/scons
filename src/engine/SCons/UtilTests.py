@@ -384,38 +384,6 @@ class UtilTestCase(unittest.TestCase):
 
         finally:
             os.environ['PATH'] = env_path
-            
-
-    def test_is_valid_construction_var(self):
-        """Testing is_valid_construction_var()"""
-        r = is_valid_construction_var("_a")
-        assert not r is None, r
-        r = is_valid_construction_var("z_")
-        assert not r is None, r
-        r = is_valid_construction_var("X_")
-        assert not r is None, r
-        r = is_valid_construction_var("2a")
-        assert r is None, r
-        r = is_valid_construction_var("a2_")
-        assert not r is None, r
-        r = is_valid_construction_var("/")
-        assert r is None, r
-        r = is_valid_construction_var("_/")
-        assert r is None, r
-        r = is_valid_construction_var("a/")
-        assert r is None, r
-        r = is_valid_construction_var(".b")
-        assert r is None, r
-        r = is_valid_construction_var("_.b")
-        assert r is None, r
-        r = is_valid_construction_var("b1._")
-        assert r is None, r
-        r = is_valid_construction_var("-b")
-        assert r is None, r
-        r = is_valid_construction_var("_-b")
-        assert r is None, r
-        r = is_valid_construction_var("b1-_")
-        assert r is None, r
 
     def test_get_env_var(self):
         """Testing get_environment_var()."""
@@ -635,6 +603,14 @@ class UtilTestCase(unittest.TestCase):
     def test_Selector(self):
         """Test the Selector class"""
 
+        class MyNode:
+            def __init__(self, name):
+                self.name = name
+                self.suffix = os.path.splitext(name)[1]
+
+            def __str__(self):
+                return self.name
+
         s = Selector({'a' : 'AAA', 'b' : 'BBB'})
         assert s['a'] == 'AAA', s['a']
         assert s['b'] == 'BBB', s['b']
@@ -658,22 +634,22 @@ class UtilTestCase(unittest.TestCase):
         s = Selector({'.d' : 'DDD', '.e' : 'EEE'})
         ret = s(env, [])
         assert ret == None, ret
-        ret = s(env, ['foo.d'])
+        ret = s(env, [MyNode('foo.d')])
         assert ret == 'DDD', ret
-        ret = s(env, ['bar.e'])
+        ret = s(env, [MyNode('bar.e')])
         assert ret == 'EEE', ret
-        ret = s(env, ['bar.x'])
+        ret = s(env, [MyNode('bar.x')])
         assert ret == None, ret
         s[None] = 'XXX'
-        ret = s(env, ['bar.x'])
+        ret = s(env, [MyNode('bar.x')])
         assert ret == 'XXX', ret
 
         env = DummyEnv({'FSUFF' : '.f', 'GSUFF' : '.g'})
 
         s = Selector({'$FSUFF' : 'FFF', '$GSUFF' : 'GGG'})
-        ret = s(env, ['foo.f'])
+        ret = s(env, [MyNode('foo.f')])
         assert ret == 'FFF', ret
-        ret = s(env, ['bar.g'])
+        ret = s(env, [MyNode('bar.g')])
         assert ret == 'GGG', ret
 
     def test_adjustixes(self):
@@ -746,9 +722,18 @@ class MD5TestCase(unittest.TestCase):
         s = MD5signature('222')
         assert 'bcbe3365e6ac95ea2c0343a2395834dd' == s, s
 
+
+class flattenTestCase(unittest.TestCase):
+
+    def test_scalar(self):
+        """Test flattening a scalar"""
+        result = flatten('xyz')
+        assert result == ['xyz'], result
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ dictifyTestCase,
+                 flattenTestCase,
                  MD5TestCase,
                  UtilTestCase,
                ]

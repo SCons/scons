@@ -121,9 +121,9 @@ class TestRuntest(TestCommon):
         apply(TestCommon.__init__, [self], kw)
   
         if not noqmtest:
-            qmtest_py = self.where_is('qmtest.py')
-            if not qmtest_py:
-                self.skip_test("Could not find 'qmtest.py'; skipping test(s).\n")
+            qmtest = self.where_is('qmtest')
+            if not qmtest:
+                self.skip_test("Could not find 'qmtest'; skipping test(s).\n")
 
         things_to_copy = [
             'runtest.py',

@@ -73,10 +73,10 @@ default_max_drift = 2*24*60*60
 #
 # A number of the above factors, however, can be set after we've already
 # been asked to return a string for a Node, because a Repository() or
-# BuildDir() call or the like may not occur until later in SConscript
+# VariantDir() call or the like may not occur until later in SConscript
 # files.  So this variable controls whether we bother trying to save
 # string values for Nodes.  The wrapper interface can set this whenever
-# they're done mucking with Repository and BuildDir and the other stuff,
+# they're done mucking with Repository and VariantDir and the other stuff,
 # to let this module know it can start returning saved string values
 # for Nodes.
 #
@@ -445,7 +445,7 @@ class EntryProxy(SCons.Util.Proxy):
 
     def __get_srcdir(self):
         """Returns the directory containing the source node linked to this
-        node via BuildDir(), or the directory of this node if not linked."""
+        node via VariantDir(), or the directory of this node if not linked."""
         return EntryProxy(self.get().srcnode().dir)
 
     def __get_rsrcnode(self):
@@ -453,7 +453,7 @@ class EntryProxy(SCons.Util.Proxy):
 
     def __get_rsrcdir(self):
         """Returns the directory containing the source node linked to this
-        node via BuildDir(), or the directory of this node if not linked."""
+        node via VariantDir(), or the directory of this node if not linked."""
         return EntryProxy(self.get().srcnode().rfile().dir)
 
     def __get_dir(self):
@@ -1197,21 +1197,21 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, Dir, create)
 
-    def BuildDir(self, build_dir, src_dir, duplicate=1):
-        """Link the supplied build directory to the source directory
+    def VariantDir(self, variant_dir, src_dir, duplicate=1):
+        """Link the supplied variant directory to the source directory
         for purposes of building files."""
 
         if not isinstance(src_dir, SCons.Node.Node):
             src_dir = self.Dir(src_dir)
-        if not isinstance(build_dir, SCons.Node.Node):
-            build_dir = self.Dir(build_dir)
-        if src_dir.is_under(build_dir):
-            raise SCons.Errors.UserError, "Source directory cannot be under build directory."
-        if build_dir.srcdir:
-            if build_dir.srcdir == src_dir:
+        if not isinstance(variant_dir, SCons.Node.Node):
+            variant_dir = self.Dir(variant_dir)
+        if src_dir.is_under(variant_dir):
+            raise SCons.Errors.UserError, "Source directory cannot be under variant directory."
+        if variant_dir.srcdir:
+            if variant_dir.srcdir == src_dir:
                 return # We already did this.
-            raise SCons.Errors.UserError, "'%s' already has a source directory: '%s'."%(build_dir, build_dir.srcdir)
-        build_dir.link(src_dir, duplicate)
+            raise SCons.Errors.UserError, "'%s' already has a source directory: '%s'."%(variant_dir, variant_dir.srcdir)
+        variant_dir.link(src_dir, duplicate)
 
     def Repository(self, *dirs):
         """Specify Repository directories to search."""
@@ -1220,11 +1220,11 @@ class FS(LocalFS):
                 d = self.Dir(d)
             self.Top.addRepository(d)
 
-    def build_dir_target_climb(self, orig, dir, tail):
-        """Create targets in corresponding build directories
+    def variant_dir_target_climb(self, orig, dir, tail):
+        """Create targets in corresponding variant directories
 
         Climb the directory tree, and look up path names
-        relative to any linked build directories we find.
+        relative to any linked variant directories we find.
 
         Even though this loops and walks up the tree, we don't memoize
         the return value because this is really only used to process
@@ -1232,10 +1232,10 @@ class FS(LocalFS):
         """
         targets = []
         message = None
-        fmt = "building associated BuildDir targets: %s"
+        fmt = "building associated VariantDir targets: %s"
         start_dir = dir
         while dir:
-            for bd in dir.build_dirs:
+            for bd in dir.variant_dirs:
                 if start_dir.is_under(bd):
                     # If already in the build-dir location, don't reflect
                     return [orig], fmt % str(orig)
@@ -1314,7 +1314,7 @@ class Dir(Base):
         self.cwd = self
         self.searched = 0
         self._sconsign = None
-        self.build_dirs = []
+        self.variant_dirs = []
         self.root = self.dir.root
 
         # Don't just reset the executor, replace its action list,
@@ -1385,16 +1385,16 @@ class Dir(Base):
         a path containing '..'), an absolute path name, a top-relative
         ('#foo') path name, or any kind of object.
         """
-        name = self.labspath + '/' + name
+        name = self.entry_labspath(name)
         return self.root._lookup_abs(name, klass, create)
 
     def link(self, srcdir, duplicate):
-        """Set this directory as the build directory for the
+        """Set this directory as the variant directory for the
         supplied source directory."""
         self.srcdir = srcdir
         self.duplicate = duplicate
         self.__clearRepositoryCache(duplicate)
-        srcdir.build_dirs.append(self)
+        srcdir.variant_dirs.append(self)
 
     def getRepositories(self):
         """Returns a list of repositories for this directory.
@@ -1580,9 +1580,9 @@ class Dir(Base):
         return not self.builder is MkdirBuilder and self.has_builder()
 
     def alter_targets(self):
-        """Return any corresponding targets in a build directory.
+        """Return any corresponding targets in a variant directory.
         """
-        return self.fs.build_dir_target_climb(self, self, [])
+        return self.fs.variant_dir_target_climb(self, self, [])
 
     def scanner_key(self):
         """A directory does not get scanned."""
@@ -1696,7 +1696,7 @@ class Dir(Base):
         for dir in self.srcdir_list():
             if self.is_under(dir):
                 # We shouldn't source from something in the build path;
-                # build_dir is probably under src_dir, in which case
+                # variant_dir is probably under src_dir, in which case
                 # we are reflecting.
                 break
             if dir.entry_exists_on_disk(name):
@@ -1823,8 +1823,8 @@ class Dir(Base):
 
         The "source" argument, when true, specifies that corresponding
         source Nodes must be returned if you're globbing in a build
-        directory (initialized with BuildDir()).  The default behavior
-        is to return Nodes local to the BuildDir().
+        directory (initialized with VariantDir()).  The default behavior
+        is to return Nodes local to the VariantDir().
 
         The "strings" argument, when true, returns the matches as strings,
         not Nodes.  The strings are path names relative to this directory.
@@ -1940,7 +1940,7 @@ class RootDir(Dir):
         # except for the "lookup abspath," which does not have the
         # drive letter.
         self.abspath = name + os.sep
-        self.labspath = '/'
+        self.labspath = ''
         self.path = name + os.sep
         self.tpath = name + os.sep
         self._morph()
@@ -1951,6 +1951,7 @@ class RootDir(Dir):
         # os.path.normpath() seems to preserve double slashes at the
         # beginning of a path (presumably for UNC path names), but
         # collapses triple slashes to a single slash.
+        self._lookupDict[''] = self
         self._lookupDict['/'] = self
         self._lookupDict['//'] = self
         self._lookupDict[os.sep] = self
@@ -2008,7 +2009,7 @@ class RootDir(Dir):
         return self.abspath + name
 
     def entry_labspath(self, name):
-        return self.labspath + name
+        return '/' + name
 
     def entry_path(self, name):
         return self.path + name
@@ -2525,11 +2526,11 @@ class File(Base):
         return not scb is None
 
     def alter_targets(self):
-        """Return any corresponding targets in a build directory.
+        """Return any corresponding targets in a variant directory.
         """
         if self.is_derived():
             return [], None
-        return self.fs.build_dir_target_climb(self, self.dir, [self.name])
+        return self.fs.variant_dir_target_climb(self, self.dir, [self.name])
 
     def _rmv_existing(self):
         self.clear_memoized_values()
@@ -2596,7 +2597,7 @@ class File(Base):
         if self.duplicate and not self.is_derived() and not self.linked:
             src = self.srcnode()
             if not src is self:
-                # At this point, src is meant to be copied in a build directory.
+                # At this point, src is meant to be copied in a variant directory.
                 src = src.rfile()
                 if src.abspath != self.abspath:
                     if src.exists():
@@ -2605,7 +2606,7 @@ class File(Base):
                         # not actually occur if the -n option is being used.
                     else:
                         # The source file does not exist.  Make sure no old
-                        # copy remains in the build directory.
+                        # copy remains in the variant directory.
                         if Base.exists(self) or self.islink():
                             self.fs.unlink(self.path)
                         # Return None explicitly because the Base.exists() call

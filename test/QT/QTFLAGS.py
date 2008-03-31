@@ -134,12 +134,12 @@ env = Environment(QTDIR = r'%s',
                   QT_UIC = r'%s',
                   %s
                   tools=['default','qt'])
-if ARGUMENTS.get('build_dir', 0):
+if ARGUMENTS.get('variant_dir', 0):
     if ARGUMENTS.get('chdir', 0):
         SConscriptChdir(1)
     else:
         SConscriptChdir(0)
-    BuildDir('build', '.', duplicate=1)
+    VariantDir('build', '.', duplicate=1)
     sconscript = Dir('build').File('SConscript')
 else:
     sconscript = File('SConscript')

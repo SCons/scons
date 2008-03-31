@@ -57,7 +57,7 @@ Export('env')
 SConscript('sub2/SConscript')
 f3 = env.Cat(target = 'sub3/f3.out', source = 'sub3/f3.in')
 env.Alias('my_alias', f3)
-BuildDir('build', 'sub4')
+VariantDir('build', 'sub4')
 SConscript('build/SConscript')
 """)
 
@@ -119,7 +119,7 @@ test.must_not_exist(test.workpath('sub4', 'dir', 'f4b.out'))
 test.must_not_exist(test.workpath('build', 'f4a.out'))
 test.must_not_exist(test.workpath('build', 'dir', 'f4b.out'))
 
-# Verify that we build things in a linked BuildDir.
+# Verify that we build things in a linked VariantDir.
 f4a_in = os.path.join('build', 'f4a.in')
 f4a_out = os.path.join('build', 'f4a.out')
 f4b_in = os.path.join('build', 'dir', 'f4b.in')
@@ -128,7 +128,7 @@ test.run(chdir = 'sub4',
          arguments = '-u',
          stdout = "scons: Entering directory `%s'\n" % test.workpath() + \
                   test.wrap_stdout("""\
-scons: building associated BuildDir targets: build
+scons: building associated VariantDir targets: build
 cat(["%s"], ["%s"])
 cat(["%s"], ["%s"])
 scons: `sub4' is up to date.

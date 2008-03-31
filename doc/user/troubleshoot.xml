@@ -261,7 +261,7 @@
     <screen>
       % <userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'BUILDERS': {'InstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;, 'Install': &lt;function InstallBuilderWrapper at 0x700000&gt;},
+      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
         'CONFIGUREDIR': '#/.sconf_temp',
         'CONFIGURELOG': '#/config.log',
         'CPPSUFFIXES': [ '.c',
@@ -293,7 +293,7 @@
         'INSTALL': &lt;function copyFunc at 0x700000&gt;,
         'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': 'lib',
-        'LIBPREFIXES': '$LIBPREFIX',
+        'LIBPREFIXES': ['$LIBPREFIX'],
         'LIBSUFFIX': '.a',
         'LIBSUFFIXES': ['$LIBSUFFIX', '$SHLIBSUFFIX'],
         'MAXLINELENGTH': 128072,
@@ -338,7 +338,7 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'BUILDERS': {'RES': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'InstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'Install': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;},
+      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
         'CC': 'cl',
         'CCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
         'CCCOMFLAGS': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS',
@@ -1115,10 +1115,10 @@
       % <userinput>scons -Q --debug=stacktrace</userinput>
       scons: *** Source `prog.c' not found, needed by target `prog.o'.  Stop.
       scons: internal stack trace:
-        File "bootstrap/src/engine/SCons/Job.py", line 114, in start
-        File "bootstrap/src/engine/SCons/Script/Main.py", line 157, in prepare
+        File "bootstrap/src/engine/SCons/Job.py", line 131, in start
+        File "bootstrap/src/engine/SCons/Script/Main.py", line 169, in prepare
         File "bootstrap/src/engine/SCons/Taskmaster.py", line 169, in prepare
-        File "bootstrap/src/engine/SCons/Node/FS.py", line 2568, in prepare
+        File "bootstrap/src/engine/SCons/Node/FS.py", line 2551, in prepare
         File "bootstrap/src/engine/SCons/Node/__init__.py", line 349, in prepare
     </screen>
 

@@ -50,6 +50,8 @@ env = Environment(INSTALLDIR=r'%(install)s', SUBDIR='subdir')
 InstallAs(r'%(install_file1_out)s', 'file1.in')
 env.InstallAs([r'%(_INSTALLDIR_file2_out)s', r'%(install_file3_out)s'],
               ['file2.in', r'%(_SUBDIR_file3_in)s'])
+# test passing a keyword arg (not used, but should be accepted)
+env.InstallAs('install/f1.out', './file1.in', FOO="bar")
 """ % locals())
 
 test.write('file1.in', "file1.in\n")
@@ -59,10 +61,12 @@ test.write(['subdir', 'file3.in'], "subdir/file3.in\n")
 install_file1_out = os.path.join('install', 'file1.out')
 install_file2_out = os.path.join('install', 'file2.out')
 install_file3_out = os.path.join('install', 'file3.out')
+install_file1a_out = os.path.join('install', 'f1.out')
 
 subdir_file3_in = os.path.join('subdir', 'file3.in')
 
 expect = test.wrap_stdout("""\
+Install file: "file1.in" as "install/f1.out"
 Install file: "file1.in" as "%(install_file1_out)s"
 Install file: "file2.in" as "%(install_file2_out)s"
 Install file: "%(subdir_file3_in)s" as "%(install_file3_out)s"
@@ -73,6 +77,7 @@ test.run(arguments = '.', stdout=expect)
 test.fail_test(test.read(install_file1_out) != "file1.in\n")
 test.fail_test(test.read(install_file2_out) != "file2.in\n")
 test.fail_test(test.read(install_file3_out) != "subdir/file3.in\n")
+test.fail_test(test.read(install_file1a_out) != "file1.in\n")
 
 test.up_to_date(arguments = '.')
 

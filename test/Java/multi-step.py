@@ -35,6 +35,7 @@ test = TestSCons.TestSCons()
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
+where_java_include=test.java_where_includes()
 
 swig = test.where_is('swig')
 if not swig:
@@ -64,6 +65,7 @@ test.subdir(['src'],
 test.write(['SConstruct'], """\
 import os,sys
 env=Environment(tools = ['default', 'javac', 'javah'],
+                CPPPATH=%(where_java_include)s,                 
                 JAVAC = r'%(where_javac)s',
                 JAVAH = r'%(where_javah)s')
 Export('env')
@@ -79,7 +81,7 @@ env.Append(SWIGFLAGS=['-c++','$_CPPINCFLAGS'])
 
 env.Append(CPPPATH='.')
 
-env.BuildDir('buildout', 'src', duplicate=0)
+env.VariantDir('buildout', 'src', duplicate=0)
 
 if sys.platform=='darwin':
    env.Append(CPPPATH=['/System/Library/Frameworks/JavaVM.framework/Headers'])
@@ -110,7 +112,7 @@ test.write(['src', 'HelloApplet', 'Hello.html'], """\
 test.write(['src', 'HelloApplet', 'SConscript'], """\
 import os
 Import ("env")
-denv=env.Copy()
+denv=env.Clone()
 classes=denv.Java(target='classes',source=['com'])
 #set correct path for jar
 denv['JARCHDIR']=os.path.join(denv.Dir('.').get_abspath(),'classes')
@@ -165,7 +167,7 @@ public class MyID
 
 test.write(['src', 'javah', 'SConscript'], """\
 Import('env')
-denv=env.Copy()
+denv=env.Clone()
 denv['JARCHDIR']=denv.Dir('.').get_abspath()
 denv.Jar('myid','MyID.java')
 denv.JavaH(denv.Dir('.').get_abspath(),'MyID.java')
@@ -362,7 +364,7 @@ private:
 
 test.write(['src', 'jni', 'SConscript'], """\
 Import ("env")
-denv=env.Copy()
+denv=env.Clone()
 
 denv.Append(SWIGFLAGS=['-java'])
 denv.SharedLibrary('scons',['JniWrapper.cc','Sample.i'])

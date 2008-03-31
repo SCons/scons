@@ -49,7 +49,7 @@ test.subdir('build')
 test.write('src/main.c', '')
 
 test.write('SConstruct', """
-BuildDir('build', 'src')
+VariantDir('build', 'src')
 env=Environment(tools=['default', 'packaging'])
 env.Package( NAME        = 'libfoo',
              PACKAGEROOT = 'build/libfoo',
@@ -64,7 +64,7 @@ test.run(stderr = None)
 test.must_exist( 'build/libfoo-1.2.3.zip' )
 
 # TEST: builddir not placed in archive
-# XXX: BuildDir should be stripped.
+# XXX: VariantDir should be stripped.
 #
 test.subdir('src')
 test.subdir('build')
@@ -73,7 +73,7 @@ test.subdir('temp')
 test.write('src/main.c', '')
 
 test.write('SConstruct', """
-BuildDir('build', 'src')
+VariantDir('build', 'src')
 env=Environment(tools=['default', 'packaging'])
 env.Package( NAME        = 'libfoo',
              VERSION     = '1.2.3',

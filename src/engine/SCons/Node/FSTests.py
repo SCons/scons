@@ -123,14 +123,14 @@ class _tempdirTestCase(unittest.TestCase):
     def tearDown(self):
         os.chdir(self.save_cwd)
 
-class BuildDirTestCase(unittest.TestCase):
+class VariantDirTestCase(unittest.TestCase):
     def runTest(self):
-        """Test build dir functionality"""
+        """Test variant dir functionality"""
         test=TestCmd(workdir='')
 
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
-        fs.BuildDir('build', 'src')
+        fs.VariantDir('build', 'src')
         f2 = fs.File('build/test2')
         d1 = fs.Dir('build')
         assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
@@ -139,7 +139,7 @@ class BuildDirTestCase(unittest.TestCase):
 
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
-        fs.BuildDir('build', '.')
+        fs.VariantDir('build', '.')
         f2 = fs.File('build/test2')
         d1 = fs.Dir('build')
         assert f1.srcnode().path == 'test1', f1.srcnode().path
@@ -147,16 +147,16 @@ class BuildDirTestCase(unittest.TestCase):
         assert d1.srcnode().path == '.', d1.srcnode().path
 
         fs = SCons.Node.FS.FS()
-        fs.BuildDir('build/var1', 'src')
-        fs.BuildDir('build/var2', 'src')
+        fs.VariantDir('build/var1', 'src')
+        fs.VariantDir('build/var2', 'src')
         f1 = fs.File('build/var1/test1')
         f2 = fs.File('build/var2/test1')
         assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
         assert f2.srcnode().path == os.path.normpath('src/test1'), f2.srcnode().path
 
         fs = SCons.Node.FS.FS()
-        fs.BuildDir('../var1', 'src')
-        fs.BuildDir('../var2', 'src')
+        fs.VariantDir('../var1', 'src')
+        fs.VariantDir('../var2', 'src')
         f1 = fs.File('../var1/test1')
         f2 = fs.File('../var2/test1')
         assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
@@ -180,11 +180,11 @@ class BuildDirTestCase(unittest.TestCase):
         # A source file in the repository
         test.write([ 'rep1', 'src', 'test2.in' ], 'test2.in')
 
-        # Some source files in the build directory
+        # Some source files in the variant directory
         test.write([ 'work', 'build', 'var2', 'test.in' ], 'test.old')
         test.write([ 'work', 'build', 'var2', 'test2.in' ], 'test2.old')
 
-        # An old derived file in the build directories
+        # An old derived file in the variant directories
         test.write([ 'work', 'build', 'var1', 'test.out' ], 'test.old')
         test.write([ 'work', 'build', 'var2', 'test.out' ], 'test.old')
 
@@ -199,8 +199,8 @@ class BuildDirTestCase(unittest.TestCase):
         os.chdir(test.workpath('work'))
 
         fs = SCons.Node.FS.FS(test.workpath('work'))
-        fs.BuildDir('build/var1', 'src', duplicate=0)
-        fs.BuildDir('build/var2', 'src')
+        fs.VariantDir('build/var1', 'src', duplicate=0)
+        fs.VariantDir('build/var2', 'src')
         f1 = fs.File('build/var1/test.in')
         f1out = fs.File('build/var1/test.out')
         f1out.builder = 1
@@ -356,7 +356,7 @@ class BuildDirTestCase(unittest.TestCase):
         assert bdt == [var1_new_dir, var2_new_dir], bdt
 
         # Test that an IOError trying to Link a src file
-        # into a BuildDir ends up throwing a StopError.
+        # into a VariantDir ends up throwing a StopError.
         fIO = fs.File("build/var2/IOError")
 
         save_Link = SCons.Node.FS.Link
@@ -392,13 +392,13 @@ class BuildDirTestCase(unittest.TestCase):
         # This used to generate a UserError when we forbid the source
         # directory from being outside the top-level SConstruct dir.
         fs = SCons.Node.FS.FS()
-        fs.BuildDir('build', '/test/foo')
+        fs.VariantDir('build', '/test/foo')
 
         exc_caught = 0
         try:
             try:
                 fs = SCons.Node.FS.FS()
-                fs.BuildDir('build', 'build/src')
+                fs.VariantDir('build', 'build/src')
             except SCons.Errors.UserError:
                 exc_caught = 1
             assert exc_caught, "Should have caught a UserError."
@@ -407,25 +407,25 @@ class BuildDirTestCase(unittest.TestCase):
             test.unlink( "build/foo" )
 
         fs = SCons.Node.FS.FS()
-        fs.BuildDir('build', 'src1')
+        fs.VariantDir('build', 'src1')
 
-        # Calling the same BuildDir twice should work fine.
-        fs.BuildDir('build', 'src1')
+        # Calling the same VariantDir twice should work fine.
+        fs.VariantDir('build', 'src1')
 
-        # Trying to move a build dir to a second source dir
+        # Trying to move a variant dir to a second source dir
         # should blow up
         try:
-            fs.BuildDir('build', 'src2')
+            fs.VariantDir('build', 'src2')
         except SCons.Errors.UserError:
             pass
         else:
             assert 0, "Should have caught a UserError."
 
         # Test against a former bug.  Make sure we can get a repository
-        # path for the build directory itself!
+        # path for the variant directory itself!
         fs=SCons.Node.FS.FS(test.workpath('work'))
         test.subdir('work')
-        fs.BuildDir('build/var3', 'src', duplicate=0)
+        fs.VariantDir('build/var3', 'src', duplicate=0)
         d1 = fs.Dir('build/var3')
         r = d1.rdir()
         assert r == d1, "%s != %s" % (r, d1)
@@ -524,10 +524,10 @@ class BuildDirTestCase(unittest.TestCase):
                     delattr(os, 'symlink')
                 shutil.copy2 = real_copy
 
-        # Test BuildDir "reflection," where a same-named subdirectory
-        # exists underneath a build_dir.
+        # Test VariantDir "reflection," where a same-named subdirectory
+        # exists underneath a variant_dir.
         fs = SCons.Node.FS.FS()
-        fs.BuildDir('work/src/b1/b2', 'work/src')
+        fs.VariantDir('work/src/b1/b2', 'work/src')
 
         dir_list = [
                 'work/src',
@@ -1737,8 +1737,8 @@ class DirTestCase(_tempdirTestCase):
         sub1 = bld.Dir('sub')
         sub2 = sub1.Dir('sub')
         sub3 = sub2.Dir('sub')
-        self.fs.BuildDir(bld, src, duplicate=0)
-        self.fs.BuildDir(sub2, src, duplicate=0)
+        self.fs.VariantDir(bld, src, duplicate=0)
+        self.fs.VariantDir(sub2, src, duplicate=0)
 
         def check(result, expect):
             result = map(str, result)
@@ -1760,7 +1760,7 @@ class DirTestCase(_tempdirTestCase):
         s = sub3.srcdir_list()
         check(s, ['src/sub', 'src/sub/sub/sub'])
 
-        self.fs.BuildDir('src/b1/b2', 'src')
+        self.fs.VariantDir('src/b1/b2', 'src')
         b1 = src.Dir('b1')
         b1_b2 = b1.Dir('b2')
         b1_b2_b1 = b1_b2.Dir('b1')
@@ -1792,7 +1792,7 @@ class DirTestCase(_tempdirTestCase):
 
         bld0 = self.fs.Dir('bld0')
         src0 = self.fs.Dir('src0')
-        self.fs.BuildDir(bld0, src0, duplicate=0)
+        self.fs.VariantDir(bld0, src0, duplicate=0)
 
         n = bld0.srcdir_duplicate('does_not_exist')
         assert n is None, n
@@ -1807,7 +1807,7 @@ class DirTestCase(_tempdirTestCase):
 
         bld1 = self.fs.Dir('bld1')
         src1 = self.fs.Dir('src1')
-        self.fs.BuildDir(bld1, src1, duplicate=1)
+        self.fs.VariantDir(bld1, src1, duplicate=1)
 
         n = bld1.srcdir_duplicate('does_not_exist')
         assert n is None, n
@@ -1832,7 +1832,7 @@ class DirTestCase(_tempdirTestCase):
 
         bld0 = self.fs.Dir('bld0')
         src0 = self.fs.Dir('src0')
-        self.fs.BuildDir(bld0, src0, duplicate=0)
+        self.fs.VariantDir(bld0, src0, duplicate=0)
 
         derived_f = src0.File('derived-f')
         derived_f.is_derived = return_true
@@ -1867,7 +1867,7 @@ class DirTestCase(_tempdirTestCase):
         n = src0.srcdir_find_file('on-disk-e1')
         check(n, ['src0/on-disk-e1', 'src0'])
 
-        # Now check from the build directory.
+        # Now check from the variant directory.
         n = bld0.srcdir_find_file('does_not_exist')
         assert n == (None, None), n
 
@@ -1893,7 +1893,7 @@ class DirTestCase(_tempdirTestCase):
 
         bld1 = self.fs.Dir('bld1')
         src1 = self.fs.Dir('src1')
-        self.fs.BuildDir(bld1, src1, duplicate=1)
+        self.fs.VariantDir(bld1, src1, duplicate=1)
 
         derived_f = src1.File('derived-f')
         derived_f.is_derived = return_true
@@ -1923,7 +1923,7 @@ class DirTestCase(_tempdirTestCase):
         n = src1.srcdir_find_file('on-disk-e1')
         check(n, ['src1/on-disk-e1', 'src1'])
 
-        # Now check from the build directory.
+        # Now check from the variant directory.
         n = bld1.srcdir_find_file('does_not_exist')
         assert n == (None, None), n
 
@@ -2069,7 +2069,7 @@ class FileTestCase(_tempdirTestCase):
         assert src_f1.exists(), "%s apparently does not exist?" % src_f1
 
         test.subdir('build')
-        fs.BuildDir('build', 'src')
+        fs.VariantDir('build', 'src')
         build_f1 = fs.File('build/f1')
 
         assert build_f1.exists(), "%s did not realize that %s exists" % (build_f1, src_f1)
@@ -2638,7 +2638,7 @@ class RepositoryTestCase(_tempdirTestCase):
         test.write([self.rep2, "i_exist"], "\n")
         test.write(["work", "i_exist_too"], "\n")
 
-        fs.BuildDir('build', '.')
+        fs.VariantDir('build', '.')
 
         f = fs.File(test.workpath("work", "i_do_not_exist"))
         assert not f.rexists()
@@ -3023,7 +3023,7 @@ class disambiguateTestCase(unittest.TestCase):
         test.subdir(['src', 'edir'])
         test.write(['src', 'efile'], "src/efile\n")
 
-        fs.BuildDir(test.workpath('build'), test.workpath('src'))
+        fs.VariantDir(test.workpath('build'), test.workpath('src'))
 
         build_bdir = fs.Entry(test.workpath('build/bdir'))
         d = build_bdir.disambiguate()
@@ -3141,8 +3141,8 @@ class SpecialAttrTestCase(unittest.TestCase):
         s = str(f.srcpath.win32)
         assert s == 'foo\\bar\\baz.blat', s
 
-        # Test what happens with BuildDir()
-        fs.BuildDir('foo', 'baz')
+        # Test what happens with VariantDir()
+        fs.VariantDir('foo', 'baz')
 
         s = str(f.srcpath)
         assert s == os.path.normpath('baz/bar/baz.blat'), s
@@ -3156,7 +3156,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         g = f.srcdir.get()
         assert isinstance(g, SCons.Node.FS.Dir), g.__class__
 
-        # And now what happens with BuildDir() + Repository()
+        # And now what happens with VariantDir() + Repository()
         fs.Repository(test.workpath('repository'))
 
         f = fs.Entry('foo/sub/file.suffix').get_subst_proxy()
@@ -3250,8 +3250,8 @@ class SaveStringsTestCase(unittest.TestCase):
 
         fs1 = SCons.Node.FS.FS(test.workpath('fs1'))
         nodes = setup(fs1)
-        fs1.BuildDir('d0', 'src', duplicate=0)
-        fs1.BuildDir('d1', 'src', duplicate=1)
+        fs1.VariantDir('d0', 'src', duplicate=0)
+        fs1.VariantDir('d1', 'src', duplicate=1)
 
         s = map(str, nodes)
         expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
@@ -3266,8 +3266,8 @@ class SaveStringsTestCase(unittest.TestCase):
         SCons.Node.FS.save_strings(1)
         fs2 = SCons.Node.FS.FS(test.workpath('fs2'))
         nodes = setup(fs2)
-        fs2.BuildDir('d0', 'src', duplicate=0)
-        fs2.BuildDir('d1', 'src', duplicate=1)
+        fs2.VariantDir('d0', 'src', duplicate=0)
+        fs2.VariantDir('d1', 'src', duplicate=1)
 
         s = map(str, nodes)
         expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
@@ -3280,10 +3280,27 @@ class SaveStringsTestCase(unittest.TestCase):
         assert s == expect, 'node str() not cached: %s'%s
 
 
+class AbsolutePathTestCase(unittest.TestCase):
+    def test_root_lookup_equivalence(self):
+        """Test looking up /fff vs. fff in the / directory"""
+        test=TestCmd(workdir='')
+
+        fs = SCons.Node.FS.FS('/')
+
+        save_cwd = os.getcwd()
+        try:
+            os.chdir('/')
+            fff1 = fs.File('fff')
+            fff2 = fs.File('/fff')
+            assert fff1 is fff2, "fff and /fff returned different Nodes!"
+        finally:
+            os.chdir(save_cwd)
+
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    suite.addTest(BuildDirTestCase())
+    suite.addTest(VariantDirTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
     suite.addTest(stored_infoTestCase())
@@ -3296,6 +3313,7 @@ if __name__ == "__main__":
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())
     tclasses = [
+        AbsolutePathTestCase,
         BaseTestCase,
         CacheDirTestCase,
         DirTestCase,

@@ -98,24 +98,33 @@ test.write('f4.in', "f4.in\n")
 test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
 
-expect_stdout = """\
-scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-scons: building terminated because of errors.
-f4 failed:  Error 1
-f5 failed:  Error 1
-""" % locals()
-
 expect_stderr = """\
 scons: *** [f4] Error 1
 scons: *** [f5] Error 1
 """
 
-test.run(arguments = '-j 4 .',
+test.run(arguments = '-Q -j 4 .',
          status = 2,
-         stdout = expect_stdout,
          stderr = expect_stderr)
+
+# We jump through hoops above to try to make sure that the individual
+# commands execute and exit in the order we want, but we still can't be
+# 100% sure that SCons will actually detect and record the failures in
+# that order; the thread for f5 may detect its command's failure before
+# the thread for f4.  Just sidestep the issue by allowing the failure
+# strings in the output to come in either order.  If there's a genuine
+# problem in the way things get ordered, it'll show up in stderr.
+
+f4_failed = "f4 failed:  Error 1\n"
+f5_failed = "f5 failed:  Error 1\n"
+
+failed_45 = f4_failed + f5_failed
+failed_54 = f5_failed + f4_failed
+
+if test.stdout() not in [failed_45, failed_54]:
+    print "Did not find the following output in list of expected strings:"
+    print test.stdout(),
+    test.fail_test()
 
 test.must_match(test.workpath('f3'), 'f3.in\n')
 test.must_not_exist(test.workpath('f4'))

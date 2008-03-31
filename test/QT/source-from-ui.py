@@ -115,7 +115,7 @@ test.not_up_to_date(options = '-n', arguments = moc)
 # clean up
 test.run(arguments = '-c ' + aaa_dll)
 
-test.run(arguments = "build_dir=1 " +
+test.run(arguments = "variant_dir=1 " +
                      test.workpath('build', aaa_dll) )
 
 test.must_exist(test.workpath('build', moc))
@@ -128,7 +128,7 @@ test.must_not_exist(test.workpath(h))
 cppContents = test.read(test.workpath('build', cpp))
 test.fail_test(string.find(cppContents, '#include "aaa.ui.h"') == -1)
 
-test.run(arguments = "build_dir=1 chdir=1 " +
+test.run(arguments = "variant_dir=1 chdir=1 " +
                      test.workpath('build', aaa_dll) )
 
 test.must_exist(test.workpath('build', moc))
@@ -138,7 +138,7 @@ test.must_not_exist(test.workpath(moc))
 test.must_not_exist(test.workpath(cpp))
 test.must_not_exist(test.workpath(h))
 
-test.run(arguments = "build_dir=1 chdir=1 dup=0 " +
+test.run(arguments = "variant_dir=1 chdir=1 dup=0 " +
                      test.workpath('build_dup0', aaa_dll) )
 
 test.must_exist(test.workpath('build_dup0',moc))

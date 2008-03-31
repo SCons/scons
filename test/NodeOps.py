@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 # This test is used to verify that the Buildability of a set of nodes
 # is unaffected by various querying operations on those nodes:
 #
-# 1) Calling exists() on a Node (e.g. from find_file) in a BuildDir
+# 1) Calling exists() on a Node (e.g. from find_file) in a VariantDir
 #    will cause that node to be duplicated into the builddir.
 #    However, this should *not* occur during a dryrun (-n).  When not
 #    performed during a dryrun, this should not affect buildability.
@@ -62,7 +62,7 @@ sconstruct = r"""
 foo = Environment(SHOBJPREFIX='', SHCXXFLAGS = '%(fooflags)s', WINDOWS_INSERT_DEF=1)
 bar = Environment(SHOBJPREFIX='', SHCXXFLAGS = '%(barflags)s', WINDOWS_INSERT_DEF=1)
 src = Dir('src')
-BuildDir('bld', src, duplicate=1)
+VariantDir('bld', src, duplicate=1)
 Nodes=[]
 Nodes.extend(foo.SharedObject(target = 'foo%(_obj)s', source = 'prog.cpp'))
 Nodes.extend(bar.SharedObject(target = 'bar%(_obj)s', source = 'prog.cpp'))
@@ -82,11 +82,11 @@ fooMain = foo.Clone(LIBS='foo', LIBPATH='.')
 foo_obj = fooMain.Object(target='foomain', source='main.c')
 fooMain.Program(target='fooprog', source=foo_obj)
 
-barMain = bar.Copy(LIBS='bar', LIBPATH='.')
+barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 bar_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=bar_obj)
 
-gooMain = foo.Copy(LIBS='goo', LIBPATH='bld')
+gooMain = foo.Clone(LIBS='goo', LIBPATH='bld')
 goo_obj = gooMain.Object(target='goomain', source='main.c')
 gooMain.Program(target='gooprog', source=goo_obj)
 """
@@ -138,7 +138,7 @@ def mycopy(env, source, target):
     open(str(target[0]),'w').write(open(str(source[0]),'r').read())
 
 def exists_test(node):
-    before = os.path.exists(str(node))  # doesn't exist yet in BuildDir
+    before = os.path.exists(str(node))  # doesn't exist yet in VariantDir
     via_node = node.exists()            # side effect causes copy from src
     after = os.path.exists(str(node))
     node.is_derived()
@@ -146,12 +146,12 @@ def exists_test(node):
     if GetOption('no_exec'):
         if (before,via_node,after) != (False,False,False):
             import sys
-            sys.stderr.write('BuildDir exists() populated during dryrun!\n')
+            sys.stderr.write('VariantDir exists() populated during dryrun!\n')
             sys.exit(-2)
     else:
         if (before,via_node,after) != (False,True,True):
             import sys
-            sys.stderr.write('BuildDir exists() population did not occur! (%%s:%%s,%%s,%%s)\n'%%(str(node),before,via_node,after))
+            sys.stderr.write('VariantDir exists() population did not occur! (%%s:%%s,%%s,%%s)\n'%%(str(node),before,via_node,after))
             sys.exit(-2)
     
 goo = Environment(CPPFLAGS = '%(fooflags)s')
@@ -310,7 +310,7 @@ for name in build_nodes:
 
 cleanup_test()
 
-### Next pass: do an up-build from a BuildDir src
+### Next pass: do an up-build from a VariantDir src
 
 
 for name in build_nodes:
@@ -332,7 +332,7 @@ for name in build_nodes:
 
 cleanup_test()
 
-### Next pass: do an up-build from a BuildDir src with Node Ops
+### Next pass: do an up-build from a VariantDir src with Node Ops
 ### side-effects
 
 for name in build_nodes:

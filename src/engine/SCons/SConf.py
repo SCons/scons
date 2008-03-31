@@ -381,7 +381,7 @@ class SConfBase:
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
         Note also the conf_dir and log_file arguments (you may want to
-        build tests in the BuildDir, not in the SourceDir)
+        build tests in the VariantDir, not in the SourceDir)
         """
         global SConfFS
         if not SConfFS:

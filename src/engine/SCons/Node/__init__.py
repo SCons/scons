@@ -225,7 +225,7 @@ class Node:
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
         self.side_effects = [] # the side effects of building this target
-        self.linked = 0 # is this node linked to the build directory?
+        self.linked = 0 # is this node linked to the variant directory?
 
         self.clear_memoized_values()
 
@@ -505,7 +505,7 @@ class Node:
         Returns true iff this node is derived (i.e. built).
 
         This should return true only for nodes whose path should be in
-        the build directory when duplicate=0 and should contribute their build
+        the variant directory when duplicate=0 and should contribute their build
         signatures when they are used as source files to other derived files. For
         example: source with source builders are not derived in this sense,
         and hence should not return true.
@@ -1161,7 +1161,10 @@ class Node:
         # so we only print them after running them through this lambda
         # to turn them into the right relative Node and then return
         # its string.
-        stringify = lambda s, E=self.dir.Entry: str(E(s))
+        def stringify( s, E=self.dir.Entry ) :
+            if hasattr( s, 'dir' ) :
+                return str(E(s))
+            return str(s)
 
         lines = []
 

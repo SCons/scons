@@ -422,32 +422,33 @@ def CreateJavaFileBuilder(env):
         env['JAVASUFFIX'] = '.java'
     return java_file
 
-class ToolInitializer:
+class ToolInitializerMethod:
     """
-    A class for delayed initialization of Tools modules.
-
-    This is intended to be added to a construction environment in
-    place of the method(s) normally called for a Builder (env.Object,
-    env.StaticObject, etc.).  When called, it searches the specified
-    list of tools, applies the first one that exists to the construction
-    environment, and calls whatever builder was (presumably) added the
-    construction environment in our place.
+    This is added to a construction environment in place of a
+    method(s) normally called for a Builder (env.Object, env.StaticObject,
+    etc.).  When called, it has its associated ToolInitializer
+    object search the specified list of tools and apply the first
+    one that exists to the construction environment.  It then calls
+    whatever builder was (presumably) added to the construction
+    environment in place of this particular instance.
     """
-    def __init__(self, name, tools):
+    def __init__(self, name, initializer):
         """
         Note:  we store the tool name as __name__ so it can be used by
         the class that attaches this to a construction environment.
         """
         self.__name__ = name
-        if not SCons.Util.is_List(tools):
-            tools = [tools]
-        self.tools = tools
-    def __call__(self, env, *args, **kw):
-        for t in self.tools:
-            tool = SCons.Tool.Tool(t)
-            if tool.exists(env):
-                env.Tool(tool)
-                break
+        self.initializer = initializer
+
+    def get_builder(self, env):
+        """
+	Returns the appropriate real Builder for this method name
+	after having the associated ToolInitializer object apply
+	the appropriate Tool module.
+        """
+        builder = getattr(env, self.__name__)
+
+        self.initializer.apply_tools(env)
 
         builder = getattr(env, self.__name__)
         if builder is self:
@@ -455,21 +456,79 @@ class ToolInitializer:
             # for this name was found (or possibly there's a mismatch
             # between the name we were called by and the Builder name
             # added by the Tool module).
-            #
-            # (Eventually this is where we'll put a more informative
-            # error message about the inability to find that tool
-            # as cut over more Builders+Tools to using this.
-            return [], []
+            return None
 
-        # Let the construction environment remove the added method
-        # so we no longer copy and re-bind this method when the
-        # construction environment gets cloned.
-        env.RemoveMethod(self)
+        self.initializer.remove_methods(env)
+
+        return builder
+
+    def __call__(self, env, *args, **kw):
+        """
+        """
+        builder = self.get_builder(env)
+        if builder is None:
+            return [], []
         return apply(builder, args, kw)
 
+class ToolInitializer:
+    """
+    A class for delayed initialization of Tools modules.
+
+    Instances of this class associate a list of Tool modules with
+    a list of Builder method names that will be added by those Tool
+    modules.  As part of instantiating this object for a particular
+    construction environment, we also add the appropriate
+    ToolInitializerMethod objects for the various Builder methods
+    that we want to use to delay Tool searches until necessary.
+    """
+    def __init__(self, env, tools, names):
+        if not SCons.Util.is_List(tools):
+            tools = [tools]
+        if not SCons.Util.is_List(names):
+            names = [names]
+        self.env = env
+        self.tools = tools
+        self.names = names
+        self.methods = {}
+        for name in names:
+            method = ToolInitializerMethod(name, self)
+            self.methods[name] = method
+            env.AddMethod(method)
+
+    def remove_methods(self, env):
+        """
+        Removes the methods that were added by the tool initialization
+        so we no longer copy and re-bind them when the construction
+        environment gets cloned.
+        """
+        for method in self.methods.values():
+            env.RemoveMethod(method)
+
+    def apply_tools(self, env):
+        """
+	Searches the list of associated Tool modules for one that
+	exists, and applies that to the construction environment.
+        """
+        for t in self.tools:
+            tool = SCons.Tool.Tool(t)
+            if tool.exists(env):
+                env.Tool(tool)
+                return
+
+	# If we fall through here, there was no tool module found.
+	# This is where we can put an informative error message
+	# about the inability to find the tool.   We'll start doing
+	# this as we cut over more pre-defined Builder+Tools to use
+	# the ToolInitializer class.
+
 def Initializers(env):
-    env.AddMethod(ToolInitializer('Install', 'install'))
-    env.AddMethod(ToolInitializer('InstallAs', 'install'))
+    ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs'])
+    def Install(self, *args, **kw):
+        return apply(self._InternalInstall, args, kw)
+    def InstallAs(self, *args, **kw):
+        return apply(self._InternalInstallAs, args, kw)
+    env.AddMethod(Install)
+    env.AddMethod(InstallAs)
 
 def FindTool(tools, env):
     for tool in tools:

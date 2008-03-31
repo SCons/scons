@@ -114,33 +114,45 @@ program using the F<build/foo.c> path name.
 
   It's often useful to keep any built files completely
   separate from the source files.
-  This is usually done by creating one or more separate
-  <emphasis>build directories</emphasis>
+  In &SCons;, this is usually done by creating one or more separate
+  <emphasis>variant directory trees</emphasis>
   that are used to hold the built objects files, libraries,
   and executable programs, etc.
-  for a specific flavor of build.
+  for a specific flavor, or variant, of build.
   &SCons; provides two ways to do this,
   one through the &SConscript; function that we've already seen,
-  and the second through a more flexible &BuildDir; function.
+  and the second through a more flexible &VariantDir; function.
+
+  </para>
+
+  <para>
+
+  One historical note:  the &VariantDir; function
+  used to be called &BuildDir;.
+  That name is still supported
+  but has been deprecated
+  because the &SCons; functionality
+  differs from the model of a "build directory"
+  implemented by other build systems like the GNU Autotools.
 
   </para>
 
   <section>
-  <title>Specifying a Build Directory as Part of an &SConscript; Call</title>
+  <title>Specifying a Variant Directory Tree as Part of an &SConscript; Call</title>
 
     <para>
 
-    The most straightforward way to establish a build directory
+    The most straightforward way to establish a variant directory tree
     uses the fact that the usual way to
     set up a build hierarchy is to have an
     &SConscript; file in the source subdirectory.
-    If you then pass a &build_dir; argument to the
+    If you then pass a &variant_dir; argument to the
     &SConscript; function call:
 
     </para>
 
     <programlisting>
-      SConscript('src/SConscript', build_dir='build')
+      SConscript('src/SConscript', variant_dir='build')
     </programlisting>
 
     <para>
@@ -187,11 +199,11 @@ program using the F<build/foo.c> path name.
   </section>
 
   <section>
-  <title>Why &SCons; Duplicates Source Files in a Build Directory</title>
+  <title>Why &SCons; Duplicates Source Files in a Variant Directory Tree</title>
 
     <para>
 
-    &SCons; duplicates source files in build directories
+    &SCons; duplicates source files in variant directory trees
     because it's the most straightforward way to guarantee a correct build
     <emphasis>regardless of include-file directory paths,
     relative references between files,
@@ -204,14 +216,14 @@ program using the F<build/foo.c> path name.
     <para>
 
     The most direct reason to duplicate source files
-    in build directories
+    in variant directories
     is simply that some tools (mostly older vesions)
     are written to only build their output files
     in the same directory as the source files.
     In this case, the choices are either
     to build the output file in the source directory
-    and move it to the build directory,
-    or to duplicate the source files in the build directory.
+    and move it to the variant directory,
+    or to duplicate the source files in the variant directory.
 
     </para>
 
@@ -221,7 +233,7 @@ program using the F<build/foo.c> path name.
     relative references between files
     can cause problems if we don't
     just duplicate the hierarchy of source files
-    in the build directory.
+    in the variant directory.
     You can see this at work in
     use of the C preprocessor <literal>#include</literal>
     mechanism with double quotes, not angle brackets:
@@ -246,7 +258,7 @@ program using the F<build/foo.c> path name.
     will be found in the same directory hierarchy,
     and the simplest way to make sure
     that the right include file is found
-    is to duplicate the source files into the build directory,
+    is to duplicate the source files into the variant directory,
     which provides a correct build
     regardless of the original location(s) of the source files.
 
@@ -259,14 +271,14 @@ program using the F<build/foo.c> path name.
     it <emphasis>can</emphasis> usually be safely disabled.
     The next section describes
     how you can disable the duplication of source files
-    in the build directory.
+    in the variant directory.
 
     </para>
 
   </section>
 
   <section>
-  <title>Telling &SCons; to Not Duplicate Source Files in the Build Directory</title>
+  <title>Telling &SCons; to Not Duplicate Source Files in the Variant Directory Tree</title>
 
     <para>
 
@@ -282,15 +294,15 @@ program using the F<build/foo.c> path name.
     </para>
 
     <programlisting>
-      SConscript('src/SConscript', build_dir='build', duplicate=0)
+      SConscript('src/SConscript', variant_dir='build', duplicate=0)
     </programlisting>
 
     <para>
 
     When this flag is specified,
-    &SCons; uses the build directory
+    &SCons; uses the variant directory
     like most people expect--that is,
-    the output files are placed in the build directory
+    the output files are placed in the variant directory
     while the source files stay in the source directory:
 
     </para>
@@ -310,18 +322,18 @@ program using the F<build/foo.c> path name.
   </section>
 
   <section>
-  <title>The &BuildDir; Function</title>
+  <title>The &VariantDir; Function</title>
 
     <para>
 
-    Use the &BuildDir; function to establish that target
+    Use the &VariantDir; function to establish that target
     files should be built in a separate directory
     from the source files:
 
     </para>
 
     <programlisting>
-      BuildDir('build', 'src')
+      VariantDir('build', 'src')
       env = Environment()
       env.Program('build/hello.c')
     </programlisting>
@@ -340,9 +352,9 @@ program using the F<build/foo.c> path name.
 
     <para>
 
-    When using the &BuildDir; function directly,
+    When using the &VariantDir; function directly,
     &SCons; still duplicates the source files
-    in the build directory by default:
+    in the variant directory by default:
 
     </para>
 
@@ -364,7 +376,7 @@ program using the F<build/foo.c> path name.
     </para>
 
     <programlisting>
-      BuildDir('build', 'src', duplicate=0)
+      VariantDir('build', 'src', duplicate=0)
       env = Environment()
       env.Program('build/hello.c')
     </programlisting>
@@ -389,11 +401,11 @@ program using the F<build/foo.c> path name.
   </section>
 
   <section>
-  <title>Using &BuildDir; With an &SConscript; File</title>
+  <title>Using &VariantDir; With an &SConscript; File</title>
 
     <para>
 
-    Even when using the &BuildDir; function,
+    Even when using the &VariantDir; function,
     it's much more natural to use it with
     a subsidiary &SConscript; file.
     For example, if the
@@ -415,7 +427,7 @@ program using the F<build/foo.c> path name.
 
     
     <programlisting>
-      BuildDir('build', 'src')
+      VariantDir('build', 'src')
       SConscript('build/SConscript')
       </programlisting>
 
@@ -448,11 +460,11 @@ program using the F<build/foo.c> path name.
   <!--
 
   <section>
-  <title>Why You'd Want to Call &BuildDir; Instead of &SConscript;</title>
+  <title>Why You'd Want to Call &VariantDir; Instead of &SConscript;</title>
 
     <para>
 
-    XXX why call BuildDir() instead of SConscript(build_dir=)
+    XXX why call VariantDir() instead of SConscript(variant_dir=)
 
     </para>
 

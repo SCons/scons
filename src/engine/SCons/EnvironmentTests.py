@@ -542,15 +542,22 @@ class SubstitutionTestCase(unittest.TestCase):
                 return self.val
 
         class MyObj:
-            pass
+            def get(self):
+                return self
 
-        env = SubstitutionEnvironment(FOO='foo', BAR='bar', PROXY=MyProxy('my1'))
+        env = SubstitutionEnvironment(FOO='foo',
+                                      BAR='bar',
+                                      LIST=['one', 'two'],
+                                      PROXY=MyProxy('my1'))
 
         r = env.subst_path('$FOO')
         assert r == ['foo'], r
 
         r = env.subst_path(['$FOO', 'xxx', '$BAR'])
         assert r == ['foo', 'xxx', 'bar'], r
+
+        r = env.subst_path(['$FOO', '$LIST', '$BAR'])
+        assert map(str, r) == ['foo', 'one two', 'bar'], r
 
         r = env.subst_path(['$FOO', '$TARGET', '$SOURCE', '$BAR'])
         assert r == ['foo', '', '', 'bar'], r
@@ -688,6 +695,16 @@ sys.exit(1)
         assert r == 'func2-3', r
         r = env4.func2()
         assert r == 'func2-4', r
+
+        # Test that clones don't re-bind an attribute that the user
+        env1 = Environment(FOO = '1')
+        env1.AddMethod(func2)
+        def replace_func2():
+            return 'replace_func2'
+        env1.func2 = replace_func2
+        env2 = env1.Clone(FOO = '2')
+        r = env2.func2()
+        assert r == 'replace_func2', r
 
     def test_Override(self):
         "Test overriding construction variables"
@@ -2511,26 +2528,26 @@ def generate(env):
         assert t[6].path == 'file'
         assert t[6].always_build
 
-    def test_BuildDir(self):
-        """Test the BuildDir() method"""
+    def test_VariantDir(self):
+        """Test the VariantDir() method"""
         class MyFS:
              def Dir(self, name):
                  return name
-             def BuildDir(self, build_dir, src_dir, duplicate):
-                 self.build_dir = build_dir
+             def VariantDir(self, variant_dir, src_dir, duplicate):
+                 self.variant_dir = variant_dir
                  self.src_dir = src_dir
                  self.duplicate = duplicate
 
         env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
         env.fs = MyFS()
 
-        env.BuildDir('build', 'src')
-        assert env.fs.build_dir == 'build', env.fs.build_dir
+        env.VariantDir('build', 'src')
+        assert env.fs.variant_dir == 'build', env.fs.variant_dir
         assert env.fs.src_dir == 'src', env.fs.src_dir
         assert env.fs.duplicate == 1, env.fs.duplicate
 
-        env.BuildDir('build${FOO}', '${BAR}src', 0)
-        assert env.fs.build_dir == 'buildfff', env.fs.build_dir
+        env.VariantDir('build${FOO}', '${BAR}src', 0)
+        assert env.fs.variant_dir == 'buildfff', env.fs.variant_dir
         assert env.fs.src_dir == 'bbbsrc', env.fs.src_dir
         assert env.fs.duplicate == 0, env.fs.duplicate
 
@@ -2717,6 +2734,12 @@ def generate(env):
         d = env.Dir('${BAR}_$BAR')
         assert d == 'Dir(bardir_bardir)', d
 
+        d = env.Dir(['dir1'])
+        assert d == ['Dir(dir1)'], d
+
+        d = env.Dir(['dir1', 'dir2'])
+        assert d == ['Dir(dir1)', 'Dir(dir2)'], d
+
     def test_NoClean(self):
         """Test the NoClean() method"""
         env = self.TestEnvironment(FOO='ggg', BAR='hhh')
@@ -2788,6 +2811,12 @@ def generate(env):
         e = env.Entry('${BAR}_$BAR')
         assert e == 'Entry(barentry_barentry)', e
 
+        e = env.Entry(['entry1'])
+        assert e == ['Entry(entry1)'], e
+
+        e = env.Entry(['entry1', 'entry2'])
+        assert e == ['Entry(entry1)', 'Entry(entry2)'], e
+
     def test_File(self):
         """Test the File() method"""
         class MyFS:
@@ -2805,6 +2834,12 @@ def generate(env):
 
         f = env.File('${BAR}_$BAR')
         assert f == 'File(barfile_barfile)', f
+
+        f = env.File(['file1'])
+        assert f == ['File(file1)'], f
+
+        f = env.File(['file1', 'file2'])
+        assert f == ['File(file1)', 'File(file2)'], f
 
     def test_FindFile(self):
         """Test the FindFile() method"""
@@ -3279,6 +3314,42 @@ def generate(env):
         for x in added + ['OVERRIDE']:
             assert over.has_key(x), bad_msg % x
 
+    def test_parse_flags(self):
+        '''Test the Base class parse_flags argument'''
+        # all we have to show is that it gets to MergeFlags internally
+        env = Environment(parse_flags = '-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+
+        env = Environment(CCFLAGS=None, parse_flags = '-Y')
+        assert env['CCFLAGS'] == ['-Y'], env['CCFLAGS']
+
+        env = Environment(CPPDEFINES = 'FOO', parse_flags = '-std=c99 -X -DBAR')
+        assert env['CFLAGS']  == ['-std=c99'], env['CFLAGS']
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        assert env['CPPDEFINES'] == ['FOO', 'BAR'], env['CPPDEFINES']
+
+    def test_clone_parse_flags(self):
+        '''Test the env.Clone() parse_flags argument'''
+        # all we have to show is that it gets to MergeFlags internally
+        env = Environment(tools = [])
+        env2 = env.Clone(parse_flags = '-X')
+        assert not env.has_key('CCFLAGS')
+        assert env2['CCFLAGS'] == ['-X'], env2['CCFLAGS']
+
+        env = Environment(tools = [], CCFLAGS=None)
+        env2 = env.Clone(parse_flags = '-Y')
+        assert env['CCFLAGS'] is None, env['CCFLAGS']
+        assert env2['CCFLAGS'] == ['-Y'], env2['CCFLAGS']
+
+        env = Environment(tools = [], CPPDEFINES = 'FOO')
+        env2 = env.Clone(parse_flags = '-std=c99 -X -DBAR')
+        assert not env.has_key('CFLAGS')
+        assert env2['CFLAGS']  == ['-std=c99'], env2['CFLAGS']
+        assert not env.has_key('CCFLAGS')
+        assert env2['CCFLAGS'] == ['-X'], env2['CCFLAGS']
+        assert env['CPPDEFINES'] == 'FOO', env['CPPDEFINES']
+        assert env2['CPPDEFINES'] == ['FOO','BAR'], env2['CPPDEFINES']
+
 
 
 class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
@@ -3507,6 +3578,28 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         x = env3.Split('$AAA')
         assert x == ['x3', 'y3', 'z3'], x
 
+    def test_parse_flags(self):
+        '''Test the OverrideEnvironment parse_flags argument'''
+        # all we have to show is that it gets to MergeFlags internally
+        env = SubstitutionEnvironment()
+        env2 = env.Override({'parse_flags' : '-X'})
+        assert not env.has_key('CCFLAGS')
+        assert env2['CCFLAGS'] == ['-X'], env2['CCFLAGS']
+
+        env = SubstitutionEnvironment(CCFLAGS=None)
+        env2 = env.Override({'parse_flags' : '-Y'})
+        assert env['CCFLAGS'] is None, env['CCFLAGS']
+        assert env2['CCFLAGS'] == ['-Y'], env2['CCFLAGS']
+
+        env = SubstitutionEnvironment(CPPDEFINES = 'FOO')
+        env2 = env.Override({'parse_flags' : '-std=c99 -X -DBAR'})
+        assert not env.has_key('CFLAGS')
+        assert env2['CFLAGS']  == ['-std=c99'], env2['CFLAGS']
+        assert not env.has_key('CCFLAGS')
+        assert env2['CCFLAGS'] == ['-X'], env2['CCFLAGS']
+        assert env['CPPDEFINES'] == 'FOO', env['CPPDEFINES']
+        assert env2['CPPDEFINES'] == ['FOO','BAR'], env2['CPPDEFINES']
+
 
 
 class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
@@ -3609,6 +3702,39 @@ class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
         x = apply(proxy.subst_target_source, args, kw)
         assert x == ' ttt sss ', x
 
+class EnvironmentVariableTestCase(unittest.TestCase):
+
+    def test_is_valid_construction_var(self):
+        """Testing is_valid_construction_var()"""
+        r = is_valid_construction_var("_a")
+        assert not r is None, r
+        r = is_valid_construction_var("z_")
+        assert not r is None, r
+        r = is_valid_construction_var("X_")
+        assert not r is None, r
+        r = is_valid_construction_var("2a")
+        assert r is None, r
+        r = is_valid_construction_var("a2_")
+        assert not r is None, r
+        r = is_valid_construction_var("/")
+        assert r is None, r
+        r = is_valid_construction_var("_/")
+        assert r is None, r
+        r = is_valid_construction_var("a/")
+        assert r is None, r
+        r = is_valid_construction_var(".b")
+        assert r is None, r
+        r = is_valid_construction_var("_.b")
+        assert r is None, r
+        r = is_valid_construction_var("b1._")
+        assert r is None, r
+        r = is_valid_construction_var("-b")
+        assert r is None, r
+        r = is_valid_construction_var("_-b")
+        assert r is None, r
+        r = is_valid_construction_var("b1-_")
+        assert r is None, r
+
 
 
 if __name__ == "__main__":
@@ -3616,7 +3742,8 @@ if __name__ == "__main__":
     tclasses = [ SubstitutionTestCase,
                  BaseTestCase,
                  OverrideEnvironmentTestCase,
-                 NoSubstitutionProxyTestCase ]
+                 NoSubstitutionProxyTestCase,
+                 EnvironmentVariableTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))

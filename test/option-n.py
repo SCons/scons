@@ -30,7 +30,7 @@ This test verifies:
         conjunction with -c;
     3)  that files installed by the Install() method don't get
         installed when -n is used;
-    4)  that source files don't get duplicated in a BuildDir
+    4)  that source files don't get duplicated in a VariantDir
         when -n is used.
     5)  that Configure calls don't build any files. If a file
         needs to be built (i.e. is not up-to-date), a ConfigureError
@@ -67,7 +67,7 @@ env.Tool('install')
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
 env.Install('install', 'f3.in')
-BuildDir('build', 'src', duplicate=1)
+VariantDir('build', 'src', duplicate=1)
 SConscript('build/SConscript', "env")
 """ % locals())
 
@@ -150,7 +150,7 @@ test.write('f3.in', "f3.in again\n")
 test.run(arguments = '-n install', stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 
-# Make sure duplicate source files in a BuildDir aren't created
+# Make sure duplicate source files in a VariantDir aren't created
 # when the -n option is used.
 
 # First, make sure none of the previous non-dryrun invocations caused

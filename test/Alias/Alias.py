@@ -133,7 +133,7 @@ test.run(arguments = 'f1.out',
 test.up_to_date(arguments = 'f1.out')
 
 test.write('SConstruct', """
-TargetSignatures('content')
+Decider('content')
 B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment()
 env['BUILDERS']['B'] = B

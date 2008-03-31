@@ -89,18 +89,44 @@ expected_config_h = string.replace("""\
 #ifndef CONFIG_H_SEEN
 #define CONFIG_H_SEEN
 
+
+/* Define to 1 if the system has the function `printf'. */
 #define HAVE_PRINTF 1
+
+/* Define to 1 if the system has the function `noFunctionCall'. */
 /* #undef HAVE_NOFUNCTIONCALL */
+
+/* Define to 1 if the system has the type `int'. */
 #define HAVE_INT 1
+
+/* Define to 1 if the system has the type `noType'. */
 /* #undef HAVE_NOTYPE */
+
+/* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
+
+/* Define to 1 if you have the <hopefullynoc-header.h> header file. */
 /* #undef HAVE_HOPEFULLYNOC_HEADER_H */
+
+/* Define to 1 if you have the <vector> header file. */
 #define HAVE_VECTOR 1
+
+/* Define to 1 if you have the <hopefullynocxx-header.h> header file. */
 /* #undef HAVE_HOPEFULLYNOCXX_HEADER_H */
+
+/* Define to 1 if you have the `%(lib)s' library. */
 #define HAVE_%(LIB)s 1
+
+/* Define to 1 if you have the `hopefullynolib' library. */
 /* #undef HAVE_LIBHOPEFULLYNOLIB */
+
+/* Define to 1 if you have the `%(lib)s' library. */
 #define HAVE_%(LIB)s 1
+
+/* Define to 1 if you have the `%(lib)s' library. */
 /* #undef HAVE_%(LIB)s */
+
+/* Define to 1 if you have the `hopefullynolib2' library. */
 /* #undef HAVE_LIBHOPEFULLYNOLIB2 */
 
 #endif /* CONFIG_H_SEEN */

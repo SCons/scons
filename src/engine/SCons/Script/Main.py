@@ -404,6 +404,16 @@ class TreePrinter:
         SCons.Util.print_tree(t, func, prune=self.prune, showtags=s)
 
 
+def python_version_string():
+    return string.split(sys.version)[0]
+
+def python_version_unsupported(version=sys.version_info):
+    return version < (1, 5, 2)
+
+def python_version_deprecated(version=sys.version_info):
+    return version < (2, 2, 0)
+
+
 # Global variables
 
 print_objects = 0
@@ -578,51 +588,6 @@ def _scons_internal_error():
     traceback.print_exc()
     sys.exit(2)
 
-def _setup_warn(arg):
-    """The --warn option.  An argument to this option
-    should be of the form <warning-class> or no-<warning-class>.
-    The warning class is munged in order to get an actual class
-    name from the SCons.Warnings module to enable or disable.
-    The supplied <warning-class> is split on hyphens, each element
-    is captialized, then smushed back together.  Then the string
-    "SCons.Warnings." is added to the front and "Warning" is added
-    to the back to get the fully qualified class name.
-
-    For example, --warn=deprecated will enable the
-    SCons.Warnings.DeprecatedWarning class.
-
-    --warn=no-dependency will disable the
-    SCons.Warnings.DependencyWarning class.
-
-    As a special case, --warn=all and --warn=no-all
-    will enable or disable (respectively) the base
-    class of all warnings, which is SCons.Warning.Warning."""
-
-    elems = string.split(string.lower(arg), '-')
-    enable = 1
-    if elems[0] == 'no':
-        enable = 0
-        del elems[0]
-
-    if len(elems) == 1 and elems[0] == 'all':
-        class_name = "Warning"
-    else:
-        def _capitalize(s):
-            if s[:5] == "scons":
-                return "SCons" + s[5:]
-            else:
-                return string.capitalize(s)
-        class_name = string.join(map(_capitalize, elems), '') + "Warning"
-    try:
-        clazz = getattr(SCons.Warnings, class_name)
-    except AttributeError:
-        sys.stderr.write("No warning type: '%s'\n" % arg)
-    else:
-        if enable:
-            SCons.Warnings.enableWarningClass(clazz)
-        else:
-            SCons.Warnings.suppressWarningClass(clazz)
-
 def _SConstruct_exists(dirname='', repositories=[]):
     """This function checks that an SConstruct file exists in a directory.
     If so, it returns the path of the file. By default, it checks the
@@ -766,8 +731,7 @@ def _main(parser):
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)
     SCons.Warnings._warningOut = _scons_internal_warning
-    if options.warn:
-        _setup_warn(options.warn)
+    SCons.Warnings.process_warn_strings(options.warn)
 
     # Now that we have the warnings configuration set up, we can actually
     # issue (or suppress) any warnings about warning-worthy things that
@@ -912,7 +876,7 @@ def _main(parser):
             SCons.Script._SConscript._SConscript(fs, script)
     except SCons.Errors.StopError, e:
         # We had problems reading an SConscript file, such as it
-        # couldn't be copied in to the BuildDir.  Since we're just
+        # couldn't be copied in to the VariantDir.  Since we're just
         # reading SConscript files and haven't started building
         # things yet, stop regardless of whether they used -i or -k
         # or anything else.
@@ -926,6 +890,26 @@ def _main(parser):
 
     memory_stats.append('after reading SConscript files:')
     count_stats.append(('post-', 'read'))
+
+    # Re-{enable,disable} warnings in case they disabled some in
+    # the SConscript file.
+    #
+    # We delay enabling the PythonVersionWarning class until here so that,
+    # if they explicity disabled it in either in the command line or in
+    # $SCONSFLAGS, or in the SConscript file, then the search through
+    # the list of deprecated warning classes will find that disabling
+    # first and not issue the warning.
+    SCons.Warnings.enableWarningClass(SCons.Warnings.PythonVersionWarning)
+    SCons.Warnings.process_warn_strings(options.warn)
+
+    # Now that we've read the SConscript files, we can check for the
+    # warning about deprecated Python versions--delayed until here
+    # in case they disabled the warning in the SConscript files.
+    if python_version_deprecated():
+        msg = "Support for pre-2.2 Python (%s) is deprecated.\n" + \
+              "    If this will cause hardship, contact dev@scons.tigris.org."
+        SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning,
+                            msg % python_version_string())
 
     if not options.help:
         SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
@@ -953,7 +937,7 @@ def _main(parser):
 
     # Change directory to the top-level SConstruct directory, then tell
     # the Node.FS subsystem that we're all done reading the SConscript
-    # files and calling Repository() and BuildDir() and changing
+    # files and calling Repository() and VariantDir() and changing
     # directories and the like, so it can go ahead and start memoizing
     # the string values of file system nodes.
 
@@ -1214,6 +1198,15 @@ def main():
     global OptionsParser
     global exit_status
     global first_command_start
+
+    # Check up front for a Python version we do not support.  We
+    # delay the check for deprecated Python versions until later,
+    # after the SConscript files have been read, in case they
+    # disable that warning.
+    if python_version_unsupported():
+        msg = "scons: *** SCons version %s does not run under Python version %s.\n"
+        sys.stderr.write(msg % (SCons.__version__, python_version_string()))
+        sys.exit(1)
 
     parts = ["SCons by Steven Knight et al.:\n"]
     try:

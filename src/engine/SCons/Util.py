@@ -190,14 +190,7 @@ class NodeList(UserList):
             return CallableComposite(attrList)
         return self.__class__(attrList)
 
-_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
-
-def is_valid_construction_var(varstr):
-    """Return if the specified string is a legitimate construction
-    variable.
-    """
-    return _valid_var.match(varstr)
 
 def get_environment_var(varstr):
     """Given a string, first determine if it looks like a reference
@@ -407,40 +400,130 @@ except TypeError:
             t = type(obj)
             return t is StringType \
                 or (t is InstanceType and isinstance(obj, UserString))
+
+    def is_Scalar(obj):
+        return is_String(obj) or not is_Sequence(obj)
+
+    def flatten(obj, result=None):
+        """Flatten a sequence to a non-nested list.
+
+        Flatten() converts either a single scalar or a nested sequence
+        to a non-nested list. Note that flatten() considers strings
+        to be scalars instead of sequences like Python would.
+        """
+        if is_Scalar(obj):
+            return [obj]
+        if result is None:
+            result = []
+        for item in obj:
+            if is_Scalar(item):
+                result.append(item)
+            else:
+                flatten_sequence(item, result)
+        return result
+
+    def flatten_sequence(sequence, result=None):
+        """Flatten a sequence to a non-nested list.
+
+        Same as flatten(), but it does not handle the single scalar
+        case. This is slightly more efficient when one knows that
+        the sequence to flatten can not be a scalar.
+        """
+        if result is None:
+            result = []
+        for item in sequence:
+            if is_Scalar(item):
+                result.append(item)
+            else:
+                flatten_sequence(item, result)
+        return result
 else:
     # A modern Python version with new-style classes, so we can just use
     # isinstance().
-    def is_Dict(obj):
-        return isinstance(obj, (dict, UserDict))
+    #
+    # We are using the following trick to speed-up these
+    # functions. Default arguments are used to take a snapshot of the
+    # the global functions and constants used by these functions. This
+    # transforms accesses to global variable into local variables
+    # accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
 
-    def is_List(obj):
-        return isinstance(obj, (list, UserList))
+    DictTypes = (dict, UserDict)
+    ListTypes = (list, UserList)
+    SequenceTypes = (list, tuple, UserList)
 
-    def is_Sequence(obj):
-        return isinstance(obj, (list, UserList, tuple))
+    # Empirically, Python versions with new-style classes all have
+    # unicode.
+    #
+    # Note that profiling data shows a speed-up when comparing
+    # explicitely with str and unicode instead of simply comparing
+    # with basestring. (at least on Python 2.5.1)
+    StringTypes = (str, unicode, UserString)
 
-    def is_Tuple(obj):
-        return isinstance(obj, (tuple))
+    def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
+        return isinstance(obj, DictTypes)
 
-    def is_String(obj):
-        # Empirically, Python versions with new-style classes all have unicode.
-        return isinstance(obj, (str, unicode, UserString))
+    def is_List(obj, isinstance=isinstance, ListTypes=ListTypes):
+        return isinstance(obj, ListTypes)
 
+    def is_Sequence(obj, isinstance=isinstance, SequenceTypes=SequenceTypes):
+        return isinstance(obj, SequenceTypes)
 
+    def is_Tuple(obj, isinstance=isinstance, tuple=tuple):
+        return isinstance(obj, tuple)
 
-def is_Scalar(e):
-    return is_String(e) or (not is_List(e) and not is_Tuple(e))
+    def is_String(obj, isinstance=isinstance, StringTypes=StringTypes):
+        return isinstance(obj, StringTypes)
 
-def flatten(sequence, scalarp=is_Scalar, result=None):
-    if result is None:
+    def is_Scalar(obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes):
+        # Profiling shows that there is an impressive speed-up of 2x
+        # when explicitely checking for strings instead of just not
+        # sequence when the argument (i.e. obj) is already a string.
+        # But, if obj is a not string than it is twice as fast to
+        # check only for 'not sequence'. The following code therefore
+        # assumes that the obj argument is a string must of the time.
+        return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
+
+    def do_flatten(sequence, result, isinstance=isinstance, 
+                   StringTypes=StringTypes, SequenceTypes=SequenceTypes):
+        for item in sequence:
+            if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
+                result.append(item)
+            else:
+                do_flatten(item, result)
+
+    def flatten(obj, isinstance=isinstance, StringTypes=StringTypes, 
+                SequenceTypes=SequenceTypes, do_flatten=do_flatten):
+        """Flatten a sequence to a non-nested list.
+
+        Flatten() converts either a single scalar or a nested sequence
+        to a non-nested list. Note that flatten() considers strings
+        to be scalars instead of sequences like Python would.
+        """
+        if isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes):
+            return [obj]
         result = []
-    for item in sequence:
-        if scalarp(item):
-            result.append(item)
-        else:
-            flatten(item, scalarp, result)
-    return result
+        for item in obj:
+            if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
+                result.append(item)
+            else:
+                do_flatten(item, result)
+        return result
 
+    def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes, 
+                         SequenceTypes=SequenceTypes, do_flatten=do_flatten):
+        """Flatten a sequence to a non-nested list.
+
+        Same as flatten(), but it does not handle the single scalar
+        case. This is slightly more efficient when one knows that
+        the sequence to flatten can not be a scalar.
+        """
+        result = []
+        for item in sequence:
+            if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
+                result.append(item)
+            else:
+                do_flatten(item, result)
+        return result
 
 
 # The SCons "semi-deep" copy.
@@ -886,7 +969,7 @@ class Selector(OrderedDict):
     so that get_suffix() calls always return the first suffix added."""
     def __call__(self, env, source):
         try:
-            ext = splitext(str(source[0]))[1]
+            ext = source[0].suffix
         except IndexError:
             ext = ""
         try:

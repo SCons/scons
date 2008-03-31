@@ -33,8 +33,6 @@ Import('build_dir', 'env', 'whereis')
 
 env = env.Clone()
 
-env.TargetSignatures('content')
-
 build = os.path.join(build_dir, 'doc')
 
 #
@@ -123,7 +121,9 @@ manifest_xml_in = File('#src/engine/MANIFEST-xml.in').rstr()
 scons_doc_files = map(chop, open(manifest_xml_in).readlines())
 scons_doc_files = map(lambda x: File('#src/engine/'+x).rstr(), scons_doc_files)
 
-if jw:
+if not jw:
+    print "jw not found, skipping building User Guide."
+else:
     #
     # Always create a version.xml file containing the version information
     # for this run.  Ignore it for dependency purposes so we don't
@@ -461,7 +461,9 @@ for man_1 in man_page_list:
         tar_deps.append(html)
         tar_list.append(html)
 
-if epydoc:
+if not epydoc:
+    print "epydoc not found, skipping building API documentation."
+else:
     # XXX Should be in common with reading the same thing in
     # the SConstruct file.
     e = os.path.join('#src', 'engine')
@@ -520,6 +522,7 @@ if tar_deps:
                            tar_list))
     t = env.Command(dist_doc_tar_gz, tar_deps,
                 "tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list))
+    AddPostAction(dist_doc_tar_gz, Chmod(dist_doc_tar_gz, 0644))
     Local(t)
     Alias('doc', t)
 else:

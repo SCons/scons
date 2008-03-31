@@ -566,7 +566,7 @@ class CommandAction(_ActionAction):
         """
         from SCons.Subst import escape_list
         import SCons.Util
-        flatten = SCons.Util.flatten
+        flatten_sequence = SCons.Util.flatten_sequence
         is_String = SCons.Util.is_String
         is_List = SCons.Util.is_List
 
@@ -601,7 +601,7 @@ class CommandAction(_ActionAction):
                     # If the value is a list, then we assume it is a
                     # path list, because that's a pretty common list-like
                     # value to stick in an environment variable:
-                    value = flatten(value)
+                    value = flatten_sequence(value)
                     ENV[key] = string.join(map(str, value), os.pathsep)
                 else:
                     # If it isn't a string or a list, then we just coerce
@@ -891,9 +891,8 @@ class ListAction(ActionBase):
         return string.join(map(str, self.list), '\n')
     
     def presub_lines(self, env):
-        return SCons.Util.flatten(map(lambda a, env=env:
-                                      a.presub_lines(env),
-                                      self.list))
+        return SCons.Util.flatten_sequence(
+            map(lambda a, env=env: a.presub_lines(env), self.list))
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action list.
@@ -949,13 +948,21 @@ class ActionCaller:
         contents = remove_set_lineno_codes(contents)
         return contents
     def subst(self, s, target, source, env):
+        # If s is a list, recursively apply subst()
+        # to every element in the list
+        if SCons.Util.is_List(s):
+            result = []
+            for elem in s:
+                result.append(self.subst(elem, target, source, env))
+            return self.parent.convert(result)
+
         # Special-case hack:  Let a custom function wrapped in an
         # ActionCaller get at the environment through which the action
         # was called by using this hard-coded value as a special return.
         if s == '$__env__':
             return env
         elif SCons.Util.is_String(s):
-            return env.subst(s, 0, target, source)
+            return env.subst(s, 1, target, source)
         return self.parent.convert(s)
     def subst_args(self, target, source, env):
         return map(lambda x, self=self, t=target, s=source, e=env:

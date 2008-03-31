@@ -24,6 +24,16 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify basic interactions of the --implicit-cache-* options.
+
+This test used to set TargetSignatures('build') because we were
+relying on the old behavior of non-essential changes in .h files
+propagate to cause a rebuilt executable.  We now just rely on
+the default Decider('content') behavior and only check for the
+rebuild of the object file itself when necessary.
+"""
+
 import os.path
 
 import TestSCons
@@ -34,6 +44,7 @@ _obj = TestSCons._obj
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)
 variant_prog = os.path.join('variant', 'prog' + _exe)
+variant_prog_obj = os.path.join('variant', 'prog' + _obj)
 
 args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
@@ -41,19 +52,13 @@ test = TestSCons.TestSCons()
 
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
-# Set TargetSignatures('build') because a lot of the test below expect
-# the old behavior of non-essential changes in .h files will propagate
-# and cause the executable file to be re-linked as well (even if the
-# object file was rebuilt to the exact same contents as last time).
-
 test.write('SConstruct', """
-TargetSignatures('build')
 env = Environment(CPPPATH = Split('inc2 include'))
 obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
-BuildDir('variant', 'subdir', 0)
+VariantDir('variant', 'subdir', 0)
 include = Dir('include')
 env = Environment(CPPPATH=['inc2', include])
 SConscript('variant/SConscript', "env")
@@ -278,7 +283,7 @@ test.write(['include', 'foo.h'], r"""
 """)
 
 test.not_up_to_date(options = "--implicit-deps-unchanged",
-                    arguments = variant_prog)
+                    arguments = variant_prog_obj)
 
 test.write(['include', 'baz.h'], r"""
 #define BAZ_STRING "include/baz.h 2\n"
@@ -287,7 +292,7 @@ test.write(['include', 'baz.h'], r"""
 test.up_to_date(options = "--implicit-deps-unchanged",
                 arguments = variant_prog)
 
-test.not_up_to_date(arguments = variant_prog)
+test.not_up_to_date(arguments = variant_prog_obj)
 
 
 
@@ -306,17 +311,17 @@ test.write(['include', 'foo.h'], r"""
 """)
 
 test.not_up_to_date(options = "--implicit-deps-unchanged",
-                    arguments = variant_prog)
+                    arguments = variant_prog_obj)
 
 test.write(['include', 'baz.h'], r"""
 #define BAZ_STRING "include/baz.h 2\n"
 """)
 
 test.up_to_date(options = "--implicit-deps-unchanged",
-                arguments = variant_prog)
+                arguments = variant_prog_obj)
 
 test.not_up_to_date(options = "--implicit-deps-changed",
-                    arguments = variant_prog)
+                    arguments = variant_prog_obj)
 
 
 
