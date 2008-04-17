@@ -3,6 +3,7 @@ SCons/Action.py
 SCons/Builder.py
 SCons/compat/__init__.py
 SCons/compat/_scons_hashlib.py
+SCons/compat/_scons_itertools.py
 SCons/compat/_scons_optparse.py
 SCons/compat/_scons_sets.py
 SCons/compat/_scons_sets15.py
@@ -27,12 +28,7 @@ SCons/Node/__init__.py
 SCons/Node/Alias.py
 SCons/Node/FS.py
 SCons/Node/Python.py
-SCons/Options/__init__.py
-SCons/Options/BoolOption.py
-SCons/Options/EnumOption.py
-SCons/Options/ListOption.py
-SCons/Options/PackageOption.py
-SCons/Options/PathOption.py
+SCons/Options.py
 SCons/PathList.py
 SCons/Platform/__init__.py
 SCons/Platform/aix.py
@@ -162,4 +158,10 @@ SCons/Tool/wix.py
 SCons/Tool/yacc.py
 SCons/Tool/zip.py
 SCons/Util.py
+SCons/Variables/__init__.py
+SCons/Variables/BoolVariable.py
+SCons/Variables/EnumVariable.py
+SCons/Variables/ListVariable.py
+SCons/Variables/PackageVariable.py
+SCons/Variables/PathVariable.py
 SCons/Warnings.py

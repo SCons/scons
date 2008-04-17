@@ -45,7 +45,7 @@ for l in filter(lambda l, fl=fline: l != fl, infile.readlines()):
 sys.exit(0)
 """)
 
-if os.path.normcase('.f') == os.path.normcase('.F'):
+if not TestSCons.case_sensitive_suffixes('.f','.F'):
     f77pp = 'f77'
 else:
     f77pp = 'f77pp'

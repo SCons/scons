@@ -28,7 +28,7 @@ import sys
 import unittest
 import TestSCons
 
-import SCons.Options
+import SCons.Variables
 import SCons.Subst
 import SCons.Warnings
 
@@ -57,11 +57,11 @@ def checkSave(file, expected):
     execfile(file, gdict, ldict)
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
-class OptionsTestCase(unittest.TestCase):
+class VariablesTestCase(unittest.TestCase):
 
     def test_keys(self):
-        """Test the Options.keys() method"""
-        opts = SCons.Options.Options()
+        """Test the Variables.keys() method"""
+        opts = SCons.Variables.Variables()
 
         opts.Add('VAR1')
         opts.Add('VAR2',
@@ -73,8 +73,8 @@ class OptionsTestCase(unittest.TestCase):
         assert keys == ['VAR1', 'VAR2'], keys
 
     def test_Add(self):
-        """Test adding to an Options object"""
-        opts = SCons.Options.Options()
+        """Test adding to a Variables object"""
+        opts = SCons.Variables.Variables()
 
         opts.Add('VAR')
         opts.Add('ANSWER',
@@ -107,11 +107,11 @@ class OptionsTestCase(unittest.TestCase):
         test_it('foo-bar')
         test_it('foo.bar')
 
-    def test_AddOptions(self):
-        """Test adding a list of options to an Options object"""
-        opts = SCons.Options.Options()
+    def test_AddVariables(self):
+        """Test adding a list of options to a Variables object"""
+        opts = SCons.Variables.Variables()
 
-        opts.AddOptions(('VAR2',),
+        opts.AddVariables(('VAR2',),
                         ('ANSWER2',
                          'THE answer to THE question',
                          "42",
@@ -137,7 +137,7 @@ class OptionsTestCase(unittest.TestCase):
         # Test that a default value is validated correctly.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -158,7 +158,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=54')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -186,7 +186,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=42')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -207,7 +207,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=10')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -228,7 +228,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=10')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -246,7 +246,7 @@ class OptionsTestCase(unittest.TestCase):
         # or args.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
         
         opts.Add('ANSWER',
                  help='THE answer to THE question',
@@ -259,7 +259,7 @@ class OptionsTestCase(unittest.TestCase):
         # Test that a default value of None is all right.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Variables.Variables(file)
 
         opts.Add('ANSWER',
                  "This is the answer",
@@ -278,7 +278,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=42')
-        opts = SCons.Options.Options(file, {'ANSWER':54})
+        opts = SCons.Variables.Variables(file, {'ANSWER':54})
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -298,7 +298,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=54')
-        opts = SCons.Options.Options(file, {'ANSWER':42})
+        opts = SCons.Variables.Variables(file, {'ANSWER':42})
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -315,7 +315,7 @@ class OptionsTestCase(unittest.TestCase):
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=54')
-        opts = SCons.Options.Options(file, {'ANSWER':54})
+        opts = SCons.Variables.Variables(file, {'ANSWER':54})
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -328,11 +328,11 @@ class OptionsTestCase(unittest.TestCase):
         assert env['ANSWER'] == 54
 
     def test_Save(self):
-        """Testing saving Options"""
+        """Testing saving Variables"""
 
         test = TestSCons.TestSCons()
         cache_file = test.workpath('cached.options')
-        opts = SCons.Options.Options()
+        opts = SCons.Variables.Variables()
 
         def bool_converter(val):
             if val in [1, 'y']: val = 1
@@ -387,7 +387,7 @@ class OptionsTestCase(unittest.TestCase):
             
         test = TestSCons.TestSCons()
         cache_file = test.workpath('cached.options')
-        opts = SCons.Options.Options()
+        opts = SCons.Variables.Variables()
         
         opts.Add('THIS_USED_TO_BREAK',
                  'An option to test',
@@ -412,7 +412,7 @@ class OptionsTestCase(unittest.TestCase):
 
     def test_GenerateHelpText(self):
         """Test generating the default format help text"""
-        opts = SCons.Options.Options()
+        opts = SCons.Variables.Variables()
 
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -468,14 +468,14 @@ B: b - alpha test
         text = opts.GenerateHelpText(env, sort=cmp)
         assert text == expectAlpha, text
 
-    def test_FormatOptionHelpText(self):
+    def test_FormatVariableHelpText(self):
         """Test generating custom format help text"""
-        opts = SCons.Options.Options()
+        opts = SCons.Variables.Variables()
 
         def my_format(env, opt, help, default, actual, aliases):
             return '%s %s %s %s %s\n' % (opt, default, actual, help, aliases)
 
-        opts.FormatOptionHelpText = my_format
+        opts.FormatVariableHelpText = my_format
 
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -517,11 +517,11 @@ B 42 54 b - alpha test ['B']
 
 
 
-class UnknownOptionsTestCase(unittest.TestCase):
+class UnknownVariablesTestCase(unittest.TestCase):
 
     def test_unknown(self):
-        """Test the UnknownOptions() method"""
-        opts = SCons.Options.Options()
+        """Test the UnknownVariables() method"""
+        opts = SCons.Variables.Variables()
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -535,7 +535,7 @@ class UnknownOptionsTestCase(unittest.TestCase):
         env = Environment()
         opts.Update(env, args)
 
-        r = opts.UnknownOptions()
+        r = opts.UnknownVariables()
         assert r == {'UNKNOWN' : 'unknown'}, r
         assert env['ANSWER'] == 'answer', env['ANSWER']
 
@@ -543,8 +543,8 @@ class UnknownOptionsTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ OptionsTestCase,
-                 UnknownOptionsTestCase ]
+    tclasses = [ VariablesTestCase,
+                 UnknownVariablesTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))

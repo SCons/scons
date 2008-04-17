@@ -28,13 +28,13 @@ import sys
 import unittest
 
 import SCons.Errors
-import SCons.Options
+import SCons.Variables
 
-class ListOptionTestCase(unittest.TestCase):
-    def test_ListOption(self):
-        """Test ListOption creation"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.ListOption('test', 'test option help', 'all',
+class ListVariableTestCase(unittest.TestCase):
+    def test_ListVariable(self):
+        """Test ListVariable creation"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
                                           ['one', 'two', 'three']))
 
         o = opts.options[0]
@@ -44,8 +44,8 @@ class ListOptionTestCase(unittest.TestCase):
         assert o.validator is None, o.validator
         assert not o.converter is None, o.converter
 
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.ListOption('test2', 'test2 help',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.ListVariable('test2', 'test2 help',
                                           ['one', 'three'],
                                           ['one', 'two', 'three']))
 
@@ -53,9 +53,9 @@ class ListOptionTestCase(unittest.TestCase):
         assert o.default == 'one,three'
 
     def test_converter(self):
-        """Test the ListOption converter"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.ListOption('test', 'test option help', 'all',
+        """Test the ListVariable converter"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
                                           ['one', 'two', 'three'],
                                           {'ONE':'one', 'TWO':'two'}))
 
@@ -112,9 +112,9 @@ class ListOptionTestCase(unittest.TestCase):
         assert caught, "did not catch expected ValueError"
 
     def test_copy(self):
-        """Test copying a ListOption like an Environment would"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.ListOption('test', 'test option help', 'all',
+        """Test copying a ListVariable like an Environment would"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
                                           ['one', 'two', 'three']))
 
         o = opts.options[0]
@@ -123,6 +123,6 @@ class ListOptionTestCase(unittest.TestCase):
         n = l.__class__(copy.copy(l))
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ListOptionTestCase, 'test_')
+    suite = unittest.makeSuite(ListVariableTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

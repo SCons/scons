@@ -844,8 +844,8 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert not env1.has_key('__env__')
         assert not env2.has_key('__env__')
 
-    def test_options(self):
-        """Test that options only get applied once."""
+    def test_variables(self):
+        """Test that variables only get applied once."""
         class FakeOptions:
             def __init__(self, key, val):
                 self.calls = 0
@@ -858,7 +858,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
                 self.calls = self.calls + 1
 
         o = FakeOptions('AAA', 'fake_opt')
-        env = Environment(options=o, AAA='keyword_arg')
+        env = Environment(variables=o, AAA='keyword_arg')
         assert o.calls == 1, o.calls
         assert env['AAA'] == 'fake_opt', env['AAA']
 

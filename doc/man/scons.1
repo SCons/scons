@@ -3891,16 +3891,16 @@ The options supported are:
 .TP 6
 .B cache_debug
 .TP 6
-which corresponds to --cache_debug;
+which corresponds to --cache-debug;
 .TP 6
 .B cache_disable
-which corresponds to --cache_disable;
+which corresponds to --cache-disable;
 .TP 6
 .B cache_force
-which corresponds to --cache_force;
+which corresponds to --cache-force;
 .TP 6
 .B cache_show
-which corresponds to --cache_show;
+which corresponds to --cache-show;
 .TP 6
 .B clean
 which corresponds to -c, --clean and --remove;
@@ -6882,25 +6882,27 @@ if not conf.CheckQt('/usr/lib/qt'):
 env = conf.Finish() 
 .EE
 
-.SS Construction Variable Options
+.SS Command-Line Construction Variables
 
-Often when building software, various options need to be specified at build
-time that are not known when the SConstruct/SConscript files are
-written. For example, libraries needed for the build may be in non-standard
+Often when building software,
+some variables must be specified at build time.
+For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
 compiler. 
 .B scons
-provides an Options object for overridding construction variables
+provides a
+.B Variables
+object to support overriding construction variables
 on the command line:
 .ES
 $ scons VARIABLE=foo
 .EE
 The variable values can also be specified in a text-based SConscript file.
-To create an Options object, call the Options() function:
+To create a Variables object, call the Variables() function:
 
 .TP
-.RI Options([ files "], [" args ])
-This creates an Options object that will read construction variables from
+.RI Variables([ files "], [" args ])
+This creates a Variables object that will read construction variables from
 the file or list of filenames specified in
 .IR files .
 If no files are specified,
@@ -6920,16 +6922,16 @@ specified on the command line.
 Example:
 
 .ES
-opts = Options('custom.py')
-opts = Options('overrides.py', ARGUMENTS)
-opts = Options(None, {FOO:'expansion', BAR:7})
+vars = Variables('custom.py')
+vars = Variables('overrides.py', ARGUMENTS)
+vars = Variables(None, {FOO:'expansion', BAR:7})
 .EE
 
-Options objects have the following methods:
+Variables objects have the following methods:
 
 .TP
 .RI Add( key ", [" help ", " default ", " validator ", " converter ])
-This adds a customizable construction variable to the Options object. 
+This adds a customizable construction variable to the Variables object. 
 .I key
 is the name of the variable. 
 .I help 
@@ -6962,19 +6964,19 @@ and then added to the environment.
 Examples:
 
 .ES
-opts.Add('CC', 'The C compiler')
+vars.Add('CC', 'The C compiler')
 
 def validate_color(key, val, env):
     if not val in ['red', 'blue', 'yellow']:
         raise "Invalid color value '%s'" % val
-opts.Add('COLOR', validator=valid_color)
+vars.Add('COLOR', validator=valid_color)
 .EE
 
 .TP
-.RI AddOptions( list )
+.RI AddVariables( list )
 A wrapper script that adds
 multiple customizable construction variables
-to an Options object.
+to a Variables object.
 .I list
 is a list of tuple or list objects
 that contain the arguments
@@ -6983,7 +6985,7 @@ for an individual call to the
 method.
 
 .ES
-opt.AddOptions(
+opt.AddVariables(
        ('debug', '', 0),
        ('CC', 'The C compiler'),
        ('VALIDATE', 'An option for testing validation',
@@ -6998,23 +7000,23 @@ This updates a construction environment
 with the customized construction variables.
 Any specified variables that are
 .I not
-configured for the Options object
+configured for the Variables object
 will be saved and may be
 retrieved with the
-.BR UnknownOptions ()
+.BR UnknownVariables ()
 method, below.
 
 Normally this method is not called directly,
-but is called indirectly by passing the Options object to
+but is called indirectly by passing the Variables object to
 the Environment() function:
 
 .ES
-env = Environment(options=opts)
+env = Environment(variables=vars)
 .EE
 
 .IP
 The text file(s) that were specified
-when the Options object was created
+when the Variables object was created
 are executed as Python scripts,
 and the values of (global) Python variables set in the file
 are added to the construction environment.
@@ -7026,34 +7028,34 @@ CC = 'my_cc'
 .EE
 
 .TP
-.RI UnknownOptions( )
+.RI UnknownVariables( )
 Returns a dictionary containing any
 variables that were specified
 either in the files or the dictionary
-with which the Options object was intialized,
-but for which the Options object was
+with which the Variables object was initialized,
+but for which the Variables object was
 not configured.
 
 .ES
-env = Environment(options=opts)
-for key, value in opts.UnknownOptions():
+env = Environment(variables=vars)
+for key, value in vars.UnknownVariables():
     print "unknown variable:  %s=%s" % (key, value)
 .EE
 
 .TP
 .RI Save( filename ", " env )
-This saves the currently set options into a script file named  
+This saves the currently set variables into a script file named  
 .I filename
 that can be used on the next invocation to automatically load the current
-settings.  This method combined with the Options method can be used to
-support caching of options between runs.
+settings.  This method combined with the Variables method can be used to
+support caching of variables between runs.
 
 .ES
 env = Environment()
-opts = Options(['options.cache', 'custom.py'])
-opts.Add(...)
-opts.Update(env)
-opts.Save('options.cache', env)
+vars = Variables(['variables.cache', 'custom.py'])
+vars.Add(...)
+vars.Update(env)
+vars.Save('variables.cache', env)
 .EE
 
 .TP
@@ -7079,12 +7081,12 @@ and return
 function).
 
 .ES
-Help(opts.GenerateHelpText(env))
-Help(opts.GenerateHelpText(env, sort=cmp))
+Help(vars.GenerateHelpText(env))
+Help(vars.GenerateHelpText(env, sort=cmp))
 .EE
 
 .TP
-.RI FormatOptionHelpText( env ", " opt ", " help ", " default ", " actual )
+.RI FormatVariableHelpText( env ", " opt ", " help ", " default ", " actual )
 This method returns a formatted string
 containing the printable help text
 for one option.
@@ -7106,17 +7108,17 @@ string if you want the entries separated.
 def my_format(env, opt, help, default, actual):
     fmt = "\n%s: default=%s actual=%s (%s)\n"
     return fmt % (opt, default. actual, help)
-opts.FormatOptionHelpText = my_format
+vars.FormatVariableHelpText = my_format
 .EE
 
-To make it more convenient to work with customizable Options,
+To make it more convenient to work with customizable Variables,
 .B scons
 provides a number of functions
 that make it easy to set up
-various types of Options:
+various types of Variables:
 
 .TP
-.RI BoolOption( key ", " help ", " default )
+.RI BoolVariable( key ", " help ", " default )
 Return a tuple of arguments
 to set up a Boolean option.
 The option will use
@@ -7149,7 +7151,7 @@ and
 as false.
 
 .TP
-.RI EnumOption( key ", " help ", " default ", " allowed_values ", [" map ", " ignorecase ])
+.RI EnumVariable( key ", " help ", " default ", " allowed_values ", [" map ", " ignorecase ])
 Return a tuple of arguments
 to set up an option
 whose value may be one
@@ -7196,7 +7198,7 @@ and all input values will be
 converted to lower case.
 
 .TP
-.RI ListOption( key ", " help ", " default ", " names ", [", map ])
+.RI ListVariable( key ", " help ", " default ", " names ", [", map ])
 Return a tuple of arguments
 to set up an option
 whose value may be one or more
@@ -7230,7 +7232,7 @@ in the
 list.
 
 .TP
-.RI PackageOption( key ", " help ", " default )
+.RI PackageVariable( key ", " help ", " default )
 Return a tuple of arguments
 to set up an option
 whose value is a path name
@@ -7268,7 +7270,7 @@ or
 to disable use of the specified option.
 
 .TP
-.RI PathOption( key ", " help ", " default ", [" validator ])
+.RI PathVariable( key ", " help ", " default ", [" validator ])
 Return a tuple of arguments
 to set up an option
 whose value is expected to be a path name.
@@ -7288,18 +7290,18 @@ verify that the specified path
 is acceptable.
 SCons supplies the
 following ready-made validators:
-.BR PathOption.PathExists
+.BR PathVariable.PathExists
 (the default),
 which verifies that the specified path exists;
-.BR PathOption.PathIsFile ,
+.BR PathVariable.PathIsFile ,
 which verifies that the specified path is an existing file;
-.BR PathOption.PathIsDir ,
+.BR PathVariable.PathIsDir ,
 which verifies that the specified path is an existing directory;
-.BR PathOption.PathIsDirCreate ,
+.BR PathVariable.PathIsDirCreate ,
 which verifies that the specified path is a directory
 and will create the specified directory if the path does not exist;
 and
-.BR PathOption.PathAccept ,
+.BR PathVariable.PathAccept ,
 which simply accepts the specific path name argument without validation,
 and which is suitable if you want your users
 to be able to specify a directory path that will be
@@ -7309,7 +7311,7 @@ You may supply your own
 function,
 which must take three arguments
 .RI ( key ,
-the name of the options variable to be set;
+the name of the variable to be set;
 .IR val ,
 the specified value being checked;
 and
@@ -7321,27 +7323,27 @@ if the specified value is not acceptable.
 .RE
 These functions make it
 convenient to create a number
-of options with consistent behavior
+of variables with consistent behavior
 in a single call to the
-.B AddOptions
+.B AddVariables
 method:
 
 .ES
-opts.AddOptions(
-    BoolOption('warnings', 'compilation with -Wall and similiar', 1),
-    EnumOption('debug', 'debug output and symbols', 'no'
+vars.AddVariables(
+    BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
+    EnumVariable('debug', 'debug output and symbols', 'no'
                allowed_values=('yes', 'no', 'full'),
                map={}, ignorecase=0),  # case sensitive
-    ListOption('shared',
+    ListVariable('shared',
                'libraries to build as shared libraries',
                'all',
                names = list_of_libs),
-    PackageOption('x11',
+    PackageVariable('x11',
                   'use X11 installed here (yes = search some places)',
                   'yes'),
-    PathOption('qtdir', 'where the root of Qt is installed', qtdir),
-    PathOption('foopath', 'where the foo library is installed', foopath,
-               PathOption.PathIsDir),
+    PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
+    PathVariable('foopath', 'where the foo library is installed', foopath,
+               PathVariable.PathIsDir),
 
 )
 .EE
@@ -9460,10 +9462,10 @@ The following would allow the C compiler to be specified on the command
 line or in the file custom.py. 
 
 .ES
-opts = Options('custom.py')
-opts.Add('CC', 'The C compiler.')
-env = Environment(options=opts)
-Help(opts.GenerateHelpText(env))
+vars = Variables('custom.py')
+vars.Add('CC', 'The C compiler.')
+env = Environment(variables=vars)
+Help(vars.GenerateHelpText(env))
 .EE
 
 The user could specify the C compiler on the command line:

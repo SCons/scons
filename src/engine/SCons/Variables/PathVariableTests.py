@@ -28,15 +28,15 @@ import sys
 import unittest
 
 import SCons.Errors
-import SCons.Options
+import SCons.Variables
 
 import TestCmd
 
-class PathOptionTestCase(unittest.TestCase):
-    def test_PathOption(self):
-        """Test PathOption creation"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+class PathVariableTestCase(unittest.TestCase):
+    def test_PathVariable(self):
+        """Test PathVariable creation"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path'))
 
@@ -49,11 +49,11 @@ class PathOptionTestCase(unittest.TestCase):
 
     def test_PathExists(self):
         """Test the PathExists validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path',
-                                          SCons.Options.PathOption.PathExists))
+                                          SCons.Variables.PathVariable.PathExists))
 
         test = TestCmd.TestCmd(workdir='')
         test.write('exists', 'exists\n')
@@ -72,11 +72,11 @@ class PathOptionTestCase(unittest.TestCase):
 
     def test_PathIsDir(self):
         """Test the PathIsDir validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path',
-                                          SCons.Options.PathOption.PathIsDir))
+                                          SCons.Variables.PathVariable.PathIsDir))
 
         test = TestCmd.TestCmd(workdir='')
         test.subdir('dir')
@@ -104,11 +104,11 @@ class PathOptionTestCase(unittest.TestCase):
 
     def test_PathIsDirCreate(self):
         """Test the PathIsDirCreate validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path',
-                                          SCons.Options.PathOption.PathIsDirCreate))
+                                          SCons.Variables.PathVariable.PathIsDirCreate))
 
         test = TestCmd.TestCmd(workdir='')
         test.write('file', "file\n")
@@ -129,11 +129,11 @@ class PathOptionTestCase(unittest.TestCase):
 
     def test_PathIsFile(self):
         """Test the PathIsFile validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path',
-                                          SCons.Options.PathOption.PathIsFile))
+                                          SCons.Variables.PathVariable.PathIsFile))
 
         test = TestCmd.TestCmd(workdir='')
         test.subdir('dir')
@@ -161,11 +161,11 @@ class PathOptionTestCase(unittest.TestCase):
 
     def test_PathAccept(self):
         """Test the PathAccept validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path',
-                                          SCons.Options.PathOption.PathAccept))
+                                          SCons.Variables.PathVariable.PathAccept))
 
         test = TestCmd.TestCmd(workdir='')
         test.subdir('dir')
@@ -182,9 +182,9 @@ class PathOptionTestCase(unittest.TestCase):
         o.validator('X', dne, {})
 
     def test_validator(self):
-        """Test the PathOption validator argument"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test',
+        """Test the PathVariable validator argument"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test',
                                           'test option help',
                                           '/default/path'))
 
@@ -207,8 +207,8 @@ class PathOptionTestCase(unittest.TestCase):
         def my_validator(key, val, env):
             raise Exception, "my_validator() got called for %s, %s!" % (key, val)
 
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PathOption('test2',
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PathVariable('test2',
                                           'more help',
                                           '/default/path/again',
                                           my_validator))
@@ -226,6 +226,6 @@ class PathOptionTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(PathOptionTestCase, 'test_')
+    suite = unittest.makeSuite(PathVariableTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

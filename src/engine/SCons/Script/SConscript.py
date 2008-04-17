@@ -39,7 +39,6 @@ import SCons.Errors
 import SCons.Node
 import SCons.Node.Alias
 import SCons.Node.FS
-import SCons.Options
 import SCons.Platform
 import SCons.SConf
 import SCons.Script.Main
@@ -141,7 +140,8 @@ call_stack = []
 def Return(*vars, **kw):
     retval = []
     try:
-        for var in vars:
+        fvars = SCons.Util.flatten(vars)
+        for var in fvars:
             for v in string.split(var):
                 retval.append(call_stack[-1].globals[v])
     except KeyError, x:

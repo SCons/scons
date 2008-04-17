@@ -133,8 +133,8 @@ def AttemptLinkWithVariables(context, variables, code, extension, prefix):
 
 env = Environment(CPPPATH=['.'], LIBPATH=['.'], LIBS=[])
 
-opts = Options('lprof.conf') 
-opts.Add(PathOption("qt_directory", "Path to Qt directory", "/"))
+opts = Variables('lprof.conf') 
+opts.Add(PathVariable("qt_directory", "Path to Qt directory", "/"))
 opts.Update(env)
 
 env['QT_LIB'] = 'qt-mt'

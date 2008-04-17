@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -24,19 +23,34 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import string
-import sys
+__doc__ = """Place-holder for the old SCons.Options module hierarchy
 
-test = TestSCons.TestSCons()
+This is for backwards compatibility.  The new equivalent is the Variables/
+class hierarchy.  These will have deprecation warnings added (some day),
+and will then be removed entirely (some day).
+"""
 
-test.write('SConstruct', "")
+import SCons.Variables
 
-test.run(arguments = '-e .',
-         stderr = "Warning:  the -e option is not yet implemented\n")
+class Options(SCons.Variables.Variables):
 
-test.run(arguments = '--environment-overrides .',
-         stderr = "Warning:  the --environment-overrides option is not yet implemented\n")
+    def AddOptions(self, *args, **kw):
+        return apply(SCons.Variables.Variables.AddVariables,
+                     (self,) + args,
+                     kw)
 
-test.pass_test()
- 
+    def UnknownOptions(self, *args, **kw):
+        return apply(SCons.Variables.Variables.UnknownVariables,
+                     (self,) + args,
+                     kw)
+
+    def FormatOptionHelpText(self, *args, **kw):
+        return apply(SCons.Variables.Variables.FormatVariableHelpText,
+                     (self,) + args,
+                     kw)
+
+BoolOption      = SCons.Variables.BoolVariable
+EnumOption      = SCons.Variables.EnumVariable
+ListOption      = SCons.Variables.ListVariable
+PackageOption   = SCons.Variables.PackageVariable
+PathOption      = SCons.Variables.PathVariable

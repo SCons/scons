@@ -56,8 +56,8 @@ class Node:
         self.state = SCons.Node.no_state
         self.prepared = None
         self.ref_count = 0
-        self.waiting_parents = {}
-        self.waiting_s_e = {}
+        self.waiting_parents = set()
+        self.waiting_s_e = set()
         self.side_effect = 0
         self.side_effects = []
         self.alttargets = []
@@ -119,17 +119,10 @@ class Node:
 
     def add_to_waiting_parents(self, node):
         wp = self.waiting_parents
-        if wp.has_key(node):
-            result = 0
-        else:
-            result = 1
-        wp[node] = 1
-        return result
-
-    def call_for_all_waiting_parents(self, func):
-        func(self)
-        for parent in self.waiting_parents.keys():
-            parent.call_for_all_waiting_parents(func)
+        if node in wp:
+            return 0
+        wp.add(node)
+        return 1
 
     def get_state(self):
         return self.state
@@ -166,13 +159,16 @@ class Node:
 
     def postprocess(self):
         self.postprocessed = 1
+        self.waiting_parents = set()
 
     def get_executor(self):
-        class Executor:
-            pass
-        e = Executor()
-        e.targets = self.targets
-        return e
+        if not hasattr(self, 'executor'):
+            class Executor:
+                def prepare(self):
+                    pass
+            self.executor = Executor()
+        self.executor.targets = self.targets
+        return self.executor
 
 class OtherError(Exception):
     pass
@@ -469,7 +465,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.postprocess()
 
         s = n1.get_state()
-        assert s == SCons.Node.up_to_date, s
+        assert s == SCons.Node.executed, s
         s = n2.get_state()
         assert s == SCons.Node.executed, s
 
@@ -815,6 +811,22 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n9.prepared
         assert n10.prepared
 
+        # Make sure we call an Executor's prepare() method.
+        class ExceptionExecutor:
+            def prepare(self):
+                raise Exception, "Executor.prepare() exception"
+
+        n11 = Node("n11")
+        n11.executor = ExceptionExecutor()
+        tm = SCons.Taskmaster.Taskmaster([n11])
+        t = tm.next_task()
+        try:
+            t.prepare()
+        except Exception, e:
+            assert str(e) == "Executor.prepare() exception", e
+        else:
+            raise AssertionError, "did not catch expected exception"
+
     def test_execute(self):
         """Test executing a task
         """
@@ -937,37 +949,46 @@ class TaskmasterTestCase(unittest.TestCase):
         ]
         assert str(exc_value) in exception_values, exc_value
 
-        t.exception_set(("exception 1", None))
+        class Exception1(Exception):
+            pass
+
+        t.exception_set((Exception1, None))
         try:
             t.exception_raise()
         except:
             exc_type, exc_value = sys.exc_info()[:2]
-            assert exc_type == "exception 1", exc_type
-            assert exc_value is None, exc_value
+            assert exc_type == Exception1, exc_type
+            assert str(exc_value) == '', exc_value
         else:
             assert 0, "did not catch expected exception"
 
-        t.exception_set(("exception 2", "xyzzy"))
+        class Exception2(Exception):
+            pass
+
+        t.exception_set((Exception2, "xyzzy"))
         try:
             t.exception_raise()
         except:
             exc_type, exc_value = sys.exc_info()[:2]
-            assert exc_type == "exception 2", exc_type
-            assert exc_value == "xyzzy", exc_value
+            assert exc_type == Exception2, exc_type
+            assert str(exc_value) == "xyzzy", exc_value
         else:
             assert 0, "did not catch expected exception"
+
+        class Exception3(Exception):
+            pass
 
         try:
             1/0
         except:
             tb = sys.exc_info()[2]
-        t.exception_set(("exception 3", "arg", tb))
+        t.exception_set((Exception3, "arg", tb))
         try:
             t.exception_raise()
         except:
             exc_type, exc_value, exc_tb = sys.exc_info()
-            assert exc_type == 'exception 3', exc_type
-            assert exc_value == "arg", exc_value
+            assert exc_type == Exception3, exc_type
+            assert str(exc_value) == "arg", exc_value
             import traceback
             x = traceback.extract_tb(tb)[-1]
             y = traceback.extract_tb(exc_tb)[-1]
@@ -1030,16 +1051,29 @@ class TaskmasterTestCase(unittest.TestCase):
 
         value = trace.getvalue()
         expect = """\
-Taskmaster: 'n1': evaluating n1
-Taskmaster: 'n1': already handled (executed)
-Taskmaster: 'n3': children:
-    ['n1', 'n2']
-    waiting on unfinished children:
-    ['n2']
-Taskmaster: 'n2': evaluating n2
-Taskmaster: 'n3': children:
-    ['n1', 'n2']
-    evaluating n3
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'n1'> and its children:
+Taskmaster: Evaluating <pending    'n1'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <executed   'n1'> and its children:
+Taskmaster:        already handled (executed)
+Taskmaster:     Considering node <no_state   'n3'> and its children:
+Taskmaster:        <executed   'n1'>
+Taskmaster:        <no_state   'n2'>
+Taskmaster:     Considering node <no_state   'n2'> and its children:
+Taskmaster: Evaluating <pending    'n2'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <pending    'n3'> and its children:
+Taskmaster:        <executed   'n1'>
+Taskmaster:        <executed   'n2'>
+Taskmaster: Evaluating <pending    'n3'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster: No candidate anymore.
+
 """
         assert value == expect, value
 

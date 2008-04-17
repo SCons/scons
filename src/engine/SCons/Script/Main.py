@@ -168,28 +168,29 @@ class BuildTask(SCons.Taskmaster.Task):
         self.progress(self.targets[0])
         return SCons.Taskmaster.Task.prepare(self)
 
-    def execute(self):
-        for target in self.targets:
-            if target.get_state() == SCons.Node.up_to_date: 
-                continue
-            if target.has_builder() and not hasattr(target.builder, 'status'):
-                if print_time:
-                    start_time = time.time()
-                    global first_command_start
-                    if first_command_start is None:
-                        first_command_start = start_time
-                SCons.Taskmaster.Task.execute(self)
-                if print_time:
-                    global cumulative_command_time
-                    global last_command_end
-                    finish_time = time.time()
-                    last_command_end = finish_time
-                    cumulative_command_time = cumulative_command_time+finish_time-start_time
-                    sys.stdout.write("Command execution time: %f seconds\n"%(finish_time-start_time))
-                break
+    def needs_execute(self):
+        target = self.targets[0]
+        if target.get_state() == SCons.Node.executing:
+            return True
         else:
             if self.top and target.has_builder():
                 display("scons: `%s' is up to date." % str(self.node))
+            return False
+
+    def execute(self):
+        if print_time:
+            start_time = time.time()
+            global first_command_start
+            if first_command_start is None:
+                first_command_start = start_time
+        SCons.Taskmaster.Task.execute(self)
+        if print_time:
+            global cumulative_command_time
+            global last_command_end
+            finish_time = time.time()
+            last_command_end = finish_time
+            cumulative_command_time = cumulative_command_time+finish_time-start_time
+            sys.stdout.write("Command execution time: %f seconds\n"%(finish_time-start_time))
 
     def do_failed(self, status=2):
         _BuildFailures.append(self.exception[1])
@@ -207,10 +208,15 @@ class BuildTask(SCons.Taskmaster.Task):
         t = self.targets[0]
         if self.top and not t.has_builder() and not t.side_effect:
             if not t.exists():
-                sys.stderr.write("scons: *** Do not know how to make target `%s'." % t)
+                errstr="Do not know how to make target `%s'." % t
+                sys.stderr.write("scons: *** " + errstr)
                 if not self.options.keep_going:
                     sys.stderr.write("  Stop.")
                 sys.stderr.write("\n")
+                try:
+                    raise SCons.Errors.BuildError(t, errstr)
+                except:
+                    self.exception_set()
                 self.do_failed()
             else:
                 print "scons: Nothing to be done for `%s'." % t
@@ -977,11 +983,6 @@ def _build_targets(fs, options, targets, target_top):
     if options.diskcheck:
         SCons.Node.FS.set_diskcheck(options.diskcheck)
 
-    _set_debug_values(options)
-    SCons.Node.implicit_cache = options.implicit_cache
-    SCons.Node.implicit_deps_changed = options.implicit_deps_changed
-    SCons.Node.implicit_deps_unchanged = options.implicit_deps_unchanged
-
     SCons.CacheDir.cache_enabled = not options.cache_disable
     SCons.CacheDir.cache_debug = options.cache_debug
     SCons.CacheDir.cache_force = options.cache_force
@@ -1133,25 +1134,28 @@ def _build_targets(fs, options, targets, target_top):
     memory_stats.append('before building targets:')
     count_stats.append(('pre-', 'build'))
 
-    try:
-        progress_display("scons: " + opening_message)
-        try:
-            jobs.run()
-        except KeyboardInterrupt:
-            # If we are in interactive mode, a KeyboardInterrupt
-            # interrupts only this current run.  Return 'nodes' normally
-            # so that the outer loop can clean up the nodes and continue.
-            if options.interactive:
-                print "Build interrupted."
-                # Continue and return normally
-    finally:
-        jobs.cleanup()
+    def jobs_postfunc(
+        jobs=jobs,
+        options=options,
+        closing_message=closing_message,
+        failure_message=failure_message
+        ):
+        if jobs.were_interrupted():
+            progress_display("scons: Build interrupted.")
+            global exit_status
+            exit_status = 2
+
         if exit_status:
             progress_display("scons: " + failure_message)
         else:
             progress_display("scons: " + closing_message)
         if not options.no_exec:
+            if jobs.were_interrupted():
+                progress_display("scons: writing .sconsign file.")
             SCons.SConsign.write()
+
+    progress_display("scons: " + opening_message)
+    jobs.run(postfunc = jobs_postfunc)
 
     memory_stats.append('after building targets:')
     count_stats.append(('post-', 'build'))
@@ -1210,10 +1214,9 @@ def main():
 
     parts = ["SCons by Steven Knight et al.:\n"]
     try:
+        import __main__
         parts.append(version_string("script", __main__))
-    except KeyboardInterrupt:
-        raise
-    except:
+    except (ImportError, AttributeError):
         # On Windows there is no scons.py, so there is no
         # __main__.__version__, hence there is no script version.
         pass 
@@ -1233,7 +1236,7 @@ def main():
         if s:
             exit_status = s
     except KeyboardInterrupt:
-        print "Build interrupted."
+        print("scons: Build interrupted.")
         sys.exit(2)
     except SyntaxError, e:
         _scons_syntax_error(e)

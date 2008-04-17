@@ -285,6 +285,24 @@ class ExecutorTestCase(unittest.TestCase):
         x.get_sources()
         assert x.sources == ['s1', 's2', 's3', 's4'], x.sources
 
+    def test_prepare(self):
+        """Test the Executor's prepare() method"""
+        env = MyEnvironment()
+        t1 = MyNode('t1')
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        s3 = MyNode('s3')
+        x = SCons.Executor.Executor('b', env, [{}], [t1], [s1, s2, s3])
+
+        s2.missing_val = True
+
+        try:
+            r = x.prepare()
+        except SCons.Errors.StopError, e:
+            assert str(e) == "Source `s2' not found, needed by target `t1'.", e
+        else:
+            raise AssertionError, "did not catch expected StopError: %s" % r
+
     def test_add_pre_action(self):
         """Test adding pre-actions to an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
@@ -402,16 +420,6 @@ class ExecutorTestCase(unittest.TestCase):
         deps = x.scan_sources(MyScanner('scanner-'))
         assert t1.implicit == ['scanner-s1', 'scanner-s2'], t1.implicit
         assert t2.implicit == ['scanner-s1', 'scanner-s2'], t2.implicit
-
-    def test_get_missing_sources(self):
-        """Test the ability to check if any sources are missing"""
-        env = MyEnvironment()
-        targets = [MyNode('t')]
-        sources = [MyNode('s1'), MyNode('s2')]
-        x = SCons.Executor.Executor('b', env, [{}], targets, sources)
-        sources[0].missing_val = 1
-        missing = x.get_missing_sources()
-        assert missing == [sources[0]], missing
 
     def test_get_unignored_sources(self):
         """Test fetching the unignored source list"""

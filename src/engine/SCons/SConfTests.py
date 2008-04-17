@@ -163,9 +163,10 @@ class SConfTestCase(unittest.TestCase):
                     def __init__(self, name):
                         self.name = name
                         self.state = None
-                        self.waiting_parents = {}
+                        self.waiting_parents = set()
                         self.side_effects = []
                         self.builder = None
+                        self.prerequisites = []
                     def disambiguate(self):
                         return self
                     def has_builder(self):

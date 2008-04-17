@@ -42,6 +42,7 @@ use_dl_lib = "env.Program(target = 'dlopenprog', source = 'dlopenprog.c', LIBS=[
 
 dlopen_line = {
     'darwin' : no_dl_lib,
+    'darwin8' : no_dl_lib,   # ONLY NEEDED FOR 1.5.2
     'freebsd4' : no_dl_lib,
     'linux2' : use_dl_lib,
 }
@@ -53,7 +54,7 @@ env = Environment()
 env.LoadableModule(target = 'foo1', source = 'f1.c')
 """ + dlopen_line.get(sys.platform, ''))
 
-    
+
 test.write('f1.c', r"""
 #include <stdio.h>
 
@@ -91,9 +92,9 @@ main(int argc, char *argv[])
 }
 """
 
-# Darwin dlopen()s a bundle name "foo1",
+# Darwin dlopen()s a bundle named "foo1",
 # other systems dlopen() a traditional libfoo1.so file.
-foo1_name = {'darwin' : 'foo1'}.get(sys.platform, dll_+'foo1'+_dll)
+foo1_name = {'darwin' : 'foo1'}.get(sys.platform[:6], dll_+'foo1'+_dll)
 
 test.write('dlopenprog.c',
            string.replace(dlopenprog, '__foo1_name__', foo1_name))
@@ -112,7 +113,7 @@ if sys.platform in platforms_with_dlopen:
     os.environ['LD_LIBRARY_PATH'] = test.workpath()
     test.run(program = test.workpath('dlopenprog'),
              stdout = "f1.c\ndlopenprog.c\n")
-                                 
+                 
 
 
 test.pass_test()

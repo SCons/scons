@@ -1,10 +1,10 @@
-"""SCons.Options.PathOption
+"""SCons.Variables.PathVariable
 
 This file defines an option type for SCons implementing path settings.
 
 To be used whenever a a user-specified path override should be allowed.
 
-Arguments to PathOption are:
+Arguments to PathVariable are:
   option-name  = name of this option on the command line (e.g. "prefix")
   option-help  = help string for option
   option-dflt  = default value for this option
@@ -30,16 +30,16 @@ Usage example:
   Examples:
       prefix=/usr/local
 
-  opts = Options()
+  opts = Variables()
 
-  opts = Options()
-  opts.Add(PathOption('qtdir',
+  opts = Variables()
+  opts.Add(PathVariable('qtdir',
                       'where the root of Qt is installed',
                       qtdir, PathIsDir))
-  opts.Add(PathOption('qt_includes',
+  opts.Add(PathVariable('qt_includes',
                       'where the Qt includes are installed',
                       '$qtdir/includes', PathIsDirCreate))
-  opts.Add(PathOption('qt_libraries',
+  opts.Add(PathVariable('qt_libraries',
                       'where the Qt library is installed',
                       '$qtdir/lib'))
 
@@ -70,12 +70,14 @@ Usage example:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+__all__ = ['PathVariable',]
+
 import os
 import os.path
 
 import SCons.Errors
 
-class _PathOptionClass:
+class _PathVariableClass:
 
     def PathAccept(self, key, val, env):
         """Accepts any path, no checking done."""
@@ -136,4 +138,4 @@ class _PathOptionClass:
             return (key, '%s ( /path/to/%s )' % (help, key), default,
                     validator, None)
 
-PathOption = _PathOptionClass()
+PathVariable = _PathVariableClass()

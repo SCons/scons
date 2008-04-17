@@ -41,8 +41,8 @@ import re
 import SCons.Action
 import SCons.Builder
 
-options = Options()
-options.AddOptions(
+options = Variables()
+options.AddVariables(
     ('header', 'Header string (default cell argument)', 'Head:'),
     ('trailer', 'Trailer string (default cell argument)', 'Tail'),
     ('NbDeps', 'Number of dependencies', '2'),

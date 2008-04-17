@@ -480,7 +480,7 @@ else:
 
     epydoc_commands = [
         Delete('$OUTDIR'),
-        '$EPYDOC $EPYDOCFLAGS --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',
+        '$EPYDOC $EPYDOCFLAGS --debug --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',
         Touch('$TARGET'),
     ]
 

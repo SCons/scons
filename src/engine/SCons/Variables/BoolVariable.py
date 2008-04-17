@@ -1,11 +1,11 @@
-"""engine.SCons.Options.BoolOption
+"""engine.SCons.Variables.BoolVariable
 
 This file defines the option type for SCons implementing true/false values.
 
 Usage example:
 
-  opts = Options()
-  opts.Add(BoolOption('embedded', 'build for an embedded system', 0))
+  opts = Variables()
+  opts.Add(BoolVariable('embedded', 'build for an embedded system', 0))
   ...
   if env['embedded'] == 1:
     ...
@@ -36,7 +36,7 @@ Usage example:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__all__ = ('BoolOption')
+__all__ = ['BoolVariable',]
 
 import string
 
@@ -56,7 +56,7 @@ def _text2bool(val):
     See '__true_strings' and '__false_strings' for values considered
     'true' or 'false respectivly.
 
-    This is usable as 'converter' for SCons' Options.
+    This is usable as 'converter' for SCons' Variables.
     """
     lval = string.lower(val)
     if lval in __true_strings: return True
@@ -68,14 +68,14 @@ def _validator(key, val, env):
     """
     Validates the given value to be either '0' or '1'.
     
-    This is usable as 'validator' for SCons' Options.
+    This is usable as 'validator' for SCons' Variables.
     """
     if not env[key] in (True, False):
         raise SCons.Errors.UserError(
             'Invalid value for boolean option %s: %s' % (key, env[key]))
 
 
-def BoolOption(key, help, default):
+def BoolVariable(key, help, default):
     """
     The input parameters describe a boolen option, thus they are
     returned with the correct converter and validator appended. The

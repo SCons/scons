@@ -100,7 +100,7 @@ stree = """
 
 test.run(arguments = "--debug=stree foo.xxx",
          stderr = stderr)
-test.fail_test(string.find(test.stdout(), stree) == -1)
+test.fail_test(string.count(test.stdout(), stree) != 1)
 
 stree2 = """
  E         = exists
@@ -132,6 +132,6 @@ test.run(arguments = '-c foo.xxx')
 
 test.run(arguments = "--no-exec --debug=stree foo.xxx",
          stderr = stderr)
-test.fail_test(string.find(test.stdout(), stree2) == -1)
+test.fail_test(string.count(test.stdout(), stree2) != 1)
 
 test.pass_test()

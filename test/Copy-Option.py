@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that setting Options in an Environment doesn't prevent the
+Test that setting Variables in an Environment doesn't prevent the
 Environment from being copied.
 """
 
@@ -37,11 +37,11 @@ test.write('SConstruct', """
 gpib_options = ['NI_GPIB', 'NI_ENET']
 gpib_include = '/'
 
-#0.96 broke copying  ListOptions ???
-opts = Options('config.py', ARGUMENTS)
-opts.AddOptions(
-    BoolOption('gpib', 'enable gpib support', 1),
-    ListOption('gpib_options',
+#0.96 broke copying  ListVariables ???
+opts = Variables('config.py', ARGUMENTS)
+opts.AddVariables(
+    BoolVariable('gpib', 'enable gpib support', 1),
+    ListVariable('gpib_options',
         'whether and what kind of gpib support shall be enabled',
         'all',
         gpib_options),

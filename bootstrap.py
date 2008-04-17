@@ -81,7 +81,15 @@ local SConstruct file.
 """
 
 bootstrap_dir = 'bootstrap'
-script_dir = os.path.split(__file__)[0]
+try:
+    script_dir = os.path.split(__file__)[0]
+except NameError:
+    # Pre-2.3 versions of Python don't have __file__.
+    script_dir = os.path.split(sys.argv[0])[0]
+    if not script_dir:
+        script_dir = os.getcwd()
+    elif not os.path.is_abs(script_dir):
+        script_dir = os.path.join(os.getcwd(), script_dir)
 if script_dir:
     bootstrap_dir = os.path.join(script_dir, bootstrap_dir)
 pass_through_args = []

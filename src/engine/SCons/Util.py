@@ -109,41 +109,6 @@ def updrive(path):
         path = string.upper(drive) + rest
     return path
 
-#
-# Generic convert-to-string functions that abstract away whether or
-# not the Python we're executing has Unicode support.  The wrapper
-# to_String_for_signature() will use a for_signature() method if the
-# specified object has one.
-#
-if hasattr(types, 'UnicodeType'):
-    UnicodeType = types.UnicodeType
-    def to_String(s):
-        if isinstance(s, UserString):
-            t = type(s.data)
-        else:
-            t = type(s)
-        if t is UnicodeType:
-            return unicode(s)
-        else:
-            return str(s)
-else:
-    to_String = str
-
-def to_String_for_signature(obj):
-    try:
-        f = obj.for_signature
-    except AttributeError:
-        return to_String_for_subst(obj)
-    else:
-        return f()
-
-def to_String_for_subst(s):
-    if is_Sequence( s ):
-        return string.join( map(to_String_for_subst, s) )
-    
-    return to_String( s )
-
-
 class CallableComposite(UserList):
     """A simple composite callable class that, when called, will invoke all
     of its contained callables with the same arguments."""
@@ -213,7 +178,17 @@ class DisplayEngine:
 
     def print_it(self, text, append_newline=1):
         if append_newline: text = text + '\n'
-        sys.stdout.write(text)
+        try:
+            sys.stdout.write(text)
+        except IOError:
+            # Stdout might be connected to a pipe that has been closed
+            # by now. The most likely reason for the pipe being closed
+            # is that the user has press ctrl-c. It this is the case,
+            # then SCons is currently shutdown. We therefore ignore
+            # IOError's here so that SCons can continue and shutdown
+            # properly so that the .sconsign is correctly written
+            # before SCons exits.
+            pass
 
     def dont_print(self, text, append_newline=1):
         pass
@@ -437,6 +412,41 @@ except TypeError:
             else:
                 flatten_sequence(item, result)
         return result
+
+    #
+    # Generic convert-to-string functions that abstract away whether or
+    # not the Python we're executing has Unicode support.  The wrapper
+    # to_String_for_signature() will use a for_signature() method if the
+    # specified object has one.
+    #
+    if hasattr(types, 'UnicodeType'):
+        UnicodeType = types.UnicodeType
+        def to_String(s):
+            if isinstance(s, UserString):
+                t = type(s.data)
+            else:
+                t = type(s)
+            if t is UnicodeType:
+                return unicode(s)
+            else:
+                return str(s)
+    else:
+        to_String = str
+
+    def to_String_for_signature(obj):
+        try:
+            f = obj.for_signature
+        except AttributeError:
+            return to_String_for_subst(obj)
+        else:
+            return f()
+
+    def to_String_for_subst(s):
+        if is_Sequence( s ):
+            return string.join( map(to_String_for_subst, s) )
+
+        return to_String( s )
+
 else:
     # A modern Python version with new-style classes, so we can just use
     # isinstance().
@@ -458,6 +468,10 @@ else:
     # explicitely with str and unicode instead of simply comparing
     # with basestring. (at least on Python 2.5.1)
     StringTypes = (str, unicode, UserString)
+
+    # Empirically, it is faster to check explicitely for str and
+    # unicode than for basestring.
+    BaseStringTypes = (str, unicode)
 
     def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
         return isinstance(obj, DictTypes)
@@ -524,6 +538,56 @@ else:
             else:
                 do_flatten(item, result)
         return result
+
+
+    #
+    # Generic convert-to-string functions that abstract away whether or
+    # not the Python we're executing has Unicode support.  The wrapper
+    # to_String_for_signature() will use a for_signature() method if the
+    # specified object has one.
+    #
+    def to_String(s, 
+                  isinstance=isinstance, str=str,
+                  UserString=UserString, BaseStringTypes=BaseStringTypes):
+        if isinstance(s,BaseStringTypes):
+            # Early out when already a string!
+            return s
+        elif isinstance(s, UserString):
+            # s.data can only be either a unicode or a regular
+            # string. Please see the UserString initializer.
+            return s.data
+        else:
+            return str(s)
+
+    def to_String_for_subst(s, 
+                            isinstance=isinstance, join=string.join, str=str, to_String=to_String,
+                            BaseStringTypes=BaseStringTypes, SequenceTypes=SequenceTypes,
+                            UserString=UserString):
+                            
+        # Note that the test cases are sorted by order of probability.
+        if isinstance(s, BaseStringTypes):
+            return s
+        elif isinstance(s, SequenceTypes):
+            l = []
+            for e in s:
+                l.append(to_String_for_subst(e))
+            return join( s )
+        elif isinstance(s, UserString):
+            # s.data can only be either a unicode or a regular
+            # string. Please see the UserString initializer.
+            return s.data
+        else:
+            return str(s)
+
+    def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst, 
+                                AttributeError=AttributeError):
+        try:
+            f = obj.for_signature
+        except AttributeError:
+            return to_String_for_subst(obj)
+        else:
+            return f()
+
 
 
 # The SCons "semi-deep" copy.
@@ -1267,8 +1331,18 @@ class Unbuffered:
     def __init__(self, file):
         self.file = file
     def write(self, arg):
-        self.file.write(arg)
-        self.file.flush()
+        try:
+            self.file.write(arg)
+            self.file.flush()
+        except IOError:
+            # Stdout might be connected to a pipe that has been closed
+            # by now. The most likely reason for the pipe being closed
+            # is that the user has press ctrl-c. It this is the case,
+            # then SCons is currently shutdown. We therefore ignore
+            # IOError's here so that SCons can continue and shutdown
+            # properly so that the .sconsign is correctly written
+            # before SCons exits.
+            pass
     def __getattr__(self, attr):
         return getattr(self.file, attr)
 

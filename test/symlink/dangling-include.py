@@ -51,7 +51,7 @@ test.write('foo.c', """\
 test.symlink('nonexistent', 'foo.h')
 
 expect = """\
-scons: *** Source `foo.h' not found, needed by target `%s'.  Stop.
+scons: *** Implicit dependency `foo.h' not found, needed by target `%s'.  Stop.
 """% foo_obj
 
 test.run(arguments = '.', status = 2, stderr = expect)

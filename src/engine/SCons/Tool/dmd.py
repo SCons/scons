@@ -14,14 +14,15 @@ use absolute paths.  To hack around it, add '#/blah'.  This will link
 blah.lib from the directory where SConstruct resides.
 
 Compiler variables:
-    DC - The name of the D compiler to use.  Defaults to dmd.
+    DC - The name of the D compiler to use.  Defaults to dmd or gdmd,
+    whichever is found.
     DPATH - List of paths to search for import modules.
     DVERSIONS - List of version tags to enable when compiling.
     DDEBUG - List of debug tags to enable when compiling.
 
 Linker related variables:
     LIBS - List of library files to link in.
-    DLINK - Name of the linker to use.  Defaults to dmd.
+    DLINK - Name of the linker to use.  Defaults to dmd or gdmd.
     DLINKFLAGS - List of linker flags.
 
 Lib tool variables:
@@ -93,7 +94,8 @@ def generate(env):
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
-    env['DC'] = 'dmd'
+    dc = env.Detect(['dmd', 'gdmd'])
+    env['DC'] = dc
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of$TARGET $SOURCES'
     env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}  $)'
     env['_DVERFLAGS'] = '$( ${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}  $)'
@@ -105,14 +107,15 @@ def generate(env):
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
 
-    # Add the path to the standard library.
-    # This is merely for the convenience of the dependency scanner.
-    dmd_path = env.WhereIs('dmd')
-    if dmd_path:
-        x = string.rindex(dmd_path, 'dmd')
-        phobosDir = dmd_path[:x] + '/../src/phobos'
-        if os.path.isdir(phobosDir):
-            env.Append(DPATH = [phobosDir])
+    if dc:
+        # Add the path to the standard library.
+        # This is merely for the convenience of the dependency scanner.
+        dmd_path = env.WhereIs(dc)
+        if dmd_path:
+            x = string.rindex(dmd_path, dc)
+            phobosDir = dmd_path[:x] + '/../src/phobos'
+            if os.path.isdir(phobosDir):
+                env.Append(DPATH = [phobosDir])
 
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
@@ -198,7 +201,10 @@ def generate(env):
                     except KeyError:
                         libs = []
                     if 'phobos' not in libs:
-                        env.Append(LIBS = ['phobos'])
+                        if dc is 'dmd':
+                            env.Append(LIBS = ['phobos'])
+                        elif dc is 'gdmd':
+                            env.Append(LIBS = ['gphobos'])
                     if 'pthread' not in libs:
                         env.Append(LIBS = ['pthread'])
                     if 'm' not in libs:
@@ -209,4 +215,4 @@ def generate(env):
         env['LINKCOM'] = '$SMART_LINKCOM '
 
 def exists(env):
-    return env.Detect('dmd')
+    return env.Detect(['dmd', 'gdmd'])

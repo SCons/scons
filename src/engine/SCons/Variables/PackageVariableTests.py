@@ -29,15 +29,15 @@ import sys
 import unittest
 
 import SCons.Errors
-import SCons.Options
+import SCons.Variables
 
 import TestCmd
 
-class PackageOptionTestCase(unittest.TestCase):
-    def test_PackageOption(self):
-        """Test PackageOption creation"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PackageOption('test', 'test option help', '/default/path'))
+class PackageVariableTestCase(unittest.TestCase):
+    def test_PackageVariable(self):
+        """Test PackageVariable creation"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
 
         o = opts.options[0]
         assert o.key == 'test', o.key
@@ -47,9 +47,9 @@ class PackageOptionTestCase(unittest.TestCase):
         assert not o.converter is None, o.converter
 
     def test_converter(self):
-        """Test the PackageOption converter"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PackageOption('test', 'test option help', '/default/path'))
+        """Test the PackageVariable converter"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
 
         o = opts.options[0]
 
@@ -80,7 +80,7 @@ class PackageOptionTestCase(unittest.TestCase):
 
         # Make sure the converter returns True if we give it str(True) and
         # False when we give it str(False).  This assures consistent operation
-        # through a cycle of Options.Save(<file>) -> Options(<file>).
+        # through a cycle of Variables.Save(<file>) -> Variables(<file>).
         x = o.converter(str(True))
         assert x == True, "converter returned a string when given str(True)"
 
@@ -88,9 +88,9 @@ class PackageOptionTestCase(unittest.TestCase):
         assert x == False, "converter returned a string when given str(False)"
 
     def test_validator(self):
-        """Test the PackageOption validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.PackageOption('test', 'test option help', '/default/path'))
+        """Test the PackageVariable validator"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
 
         test = TestCmd.TestCmd(workdir='')
         test.write('exists', 'exists\n')
@@ -115,6 +115,6 @@ class PackageOptionTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(PackageOptionTestCase, 'test_')
+    suite = unittest.makeSuite(PackageVariableTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

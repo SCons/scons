@@ -84,6 +84,7 @@ import SCons.SConf
 import SCons.Subst
 import SCons.Tool
 import SCons.Util
+import SCons.Variables
 import SCons.Defaults
 
 import Main
@@ -138,21 +139,30 @@ call_stack              = _SConscript.call_stack
 Action                  = SCons.Action.Action
 AddMethod               = SCons.Util.AddMethod
 AllowSubstExceptions    = SCons.Subst.SetAllowableExceptions
-BoolOption              = SCons.Options.BoolOption
 Builder                 = SCons.Builder.Builder
 Configure               = _SConscript.Configure
-EnumOption              = SCons.Options.EnumOption
 Environment             = SCons.Environment.Environment
 #OptParser               = SCons.SConsOptions.OptParser
 FindPathDirs            = SCons.Scanner.FindPathDirs
-ListOption              = SCons.Options.ListOption
-PackageOption           = SCons.Options.PackageOption
-PathOption              = SCons.Options.PathOption
 Platform                = SCons.Platform.Platform
 Return                  = _SConscript.Return
 Scanner                 = SCons.Scanner.Base
 Tool                    = SCons.Tool.Tool
 WhereIs                 = SCons.Util.WhereIs
+
+#
+BoolVariable            = SCons.Variables.BoolVariable
+EnumVariable            = SCons.Variables.EnumVariable
+ListVariable            = SCons.Variables.ListVariable
+PackageVariable         = SCons.Variables.PackageVariable
+PathVariable            = SCons.Variables.PathVariable
+
+# Deprecated names that will go away some day.
+BoolOption              = SCons.Options.BoolOption
+EnumOption              = SCons.Options.EnumOption
+ListOption              = SCons.Options.ListOption
+PackageOption           = SCons.Options.PackageOption
+PathOption              = SCons.Options.PathOption
 
 # Action factories.
 Chmod                   = SCons.Defaults.Chmod
@@ -262,6 +272,9 @@ def HelpFunction(text):
 sconscript_reading = 0
 
 #
+def Variables(files=[], args=ARGUMENTS):
+    return SCons.Variables.Variables(files, args)
+
 def Options(files=[], args=ARGUMENTS):
     return SCons.Options.Options(files, args)
 

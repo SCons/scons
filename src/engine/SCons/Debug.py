@@ -115,39 +115,57 @@ else:
             res = resource.getrusage(resource.RUSAGE_SELF)
             return res[4]
 
-
-
-caller_dicts = {}
-
-def caller(*backlist):
+# returns caller's stack
+def caller_stack(*backlist):
     import traceback
     if not backlist:
         backlist = [0]
     result = []
     for back in backlist:
         tb = traceback.extract_stack(limit=3+back)
-        key = tb[1][:3]
-        try:
-            entry = caller_dicts[key]
-        except KeyError:
-            entry = caller_dicts[key] = {}
         key = tb[0][:3]
-        entry[key] = entry.get(key, 0) + 1
         result.append('%s:%d(%s)' % func_shorten(key))
     return result
 
+caller_bases = {}
+caller_dicts = {}
+
+# trace a caller's stack
+def caller_trace(back=0):
+    import traceback
+    tb = traceback.extract_stack(limit=3+back)
+    tb.reverse()
+    callee = tb[1][:3]
+    caller_bases[callee] = caller_bases.get(callee, 0) + 1
+    for caller in tb[2:]:
+        caller = callee + caller[:3]
+        try:
+            entry = caller_dicts[callee]
+        except KeyError:
+            caller_dicts[callee] = entry = {}
+        entry[caller] = entry.get(caller, 0) + 1
+        callee = caller
+
+# print a single caller and its callers, if any
+def _dump_one_caller(key, file, level=0):
+    l = []
+    for c,v in caller_dicts[key].items():
+        l.append((-v,c))
+    l.sort()
+    leader = '      '*level
+    for v,c in l:
+        file.write("%s  %6d %s:%d(%s)\n" % ((leader,-v) + func_shorten(c[-3:])))
+        if caller_dicts.has_key(c):
+            _dump_one_caller(c, file, level+1)
+
+# print each call tree
 def dump_caller_counts(file=sys.stdout):
-    keys = caller_dicts.keys()
+    keys = caller_bases.keys()
     keys.sort()
     for k in keys:
-        file.write("Callers of %s:%d(%s):\n" % func_shorten(k))
-        counts = caller_dicts[k]
-        callers = counts.keys()
-        callers.sort()
-        for c in callers:
-            #file.write("    counts[%s] = %s\n" % (c, counts[c]))
-            t = ((counts[c],) + func_shorten(c))
-            file.write("    %6d %s:%d(%s)\n" % t)
+        file.write("Callers of %s:%d(%s), %d calls:\n"
+                    % (func_shorten(k) + (caller_bases[k],)))
+        _dump_one_caller(k, file)
 
 shorten_list = [
     ( '/scons/SCons/',          1),
@@ -168,10 +186,8 @@ def func_shorten(func_tuple):
         if i >= 0:
             if t[1]:
                 i = i + len(t[0])
-            f = f[i:]
-            break
-    return (f,)+func_tuple[1:]
-
+            return (f[i:],)+func_tuple[1:]
+    return func_tuple
 
 
 TraceFP = {}

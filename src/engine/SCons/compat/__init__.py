@@ -138,7 +138,12 @@ except AttributeError:
         return result
     fnmatch.filter = filter
     del filter
-   
+
+try:
+    import itertools
+except ImportError:
+    # Pre-2.3 Python has no itertools module.
+    import_as('_scons_itertools', 'itertools')
 
 # If we need the compatibility version of textwrap, it  must be imported
 # before optparse, which uses it.

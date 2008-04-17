@@ -34,6 +34,7 @@ import string
 
 import TestSCons
 
+
 test = TestSCons.TestSCons()
 
 SConstruct_path = test.workpath('SConstruct')
@@ -80,7 +81,9 @@ test.run()
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
 
-test.must_match(test.workpath('scons.options'), "shared = 'all'"+os.linesep)
+test.must_match(test.workpath('scons.options'),
+                "shared = 'all'"+os.linesep,
+                mode='r')
 
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])

@@ -50,10 +50,7 @@ for l in filter(lambda l: l != '/*c++*/\n', infile.readlines()):
 sys.exit(0)
 """)
 
-if os.path.normcase('.c') == os.path.normcase('.C'):
-    alt_cpp_suffix = '.cpp'
-else:
-    alt_cpp_suffix = '.C'
+alt_cpp_suffix=test.get_alt_cpp_suffix()
 
 test.write('SConstruct', """
 env = Environment(CXXCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',

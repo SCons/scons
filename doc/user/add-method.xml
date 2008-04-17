@@ -1,0 +1,100 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  The env.AddMethod(function, [name]) function is used to add a method
+  to an environment.  It's typically used to add a "pseudo-builder" or
+  wrap up a call to multiple builders.  In the first example, we want
+  to install the program into the standard bin dir, but also copy it
+  into a local install/bin dir that might be used to build a package
+  from.
+
+  </para>
+
+  <programlisting>
+     def install_in_bin_dirs(env, source):
+         """Install source in both bin dirs"""
+         i1 = env.Install("$BIN", source)
+         i2 = env.Install("$LOCALBIN", source)
+         return [i1[0], i2][0] # Return a list, like a normal builder
+     env = Environment(BIN='/usr/bin', LOCALBIN='#install/bin')
+     env.AddMethod(install_in_bin_dirs, "InstallInBinDirs")
+     env.InstallInBinDirs(Program('hello.c')) # installs hello in both bin dirs     
+  </programlisting>
+
+  <para>
+  This produces the following:
+  </para>
+
+  <screen>
+    % <userinput>scons -Q</userinput>
+    cc -o hello.o -c hello.c
+    cc -o hello hello.o
+    Install file: "hello" as "install/bin/hello"
+  </screen>
+
+  <para>
+
+  It also gives more flexibility in parsing arguments than you can get
+  with a builder.  The next example shows a pseudo-builder with a
+  named argument that modifies the filename, and a separate argument
+  for the resource file (rather than having the builder figure it out
+  by file extension).  Also this example demonstrates using the global
+  AddMethod function to add a method to the global Environment class,
+  so it will be used in all subsequently created environments.
+
+  </para>
+
+  <programlisting>
+     import sys
+     def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
+         """Build the test program;
+         prepends "test_" to src and target, and puts target into testdir."""
+         srcfile="test_%s.c"%testfile
+         if sys.platform=='win32':
+             target="%s/test_%s$EXESUFFIX"%(testdir,[testfile, resourcefile])
+         else:
+             target="%s/test_%s$EXESUFFIX"%(testdir,testfile)
+         p = env.Program(target, srcfile)
+         return p
+     AddMethod(Environment, BuildTestProg)
+
+     # Now use it
+     env=Environment()
+     env.BuildTestProg('stuff', resourcefile='res.rc')
+  </programlisting>
+
+  <para>
+  This produces the following (on Linux, anyway; Windows would include the
+  resource file):
+  </para>
+
+  <screen>
+    % <userinput>scons -Q</userinput>
+    cc -o test_stuff.o -c test_stuff.c
+    cc -o tests/test_stuff test_stuff.o
+  </screen>
+

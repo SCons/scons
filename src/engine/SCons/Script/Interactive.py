@@ -185,6 +185,16 @@ class SConsInteractiveCmd(cmd.Cmd):
         if not nodes:
             return
 
+        # Call each of the Node's alter_targets() methods, which may
+        # provide additional targets that ended up as part of the build
+        # (the canonical example being a VariantDir() when we're building
+        # from a source directory) and which we therefore need their
+        # state cleared, too.
+        x = []
+        for n in nodes:
+            x.extend(n.alter_targets()[0])
+        nodes.extend(x)
+
         # Clean up so that we can perform the next build correctly.
         #
         # We do this by walking over all the children of the targets,

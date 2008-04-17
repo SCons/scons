@@ -109,7 +109,7 @@ test.run(arguments = '.', status = 2, stderr = expected_stderr)
 
 expected_stderr_list = [
     "scons: *** [out.f1] Error 1\n",
-    "scons: *** Source `in.f2' not found, needed by target `out.f2'.  Stop.\n",
+    "scons: *** Source `in.f2' not found, needed by target `out.f2'.\n",
     "scons: *** [out.f3] Error 1\n",
 ]
 
@@ -120,7 +120,7 @@ expected_stderr_list = [
 # walk of '.' and are already considered up-to-date when we kick off the
 # "simultaneous" builds of the output (target) files.
 
-test.run(arguments = '-j7 .', status = 2, stderr = None)
+test.run(arguments = '-j7 -k .', status = 2, stderr = None)
 
 missing = []
 for es in expected_stderr_list:

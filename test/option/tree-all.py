@@ -97,8 +97,8 @@ tree1 = """
 """ % locals()
 
 test.run(arguments = "--tree=all Foo.xxx")
-if string.find(test.stdout(), tree1) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
+if string.count(test.stdout(), tree1) != 1:
+    sys.stdout.write('Did not find expected tree (or found duplicate) in the following output:\n')
     sys.stdout.write(test.stdout())
     test.fail_test()
 
@@ -163,14 +163,14 @@ tree3 = """
 """ % locals()
 
 test.run(arguments = "--tree=all,prune .")
-if string.find(test.stdout(), tree3) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
+if string.count(test.stdout(), tree3) != 1:
+    sys.stdout.write('Did not find expected tree (or found duplicate) in the following output:\n')
     sys.stdout.write(test.stdout())
     test.fail_test()
 
 test.run(arguments = "--tree=prune .")
-if string.find(test.stdout(), tree3) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
+if string.count(test.stdout(), tree3) != 1:
+    sys.stdout.write('Did not find expected tree (or found duplicate) in the following output:\n')
     sys.stdout.write(test.stdout())
     test.fail_test()
 
@@ -203,14 +203,14 @@ tree4 = """
 test.run(arguments = '-c Foo.xxx')
 
 test.run(arguments = "--no-exec --tree=all,status Foo.xxx")
-if string.find(test.stdout(), tree4) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
+if string.count(test.stdout(), tree4) != 1:
+    sys.stdout.write('Did not find expected tree (or found duplicate) in the following output:\n')
     sys.stdout.write(test.stdout())
     test.fail_test()
 
 test.run(arguments = "--no-exec --tree=status Foo.xxx")
-if string.find(test.stdout(), tree4) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
+if string.count(test.stdout(), tree4) != 1:
+    sys.stdout.write('Did not find expected tree (or found duplicate) in the following output:\n')
     sys.stdout.write(test.stdout())
     test.fail_test()
 
@@ -226,8 +226,8 @@ THIS SHOULD CAUSE A BUILD FAILURE
 test.run(arguments = "--tree=all Foo.xxx",
          status = 2,
          stderr = None)
-if string.find(test.stdout(), tree1) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
+if string.count(test.stdout(), tree1) != 1:
+    sys.stdout.write('Did not find expected tree (or found duplicate) in the following output:\n')
     sys.stdout.write(test.stdout())
     test.fail_test()
 

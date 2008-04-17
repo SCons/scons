@@ -163,10 +163,10 @@ class Tool:
                 kw = self.init_kw
         env.Append(TOOLS = [ self.name ])
         if hasattr(self, 'options'):
-            from SCons.Options import Options
+            import SCons.Variables
             if not env.has_key('options'):
                 from SCons.Script import ARGUMENTS
-                env['options']=Options(args=ARGUMENTS)
+                env['options']=SCons.Variables.Variables(args=ARGUMENTS)
             opts=env['options']
 
             self.options(opts)

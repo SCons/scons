@@ -36,6 +36,7 @@ that can be used by scripts or modules looking for the canonical default.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import fnmatch
+from itertools import izip
 import os
 import os.path
 import re
@@ -1895,7 +1896,7 @@ class Dir(Base):
                         rep_nodes = map(dir.Entry, disk_names)
                         #rep_nodes = [ n.disambiguate() for n in rep_nodes ]
                         rep_nodes = map(lambda n: n.disambiguate(), rep_nodes)
-                        for node, name in zip(rep_nodes, disk_names):
+                        for node, name in izip(rep_nodes, disk_names):
                             n = self.Entry(name)
                             if n.__class__ != node.__class__:
                                 n.__class__ = node.__class__
@@ -2110,7 +2111,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 pass
             else:
                 nodes = []
-                for s, ni in zip(strings, nodeinfos):
+                for s, ni in izip(strings, nodeinfos):
                     if not isinstance(s, SCons.Node.Node):
                         s = ni.str_to_node(s)
                     nodes.append(s)
@@ -2119,7 +2120,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         result = []
         bkids = self.bsources + self.bdepends + self.bimplicit
         bkidsigs = self.bsourcesigs + self.bdependsigs + self.bimplicitsigs
-        for bkid, bkidsig in zip(bkids, bkidsigs):
+        for bkid, bkidsig in izip(bkids, bkidsigs):
             result.append(str(bkid) + ': ' +
                           string.join(bkidsig.format(names=names), ' '))
         result.append('%s [%s]' % (self.bactsig, self.bact))

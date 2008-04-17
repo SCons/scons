@@ -1006,10 +1006,13 @@ class CommandActionTestCase(unittest.TestCase):
             expect_nonexecutable = 1
         elif sys.platform == 'cygwin':
             expect_nonexistent = 127
-            expect_nonexecutable = 127
+            # Newer cygwin seems to return 126 for following
+            expect_nonexecutable_file = 126
+            expect_nonexecutable_dir  = 127
         else:
             expect_nonexistent = 127
-            expect_nonexecutable = 126
+            expect_nonexecutable_file = 126
+            expect_nonexecutable_dir  = 126
 
         # Test that a nonexistent command returns 127
         act = SCons.Action.CommandAction(python + "_no_such_command_")
@@ -1020,12 +1023,12 @@ class CommandActionTestCase(unittest.TestCase):
         dir, tail = os.path.split(python)
         act = SCons.Action.CommandAction(dir)
         r = act([], [], env.Clone(out = outfile))
-        assert r.status == expect_nonexecutable, r.status
+        assert r.status == expect_nonexecutable_file, r.status
 
         # Test that trying to execute a non-executable file returns 126
         act = SCons.Action.CommandAction(outfile)
         r = act([], [], env.Clone(out = outfile))
-        assert r.status == expect_nonexecutable, r.status
+        assert r.status == expect_nonexecutable_dir, r.status
 
         act = SCons.Action.CommandAction('%s %s 1' % (_python_, exit_py))
         r = act([], [], env)

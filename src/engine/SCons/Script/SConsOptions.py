@@ -26,9 +26,17 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import optparse
+import re
 import string
 import sys
 import textwrap
+
+try:
+    no_hyphen_re = re.compile(r'(\s+|(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')
+except re.error:
+    # Pre-2.0 Python versions don't have the (?<= negative
+    # look-behind assertion.
+    no_hyphen_re = re.compile(r'(\s+|-*\w{2,}-(?=\w{2,}))')
 
 try:
     from gettext import gettext
@@ -382,8 +390,16 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_option(self, option):
         """
         A copy of the normal optparse.IndentedHelpFormatter.format_option()
-        method, snarfed so we can set the subsequent_indent on the
-        textwrap.wrap() call below...
+        method.  This has been snarfed so we can modify text wrapping to
+        out liking:
+
+        --  add our own regular expression that doesn't break on hyphens
+            (so things like --no-print-directory don't get broken); 
+
+        --  wrap the list of options themselves when it's too long
+            (the wrapper.fill(opts) call below);
+ 
+        --  set the subsequent_indent when wrapping the help_text.
         """
         # The help for each option consists of two parts:
         #   * the opt strings and metavars
@@ -410,7 +426,11 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
 
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
-            opts = "%*s%s\n" % (self.current_indent, "", opts)
+            wrapper = textwrap.TextWrapper(width=self.width,
+                                           initial_indent = '  ',
+                                           subsequent_indent = '  ')
+            wrapper.wordsep_re = no_hyphen_re
+            opts = wrapper.fill(opts) + '\n'
             indent_first = self.help_position
         else:                       # start help on same line as opts
             opts = "%*s%-*s  " % (self.current_indent, "", opt_width, opts)
@@ -428,8 +448,10 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
                 help_text = expand_default(option)
 
             # SCons:  indent every line of the help text but the first.
-            help_lines = textwrap.wrap(help_text, self.help_width,
-                                       subsequent_indent = '  ')
+            wrapper = textwrap.TextWrapper(width=self.help_width,
+                                           subsequent_indent = '  ')
+            wrapper.wordsep_re = no_hyphen_re
+            help_lines = wrapper.wrap(help_text)
             result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
             for line in help_lines[1:]:
                 result.append("%*s%s\n" % (self.help_position, "", line))
@@ -503,8 +525,13 @@ def Parser(version):
     # options ignored for compatibility
     def opt_ignore(option, opt, value, parser):
         sys.stderr.write("Warning:  ignoring %s option\n" % opt)
-    op.add_option("-b", "-m", "-S", "-t",
-                  "--no-keep-going", "--stop", "--touch",
+    op.add_option("-b", "-d", "-e", "-m", "-S", "-t", "-w",
+                  "--environment-overrides",
+                  "--no-keep-going",
+                  "--no-print-directory",
+                  "--print-directory",
+                  "--stop",
+                  "--touch",
                   action="callback", callback=opt_ignore,
                   help="Ignored for compatibility.")
 
@@ -556,13 +583,6 @@ def Parser(version):
                   action="callback", callback=opt_config,
                   help = opt_config_help,
                   metavar="MODE")
-
-    def opt_not_yet(option, opt, value, parser):
-        sys.stderr.write("Warning:  the %s option is not yet implemented\n" % opt)
-        sys.exit(0)
-    op.add_option('-d',
-                  action="callback", callback=opt_not_yet,
-                  help = "Print file dependency information.")
 
     op.add_option('-D',
                   dest="climb_up", default=None,
@@ -836,11 +856,12 @@ def Parser(version):
     # we don't want to change.  These all get a "the -X option is not
     # yet implemented" message and don't show up in the help output.
 
-    op.add_option('-e', '--environment-overrides',
-                  dest="environment_overrides",
-                  action="callback", callback=opt_not_yet,
-                  # help="Environment variables override makefiles."
-                  help=SUPPRESS_HELP)
+    def opt_not_yet(option, opt, value, parser):
+        msg = "Warning:  the %s option is not yet implemented\n" % opt
+        sys.stderr.write(msg)
+        sys.exit(0)
+
+
     op.add_option('-l', '--load-average', '--max-load',
                   nargs=1, type="int",
                   dest="load_average", default=0,
@@ -886,16 +907,6 @@ def Parser(version):
                   action="callback", callback=opt_not_yet,
                   dest="no_builtin_rules",
                   # help="Clear default environments and variables."
-                  help=SUPPRESS_HELP)
-    op.add_option('-w', '--print-directory',
-                  action="callback", callback=opt_not_yet,
-                  dest="print_directory",
-                  # help="Print the current directory."
-                  help=SUPPRESS_HELP)
-    op.add_option('--no-print-directory',
-                  action="callback", callback=opt_not_yet,
-                  dest="no_print_directory",
-                  # help="Turn off -w, even if it was turned on implicitly."
                   help=SUPPRESS_HELP)
     op.add_option('--write-filenames',
                   nargs=1, type="string",

@@ -1,4 +1,4 @@
-"""engine.SCons.Options.ListOption
+"""engine.SCons.Variables.ListVariable
 
 This file defines the option type for SCons implementing 'lists'.
 
@@ -11,8 +11,8 @@ Usage example:
 
   list_of_libs = Split('x11 gl qt ical')
 
-  opts = Options()
-  opts.Add(ListOption('shared',
+  opts = Variables()
+  opts.Add(ListVariable('shared',
                       'libraries to build as shared libraries',
                       'all',
                       elems = list_of_libs))
@@ -52,7 +52,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 # Know Bug: This should behave like a Set-Type, but does not really,
 # since elements can occur twice.
 
-__all__ = ('ListOption',)
+__all__ = ['ListVariable',]
 
 import string
 import UserList
@@ -60,7 +60,7 @@ import UserList
 import SCons.Util
 
 
-class _ListOption(UserList.UserList):
+class _ListVariable(UserList.UserList):
     def __init__(self, initlist=[], allowedElems=[]):
         UserList.UserList.__init__(self, filter(None, initlist))
         self.allowedElems = allowedElems[:]
@@ -103,7 +103,7 @@ def _converter(val, allowedElems, mapdict):
         if notAllowed:
             raise ValueError("Invalid value(s) for option: %s" %
                              string.join(notAllowed, ','))
-    return _ListOption(val, allowedElems)
+    return _ListVariable(val, allowedElems)
 
 
 ## def _validator(key, val, env):
@@ -113,7 +113,7 @@ def _converter(val, allowedElems, mapdict):
 ##     return 1
 
 
-def ListOption(key, help, default, names, map={}):
+def ListVariable(key, help, default, names, map={}):
     """
     The input parameters describe a 'package list' option, thus they
     are returned with the correct converter and validater appended. The

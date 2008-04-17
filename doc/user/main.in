@@ -51,6 +51,7 @@
     <!ENTITY builders-built-in SYSTEM "builders-built-in.xml">
     <!ENTITY builders-commands SYSTEM "builders-commands.xml">
     <!ENTITY builders-writing SYSTEM "builders-writing.xml">
+    <!ENTITY add-method SYSTEM "add-method.xml">
     <!ENTITY caching SYSTEM "caching.xml">
     <!ENTITY command-line SYSTEM "command-line.xml">
     <!ENTITY copyright SYSTEM "copyright.xml">
@@ -137,8 +138,6 @@
   XXX Glob()
 
   XXX Progress()
-
-  XXX AddMethod()
 
   XXX - - diskcheck=
 
@@ -293,6 +292,11 @@
   <chapter id="chap-builders-commands">
     <title>Not Writing a Builder:  the &Command; Builder</title>
     &builders-commands;
+  </chapter>
+
+  <chapter id="chap-add-method">
+    <title>Pseudo-Builders:  the AddMethod function</title>
+    &add-method;
   </chapter>
 
   <!--

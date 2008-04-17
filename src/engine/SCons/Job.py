@@ -33,6 +33,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import os
+import signal
+
 
 # The default stack size (in kilobytes) of the threads used to execute
 # jobs in parallel.
@@ -44,6 +47,7 @@ import SCons.compat
 
 default_stack_size = 256
 
+interrupt_msg = 'Build interrupted.'
 
 class Jobs:
     """An instance of this class initializes N jobs, and provides
@@ -80,21 +84,73 @@ class Jobs:
             self.job = Serial(taskmaster)
             self.num_jobs = 1
 
-    def run(self):
-        """run the job"""
+        self.job.interrupted = False
+
+    def run(self, postfunc=lambda: None):
+        """Run the jobs.
+
+        postfunc() will be invoked after the jobs has run. It will be
+        invoked even if the jobs are interrupted by a keyboard
+        interrupt (well, in fact by a signal such as either SIGINT,
+        SIGTERM or SIGHUP). The execution of postfunc() is protected
+        against keyboard interrupts and is guaranteed to run to
+        completion."""
+        self._setup_sig_handler()
         try:
             self.job.start()
-        except KeyboardInterrupt:
-            # mask any further keyboard interrupts so that scons
-            # can shutdown cleanly:
-            # (this only masks the keyboard interrupt for Python,
-            #  child processes can still get the keyboard interrupt)
-            import signal
-            signal.signal(signal.SIGINT, signal.SIG_IGN)
-            raise
+        finally:
+            postfunc()
+            self._reset_sig_handler()
 
-    def cleanup(self):
-        self.job.cleanup()
+    def were_interrupted(self):
+        """Returns whether the jobs were interrupted by a signal."""
+        return self.job.interrupted
+
+    def _setup_sig_handler(self):
+        """Setup an interrupt handler so that SCons can shutdown cleanly in
+        various conditions:
+
+          a) SIGINT: Keyboard interrupt
+          b) SIGTERM: kill or system shutdown
+          c) SIGHUP: Controlling shell exiting
+
+        We handle all of these cases by stopping the taskmaster. It
+        turns out that it very difficult to stop the build process
+        by throwing asynchronously an exception such as
+        KeyboardInterrupt. For example, the python Condition
+        variables (threading.Condition) and Queue's do not seem to
+        asynchronous-exception-safe. It would require adding a whole
+        bunch of try/finally block and except KeyboardInterrupt all
+        over the place.
+
+        Note also that we have to be careful to handle the case when
+        SCons forks before executing another process. In that case, we
+        want the child to exit immediately.
+        """
+        def handler(signum, stack, parentpid=os.getpid()):
+            if os.getpid() == parentpid:
+                self.job.taskmaster.stop()
+                self.job.interrupted = True
+            else:
+                os._exit(2)
+
+        self.old_sigint  = signal.signal(signal.SIGINT, handler)
+        self.old_sigterm = signal.signal(signal.SIGTERM, handler)
+        try:
+            self.old_sighup = signal.signal(signal.SIGHUP, handler)
+        except AttributeError:
+            pass
+
+    def _reset_sig_handler(self):
+        """Restore the signal handlers to their previous state (before the
+         call to _setup_sig_handler()."""
+
+        signal.signal(signal.SIGINT, self.old_sigint)
+        signal.signal(signal.SIGTERM, self.old_sigterm)
+        try:
+            signal.signal(signal.SIGHUP, self.old_sighup)
+        except AttributeError:
+            pass
 
 class Serial:
     """This class is used to execute tasks in series, and is more efficient
@@ -129,11 +185,18 @@ class Serial:
 
             try:
                 task.prepare()
-                task.execute()
-            except KeyboardInterrupt:
-                raise
+                if task.needs_execute():
+                    task.execute()
             except:
-                task.exception_set()
+                if self.interrupted:
+                    try:
+                        raise SCons.Errors.BuildError(
+                            task.targets[0], errstr=interrupt_msg)
+                    except:
+                        task.exception_set()
+                else:
+                    task.exception_set()
+
                 # Let the failed() callback function arrange for the
                 # build to stop if that's appropriate.
                 task.failed()
@@ -141,9 +204,8 @@ class Serial:
                 task.executed()
 
             task.postprocess()
+        self.taskmaster.cleanup()
 
-    def cleanup(self):
-        pass
 
 # Trap import failure so that everything in the Job module but the
 # Parallel class (and its dependent classes) will work if the interpreter
@@ -178,9 +240,6 @@ else:
 
                 try:
                     task.execute()
-                except KeyboardInterrupt:
-                    # be explicit here for test/interrupts.py
-                    ok = False
                 except:
                     task.exception_set()
                     ok = False
@@ -226,16 +285,16 @@ else:
             if 'prev_size' in locals().keys():
                 threading.stack_size(prev_size)
 
-        def put(self, obj):
+        def put(self, task):
             """Put task into request queue."""
-            self.requestQueue.put(obj)
+            self.requestQueue.put(task)
 
-        def get(self, block = True):
+        def get(self):
             """Remove and return a result tuple from the results queue."""
-            return self.resultsQueue.get(block)
+            return self.resultsQueue.get()
 
-        def preparation_failed(self, obj):
-            self.resultsQueue.put((obj, False))
+        def preparation_failed(self, task):
+            self.resultsQueue.put((task, False))
 
         def cleanup(self):
             """
@@ -309,22 +368,21 @@ else:
                     if task is None:
                         break
 
-                    # prepare task for execution
                     try:
+                        # prepare task for execution
                         task.prepare()
-                    except KeyboardInterrupt:
-                        raise
                     except:
-                        # Let the failed() callback function arrange
-                        # for the build to stop if that's appropriate.
                         task.exception_set()
-                        self.tp.preparation_failed(task)
-                        jobs = jobs + 1
-                        continue
-
-                    # dispatch task
-                    self.tp.put(task)
-                    jobs = jobs + 1
+                        task.failed()
+                        task.postprocess()
+                    else:
+                        if task.needs_execute():
+                            # dispatch task
+                            self.tp.put(task)
+                            jobs = jobs + 1
+                        else:
+                            task.executed()
+                            task.postprocess()
 
                 if not task and not jobs: break
 
@@ -332,11 +390,20 @@ else:
                 # back and put the next batch of tasks on the queue.
                 while 1:
                     task, ok = self.tp.get()
-
                     jobs = jobs - 1
+
                     if ok:
                         task.executed()
                     else:
+                        if self.interrupted:
+                            try:
+                                raise SCons.Errors.BuildError(
+                                    task.targets[0], errstr=interrupt_msg)
+                            except:
+                                task.exception_set()
+
+                        # Let the failed() callback function arrange
+                        # for the build to stop if that's appropriate.
                         task.failed()
 
                     task.postprocess()
@@ -344,5 +411,5 @@ else:
                     if self.tp.resultsQueue.empty():
                         break
 
-        def cleanup(self):
             self.tp.cleanup()
+            self.taskmaster.cleanup()

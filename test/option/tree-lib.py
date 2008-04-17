@@ -47,7 +47,7 @@ env = Environment(LIBPREFIX='',
                   EXESUFFIX='.exe')
 env.AppendENVPath('PATH', '.')
 l = env.Library( 'util.lib', 'util.c' )
-p = env.Program( 'test.exe', 'main.c', LIBS=l )
+p = env.Program( 'test_tree_lib.exe', 'main.c', LIBS=l )
 env.Command( 'foo.h', p, '$SOURCE > $TARGET')
 """)
 
@@ -71,7 +71,7 @@ util(void)
 """)
 
 expect = """
-  +-test.exe
+  +-test_tree_lib.exe
     +-main.obj
     +-util.lib
       +-util.obj

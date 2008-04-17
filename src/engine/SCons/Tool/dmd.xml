@@ -6,7 +6,8 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="dmd">
 <summary>
-Sets construction variables for the Digital Mars D compiler.
+Sets construction variables for D language compilers
+(the Digital Mars D compiler, or GDC).
 </summary>
 <sets>
 <!--

@@ -62,7 +62,8 @@ def _swigEmitter(target, source, env):
         if "-python" in flags and "-noproxy" not in flags:
             if mnames is None:
                 mnames = _reModule.findall(open(src).read())
-            target.extend(map(lambda m: m + ".py", mnames))
+            target.extend(map(lambda m, d=target[0].dir:
+                                     d.File(m + ".py"), mnames))
         if "-java" in flags:
             if mnames is None:
                 mnames = _reModule.findall(open(src).read())

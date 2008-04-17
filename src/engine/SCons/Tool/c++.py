@@ -71,13 +71,13 @@ def generate(env):
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
     SCons.Tool.cc.add_common_cc_variables(env)
-        
+
     env['CXX']        = 'c++'
-    env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS')
-    env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $_CCCOMCOM $SOURCES'
+    env['CXXFLAGS']   = SCons.Util.CLVar('')
+    env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCXX']      = '$CXX'
-    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    env['SHCXXCOM']   = '$SHCXX -o $TARGET -c $SHCXXFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('')
+    env['SHCXXCOM']   = '$SHCXX -o $TARGET -c $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''

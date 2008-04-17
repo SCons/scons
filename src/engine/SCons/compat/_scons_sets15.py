@@ -26,10 +26,11 @@ class Set:
         if seq:
             for elem in seq:
                 if elem not in self.elems:
+                    hash(elem)
                     self.elems.append(elem)
 
     def __str__(self):
-        return "{%s}" % string.join(map(str, self.elems), ", ")
+        return "set([%s])" % string.join(map(str, self.elems), ", ")
 
 
     def copy(self):
@@ -56,6 +57,7 @@ class Set:
     def add(self, elem):
         """Add one element to the set."""
         if elem not in self.elems:
+            hash(elem)
             self.elems.append(elem)
 
     def remove(self, elem):
@@ -157,3 +159,12 @@ class Set:
             return 0
         else:
             return len(self - other) == 0
+
+    def __cmp__(self, other):
+        """Returns 1 if the sets are equal."""
+        if self.__lt__(other):
+            return -1
+        elif other.__lt__(self):
+            return 1
+        else:
+            return 0
