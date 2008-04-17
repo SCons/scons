@@ -45,7 +45,7 @@ NCF = test.NCF  # non-cached build failure
 CF  = test.CF   # cached build failure
 
 test.write('SConstruct', """\
-opts = Options()
+opts = Variables()
 opts.Add('chdir')
 env = Environment(options=opts)
 if env['chdir'] == 'yes':

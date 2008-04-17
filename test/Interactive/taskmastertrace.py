@@ -69,15 +69,22 @@ scons.send("build foo.out\n")
 expect_stdout = """\
 scons>>> Copy("foo.out", "foo.in")
 Touch("1")
-scons>>> Taskmaster: 'foo.out': children:
-    ['foo.in']
-    waiting on unfinished children:
-    ['foo.in']
-Taskmaster: 'foo.in': evaluating foo.in
-Taskmaster: 'foo.out': children:
-    ['foo.in']
-    evaluating foo.out
+scons>>> 
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'foo.out'> and its children:
+Taskmaster:        <no_state   'foo.in'>
+Taskmaster:     Considering node <no_state   'foo.in'> and its children:
+Taskmaster: Evaluating <pending    'foo.in'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <pending    'foo.out'> and its children:
+Taskmaster:        <up_to_date 'foo.in'>
+Taskmaster: Evaluating <pending    'foo.out'>
 Copy("foo.out", "foo.in")
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster: No candidate anymore.
+
 scons>>> Touch("2")
 scons>>> scons: `foo.out' is up to date.
 scons>>> 

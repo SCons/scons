@@ -865,8 +865,11 @@ class FunctionAction(_ActionAction):
         except AttributeError:
             contents = self.funccontents
 
-        return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
-                                                    self.varlist)))
+        result = [contents]
+        for v in self.varlist:
+            result.append(env.subst('${'+v+'}'))
+
+        return string.join(result, '')
 
     def get_implicit_deps(self, target, source, env):
         return []

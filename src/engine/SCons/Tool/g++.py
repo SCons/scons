@@ -63,18 +63,16 @@ def generate(env):
         env['SHOBJSUFFIX'] = '$OBJSUFFIX'
     elif env['PLATFORM'] == 'hpux':
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC -DPIC')
-        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC')
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC')
         env['SHOBJSUFFIX'] = '.pic.o'
     elif env['PLATFORM'] == 'sunos':
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC -DPIC')
-        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC')
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC')
         env['SHOBJSUFFIX'] = '.pic.o'
     else:
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC -DPIC')
-        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC')
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC')
+        pass
     # determine compiler version
     if env['CXX']:
         line = os.popen(env['CXX'] + ' --version').readline()

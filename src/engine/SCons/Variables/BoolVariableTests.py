@@ -29,13 +29,13 @@ import sys
 import unittest
 
 import SCons.Errors
-import SCons.Options
+import SCons.Variables
 
-class BoolOptionTestCase(unittest.TestCase):
-    def test_BoolOption(self):
-        """Test BoolOption creation"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.BoolOption('test', 'test option help', 0))
+class BoolVariableTestCase(unittest.TestCase):
+    def test_BoolVariable(self):
+        """Test BoolVariable creation"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', 0))
 
         o = opts.options[0]
         assert o.key == 'test', o.key
@@ -45,9 +45,9 @@ class BoolOptionTestCase(unittest.TestCase):
         assert not o.converter is None, o.converter
 
     def test_converter(self):
-        """Test the BoolOption converter"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.BoolOption('test', 'test option help', 0))
+        """Test the BoolVariable converter"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', 0))
 
         o = opts.options[0]
 
@@ -86,9 +86,9 @@ class BoolOptionTestCase(unittest.TestCase):
         assert caught, "did not catch expected ValueError"
 
     def test_validator(self):
-        """Test the BoolOption validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.BoolOption('test', 'test option help', 0))
+        """Test the BoolVariable validator"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', 0))
 
         o = opts.options[0]
 
@@ -118,6 +118,6 @@ class BoolOptionTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(BoolOptionTestCase, 'test_')
+    suite = unittest.makeSuite(BoolVariableTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

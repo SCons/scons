@@ -32,6 +32,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import errno
 import os
 import os.path
 import popen2
@@ -109,21 +110,25 @@ def fork_spawn(sh, escape, cmd, args, env):
 def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
     stdout_eof = stderr_eof = 0
     while not (stdout_eof and stderr_eof):
-        (i,o,e) = select.select([cmd_stdout, cmd_stderr], [], [])
-        if cmd_stdout in i:
-            str = cmd_stdout.read()
-            if len(str) == 0:
-                stdout_eof = 1
-            elif stdout != None:
-                stdout.write(str)
-        if cmd_stderr in i:
-            str = cmd_stderr.read()
-            if len(str) == 0:
-                #sys.__stderr__.write( "stderr_eof=1\n" )
-                stderr_eof = 1
-            else:
-                #sys.__stderr__.write( "str(stderr) = %s\n" % str )
-                stderr.write(str)
+        try:
+            (i,o,e) = select.select([cmd_stdout, cmd_stderr], [], [])
+            if cmd_stdout in i:
+                str = cmd_stdout.read()
+                if len(str) == 0:
+                    stdout_eof = 1
+                elif stdout != None:
+                    stdout.write(str)
+            if cmd_stderr in i:
+                str = cmd_stderr.read()
+                if len(str) == 0:
+                    #sys.__stderr__.write( "stderr_eof=1\n" )
+                    stderr_eof = 1
+                else:
+                    #sys.__stderr__.write( "str(stderr) = %s\n" % str )
+                    stderr.write(str)
+        except select.error, (_errno, _strerror):
+            if _errno != errno.EINTR:
+                raise
 
 def exec_popen3(l, env, stdout, stderr):
     proc = popen2.Popen3(string.join(l), 1)

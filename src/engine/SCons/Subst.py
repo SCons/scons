@@ -565,7 +565,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
 #    except KeyError:
 #        Subst_List_Strings[strSubst] = 1
 #    import SCons.Debug
-#    SCons.Debug.caller(1)
+#    SCons.Debug.caller_trace(1)
     class ListSubber(UserList.UserList):
         """A class to construct the results of a scons_subst_list() call.
 

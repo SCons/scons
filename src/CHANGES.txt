@@ -8,6 +8,72 @@
 
 
 
+RELEASE X.XX - XXX
+
+  From Benoit Belley:
+
+  - Speed up the SCons.Util.to_string*() functions.
+
+  - Optimize various Node intialization and calculations.
+
+  - Optimize Executor scanning code.
+
+  - Optimize Taskmaster execution, including dependency-cycle checking.
+
+  - Fix the --debug=stree option so it prints its tree once, not twice.
+
+  From Johan Boul√:
+
+  - Fix the ability to use LoadableModule() under MinGW.
+
+  From Steven Knight:
+
+  - Make the -d, -e, -w and --no-print-directory options "Ignored for
+    compatibility."  (We're not going to implement them.)
+
+  - Fix a serious inefficiency in how SCons checks for whether any source
+    files are missing when a Builder call creates many targets from many
+    input source files.
+
+  - In Java projects, make the target .class files depend only on the
+    specific source .java files where the individual classes are defined.
+
+  - Don't store duplicate source file entries  in the .sconsign file so
+    we don't endlessly rebuild the target(s) for no reason.
+
+  - Add a Variables object as the first step towards deprecating the
+    Options object name.  Similarly, add BoolVariable(), EnumVariable(),
+    ListVariable(), PackageVariable() and PathVariable() functions
+    as first steps towards replacing BoolOption(), EnumOption(),
+    ListOption(), PackageOption() and PathOption().
+
+  - Change the options= keyword argument to the Environment() function
+    to variables=, to avoid confusion with SCons command-line options.
+    Continue supporting the options= keyword for backwards compatibility.
+
+  - When $SWIGFLAGS contains the -python flag, expect the generated .py
+    file to be in the same (sub)directory as the target.
+
+  - When compiling C++ files, allow $CCFLAGS settings to show up on the
+    command line even when $CXXFLAGS has been redefined.
+
+  - Fix --interactive with -u/-U/-D when a VariantDir() is used.
+
+  From Anatoly Techtonik:
+
+  - Have the scons.bat file add the script execution directory to its
+    local %PATH% on Windows, so the Python executable can be found.
+
+  From Mike Wake:
+
+  - Fix passing variable names as a list to the Return() function.
+
+  From Matthew Wesley:
+
+  - Add support for the GDC 'D' language compiler.
+
+
+
 RELEASE 0.98 - Sun, 30 Mar 2008 23:33:05 -0700
 
   From Benoit Belley:

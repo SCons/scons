@@ -1,12 +1,12 @@
-"""engine.SCons.Options.EnumOption
+"""engine.SCons.Variables.EnumVariable
 
 This file defines the option type for SCons allowing only specified
 input-values.
 
 Usage example:
 
-  opts = Options()
-  opts.Add(EnumOption('debug', 'debug output and symbols', 'no',
+  opts = Variables()
+  opts.Add(EnumVariable('debug', 'debug output and symbols', 'no',
                       allowed_values=('yes', 'no', 'full'),
                       map={}, ignorecase=2))
   ...
@@ -39,7 +39,7 @@ Usage example:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__all__ = ('EnumOption',)
+__all__ = ['EnumVariable',]
 
 import string
 
@@ -51,14 +51,14 @@ def _validator(key, val, env, vals):
             'Invalid value for option %s: %s' % (key, val))
 
 
-def EnumOption(key, help, default, allowed_values, map={}, ignorecase=0):
+def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
     """
     The input parameters describe a option with only certain values
     allowed. They are returned with an appropriate converter and
     validator appended. The result is usable for input to
-    Options.Add().
+    Variables.Add().
 
-    'key' and 'default' are the values to be passed on to Options.Add().
+    'key' and 'default' are the values to be passed on to Variables.Add().
 
     'help' will be appended by the allowed values automatically
 

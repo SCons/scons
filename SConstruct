@@ -4,8 +4,8 @@
 # See the README file for an overview of how SCons is built and tested.
 #
 
-# When this gets changed, you also need to change test/option-v.py
-# so it looks for the right string.
+# When this gets changed, you must also change the copyright_years string
+# in QMTest/TestSCons.py so the test scripts look for the right string.
 copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008'
 
 # This gets inserted into the man pages to reflect the month of release.
@@ -118,7 +118,7 @@ if checkpoint:
         checkpoint = time.strftime('d%Y%m%d', time.localtime(time.time()))
     elif checkpoint == 'r':
         checkpoint = 'r' + revision
-    version = version + checkpoint
+    version = version + '.' + checkpoint
 
 svn_status = None
 svn_status_lines = []

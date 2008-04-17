@@ -375,14 +375,14 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LIB'             : 'lib',
                    'PATH'            : 'bin',
                    'LD_LIBRARY_PATH' : 'lib'}
-            for p in paths:
+            for p in paths.keys():
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
         if is_mac:
             paths={'INCLUDE'         : 'include',
                    'LIB'             : 'lib',
                    'PATH'            : 'bin',
                    'LD_LIBRARY_PATH' : 'lib'}
-            for p in paths:
+            for p in paths.keys():
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
         if is_windows:
             #       env key    reg valname   default subdir of top
@@ -394,7 +394,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
             if version is None:
                 version = ''
             # Each path has a registry entry, use that or default to subdir
-            for p in paths:
+            for p in paths.keys():
                 try:
                     path=get_intel_registry_value(p[1], version, abi)
                     # These paths may have $(ICInstallDir)

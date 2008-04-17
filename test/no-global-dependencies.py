@@ -45,10 +45,10 @@ test.subdir('dir1')
 test.subdir('dir2')
 
 test.write('SConstruct', """\
-opts = Options()
-opts.AddOptions(
-    BoolOption('view_all_dependencies', 'View all dependencies', True),
-    BoolOption('duplicate', 'Duplicate sources to variant dir', True)
+opts = Variables()
+opts.AddVariables(
+    BoolVariable('view_all_dependencies', 'View all dependencies', True),
+    BoolVariable('duplicate', 'Duplicate sources to variant dir', True)
 )
 
 env = Environment(options=opts)

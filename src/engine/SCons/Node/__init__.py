@@ -47,6 +47,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import copy
+from itertools import chain, izip
 import string
 import UserList
 
@@ -75,7 +76,7 @@ executed = 4
 failed = 5
 
 StateString = {
-    0 : "0",
+    0 : "no_state",
     1 : "pending",
     2 : "executing",
     3 : "up_to_date",
@@ -202,15 +203,16 @@ class Node:
         # a class.  (Of course, we could always still do that in the
         # future if we had a good reason to...).
         self.sources = []       # source files used to build node
-        self.sources_dict = {}
+        self.sources_set = set()
+        self._specific_sources = False
         self.depends = []       # explicit dependencies (from Depends)
-        self.depends_dict = {}
+        self.depends_set = set()
         self.ignore = []        # dependencies to ignore
-        self.ignore_dict = {}
+        self.ignore_set = set()
         self.prerequisites = SCons.Util.UniqueList()
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
-        self.waiting_parents = {}
-        self.waiting_s_e = {}
+        self.waiting_parents = set()
+        self.waiting_s_e = set()
         self.ref_count = 0
         self.wkids = None       # Kids yet to walk, when it's an array
 
@@ -220,7 +222,6 @@ class Node:
         self.noclean = 0
         self.nocache = 0
         self.always_build = None
-        self.found_includes = {}
         self.includes = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
@@ -330,24 +331,29 @@ class Node:
         is out-of-date and must be rebuilt, but before actually calling
         the method to build the Node.
 
-        This default implemenation checks that all children either exist
-        or are derived, and initializes the BuildInfo structure that
-        will hold the information about how this node is, uh, built.
+        This default implementation checks that explicit or implicit
+        dependencies either exist or are derived, and initializes the
+        BuildInfo structure that will hold the information about how
+        this node is, uh, built.
+
+        (The existence of source files is checked separately by the
+        Executor, which aggregates checks for all of the targets built
+        by a specific action.)
 
         Overriding this method allows for for a Node subclass to remove
         the underlying file from the file system.  Note that subclass
         methods should call this base class method to get the child
         check and the BuildInfo structure.
         """
-        l = self.depends
+        for d in self.depends:
+            if d.missing():
+                msg = "Explicit dependency `%s' not found, needed by target `%s'."
+                raise SCons.Errors.StopError, msg % (d, self)
         if not self.implicit is None:
-            l = l + self.implicit
-        missing_sources = self.get_executor().get_missing_sources() \
-                          + filter(lambda c: c.missing(), l)
-        if missing_sources:
-            desc = "Source `%s' not found, needed by target `%s'." % (missing_sources[0], self)
-            raise SCons.Errors.StopError, desc
-
+            for i in self.implicit:
+                if i.missing():
+                    msg = "Implicit dependency `%s' not found, needed by target `%s'."
+                    raise SCons.Errors.StopError, msg % (i, self)
         self.binfo = self.get_binfo()
 
     def build(self, **kw):
@@ -373,7 +379,7 @@ class Node:
 
         # Clear the implicit dependency caches of any Nodes
         # waiting for this Node to be built.
-        for parent in self.waiting_parents.keys():
+        for parent in self.waiting_parents:
             parent.implicit = None
 
         self.clear()
@@ -398,7 +404,7 @@ class Node:
     #
 
     def add_to_waiting_s_e(self, node):
-        self.waiting_s_e[node] = 1
+        self.waiting_s_e.add(node)
 
     def add_to_waiting_parents(self, node):
         """
@@ -409,23 +415,16 @@ class Node:
         True and False instead...)
         """
         wp = self.waiting_parents
-        if wp.has_key(node):
-            result = 0
-        else:
-            result = 1
-        wp[node] = 1
-        return result
-
-    def call_for_all_waiting_parents(self, func):
-        func(self)
-        for parent in self.waiting_parents.keys():
-            parent.call_for_all_waiting_parents(func)
+        if node in wp:
+            return 0
+        wp.add(node)
+        return 1
 
     def postprocess(self):
         """Clean up anything we don't need to hang onto after we've
         been built."""
         self.executor_cleanup()
-        self.waiting_parents = {}
+        self.waiting_parents = set()
 
     def clear(self):
         """Completely clear a Node of all its cached state (so that it
@@ -444,7 +443,6 @@ class Node:
         except AttributeError:
             pass
         self.includes = None
-        self.found_includes = {}
 
     def clear_memoized_values(self):
         self._memo = {}
@@ -592,9 +590,9 @@ class Node:
     def add_to_implicit(self, deps):
         if not hasattr(self, 'implicit') or self.implicit is None:
             self.implicit = []
-            self.implicit_dict = {}
+            self.implicit_set = set()
             self._children_reset()
-        self._add_child(self.implicit, self.implicit_dict, deps)
+        self._add_child(self.implicit, self.implicit_set, deps)
 
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
@@ -604,7 +602,7 @@ class Node:
         if not self.implicit is None:
             return
         self.implicit = []
-        self.implicit_dict = {}
+        self.implicit_set = set()
         self._children_reset()
         if not self.has_builder():
             return
@@ -633,7 +631,7 @@ class Node:
                 # one of this node's sources has changed,
                 # so we must recalculate the implicit deps:
                 self.implicit = []
-                self.implicit_dict = {}
+                self.implicit_set = set()
 
         # Have the executor scan the sources.
         executor.scan_sources(self.builder.source_scanner)
@@ -706,33 +704,44 @@ class Node:
         self.binfo = binfo
 
         executor = self.get_executor()
-
-        sources = executor.get_unignored_sources(self.ignore)
-
-        depends = self.depends
-        implicit = self.implicit or []
-
-        if self.ignore:
-            depends = filter(self.do_not_ignore, depends)
-            implicit = filter(self.do_not_ignore, implicit)
-
-        def get_ninfo(node):
-            return node.get_ninfo()
-
-        sourcesigs = map(get_ninfo, sources)
-        dependsigs = map(get_ninfo, depends)
-        implicitsigs = map(get_ninfo, implicit)
+        ignore_set = self.ignore_set
 
         if self.has_builder():
             binfo.bact = str(executor)
             binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
-        binfo.bsources = sources
-        binfo.bdepends = depends
-        binfo.bimplicit = implicit
+        if self._specific_sources:
+            sources = []
+            for s in self.sources:
+                if s not in ignore_set:
+                    sources.append(s)
+        else:
+            sources = executor.get_unignored_sources(self.ignore)
+        seen = set()
+        bsources = []
+        bsourcesigs = []
+        for s in sources:
+            if not s in seen:
+                seen.add(s)
+                bsources.append(s)
+                bsourcesigs.append(s.get_ninfo())
+        binfo.bsources = bsources
+        binfo.bsourcesigs = bsourcesigs
 
-        binfo.bsourcesigs = sourcesigs
+        depends = self.depends
+        dependsigs = []
+        for d in depends:
+            if d not in ignore_set:
+                dependsigs.append(d.get_ninfo())
+        binfo.bdepends = depends
         binfo.bdependsigs = dependsigs
+
+        implicit = self.implicit or []
+        implicitsigs = []
+        for i in implicit:
+            if i not in ignore_set:
+                implicitsigs.append(i.get_ninfo())
+        binfo.bimplicit = implicit
         binfo.bimplicitsigs = implicitsigs
 
         return binfo
@@ -816,7 +825,7 @@ class Node:
     def add_dependency(self, depend):
         """Adds dependencies."""
         try:
-            self._add_child(self.depends, self.depends_dict, depend)
+            self._add_child(self.depends, self.depends_set, depend)
         except TypeError, e:
             e = e.args[0]
             if SCons.Util.is_List(e):
@@ -833,7 +842,7 @@ class Node:
     def add_ignore(self, depend):
         """Adds dependencies to ignore."""
         try:
-            self._add_child(self.ignore, self.ignore_dict, depend)
+            self._add_child(self.ignore, self.ignore_set, depend)
         except TypeError, e:
             e = e.args[0]
             if SCons.Util.is_List(e):
@@ -844,8 +853,10 @@ class Node:
 
     def add_source(self, source):
         """Adds sources."""
+        if self._specific_sources:
+            return
         try:
-            self._add_child(self.sources, self.sources_dict, source)
+            self._add_child(self.sources, self.sources_set, source)
         except TypeError, e:
             e = e.args[0]
             if SCons.Util.is_List(e):
@@ -854,9 +865,9 @@ class Node:
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node as source of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
-    def _add_child(self, collection, dict, child):
-        """Adds 'child' to 'collection', first checking 'dict' to see
-        if it's already present."""
+    def _add_child(self, collection, set, child):
+        """Adds 'child' to 'collection', first checking 'set' to see if it's
+        already present."""
         #if type(child) is not type([]):
         #    child = [child]
         #for c in child:
@@ -864,12 +875,16 @@ class Node:
         #        raise TypeError, c
         added = None
         for c in child:
-            if not dict.has_key(c):
+            if c not in set:
+                set.add(c)
                 collection.append(c)
-                dict[c] = 1
                 added = 1
         if added:
             self._children_reset()
+
+    def set_specific_source(self, source):
+        self.add_source(source)
+        self._specific_sources = True
 
     def add_wkid(self, wkid):
         """Add a node to the list of kids waiting to be evaluated"""
@@ -882,10 +897,55 @@ class Node:
         # build info that it's cached so we can re-calculate it.
         self.executor_cleanup()
 
-    def do_not_ignore(self, node):
-        return node not in self.ignore
+    memoizer_counters.append(SCons.Memoize.CountValue('_children_get'))
 
-    def _all_children_get(self):
+    def _children_get(self):
+        try:
+            return self._memo['children_get']
+        except KeyError:
+            pass
+
+        # The return list may contain duplicate Nodes, especially in
+        # source trees where there are a lot of repeated #includes
+        # of a tangle of .h files.  Profiling shows, however, that
+        # eliminating the duplicates with a brute-force approach that
+        # preserves the order (that is, something like:
+        #
+        #       u = []
+        #       for n in list:
+        #           if n not in u:
+        #               u.append(n)"
+        #
+        # takes more cycles than just letting the underlying methods
+        # hand back cached values if a Node's information is requested
+        # multiple times.  (Other methods of removing duplicates, like
+        # using dictionary keys, lose the order, and the only ordered
+        # dictionary patterns I found all ended up using "not in"
+        # internally anyway...)
+        if self.ignore_set:
+            if self.implicit is None:
+                iter = chain(self.sources,self.depends)
+            else:
+                iter = chain(self.sources, self.depends, self.implicit)
+
+            children = []
+            for i in iter:
+                if i not in self.ignore_set:
+                    children.append(i)
+        else:
+            if self.implicit is None:
+                children = self.sources + self.depends
+            else:
+                children = self.sources + self.depends + self.implicit
+
+        self._memo['children_get'] = children
+        return children
+
+    def all_children(self, scan=1):
+        """Return a list of all the node's direct children."""
+        if scan:
+            self.scan()
+
         # The return list may contain duplicate Nodes, especially in
         # source trees where there are a lot of repeated #includes
         # of a tangle of .h files.  Profiling shows, however, that
@@ -907,25 +967,6 @@ class Node:
             return self.sources + self.depends
         else:
             return self.sources + self.depends + self.implicit
-
-    memoizer_counters.append(SCons.Memoize.CountValue('_children_get'))
-
-    def _children_get(self):
-        try:
-            return self._memo['children_get']
-        except KeyError:
-            pass
-        children = self._all_children_get()
-        if self.ignore:
-            children = filter(self.do_not_ignore, children)
-        self._memo['children_get'] = children
-        return children
-
-    def all_children(self, scan=1):
-        """Return a list of all the node's direct children."""
-        if scan:
-            self.scan()
-        return self._all_children_get()
 
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
@@ -1009,7 +1050,7 @@ class Node:
             if t: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
-        for child, prev_ni in zip(children, then):
+        for child, prev_ni in izip(children, then):
             if child.changed_since_last_build(self, prev_ni):
                 if t: Trace(': %s changed' % child)
                 result = True
@@ -1152,8 +1193,8 @@ class Node:
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(zip(old_bkids, old_bkidsigs))
-        nsig = dict(zip(new_bkids, new_bkidsigs))
+        osig = dict(izip(old_bkids, old_bkidsigs))
+        nsig = dict(izip(new_bkids, new_bkidsigs))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to

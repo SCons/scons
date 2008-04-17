@@ -20,10 +20,41 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.98 - Sun, 30 Mar 2008 23:33:05 -0700
+RELEASE 0.98.1 - XXX
 
-  This is the ninth beta release of SCons.  Please consult the
-  CHANGES.txt file for a list of specific changes since last release.
+  This is an update to the ninth beta release of SCons.  Please consult
+  the CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.98:
+
+    --  SCONS NO LONGER SETS THE GNU TOOLCHAIN -fPIC FLAG IN $SHCXXFLAGS
+
+        The GNU toolchain support in previous versions of SCons would
+        add the -fPIC flag to the $SHCXXFLAGS construction variable.
+        The -fPIC flag has been now been removed from the default
+        $SHCXXFLAGS setting.  Instead, the $SHCXXCOM construction variable
+        (the default SCons command line for compiling shared objects
+        from C++ source files) has been changed to add the $SHCCFLAGS
+        variable, which contains the -fPIC flag.
+
+        This change was made in order to make the behavior of the default
+        C++ compilation line including $SHCCFLAGS consistent with the
+        default C compilation line including $CCFLAGS.
+
+        This change should have no impact on configurations that use
+        the default $SHCXXCOM command line.  It may have an impact on
+        configurations that were using the default $SHCXXFLAGS value
+        *without* the $SHCCFLAGS variable to get the -fPIC flag into a
+        custom command line.  You can fix these by adding the $SHCCFLAGS
+        to the custom command line.
+
+        Adding $SHCCFLAGS is backwards compatible with older SCons
+        releases, although it might cause the -fPIC flag to be repeated
+        on the command line if you execute it on an older version of
+        SCons that sets -fPIC in both the $SHCCLAFGS and $SHCXXFLAGS
+        variables.  Duplicating the -fPIC flag on the g++ command line
+        will not cause any compilation problems, but the change to the
+        command line may cause SCons to rebuild object files.
 
   Please note the following important changes since release 0.97.0d20071212:
 
@@ -418,442 +449,108 @@ RELEASE 0.98 - Sun, 30 Mar 2008 23:33:05 -0700
         might cause a compatibility issue if a script or other utility
         looks for an exact match of the previous text.
 
-  Please note the following important changes since release 0.96.93:
-
-    --  THE --debug=memoizer OPTION NOW REQUIRES PYTHON 2.2 OR LATER
-
-        The --debug=memoizer option now prints a warning message and
-        does nothing if SCons is run on a version of Python that does
-        not support metaclasses (earlier than Python 2.2).
-
-    --  THE --debug=nomemoizer OPTION DOES NOTHING AND IS NOW DEPRECATED
-
-        The --debug=nomemoizer no longer does anything and instead
-        now generates a warning message about being deprecated.  The
-        --debug=nomemoizer will be removed completely in a future release.
-
-  Please note the following important changes since release 0.96.91:
-
-    --  /opt/bin AND /sw/bin ADDED TO DEFAULT EXECUTION PATH VARIABLES
-
-        On all POSIX systems, the default execution PATH variable has had
-        the /opt/bin directory added after the /usr/local/bin directory
-        and before /bin and /usr/bin directories.  This may cause SCons
-        to find and/or use different compilers, linkers, etc., if you
-        have any same-named utilities installed in /opt/bin that SCons
-        previously found in /bin or /usr/bin.
-
-        On Mac OS X (Darwin) systems, the /sw/bin directory has been added
-        to the end of the default execution PATH.  This may cause SCons
-        to find compilers, linkers and other utilities it previously did
-        not, although it should not otherwise change existing behavior.
-
-    --  Configure.Checklib() ARGUMENTS HAVE CHANGED TO MATCH DOCUMENTATION
-
-        The order of the arguments to the Configure.CheckLib() function
-        has changed to put the "autoadd" keyword argument last, matching
-        the documentation in the man page.  This could cause problems
-        for any calls to Configure.Checklib() that were relying on the
-        order of the arguments.  Specifying all arguments as keyword
-        arguments will work on both older and newer versions of SCons.
-
-    --  env.subst() NO LONGER EXPANDS $TARGET, $SOURCES, etc. BY DEFAULT
-
-        Calls to the env.subst() method to interpolate construction
-        variables in strings no longer automatically expand the special
-        variables $TARGET, $TARGETS, $SOURCE and $SOURCES.  The keyword
-        variables "target" and "source" must now be set to the lists
-        of target and source files to be used in expansion of those
-        variables, when desired.
-
-        This is most likely necessary for any env.subst() calls within
-        a Python function being used as an SCons action for a Builder:
-
-            def build_it(env, target, source):
-                env.subst('$STRING', target=targets, source=sources)
-            MyBuilder = Builder(action=build_it)
-
-        The "target" and "source" keyword arguments are backwards
-        compatible and can be added to SConscript files without breaking
-        builds on systems using older SCons releases.
-
-    --  INTERNAL FUNCTIONS AND CLASSES HAVE MOVED FROM SCons.Util
-
-        All internal functions and classes related to string substitution
-        have been moved out of the SCons.Util module into their own
-        SCons.Subst module.  The following classes have been moved:
-
-                Literal
-                SpecialAttrWrapper
-                NLWrapper
-                Targets_or_Sources
-                Target_or_Source
-
-        And the following functions have moved:
-
-                quote_spaces()
-                escape_list()
-                subst_dict()
-                scons_subst()
-                scons_subst_list()
-                scons_subst_once()
-
-        If your SConscript files have been using any of these function
-        directly from the SCons.Util module (which they ultimately should
-        not be!), you will need to modify them.
-
-  Please note the following important changes since release 0.96.90:
-
-    --  SIGNATURES ARE NOW STORED IN AN SConsignFile() BY DEFAULT,
-        CAUSING LIKELY REBUILDS; SPECIAL NOTE CONCERNING INTERACTION
-        WITH REPOSITORIES
-
-        The default behavior has been changed to store signature
-        information in a single .sconsign.dblite file in the top-level
-        SConstruct file.  This will cause rebuilds on upgrade to 0.97,
-        unless you were already calling the SConsignFile() function in
-        your SConscript files.
-
-        The previous default behavior was to store signature information
-        in a .sconsign file in each directory that contained target
-        files that SCons knew about.  The old behavior may be preserved
-        by specifying:
-
-              SConsignFile(None)
-
-        in any SConscript file.
-
-        If you are using the Repository feature, and are not already
-        using the SConsignFile() function in your build, you *must*
-        add "SConsignFile(None)" to your build configuration to keep
-        interoperating with an existing Repository that uses the old
-        behavior of a .sconsign file in each directory.  Alternatively,
-        you can rebuild the Repository with the new default behavior.
-
-    --  OTHER SIGNATURE CHANGES WILL CAUSE LIKELY REBUILDS AFTER UPGRADE
-
-        This release adds several changes to the signature mechanism that
-        will cause SCons to rebuild most configurations after upgrading
-        (and when switching back to an earlier release from 0.97).
-        These changes are:
-
-          --  NORMALIZED PATHS IN SConsignFile() DATABASES ON WINDOWS
-
-              When using an SConsignFile() database, instead of
-              individual .sconsign files in each directory, the path
-              names are stored in normalized form with / (forward slash)
-              separating the elements.  This may cause rebuilds when
-              upgrading to SCons 0.97 on Windows systems with hierarchical
-              build configurations.
-
-          --  STORED DEPENDENCY PATHS ARE NOW RELATIVE TO THE TARGET
-
-              SCons used to store the paths of all source files and
-              dependencies relative to the top-level SConstruct directory.
-              It now stores them relative to the directory of the
-              associated target file.  This makes it possible to use
-              content signatures to subdivide a dependency tree without
-              causing unnecessary rebuilds due to an intermediate file in
-              one build being treated as a source file in a nother build.
-
-              This is a step towards making it possible to write a
-              hierarchy of SConstruct files that allow developers
-              to build just one portion of a tree wherever there's an
-              SConstruct file.  (Note that this would still require some
-              specific code at the top of each SConstruct file, but we
-              hope to make this an easier/more naturally supported thing
-              in the future.)
-
-          --  PYTHON FUNCTION ACTION SIGNATURES HAVE CHANGED TO AVOID
-              FUTURE REBUILDS AND REBUILDS BETWEEN PYTHON VERSIONS
-
-              SCons Actions for Python functions use the function's
-              byte code to generate their signature.  The byte code
-              in older versions of Python includes indications of the
-              line numbers at which the function's code appeared in
-              its original source file, which means that changes in the
-              location of an otherwise unmodified Python function would
-              trigger rebuilds.  The line number byte codes are now
-              removed from the signature, which will cause any targets
-              built by Python function Actions (including various
-              pre-supplied SCons Actions) to be rebuilt.
-
-          --  REMOVED CONVERSION FROM PRE-0.96 .sconsign FORMATS
-
-              Because this release involves so many other signature
-              changes that cause rebuilds, the support for automatically
-              converting signature information from .sconsign files
-              written by SCons versions prior to 0.96 has been removed.
-
-          --  ORDER OF -o FLAGS ON CERTAIN LINK COMMAND LINES HAS CHANGED
-
-              The -o flag that specifies an output file has been moved
-              on certain linker command lines to place it consistently
-              right after the link command itself.  This will cause
-              recompilation of target files created by these changed
-              lines.
-
-    --  F95 AND F90 COMPILERS ARE NOW PREFERRED OVER F77
-
-        SCons now searches for Fortran 95 and Fortran 90 compilers first
-        in preference to Fortran 77.  This may result in a different
-        Fortran compiler being used by default, although as Fortran 95 and
-        Fortran 90 are backwards compatible with Fortran 77, this should
-        not cause problems for standards-compliant Fortran programs.
-        On systems that have multiple versions of Fortran installed,
-        the Fortran 77 compiler may be explicitly selected by specifying
-        it when creating the construction environment:
-
-            env = Environment(tools = ['default', 'f77'])
-
-    --  SOLARIS DEFAULT SHARED OBJECT PREFIXES AND SUFFIXES HAVE CHANGED
-
-        On Solaris, SCons now builds shared objects from C and C++ source
-        files with a default prefix of "so_" and a default suffix of ".o".
-        The previous default suffix of ".os" caused problems when trying
-        to use SCons with Sun WorkShop.
-
-    --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
-
-        The Configure() subsystem now stores its cached results in a
-        different file.  This may cause configuration tests to be re-run
-        the first time after you install 0.97.
-
-    --  setup.py INSTALLS VERSION-NUMBERED SCRIPTS AND DIRS BY DEFAULT
-
-        The setup.py script has been changed to always install SCons in
-        a version-numbered directory (e.g. /usr/local/lib/scons-0.97
-        or D:\Python23\scons-0.97) and with a version-numbered script
-        name (scons-0.97) in addition to the usual installation of an
-        "scons" script name.  A number of new setup.py options allow
-        control over what does or does not get installed, and where.
-        See the README.txt or README files for additional information.
-
-    --  setup.py NOW INSTALLS MAN PAGES ON UNIX AND Linux SYSTEMS
-
-        The SCons setup.py script now installs the "scons.1" and
-        "sconsign.1" man pages on UNIX and Linux systems.  A
-        new --no-install-man
-
-    --  BUILDERS RETURN A LIST-LIKE OBJECT, NOT A REGULAR LIST
-
-        Builder calls now return an object that behaves like a list
-        (and which provides some other functionality), not an underlying
-        Python list.  In general, this should not cause any problems,
-        although it introduces a subtle change in the following behavior:
-
-                obj += env.Object('foo.c')
-
-        If "obj" is a regular Python list, Python will no longer update
-        the "obj" in place, because the return value from env.Object()
-        is no longer the same type.  Python will instead allocate a
-        new object and assign the local variable "obj" to it.  If "obj"
-        is defined in an SConscript file that calls another SConscript
-        file containing the above code, "obj" in the first SConscript
-        file will not contain the object file nodes created by the
-        env.Object() call.
-
-        You can guarantee that a list will be updated in place regardless
-        of which SConscript file defines it and which adds to it by
-        using the list extend() method as follows:
-
-                obj.extend(env.Object('foo.c'))
-
-  Please note the following important changes since release 0.96.1:
-
-    --  DIRECTORY TREES ARE NO LONGER AUTOMATICALLY SCANNED FOR CHANGES
-
-        Custom builders and Command() calls that accept directories as
-        source arguments no longer scan entire on-disk directory trees by
-        default.  This means that their targets will not be automatically
-        rebuilt if a file changes on disk *unless* SCons already knows
-        about the file from a specific Builder or File() call.  Note that
-        the targets will still be rebuilt correctly if a file changes
-        that SCons already knows about due to a Builder or other call.
-
-        The existing behavior of scanning on-disk directory trees for
-        any changed file can be maintained by passing the new DirScanner
-        global directory scanner as the source_scanner keyword argument
-        to the Builder call:
-
-            bld = Builder("build < $SOURCE > $TARGET",
-                          source_scanner = DirScanner)
-
-        The same keyword argument can also be supplied to any Command()
-        calls that need to scan directory trees on-disk for changed files:
-
-            env.Command("archive.out", "directory",
-                        "archiver -o $TARGET $SOURCE",
-                        source_scanner = DirScanner)
-
-        This change was made because scanning directories by default
-        could cause huge slowdowns if a configurable directory like /usr
-        or /usr/local was passed as the source to a Builder or Command()
-        call, in which case SCons would scan the entire directory tree.
-
-    --  ParseConfig() METHOD ADDS LIBRARY FILE NAMES TO THE $LIBS VARIABLE
-
-        The ParseConfig() method now adds library file names returned
-        by the specified *-config command to the $LIBS construction
-        variable, instead of returning them (the same way it handles
-        the -l option).
-
-    --  ParseConfig() METHOD DOESN'T ADD DUPLICATES TO CONSTRUCTION VARIABLES
-
-        By default, the ParseConfig() method now avoids adding duplicate
-        entries to construction variables.  The old behavior may be
-        specified using a new "unique=0" keyword argument.
-
-    --  WINDOWS %TEMP% and %TMP% VARIABLES ARE PROPAGATED AUTOMATICALLY
-
-        The %TEMP% and %TMP% external environment variables are now
-        propagated automatically to the command execution environment on
-        Windows systems.
-
-    --  OUTPUT OF Configure() SUBSYSTEM CHANGED SLIGHTLY
-
-        The Configure() subsystem now reports tests results as "yes" and
-        "no" instead of "ok" and "failed."  This might interfere with any
-        scripts that automatically parse the Configure() output from SCons.
-
-    --  VISUAL STUDIO ATL AND MFC DIRECTORIES NOT ADDED BY DEFAULT
-
-        When compiling with Microsoft Visual Studio, SCons no longer
-        adds the ATL and MFC directories to the INCLUDE and LIB
-        environment variables by default.  If you want these directories
-        included in your environment variables, you should now set the
-        $MSVS_USE_MFC_DIRS *construction* variable when initializing
-        your environment:
-
-            env = Environment(MSVS_USE_MFC_DIRS = 1)
-
-    --  DEPRECATED GLOBAL FUNCTIONS HAVE BEEN REMOVED
-
-        The following deprecated global functions have been removed:
-        ParseConfig(), SetBuildSignatureType(), SetContentSignatureType(),
-        SetJobs() and GetJobs().
-
-    --  DEPRECATED "validater" KEYWORD HAS BEEN REMOVED
-
-        The deprecated "validater" keyword to the Options.Add() method
-        has been removed.
-
-  Please note the following important changes since release 0.95:
-
-    --  BUILDERS NOW ALWAYS RETURN A LIST OF TARGETS
-
-        All Builder calls (both built-in like Program(), Library(),
-        etc. and customer Builders) now always return a list of target
-        Nodes.   If the Builder only builds one target, the Builder
-        call will now return a list containing that target Node, not
-        the target Node itself as it used to do.
-
-        This change should be invisibile to most normal uses of the
-        return values from Builder calls.  It will cause an error if the
-        SConscript file was performing some direct manipulation of the
-        returned Node value.  For example, an attempt to print the name
-        of a target returned by the Object() Builder:
-
-              target = Object('foo.c')
-              # OLD WAY
-              print target
-
-        Will now need to access the first element in the list returned by
-        the Object() call:
-
-              target = Object('foo.c')
-              # NEW WAY
-              print target[0]
-
-        This change was introduced to make the data type returned by Builder
-        calls consistent (always a list), regardless of platform or number
-        of returned targets.
-
-    --  DEFAULT SConsignFile() DATABASE SCHEME HAS CHANGED
-
-        The SConsignFile() function now uses an internally-supplied
-        SCons.dblite module as the default DB scheme for the .sconsign file.
-        If you are using the SConsignFile() function without an explicitly
-        specified dbm_module argument, this will cause all of your targets
-        to be recompiled the first time you use SCons 0.96.  To preserve the
-        previous behavior, specify the "anydbm" module explicitly:
-
-            import anydbm
-            SConsignFile('.sconsign_file_name', anydbm)
-
-    --  INTERNAL .sconsign FILE FORMAT HAS CHANGED
-
-        The internal format of .sconsign files has been changed.  This might
-        cause warnings about "ignoring corrupt .sconsign files" and rebuilds
-        when you use SCons 0.96 for the first time in a tree that was
-        previously built with SCons 0.95 or earlier.
-
-    --  INTERFACE CHANGE OF scan_check FUNCTION TO CUSTOM SCANNERS
-
-        The scan_check function that can be supplied to a custom Scanner now
-        must take two arguments, the Node to be checked and a construction
-        environment.  It previously only used the Node as an argument.
-
-    --  DEFAULT SCANNERS NO LONGER HEED INTERNAL Scanner.add_skey() METHOD
-
-        The internal Scanner.add_skey() method no longer works for the
-        default scanners, which now use construction variables to hold their
-        lists of suffixes.  If you had a custom Tool specification that was
-        reaching into the internals in this way to add a suffix to one of
-        the following scanner, you must now add the suffix to a construction
-        environment through which you plan to call the scanner, as follows:
-
-            CScan.add_skey('.x')       => env.Append(CPPSUFFIXES = ['.x'])
-            DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
-            FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
-
-    --  KEYWORD ARGUMENTS TO Builder() HAVE BEEN REMOVED
-
-        The "node_factory" and "scanner" keyword arguments to the Builder()
-        function have been removed.  In their place, the separate and more
-        flexible "target_factory," "source_factory," "target_scanner" and
-        "source scanner" keywords should be used instead.
-
-    --  ALL-DIGIT FILE "EXTENSIONS" ARE NOW PART OF THE FILE BASENAME
-
-        SCons now treats file "extensions" that contain all digits (for
-        example, "file.123") as part of the file basename, for easier
-        handling of version numbers in the names of shared libraries
-        and other files.  Builders will now add their file extensions to
-        file names specified with all-digit extensions.  If you need to
-        generate a file with an all-digit extension using a Builder that
-        adds a file extension, you can preserve the previous behavior by
-        wrapping the file name in a File() call.
-
-    --  Append()/Prepend() METHODS CHANGED WHEN USING UserList OBJECTS
-
-        The behavior of the env.Append() and env.Prepend() methods has
-        changed when appending a string value to a UserList, or vice versa.
-        They now behave like normal Python addition of a string to
-        a UserList.  Given an initialization and an env.Append() call like:
-
-            env = Environment(VAR1=UserList(['foo']), VAR2='foo')
-            env.Append(VAR1='bar', VAR2=UserList(['bar'])
-
-        The resulting values of $VAR1 and $VAR2 will now be ['foo', 'b',
-        'a', 'r'] and ['f', 'o', 'o', 'bar'], respectively.  This is because
-        Python UserList objects treat strings as sequences of letters when
-        adding them to the value of the UserList.
-
-        The old behavior of yielding $VAR1 and $VAR2 values of ['foo',
-        'bar'] when either variable is a UserList object now requires that
-        the string variables be enclosed in a list:
-
-            env = Environment(VAR1=UserList(['foo']), VAR2=['foo'])
-            env.Append(VAR1='bar', VAR2=UserList(['bar']))
-
-        Note that the SCons behavior when appending to normal lists has
-        *not* changed, and the behavior of all of the default values that
-        SCons uses to initialize all construction variables has *not*
-        changed.  This change *only* affects any cases where you explicitly
-        use UserList objects to initialize or append to a variable.
-
   Please note the following planned, future changes:
+
+    --  THE Options OBJECT AND RELATED FUNCTIONS WILL BE DEPRECATED
+
+        The Options object is being replaced by a new Variables
+        object, which uses a new Variables.AddVariable() method
+        where the previous interface used Options.AddOptions().
+
+        Similarly, the following utility functions are being replaced
+        by the following similarly-named functions:
+
+                BoolOption()            BoolVariable()
+                EnumOption()            EnumVariable()
+                ListOption()            ListVariable()
+                PackageOption()         PackageVariable()
+                PathOption()            PathVariable()
+
+        And also related, the options= keyword argument when creating
+        construction environments with the Environment() functions is
+        being replaced with a variables= keyword argument.
+
+        In some future release a deprecation warning will be added to
+        existing uses of the Options object, its methods, the above
+        utility functions, and the options= keyword argument of the
+        Environment() function.  At some point after the deprecation
+        warning is added, the Options object, related functions and
+        options= keyword argument will be removed entirely.
+
+        You can prepare for this by changing all your uses of the Options
+        object and related functions to the Variables object and the new
+        function names, and changing any uses of the options= keyword
+        argument to variables=.
+
+        NOTE:  CONVERTING TO USING THE NEW Variables OBJECT OR THE
+        RELATED *Variable() FUNCTIONS, OR USING THE NEW variable=
+        KEYWORD ARGUMENT, IS NOT BACKWARDS COMPATIBLE TO VERSIONS OF
+        SCons BEFORE 0.98.  YOUR SConscript FILES WILL NOT WORK ON
+        EARLIER VERSIONS OF SCons AFTER MAKING THIS CHANGE.
+
+        If you change SConscript files in software that you make available
+        for download or otherwise distribute, other users may try to
+        build your software with an earlier version of SCons that does
+        not have the Variables object or related *Variable() functions.
+        We recommend preparing for this in one of two ways:
+
+            --  Make your SConscript files backwards-compatible by
+                modifying your calls with  Python try:-except: blocks
+                as follows:
+
+                    try:
+                        vars = Variables('custom.py', ARGUMENTS)
+                        vars.AddVariables(
+                            BoolVariable('WARNINGS', 'cmopile with -Wall', 1),
+                            EnumVariable('DEBUG', 'debug version', 'no'
+                                       allowed_values=('yes', 'no', 'full'),
+                                       map={}, ignorecase=0),
+                            ListVariable('SHAREDLIBS',
+                                         'libraries to build shared',
+                                         'all',
+                                         names = list_of_libs),
+                            PackageVariable('X11',
+                                            'use X11 from here',
+                                            '/usr/bin/X11'),
+                            PathVariable('QTDIR', 'root of Qt', qtdir),
+                        )
+                    except NameError:
+                        vars = Options('custom.py', ARGUMENTS)
+                        vars.AddOptions(
+                            BoolOption('WARNINGS', 'cmopile with -Wall', 1),
+                            EnumOption('DEBUG', 'debug version', 'no'
+                                       allowed_values=('yes', 'no', 'full'),
+                                       map={}, ignorecase=0),
+                            ListOption('SHAREDLIBS',
+                                       'libraries to build shared',
+                                       'all',
+                                       names = list_of_libs),
+                            PackageOption('X11',
+                                          'use X11 from here',
+                                          '/usr/bin/X11'),
+                            PathOption('QTDIR', 'root of Qt', qtdir),
+                        )
+
+                Additionally, you can check for availability of the new
+                variables= keyword argument as follows:
+
+                    try:
+                        env = Environment(variables=vars)
+                    except TypeError:
+                        env = Environment(options=vars)
+
+                (Note that we plan to maintain the existing Options object
+                name for some time, to ensure backwards compatibility,
+                so in practice it may be easier to just continue to use
+                the old name until you're reasonably sure you won't have
+                people trying to build your software with versions of
+                SCons earlier than 0.98.1.)
+
+            --  Use the EnsureSConsVersion() function to provide a
+                descriptive error message if your SConscript files
+                are executed by an earlier version of SCons:
+
+                    EnsureSConsVersion(0, 98, 1)
 
     --  THE BuildDir() METHOD AND FUNCTION WILL BE DEPRECATED
 

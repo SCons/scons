@@ -29,7 +29,7 @@ SCons Packaging Tool.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Environment
-from SCons.Options import *
+from SCons.Variables import *
 from SCons.Errors import *
 from SCons.Util import is_List, make_path_relative
 from SCons.Warnings import warn, Warning
@@ -217,11 +217,11 @@ def exists(env):
 
 # XXX
 def options(opts):
-    opts.AddOptions(
-        EnumOption( 'PACKAGETYPE',
-                    'the type of package to create.',
-                    None, allowed_values=map( str, __all__ ),
-                    ignorecase=2
+    opts.AddVariables(
+        EnumVariable( 'PACKAGETYPE',
+                     'the type of package to create.',
+                     None, allowed_values=map( str, __all__ ),
+                     ignorecase=2
                   )
     )
 

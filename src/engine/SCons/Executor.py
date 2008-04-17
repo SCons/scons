@@ -160,6 +160,16 @@ class Executor:
             self.sources_need_sorting = False
         return self.sources
 
+    def prepare(self):
+        """
+        Preparatory checks for whether this Executor can go ahead
+        and (try to) build its targets.
+        """
+        for s in self.get_sources():
+            if s.missing():
+                msg = "Source `%s' not found, needed by target `%s'."
+                raise SCons.Errors.StopError, msg % (s, self.targets[0])
+
     def add_pre_action(self, action):
         self.pre_actions.append(action)
 
@@ -221,39 +231,34 @@ class Executor:
         This essentially short-circuits an N*M scan of the sources for
         each individual target, which is a hell of a lot more efficient.
         """
-        map(lambda N: N.disambiguate(), node_list)
-
         env = self.get_build_env()
-        select_specific_scanner = lambda t: (t[0], t[1].select(t[0]))
-        remove_null_scanners = lambda t: not t[1] is None
-        add_scanner_path = lambda t, s=self: \
-                                  (t[0], t[1], s.get_build_scanner_path(t[1]))
-        if scanner:
-            scanner_list = map(lambda n, s=scanner: (n, s), node_list)
-        else:
-            kw = self.get_kw()
-            get_initial_scanners = lambda n, e=env, kw=kw: \
-                                          (n, n.get_env_scanner(e, kw))
-            scanner_list = map(get_initial_scanners, node_list)
-            scanner_list = filter(remove_null_scanners, scanner_list)
-
-        scanner_list = map(select_specific_scanner, scanner_list)
-        scanner_list = filter(remove_null_scanners, scanner_list)
-        scanner_path_list = map(add_scanner_path, scanner_list)
 
         deps = []
-        for node, scanner, path in scanner_path_list:
-            deps.extend(node.get_implicit_deps(env, scanner, path))
+        if scanner:
+            for node in node_list:
+                node.disambiguate()
+                scanner = scanner.select(node)
+                if not scanner:
+                    continue
+                path = self.get_build_scanner_path(scanner)
+                deps.extend(node.get_implicit_deps(env, scanner, path))
+        else:
+            kw = self.get_kw()
+            for node in node_list:
+                node.disambiguate()
+                scanner = node.get_env_scanner(env, kw)
+                if not scanner:
+                    continue
+                scanner = scanner.select(node)
+                if not scanner:
+                    continue
+                path = self.get_build_scanner_path(scanner)
+                deps.extend(node.get_implicit_deps(env, scanner, path))
 
         deps.extend(self.get_implicit_deps())
 
         for tgt in self.targets:
             tgt.add_to_implicit(deps)
-
-    def get_missing_sources(self):
-        """
-        """
-        return filter(lambda s: s.missing(), self.get_sources())
 
     def _get_unignored_sources_key(self, ignore=()):
         return tuple(ignore)
@@ -344,4 +349,6 @@ class Null(_Executor):
     def get_build_scanner_path(self):
         return None
     def cleanup(self):
+        pass
+    def prepare(self):
         pass

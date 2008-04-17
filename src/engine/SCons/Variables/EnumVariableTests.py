@@ -27,13 +27,13 @@ import sys
 import unittest
 
 import SCons.Errors
-import SCons.Options
+import SCons.Variables
 
-class EnumOptionTestCase(unittest.TestCase):
-    def test_EnumOption(self):
-        """Test EnumOption creation"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.EnumOption('test', 'test option help', 0,
+class EnumVariableTestCase(unittest.TestCase):
+    def test_EnumVariable(self):
+        """Test EnumVariable creation"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {}))
 
@@ -45,9 +45,9 @@ class EnumOptionTestCase(unittest.TestCase):
         assert not o.converter is None, o.converter
 
     def test_converter(self):
-        """Test the EnumOption converter"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.EnumOption('test', 'test option help', 0,
+        """Test the EnumVariable converter"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
                                           ['one', 'two', 'three']))
 
         o = opts.options[0]
@@ -56,8 +56,8 @@ class EnumOptionTestCase(unittest.TestCase):
             x = o.converter(a)
             assert x == a, x
 
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.EnumOption('test', 'test option help', 0,
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'1' : 'one',
                                            '2' : 'two',
@@ -80,20 +80,20 @@ class EnumOptionTestCase(unittest.TestCase):
         x = o.converter('3')
         assert x == 'three', x
 
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.EnumOption('test0', 'test option help', 0,
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.EnumVariable('test0', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'a' : 'one',
                                            'b' : 'two',
                                            'c' : 'three'},
                                           ignorecase=0))
-        opts.Add(SCons.Options.EnumOption('test1', 'test option help', 0,
+        opts.Add(SCons.Variables.EnumVariable('test1', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'a' : 'one',
                                            'b' : 'two',
                                            'c' : 'three'},
                                           ignorecase=1))
-        opts.Add(SCons.Options.EnumOption('test2', 'test option help', 0,
+        opts.Add(SCons.Variables.EnumVariable('test2', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'a' : 'one',
                                            'b' : 'two',
@@ -131,21 +131,21 @@ class EnumOptionTestCase(unittest.TestCase):
             assert x == l[2], "o2 got %s, expected %s" % (x, l[2])
 
     def test_validator(self):
-        """Test the EnumOption validator"""
-        opts = SCons.Options.Options()
-        opts.Add(SCons.Options.EnumOption('test0', 'test option help', 0,
+        """Test the EnumVariable validator"""
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.EnumVariable('test0', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'a' : 'one',
                                            'b' : 'two',
                                            'c' : 'three'},
                                           ignorecase=0))
-        opts.Add(SCons.Options.EnumOption('test1', 'test option help', 0,
+        opts.Add(SCons.Variables.EnumVariable('test1', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'a' : 'one',
                                            'b' : 'two',
                                            'c' : 'three'},
                                           ignorecase=1))
-        opts.Add(SCons.Options.EnumOption('test2', 'test option help', 0,
+        opts.Add(SCons.Variables.EnumVariable('test2', 'test option help', 0,
                                           ['one', 'two', 'three'],
                                           {'a' : 'one',
                                            'b' : 'two',
@@ -193,6 +193,6 @@ class EnumOptionTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(EnumOptionTestCase, 'test_')
+    suite = unittest.makeSuite(EnumVariableTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

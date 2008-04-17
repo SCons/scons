@@ -76,6 +76,7 @@ Command()
 }
 
 for VERSION in $VERSIONS; do
+    DIR=`expr "$VERSION" : '\(...\)'`
     PYTHON=Python-${VERSION}
 
     TAR_GZ=${PYTHON}.tgz
@@ -83,7 +84,7 @@ for VERSION in $VERSIONS; do
         if test ! -d ${DOWNLOADS}; then
             Command mkdir ${DOWNLOADS}
         fi
-        Command "( cd ${DOWNLOADS} && wget ${DOWNLOADS_URL}/${VERSION}/${TAR_GZ} )"
+        Command "( cd ${DOWNLOADS} && wget ${DOWNLOADS_URL}/${DIR}/${TAR_GZ} )"
     fi
 
     Command tar zxf ${DOWNLOADS}/${TAR_GZ}
@@ -115,5 +116,5 @@ EOF
         ${PRINT} cd ..
     )
 
-    Command rm -rf ${Python}
+    Command rm -rf ${PYTHON}
 done

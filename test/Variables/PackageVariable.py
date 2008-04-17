@@ -24,19 +24,66 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
+"""
+Test the PackageVariable canned Variable type.
+"""
+
+import os.path
 import string
-import sys
+
+try:
+    True, False
+except NameError:
+    True = (0 == 0)
+    False = (0 != 0)
+
+import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+SConstruct_path = test.workpath('SConstruct')
 
-test.run(arguments = '-w .',
-         stderr = "Warning:  the -w option is not yet implemented\n")
+def check(expect):
+    result = string.split(test.stdout(), '\n')
+    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
-test.run(arguments = '--print-directory .',
-         stderr = "Warning:  the --print-directory option is not yet implemented\n")
+
+
+test.write(SConstruct_path, """\
+from SCons.Variables import PackageVariable
+
+opts = Variables(args=ARGUMENTS)
+opts.AddVariables(
+    PackageVariable('x11',
+                  'use X11 installed here (yes = search some places',
+                  'yes'),
+    )
+
+env = Environment(variables=opts)
+Help(opts.GenerateHelpText(env))
+
+print env['x11']
+Default(env.Alias('dummy', None))
+""")
+
+test.run()
+check([str(True)])
+
+test.run(arguments='x11=no')
+check([str(False)])
+
+test.run(arguments='x11=0')
+check([str(False)])
+
+test.run(arguments=['x11=%s' % test.workpath()])
+check([test.workpath()])
+
+expect_stderr = """
+scons: *** Path does not exist for option x11: /non/existing/path/
+""" + test.python_file_line(SConstruct_path, 10)
+
+test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
+
+
 
 test.pass_test()
- 

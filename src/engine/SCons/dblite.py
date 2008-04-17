@@ -5,11 +5,8 @@ import cPickle
 import time
 import shutil
 import os
-import os.path
 import types
 import __builtin__
-
-_open = __builtin__.open # avoid name clash
 
 keep_all_files = 00000
 ignore_corrupt_dbfiles = 0
@@ -35,6 +32,24 @@ tmp_suffix = '.tmp'
 
 class dblite:
 
+  # Squirrel away references to the functions in various modules
+  # that we'll use when our __del__() method calls our sync() method
+  # during shutdown.  We might get destroyed when Python is in the midst
+  # of tearing down the different modules we import in an essentially
+  # arbitrary order, and some of the various modules's global attributes
+  # may already be wiped out from under us.
+  #
+  # See the discussion at:
+  #   http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
+
+  _open = __builtin__.open
+  _cPickle_dump = cPickle.dump
+  _os_chmod = os.chmod
+  _os_rename = os.rename
+  _os_unlink = os.unlink
+  _shutil_copyfile = shutil.copyfile
+  _time_time = time.time
+
   def __init__(self, file_base_name, flag, mode):
     assert flag in (None, "r", "w", "c", "n")
     if (flag is None): flag = "r"
@@ -51,14 +66,14 @@ class dblite:
     self._dict = {}
     self._needs_sync = 00000
     if (self._flag == "n"):
-      _open(self._file_name, "wb", self._mode)
+      self._open(self._file_name, "wb", self._mode)
     else:
       try:
-        f = _open(self._file_name, "rb")
+        f = self._open(self._file_name, "rb")
       except IOError, e:
         if (self._flag != "c"):
           raise e
-        _open(self._file_name, "wb", self._mode)
+        self._open(self._file_name, "wb", self._mode)
       else:
         p = f.read()
         if (len(p) > 0):
@@ -75,8 +90,8 @@ class dblite:
 
   def sync(self):
     self._check_writable()
-    f = _open(self._tmp_name, "wb", self._mode)
-    cPickle.dump(self._dict, f, 1)
+    f = self._open(self._tmp_name, "wb", self._mode)
+    self._cPickle_dump(self._dict, f, 1)
     f.close()
     # Windows doesn't allow renaming if the file exists, so unlink
     # it first, chmod'ing it to make sure we can do so.  On UNIX, we
@@ -84,15 +99,15 @@ class dblite:
     # (e.g. from a previous run as root).  We should still be able to
     # unlink() the file if the directory's writable, though, so ignore
     # any OSError exception  thrown by the chmod() call.
-    try: os.chmod(self._file_name, 0777)
+    try: self._os_chmod(self._file_name, 0777)
     except OSError: pass
-    os.unlink(self._file_name)
-    os.rename(self._tmp_name, self._file_name)
+    self._os_unlink(self._file_name)
+    self._os_rename(self._tmp_name, self._file_name)
     self._needs_sync = 00000
     if (keep_all_files):
-      shutil.copyfile(
+      self._shutil_copyfile(
         self._file_name,
-        self._file_name + "_" + str(int(time.time())))
+        self._file_name + "_" + str(int(self._time_time())))
 
   def _check_writable(self):
     if (self._flag == "r"):

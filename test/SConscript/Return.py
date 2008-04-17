@@ -38,11 +38,14 @@ SConscript('SConscript1')
 x = SConscript('SConscript2')
 y, z = SConscript('SConscript3')
 a4, b4 = SConscript('SConscript4')
+foo, bar = SConscript('SConscript5')
 print "x =", x
 print "y =", y
 print "z =", z
 print "a4 =", a4
 print "b4 =", b4
+print "foo =", foo
+print "bar =", bar
 """)
 
 test.write('SConscript1', """\
@@ -75,6 +78,13 @@ b4 = 'b-after'
 print "line 8"
 """)
 
+test.write('SConscript5', """\
+foo = 'foo'
+bar = 'bar'
+Return(["foo", "bar"])
+print "line 9"
+""")
+
 expect = """\
 line 1
 line 3
@@ -86,6 +96,8 @@ y = 8
 z = 9
 a4 = aaa
 b4 = bbb
+foo = foo
+bar = bar
 """
 
 test.run(arguments = '-q -Q', stdout=expect)

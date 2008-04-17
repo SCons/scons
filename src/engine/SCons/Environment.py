@@ -857,7 +857,7 @@ class Base(SubstitutionEnvironment):
                  platform=None,
                  tools=None,
                  toolpath=None,
-                 options=None,
+                 variables=None,
                  parse_flags = None,
                  **kw):
         """
@@ -901,14 +901,19 @@ class Base(SubstitutionEnvironment):
         self._dict['PLATFORM'] = str(platform)
         platform(self)
 
-        # Apply the passed-in variables and customizable options to the
+        # Apply the passed-in and customizable variables to the
         # environment before calling the tools, because they may use
         # some of them during initialization.
+        if kw.has_key('options'):
+            # Backwards compatibility:  they may stll be using the
+            # old "options" keyword.
+            variables = kw['options']
+            del kw['options']
         apply(self.Replace, (), kw)
         keys = kw.keys()
-        if options:
-            keys = keys + options.keys()
-            options.Update(self)
+        if variables:
+            keys = keys + variables.keys()
+            variables.Update(self)
 
         save = {}
         for k in keys:
@@ -927,7 +932,7 @@ class Base(SubstitutionEnvironment):
                 tools = ['default']
         apply_tools(self, tools, toolpath)
 
-        # Now restore the passed-in variables and customized options
+        # Now restore the passed-in and customized variables
         # to the environment, since the values the user set explicitly
         # should override any values set by the tools.
         for key, val in save.items():

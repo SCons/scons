@@ -38,11 +38,9 @@ test.write('SConstruct', "")
 # by the packaging build.
 copyright_marker = '__' + 'COPYRIGHT' + '__'
 
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008'
-
 fmt = '(%s|Copyright \\(c\\) %s The SCons Foundation)\n'
 
-copyright_line = fmt % (copyright_marker, copyright_years)
+copyright_line = fmt % (copyright_marker, TestSCons.copyright_years)
 
 # Windows may or may not print a line for the script version
 # depending on whether it's invoked through scons.py or scons.bat.

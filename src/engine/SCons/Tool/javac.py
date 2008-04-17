@@ -92,8 +92,9 @@ def emit_java_classes(target, source, env):
             raise SCons.Errors.UserError("Java source must be File or Dir, not '%s'" % entry.__class__)
 
     version = env.get('JAVAVERSION', '1.4')
-    tlist = []
+    full_tlist = []
     for f in slist:
+        tlist = []
         source_file_based = True
         pkg_dir = None
         if not f.is_derived():
@@ -124,7 +125,12 @@ def emit_java_classes(target, source, env):
             t.attributes.java_classname = classname(base)
             tlist.append(t)
 
-    return tlist, slist
+        for t in tlist:
+            t.set_specific_source([f])
+
+        full_tlist.extend(tlist)
+
+    return full_tlist, slist
 
 JavaAction = SCons.Action.Action('$JAVACCOM', '$JAVACCOMSTR')
 

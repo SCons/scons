@@ -104,7 +104,7 @@ graph:        GRAPH_T
 """)
 
 import sys
-if sys.platform == 'darwin':
+if sys.platform[:6] == 'darwin':
    file_hpp = 'file.cpp.h'
 else:
    file_hpp = 'file.hpp'

@@ -90,13 +90,16 @@ class TextWrapper:
     # splits into
     #   Hello/ /there/ /--/ /you/ /goof-/ball,/ /use/ /the/ /-b/ /option!
     # (after stripping out empty strings).
-    wordsep_re = re.compile(r'(\s+|'                  # any whitespace
-                            r'-*\w{2,}-(?=\w{2,}))')   # hyphenated words
-                            # Earlier Python's don't have the (?<=
-                            # negative look-behind assertion.  It doesn't
-                            # matter for the simple input SCons is going to
-                            # give it, so just comment it out.
-                            #r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
+    try:
+        wordsep_re = re.compile(r'(\s+|'                  # any whitespace
+                                r'[^\s\w]*\w{2,}-(?=\w{2,})|' # hyphenated words
+                                r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
+    except re.error:
+        # Pre-2.0 Python versions don't have the (?<= negative look-behind
+        # assertion.  It mostly doesn't matter for the simple input
+        # SCons is going to give it, so just leave it out.
+        wordsep_re = re.compile(r'(\s+|'                    # any whitespace
+                                r'-*\w{2,}-(?=\w{2,}))')    # hyphenated words
 
     # XXX will there be a locale-or-charset-aware version of
     # string.lowercase in 2.3?

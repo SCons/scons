@@ -79,8 +79,6 @@ scons>>> Copy("foo.out", "foo.in")
   +-foo.in
 scons>>> Touch("2")
 scons>>> scons: `foo.out' is up to date.
-+-foo.out
-  +-foo.in
 scons>>> 
 """
 

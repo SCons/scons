@@ -44,6 +44,8 @@ from TestCommon import __all__
 
 default_version = '0.98.0'
 
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008'
+
 SConsVersion = '0.98.0'
 if SConsVersion == '__' + 'VERSION' + '__':
     SConsVersion = default_version
@@ -331,7 +333,9 @@ class TestSCons(TestCommon):
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
         kw['stdout'] = self.wrap_stdout(read_str = read_str, build_str = s)
-        kw['match'] = self.match_exact
+        kw['stdout'] = string.replace(kw['stdout'],'\n','\\n')
+        kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
+        kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
 
     def not_up_to_date(self, options = None, arguments = None, **kw):
@@ -1019,6 +1023,20 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
                 self.fail_test()
             time.sleep(1.0)
             waited = waited + 1.0
+
+    def get_alt_cpp_suffix(self):
+        """
+        Many CXX tests have this same logic.
+        They all needed to determine if the current os supports
+        files with .C and .c as different files or not
+        in which case they are instructed to use .cpp instead of .C
+        """
+        if not case_sensitive_suffixes('.c','.C'):
+            alt_cpp_suffix = '.cpp'
+        else:
+            alt_cpp_suffix = '.C'
+        return alt_cpp_suffix
+    
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One

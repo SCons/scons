@@ -714,23 +714,23 @@ class NodeTestCase(unittest.TestCase):
         n1 = SCons.Node.Node()
         n1.builder_set(Builder())
         node.implicit = []
-        node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n1])
+        node.implicit_set = set()
+        node._add_child(node.implicit, node.implicit_set, [n1])
 
         node.prepare()  # should not throw an exception
 
         n2 = SCons.Node.Node()
         n2.linked = 1
         node.implicit = []
-        node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n2])
+        node.implicit_set = set()
+        node._add_child(node.implicit, node.implicit_set, [n2])
 
         node.prepare()  # should not throw an exception
 
         n3 = SCons.Node.Node()
         node.implicit = []
-        node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n3])
+        node.implicit_set = set()
+        node._add_child(node.implicit, node.implicit_set, [n3])
 
         node.prepare()  # should not throw an exception
 
@@ -739,8 +739,8 @@ class NodeTestCase(unittest.TestCase):
                 return None
         n4 = MyNode()
         node.implicit = []
-        node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n4])
+        node.implicit_set = set()
+        node._add_child(node.implicit, node.implicit_set, [n4])
         exc_caught = 0
         try:
             node.prepare()
@@ -810,7 +810,7 @@ class NodeTestCase(unittest.TestCase):
             pass
         else:
             raise "did not catch expected exception"
-        assert node.sources == [zero, one, two, three, four]
+        assert node.sources == [zero, one, two, three, four], node.sources
 
     def test_add_ignore(self):
         """Test adding files whose dependencies should be ignored.
@@ -1033,9 +1033,9 @@ class NodeTestCase(unittest.TestCase):
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
         node.implicit = []
-        node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n7, n8, n9])
-        node._add_child(node.implicit, node.implicit_dict, [n10, n11, n12])
+        node.implicit_set = set()
+        node._add_child(node.implicit, node.implicit_set, [n7, n8, n9])
+        node._add_child(node.implicit, node.implicit_set, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
         kids = node.children()
@@ -1064,9 +1064,9 @@ class NodeTestCase(unittest.TestCase):
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
         node.implicit = []
-        node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n7, n8, n9])
-        node._add_child(node.implicit, node.implicit_dict, [n10, n11, n12])
+        node.implicit_set = set()
+        node._add_child(node.implicit, node.implicit_set, [n7, n8, n9])
+        node._add_child(node.implicit, node.implicit_set, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
         kids = node.all_children()
@@ -1217,7 +1217,6 @@ class NodeTestCase(unittest.TestCase):
         n.clear()
 
         assert n.includes is None, n.includes
-        assert n.found_includes == {}, n.found_includes
         assert x.cleaned_up
 
     def test_get_subst_proxy(self):
@@ -1241,32 +1240,22 @@ class NodeTestCase(unittest.TestCase):
     def test_postprocess(self):
         """Test calling the base Node postprocess() method"""
         n = SCons.Node.Node()
-        n.waiting_parents = {'foo':1, 'bar':1}
+        n.waiting_parents = set( ['foo','bar'] )
 
         n.postprocess()
-        assert n.waiting_parents == {}, n.waiting_parents
+        assert n.waiting_parents == set(), n.waiting_parents
 
     def test_add_to_waiting_parents(self):
         """Test the add_to_waiting_parents() method"""
         n1 = SCons.Node.Node()
         n2 = SCons.Node.Node()
-        assert n1.waiting_parents == {}, n1.waiting_parents
+        assert n1.waiting_parents == set(), n1.waiting_parents
         r = n1.add_to_waiting_parents(n2)
         assert r == 1, r
-        assert n1.waiting_parents == {n2:1}, n1.waiting_parents
+        assert n1.waiting_parents == set((n2,)), n1.waiting_parents
         r = n1.add_to_waiting_parents(n2)
         assert r == 0, r
 
-    def test_call_for_all_waiting_parents(self):
-        """Test the call_for_all_waiting_parents() method"""
-        n1 = SCons.Node.Node()
-        n2 = SCons.Node.Node()
-        n1.add_to_waiting_parents(n2)
-        result = []
-        def func(node, result=result):
-            result.append(node)
-        n1.call_for_all_waiting_parents(func)
-        assert result == [n1, n2], result
 
 class NodeListTestCase(unittest.TestCase):
     def test___str__(self):

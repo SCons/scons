@@ -68,6 +68,9 @@ class Task:
     def _do_something(self):
         pass
 
+    def needs_execute(self):
+        return True
+
     def execute(self):
         self.taskmaster.test_case.failUnless(self.was_prepared,
                                   "the task wasn't prepared")
@@ -119,6 +122,9 @@ class ExceptionTask:
 
     def prepare(self):
         self.was_prepared = 1
+
+    def needs_execute(self):
+        return True
 
     def execute(self):
         raise Exception
@@ -198,6 +204,9 @@ class Taskmaster:
         return serial
 
     def exception_set(self):
+        pass
+
+    def cleanup(self):
         pass
 
 SaveThreadPool = None

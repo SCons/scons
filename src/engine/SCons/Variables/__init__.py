@@ -1,6 +1,6 @@
-"""engine.SCons.Options
+"""engine.SCons.Variables
 
-This file defines the Options class that is used to add user-friendly
+This file defines the Variables class that is used to add user-friendly
 customizable variables to an SCons build.
 """
 
@@ -40,14 +40,14 @@ import SCons.Errors
 import SCons.Util
 import SCons.Warnings
 
-from BoolOption import BoolOption  # okay
-from EnumOption import EnumOption  # okay
-from ListOption import ListOption  # naja
-from PackageOption import PackageOption # naja
-from PathOption import PathOption # okay
+from BoolVariable import BoolVariable  # okay
+from EnumVariable import EnumVariable  # okay
+from ListVariable import ListVariable  # naja
+from PackageVariable import PackageVariable # naja
+from PathVariable import PathVariable # okay
 
 
-class Options:
+class Variables:
     instance=None
 
     """
@@ -72,16 +72,16 @@ class Options:
 
         # create the singleton instance
         if is_global:
-            self=Options.instance
+            self=Variables.instance
 
-            if not Options.instance:
-                Options.instance=self
+            if not Variables.instance:
+                Variables.instance=self
 
     def _do_add(self, key, help="", default=None, validator=None, converter=None):
-        class Option:
+        class Variable:
             pass
 
-        option = Option()
+        option = Variable()
 
         # if we get a list or a tuple, we take the first element as the
         # option key and store the remaining in aliases.
@@ -123,11 +123,11 @@ class Options:
 
         if not SCons.Util.is_String(key) or \
            not SCons.Environment.is_valid_construction_var(key):
-            raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % str(key)
+            raise SCons.Errors.UserError, "Illegal Variables.Add() key `%s'" % str(key)
 
         self._do_add(key, help, default, validator, converter)
 
-    def AddOptions(self, *optlist):
+    def AddVariables(self, *optlist):
         """
         Add a list of options.
 
@@ -135,7 +135,7 @@ class Options:
         to the underlying method for adding options.
 
         Example:
-          opt.AddOptions(
+          opt.AddVariables(
             ('debug', '', 0),
             ('CC', 'The C compiler'),
             ('VALIDATE', 'An option for testing validation', 'notset',
@@ -213,7 +213,7 @@ class Options:
             if option.validator and values.has_key(option.key):
                 option.validator(option.key, env.subst('${%s}'%option.key), env)
 
-    def UnknownOptions(self):
+    def UnknownVariables(self):
         """
         Returns any options in the specified arguments lists that
         were not known, declared options in this object.
@@ -288,7 +288,7 @@ class Options:
                 actual = env.subst('${%s}' % opt.key)
             else:
                 actual = None
-            return self.FormatOptionHelpText(env, opt.key, opt.help, opt.default, actual, opt.aliases)
+            return self.FormatVariableHelpText(env, opt.key, opt.help, opt.default, actual, opt.aliases)
         lines = filter(None, map(format, options))
 
         return string.join(lines, '')
@@ -296,7 +296,7 @@ class Options:
     format  = '\n%s: %s\n    default: %s\n    actual: %s\n'
     format_ = '\n%s: %s\n    default: %s\n    actual: %s\n    aliases: %s\n'
 
-    def FormatOptionHelpText(self, env, key, help, default, actual, aliases=[]):
+    def FormatVariableHelpText(self, env, key, help, default, actual, aliases=[]):
         # Don't display the key name itself as an alias.
         aliases = filter(lambda a, k=key: a != k, aliases)
         if len(aliases)==0:

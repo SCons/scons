@@ -1,4 +1,4 @@
-"""engine.SCons.Options.PackageOption
+"""engine.SCons.Variables.PackageVariable
 
 This file defines the option type for SCons implementing 'package
 activation'.
@@ -15,8 +15,8 @@ Usage example:
 
   To replace autoconf's --with-xxx=yyy 
 
-  opts = Options()
-  opts.Add(PackageOption('x11',
+  opts = Variables()
+  opts.Add(PackageVariable('x11',
                          'use X11 installed here (yes = search some places',
                          'yes'))
   ...
@@ -52,7 +52,7 @@ Usage example:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__all__ = ('PackageOption')
+__all__ = ['PackageVariable',]
 
 import string
 
@@ -86,7 +86,7 @@ def _validator(key, val, env, searchfunc):
             'Path does not exist for option %s: %s' % (key, val))
 
 
-def PackageOption(key, help, default, searchfunc=None):
+def PackageVariable(key, help, default, searchfunc=None):
     # NB: searchfunc is currenty undocumented and unsupported
     """
     The input parameters describe a 'package list' option, thus they

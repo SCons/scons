@@ -83,7 +83,7 @@ env.Append(CPPPATH='.')
 
 env.VariantDir('buildout', 'src', duplicate=0)
 
-if sys.platform=='darwin':
+if sys.platform[:6]=='darwin':
    env.Append(CPPPATH=['/System/Library/Frameworks/JavaVM.framework/Headers'])
 
 #If you do not have swig on your system please remove 'buildout/jni/SConscript' line from next call

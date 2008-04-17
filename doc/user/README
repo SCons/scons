@@ -1,0 +1,19 @@
+# __COPYRIGHT__
+
+When adding a new file, add it to main.xml and MANIFEST.
+
+To build the .xml files from the .in files:
+  scons -D . BUILDDOC=1
+
+Writing examples: here's a simple template.
+
+ <scons_example name="Foo">
+   <file name="SConstruct">
+    env = Environment()
+    print env.Dump("CC")
+   </file>
+ </scons_example>
+
+ <scons_output example="Foo">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>

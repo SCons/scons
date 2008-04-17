@@ -46,23 +46,43 @@ env.Command('Tfile.mid', 'Tfile.in', Copy('$TARGET', '$SOURCE'))
 test.write('Tfile.in', "Tfile.in\n")
 
 expect_stdout = test.wrap_stdout("""\
-Taskmaster: '.': children:
-    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
-    waiting on unfinished children:
-    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
-Taskmaster: 'SConstruct': evaluating SConstruct
-Taskmaster: 'Tfile.in': evaluating Tfile.in
-Taskmaster: 'Tfile.mid': children:
-    ['Tfile.in']
-    evaluating Tfile.mid
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   '.'> and its children:
+Taskmaster:        <no_state   'SConstruct'>
+Taskmaster:        <no_state   'Tfile.in'>
+Taskmaster:        <no_state   'Tfile.mid'>
+Taskmaster:        <no_state   'Tfile.out'>
+Taskmaster:     Considering node <no_state   'SConstruct'> and its children:
+Taskmaster: Evaluating <pending    'SConstruct'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'Tfile.in'> and its children:
+Taskmaster: Evaluating <pending    'Tfile.in'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'Tfile.mid'> and its children:
+Taskmaster:        <up_to_date 'Tfile.in'>
+Taskmaster: Evaluating <pending    'Tfile.mid'>
 Copy("Tfile.mid", "Tfile.in")
-Taskmaster: 'Tfile.out': children:
-    ['Tfile.mid']
-    evaluating Tfile.out
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'Tfile.out'> and its children:
+Taskmaster:        <executed   'Tfile.mid'>
+Taskmaster: Evaluating <pending    'Tfile.out'>
 Copy("Tfile.out", "Tfile.mid")
-Taskmaster: '.': children:
-    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
-    evaluating .
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <pending    '.'> and its children:
+Taskmaster:        <up_to_date 'SConstruct'>
+Taskmaster:        <up_to_date 'Tfile.in'>
+Taskmaster:        <executed   'Tfile.mid'>
+Taskmaster:        <executed   'Tfile.out'>
+Taskmaster: Evaluating <pending    '.'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster: No candidate anymore.
+
 """)
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
@@ -81,21 +101,41 @@ Copy("Tfile.out", "Tfile.mid")
 test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
 
 expect_trace = """\
-Taskmaster: '.': children:
-    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
-    waiting on unfinished children:
-    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
-Taskmaster: 'SConstruct': evaluating SConstruct
-Taskmaster: 'Tfile.in': evaluating Tfile.in
-Taskmaster: 'Tfile.mid': children:
-    ['Tfile.in']
-    evaluating Tfile.mid
-Taskmaster: 'Tfile.out': children:
-    ['Tfile.mid']
-    evaluating Tfile.out
-Taskmaster: '.': children:
-    ['SConstruct', 'Tfile.in', 'Tfile.mid', 'Tfile.out']
-    evaluating .
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   '.'> and its children:
+Taskmaster:        <no_state   'SConstruct'>
+Taskmaster:        <no_state   'Tfile.in'>
+Taskmaster:        <no_state   'Tfile.mid'>
+Taskmaster:        <no_state   'Tfile.out'>
+Taskmaster:     Considering node <no_state   'SConstruct'> and its children:
+Taskmaster: Evaluating <pending    'SConstruct'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'Tfile.in'> and its children:
+Taskmaster: Evaluating <pending    'Tfile.in'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'Tfile.mid'> and its children:
+Taskmaster:        <up_to_date 'Tfile.in'>
+Taskmaster: Evaluating <pending    'Tfile.mid'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <no_state   'Tfile.out'> and its children:
+Taskmaster:        <executed   'Tfile.mid'>
+Taskmaster: Evaluating <pending    'Tfile.out'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node <pending    '.'> and its children:
+Taskmaster:        <up_to_date 'SConstruct'>
+Taskmaster:        <up_to_date 'Tfile.in'>
+Taskmaster:        <executed   'Tfile.mid'>
+Taskmaster:        <executed   'Tfile.out'>
+Taskmaster: Evaluating <pending    '.'>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster: No candidate anymore.
+
 """
 
 test.must_match('trace.out', expect_trace)

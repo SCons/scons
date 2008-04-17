@@ -148,6 +148,7 @@
 <!ENTITY AddPostAction "<function>AddPostAction</function>">
 <!ENTITY AddPreAction "<function>AddPreAction</function>">
 <!ENTITY AddOptions "<function>AddOptions</function>">
+<!ENTITY AddVariables "<function>AddVariables</function>">
 <!ENTITY Alias "<function>Alias</function>">
 <!ENTITY Aliases "<function>Aliases</function>">
 <!ENTITY AlwaysBuild "<function>AlwaysBuild</function>">
@@ -155,6 +156,7 @@
 <!ENTITY AppendENVPath "<function>AppendENVPath</function>">
 <!ENTITY AppendUnique "<function>AppendUnique</function>">
 <!ENTITY BoolOption "<function>BoolOption</function>">
+<!ENTITY BoolVariable "<function>BoolVariable</function>">
 <!ENTITY Build "<function>Build</function>">
 <!ENTITY CacheDir "<function>CacheDir</function>">
 <!ENTITY Chmod "<function>Chmod</function>">
@@ -172,6 +174,7 @@
 <!ENTITY Dump "<function>Dump</function>">
 <!ENTITY Entry "<function>Entry</function>">
 <!ENTITY EnumOption "<function>EnumOption</function>">
+<!ENTITY EnumVariable "<function>EnumVariable</function>">
 <!ENTITY Environment "<function>Environment</function>">
 <!ENTITY Execute "<function>Execute</function>">
 <!ENTITY Export "<function>Export</function>">
@@ -188,6 +191,7 @@
 <!ENTITY InstallAs "<function>InstallAs</function>">
 <!ENTITY Link "<function>Link</function>">
 <!ENTITY ListOption "<function>ListOption</function>">
+<!ENTITY ListVariable "<function>ListVariable</function>">
 <!ENTITY Local "<function>Local</function>">
 <!ENTITY Mkdir "<function>Mkdir</function>">
 <!ENTITY Module "<function>Module</function>">
@@ -196,7 +200,9 @@
 <!ENTITY NoCache "<function>NoCache</function>">
 <!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Options "<function>Options</function>">
+<!ENTITY Variables "<function>Variables</function>">
 <!ENTITY PackageOption "<function>PackageOption</function>">
+<!ENTITY PackageVariable "<function>PackageVariable</function>">
 <!ENTITY ParseConfig "<function>ParseConfig</function>">
 <!ENTITY PathOption "<function>PathOption</function>">
 <!ENTITY PathOption_PathAccept "<function>PathOption.PathAccept</function>">
@@ -204,6 +210,12 @@
 <!ENTITY PathOption_PathIsDir "<function>PathOption.PathIsDir</function>">
 <!ENTITY PathOption_PathIsDirCreate "<function>PathOption.PathIsDirCreate</function>">
 <!ENTITY PathOption_PathIsFile "<function>PathOption.PathIsFile</function>">
+<!ENTITY PathVariable "<function>PathVariable</function>">
+<!ENTITY PathVariable_PathAccept "<function>PathVariable.PathAccept</function>">
+<!ENTITY PathVariable_PathExists "<function>PathVariable.PathExists</function>">
+<!ENTITY PathVariable_PathIsDir "<function>PathVariable.PathIsDir</function>">
+<!ENTITY PathVariable_PathIsDirCreate "<function>PathVariable.PathIsDirCreate</function>">
+<!ENTITY PathVariable_PathIsFile "<function>PathVariable.PathIsFile</function>">
 <!ENTITY Precious "<function>Precious</function>">
 <!ENTITY Prepend "<function>Prepend</function>">
 <!ENTITY PrependENVPath "<function>PrependENVPath</function>">
