@@ -8,7 +8,7 @@
 
 
 
-RELEASE X.XX - XXX
+RELEASE 0.98.1 - Fri, 18 Apr 2008 19:11:58 -0700
 
   From Benoit Belley:
 
