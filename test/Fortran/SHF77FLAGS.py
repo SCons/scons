@@ -31,13 +31,8 @@ import TestSCons
 
 _python_ = TestSCons._python_
 
-if sys.platform == 'win32':
-    _obj = '.obj'
-else:
-    if string.find(sys.platform, 'irix') > -1:
-        _obj = '.o'
-    else:
-        _obj = '.os'
+_obj = TestSCons._shobj
+obj_ = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
 
@@ -46,11 +41,11 @@ test = TestSCons.TestSCons()
 test.write('myg77.py', r"""
 import getopt
 import sys
-opts, args = getopt.getopt(sys.argv[1:], 'co:x')
+opts, args = getopt.getopt(sys.argv[1:], 'cf:o:x')
 optstring = ''
 for opt, arg in opts:
     if opt == '-o': out = arg
-    else: optstring = optstring + ' ' + opt
+    elif opt != '-f': optstring = optstring + ' ' + opt
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
@@ -63,48 +58,23 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
-env = Environment(SHF77 = r'%(_python_)s myg77.py',
-                  SHF77FLAGS = '-x')
-env.SharedObject(target = 'test01', source = 'test01.f')
-env.SharedObject(target = 'test02', source = 'test02.F')
-env.SharedObject(target = 'test03', source = 'test03.for')
-env.SharedObject(target = 'test04', source = 'test04.FOR')
-env.SharedObject(target = 'test05', source = 'test05.ftn')
-env.SharedObject(target = 'test06', source = 'test06.FTN')
-env.SharedObject(target = 'test07', source = 'test07.fpp')
-env.SharedObject(target = 'test08', source = 'test08.FPP')
+env = Environment(SHF77 = r'%(_python_)s myg77.py')
+env.Append(SHF77FLAGS = '-x')
 env.SharedObject(target = 'test09', source = 'test09.f77')
 env.SharedObject(target = 'test10', source = 'test10.F77')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#g77\n")
-test.write('test02.F',   "This is a .F file.\n#g77\n")
-test.write('test03.for', "This is a .for file.\n#g77\n")
-test.write('test04.FOR', "This is a .FOR file.\n#g77\n")
-test.write('test05.ftn', "This is a .ftn file.\n#g77\n")
-test.write('test06.FTN', "This is a .FTN file.\n#g77\n")
-test.write('test07.fpp', "This is a .fpp file.\n#g77\n")
-test.write('test08.FPP', "This is a .FPP file.\n#g77\n")
 test.write('test09.f77', "This is a .f77 file.\n#g77\n")
 test.write('test10.F77', "This is a .F77 file.\n#g77\n")
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test01' + _obj, " -c -x\nThis is a .f file.\n")
-test.must_match('test02' + _obj, " -c -x\nThis is a .F file.\n")
-test.must_match('test03' + _obj, " -c -x\nThis is a .for file.\n")
-test.must_match('test04' + _obj, " -c -x\nThis is a .FOR file.\n")
-test.must_match('test05' + _obj, " -c -x\nThis is a .ftn file.\n")
-test.must_match('test06' + _obj, " -c -x\nThis is a .FTN file.\n")
-test.must_match('test07' + _obj, " -c -x\nThis is a .fpp file.\n")
-test.must_match('test08' + _obj, " -c -x\nThis is a .FPP file.\n")
-test.must_match('test09' + _obj, " -c -x\nThis is a .f77 file.\n")
-test.must_match('test10' + _obj, " -c -x\nThis is a .F77 file.\n")
+test.must_match(obj_ + 'test09' + _obj, " -c -x\nThis is a .f77 file.\n")
+test.must_match(obj_ + 'test10' + _obj, " -c -x\nThis is a .F77 file.\n")
 
 
-
-g77 = test.detect('F77', 'g77')
-FTN_LIB = TestSCons.fortran_lib
+fc = 'f77'
+g77 = test.detect_tool(fc)
 
 if g77:
 
@@ -117,9 +87,11 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %(FTN_LIB)s)
+foo = Environment(SHF77 = '%(fc)s')
 shf77 = foo.Dictionary('SHF77')
-bar = foo.Clone(SHF77 = r'%(_python_)s wrapper.py ' + shf77, SHF77FLAGS = '-Ix')
+bar = foo.Clone(SHF77 = r'%(_python_)s wrapper.py ' + shf77,
+                tools = ["default", 'f77'], F77FILESUFFIXES = [".f"])
+bar.Append(SHF77FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 """ % locals())
@@ -143,7 +115,11 @@ bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 
     test.must_not_exist('wrapper.out')
 
-    test.run(arguments = 'bar')
+    import sys
+    if sys.platform[:5] == 'sunos':
+        test.run(arguments = 'bar', stderr = None)
+    else:
+        test.run(arguments = 'bar')
 
     test.must_match('wrapper.out', "wrapper.py\n")
 

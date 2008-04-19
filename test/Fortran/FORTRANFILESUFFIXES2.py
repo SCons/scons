@@ -24,91 +24,63 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Validate that $FORTRANMODDIR values get expanded correctly on Fortran
-command lines relative to the appropriate subdirectory.
-"""
-
-import os.path
-
+import os
+import string
+import sys
 import TestSCons
 
+from common import write_fake_link
+
 _python_ = TestSCons._python_
+_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.subdir('subdir',
-            ['subdir', 'src'],
-            ['subdir', 'build'])
+write_fake_link(test)
 
 test.write('myfortran.py', r"""
 import getopt
-import os
 import sys
 comment = '#' + sys.argv[1]
-length = len(comment)
-opts, args = getopt.getopt(sys.argv[2:], 'cM:o:')
+opts, args = getopt.getopt(sys.argv[2:], 'co:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-    elif opt == '-M': modsubdir = arg
-import os
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:7] == 'module ':
-        module = modsubdir + os.sep + l[7:-1] + '.mod'
-        open(module, 'wb').write('myfortran.py wrote %s\n' % module)
-    if l[:length] != comment:
+    if l[:len(comment)] != comment:
         outfile.write(l)
 sys.exit(0)
 """)
 
-test.write('myar.py', """\
-import sys
-t = open(sys.argv[1], 'wb')
-for s in sys.argv[2:]:
-    t.write(open(s, 'rb').read())
-t.close
-sys.exit(0)
-""")
-
-test.write('SConstruct', """\
-env = Environment(FORTRANMODDIRPREFIX = '-M',
-                  FORTRANMODDIR = 'modules',
+# Test non default file suffix: .f, .f90 and .f95 for FORTRAN
+test.write('SConstruct', """
+env = Environment(LINK = r'%(_python_)s mylink.py',
+                  LINKFLAGS = [],
+                  F77 = r'%(_python_)s myfortran.py g77',
                   FORTRAN = r'%(_python_)s myfortran.py fortran',
-                  AR = 'myar.py',
-                  ARCOM = r'%(_python_)s $AR $TARGET $SOURCES',
-                  RANLIBCOM = '')
-Export('env')
-objs = SConscript('subdir/SConscript')
-env.Library('bidule', objs)
+                  FORTRANFILESUFFIXES = ['.f', '.f95', '.f90', '.ffake'],
+                  tools = ['default', 'fortran'])
+#print env.Dump()
+env.Program(target = 'test01', source = 'test01.f')
+env.Program(target = 'test02', source = 'test02.f90')
+env.Program(target = 'test03', source = 'test03.f95')
+env.Program(target = 'test04', source = 'test04.ffake')
+env.Program(target = 'test05', source = 'test05.f77')
 """ % locals())
 
-test.write(['subdir', 'SConscript'], """\
-Import('env')
+test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
+test.write('test02.f90',   "This is a .f90 file.\n#link\n#fortran\n")
+test.write('test03.f95', "This is a .f95 file.\n#link\n#fortran\n")
+test.write('test04.ffake', "This is a .ffake file.\n#link\n#fortran\n")
+test.write('test05.f77', "This is a .f77 file.\n#link\n#g77\n")
 
-env['FORTRANMODDIR'] = 'build'
-sources = ['src/modfile.f']
-objs = env.Object(sources)
-Return("objs")
-""")
+test.run(arguments = '.', stderr = None)
 
-test.write(['subdir', 'src', 'modfile.f'], """\
-#fortran comment
-module somemodule
-
-integer :: nothing
-
-end module
-""")
-
-
-test.run(arguments = '.')
-
-somemodule = os.path.join('subdir', 'build', 'somemodule.mod')
-
-expect = "myfortran.py wrote %s\n" % somemodule
-
-test.must_match(['subdir', 'build', 'somemodule.mod'], expect)
+test.must_match('test01' + _exe, "This is a .f file.\n")
+test.must_match('test02' + _exe, "This is a .f90 file.\n")
+test.must_match('test03' + _exe, "This is a .f95 file.\n")
+test.must_match('test04' + _exe, "This is a .ffake file.\n")
+test.must_match('test05' + _exe, "This is a .f77 file.\n")
 
 test.pass_test()

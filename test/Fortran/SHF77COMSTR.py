@@ -57,14 +57,6 @@ env = Environment(SHF77COM = r'%(_python_)s myfc.py f77 $TARGET $SOURCES',
                   SHF77PPCOM = r'%(_python_)s myfc.py f77pp $TARGET $SOURCES',
                   SHF77PPCOMSTR = 'Building f77pp $TARGET from $SOURCES',
                   SHOBJPREFIX='', SHOBJSUFFIX='.shobj')
-env.SharedObject(source = 'test01.f')
-env.SharedObject(source = 'test02.F')
-env.SharedObject(source = 'test03.for')
-env.SharedObject(source = 'test04.FOR')
-env.SharedObject(source = 'test05.ftn')
-env.SharedObject(source = 'test06.FTN')
-env.SharedObject(source = 'test07.fpp')
-env.SharedObject(source = 'test08.FPP')
 env.SharedObject(source = 'test09.f77')
 env.SharedObject(source = 'test10.F77')
 """ % locals())
@@ -81,26 +73,10 @@ test.write('test09.f77',        "A .f77 file.\n#f77\n")
 test.write('test10.F77',        "A .F77 file.\n#%s\n" % f77pp)
 
 test.run(stdout = test.wrap_stdout("""\
-Building f77 test01.shobj from test01.f
-Building %(f77pp)s test02.shobj from test02.F
-Building f77 test03.shobj from test03.for
-Building %(f77pp)s test04.shobj from test04.FOR
-Building f77 test05.shobj from test05.ftn
-Building %(f77pp)s test06.shobj from test06.FTN
-Building f77pp test07.shobj from test07.fpp
-Building f77pp test08.shobj from test08.FPP
 Building f77 test09.shobj from test09.f77
 Building %(f77pp)s test10.shobj from test10.F77
 """ % locals()))
 
-test.must_match('test01.shobj', "A .f file.\n")
-test.must_match('test02.shobj', "A .F file.\n")
-test.must_match('test03.shobj', "A .for file.\n")
-test.must_match('test04.shobj', "A .FOR file.\n")
-test.must_match('test05.shobj', "A .ftn file.\n")
-test.must_match('test06.shobj', "A .FTN file.\n")
-test.must_match('test07.shobj', "A .fpp file.\n")
-test.must_match('test08.shobj', "A .FPP file.\n")
 test.must_match('test09.shobj', "A .f77 file.\n")
 test.must_match('test10.shobj', "A .F77 file.\n")
 

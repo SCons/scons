@@ -29,7 +29,6 @@ import sys
 import TestSCons
 
 _exe = TestSCons._exe
-FTN_LIB = TestSCons.fortran_lib
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)
 variant_prog = os.path.join('variant', 'prog' + _exe)
@@ -38,8 +37,9 @@ args = prog + ' ' + variant_prog + ' ' + subdir_prog
 
 test = TestSCons.TestSCons()
 
-if not test.detect('_F77G', 'g77'):
-    test.skip_test('Could not find a $F77 tool; skipping test.\n')
+fc = 'f77'
+if not test.detect_tool(fc):
+    test.skip_test('Could not find a f77 tool; skipping test.\n')
     
 test.subdir('include',
             'subdir',
@@ -50,8 +50,8 @@ test.subdir('include',
 
 
 test.write('SConstruct', """
-env = Environment(F77PATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
-                  LIBS = %s,
+env = Environment(F77 = '%s',
+                  F77PATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
                   FOO='include',
                   F77FLAGS = '-x f77')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f77')
@@ -60,11 +60,11 @@ SConscript('subdir/SConscript', "env")
 
 VariantDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(F77PATH=[include, '#foobar', '#subdir'],
-                  LIBS = %s,
+env = Environment(F77 = '%s',
+                  F77PATH=[include, '#foobar', '#subdir'],
                   F77FLAGS = '-x f77')
 SConscript('variant/SConscript', "env")
-""" % (FTN_LIB, FTN_LIB))
+""" % (fc, fc))
 
 test.write(['subdir', 'SConscript'],
 """
@@ -239,8 +239,8 @@ test.up_to_date(arguments = args)
 
 # Change F77PATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(F77PATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
-                  LIBS = %s,
+env = Environment(F77 = '%s',
+                  F77PATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
                   F77FLAGS = '-x f77')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f77')
 env.Program(target='prog', source=obj)
@@ -248,11 +248,11 @@ SConscript('subdir/SConscript', "env")
 
 VariantDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(F77PATH=['inc2', include, '#foobar', '#subdir'],
-                  LIBS = %s,
+env = Environment(F77 = '%s',
+                  F77PATH=['inc2', include, '#foobar', '#subdir'],
                   F77FLAGS = '-x f77')
 SConscript('variant/SConscript', "env")
-""" % (FTN_LIB, FTN_LIB))
+""" % (fc, fc))
 
 test.up_to_date(arguments = args)
 
@@ -298,9 +298,9 @@ test.up_to_date(arguments = args)
 
 # Check that a null-string F77PATH doesn't blow up.
 test.write('SConstruct', """
-env = Environment(F77PATH = '', LIBS = %s, F77FLAGS = '-x f77')
+env = Environment(tools = ['f77'], F77PATH = '', F77FLAGS = '-x f77')
 env.Object('foo', source = 'empty.f77')
-""" % FTN_LIB)
+""")
 
 test.write('empty.f77', '')
 

@@ -31,6 +31,7 @@ import TestSCons
 
 _python_ = TestSCons._python_
 _obj   = TestSCons._shobj
+obj_   = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
 
@@ -62,12 +63,8 @@ env.SharedObject(target = 'test05', source = 'test05.ftn')
 env.SharedObject(target = 'test06', source = 'test06.FTN')
 env.SharedObject(target = 'test07', source = 'test07.fpp')
 env.SharedObject(target = 'test08', source = 'test08.FPP')
-env.SharedObject(target = 'test09', source = 'test09.f77')
-env.SharedObject(target = 'test10', source = 'test10.F77')
 env.SharedObject(target = 'test11', source = 'test11.f90')
 env.SharedObject(target = 'test12', source = 'test12.F90')
-env.SharedObject(target = 'test13', source = 'test13.f95')
-env.SharedObject(target = 'test14', source = 'test14.F95')
 env2 = Environment(SHF90COM = r'%(_python_)s myfortran.py f90 $TARGET $SOURCES',
                    SHF90PPCOM = r'%(_python_)s myfortran.py f90pp $TARGET $SOURCES')
 env2.SharedObject(target = 'test21', source = 'test21.f90')
@@ -82,34 +79,26 @@ test.write('test05.ftn', "This is a .ftn file.\n#fortran\n")
 test.write('test06.FTN', "This is a .FTN file.\n#fortranpp\n")
 test.write('test07.fpp', "This is a .fpp file.\n#fortranpp\n")
 test.write('test08.FPP', "This is a .FPP file.\n#fortranpp\n")
-test.write('test09.f77', "This is a .f77 file.\n#fortran\n")
-test.write('test10.F77', "This is a .F77 file.\n#fortranpp\n")
 test.write('test11.f90', "This is a .f90 file.\n#f90\n")
 test.write('test12.F90', "This is a .F90 file.\n#f90pp\n")
-test.write('test13.f95', "This is a .f95 file.\n#fortran\n")
-test.write('test14.F95', "This is a .F95 file.\n#fortranpp\n")
 
 test.write('test21.f90', "This is a .f90 file.\n#f90\n")
 test.write('test22.F90', "This is a .F90 file.\n#f90pp\n")
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test01' + _obj, "This is a .f file.\n")
-test.must_match('test02' + _obj, "This is a .F file.\n")
-test.must_match('test03' + _obj, "This is a .for file.\n")
-test.must_match('test04' + _obj, "This is a .FOR file.\n")
-test.must_match('test05' + _obj, "This is a .ftn file.\n")
-test.must_match('test06' + _obj, "This is a .FTN file.\n")
-test.must_match('test07' + _obj, "This is a .fpp file.\n")
-test.must_match('test08' + _obj, "This is a .FPP file.\n")
-test.must_match('test09' + _obj, "This is a .f77 file.\n")
-test.must_match('test10' + _obj, "This is a .F77 file.\n")
-test.must_match('test11' + _obj, "This is a .f90 file.\n")
-test.must_match('test12' + _obj, "This is a .F90 file.\n")
-test.must_match('test13' + _obj, "This is a .f95 file.\n")
-test.must_match('test14' + _obj, "This is a .F95 file.\n")
+test.must_match(obj_ + 'test01' + _obj, "This is a .f file.\n")
+test.must_match(obj_ + 'test02' + _obj, "This is a .F file.\n")
+test.must_match(obj_ + 'test03' + _obj, "This is a .for file.\n")
+test.must_match(obj_ + 'test04' + _obj, "This is a .FOR file.\n")
+test.must_match(obj_ + 'test05' + _obj, "This is a .ftn file.\n")
+test.must_match(obj_ + 'test06' + _obj, "This is a .FTN file.\n")
+test.must_match(obj_ + 'test07' + _obj, "This is a .fpp file.\n")
+test.must_match(obj_ + 'test08' + _obj, "This is a .FPP file.\n")
+test.must_match(obj_ + 'test11' + _obj, "This is a .f90 file.\n")
+test.must_match(obj_ + 'test12' + _obj, "This is a .F90 file.\n")
 
-test.must_match('test21' + _obj, "This is a .f90 file.\n")
-test.must_match('test22' + _obj, "This is a .F90 file.\n")
+test.must_match(obj_ + 'test21' + _obj, "This is a .f90 file.\n")
+test.must_match(obj_ + 'test22' + _obj, "This is a .F90 file.\n")
 
 test.pass_test()

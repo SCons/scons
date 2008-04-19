@@ -102,6 +102,7 @@ from TestCmd import __all__
 __all__.extend([ 'TestCommon',
                  'exe_suffix',
                  'obj_suffix',
+                 'shobj_prefix',
                  'shobj_suffix',
                  'lib_prefix',
                  'lib_suffix',
@@ -114,6 +115,7 @@ if sys.platform == 'win32':
     exe_suffix   = '.exe'
     obj_suffix   = '.obj'
     shobj_suffix = '.obj'
+    shobj_prefix = ''
     lib_prefix   = ''
     lib_suffix   = '.lib'
     dll_prefix   = ''
@@ -122,6 +124,7 @@ elif sys.platform == 'cygwin':
     exe_suffix   = '.exe'
     obj_suffix   = '.o'
     shobj_suffix = '.os'
+    shobj_prefix = ''
     lib_prefix   = 'lib'
     lib_suffix   = '.a'
     dll_prefix   = ''
@@ -130,6 +133,7 @@ elif string.find(sys.platform, 'irix') != -1:
     exe_suffix   = ''
     obj_suffix   = '.o'
     shobj_suffix = '.o'
+    shobj_prefix = ''
     lib_prefix   = 'lib'
     lib_suffix   = '.a'
     dll_prefix   = 'lib'
@@ -138,6 +142,16 @@ elif string.find(sys.platform, 'darwin') != -1:
     exe_suffix   = ''
     obj_suffix   = '.o'
     shobj_suffix = '.os'
+    shobj_prefix = ''
+    lib_prefix   = 'lib'
+    lib_suffix   = '.a'
+    dll_prefix   = 'lib'
+    dll_suffix   = '.dylib'
+elif string.find(sys.platform, 'sunos') != -1:
+    exe_suffix   = ''
+    obj_suffix   = '.o'
+    shobj_suffix = '.os'
+    shobj_prefix = 'so_'
     lib_prefix   = 'lib'
     lib_suffix   = '.a'
     dll_prefix   = 'lib'
@@ -146,6 +160,7 @@ else:
     exe_suffix   = ''
     obj_suffix   = '.o'
     shobj_suffix = '.os'
+    shobj_prefix = ''
     lib_prefix   = 'lib'
     lib_suffix   = '.a'
     dll_prefix   = 'lib'

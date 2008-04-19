@@ -56,6 +56,28 @@ RELEASE 0.98.1 - XXX
         will not cause any compilation problems, but the change to the
         command line may cause SCons to rebuild object files.
 
+    --  FORTRAN NOW COMPILES .f FILES WITH gfortran BY DEFAULT
+
+        The Fortran Tool modules have had a major overhaul with the intent
+        of making them work as-is for most configurations.  In general,
+        most configurations that use default settings should not see
+        any noticeable difference.
+
+        One configuration that has changed is if you have both a gfortran
+        and g77 compiler installed.  In this case, previous versions of
+        SCons would, by default, use g77 by default to compile files with
+        a .f suffix, while SCons 0.98.1 will use the gfortran compiler
+        by default.  The old behavior may be preserved by explicitly
+        initializing construction environments with the 'g77' Tool module:
+
+            env = Environment(tools = ['g77', 'default'])
+        
+        The above code is backwards compatible to older versions of SCons.
+
+        If you notice any other changes in the behavior of default
+        Fortran support, please let us know so we can document them in
+        these release notes for other users.
+
   Please note the following important changes since release 0.97.0d20071212:
 
     --  SUPPORT FOR PYTHON VERSIONS BEFORE 2.2 IS NOW DEPRECATED

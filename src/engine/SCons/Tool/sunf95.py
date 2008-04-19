@@ -1,6 +1,6 @@
-"""engine.SCons.Tool.g77
+"""SCons.Tool.sunf95
 
-Tool-specific initialization for g77.
+Tool-specific initialization for sunf95, the Sun Studio F95 compiler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -34,34 +34,25 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
-from SCons.Tool.FortranCommon import add_all_to_env, add_f77_to_env
 
-compilers = ['g77', 'f77']
+from FortranCommon import add_all_to_env
+
+compilers = ['sunf95', 'f95']
 
 def generate(env):
-    """Add Builders and construction variables for g77 to an Environment."""
+    """Add Builders and construction variables for sunf95 to an
+    Environment."""
     add_all_to_env(env)
-    add_f77_to_env(env)
 
-    fcomp = env.Detect(compilers) or 'g77'
-    if env['PLATFORM'] in ['cygwin', 'win32']:
-        env['SHFORTRANFLAGS'] = SCons.Util.CLVar('$FORTRANFLAGS')
-        env['SHF77FLAGS'] = SCons.Util.CLVar('$F77FLAGS')
-    else:
-        env['SHFORTRANFLAGS'] = SCons.Util.CLVar('$SHFORTRANFLAGS -fPIC')
-        env['SHF77FLAGS'] = SCons.Util.CLVar('$SHF77FLAGS -fPIC')
+    fcomp = env.Detect(compilers) or 'f95'
+    env['FORTRAN']  = fcomp
+    env['F95']      = fcomp
 
-    env['FORTRAN'] = fcomp
-    env['SHFORTRAN'] = '$FORTRAN'
+    env['SHFORTRAN']  = '$FORTRAN'
+    env['SHF95']      = '$F95'
 
-    env['F77'] = fcomp
-    env['SHF77'] = '$F77'
-
-    env['INCFORTRANPREFIX'] = "-I"
-    env['INCFORTRANSUFFIX'] = ""
-
-    env['INCF77PREFIX'] = "-I"
-    env['INCF77SUFFIX'] = ""
+    env['SHFORTRANFLAGS'] = SCons.Util.CLVar('$FORTRANFLAGS -KPIC')
+    env['SHF95FLAGS'] = SCons.Util.CLVar('$F95FLAGS -KPIC')
 
 def exists(env):
     return env.Detect(compilers)

@@ -65,12 +65,6 @@ env.Object(source = 'test05.ftn')
 env.Object(source = 'test06.FTN')
 env.Object(source = 'test07.fpp')
 env.Object(source = 'test08.FPP')
-env.Object(source = 'test09.f77')
-env.Object(source = 'test10.F77')
-env.Object(source = 'test11.f90')
-env.Object(source = 'test12.F90')
-env.Object(source = 'test13.f95')
-env.Object(source = 'test14.F95')
 """ % locals())
 
 test.write('test01.f',          "A .f file.\n#fortran\n")
@@ -81,12 +75,6 @@ test.write('test05.ftn',        "A .ftn file.\n#fortran\n")
 test.write('test06.FTN',        "A .FTN file.\n#%s\n" % fortranpp)
 test.write('test07.fpp',        "A .fpp file.\n#fortranpp\n")
 test.write('test08.FPP',        "A .FPP file.\n#fortranpp\n")
-test.write('test09.f77',        "A .f77 file.\n#fortran\n")
-test.write('test10.F77',        "A .F77 file.\n#%s\n" % fortranpp)
-test.write('test11.f90',        "A .f90 file.\n#fortran\n")
-test.write('test12.F90',        "A .F90 file.\n#%s\n" % fortranpp)
-test.write('test13.f95',        "A .f95 file.\n#fortran\n")
-test.write('test14.F95',        "A .F95 file.\n#%s\n" % fortranpp)
 
 test.run(stdout = test.wrap_stdout("""\
 Building fortran test01.obj from test01.f
@@ -97,12 +85,6 @@ Building fortran test05.obj from test05.ftn
 Building %(fortranpp)s test06.obj from test06.FTN
 Building fortranpp test07.obj from test07.fpp
 Building fortranpp test08.obj from test08.FPP
-Building fortran test09.obj from test09.f77
-Building %(fortranpp)s test10.obj from test10.F77
-Building fortran test11.obj from test11.f90
-Building %(fortranpp)s test12.obj from test12.F90
-Building fortran test13.obj from test13.f95
-Building %(fortranpp)s test14.obj from test14.F95
 """ % locals()))
 
 test.must_match('test01.obj', "A .f file.\n")
@@ -113,11 +95,5 @@ test.must_match('test05.obj', "A .ftn file.\n")
 test.must_match('test06.obj', "A .FTN file.\n")
 test.must_match('test07.obj', "A .fpp file.\n")
 test.must_match('test08.obj', "A .FPP file.\n")
-test.must_match('test09.obj', "A .f77 file.\n")
-test.must_match('test10.obj', "A .F77 file.\n")
-test.must_match('test11.obj', "A .f90 file.\n")
-test.must_match('test12.obj', "A .F90 file.\n")
-test.must_match('test13.obj', "A .f95 file.\n")
-test.must_match('test14.obj', "A .F95 file.\n")
 
 test.pass_test()

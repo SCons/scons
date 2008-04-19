@@ -54,6 +54,20 @@ If this is not set, then &cv-link-FORTRANCOM;
 </summary>
 </cvar>
 
+<cvar name="FORTRANFILESUFFIXES">
+<summary>
+The list of file extensions for which the FORTRAN dialect will be used. By
+default, this is ['.f', '.for', '.ftn']
+</summary>
+</cvar>
+
+<cvar name="FORTRANPPFILESUFFIXES">
+<summary>
+The list of file extensions for which the compilation + preprocessor pass for
+FORTRAN dialect will be used. By default, this is ['.fpp', '.FPP']
+</summary>
+</cvar>
+
 <cvar name="FORTRANFLAGS">
 <summary>
 General user-specified options that are passed to the Fortran compiler.

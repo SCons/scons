@@ -58,6 +58,20 @@ If this is not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
 </summary>
 </cvar>
 
+<cvar name="F90FILESUFFIXES">
+<summary>
+The list of file extensions for which the F90 dialect will be used. By
+default, this is ['.f90']
+</summary>
+</cvar>
+
+<cvar name="F90PPFILESUFFIXES">
+<summary>
+The list of file extensions for which the compilation + preprocessor pass for
+F90 dialect will be used. By default, this is empty
+</summary>
+</cvar>
+
 <cvar name="F90FLAGS">
 <summary>
 General user-specified options that are passed to the Fortran 90 compiler.

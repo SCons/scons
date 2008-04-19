@@ -26,6 +26,26 @@ RELEASE X.XX - XXX
 
   - Fix the ability to use LoadableModule() under MinGW.
 
+  From David Cournapeau:
+
+  - Various missing Fortran-related construction variables have been added.
+
+  - SCons now uses the program specified in the $FORTRAN construction
+    variable to link Fortran object files.
+
+  - Fortran compilers on Linux (Intel, g77 and gfortran) now add the -fPIC
+    option by default when compilling shared objects.
+
+  - New 'sunf77', 'sunf90' and 'sunf95' Tool modules have been added to
+    support Sun Fortran compilers.  On Solaris, the Sun Fortran compilers
+    are used in preference to other compilers by default.
+
+  - Fortran support now uses gfortran in preference to g77.
+
+  - Fortran file suffixes are now configurable through the
+    $F77FILESUFFIXES, $F90FILESUFFIXES, $F95FILESUFFIXES and
+    $FORTRANFILESUFFIXES variables.
+
   From Steven Knight:
 
   - Make the -d, -e, -w and --no-print-directory options "Ignored for
