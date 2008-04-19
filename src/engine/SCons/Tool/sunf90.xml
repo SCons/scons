@@ -4,22 +4,16 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
-<tool name="gfortran">
+<tool name="sunf90">
 <summary>
-Sets construction variables for the GNU F95/F2003 GNU compiler.
+Set construction variables for the Sun &f90; Fortran compiler.
 </summary>
 <sets>
 FORTRAN
-F77
 F90
-F95
 SHFORTRAN
-SHF77
 SHF90
-SHF95
 SHFORTRANFLAGS
-SHF77FLAGS
 SHF90FLAGS
-SHF95FLAGS
 </sets>
 </tool>

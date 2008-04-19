@@ -36,11 +36,21 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
+import SCons.Errors
+
+from SCons.Tool.FortranCommon import isfortran
 
 cplusplus = __import__('c++', globals(), locals(), [])
 
 def smart_link(source, target, env, for_signature):
-    if cplusplus.iscplusplus(source):
+    has_cplusplus = cplusplus.iscplusplus(source)
+    has_fortran = isfortran(env, source)
+    if has_cplusplus and has_fortran:
+        raise SCons.Errors.InternalError(
+                "Sorry, scons cannot yet link c++ and fortran code together.")
+    elif has_fortran:
+        return '$FORTRAN'
+    elif has_cplusplus:
         return '$CXX'
     return '$CC'
 

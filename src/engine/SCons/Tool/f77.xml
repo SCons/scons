@@ -13,6 +13,8 @@ F77
 F77FLAGS
 F77COM
 F77PPCOM
+F77FILESUFFIXES
+F77PPFILESUFFIXES
 FORTRAN
 FORTRANFLAGS
 FORTRANCOM
@@ -57,6 +59,20 @@ command line for Fortran 77 files.
 You should normally set the &cv-link-FORTRANCOM; variable,
 which specifies the default command line
 for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="F77FILESUFFIXES">
+<summary>
+The list of file extensions for which the F77 dialect will be used. By
+default, this is ['.f77']
+</summary>
+</cvar>
+
+<cvar name="F77PPFILESUFFIXES">
+<summary>
+The list of file extensions for which the compilation + preprocessor pass for
+F77 dialect will be used. By default, this is empty
 </summary>
 </cvar>
 

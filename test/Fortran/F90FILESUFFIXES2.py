@@ -39,49 +39,50 @@ test = TestSCons.TestSCons()
 write_fake_link(test)
 
 test.write('myfortran.py', r"""
+import getopt
 import sys
 comment = '#' + sys.argv[1]
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
+opts, args = getopt.getopt(sys.argv[2:], 'co:')
+for opt, arg in opts:
+    if opt == '-o': out = arg
+infile = open(args[0], 'rb')
+outfile = open(out, 'wb')
 for l in infile.readlines():
     if l[:len(comment)] != comment:
         outfile.write(l)
 sys.exit(0)
 """)
 
+# Test non-default file suffix: .f/.F for F90
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  FORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
-                  FORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
+                  F77 = r'%(_python_)s myfortran.py f77',
+                  F90 = r'%(_python_)s myfortran.py f90',
+                  F90FILESUFFIXES = ['.f', '.F', '.f90', '.F90'],
+                  tools = ['default', 'f90'])
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
-env.Program(target = 'test03', source = 'test03.for')
-env.Program(target = 'test04', source = 'test04.FOR')
-env.Program(target = 'test05', source = 'test05.ftn')
-env.Program(target = 'test06', source = 'test06.FTN')
-env.Program(target = 'test07', source = 'test07.fpp')
-env.Program(target = 'test08', source = 'test08.FPP')
+env.Program(target = 'test03', source = 'test03.f90')
+env.Program(target = 'test04', source = 'test04.F90')
+env.Program(target = 'test05', source = 'test05.f77')
+env.Program(target = 'test06', source = 'test06.F77')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
-test.write('test02.F',   "This is a .F file.\n#link\n#fortranpp\n")
-test.write('test03.for', "This is a .for file.\n#link\n#fortran\n")
-test.write('test04.FOR', "This is a .FOR file.\n#link\n#fortranpp\n")
-test.write('test05.ftn', "This is a .ftn file.\n#link\n#fortran\n")
-test.write('test06.FTN', "This is a .FTN file.\n#link\n#fortranpp\n")
-test.write('test07.fpp', "This is a .fpp file.\n#link\n#fortranpp\n")
-test.write('test08.FPP', "This is a .FPP file.\n#link\n#fortranpp\n")
+test.write('test01.f',   "This is a .f file.\n#link\n#f90\n")
+test.write('test02.F',   "This is a .F file.\n#link\n#f90\n")
+test.write('test03.f90', "This is a .f90 file.\n#link\n#f90\n")
+test.write('test04.F90', "This is a .F90 file.\n#link\n#f90\n")
+test.write('test05.f77', "This is a .f77 file.\n#link\n#f77\n")
+test.write('test06.F77', "This is a .F77 file.\n#link\n#f77\n")
 
 test.run(arguments = '.', stderr = None)
 
 test.must_match('test01' + _exe, "This is a .f file.\n")
 test.must_match('test02' + _exe, "This is a .F file.\n")
-test.must_match('test03' + _exe, "This is a .for file.\n")
-test.must_match('test04' + _exe, "This is a .FOR file.\n")
-test.must_match('test05' + _exe, "This is a .ftn file.\n")
-test.must_match('test06' + _exe, "This is a .FTN file.\n")
-test.must_match('test07' + _exe, "This is a .fpp file.\n")
-test.must_match('test08' + _exe, "This is a .FPP file.\n")
+test.must_match('test03' + _exe, "This is a .f90 file.\n")
+test.must_match('test04' + _exe, "This is a .F90 file.\n")
+test.must_match('test05' + _exe, "This is a .f77 file.\n")
+test.must_match('test06' + _exe, "This is a .F77 file.\n")
 
 test.pass_test()

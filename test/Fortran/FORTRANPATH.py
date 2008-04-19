@@ -29,7 +29,6 @@ import sys
 import TestSCons
 
 _exe = TestSCons._exe
-FTN_LIB = TestSCons.fortran_lib
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)
 variant_prog = os.path.join('variant', 'prog' + _exe)
@@ -38,8 +37,9 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
-if not test.detect('_FORTRANG', 'g77'):
-    test.skip_test('Could not find a $F77 tool; skipping test.\n')
+fc = 'f77'
+if not test.detect_tool(fc):
+    test.skip_test('Could not find a f77 tool; skipping test.\n')
     
 test.subdir('include',
             'subdir',
@@ -50,18 +50,19 @@ test.subdir('include',
 
 
 test.write('SConstruct', """
-env = Environment(FORTRANPATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
-                  LIBS = %s, FOO='include')
+env = Environment(FORTRAN = '%s',
+                  FORTRANPATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
+                  FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 VariantDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(FORTRANPATH=[include, '#foobar', '#subdir'],
-                  LIBS = %s)
+env = Environment(FORTRAN = '%s',
+                  FORTRANPATH=[include, '#foobar', '#subdir'])
 SConscript('variant/SConscript', "env")
-""" % (FTN_LIB, FTN_LIB))
+""" % (fc, fc))
 
 test.write(['subdir', 'SConscript'],
 """
@@ -113,8 +114,12 @@ r"""
 """)
 
 
-
-test.run(arguments = args)
+import sys
+if sys.platform[:5] == 'sunos':
+    # Sun f77 always put some junk in stderr
+    test.run(arguments = args, stderr = None)
+else:
+    test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
          stdout = """\
@@ -156,7 +161,11 @@ r"""
       INCLUDE 'bar.f'
 """)
 
-test.run(arguments = args)
+if sys.platform[:5] == 'sunos':
+    # Sun f77 always put some junk in stderr
+    test.run(arguments = args, stderr = None)
+else:
+    test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
          stdout = """\
@@ -198,7 +207,12 @@ r"""
       PRINT *, 'include/bar.f 2'
 """)
 
-test.run(arguments = args)
+if sys.platform[:5] == 'sunos':
+    # Sun f77 always put some junk in stderr
+    test.run(arguments = args, stderr = None)
+else:
+    test.run(arguments = args)
+
 
 test.run(program = test.workpath(prog),
          stdout = """\
@@ -236,18 +250,18 @@ test.up_to_date(arguments = args)
 
 # Change FORTRANPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(FORTRANPATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
-                  LIBS = %s)
+env = Environment(FORTRAN = '%s',
+                  FORTRANPATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'))
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 VariantDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(FORTRANPATH=['inc2', include, '#foobar', '#subdir'],
-                  LIBS = %s)
+env = Environment(FORTRAN = '%s',
+                  FORTRANPATH=['inc2', include, '#foobar', '#subdir'])
 SConscript('variant/SConscript', "env")
-""" % (FTN_LIB, FTN_LIB))
+""" % (fc, fc))
 
 test.up_to_date(arguments = args)
 
@@ -260,7 +274,12 @@ r"""
       INCLUDE 'bar.f'
 """)
 
-test.run(arguments = args)
+if sys.platform[:5] == 'sunos':
+    # Sun f77 always put some junk in stderr
+    test.run(arguments = args, stderr = None)
+else:
+    test.run(arguments = args)
+
 
 test.run(program = test.workpath(prog),
          stdout = """\
@@ -295,14 +314,16 @@ test.up_to_date(arguments = args)
 
 # Check that a null-string FORTRANPATH doesn't blow up.
 test.write('SConstruct', """
-env = Environment(FORTRANPATH = '', LIBS = %s)
+env = Environment(FORTRANPATH = '')
 env.Object('foo', source = 'empty.f')
-""" % FTN_LIB)
+""")
 
 test.write('empty.f', '')
 
-test.run(arguments = '.')
-
-
+if sys.platform[:5] == 'sunos':
+    # Sun f77 always put some junk in stderr
+    test.run(arguments = '.', stderr = None)
+else:
+    test.run(arguments = '.')
 
 test.pass_test()

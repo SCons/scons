@@ -31,13 +31,8 @@ import TestSCons
 
 _python_ = TestSCons._python_
 
-if sys.platform == 'win32':
-    _obj = '.obj'
-else:
-    if string.find(sys.platform, 'irix') > -1:
-        _obj = '.o'
-    else:
-        _obj = '.os'
+_obj = TestSCons._shobj
+obj_ = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
 
@@ -47,11 +42,11 @@ test.write('myfortran.py', r"""
 import getopt
 import sys
 comment = '#' + sys.argv[1]
-opts, args = getopt.getopt(sys.argv[2:], 'co:xy')
+opts, args = getopt.getopt(sys.argv[2:], 'cf:o:xy')
 optstring = ''
 for opt, arg in opts:
     if opt == '-o': out = arg
-    else: optstring = optstring + ' ' + opt
+    elif opt != '-f': optstring = optstring + ' ' + opt
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
@@ -65,9 +60,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(SHF95 = r'%(_python_)s myfortran.py g95',
-                  SHF95FLAGS = '-x',
-                  SHFORTRAN = r'%(_python_)s myfortran.py fortran',
-                  SHFORTRANFLAGS = '-y')
+                  SHFORTRAN = r'%(_python_)s myfortran.py fortran')
+env.Append(SHF95FLAGS = '-x',
+           SHFORTRANFLAGS = '-y')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
 env.SharedObject(target = 'test03', source = 'test03.for')
@@ -76,10 +71,6 @@ env.SharedObject(target = 'test05', source = 'test05.ftn')
 env.SharedObject(target = 'test06', source = 'test06.FTN')
 env.SharedObject(target = 'test07', source = 'test07.fpp')
 env.SharedObject(target = 'test08', source = 'test08.FPP')
-env.SharedObject(target = 'test09', source = 'test09.f77')
-env.SharedObject(target = 'test10', source = 'test10.F77')
-env.SharedObject(target = 'test11', source = 'test11.f90')
-env.SharedObject(target = 'test12', source = 'test12.F90')
 env.SharedObject(target = 'test13', source = 'test13.f95')
 env.SharedObject(target = 'test14', source = 'test14.F95')
 """ % locals())
@@ -92,34 +83,26 @@ test.write('test05.ftn', "This is a .ftn file.\n#fortran\n")
 test.write('test06.FTN', "This is a .FTN file.\n#fortran\n")
 test.write('test07.fpp', "This is a .fpp file.\n#fortran\n")
 test.write('test08.FPP', "This is a .FPP file.\n#fortran\n")
-test.write('test09.f77', "This is a .f77 file.\n#fortran\n")
-test.write('test10.F77', "This is a .F77 file.\n#fortran\n")
-test.write('test11.f90', "This is a .f90 file.\n#fortran\n")
-test.write('test12.F90', "This is a .F90 file.\n#fortran\n")
 test.write('test13.f95', "This is a .f95 file.\n#g95\n")
 test.write('test14.F95', "This is a .F95 file.\n#g95\n")
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test01' + _obj, " -c -y\nThis is a .f file.\n")
-test.must_match('test02' + _obj, " -c -y\nThis is a .F file.\n")
-test.must_match('test03' + _obj, " -c -y\nThis is a .for file.\n")
-test.must_match('test04' + _obj, " -c -y\nThis is a .FOR file.\n")
-test.must_match('test05' + _obj, " -c -y\nThis is a .ftn file.\n")
-test.must_match('test06' + _obj, " -c -y\nThis is a .FTN file.\n")
-test.must_match('test07' + _obj, " -c -y\nThis is a .fpp file.\n")
-test.must_match('test08' + _obj, " -c -y\nThis is a .FPP file.\n")
-test.must_match('test09' + _obj, " -c -y\nThis is a .f77 file.\n")
-test.must_match('test10' + _obj, " -c -y\nThis is a .F77 file.\n")
-test.must_match('test11' + _obj, " -c -y\nThis is a .f90 file.\n")
-test.must_match('test12' + _obj, " -c -y\nThis is a .F90 file.\n")
-test.must_match('test13' + _obj, " -c -x\nThis is a .f95 file.\n")
-test.must_match('test14' + _obj, " -c -x\nThis is a .F95 file.\n")
+test.must_match(obj_ + 'test01' + _obj, " -c -y\nThis is a .f file.\n")
+test.must_match(obj_ + 'test02' + _obj, " -c -y\nThis is a .F file.\n")
+test.must_match(obj_ + 'test03' + _obj, " -c -y\nThis is a .for file.\n")
+test.must_match(obj_ + 'test04' + _obj, " -c -y\nThis is a .FOR file.\n")
+test.must_match(obj_ + 'test05' + _obj, " -c -y\nThis is a .ftn file.\n")
+test.must_match(obj_ + 'test06' + _obj, " -c -y\nThis is a .FTN file.\n")
+test.must_match(obj_ + 'test07' + _obj, " -c -y\nThis is a .fpp file.\n")
+test.must_match(obj_ + 'test08' + _obj, " -c -y\nThis is a .FPP file.\n")
+test.must_match(obj_ + 'test13' + _obj, " -c -x\nThis is a .f95 file.\n")
+test.must_match(obj_ + 'test14' + _obj, " -c -x\nThis is a .F95 file.\n")
 
 
 
-g95 = test.detect('F95', 'g95')
-FTN_LIB = TestSCons.fortran_lib
+fc = 'f95'
+g95 = test.detect_tool(fc)
 
 if g95:
 
@@ -132,23 +115,24 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %(FTN_LIB)s)
+foo = Environment(SHF95 = '%(fc)s')
 shf95 = foo.Dictionary('SHF95')
-bar = foo.Clone(SHF95 = r'%(_python_)s wrapper.py ' + shf95, SHF95FLAGS = '-Ix')
-foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
-bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
+bar = foo.Clone(SHF95 = r'%(_python_)s wrapper.py ' + shf95)
+bar.Append(SHF95FLAGS = '-Ix')
+foo.SharedLibrary(target = 'foo/foo', source = 'foo.f95')
+bar.SharedLibrary(target = 'bar/bar', source = 'bar.f95')
 """ % locals())
 
-    test.write('foo.f', r"""
+    test.write('foo.f95', r"""
       PROGRAM FOO
-      PRINT *,'foo.f'
+      PRINT *,'foo.f95'
       STOP
       END
 """)
 
-    test.write('bar.f', r"""
+    test.write('bar.f95', r"""
       PROGRAM BAR
-      PRINT *,'bar.f'
+      PRINT *,'bar.f95'
       STOP
       END
 """)
@@ -158,7 +142,11 @@ bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 
     test.must_not_exist('wrapper.out')
 
-    test.run(arguments = 'bar')
+    import sys
+    if sys.platform[:5] == 'sunos':
+        test.run(arguments = 'bar', stderr = None)
+    else:
+        test.run(arguments = 'bar')
 
     test.must_match('wrapper.out', "wrapper.py\n")
 

@@ -62,6 +62,15 @@ else:
     scons_lib_dir = os.path.join(cwd, 'build', 'scons')
     MANIFEST = os.path.join(scons_lib_dir, 'MANIFEST')
 
+# We expect precisely this many uncaught KeyboardInterrupt exceptions
+# from the files in the following dictionary.
+
+expected_uncaught = {
+    'engine/SCons/Job.py' :             5,
+    'engine/SCons/Script/Main.py' :     1,
+    'engine/SCons/Taskmaster.py' :      3,
+}
+
 try:
     fp = open(MANIFEST)
 except IOError:
@@ -94,6 +103,7 @@ for f in files:
         line_num = 1 + string.count(contents[:match.start()], '\n')
         indent_list.append( (line_num, match.group('try_or_except') ) )
         try_except_lines[match.group('indent')] = indent_list
+    uncaught_this_file = []
     for indent in try_except_lines.keys():
         exc_keyboardint_seen = 0
         exc_all_seen = 0
@@ -103,8 +113,7 @@ for f in files:
             m2 = exceptall_pat.match(statement)
             if string.find(statement, indent + 'try') == 0:
                 if exc_all_seen and not exc_keyboardint_seen:
-                    uncaughtKeyboardInterrupt = 1
-                    print "File %s:%d: Uncaught KeyboardInterrupt!" % (f,line)
+                    uncaught_this_file.append(line)
                 exc_keyboardint_seen = 0
                 exc_all_seen = 0
                 line = l
@@ -118,6 +127,13 @@ for f in files:
             else:
                 pass
                 #print "Warning: unknown statement %s" % statement
+    expected_num = expected_uncaught.get(f, 0)
+    if expected_num != len(uncaught_this_file):
+        uncaughtKeyboardInterrupt = 1
+        msg = "%s:  expected %d uncaught interrupts, got %d:"
+        print msg % (f, expected_num, len(uncaught_this_file))
+        for line in uncaught_this_file:
+            print "  File %s:%d: Uncaught KeyboardInterrupt!" % (f,line)
 
 test.fail_test(uncaughtKeyboardInterrupt)
 

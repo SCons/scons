@@ -555,7 +555,7 @@ def tool_list(platform, env):
         c_compilers = ['msvc', 'mingw', 'gcc', 'intelc', 'icl', 'icc', 'cc', 'bcc32' ]
         cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'c++', 'bcc32' ]
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
-        fortran_compilers = ['g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
+        fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
@@ -579,7 +579,8 @@ def tool_list(platform, env):
         c_compilers = ['suncc', 'gcc', 'cc']
         cxx_compilers = ['sunc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
-        fortran_compilers = ['f95', 'f90', 'f77', 'g77', 'fortran']
+        fortran_compilers = ['sunf95', 'sunf90', 'sunf77', 'f95', 'f90', 'f77',
+                             'gfortran', 'g77', 'fortran']
         ars = ['sunar']
     elif str(platform) == 'hpux':
         "prefer aCC tools on HP-UX"
@@ -603,7 +604,7 @@ def tool_list(platform, env):
         c_compilers = ['gcc', 'cc']
         cxx_compilers = ['g++', 'c++']
         assemblers = ['as']
-        fortran_compilers = ['f95', 'f90', 'g77']
+        fortran_compilers = ['gfortran', 'f95', 'f90', 'g77']
         ars = ['ar']
     else:
         "prefer GNU tools on all other platforms"
@@ -611,7 +612,7 @@ def tool_list(platform, env):
         c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
         cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'c++']
         assemblers = ['gas', 'nasm', 'masm']
-        fortran_compilers = ['f95', 'f90', 'g77', 'ifort', 'ifl', 'fortran']
+        fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', 'mslib']
 
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]

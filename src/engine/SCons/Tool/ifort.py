@@ -37,37 +37,44 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import string
 
 import SCons.Defaults
-
-import fortran
+from SCons.Scanner.Fortran import FortranScan
+from FortranCommon import add_all_to_env
 
 def generate(env):
     """Add Builders and construction variables for ifort to an Environment."""
     # ifort supports Fortran 90 and Fortran 95
     # Additionally, ifort recognizes more file extensions.
-    SCons.Tool.SourceFileScanner.add_scanner('.i', fortran.FortranScan)
-    SCons.Tool.SourceFileScanner.add_scanner('.i90', fortran.FortranScan)
-    fortran.FortranSuffixes.extend(['.i', '.i90'])
-    fortran.generate(env)
+    fscan = FortranScan("FORTRANPATH")
+    SCons.Tool.SourceFileScanner.add_scanner('.i', fscan)
+    SCons.Tool.SourceFileScanner.add_scanner('.i90', fscan)
+     
+    if not env.has_key('FORTRANFILESUFFIXES'):
+        env['FORTRANFILESUFFIXES'] = ['.i']
+    else:
+        env['FORTRANFILESUFFIXES'].append('.i')
 
-    env['_FORTRAND'] = 'ifort'
+    if not env.has_key('F90FILESUFFIXES'):
+        env['F90FILESUFFIXES'] = ['.i90']
+    else:
+        env['F90FILESUFFIXES'].append('.i90')
 
-    # If files are compiled into objects, the Intel Fortran Compiler must use
-    # ld to link shared libraries.
-    env['SHLINK'] = 'ld'
+    add_all_to_env(env)
 
-    # Additionally, no symbols can be defined in an archive file; to use
-    # Intel Fortran to create shared libraries, all external symbols must
-    # be in shared libraries.
-    env['SHLINKFLAGS'] = '-shared -no_archive'
+    fc = 'ifort'
 
-    #
+    for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
+        env['%s' % dialect] = fc
+        env['SH%s' % dialect] = '$%s' % dialect
+        env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+
     if env['PLATFORM'] == 'win32':
         # On Windows, the ifort compiler specifies the object on the
         # command line with -object:, not -o.  Massage the necessary
         # command-line construction variables.
-        for var in ['_FORTRANCOMD', '_FORTRANPPCOMD',
-                    '_SHFORTRANCOMD', '_SHFORTRANPPCOMD']:
-            env[var] = string.replace(env[var], '-o $TARGET', '-object:$TARGET')
+        for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
+            for var in ['%sCOM' % dialect, '%sPPCOM' % dialect,
+                        'SH%sCOM' % dialect, 'SH%sPPCOM' % dialect]:
+                env[var] = string.replace(env[var], '-o $TARGET', '-object:$TARGET')
 
 def exists(env):
     return env.Detect('ifort')

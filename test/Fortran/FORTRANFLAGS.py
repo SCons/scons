@@ -29,46 +29,14 @@ import string
 import sys
 import TestSCons
 
+from common import write_fake_link
+
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
-if sys.platform == 'win32':
-
-    test.write('mylink.py', r"""
-import string
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a[0] != '/':
-        break
-    args = args[1:]
-    if string.lower(a[:5]) == '/out:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != '#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-else:
-
-    test.write('mylink.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'o:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != '#link':
-        outfile.write(l)
-sys.exit(0)
-""")
+write_fake_link(test)
 
 test.write('myfortran.py', r"""
 import getopt
@@ -102,12 +70,6 @@ env.Program(target = 'test05', source = 'test05.ftn')
 env.Program(target = 'test06', source = 'test06.FTN')
 env.Program(target = 'test07', source = 'test07.fpp')
 env.Program(target = 'test08', source = 'test08.FPP')
-env.Program(target = 'test09', source = 'test09.f77')
-env.Program(target = 'test10', source = 'test10.F77')
-env.Program(target = 'test11', source = 'test11.f90')
-env.Program(target = 'test12', source = 'test12.F90')
-env.Program(target = 'test13', source = 'test13.f95')
-env.Program(target = 'test14', source = 'test14.F95')
 """ % locals())
 
 test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
@@ -118,12 +80,6 @@ test.write('test05.ftn', "This is a .ftn file.\n#link\n#fortran\n")
 test.write('test06.FTN', "This is a .FTN file.\n#link\n#fortran\n")
 test.write('test07.fpp', "This is a .fpp file.\n#link\n#fortran\n")
 test.write('test08.FPP', "This is a .FPP file.\n#link\n#fortran\n")
-test.write('test09.f77', "This is a .f77 file.\n#link\n#fortran\n")
-test.write('test10.F77', "This is a .F77 file.\n#link\n#fortran\n")
-test.write('test11.f90', "This is a .f90 file.\n#link\n#fortran\n")
-test.write('test12.F90', "This is a .F90 file.\n#link\n#fortran\n")
-test.write('test13.f95', "This is a .f95 file.\n#link\n#fortran\n")
-test.write('test14.F95', "This is a .F95 file.\n#link\n#fortran\n")
 
 test.run(arguments = '.', stderr = None)
 
@@ -135,17 +91,10 @@ test.must_match('test05' + _exe, " -c -x\nThis is a .ftn file.\n")
 test.must_match('test06' + _exe, " -c -x\nThis is a .FTN file.\n")
 test.must_match('test07' + _exe, " -c -x\nThis is a .fpp file.\n")
 test.must_match('test08' + _exe, " -c -x\nThis is a .FPP file.\n")
-test.must_match('test09' + _exe, " -c -x\nThis is a .f77 file.\n")
-test.must_match('test10' + _exe, " -c -x\nThis is a .F77 file.\n")
-test.must_match('test11' + _exe, " -c -x\nThis is a .f90 file.\n")
-test.must_match('test12' + _exe, " -c -x\nThis is a .F90 file.\n")
-test.must_match('test13' + _exe, " -c -x\nThis is a .f95 file.\n")
-test.must_match('test14' + _exe, " -c -x\nThis is a .F95 file.\n")
 
 
-
-g77 = test.detect('FORTRAN', 'g77')
-FTN_LIB = TestSCons.fortran_lib
+fc = 'f77'
+g77 = test.detect_tool(fc)
 
 if g77:
 
@@ -158,7 +107,7 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = %(FTN_LIB)s)
+foo = Environment(FORTRAN = '%(fc)s')
 f77 = foo.Dictionary('FORTRAN')
 bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77, FORTRANFLAGS = '-Ix')
 foo.Program(target = 'foo', source = 'foo.f')
@@ -186,7 +135,11 @@ bar.Program(target = 'bar', source = 'bar.f')
 
     test.must_not_exist('wrapper.out')
 
-    test.run(arguments = 'bar' + _exe)
+    import sys
+    if sys.platform[:5] == 'sunos':
+        test.run(arguments = 'bar' + _exe, stderr = None)
+    else:
+        test.run(arguments = 'bar' + _exe)
 
     test.run(program = test.workpath('bar'), stdout =  " bar.f\n")
 
