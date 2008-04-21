@@ -88,7 +88,21 @@ class SConfTestCase(unittest.TestCase):
         if self.scons_env['CXX'] == 'g++':
             global existing_lib
             existing_lib = 'm'
-        
+
+        if sys.platform in ['cygwin', 'win32']:
+             # On Windows, SCons.Platform.win32 redefines the builtin
+             # file() and open() functions to close the file handles.
+             # This interferes with the unittest.py infrastructure in
+             # some way.  Just sidestep the issue by restoring the
+             # original builtin functions whenever we have to reset
+             # all of our global state.
+
+             import __builtin__
+             import SCons.Platform.win32
+
+             __builtin__.file = SCons.Platform.win32._builtin_file
+             __builtin__.open = SCons.Platform.win32._builtin_open
+
     def _baseTryXXX(self, TryFunc):
         # TryCompile and TryLink are much the same, so we can test them
         # in one method, we pass the function as a string ('TryCompile',

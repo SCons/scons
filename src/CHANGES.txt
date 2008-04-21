@@ -8,6 +8,18 @@
 
 
 
+RELEASE 0.98.2 - XXX
+
+  From Steven Knight:
+
+  - Fix a bug in Fortran suffix computation that would cause SCons to
+    run out of memory on Windows systems.
+
+  - Fix being able to specify --interactive mode command lines with
+    \ (backslash) path name separators on Windows.
+
+
+
 RELEASE 0.98.1 - Fri, 18 Apr 2008 19:11:58 -0700
 
   From Benoit Belley:

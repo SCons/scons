@@ -209,6 +209,30 @@
   </section>
 
   <section>
+  <title>Making a list of files with Glob()</title>
+
+    <para>
+
+    You can also use the Glob() function to find all files matching a
+    certain template, using standard the shell pattern matching
+    characters *, ?, and [abc] to match any of a, b, or c.  [!abc] is
+    also supported, to match any character <emphasis>except</emphasis>
+    a, b, or c.  This makes many multi-source-file builds quite easy:
+
+    </para>
+
+    <sconstruct>
+       Program('program', Glob('*.c'))
+    </sconstruct>
+
+    <para>
+
+    The SCons man page has more details on using Glob() with Variant
+    dirs and Repositories and returning strings rather than Nodes.
+
+  </section>
+
+  <section>
   <title>Specifying Single Files Vs. Lists of Files</title>
 
     <para>

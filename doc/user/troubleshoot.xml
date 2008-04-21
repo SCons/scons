@@ -1115,11 +1115,10 @@
       % <userinput>scons -Q --debug=stacktrace</userinput>
       scons: *** Source `prog.c' not found, needed by target `prog.o'.  Stop.
       scons: internal stack trace:
-        File "bootstrap/src/engine/SCons/Job.py", line 131, in start
+        File "bootstrap/src/engine/SCons/Job.py", line 187, in start
         File "bootstrap/src/engine/SCons/Script/Main.py", line 169, in prepare
-        File "bootstrap/src/engine/SCons/Taskmaster.py", line 169, in prepare
-        File "bootstrap/src/engine/SCons/Node/FS.py", line 2551, in prepare
-        File "bootstrap/src/engine/SCons/Node/__init__.py", line 349, in prepare
+        File "bootstrap/src/engine/SCons/Taskmaster.py", line 184, in prepare
+        File "bootstrap/src/engine/SCons/Executor.py", line 171, in prepare
     </screen>
 
     <para>
@@ -1174,24 +1173,35 @@
 
     <screen>
       % <userinput>scons -Q --taskmastertrace=- prog</userinput>
-      Taskmaster: 'prog': children:
-          ['prog.o']
-          waiting on unfinished children:
-          ['prog.o']
-      Taskmaster: 'prog.o': children:
-          ['inc.h', 'prog.c']
-          waiting on unfinished children:
-          ['inc.h', 'prog.c']
-      Taskmaster: 'prog.c': evaluating prog.c
-      Taskmaster: 'inc.h': evaluating inc.h
-      Taskmaster: 'prog.o': children:
-          ['inc.h', 'prog.c']
-          evaluating prog.o
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;no_state   'prog'&gt; and its children:
+      Taskmaster:        &lt;no_state   'prog.o'&gt;
+      Taskmaster:     Considering node &lt;no_state   'prog.o'&gt; and its children:
+      Taskmaster:        &lt;no_state   'prog.c'&gt;
+      Taskmaster:        &lt;no_state   'inc.h'&gt;
+      Taskmaster:     Considering node &lt;no_state   'prog.c'&gt; and its children:
+      Taskmaster: Evaluating &lt;pending    'prog.c'&gt;
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;no_state   'inc.h'&gt; and its children:
+      Taskmaster: Evaluating &lt;pending    'inc.h'&gt;
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;pending    'prog.o'&gt; and its children:
+      Taskmaster:        &lt;up_to_date 'prog.c'&gt;
+      Taskmaster:        &lt;up_to_date 'inc.h'&gt;
+      Taskmaster: Evaluating &lt;pending    'prog.o'&gt;
       cc -o prog.o -c -I. prog.c
-      Taskmaster: 'prog': children:
-          ['prog.o']
-          evaluating prog
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;pending    'prog'&gt; and its children:
+      Taskmaster:        &lt;executed   'prog.o'&gt;
+      Taskmaster: Evaluating &lt;pending    'prog'&gt;
       cc -o prog prog.o
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster: No candidate anymore.
     </screen>
 
     <para>

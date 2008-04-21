@@ -457,6 +457,52 @@ program using the F<build/foo.c> path name.
 
   </section>
 
+  <section>
+  <title>Using Glob() with &VariantDir;</title>
+
+    <para>
+
+    The Glob() file name pattern matching function
+    works just as usual when using &VariantDir;.
+    For example, if the
+    <filename>src/SConscript</filename>
+    looks like this:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env.Program('hello', Glob('*.c'))
+    </programlisting>
+
+    <para>
+
+    Then with the same &SConstruct; file as in the previous section,
+    and source files f1.c and f2.c in src, we would see the following
+    output:
+
+    </para>
+
+    <screen>
+      % <userinput>ls src</userinput>
+      SConscript  f1.c  f2.c  f2.h
+      % <userinput>scons -Q</userinput>
+      cc -o build/f1.o -c build/f1.c
+      cc -o build/f2.o -c build/f2.c
+      cc -o build/hello build/f1.o build/f2.o
+      % <userinput>ls build</userinput>
+      SConscript  f1.c  f1.o  f2.c  f2.h  f2.o  hello
+    </screen>
+
+    <para>
+
+    The Glob function returns Nodes in the build/ tree, as
+    you'd expect.
+
+    </para>
+
+  </section>
+
   <!--
 
   <section>

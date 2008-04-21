@@ -81,9 +81,7 @@ test.run()
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
 
-test.must_match(test.workpath('scons.options'),
-                "shared = 'all'"+os.linesep,
-                mode='r')
+test.must_match(test.workpath('scons.options'), "shared = 'all'"+os.linesep)
 
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])

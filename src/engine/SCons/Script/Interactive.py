@@ -145,6 +145,8 @@ class SConsInteractiveCmd(cmd.Cmd):
             line = 'shell ' + line[1:]
         elif line[0] == '?':
             line = 'help ' + line[1:]
+        if os.sep == '\\':
+            line = string.replace(line, '\\', '\\\\')
         argv = shlex.split(line)
         argv[0] = self.synonyms.get(argv[0], argv[0])
         if not argv[0]:

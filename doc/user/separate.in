@@ -466,6 +466,63 @@ program using the F<build/foo.c> path name.
 
   </section>
 
+  <section>
+  <title>Using Glob() with &VariantDir;</title>
+
+    <para>
+
+    The Glob() file name pattern matching function
+    works just as usual when using &VariantDir;.
+    For example, if the
+    <filename>src/SConscript</filename>
+    looks like this:
+
+    </para>
+
+    <scons_example name="example_glob_builddir_sconscript">
+      <file name="SConstruct">
+      VariantDir('build', 'src')
+      SConscript('build/SConscript')
+      </file>
+      <file name="src/SConscript" printme="1">
+      env = Environment()
+      env.Program('hello', Glob('*.c'))
+      </file>
+      <file name="src/f1.c">
+      #include "f2.h"
+      int main() { printf(f2()); }
+      </file>
+      <file name="src/f2.c">
+      const char * f2() { return("Hello, world!\n"); }
+      </file>
+      <file name="src/f2.h">
+      const char * f2();
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then with the same &SConstruct; file as in the previous section,
+    and source files f1.c and f2.c in src, we would see the following
+    output:
+
+    </para>
+
+    <scons_output example="example_glob_builddir_sconscript">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The Glob function returns Nodes in the build/ tree, as
+    you'd expect.
+
+    </para>
+
+  </section>
+
   <!--
 
   <section>
