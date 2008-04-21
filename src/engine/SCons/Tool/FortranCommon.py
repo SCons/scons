@@ -92,12 +92,11 @@ def ComputeFortranSuffixes(suffixes, ppsuffixes):
     assert len(suffixes) > 0
     s = suffixes[0]
     sup = string.upper(s)
+    upper_suffixes = map(string.upper, suffixes)
     if SCons.Util.case_sensitive_suffixes(s, sup):
-        for i in suffixes:
-            ppsuffixes.append(string.upper(i))
+        ppsuffixes.extend(upper_suffixes)
     else:
-        for i in suffixes:
-            suffixes.append(string.upper(i))
+        suffixes.extend(upper_suffixes)
 
 def CreateDialectActions(dialect):
     """Create dialect specific actions."""

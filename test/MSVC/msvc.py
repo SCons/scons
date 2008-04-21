@@ -25,15 +25,13 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
 import re
 import sys
 import time
 
-import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 if sys.platform != 'win32':
     msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
@@ -43,7 +41,10 @@ if sys.platform != 'win32':
 # Test the basics
 
 test.write('SConstruct',"""
-env=Environment()
+import os
+env = Environment()
+env.Append(CPPPATH=os.environ['INCLUDE'],
+           LIBPATH=os.environ['LIB'])
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
@@ -185,91 +186,5 @@ test.not_up_to_date(arguments='test.exe', stderr=None)
 test.run(program=test.workpath('test.exe'), stdout='2003 test 2\n')
 
 
-##########
-# Test a hierarchical build
-
-test.subdir('src', 'build', 'out')
-
-test.write('SConstruct',"""
-VariantDir('build', 'src', duplicate=0)
-SConscript('build/SConscript')
-""")
-
-test.write('src/SConscript',"""
-env=Environment()
-env['PCH'] = 'StdAfx.pch'
-env['PDB'] = '#out/test.pdb'
-env['PCHSTOP'] = 'StdAfx.h'
-env.PCH('StdAfx.cpp')
-env.Program('#out/test.exe', 'test.cpp')
-""")
-
-test.write('src/test.cpp', '''
-#include "StdAfx.h"
-
-int main(void) 
-{ 
-    return 1;
-}
-''')
-
-test.write('src/StdAfx.h', '''
-#include <windows.h>
-''')
-
-test.write('src/StdAfx.cpp', '''
-#include "StdAfx.h"
-''')
-
-test.run(arguments='out', stderr=None)
-
-test.must_exist(test.workpath('out/test.pdb'))
-test.must_exist(test.workpath('build/StdAfx.pch'))
-test.must_exist(test.workpath('build/StdAfx.obj'))
-
-test.run(arguments='-c out')
-
-test.must_not_exist(test.workpath('out/test.pdb'))
-test.must_not_exist(test.workpath('build/StdAfx.pch'))
-test.must_not_exist(test.workpath('build/StdAfx.obj'))
-
-#####
-# Test error reporting
-
-SConstruct_path = test.workpath('SConstruct')
-
-test.write(SConstruct_path, """\
-env = Environment()
-env['PDB'] = File('test.pdb')
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-env.Program('test', 'test.cpp')
-""")
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction must be defined if PCH is defined.
-File "%s", line 4, in \?
-''' % re.escape(SConstruct_path)
-
-test.run(status=2, stderr=expect_stderr)
-
-test.write(SConstruct_path, """\
-env = Environment()
-env['PDB'] = File('test.pdb')
-env['PCHSTOP'] = File('StdAfx.h')
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-env.Program('test', 'test.cpp')
-""")
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction variable must be a string: .+
-File "%s", line 5, in \?
-''' % re.escape(SConstruct_path)
-
-test.run(status=2, stderr=expect_stderr)
 
 test.pass_test()
-
-
-
-
-

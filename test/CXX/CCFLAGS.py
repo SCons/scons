@@ -34,8 +34,10 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-foo = Environment(CCFLAGS = '-DFOO', CXXFLAGS = '-DCXX')
-bar = Environment(CCFLAGS = '-DBAR', CXXFLAGS = '-DCXX')
+foo = Environment()
+foo.Append(CCFLAGS = '-DFOO', CXXFLAGS = '-DCXX')
+bar = Environment()
+bar.Append(CCFLAGS = '-DBAR', CXXFLAGS = '-DCXX')
 foo_obj = foo.Object(target = 'foo', source = 'prog.cpp')
 bar_obj = bar.Object(target = 'bar', source = 'prog.cpp')
 foo.Program(target = 'foo', source = foo_obj)

@@ -60,14 +60,13 @@ Command('3', [], Touch('$TARGET'))
 """)
 
 foo_exe     = test.workpath('foo' + TestSCons._exe)
-_foo_exe_   = '"%s"' % string.replace(foo_exe, '\\', '\\\\')
 
 
 
 # Start scons, to build "foo"
 scons = test.start(arguments = '--interactive')
 
-scons.send("build %(_foo_exe_)s 1\n" % locals())
+scons.send("build %(foo_exe)s 1\n" % locals())
 
 test.wait_for(test.workpath('1'), popen=scons)
 
@@ -91,7 +90,7 @@ int main()
 }
 """)
 
-scons.send("build %(_foo_exe_)s 2\n" % locals())
+scons.send("build %(foo_exe)s 2\n" % locals())
 
 test.wait_for(test.workpath('2'))
 
@@ -106,7 +105,7 @@ test.write('foo.h.in', """
 
 
 
-scons.send("build %(_foo_exe_)s 3\n" % locals())
+scons.send("build %(foo_exe)s 3\n" % locals())
 
 test.wait_for(test.workpath('3'))
 

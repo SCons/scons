@@ -52,15 +52,13 @@ if string.find(sys.platform, 'irix') > -1:
 
 test = TestSCons.TestSCons()
 
-e = test.Environment()
-fooflags = e['SHCXXFLAGS'] + ' -DFOO'
-barflags = e['SHCXXFLAGS'] + ' -DBAR'
-
 test.subdir('bld', 'src', ['src', 'subsrcdir'])
 
 sconstruct = r"""
-foo = Environment(SHOBJPREFIX='', SHCXXFLAGS = '%(fooflags)s', WINDOWS_INSERT_DEF=1)
-bar = Environment(SHOBJPREFIX='', SHCXXFLAGS = '%(barflags)s', WINDOWS_INSERT_DEF=1)
+foo = Environment(SHOBJPREFIX='', WINDOWS_INSERT_DEF=1)
+foo.Append(SHCXXFLAGS = '-DFOO')
+bar = Environment(SHOBJPREFIX='', WINDOWS_INSERT_DEF=1)
+bar.Append(SHCXXFLAGS = '-DBAR')
 src = Dir('src')
 VariantDir('bld', src, duplicate=1)
 Nodes=[]
@@ -90,11 +88,9 @@ gooMain = foo.Clone(LIBS='goo', LIBPATH='bld')
 goo_obj = gooMain.Object(target='goomain', source='main.c')
 gooMain.Program(target='gooprog', source=goo_obj)
 """
-           
 
 test.write('foo.def', r"""
 LIBRARY        "foo"
-DESCRIPTION    "Foo Shared Library"
 
 EXPORTS
    doIt
@@ -102,7 +98,6 @@ EXPORTS
 
 test.write('bar.def', r"""
 LIBRARY        "bar"
-DESCRIPTION    "Bar Shared Library"
 
 EXPORTS
    doIt
@@ -153,8 +148,9 @@ def exists_test(node):
             import sys
             sys.stderr.write('VariantDir exists() population did not occur! (%%s:%%s,%%s,%%s)\n'%%(str(node),before,via_node,after))
             sys.exit(-2)
-    
-goo = Environment(CPPFLAGS = '%(fooflags)s')
+
+goo = Environment()
+goo.Append(CFLAGS = '-DFOO')
 goof_in = File('goof.in')
 if %(_E)s:
     exists_test(goof_in)
@@ -192,7 +188,6 @@ boo_sub()
 """)
 
 test.write('main.c', r"""
-
 void doIt();
 
 int

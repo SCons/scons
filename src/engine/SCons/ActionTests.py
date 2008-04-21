@@ -1003,7 +1003,8 @@ class CommandActionTestCase(unittest.TestCase):
             # NT treats execs of directories and non-executable files
             # as "file not found" errors
             expect_nonexistent = 1
-            expect_nonexecutable = 1
+            expect_nonexecutable_file = 1
+            expect_nonexecutable_dir = 1
         elif sys.platform == 'cygwin':
             expect_nonexistent = 127
             # Newer cygwin seems to return 126 for following
