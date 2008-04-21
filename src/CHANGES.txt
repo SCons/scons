@@ -18,6 +18,10 @@ RELEASE 0.98.2 - XXX
   - Fix being able to specify --interactive mode command lines with
     \ (backslash) path name separators on Windows.
 
+  From Gary Oberbrunner:
+
+  - Document Glob() in the User's Guide.
+
 
 
 RELEASE 0.98.1 - Fri, 18 Apr 2008 19:11:58 -0700

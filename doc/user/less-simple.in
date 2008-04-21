@@ -230,6 +230,8 @@
     The SCons man page has more details on using Glob() with Variant
     dirs and Repositories and returning strings rather than Nodes.
 
+    </para>
+
   </section>
 
   <section>
