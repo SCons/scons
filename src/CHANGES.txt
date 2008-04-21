@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.98.2 - XXX
+RELEASE 0.98.2 - Sun, 20 Apr 2008 23:38:56 -0700
 
   From Steven Knight:
 
