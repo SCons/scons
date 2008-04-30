@@ -53,26 +53,14 @@ def generate(env):
     env['CXX']        = env.Detect(compilers)
 
     # platform specific settings
-    if env['PLATFORM'] == 'cygwin':
-        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    elif env['PLATFORM'] == 'aix':
-        # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC -mminimal-toc')
+    if env['PLATFORM'] == 'aix':
         env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -mminimal-toc')
         env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
         env['SHOBJSUFFIX'] = '$OBJSUFFIX'
     elif env['PLATFORM'] == 'hpux':
-        # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC')
         env['SHOBJSUFFIX'] = '.pic.o'
     elif env['PLATFORM'] == 'sunos':
-        # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC')
         env['SHOBJSUFFIX'] = '.pic.o'
-    else:
-        # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC')
-        pass
     # determine compiler version
     if env['CXX']:
         line = os.popen(env['CXX'] + ' --version').readline()

@@ -2873,9 +2873,10 @@ class FileFinder:
             node = p.entries[norm_name]
         except KeyError:
             return p.dir_on_disk(name)
-        # Once we move to Python 2.2 we can do:
-        #if isinstance(node, (Dir, Entry)):
-        if isinstance(node, Dir) or isinstance(node, Entry):
+        if isinstance(node, Dir):
+            return node
+        if isinstance(node, Entry):
+            node.must_be_same(Dir)
             return node
         return None
 
@@ -2944,8 +2945,11 @@ class FileFinder:
             #        node = p.entries[norm_name]
             #    except KeyError:
             #        return p.dir_on_disk(name)
-            #    # Once we move to Python 2.2 we can do:
-            #    #if isinstance(node, (Dir, Entry)):
+            #    if isinstance(node, Dir):
+            #        return node
+            #    if isinstance(node, Entry):
+            #        node.must_be_same(Dir)
+            #        return node
             #    if isinstance(node, Dir) or isinstance(node, Entry):
             #        return node
             #    return None

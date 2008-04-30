@@ -50,12 +50,15 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
+from SCons.Variables.BoolVariable import BoolVariable
+BV = BoolVariable
+
 from SCons.Variables import BoolVariable
 
 opts = Variables(args=ARGUMENTS)
 opts.AddVariables(
     BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
-    BoolVariable('profile', 'create profiling informations', 0),
+    BV('profile', 'create profiling informations', 0),
     )
 
 env = Environment(variables=opts)
@@ -78,7 +81,7 @@ check([str(False), str(True)])
 expect_stderr = """
 scons: *** Error converting option: warnings
 Invalid value for boolean option: irgendwas
-""" + test.python_file_line(SConstruct_path, 9)
+""" + test.python_file_line(SConstruct_path, 12)
 
 test.run(arguments='warnings=irgendwas', stderr = expect_stderr, status=2)
 

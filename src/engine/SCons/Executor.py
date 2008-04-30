@@ -237,11 +237,11 @@ class Executor:
         if scanner:
             for node in node_list:
                 node.disambiguate()
-                scanner = scanner.select(node)
-                if not scanner:
+                s = scanner.select(node)
+                if not s:
                     continue
-                path = self.get_build_scanner_path(scanner)
-                deps.extend(node.get_implicit_deps(env, scanner, path))
+                path = self.get_build_scanner_path(s)
+                deps.extend(node.get_implicit_deps(env, s, path))
         else:
             kw = self.get_kw()
             for node in node_list:

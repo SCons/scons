@@ -76,7 +76,7 @@ def generate(env):
     env['CXXFLAGS']   = SCons.Util.CLVar('')
     env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCXX']      = '$CXX'
-    env['SHCXXFLAGS'] = SCons.Util.CLVar('')
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHCXXCOM']   = '$SHCXX -o $TARGET -c $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'

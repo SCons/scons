@@ -49,6 +49,18 @@ default_stack_size = 256
 
 interrupt_msg = 'Build interrupted.'
 
+
+class InterruptState:
+   def __init__(self):
+       self.interrupted = False
+
+   def set(self):
+       self.interrupted = True
+
+   def __call__(self):
+       return self.interrupted
+
+
 class Jobs:
     """An instance of this class initializes N jobs, and provides
     methods for starting, stopping, and waiting on all N jobs.
@@ -84,8 +96,6 @@ class Jobs:
             self.job = Serial(taskmaster)
             self.num_jobs = 1
 
-        self.job.interrupted = False
-
     def run(self, postfunc=lambda: None):
         """Run the jobs.
 
@@ -104,7 +114,7 @@ class Jobs:
 
     def were_interrupted(self):
         """Returns whether the jobs were interrupted by a signal."""
-        return self.job.interrupted
+        return self.job.interrupted()
 
     def _setup_sig_handler(self):
         """Setup an interrupt handler so that SCons can shutdown cleanly in
@@ -127,10 +137,10 @@ class Jobs:
         SCons forks before executing another process. In that case, we
         want the child to exit immediately.
         """
-        def handler(signum, stack, parentpid=os.getpid()):
+        def handler(signum, stack, self=self, parentpid=os.getpid()):
             if os.getpid() == parentpid:
                 self.job.taskmaster.stop()
-                self.job.interrupted = True
+                self.job.interrupted.set()
             else:
                 os._exit(2)
 
@@ -170,6 +180,7 @@ class Serial:
         execute (e.g. execute() raised an exception)."""
         
         self.taskmaster = taskmaster
+        self.interrupted = InterruptState()
 
     def start(self):
         """Start the job. This will begin pulling tasks from the taskmaster
@@ -188,7 +199,7 @@ class Serial:
                 if task.needs_execute():
                     task.execute()
             except:
-                if self.interrupted:
+                if self.interrupted():
                     try:
                         raise SCons.Errors.BuildError(
                             task.targets[0], errstr=interrupt_msg)
@@ -221,11 +232,12 @@ else:
         dequeues the task, executes it, and posts a tuple including the task
         and a boolean indicating whether the task executed successfully. """
 
-        def __init__(self, requestQueue, resultsQueue):
+        def __init__(self, requestQueue, resultsQueue, interrupted):
             threading.Thread.__init__(self)
             self.setDaemon(1)
             self.requestQueue = requestQueue
             self.resultsQueue = resultsQueue
+            self.interrupted = interrupted
             self.start()
 
         def run(self):
@@ -239,6 +251,9 @@ else:
                     break
 
                 try:
+                    if self.interrupted():
+                        raise SCons.Errors.BuildError(
+                            task.targets[0], errstr=interrupt_msg)
                     task.execute()
                 except:
                     task.exception_set()
@@ -251,7 +266,7 @@ else:
     class ThreadPool:
         """This class is responsible for spawning and managing worker threads."""
 
-        def __init__(self, num, stack_size):
+        def __init__(self, num, stack_size, interrupted):
             """Create the request and reply queues, and 'num' worker threads.
             
             One must specify the stack size of the worker threads. The
@@ -277,7 +292,7 @@ else:
             # Create worker threads
             self.workers = []
             for _ in range(num):
-                worker = Worker(self.requestQueue, self.resultsQueue)
+                worker = Worker(self.requestQueue, self.resultsQueue, interrupted)
                 self.workers.append(worker)
 
             # Once we drop Python 1.5 we can change the following to:
@@ -348,7 +363,8 @@ else:
             multiple tasks simultaneously. """
 
             self.taskmaster = taskmaster
-            self.tp = ThreadPool(num, stack_size)
+            self.interrupted = InterruptState()
+            self.tp = ThreadPool(num, stack_size, self.interrupted)
 
             self.maxjobs = num
 
@@ -395,7 +411,7 @@ else:
                     if ok:
                         task.executed()
                     else:
-                        if self.interrupted:
+                        if self.interrupted():
                             try:
                                 raise SCons.Errors.BuildError(
                                     task.targets[0], errstr=interrupt_msg)

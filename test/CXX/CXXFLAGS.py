@@ -25,7 +25,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that $SHCXXFLAGS settings are used to build shared object files.
+Verify that $CXXFLAGS settings are used to build both static
+and shared object files.
 """
 
 import os
@@ -47,11 +48,11 @@ e = test.Environment()
 
 test.write('SConstruct', """
 foo = Environment(WINDOWS_INSERT_DEF=1)
-foo.Append(SHCXXFLAGS = '-DFOO') 
+foo.Append(CXXFLAGS = '-DFOO') 
 bar = Environment(WINDOWS_INSERT_DEF=1)
-bar.Append(SHCXXFLAGS = '-DBAR') 
-foo_obj = foo.SharedObject(target = 'foo%(_obj)s', source = 'prog.cpp')
-bar_obj = bar.SharedObject(target = 'bar%(_obj)s', source = 'prog.cpp')
+bar.Append(CXXFLAGS = '-DBAR') 
+foo_obj = foo.SharedObject(target = 'fooshared%(_obj)s', source = 'doIt.cpp')
+bar_obj = bar.SharedObject(target = 'barshared%(_obj)s', source = 'doIt.cpp')
 foo.SharedLibrary(target = 'foo', source = foo_obj)
 bar.SharedLibrary(target = 'bar', source = bar_obj)
 
@@ -62,6 +63,11 @@ fooMain.Program(target='fooprog', source=foo_obj)
 barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 bar_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=bar_obj)
+
+foo_obj = foo.Object(target = 'foostatic', source = 'prog.cpp')
+bar_obj = bar.Object(target = 'barstatic', source = 'prog.cpp')
+foo.Program(target = 'foo', source = foo_obj)
+bar.Program(target = 'bar', source = bar_obj)
 """ % locals())
 
 test.write('foo.def', r"""
@@ -80,17 +86,17 @@ EXPORTS
    doIt
 """)
 
-test.write('prog.cpp', r"""
+test.write('doIt.cpp', r"""
 #include <stdio.h>
 
 extern "C" void
 doIt()
 {
 #ifdef FOO
-        printf("prog.cpp:  FOO\n");
+        printf("doIt.cpp:  FOO\n");
 #endif
 #ifdef BAR
-        printf("prog.cpp:  BAR\n");
+        printf("doIt.cpp:  BAR\n");
 #endif
 }
 """)
@@ -107,16 +113,38 @@ main(int argc, char* argv[])
 }
 """)
 
+test.write('prog.cpp', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = "--";
+#ifdef FOO
+        printf("prog.c:  FOO\n");
+#endif
+#ifdef BAR
+        printf("prog.c:  BAR\n");
+#endif
+        exit (0);
+}
+""")
+
 test.run(arguments = '.')
 
-test.run(program = test.workpath('fooprog'), stdout = "prog.cpp:  FOO\n")
-test.run(program = test.workpath('barprog'), stdout = "prog.cpp:  BAR\n")
+test.run(program = test.workpath('fooprog'), stdout = "doIt.cpp:  FOO\n")
+test.run(program = test.workpath('barprog'), stdout = "doIt.cpp:  BAR\n")
+test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
+test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+
+
 
 test.write('SConstruct', """
 bar = Environment(WINDOWS_INSERT_DEF=1)
-bar.Append(SHCXXFLAGS = '-DBAR') 
-foo_obj = bar.SharedObject(target = 'foo%(_obj)s', source = 'prog.cpp')
-bar_obj = bar.SharedObject(target = 'bar%(_obj)s', source = 'prog.cpp')
+bar.Append(CXXFLAGS = '-DBAR') 
+foo_obj = bar.SharedObject(target = 'foo%(_obj)s', source = 'doIt.cpp')
+bar_obj = bar.SharedObject(target = 'bar%(_obj)s', source = 'doIt.cpp')
 bar.SharedLibrary(target = 'foo', source = foo_obj)
 bar.SharedLibrary(target = 'bar', source = bar_obj)
 
@@ -129,7 +157,9 @@ barMain.Program(target='fooprog', source=bar_obj)
 
 test.run(arguments = '.')
 
-test.run(program = test.workpath('fooprog'), stdout = "prog.cpp:  BAR\n")
-test.run(program = test.workpath('barprog'), stdout = "prog.cpp:  BAR\n")
+test.run(program = test.workpath('fooprog'), stdout = "doIt.cpp:  BAR\n")
+test.run(program = test.workpath('barprog'), stdout = "doIt.cpp:  BAR\n")
+
+
 
 test.pass_test()

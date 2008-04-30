@@ -56,6 +56,8 @@ test.write('foo.in', "foo.in 2\n")
 
 scons.send("build --taskmastertrace=- foo.out\n")
 
+test.wait_for(test.workpath('foo.out'))
+
 scons.send("build 2\n")
 
 test.wait_for(test.workpath('2'))
@@ -71,15 +73,16 @@ scons>>> Copy("foo.out", "foo.in")
 Touch("1")
 scons>>> 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'foo.out'> and its children:
-Taskmaster:        <no_state   'foo.in'>
-Taskmaster:     Considering node <no_state   'foo.in'> and its children:
-Taskmaster: Evaluating <pending    'foo.in'>
+Taskmaster:     Considering node <no_state   0   'foo.out'> and its children:
+Taskmaster:        <no_state   0   'foo.in'>
+Taskmaster:      adjusting ref count: <pending    1   'foo.out'>
+Taskmaster:     Considering node <no_state   0   'foo.in'> and its children:
+Taskmaster: Evaluating <pending    0   'foo.in'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <pending    'foo.out'> and its children:
-Taskmaster:        <up_to_date 'foo.in'>
-Taskmaster: Evaluating <pending    'foo.out'>
+Taskmaster:     Considering node <pending    0   'foo.out'> and its children:
+Taskmaster:        <up_to_date 0   'foo.in'>
+Taskmaster: Evaluating <pending    0   'foo.out'>
 Copy("foo.out", "foo.in")
 
 Taskmaster: Looking for a node to evaluate

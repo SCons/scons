@@ -1053,23 +1053,24 @@ class TaskmasterTestCase(unittest.TestCase):
         expect = """\
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'n1'> and its children:
-Taskmaster: Evaluating <pending    'n1'>
+Taskmaster:     Considering node <no_state   0   'n1'> and its children:
+Taskmaster: Evaluating <pending    0   'n1'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <executed   'n1'> and its children:
+Taskmaster:     Considering node <executed   0   'n1'> and its children:
 Taskmaster:        already handled (executed)
-Taskmaster:     Considering node <no_state   'n3'> and its children:
-Taskmaster:        <executed   'n1'>
-Taskmaster:        <no_state   'n2'>
-Taskmaster:     Considering node <no_state   'n2'> and its children:
-Taskmaster: Evaluating <pending    'n2'>
+Taskmaster:     Considering node <no_state   0   'n3'> and its children:
+Taskmaster:        <executed   0   'n1'>
+Taskmaster:        <no_state   0   'n2'>
+Taskmaster:      adjusting ref count: <pending    1   'n3'>
+Taskmaster:     Considering node <no_state   0   'n2'> and its children:
+Taskmaster: Evaluating <pending    0   'n2'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <pending    'n3'> and its children:
-Taskmaster:        <executed   'n1'>
-Taskmaster:        <executed   'n2'>
-Taskmaster: Evaluating <pending    'n3'>
+Taskmaster:     Considering node <pending    0   'n3'> and its children:
+Taskmaster:        <executed   0   'n1'>
+Taskmaster:        <executed   0   'n2'>
+Taskmaster: Evaluating <pending    0   'n3'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
