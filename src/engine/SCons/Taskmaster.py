@@ -277,9 +277,9 @@ class Task:
         Explicit stop-the-build failure.
         """
         
-        # Invoke fail_continue() to clean-up the pending children
+        # Invoke will_not_build() to clean-up the pending children
         # list.
-        self.fail_continue()
+        self.tm.will_not_build(self.targets)
 
         # Tell the taskmaster to not start any new tasks
         self.tm.stop()
@@ -297,44 +297,8 @@ class Task:
         This sets failure status on the target nodes and all of
         their dependent parent nodes.
         """
+        self.tm.will_not_build(self.targets)
         
-        pending_children = self.tm.pending_children
-
-        to_visit = set()
-        for t in self.targets:
-            # Set failure state on all of the parents that were dependent
-            # on this failed build.
-            if t.state != NODE_FAILED:
-                t.state = NODE_FAILED
-                parents = t.waiting_parents
-                to_visit = to_visit | parents
-                pending_children = pending_children - parents
-
-        try:
-            while 1:
-                try:
-                    node = to_visit.pop()
-                except AttributeError:
-                    # Python 1.5.2
-                    if len(to_visit):
-                        node = to_visit[0]
-                        to_visit.remove(node)
-                    else:
-                        break
-                if node.state != NODE_FAILED:
-                    node.state = NODE_FAILED
-                    parents = node.waiting_parents
-                    to_visit = to_visit | parents
-                    pending_children = pending_children - parents
-        except KeyError:
-            # The container to_visit has been emptied.
-            pass
-
-        # We have the stick back the pending_children list into the
-        # task master because the python 1.5.2 compatibility does not
-        # allow us to use in-place updates
-        self.tm.pending_children = pending_children
-
     def make_ready_all(self):
         """
         Marks all targets in a task ready for execution.
@@ -557,7 +521,15 @@ class Taskmaster:
     def no_next_candidate(self):
         """
         Stops Taskmaster processing by not returning a next candidate.
+        
+        Note that we have to clean-up the Taskmaster candidate list
+        because the cycle detection depends on the fact all nodes have
+        been processed somehow.
         """
+        while self.candidates:
+            candidates = self.candidates
+            self.candidates = []
+            self.will_not_build(candidates)
         return None
 
     def _find_next_ready_node(self):
@@ -604,9 +576,9 @@ class Taskmaster:
                 S.considered = S.considered + 1
             else:
                 S = None
-  
-            if T: T.write('Taskmaster:     Considering node <%-10s %s> and its children:\n' % 
-                          (StateString[node.get_state()], repr(str(node))))
+
+            if T: T.write('Taskmaster:     Considering node <%-10s %-3s %s> and its children:\n' % 
+                          (StateString[node.get_state()], node.ref_count, repr(str(node))))
 
             if state == NODE_NO_STATE:
                 # Mark this node as being on the execution stack:
@@ -643,8 +615,8 @@ class Taskmaster:
             for child in chain(children,node.prerequisites):
                 childstate = child.get_state()
 
-                if T: T.write('Taskmaster:        <%-10s %s>\n' % 
-                              (StateString[childstate], repr(str(child))))
+                if T: T.write('Taskmaster:        <%-10s %-3s %s>\n' % 
+                              (StateString[childstate], child.ref_count, repr(str(child))))
 
                 if childstate == NODE_NO_STATE:
                     children_not_visited.append(child)
@@ -685,8 +657,8 @@ class Taskmaster:
                 node.set_state(NODE_FAILED)
 
                 if S: S.child_failed = S.child_failed + 1
-                if T: T.write('Taskmaster:****** <%-10s %s>\n' % 
-                              (StateString[node.get_state()], repr(str(node))))
+                if T: T.write('Taskmaster:****** <%-10s %-3s %s>\n' % 
+                              (StateString[node.get_state()], node.ref_count, repr(str(node))))
                 continue
 
             if children_not_ready:
@@ -700,6 +672,8 @@ class Taskmaster:
                     # count so we can be put back on the list for
                     # re-evaluation when they've all finished.
                     node.ref_count =  node.ref_count + child.add_to_waiting_parents(node)
+                    if T: T.write('Taskmaster:      adjusting ref count: <%-10s %-3s %s>\n' %
+                                  (StateString[node.get_state()], node.ref_count, repr(str(node))))
 
                 self.pending_children = self.pending_children | children_pending
                 
@@ -720,8 +694,8 @@ class Taskmaster:
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
             if S: S.build = S.build + 1
-            if T: T.write('Taskmaster: Evaluating <%-10s %s>\n' % 
-                          (StateString[node.get_state()], repr(str(node))))
+            if T: T.write('Taskmaster: Evaluating <%-10s %-3s %s>\n' % 
+                          (StateString[node.get_state()], node.ref_count, repr(str(node))))
             return node
 
         return None
@@ -757,6 +731,48 @@ class Taskmaster:
 
         return task
 
+    def will_not_build(self, nodes):
+        """
+        Perform clean-up about nodes that will never be built.
+        """
+
+        pending_children = self.pending_children
+
+        to_visit = set()
+        for node in nodes:
+            # Set failure state on all of the parents that were dependent
+            # on this failed build.
+            if node.state != NODE_FAILED:
+                node.state = NODE_FAILED
+                parents = node.waiting_parents
+                to_visit = to_visit | parents
+                pending_children = pending_children - parents
+
+        try:
+            while 1:
+                try:
+                    node = to_visit.pop()
+                except AttributeError:
+                    # Python 1.5.2
+                    if len(to_visit):
+                        node = to_visit[0]
+                        to_visit.remove(node)
+                    else:
+                        break
+                if node.state != NODE_FAILED:
+                    node.state = NODE_FAILED
+                    parents = node.waiting_parents
+                    to_visit = to_visit | parents
+                    pending_children = pending_children - parents
+        except KeyError:
+            # The container to_visit has been emptied.
+            pass
+
+        # We have the stick back the pending_children list into the
+        # task master because the python 1.5.2 compatibility does not
+        # allow us to use in-place updates
+        self.pending_children = pending_children
+
     def stop(self):
         """
         Stops the current build completely.
@@ -774,6 +790,8 @@ class Taskmaster:
                 if cycle:
                     desc = desc + "  " + string.join(map(str, cycle), " -> ") + "\n"
                 else:
-                    desc = desc + "  Internal Error: no cycle found for node %s (%s)\n" %  \
-                        (node, repr(node)) 
+                    desc = desc + \
+                        "  Internal Error: no cycle found for node %s (%s) in state %s\n" %  \
+                        (node, repr(node), StateString[node.get_state()]) 
+
             raise SCons.Errors.UserError, desc

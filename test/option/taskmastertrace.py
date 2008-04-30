@@ -48,37 +48,41 @@ test.write('Tfile.in', "Tfile.in\n")
 expect_stdout = test.wrap_stdout("""\
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   '.'> and its children:
-Taskmaster:        <no_state   'SConstruct'>
-Taskmaster:        <no_state   'Tfile.in'>
-Taskmaster:        <no_state   'Tfile.mid'>
-Taskmaster:        <no_state   'Tfile.out'>
-Taskmaster:     Considering node <no_state   'SConstruct'> and its children:
-Taskmaster: Evaluating <pending    'SConstruct'>
+Taskmaster:     Considering node <no_state   0   '.'> and its children:
+Taskmaster:        <no_state   0   'SConstruct'>
+Taskmaster:        <no_state   0   'Tfile.in'>
+Taskmaster:        <no_state   0   'Tfile.mid'>
+Taskmaster:        <no_state   0   'Tfile.out'>
+Taskmaster:      adjusting ref count: <pending    1   '.'>
+Taskmaster:      adjusting ref count: <pending    2   '.'>
+Taskmaster:      adjusting ref count: <pending    3   '.'>
+Taskmaster:      adjusting ref count: <pending    4   '.'>
+Taskmaster:     Considering node <no_state   0   'SConstruct'> and its children:
+Taskmaster: Evaluating <pending    0   'SConstruct'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'Tfile.in'> and its children:
-Taskmaster: Evaluating <pending    'Tfile.in'>
+Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
+Taskmaster: Evaluating <pending    0   'Tfile.in'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'Tfile.mid'> and its children:
-Taskmaster:        <up_to_date 'Tfile.in'>
-Taskmaster: Evaluating <pending    'Tfile.mid'>
+Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
+Taskmaster:        <up_to_date 0   'Tfile.in'>
+Taskmaster: Evaluating <pending    0   'Tfile.mid'>
 Copy("Tfile.mid", "Tfile.in")
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'Tfile.out'> and its children:
-Taskmaster:        <executed   'Tfile.mid'>
-Taskmaster: Evaluating <pending    'Tfile.out'>
+Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
+Taskmaster:        <executed   0   'Tfile.mid'>
+Taskmaster: Evaluating <pending    0   'Tfile.out'>
 Copy("Tfile.out", "Tfile.mid")
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <pending    '.'> and its children:
-Taskmaster:        <up_to_date 'SConstruct'>
-Taskmaster:        <up_to_date 'Tfile.in'>
-Taskmaster:        <executed   'Tfile.mid'>
-Taskmaster:        <executed   'Tfile.out'>
-Taskmaster: Evaluating <pending    '.'>
+Taskmaster:     Considering node <pending    0   '.'> and its children:
+Taskmaster:        <up_to_date 0   'SConstruct'>
+Taskmaster:        <up_to_date 0   'Tfile.in'>
+Taskmaster:        <executed   0   'Tfile.mid'>
+Taskmaster:        <executed   0   'Tfile.out'>
+Taskmaster: Evaluating <pending    0   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
@@ -103,35 +107,39 @@ test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
 expect_trace = """\
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   '.'> and its children:
-Taskmaster:        <no_state   'SConstruct'>
-Taskmaster:        <no_state   'Tfile.in'>
-Taskmaster:        <no_state   'Tfile.mid'>
-Taskmaster:        <no_state   'Tfile.out'>
-Taskmaster:     Considering node <no_state   'SConstruct'> and its children:
-Taskmaster: Evaluating <pending    'SConstruct'>
+Taskmaster:     Considering node <no_state   0   '.'> and its children:
+Taskmaster:        <no_state   0   'SConstruct'>
+Taskmaster:        <no_state   0   'Tfile.in'>
+Taskmaster:        <no_state   0   'Tfile.mid'>
+Taskmaster:        <no_state   0   'Tfile.out'>
+Taskmaster:      adjusting ref count: <pending    1   '.'>
+Taskmaster:      adjusting ref count: <pending    2   '.'>
+Taskmaster:      adjusting ref count: <pending    3   '.'>
+Taskmaster:      adjusting ref count: <pending    4   '.'>
+Taskmaster:     Considering node <no_state   0   'SConstruct'> and its children:
+Taskmaster: Evaluating <pending    0   'SConstruct'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'Tfile.in'> and its children:
-Taskmaster: Evaluating <pending    'Tfile.in'>
+Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
+Taskmaster: Evaluating <pending    0   'Tfile.in'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'Tfile.mid'> and its children:
-Taskmaster:        <up_to_date 'Tfile.in'>
-Taskmaster: Evaluating <pending    'Tfile.mid'>
+Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
+Taskmaster:        <up_to_date 0   'Tfile.in'>
+Taskmaster: Evaluating <pending    0   'Tfile.mid'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   'Tfile.out'> and its children:
-Taskmaster:        <executed   'Tfile.mid'>
-Taskmaster: Evaluating <pending    'Tfile.out'>
+Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
+Taskmaster:        <executed   0   'Tfile.mid'>
+Taskmaster: Evaluating <pending    0   'Tfile.out'>
 
 Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <pending    '.'> and its children:
-Taskmaster:        <up_to_date 'SConstruct'>
-Taskmaster:        <up_to_date 'Tfile.in'>
-Taskmaster:        <executed   'Tfile.mid'>
-Taskmaster:        <executed   'Tfile.out'>
-Taskmaster: Evaluating <pending    '.'>
+Taskmaster:     Considering node <pending    0   '.'> and its children:
+Taskmaster:        <up_to_date 0   'SConstruct'>
+Taskmaster:        <up_to_date 0   'Tfile.in'>
+Taskmaster:        <executed   0   'Tfile.mid'>
+Taskmaster:        <executed   0   'Tfile.out'>
+Taskmaster: Evaluating <pending    0   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.

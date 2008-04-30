@@ -50,6 +50,9 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
+from SCons.Variables.PackageVariable import PackageVariable
+PV = PackageVariable
+
 from SCons.Variables import PackageVariable
 
 opts = Variables(args=ARGUMENTS)
@@ -57,6 +60,7 @@ opts.AddVariables(
     PackageVariable('x11',
                   'use X11 installed here (yes = search some places',
                   'yes'),
+    PV('package', 'help for package', 'yes'),
     )
 
 env = Environment(variables=opts)
@@ -80,7 +84,7 @@ check([test.workpath()])
 
 expect_stderr = """
 scons: *** Path does not exist for option x11: /non/existing/path/
-""" + test.python_file_line(SConstruct_path, 10)
+""" + test.python_file_line(SConstruct_path, 14)
 
 test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
 

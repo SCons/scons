@@ -50,34 +50,69 @@ test = TestSCons.TestSCons()
 #    c) Some targets succeed building
 #    d) Some children are ignored
 #    e) Some children are pre-requesites
-#    f) Some sources are missing
+#    f) Some children have side-effects
+#    g) Some sources are missing
+#    h) Builds that are interrupted
 
 test.write('SConstruct', """
+opts = Options()
+opts.Add( BoolOption('interrupt', 'Interrupt the build.', 0 ) )
+optEnv = Environment(options=opts)
+
 def fail_action(target = None, source = None, env = None):
     return 2
 
+def simulate_keyboard_interrupt(target = None, source = None, env = None):
+    # Directly invoked the SIGINT handler to simulate a
+    # KeyboardInterrupt. This hack is necessary because there is no
+    # easy way to get access to the current Job/Taskmaster object.
+    import signal
+    handler = signal.getsignal(signal.SIGINT)
+    handler(signal.SIGINT, None)
+    return 0
+
+interrupt = Command(target='interrupt',  source='', action=simulate_keyboard_interrupt)
+
+
 failed0  = Command(target='failed00',  source='', action=fail_action)
-ok0      = Command(target='ok00',      source='', action=Touch('${TARGET}'))
+ok0      = Command(target=['ok00a', 'ok00b', 'ok00c'], 
+                   source='', 
+                   action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}')])
 prereq0  = Command(target='prereq00',  source='', action=Touch('${TARGET}'))
 ignore0  = Command(target='ignore00',  source='', action=Touch('${TARGET}'))
 igreq0   = Command(target='igreq00',   source='', action=Touch('${TARGET}'))
 missing0 = Command(target='missing00', source='MissingSrc', action=Touch('${TARGET}'))
+withSE0  = Command(target=['withSE00a', 'withSE00b', 'withSE00c'], 
+                   source='', 
+                   action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}'), 
+                           Touch('side_effect')])
+SideEffect('side_effect', withSE0) 
 
-prev_level  = failed0 + ok0 + ignore0
+prev_level  = failed0 + ok0 + ignore0 + missing0 + withSE0
 prev_prereq = prereq0
 prev_ignore = ignore0
 prev_igreq  = igreq0
 
+if optEnv['interrupt']:
+    prev_level = prev_level + interrupt
+
 for i in range(1,20):
     
     failed = Command(target='failed%02d' % i,  source='', action=fail_action)
-    ok     = Command(target='ok%02d' % i,      source='', action=Touch('${TARGET}'))
+    ok     = Command(target=['ok%02da' % i, 'ok%02db' % i, 'ok%02dc' % i], 
+                     source='',
+                     action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}')])
     prereq = Command(target='prereq%02d' % i,  source='', action=Touch('${TARGET}'))
     ignore = Command(target='ignore%02d' % i,  source='', action=Touch('${TARGET}'))
     igreq  = Command(target='igreq%02d' % i,   source='', action=Touch('${TARGET}'))
     missing = Command(target='missing%02d' %i, source='MissingSrc', action=Touch('${TARGET}'))
+    withSE  = Command(target=['withSE%02da' % i, 'withSE%02db' % i, 'withSE%02dc' % i], 
+                       source='', 
+                       action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}'), 
+                               Touch('side_effect')])
+    SideEffect('side_effect', withSE) 
 
-    next_level = failed + ok + ignore + igreq + missing
+    next_level = failed + ok + ignore + igreq + missing + withSE
 
     for j in range(1,10):
         a = Alias('a%02d%02d' % (i,j), prev_level)
@@ -108,7 +143,8 @@ Default(all)
 
 re_error = """\
 (scons: \\*\\*\\* \\[failed\\d+] Error 2\\n)|\
-(scons: \\*\\*\\* Source `MissingSrc' not found, needed by target `missing\\d+'\\.(  Stop\\.)?\\n)\
+(scons: \\*\\*\\* Source `MissingSrc' not found, needed by target `missing\\d+'\\.(  Stop\\.)?\\n)|\
+(scons: \\*\\*\\* \\[\\w+] Build interrupted\.\\n)\
 """
 
 re_errors = "(" + re_error + ")+"
@@ -116,7 +152,17 @@ re_errors = "(" + re_error + ")+"
 test.run(arguments = 'all',
          status = 2,
          stderr = "scons: *** [failed19] Error 2\n")
-test.must_not_exist(test.workpath('ok'))
+test.must_not_exist(test.workpath('side_effect'))
+for i in range(20):
+    test.must_not_exist(test.workpath('ok%02da' % i))
+    test.must_not_exist(test.workpath('ok%02db' % i))
+    test.must_not_exist(test.workpath('ok%02dc' % i))
+    test.must_not_exist(test.workpath('prereq%02d' % i))
+    test.must_not_exist(test.workpath('ignore%02d' % i))
+    test.must_not_exist(test.workpath('igreq%02d' % i))
+    test.must_not_exist(test.workpath('withSE%02da' % i))
+    test.must_not_exist(test.workpath('withSE%02db' % i))
+    test.must_not_exist(test.workpath('withSE%02dc' % i))
 
 
 for i in range(5):
@@ -135,11 +181,17 @@ for i in range(5):
              status = 2,
              stderr = re_errors,
              match=TestSCons.match_re_dotall)
+    test.must_exist(test.workpath('side_effect'))
     for i in range(20):
-        test.must_exist(test.workpath('ok%02d' % i))
+        test.must_exist(test.workpath('ok%02da' % i))
+        test.must_exist(test.workpath('ok%02db' % i))
+        test.must_exist(test.workpath('ok%02dc' % i))
         test.must_exist(test.workpath('prereq%02d' % i))
         test.must_not_exist(test.workpath('ignore%02d' % i))
         test.must_exist(test.workpath('igreq%02d' % i))
+        test.must_exist(test.workpath('withSE%02da' % i))
+        test.must_exist(test.workpath('withSE%02db' % i))
+        test.must_exist(test.workpath('withSE%02dc' % i))
 
 
 for i in range(5):
@@ -147,7 +199,7 @@ for i in range(5):
              status = 2,
              stderr = re_errors,
              match=TestSCons.match_re_dotall)
-    test.must_not_exist(test.workpath('ok'))
+
 
 for i in range(5):
     test.run(arguments = '-c all')
@@ -157,6 +209,7 @@ for i in range(5):
              stderr = re_errors,
              match=TestSCons.match_re_dotall)
 
+
 for i in range(5):
     test.run(arguments = '-c all')
 
@@ -164,10 +217,26 @@ for i in range(5):
              status = 2,
              stderr = re_errors,
              match=TestSCons.match_re_dotall)
+    test.must_exist(test.workpath('side_effect'))
     for i in range(20):
-        test.must_exist(test.workpath('ok%02d' % i))
+        test.must_exist(test.workpath('ok%02da' % i))
+        test.must_exist(test.workpath('ok%02db' % i))
+        test.must_exist(test.workpath('ok%02dc' % i))
         test.must_exist(test.workpath('prereq%02d' % i))
         test.must_not_exist(test.workpath('ignore%02d' % i))
         test.must_exist(test.workpath('igreq%02d' % i))
+        test.must_exist(test.workpath('withSE%02da' % i))
+        test.must_exist(test.workpath('withSE%02db' % i))
+        test.must_exist(test.workpath('withSE%02dc' % i))
+
+
+for i in range(5):
+    test.run(arguments = '-c all')
+
+    test.run(arguments = '-j 8 -k --random interrupt=yes all',
+             status = 2,
+             stderr = re_errors,
+             match=TestSCons.match_re_dotall)
+
 
 test.pass_test()

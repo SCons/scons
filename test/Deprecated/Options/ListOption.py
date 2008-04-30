@@ -47,6 +47,9 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
+from SCons.Options.ListOption import ListOption
+LO = ListOption
+
 from SCons.Options import ListOption
 
 list_of_libs = Split('x11 gl qt ical')
@@ -59,6 +62,7 @@ opts.AddOptions(
                'all',
                names = list_of_libs,
                map = {'GL':'gl', 'QT':'qt'}),
+    LO('listvariable', 'listvariable help', 'all', names=['l1', 'l2', 'l3'])
     )
 
 env = Environment(options=opts)
@@ -81,7 +85,8 @@ test.run()
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
 
-test.must_match(test.workpath('scons.options'), "shared = 'all'"+os.linesep)
+expect = "shared = 'all'"+os.linesep+"listvariable = 'all'"+os.linesep
+test.must_match(test.workpath('scons.options'), expect)
 
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
@@ -110,7 +115,7 @@ check(['gl,qt', '0', 'gl qt', 'gl qt', "['gl qt']"])
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 15)
+""" + test.python_file_line(SConstruct_path, 19)
 
 test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 
@@ -119,28 +124,28 @@ test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 15)
+""" + test.python_file_line(SConstruct_path, 19)
 
 test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 15)
+""" + test.python_file_line(SConstruct_path, 19)
 
 test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 15)
+""" + test.python_file_line(SConstruct_path, 19)
 
 test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo,bar
-""" + test.python_file_line(SConstruct_path, 15)
+""" + test.python_file_line(SConstruct_path, 19)
 
 test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
 

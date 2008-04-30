@@ -376,6 +376,7 @@ arguments = {
     'packages'         : ["SCons",
                           "SCons.compat",
                           "SCons.Node",
+                          "SCons.Options",
                           "SCons.Platform",
                           "SCons.Scanner",
                           "SCons.Script",

@@ -44,6 +44,9 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
+from SCons.Options.EnumOption import EnumOption
+EO = EnumOption
+
 from SCons.Options import EnumOption
 
 list_of_libs = Split('x11 gl qt ical')
@@ -56,9 +59,9 @@ opts.AddOptions(
     EnumOption('guilib', 'gui lib to use', 'gtk',
                allowed_values=('motif', 'gtk', 'kde'),
                map={}, ignorecase=1), # case insensitive
-    EnumOption('some', 'some option', 'xaver',
-               allowed_values=('xaver', 'eins'),
-               map={}, ignorecase=2), # make lowercase
+    EO('some', 'some option', 'xaver',
+       allowed_values=('xaver', 'eins'),
+       map={}, ignorecase=2), # make lowercase
     )
 
 env = Environment(options=opts)
@@ -82,19 +85,19 @@ check(['full', 'KdE', 'eins'])
 
 expect_stderr = """
 scons: *** Invalid value for option debug: FULL
-""" + test.python_file_line(SConstruct_path, 18)
+""" + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Invalid value for option guilib: irgendwas
-""" + test.python_file_line(SConstruct_path, 18)
+""" + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Invalid value for option some: irgendwas
-""" + test.python_file_line(SConstruct_path, 18)
+""" + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
 

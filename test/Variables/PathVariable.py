@@ -49,6 +49,9 @@ workpath = test.workpath()
 libpath = os.path.join(workpath, 'lib')
 
 test.write(SConstruct_path, """\
+from SCons.Variables.PathVariable import PathVariable
+PV = PathVariable
+
 from SCons.Variables import PathVariable
 
 qtdir = r'%s'
@@ -56,7 +59,7 @@ qtdir = r'%s'
 opts = Variables(args=ARGUMENTS)
 opts.AddVariables(
     PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
-    PathVariable('qt_libraries', 'where the Qt library is installed', r'%s'),
+    PV('qt_libraries', 'where the Qt library is installed', r'%s'),
     )
 
 env = Environment(variables=opts)
@@ -90,7 +93,7 @@ test.run(arguments=['qtdir=%s' % qtpath, 'qt_libraries=%s' % libpath])
 check([qtpath, libpath, libpath])
 
 qtpath = os.path.join(workpath, 'non', 'existing', 'path')
-SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 11)[:-1]
+SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 14)[:-1]
 
 expect_stderr = """
 scons: *** Path for option qtdir does not exist: %(qtpath)s

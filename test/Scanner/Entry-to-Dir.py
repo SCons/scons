@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -23,34 +24,36 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__doc__ = """Place-holder for the old SCons.Options module hierarchy
-
-This is for backwards compatibility.  The new equivalent is the Variables/
-class hierarchy.  These will have deprecation warnings added (some day),
-and will then be removed entirely (some day).
+"""
+Verify that an implicit dependency search for a directory for which
+we have an Entry Node works as expected, converting the Entry into a
+Dir Node.
 """
 
-import SCons.Variables
+import TestSCons
 
-class Options(SCons.Variables.Variables):
+test = TestSCons.TestSCons()
 
-    def AddOptions(self, *args, **kw):
-        return apply(SCons.Variables.Variables.AddVariables,
-                     (self,) + args,
-                     kw)
+test.write('SConstruct', """
+env = Environment()
+tc = env.Program('testcase', 'testcase.cpp')
+foo = env.Entry('foo')
+tc[0].all_children()[0].all_children()
+""")
 
-    def UnknownOptions(self, *args, **kw):
-        return apply(SCons.Variables.Variables.UnknownVariables,
-                     (self,) + args,
-                     kw)
+test.write('testcase.cpp', """\
+#if 0
+#include "foo/bar/widget.h"
+#endif
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+""")
 
-    def FormatOptionHelpText(self, *args, **kw):
-        return apply(SCons.Variables.Variables.FormatVariableHelpText,
-                     (self,) + args,
-                     kw)
+test.run(arguments = '.')
 
-BoolOption      = SCons.Variables.BoolVariable
-EnumOption      = SCons.Variables.EnumVariable
-ListOption      = SCons.Variables.ListVariable
-PackageOption   = SCons.Variables.PackageVariable
-PathOption      = SCons.Variables.PathVariable
+# In 0.98.2, re-running failed with a stack trace.
+test.run(arguments = '.')
+
+test.pass_test()

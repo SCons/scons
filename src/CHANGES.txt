@@ -8,6 +8,30 @@
 
 
 
+RELEASE XXX - XXX
+
+  From Greg Noel:
+
+  - Fix use of $CXXFLAGS when building C++ shared object files.
+
+  From Steven Knight:
+
+  - Fix a regression when a Builder's source_scanner doesn't select
+    a more specific scanner for the suffix of a specified source file.
+
+  - Fix the Options object backwards compatibility so people can still
+    "import SCons.Options.{Bool,Enum,List,Package,Path}Option" submodules.
+
+  - Fix searching for implicit dependencies when an Entry Node shows up
+    in the search path list.
+
+  From Stefano:
+
+  - Fix expansion of $FORTRANMODDIR in the default Fortran command line(s)
+    when it's set to something like ${TARGET.dir}.
+
+
+
 RELEASE 0.98.2 - Sun, 20 Apr 2008 23:38:56 -0700
 
   From Steven Knight:
