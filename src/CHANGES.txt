@@ -8,7 +8,7 @@
 
 
 
-RELEASE XXX - XXX
+RELEASE 0.98.3 - Tue, 29 Apr 2008 22:40:12 -0700
 
   From Greg Noel:
 
