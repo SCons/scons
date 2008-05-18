@@ -394,7 +394,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
             if version is None:
                 version = ''
             # Each path has a registry entry, use that or default to subdir
-            for p in paths.keys():
+            for p in paths:
                 try:
                     path=get_intel_registry_value(p[1], version, abi)
                     # These paths may have $(ICInstallDir)

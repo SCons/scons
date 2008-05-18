@@ -98,3 +98,9 @@
     cc -o tests/test_stuff test_stuff.o
   </screen>
 
+  <para>
+  Using AddMethod is better than just adding an instance method to an
+  Environment because it gets called as a proper method, and AddMethod
+  provides for copying the method to any copies of the Environment
+  instance.
+  </para>

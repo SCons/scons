@@ -274,6 +274,8 @@ def nodeinfo_raw(name, ninfo, prefix=""):
     l = []
     for k in keys:
         l.append('%s: %s' % (repr(k), repr(d.get(k))))
+    if '\n' in name:
+        name = repr(name)
     return name + ': {' + string.join(l, ', ') + '}'
 
 def nodeinfo_cooked(name, ninfo, prefix=""):
@@ -282,6 +284,8 @@ def nodeinfo_cooked(name, ninfo, prefix=""):
     except AttributeError:
         field_list = []
     f = lambda x, ni=ninfo, v=Verbose: field(x, ni, v)
+    if '\n' in name:
+        name = repr(name)
     outlist = [name+':'] + filter(None, map(f, field_list))
     if Verbose:
         sep = '\n    ' + prefix

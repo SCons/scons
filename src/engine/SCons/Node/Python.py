@@ -56,8 +56,11 @@ class Value(SCons.Node.Node):
         if not built_value is None:
             self.built_value = built_value
 
-    def __str__(self):
+    def str_for_display(self):
         return repr(self.value)
+
+    def __str__(self):
+        return str(self.value)
 
     def make_ready(self):
         self.get_csig()

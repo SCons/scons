@@ -8,6 +8,36 @@
 
 
 
+RELEASE 0.98.4 - XXX
+
+  From Benoit Belley:
+
+  - Fix calculation of signatures for Python function actions with
+    closures in Python versions before 2.5.
+
+  From David Cournapeau:
+
+  - Fix the initialization of $SHF77FLAGS so it includes $F77FLAGS.
+
+  From Jonas Olsson:
+
+  - Fix a syntax error in the Intel C compiler support on Windows.
+
+  From Steven Knight:
+
+  - Change how we represent Python Value Nodes when printing and when
+    stored in .sconsign files (to avoid blowing out memory by storing
+    huge strings in .sconsign files after multiple runs using Configure
+    contexts cause the Value strings to be re-escaped each time).
+
+  - Fix a regression in not executing configuration checks after failure
+    of any configuration check that used the same compiler or other tool.
+
+  - Handle multiple destinations in Visual Studio 8 settings for the
+    analogues to the INCLUDE, LIBRARY and PATH variables.
+
+
+
 RELEASE 0.98.3 - Tue, 29 Apr 2008 22:40:12 -0700
 
   From Greg Noel:

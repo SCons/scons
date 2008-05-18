@@ -28,14 +28,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that we handle keyboard interrupts (CTRL-C) correctly.
 """
 
-import os
-
 import TestSCons
 
 test = TestSCons.TestSCons()
-
-if 'killpg' not in dir(os) or 'setpgrp' not in dir(os):
-    test.skip_test("This Python version does not support killing process groups; skipping test.\n")
 
 test.write('toto.c', r"""
 void foo()
@@ -44,20 +39,47 @@ void foo()
 
 test.write('SConstruct', r"""
 import os
+import sys
 import signal
 
-# Make sure that SCons is a process group leader.
-os.setpgrp()
+if 'killpg' not in dir(os) or 'setpgrp' not in dir(os) or sys.platform == 'cygwin':
+    # The platform does not support process group. Therefore, we
+    # directly invoked the SIGINT handler to simulate a
+    # KeyboardInterrupt. This hack is necessary because there is no
+    # easy way to get access to the current Job/Taskmaster object.
+    #
+    # Note that this way of performing the test is not as good as
+    # using killpg because the Taskmaster is stopped synchronously. In
+    # addition, the SCons subprocesses (or forked children before the
+    # exec() of the subprocess) are never killed. This therefore
+    # exercise less SCons functionality.
+    #
+    # FIXME: There seems to be a bug on Cygwin where the compiler
+    # process hangs after sending the SIGINT signal to the process
+    # group. It is probably a bug in cygwin1.dll, or maybe in the
+    # Python 'C' code or the Python subprocess module. We therefore do
+    # not use 'killpg' on Cygwin.
+    def explode(env, target, source):
+        handler = signal.getsignal(signal.SIGINT)
+        handler(signal.SIGINT, None)
+        return 0        
+else:
+    # The platform does support process group so we use killpg to send
+    # a SIGINT to everyone.
+
+    # Make sure that SCons is a process group leader.
+    os.setpgrp()
+
+    def explode(env, target, source):
+        os.killpg(0, signal.SIGINT)
+
 
 all = []
 
-def explode(env, target, source):
-    os.killpg(0, signal.SIGINT)
-
 for i in xrange(40):
-    all += Object('toto%5d' % i, 'toto.c')
+    all.extend(Object('toto%5d' % i, 'toto.c'))
 
-all+= Command( 'broken', 'toto.c', explode)
+all.extend(Command( 'broken', 'toto.c', explode))
 
 Default( Alias('all', all))
 """

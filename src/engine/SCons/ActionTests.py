@@ -172,6 +172,8 @@ class Environment:
 class DummyNode:
     def __init__(self, name):
         self.name = name
+    def str_for_display(self):
+        return '"' + self.name + '"'
     def __str__(self):
         return self.name
     def rfile(self):
@@ -432,10 +434,10 @@ class _ActionActionTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result.status == 7, result
             s = sio.getvalue()
-            assert s == 'execfunc(["out"], ["in"])\n', s
+            assert s == "execfunc(['out'], ['in'])\n", s
 
             a.chdir = 'xyz'
-            expect = 'os.chdir(%s)\nexecfunc(["out"], ["in"])\nos.chdir(%s)\n'
+            expect = "os.chdir(%s)\nexecfunc(['out'], ['in'])\nos.chdir(%s)\n"
 
             sio = StringIO.StringIO()
             sys.stdout = sio
@@ -458,7 +460,7 @@ class _ActionActionTestCase(unittest.TestCase):
             result = b("out", "in", env)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'firstfunc(["out"], ["in"])\nexecfunc(["out"], ["in"])\n', s
+            assert s == "firstfunc(['out'], ['in'])\nexecfunc(['out'], ['in'])\n", s
 
             SCons.Action.execute_actions = 0
 
@@ -467,14 +469,14 @@ class _ActionActionTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'execfunc(["out"], ["in"])\n', s
+            assert s == "execfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = b("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'firstfunc(["out"], ["in"])\nexecfunc(["out"], ["in"])\nlastfunc(["out"], ["in"])\n', s
+            assert s == "firstfunc(['out'], ['in'])\nexecfunc(['out'], ['in'])\nlastfunc(['out'], ['in'])\n", s
 
             SCons.Action.print_actions_presub = 1
             SCons.Action.execute_actions = 1
@@ -484,35 +486,35 @@ class _ActionActionTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
+            assert s == "Building out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=0)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'execfunc(["out"], ["in"])\n', s
+            assert s == "execfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=1)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
+            assert s == "Building out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = b(["out"], "in", env, presub=1)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'Building out with action:\n  firstfunc(target, source, env)\nfirstfunc(["out"], ["in"])\nBuilding out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
+            assert s == "Building out with action:\n  firstfunc(target, source, env)\nfirstfunc(['out'], ['in'])\nBuilding out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = b(["out", "list"], "in", env, presub=1)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'Building out and list with action:\n  firstfunc(target, source, env)\nfirstfunc(["out", "list"], ["in"])\nBuilding out and list with action:\n  execfunc(target, source, env)\nexecfunc(["out", "list"], ["in"])\n', s
+            assert s == "Building out and list with action:\n  firstfunc(target, source, env)\nfirstfunc(['out', 'list'], ['in'])\nBuilding out and list with action:\n  execfunc(target, source, env)\nexecfunc(['out', 'list'], ['in'])\n", s
 
             a2 = SCons.Action.Action(execfunc)
 
@@ -521,14 +523,14 @@ class _ActionActionTestCase(unittest.TestCase):
             result = a2("out", "in", env)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'Building out with action:\n  execfunc(target, source, env)\nexecfunc(["out"], ["in"])\n', s
+            assert s == "Building out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env, presub=0)
             assert result.status == 7, result.status
             s = sio.getvalue()
-            assert s == 'execfunc(["out"], ["in"])\n', s
+            assert s == "execfunc(['out'], ['in'])\n", s
 
             SCons.Action.execute_actions = 0
 
@@ -537,7 +539,7 @@ class _ActionActionTestCase(unittest.TestCase):
             result = a2("out", "in", env, presub=0)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'execfunc(["out"], ["in"])\n', s
+            assert s == "execfunc(['out'], ['in'])\n", s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
@@ -568,7 +570,7 @@ class _ActionActionTestCase(unittest.TestCase):
                 result.append(s)
             env['PRINT_CMD_LINE_FUNC'] = my_print_cmd_line
             a("output", "input", env)
-            assert result == ['execfunc(["output"], ["input"])'], result
+            assert result == ["execfunc(['output'], ['input'])"], result
             
 
         finally:

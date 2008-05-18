@@ -54,13 +54,23 @@ class TestSConsign(TestSCons):
             'interpreter' : python,     # imported from TestSCons
         }
 
-        if os.path.exists(self.script_path('sconsign.py')):
-            sconsign = 'sconsign.py'
-        elif os.path.exists(self.script_path('sconsign')):
-            sconsign = 'sconsign'
-        else:
-            print "Can find neither 'sconsign.py' nor 'sconsign' scripts."
-            self.no_result()
+        if not kw.has_key('program'):
+            kw['program'] = os.environ.get('SCONS')
+            if not kw['program']:
+                if os.path.exists('scons'):
+                    kw['program'] = 'scons'
+                else:
+                    kw['program'] = 'scons.py'
+
+        sconsign = os.environ.get('SCONSIGN')
+        if not sconsign:
+            if os.path.exists(self.script_path('sconsign.py')):
+                sconsign = 'sconsign.py'
+            elif os.path.exists(self.script_path('sconsign')):
+                sconsign = 'sconsign'
+            else:
+                print "Can find neither 'sconsign.py' nor 'sconsign' scripts."
+                self.no_result()
         self.set_sconsign(sconsign)
 
     def script_path(self, script):

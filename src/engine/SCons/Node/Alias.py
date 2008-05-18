@@ -74,6 +74,9 @@ class Alias(SCons.Node.Node):
         SCons.Node.Node.__init__(self)
         self.name = name
 
+    def str_for_display(self):
+        return '"' + self.__str__() + '"'
+
     def __str__(self):
         return self.name
 

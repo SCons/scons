@@ -338,9 +338,8 @@ class TestSCons(TestCommon):
             if options:
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
-        kw['stdout'] = self.wrap_stdout(read_str = read_str, build_str = s)
-        kw['stdout'] = string.replace(kw['stdout'],'\n','\\n')
-        kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
+        stdout = self.wrap_stdout(read_str = read_str, build_str = s)
+        kw['stdout'] = re.escape(stdout)
         kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
 
@@ -350,14 +349,14 @@ class TestSCons(TestCommon):
         This function is most useful in conjunction with the -n option.
         """
         s = ""
-        for  arg in string.split(arguments):
-            s = s + "(?!scons: `%s' is up to date.)" % arg
+        for arg in string.split(arguments):
+            s = s + "(?!scons: `%s' is up to date.)" % re.escape(arg)
             if options:
                 arguments = options + " " + arguments
+        s = '('+s+'[^\n]*\n)*'
         kw['arguments'] = arguments
-        kw['stdout'] = self.wrap_stdout(build_str="("+s+"[^\n]*\n)*")
-        kw['stdout'] = string.replace(kw['stdout'],'\n','\\n')
-        kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
+        stdout = re.escape(self.wrap_stdout(build_str='ARGUMENTSGOHERE'))
+        kw['stdout'] = string.replace(stdout, 'ARGUMENTSGOHERE', s)
         kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
 
@@ -833,7 +832,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
             def __init__(self, p):
                 self.pos = p
 
-        def matchPart(log, logfile, lastEnd):
+        def matchPart(log, logfile, lastEnd, NoMatch=NoMatch):
             m = re.match(log, logfile[lastEnd:])
             if not m:
                 raise NoMatch, lastEnd

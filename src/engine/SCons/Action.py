@@ -277,7 +277,10 @@ def _function_contents(func):
         closure = []
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
-    xxx = map(lambda x: _object_contents(x.cell_contents), closure)
+    try:
+        xxx = map(lambda x: _object_contents(x.cell_contents), closure)
+    except AttributeError:
+        xxx = []
     contents.append(',(' + string.join(xxx, ',') + ')')
 
     return string.join(contents, '')
@@ -809,7 +812,13 @@ class FunctionAction(_ActionAction):
                 return c
         def array(a):
             def quote(s):
-                return '"' + str(s) + '"'
+                try:
+                    str_for_display = s.str_for_display
+                except AttributeError:
+                    s = repr(s)
+                else:
+                    s = str_for_display()
+                return s
             return '[' + string.join(map(quote, a), ", ") + ']'
         try:
             strfunc = self.execfunction.strfunction
