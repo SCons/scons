@@ -529,7 +529,7 @@ class Taskmaster:
         while self.candidates:
             candidates = self.candidates
             self.candidates = []
-            self.will_not_build(candidates)
+            self.will_not_build(candidates, lambda n: n.state < NODE_UP_TO_DATE)
         return None
 
     def _find_next_ready_node(self):
@@ -634,6 +634,9 @@ class Taskmaster:
             # take a stab at evaluating them (or their children).
             children_not_visited.reverse()
             self.candidates.extend(self.order(children_not_visited))
+            #if T and children_not_visited:
+            #    T.write('Taskmaster:      adding to candidates: %s\n' % map(str, children_not_visited))
+            #    T.write('Taskmaster:      candidates now: %s\n' % map(str, self.candidates))
 
             # Skip this node if any of its children have failed.
             #
@@ -731,7 +734,7 @@ class Taskmaster:
 
         return task
 
-    def will_not_build(self, nodes):
+    def will_not_build(self, nodes, mark_fail=lambda n: n.state != NODE_FAILED):
         """
         Perform clean-up about nodes that will never be built.
         """
@@ -742,8 +745,8 @@ class Taskmaster:
         for node in nodes:
             # Set failure state on all of the parents that were dependent
             # on this failed build.
-            if node.state != NODE_FAILED:
-                node.state = NODE_FAILED
+            if mark_fail(node):
+                node.set_state(NODE_FAILED)
                 parents = node.waiting_parents
                 to_visit = to_visit | parents
                 pending_children = pending_children - parents
@@ -759,8 +762,8 @@ class Taskmaster:
                         to_visit.remove(node)
                     else:
                         break
-                if node.state != NODE_FAILED:
-                    node.state = NODE_FAILED
+                if mark_fail(node):
+                    node.set_state(NODE_FAILED)
                     parents = node.waiting_parents
                     to_visit = to_visit | parents
                     pending_children = pending_children - parents

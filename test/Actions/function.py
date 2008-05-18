@@ -60,7 +60,33 @@ optEnv = Environment(options=options, tools=[])
 
 r = re.compile(optEnv['regexp'])
 
-toto = \
+withClosure = \
+r'''
+def toto(header='%(header)s', trailer='%(trailer)s'):
+    xxx = %(closure_cell_value)s
+    def writeDeps(target, source, env, b=%(b)s, r=r %(extraarg)s ,
+                  header=header, trailer=trailer):
+        """+'"""%(docstring)s"""'+"""
+        def foo(b=b):
+            return %(nestedfuncexp)s
+        f = open(str(target[0]),'wb')
+        f.write(header)
+        for d in env['ENVDEPS']:
+            f.write(d+'%(separator)s')
+        f.write(trailer+'\\n')
+        f.write(str(foo())+'\\n')
+        f.write(r.match('aaaa').group(1)+'\\n')
+        %(extracode)s
+        try:
+           f.write(str(xarg)+'\\n')
+        except NameError:
+           pass
+        f.close()
+
+    return writeDeps
+'''
+
+NoClosure = \
 r'''
 def toto(header='%(header)s', trailer='%(trailer)s'):
     xxx = %(closure_cell_value)s
@@ -86,7 +112,17 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
     return writeDeps
 '''
 
-exec( toto % optEnv )
+try:
+    # Check that lexical closure are supported
+    def a():
+        x = 0
+        def b():
+            return x
+        return b
+    a().func_closure[0].cell_contents
+    exec( withClosure % optEnv )
+except (AttributeError, TypeError):
+    exec( NoClosure % optEnv )
 
 genHeaderBld = SCons.Builder.Builder(
     action = SCons.Action.Action(
@@ -122,15 +158,25 @@ scons: `.' is up to date.
 scons: done building targets.
 """
 
-def runtest( arguments, expectedOutFile, expectedRebuild=True):
+import sys
+if sys.version[:3] == '2.1':
+    expectedStderr = """\
+%s:79: SyntaxWarning: local name 'x' in 'a' shadows use of 'x' as global in nested scope 'b'
+  def a():
+""" % test.workpath('SConstruct')
+else:
+    expectedStderr = ""
+
+def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=expectedStderr):
     test.run(arguments=arguments,
-             stdout=expectedRebuild and rebuildstr or nobuildstr)
+             stdout=expectedRebuild and rebuildstr or nobuildstr,
+             stderr=expectedStderr)
     test.must_match('Out.gen.h', expectedOutFile)
 
     # Should not be rebuild when ran a second time with the same
     # arguments.
 
-    test.run(arguments = arguments, stdout=nobuildstr)
+    test.run(arguments = arguments, stdout=nobuildstr, stderr=expectedStderr)
     test.must_match('Out.gen.h', expectedOutFile)
 
 

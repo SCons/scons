@@ -135,15 +135,9 @@
 
   XXX CheckTypeSize()
 
-  XXX Glob()
-
   XXX Progress()
 
   XXX - - diskcheck=
-
-  XXX site_scons
-  XXX - - site-dir
-  XXX - - no-site-dir
 
   XXX - - warn=
 

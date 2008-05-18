@@ -91,12 +91,12 @@ for source_signature in ['MD5', 'timestamp-newer']:
     test.run(arguments='-c')
     test.run()
 
-    out7 = """create_value(["'my value'"], ["f3.out"])"""
-    out8 = """create_value_file(["f5.out"], ["'my value'"])"""
+    out7 = """create_value(['my value'], ["f3.out"])"""
+    out8 = """create_value_file(["f5.out"], ['my value'])"""
 
-    out1 = """create(["f1.out"], ["'/usr/local'"])"""
-    out2 = """create(["f2.out"], ["10"])"""
-    out3 = """create\\(\\["f3.out"\\], \\["<.*.Custom instance at """
+    out1 = """create(["f1.out"], ['/usr/local'])"""
+    out2 = """create(["f2.out"], [10])"""
+    out3 = """create\\(\\["f3.out"\\], \\[<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
 
     test.fail_test(string.find(test.stdout(), out1) == -1)
@@ -114,9 +114,9 @@ for source_signature in ['MD5', 'timestamp-newer']:
     test.up_to_date(arguments='.')
 
     test.run(arguments='prefix=/usr')
-    out4 = """create(["f1.out"], ["'/usr'"])"""
-    out5 = """create(["f2.out"], ["4"])"""
-    out6 = """create\\(\\["f3.out"\\], \\["<.*.Custom instance at """
+    out4 = """create(["f1.out"], ['/usr'])"""
+    out5 = """create(["f2.out"], [4])"""
+    out6 = """create\\(\\["f3.out"\\], \\[<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
     test.fail_test(string.find(test.stdout(), out4) == -1)
     test.fail_test(string.find(test.stdout(), out5) == -1)
@@ -132,7 +132,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
     test.unlink('f3.out')
 
     test.run(arguments='prefix=/var')
-    out4 = """create(["f1.out"], ["'/var'"])"""
+    out4 = """create(["f1.out"], ['/var'])"""
 
     test.fail_test(string.find(test.stdout(), out4) == -1)
     test.fail_test(string.find(test.stdout(), out5) != -1)

@@ -194,7 +194,7 @@ def generate(env):
             env['SMART_LINKCOM'] = smart_link[linkcom]
         except KeyError:
             def _smartLink(source, target, env, for_signature,
-                           defaultLinker=linkcom):
+                           defaultLinker=linkcom, dc=dc):
                 if isD(source):
                     try:
                         libs = env['LIBS']

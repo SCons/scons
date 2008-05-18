@@ -72,7 +72,7 @@
 
   <scons_example name="ex2">
      <file name="SConstruct" printme="1">
-     import sys;
+     import sys
      def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
          """Build the test program;
          prepends "test_" to src and target, and puts target into testdir."""
@@ -103,3 +103,9 @@
     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
+  <para>
+  Using AddMethod is better than just adding an instance method to an
+  Environment because it gets called as a proper method, and AddMethod
+  provides for copying the method to any copies of the Environment
+  instance.
+  </para>

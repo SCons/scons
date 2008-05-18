@@ -203,6 +203,11 @@ def _parse_msvc8_overrides(version,platform,suite):
         user_settings = doc.getElementsByTagName('UserSettings')[0]
         tool_options = user_settings.getElementsByTagName('ToolsOptions')[0]
         tool_options_categories = tool_options.getElementsByTagName('ToolsOptionsCategory')
+        environment_var_map = {
+            'IncludeDirectories' : 'INCLUDE',
+            'LibraryDirectories' : 'LIBRARY',
+            'ExecutableDirectories' : 'PATH',
+        }
         for category in tool_options_categories:
             category_name = category.attributes.get('name')
             if category_name is not None and category_name.value == 'Projects':
@@ -215,21 +220,21 @@ def _parse_msvc8_overrides(version,platform,suite):
                             property_name = property.attributes.get('name')
                             if property_name is None:
                                 continue
-                            elif property_name.value == 'IncludeDirectories':
-                                include_dirs = property.childNodes[0].data
-                                # ToDo: Support for other destinations than Win32
-                                include_dirs = include_dirs.replace('Win32|', '')
-                                dirs['INCLUDE'] = include_dirs
-                            elif property_name.value == 'LibraryDirectories':
-                                lib_dirs = property.childNodes[0].data.replace('Win32|', '')
-                                # ToDo: Support for other destinations than Win32
-                                lib_dirs = lib_dirs.replace('Win32|', '')
-                                dirs['LIBRARY'] = lib_dirs
-                            elif property_name.value == 'ExecutableDirectories':
-                                path_dirs = property.childNodes[0].data.replace('Win32|', '')
-                                # ToDo: Support for other destinations than Win32
-                                path_dirs = path_dirs.replace('Win32|', '')
-                                dirs['PATH'] = path_dirs
+                            var_name = environment_var_map.get(property_name)
+                            if var_name:
+                                data = property.childNodes[0].data
+                                value_list = string.split(data, '|')
+                                if len(value_list) == 1:
+                                    dirs[var_name] = value_list[0]
+                                else:
+                                    while value_list:
+                                        dest, value = value_list[:2]
+                                        del value_list[:2]
+                                        # ToDo: Support for destinations
+                                        # other than Win32
+                                        if dest == 'Win32':
+                                            dirs[var_name] = value
+                                            break
     else:
         # There are no default directories in the registry for VS8 Express :(
         raise SCons.Errors.InternalError, "Unable to find MSVC paths in the registry."

@@ -544,6 +544,9 @@ class Base(SCons.Node.Node):
         self.cwd = None # will hold the SConscript directory for target nodes
         self.duplicate = directory.duplicate
 
+    def str_for_display(self):
+        return '"' + self.__str__() + '"'
+
     def must_be_same(self, klass):
         """
         This node, which already existed, is being looked up as the

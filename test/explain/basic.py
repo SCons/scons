@@ -39,9 +39,10 @@ test = TestSCons.TestSCons()
 
 test.subdir(['src'], ['src', 'subdir'])
 
-subdir_file8 = os.path.join('subdir', 'file8')
 subdir_file7 = os.path.join('subdir', 'file7')
 subdir_file7_in = os.path.join('subdir', 'file7.in')
+subdir_file8 = os.path.join('subdir', 'file8')
+subdir_file9 = os.path.join('subdir', 'file9')
 
 cat_py = test.workpath('cat.py')
 inc_aaa = test.workpath('inc', 'aaa')
@@ -122,6 +123,7 @@ file6 = env.Cat('file6', 'file6.in')
 AlwaysBuild(file6)
 env.Cat('subdir/file7', 'subdir/file7.in')
 env.OneCat('subdir/file8', ['subdir/file7.in', env.Value(%(test_value)s)] )
+env.OneCat('subdir/file9', ['subdir/file7.in', env.Value(7)] )
 """ % valueDict )
 
 test_value = '"first"'
@@ -195,6 +197,8 @@ scons: building `%(subdir_file7)s' because it doesn't exist
 %(_python_)s %(cat_py)s %(subdir_file7)s %(subdir_file7_in)s
 scons: building `%(subdir_file8)s' because it doesn't exist
 %(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
+scons: building `%(subdir_file9)s' because it doesn't exist
+%(_python_)s %(cat_py)s %(subdir_file9)s %(subdir_file7_in)s
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -248,8 +252,8 @@ scons: rebuilding `file5' because `%(inc_bbb_k)s' changed
 scons: rebuilding `file6' because AlwaysBuild() is specified
 %(_python_)s %(cat_py)s file6 file6.in
 scons: rebuilding `%(subdir_file8)s' because:
-           `"'first'"' is no longer a dependency
-           `'second'' is a new dependency
+           `first' is no longer a dependency
+           `second' is a new dependency
 %(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
 """ % locals())
 

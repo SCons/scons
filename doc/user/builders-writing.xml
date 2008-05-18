@@ -659,6 +659,129 @@ This functionality could be invoked as in the following example:
 
   </section>
 
+  <section>
+  <title>Where To Put Your Custom Builders and Tools</title>
+
+  <para>
+
+  The <filename>site_scons</filename> directory gives you a place to
+  put Python modules you can import into your SConscripts
+  (site_scons), add-on tools that can integrate into &SCons;
+  (site_scons/site_tools), and a site_scons/site_init.py file that
+  gets read before any &SConstruct; or &SConscript;, allowing you to
+  change &SCons;'s default behavior.
+
+  </para>
+
+  <para>
+
+  If you get a tool from somewhere (the &SCons; wiki or a third party,
+  for instance) and you'd like to use it in your project, the
+  <filename>site_scons</filename> dir is the simplest place to put it.
+  Tools come in two flavors; either a Python function that operates on
+  an &Environment; or a Python file containing two functions, exists()
+  and generate().
+
+  </para>
+
+  <para>
+
+  A single-function Tool can just be included in your
+  <filename>site_scons/site_init.py</filename> file where it will be
+  parsed and made available for use.  For instance, you could have a
+  <filename>site_scons/site_init.py</filename> file like this:
+
+  </para>
+
+  <programlisting>
+      def TOOL_ADD_HEADER(env):
+         """A Tool to add a header from $HEADER to the source file"""
+         add_header = Builder(action=['echo "$HEADER" &gt; $TARGET',
+                                      'cat $SOURCE &gt;&gt; $TARGET'])
+         env.Append(BUILDERS = {'AddHeader' : add_header})
+         env['HEADER'] = '' # set default value
+  </programlisting>
+
+  <para>
+
+  and a &SConstruct; like this:
+
+  </para>
+
+  <programlisting>
+      # Use TOOL_ADD_HEADER from site_scons/site_init.py
+      env=Environment(tools=['default', TOOL_ADD_HEADER], HEADER="=====")
+      env.AddHeader('tgt', 'src')
+  </programlisting>
+
+  <para>
+
+    The <function>TOOL_ADD_HEADER</function> tool method will be
+    called to add the <function>AddHeader</function> tool to the
+    environment.
+
+  </para>
+
+  <!-- 
+  <scons_output example="site1" os="posix">
+     <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
+  -->
+
+  <para>
+    Similarly, a more full-fledged tool with
+    <function>exists()</function> and <function>generate()</function>
+    methods can be installed in
+    <filename>site_scons/site_tools/toolname.py</filename>.  Since
+    <filename>site_scons/site_tools</filename> is automatically added
+    to the head of the tool search path, any tool found there will be
+    available to all environments.  Furthermore, a tool found there
+    will override a built-in tool of the same name, so if you need to
+    change the behavior of a built-in tool, site_scons gives you the
+    hook you need.
+  </para>
+
+  <para>
+    Many people have a library of utility Python functions they'd like
+    to include in &SConscript;s; just put that module in
+    <filename>site_scons/my_utils.py</filename> or any valid Python module name of your
+    choice.  For instance you can do something like this in
+    <filename>site_scons/my_utils.py</filename> to add a build_id method:
+  </para>
+    
+  <programlisting>
+      def build_id():
+         """Return a build ID (stub version)"""
+	 return "100"
+  </programlisting>
+
+  <para>
+
+  And then in your &SConscript; or any sub-&SConscript; anywhere in
+  your build, you can import <filename>my_utils</filename> and use it:
+
+  </para>
+
+  <programlisting>
+      import my_utils
+      print "build_id=" + my_utils.build_id()
+  </programlisting>
+
+  <para>
+
+    If you have a machine-wide site dir you'd like to use instead of
+    <filename>./site_scons</filename>, use the
+    <literal>--site-dir</literal> option to point to your dir.
+    <filename>site_init.py</filename> and
+    <filename>site_tools</filename> will be located under that dir.
+    To avoid using a <filename>site_scons</filename> dir at all, even
+    if it exists, use the <literal>--no-site-dir</literal> option.
+
+  </para>
+
+  </section>
+
+
   <!--
 
   <section>
