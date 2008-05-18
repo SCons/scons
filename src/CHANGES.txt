@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.98.4 - XXX
+RELEASE 0.98.4 - Sat, 17 May 2008 22:14:46 -0700
 
   From Benoit Belley:
 
@@ -35,6 +35,10 @@ RELEASE 0.98.4 - XXX
 
   - Handle multiple destinations in Visual Studio 8 settings for the
     analogues to the INCLUDE, LIBRARY and PATH variables.
+
+  From Greg Noel:
+
+  - Update man page text for VariantDir().
 
 
 

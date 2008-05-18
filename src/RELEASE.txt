@@ -20,10 +20,10 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.98.3 - Tue, 29 Apr 2008 22:40:12 -0700
+RELEASE 0.98.4 - Sat, 17 May 2008 22:14:46 -0700
 
-  This is an update to the ninth beta release of SCons.  Please consult
-  the CHANGES.txt file for a list of specific changes since last release.
+  This is a release candidate for SCons 1.0.  Please consult the
+  CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.98:
 
