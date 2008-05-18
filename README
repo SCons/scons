@@ -83,11 +83,11 @@ In this case, your options are:
     --  (Optional.)  Install from a pre-packaged SCons package that
         does not require distutils:
 
-            Red Hat Linux       scons-0.98.3.noarch.rpm
+            Red Hat Linux       scons-0.98.4.noarch.rpm
 
             Debian GNU/Linux    use apt-get to get the official package
 
-            Windows             scons-0.98.3.win32.exe
+            Windows             scons-0.98.4.win32.exe
 
     --  (Recommended.)  Download the latest distutils package from the
         following URL:
@@ -159,7 +159,7 @@ And on Windows:
 
 By default, the above commands will do the following:
 
-    --  Install the version-numbered "scons-0.98.3" and "sconsign-0.98.3"
+    --  Install the version-numbered "scons-0.98.4" and "sconsign-0.98.4"
         scripts in the default system script directory (/usr/bin or
         C:\Python*\Scripts, for example).  This can be disabled by
         specifying the "--no-version-script" option on the command
@@ -173,24 +173,24 @@ By default, the above commands will do the following:
         making it the default on your system.
 
         On UNIX or Linux systems, you can have the "scons" and "sconsign"
-        scripts be hard links or symbolic links to the "scons-0.98.3" and
-        "sconsign-0.98.3" scripts by specifying the "--hardlink-scons" or
+        scripts be hard links or symbolic links to the "scons-0.98.4" and
+        "sconsign-0.98.4" scripts by specifying the "--hardlink-scons" or
         "--symlink-scons" options on the command line.
 
-    --  Install "scons-0.98.3.bat" and "scons.bat" wrapper scripts in the
+    --  Install "scons-0.98.4.bat" and "scons.bat" wrapper scripts in the
         Python prefix directory on Windows (C:\Python*, for example).
         This can be disabled by specifying the "--no-install-bat" option
         on the command line.
 
         On UNIX or Linux systems, the "--install-bat" option may be
-        specified to have "scons-0.98.3.bat" and "scons.bat" files installed
+        specified to have "scons-0.98.4.bat" and "scons.bat" files installed
         in the default system script directory, which is useful if you
         want to install SCons in a shared file system directory that can
         be used to execute SCons from both UNIX/Linux and Windows systems.
 
     --  Install the SCons build engine (a Python module) in an
         appropriate version-numbered SCons library directory
-        (/usr/lib/scons-0.98.3 or C:\Python*\scons-0.98.3, for example).
+        (/usr/lib/scons-0.98.4 or C:\Python*\scons-0.98.4, for example).
         See below for more options related to installing the build
         engine library.
 
@@ -527,18 +527,18 @@ On Windows:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.98.3-1.noarch.rpm
-        build/dist/scons-0.98.3-1.src.rpm
-        build/dist/scons-0.98.3.linux-i686.tar.gz
-        build/dist/scons-0.98.3.tar.gz
-        build/dist/scons-0.98.3.win32.exe
-        build/dist/scons-0.98.3.zip
-        build/dist/scons-doc-0.98.3.tar.gz
-        build/dist/scons-local-0.98.3.tar.gz
-        build/dist/scons-local-0.98.3.zip
-        build/dist/scons-src-0.98.3.tar.gz
-        build/dist/scons-src-0.98.3.zip
-        build/dist/scons_0.98.3-1_all.deb
+        build/dist/scons-0.98.4-1.noarch.rpm
+        build/dist/scons-0.98.4-1.src.rpm
+        build/dist/scons-0.98.4.linux-i686.tar.gz
+        build/dist/scons-0.98.4.tar.gz
+        build/dist/scons-0.98.4.win32.exe
+        build/dist/scons-0.98.4.zip
+        build/dist/scons-doc-0.98.4.tar.gz
+        build/dist/scons-local-0.98.4.tar.gz
+        build/dist/scons-local-0.98.4.zip
+        build/dist/scons-src-0.98.4.tar.gz
+        build/dist/scons-src-0.98.4.zip
+        build/dist/scons_0.98.4-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.
