@@ -752,7 +752,7 @@ This functionality could be invoked as in the following example:
   <programlisting>
       def build_id():
          """Return a build ID (stub version)"""
-	 return "100"
+         return "100"
   </programlisting>
 
   <para>

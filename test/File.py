@@ -25,9 +25,11 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that the File() global function and environment method work
-correctly, and that the former does not try to expand construction
-variables.
+Verify that:
+
+    --  the File() global function and environment method work correctly;
+    --  the former does not try to expand construction variables;
+    --  calling File() as a method of a File() object works correctly.
 """
 
 import TestSCons
@@ -42,17 +44,25 @@ print File('${BAR}_$BAR')
 print env.File('eee')
 print env.File('$FOO')
 print env.File('${BAR}_$BAR')
+f1 = env.File('f1')
+print f1
+f2 = f1.File('f2')
+print f2
 """)
 
-test.run(stdout = test.wrap_stdout(read_str = """\
+expect = test.wrap_stdout(read_str = """\
 ddd
 $FOO
 ${BAR}_$BAR
 eee
 fff
 bbb_bbb
+f1
+f2
 """, build_str = """\
 scons: `.' is up to date.
-"""))
+""")
+
+test.run(stdout = expect)
 
 test.pass_test()

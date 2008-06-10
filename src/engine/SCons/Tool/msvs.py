@@ -1393,14 +1393,12 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
             # since version numbers aren't really floats...
             aa = a[1:]
             bb = b[1:]
-            aal = aa.split('.')
-            bbl = bb.split('.')
-            c = int(bbl[0]) - int(aal[0])
-            if c == 0:
-                c = int(bbl[1]) - int(aal[1])
-                if c == 0:
-                    c = int(bbl[2]) - int(aal[2])
-            return c
+            aal = string.split(aa, '.')
+            bbl = string.split(bb, '.')
+            # sequence comparison in python is lexicographical
+            # which is exactly what we want.
+            # Note we sort backwards so the highest version is first.
+            return cmp(bbl,aal)
 
         installed_framework_versions.sort(versrt)
 

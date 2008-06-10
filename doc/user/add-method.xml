@@ -50,10 +50,11 @@
   </para>
 
   <screen>
-    % <userinput>scons -Q</userinput>
+    % <userinput>scons -Q /</userinput>
     cc -o hello.o -c hello.c
     cc -o hello hello.o
     Install file: "hello" as "install/bin/hello"
+    Install file: "hello" as "/usr/bin/hello"
   </screen>
 
   <para>

@@ -55,7 +55,7 @@
   </para>
 
   <scons_output example="ex1">
-    <scons_output_command>scons -Q</scons_output_command>
+    <scons_output_command>scons -Q /</scons_output_command>
   </scons_output>
 
   <para>

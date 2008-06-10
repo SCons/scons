@@ -64,6 +64,9 @@ class DeprecatedTargetSignaturesWarning(DeprecatedWarning):
 class DuplicateEnvironmentWarning(Warning):
     pass
 
+class LinkWarning(Warning):
+    pass
+
 class MisleadingKeywordsWarning(Warning):
     pass
 
@@ -89,6 +92,9 @@ class ReservedVariableWarning(Warning):
     pass
 
 class StackSizeWarning(Warning):
+    pass
+
+class FortranCxxMixWarning(LinkWarning):
     pass
 
 _warningAsException = 0

@@ -20,10 +20,38 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.98.4 - Sat, 17 May 2008 22:14:46 -0700
+RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
 
   This is a release candidate for SCons 1.0.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.98.4:
+
+    --  scons.bat NOW RETURNS THE REAL SCONS EXIT STATUS
+
+        The scons.bat script shipped with SCons used to exit with
+        a status of 1 when it detected any failed (non-zero) exit
+        status from the underlying Python execution of SCons itself.
+        The scons.bat script now exits with the actual status
+        returned by SCons.
+
+    --  SCONS NOW WARNS WHEN TRYING TO LINK C++ AND FORTRAN OBJECT FILES
+
+        Some C++ toolchains do not understand Fortran runtimes and create
+        unpredictable executables when linking C++ and Fortran object
+        files together.  SCons now issues a warning if you try to link
+        C++ and Fortran object files into the same executable:
+
+            scons: warning: Using $CXX to link Fortran and C++ code together.
+                    This may generate a buggy executable if the '/usr/bin/gcc'
+                    compiler does not know how to deal with Fortran runtimes.
+
+        The warning may be suppressed with either the --warning=no-link
+        or --warning=no-fortran-cxx-mix command line options, or by
+        adding either of the following lines to a SConscript file:
+
+            SetOption('warn', 'no-link')
+            SetOption('warn', 'no-fortran-cxx-mix')
 
   Please note the following important changes since release 0.98:
 

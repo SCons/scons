@@ -195,14 +195,17 @@ class BuildTask(SCons.Taskmaster.Task):
     def do_failed(self, status=2):
         _BuildFailures.append(self.exception[1])
         global exit_status
+        global this_build_status
         if self.options.ignore_errors:
             SCons.Taskmaster.Task.executed(self)
         elif self.options.keep_going:
             SCons.Taskmaster.Task.fail_continue(self)
             exit_status = status
+            this_build_status = status
         else:
             SCons.Taskmaster.Task.fail_stop(self)
             exit_status = status
+            this_build_status = status
             
     def executed(self):
         t = self.targets[0]
@@ -384,7 +387,9 @@ class QuestionTask(SCons.Taskmaster.Task):
         if self.targets[0].get_state() != SCons.Node.up_to_date or \
            (self.top and not self.targets[0].exists()):
             global exit_status
+            global this_build_status
             exit_status = 1
+            this_build_status = 1
             self.tm.stop()
 
     def executed(self):
@@ -428,7 +433,8 @@ print_stacktrace = 0
 print_time = 0
 sconscript_time = 0
 cumulative_command_time = 0
-exit_status = 0 # exit status, assume success by default
+exit_status = 0 # final exit status, assume success by default
+this_build_status = 0 # "exit status" of an individual build
 num_jobs = None
 delayed_warnings = []
 
@@ -714,6 +720,7 @@ def version_string(label, module):
 
 def _main(parser):
     global exit_status
+    global this_build_status
 
     options = parser.values
 
@@ -727,6 +734,7 @@ def _main(parser):
     default_warnings = [ SCons.Warnings.CorruptSConsignWarning,
                          SCons.Warnings.DeprecatedWarning,
                          SCons.Warnings.DuplicateEnvironmentWarning,
+                         SCons.Warnings.LinkWarning,
                          SCons.Warnings.MissingSConscriptWarning,
                          SCons.Warnings.NoMD5ModuleWarning,
                          SCons.Warnings.NoMetaclassSupportWarning,
@@ -734,6 +742,7 @@ def _main(parser):
                          SCons.Warnings.NoParallelSupportWarning,
                          SCons.Warnings.MisleadingKeywordsWarning,
                          SCons.Warnings.StackSizeWarning, ]
+
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)
     SCons.Warnings._warningOut = _scons_internal_warning
@@ -974,6 +983,9 @@ def _main(parser):
 
 def _build_targets(fs, options, targets, target_top):
 
+    global this_build_status
+    this_build_status = 0
+
     progress_display.set_mode(not (options.no_progress or options.silent))
     display.set_mode(not options.silent)
     SCons.Action.print_actions          = not options.silent
@@ -1143,9 +1155,11 @@ def _build_targets(fs, options, targets, target_top):
         if jobs.were_interrupted():
             progress_display("scons: Build interrupted.")
             global exit_status
+            global this_build_status
             exit_status = 2
+            this_build_status = 2
 
-        if exit_status:
+        if this_build_status:
             progress_display("scons: " + failure_message)
         else:
             progress_display("scons: " + closing_message)

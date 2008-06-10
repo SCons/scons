@@ -8,6 +8,32 @@
 
 
 
+RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
+
+  From Benoit Belley:
+
+  - Fix the Intel C++ compiler ABI specification for EMT64 processors.
+
+  From David Cournapeau:
+
+  - Issue a (suppressable) warning, not an error, when trying to link
+    C++ and Fortran object files into the same executable.
+
+  From Steven Knight:
+
+  - Update the scons.bat file so that it returns the real exit status
+    from SCons, even though it uses setlocal + endlocal.
+
+  - Fix the --interactive post-build messages so it doesn't get stuck
+    mistakenly reporting failures after any individual build fails.
+
+  - Fix calling File() as a File object method in some circumstances.
+
+  - Fix setup.py installation on Mac OS X so SCons gets installed
+    under /usr/lcoal by default, not in the Mac OS X Python framework.
+
+
+
 RELEASE 0.98.4 - Sat, 17 May 2008 22:14:46 -0700
 
   From Benoit Belley:

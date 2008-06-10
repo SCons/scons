@@ -2150,12 +2150,14 @@ class File(Base):
     def Entry(self, name):
         """Create an entry node named 'name' relative to
         the SConscript directory of this file."""
-        return self.cwd.Entry(name)
+        cwd = self.cwd or self.fs._cwd
+        return cwd.Entry(name)
 
     def Dir(self, name, create=True):
         """Create a directory node named 'name' relative to
         the SConscript directory of this file."""
-        return self.cwd.Dir(name, create)
+        cwd = self.cwd or self.fs._cwd
+        return cwd.Dir(name, create)
 
     def Dirs(self, pathlist):
         """Create a list of directories relative to the SConscript
@@ -2165,7 +2167,8 @@ class File(Base):
     def File(self, name):
         """Create a file node named 'name' relative to
         the SConscript directory of this file."""
-        return self.cwd.File(name)
+        cwd = self.cwd or self.fs._cwd
+        return cwd.File(name)
 
     #def generate_build_dict(self):
     #    """Return an appropriate dictionary of values for building

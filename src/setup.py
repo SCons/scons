@@ -210,9 +210,22 @@ def get_scons_prefix(libdir, is_win32):
                 return os.path.join(drive + head)
     return libdir
 
+def force_to_usr_local(self):
+    """
+    A hack to decide if we need to "force" the installation directories
+    to be under /usr/local.  This is because Mac Os X Tiger and
+    Leopard, by default, put the libraries and scripts in their own
+    directories under /Library or /System/Library.
+    """
+    return (sys.platform[:6] == 'darwin' and
+            (self.install_dir[:9] == '/Library/' or
+             self.install_dir[:16] == '/System/Library/'))
+
 class install_lib(_install_lib):
     def finalize_options(self):
         _install_lib.finalize_options(self)
+        if force_to_usr_local(self):
+            self.install_dir = '/usr/local/lib'
         args = self.distribution.script_args
         if not set_explicitly("lib", args):
             # They didn't explicitly specify the installation
@@ -233,6 +246,8 @@ class install_lib(_install_lib):
 class install_scripts(_install_scripts):
     def finalize_options(self):
         _install_scripts.finalize_options(self)
+        if force_to_usr_local(self):
+            self.install_dir = '/usr/local/bin'
         self.build_dir = os.path.join('build', 'scripts')
         msg = "Installed SCons scripts into %s" % self.install_dir
         Installed.append(msg)
@@ -332,6 +347,8 @@ class install_data(_install_data):
         _install_data.initialize_options(self)
     def finalize_options(self):
         _install_data.finalize_options(self)
+        if force_to_usr_local(self):
+            self.install_dir = '/usr/local'
         if Options.install_man:
             if is_win32:
                 dir = 'Doc'

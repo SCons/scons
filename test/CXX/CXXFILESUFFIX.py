@@ -62,7 +62,7 @@ input = r"""
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
         printf("LEX\n");
         printf("%s\n");
         exit (0);
