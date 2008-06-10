@@ -120,7 +120,7 @@ test.write('prog.cpp', r"""
 int
 main(int argc, char *argv[])
 {
-        argv[argc++] = "--";
+        argv[argc++] = (char *)"--";
 #ifdef FOO
         printf("prog.c:  FOO\n");
 #endif

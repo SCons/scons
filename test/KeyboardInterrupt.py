@@ -114,3 +114,5 @@ for i in range(2):
     runtest('-j16 --random')
     runtest('-j32 --random')
     runtest('-j64 --random')
+
+test.pass_test()

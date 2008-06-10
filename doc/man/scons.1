@@ -1359,6 +1359,16 @@ method.
 Enables or disables warnings about missing SConscript files.
 
 .TP
+--warn=fortran-cxx-mix, --warn=no-fortran-cxx-mix
+Enables or disables the specific warning about linking
+Fortran and C++ object files in a single executable,
+which can yield unpredictable behavior with some compilers.
+
+.TP
+--warn=link, --warn=no-link
+Enables or disables warnings about link steps.
+
+.TP
 --warn=misleading-keywords, --warn=no-misleading-keywords
 Enables or disables warnings about use of the misspelled keywords
 .B targets
@@ -4360,7 +4370,7 @@ Interpreted options
 and the construction variables they affect
 are as specified for the
 .BR env.ParseFlags ()
-method (which thie method calls).
+method (which this method calls).
 See that method's description, below,
 for a table of options and construction variables.
 
@@ -8434,9 +8444,9 @@ Execute(Mkdir('/tmp/outputdir'))
 
 env.Command('foo.out', 'foo.in',
             [Mkdir('/tmp/builddir',
-             Copy('$SOURCE', '/tmp/builddir')
-             "cd /tmp/builddir && ])
-
+             Copy('$SOURCE', '/tmp/builddir/foo.in')
+             "cd /tmp/builddir && make",
+             Copy('/tmp/builddir/foo.out', '$TARGET')])
 .EE
 
 .TP

@@ -42,21 +42,37 @@ cplusplus = __import__('c++', globals(), locals(), [])
 # use the package installer tool lslpp to figure out where cppc and what
 # version of it is installed
 def get_cppc(env):
-    cppcPath = env.get('CXX', None)
+    cxx = env.get('CXX', None)
+    if cxx:
+        cppcPath = os.path.dirname(cxx)
+    else:
+        cppcPath = None
+
     cppcVersion = None
 
     pkginfo = env.subst('$PKGINFO')
     pkgchk = env.subst('$PKGCHK')
 
-    for package in ['SPROcpl']:
-        cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo, package)
-        line = os.popen(cmd).readline()
-        if line:
-            cppcVersion = line.split()[-1]
-            cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
+    def look_pkg_db(pkginfo=pkginfo, pkgchk=pkgchk):
+        version = None
+        path = None
+        for package in ['SPROcpl']:
+            cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo, package)
             line = os.popen(cmd).readline()
-            cppcPath = os.path.dirname(line.split()[-1])
-            break
+            if line:
+                version = line.split()[-1]
+                cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
+                line = os.popen(cmd).readline()
+                if line:
+                    path = os.path.dirname(line.split()[-1])
+                    break
+
+        return path, version
+
+    path, version = look_pkg_db()
+    if path and version:
+        cppcPath, cppcVersion = path, version
+
     return (cppcPath, 'CC', 'CC', cppcVersion)
 
 def generate(env):
