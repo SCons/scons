@@ -364,7 +364,7 @@ ToolList = {
                  ('jar', 'JARCOM', JarCom, []),
                  ('rmic', 'RMICCOM', Cat, []),
                 ],
-    'win32' :   [('msvc', ['CCCOM', 'SHCCCOM'], CCCom, ['CCFLAGS', 'CPPDEFINES', 'COLOR', 'COLORS', 'PACKAGE']),
+    'win32' :   [('msvc', ['CCCOM', 'SHCCCOM', 'RCCOM'], CCCom, ['CCFLAGS', 'CPPDEFINES', 'COLOR', 'COLORS', 'PACKAGE']),
                  ('mslink', ['LINKCOM', 'SHLINKCOM'], Cat, []),
                  ('mslib', 'ARCOM', Cat, []),
                  ('tar', 'TARCOM', Null, []),

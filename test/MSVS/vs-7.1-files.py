@@ -33,14 +33,14 @@ import os
 import os.path
 import sys
 
-import TestCmd
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+# Make the test infrastructure think we have this version of MSVS installed.
+test._msvs_versions = ['7.1']
+
+
 
 expected_slnfile = """\
 Microsoft Visual Studio Solution File, Format Version 8.00
@@ -146,7 +146,7 @@ expected_vcprojfile = """\
 
 
 SConscript_contents = """\
-env=Environment(tools=['msvs'], MSVS_VERSION = '7.1')
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -232,7 +232,8 @@ test.write(['work2', 'src', 'SConscript'], SConscript_contents)
 test.run(chdir='work2', arguments=".")
 
 vcproj = test.read(['work2', 'src', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work2', 'SConstruct')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work2', 'SConstruct',
+                              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
@@ -262,7 +263,7 @@ The real workspace file is here:
 test.subdir('work3')
 
 test.write(['work3', 'SConstruct'], """\
-env=Environment(tools=['msvs'], MSVS_VERSION = '7.1')
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -290,7 +291,8 @@ test.run(chdir='work3', arguments=".")
 
 test.must_exist(test.workpath('work3', 'Test.vcproj'))
 vcproj = test.read(['work3', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.1', 'work3', 'SConstruct')
+expect = test.msvs_substitute(expected_vcprojfile, '7.1', 'work3', 'SConstruct',
+                              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 

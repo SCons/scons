@@ -696,6 +696,28 @@ This functionality could be invoked as in the following example:
 
     &SCons; supports the ability for a Builder to modify the
     lists of target(s) from the specified source(s).
+    You do this by defining an &emitter; function
+    that takes as its arguments
+    the list of the targets passed to the builder,
+    the list of the sources passed to the builder,
+    and the construction environment.
+    The emitter function should return the modified
+    lists of targets that should be built
+    and sources from which the targets will be built.
+
+    </para>
+
+    <para>
+
+    For example, suppose you want to define a Builder
+    that always calls a <filename>foobuild</filename> program,
+    and you want to automatically add
+    a new target file named
+    <filename>new_target</filename>
+    and a new source file named
+    <filename>new_source</filename>
+    whenever it's called.
+    The &SConstruct; file might look like this:
 
     </para>
 
@@ -738,26 +760,102 @@ This functionality could be invoked as in the following example:
        env.Foo('file')
     </sconstruct>
 
+    <para>
+    
+    And would yield the following output:
+
+    </para>
+
     <scons_output example="ex7">
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
-    <programlisting>
-       bld = Builder(action = 'my_command',
-                     suffix = '.foo',
-                     src_suffix = '.input',
-                     emitter = 'MY_EMITTER')
-       def modify1(target, source, env):
-           return target, source
-       def modify2(target, source, env):
-           return target, source
-       env1 = Environment(BUILDERS = {'Foo' : bld},
-                          MY_EMITTER = modify1)
-       env2 = Environment(BUILDERS = {'Foo' : bld},
-                          MY_EMITTER = modify2)
-       env1.Foo('file1')
-       env2.Foo('file2')
-    </programlisting>
+    <para>
+
+    One very flexible thing that you can is specify
+    use a construction variable to specify
+    different emitter functions for different
+    construction variable.
+    To do this, specify a string
+    containing a construction variable
+    expansion as the emitter when you call
+    the &Builder; function,
+    and set that construction variable to
+    the desired emitter function
+    in different construction environments:
+
+    </para>
+
+    <scons_example name="MY_EMITTER">
+
+      <file name="SConstruct" printme="1">
+        bld = Builder(action = 'my_command $SOURCES > $TARGET',
+                      suffix = '.foo',
+                      src_suffix = '.input',
+                      emitter = '$MY_EMITTER')
+        def modify1(target, source, env):
+            return target, source + ['modify1.in']
+        def modify2(target, source, env):
+            return target, source + ['modify2.in']
+        env1 = Environment(BUILDERS = {'Foo' : bld},
+                           MY_EMITTER = modify1)
+        env2 = Environment(BUILDERS = {'Foo' : bld},
+                           MY_EMITTER = modify2)
+        env1.Foo('file1')
+        env2.Foo('file2')
+        import os
+        env1['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
+        env2['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
+        </file>
+        <file name="file1.input">
+        file1.input
+        </file>
+        <file name="file2.input">
+        file2.input
+        </file>
+        <file name="modify1.in">
+        modify1.input
+        </file>
+        <file name="modify2.in">
+        modify2.input
+        </file>
+        <file name="my_command" chmod="0755">
+        cat
+        </file>
+      </file>
+
+    </scons_example>
+
+    <sconstruct>
+      bld = Builder(action = 'my_command $SOURCES > $TARGET',
+                    suffix = '.foo',
+                    src_suffix = '.input',
+                    emitter = '$MY_EMITTER')
+      def modify1(target, source, env):
+          return target, source + ['modify1.in']
+      def modify2(target, source, env):
+          return target, source + ['modify2.in']
+      env1 = Environment(BUILDERS = {'Foo' : bld},
+                         MY_EMITTER = modify1)
+      env2 = Environment(BUILDERS = {'Foo' : bld},
+                         MY_EMITTER = modify2)
+      env1.Foo('file1')
+      env2.Foo('file2')
+      </file>
+    </sconstruct>
+
+    <para>
+
+    In this example, the <filename>modify1.in</filename>
+    and <filename>modify2.in</filename> files
+    get added to the source lists
+    of the different commands:
+
+    </para>
+
+    <scons_output example="MY_EMITTER">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 

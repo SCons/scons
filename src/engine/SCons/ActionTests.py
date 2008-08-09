@@ -1523,6 +1523,16 @@ class FunctionActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
         assert c in matches_foo, repr(c)
 
+        # Make sure a bare string varlist works
+        a = SCons.Action.FunctionAction(GlobalFunc, varlist='XYZ')
+
+        matches_foo = map(lambda x: x + "foo", func_matches)
+
+        c = a.get_contents(target=[], source=[], env=Environment())
+        assert c in func_matches, repr(c)
+        c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
+        assert c in matches_foo, repr(c)
+
         class Foo:
             def get_contents(self, target, source, env):
                 return 'xyzzy'

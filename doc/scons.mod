@@ -145,8 +145,10 @@
 -->
 
 <!ENTITY Add "<function>Add</function>">
+<!ENTITY AddMethod "<function>AddMethod</function>">
 <!ENTITY AddPostAction "<function>AddPostAction</function>">
 <!ENTITY AddPreAction "<function>AddPreAction</function>">
+<!ENTITY AddOption "<function>AddOption</function>">
 <!ENTITY AddOptions "<function>AddOptions</function>">
 <!ENTITY AddVariables "<function>AddVariables</function>">
 <!ENTITY Alias "<function>Alias</function>">
@@ -167,6 +169,7 @@
 <!ENTITY Copy "<function>Copy</function>">
 <!ENTITY Decider "<function>Decider</function>">
 <!ENTITY Default "<function>Default</function>">
+<!ENTITY DefaultEnvironment "<function>DefaultEnvironment</function>">
 <!ENTITY DefaultRules "<function>DefaultRules</function>">
 <!ENTITY Delete "<function>Delete</function>">
 <!ENTITY Depends "<function>Depends</function>">
@@ -175,15 +178,21 @@
 <!ENTITY Entry "<function>Entry</function>">
 <!ENTITY EnumOption "<function>EnumOption</function>">
 <!ENTITY EnumVariable "<function>EnumVariable</function>">
+<!ENTITY EnsurePythonVersion "<function>EnsurePythonVersion</function>">
+<!ENTITY EnsureSConsVersion "<function>EnsureSConsVersion</function>">
 <!ENTITY Environment "<function>Environment</function>">
 <!ENTITY Execute "<function>Execute</function>">
+<!ENTITY Exit "<function>Exit</function>">
 <!ENTITY Export "<function>Export</function>">
 <!ENTITY File "<function>File</function>">
 <!ENTITY FindFile "<function>FindFile</function>">
 <!ENTITY FindInstalledFiles "<function>FindInstalledFiles</function>">
 <!ENTITY Finish "<function>Finish</function>">
+<!ENTITY Flatten "<function>Flatten</function>">
 <!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
+<!ENTITY GetBuildFailures "<function>GetBuildFailures</function>">
 <!ENTITY GetOption "<function>GetOption</function>">
+<!ENTITY Glob "<function>Glob</function>">
 <!ENTITY Help "<function>Help</function>">
 <!ENTITY Ignore "<function>Ignore</function>">
 <!ENTITY Import "<function>Import</function>">
@@ -193,6 +202,7 @@
 <!ENTITY ListOption "<function>ListOption</function>">
 <!ENTITY ListVariable "<function>ListVariable</function>">
 <!ENTITY Local "<function>Local</function>">
+<!ENTITY MergeFlags "<function>MergeFlags</function>">
 <!ENTITY Mkdir "<function>Mkdir</function>">
 <!ENTITY Module "<function>Module</function>">
 <!ENTITY Move "<function>Move</function>">
@@ -204,6 +214,7 @@
 <!ENTITY PackageOption "<function>PackageOption</function>">
 <!ENTITY PackageVariable "<function>PackageVariable</function>">
 <!ENTITY ParseConfig "<function>ParseConfig</function>">
+<!ENTITY ParseFlags "<function>ParseFlags</function>">
 <!ENTITY PathOption "<function>PathOption</function>">
 <!ENTITY PathOption_PathAccept "<function>PathOption.PathAccept</function>">
 <!ENTITY PathOption_PathExists "<function>PathOption.PathExists</function>">
@@ -220,13 +231,16 @@
 <!ENTITY Prepend "<function>Prepend</function>">
 <!ENTITY PrependENVPath "<function>PrependENVPath</function>">
 <!ENTITY PrependUnique "<function>PrependUnique</function>">
+<!ENTITY Progress "<function>Progress</function>">
 <!ENTITY Replace "<function>Replace</function>">
 <!ENTITY Repository "<function>Repository</function>">
+<!ENTITY Requires "<function>Requires</function>">
 <!ENTITY Return "<function>Return</function>">
 <!ENTITY RuleSet "<function>RuleSet</function>">
 <!ENTITY Salt "<function>Salt</function>">
 <!ENTITY SetBuildSignatureType "<function>SetBuildSignatureType</function>">
 <!ENTITY SetContentSignatureType "<function>SetContentSignatureType</function>">
+<!ENTITY SetDefault "<function>SetDefault</function>">
 <!ENTITY SetOption "<function>SetOption</function>">
 <!ENTITY SideEffect "<function>SideEffect</function>">
 <!ENTITY SourceSignature "<function>SourceSignature</function>">
@@ -236,6 +250,8 @@
 <!ENTITY TargetSignatures "<function>TargetSignatures</function>">
 <!ENTITY Task "<function>Task</function>">
 <!ENTITY Touch "<function>Touch</function>">
+<!ENTITY UnknownOptions "<function>UnknownOptions</function>">
+<!ENTITY UnknownVariables "<function>UnknownVariables</function>">
 
 <!-- Environment methods -->
 <!ENTITY subst "<function>subst</function>">
@@ -272,6 +288,7 @@
 
 -->
 
+<!ENTITY ARGLIST "<varname>ARGLIST</varname>">
 <!ENTITY ARGUMENTS "<varname>ARGUMENTS</varname>">
 <!ENTITY BUILD_TARGETS "<varname>BUILD_TARGETS</varname>">
 <!ENTITY COMMAND_LINE_TARGETS "<varname>COMMAND_LINE_TARGETS</varname>">
@@ -289,6 +306,7 @@
 <!ENTITY COLOR "<varname>COLOR</varname>">
 <!ENTITY COLORS "<varname>COLORS</varname>">
 <!ENTITY CONFIG "<varname>CONFIG</varname>">
+<!ENTITY CPPDEFINES "<varname>CPPDEFINES</varname>">
 <!ENTITY RELEASE "<varname>RELEASE</varname>">
 <!ENTITY RELEASE_BUILD "<varname>RELEASE_BUILD</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
@@ -323,6 +341,7 @@
 <!ENTITY exports "<varname>exports</varname>">
 <!ENTITY source "<varname>source</varname>">
 <!ENTITY target "<varname>target</varname>">
+<!ENTITY variables "<varname>variables</varname>">
 <!ENTITY variant_dir "<varname>variant_dir</varname>">
 
 

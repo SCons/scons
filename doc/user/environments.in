@@ -1,25 +1,25 @@
 <!--
 
-  __COPYRIGHT__
+     __COPYRIGHT__
 
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
+     Permission is hereby granted, free of charge, to any person obtaining
+     a copy of this software and associated documentation files (the
+     "Software"), to deal in the Software without restriction, including
+     without limitation the rights to use, copy, modify, merge, publish,
+     distribute, sublicense, and/or sell copies of the Software, and to
+     permit persons to whom the Software is furnished to do so, subject to
+     the following conditions:
 
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
+     The above copyright notice and this permission notice shall be included
+     in all copies or substantial portions of the Software.
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
 
@@ -38,120 +38,120 @@ build behavior.
 Construction variables from a construction environment are expanded
 by preceding the keyword with a C<%> (percent sign):
 
-  Construction variables:
+     Construction variables:
 	XYZZY => 'abracadabra',
 
-  The string:  "The magic word is:  %XYZZY!"
-  expands to:  "The magic word is:  abracadabra!"
+     The string:  "The magic word is:  %XYZZY!"
+     expands to:  "The magic word is:  abracadabra!"
 
 A construction variable name may be surrounded by C<{> and C<}> (curly
 braces), which are stripped as part of the expansion.  This can
 sometimes be necessary to separate a variable expansion from trailing
 alphanumeric characters:
 
-  Construction variables:
+     Construction variables:
 	OPT    => 'value1',
 	OPTION => 'value2',
 
-  The string:  "%OPT %{OPT}ION %OPTION %{OPTION}"
-  expands to:  "value1 value1ION value2 value2"
+     The string:  "%OPT %{OPT}ION %OPTION %{OPTION}"
+     expands to:  "value1 value1ION value2 value2"
 
 Construction variable expansion is recursive, that is, a string
 containing C<%->expansions after substitution will be re-expanded until
 no further substitutions can be made:
 
-  Construction variables:
+     Construction variables:
 	STRING => 'The result is:  %FOO',
 	FOO    => '%BAR',
 	BAR    => 'final value',
 
-  The string:  "The string says:  %STRING"
-  expands to:  "The string says:  The result is:  final value"
+     The string:  "The string says:  %STRING"
+     expands to:  "The string says:  The result is:  final value"
 
 If a construction variable is not defined in an environment, then the
 null string is substituted:
 
-  Construction variables:
+     Construction variables:
 	FOO => 'value1',
 	BAR => 'value2',
 
-  The string:  "%FOO <%NO_VARIABLE> %BAR"
-  expands to:  "value1 <> value2"
+     The string:  "%FOO <%NO_VARIABLE> %BAR"
+     expands to:  "value1 <> value2"
 
 A doubled C<%%> will be replaced by a single C<%>:
 
-  The string:  "Here is a percent sign:  %%"
-  expands to:  "Here is a percent sign: %"
+     The string:  "Here is a percent sign:  %%"
+     expands to:  "Here is a percent sign: %"
 
 =head2 Default construction variables
 
 When you specify no arguments when creating a new construction
 environment:
 
-  $env = new cons();
+     $env = new cons();
 
 Cons creates a reference to a new, default construction
 environment. This contains a number of construction variables and some
 methods. At the present writing, the default construction variables on a
 UNIX system are:
 
-  CC            => 'cc',
-  CFLAGS        => '',
-  CCCOM         => '%CC %CFLAGS %_IFLAGS -c %< -o %>',
-  CXX           => '%CC',
-  CXXFLAGS      => '%CFLAGS',
-  CXXCOM        => '%CXX %CXXFLAGS %_IFLAGS -c %< -o %>',
-  INCDIRPREFIX  => '-I',
-  INCDIRSUFFIX  => '',
-  LINK          => '%CXX',
-  LINKCOM       => '%LINK %LDFLAGS -o %> %< %_LDIRS %LIBS',
-  LINKMODULECOM => '%LD -r -o %> %<',
-  LIBDIRPREFIX  => '-L',
-  LIBDIRSUFFIX  => '',
-  AR		=> 'ar',
-  ARFLAGS	=> 'r',
-  ARCOM		=> ['%AR %ARFLAGS %> %<', '%RANLIB %>'],
-  RANLIB	=> 'ranlib',
-  AS		=> 'as',
-  ASFLAGS	=> '',
-  ASCOM		=> '%AS %ASFLAGS %< -o %>',
-  LD		=> 'ld',
-  LDFLAGS	=> '',
-  PREFLIB	=> 'lib',
-  SUFLIB	=> '.a',
-  SUFLIBS	=> '.so:.a',
-  SUFOBJ	=> '.o',
-  SIGNATURE     => [ '*' => 'build' ],
-  ENV		=> { 'PATH' => '/bin:/usr/bin' },
+     CC            => 'cc',
+     CFLAGS        => '',
+     CCCOM         => '%CC %CFLAGS %_IFLAGS -c %< -o %>',
+     CXX           => '%CC',
+     CXXFLAGS      => '%CFLAGS',
+     CXXCOM        => '%CXX %CXXFLAGS %_IFLAGS -c %< -o %>',
+     INCDIRPREFIX  => '-I',
+     INCDIRSUFFIX  => '',
+     LINK          => '%CXX',
+     LINKCOM       => '%LINK %LDFLAGS -o %> %< %_LDIRS %LIBS',
+     LINKMODULECOM => '%LD -r -o %> %<',
+     LIBDIRPREFIX  => '-L',
+     LIBDIRSUFFIX  => '',
+     AR		=> 'ar',
+     ARFLAGS	=> 'r',
+     ARCOM		=> ['%AR %ARFLAGS %> %<', '%RANLIB %>'],
+     RANLIB	=> 'ranlib',
+     AS		=> 'as',
+     ASFLAGS	=> '',
+     ASCOM		=> '%AS %ASFLAGS %< -o %>',
+     LD		=> 'ld',
+     LDFLAGS	=> '',
+     PREFLIB	=> 'lib',
+     SUFLIB	=> '.a',
+     SUFLIBS	=> '.so:.a',
+     SUFOBJ	=> '.o',
+     SIGNATURE     => [ '*' => 'build' ],
+     ENV		=> { 'PATH' => '/bin:/usr/bin' },
 
 
 And on a Windows system (Windows NT), the default construction variables
 are (unless the default rule style is set using the B<DefaultRules>
 method):
 
-  CC		=> 'cl',
-  CFLAGS	=> '/nologo',
-  CCCOM		=> '%CC %CFLAGS %_IFLAGS /c %< /Fo%>',
-  CXXCOM        => '%CXX %CXXFLAGS %_IFLAGS /c %< /Fo%>',
-  INCDIRPREFIX  => '/I',
-  INCDIRSUFFIX  => '',
-  LINK          => 'link',
-  LINKCOM       => '%LINK %LDFLAGS /out:%> %< %_LDIRS %LIBS',
-  LINKMODULECOM => '%LD /r /o %> %<',
-  LIBDIRPREFIX  => '/LIBPATH:',
-  LIBDIRSUFFIX  => '',
-  AR            => 'lib',
-  ARFLAGS       => '/nologo ',
-  ARCOM         => "%AR %ARFLAGS /out:%> %<",
-  RANLIB        => '',
-  LD            => 'link',
-  LDFLAGS       => '/nologo ',
-  PREFLIB       => '',
-  SUFEXE	=> '.exe',
-  SUFLIB	=> '.lib',
-  SUFLIBS	=> '.dll:.lib',
-  SUFOBJ	=> '.obj',
-  SIGNATURE     => [ '*' => 'build' ],
+     CC		=> 'cl',
+     CFLAGS	=> '/nologo',
+     CCCOM		=> '%CC %CFLAGS %_IFLAGS /c %< /Fo%>',
+     CXXCOM        => '%CXX %CXXFLAGS %_IFLAGS /c %< /Fo%>',
+     INCDIRPREFIX  => '/I',
+     INCDIRSUFFIX  => '',
+     LINK          => 'link',
+     LINKCOM       => '%LINK %LDFLAGS /out:%> %< %_LDIRS %LIBS',
+     LINKMODULECOM => '%LD /r /o %> %<',
+     LIBDIRPREFIX  => '/LIBPATH:',
+     LIBDIRSUFFIX  => '',
+     AR            => 'lib',
+     ARFLAGS       => '/nologo ',
+     ARCOM         => "%AR %ARFLAGS /out:%> %<",
+     RANLIB        => '',
+     LD            => 'link',
+     LDFLAGS       => '/nologo ',
+     PREFLIB       => '',
+     SUFEXE	=> '.exe',
+     SUFLIB	=> '.lib',
+     SUFLIBS	=> '.dll:.lib',
+     SUFOBJ	=> '.obj',
+     SIGNATURE     => [ '*' => 'build' ],
 
 These variables are used by the various methods associated with the
 environment. In particular, any method that ultimately invokes an external
@@ -160,7 +160,7 @@ appropriate. For example, the C<Objects> method takes a number of source
 files and arranges to derive, if necessary, the corresponding object
 files:
 
-  Objects $env 'foo.c', 'bar.c';
+     Objects $env 'foo.c', 'bar.c';
 
 This will arrange to produce, if necessary, F<foo.o> and F<bar.o>. The
 command invoked is simply C<%CCCOM>, which expands, through substitution,
@@ -234,32 +234,32 @@ anywhere else in the current command line (via C<%1>, C<%2>, etc.), then
 those will be deleted from the list provided by C<%E<lt>>. Consider the
 following command found in a F<Conscript> file in the F<test> directory:
 
-  Command $env 'tgt', qw(foo bar baz), qq(
+     Command $env 'tgt', qw(foo bar baz), qq(
 	echo %< -i %1 > %>
 	echo %< -i %2 >> %>
 	echo %< -i %3 >> %>
-  );
+     );
 
 If F<tgt> needed to be updated, then this would result in the execution of
 the following commands, assuming that no remapping has been established for
 the F<test> directory:
 
-  echo test/bar test/baz -i test/foo > test/tgt
-  echo test/foo test/baz -i test/bar >> test/tgt
-  echo test/foo test/bar -i test/baz >> test/tgt
+     echo test/bar test/baz -i test/foo > test/tgt
+     echo test/foo test/baz -i test/bar >> test/tgt
+     echo test/foo test/bar -i test/baz >> test/tgt
 
 =back
 
 Any of the above pseudo-variables may be followed immediately by one of
 the following suffixes to select a portion of the expanded path name:
 
-  :a    the absolute path to the file name
-  :b    the directory plus the file name stripped of any suffix
-  :d    the directory
-  :f    the file name
-  :s    the file name suffix
-  :F    the file name stripped of any suffix
-  :S    the absolute path path to a Linked source file
+     :a    the absolute path to the file name
+     :b    the directory plus the file name stripped of any suffix
+     :d    the directory
+     :f    the file name
+     :s    the file name suffix
+     :F    the file name stripped of any suffix
+     :S    the absolute path path to a Linked source file
 
 Continuing with the above example, C<%E<lt>:f> would expand to C<foo bar baz>,
 and C<%E<gt>:d> would expand to C<test>.
@@ -277,17 +277,17 @@ as a Perl code reference; the results of this call will be used to
 replace the contents of the brackets in the command line.  For example,
 given an existing input file named F<tgt.in>:
 
-  @keywords = qw(foo bar baz);
-  $env = new cons(X_COMMA => sub { join(",", @_) });
-  Command $env 'tgt', 'tgt.in', qq(
+     @keywords = qw(foo bar baz);
+     $env = new cons(X_COMMA => sub { join(",", @_) });
+     Command $env 'tgt', 'tgt.in', qq(
 	echo '# Keywords: %[X_COMMA @keywords %]' > %>
 	cat %< >> %>
-  );
+     );
 
 This will execute:
 
-  echo '# Keywords: foo,bar,baz' > tgt
-  cat tgt.in >> tgt
+     echo '# Keywords: foo,bar,baz' > tgt
+     cat tgt.in >> tgt
 
 =item %( %)
 
@@ -313,843 +313,1366 @@ Cons expands construction variables in the source and target file names
 passed to the various construction methods according to the expansion
 rules described above:
 
-  $env = new cons(
+     $env = new cons(
 	DESTDIR	=>	'programs',
 	SRCDIR	=>	'src',
-  );
-  Program $env '%DESTDIR/hello', '%SRCDIR/hello.c';
+     );
+     Program $env '%DESTDIR/hello', '%SRCDIR/hello.c';
 
 This allows for flexible configuration, through the construction
 environment, of directory names, suffixes, etc.
 
-=head1 Default construction methods
-
-The list of default construction methods includes the following:
-
-
-=head2 The C<new> constructor
-
-The C<new> method is a Perl object constructor. That is, it is not invoked
-via a reference to an existing construction environment B<reference>, but,
-rather statically, using the name of the Perl B<package> where the
-constructor is defined. The method is invoked like this:
-
-  $env = new cons(<overrides>);
-
-The environment you get back is blessed into the package C<cons>, which
-means that it will have associated with it the default methods described
-below. Individual construction variables can be overridden by providing
-name/value pairs in an override list. Note that to override any command
-environment variable (i.e. anything under C<ENV>), you will have to override
-all of them. You can get around this difficulty by using the C<copy> method
-on an existing construction environment.
-
-
-=head2 The C<clone> method
-
-The C<clone> method creates a clone of an existing construction environment,
-and can be called as in the following example:
-
-  $env2 = $env1->clone(<overrides>);
-
-You can provide overrides in the usual manner to create a different
-environment from the original. If you just want a new name for the same
-environment (which may be helpful when exporting environments to existing
-components), you can just use simple assignment.
-
-
-=head2 The C<copy> method
-
-The C<copy> method extracts the externally defined construction variables
-from an environment and returns them as a list of name/value
-pairs. Overrides can also be provided, in which case, the overridden values
-will be returned, as appropriate. The returned list can be assigned to a
-hash, as shown in the prototype, below, but it can also be manipulated in
-other ways:
-
-  %env = $env1->copy(<overrides>);
-
-The value of C<ENV>, which is itself a hash, is also copied to a new hash,
-so this may be changed without fear of affecting the original
-environment. So, for example, if you really want to override just the
-C<PATH> variable in the default environment, you could do the following:
-
-  %cons = new cons()->copy();
-  $cons{ENV}{PATH} = "<your path here>";
-  $cons = new cons(%cons);
-
-This will leave anything else that might be in the default execution
-environment undisturbed.
-
 -->
 
- <para>
+  <para>
 
-   It is rare that all of the software in a large,
-   complicated system needs to be built the same way.
-   For example, different source files may need different options
-   enabled on the command line,
-   or different executable programs need to be linked
-   with different libraries.
-   &SCons; accommodates these different build
-   requirements by allowing you to create and
-   configure multiple &consenvs;
-   that control how the software is built.
-   Technically, a &consenv; is an object
-   that has a number of associated
-   &consvars;, each with a name and a value.
-   (A construction environment also has an attached
-   set of &Builder; methods,
-   about which we'll learn more later.)
+  An <literal>environment</literal>
+  is a collection of values that
+  can affect how a program executes.
+  &SCons; distinguishes between three
+  different types of environments
+  that can affect the behavior of &SCons; itself
+  (subject to the configuration in the &SConscript; files),
+  as well as the compilers and other tools it executes:
 
- </para>
+  </para>
 
- <para>
+  <variablelist>
 
-   A &consenv; is created by the &Environment; method:
+    <varlistentry>
+    <term>External Environment</term>
 
- </para>
+    <listitem>
+    <para>
 
-  <sconstruct>
-    env = Environment()
-  </sconstruct>
+    The <literal>external environment</literal>
+    is the set of variables in the user's environment
+    at the time the user runs &SCons.
+    These variables are available within the &SConscript; files
+    through the Python <literal>os.environ</literal> dictionary.
+    See <xref linkend="sect-external-environments"></xref>, below.
 
- <para>
+    </para>
+    </listitem>
+    </varlistentry>
 
-   By default, &SCons; initializes every
-   new construction environment
-   with a set of &consvars;
-   based on the tools that it finds on your system,
-   plus the default set of builder methods
-   necessary for using those tools.
-   The construction variables
-   are initialized with values describing
-   the C compiler,
-   the Fortran compiler,
-   the linker,
-   etc.,
-   as well as the command lines to invoke them.
+    <varlistentry>
+    <term>&ConsEnv;</term>
 
- </para>
+    <listitem>
+    <para>
 
- <para>
+    A &consenv;
+    is a distinct object creating within
+    a &SConscript; file and
+    and which contains values that
+    affect how &SCons; decides
+    what action to use to build a target,
+    and even to define which targets
+    should be built from which sources.
+    One of the most powerful features of &SCons;
+    is the ability to create multiple &consenvs;,
+    including the ability to clone a new, customized
+    &consenv; from an existing &consenv;.
+    See <xref linkend="sect-construction-environments"></xref>, below.
 
-   When you initialize a construction environment
-   you can set the values of the
-   environment's &consvars;
-   to control how a program is built.
-   For example:
+    </para>
+    </listitem>
+    </varlistentry>
 
- </para>
+    <varlistentry>
+    <term>Execution Environment</term>
 
-  <scons_example name="ex1">
-    <file name="SConstruct" printme="1">
-    env = Environment(CC = 'gcc',
-                      CCFLAGS = '-O2')
+    <listitem>
+    <para>
 
-    env.Program('foo.c')
-    </file>
-    <file name="foo.c">
-   int main() { }
-    </file>
-  </scons_example>
+    An <literal>execution environment</literal>
+    is the values that &SCons; sets
+    when executing an external
+    command (such as a compiler or linker)
+    to build one or more targets.
+    Note that this is not the same as
+    the <literal>external environment</literal>
+    (see above).
+    See <xref linkend="sect-execution-environments"></xref>, below.
 
- <para>
+    </para>
+    </listitem>
+    </varlistentry>
 
-   The construction environment in this example
-   is still initialized with the same default
-   construction variable values,
-   except that the user has explicitly specified use of the
-   GNU C compiler &gcc;,
-   and further specifies that the <literal>-O2</literal>
-   (optimization level two)
-   flag should be used when compiling the object file.
-   In other words, the explicit initializations of
-   &cv-link-CC; and &cv-link-CCFLAGS;
-   override the default values in the newly-created
-   construction environment.
-   So a run from this example would look like:
+  </variablelist>
 
- </para>
+  <para>
 
- <scons_output example="ex1">
-    <scons_output_command>scons -Q</scons_output_command>
- </scons_output>
+  Unlike &Make;,  &SCons; does not automatically
+  copy or import values between different environments
+  (with the exception of explicit clones of &consenvs,
+  which inherit values from their parent).
+  This is a deliberate design choice
+  to make sure that builds are,
+  by default, repeatable regardless of
+  the values in the user's external environment.
+  This avoids a whole class of problems with builds
+  where a developer's local build works
+  because a custom variable setting
+  causes a different comiler or build option to be used,
+  but the checked-in change breaks the official build
+  because it uses different environment variable settings.
 
- <section>
- <title>Multiple &ConsEnvs;</title>
+  </para>
 
-   <para>
+  <para>
 
-   The real advantage of construction environments
-   is that you can create as many different construction
-   environments as you need,
-   each tailored to a different way to build
-   some piece of software or other file.
-   If, for example, we need to build
-   one program with the <literal>-O2</literal> flag
-   and another with the <literal>-g</literal> (debug) flag,
-   we would do this like so:
+  Note that the &SConscript; writer can
+  easily arrange for variables to be
+  copied or imported between environments,
+  and this is often very useful
+  (or even downright necessary)
+  to make it easy for developers
+  to customize the build in appropriate ways.
+  The point is <emphasis>not</emphasis>
+  that copying variables between different environments
+  is evil and must always be avoided.
+  Instead, it should be up to the
+  implementer of the build system
+  to make conscious choices
+  about how and when to import
+  a variable from one environment to another,
+  making informed decisions about
+  striking the right balance
+  between making the build
+  repeatable on the one hand
+  and convenient to use on the other.
 
-   </para>
+  </para>
 
-   <scons_example name="ex2">
+  <section id="sect-external-environments">
+  <title>Using Values From the External Environment</title>
+
+  <para>
+
+  The <literal>external environment</literal>
+  variable settings that
+  the user has in force
+  when executing &SCons;
+  are available through the normal Python
+  <envar>os.environ</envar>
+  dictionary.
+  This means that you must add an
+  <literal>import os</literal> statuement
+  to any &SConscript; file
+  in which you want to use
+  values from the user's external environment.
+
+  </para>
+
+   <scons_example name="ex1">
      <file name="SConstruct" printme="1">
-      opt = Environment(CCFLAGS = '-O2')
-      dbg = Environment(CCFLAGS = '-g')
-
-      opt.Program('foo', 'foo.c')
-
-      dbg.Program('bar', 'bar.c')
+     import os
      </file>
      <file name="foo.c">
-     int main() { }
-     </file>
-     <file name="bar.c">
-     int main() { }
+    int main() { }
      </file>
    </scons_example>
 
-   <scons_output example="ex2">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
+  <para>
 
-   <para>
+  More usefully, you can use the
+  <envar>os.environ</envar>
+  dictionary in your &SConscript;
+  files to initialize &consenvs;
+  with values from the user's external environment.
+  See the next section,
+  <xref linkend="sect-construction-environments"></xref>,
+  for information on how to do this.
 
-   We can even use multiple construction environments to build
-   multiple versions of a single program.
-   If you do this by simply trying to use the
-   &b-link-Program; builder with both environments, though,
-   like this:
+  </para>
 
-   </para>
+  </section>
 
-   <scons_example name="ex3">
-     <file name="SConstruct" printme="1">
-      opt = Environment(CCFLAGS = '-O2')
-      dbg = Environment(CCFLAGS = '-g')
+  <section id="sect-construction-environments">
+  <title>Construction Environments</title>
 
-      opt.Program('foo', 'foo.c')
+    <para>
 
-      dbg.Program('foo', 'foo.c')
-     </file>
-     <file name="foo.c">
-     int main() { }
-     </file>
-   </scons_example>
+      It is rare that all of the software in a large,
+      complicated system needs to be built the same way.
+      For example, different source files may need different options
+      enabled on the command line,
+      or different executable programs need to be linked
+      with different libraries.
+      &SCons; accommodates these different build
+      requirements by allowing you to create and
+      configure multiple &consenvs;
+      that control how the software is built.
+      A &consenv; is an object
+      that has a number of associated
+      &consvars;, each with a name and a value.
+      (A construction environment also has an attached
+      set of &Builder; methods,
+      about which we'll learn more later.)
 
-   <para>
+    </para>
 
-   Then &SCons; generates the following error:
+    <section>
+    <title>Creating a &ConsEnv;:  the &Environment; Function</title>
 
-   </para>
+      <para>
 
-   <scons_output example="ex3">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
+        A &consenv; is created by the &Environment; method:
 
-   <para>
+      </para>
 
-   This is because the two &b-Program; calls have
-   each implicitly told &SCons; to generate an object file named
-   <filename>foo.o</filename>,
-   one with a &cv-link-CCFLAGS; value of
-   <literal>-O2</literal>
-   and one with a &cv-link-CCFLAGS; value of
-   <literal>-g</literal>.
-   &SCons; can't just decide that one of them
-   should take precedence over the other,
-   so it generates the error.
-   To avoid this problem,
-   we must explicitly specify
-   that each environment compile
-   <filename>foo.c</filename>
-   to a separately-named object file
-   using the &b-link-Object; builder, like so:
+       <sconstruct>
+         env = Environment()
+       </sconstruct>
 
-   </para>
+      <para>
 
-   <scons_example name="ex4">
-     <file name="SConstruct" printme="1">
-      opt = Environment(CCFLAGS = '-O2')
-      dbg = Environment(CCFLAGS = '-g')
+        By default, &SCons; initializes every
+        new construction environment
+        with a set of &consvars;
+        based on the tools that it finds on your system,
+        plus the default set of builder methods
+        necessary for using those tools.
+        The construction variables
+        are initialized with values describing
+        the C compiler,
+        the Fortran compiler,
+        the linker,
+        etc.,
+        as well as the command lines to invoke them.
 
-      o = opt.Object('foo-opt', 'foo.c')
-      opt.Program(o)
+      </para>
 
-      d = dbg.Object('foo-dbg', 'foo.c')
-      dbg.Program(d)
-     </file>
-     <file name="foo.c">
-     int main() { }
-     </file>
-   </scons_example>
+      <para>
 
-   <para>
+        When you initialize a construction environment
+        you can set the values of the
+        environment's &consvars;
+        to control how a program is built.
+        For example:
 
-   Notice that each call to the &b-Object; builder
-   returns a value,
-   an internal &SCons; object that
-   represents the object file that will be built.
-   We then use that object
-   as input to the &b-Program; builder.
-   This avoids having to specify explicitly
-   the object file name in multiple places,
-   and makes for a compact, readable
-   &SConstruct; file.
-   Our &SCons; output then looks like:
+      </para>
 
-   </para>
+       <scons_example name="ex1">
+         <file name="SConstruct" printme="1">
+         env = Environment(CC = 'gcc',
+                           CCFLAGS = '-O2')
 
-   <scons_output example="ex4">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
+         env.Program('foo.c')
+         </file>
+         <file name="foo.c">
+        int main() { }
+         </file>
+       </scons_example>
 
- </section>
+      <para>
 
- <section>
- <title>Copying &ConsEnvs;</title>
+        The construction environment in this example
+        is still initialized with the same default
+        construction variable values,
+        except that the user has explicitly specified use of the
+        GNU C compiler &gcc;,
+        and further specifies that the <literal>-O2</literal>
+        (optimization level two)
+        flag should be used when compiling the object file.
+        In other words, the explicit initializations of
+        &cv-link-CC; and &cv-link-CCFLAGS;
+        override the default values in the newly-created
+        construction environment.
+        So a run from this example would look like:
 
-   <para>
+      </para>
 
-   Sometimes you want more than one construction environment
-   to share the same values for one or more variables.
-   Rather than always having to repeat all of the common
-   variables when you create each construction environment,
-   you can use the &Clone; method
-   to create a copy of a construction environment.
+      <scons_output example="ex1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
-   </para>
+    </section>
 
-   <para>
+    <section>
+    <title>Fetching Values From a &ConsEnv;</title>
 
-   Like the &Environment; call that creates a construction environment,
-   the &Clone; method takes &consvar; assignments,
-   which will override the values in the copied construction environment.
-   For example, suppose we want to use &gcc;
-   to create three versions of a program,
-   one optimized, one debug, and one with neither.
-   We could do this by creating a "base" construction environment
-   that sets &cv-link-CC; to &gcc;,
-   and then creating two copies,
-   one which sets &cv-link-CCFLAGS; for optimization
-   and the other which sets &cv-CCFLAGS; for debugging:
+      <para>
 
-   </para>
+      You can fetch individual construction variables
+      using the normal syntax
+      for accessing individual named items in a Python dictionary:
 
-   <scons_example name="ex5">
-     <file name="SConstruct" printme="1">
-      env = Environment(CC = 'gcc')
-      opt = env.Clone(CCFLAGS = '-O2')
-      dbg = env.Clone(CCFLAGS = '-g')
+      </para>
 
-      env.Program('foo', 'foo.c')
+      <scons_example name="ex6">
+        <file name="SConstruct" printme="1">
+         env = Environment()
+         print "CC is:", env['CC']
+        </file>
+      </scons_example>
 
-      o = opt.Object('foo-opt', 'foo.c')
-      opt.Program(o)
+      <para>
 
-      d = dbg.Object('foo-dbg', 'foo.c')
-      dbg.Program(d)
-     </file>
-     <file name="foo.c">
-     int main() { }
-     </file>
-   </scons_example>
+      This example &SConstruct; file doesn't build anything,
+      but because it's actually a Python script,
+      it will print the value of &cv-link-CC; for us:
 
-   <para>
+      </para>
 
-   Then our output would look like:
+      <scons_output example="ex6">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
-   </para>
+      <para>
 
-   <scons_output example="ex5">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
+      A construction environment, however,
+      is actually an object with associated methods, etc.
+      If you want to have direct access to only the
+      dictionary of construction variables,
+      you can fetch this using the &Dictionary; method:
 
- </section>
+      </para>
 
- <section>
- <title>Fetching Values From a &ConsEnv;</title>
+      <scons_example name="ex6b">
+         <file name="SConstruct" printme="1">
+         env = Environment(FOO = 'foo', BAR = 'bar')
+         dict = env.Dictionary()
+         for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
+             print "key = %s, value = %s" % (key, dict[key])
+         </file>
+      </scons_Example>
 
-   <para>
+      <para>
 
-   You can fetch individual construction variables
-   using the normal syntax
-   for accessing individual named items in a Python dictionary:
+      This &SConstruct; file
+      will print the specified dictionary items for us on POSIX
+      systems as follows:
 
-   </para>
+      </para>
 
-   <scons_example name="ex6">
-     <file name="SConstruct" printme="1">
-      env = Environment()
-      print "CC is:", env['CC']
-     </file>
-   </scons_example>
+      <scons_output example="ex6b" os="posix">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
-   <para>
+      <para>
 
-   This example &SConstruct; file doesn't build anything,
-   but because it's actually a Python script,
-   it will print the value of &cv-link-CC; for us:
+      And on Windows:
 
-   </para>
+      </para>
 
-   <scons_output example="ex6">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
+      <scons_output example="ex6b" os="win32">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
-   <para>
+      <para>
 
-   A construction environment, however,
-   is actually an object with associated methods, etc.
-   If you want to have direct access to only the
-   dictionary of construction variables,
-   you can fetch this using the &Dictionary; method:
+      If you want to loop and print the values of
+      all of the construction variables in a construction environment,
+      the Python code to do that in sorted order might look something like:
 
-   </para>
+      </para>
 
-   <scons_example name="ex6b">
+      <sconstruct>
+         env = Environment()
+         dict = env.Dictionary()
+         keys = dict.keys()
+         keys.sort()
+         for key in keys:
+             print "construction variable = '%s', value = '%s'" % (key, dict[key])
+      </sconstruct>
+
+    </section>
+
+    <section>
+    <title>Expanding Values From a &ConsEnv;:  the &subst; Method</title>
+
+      <para>
+
+      Another way to get information from
+      a construction environment.
+      is to use the &subst; method
+      on a string containing <literal>$</literal> expansions
+      of construction variable names.
+      As a simple example,
+      the example from the previous
+      section that used
+      <literal>env['CC']</literal>
+      to fetch the value of &cv-link-CC;
+      could also be written as:
+
+      </para>
+
+      <sconstruct>
+        env = Environment()
+        print "CC is:", env.subst('$CC')
+      </sconstruct>
+
+      <para>
+
+      One advantage of using
+      &subst; to expand strings is
+      that construction variables
+      in the result get re-expanded until
+      there are no expansions left in the string.
+      So a simple fetch of a value like
+      &cv-link-CCCOM;:
+
+      </para>
+
+      <sconstruct>
+        env = Environment(CCFLAGS = '-DFOO')
+        print "CCCOM is:", env['CCCOM']
+      </sconstruct>
+
+      <para>
+
+      Will print the unexpanded value of &cv-CCCOM;,
+      showing us the construction
+      variables that still need to be expanded:
+
+      </para>
+
+      <screen>
+        % <userinput>scons -Q</userinput>
+        CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+        scons: `.' is up to date.
+      </screen>
+
+      <para>
+
+      Calling the &subst; method on <varname>$CCOM</varname>,
+      however:
+
+      </para>
+
+      <sconstruct>
+        env = Environment(CCFLAGS = '-DFOO')
+        print "CCCOM is:", env.subst('$CCCOM')
+      </sconstruct>
+
+      <para>
+
+      Will recursively expand all of
+      the construction variables prefixed
+      with <literal>$</literal> (dollar signs),
+      showing us the final output:
+
+      </para>
+
+      <screen>
+        % <userinput>scons -Q</userinput>
+        CCCOM is: gcc -DFOO -c -o
+        scons: `.' is up to date.
+      </screen>
+
+      <para>
+
+      Note that because we're not expanding this
+      in the context of building something
+      there are no target or source files
+      for &cv-link-TARGET; and &cv-link-SOURCES; to expand.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Controlling the Default &ConsEnv;:  the &DefaultEnvironment; Function</title>
+
+      <para>
+
+      All of the &Builder; functions that we've introduced so far,
+      like &Program; and &Library;,
+      actually use a default &consenv;
+      that contains settings
+      for the various compilers
+      and other tools that
+      &SCons; configures by default,
+      or otherwise knows about
+      and has discovered on your system.
+      The goal of the default construction environment
+      is to make many configurations to "just work"
+      to build software using
+      readily available tools
+      with a minimum of configuration changes.
+
+      </para>
+
+      <para>
+
+      You can, however, control the settings
+      in the default contstruction environment
+      by using the &DefaultEnvironment; function
+      to initialize various settings:
+
+      </para>
+
+      <sconstruct>
+
+      DefaultEnvironment(CC = '/usr/local/bin/gcc')
+
+      </sconstruct>
+
+      <para>
+
+      When configured as above,
+      all calls to the &Program;
+      or &Object; Builder
+      will build object files with the
+      <filename>/usr/local/bin/gcc</filename>
+      compiler.
+
+      </para>
+
+      <para>
+
+      Note that the &DefaultEnvironment; function
+      returns the initialized
+      default construction environment object,
+      which can then be manipulated like any
+      other construction environment.
+      So the following
+      would be equivalent to the
+      previous example,
+      setting the &cv-CC;
+      variable to <filename>/usr/local/bin/gcc</filename>
+      but as a separate step after
+      the default construction environment has been initialized:
+
+      </para>
+
+      <sconstruct>
+
+      env = DefaultEnvironment()
+      env['CC'] = '/usr/local/bin/gcc'
+
+      </sconstruct>
+
+      <para>
+
+      One very common use of the &DefaultEnvironment; function
+      is to speed up &SCons; initialization.
+      As part of trying to make most default
+      configurations "just work,"
+      &SCons; will actually
+      search the local system for installed
+      compilers and other utilities.
+      This search can take time,
+      especially on systems with
+      slow or networked file systems.
+      If you know which compiler(s) and/or
+      other utilities you want to configure,
+      you can control the search
+      that &SCons; performs
+      by specifying some specific
+      tool modules with which to
+      initialize the default construction environment:
+
+      </para>
+
+      <sconstruct>
+
+      env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
+                               CC = '/usr/local/bin/gcc')
+
+      </sconstruct>
+
+      <para>
+
+      So the above example would tell &SCons;
+      to explicitly configure the default environment
+      to use its normal GNU Compiler and GNU Linker settings
+      (without having to search for them,
+      or any other utilities for that matter),
+      and specifically to use the compiler found at
+      <filename>/usr/local/bin/gcc</filename>.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Multiple &ConsEnvs;</title>
+
+      <para>
+
+      The real advantage of construction environments
+      is that you can create as many different construction
+      environments as you need,
+      each tailored to a different way to build
+      some piece of software or other file.
+      If, for example, we need to build
+      one program with the <literal>-O2</literal> flag
+      and another with the <literal>-g</literal> (debug) flag,
+      we would do this like so:
+
+      </para>
+
+      <scons_example name="ex2">
+        <file name="SConstruct" printme="1">
+         opt = Environment(CCFLAGS = '-O2')
+         dbg = Environment(CCFLAGS = '-g')
+
+         opt.Program('foo', 'foo.c')
+
+         dbg.Program('bar', 'bar.c')
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+        <file name="bar.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <scons_output example="ex2">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      We can even use multiple construction environments to build
+      multiple versions of a single program.
+      If you do this by simply trying to use the
+      &b-link-Program; builder with both environments, though,
+      like this:
+
+      </para>
+
+      <scons_example name="ex3">
+        <file name="SConstruct" printme="1">
+         opt = Environment(CCFLAGS = '-O2')
+         dbg = Environment(CCFLAGS = '-g')
+
+         opt.Program('foo', 'foo.c')
+
+         dbg.Program('foo', 'foo.c')
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      Then &SCons; generates the following error:
+
+      </para>
+
+      <scons_output example="ex3">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      This is because the two &b-Program; calls have
+      each implicitly told &SCons; to generate an object file named
+      <filename>foo.o</filename>,
+      one with a &cv-link-CCFLAGS; value of
+      <literal>-O2</literal>
+      and one with a &cv-link-CCFLAGS; value of
+      <literal>-g</literal>.
+      &SCons; can't just decide that one of them
+      should take precedence over the other,
+      so it generates the error.
+      To avoid this problem,
+      we must explicitly specify
+      that each environment compile
+      <filename>foo.c</filename>
+      to a separately-named object file
+      using the &b-link-Object; builder, like so:
+
+      </para>
+
+      <scons_example name="ex4">
+        <file name="SConstruct" printme="1">
+         opt = Environment(CCFLAGS = '-O2')
+         dbg = Environment(CCFLAGS = '-g')
+
+         o = opt.Object('foo-opt', 'foo.c')
+         opt.Program(o)
+
+         d = dbg.Object('foo-dbg', 'foo.c')
+         dbg.Program(d)
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      Notice that each call to the &b-Object; builder
+      returns a value,
+      an internal &SCons; object that
+      represents the object file that will be built.
+      We then use that object
+      as input to the &b-Program; builder.
+      This avoids having to specify explicitly
+      the object file name in multiple places,
+      and makes for a compact, readable
+      &SConstruct; file.
+      Our &SCons; output then looks like:
+
+      </para>
+
+      <scons_output example="ex4">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+    </section>
+
+    <section>
+    <title>Making Copies of &ConsEnvs;:  the &Clone; Method</title>
+
+      <para>
+
+      Sometimes you want more than one construction environment
+      to share the same values for one or more variables.
+      Rather than always having to repeat all of the common
+      variables when you create each construction environment,
+      you can use the &Clone; method
+      to create a copy of a construction environment.
+
+      </para>
+
+      <para>
+
+      Like the &Environment; call that creates a construction environment,
+      the &Clone; method takes &consvar; assignments,
+      which will override the values in the copied construction environment.
+      For example, suppose we want to use &gcc;
+      to create three versions of a program,
+      one optimized, one debug, and one with neither.
+      We could do this by creating a "base" construction environment
+      that sets &cv-link-CC; to &gcc;,
+      and then creating two copies,
+      one which sets &cv-link-CCFLAGS; for optimization
+      and the other which sets &cv-CCFLAGS; for debugging:
+
+      </para>
+
+      <scons_example name="ex5">
+        <file name="SConstruct" printme="1">
+         env = Environment(CC = 'gcc')
+         opt = env.Clone(CCFLAGS = '-O2')
+         dbg = env.Clone(CCFLAGS = '-g')
+
+         env.Program('foo', 'foo.c')
+
+         o = opt.Object('foo-opt', 'foo.c')
+         opt.Program(o)
+
+         d = dbg.Object('foo-dbg', 'foo.c')
+         dbg.Program(d)
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      Then our output would look like:
+
+      </para>
+
+      <scons_output example="ex5">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+    </section>
+
+    <section>
+    <title>Replacing Values:  the &Replace; Method</title>
+
+      <para>
+
+      You can replace existing construction variable values
+      using the &Replace; method:
+
+      </para>
+
+      <scons_example name="Replace1">
+        <file name="SConstruct" printme="1">
+         env = Environment(CCFLAGS = '-DDEFINE1')
+         env.Replace(CCFLAGS = '-DDEFINE2')
+         env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      The replacing value
+      (<literal>-DDEFINE2</literal> in the above example)
+      completely replaces the value in the
+      construction environment:
+
+      </para>
+
+      <scons_output example="Replace1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      You can safely call &Replace;
+      for construction variables that
+      don't exist in the construction environment:
+
+      </para>
+
+      <scons_example name="Replace-nonexistent">
+        <file name="SConstruct" printme="1">
+         env = Environment()
+         env.Replace(NEW_VARIABLE = 'xyzzy')
+         print "NEW_VARIABLE =", env['NEW_VARIABLE']
+        </file>
+      </scons_example>
+
+      <para>
+
+      In this case,
+      the construction variable simply
+      gets added to the construction environment:
+
+      </para>
+
+      <scons_output example="Replace-nonexistent">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      Because the variables
+      aren't expanded until the construction environment
+      is actually used to build the targets,
+      and because &SCons; function and method calls
+      are order-independent,
+      the last replacement "wins"
+      and is used to build all targets,
+      regardless of the order in which
+      the calls to Replace() are
+      interspersed with calls to
+      builder methods:
+
+      </para>
+
+      <scons_example name="Replace2">
+        <file name="SConstruct" printme="1">
+         env = Environment(CCFLAGS = '-DDEFINE1')
+         print "CCFLAGS =", env['CCFLAGS']
+         env.Program('foo.c')
+
+         env.Replace(CCFLAGS = '-DDEFINE2')
+         print "CCFLAGS =", env['CCFLAGS']
+         env.Program('bar.c')
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+        <file name="bar.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      The timing of when the replacement
+      actually occurs relative
+      to when the targets get built
+      becomes apparent
+      if we run &scons; without the <literal>-Q</literal>
+      option:
+
+      </para>
+
+      <scons_output example="Replace2">
+         <scons_output_command>scons</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      Because the replacement occurs while
+      the &SConscript; files are being read,
+      the &cv-link-CCFLAGS;
+      variable has already been set to
+      <literal>-DDEFINE2</literal>
+      by the time the &foo_o; target is built,
+      even though the call to the &Replace;
+      method does not occur until later in
+      the &SConscript; file.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Setting Values Only If They're Not Already Defined:  the &SetDefault; Method</title>
+
+      <para>
+
+      Sometimes it's useful to be able to specify
+      that a construction variable should be
+      set to a value only if the construction environment
+      does not already have that variable defined
+      You can do this with the &SetDefault; method,
+      which behaves similarly to the <function>set_default</function>
+      method of Python dictionary objects:
+
+      </para>
+
+      <sconstruct>
+      env.SetDefault(SPECIAL_FLAG = '-extra-option')
+      </sconstruct>
+
+      <para>
+
+      This is especially useful
+      when writing your own <literal>Tool</literal> modules
+      to apply variables to construction environments.
+      <!--
+      See <xref linkend="chap-tool-modules"></xref>
+      for more information about writing
+      Tool modules.
+      -->
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Appending to the End of Values:  the &Append; Method</title>
+
+      <para>
+
+      You can append a value to
+      an existing construction variable
+      using the &Append; method:
+
+      </para>
+
+      <scons_example name="ex8">
+        <file name="SConstruct" printme="1">
+         env = Environment(CCFLAGS = ['-DMY_VALUE'])
+         env.Append(CCFLAGS = ['-DLAST'])
+         env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      &SCons; then supplies both the <literal>-DMY_VALUE</literal> and
+      <literal>-DLAST</literal> flags when compiling the object file:
+
+      </para>
+
+      <scons_output example="ex8">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      If the construction variable doesn't already exist,
+      the &Append; method will create it:
+
+      </para>
+
+      <scons_example name="Append-nonexistent">
+        <file name="SConstruct" printme="1">
+         env = Environment()
+         env.Append(NEW_VARIABLE = 'added')
+         print "NEW_VARIABLE =", env['NEW_VARIABLE']
+        </file>
+      </scons_example>
+
+      <para>
+
+      Which yields:
+
+      </para>
+
+      <scons_output example="Append-nonexistent">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      Note that the &Append; function tries to be "smart"
+      about how the new value is appended to the old value.
+      If both are strings, the previous and new strings
+      are simply concatenated.
+      Similarly, if both are lists,
+      the lists are concatenated.
+      If, however, one is a string and the other is a list,
+      the string is added as a new element to the list.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Appending Unique Values:  the &AppendUnique; Method</title>
+
+      <para>
+
+      Some times it's useful to add a new value
+      only if the existing construction variable
+      doesn't already contain the value.
+      This can be done using the &AppendUnique; method:
+
+      </para>
+
+      <sconstruct>
+      env.AppendUnique(CCFLAGS=['-g'])
+      </sconstruct>
+
+      <para>
+
+      In the above example,
+      the <literal>-g</literal> would be added
+      only if the &cv-CCFLAGS; variable
+      does not already contain a <literal>-g</literal> value.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Appending to the Beginning of Values:  the &Prepend; Method</title>
+
+      <para>
+
+      You can append a value to the beginning of
+      an existing construction variable
+      using the &Prepend; method:
+
+      </para>
+
+      <scons_example name="ex9">
+        <file name="SConstruct" printme="1">
+         env = Environment(CCFLAGS = ['-DMY_VALUE'])
+         env.Prepend(CCFLAGS = ['-DFIRST'])
+         env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      &SCons; then supplies both the <literal>-DFIRST</literal> and
+      <literal>-DMY_VALUE</literal> flags when compiling the object file:
+
+      </para>
+
+      <scons_output example="ex9">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      If the construction variable doesn't already exist,
+      the &Prepend; method will create it:
+
+      </para>
+
+      <scons_example name="Prepend-nonexistent">
+        <file name="SConstruct" printme="1">
+         env = Environment()
+         env.Prepend(NEW_VARIABLE = 'added')
+         print "NEW_VARIABLE =", env['NEW_VARIABLE']
+        </file>
+      </scons_example>
+
+      <para>
+
+      Which yields:
+
+      </para>
+
+      <scons_output example="Prepend-nonexistent">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      Like the &Append; function,
+      the &Prepend; function tries to be "smart"
+      about how the new value is appended to the old value.
+      If both are strings, the previous and new strings
+      are simply concatenated.
+      Similarly, if both are lists,
+      the lists are concatenated.
+      If, however, one is a string and the other is a list,
+      the string is added as a new element to the list.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Prepending Unique Values:  the &PrependUnique; Method</title>
+
+      <para>
+
+      Some times it's useful to add a new value
+      to the beginning of a construction variable
+      only if the existing value
+      doesn't already contain the to-be-added value.
+      This can be done using the &PrependUnique; method:
+
+      </para>
+
+      <sconstruct>
+      env.PrependUnique(CCFLAGS=['-g'])
+      </sconstruct>
+
+      <para>
+
+      In the above example,
+      the <literal>-g</literal> would be added
+      only if the &cv-CCFLAGS; variable
+      does not already contain a <literal>-g</literal> value.
+
+      </para>
+
+    </section>
+
+  </section>
+
+  <section id="sect-execution-environments">
+  <title>Controlling the Execution Environment for Issued Commands</title>
+
+    <para>
+
+      When &SCons; builds a target file,
+      it does not execute the commands with
+      the same external environment
+      that you used to execute &SCons;.
+      Instead, it uses the dictionary
+      stored in the &cv-link-ENV; construction variable
+      as the external environment
+      for executing commands.
+
+    </para>
+
+    <para>
+
+      The most important ramification of this behavior
+      is that the &PATH; environment variable,
+      which controls where the operating system
+      will look for commands and utilities,
+      is not the same as in the external environment
+      from which you called &SCons;.
+      This means that &SCons; will not, by default,
+      necessarily find all of the tools
+      that you can execute from the command line.
+
+    </para>
+
+    <para>
+
+      The default value of the &PATH; environment variable
+      on a POSIX system
+      is <literal>/usr/local/bin:/bin:/usr/bin</literal>.
+      The default value of the &PATH; environment variable
+      on a Windows system comes from the Windows registry
+      value for the command interpreter.
+      If you want to execute any commands--compilers, linkers, etc.--that
+      are not in these default locations,
+      you need to set the &PATH; value
+      in the &cv-ENV; dictionary
+      in your construction environment.
+
+    </para>
+
+    <para>
+
+      The simplest way to do this is to initialize explicitly
+      the value when you create the construction environment;
+      this is one way to do that:
+
+    </para>
+
+    <sconstruct>
+      path = ['/usr/local/bin', '/bin', '/usr/bin']
+      env = Environment(ENV = {'PATH' : path})
+    </sconstruct>
+
+    <para>
+
+    Assign a dictionary to the &cv-ENV;
+    construction variable in this way
+    completely resets the external environment
+    so that the only variable that will be
+    set when external commands are executed
+    will be the &PATH; value.
+    If you want to use the rest of
+    the values in &cv-ENV; and only
+    set the value of &PATH;,
+    the most straightforward way is probably:
+
+    </para>
+
+    <sconstruct>
+      env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
+    </sconstruct>
+
+    <para>
+
+    Note that &SCons; does allow you to define
+    the directories in the &PATH; in a string,
+    separated by the pathname-separator character
+    for your system (':' on POSIX systems, ';' on Windows):
+
+    </para>
+
+    <sconstruct>
+      env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
+    </sconstruct>
+
+    <para>
+
+    But doing so makes your &SConscript; file less portable,
+    (although in this case that may not be a huge concern
+    since the directories you list are likley system-specific, anyway).
+
+    </para>
+
+    <!--
+
+    <scons_example name="ex1">
       <file name="SConstruct" printme="1">
-      env = Environment(FOO = 'foo', BAR = 'bar')
-      dict = env.Dictionary()
-      for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
-          print "key = %s, value = %s" % (key, dict[key])
-      </file>
-   </scons_Example>
-
-   <para>
-
-   This &SConstruct; file
-   will print the specified dictionary items for us on POSIX
-   systems as follows:
-
-   </para>
-
-   <scons_output example="ex6b" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
-
-   <para>
-
-   And on Windows:
-
-   </para>
-
-   <scons_output example="ex6b" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
-   </scons_output>
-
-   <para>
-
-   If you want to loop through and print the values of
-   all of the construction variables in a construction environment,
-   the Python code to do that in sorted order might look something like:
-
-   </para>
-
-   <sconstruct>
       env = Environment()
-      dict = env.Dictionary()
-      keys = dict.keys()
-      keys.sort()
+      env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
+      </file>
+      <file name="__ROOT__/usr/bin/printenv.py" chmod="0755">
+      #!/usr/bin/env python
+      import os
+      import sys
+      if len(sys.argv) > 1:
+          keys = sys.argv[1:]
+      else:
+          keys = os.environ.keys()
+          keys.sort()
       for key in keys:
-          print "construction variable = '%s', value = '%s'" % (key, dict[key])
-   </sconstruct>
+          print "    " + key + "=" + os.environ[key]
+      </file>
+    </scons_example>
+
+    <para>
+
+    </para>
+
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <section>
+    <title>Propagating &PATH; From the External Environment</title>
+
+      <para>
+
+      You may want to propagate the external &PATH;
+      to the execution environment for commands.
+      You do this by initializing the &PATH;
+      variable with the &PATH; value from
+      the <literal>os.environ</literal>
+      dictionary,
+      which is Python's way of letting you
+      get at the external environment:
+
+      </para>
+
+      <sconstruct>
+        import os
+        env = Environment(ENV = {'PATH' : os.environ['PATH']})
+      </sconstruct>
+
+      <para>
+
+      Alternatively, you may find it easier
+      to just propagate the entire external
+      environment to the execution environment
+      for commands.
+      This is simpler to code than explicity
+      selecting the &PATH; value:
+
+      </para>
+
+      <sconstruct>
+        import os
+        env = Environment(ENV = os.environ)
+      </sconstruct>
+
+      <para>
+
+      Either of these will guarantee that
+      &SCons; will be able to execute
+      any command that you can execute from the command line.
+      The drawback is that the build can behave
+      differently if it's run by people with
+      different &PATH; values in their environment--for example,
+      if both the <literal>/bin</literal> and
+      <literal>/usr/local/bin</literal> directories
+      have different &cc; commands,
+      then which one will be used to compile programs
+      will depend on which directory is listed
+      first in the user's &PATH; variable.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Adding to <varname>PATH</varname> Values in the Execution Environment</title>
+
+      <para>
+
+      One of the most common requirements
+      for manipulating a variable in the execution environment
+      is to add one or more custom directories to a search
+      like the <envar>$PATH</envar> variable on Linux or POSIX systems,
+      or the <envar>%PATH%</envar> variable on Windows,
+      so that a locally-installed compiler or other utility
+      can be found when &SCons; tries to execute it to update a target.
+      &SCons; provides &PrependENVPath; and &AppendENVPath; functions
+      to make adding things to execution variables convenient.
+      You call these functions by specifying the variable
+      to which you want the value added,
+      and then value itself.
+      So to add some <filename>/usr/local</filename> directories
+      to the <envar>$PATH</envar> and <envar>$LIB</envar> variables,
+      you might:
+
+      </para>
+
+      <sconstruct>
+        env = Environment(ENV = os.environ)
+        env.PrependENVPath('PATH', '/usr/local/bin')
+        env.AppendENVPath('LIB', '/usr/local/lib')
+      </sconstruct>
+
+      <para>
+
+      Note that the added values are strings,
+      and if you want to add multiple directories to
+      a variable like <envar>$PATH</envar>,
+      you must include the path separate character
+      (<literal>:</literal> on Linux or POSIX,
+      <literal>;</literal> on Windows)
+      in the string.
 
- </section>
+      </para>
 
- <section>
- <title>Expanding Values From a &ConsEnv;</title>
+    </section>
 
-   <para>
-
-   Another way to get information from
-   a construction environment.
-   is to use the &subst; method
-   on a string containing $-expansions
-   of construction variable names.
-   As a simple example,
-   the example from the previous
-   section that used
-   <literal>env['CC']</literal>
-   to fetch the value of &cv-link-CC;
-   could also be written as:
-
-   </para>
-
-   <sconstruct>
-     env = Environment()
-     print "CC is:", env.subst('$CC')
-   </sconstruct>
-
-   <para>
-
-   The real advantage of using
-   &subst; to expand strings is
-   that construction variables
-   in the result get
-   re-expanded until
-   there are no expansions left in the string.
-   So a simple fetch of a value like
-   &cv-link-CCCOM;:
-
-   </para>
-
-   <sconstruct>
-     env = Environment(CCFLAGS = '-DFOO')
-     print "CCCOM is:", env['CCCOM']
-   </sconstruct>
-
-   <para>
-
-   Will print the unexpanded value of &cv-CCCOM;,
-   showing us the construction
-   variables that still need to be expanded:
-
-   </para>
-
-   <screen>
-     % <userinput>scons -Q</userinput>
-     CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
-     scons: `.' is up to date.
-   </screen>
-
-   <para>
-
-   Calling the &subst; method on <varname>$CCOM</varname>,
-   however:
-
-   </para>
-
-   <sconstruct>
-     env = Environment(CCFLAGS = '-DFOO')
-     print "CCCOM is:", env.subst('$CCCOM')
-   </sconstruct>
-
-   <para>
-
-   Will recursively expand all of
-   the $-prefixed construction variables,
-   showing us the final output:
-
-   </para>
-
-   <screen>
-     % <userinput>scons -Q</userinput>
-     CCCOM is: gcc -DFOO -c -o
-     scons: `.' is up to date.
-   </screen>
-
-   <para>
-
-   (Note that because we're not expanding this
-   in the context of building something
-   there are no target or source files
-   for &cv-link-TARGET; and &cv-link-SOURCES; to expand.)
-
-   </para>
-
- </section>
-
- <section>
- <title>Modifying a &ConsEnv;</title>
-
-   <para>
-
-   &SCons; provides various methods that
-   support modifying existing values in a construction environment.
-
-   </para>
-
-   <section>
-   <title>Replacing Values in a &ConsEnv;</title>
-
-     <para>
-
-     You can replace existing construction variable values
-     using the &Replace; method:
-
-     </para>
-
-     <scons_example name="Replace1">
-       <file name="SConstruct" printme="1">
-        env = Environment(CCFLAGS = '-DDEFINE1')
-        env.Replace(CCFLAGS = '-DDEFINE2')
-        env.Program('foo.c')
-       </file>
-       <file name="foo.c">
-       int main() { }
-       </file>
-     </scons_example>
-
-     <para>
-
-     The replacing value
-     (<literal>-DDEFINE2</literal> in the above example)
-     completely replaces the value in the
-     construction environment:
-
-     </para>
-
-     <scons_output example="Replace1">
-        <scons_output_command>scons -Q</scons_output_command>
-     </scons_output>
-
-     <para>
-
-     You can safely call &Replace;
-     for construction variables that
-     don't exist in the construction environment:
-
-     </para>
-
-     <scons_example name="Replace-nonexistent">
-       <file name="SConstruct" printme="1">
-        env = Environment()
-        env.Replace(NEW_VARIABLE = 'xyzzy')
-        print "NEW_VARIABLE =", env['NEW_VARIABLE']
-       </file>
-     </scons_example>
-
-     <para>
-
-     In this case,
-     the construction variable simply
-     gets added to the construction environment:
-
-     </para>
-
-     <scons_output example="Replace-nonexistent">
-        <scons_output_command>scons -Q</scons_output_command>
-     </scons_output>
-
-     <para>
-
-     Because the variables
-     aren't expanded until the construction environment
-     is actually used to build the targets,
-     and because &SCons; function and method calls
-     are order-independent,
-     the last replacement "wins"
-     and is used to build all targets,
-     regardless of the order in which
-     the calls to Replace() are
-     interspersed with calls to
-     builder methods:
-
-     </para>
-
-     <scons_example name="Replace2">
-       <file name="SConstruct" printme="1">
-        env = Environment(CCFLAGS = '-DDEFINE1')
-        print "CCFLAGS =", env['CCFLAGS']
-        env.Program('foo.c')
-
-        env.Replace(CCFLAGS = '-DDEFINE2')
-        print "CCFLAGS =", env['CCFLAGS']
-        env.Program('bar.c')
-       </file>
-       <file name="foo.c">
-       int main() { }
-       </file>
-       <file name="bar.c">
-       int main() { }
-       </file>
-     </scons_example>
-
-     <para>
-
-     The timing of when the replacement
-     actually occurs relative
-     to when the targets get built
-     becomes apparent
-     if we run &scons; without the <literal>-Q</literal>
-     option:
-
-     </para>
-
-     <scons_output example="Replace2">
-        <scons_output_command>scons</scons_output_command>
-     </scons_output>
-
-     <para>
-
-     Because the replacement occurs while
-     the &SConscript; files are being read,
-     the &cv-link-CCFLAGS;
-     variable has already been set to
-     <literal>-DDEFINE2</literal>
-     by the time the &foo_o; target is built,
-     even though the call to the &Replace;
-     method does not occur until later in
-     the &SConscript; file.
-
-     </para>
-
-   </section>
-
-   <!--
-
-   <section>
-   <title>Setting Values Only If They're Not Already Defined</title>
-
-     <para>
-
-     XXX SetDefault()
-
-     </para>
-
-   </section>
-
-   -->
-
-   <section>
-   <title>Appending to the End of Values in a &ConsEnv;</title>
-
-     <para>
-
-     You can append a value to
-     an existing construction variable
-     using the &Append; method:
-
-     </para>
-
-     <scons_example name="ex8">
-       <file name="SConstruct" printme="1">
-        env = Environment(CCFLAGS = '-DMY_VALUE')
-        env.Append(CCFLAGS = ' -DLAST')
-        env.Program('foo.c')
-       </file>
-       <file name="foo.c">
-       int main() { }
-       </file>
-     </scons_example>
-
-     <para>
-
-     &SCons; then supplies both the <literal>-DMY_VALUE</literal> and
-     <literal>-DLAST</literal> flags when compiling the object file:
-
-     </para>
-
-     <scons_output example="ex8">
-        <scons_output_command>scons -Q</scons_output_command>
-     </scons_output>
-
-     <para>
-
-     If the construction variable doesn't already exist,
-     the &Append; method will create it:
-
-     </para>
-
-     <scons_example name="Append-nonexistent">
-       <file name="SConstruct" printme="1">
-        env = Environment()
-        env.Append(NEW_VARIABLE = 'added')
-        print "NEW_VARIABLE =", env['NEW_VARIABLE']
-       </file>
-     </scons_example>
-
-     <para>
-
-     Which yields:
-
-     </para>
-
-     <scons_output example="Append-nonexistent">
-        <scons_output_command>scons -Q</scons_output_command>
-     </scons_output>
-
-     <!--
-
-     XXX AppendUnique()
-
-     -->
-
-   </section>
-
-   <section>
-   <title>Appending to the Beginning of Values in a &ConsEnv;</title>
-
-     <para>
-
-     You can append a value to the beginning of
-     an existing construction variable
-     using the &Prepend; method:
-
-     </para>
-
-     <scons_example name="ex9">
-       <file name="SConstruct" printme="1">
-        env = Environment(CCFLAGS = '-DMY_VALUE')
-        env.Prepend(CCFLAGS = '-DFIRST ')
-        env.Program('foo.c')
-       </file>
-       <file name="foo.c">
-       int main() { }
-       </file>
-     </scons_example>
-
-     <para>
-
-     &SCons; then supplies both the <literal>-DFIRST</literal> and
-     <literal>-DMY_VALUE</literal> flags when compiling the object file:
-
-     </para>
-
-     <scons_output example="ex9">
-        <scons_output_command>scons -Q</scons_output_command>
-     </scons_output>
-
-     <para>
-
-     If the construction variable doesn't already exist,
-     the &Prepend; method will create it:
-
-     </para>
-
-     <scons_example name="Prepend-nonexistent">
-       <file name="SConstruct" printme="1">
-        env = Environment()
-        env.Prepend(NEW_VARIABLE = 'added')
-        print "NEW_VARIABLE =", env['NEW_VARIABLE']
-       </file>
-     </scons_example>
-
-     <para>
-
-     Which yields:
-
-     </para>
-
-     <scons_output example="Prepend-nonexistent">
-        <scons_output_command>scons -Q</scons_output_command>
-     </scons_output>
-
-     <!--
-
-     XXX PrependUnique()
-
-     -->
-
-   </section>
-
-   <!--
-
-   <section>
-   <title>Adding to Values in the Execution Environment</title>
-
-     <para>
-
-     XXX AppendENVPath()
-
-     XXX PrependENVPath()
-
-     </para>
-
-   </section>
-
-   -->
-
- </section>
+  </section>

@@ -33,14 +33,14 @@ import os
 import os.path
 import sys
 
-import TestCmd
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+# Make the test infrastructure think we have this version of MSVS installed.
+test._msvs_versions = ['8.0']
+
+
 
 expected_slnfile = """\
 Microsoft Visual Studio Solution File, Format Version 9.00
@@ -153,7 +153,7 @@ expected_vcprojfile = """\
 
 
 SConscript_contents = """\
-env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -240,16 +240,17 @@ test.run(chdir='work2', arguments=".")
 
 vcproj = test.read(['work2', 'src', 'Test.vcproj'], 'r')
 expect = test.msvs_substitute(expected_vcprojfile,
-                              '7.0',
+                              '8.0',
                               'work2',
                               'SConstruct',
-                              project_guid="{25F6CE89-8E22-2910-8B6E-FFE6DC1E2792}")
+                              project_guid="{FC63FE9E-71B3-06CC-11AF-2077D8108DFE}",
+                              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_exist(test.workpath('work2', 'src', 'Test.sln'))
 sln = test.read(['work2', 'src', 'Test.sln'], 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0',
+expect = test.msvs_substitute(expected_slnfile, '8.0',
                               os.path.join('work2', 'src'))
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
@@ -273,7 +274,7 @@ The real workspace file is here:
 test.subdir('work3')
 
 test.write(['work3', 'SConstruct'], """\
-env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -301,7 +302,8 @@ test.run(chdir='work3', arguments=".")
 
 test.must_exist(test.workpath('work3', 'Test.vcproj'))
 vcproj = test.read(['work3', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work3', 'SConstruct')
+expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work3', 'SConstruct',
+                              python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
