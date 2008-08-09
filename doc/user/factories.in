@@ -44,8 +44,17 @@
     <para>
 
     Suppose you want to arrange to make a copy of a file,
-    and the &Install; builder isn't appropriate
-    because it may make a hard link on POSIX systems.
+    and don't have a suitable pre-existing builder.
+    <footnote>
+    <para>
+    Unfortunately, in the early days of SCons design,
+    we used the name &Copy; for the function that
+    returns a copy of the environment,
+    otherwise that would be the logical choice for
+    a Builder that copies a file or directory tree
+    to a target location.
+    </para>
+    </footnote>
     One way would be to use the &Copy; action factory
     in conjunction with the &Command; builder:
 
@@ -229,10 +238,20 @@
 
     <para>
 
-    (Note, however, that you typically don't need to
+    Note, however, that you typically don't need to
     call the &Delete; factory explicitly in this way;
     by default, &SCons; deletes its target(s)
     for you before executing any action.
+
+    </para>
+
+    <para>
+
+    One word of caution about using the &Delete; factory:
+    it has the same variable expansions available
+    as any other factory, including the &cv-SOURCE; variable.
+    Specifying <literal>Delete("$SOURCE")</literal>
+    is not something you usually want to do!
 
     </para>
 

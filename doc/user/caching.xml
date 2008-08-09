@@ -98,6 +98,20 @@
       Retrieved `hello' from cache
     </screen>
 
+    <para>
+
+    Note that the &CacheDir; feature still calculates
+    MD5 build sigantures for the shared cache file names
+    even if you configure &SCons; to use timestamps
+    to decide if files are up to date.
+    (See the <xref linkend="chap-depends"></xref>
+    chapter for information about the &Decider; function.)
+    Consequently, using &CacheDir; may reduce or eliminate any
+    potential performance improvements
+    from using timestamps for up-to-date decisions.
+
+    </para>
+
   </section>
 
   <section>

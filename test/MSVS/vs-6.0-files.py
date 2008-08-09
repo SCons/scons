@@ -32,14 +32,12 @@ Test that we can generate Visual Studio 6 project (.dsp) and solution
 import os
 import sys
 
-import TestCmd
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+# Make the test infrastructure think we have this version of MSVS installed.
+test._msvs_versions = ['6.0']
 
 
 
@@ -184,7 +182,7 @@ Package=<3>
 
 
 SConscript_contents = """\
-env=Environment(tools=['msvs'], MSVS_VERSION = '6.0')
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='6.0')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']
@@ -278,7 +276,7 @@ The real workspace file is here:
 test.subdir('work3')
 
 test.write(['work3', 'SConstruct'], """\
-env=Environment(tools=['msvs'], MSVS_VERSION = '6.0')
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='6.0')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']

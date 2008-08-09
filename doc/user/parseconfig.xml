@@ -25,47 +25,90 @@
 
  <para>
 
- Configuring the right options to build programs to work with the
- libraries--especially shared libraries--installed on a POSIX system
- can be very complicated.
- Various utilies with names that end in <filename>config</filename>
- can return command-line options for the
- GNU Compiler Collection
+ Configuring the right options to build programs to work with
+ libraries--especially shared libraries--that are available
+ on POSIX systems can be very complicated.
+ To help this situation,
+ various utilies with names that end in <filename>config</filename>
+ return the command-line options for the GNU Compiler Collection (GCC)
+ that are needed to use these libraries;
+ for example, the command-line options
+ to use a library named <filename>lib</filename>
+ would be found by calling a utility named <filename>lib-config</filename>.
+
+ </para>
+
+ <para>
+
+ A more recent convention is that these options
+ are available from the generic <filename>pkg-config</filename> program,
+ which has common framework, error handling, and the like,
+ so that all the package creator has to do is provide the set of strings
+ for his particular package.
 
  </para>
 
  <para>
 
  &SCons; construction environments have a &ParseConfig; method
- that executes a utility and configures
- the appropriate construction variables
+ that executes a <filename>*config</filename> utility
+ (either <filename>pkg-config</filename> or a
+ more specific utility)
+ and configures the appropriate construction variables
  in the environment
  based on the command-line options
  returned by the specified command.
 
  </para>
 
- </para>
-
  <programlisting>
     env = Environment()
-    env.ParseConfig("pkg-config x11")
+    env['CPPPATH'] = ['/lib/compat']
+    env.ParseConfig("pkg-config x11 --cflags --libs")
+    print env['CPPPATH']
  </programlisting>
 
  <para>
 
- &SCons; will execute the specified command string
- and XXX
+ &SCons; will execute the specified command string,
+ parse the resultant flags,
+ and add the flags to the appropriate environment variables.
 
  </para>
 
  <screen>
     % <userinput>scons -Q</userinput>
+    ['/lib/compat', '/usr/X11/include']
     scons: `.' is up to date.
  </screen>
 
  <para>
 
- XXX
+ In the example above, &SCons; has added the include directory to
+ <varname>CPPPATH</varname>.
+ (Depending upon what other flags are emitted by the
+ <filename>pkg-config</filename> command,
+ other variables may have been extended as well.)
 
  </para>
+
+ <para>
+
+ Note that the options are merged with existing options using
+ the &MergeFlags; method,
+ so that each option only occurs once in the construction variable:
+
+ </para>
+
+ <programlisting>
+    env = Environment()
+    env.ParseConfig("pkg-config x11 --cflags --libs")
+    env.ParseConfig("pkg-config x11 --cflags --libs")
+    print env['CPPPATH']
+ </programlisting>
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    ['/usr/X11/include']
+    scons: `.' is up to date.
+ </screen>

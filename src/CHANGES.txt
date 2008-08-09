@@ -8,6 +8,73 @@
 
 
 
+RELEASE XXX - XXX
+
+From Luca Falavigna:
+
+  - Fix SCons man page indentation under Debian's man page macros.
+
+From Steven Knight:
+
+  - Clarify the man page description of the SConscript(src_dir) argument.
+
+  - User's Guide updates:
+
+     -  Document the BUILD_TARGETS, COMMAND_LINE_TARGETS and
+        DEFAULT_TARGETS variables.
+
+     -  Document the AddOption(), GetOption() and SetOption() functions.
+
+     -  Document the Requires() function; convert to the Variables
+        object, its UnknownOptions() method, and its associated
+        BoolVariable(), EnumVariable(), ListVariable(), PackageVariable()
+        and PathVariable() functions.
+        
+     -  Document the Progress() function.
+
+     -  Reorganize the chapter and sections describing the different
+        types of environments and how they interact.  Document the
+        SetDefault() method.  Document the PrependENVPath() and
+        AppendENVPath() functions.
+
+     -  Reorganize the command-line arguments chapter.  Document the
+        ARGLIST variable.
+
+     -  Collect some miscellaneous sections into a chapter about
+        configuring build output.
+
+  - Man page updates:
+
+     -  Document suggested use of the Visual C/C++ /FC option to fix
+        the ability to double-click on file names in compilation error
+        messages.
+
+     -  Document the need to use Clean() for any SideEffect() files that
+        must be explicitly removed when their targets are removed.
+
+     -  Explicitly document use of Node lists as input to Dependency().
+
+From Greg Noel:
+
+  - Document MergeFlags(), ParseConfig(), ParseFlags() and SideEffect()
+    in the User's Guide.
+
+From Gary Oberbrunner:
+
+  - Document use of the GetBuildFailures() function in the User's Guide.
+
+From Adam Simpkins:
+
+  - Add man page text clarifying the behavior of AddPreAction() and
+    AddPostAction() when called with multiple targets.
+
+From Alexey Zezukin:
+
+  - Fix incorrectly swapped man page descriptions of the --warn= options
+    for duplicate-environment and missing-sconscript.
+
+
+
 RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
 
   From Benoit Belley:

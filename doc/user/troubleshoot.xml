@@ -405,7 +405,7 @@
         'PROGSUFFIX': '.exe',
         'PSPAWN': &lt;function piped_spawn at 0x700000&gt;,
         'RC': 'rc',
-        'RCCOM': '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES',
+        'RCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
         'RCFLAGS': [],
         'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
         'SCANNERS': [],

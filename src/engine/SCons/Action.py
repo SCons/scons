@@ -791,6 +791,9 @@ class FunctionAction(_ActionAction):
 
         apply(_ActionAction.__init__, (self,)+args, kw)
         self.varlist = kw.get('varlist', [])
+        if SCons.Util.is_String(self.varlist):
+            # prevent varlist="FOO" from being interpreted as ['F', 'O', 'O']
+            self.varlist=[self.varlist]
         self.cmdstr = cmdstr
 
     def function_name(self):

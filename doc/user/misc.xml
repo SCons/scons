@@ -1,0 +1,355 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  &SCons; supports a lot of additional functionality
+  that doesn't readily fit into the other chapters.
+
+  </para>
+
+  <section>
+  <title>Verifying the Python Version:  the &EnsurePythonVersion; Function</title>
+
+    <para>
+
+    Although the &SCons; code itself will run 
+    on any Python version 1.5.2 or later,
+    you are perfectly free to make use of
+    Python syntax and modules from more modern versions
+    (for example, Python 2.4 or 2.5)
+    when writing your &SConscript; files
+    or your own local modules.
+    If you do this, it's usually helpful to
+    configure &SCons; to exit gracefully with an error message
+    if it's being run with a version of Python
+    that simply won't work with your code.
+    This is especially true if you're going to use &SCons;
+    to build source code that you plan to distribute publicly,
+    where you can't be sure of the Python version
+    that an anonymous remote user might use
+    to try to build your software.
+
+    </para>
+
+    <para>
+
+    &SCons; provides an &EnsurePythonVersion; function for this.
+    You simply pass it the major and minor versions
+    numbers of the version of Python you require:
+
+    </para>
+
+    <!--
+
+    TODO:  Figure out how to generate the error message
+    regardless of executing Python version by faking out
+    the infrastructure in some way.
+
+    <scons_example name="EnsurePythonVersion">
+      <file name="SConstruct" printme="1">
+      EnsurePythonVersion(2, 5)
+      </file>
+    </scons_example>
+
+    -->
+
+    <programlisting>
+      EnsurePythonVersion(2, 5)
+    </programlisting>
+
+    <para>
+
+    And then &SCons; will exit with the following error
+    message when a user runs it with an unsupported
+    earlier version of Python:
+
+    </para>
+
+    <!--
+
+    TODO:  Figure out how to generate the error message
+    regardless of executing Python version by faking out
+    the infrastructure in some way.
+
+    <scons_output example="EnsurePythonVersion">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Python 2.5 or greater required, but you have Python 2.3.6
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Verifying the SCons Version:  the &EnsureSConsVersion; Function</title>
+
+    <para>
+
+    You may, of course, write your &SConscript; files
+    to use features that were only added in
+    recent versions of &SCons;.
+    When you publicly distribute software that is built using &SCons;,
+    it's helpful to have &SCons;
+    verify the version being used and
+    exit gracefully with an error message
+    if the user's version of &SCons; won't work
+    with your &SConscript; files.
+    &SCons; provides an &EnsureSConsVersion; function
+    that verifies the version of &SCons;
+    in the same
+    the &EnsurePythonVersion; function
+    verifies the version of Python,
+    by passing in the major and minor versions
+    numbers of the version of SCons you require:
+
+    </para>
+
+    <!--
+
+    TODO:  Figure out how to generate the error message
+    regardless of executing SCons version by faking out
+    the infrastructure in some way.
+
+    <scons_example name="EnsureSConsVersion">
+      <file name="SConstruct" printme="1">
+      EnsureSConsVersion(1, 0)
+      </file>
+    </scons_example>
+
+    -->
+
+    <programlisting>
+      EnsureSConsVersion(1, 0)
+    </programlisting>
+
+    <para>
+
+    And then &SCons; will exit with the following error
+    message when a user runs it with an unsupported
+    earlier version of &SCons;:
+
+    </para>
+
+    <!--
+
+    TODO:  Figure out how to generate the error message
+    regardless of executing SCons version by faking out
+    the infrastructure in some way.
+
+    <scons_output example="EnsureSConsVersion">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      SCons 1.0 or greater required, but you have SCons 0.98.5
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Explicitly Terminating &SCons; While Reading &SConscript; Files:  the &Exit; Function</title>
+
+    <para>
+
+    &SCons; supports an &Exit; function
+    which can be used to terminate &SCons;
+    while reading the &SConscript; files,
+    usually because you've detected a condition
+    under which it doesn't make sense to proceed:
+
+    </para>
+
+    <programlisting>
+      if ARGUMENTS.get('FUTURE'):
+          print "The FUTURE option is not supported yet!"
+          Exit(2)
+      env = Environment()
+      env.Program('hello.c')
+    </programlisting>
+
+    <screen>
+      % <userinput>scons -Q FUTURE=1</userinput>
+      The FUTURE option is not supported yet!
+      % <userinput>scons -Q</userinput>
+      cc -o hello.o -c hello.c
+      cc -o hello hello.o
+    </screen>
+
+    <para>
+
+    The &Exit; function takes as an argument
+    the (numeric) exit status that you want &SCons; to exit with.
+    If you don't specify a value,
+    the default is to exit with <literal>0</literal>,
+    which indicates successful execution.
+
+    </para>
+
+    <para>
+
+    Note that the &Exit; function
+    is equivalent to calling the Python
+    <function>sys.exit</function> function
+    (which the it actually calls),
+    but because &Exit; is a &SCons; function,
+    you don't have to import the Python
+    <literal>sys</literal> module to use it.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Handling Nested Lists:  the &Flatten; Function</title>
+
+    <para>
+
+    &SCons; supports a &Flatten; function
+    which takes an input Python sequence
+    (list or tuple)
+    and returns a flattened list
+    containing just the individual elements of
+    the sequence.
+    This can be handy when trying to examine
+    a list composed of the lists
+    returned by calls to various Builders.
+    For example, you might collect
+    object files built in different ways
+    into one call to the &Program; Builder
+    by just enclosing them in a list, as follows:
+
+    </para>
+
+    <programlisting>
+      objects = [
+          Object('prog1.c'),
+          Object('prog2.c', CCFLAGS='-DFOO'),
+      ]
+      Program(objects)
+    </programlisting>
+
+    <para>
+
+    Because the Builder calls in &SCons;
+    flatten their input lists,
+    this works just fine to build the program:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o prog1.o -c prog1.c
+      cc -o prog2.o -c -DFOO prog2.c
+      cc -o prog1 prog1.o prog2.o
+    </screen>
+
+    <para>
+
+    But if you were debugging your build
+    and wanted to print the absolute path
+    of each object file in the
+    <varname>objects</varname> list,
+    you might try the following simple approach,
+    trying to print each Node's
+    <literal>abspath</literal>
+    attribute:
+
+    </para>
+
+    <programlisting>
+      objects = [
+          Object('prog1.c'),
+          Object('prog2.c', CCFLAGS='-DFOO'),
+      ]
+      Program(objects)
+
+      for object_file in objects:
+          print object_file.abspath
+    </programlisting>
+
+    <para>
+
+    This does not work as expected
+    because each call to <function>str</function>
+    is operating an embedded list returned by
+    each &Object; call,
+    not on the underlying Nodes within those lists:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      AttributeError: NodeList instance has no attribute 'abspath':
+        File "/home/my/project/SConstruct", line 8:
+          print object_file.abspath
+    </screen>
+
+    <para>
+
+    The solution is to use the &Flatten; function
+    so that you can pass each Node to
+    the <function>str</function> separately:
+
+    </para>
+
+    <programlisting>
+      objects = [
+          Object('prog1.c'),
+          Object('prog2.c', CCFLAGS='-DFOO'),
+      ]
+      Program(objects)
+
+      for object_file in Flatten(objects):
+          print object_file.abspath
+    </programlisting>
+
+    <!--
+
+    TODO:  can't use this now because it displays the temporary path name
+
+    <scons_output example="Flatten3">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      /home/me/project/prog1.o
+      /home/me/project/prog2.o
+      cc -o prog1.o -c prog1.c
+      cc -o prog2.o -c -DFOO prog2.c
+      cc -o prog1 prog1.o prog2.o
+    </screen>
+
+  </section>

@@ -21,17 +21,19 @@
 .\"
 .\" __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 .\"
+.TH SCONS 1 "__MONTH_YEAR__"
 .\" ES - Example Start - indents and turns off line fill
+.rm ES
 .de ES
 .RS
 .nf
 ..
 .\" EE - Example End - ends indent and turns line fill back on
+.rm EE
 .de EE
 .fi
 .RE
 ..
-.TH SCONS 1 "__MONTH_YEAR__"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -47,15 +49,15 @@ scons \- a software construction tool
 ]
 .SH DESCRIPTION
 
-The 
-.B scons 
+The
+.B scons
 utility builds software (or other files) by determining which
 component pieces must be rebuilt and executing the necessary commands to
 rebuild them.
 
-By default, 
-.B scons 
-searches for a file named 
+By default,
+.B scons
+searches for a file named
 .IR SConstruct ,
 .IR Sconstruct ,
 or
@@ -63,7 +65,7 @@ or
 (in that order) in the current directory and reads its
 configuration from the first file found.
 An alternate file name may be
-specified via the 
+specified via the
 .B -f
 option.
 
@@ -195,7 +197,7 @@ but it may be more convenient for many configurations.
 can scan known input files automatically for dependency
 information (for example, #include statements
 in C or C++ files) and will rebuild dependent files appropriately
-whenever any "included" input file changes. 
+whenever any "included" input file changes.
 .B scons
 supports the
 ability to define new scanners for unknown input file types.
@@ -265,7 +267,7 @@ in which case only the specified targets will be built
 (along with any derived files on which they depend).
 
 Specifying "cleanup" targets in SConscript files is not usually necessary.
-The 
+The
 .B -c
 flag removes all files
 necessary to build the specified target:
@@ -292,7 +294,7 @@ can be prevented from being removed by using the
 function.
 
 A subset of a hierarchical tree may be built by
-remaining at the top-level directory (where the 
+remaining at the top-level directory (where the
 .I SConstruct
 file lives) and specifying the subdirectory as the target to be
 built:
@@ -304,7 +306,7 @@ scons src/subdir
 or by changing directory and invoking scons with the
 .B -u
 option, which traverses up the directory
-hierarchy until it finds the 
+hierarchy until it finds the
 .I SConstruct
 file, and then builds
 targets relatively to the current subdirectory:
@@ -329,13 +331,13 @@ builds four targets in parallel, for example.
 .B scons
 can maintain a cache of target (derived) files that can
 be shared between multiple builds.  When caching is enabled in a
-SConscript file, any target files built by 
+SConscript file, any target files built by
 .B scons
 will be copied
 to the cache.  If an up-to-date target file is found in the cache, it
 will be retrieved from the cache instead of being rebuilt locally.
 Caching behavior may be disabled and controlled in other ways by the
-.BR --cache-force , 
+.BR --cache-force ,
 .BR --cache-disable ,
 and
 .B --cache-show
@@ -395,7 +397,7 @@ the Intel compiler tools,
 and the PharLap ETS compiler.
 On OS/2 systems,
 .B scons
-searches in order for the 
+searches in order for the
 OS/2 compiler,
 the GCC tool chain,
 and the Microsoft Visual C++ tools,
@@ -416,11 +418,11 @@ by appropriate configuration of
 Environment construction variables.
 
 .SH OPTIONS
-In general, 
-.B scons 
+In general,
+.B scons
 supports the same command-line options as GNU
-.BR make , 
-and many of those supported by 
+.BR make ,
+and many of those supported by
 .BR cons .
 
 .TP
@@ -534,27 +536,27 @@ if --config=cache is specified
 and a necessary test does not
 yet have any results in the cache.
 
-.TP 
+.TP
 .RI "-C" " directory" ",  --directory=" directory
-Change to the specified 
+Change to the specified
 .I directory
-before searching for the 
+before searching for the
 .IR SConstruct ,
 .IR Sconstruct ,
 or
 .I sconstruct
 file, or doing anything
-else.  Multiple 
+else.  Multiple
 .B -C
 options are interpreted
 relative to the previous one, and the right-most
 .B -C
 option wins. (This option is nearly
-equivalent to 
+equivalent to
 .BR "-f directory/SConstruct" ,
 except that it will search for
 .IR SConstruct ,
-.IR Sconstruct , 
+.IR Sconstruct ,
 or
 .I sconstruct
 in the specified directory.)
@@ -623,7 +625,7 @@ and about the actual libraries it finds.
 
 .TP
 --debug=includes
-Print the include tree after each top-level target is built. 
+Print the include tree after each top-level target is built.
 This is generally used to find out what files are included by the sources
 of a given derived file:
 
@@ -671,7 +673,7 @@ Output looks something like this:
 $ scons --debug=presub
 Building myprog.o with action(s):
   $SHCC $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
-...
+\&...
 .EE
 
 .TP
@@ -774,11 +776,11 @@ where the SCons configuration expects a directory).
 .TP
 .RI --duplicate= ORDER
 There are three ways to duplicate files in a build tree: hard links,
-soft (symbolic) links and copies. The default behaviour of SCons is to 
+soft (symbolic) links and copies. The default behaviour of SCons is to
 prefer hard links to soft links to copies. You can specify different
 behaviours with this option.
-.IR ORDER 
-must be one of 
+.IR ORDER
+must be one of
 .IR hard-soft-copy
 (the default),
 .IR soft-hard-copy ,
@@ -796,14 +798,14 @@ the mechanisms in the specified order.
 
 .TP
 .RI -f " file" ", --file=" file ", --makefile=" file ", --sconstruct=" file
-Use 
-.I file 
+Use
+.I file
 as the initial SConscript file.
 
-.TP 
+.TP
 -h, --help
 Print a local help message for this build, if one is defined in
-the SConscript file(s), plus a line that describes the 
+the SConscript file(s), plus a line that describes the
 .B -H
 option for command-line option help.  If no local help message
 is defined, prints the standard help message about command-line
@@ -818,12 +820,12 @@ exit.
 -i, --ignore-errors
 Ignore all errors from commands executed to rebuild files.
 
-.TP 
+.TP
 .RI -I " directory" ", --include-dir=" directory
-Specifies a 
+Specifies a
 .I directory
 to search for
-imported Python modules.  If several 
+imported Python modules.  If several
 .B -I
 options
 are used, the directories are searched in the order specified.
@@ -864,7 +866,7 @@ implicit dependencies to be rescanned and recached. This implies
 --implicit-deps-unchanged
 Force SCons to ignore changes in the implicit dependencies.
 This causes cached implicit dependencies to always be used.
-This implies 
+This implies
 .BR --implicit-cache .
 
 .TP
@@ -908,7 +910,6 @@ command:
 -k, --keep-going
 -n, --no-exec, --just-print, --dry-run, --recon
 -Q
--s, --silent, --quiet
 -s, --silent, --quiet
 --taskmastertrace=FILE
 --tree=OPTIONS
@@ -997,14 +998,14 @@ scons>>> exit
 .TP
 .RI -j " N" ", --jobs=" N
 Specifies the number of jobs (commands) to run simultaneously.
-If there is more than one 
-.B -j 
+If there is more than one
+.B -j
 option, the last one is effective.
-.\" ??? If the 
-.\" .B -j 
+.\" ??? If the
+.\" .B -j
 .\" option
 .\" is specified without an argument,
-.\" .B scons 
+.\" .B scons
 .\" will not limit the number of
 .\" simultaneous jobs.
 
@@ -1018,7 +1019,7 @@ targets specified on the command line will still be processed.
 .\" .RI  -l " N" ", --load-average=" N ", --max-load=" N
 .\" No new jobs (commands) will be started if
 .\" there are other jobs running and the system load
-.\" average is at least 
+.\" average is at least
 .\" .I N
 .\" (a floating-point number).
 
@@ -1051,7 +1052,7 @@ Ignored for compatibility with non-GNU versions of
 
 .TP
 .RI --max-drift= SECONDS
-Set the maximum expected drift in the modification time of files to 
+Set the maximum expected drift in the modification time of files to
 .IR SECONDS .
 This value determines how long a file must be unmodified
 before its cached content signature
@@ -1071,7 +1072,7 @@ no matter how old the file is.
 No execute.  Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.
 
-.TP 
+.TP
 .RI --no-site-dir
 Prevents the automatic addition of the standard
 .I site_scons
@@ -1085,15 +1086,15 @@ to the toolpath.
 
 .\" .TP
 .\" .RI -o " file" ", --old-file=" file ", --assume-old=" file
-.\" Do not rebuild 
+.\" Do not rebuild
 .\" .IR file ,
 .\" and do
 .\" not rebuild anything due to changes in the contents of
 .\" .IR file .
-.\" .TP 
+.\" .TP
 .\" .RI --override " file"
 .\" Read values to override specific build environment variables
-.\" from the specified 
+.\" from the specified
 .\" .IR file .
 .\" .TP
 .\" -p
@@ -1103,7 +1104,7 @@ to the toolpath.
 .\" After printing, a normal build is performed
 .\" as usual, as specified by other command-line options.
 .\" This also prints version information
-.\" printed by the 
+.\" printed by the
 .\" .B -v
 .\" option.
 .\"
@@ -1155,10 +1156,10 @@ Also suppresses SCons status messages.
 
 .TP
 -S, --no-keep-going, --stop
-Ignored for compatibility with GNU 
+Ignored for compatibility with GNU
 .BR make .
 
-.TP 
+.TP
 .RI --site-dir= dir
 Uses the named dir as the site dir rather than the default
 .I site_scons
@@ -1173,7 +1174,7 @@ will get added to the default toolpath.
 .TP
 .RI --stack-size= KILOBYTES
 Set the size stack used to run threads to
-.IR KILOBYTES . 
+.IR KILOBYTES .
 This value determines the stack size of the threads used to run jobs.
 These are the threads that execute the actions of the builders for the
 nodes that are out-of-date.
@@ -1193,9 +1194,9 @@ unless you encounter stack overflow errors.
 .TP
 -t, --touch
 Ignored for compatibility with GNU
-.BR make .  
+.BR make .
 (Touching a file to make it
-appear up-to-date is unnecessary when using 
+appear up-to-date is unnecessary when using
 .BR scons .)
 
 .TP
@@ -1260,10 +1261,10 @@ scons --tree=all,prune,status target
 
 .TP
 -u, --up, --search-up
-Walks up the directory structure until an 
+Walks up the directory structure until an
 .I SConstruct ,
 .I Sconstruct
-or 
+or
 .I sconstruct
 file is found, and uses that
 as the top of the directory tree.
@@ -1283,7 +1284,7 @@ up in.
 
 .TP
 -v, --version
-Print the 
+Print the
 .B scons
 version, copyright information,
 list of authors, and any other relevant information.
@@ -1356,7 +1357,10 @@ method.
 
 .TP
 --warn=duplicate-environment, --warn=no-duplicate-environment
-Enables or disables warnings about missing SConscript files.
+Enables or disables warnings about attempts to specify a build
+of a target with two different construction environments
+that use the same action.
+These warnings are enabled by default.
 
 .TP
 --warn=fortran-cxx-mix, --warn=no-fortran-cxx-mix
@@ -1385,9 +1389,7 @@ These warnings are enabled by default.
 
 .TP
 --warn=missing-sconscript, --warn=no-missing-sconscript
-Enables or disables warnings about attempts to specify a build
-of a target with two different construction environments
-that use the same action.
+Enables or disables warnings about missing SConscript files.
 These warnings are enabled by default.
 
 .TP
@@ -1452,14 +1454,14 @@ These warnings are enabled by default.
 .\"
 .\" .TP
 .\" .RI -W " file" ", --what-if=" file ", --new-file=" file ", --assume-new=" file
-.\" Pretend that the target 
-.\" .I file 
+.\" Pretend that the target
+.\" .I file
 .\" has been
-.\" modified.  When used with the 
+.\" modified.  When used with the
 .\" .B -n
 .\" option, this
 .\" show you what would be rebuilt if you were to modify that file.
-.\" Without 
+.\" Without
 .\" .B -n
 .\" ... what? XXX
 .\"
@@ -1467,7 +1469,7 @@ These warnings are enabled by default.
 .\" --warn-undefined-variables
 .\" Warn when an undefined variable is referenced.
 
-.TP 
+.TP
 .RI -Y " repository" ", --repository=" repository ", --srcdir=" repository
 Search the specified repository for any input and target
 files not found in the local directory hierarchy.  Multiple
@@ -1480,10 +1482,10 @@ repositories are searched in the order specified.
 .\" XXX Adding this in the future would be a help.
 .SS Construction Environments
 A construction environment is the basic means by which the SConscript
-files communicate build information to 
+files communicate build information to
 .BR scons .
-A new construction environment is created using the 
-.B Environment 
+A new construction environment is created using the
+.B Environment
 function:
 
 .ES
@@ -1494,7 +1496,7 @@ Variables, called
 .I construction
 .IR variables ,
 may be set in a construction environment
-either by specifyng them as keywords when the object is created
+either by specifying them as keywords when the object is created
 or by assigning them a value after the object is created:
 
 .ES
@@ -1557,7 +1559,7 @@ dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
 (such as fetching source files from
-external CVS repository specifications like 
+external CVS repository specifications like
 .BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
 will work on Windows systems.
 
@@ -1815,7 +1817,7 @@ that are not absolute path names
 (that is, do not begin with
 .B /
 on POSIX systems
-or 
+or
 .B \\
 on Windows systems,
 with or without
@@ -1874,7 +1876,7 @@ The following examples all build the
 executable program
 .B bar
 (on POSIX systems)
-or 
+or
 .B bar.exe
 (on Windows systems)
 from the bar.c source file:
@@ -2174,11 +2176,12 @@ provides the following builder methods:
 '\" END GENERATED BUILDER DESCRIPTIONS
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+.P
 All
 targets of builder methods automatically depend on their sources.
 An explicit dependency can
-be specified using the 
-.B Depends 
+be specified using the
+.B Depends
 method of a construction environment (see below).
 
 In addition,
@@ -2261,7 +2264,7 @@ from SCons.Script import *
 Except where otherwise noted,
 the same-named
 construction environment method
-and global function 
+and global function
 provide the exact same functionality.
 The only difference is that,
 where appropriate,
@@ -2299,7 +2302,7 @@ and global functions supported by
 include:
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Action( action ", [" strfunction ", " varlist ])
 .TP
 .RI env.Action( action ", [" strfunction ", " varlist ])
@@ -2309,7 +2312,7 @@ the specified
 See the section "Action Objects,"
 below, for a complete explanation of the arguments and behavior.
 
-Note that the 
+Note that the
 .BR env.Action ()
 form of the invocation will expand
 construction variables in any arguments strings,
@@ -2328,7 +2331,7 @@ form delays all variable expansion
 until the Action object is actually used.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI AddMethod( object, function ", [" name ])
 .TP
 .RI env.AddMethod( function ", [" name ])
@@ -2415,7 +2418,7 @@ keyword value to
 to indicate that the specified long option(s) take(s) an
 .I optional
 argument.
-When 
+When
 .B "nargs = '?'"
 is passed to the
 .BR AddOption ()
@@ -2440,17 +2443,19 @@ the option value may be accessed using
 .BR GetOption ()
 or
 .BR env.GetOption ().
-The value may also be set, using
-.BR SetOption ()
-or
-.BR env.SetOption (),
-if conditions in a
-.B SConscript
-require overriding any default value.
-Note, however, that a
-value specified on the command line will
-.I always
-override a value set by any SConscript file.
+\" NOTE: in SCons 1.x or 2.0, user options will be settable, but not yet.
+\" Uncomment this when that works.  See tigris issue 2105.
+\" The value may also be set, using
+\" .BR SetOption ()
+\" or
+\" .BR env.SetOption (),
+\" if conditions in a
+\" .B SConscript
+\" require overriding any default value.
+\" Note, however, that a
+\" value specified on the command line will
+\" .I always
+\" override a value set by any SConscript file.
 
 Any specified
 .B help=
@@ -2486,7 +2491,7 @@ env = Environment(PREFIX = GetOption('prefix'))
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI AddPostAction( target ", " action )
 .TP
 .RI env.AddPostAction( target ", " action )
@@ -2501,8 +2506,13 @@ an Action object, or anything that
 can be converted into an Action object
 (see below).
 
+When multiple targets are supplied,
+the action may be called multiple times,
+once after each action that generates
+one or more targets in the list.
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI AddPreAction( target ", " action )
 .TP
 .RI env.AddPreAction( target ", " action )
@@ -2516,6 +2526,36 @@ The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
 (see below).
+
+When multiple targets are specified,
+the action(s) may be called multiple times,
+once before each action that generates
+one or more targets in the list.
+
+Note that if any of the targets are built in multiple steps,
+the action will be invoked just
+before the "final" action that specifically
+generates the specified target(s).
+For example, when building an executable program
+from a specified source
+.B .c
+file via an intermediate object file:
+
+.ES
+foo = Program('foo.c')
+AddPreAction(foo, 'pre_action')
+.EE
+
+The specified
+.B pre_action
+would be executed before
+.B scons
+calls the link command that actually
+generates the executable program binary
+.BR foo ,
+not before compiling the
+.B foo.c
+file into an object file.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -2723,9 +2763,9 @@ or
 (This will be officially deprecated some day.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Builder( action ", [" arguments ])
-.TP 
+.TP
 .RI env.Builder( action ", [" arguments ])
 Creates a Builder object for
 the specified
@@ -2733,7 +2773,7 @@ the specified
 See the section "Builder Objects,"
 below, for a complete explanation of the arguments and behavior.
 
-Note that the 
+Note that the
 .BR env.Builder ()
 form of the invocation will expand
 construction variables in any arguments strings,
@@ -2752,9 +2792,9 @@ form delays all variable expansion
 until after the Builder object is actually called.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI CacheDir( cache_dir )
-.TP 
+.TP
 .RI env.CacheDir( cache_dir )
 Specifies that
 .B scons
@@ -2859,9 +2899,9 @@ useful if inputs and/or outputs of some tool are impossible to
 predict or prohibitively large.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Clean( targets ", " files_or_dirs )
-.TP 
+.TP
 .RI env.Clean( targets ", " files_or_dirs )
 This specifies a list of files or directories which should be removed
 whenever the targets are specified with the
@@ -2885,7 +2925,7 @@ Builder methods.
 Examples:
 
 The related
-.BR NoClean () 
+.BR NoClean ()
 function overrides calling
 .BR Clean ()
 for the same target,
@@ -3089,7 +3129,7 @@ env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Decider( function )
 .TP
 .RI env.Decider( function )
@@ -3252,7 +3292,7 @@ env.Decider(my_decider)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Default( targets )
 .TP
 .RI env.Default( targets )
@@ -3315,8 +3355,21 @@ from source code management systems.
 .TP
 .RI env.Depends( target ", " dependency )
 Specifies an explicit dependency;
-the target file(s) will be rebuilt
-whenever the dependency file(s) has changed.
+the
+.I target
+will be rebuilt
+whenever the
+.I dependency
+has changed.
+Both the specified
+.I target
+and
+.I dependency
+can be a string
+(usually the path name of a file or directory)
+or Node objects,
+or a list of strings or Node objects
+(such as returned by a Builder call).
 This should only be necessary
 for cases where the dependency
 is not caught by a Scanner
@@ -3326,6 +3379,18 @@ Example:
 
 .ES
 env.Depends('foo', 'other-input-file-for-foo')
+
+mylib = env.Library('mylib.c')
+installed_lib = env.Install('lib', mylib)
+bar = env.Program('bar.c')
+
+# Arrange for the library to be copied into the installation
+# directory before trying to build the "bar" program.
+# (Note that this is for example only.  A "real" library
+# dependency would normally be configured through the $LIBS
+# and $LIBPATH variables, not using an env.Depends() call.)
+
+env.Depends(bar, installed_lib)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -3352,16 +3417,16 @@ cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 .RI env.Dir( name ", [" directory ])
 This returns a Directory Node,
 an object that represents the specified directory
-.IR name . 
+.IR name .
 .I name
-can be a relative or absolute path. 
+can be a relative or absolute path.
 .I directory
-is an optional directory that will be used as the parent directory. 
+is an optional directory that will be used as the parent directory.
 If no
 .I directory
 is specified, the current script's directory is used as the parent.
 
-If 
+If
 .I name
 is a list, SCons returns a list of Dir nodes.
 Construction variables are expanded in
@@ -3391,7 +3456,7 @@ print env.Dump('CCCOM')
 .IP
 will print:
 .ES
-'$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+\&'$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 .EE
 
 .ES
@@ -3415,8 +3480,8 @@ will print:
 .RI EnsurePythonVersion( major ", " minor )
 .TP
 .RI env.EnsurePythonVersion( major ", " minor )
-Ensure that the Python version is at least 
-.IR major . minor . 
+Ensure that the Python version is at least
+.IR major . minor .
 This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual Python version is not late enough.
@@ -3432,10 +3497,10 @@ EnsurePythonVersion(2,2)
 .RI EnsureSConsVersion( major ", " minor ", [" revision ])
 .TP
 .RI env.EnsureSConsVersion( major ", " minor ", [" revision ])
-Ensure that the SCons version is at least 
+Ensure that the SCons version is at least
 .IR major.minor ,
 or
-.IR major.minor.revision . 
+.IR major.minor.revision .
 if
 .I revision
 is specified.
@@ -3462,7 +3527,7 @@ initialized with the specified
 pairs.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Execute( action ", [" strfunction ", " varlist ])
 .TP
 .RI env.Execute( action ", [" strfunction ", " varlist ])
@@ -3502,14 +3567,14 @@ is used if no value is specified.
 .RI Export( vars )
 .TP
 .RI env.Export( vars )
-This tells 
+This tells
 .B scons
 to export a list of variables from the current
 SConscript file to all other SConscript files.
 The exported variables are kept in a global collection,
 so subsequent calls to
 .BR Export ()
-will over-write previous exports that have the same name. 
+will over-write previous exports that have the same name.
 Multiple variable names can be passed to
 .BR Export ()
 as separate arguments or as a list. A dictionary can be used to map
@@ -3546,20 +3611,20 @@ See the description of the
 function, below.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI File( name ", [" directory ])
-.TP 
+.TP
 .RI env.File( name ", [" directory ])
 This returns a
 File Node,
 an object that represents the specified file
-.IR name . 
+.IR name .
 .I name
-can be a relative or absolute path. 
+can be a relative or absolute path.
 .I directory
-is an optional directory that will be used as the parent directory. 
+is an optional directory that will be used as the parent directory.
 
-If 
+If
 .I name
 is a list, SCons returns a list of File nodes.
 Construction variables are expanded in
@@ -3577,9 +3642,9 @@ see "File and Directory Nodes," below.
 .RI FindFile( file ", " dirs )
 .TP
 .RI env.FindFile( file ", " dirs )
-Search for 
-.I file 
-in the path specified by 
+Search for
+.I file
+in the path specified by
 .IR dirs .
 .I file
 may be a list of file names or a single file name. In addition to searching
@@ -3748,7 +3813,7 @@ for object in Flatten(objects):
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI GetBuildFailures()
 Returns a list of exceptions for the
 actions that failed while
@@ -3896,7 +3961,7 @@ file is found.
 This function provides a way to query the value of
 SCons options set on scons command line
 (or set using the
-.IR SetOption () 
+.IR SetOption ()
 function).
 The options supported are:
 
@@ -4129,8 +4194,8 @@ Program('foo', Glob('*.c'))
 .RI Help( text )
 .TP
 .RI env.Help( text )
-This specifies help text to be printed if the 
-.B -h 
+This specifies help text to be printed if the
+.B -h
 argument is given to
 .BR scons .
 If
@@ -4157,23 +4222,23 @@ env.Ignore('bar', ['bar1.h', 'bar2.h'])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Import( vars )
-.TP 
+.TP
 .RI env.Import( vars )
-This tells 
+This tells
 .B scons
 to import a list of variables into the current SConscript file. This
 will import variables that were exported with
 .BR Export ()
-or in the 
+or in the
 .I exports
-argument to 
+argument to
 .BR SConscript ().
-Variables exported by 
+Variables exported by
 .BR SConscript ()
 have precedence.
-Multiple variable names can be passed to 
+Multiple variable names can be passed to
 .BR Import ()
 as separate arguments or as a list. The variable "*" can be used
 to import all variables.
@@ -4230,7 +4295,7 @@ be passed in as a list,
 not as separate arguments to
 .BR env.MergeFlags ().
 
-By default, 
+By default,
 duplicate values are eliminated;
 you can, however, specify
 .B unique=0
@@ -4268,7 +4333,7 @@ env.MergeFlags(['-O3',
 .RI env.NoCache( target ", ...)"
 Specifies a list of files which should
 .I not
-be cached whenever the 
+be cached whenever the
 .BR CacheDir ()
 method has been activated.
 The specified targets may be a list
@@ -4324,7 +4389,7 @@ will also accept the return value of any of the construction environment
 Builder methods.
 
 Calling
-.BR NoClean () 
+.BR NoClean ()
 for a target overrides calling
 .BR Clean ()
 for the same target,
@@ -4358,7 +4423,7 @@ which expects the output of a typical
 .BR gtk-config )
 and adds the options
 to the appropriate construction variables.
-By default, 
+By default,
 duplicate values are not
 added to any construction variables;
 you can specify
@@ -4488,7 +4553,7 @@ and added to the following construction variables:
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
-.B LIBS 
+.B LIBS
 construction variable.
 
 Examples (all of which produce the same result):
@@ -4571,7 +4636,7 @@ dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
 (such as fetching source files from
-external CVS repository specifications like 
+external CVS repository specifications like
 .BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
 will work on Windows systems.
 
@@ -4942,9 +5007,9 @@ Return('val1 val2')
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.TP 
+.TP
 .RI Scanner( function ", [" argument ", " keys ", " path_function ", " node_class ", " node_factory ", " scan_check ", " recursive ])
-.TP 
+.TP
 .RI env.Scanner( function ", [" argument ", " keys ", " path_function ", " node_class ", " node_factory ", " scan_check ", " recursive ])
 Creates a Scanner object for
 the specified
@@ -5030,7 +5095,7 @@ by supplying an optional
 .RI name= script
 keyword argument.
 
-The optional 
+The optional
 .I exports
 argument provides a list of variable names or a dictionary of
 named values to export to the
@@ -5047,57 +5112,41 @@ must use the
 .BR Import ()
 function to import the variables.
 
-In effect, the optional
+If the optional
 .I variant_dir
-argument causes the files (and subdirectories) in the directory where
-.I script
-resides to be copied to
+argument is present, it causes an effect equivalent to
+.BR VariantDir (
+.IR variant_dir ,
+.IR src_dir ,
+.IR duplicate )
+to be executed prior to reading the
+.IR script (s).
+(If
 .I variant_dir
-and the build performed in
-.IR variant_dir .
-Thus, all of the targets (for example, object files and executables)
-that would normally be built in (or underneath) the directory containing
-.I script
-would actually be built in (or underneath)
-.IR variant_dir .
+is not present, the
+.I src_dir
+and
+.I duplicate
+arguments are ignored.)
+The
+.I variant_dir
+and
+.I src_dir
+arguments are interpreted relative to the directory
+of the calling SConscript file.
+If
+.I src_dir
+is not specified, the directory of the calling SConscript file is assumed.
 See the description of the
 .BR VariantDir ()
-function below for the details and restrictions.
-.I variant_dir
-is interpreted relative to the directory
-of the calling SConscript file.
+function below for additional details and restrictions.
 
-Normally, the source for the variant build is the directory containing
-.IR script .
-If the sources are not in
-.IR script 's
-directory, the optional
-.I src_dir
-argument provides the location of the sources.
-.I src_dir
-is interpreted relative to the directory
-of the calling SConscript file.
-
-By default,
-.B scons
-will link or copy (depending on the platform)
-all the source files into the variant directory tree.
-This behavior may be disabled by setting the optional
-.I duplicate
-argument to 0 (it is set to 1 by default), in which case
-.B scons
-will refer directly to the source files in their source directory
-when building target files.
-See the description for
-.BR VariantDir ()
-below for the details and restrictions.
-
-Any variables returned by 
-.I script 
-using 
+Any variables returned by
+.I script
+using
 .BR Return ()
 will be returned by the call to
-.BR SConscript (). 
+.BR SConscript ().
 
 Examples:
 
@@ -5105,11 +5154,20 @@ Examples:
 SConscript('subdir/SConscript')
 foo = SConscript('sub/SConscript', exports='env')
 SConscript('dir/SConscript', exports=['env', 'variable'])
-SConscript('src/SConscript', variant_dir='build', duplicate=0)
-SConscript('bld/SConscript', src_dir='src', exports='env variable')
+SConscript('dir/SConscript', exports='env variable')
 SConscript(dirs=['sub1', 'sub2'])
 SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
 .EE
+
+.ES
+SConscript('bld/SConscript', variant_dir='bld', duplicate=0)
+.EE
+which is equivalent to
+.ES
+VariantDir('bld', '.', duplicate=0)
+SConscript('bld/SConscript')
+.EE
+'\"TODO: SConscript('bld/SConscript', src_dir='src', exports='env variable')
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -5291,17 +5349,19 @@ SetOption('max_drift', 1)
 Declares
 .I side_effect
 as a side effect of building
-.IR target . 
-Both 
-.I side_effect 
+.IR target .
+Both
+.I side_effect
 and
 .I target
 can be a list, a file name, or a node.
-A side effect is a target that is created
+A side effect is a target file that is created or updated
 as a side effect of building other targets.
 For example, a Windows PDB
 file is created as a side effect of building the .obj
-files for a static library.
+files for a static library,
+and various log files are created updated
+as side effects of various TeX commands.
 If a target is a side effect of multiple build commands,
 .B scons
 will ensure that only one set of commands
@@ -5309,6 +5369,34 @@ is executed at a time.
 Consequently, you only need to use this method
 for side-effect targets that are built as a result of
 multiple build commands.
+
+Because multiple build commands may update
+the same side effect file,
+by default the
+.I side_effect
+target is
+.I not
+automatically removed
+when the
+.I target
+is removed by the
+.B -c
+option.
+(Note, however, that the
+.I side_effect
+might be removed as part of
+cleaning the directory in which it lives.)
+If you want to make sure the
+.I side_effect
+is cleaned whenever a specific
+.I target
+is cleaned,
+you must specify this explicitly
+with the
+.BR Clean ()
+or
+.BR env.Clean ()
+function.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -5852,7 +5940,7 @@ method that can be used to "build" a Value Node
 by setting a new value.
 The optional
 .I built_value
-argument can be specified 
+argument can be specified
 when the Value Node is created
 to indicate the Node should already be considered
 "built."
@@ -5871,7 +5959,7 @@ def create(target, source, env):
     # $TARGET.
     f = open(str(target[0]), 'wb')
     f.write('prefix=' + source[0].get_contents())
-    
+
 # Fetch the prefix= argument, if any, from the command
 # line, and use /usr/local as the default.
 prefix = ARGUMENTS.get('prefix', '/usr/local')
@@ -5901,31 +5989,42 @@ env.UpdateValue(target = Value(output), source = Value(input))
 .RI VariantDir( variant_dir ", " src_dir ", [" duplicate ])
 .TP
 .RI env.VariantDir( variant_dir ", " src_dir ", [" duplicate ])
-In effect, the
-.I src_dir
-directory tree is copied to
-.I variant_dir
-so a build can be performed there.
+Use the
+.BR VariantDir ()
+function to create a copy of your sources in another location:
+if a name under
+.IR variant_dir
+is not found but exists under
+.IR src_dir ,
+the file or directory is copied to
+.IR variant_dir .
+Target files can be built in a different directory than the original sources
+by simply refering to the sources (and targets) within the variant tree.
+
 .BR VariantDir ()
 can be called multiple times with the same
 .I  src_dir
 to set up multiple builds with different options
 .RI ( variants ).
+The
 .I src_dir
-must be in or underneath the SConstruct file's directory, and
+location must be in or underneath the SConstruct file's directory, and
 .I variant_dir
-may not be underneath the
-.I src_dir .
+may not be underneath
+.IR src_dir .
+'\"TODO: Can the above restrictions be clarified or relaxed?
+'\"TODO: The latter restriction is clearly not completely right;
+'\"TODO: src_dir = '.' works fine with a build dir under it.
 
 The default behavior is for
 .B scons
-to duplicate the source files in the variant tree
-and then build the derived files within the variant tree.
-This guarantees correct builds regardless of
-whether intermediate source files are generated during the build,
-whether preprocessors or other scanners search for included files
+to physically duplicate the source files in the variant tree.
+Thus, a build performed in the variant tree is guaranteed to be identical
+to a build performed in the source tree even if
+intermediate source files are generated during the build,
+or preprocessors or other scanners search for included files
 relative to the source file,
-or whether individual compilers or other invoked tools are hard-coded
+or individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
 
 If possible on the platform,
@@ -5937,9 +6036,9 @@ Moreover, only the files needed for the build are duplicated;
 files and directories that are not used are not present in
 .IR variant_dir .
 
-Duplicating the source tree may be disabled by setting
+Duplicating the source tree may be disabled by setting the
 .I duplicate
-to 0.
+argument to 0.
 This will cause
 .B scons
 to invoke Builders using the path names of source files in
@@ -5957,18 +6056,18 @@ works most naturally with a subsidiary SConscript file.
 However, you would then call the subsidiary SConscript file
 not in the source directory, but in the
 .I variant_dir ,
-regardless of the value of 
+regardless of the value of
 .IR duplicate .
 This is how you tell
 .B scons
-which variant of a source tree to build.
-For example:
+which variant of a source tree to build:
 
 .ES
-VariantDir('build-variant1', 'src')
-SConscript('build-variant1/SConscript')
-VariantDir('build-variant2', 'src')
-SConscript('build-variant2/SConscript')
+# run src/SConscript in two variant directories
+VariantDir('build/variant1', 'src')
+SConscript('build/variant1/SConscript')
+VariantDir('build/variant2', 'src')
+SConscript('build/variant2/SConscript')
 .EE
 
 .IP
@@ -5977,6 +6076,40 @@ See also the
 function, described above,
 for another way to specify a variant directory
 in conjunction with calling a subsidiary SConscript file.
+
+Examples:
+
+.ES
+# use names in the build directory, not the source directory
+VariantDir('build', 'src', duplicate=0)
+Program('build/prog', 'build/source.c')
+.EE
+
+.ES
+# this variant builds both the source and docs
+VariantDir('build', '.', duplicate=0)
+SConscript(dirs=['build/src','build/doc'])
+.EE
+Or, equivalently:
+.ES
+SConscript(dirs=['build/src','build/doc'],
+        variant_dir = 'build', duplicate = 0)
+.EE
+
+.ES
+SConscript('build/SConscript', variant_dir = 'build', duplicate = 0)
+.EE
+Note that in the last example, the
+.I src_dir
+is not given, so the current directory is assumed, and the
+.B SConstruct
+and the
+.B SConscript
+are actually in the same directory, even though the
+.B SConscript
+is treated as if it were in the
+.B build
+subdirectory.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -6208,7 +6341,7 @@ default target before it's actually been added to the list.
 .\" CC     The C compiler
 .\"    Example: env["CC"] = "c68x"
 .\"    Default: env["CC"] = "cc"
-.\" 
+.\"
 .\" CCCOM  The command line ...
 .\"    Example:
 .\"        To generate the compiler line c68x -ps -qq -mr -o $TARGET $SOURCES
@@ -6261,8 +6394,8 @@ defined construction variables:
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .LP
-Construction variables can be retrieved and set using the 
-.B Dictionary 
+Construction variables can be retrieved and set using the
+.B Dictionary
 method of the construction environment:
 
 .ES
@@ -6283,8 +6416,8 @@ constructor:
 env = Environment(CC="cc")
 .EE
 
-or when copying a construction environment using the 
-.B Clone 
+or when copying a construction environment using the
+.B Clone
 method:
 
 .ES
@@ -6304,7 +6437,7 @@ In contrast to autoconf,
 .B scons
 does not maintain an explicit cache of the tested values,
 but uses its normal dependency tracking to keep the checked values
-up to date. However, users may override this behaviour with the 
+up to date. However, users may override this behaviour with the
 .B --config
 command line option.
 
@@ -6320,7 +6453,7 @@ specifies the environment for building the tests.
 This environment may be modified when performing checks.
 .I custom_tests
 is a dictionary containing custom tests.
-See also the section about custom tests below. 
+See also the section about custom tests below.
 By default, no custom tests are added to the configure context.
 .I conf_dir
 specifies a directory where the test cases are built.
@@ -6337,8 +6470,8 @@ If you are using the
 method,
 you may want to specify a subdirectory under your variant directory.
 .I config_h
-specifies a C header file where the results of tests 
-will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc. 
+specifies a C header file where the results of tests
+will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc.
 The default is to not write a
 .B config.h
 file.
@@ -6390,15 +6523,15 @@ A created
 .B Configure
 instance has the following associated methods:
 
-.TP 
+.TP
 .RI Configure.Finish( self )
 This method should be called after configuration is done.
 It returns the environment as modified
 by the configuration checks performed.
 After this method is called, no further checks can be performed
 with this configuration context.
-However, you can create a new 
-.RI Configure 
+However, you can create a new
+.RI Configure
 context to perform additional checks.
 Only one context should be active at a time.
 
@@ -6408,7 +6541,7 @@ goes by and developers contribute new useful tests.)
 
 .TP
 .RI Configure.CheckHeader( self ", " header ", [" include_quotes ", " language ])
-Checks if 
+Checks if
 .I header
 is usable in the specified language.
 .I header
@@ -6420,8 +6553,8 @@ header files whose
 .B #include
 lines should precede the
 header line being checked for.
-The optional argument 
-.I include_quotes 
+The optional argument
+.I include_quotes
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote.
@@ -6439,7 +6572,7 @@ Returns 1 on success and 0 on failure.
 .RI Configure.CheckCHeader( self ", " header ", [" include_quotes ])
 This is a wrapper around
 .B Configure.CheckHeader
-which checks if 
+which checks if
 .I header
 is usable in the C language.
 .I header
@@ -6451,8 +6584,8 @@ header files whose
 .B #include
 lines should precede the
 header line being checked for.
-The optional argument 
-.I include_quotes 
+The optional argument
+.I include_quotes
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote (both default
@@ -6463,7 +6596,7 @@ Returns 1 on success and 0 on failure.
 .RI Configure.CheckCXXHeader( self ", " header ", [" include_quotes ])
 This is a wrapper around
 .B Configure.CheckHeader
-which checks if 
+which checks if
 .I header
 is usable in the C++ language.
 .I header
@@ -6475,13 +6608,13 @@ header files whose
 .B #include
 lines should precede the
 header line being checked for.
-The optional argument 
-.I include_quotes 
+The optional argument
+.I include_quotes
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote (both default
 to \N'34').
-Returns 1 on success and 0 on failure. 
+Returns 1 on success and 0 on failure.
 
 .TP
 .RI Configure.CheckFunc( self ", " function_name ", [" header ", " language ])
@@ -6513,27 +6646,27 @@ or
 and selects the compiler to be used for the check;
 the default is "C".
 
-.TP 
+.TP
 .RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd=1 ])
-Checks if 
-.I library 
-provides 
+Checks if
+.I library
+provides
 .IR symbol .
 If the value of
 .I autoadd
 is 1 and the library provides the specified
 .IR symbol ,
 appends the library to the LIBS construction environment variable.
-.I library 
+.I library
 may also be None (the default),
-in which case 
-.I symbol 
+in which case
+.I symbol
 is checked with the current LIBS variable,
 or a list of library names,
 in which case each library in the list
 will be checked for
 .IR symbol .
-If 
+If
 .I symbol
 is not set or is
 .BR None ,
@@ -6555,15 +6688,15 @@ The default value for
 is 1.
 This method returns 1 on success and 0 on error.
 
-.TP 
+.TP
 .RI Configure.CheckLibWithHeader( self ", " library ", " header ", " language ", [" call ", " autoadd ])
 
-In contrast to the 
-.RI Configure.CheckLib 
+In contrast to the
+.RI Configure.CheckLib
 call, this call provides a more sophisticated way to check against libraries.
-Again, 
+Again,
 .I library
-specifies the library or a list of libraries to check. 
+specifies the library or a list of libraries to check.
 .I header
 specifies a header to check for.
 .I header
@@ -6586,7 +6719,7 @@ the default simply checks that you
 can link against the specified
 .IR library .
 .I autoadd
-specifies whether to add the library to the environment (only if the check 
+specifies whether to add the library to the environment (only if the check
 succeeds). This method returns 1 on success and 0 on error.
 
 .TP
@@ -6621,7 +6754,7 @@ if not conf.CheckCHeader( 'math.h' ):
 if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++', 'QApplication qapp(0,0);' ):
     # do stuff for qt - usage, e.g.
     conf.env.Append( CPPFLAGS = '-DWITH_QT' )
-env = conf.Finish() 
+env = conf.Finish()
 .EE
 
 .TP
@@ -6737,52 +6870,52 @@ conf.Define('A_SYMBOL', 1, 'Set to 1 if you have a symbol')
 .EE
 
 .EE
-You can define your own custom checks. 
+You can define your own custom checks.
 in addition to the predefined checks.
 These are passed in a dictionary to the Configure function.
 This dictionary maps the names of the checks
-to user defined Python callables 
+to user defined Python callables
 (either Python functions or class instances implementing the
 .I __call__
 method).
-The first argument of the call is always a 
+The first argument of the call is always a
 .I CheckContext
 instance followed by the arguments,
 which must be supplied by the user of the check.
 These CheckContext instances define the following methods:
 
-.TP 
+.TP
 .RI CheckContext.Message( self ", " text )
 
-Usually called before the check is started. 
+Usually called before the check is started.
 .I text
 will be displayed to the user, e.g. 'Checking for library X...'
 
 .TP
 .RI CheckContext.Result( self, ", " res )
 
-Usually called after the check is done. 
+Usually called after the check is done.
 .I res
-can be either an integer or a string. In the former case, 'ok' (res != 0) 
-or 'failed' (res == 0) is displayed to the user, in the latter case the 
+can be either an integer or a string. In the former case, 'ok' (res != 0)
+or 'failed' (res == 0) is displayed to the user, in the latter case the
 given string is displayed.
 
 .TP
 .RI CheckContext.TryCompile( self ", " text ", " extension )
-Checks if a file with the specified 
+Checks if a file with the specified
 .I extension
-(e.g. '.c') containing 
-.I text 
+(e.g. '.c') containing
+.I text
 can be compiled using the environment's
-.B Object 
+.B Object
 builder. Returns 1 on success and 0 on failure.
 
-.TP 
+.TP
 .RI CheckContext.TryLink( self ", " text ", " extension )
 Checks, if a file with the specified
 .I extension
-(e.g. '.c') containing 
-.I text 
+(e.g. '.c') containing
+.I text
 can be compiled using the environment's
 .B Program
 builder. Returns 1 on success and 0 on failure.
@@ -6791,8 +6924,8 @@ builder. Returns 1 on success and 0 on failure.
 .RI CheckContext.TryRun( self ", " text ", " extension )
 Checks, if a file with the specified
 .I extension
-(e.g. '.c') containing 
-.I text 
+(e.g. '.c') containing
+.I text
 can be compiled using the environment's
 .B Program
 builder. On success, the program is run. If the program
@@ -6811,15 +6944,15 @@ then (0, '') is returned.
 .TP
 .RI CheckContext.TryAction( self ", " action ", [" text ", " extension ])
 Checks if the specified
-.I action 
+.I action
 with an optional source file (contents
 .I text
-, extension 
+, extension
 .I extension
 = ''
-) can be executed. 
-.I action 
-may be anything which can be converted to a 
+) can be executed.
+.I action
+may be anything which can be converted to a
 .B scons
 .RI Action.
 On success,
@@ -6837,12 +6970,12 @@ Low level implementation for testing specific builds;
 the methods above are based on this method.
 Given the Builder instance
 .I builder
-and the optional 
+and the optional
 .I text
 of a source file with optional
 .IR extension ,
-this method returns 1 on success and 0 on failure. In addition, 
-.I self.lastTarget 
+this method returns 1 on success and 0 on failure. In addition,
+.I self.lastTarget
 is set to the build target node, if the build was successful.
 
 .EE
@@ -6857,7 +6990,7 @@ def CheckQt(context, qtdir):
     context.env.Append(LIBS = 'qt', LIBPATH = qtdir + '/lib', CPPPATH = qtdir + '/include' )
     ret = context.TryLink("""
 #include <qapp.h>
-int main(int argc, char **argv) { 
+int main(int argc, char **argv) {
   QApplication qapp(argc, argv);
   return 0;
 }
@@ -6872,7 +7005,7 @@ conf = Configure( env, custom_tests = { 'CheckQt' : CheckQt } )
 if not conf.CheckQt('/usr/lib/qt'):
     print 'We really need qt!'
     Exit(1)
-env = conf.Finish() 
+env = conf.Finish()
 .EE
 
 .SS Command-Line Construction Variables
@@ -6881,7 +7014,7 @@ Often when building software,
 some variables must be specified at build time.
 For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
-compiler. 
+compiler.
 .B scons
 provides a
 .B Variables
@@ -6924,12 +7057,12 @@ Variables objects have the following methods:
 
 .TP
 .RI Add( key ", [" help ", " default ", " validator ", " converter ])
-This adds a customizable construction variable to the Variables object. 
+This adds a customizable construction variable to the Variables object.
 .I key
-is the name of the variable. 
-.I help 
+is the name of the variable.
+.I help
 is the help text for the variable.
-.I default 
+.I default
 is the default value of the variable;
 if the default value is
 .B None
@@ -7037,7 +7170,7 @@ for key, value in vars.UnknownVariables():
 
 .TP
 .RI Save( filename ", " env )
-This saves the currently set variables into a script file named  
+This saves the currently set variables into a script file named
 .I filename
 that can be used on the next invocation to automatically load the current
 settings.  This method combined with the Variables method can be used to
@@ -7054,10 +7187,10 @@ vars.Save('variables.cache', env)
 .TP
 .RI GenerateHelpText( env ", [" sort ])
 This generates help text documenting the customizable construction
-variables suitable to passing in to the Help() function. 
+variables suitable to passing in to the Help() function.
 .I env
 is the construction environment that will be used to get the actual values
-of customizable variables. Calling with 
+of customizable variables. Calling with
 an optional
 .I sort
 function
@@ -7230,7 +7363,7 @@ Return a tuple of arguments
 to set up an option
 whose value is a path name
 of a package that may be
-enabled, disabled or 
+enabled, disabled or
 given an explicit path name.
 The option will use
 the specified name
@@ -7385,7 +7518,7 @@ path of the given
 .I File
 or
 .IR Dir .
-The 
+The
 
 .ES
 # Get the current build dir's path, relative to top.
@@ -7512,14 +7645,14 @@ that sets the appropriate construction variables
 
 Builder objects are created
 using the
-.B Builder 
+.B Builder
 function.
 The
 .B Builder
 function accepts the following arguments:
 
 .IP action
-The command line string used to build the target from the source. 
+The command line string used to build the target from the source.
 .B action
 can also be:
 a list of strings representing the command
@@ -7536,33 +7669,33 @@ or a list of any of the above.
 
 An action function
 takes three arguments:
-.I source 
-- a list of source nodes, 
+.I source
+- a list of source nodes,
 .I target
 - a list of target nodes,
 .I env
 - the construction environment.
 
-.IP prefix 
+.IP prefix
 The prefix that will be prepended to the target file name.
 This may be specified as a:
 
 .RS 10
 .HP 6
-* 
+*
 .IR string ,
 
 .HP 6
-* 
+*
 .I callable object
 - a function or other callable that takes
 two arguments (a construction environment and a list of sources)
 and returns a prefix,
 
 .HP 6
-* 
+*
 .I dictionary
-- specifies a mapping from a specific source suffix (of the first 
+- specifies a mapping from a specific source suffix (of the first
 source specified) to a corresponding target prefix.  Both the source
 suffix and target prefix specifications may use environment variable
 substitution, and the target prefix (the 'value' entries in the
@@ -7610,7 +7743,7 @@ b = Builder("build_it < $SOURCE > $TARGET",
 .EE
 
 .IP ensure_suffix
-When set to any true value, causes 
+When set to any true value, causes
 .B scons
 to add the target suffix specified by the
 .I suffix
@@ -7649,7 +7782,7 @@ for Scanner objects that find
 implicit dependencies
 based only on the target file
 and the construction environment,
-.I not 
+.I not
 for implicit
 (See the section "Scanner Objects," below,
 for information about creating Scanner objects.)
@@ -7748,8 +7881,8 @@ from an emitter dictionary.)
 
 An emitter function
 takes three arguments:
-.I source 
-- a list of source nodes, 
+.I source
+- a list of source nodes,
 .I target
 - a list of target nodes,
 .I env
@@ -7803,7 +7936,7 @@ can not be called multiple times for the same target file(s). Calling a
 builder multiple times for the same target simply adds additional source
 files to the target; it is not allowed to change the environment associated
 with the target, specify addition environment overrides, or associate a different
-builder with the target. 
+builder with the target.
 
 .IP env
 A construction environment that can be used
@@ -7824,8 +7957,8 @@ can be converted into an Action object
 
 The generator function
 takes four arguments:
-.I source 
-- a list of source nodes, 
+.I source
+- a list of source nodes,
 .I target
 - a list of target nodes,
 .I env
@@ -7839,13 +7972,13 @@ Example:
 
 .ES
 def g(source, target, env, for_signature):
-    return [["gcc", "-c", "-o"] + target + source] 
+    return [["gcc", "-c", "-o"] + target + source]
 
 b = Builder(generator=g)
 .EE
 
 .IP
-The 
+The
 .I generator
 and
 .I action
@@ -7859,12 +7992,12 @@ multi-stage builder.
 .IP single_source
 Specifies that this builder expects exactly one source file per call. Giving
 more than one source files without target files results in implicitely calling
-the builder multiple times (once for each source given). Giving multiple 
+the builder multiple times (once for each source given). Giving multiple
 source files together with target files results in a UserError exception.
 
 .RE
 .IP
-The 
+The
 .I generator
 and
 .I action
@@ -7897,7 +8030,7 @@ In the following example,
 the setting of
 .B source_ext_match
 prevents
-.B scons 
+.B scons
 from exiting with an error
 due to the mismatched suffixes of
 .B foo.in
@@ -7997,7 +8130,7 @@ when a Builder object is created
 will be set in the executing construction
 environment when the Builder object is called.
 The canonical example here would be
-to set a construction variable to 
+to set a construction variable to
 the repository of a source code system.
 
 Any additional keyword arguments supplied
@@ -8143,7 +8276,7 @@ to indicate an unsuccessful build.
 def build_it(target = None, source = None, env = None):
     # build the target from the source
     return 0
- 
+
 a = Action(build_it)
 .EE
 
@@ -8311,7 +8444,7 @@ supplies a number of functions
 that arrange for various common
 file and directory manipulations
 to be performed.
-These are similar in concept to "tasks" in the 
+These are similar in concept to "tasks" in the
 Ant build tool,
 although the implementation is slightly different.
 These functions do not actually
@@ -8357,7 +8490,7 @@ sequences of file manipulation
 without relying
 on platform-specific
 external commands:
-that 
+that
 .ES
 env = Environment(TMPBUILD = '/tmp/builddir')
 env.Command('foo.out', 'foo.in',
@@ -8497,7 +8630,7 @@ Besides construction variables, scons provides the following
 variables for each command execution:
 
 .IP TARGET
-The file name of the target being built, or the file name of the first 
+The file name of the target being built, or the file name of the first
 target if multiple targets are being built.
 
 .IP TARGETS
@@ -8513,7 +8646,7 @@ The file names of the sources of the build command.
 (Note that the above variables are reserved
 and may not be set in a construction environment.)
 
-.LP 
+.LP
 For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:
 
@@ -8648,8 +8781,8 @@ The function should
 take four arguments:
 .I target
 - a list of target nodes,
-.I source 
-- a list of source nodes, 
+.I source
+- a list of source nodes,
 .I env
 - the construction environment,
 .I for_signature
@@ -8782,7 +8915,7 @@ command lines:
 
 .IP String
 When the value is a string it is interpreted as a space delimited list of
-command line arguments. 
+command line arguments.
 
 .IP List
 When the value is a list it is interpreted as a list of command line
@@ -8885,7 +9018,7 @@ this argument will be a list of suffixes
 for the different file types that this
 Scanner knows how to scan.
 If the argument is a string,
-then it will be expanded 
+then it will be expanded
 into a list by the current environment.
 
 .IP path_function
@@ -8964,7 +9097,7 @@ object that is used by
 the
 .BR Object (),
 .BR SharedObject (),
-and 
+and
 .BR StaticObject ()
 builders to decide
 which scanner should be used
@@ -9004,12 +9137,12 @@ depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
-SCons treats a file with a 
+SCons treats a file with a
 .B .C
 suffix as a C++ source file.
 On a case-insensitive system
 such as Windows,
-SCons treats a file with a 
+SCons treats a file with a
 .B .C
 suffix as a C source file.
 .SS .F file suffix
@@ -9020,14 +9153,14 @@ depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
-SCons treats a file with a 
+SCons treats a file with a
 .B .F
 suffix as a Fortran source file
 that is to be first run through
 the standard C preprocessor.
 On a case-insensitive system
 such as Windows,
-SCons treats a file with a 
+SCons treats a file with a
 .B .F
 suffix as a Fortran source file that should
 .I not
@@ -9106,7 +9239,7 @@ Python interpreter, SCons will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
 directories in the PATH variable. If you have both MSVC and MinGW
 installed and you want to use MinGW instead of MSVC,
-then you must explictly tell SCons to use MinGW by passing 
+then you must explictly tell SCons to use MinGW by passing
 
 .ES
 tools=['mingw']
@@ -9290,7 +9423,7 @@ def my_scan(node, env, path, arg):
     for inc in includes:
         for dir in path:
             file = dir + os.sep + inc
-            if os.path.exists(file):  
+            if os.path.exists(file):
                 results.append(file)
                 break
     return results
@@ -9431,7 +9564,7 @@ libA/SConscript:
     Import('env')
     env.Library('a', Split('a1.c a2.c a3.c'))
 
-libB/SConscript:                                                  
+libB/SConscript:
 
     Import('env')
     env.Library('b', Split('b1.c b2.c b3.c'))
@@ -9451,12 +9584,12 @@ Specifying only 'a' and 'b' for the library names
 allows SCons to append the appropriate library
 prefix and suffix for the current platform
 (for example, 'liba.a' on POSIX systems,
-'a.lib' on Windows).
+\&'a.lib' on Windows).
 
 .SS Customizing construction variables from the command line.
 
 The following would allow the C compiler to be specified on the command
-line or in the file custom.py. 
+line or in the file custom.py.
 
 .ES
 vars = Variables('custom.py')
@@ -9543,7 +9676,7 @@ Since including debugging information in programs and shared libraries can
 cause their size to increase significantly, Microsoft provides a mechanism
 for including the debugging information in an external file called a PDB
 file. SCons supports PDB files through the PDB construction
-variable. 
+variable.
 
 SConstruct:
 .ES

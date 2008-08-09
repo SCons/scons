@@ -458,11 +458,11 @@ program using the F<build/foo.c> path name.
   </section>
 
   <section>
-  <title>Using Glob() with &VariantDir;</title>
+  <title>Using &Glob; with &VariantDir;</title>
 
     <para>
 
-    The Glob() file name pattern matching function
+    The &Glob; file name pattern matching function
     works just as usual when using &VariantDir;.
     For example, if the
     <filename>src/SConscript</filename>
@@ -478,8 +478,9 @@ program using the F<build/foo.c> path name.
     <para>
 
     Then with the same &SConstruct; file as in the previous section,
-    and source files f1.c and f2.c in src, we would see the following
-    output:
+    and source files <filename>f1.c</filename>
+    and <filename>f2.c</filename> in src,
+    we would see the following output:
 
     </para>
 
@@ -496,8 +497,8 @@ program using the F<build/foo.c> path name.
 
     <para>
 
-    The Glob function returns Nodes in the build/ tree, as
-    you'd expect.
+    The &Glob; function returns Nodes in the
+    <filename>build/</filename> tree, as you'd expect.
 
     </para>
 

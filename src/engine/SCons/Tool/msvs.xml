@@ -60,8 +60,9 @@ by calling the
 &b-MSVSSolution;
 Builder (see below).
 
-It takes several lists of filenames to be placed into the project
-file.
+The &b-MSVSProject; builder
+takes several lists of filenames
+to be placed into the project file.
 These are currently limited to
 <literal>srcs</literal>,
 <literal>incs</literal>,
@@ -135,6 +136,21 @@ If this is not specified,
 the default is the same as the specified
 <literal>buildtarget</literal>
 value.
+
+Note that because &SCons; always executes its build commands
+from the directory in which the &SConstruct; file is located,
+if you generate a project file in a different directory
+than the &SConstruct; directory,
+users will not be able to double-click
+on the file name in compilation error messages
+displayed in the Visual Studio console output window.
+This can be remedied by adding the
+Visual C/C++
+.B /FC
+compiler option to the &cv-link-CCFLAGS;  variable
+so that the compiler will print
+the full path name of any
+files that cause compilation errors.
 
 Example usage:
 

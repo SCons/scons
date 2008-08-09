@@ -4,8 +4,8 @@
 # 'issues.xml'.  Run this script to translate 'issues.xml' into a CSV
 # file named 'editlist.csv'.  Upload the CSV into a Google spreadsheet.
 
-# In the spreadsheet, select the last column and delete it (added by the
-# upload to allow for expansion; we don't need it).
+# In the spreadsheet, select the last column and pick "delete-->column" (it
+# was added by the upload to allow for expansion and we don't need it).
 # Select all the columns and pick "align-->top"
 # Select the ID and votes columns and pick "align-->right"
 # Select the priority column and pick "align-->center"
@@ -17,7 +17,7 @@
 
 # The team members
 # FIXME: These names really should be external to this script
-team = 'Bill Greg Steven Gary Ken Brandon Sohail Jim'.split()
+team = 'Bill Greg Steven Gary Ken Brandon Sohail Jim David'.split()
 team.sort()
 
 # The elements to be picked out of the issue
@@ -37,9 +37,11 @@ def Value(element):
 	return v.nodeValue
 
 # Parse the XML issues file and produce a DOM for it
-# FIXME: parameterize the input file name
+import sys
+if len(sys.argv) > 1: xml = sys.argv[1]
+else: xml = 'issues.xml'
 from xml.dom.minidom import parse
-xml = parse('issues.xml')
+xml = parse(xml)
 
 # Go through the issues in the DOM, pick out the elements we want,
 # and put them in our list of issues.

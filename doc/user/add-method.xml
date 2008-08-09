@@ -25,12 +25,17 @@
 
   <para>
 
-  The env.AddMethod(function, [name]) function is used to add a method
-  to an environment.  It's typically used to add a "pseudo-builder" or
-  wrap up a call to multiple builders.  In the first example, we want
-  to install the program into the standard bin dir, but also copy it
-  into a local install/bin dir that might be used to build a package
-  from.
+  The &AddMethod; function is used to add a method
+  to an environment.  It's typically used to add a "pseudo-builder,"
+  a function that looks like a &Builder; but
+  wraps up calls to multiple other &Builder;s
+  or otherwise processes its arguments
+  before calling one or more &Builder;s.
+  In the following example,
+  we want to install the program into the standard
+  <filename>/usr/bin</filename> directory hierarchy,
+  but also copy it into a local <filename>install/bin</filename>
+  directory from which a package might be built:
 
   </para>
 
@@ -39,7 +44,7 @@
          """Install source in both bin dirs"""
          i1 = env.Install("$BIN", source)
          i2 = env.Install("$LOCALBIN", source)
-         return [i1[0], i2][0] # Return a list, like a normal builder
+         return [i1[0], i2[0]] # Return a list, like a normal builder
      env = Environment(BIN='/usr/bin', LOCALBIN='#install/bin')
      env.AddMethod(install_in_bin_dirs, "InstallInBinDirs")
      env.InstallInBinDirs(Program('hello.c')) # installs hello in both bin dirs     
@@ -53,44 +58,44 @@
     % <userinput>scons -Q /</userinput>
     cc -o hello.o -c hello.c
     cc -o hello hello.o
-    Install file: "hello" as "install/bin/hello"
     Install file: "hello" as "/usr/bin/hello"
+    Install file: "hello" as "install/bin/hello"
   </screen>
 
   <para>
 
-  It also gives more flexibility in parsing arguments than you can get
-  with a builder.  The next example shows a pseudo-builder with a
+  As mentioned, a psuedo-builder also provides more flexibility
+  in parsing arguments than you can get with a &Builder;.
+  The next example shows a pseudo-builder with a
   named argument that modifies the filename, and a separate argument
   for the resource file (rather than having the builder figure it out
-  by file extension).  Also this example demonstrates using the global
-  AddMethod function to add a method to the global Environment class,
+  by file extension).  This example also demonstrates using the global
+  &AddMethod; function to add a method to the global Environment class,
   so it will be used in all subsequently created environments.
 
   </para>
 
   <programlisting>
-     import sys
      def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
          """Build the test program;
-         prepends "test_" to src and target, and puts target into testdir."""
-         srcfile="test_%s.c"%testfile
-         if sys.platform=='win32':
-             target="%s/test_%s$EXESUFFIX"%(testdir,[testfile, resourcefile])
+         prepends "test_" to src and target,
+         and puts target into testdir."""
+         srcfile = "test_%s.c" % testfile
+         target = "%s/test_%s" % (testdir, testfile)
+         if env['PLATFORM'] == 'win32':
+             resfile = env.RES(resourcefile)
+             p = env.Program(target, [srcfile, resfile])
          else:
-             target="%s/test_%s$EXESUFFIX"%(testdir,testfile)
-         p = env.Program(target, srcfile)
+             p = env.Program(target, srcfile)
          return p
      AddMethod(Environment, BuildTestProg)
 
-     # Now use it
-     env=Environment()
+     env = Environment()
      env.BuildTestProg('stuff', resourcefile='res.rc')
   </programlisting>
 
   <para>
-  This produces the following (on Linux, anyway; Windows would include the
-  resource file):
+  This produces the following on Linux:
   </para>
 
   <screen>
@@ -100,8 +105,19 @@
   </screen>
 
   <para>
-  Using AddMethod is better than just adding an instance method to an
-  Environment because it gets called as a proper method, and AddMethod
-  provides for copying the method to any copies of the Environment
-  instance.
+  And the following on Windows:
+  </para>
+
+  <screen>
+    C:\><userinput>scons -Q</userinput>
+    rc /fores.res res.rc
+    cl /nologo /c test_stuff.c /Fotest_stuff.obj
+    link /nologo /OUT:tests\test_stuff.exe test_stuff.obj res.res
+  </screen>
+
+  <para>
+  Using &AddMethod; is better than just adding an instance method
+  to a &consenv; because it gets called as a proper method,
+  and because &AddMethod; provides for copying the method
+  to any clones of the &consenv; instance.
   </para>

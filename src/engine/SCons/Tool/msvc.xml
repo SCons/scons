@@ -123,8 +123,7 @@ You can generate PDB files with the <option>/Zi</option>
 switch by overriding the default &cv-link-CCPDBFLAGS; variable as follows:
 
 <example>
-import SCons.Util
-env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Zi /Fd%s" % File(PDB)) or ""}'])
+env['CCPDBFLAGS'] = ['${(PDB and "/Zi /Fd%s" % File(PDB)) or ""}']
 </example>
 
 An alternative would be to use the <option>/Zi</option>

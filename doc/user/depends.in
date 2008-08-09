@@ -391,6 +391,13 @@
 
       </para>
 
+      <!--
+
+      We want to generate the output as follows,
+      but our "surrogate" system for generating the
+      output seems to get this wrong.
+      Just in-line the output for now.
+
       <scons_output example="MD5-timestamp" os="posix">
          <scons_output_command>scons -Q hello</scons_output_command>
          <scons_output_command>touch hello.c</scons_output_command>
@@ -398,6 +405,22 @@
        <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
          <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
+
+      -->
+
+      <screen>
+         % <userinput>scons -Q hello</userinput>
+         cc -o hello.o -c hello.c
+         cc -o hello hello.o
+         % <userinput>touch hello.c</userinput>
+         % <userinput>scons -Q hello</userinput>
+         scons: `hello' is up to date.
+         % <userinput>edit hello.c</userinput>
+             [CHANGE THE CONTENTS OF hello.c]
+         % <userinput>scons -Q hello</userinput>
+         cc -o hello.o -c hello.c
+         cc -o hello hello.o
+      </screen>
 
       <para>
 
@@ -489,20 +512,74 @@
       <para>
 
       Note that in the function definition,
-      the <literal>dependency</literal>
+      the <varname>dependency</varname>
       (input file) is the first argument,
-      and then the <literal>target</literal>.
+      and then the &target;.
       Both of these are passed to the functions as
       SCons &Node; objects,
       which we convert to strings using the Python
       <function>str()</function>.
-      The third argument, <literal>prev_ni</literal>,
+
+      </para>
+
+      <para>
+
+      The third argument, <varname>prev_ni</varname>,
       is an object that holds the
       signature or timestamp information
       that was recorded about the dependency
       the last time the target was built.
+      A <varname>prev_ni</varname> object can hold
+      different information,
+      depending on the type of thing that the
+      <varname>dependency</varname> argument represents.
+      For normal files,
+      the <varname>prev_ni</varname> object
+      has the following attributes:
 
       </para>
+
+      <variablelist>
+
+        <varlistentry>
+        <term>.csig</term>
+
+        <listitem>
+        <para>
+        The <emphasis>content signature</emphasis>,
+        or MD5 checksum, of the contents of the
+        <varname>dependency</varname>
+        file the list time the &target; was built.
+        </para>
+        </listitem>
+
+        </varlistentry>
+
+        <varlistentry>
+        <term>.size</term>
+
+        <listitem>
+        <para>
+        The size in bytes of the <varname>dependency</varname>
+        file the list time the target was built.
+        </para>
+        </listitem>
+
+        </varlistentry>
+
+        <varlistentry>
+        <term>.timestamp</term>
+
+        <listitem>
+        <para>
+        The modification time of the <varname>dependency</varname>
+        file the list time the &target; was built.
+        </para>
+        </listitem>
+
+        </varlistentry>
+
+      </variablelist>
 
       <para>
 
@@ -1157,6 +1234,36 @@
        cc -o hello hello.o
     </screen>
 
+    <para>
+
+    Note that the dependency
+    (the second argument to &Depends;)
+    may also be a list of Node objects
+    (for example, as returned by a call to a Builder):
+
+    </para>
+
+    <programlisting>
+       hello = Program('hello.c')
+       goodbye = Program('goodbye.c')
+       Depends(hello, goodbye)
+    </programlisting>
+
+    <para>
+
+    in which case the dependency or dependencies
+    will be built before the target(s):
+
+    </para>
+
+    <screen>
+       % <userinput>scons -Q hello</userinput>
+       cc -c goodbye.c -o goodbye.o
+       cc -o goodbye goodbye.o
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+    </screen>
+
   </section>
 
   <section>
@@ -1187,7 +1294,7 @@
       </file>
     </scons_example>
 
-    <!-- XXX mention that you can use arrays for target and source? -->
+    <!-- XXX mention that you can use lists for target and source? -->
 
     <!--
     <scons_output example="ignore">
@@ -1233,9 +1340,170 @@
     </para>
 
     <programlisting>
-       hello = Program('hello.c')
+       hello = Program('hello.c', CPPPATH=['/usr/include'])
        Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
+
+  </section>
+
+  <section>
+  <title>Order-Only Dependencies:  the &Requires; Function</title>
+
+    <para>
+
+    Occasionally,
+    it may be useful to specify that a certain
+    file or directory must, if necessary,
+    be built or created before some other target is built,
+    but that changes to that file or directory
+    do <emphasis>not</emphasis>
+    require that the target itself be rebuilt.
+    Such a relationship is called an
+    <emphasis>order-only dependency</emphasis>
+    because it only affects the order in which
+    things must be built--the dependency before the target--but
+    it is not a strict dependency relationship
+    because the target should not
+    change in response to changes in the dependent file.
+
+    </para>
+
+    <para>
+
+    For example, suppose that you want to create a file
+    every time you run a build
+    that identifies the time the build was performed,
+    the version number, etc.,
+    and which is included in every program that you build.
+    The version file's contents will change every build.
+    If you specify a normal dependency relationship,
+    then every program that depends on
+    that file would be rebuilt every time you ran &SCons;.
+    For example, we could use some Python code in
+    a &SConstruct; file to create a new <filename>version.c</filename> file
+    with a string containing the current date every time
+    we run &SCons;,
+    and then link a program with the resulting object file
+    by listing <filename>version.c</filename> in the sources:
+
+    </para>
+
+    <scons_example name="no-Requires">
+      <file name="SConstruct" printme="1">
+      import time
+
+      version_c_text = """
+      char *date = "%s";
+      """ % time.ctime(time.time())
+      open('version.c', 'w').write(version_c_text)
+
+      hello = Program(['hello.c', 'version.c'])
+      </file>
+      <file name="hello.c">
+      extern char *date;
+      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    If we list <filename>version.c</filename> as an actual source file,
+    though, then <filename>version.o</filename>
+    will get rebuilt every time we run &SCons;
+    (because the &SConstruct; file itself changes
+    the contents of <filename>version.c</filename>)
+    and the <filename>hello</filename> executable
+    will get re-linked every time
+    (because the <filename>version.o</filename> file changes):
+
+    </para>
+
+    <!--
+
+    <scons_output example="no-Requires">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      gcc -o hello.o -c hello.c
+      gcc -o version.o -c version.c
+      gcc -o hello hello.o version.o
+      % <userinput>scons -Q</userinput>
+      gcc -o version.o -c version.c
+      gcc -o hello hello.o version.o
+      % <userinput>scons -Q</userinput>
+      gcc -o version.o -c version.c
+      gcc -o hello hello.o version.o
+    </screen>
+
+    <para>
+
+    One solution is to use the &Requires; function
+    to specify that the <filename>version.o</filename>
+    must be rebuilt before it is used by the link step,
+    but that changes to <filename>version.o</filename>
+    should not actually cause the <filename>hello</filename>
+    executable to be re-linked:
+
+    </para>
+
+    <scons_example name="Requires">
+      <file name="SConstruct" printme="1">
+      import time
+
+      version_c_text = """
+      char *date = "%s";
+      """ % time.ctime(time.time())
+      open('version.c', 'w').write(version_c_text)
+
+      version_obj = Object('version.c')
+
+      hello = Program('hello.c',
+                      LINKFLAGS = str(version_obj[0]))
+
+      Requires(hello, version_obj)
+      </file>
+      <file name="hello.c">
+      extern char *date;
+      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Notice that because we can no longer list <filename>version.c</filename>
+    as one of the sources for the <filename>hello</filename> program,
+    we have to find some other way to get it into the link command line.
+    For this example, we're cheating a bit and stuffing the
+    object file name (extracted from <literal>version_obj</literal>
+    list returned by the &b-Object; call)
+    into the &cv-link-LINKFLAGS; variable,
+    because &cv-LINKFLAGS; is already included
+    in the &cv-link-LINKCOM; command line.
+
+    </para>
+
+    <para>
+
+    With these changes,
+    we get the desired behavior of
+    re-building the <filename>version.o</filename> file,
+    and therefore re-linking the <filename>hello</filename> executable,
+    only when the <filename>hello.c</filename> has changed:
+
+    </para>
+
+    <scons_output example="Requires">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 

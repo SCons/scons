@@ -4,6 +4,8 @@ When adding a new file, add it to main.xml and MANIFEST.
 
 To build the .xml files from the .in files:
   scons -D . BUILDDOC=1
+To build the whole PDF doc from this dir, for testing:
+  scons -D ../../build/doc/PDF/scons-user.pdf 
 
 Writing examples: here's a simple template.
 
