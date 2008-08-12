@@ -7,11 +7,11 @@
                             Release Notes
 
 
-This is a beta release of SCons, a tool for building software (and other
-files).  SCons is implemented in Python, and its "configuration files"
-are actually Python scripts, allowing you to use the full power of a
-real scripting language to solve build problems.  You do not, however,
-need to know Python to use SCons effectively.
+This is SCons, a tool for building software (and other files).  SCons is
+implemented in Python, and its "configuration files" are actually Python
+scripts, allowing you to use the full power of a real scripting language
+to solve build problems.  You do not, however, need to know Python to
+use SCons effectively.
 
 So that everyone using SCons can help each other learn how to use it
 more effectively, please sign up for the scons-users mailing list at:
@@ -20,10 +20,10 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
+RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
 
-  This is a release candidate for SCons 1.0.  Please consult the
-  CHANGES.txt file for a list of specific changes since last release.
+  Please consult the CHANGES.txt file for a list of specific changes
+  since last release.
 
   Please note the following important changes since release 0.98.4:
 
@@ -765,12 +765,15 @@ RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it
-  for real work.  The "beta" status of the release reflects that we
-  still may change interfaces in future releases, which may require
-  modifications to your SConscript files.  We strive to hold these
-  changes to a minimum.
+  for real work.
 
-  Nevertheless, please heed the following disclaimers:
+  The interfaces in release 1.0 will *not* be knowingly changed in
+  any new, future 1.x release.  If an interface change should ever
+  become necessary due to extraordinary circumstances, the change
+  and an appropriate transition strategy will be documented in these
+  RELEASE notes.
+
+  As you use SCons, please heed the following:
 
     - Please report any bugs or other problems that you find to our bug
       tracker at our SourceForge project page:
@@ -787,10 +790,12 @@ RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
       would be more than glad to have your assistance in correcting this
       problem... :-)
 
-      In particular, the "SCons Design" documentation on the SCons web
-      site is currently out of date, as we made significant changes to
-      portions of the interface as we figured out what worked and what
-      didn't during implementation.
+    - The "SCons Design" documentation on the SCons web site is very
+      out of date, as we made significant changes to portions of the
+      interface as we figured out what worked and what didn't during the
+      extensive beta implementation.  The "SCons Design" document should
+      be used only for historical purposes, or for just an extremely
+      general understanding of SCons' architectural goals.
 
     - There may be performance issues.  Improving SCons performance
       is an ongoing priority.  If you still find the performance
@@ -820,9 +825,8 @@ RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
       use if you you want to fix your version of Python to support
       parallel builds in SCons.
 
-    - Again, the "SCons Design" documentation on the SCons web
-      site is currently out of date.  Take what you read there with a
-      grain of salt.
+    - Again, the "SCons Design" documentation on the SCons web site is
+      out of date.  Take what you read there with a grain of salt.
 
     - On Win32 systems, you must put a space between the redirection
       characters < and >, and the specified files (or construction
@@ -877,7 +881,9 @@ http://www.baldmt.com/~knight/
 With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
+        Bill Deegan
         Steve Leblanc
+        Greg Noel
         Gary Oberbrunner
         Anthony Roach
         Greg Spencer

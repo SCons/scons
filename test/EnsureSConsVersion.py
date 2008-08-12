@@ -46,7 +46,7 @@ env.EnsureSConsVersion(1,0)
 Exit(0)
 """)
 
-    test.run(status=2)
+    test.run()
 
     test.write('SConstruct', """\
 env = Environment()
