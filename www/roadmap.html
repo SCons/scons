@@ -13,20 +13,17 @@
 <h2>Current Releases</h2>
 
 <p>
-The current stable release is 0.98.5, released 9 June 2008.
+The current stable release is 1.0.0, released 12 August 2008.
 </p>
 
 <p>
-The latest release is 0.98.5, released 9 June 2008.
+The latest release is 1.0.0, released 12 August 2008.
 </p>
 
 <h2>Upcoming Releases</h2>
 
-SCons is putting in place a new release team of interested developers.
-Expect this section to be updated once
-that team has hammered out a release schedule.
-
 <table>
+
 <tr>
 <th>Release</th>
 <th>Est. Date?</th>
@@ -34,23 +31,36 @@ that team has hammered out a release schedule.
 Goals
 </th>
 </tr>
+
 <tr>
 <td>1.0</td>
-<td>???</td>
+<td>12 August 2008td>
 <td>
 First official, stable release.
 No 1.x release will (knowingly) break compatibility
 or cause a rebuild on upgrade.
-The following features have been suggested as prerequisites
-for a fully-feature 1.0 release:
-  <ul>
-  <li>
-  C/C++ dependency scanning that acts like a real C preprocessor
-  (computed file names, <tt>#ifdef</tt> analysis, <tt>#include_next</tt> support)
-  </li>
-  </ul>
 </td>
 </tr>
+
+<tr>
+<td>1.0.1</td>
+<td>2 September 2008</td>
+<td>
+Bug fixes,
+especially lower-priority regressions
+identified during the 1.0.0 candidate period.
+Performance improvements.
+</td>
+</tr>
+
+<tr>
+<td>1.1.1</td>
+<td>???</td>
+<td>
+Features accumulated during the 1.0.0 candidate period.
+</td>
+</tr>
+
 <tr>
 <td>2.0</td>
 <td>???</td>
@@ -58,6 +68,7 @@ for a fully-feature 1.0 release:
 First release that will break backwards compatibility with Python 1.5.2.
 </td>
 </tr>
+
 </table>
 
 <!--
@@ -67,19 +78,6 @@ First release that will break backwards compatibility with Python 1.5.2.
 -->
 
 <h2>Release Planning</h2>
-
-<h3>Why has 1.0 still not been released?</h3>
-
-<p>
-As seems so common these days,
-SCons has had an extremely lengthy "beta" period.
-The primary goal has been to arrive at something by 1.0
-that we feel is absolutely rock-solid-stable
-and which people can download and use without fear of
-broken builds or unnecessary rebuilds.
-To get some idea of how we do this, see our
-<a href="testing.html">testing philosophy</a> page.
-</p>
 
 <h3>Release numbering</h3>
 
