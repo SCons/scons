@@ -7,11 +7,11 @@
                          Version __VERSION__
 
 
-This is a beta release of SCons, a tool for building software (and other
-files).  SCons is implemented in Python, and its "configuration files"
-are actually Python scripts, allowing you to use the full power of a
-real scripting language to solve build problems.  You do not, however,
-need to know Python to use SCons effectively.
+This is SCons, a tool for building software (and other files).  SCons is
+implemented in Python, and its "configuration files" are actually Python
+scripts, allowing you to use the full power of a real scripting language
+to solve build problems.  You do not, however, need to know Python to
+use SCons effectively.
 
 See the RELEASE.txt file for notes about this specific release,
 including known problems.  See the CHANGES.txt file for a list of
