@@ -62,10 +62,10 @@ if test "X${ALL}" != "X"; then
     2.0.1
     2.1.3
     2.2
-    2.3.6
-    2.4.4
+    2.3.7
+    2.4.5
     "
-    # 2.5.1
+    # 2.5.2
 fi
 
 Command()
@@ -76,7 +76,6 @@ Command()
 }
 
 for VERSION in $VERSIONS; do
-    DIR=`expr "$VERSION" : '\(...\)'`
     PYTHON=Python-${VERSION}
 
     TAR_GZ=${PYTHON}.tgz
@@ -84,7 +83,7 @@ for VERSION in $VERSIONS; do
         if test ! -d ${DOWNLOADS}; then
             Command mkdir ${DOWNLOADS}
         fi
-        Command "( cd ${DOWNLOADS} && wget ${DOWNLOADS_URL}/${DIR}/${TAR_GZ} )"
+        Command "( cd ${DOWNLOADS} && wget ${DOWNLOADS_URL}/${VERSION}/${TAR_GZ} )"
     fi
 
     Command tar zxf ${DOWNLOADS}/${TAR_GZ}
