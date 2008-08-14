@@ -135,7 +135,12 @@ int main(int argc, char **args) {
 """)
 
 
-    test.run()
+    # OX X through 10.5 include an ancient version of rpcgen from 1998 that
+    # generates numerous compile warnings.  Ignore stderr for this platform.
+    if sys.platform[:6] == 'darwin':
+        test.run(stderr=None)
+    else:
+        test.run()
 
     test.run(program=test.workpath('rpcclnt'+_exe))
 
