@@ -109,12 +109,15 @@ def generate(env):
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
 
-    if env['PLATFORM'] == 'darwin':
-        # Bison on Mac OS X just appends ".h" to the generated target .cc
-        # or .cpp file name.  Hooray for delayed expansion of variables.
-        env['YACCHXXFILESUFFIX'] = '${TARGET.suffix}.h'
-    else:
-        env['YACCHXXFILESUFFIX'] = '.hpp'
+    # Apparently, OS X now creates file.hpp like everybody else
+    # I have no idea when it changed; it was fixed in 10.4
+    #if env['PLATFORM'] == 'darwin':
+    #    # Bison on Mac OS X just appends ".h" to the generated target .cc
+    #    # or .cpp file name.  Hooray for delayed expansion of variables.
+    #    env['YACCHXXFILESUFFIX'] = '${TARGET.suffix}.h'
+    #else:
+    #    env['YACCHXXFILESUFFIX'] = '.hpp'
+    env['YACCHXXFILESUFFIX'] = '.hpp'
 
     env['YACCVCGFILESUFFIX'] = '.vcg'
 
