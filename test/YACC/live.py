@@ -56,7 +56,7 @@ yacc = foo.Dictionary('YACC')
 bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc)
 foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')
-foo.Program(target = 'hello', source = ['hello.cpp']) 
+foo.Program(target = 'hello', source = ['hello.cpp'])
 foo.CXXFile(target = 'file.cpp', source = ['file.yy'], YACCFLAGS='-d')
 foo.CFile(target = 'not_foo', source = 'foo.y')
 """ % locals())
@@ -103,11 +103,14 @@ graph:        GRAPH_T
 %%
 """)
 
-import sys
-if sys.platform[:6] == 'darwin':
-   file_hpp = 'file.cpp.h'
-else:
-   file_hpp = 'file.hpp'
+# Apparently, OS X now creates file.hpp like everybody else
+# I have no idea when it changed; it was fixed in 10.4
+#import sys
+#if sys.platform[:6] == 'darwin':
+#   file_hpp = 'file.cpp.h'
+#else:
+#   file_hpp = 'file.hpp'
+file_hpp = 'file.hpp'
 
 test.write("hello.cpp", """\
 #include "%(file_hpp)s"
