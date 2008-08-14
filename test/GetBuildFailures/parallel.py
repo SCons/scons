@@ -98,14 +98,20 @@ test.write('f4.in', "f4.in\n")
 test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
 
-expect_stderr = """\
-scons: *** [f4] Error 1
-scons: *** [f5] Error 1
-"""
-
 test.run(arguments = '-Q -j 4 .',
          status = 2,
-         stderr = expect_stderr)
+         stderr = None)
+
+f4_error = "scons: *** [f4] Error 1\n" 
+f5_error = "scons: *** [f5] Error 1\n"
+
+error_45 = f4_error + f5_error
+error_54 = f5_error + f4_error
+
+if test.stderr() not in [error_45, error_54]:
+    print "Did not find the following output in list of expected strings:"
+    print test.stderr(),
+    test.fail_test()
 
 # We jump through hoops above to try to make sure that the individual
 # commands execute and exit in the order we want, but we still can't be
