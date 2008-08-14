@@ -10,6 +10,14 @@
 
 RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
 
+From Ludwig Hähne:
+
+  - Fix sporadic output-order failures in test/GetBuildFailures/parallel.py.
+
+
+
+RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
+
 From Luca Falavigna:
 
   - Fix SCons man page indentation under Debian's man page macros.
