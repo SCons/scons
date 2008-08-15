@@ -36,6 +36,7 @@ import SCons.Util
 def generate(env):
     """Add Builders and construction variables for ilink to an
     Environment."""
+    SCons.Tool.createSharedLibBuilder(env)
     SCons.Tool.createProgBuilder(env)
 
     env['LINK']        = '$CC'
@@ -45,6 +46,7 @@ def generate(env):
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']=''
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
+
 
 def exists(env):
     # Uses bcc32 to do linking as it generally knows where the standard
