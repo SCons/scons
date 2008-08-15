@@ -887,7 +887,7 @@ class Entry(Base):
         if not self.__class__ is klass:
             self.__class__ = klass
             self._morph()
-            self.clear
+            self.clear()
 
     # The following methods can get called before the Taskmaster has
     # had a chance to call disambiguate() directly to see if this Entry
