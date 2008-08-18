@@ -6520,7 +6520,9 @@ A created
 instance has the following associated methods:
 
 .TP
-.RI Configure.Finish()
+.RI SConf.Finish( context )
+.TP
+.IR sconf .Finish()
 This method should be called after configuration is done.
 It returns the environment as modified
 by the configuration checks performed.
@@ -6536,7 +6538,9 @@ The following Checks are predefined.
 goes by and developers contribute new useful tests.)
 
 .TP
-.RI Configure.CheckHeader( header ", [" include_quotes ", " language ])
+.RI SConf.CheckHeader( context ", " header ", [" include_quotes ", " language ])
+.TP
+.IR sconf .CheckHeader( header ", [" include_quotes ", " language ])
 Checks if
 .I header
 is usable in the specified language.
@@ -6565,9 +6569,11 @@ and selects the compiler to be used for the check.
 Returns 1 on success and 0 on failure.
 
 .TP
-.RI Configure.CheckCHeader( header ", [" include_quotes ])
+.RI SConf.CheckCHeader( context ", " header ", [" include_quotes ])
+.TP
+.IR sconf .CheckCHeader( header ", [" include_quotes ])
 This is a wrapper around
-.B Configure.CheckHeader
+.B SConf.CheckHeader
 which checks if
 .I header
 is usable in the C language.
@@ -6589,9 +6595,11 @@ to \N'34').
 Returns 1 on success and 0 on failure.
 
 .TP
-.RI Configure.CheckCXXHeader( header ", [" include_quotes ])
+.RI SConf.CheckCXXHeader( context ", " header ", [" include_quotes ])
+.TP
+.IR sconf .CheckCXXHeader( header ", [" include_quotes ])
 This is a wrapper around
-.B Configure.CheckHeader
+.B SConf.CheckHeader
 which checks if
 .I header
 is usable in the C++ language.
@@ -6613,7 +6621,9 @@ to \N'34').
 Returns 1 on success and 0 on failure.
 
 .TP
-.RI Configure.CheckFunc( function_name ", [" header ", " language ])
+.RI SConf.CheckFunc( context, ", " function_name ", [" header ", " language ])
+.TP
+.IR sconf .CheckFunc( function_name ", [" header ", " language ])
 Checks if the specified
 C or C++ function is available.
 .I function_name
@@ -6643,7 +6653,9 @@ and selects the compiler to be used for the check;
 the default is "C".
 
 .TP
-.RI Configure.CheckLib([ library ", " symbol ", " header ", " language ", " autoadd=1 ])
+.RI SConf.CheckLib( context ", [" library ", " symbol ", " header ", " language ", " autoadd=1 ])
+.TP
+.IR sconf .CheckLib([ library ", " symbol ", " header ", " language ", " autoadd=1 ])
 Checks if
 .I library
 provides
@@ -6667,7 +6679,7 @@ If
 is not set or is
 .BR None ,
 then
-.BR Configure.CheckLib ()
+.BR SConf.CheckLib ()
 just checks if
 you can link against the specified
 .IR library .
@@ -6685,10 +6697,12 @@ is 1.
 This method returns 1 on success and 0 on error.
 
 .TP
-.RI Configure.CheckLibWithHeader( library ", " header ", " language ", [" call ", " autoadd ])
+.RI SConf.CheckLibWithHeader( context ", " library ", " header ", " language ", [" call ", " autoadd ])
+.TP
+.IR sconf .CheckLibWithHeader( library ", " header ", " language ", [" call ", " autoadd ])
 
 In contrast to the
-.RI Configure.CheckLib
+.RI SConf.CheckLib
 call, this call provides a more sophisticated way to check against libraries.
 Again,
 .I library
@@ -6719,7 +6733,9 @@ specifies whether to add the library to the environment (only if the check
 succeeds). This method returns 1 on success and 0 on error.
 
 .TP
-.RI Configure.CheckType( type_name ", [" includes ", " language ])
+.RI SConf.CheckType( context ", " type_name ", [" includes ", " language ])
+.TP
+.IR sconf .CheckType( type_name ", [" includes ", " language ])
 Checks for the existence of a type defined by
 .BR typedef .
 .I type_name
@@ -6747,14 +6763,17 @@ conf = Configure( env )
 if not conf.CheckCHeader( 'math.h' ):
     print 'We really need math.h!'
     Exit(1)
-if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++', 'QApplication qapp(0,0);' ):
+if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++',
+        'QApplication qapp(0,0);' ):
     # do stuff for qt - usage, e.g.
     conf.env.Append( CPPFLAGS = '-DWITH_QT' )
 env = conf.Finish()
 .EE
 
 .TP
-.RI Configure.CheckTypeSize( type_name ", [" header ", " language ", " expect ])
+.RI SConf.CheckTypeSize( context ", " type_name ", [" header ", " language ", " expect ])
+.TP
+.IR sconf .CheckTypeSize( type_name ", [" header ", " language ", " expect ])
 Checks for the size of a type defined by
 .BR typedef .
 .I type_name
@@ -6790,7 +6809,9 @@ will return success only if short is two bytes.
 .EE
 
 .TP
-.RI Configure.CheckDeclaration( symbol ", [" includes ", " language ])
+.RI SConf.CheckDeclaration( context ", " symbol ", [" includes ", " language ])
+.TP
+.IR sconf .CheckDeclaration( symbol ", [" includes ", " language ])
 Checks if the specified
 .I symbol
 is declared.
@@ -6809,7 +6830,9 @@ and selects the compiler to be used for the check;
 the default is "C".
 
 .TP
-.RI Configure.Define( symbol ", [" value ", " comment ])
+.RI SConf.Define( context ", " symbol ", [" value ", " comment ])
+.TP
+.IR sconf .Define( symbol ", [" value ", " comment ])
 This function does not check for anything, but defines a
 preprocessor symbol that will be added to the configuration header file.
 It is the equivalent of AC_DEFINE,
