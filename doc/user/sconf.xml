@@ -206,7 +206,7 @@
     <programlisting>
     env = Environment()
     conf = Configure(env)
-    if not conf.CheckLibWithHeader('m', 'math.h'):
+    if not conf.CheckLibWithHeader('m', 'math.h', 'c'):
         print 'Did not find libm.a or m.lib, exiting!'
         Exit(1)
     env = conf.Finish()
