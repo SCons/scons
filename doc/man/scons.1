@@ -6520,7 +6520,7 @@ A created
 instance has the following associated methods:
 
 .TP
-.RI Configure.Finish( self )
+.RI Configure.Finish()
 This method should be called after configuration is done.
 It returns the environment as modified
 by the configuration checks performed.
@@ -6536,7 +6536,7 @@ The following Checks are predefined.
 goes by and developers contribute new useful tests.)
 
 .TP
-.RI Configure.CheckHeader( self ", " header ", [" include_quotes ", " language ])
+.RI Configure.CheckHeader( header ", [" include_quotes ", " language ])
 Checks if
 .I header
 is usable in the specified language.
@@ -6565,7 +6565,7 @@ and selects the compiler to be used for the check.
 Returns 1 on success and 0 on failure.
 
 .TP
-.RI Configure.CheckCHeader( self ", " header ", [" include_quotes ])
+.RI Configure.CheckCHeader( header ", [" include_quotes ])
 This is a wrapper around
 .B Configure.CheckHeader
 which checks if
@@ -6589,7 +6589,7 @@ to \N'34').
 Returns 1 on success and 0 on failure.
 
 .TP
-.RI Configure.CheckCXXHeader( self ", " header ", [" include_quotes ])
+.RI Configure.CheckCXXHeader( header ", [" include_quotes ])
 This is a wrapper around
 .B Configure.CheckHeader
 which checks if
@@ -6613,7 +6613,7 @@ to \N'34').
 Returns 1 on success and 0 on failure.
 
 .TP
-.RI Configure.CheckFunc( self ", " function_name ", [" header ", " language ])
+.RI Configure.CheckFunc( function_name ", [" header ", " language ])
 Checks if the specified
 C or C++ function is available.
 .I function_name
@@ -6643,7 +6643,7 @@ and selects the compiler to be used for the check;
 the default is "C".
 
 .TP
-.RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd=1 ])
+.RI Configure.CheckLib([ library ", " symbol ", " header ", " language ", " autoadd=1 ])
 Checks if
 .I library
 provides
@@ -6685,7 +6685,7 @@ is 1.
 This method returns 1 on success and 0 on error.
 
 .TP
-.RI Configure.CheckLibWithHeader( self ", " library ", " header ", " language ", [" call ", " autoadd ])
+.RI Configure.CheckLibWithHeader( library ", " header ", " language ", [" call ", " autoadd ])
 
 In contrast to the
 .RI Configure.CheckLib
@@ -6719,7 +6719,7 @@ specifies whether to add the library to the environment (only if the check
 succeeds). This method returns 1 on success and 0 on error.
 
 .TP
-.RI Configure.CheckType( self ", " type_name ", [" includes ", " language ])
+.RI Configure.CheckType( type_name ", [" includes ", " language ])
 Checks for the existence of a type defined by
 .BR typedef .
 .I type_name
@@ -6754,7 +6754,7 @@ env = conf.Finish()
 .EE
 
 .TP
-.RI Configure.CheckTypeSize( self ", " type_name ", [" header ", " language ", " expect ])
+.RI Configure.CheckTypeSize( type_name ", [" header ", " language ", " expect ])
 Checks for the size of a type defined by
 .BR typedef .
 .I type_name
@@ -6790,7 +6790,7 @@ will return success only if short is two bytes.
 .EE
 
 .TP
-.RI Configure.CheckDeclaration( self ", " symbol ", [" includes ", " language ])
+.RI Configure.CheckDeclaration( symbol ", [" includes ", " language ])
 Checks if the specified
 .I symbol
 is declared.
@@ -6809,7 +6809,7 @@ and selects the compiler to be used for the check;
 the default is "C".
 
 .TP
-.RI Configure.Define(self ", " symbol ", [" value ", " comment ])
+.RI Configure.Define( symbol ", [" value ", " comment ])
 This function does not check for anything, but defines a
 preprocessor symbol that will be added to the configuration header file.
 It is the equivalent of AC_DEFINE,
