@@ -2212,10 +2212,9 @@ for scanning D source files,
 You can also write your own Scanners
 to add support for additional source file types.
 These can be added to the default
-Scanner object used by
-the
-.BR Object ()
-.BR StaticObject ()
+Scanner object used by the
+.BR Object (),
+.BR StaticObject (),
 and
 .BR SharedObject ()
 Builders by adding them
@@ -3940,8 +3939,7 @@ Nodes or strings representing path names.
 .TP
 .RI env.GetLaunchDir()
 Returns the absolute path name of the directory from which
-.B
-scons
+.B scons
 was initially invoked.
 This can be useful when using the
 .BR \-u ,
@@ -5099,7 +5097,7 @@ The optional
 .I exports
 argument provides a list of variable names or a dictionary of
 named values to export to the
-.IR script(s) ". "
+.IR script(s) .
 These variables are locally exported only to the specified
 .IR script(s) ,
 and do not affect the global pool of variables used by the
@@ -5735,8 +5733,6 @@ Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
 # marks file2.txt to be a documentation file
 Tag( 'file2.txt', DOC )
 .EE
-</summary>
-</builder>
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
