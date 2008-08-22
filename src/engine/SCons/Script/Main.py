@@ -78,7 +78,7 @@ def fetch_win32_parallel_msg():
     # globl in nest scopes and UnboundLocalErrors and the like in some
     # versions (2.1) of Python.
     import SCons.Platform.win32
-    SCons.Platform.win32.parallel_msg
+    print SCons.Platform.win32.parallel_msg
 
 #
 

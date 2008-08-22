@@ -31,6 +31,11 @@ From Greg Noel:
 
   - Fix documentation of SConf.CheckLibWithHeader and other SConf methods.
 
+From Jonas Olsson:
+
+  - Print the warning about -j on Windows being potentially unreliable if
+    the pywin32 extensions are unavailable or lack file handle operations.
+
 From Rogier Schouten:
 
   - Enable building of shared libraries with the Bordand ilink32 linker.
