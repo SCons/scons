@@ -8,11 +8,32 @@
 
 
 
-RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
+RELEASE 1.0.0 - XXX
+
+From Jared Grubb:
+
+  - Clear the Node state when turning a generic Entry into a Dir.
 
 From Ludwig Hähne:
 
   - Fix sporadic output-order failures in test/GetBuildFailures/parallel.py.
+
+From Greg Noel:
+
+  - Handle yacc/bison on newer Mac OS X versions creating file.hpp,
+    not file.cpp.h.
+
+  - In RPCGEN tests, ignore stderr messages from older versions of
+    rpcgen on some versions of Mac OS X.
+ 
+  - Fix typos in man page descriptions of Tag() and Package(), and in
+    the scons-time man page.
+
+  - Fix documentation of SConf.CheckLibWithHeader and other SConf methods.
+
+From Rogier Schouten:
+
+  - Enable building of shared libraries with the Bordand ilink32 linker.
 
 
 
