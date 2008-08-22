@@ -214,6 +214,7 @@
 <!ENTITY PackageOption "<function>PackageOption</function>">
 <!ENTITY PackageVariable "<function>PackageVariable</function>">
 <!ENTITY ParseConfig "<function>ParseConfig</function>">
+<!ENTITY ParseDepends "<function>ParseDepends</function>">
 <!ENTITY ParseFlags "<function>ParseFlags</function>">
 <!ENTITY PathOption "<function>PathOption</function>">
 <!ENTITY PathOption_PathAccept "<function>PathOption.PathAccept</function>">
