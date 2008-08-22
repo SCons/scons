@@ -78,7 +78,7 @@ def fetch_win32_parallel_msg():
     # globl in nest scopes and UnboundLocalErrors and the like in some
     # versions (2.1) of Python.
     import SCons.Platform.win32
-    print SCons.Platform.win32.parallel_msg
+    return SCons.Platform.win32.parallel_msg
 
 #
 
@@ -110,8 +110,7 @@ class Progressor:
         elif SCons.Util.is_List(obj):
             self.func = self.spinner
         elif string.find(obj, self.target_string) != -1:
-            self.func = self.replace_string
-        else:
+            self.func = self.replace_string else:
             self.func = self.string
 
     def write(self, s):
