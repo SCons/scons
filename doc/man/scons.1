@@ -2747,7 +2747,7 @@ env.SourceCode('.', env.BitKeeper())
 .RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
 .TP
 .RI env.BuildDir( build_dir ", " src_dir ", [" duplicate ])
-Synonyms for
+Deprecated synonyms for
 .BR VariantDir ()
 and
 .BR env.VariantDir ().
@@ -2759,7 +2759,6 @@ argument of
 .BR VariantDir ()
 or
 .BR env.VariantDir ().
-(This will be officially deprecated some day.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -5049,17 +5048,25 @@ for a specific subdirectory.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI SConscript( scripts ", [" exports ", " variant_dir ", " src_dir ", " duplicate ])
+.RI SConscript( scripts ", [" exports ", " variant_dir ", " duplicate ])
+'\" .RI SConscript( scripts ", [" exports ", " variant_dir ", " src_dir ", " duplicate ])
 .TP
-.RI env.SConscript( scripts ", [" exports ", " variant_dir ", " src_dir ", " duplicate ])
+.RI env.SConscript( scripts ", [" exports ", " variant_dir ", " duplicate ])
+'\" .RI env.SConscript( scripts ", [" exports ", " variant_dir ", " src_dir ", " duplicate ])
 .TP
-.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " src_dir ", " duplicate ])
+.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " duplicate ])
+'\" .RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " src_dir ", " duplicate ])
 .TP
-.RI env.SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " src_dir ", " duplicate ])
+.RI env.SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " duplicate ])
+'\" .RI env.SConscript(dirs= subdirs ", [name=" script ", " exports ", " variant_dir ", " src_dir ", " duplicate ])
 This tells
 .B scons
 to execute
 one or more subsidiary SConscript (configuration) files.
+Any variables returned by a called script using
+.BR Return ()
+will be returned by the call to
+.BR SConscript ().
 There are two ways to call the
 .BR SConscript ()
 function.
@@ -5074,6 +5081,12 @@ multiple scripts must be specified as a list
 (either explicitly or as created by
 a function like
 .BR Split ()).
+Examples:
+.ES
+SConscript('SConscript')      # run SConscript in the current directory
+SConscript('src/SConscript')  # run SConscript in the src directory
+SConscript(['src/SConscript', 'sub/SConscript'])
+.EE
 
 The second way you can call
 .BR SConscript ()
@@ -5092,6 +5105,15 @@ You may specify a name other than
 by supplying an optional
 .RI name= script
 keyword argument.
+The first three examples below have the same effect
+as the first three examples above:
+.ES
+SConscript(dirs='.')      # run SConscript in the current directory
+SConscript(dirs='src')    # run SConscript in the src directory
+SConscript(dirs=['src', 'sub'])
+SConscript(dirs=['sub1', 'sub2'])
+SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
+.EE
 
 The optional
 .I exports
@@ -5109,63 +5131,117 @@ The subsidiary
 must use the
 .BR Import ()
 function to import the variables.
+Examples:
+.ES
+foo = SConscript('sub/SConscript', exports='env')
+SConscript('dir/SConscript', exports=['env', 'variable'])
+SConscript(dirs='dir', exports='env variable')
+SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
+.EE
 
 If the optional
 .I variant_dir
-argument is present, it causes an effect equivalent to
-.BR VariantDir (
-.IR variant_dir ,
-.IR src_dir ,
-.IR duplicate )
-to be executed prior to reading the
-.IR script (s).
+argument is present, it causes an effect equivalent to the
+.BR VariantDir ()
+method described below.
 (If
 .I variant_dir
 is not present, the
-.I src_dir
-and
+'\" .IR src_dir and
 .I duplicate
-arguments are ignored.)
+'\" arguments are ignored.)
+argument is ignored.)
 The
 .I variant_dir
-and
-.I src_dir
-arguments are interpreted relative to the directory
-of the calling SConscript file.
-If
-.I src_dir
-is not specified, the directory of the calling SConscript file is assumed.
+'\" and
+'\" .I src_dir
+'\" arguments are interpreted relative to the directory of the calling
+argument is interpreted relative to the directory of the calling
+.BR SConscript file.
 See the description of the
 .BR VariantDir ()
 function below for additional details and restrictions.
 
-Any variables returned by
-.I script
-using
-.BR Return ()
-will be returned by the call to
-.BR SConscript ().
+If
+'\" .IR variant_dir "is present, but"
+'\" .IR src_dir "is not,"
+.IR variant_dir "is present,"
+the source directory is relative to the called
+.BR SConscript file.
+.ES
+SConscript('src/SConscript', variant_dir = 'build')
+.EE
+is equivalent to
+.ES
+VariantDir('build', 'src')
+SConscript('build/SConscript')
+.EE
+This later paradigm is often used when the sources are
+in the same directory as the
+.BR SConstruct file:
+.ES
+SConscript('SConscript', variant_dir = 'build')
+.EE
+is equivalent to
+.ES
+VariantDir('build', '.')
+SConscript('build/SConscript')
+.EE
 
-Examples:
+'\" If
+'\" .IR variant_dir and
+'\" .IR src_dir "are both present,"
+'\" xxxxx everything is in a state of confusion.
+'\" .ES
+'\" SConscript(dirs = 'src', variant_dir = 'build', src_dir = '.')
+'\" runs src/SConscript in build/src, but
+'\" SConscript(dirs = 'lib', variant_dir = 'build', src_dir = 'src')
+'\" runs lib/SConscript (in lib!).  However,
+'\" SConscript(dirs = 'src', variant_dir = 'build', src_dir = 'src')
+'\" runs src/SConscript in build.  Moreover,
+'\" SConscript(dirs = 'src/lib', variant_dir = 'build', src_dir = 'src')
+'\" runs src/lib/SConscript in build/lib.  Moreover,
+'\" SConscript(dirs = 'build/src/lib', variant_dir = 'build', src_dir = 'src')
+'\" can't find build/src/lib/SConscript, even though it ought to exist.
+'\" .EE
+'\" is equivalent to
+'\" .ES
+'\" ????????????????
+'\" .EE
+'\" and what about this alternative?
+'\"TODO??? SConscript('build/SConscript', src_dir='src')
+
+Composite examples:
 
 .ES
-SConscript('subdir/SConscript')
-foo = SConscript('sub/SConscript', exports='env')
-SConscript('dir/SConscript', exports=['env', 'variable'])
-SConscript('dir/SConscript', exports='env variable')
-SConscript(dirs=['sub1', 'sub2'])
-SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
+# collect the configuration information and use it to build src and doc
+shared_info = SConscript('SConfigure')
+SConscript('src/SConscript', export='shared_info')
+SConscript('doc/SConscript', export='shared_info')
 .EE
 
 .ES
-SConscript('bld/SConscript', variant_dir='bld', duplicate=0)
+# build debugging and production versions.  SConscript
+# can use Dir('.').path to determine variant.
+SConscript('SConscript', variant_dir='debug', duplicate=0)
+SConscript('SConscript', variant_dir='prod', duplicate=0)
 .EE
-which is equivalent to
+
 .ES
-VariantDir('bld', '.', duplicate=0)
-SConscript('bld/SConscript')
+# build debugging and production versions.  SConscript
+# is passed flags to use.
+opts = { 'CPPDEFINES' : ['DEBUG'], 'CCFLAGS' : '-pgdb' }
+SConscript('SConscript', variant_dir='debug', duplicate=0, export=opts)
+opts = { 'CPPDEFINES' : ['NODEBUG'], 'CCFLAGS' : '-O' }
+SConscript('SConscript', variant_dir='prod', duplicate=0, export=opts)
 .EE
-'\"TODO: SConscript('bld/SConscript', src_dir='src', exports='env variable')
+
+.ES
+# build common documentation and compile for different architectures
+SConscript('doc/SConscript', variant_dir='build/doc', duplicate=0)
+SConscript('src/SConscript', variant_dir='build/x86', duplicate=0)
+SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
+.EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -5994,8 +6070,9 @@ is not found but exists under
 .IR src_dir ,
 the file or directory is copied to
 .IR variant_dir .
-Target files can be built in a different directory than the original sources
-by simply refering to the sources (and targets) within the variant tree.
+Target files can be built in a different directory
+than the original sources by simply refering to the sources (and targets)
+within the variant tree.
 
 .BR VariantDir ()
 can be called multiple times with the same
@@ -6034,7 +6111,7 @@ files and directories that are not used are not present in
 
 Duplicating the source tree may be disabled by setting the
 .I duplicate
-argument to 0.
+argument to 0 (zero).
 This will cause
 .B scons
 to invoke Builders using the path names of source files in
@@ -6082,30 +6159,16 @@ Program('build/prog', 'build/source.c')
 .EE
 
 .ES
-# this variant builds both the source and docs
+# this builds both the source and docs in a separate subtree
 VariantDir('build', '.', duplicate=0)
 SConscript(dirs=['build/src','build/doc'])
 .EE
-Or, equivalently:
-.ES
-SConscript(dirs=['build/src','build/doc'],
-        variant_dir = 'build', duplicate = 0)
-.EE
 
 .ES
-SConscript('build/SConscript', variant_dir = 'build', duplicate = 0)
+# same as previous example, but only uses SConscript
+SConscript(dirs='src', variant_dir='build/src', duplicate=0)
+SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 .EE
-Note that in the last example, the
-.I src_dir
-is not given, so the current directory is assumed, and the
-.B SConstruct
-and the
-.B SConscript
-are actually in the same directory, even though the
-.B SConscript
-is treated as if it were in the
-.B build
-subdirectory.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
