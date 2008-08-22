@@ -110,7 +110,8 @@ class Progressor:
         elif SCons.Util.is_List(obj):
             self.func = self.spinner
         elif string.find(obj, self.target_string) != -1:
-            self.func = self.replace_string else:
+            self.func = self.replace_string
+        else:
             self.func = self.string
 
     def write(self, s):
