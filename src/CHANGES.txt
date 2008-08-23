@@ -10,110 +10,110 @@
 
 RELEASE 1.0.0 - XXX
 
-From Jared Grubb:
+  From Jared Grubb:
 
-  - Clear the Node state when turning a generic Entry into a Dir.
+    - Clear the Node state when turning a generic Entry into a Dir.
 
-From Ludwig Hähne:
+  From Ludwig Hähne:
 
-  - Fix sporadic output-order failures in test/GetBuildFailures/parallel.py.
+    - Fix sporadic output-order failures in test/GetBuildFailures/parallel.py.
 
-  - Document the ParseDepends() function in the User's Guide.
+    - Document the ParseDepends() function in the User's Guide.
 
-From Greg Noel:
+  From Greg Noel:
 
-  - Handle yacc/bison on newer Mac OS X versions creating file.hpp,
-    not file.cpp.h.
+    - Handle yacc/bison on newer Mac OS X versions creating file.hpp,
+      not file.cpp.h.
 
-  - In RPCGEN tests, ignore stderr messages from older versions of
-    rpcgen on some versions of Mac OS X.
- 
-  - Fix typos in man page descriptions of Tag() and Package(), and in
-    the scons-time man page.
+    - In RPCGEN tests, ignore stderr messages from older versions of
+      rpcgen on some versions of Mac OS X.
+   
+    - Fix typos in man page descriptions of Tag() and Package(), and in
+      the scons-time man page.
 
-  - Fix documentation of SConf.CheckLibWithHeader and other SConf methods.
+    - Fix documentation of SConf.CheckLibWithHeader and other SConf methods.
 
-  - Update documentation of SConscript(variant_dir) usage.
+    - Update documentation of SConscript(variant_dir) usage.
 
-From Jonas Olsson:
+  From Jonas Olsson:
 
-  - Print the warning about -j on Windows being potentially unreliable if
-    the pywin32 extensions are unavailable or lack file handle operations.
+    - Print the warning about -j on Windows being potentially unreliable if
+      the pywin32 extensions are unavailable or lack file handle operations.
 
-From Jim Randall:
+  From Jim Randall:
 
-  - Fix the env.WhereIs() method to expand construction variables.
+    - Fix the env.WhereIs() method to expand construction variables.
 
-From Rogier Schouten:
+  From Rogier Schouten:
 
-  - Enable building of shared libraries with the Bordand ilink32 linker.
+    - Enable building of shared libraries with the Bordand ilink32 linker.
 
 
 
 RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
 
-From Luca Falavigna:
+  From Luca Falavigna:
 
-  - Fix SCons man page indentation under Debian's man page macros.
+    - Fix SCons man page indentation under Debian's man page macros.
 
-From Steven Knight:
+  From Steven Knight:
 
-  - Clarify the man page description of the SConscript(src_dir) argument.
+    - Clarify the man page description of the SConscript(src_dir) argument.
 
-  - User's Guide updates:
+    - User's Guide updates:
 
-     -  Document the BUILD_TARGETS, COMMAND_LINE_TARGETS and
-        DEFAULT_TARGETS variables.
+       -  Document the BUILD_TARGETS, COMMAND_LINE_TARGETS and
+          DEFAULT_TARGETS variables.
 
-     -  Document the AddOption(), GetOption() and SetOption() functions.
+       -  Document the AddOption(), GetOption() and SetOption() functions.
 
-     -  Document the Requires() function; convert to the Variables
-        object, its UnknownOptions() method, and its associated
-        BoolVariable(), EnumVariable(), ListVariable(), PackageVariable()
-        and PathVariable() functions.
-        
-     -  Document the Progress() function.
+       -  Document the Requires() function; convert to the Variables
+          object, its UnknownOptions() method, and its associated
+          BoolVariable(), EnumVariable(), ListVariable(), PackageVariable()
+          and PathVariable() functions.
+          
+       -  Document the Progress() function.
 
-     -  Reorganize the chapter and sections describing the different
-        types of environments and how they interact.  Document the
-        SetDefault() method.  Document the PrependENVPath() and
-        AppendENVPath() functions.
+       -  Reorganize the chapter and sections describing the different
+          types of environments and how they interact.  Document the
+          SetDefault() method.  Document the PrependENVPath() and
+          AppendENVPath() functions.
 
-     -  Reorganize the command-line arguments chapter.  Document the
-        ARGLIST variable.
+       -  Reorganize the command-line arguments chapter.  Document the
+          ARGLIST variable.
 
-     -  Collect some miscellaneous sections into a chapter about
-        configuring build output.
+       -  Collect some miscellaneous sections into a chapter about
+          configuring build output.
 
-  - Man page updates:
+    - Man page updates:
 
-     -  Document suggested use of the Visual C/C++ /FC option to fix
-        the ability to double-click on file names in compilation error
-        messages.
+       -  Document suggested use of the Visual C/C++ /FC option to fix
+          the ability to double-click on file names in compilation error
+          messages.
 
-     -  Document the need to use Clean() for any SideEffect() files that
-        must be explicitly removed when their targets are removed.
+       -  Document the need to use Clean() for any SideEffect() files that
+          must be explicitly removed when their targets are removed.
 
-     -  Explicitly document use of Node lists as input to Dependency().
+       -  Explicitly document use of Node lists as input to Dependency().
 
-From Greg Noel:
+  From Greg Noel:
 
-  - Document MergeFlags(), ParseConfig(), ParseFlags() and SideEffect()
-    in the User's Guide.
+    - Document MergeFlags(), ParseConfig(), ParseFlags() and SideEffect()
+      in the User's Guide.
 
-From Gary Oberbrunner:
+  From Gary Oberbrunner:
 
-  - Document use of the GetBuildFailures() function in the User's Guide.
+    - Document use of the GetBuildFailures() function in the User's Guide.
 
-From Adam Simpkins:
+  From Adam Simpkins:
 
-  - Add man page text clarifying the behavior of AddPreAction() and
-    AddPostAction() when called with multiple targets.
+    - Add man page text clarifying the behavior of AddPreAction() and
+      AddPostAction() when called with multiple targets.
 
-From Alexey Zezukin:
+  From Alexey Zezukin:
 
-  - Fix incorrectly swapped man page descriptions of the --warn= options
-    for duplicate-environment and missing-sconscript.
+    - Fix incorrectly swapped man page descriptions of the --warn= options
+      for duplicate-environment and missing-sconscript.
 
 
 
