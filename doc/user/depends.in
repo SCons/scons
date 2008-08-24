@@ -1520,6 +1520,34 @@
        Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
+    <para>
+    &Ignore; can also be used to prevent a generated file from being built 
+    by default. This is due to the fact that directories depend on 
+    their contents.  So to ignore a generated file from the default build, 
+    you specify that the directory should ignore the generated file.
+    Note that the file will still be built if the user specifically 
+    requests the target on scons command line, or if the file is
+    a dependency of another file which is requested and/or is built
+    by default.
+    </para>
+
+    <scons_example name="ignore_explicit">
+      <file name="SConstruct" printme="1">
+      hello_obj=Object('hello.c')
+      hello = Program(hello_obj)
+      Ignore('.',[hello,hello_obj])
+      </file>
+      <file name="hello.c">
+      #include "stdio.h"
+      int main() { printf("Hello!\n"); }
+      </file>
+    </scons_example>
+
+    <scons_output example="ignore_explicit" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
   </section>
 
   <section>

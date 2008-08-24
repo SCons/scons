@@ -1478,6 +1478,32 @@
        Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
+    <para>
+    &Ignore; can also be used to prevent a generated file from being built 
+    by default. This is due to the fact that directories depend on 
+    their contents.  So to ignore a generated file from the default build, 
+    you specify that the directory should ignore the generated file.
+    Note that the file will still be built if the user specifically 
+    requests the target on scons command line, or if the file is
+    a dependency of another file which is requested and/or is built
+    by default.
+    </para>
+
+    <programlisting>
+      hello_obj=Object('hello.c')
+      hello = Program(hello_obj)
+      Ignore('.',[hello,hello_obj])
+    </programlisting>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      scons: `.' is up to date.
+      % <userinput>scons -Q hello</userinput>
+      cc -o hello.o -c hello.c
+      cc -o hello hello.o
+      % <userinput>scons -Q hello</userinput>
+      scons: `hello' is up to date.
+    </screen>
   </section>
 
   <section>
@@ -1632,7 +1658,7 @@
       cc -o hello.o -c hello.c
       cc -o hello version.o hello.o
       % <userinput>scons -Q</userinput>
-      cc -o version.o -c version.c
+      scons: `.' is up to date.
     </screen>
 
   </section>
