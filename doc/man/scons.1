@@ -5085,7 +5085,8 @@ Examples:
 .ES
 SConscript('SConscript')      # run SConscript in the current directory
 SConscript('src/SConscript')  # run SConscript in the src directory
-SConscript(['src/SConscript', 'sub/SConscript'])
+SConscript(['src/SConscript', 'doc/SConscript'])
+config = SConscript('MyConfig.py')
 .EE
 
 The second way you can call
@@ -5110,9 +5111,8 @@ as the first three examples above:
 .ES
 SConscript(dirs='.')      # run SConscript in the current directory
 SConscript(dirs='src')    # run SConscript in the src directory
-SConscript(dirs=['src', 'sub'])
-SConscript(dirs=['sub1', 'sub2'])
-SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
+SConscript(dirs=['src', 'doc'])
+SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 .EE
 
 The optional
@@ -5135,7 +5135,7 @@ Examples:
 .ES
 foo = SConscript('sub/SConscript', exports='env')
 SConscript('dir/SConscript', exports=['env', 'variable'])
-SConscript(dirs='dir', exports='env variable')
+SConscript(dirs='subdir', exports='env variable')
 SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 .EE
 
@@ -5163,11 +5163,11 @@ See the description of the
 function below for additional details and restrictions.
 
 If
-'\" .IR variant_dir "is present, but"
-'\" .IR src_dir "is not,"
-.IR variant_dir "is present,"
+'\" .IR variant_dir " is present, but"
+'\" .IR src_dir " is not,"
+.IR variant_dir " is present,"
 the source directory is relative to the called
-.BR SConscript file.
+.BR SConscript " file."
 .ES
 SConscript('src/SConscript', variant_dir = 'build')
 .EE
@@ -5189,8 +5189,8 @@ SConscript('build/SConscript')
 .EE
 
 '\" If
-'\" .IR variant_dir and
-'\" .IR src_dir "are both present,"
+'\" .IR variant_dir " and"
+'\" .IR src_dir " are both present,"
 '\" xxxxx everything is in a state of confusion.
 '\" .ES
 '\" SConscript(dirs = 'src', variant_dir = 'build', src_dir = '.')
@@ -5211,13 +5211,13 @@ SConscript('build/SConscript')
 '\" and what about this alternative?
 '\"TODO??? SConscript('build/SConscript', src_dir='src')
 
-Composite examples:
+Here are some composite examples:
 
 .ES
 # collect the configuration information and use it to build src and doc
-shared_info = SConscript('SConfigure')
-SConscript('src/SConscript', export='shared_info')
-SConscript('doc/SConscript', export='shared_info')
+shared_info = SConscript('MyConfig.py')
+SConscript('src/SConscript', exports='shared_info')
+SConscript('doc/SConscript', exports='shared_info')
 .EE
 
 .ES
@@ -5231,9 +5231,9 @@ SConscript('SConscript', variant_dir='prod', duplicate=0)
 # build debugging and production versions.  SConscript
 # is passed flags to use.
 opts = { 'CPPDEFINES' : ['DEBUG'], 'CCFLAGS' : '-pgdb' }
-SConscript('SConscript', variant_dir='debug', duplicate=0, export=opts)
+SConscript('SConscript', variant_dir='debug', duplicate=0, exports=opts)
 opts = { 'CPPDEFINES' : ['NODEBUG'], 'CCFLAGS' : '-O' }
-SConscript('SConscript', variant_dir='prod', duplicate=0, export=opts)
+SConscript('SConscript', variant_dir='prod', duplicate=0, exports=opts)
 .EE
 
 .ES
