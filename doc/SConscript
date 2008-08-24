@@ -347,7 +347,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         if docs[doc].get('ps') and jadetex and jade_original:
             env.Command(ps, main, [
                 Delete("${TARGET.dir}/%s" % out),
-                "jw -b ps -p %s -o ${TARGET.dir} $SOURCES" % jade_original,
+                "jw -b ps -o ${TARGET.dir} -p %s $SOURCES" % jade_original,
                 "mv ${TARGET.dir}/main.ps $TARGET",
                 Delete("${TARGET.dir}/%s" % out),
             ])
@@ -377,7 +377,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         if docs[doc].get('pdf') and pdfjadetex and jade_original:
             env.Command(pdf, main, [
                 Delete("${TARGET.dir}/%s" % out),
-                "jw -b pdf -p %s -o ${TARGET.dir} $SOURCES" % jade_original,
+                "jw -b pdf -o ${TARGET.dir} -p %s $SOURCES" % jade_original,
                 "mv ${TARGET.dir}/main.pdf $TARGET",
                 Delete("${TARGET.dir}/out"),
             ])
