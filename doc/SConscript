@@ -49,7 +49,8 @@ epydoc = whereis('epydoc')
 groff = whereis('groff')
 lynx = whereis('lynx')
 man2html = whereis('man2html')
-jade = whereis('openjade') or whereis('jade')
+jade_original = whereis('jade')
+jade = whereis('openjade') or jade_original
 jadetex = whereis('jadetex')
 pdfjadetex = whereis('pdfjadetex')
 jw = whereis('jw')
@@ -343,10 +344,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                     src = os.path.join(build, doc, g)
                     Local(env.Install(htmldir, src))
 
-        if docs[doc].get('ps') and jadetex:
+        if docs[doc].get('ps') and jadetex and jade_original:
             env.Command(ps, main, [
                 Delete("${TARGET.dir}/%s" % out),
-                "jw -b ps -o ${TARGET.dir} $SOURCES",
+                "jw -b ps -p %s -o ${TARGET.dir} $SOURCES" % jade_original,
                 "mv ${TARGET.dir}/main.ps $TARGET",
                 Delete("${TARGET.dir}/%s" % out),
             ])
@@ -373,10 +374,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                     src = os.path.join(build, doc, g)
                     Local(env.Install(htmldir, src))
 
-        if docs[doc].get('pdf') and pdfjadetex:
+        if docs[doc].get('pdf') and pdfjadetex and jade_original:
             env.Command(pdf, main, [
                 Delete("${TARGET.dir}/%s" % out),
-                "jw -b pdf -o ${TARGET.dir} $SOURCES",
+                "jw -b pdf -p %s -o ${TARGET.dir} $SOURCES" % jade_original,
                 "mv ${TARGET.dir}/main.pdf $TARGET",
                 Delete("${TARGET.dir}/out"),
             ])
