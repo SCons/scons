@@ -20,6 +20,10 @@ RELEASE 1.0.0 - XXX
 
     - Document the ParseDepends() function in the User's Guide.
 
+  From Steven Knight:
+
+    - Document the GetLaunchDir() function in the User's Guide.
+
   From Greg Noel:
 
     - Handle yacc/bison on newer Mac OS X versions creating file.hpp,

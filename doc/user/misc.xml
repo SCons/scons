@@ -353,3 +353,49 @@
     </screen>
 
   </section>
+
+  <section>
+  <title>Finding the Invocation Directory:  the &GetLaunchDir; Function</title>
+
+    <para>
+
+    If you need to find the directory from
+    which the user invoked the &scons; command,
+    you can use the &GetLaunchDir; function:
+
+    </para>
+
+    <programlisting>
+      env = Environment(
+          LAUNCHDIR = GetLaunchDir(),
+      )
+      env.Command('directory_build_info',
+                  '$LAUNCHDIR/build_info'
+                  Copy('$TARGET', '$SOURCE'))
+    </programlisting>
+
+    <para>
+
+    Because &SCons; is usually invoked from the top-level
+    directory in which the &SConstruct; file lives,
+    the Python <function>os.getcwd()</function>
+    is often equivalent.
+    However, the &SCons;
+    <literal>-u</literal>,
+    <literal>-U</literal>
+    and
+    <literal>-D</literal>
+    command-line options,
+    when invoked from a subdirectory,
+    will cause &SCons; to change to the directory
+    in which the &SConstruct; file is found.
+    When those options are used,
+    &GetLaunchDir; will still return the path to the
+    user's invoking subdirectory,
+    allowing the &SConscript; configuration
+    to still get at configuration (or other) files
+    from the originating directory.
+
+    </para>
+
+  </section>
