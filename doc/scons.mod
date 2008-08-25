@@ -191,6 +191,7 @@
 <!ENTITY Flatten "<function>Flatten</function>">
 <!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
 <!ENTITY GetBuildFailures "<function>GetBuildFailures</function>">
+<!ENTITY GetLaunchDir "<function>GetLaunchDir</function>">
 <!ENTITY GetOption "<function>GetOption</function>">
 <!ENTITY Glob "<function>Glob</function>">
 <!ENTITY Help "<function>Help</function>">
