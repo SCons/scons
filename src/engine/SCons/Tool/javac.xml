@@ -61,12 +61,27 @@ will generate a corresponding
 <filename>sub/dir/Foo.class</filename>
 class file.
 
-Example:
+Examples:
 
 <example>
 env.Java(target = 'classes', source = 'src')
 env.Java(target = 'classes', source = ['src1', 'src2'])
 env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
+</example>
+
+Java source files can use the native encoding for the underlying OS.
+Since SCons compiles in simple ASCII mode by default,
+the compiler will generate warnings about unmappable characters,
+which may lead to errors as the file is processed further.
+In this case, the user must specify the <literal>LANG</literal>
+environment variable to tell the compiler what encoding is uesd.
+For portibility, it's best if the encoding is hard-coded
+so that the compile will work if it is done on a system
+with a different encoding.
+
+<example>
+env = Environment()
+env['ENV']['LANG'] = 'en_GB.UTF-8'
 </example>
 </summary>
 </builder>
