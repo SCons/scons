@@ -31,6 +31,10 @@ RELEASE 1.0.0 - XXX
     - Have the env.Execute() method print an error message if the
       executed command fails.
 
+    - Add a script for creating a standard SCons development system on
+      Ubuntu Hardy.  Rewrite subsidiary scripts for install Python and
+      SCons versions in Python (from shell).
+
   From Greg Noel:
 
     - Handle yacc/bison on newer Mac OS X versions creating file.hpp,
