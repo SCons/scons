@@ -72,7 +72,7 @@ foo = Environment(SWIGFLAGS='-python',
                   CPPPATH='%(python_include_dir)s',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(python_frameworks_flags)s',
+                  FRAMEWORKS='%(python_frameworks_flags)s',
                   )
 
 import sys

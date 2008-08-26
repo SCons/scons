@@ -42,6 +42,8 @@ RELEASE 1.0.0 - XXX
 
     - Update documentation of SConscript(variant_dir) usage.
 
+    - Fix SWIG tests for (some versions of) Mac OS X.
+
   From Jonas Olsson:
 
     - Print the warning about -j on Windows being potentially unreliable if

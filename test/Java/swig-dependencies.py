@@ -35,13 +35,13 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 swig = test.where_is('swig')
-
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
-where_jar = test.java_where_jar()
+#where_jar = test.java_where_jar()
+
 where_java_include=test.java_where_includes()
 
 test.subdir(['foo'],
