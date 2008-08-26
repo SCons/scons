@@ -39,7 +39,7 @@ import TestSCons
 if sys.platform == 'win32':
     _dll = '.dll'
 else:
-    _dll   = '.so' 
+    _dll   = '.so'
 
 test = TestSCons.TestSCons()
 
@@ -52,19 +52,24 @@ python = test.get_platform_python()
 _python_ = test.get_quoted_platform_python()
 
 
-
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
 python_include_dir = test.get_python_inc()
 
 Python_h = os.path.join(python_include_dir, 'Python.h')
-
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
-python_frameworks_flags = test.get_python_frameworks_flags()
-    
+python_frameworks = test.get_python_frameworks_flags()
+
+# To test the individual Python versions on OS X,
+# particularly versions installed in non-framework locations,
+# we'll need something like this.
+python_library_path = test.get_python_library_path()
+if python_library_path:
+    python_library_path = 'File("""%s""")' % python_library_path
+
 test.write("wrapper.py",
 """import os
 import string
@@ -78,7 +83,8 @@ foo = Environment(SWIGFLAGS='-python',
                   CPPPATH='%(python_include_dir)s/',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKSFLAGS='%(python_frameworks_flags)s',
+                  FRAMEWORKS='%(python_frameworks)s',
+                  #LIBS=%(python_library_path)s,
                   )
 
 import sys

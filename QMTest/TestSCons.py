@@ -230,8 +230,8 @@ class TestSCons(TestCommon):
         if not kw.has_key('workdir'):
             kw['workdir'] = ''
 
-	# Term causing test failures due to bogus readline init
-	# control character output on FC8
+        # Term causing test failures due to bogus readline init
+        # control character output on FC8
         # TERM can cause test failures due to control chars in prompts etc.
         os.environ['TERM'] = 'dumb'
 
@@ -492,8 +492,12 @@ class TestSCons(TestCommon):
         import sys
         if not version:
             version=''
+            frame = '/System/Library/Frameworks/JavaVM.framework/Headers/jni.h'
+        else:
+            frame = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version
         jni_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
                     '/usr/java/jdk%s*/include/jni.h'%version,
+		    frame,
                     ]
         dirs = self.paths(jni_dirs)
         if not dirs:
@@ -953,7 +957,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         testing must use the executable version that corresponds to the
         framework we link against, or else we get interpreter errors.
         """
-        if sys.platform == 'darwin':
+        if sys.platform[:6] == 'darwin':
             return '/System/Library/Frameworks/Python.framework/Versions/Current/bin/python'
         else:
             global python
@@ -969,49 +973,71 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         testing must use the executable version that corresponds to the
         framework we link against, or else we get interpreter errors.
         """
-        if sys.platform == 'darwin':
+        if sys.platform[:6] == 'darwin':
             return '"' + self.get_platform_python() + '"'
         else:
             global _python_
             return _python_
 
-    def get_platform_sys_prefix(self):
-        """
-        Returns a "sys.prefix" value suitable for linking on this platform.
-
-        Mac OS X has a built-in Python but no static libpython,
-        so we must link to it using Apple's 'framework' scheme.
-        """
-        if sys.platform == 'darwin':
-            fmt = '/System/Library/Frameworks/Python.framework/Versions/%s/'
-            return fmt % self.get_python_version()
-        else:
-            return sys.prefix
+#    def get_platform_sys_prefix(self):
+#        """
+#        Returns a "sys.prefix" value suitable for linking on this platform.
+#
+#        Mac OS X has a built-in Python but no static libpython,
+#        so we must link to it using Apple's 'framework' scheme.
+#        """
+#        if sys.platform[:6] == 'darwin':
+#            fmt = '/System/Library/Frameworks/Python.framework/Versions/%s/'
+#            return fmt % self.get_python_version()
+#        else:
+#            return sys.prefix
 
     def get_python_frameworks_flags(self):
         """
-        Returns a FRAMEWORKSFLAGS value for linking with Python.
+        Returns a FRAMEWORKS value for linking with Python.
 
         Mac OS X has a built-in Python but no static libpython,
         so we must link to it using Apple's 'framework' scheme.
         """
-        if sys.platform == 'darwin':
-            return '-framework Python'
+        if sys.platform[:6] == 'darwin':
+            return 'Python'
         else:
             return ''
 
     def get_python_inc(self):
         """
         Returns a path to the Python include directory.
+
+        Mac OS X has a built-in Python but no static libpython,
+        so we must link to it using Apple's 'framework' scheme.
         """
+        if sys.platform[:6] == 'darwin':
+            return '/System/Library/Frameworks/Python.framework/Headers'
         try:
             import distutils.sysconfig
         except ImportError:
-            return os.path.join(self.get_platform_sys_prefix(),
-                                'include',
+            return os.path.join(sys.prefix, 'include',
                                 'python' + self.get_python_version())
         else:
             return distutils.sysconfig.get_python_inc()
+
+    def get_python_library_path(self):
+        """
+        Returns the full path of the Python static library (libpython*.a)
+        """
+        python_version = self.get_python_version()
+        python_lib = os.path.join(sys.prefix, 'lib',
+                                  'python%s' % python_version, 'config',
+                                  'libpython%s.a' % python_version)
+        if os.path.exists(python_lib):
+            return python_lib
+        # The library usually exists on OS X as above,
+        # but fall back to the framework layout just in case
+        python_lib = os.path.join(sys.prefix, 'Python')
+        if os.path.exists(python_lib):
+            return python_lib
+        # We can't find it, so maybe it's in the standard path
+        return ''
 
     def wait_for(self, fname, timeout=10.0, popen=None):
         """
