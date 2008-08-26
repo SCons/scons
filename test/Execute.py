@@ -63,6 +63,9 @@ Execute(lambda target, source, env: shutil.copy('i.in', 'i.out'))
 Execute(Action(lambda target, source, env: shutil.copy('j.in', 'j.out')))
 env.Execute(lambda target, source, env: shutil.copy('k.in', 'k.out'))
 env.Execute(Action(lambda target, source, env: shutil.copy('l.in', 'l.out')))
+
+Execute(Copy('m.out', 'm.in'))
+Execute(Copy('nonexistent.out', 'nonexistent.in'))
 """ % locals())
 
 test.write('a.in', "a.in\n")
@@ -77,20 +80,28 @@ test.write('i.in', "i.in\n")
 test.write('j.in', "j.in\n")
 test.write('k.in', "k.in\n")
 test.write('l.in', "l.in\n")
+test.write('m.in', "m.in\n")
 
-test.run(arguments = '.')
+expect = """\
+scons: *** Error 1
+scons: *** Error 2
+scons: *** nonexistent.in: No such file or directory
+"""
 
-test.fail_test(test.read('a.out') != "a.in\n")
-test.fail_test(test.read('b.out') != "b.in\n")
-test.fail_test(test.read('c.out') != "c.in\n")
-test.fail_test(test.read('d.out') != "d.in\n")
-test.fail_test(test.read('e.out') != "e.in\n")
-test.fail_test(test.read('f.out') != "f.in\n")
-test.fail_test(test.read('g.out') != "g.in\n")
-test.fail_test(test.read('h.out') != "h.in\n")
-test.fail_test(test.read('i.out') != "i.in\n")
-test.fail_test(test.read('j.out') != "j.in\n")
-test.fail_test(test.read('k.out') != "k.in\n")
-test.fail_test(test.read('l.out') != "l.in\n")
+test.run(arguments = '.', stderr=expect)
+
+test.must_match('a.out', "a.in\n")
+test.must_match('b.out', "b.in\n")
+test.must_match('c.out', "c.in\n")
+test.must_match('d.out', "d.in\n")
+test.must_match('e.out', "e.in\n")
+test.must_match('f.out', "f.in\n")
+test.must_match('g.out', "g.in\n")
+test.must_match('h.out', "h.in\n")
+test.must_match('i.out', "i.in\n")
+test.must_match('j.out', "j.in\n")
+test.must_match('k.out', "k.in\n")
+test.must_match('l.out', "l.in\n")
+test.must_match('m.out', "m.in\n")
 
 test.pass_test()
