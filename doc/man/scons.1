@@ -3545,6 +3545,33 @@ The exit value of the command
 or return value of the Python function
 will be returned.
 
+Note that
+.B scons
+will print an error message if the executed
+.I action
+fails--that is,
+exits with or returns a non-zero value.
+.B scons
+will
+.I not ,
+however,
+automatically terminate the build
+if the specified
+.I action
+fails.
+If you want the build to stop in response to a failed
+.BR Execute ()
+call,
+you must explicitly check for a non-zero return value:
+
+.ES
+Execute(Copy('file.out', 'file.in'))
+
+if Execute("mkdir sub/dir/ectory"):
+    # The mkdir failed, don't try to build.
+    Exit(1)
+.EE
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Exit([ value ])

@@ -24,6 +24,9 @@ RELEASE 1.0.0 - XXX
 
     - Document the GetLaunchDir() function in the User's Guide.
 
+    - Have the env.Execute() method print an error message if the
+      executed command fails.
+
   From Greg Noel:
 
     - Handle yacc/bison on newer Mac OS X versions creating file.hpp,

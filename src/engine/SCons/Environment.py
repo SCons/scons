@@ -1813,6 +1813,11 @@ class Base(SubstitutionEnvironment):
         action = apply(self.Action, (action,) + args, kw)
         result = action([], [], self)
         if isinstance(result, SCons.Errors.BuildError):
+            errstr = result.errstr
+            if result.filename:
+                errstr = result.filename + ': ' + errstr
+            import sys
+            sys.stderr.write("scons: *** %s\n" % errstr)
             return result.status
         else:
             return result

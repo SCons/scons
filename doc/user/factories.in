@@ -440,10 +440,9 @@
     You can also execute an &Action; returned by a factory
     (or actually, any &Action;)
     at the time the &SConscript; file is read
-    by wrapping it up in the &Execute; function.
+    by using the &Execute; function.
     For example, if we need to make sure that
     a directory exists before we build any targets,
-
 
     </para>
 
@@ -481,5 +480,28 @@
     when <option>-q</option> is specified.
 
     </para>
+
+    <para>
+
+    The &Execute; function returns the exit status
+    or return value of the underlying action being executed.
+    It will also print an error message if the action
+    fails and returns a non-zero value.
+    &SCons; will <emphasis>not</emphasis>, however,
+    actually stop the build if the action fails.
+    If you want the build to stop
+    in response to a failure in an action called by &Execute;,
+    you must do so by explicitly
+    checking the return value
+    and calling the &Exit; function
+    (or a Python equivalent):
+
+    </para>
+
+    <sconstruct>
+    if Execute(Mkdir('__ROOT__/tmp/my_temp_directory')):
+        # A problem occurred while making the temp directory.
+        Exit(1)
+    </sconstruct>
 
   </section>
