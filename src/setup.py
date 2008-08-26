@@ -361,7 +361,9 @@ class install_data(_install_data):
         else:
             self.data_files = []
 
-description = """Open Source next-generation build tool.
+description = "Open Source next-generation build tool."
+
+long_description = """Open Source next-generation build tool.
 Improved, cross-platform substitute for the classic Make
 utility.  In short, SCons is an easier, more reliable
 and faster way to build software."""
@@ -387,6 +389,7 @@ arguments = {
     'name'             : "scons",
     'version'          : Version,
     'description'      : description,
+    'long_description' : long_description,
     'author'           : 'Steven Knight',
     'author_email'     : 'knight@baldmt.com',
     'url'              : "http://www.scons.org/",

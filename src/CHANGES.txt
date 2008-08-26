@@ -20,6 +20,10 @@ RELEASE 1.0.0 - XXX
 
     - Document the ParseDepends() function in the User's Guide.
 
+  From khomenko:
+
+    - Create a separate description and long_description for RPM packages.
+
   From Steven Knight:
 
     - Document the GetLaunchDir() function in the User's Guide.
