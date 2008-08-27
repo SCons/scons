@@ -1,0 +1,204 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+  The &FindFile; function searches for a file in a list of directories.
+  If there is only one directory, it can be given as a simple string.
+  The function returns a File node if a matching file exists,
+  or None if no file is found.
+  (See the documentation for the &Glob; function for an alternative way
+  of searching for entries in a directory.)
+
+ </para>
+
+ <scons_example name="FindFile1a">
+   <file name="SConstruct" printme="1">
+    # one directory
+    print FindFile('missing', '.')
+    t = FindFile('exists', '.')
+    print t.__class__, t
+   </file>
+   <file name="exists">
+     exists
+   </file>
+ </scons_example>
+
+ <scons_output example="FindFile1a" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+ <scons_example name="FindFile1b">
+   <file name="SConstruct" printme="1">
+    # several directories
+    includes = [ '.', 'include', 'src/include']
+    headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
+    for hdr in headers:
+        print '%-12s' % ('%s:' % hdr), FindFile(hdr, includes)
+   </file>
+   <file name="config.h">
+     exists
+   </file>
+   <directory name="src"></directory>
+   <directory name="src/include"></directory>
+   </file>
+   <file name="src/include/private.h">
+     exists
+   <directory name="include"></directory>
+   </file>
+   <file name="include/dist.h">
+     exists
+ </scons_example>
+
+ <scons_output example="FindFile1b" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+<!-- The man page says this should work, but it fails.
+ <para>
+
+  If the 'file' parameter is a list of files,
+  a list of File nodes is returned.
+
+ </para>
+
+ <scons_example name="FindFile1c">
+   <file name="SConstruct" printme="1">
+    # several directories
+    includes = [ '.', 'include', 'src/include']
+    headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
+    print FindFile(headers, includes)
+   </file>
+   <file name="config.h">
+     exists
+   </file>
+   <directory name="src"></directory>
+   <directory name="src/include"></directory>
+   </file>
+   <file name="src/include/private.h">
+     exists
+   <directory name="include"></directory>
+   </file>
+   <file name="include/dist.h">
+     exists
+ </scons_example>
+
+ <scons_output example="FindFile1c" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+-->
+
+ <para>
+
+  If the file exists in more than one directory,
+  only the first occurrence is returned.
+
+ </para>
+
+ <scons_example name="FindFile1d">
+   <file name="SConstruct" printme="1">
+     print FindFile('multiple', ['sub1', 'sub2', 'sub3'])
+     print FindFile('multiple', ['sub2', 'sub3', 'sub1'])
+     print FindFile('multiple', ['sub3', 'sub1', 'sub2'])
+   </file>
+   <directory name="sub1"></directory>
+   <file name="sub1/multiple">
+     exists
+   </file>
+   <directory name="sub2"></directory>
+   <file name="sub2/multiple">
+     exists
+   </file>
+   <directory name="sub3"></directory>
+   <file name="sub3/multiple">
+     exists
+   </file>
+ </scons_example>
+
+ <scons_output example="FindFile1d" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+<!-- file may be a list of file names or a single file name. -->
+
+ <para>
+
+ In addition to existing files, &FindFile; will also find derived files
+ (that is, non-leaf files) that haven't been built yet.
+ (Leaf files should already exist, or the build will fail!)
+
+ </para>
+
+ <scons_example name="FindFile2">
+   <file name="SConstruct" printme="1">
+    # Neither file exists, so build will fail
+    Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
+    print FindFile('leaf', '.')
+    print FindFile('derived', '.')
+   </file>
+ </scons_example>
+
+ <scons_output example="FindFile2" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+ <scons_example name="FindFile2">
+   <file name="SConstruct" printme="1">
+    # Only 'leaf' exists
+    Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
+    print FindFile('leaf', '.')
+    print FindFile('derived', '.')
+   </file>
+   <file name="leaf">
+    leaf
+   </file>
+ </scons_example>
+
+ <scons_output example="FindFile2" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+ <para>
+
+ If a source file exists, &FindFile; will correctly return the name
+ in the build directory.
+
+ </para>
+
+ <scons_example name="FindFile3">
+   <file name="SConstruct" printme="1">
+    # Only 'src/leaf' exists
+    VariantDir('build', 'src')
+    print FindFile('leaf', 'build')
+   </file>
+   <directory name="src"></directory>
+   <file name="src/leaf">
+    leaf
+   </file>
+ </scons_example>
+
+ <scons_output example="FindFile3" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
