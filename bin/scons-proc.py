@@ -213,6 +213,8 @@ class SCons_XML_to_man(SCons_XML):
         body = re.sub('\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
         body = re.sub('&(scons|SConstruct|SConscript|jar);', r'\\fB\1\\fP', body)
         body = string.replace(body, '&Dir;', r'\fBDir\fP')
+        body = string.replace(body, '&target;', r'\fItarget\fP')
+        body = string.replace(body, '&source;', r'\fIsource\fP')
         body = re.sub('&b(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
         body = re.sub('&cv(-link)?-([^;]*);', r'$\2', body)
         body = re.sub(r'<(command|envar|filename|literal|option)>([^<]*)</\1>',
