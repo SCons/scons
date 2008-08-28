@@ -616,28 +616,32 @@ sys.exit(0)
 import sys
 sys.exit(1)
 """)
+        test.write('echo.py', """\
+import os, sys
+sys.stdout.write(os.environ['ECHO'] + '\\n')
+sys.exit(0)
+""")
 
         save_stderr = sys.stderr
 
         python = '"' + sys.executable + '"'
 
         try:
+            sys.stderr = StringIO.StringIO()
             cmd = '%s %s' % (python, test.workpath('stdout.py'))
             output = env.backtick(cmd)
-
+            errout = sys.stderr.getvalue()
             assert output == 'this came from stdout.py\n', output
+            assert errout == '', errout
 
             sys.stderr = StringIO.StringIO()
-
             cmd = '%s %s' % (python, test.workpath('stderr.py'))
             output = env.backtick(cmd)
             errout = sys.stderr.getvalue()
-
             assert output == '', output
             assert errout == 'this came from stderr.py\n', errout
 
             sys.stderr = StringIO.StringIO()
-
             cmd = '%s %s' % (python, test.workpath('fail.py'))
             try:
                 env.backtick(cmd)
@@ -645,6 +649,15 @@ sys.exit(1)
                 assert str(e) == "'%s' exited 1" % cmd, str(e)
             else:
                 self.fail("did not catch expected OSError")
+
+            sys.stderr = StringIO.StringIO()
+            cmd = '%s %s' % (python, test.workpath('echo.py'))
+            env['ENV'] = os.environ.copy()
+            env['ENV']['ECHO'] = 'this came from ECHO'
+            output = env.backtick(cmd)
+            errout = sys.stderr.getvalue()
+            assert output == 'this came from ECHO\n', output
+            assert errout == '', errout
 
         finally:
             sys.stderr = save_stderr
