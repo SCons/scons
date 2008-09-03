@@ -349,6 +349,18 @@ int main() {
         finally:
             sconf.Finish()
 
+    def test_CheckCXX(self):
+        """Test SConf.CheckCXX()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        try:
+            self._test_check_compilers('CXX', sconf.CheckCXX, 'CheckCXX')
+        finally:
+            sconf.Finish()
+
 
     def test_CheckHeader(self):
         """Test SConf.CheckHeader()

@@ -162,6 +162,26 @@ int main()
     _YesNoResult(context, ret, None, text)
     return ret
 
+def CheckCXX(context):
+    """
+    Configure check for a working CXX compiler.
+
+    This checks whether the CXX compiler, as defined in the $CXX construction
+    variable, can compile a CXX source file. It uses the current $CXXCOM value
+    too, so that it can test against non working flags.
+
+    """
+    context.Display("Checking whether the C++ compiler works")
+    text = """
+int main()
+{
+    return 0;
+}
+"""
+    ret = _check_empty_program(context, 'CXX', text, 'C++')
+    _YesNoResult(context, ret, None, text)
+    return ret
+
 def _check_empty_program(context, comp, text, language):
     """Return 0 on success, 1 otherwise."""
     if not context.env.has_key(comp) or not context.env[comp]:
