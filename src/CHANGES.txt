@@ -8,6 +8,13 @@
 
 
 
+RELEASE 1.X - XXX
+
+  From Ian P. Cardenas:
+
+    - Fix Glob() polluting LIBPATH by returning copy of list
+
+
 RELEASE 1.0.0 - XXX
 
   From Jared Grubb:
