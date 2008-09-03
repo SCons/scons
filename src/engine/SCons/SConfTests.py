@@ -307,6 +307,48 @@ int main() {
         finally:
             sconf.Finish()
 
+    def _test_check_compilers(self, comp, func, name):
+        """This is the implementation for CheckCC and CheckCXX tests."""
+        from copy import deepcopy
+
+        # Check that Check* works
+        r = func()
+        assert r, "could not find %s ?" % comp
+
+        # Check that Check* does fail if comp is not available in env
+        oldcomp = deepcopy(self.scons_env[comp])
+        del self.scons_env[comp]
+        r = func()
+        assert not r, "%s worked wo comp ?" % name
+
+        # Check that Check* does fail if comp is set but empty
+        self.scons_env[comp] = ''
+        r = func()
+        assert not r, "%s worked with comp = '' ?" % name
+
+        # Check that Check* does fail if comp is set to buggy executable
+        self.scons_env[comp] = 'thiscccompilerdoesnotexist'
+        r = func()
+        assert not r, "%s worked with comp = thiscompilerdoesnotexist ?" % name
+
+        # Check that Check* does fail if CFLAGS is buggy
+        self.scons_env[comp] = oldcomp
+        self.scons_env['%sFLAGS' % comp] = 'qwertyuiop'
+        r = func()
+        assert not r, "%s worked with %sFLAGS = qwertyuiop ?" % name
+
+    def test_CheckCC(self):
+        """Test SConf.CheckCC()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        try:
+            self._test_check_compilers('CC', sconf.CheckCC, 'CheckCC')
+        finally:
+            sconf.Finish()
+
 
     def test_CheckHeader(self):
         """Test SConf.CheckHeader()
