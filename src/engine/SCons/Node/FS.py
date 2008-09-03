@@ -1411,7 +1411,7 @@ class Dir(Base):
 
     def get_all_rdirs(self):
         try:
-            return self._memo['get_all_rdirs']
+            return list(self._memo['get_all_rdirs'])
         except KeyError:
             pass
 
@@ -1427,7 +1427,7 @@ class Dir(Base):
                 fname = dir.name + os.sep + fname
             dir = dir.up()
 
-        self._memo['get_all_rdirs'] = result
+        self._memo['get_all_rdirs'] = list(result)
 
         return result
 
