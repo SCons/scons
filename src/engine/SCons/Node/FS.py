@@ -1593,9 +1593,24 @@ class Dir(Base):
         return None
 
     def get_contents(self):
-        """Return aggregate contents of all our children."""
-        contents = map(lambda n: n.get_contents(), self.children())
-        return  string.join(contents, '')
+        """Return content signatures and names of all our children
+        separated by new-lines. Ensure that the nodes are sorted."""
+        contents = []
+        name_cmp = lambda a, b: cmp(a.name, b.name)
+        sorted_children = self.children()[:]
+        sorted_children.sort(name_cmp)        
+        for node in sorted_children:
+            contents.append('%s %s\n' % (node.get_csig(), node.name))
+        return string.join(contents, '')
+
+    def get_csig(self):
+        """Compute the content signature for Directory nodes. In
+        general, this is not needed and the content signature is not
+        stored in the DirNodeInfo. However, if get_contents on a Dir
+        node is called which has a child directory, the child
+        directory should return the hash of its contents."""
+        contents = self.get_contents()
+        return SCons.Util.MD5signature(contents)
 
     def do_duplicate(self, src):
         pass

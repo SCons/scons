@@ -1689,6 +1689,33 @@ class DirTestCase(_tempdirTestCase):
                         os.path.join('ddd', 'f2'),
                         os.path.join('ddd', 'f3')], kids
 
+    def test_get_contents(self):
+        """Test getting the contents for a directory.
+        """
+        test = self.test
+
+        test.subdir('d')
+        test.write(['d', 'g'], "67890\n")
+        test.write(['d', 'f'], "12345\n")
+        test.subdir(['d','sub'])
+        test.write(['d', 'sub','h'], "abcdef\n")
+        test.subdir(['d','empty'])
+
+        d = self.fs.Dir('d')
+        g = self.fs.File(os.path.join('d', 'g'))
+        f = self.fs.File(os.path.join('d', 'f'))
+        h = self.fs.File(os.path.join('d', 'sub', 'h'))
+        e = self.fs.Dir(os.path.join('d', 'empty'))
+        s = self.fs.Dir(os.path.join('d', 'sub'))
+
+        files = d.get_contents().split('\n')
+
+        assert e.get_contents() == '', e.get_contents()
+        assert e.get_csig()+" empty" == files[0], files
+        assert f.get_csig()+" f" == files[1], files
+        assert g.get_csig()+" g" == files[2], files
+        assert s.get_csig()+" sub" == files[3], files
+
     def test_implicit_re_scans(self):
         """Test that adding entries causes a directory to be re-scanned
         """
