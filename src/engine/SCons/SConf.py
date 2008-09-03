@@ -827,6 +827,11 @@ class CheckContext:
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         return not self.TryBuild(self.env.Object, text, ext)
 
+    def CompileSharedObject(self, text, ext):
+        self.sconf.cached = 1
+        # TODO: should use self.vardict for $SHCC, $CPPFLAGS, etc.
+        return not self.TryBuild(self.env.SharedObject, text, ext)
+
     def RunProg(self, text, ext):
         self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
