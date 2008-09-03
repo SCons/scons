@@ -6859,6 +6859,50 @@ or
 and selects the compiler to be used for the check;
 the default is "C".
 
+.TP
+.RI Configure.CheckCC( self )
+Checks whether the C compiler (as defined by the CC construction variable) works
+by trying to compile a small source file.
+
+By default, SCons only detects if there is a program with the correct name, not
+if it is a functioning compiler.
+
+This uses the exact same command than the one used by the object builder for C
+source file, so it can be used to detect if a particular compiler flag works or
+not.
+
+.TP
+.RI Configure.CheckCXX( self )
+Checks whether the C++ compiler (as defined by the CXX construction variable)
+works by trying to compile a small source file. By default, SCons only detects
+if there is a program with the correct name, not if it is a functioning compiler.
+
+This uses the exact same command than the one used by the object builder for
+CXX source files, so it can be used to detect if a particular compiler flag
+works or not.
+
+.TP
+.RI Configure.CheckSHCC( self )
+Checks whether the C compiler (as defined by the SHCC construction variable) works
+by trying to compile a small source file. By default, SCons only detects if
+there is a program with the correct name, not if it is a functioning compiler.
+
+This uses the exact same command than the one used by the object builder for C
+source file, so it can be used to detect if a particular compiler flag works or
+not. This does not check whether the object code can be used to build a shared
+library, only that the compilation (not link) succeeds.
+
+.TP
+.RI Configure.CheckSHCXX( self )
+Checks whether the C++ compiler (as defined by the SHCXX construction variable)
+works by trying to compile a small source file. By default, SCons only detects
+if there is a program with the correct name, not if it is a functioning compiler.
+
+This uses the exact same command than the one used by the object builder for
+CXX source files, so it can be used to detect if a particular compiler flag
+works or not. This does not check whether the object code can be used to build
+a shared library, only that the compilation (not link) succeeds.
+
 .EE
 Example of a typical Configure usage:
 
