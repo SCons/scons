@@ -178,7 +178,7 @@ int foo()
     return 0;
 }
 """
-    ret = _check_empty_program(context, 'SHCC', text, 'C')
+    ret = _check_empty_program(context, 'SHCC', text, 'C', use_shared = True)
     _YesNoResult(context, ret, None, text)
     return ret
 
@@ -218,11 +218,11 @@ int main()
     return 0;
 }
 """
-    ret = _check_empty_program(context, 'SHCXX', text, 'C++')
+    ret = _check_empty_program(context, 'SHCXX', text, 'C++', use_shared = True)
     _YesNoResult(context, ret, None, text)
     return ret
 
-def _check_empty_program(context, comp, text, language):
+def _check_empty_program(context, comp, text, language, use_shared = False):
     """Return 0 on success, 1 otherwise."""
     if not context.env.has_key(comp) or not context.env[comp]:
         # The compiler construction variable is not set or empty
@@ -232,7 +232,10 @@ def _check_empty_program(context, comp, text, language):
     if msg:
         return 1
 
-    return context.CompileProg(text, suffix)
+    if use_shared:
+        return context.CompileSharedObject(text, suffix)
+    else:
+        return context.CompileProg(text, suffix)
 
 
 def CheckFunc(context, function_name, header = None, language = None):
