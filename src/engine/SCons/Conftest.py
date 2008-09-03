@@ -142,6 +142,38 @@ int main() {
     _YesNoResult(context, ret, None, text)
     return ret
 
+def CheckCC(context):
+    """
+    Configure check for a working C compiler.
+
+    This checks whether the C compiler, as defined in the $CC construction
+    variable, can compile a C source file. It uses the current $CCCOM value
+    too, so that it can test against non working flags.
+
+    """
+    context.Display("Checking whether the C compiler works")
+    text = """
+int main()
+{
+    return 0;
+}
+"""
+    ret = _check_empty_program(context, 'CC', text, 'C')
+    _YesNoResult(context, ret, None, text)
+    return ret
+
+def _check_empty_program(context, comp, text, language):
+    """Return 0 on success, 1 otherwise."""
+    if not context.env.has_key(comp) or not context.env[comp]:
+        # The compiler construction variable is not set or empty
+        return 1
+
+    lang, suffix, msg = _lang2suffix(language)
+    if msg:
+        return 1
+
+    return context.CompileProg(text, suffix)
+
 
 def CheckFunc(context, function_name, header = None, language = None):
     """
