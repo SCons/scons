@@ -349,6 +349,18 @@ int main() {
         finally:
             sconf.Finish()
 
+    def test_CheckSHCC(self):
+        """Test SConf.CheckSHCC()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        try:
+            self._test_check_compilers('SHCC', sconf.CheckSHCC, 'CheckSHCC')
+        finally:
+            sconf.Finish()
+
     def test_CheckCXX(self):
         """Test SConf.CheckCXX()
         """
@@ -358,6 +370,18 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             self._test_check_compilers('CXX', sconf.CheckCXX, 'CheckCXX')
+        finally:
+            sconf.Finish()
+
+    def test_CheckSHCXX(self):
+        """Test SConf.CheckSHCXX()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        try:
+            self._test_check_compilers('SHCXX', sconf.CheckSHCXX, 'CheckSHCXX')
         finally:
             sconf.Finish()
 
