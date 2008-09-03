@@ -401,6 +401,7 @@ class SConfBase:
 
         # add default tests
         default_tests = {
+                 'CheckCC'            : CheckCC,
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
@@ -920,6 +921,10 @@ def CheckHeader(context, header, include_quotes = '<>', language = None):
                                      language = language,
                                      include_quotes = include_quotes)
     context.did_show_result = 1
+    return not res
+
+def CheckCC(context):
+    res = SCons.Conftest.CheckCC(context)
     return not res
 
 # Bram: Make this function obsolete?  CheckHeader() is more generic.
