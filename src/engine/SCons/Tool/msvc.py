@@ -686,21 +686,21 @@ def generate(env):
 
     env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
     env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'])
-    env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
+    env['_CCCOMCOM']  = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
     env['CCFLAGS']    = SCons.Util.CLVar('/nologo')
     env['CFLAGS']     = SCons.Util.CLVar('')
-    env['CCCOM']      = '$CC $CFLAGS $CCFLAGS $CCCOMFLAGS'
+    env['CCCOM']      = '$CC /Fo$TARGET /c $SOURCES $CFLAGS $CCFLAGS $_CCCOMCOM'
     env['SHCC']       = '$CC'
     env['SHCCFLAGS']  = SCons.Util.CLVar('$CCFLAGS')
     env['SHCFLAGS']   = SCons.Util.CLVar('$CFLAGS')
-    env['SHCCCOM']    = '$SHCC $SHCFLAGS $SHCCFLAGS $CCCOMFLAGS'
+    env['SHCCCOM']    = '$SHCC /Fo$TARGET /c $SOURCES $SHCFLAGS $SHCCFLAGS $_CCCOMCOM'
     env['CXX']        = '$CC'
     env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS $( /TP $)')
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'
+    env['CXXCOM']     = '$CXX /Fo:$TARGET /c $SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CCCOMFLAGS'
+    env['SHCXXCOM']   = '$SHCXX /Fo:$TARGET /c $SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM'
     env['CPPDEFPREFIX']  = '/D'
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
