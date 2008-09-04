@@ -45,8 +45,10 @@ test = TestSCons.TestSCons()
 test.write('mytex.py', r"""
 import sys
 import os
-base_name = os.path.splitext(sys.argv[1])[0]
-infile = open(sys.argv[1], 'rb')
+import getopt
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+base_name = os.path.splitext(arg[0])[0]
+infile = open(arg[0], 'rb')
 dvi_file = open(base_name+'.dvi', 'wb')
 aux_file = open(base_name+'.aux', 'wb')
 log_file = open(base_name+'.log', 'wb')
@@ -175,7 +177,7 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
     test.run(stderr = None)
     output_lines = string.split(test.stdout(), '\n')
 
-    reruns = filter(lambda x: string.find(x, 'latex rerun.tex') != -1, output_lines)
+    reruns = filter(lambda x: string.find(x, 'latex -interaction=nonstopmode rerun.tex') != -1, output_lines)
     if len(reruns) != 2:
         print "Expected 2 latex calls, got %s:" % len(reruns)
         print string.join(reruns, '\n')

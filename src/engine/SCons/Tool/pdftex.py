@@ -71,7 +71,7 @@ def generate(env):
     global PDFTeXLaTeXAction
     if PDFTeXLaTeXAction is None:
         PDFTeXLaTeXAction = SCons.Action.Action(PDFTeXLaTeXFunction,
-                                                strfunction=None)
+                              strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
 
     import pdf
     pdf.generate(env)
@@ -81,12 +81,12 @@ def generate(env):
     bld.add_emitter('.tex', SCons.Tool.tex.tex_emitter)
 
     env['PDFTEX']      = 'pdftex'
-    env['PDFTEXFLAGS'] = SCons.Util.CLVar('')
+    env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
     env['PDFTEXCOM']   = 'cd ${TARGET.dir} && $PDFTEX $PDFTEXFLAGS ${SOURCE.file}'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('')
+    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
     env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES']  = 3
 

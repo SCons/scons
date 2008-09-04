@@ -208,7 +208,19 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
         LaTeXAuxAction(target,source,env)
     else:
         TeXAction(target,source,env)
-    return 0
+
+def TeXLaTeXStrFunction(target = None, source= None, env=None):
+    """A strfunction for TeX and LaTeX that scans the source file to
+    decide the "flavor" of the source and then returns the appropriate
+    command string."""
+    if env.GetOption("no_exec"):
+        if is_LaTeX(source):
+            result = env.subst('$LATEXCOM',0,target,source)+" ..."
+        else:
+            result = env.subst("$TEXCOM",0,target,source)+" ..."
+    else:
+        result = ''
+    return result
 
 def tex_emitter(target, source, env):
     base = SCons.Util.splitext(str(source[0]))[0]
@@ -275,7 +287,8 @@ def generate(env):
 
     global TeXLaTeXAction
     if TeXLaTeXAction is None:
-        TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction, strfunction=None)
+        TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
+                              strfunction=TeXLaTeXStrFunction)
 
     import dvi
     dvi.generate(env)
@@ -285,12 +298,12 @@ def generate(env):
     bld.add_emitter('.tex', tex_emitter)
 
     env['TEX']      = 'tex'
-    env['TEXFLAGS'] = SCons.Util.CLVar('')
+    env['TEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
     env['TEXCOM']   = 'cd ${TARGET.dir} && $TEX $TEXFLAGS ${SOURCE.file}'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['LATEX']        = 'latex'
-    env['LATEXFLAGS']   = SCons.Util.CLVar('')
+    env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode')
     env['LATEXCOM']     = 'cd ${TARGET.dir} && $LATEX $LATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES'] = 3
 

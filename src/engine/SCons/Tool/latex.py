@@ -45,7 +45,8 @@ LaTeXAction = None
 def LaTeXAuxFunction(target = None, source= None, env=None):
     SCons.Tool.tex.InternalLaTeXAuxAction( LaTeXAction, target, source, env )
 
-LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction, strfunction=None)
+LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction,
+                              strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
 
 def generate(env):
     """Add Builders and construction variables for LaTeX to an Environment."""
@@ -63,7 +64,7 @@ def generate(env):
     bld.add_emitter('.latex', SCons.Tool.tex.tex_emitter)
 
     env['LATEX']        = 'latex'
-    env['LATEXFLAGS']   = SCons.Util.CLVar('')
+    env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode')
     env['LATEXCOM']     = 'cd ${TARGET.dir} && $LATEX $LATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES'] = 3
 
