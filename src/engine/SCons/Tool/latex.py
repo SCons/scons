@@ -43,7 +43,8 @@ import SCons.Tool.tex
 LaTeXAction = None
 
 def LaTeXAuxFunction(target = None, source= None, env=None):
-    SCons.Tool.tex.InternalLaTeXAuxAction( LaTeXAction, target, source, env )
+    result = SCons.Tool.tex.InternalLaTeXAuxAction( LaTeXAction, target, source, env )
+    return result
 
 LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction,
                               strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)

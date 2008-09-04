@@ -41,7 +41,8 @@ import SCons.Tool.tex
 PDFLaTeXAction = None
 
 def PDFLaTeXAuxFunction(target = None, source= None, env=None):
-    SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+    result = SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+    return result
 
 PDFLaTeXAuxAction = None
 

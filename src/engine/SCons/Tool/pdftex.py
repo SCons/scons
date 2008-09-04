@@ -44,17 +44,18 @@ PDFTeXAction = None
 PDFLaTeXAction = None
 
 def PDFLaTeXAuxAction(target = None, source= None, env=None):
-    SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+    result = SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+    return result
 
 def PDFTeXLaTeXFunction(target = None, source= None, env=None):
     """A builder for TeX and LaTeX that scans the source file to
     decide the "flavor" of the source and then executes the appropriate
     program."""
     if SCons.Tool.tex.is_LaTeX(source):
-        PDFLaTeXAuxAction(target,source,env)
+        result = PDFLaTeXAuxAction(target,source,env)
     else:
-        PDFTeXAction(target,source,env)
-    return 0
+        result = PDFTeXAction(target,source,env)
+    return result
 
 PDFTeXLaTeXAction = None
 
