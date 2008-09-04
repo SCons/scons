@@ -45,8 +45,10 @@ test = TestSCons.TestSCons()
 test.write('mylatex.py', r"""
 import sys
 import os
-base_name = os.path.splitext(sys.argv[1])[0]
-infile = open(sys.argv[1], 'rb')
+import getopt
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+base_name = os.path.splitext(arg[0])[0]
+infile = open(arg[0], 'rb')
 dvi_file = open(base_name+'.dvi', 'wb')
 aux_file = open(base_name+'.aux', 'wb')
 log_file = open(base_name+'.log', 'wb')
@@ -112,9 +114,10 @@ ENV = { 'PATH' : os.environ['PATH'],
 foo = Environment(ENV = ENV)
 latex = foo.Dictionary('LATEX')
 makeindex = foo.Dictionary('MAKEINDEX')
+python_path = r'%(_python_)s'
 bar = Environment(ENV = ENV,
-                  LATEX = r'%(_python_)s wrapper.py ' + latex,
-                  MAKEINDEX =  r' wrapper.py ' + makeindex)
+                  LATEX = python_path + ' wrapper.py ' + latex,
+                  MAKEINDEX =  python_path + ' wrapper.py ' + makeindex)
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 bar.DVI(target = 'bar', source = 'bar.latex')
 
@@ -130,7 +133,7 @@ This is the %s LaTeX file.
 """
 
     makeindex =  r"""
-\documentclass{letter}
+\documentclass{report}
 \usepackage{makeidx}
 \makeindex
 \begin{document}
@@ -141,7 +144,7 @@ This is the %s LaTeX file.
 """
 
     latex1 = r"""
-\documentclass{letter}
+\documentclass{report}
 \usepackage{makeidx}
 \makeindex
 \begin{document}

@@ -39,8 +39,10 @@ test = TestSCons.TestSCons()
 test.write('mytex.py', r"""
 import os
 import sys
-base_name = os.path.splitext(sys.argv[1])[0]
-infile = open(sys.argv[1], 'rb')
+import getopt
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+base_name = os.path.splitext(arg[0])[0]
+infile = open(arg[0], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
 for l in infile.readlines():
     if l[:4] != '#tex':
@@ -51,8 +53,10 @@ sys.exit(0)
 test.write('mylatex.py', r"""
 import os
 import sys
-base_name = os.path.splitext(sys.argv[1])[0]
-infile = open(sys.argv[1], 'rb')
+import getopt
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+base_name = os.path.splitext(arg[0])[0]
+infile = open(arg[0], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
 for l in infile.readlines():
     if l[:6] != '#latex':

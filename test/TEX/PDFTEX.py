@@ -45,8 +45,10 @@ test = TestSCons.TestSCons()
 test.write('mypdftex.py', r"""
 import sys
 import os
-base_name = os.path.splitext(sys.argv[1])[0]
-infile = open(sys.argv[1], 'rb')
+import getopt
+cmd_opts, arg = getopt.getopt(sys.argv[2:], 'i:', [])
+base_name = os.path.splitext(arg[0])[0]
+infile = open(arg[0], 'rb')
 pdf_file = open(base_name+'.pdf', 'wb')
 aux_file = open(base_name+'.aux', 'wb')
 log_file = open(base_name+'.log', 'wb')
