@@ -51,7 +51,7 @@ exitvalmap = {
 def escape(arg):
     "escape shell special characters"
     slash = '\\'
-    special = '"$'
+    special = '"$()'
 
     arg = string.replace(arg, slash, slash+slash)
     for c in special:
@@ -93,7 +93,7 @@ def _get_env_command(sh, escape, cmd, args, env):
     s = string.join(args)
     if env:
         l = ['env', '-'] + \
-            map(lambda t, e=escape: t[0]+'='+e(t[1]), env.items()) + \
+            map(lambda t, e=escape: e(t[0])+'='+e(t[1]), env.items()) + \
             [sh, '-c', escape(s)]
         s = string.join(l)
     return s
