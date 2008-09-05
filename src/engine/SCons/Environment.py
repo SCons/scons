@@ -230,7 +230,7 @@ class BuilderWrapper(MethodWrapper):
         elif name == 'builder':
             return self.method
         else:
-            return self.__dict__[name]
+            raise AttributeError, name
 
     def __setattr__(self, name, value):
         if name == 'env':
