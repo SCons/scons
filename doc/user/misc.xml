@@ -230,6 +230,170 @@
   </section>
 
   <section>
+  <title>Searching for Files:  the &FindFile; Function</title>
+
+    <para>
+
+     The &FindFile; function searches for a file in a list of directories.
+     If there is only one directory, it can be given as a simple string.
+     The function returns a File node if a matching file exists,
+     or None if no file is found.
+     (See the documentation for the &Glob; function for an alternative way
+     of searching for entries in a directory.)
+
+    </para>
+
+    <programlisting>
+       # one directory
+       print FindFile('missing', '.')
+       t = FindFile('exists', '.')
+       print t.__class__, t
+    </programlisting>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       None
+       SCons.Node.FS.File exists
+       scons: `.' is up to date.
+    </screen>
+
+    <programlisting>
+       # several directories
+       includes = [ '.', 'include', 'src/include']
+       headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
+       for hdr in headers:
+           print '%-12s' % ('%s:' % hdr), FindFile(hdr, includes)
+</programlisting>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       nonesuch.h:  None
+       config.h:    config.h
+       private.h:   src/include/private.h
+       dist.h:      include/dist.h
+       scons: `.' is up to date.
+    </screen>
+
+   <!-- The man page says this should work, but it fails.
+    <para>
+
+     If the 'file' parameter is a list of files,
+     a list of File nodes is returned.
+
+    </para>
+
+    <scons_example name="FindFile1c">
+      <file name="SConstruct" printme="1">
+       # several directories
+       includes = [ '.', 'include', 'src/include']
+       headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
+       print FindFile(headers, includes)
+      </file>
+      <file name="config.h">
+        exists
+      </file>
+      <directory name="src"></directory>
+      <directory name="src/include"></directory>
+      </file>
+      <file name="src/include/private.h">
+        exists
+      <directory name="include"></directory>
+      </file>
+      <file name="include/dist.h">
+        exists
+    </scons_example>
+
+    <scons_output example="FindFile1c" os="posix">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+   -->
+
+    <para>
+
+     If the file exists in more than one directory,
+     only the first occurrence is returned.
+
+    </para>
+
+    <programlisting>
+        print FindFile('multiple', ['sub1', 'sub2', 'sub3'])
+        print FindFile('multiple', ['sub2', 'sub3', 'sub1'])
+        print FindFile('multiple', ['sub3', 'sub1', 'sub2'])
+    </programlisting>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       sub1/multiple
+       sub2/multiple
+       sub3/multiple
+       scons: `.' is up to date.
+    </screen>
+
+   <!-- file may be a list of file names or a single file name. -->
+
+    <para>
+
+    In addition to existing files, &FindFile; will also find derived files
+    (that is, non-leaf files) that haven't been built yet.
+    (Leaf files should already exist, or the build will fail!)
+
+    </para>
+
+    <programlisting>
+       # Neither file exists, so build will fail
+       Command('derived', 'leaf', 'cat &gt;$TARGET $SOURCE')
+       print FindFile('leaf', '.')
+       print FindFile('derived', '.')
+    </programlisting>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       None
+       derived
+       scons: *** Source `leaf' not found, needed by target `derived'.  Stop.
+    </screen>
+
+    <programlisting>
+       # Neither file exists, so build will fail
+       Command('derived', 'leaf', 'cat &gt;$TARGET $SOURCE')
+       print FindFile('leaf', '.')
+       print FindFile('derived', '.')
+
+       # Only 'leaf' exists
+       Command('derived', 'leaf', 'cat &gt;$TARGET $SOURCE')
+       print FindFile('leaf', '.')
+       print FindFile('derived', '.')
+    </programlisting>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       leaf
+       derived
+       cat &gt; derived leaf
+    </screen>
+
+    <para>
+
+    If a source file exists, &FindFile; will correctly return the name
+    in the build directory.
+
+    </para>
+
+    <programlisting>
+       # Only 'src/leaf' exists
+       VariantDir('build', 'src')
+       print FindFile('leaf', 'build')
+    </programlisting>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       build/leaf
+       scons: `.' is up to date.
+    </screen>
+
+  </section>
+
+  <section>
   <title>Handling Nested Lists:  the &Flatten; Function</title>
 
     <para>
