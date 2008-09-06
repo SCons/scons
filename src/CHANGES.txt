@@ -10,6 +10,11 @@
 
 RELEASE 1.X - XXX
 
+  From Gary Oberbrunner:
+
+    - Make Glob() sort the returned list of Files or Nodes
+      to prevent spurious rebuilds.
+
   From Ian P. Cardenas:
 
     - Fix Glob() polluting LIBPATH by returning copy of list
