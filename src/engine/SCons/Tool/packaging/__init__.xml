@@ -19,7 +19,7 @@ Sets construction variables for the &b-Package; Builder.
 Builds software distribution packages.
 Packages consist of files to install and packaging information.
 The former may be specified with the &source; parameter and may be left out,
-in which case the &b-FindInstalledFiles; function will collect
+in which case the &FindInstalledFiles; function will collect
 all files that have an &b-Install; or &b-InstallAs; Builder attached.
 If the &target; is not specified
 it will be deduced from additional information given to this Builder.
@@ -27,7 +27,7 @@ it will be deduced from additional information given to this Builder.
 The packaging information is specified
 with the help of construction variables documented below.
 This information is called a tag to stress that
-some of them can also be attached to files with the &b-Tag; function.
+some of them can also be attached to files with the &Tag; function.
 The mandatory ones will complain if they were not specified.
 They vary depending on chosen target packager.
 
