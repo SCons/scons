@@ -2162,17 +2162,17 @@ class GlobTestCase(_tempdirTestCase):
         self.hhh = fs.File('hhh')
         self.iii = fs.File('iii')
         self.subdir1 = fs.Dir('subdir1')
+        self.subdir1_lll = self.subdir1.File('lll')
         self.subdir1_jjj = self.subdir1.File('jjj')
         self.subdir1_kkk = self.subdir1.File('kkk')
-        self.subdir1_lll = self.subdir1.File('lll')
         self.subdir2 = fs.Dir('subdir2')
-        self.subdir2_jjj = self.subdir2.File('jjj')
-        self.subdir2_kkk = self.subdir2.File('kkk')
         self.subdir2_lll = self.subdir2.File('lll')
+        self.subdir2_kkk = self.subdir2.File('kkk')
+        self.subdir2_jjj = self.subdir2.File('jjj')
         self.sub = fs.Dir('sub')
         self.sub_dir3 = self.sub.Dir('dir3')
-        self.sub_dir3_jjj = self.sub_dir3.File('jjj')
         self.sub_dir3_kkk = self.sub_dir3.File('kkk')
+        self.sub_dir3_jjj = self.sub_dir3.File('jjj')
         self.sub_dir3_lll = self.sub_dir3.File('lll')
 
 
@@ -2396,6 +2396,13 @@ class GlobTestCase(_tempdirTestCase):
 
         self.do_cases(cases)
 
+    def test_sort(self):
+        """Test whether globbing sorts"""
+        join = os.path.join
+        # At least sometimes this should return out-of-order items
+        # if Glob doesn't sort.
+        g = self.fs.Glob('disk-sub/*', strings=True)
+        assert g == ['disk-sub/disk-ddd', 'disk-sub/disk-eee', 'disk-sub/disk-fff'], str(g) + " is not sorted, but should be!"
 
 
 class RepositoryTestCase(_tempdirTestCase):

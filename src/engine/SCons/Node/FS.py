@@ -1865,6 +1865,7 @@ class Dir(Base):
             if strings:
                 r = map(lambda x, d=str(dir): os.path.join(d, x), r)
             result.extend(r)
+        result.sort(lambda a, b: cmp(str(a), str(b)))
         return result
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
