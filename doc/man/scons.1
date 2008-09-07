@@ -1336,24 +1336,29 @@ Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.
 
+.RS
+.TP
 --warn=deprecated-copy, --warn=no-deprecated-copy
 Enables or disables warnings about use of the deprecated
 .B env.Copy()
 method.
 
+.TP
 --warn=deprecated-source-signatures, --warn=no-deprecated-source-signatures
 Enables or disables warnings about use of the deprecated
-SourceSignatures() function
-or
+.B SourceSignatures()
+function or
 .B env.SourceSignatures()
 method.
 
+.TP
 --warn=deprecated-target-signatures, --warn=no-deprecated-target-signatures
 Enables or disables warnings about use of the deprecated
-TargetSignatures() function
-or
+.B TargetSignatures()
+function or
 .B env.TargetSignatures()
 method.
+.RE
 
 .TP
 --warn=duplicate-environment, --warn=no-duplicate-environment
@@ -1521,7 +1526,7 @@ env = Environment(parse_flags = '-Iinclude -DEBUG -lm')
 
 This example adds 'include' to
 .BR CPPPATH ,
-\'EBUG' to
+\&'EBUG' to
 .BR CPPDEFINES ,
 and 'm' to
 .BR LIBS .
@@ -8319,7 +8324,7 @@ and emitter functions.
 .SS Action Objects
 
 The
-.BR Builder()
+.BR Builder ()
 function will turn its
 .B action
 keyword argument into an appropriate
