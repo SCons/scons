@@ -2994,3 +2994,46 @@ class FileFinder:
         return result
 
 find_file = FileFinder().find_file
+
+
+def invalidate_node_memos(targets):
+    """
+    Invalidate the memoized values of all Nodes (files or directories)
+    that are associated with the given entries. Has been added to
+    clear the cache of nodes affected by a direct execution of an
+    action (e.g.  Delete/Copy/Chmod). Existing Node caches become
+    inconsistent if the action is run through Execute().  The argument
+    `targets` can be a single Node object or filename, or a sequence
+    of Nodes/filenames.
+    """
+    from traceback import extract_stack
+
+    # First check if the cache really needs to be flushed. Only
+    # actions run in the SConscript with Execute() seem to be
+    # affected. XXX The way to check if Execute() is in the stacktrace
+    # is a very dirty hack and should be replaced by a more sensible
+    # solution.
+    must_invalidate = 0
+    tb = extract_stack()
+    for f in tb:
+        if f[2] == 'Execute' and f[0][-14:] == 'Environment.py':
+            must_invalidate = 1
+    if not must_invalidate:
+        return
+
+    if not SCons.Util.is_List(targets):
+        targets = [targets]
+    
+    for entry in targets:
+        # If the target is a Node object, clear the cache. If it is a
+        # filename, look up potentially existing Node object first.
+        try:
+            entry.clear_memoized_values()
+        except AttributeError:
+            # Not a Node object, try to look up Node by filename.  XXX
+            # This creates Node objects even for those filenames which
+            # do not correspond to an existing Node object.
+            node = get_default_fs().Entry(entry)
+            if node:
+                node.clear_memoized_values()                        
+
