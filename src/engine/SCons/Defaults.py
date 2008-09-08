@@ -169,6 +169,7 @@ def get_paths_str(dest):
         return '"' + str(dest) + '"'
 
 def chmod_func(dest, mode):
+    SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for element in dest:
@@ -180,6 +181,7 @@ def chmod_strfunc(dest, mode):
 Chmod = ActionFactory(chmod_func, chmod_strfunc)
 
 def copy_func(dest, src):
+    SCons.Node.FS.invalidate_node_memos(dest)
     if SCons.Util.is_List(src) and os.path.isdir(dest):
         for file in src:
             shutil.copy2(file, dest)
@@ -194,6 +196,7 @@ Copy = ActionFactory(copy_func,
                      convert=str)
 
 def delete_func(dest, must_exist=0):
+    SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for entry in dest:
@@ -213,6 +216,7 @@ def delete_strfunc(dest, must_exist=0):
 Delete = ActionFactory(delete_func, delete_strfunc)
 
 def mkdir_func(dest):
+    SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for entry in dest:
@@ -221,11 +225,17 @@ def mkdir_func(dest):
 Mkdir = ActionFactory(mkdir_func,
                       lambda dir: 'Mkdir(%s)' % get_paths_str(dir))
 
-Move = ActionFactory(lambda dest, src: os.rename(src, dest),
+def move_func(dest, src):
+    SCons.Node.FS.invalidate_node_memos(dest)
+    SCons.Node.FS.invalidate_node_memos(src)
+    os.rename(src, dest)
+
+Move = ActionFactory(move_func,
                      lambda dest, src: 'Move("%s", "%s")' % (dest, src),
                      convert=str)
 
 def touch_func(dest):
+    SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for file in dest:
