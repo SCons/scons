@@ -697,10 +697,10 @@ def generate(env):
     env['SHCCCOM']    = '$SHCC /Fo$TARGET /c $SOURCES $SHCFLAGS $SHCCFLAGS $_CCCOMCOM'
     env['CXX']        = '$CC'
     env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS $( /TP $)')
-    env['CXXCOM']     = '$CXX /Fo:$TARGET /c $SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM'
+    env['CXXCOM']     = '$CXX /Fo$TARGET /c $SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    env['SHCXXCOM']   = '$SHCXX /Fo:$TARGET /c $SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM'
+    env['SHCXXCOM']   = '$SHCXX /Fo$TARGET /c $SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM'
     env['CPPDEFPREFIX']  = '/D'
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
