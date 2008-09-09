@@ -1186,7 +1186,10 @@ def _exec_main(parser, values):
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
-        from profile import Profile
+        try:
+            from cProfile import Profile
+        except ImportError, e:
+            from profile import Profile
 
         # Some versions of Python 2.4 shipped a profiler that had the
         # wrong 'c_exception' entry in its dispatch table.  Make sure
