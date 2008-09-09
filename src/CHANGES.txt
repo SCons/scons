@@ -20,6 +20,22 @@ RELEASE 1.X - XXX
     - Fix Glob() polluting LIBPATH by returning copy of list
 
 
+
+RELEASE 1.0.1 - Sat, 06 Sep 2008 07:29:34 -0700
+
+  From Greg Noel:
+
+    - Add a FindFile() section to the User's Guide.
+
+    - Fix the FindFile() documentation in the man page.
+
+    - Fix formatting errors in the Package() description in the man page.
+
+    - Escape parentheses that appear within variable names when spawning
+      command lines using os.system().
+
+
+
 RELEASE 1.0.0 - XXX
 
   From Jared Grubb:
