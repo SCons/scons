@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import re
 import string
+import shutil
 
 import SCons.Action
 import SCons.Node
@@ -74,11 +75,21 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     """A builder for LaTeX files that checks the output in the aux file
     and decides how many times to use LaTeXAction, and BibTeXAction."""
 
+    # This routine is called with two actions. In this file for DVI builds
+    # with LaTeXAction and from the pdflatex.py with PDFLaTeXAction
+    # set this up now for the case where the user requests a different extension
+    # for the target filename
+    if (XXXLaTeXAction == LaTeXAction):
+       callerSuffix = ".dvi"
+    else:
+       callerSuffix = env['PDFSUFFIX']
+
     basename = SCons.Util.splitext(str(source[0]))[0]
     basedir = os.path.split(str(source[0]))[0]
     basefile = os.path.split(str(basename))[1]
     abspath = os.path.abspath(basedir)
     targetbase = SCons.Util.splitext(str(target[0]))[0]
+    targetext = os.path.splitext(str(target[0]))[1]
     targetdir = os.path.split(str(target[0]))[0]
 
     # Not sure if these environment changes should go here or make the
@@ -100,7 +111,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     texinputs_save = modify_env_var(env, 'TEXINPUTS', abspath)
     bibinputs_save = modify_env_var(env, 'BIBINPUTS', abspath)
     bstinputs_save = modify_env_var(env, 'BSTINPUTS', abspath)
-    texpicts_save = modify_env_var(env, 'TEXPICTS', abspath)
+    texpicts_save  = modify_env_var(env, 'TEXPICTS', abspath)
 
     # Create these file names with the target directory since they will
     # be made there.   That's because the *COM variables have the cd
@@ -120,6 +131,9 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     tocContents = ""
     if os.path.exists(tocfilename):
         tocContents = open(tocfilename, "rb").read()
+
+    # generate the file name that latex will generate
+    resultfilename = os.path.join(targetdir, basefile + targetext)
 
     # Run LaTeX once to generate a new aux file and log file.
     result = XXXLaTeXAction(target, source, env)
@@ -186,6 +200,19 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         result = XXXLaTeXAction(target, source, env)
         if result != 0:
             return result
+
+    # rename Latex's output to what the target name is
+    if not (str(target[0]) == resultfilename  and  os.path.exists(resultfilename)):
+        if os.path.exists(resultfilename):
+            print "move %s to %s" % (resultfilename, str(target[0]), )
+            shutil.move(resultfilename,str(target[0]))
+        # if the user gave some other extension try  PDFSUFFIX and then .dvi
+        # not sure how to tell if we got here from a PDF or DVI builder.
+        else:
+            resultfilename = os.path.splitext(resultfilename)[0] + callerSuffix
+            if os.path.exists(resultfilename):
+                print "move %s to %s" % (resultfilename, str(target[0]), )
+                shutil.move(resultfilename,str(target[0]))
 
     env['ENV']['TEXINPUTS'] = texinputs_save
     env['ENV']['BIBINPUTS'] = bibinputs_save
