@@ -73,7 +73,7 @@ libutil = base_env.Library('util', Glob('*.cpp'))
 Return('libutil')
 """)
 
-test.write(['src', 'util.cpp'], """int i=0;
+test.write(['src', 'util', 'util.cpp'], """int i=0;
 """)
 
 test.run(arguments = '-Q .')
