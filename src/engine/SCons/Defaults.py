@@ -424,7 +424,10 @@ class Variable_Method_Caller:
         self.method = method
     def __call__(self, *args, **kw):
         try: 1/0
-        except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
+        except ZeroDivisionError: 
+            # Don't start iterating with the current stack-frame to
+            # prevent creating reference cycles (f_back is safe).
+            frame = sys.exc_info()[2].tb_frame.f_back
         variable = self.variable
         while frame:
             if frame.f_locals.has_key(variable):
