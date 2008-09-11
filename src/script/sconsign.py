@@ -67,9 +67,12 @@ libs = []
 if os.environ.has_key("SCONS_LIB_DIR"):
     libs.append(os.environ["SCONS_LIB_DIR"])
 
-local = 'scons-local-' + __version__
+local_version = 'scons-local-' + __version__
+local = 'scons-local'
 if script_dir:
+    local_version = os.path.join(script_dir, local_version)
     local = os.path.join(script_dir, local)
+libs.append(os.path.abspath(local_version))
 libs.append(os.path.abspath(local))
 
 scons_version = 'scons-%s' % __version__
@@ -138,14 +141,12 @@ else:
     except AttributeError:
         pass
     else:
-        while libpath:
-            libpath, tail = os.path.split(libpath)
-            if tail[:6] == "python":
-                break
-        if libpath:
-            # Python library is in /usr/libfoo/python*;
-            # check /usr/libfoo/scons*.
-            prefs.append(libpath)
+        # Split /usr/libfoo/python*/os.py to /usr/libfoo/python*.
+        libpath, tail = os.path.split(libpath)
+        # Split /usr/libfoo/python* to /usr/libfoo
+        libpath, tail = os.path.split(libpath)
+        # Check /usr/libfoo/scons*.
+        prefs.append(libpath)
 
 # Look first for 'scons-__version__' in all of our preference libs,
 # then for 'scons'.
