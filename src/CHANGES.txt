@@ -10,14 +10,19 @@
 
 RELEASE 1.X - XXX
 
+  From Ian P. Cardenas:
+
+    - Fix Glob() polluting LIBPATH by returning copy of list
+
+  From Steven Knight:
+
+    - Fix the ability of the add_src_builder() method to add a new
+      source builder to any other builder.
+
   From Gary Oberbrunner:
 
     - Make Glob() sort the returned list of Files or Nodes
       to prevent spurious rebuilds.
-
-  From Ian P. Cardenas:
-
-    - Fix Glob() polluting LIBPATH by returning copy of list
 
 
 
