@@ -38,3 +38,6 @@ __buildsys__ = "__BUILDSYS__"
 __date__ = "__DATE__"
 
 __developer__ = "__DEVELOPER__"
+
+# make sure compatibility is always in place
+import SCons.compat
