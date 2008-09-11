@@ -19,6 +19,13 @@ RELEASE 1.X - XXX
     - Fix the ability of the add_src_builder() method to add a new
       source builder to any other builder.
 
+    - Avoid an infinite loop on non-Windows systems trying to find the
+      SCons library directory if the Python library directory does not
+      begin with the string "python".
+
+    - Search for the SCons library directory in "scons-local" (with
+      no version number) after "scons-local-{VERSION}".
+
   From Gary Oberbrunner:
 
     - Make Glob() sort the returned list of Files or Nodes
