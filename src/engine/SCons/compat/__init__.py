@@ -29,11 +29,7 @@ implementations of various things that we'd like to use in SCons but which
 only show up in later versions of Python than the early, old version(s)
 we still support.
 
-This package will be imported by other code:
-
-    import SCons.compat
-
-But other code will not generally reference things in this package through
+Other code will not generally reference things in this package through
 the SCons.compat namespace.  The modules included here add things to
 the __builtin__ namespace or the global module list so that the rest
 of our code can use the objects and names imported here regardless of

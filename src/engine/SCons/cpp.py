@@ -27,8 +27,6 @@ __doc__ = """
 SCons C Pre-Processor module
 """
 
-import SCons.compat
-
 import os
 import re
 import string

@@ -29,8 +29,6 @@ customizable variables to an SCons build.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.compat
-
 import os.path
 import string
 import sys

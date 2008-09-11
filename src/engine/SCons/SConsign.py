@@ -29,8 +29,6 @@ Writing and reading information to the .sconsign file or files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.compat
-
 import cPickle
 import os
 import os.path

@@ -40,7 +40,6 @@ __all__ = ['BoolVariable',]
 
 import string
 
-import SCons.compat
 import SCons.Errors
 
 __true_strings  = ('y', 'yes', 'true', 't', '1', 'on' , 'all' )

@@ -56,7 +56,6 @@ __all__ = ['PackageVariable',]
 
 import string
 
-import SCons.compat
 import SCons.Errors
 
 __enable_strings  = ('1', 'yes', 'true',  'on', 'enable', 'search')
