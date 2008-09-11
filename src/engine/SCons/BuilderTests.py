@@ -840,6 +840,9 @@ class BuilderTestCase(unittest.TestCase):
         s = map(str, tgt.sources[0].sources)
         assert s == ['aaa.bar'], s
 
+        builder3 = SCons.Builder.Builder(action='bld3')
+        assert not builder3.src_builder is builder1.src_builder
+
         builder4 = SCons.Builder.Builder(action='bld4',
                                          src_suffix='.i',
                                          suffix='_wrap.c')
