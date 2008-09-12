@@ -322,10 +322,25 @@ class Executor:
             result.extend(act.get_implicit_deps(self.targets, self.get_sources(), build_env))
         return result
 
+nullenv = None
 
-_Executor = Executor
+def get_NullEnvironment():
+    """Use singleton pattern for Null Environments."""
+    global nullenv
 
-class Null(_Executor):
+    import SCons.Util
+    class NullEnvironment(SCons.Util.Null):
+        import SCons.CacheDir
+        _CacheDir_path = None
+        _CacheDir = SCons.CacheDir.CacheDir(None)
+        def get_CacheDir(self):
+            return self._CacheDir
+
+    if not nullenv:
+        nullenv = NullEnvironment()
+    return nullenv
+
+class Null:
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 
@@ -335,20 +350,40 @@ class Null(_Executor):
     """
     def __init__(self, *args, **kw):
         if __debug__: logInstanceCreation(self, 'Executor.Null')
-        kw['action'] = []
-        apply(_Executor.__init__, (self,), kw)
+        self.targets = kw['targets']
     def get_build_env(self):
-        import SCons.Util
-        class NullEnvironment(SCons.Util.Null):
-            import SCons.CacheDir
-            _CacheDir_path = None
-            _CacheDir = SCons.CacheDir.CacheDir(None)
-            def get_CacheDir(self):
-                return self._CacheDir
-        return NullEnvironment()
+        return get_NullEnvironment()
     def get_build_scanner_path(self):
         return None
     def cleanup(self):
         pass
     def prepare(self):
         pass
+    def get_unignored_sources(self, *args, **kw):
+        return tuple()
+    def get_action_list(self):
+        return []
+    def __call__(self, *args, **kw):
+        return 0
+    def get_contents(self):
+        return ''
+
+    def _morph(self):
+        """Morph this Null executor to a real Executor object."""
+        self.__class__ = Executor
+        self.__init__([], targets=self.targets)            
+
+    # The following methods require morphing this Null Executor to a
+    # real Executor object.
+
+    def add_pre_action(self, action):
+        self._morph()
+        self.add_pre_action(action)
+    def add_post_action(self, action):
+        self._morph()
+        self.add_post_action(action)
+    def set_action_list(self, action):
+        self._morph()
+        self.set_action_list(action)
+
+
