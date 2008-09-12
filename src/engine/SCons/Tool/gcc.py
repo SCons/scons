@@ -53,13 +53,9 @@ def generate(env):
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS -fPIC')
     # determine compiler version
     if env['CC']:
-        try:
-            pipe = subprocess.Popen([env['CC'], '--version'],
-                                    env=env['ENV'],
-                                    stderr = subprocess.PIPE,
-                                    stdout = subprocess.PIPE)
-        except OSError:
-           return
+        pipe = SCons.Action._subproc(env, [env['CC'], '--version'],
+                                     stderr = subprocess.PIPE,
+                                     stdout = subprocess.PIPE)
         # -dumpversion was added in GCC 3.0.  As long as we're supporting
         # GCC versions older than that, we should use --version and a
         # regular expression.
