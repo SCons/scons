@@ -103,6 +103,7 @@ import os
 import os.path
 import string
 import sys
+import subprocess
 
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
@@ -117,8 +118,6 @@ _null = _Null
 print_actions = 1
 execute_actions = 1
 print_actions_presub = 0
-
-default_ENV = None
 
 def rfile(n):
     try:
@@ -492,6 +491,64 @@ def _string_from_cmd_list(cmd_list):
             arg = '"' + arg + '"'
         cl.append(arg)
     return string.join(cl)
+
+# this function is still in draft mode.  We're going to need something like
+# it in the long run as more and more places use it, but I'm sure it'll have
+# to be tweaked to get the full desired functionality.
+default_ENV = None
+# one special arg, 'error', to tell what to do with exceptions.
+def _subproc(env, cmd, error = 'ignore', **kw):
+    """Do setup for a subprocess.Popen() call"""
+
+    # If the env has no ENV, get a default
+    try:
+        ENV = env['ENV']
+    except KeyError:
+        global default_ENV
+        if default_ENV is None:
+            # Unbelievably expensive.  What it really should do
+            # is run the platform setup to get the default ENV.
+            # Fortunately, it should almost never happen.
+            default_ENV = SCons.Environment.Environment(tools=[])['ENV']
+        ENV = default_ENV
+    
+    # Ensure that the ENV values are all strings:
+    new_env = {}
+    # It's a string 99.44% of the time, so optimize this
+    is_String = SCons.Util.is_String
+    for key, value in ENV.items():
+        if is_String(value):
+            new_env[key] = value
+        elif SCons.Util.is_List(value):
+            # If the value is a list, then we assume it is a
+            # path list, because that's a pretty common list-like
+            # value to stick in an environment variable:
+            value = SCons.Util.flatten_sequence(value)
+            ENV[key] = string.join(map(str, value), os.pathsep)
+        else:
+            # If it isn't a string or a list, then we just coerce
+            # it to a string, which is the proper way to handle
+            # Dir and File instances and will produce something
+            # reasonable for just about everything else:
+            ENV[key] = str(value)
+    kw['env'] = new_env
+
+    try:
+        #FUTURE return subprocess.Popen(cmd, **kw)
+        return apply(subprocess.Popen, (cmd,), kw)
+    except EnvironmentError, e:
+        if error == 'raise': raise
+        # return a dummy Popen instance that only returns error
+        class popen:
+            def __init__(self, e): self.exception = e
+            def communicate(): return ('','')
+            def wait(): return -self.exception.errno
+            stdin = None
+            class f:
+                def read(self): return ''
+                def readline(self): return ''
+            stdout = stderr = f()
+        return popen(e)
 
 class CommandAction(_ActionAction):
     """Class for command-execution actions."""
