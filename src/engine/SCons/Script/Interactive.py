@@ -98,7 +98,7 @@ try:
 except ImportError:
     pass
 
-from SCons.Debug import Trace
+import SCons
 
 class SConsInteractiveCmd(cmd.Cmd):
     """\
