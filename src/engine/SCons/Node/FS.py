@@ -1780,7 +1780,10 @@ class Dir(Base):
         if self.entry_exists_on_disk(name):
             try: return self.Dir(name)
             except TypeError: pass
-        return None
+        node = self.srcdir_duplicate(name)
+        if isinstance(node, File):
+            return None
+        return node
 
     def file_on_disk(self, name):
         if self.entry_exists_on_disk(name) or \

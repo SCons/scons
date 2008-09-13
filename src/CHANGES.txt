@@ -14,6 +14,10 @@ RELEASE 1.X - XXX
 
     - Fix Glob() polluting LIBPATH by returning copy of list
 
+  From Jared Grubb:
+
+    - Fix VariantDir duplication of #included files in subdirectories.
+
   From Steven Knight:
 
     - Fix the ability of the add_src_builder() method to add a new
@@ -30,6 +34,10 @@ RELEASE 1.X - XXX
 
     - Make Glob() sort the returned list of Files or Nodes
       to prevent spurious rebuilds.
+
+  From Ali Tofigh:
+
+    - Add a test to verify duplication of files in VariantDir subdirectories.
 
 
 
