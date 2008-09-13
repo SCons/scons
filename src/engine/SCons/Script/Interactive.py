@@ -98,8 +98,6 @@ try:
 except ImportError:
     pass
 
-import SCons
-
 class SConsInteractiveCmd(cmd.Cmd):
     """\
     build [TARGETS]         Build the specified TARGETS and their dependencies.
@@ -163,6 +161,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         build [TARGETS]         Build the specified TARGETS and their
                                 dependencies.  'b' is a synonym.
         """
+        import SCons.Node
         import SCons.SConsign
         import SCons.Script.Main
 
