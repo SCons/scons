@@ -1910,10 +1910,6 @@ class Base(SubstitutionEnvironment):
             name = self.subst(name)
             if not os.path.isabs(name):
                 name = os.path.join(str(self.fs.SConstruct_dir), name)
-        name = os.path.normpath(name)
-        sconsign_dir = os.path.dirname(name)
-        if sconsign_dir and not os.path.exists(sconsign_dir):
-            self.Execute(SCons.Defaults.Mkdir(sconsign_dir))
         SCons.SConsign.File(name, dbm_module)
 
     def SideEffect(self, side_effect, target):
