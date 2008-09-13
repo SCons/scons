@@ -360,7 +360,7 @@ class Null:
     def prepare(self):
         pass
     def get_unignored_sources(self, *args, **kw):
-        return tuple()
+        return tuple(())
     def get_action_list(self):
         return []
     def __call__(self, *args, **kw):
