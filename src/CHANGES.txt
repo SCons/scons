@@ -78,16 +78,6 @@ RELEASE 1.X - XXX
     - Make Glob() sort the returned list of Files or Nodes
       to prevent spurious rebuilds.
 
-  From Damyan Pepper:
-
-    - Add a test case to verify that SConsignFile() files can be
-      created in previously non-existent subdirectories.
-
-  From Jim Randall:
-
-    - Make the subdirectory in which the SConsignFile() file will
-      live, if the subdirectory doesn't already exist.
-
   From Ali Tofigh:
 
     - Add a test to verify duplication of files in VariantDir subdirectories.
