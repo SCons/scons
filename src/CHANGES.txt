@@ -14,6 +14,13 @@ RELEASE 1.X - XXX
 
     - Fix Glob() polluting LIBPATH by returning copy of list
 
+  From David Cournapeau:
+
+    - Add CheckCC, CheckCXX, CheckSHCC and CheckSHCXX tests to
+      configuration contexts.
+
+    - Reorder MSVC compilation arguments so the /Fo is first.
+
   From Jared Grubb:
 
     - Fix VariantDir duplication of #included files in subdirectories.
@@ -29,6 +36,42 @@ RELEASE 1.X - XXX
 
     - Search for the SCons library directory in "scons-local" (with
       no version number) after "scons-local-{VERSION}".
+
+  From Ludwig Hähne:
+
+    - Reduce memory usage when a directory is used as a dependency of
+      another Node (such as an Alias) by returning a concatenation
+      of the children's signatures + names, not the children's contents,
+      as the directory contents.
+
+    - Raise AttributeError, not KeyError, when a Builder can't be found.
+
+    - Invalidate cached Node information (such as the contenst returned
+      by the get_contents() method) when calling actions with Execute().
+
+    - Avoid object reference cycles from frame objects.
+
+    - Reduce memory usage from Null Executor objects.
+
+  From Rob Managan:
+
+    - Fix the user's ability to interrupt the TeX build chain.
+
+    - Fix the TeX builder's allowing the user to specify the target name,
+      instead of always using its default output name based on the source.
+
+  From Greg Noel:
+
+    - Fix typos and format bugs in the man page.
+
+    - Have the --profile= argument use the much faster cProfile module 
+      (if it's available in the running Python version).
+
+    - Use the specified environment and suppress error output when
+      checking for the gcc compiler version.
+
+    - Refactor use of the SCons.compat module so other modules don't
+      have to import it individually.
 
   From Gary Oberbrunner:
 
