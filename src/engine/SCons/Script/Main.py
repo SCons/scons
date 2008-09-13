@@ -963,8 +963,8 @@ def _main(parser):
     SCons.Node.implicit_cache = options.implicit_cache
     SCons.Node.FS.set_duplicate(options.duplicate)
     fs.set_max_drift(options.max_drift)
-    if not options.stack_size is None:
-        SCons.Job.stack_size = options.stack_size
+
+    SCons.Job.explicit_stack_size = options.stack_size
 
     platform = SCons.Platform.platform_module()
 
