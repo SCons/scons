@@ -21,6 +21,11 @@ RELEASE 1.X - XXX
 
     - Reorder MSVC compilation arguments so the /Fo is first.
 
+  From John Gozde:
+
+    - When scanning for a #include file, don't use a directory that
+      has the same name as the file.
+
   From Jared Grubb:
 
     - Fix VariantDir duplication of #included files in subdirectories.
