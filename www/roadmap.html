@@ -13,7 +13,7 @@
 <h2>Current Releases</h2>
 
 <p>
-The current stable release is 1.0.1, released 12 August 2008.
+The current stable release is 1.0.1, released 7 September 2008.
 </p>
 
 <p>
@@ -21,6 +21,13 @@ The latest release is 1.0.1, released 7 September 2008.
 </p>
 
 <h2>Upcoming Releases</h2>
+
+<p>
+Our goal is to meet the dates
+for release candidates and the releases themselves;
+the beta checkpoint dates are our best guess as this was published,
+but they may be adjusted on no notice.
+</p>
 
 <table>
   <tr>
@@ -164,20 +171,20 @@ The major number increments when one of two things happens:
   </ul>
 Our goal is that as a user of SCons,
 you should always be able to upgrade to a later
-revision of the same major number
+release of the same major version
 with complete confidence that your build will not break.
 </p>
 </li>
 <li>
 <strong>Minor release (1.1, 1.2, 1.3, etc.)</strong>
 <p>
-Minor numbers increment for release that
-adds new functionality and/or bug fixes
-to an existing major release branch.
+Minor numbers increment for releases that
+add new functionality and/or bug fixes
+to an existing major release.
 All new functionality will be added so as to never
 knowingly break backwards compatibility with any
-previous minor releases from the same branch.
-We expect that our major release branches will be long-lived
+previous minor releases from the same major release.
+We expect that our major releases will be long-lived
 platforms for delivering many minor releases to
 add functionality and fix bugs.
 </p>
@@ -195,16 +202,22 @@ one per minor release.
 </p>
 </li>
 <li>
-<strong>Testing pre-release (1.1.90, 1.1.91, 1.1.92, etc.)</strong>
+<strong>Checkpoints (x.y.dyyyymmdd or x.y.z.dyyyymmdd )</strong>
 <p>
-A revision number of 90 or greater
-indicates the release is intended for
-testing a set of new features intended for
-wider distribution in the next major or minor release.
-There may be many of these
-leading up to a release
-with a lot of significant internal changes
-(<i>*cough*</i> 0.97 <i>*cough*</i>...).
+A checkpoint has a 'd<i>yyymmdd</i>' suffix
+and is made every couple of weeks between major or minor releases.
+It is intended for beta testing new features
+and for ensuring that bug fixes work as intended.
+Although existing features will not change,
+compatibility of features under test
+is not guaranteed between checkpoints
+(<i>i.e.</i>, the implementation of the feature may change).
+Checkpoints are intended not only to allow for wider testing,
+but also to make new features available to users
+who urgently need to use the feature in advance
+of it being published in the next major or minor release.
+Checkpoints can also act as release candidates
+immediately prior to a major or minor release.
 </p>
 </li>
 </ul>
