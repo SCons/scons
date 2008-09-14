@@ -8,16 +8,16 @@ months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
 
 print '<table>'
 def row(*cells, **kw):
-	tr = kw.get('tr','tr')
+	td = kw.get('tr','td')
 	print '  <tr>'
 	for cell in cells:
-		print '    <%s>%s</%s>' % (tr,cell,tr)
+		print '    <%s>%s</%s>' % (td,cell,td)
 	print '  </tr>'
 row('Estimated date', 'Type', 'Name', 'Comments', tr = 'th')
 
 if len(sys.argv) > 1:
 	f = open(sys.argv[1])
-else:	f = open('Schedule')
+else:	f = open('schedule')
 now = None
 current = 'UNKNOWN'
 for line in f:
