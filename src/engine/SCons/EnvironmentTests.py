@@ -3022,6 +3022,7 @@ def generate(env):
         env = self.TestEnvironment(FOO = 'SConsign',
                           BAR = os.path.join(os.sep, 'File'))
         env.fs = MyFS()
+        env.Execute = lambda action: None
 
         try:
             fnames = []
