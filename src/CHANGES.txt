@@ -93,11 +93,6 @@ RELEASE 1.X - XXX
     - Make the subdirectory in which the SConsignFile() file will
       live, if the subdirectory doesn't already exist.
 
-  From Dmitri Rubinstein:
-
-    - Add support for detecting Visual Studio 9 and newer Platform SDK
-      versions.
-
   From Ali Tofigh:
 
     - Add a test to verify duplication of files in VariantDir subdirectories.
