@@ -1217,8 +1217,10 @@ def get_visualstudio_versions():
                         vs = r'Microsoft Visual Studio\Common\MSDev98'
                     elif version_num < 8.0:
                         vs = r'Microsoft Visual Studio .NET\Common7\IDE'
-                    else:
+                    elif version_num < 9.0:
                         vs = r'Microsoft Visual Studio 8\Common7\IDE'
+                    else:
+                        vs = r'Microsoft Visual Studio 9.0\Common7\IDE'
                     id = [ os.path.join(files_dir, vs) ]
                 if os.path.exists(id[0]):
                     L.append(p + suite_suffix)
@@ -1305,6 +1307,74 @@ def get_visualstudio8_suites():
 
     return suites
 
+def get_default_visualstudio9_suite(env):
+    """
+    Returns the Visual Studio 2008 suite identifier set in the env, or the
+    highest suite installed.
+    """
+    if not env.has_key('MSVS') or not SCons.Util.is_Dict(env['MSVS']):
+        env['MSVS'] = {}
+
+    if env.has_key('MSVS_SUITE'):
+        suite = env['MSVS_SUITE'].upper()
+        suites = [suite]
+    else:
+        suite = 'EXPRESS'
+        suites = [suite]
+        if SCons.Util.can_read_reg:
+            suites = get_visualstudio9_suites()
+            if suites:
+                suite = suites[0] #use best suite by default
+
+    env['MSVS_SUITE'] = suite
+    env['MSVS']['SUITES'] = suites
+    env['MSVS']['SUITE'] = suite
+
+    return suite
+
+def get_visualstudio9_suites():
+    """
+    Returns a sorted list of all installed Visual Studio 2008 suites found
+    in the registry. The highest version should be the first entry in the list.
+    """
+    
+    suites = []
+
+    # Detect Standard, Professional and Team edition
+    try:
+        idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+            r'Software\Microsoft\VisualStudio\9.0')
+        SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+        editions = { 'PRO': r'Setup\VS\Pro',
+                     'TS' : r'Setup\VS\VSTS' # Team system
+                     # ToDo: add standard and team editions
+                     }
+        for name, key_suffix in editions.items():
+            try:
+                idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+                    r'Software\Microsoft\VisualStudio\9.0' + '\\' + key_suffix )
+                suites.append(name)
+            except SCons.Util.RegError:
+                pass
+
+        # fallback suite is STD
+        if len(suites) == 0:
+            suites.append('STD')
+
+    except SCons.Util.RegError:
+        pass
+
+    # Detect Express edition
+    try:
+        idk = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+                                      r'Software\Microsoft\VCExpress\9.0')
+        SCons.Util.RegQueryValueEx(idk, 'InstallDir')
+        suites.append('EXPRESS')
+    except SCons.Util.RegError:
+        pass
+
+    return suites
+
 def is_msvs_installed():
     """
     Check the registry for an installed visual studio.
@@ -1334,7 +1404,17 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
     version_num, suite = msvs_parse_version(version)
 
     K = 'Software\\Microsoft\\VisualStudio\\' + str(version_num)
-    if (version_num >= 8.0):
+    if (version_num >= 9.0):
+        if vs8suite == None:
+            # We've been given no guidance about which Visual Studio 9
+            # suite to use, so attempt to autodetect.
+            suites = get_visualstudio9_suites()
+            if suites:
+                vs8suite = suites[0]
+
+        if vs8suite == 'EXPRESS':
+            K = 'Software\\Microsoft\\VCExpress\\' + str(version_num)
+    elif (version_num >= 8.0):
         if vs8suite == None:
             # We've been given no guidance about which Visual Studio 8
             # suite to use, so attempt to autodetect.
@@ -1412,6 +1492,7 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
             '7.0'   : 'v1.0',
             '7.1'   : 'v1.1',
             '8.0'   : 'v2.0',
+            '9.0'   : 'v3.5'
             # TODO: Does .NET 3.0 need to be worked into here somewhere?
         }
         try:
@@ -1488,6 +1569,52 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
             rv['PLATFORMSDK_MODULES'] = vers
         except SCons.Util.RegError:
             pass
+
+    # Newer MS SDK versions
+    if not rv.has_key('PLATFORMSDKDIR'):
+        
+        # list of  main registry keys to check
+        locs = [
+            # MS SDK v6.0a (later versions too?)
+            r'Software\Microsoft\Microsoft SDKs\Windows', 
+            r'Software\Microsoft\MicrosoftSDK\InstalledSDKs'
+            ]
+        rootKeys = [SCons.Util.HKEY_LOCAL_MACHINE, SCons.Util.HKEY_CURRENT_USER]
+        
+        installDirs = []
+
+        for location in locs:
+            try:
+                for rootKey in rootKeys:
+                    k = SCons.Util.RegOpenKeyEx(rootKey, location)
+                    i = 0
+                    while 1:
+                        try:
+                            key = SCons.Util.RegEnumKey(k,i)
+                            sdk = SCons.Util.RegOpenKeyEx(k,key)
+                            j = 0
+                            installDir = ''
+                            while 1:
+                                try:
+                                    (vk,vv,t) = SCons.Util.RegEnumValue(sdk,j)
+
+                                    if (vk.lower() == 'installationfolder' or 
+                                        vk.lower() == 'install dir'):
+                                        installDir = vv
+                                        break
+                                    j = j + 1
+                                except SCons.Util.RegError:
+                                    break
+                            if installDir:
+                                installDirs.append(installDir)
+                            i = i + 1
+                        except SCons.Util.RegError:
+                            break
+            except SCons.Util.RegError:
+                pass
+
+        if len(installDirs) > 0:
+            rv['PLATFORMSDKDIR'] = installDirs[0]
 
     return rv
 
