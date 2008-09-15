@@ -532,6 +532,70 @@ def _get_msvc8_default_paths(env, version, suite, use_mfc_dirs):
     exe_path = string.join(exe_paths, os.pathsep )
     return (include_path, lib_path, exe_path)
 
+def _get_msvc9_default_paths(env, version, suite, use_mfc_dirs):
+    """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
+    three environment variables that should be set in order to execute
+    the MSVC 9 tools properly, if the information wasn't available
+    from the registry."""
+
+    MVSdir = None
+    paths = {}
+    exe_paths = []
+    lib_paths = []
+    include_paths = []
+    try:
+        paths = SCons.Tool.msvs.get_msvs_install_dirs(version, suite)
+        MVSdir = paths['VSINSTALLDIR']
+    except (KeyError, SCons.Util.RegError, SCons.Errors.InternalError):
+        if os.environ.has_key('VSCOMNTOOLS'):
+            MVSdir = os.path.normpath(os.path.join(os.environ['VSCOMNTOOLS'],'..','..'))
+        else:
+            # last resort -- default install location
+            MVSdir = os.getenv('ProgramFiles') + r'\Microsoft Visual Studio ' + str(version)
+
+    if MVSdir:
+        if SCons.Util.can_read_reg and paths.has_key('VCINSTALLDIR'):
+            MVSVCdir = paths['VCINSTALLDIR']
+        else:
+            MVSVCdir = os.path.join(MVSdir,'VC')
+
+        MVSCommondir = os.path.join(MVSdir, 'Common7')
+        include_paths.append( os.path.join(MVSVCdir, 'include') )
+        lib_paths.append( os.path.join(MVSVCdir, 'lib') )
+        for base, subdir in [(MVSCommondir,'IDE'), (MVSVCdir,'bin'),
+                             (MVSCommondir,'Tools'), (MVSCommondir,r'Tools\bin')]:
+            exe_paths.append( os.path.join( base, subdir) )
+
+        if paths.has_key('PLATFORMSDKDIR'):
+            PlatformSdkDir = paths['PLATFORMSDKDIR']
+        else:
+            PlatformSdkDir = os.path.join(MVSVCdir,'PlatformSDK')
+        platform_include_path = os.path.join( PlatformSdkDir, 'Include' )
+        include_paths.append( platform_include_path )
+        lib_paths.append( os.path.join( PlatformSdkDir, 'Lib' ) )
+        if use_mfc_dirs:
+            if paths.has_key('PLATFORMSDKDIR'):
+                include_paths.append( os.path.join( platform_include_path, 'mfc' ) )
+                include_paths.append( os.path.join( platform_include_path, 'atl' ) )
+            else:
+                atlmfc_path = os.path.join( MVSVCdir, 'atlmfc' )
+                include_paths.append( os.path.join( atlmfc_path, 'include' ) )
+                lib_paths.append( os.path.join( atlmfc_path, 'lib' ) )
+
+        if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKSDKDIR'):
+            fwdir = paths['FRAMEWORKSDKDIR']
+            include_paths.append( os.path.join( fwdir, 'include' ) )
+            lib_paths.append( os.path.join( fwdir, 'lib' ) )
+            exe_paths.append( os.path.join( fwdir, 'bin' ) )
+
+        if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKDIR') and paths.has_key('FRAMEWORKVERSION'):
+            exe_paths.append( os.path.join( paths['FRAMEWORKDIR'], paths['FRAMEWORKVERSION'] ) )
+
+    include_path = string.join( include_paths, os.pathsep )
+    lib_path = string.join(lib_paths, os.pathsep )
+    exe_path = string.join(exe_paths, os.pathsep )
+    return (include_path, lib_path, exe_path)
+
 def get_msvc_paths(env, version=None, use_mfc_dirs=0):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values
     of those three environment variables that should be set
@@ -553,7 +617,10 @@ def get_msvc_paths(env, version=None, use_mfc_dirs=0):
     # base installation from the registry and deduce the default
     # directories.
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(version)
-    if version_num >= 8.0:
+    if version_num >= 9.0:
+        suite = SCons.Tool.msvs.get_default_visualstudio9_suite(env)
+        defpaths = _get_msvc9_default_paths(env, version, suite, use_mfc_dirs)
+    elif version_num >= 8.0:
         suite = SCons.Tool.msvs.get_default_visualstudio8_suite(env)
         defpaths = _get_msvc8_default_paths(env, version, suite, use_mfc_dirs)
     elif version_num >= 7.0:
