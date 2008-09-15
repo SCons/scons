@@ -3,8 +3,8 @@
 import sys
 import datetime
 
-months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-	  'August', 'September', 'October', 'November', 'December']
+months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+	  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 print '<table>'
 def row(*cells, **kw):
@@ -33,7 +33,7 @@ for line in f:
 		print 'dunna understand code', line[0]
 		sys.exit(1)
 	name = current + '.d' + str(now).replace('-','')
-	date = '%s %s %s' % (now.day,months[now.month-1],now.year)
+	date = '%s-%s-%s' % (now.day,months[now.month-1],now.year)
 	if type == 'ck':
 		category = 'checkpoint'
 	elif type == 'rc':
