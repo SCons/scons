@@ -163,7 +163,7 @@
     conf = Configure(env)
     if not conf.CheckFunc('strcpy'):
         print 'Did not find strcpy(), using local version'
-        conf.env.Append('-Dstrcpy=my_local_strcpy')
+        conf.env.Append(CPPDEFINES = '-Dstrcpy=my_local_strcpy')
     env = conf.Finish()
     </sconstruct>
 
