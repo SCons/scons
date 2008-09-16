@@ -958,7 +958,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         framework we link against, or else we get interpreter errors.
         """
         if sys.platform[:6] == 'darwin':
-            return '/System/Library/Frameworks/Python.framework/Versions/Current/bin/python'
+            return sys.prefix + '/bin/python'
         else:
             global python
             return python
@@ -1012,7 +1012,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         so we must link to it using Apple's 'framework' scheme.
         """
         if sys.platform[:6] == 'darwin':
-            return '/System/Library/Frameworks/Python.framework/Headers'
+            return sys.prefix + '/Headers'
         try:
             import distutils.sysconfig
         except ImportError:
@@ -1025,15 +1025,16 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         """
         Returns the full path of the Python static library (libpython*.a)
         """
+        if sys.platform[:6] == 'darwin':
+            # Use the framework version (or try to) since that matches
+            # the executable and headers we return elsewhere.
+            python_lib = os.path.join(sys.prefix, 'Python')
+            if os.path.exists(python_lib):
+                return python_lib
         python_version = self.get_python_version()
         python_lib = os.path.join(sys.prefix, 'lib',
                                   'python%s' % python_version, 'config',
                                   'libpython%s.a' % python_version)
-        if os.path.exists(python_lib):
-            return python_lib
-        # The library usually exists on OS X as above,
-        # but fall back to the framework layout just in case
-        python_lib = os.path.join(sys.prefix, 'Python')
         if os.path.exists(python_lib):
             return python_lib
         # We can't find it, so maybe it's in the standard path
