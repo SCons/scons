@@ -58,6 +58,9 @@ def generate(env):
     import dvi
     dvi.generate(env)
 
+    import pdf
+    pdf.generate(env)
+
     bld = env['BUILDERS']['DVI']
     bld.add_action('.ltx', LaTeXAuxAction)
     bld.add_action('.latex', LaTeXAuxAction)
