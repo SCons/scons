@@ -98,17 +98,20 @@ Before reading the
 .I SConstruct
 file,
 .B scons
-adds looks for a dir named
+looks for a directory named
 .I site_scons
-in the dir containing the
+in the directory containing the
 .I SConstruct
-file; it adds that
+file; if it exists,
 .I site_scons
-to sys.path, reads the file
+is added to sys.path,
+the file
 .IR site_scons/site_init.py ,
-and adds the directory
+is evaluated if it exists,
+and the directory
 .I site_scons/site_tools
-to the default toolpath, if those exist.  See the
+is added to the default toolpath if it exist.
+See the
 .I --no-site-dir
 and
 .I --site-dir
@@ -1949,7 +1952,7 @@ env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
 
 This example adds 'include' to
 .BR CPPPATH ,
-\'EBUG' to
+\&'EBUG' to
 .BR CPPDEFINES ,
 and 'm' to
 .BR LIBS .
