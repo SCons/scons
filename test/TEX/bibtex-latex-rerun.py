@@ -42,7 +42,7 @@ if not pdflatex:
     test.skip_test("Could not find pdflatex; skipping test(s).\n")
 
 test.write(['SConstruct'], """\
-env = Environment(tools=['pdflatex', 'tex'])
+env = Environment(tools=['pdftex', 'tex'])
 env.PDF( 'bibtest.tex' )
 """)
 

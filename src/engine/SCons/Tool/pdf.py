@@ -41,7 +41,7 @@ def generate(env):
         global PDFBuilder
         if PDFBuilder is None:
             PDFBuilder = SCons.Builder.Builder(action = {},
-                                               source_scanner = SCons.Tool.LaTeXScanner,
+                                               source_scanner = SCons.Tool.PDFLaTeXScanner,
                                                prefix = '$PDFPREFIX',
                                                suffix = '$PDFSUFFIX',
                                                emitter = {},
