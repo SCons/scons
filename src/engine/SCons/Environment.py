@@ -747,13 +747,16 @@ class SubstitutionEnvironment:
             do_parse(arg, do_parse)
         return dict
 
-    def MergeFlags(self, args, unique=1):
+    def MergeFlags(self, args, unique=1, dict=None):
         """
-        Merge the dict in args into the construction variables.  If args
-        is not a dict, it is converted into a dict using ParseFlags.
-        If unique is not set, the flags are appended rather than merged.
+        Merge the dict in args into the construction variables of this
+        env, or the passed-in dict.  If args is not a dict, it is
+        converted into a dict using ParseFlags.  If unique is not set,
+        the flags are appended rather than merged.
         """
 
+        if dict is None:
+            dict = self
         if not SCons.Util.is_Dict(args):
             args = self.ParseFlags(args)
         if not unique:
@@ -800,6 +803,26 @@ class SubstitutionEnvironment:
                         t.insert(0, v)
             self[key] = t
         return self
+
+#     def MergeShellPaths(self, args, prepend=1):
+#         """
+#         Merge the dict in args into the shell environment in env['ENV'].  
+#         Shell path elements are appended or prepended according to prepend.
+
+#         Uses Pre/AppendENVPath, so it always appends or prepends uniquely.
+
+#         Example: env.MergeShellPaths({'LIBPATH': '/usr/local/lib'})
+#         prepends /usr/local/lib to env['ENV']['LIBPATH'].
+#         """
+
+#         for pathname, pathval in args.items():
+#             if not pathval:
+#                 continue
+#             if prepend:
+#                 apply(self.PrependENVPath, (pathname, pathval))
+#             else:
+#                 apply(self.AppendENVPath, (pathname, pathval))
+
 
 # Used by the FindSourceFiles() method, below.
 # Stuck here for support of pre-2.2 Python versions.
@@ -1139,19 +1162,23 @@ class Base(SubstitutionEnvironment):
                                 orig[val] = None
         self.scanner_map_delete(kw)
 
-    def AppendENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
+    def AppendENVPath(self, name, newpath, envname = 'ENV', 
+                      sep = os.pathsep, delete_existing=1):
         """Append path elements to the path 'name' in the 'ENV'
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help
         assure this.  This can also handle the case where the env
         variable is a list instead of a string.
+
+        If delete_existing is 0, a newpath which is already in the path
+        will not be moved to the end (it will be left where it is).
         """
 
         orig = ''
         if self._dict.has_key(envname) and self._dict[envname].has_key(name):
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.AppendPath(orig, newpath, sep)
+        nv = SCons.Util.AppendPath(orig, newpath, sep, delete_existing)
 
         if not self._dict.has_key(envname):
             self._dict[envname] = {}
@@ -1477,19 +1504,23 @@ class Base(SubstitutionEnvironment):
                                 orig[val] = None
         self.scanner_map_delete(kw)
 
-    def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
+    def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep,
+                       delete_existing=1):
         """Prepend path elements to the path 'name' in the 'ENV'
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help
         assure this.  This can also handle the case where the env
         variable is a list instead of a string.
+
+        If delete_existing is 0, a newpath which is already in the path
+        will not be moved to the front (it will be left where it is).
         """
 
         orig = ''
         if self._dict.has_key(envname) and self._dict[envname].has_key(name):
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.PrependPath(orig, newpath, sep)
+        nv = SCons.Util.PrependPath(orig, newpath, sep, delete_existing)
 
         if not self._dict.has_key(envname):
             self._dict[envname] = {}

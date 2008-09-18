@@ -2682,7 +2682,7 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.AppendENVPath( name ", " newpath ", [" envname ", " sep ])
+.RI env.AppendENVPath( name ", " newpath ", [" envname ", " sep ", " preserve_old_paths ])
 This appends new path elements to the given path in the
 specified external environment
 .RB ( ENV
@@ -2698,6 +2698,11 @@ and
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
+
+If 
+.I preserve_old_paths
+is 1, then adding a path that already exists
+will not move it to the end; it will stay where it is in the list.
 
 Example:
 
@@ -4321,11 +4326,50 @@ exists in a repository.
 Returns a list of the target Node or Nodes.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+\" .TP
+\" .RI env.MergeShellPaths( arg ", [" prepend ])
+\" Merges the elements of the specified
+\" .IR arg ,
+\" which must be a dictionary, to the construction
+\" environment's copy of the shell environment
+\" in env['ENV'].
+\" (This is the environment which is passed
+\" to subshells spawned by SCons.)
+\" Note that
+\" .I arg
+\" must be a single value,
+\" so multiple strings must
+\" be passed in as a list,
+\" not as separate arguments to
+\" .BR env.MergeShellPaths ().
+
+\" New values are prepended to the environment variable by default,
+\" unless prepend=0 is specified.  
+\" Duplicate values are always eliminated, 
+\" since this function calls
+\" .B AppendENVPath
+\" or
+\" .B PrependENVPath
+\" depending on the
+\" .I prepend
+\" argument.  See those functions for more details.
+
+\" Examples:
+
+\" .ES
+\" # Prepend a path to the shell PATH.
+\" env.MergeShellPaths({'PATH':'/usr/local/bin'} )
+\" # Append two dirs to the shell INCLUDE.
+\" env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']}, prepend=0 )
+
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI env.MergeFlags( arg ", [" unique ])
 Merges the specified
 .I arg
-values to the construction envrionment's construction variables.
+values to the construction environment's construction variables.
 If the
 .I arg
 argument is not a dictionary,
@@ -4842,7 +4886,7 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.PrependENVPath( name ", " newpath ", [" envname ", " sep ])
+.RI env.PrependENVPath( name ", " newpath ", [" envname ", " sep ", " preserve_old_paths ])
 This appends new path elements to the given path in the
 specified external environment
 .RB ( ENV
@@ -4858,6 +4902,12 @@ and
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
+
+If
+.I preserve_old_paths
+is 1, then adding a path that already exists
+will not move it to the beginning;
+it will stay where it is in the list.
 
 Example:
 
