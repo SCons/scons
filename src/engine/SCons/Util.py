@@ -844,7 +844,7 @@ else:
                     continue
         return None
 
-def PrependPath(oldpath, newpath, sep = os.pathsep):
+def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
     """This prepends newpath elements to the given oldpath.  Will only
     add any particular path once (leaving the first one it encounters
     and ignoring the rest, to preserve path order), and will
@@ -857,6 +857,10 @@ def PrependPath(oldpath, newpath, sep = os.pathsep):
       Old Path: "/foo/bar:/foo"
       New Path: "/biz/boom:/foo"
       Result:   "/biz/boom:/foo:/foo/bar"
+
+    If delete_existing is 0, then adding a path that exists will
+    not move it to the beginning; it will stay where it is in the
+    list.
     """
 
     orig = oldpath
@@ -871,23 +875,49 @@ def PrependPath(oldpath, newpath, sep = os.pathsep):
     else:
         newpaths = string.split(newpath, sep)
 
-    newpaths = newpaths + paths # prepend new paths
+    if not delete_existing:
+        # First uniquify the old paths, making sure to 
+        # preserve the first instance (in Unix/Linux,
+        # the first one wins), and remembering them in normpaths.
+        # Then insert the new paths at the head of the list
+        # if they're not already in the normpaths list.
+        result = []
+        normpaths = []
+        for path in paths:
+            if not path:
+                continue
+            normpath = os.path.normpath(os.path.normcase(path))
+            if normpath not in normpaths:
+                result.append(path)
+                normpaths.append(normpath)
+        newpaths.reverse()      # since we're inserting at the head
+        for path in newpaths:
+            if not path:
+                continue
+            normpath = os.path.normpath(os.path.normcase(path))
+            if normpath not in normpaths:
+                result.insert(0, path)
+                normpaths.append(normpath)
+        paths = result
 
-    normpaths = []
-    paths = []
-    # now we add them only if they are unique
-    for path in newpaths:
-        normpath = os.path.normpath(os.path.normcase(path))
-        if path and not normpath in normpaths:
-            paths.append(path)
-            normpaths.append(normpath)
+    else:
+        newpaths = newpaths + paths # prepend new paths
+
+        normpaths = []
+        paths = []
+        # now we add them only if they are unique
+        for path in newpaths:
+            normpath = os.path.normpath(os.path.normcase(path))
+            if path and not normpath in normpaths:
+                paths.append(path)
+                normpaths.append(normpath)
 
     if is_list:
         return paths
     else:
         return string.join(paths, sep)
 
-def AppendPath(oldpath, newpath, sep = os.pathsep):
+def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
     """This appends new path elements to the given old path.  Will
     only add any particular path once (leaving the last one it
     encounters and ignoring the rest, to preserve path order), and
@@ -900,6 +930,9 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
       Old Path: "/foo/bar:/foo"
       New Path: "/biz/boom:/foo"
       Result:   "/foo/bar:/biz/boom:/foo"
+
+    If delete_existing is 0, then adding a path that exists
+    will not move it to the end; it will stay where it is in the list.
     """
 
     orig = oldpath
@@ -914,19 +947,42 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
     else:
         newpaths = string.split(newpath, sep)
 
-    newpaths = paths + newpaths # append new paths
-    newpaths.reverse()
+    if not delete_existing:
+        # add old paths to result, then
+        # add new paths if not already present
+        # (I thought about using a dict for normpaths for speed,
+        # but it's not clear hashing the strings would be faster
+        # than linear searching these typically short lists.)
+        result = []
+        normpaths = []
+        for path in paths:
+            if not path:
+                continue
+            result.append(path)
+            normpaths.append(os.path.normpath(os.path.normcase(path)))
+        for path in newpaths:
+            if not path:
+                continue
+            normpath = os.path.normpath(os.path.normcase(path))
+            if normpath not in normpaths:
+                result.append(path)
+                normpaths.append(normpath)
+        paths = result
+    else:
+        # start w/ new paths, add old ones if not present,
+        # then reverse.
+        newpaths = paths + newpaths # append new paths
+        newpaths.reverse()
 
-    normpaths = []
-    paths = []
-    # now we add them only of they are unique
-    for path in newpaths:
-        normpath = os.path.normpath(os.path.normcase(path))
-        if path and not normpath in normpaths:
-            paths.append(path)
-            normpaths.append(normpath)
-
-    paths.reverse()
+        normpaths = []
+        paths = []
+        # now we add them only if they are unique
+        for path in newpaths:
+            normpath = os.path.normpath(os.path.normcase(path))
+            if path and not normpath in normpaths:
+                paths.append(path)
+                normpaths.append(normpath)
+        paths.reverse()
 
     if is_list:
         return paths

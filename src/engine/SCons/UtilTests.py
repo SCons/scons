@@ -478,6 +478,22 @@ class UtilTestCase(unittest.TestCase):
         assert(p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
         assert(p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
 
+    def test_PrependPathPreserveOld(self):
+        """Test prepending to a path while preserving old paths"""
+        p1 = r'C:\dir\num\one;C:\dir\num\two'
+        # have to include the pathsep here so that the test will work on UNIX too.
+        p1 = PrependPath(p1,r'C:\dir\num\two',sep = ';', delete_existing=0)
+        p1 = PrependPath(p1,r'C:\dir\num\three',sep = ';')
+        assert(p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two')
+
+    def test_AppendPathPreserveOld(self):
+        """Test appending to a path while preserving old paths"""
+        p1 = r'C:\dir\num\one;C:\dir\num\two'
+        # have to include the pathsep here so that the test will work on UNIX too.
+        p1 = AppendPath(p1,r'C:\dir\num\one',sep = ';', delete_existing=0)
+        p1 = AppendPath(p1,r'C:\dir\num\three',sep = ';')
+        assert(p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+
     def test_NodeList(self):
         """Test NodeList class"""
         class TestClass:
