@@ -146,7 +146,7 @@ This is the %s LaTeX file.
     latex1 = r"""
 \documentclass{report}
 \usepackage{makeidx}
-\makeindex
+\input{latexinputfile}
 \begin{document}
 \index{info}
 This is the %s LaTeX file.
@@ -157,6 +157,10 @@ It has an Index and includes another file.
 """
 
     latex2 = r"""
+\makeindex
+"""
+
+    latex3 = r"""
 \index{include}
 This is the include file.
 \printindex{}
@@ -171,7 +175,8 @@ This is the include file.
 
     test.subdir('subdir')
     test.write('latexi.tex',  latex1 % 'latexi.tex');
-    test.write([ 'subdir', 'latexincludefile.tex'], latex2)
+    test.write([ 'subdir', 'latexinputfile.tex'], latex2)
+    test.write([ 'subdir', 'latexincludefile.tex'], latex3)
 
     test.run(arguments = 'foo.dvi', stderr = None)
     test.must_not_exist('wrapper.out')
@@ -188,6 +193,9 @@ This is the include file.
     test.must_exist('latexi.dvi')
     test.must_exist('latexi.ind')
 
+    test.run(arguments = '-c', stderr = None)
+    test.must_not_exist('latexi.ind')
+    test.must_not_exist('latexi.ilg')
 
 
 test.pass_test()

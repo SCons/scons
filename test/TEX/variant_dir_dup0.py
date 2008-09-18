@@ -28,6 +28,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test creation of a fully-featured TeX document (with bibliography
 and index) in a variant_dir.
 
+Also test that the target can be named differently than what
+Latex produces by default.
+
 Test courtesy Rob Managan.
 """
 
@@ -62,7 +65,9 @@ test.write(['docs', 'SConscript'], """\
 Import('env')
 
 test_dvi = env.DVI(source='test.tex')
-testpdf = env.PDF(source=test_dvi)
+test2_dvi = env.DVI(target='result',source='test2.tex')
+testpdf = env.PDF(target='pdfoutput',source=test_dvi)
+test2pdf = env.PDF(target='pdfoutput.xyz',source=test2_dvi)
 """)
 
 
@@ -228,6 +233,63 @@ All done now.
 \end{document}
 """)
 
+test.write(['docs', 'test2.tex'],
+r"""\documentclass{report}
+
+\usepackage{graphicx}
+\usepackage{epsfig,color} % for .tex version of figures if we go that way
+
+\usepackage{makeidx}
+\makeindex
+
+\begin{document}
+ 
+\title{Report Title}
+
+\author{A. N. Author}
+ 
+\maketitle 
+ 
+\begin{abstract}
+there is no abstract
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+
+\chapter{Introduction}
+
+The introduction is short.
+
+\index{Acknowledgements}
+
+\section{Acknowledgements}
+
+The Acknowledgements are show as well \cite{AnAuthor:2006fk}.  
+
+\index{Getting the Report}
+
+To get a hard copy of this report call me.
+
+\begin{figure}[htbp]
+\begin{center}
+\input{Fig1.tex} % testing figure variant that uses TeX labeling
+\caption{Zone and Node indexing}
+\label{fig1}
+\end{center}
+\end{figure}
+
+All done now.
+
+\bibliographystyle{unsrt}
+\bibliography{test}
+\newpage
+
+\printindex
+
+\end{document}
+""")
+
 
 # makeindex will write status messages to stderr (grrr...), so ignore it.
 test.run(arguments = '.', stderr=None)
@@ -245,8 +307,19 @@ files = [
     'test.ind',
     'test.lof',
     'test.log',
-    'test.pdf',
     'test.toc',
+    'test2.aux',
+    'test2.bbl',
+    'test2.blg',
+    'test2.idx',
+    'test2.ilg',
+    'test2.ind',
+    'test2.lof',
+    'test2.log',
+    'test2.toc',
+    'result.dvi',
+    'pdfoutput.pdf',
+    'pdfoutput.xyz'
 ]
 
 for f in files:
