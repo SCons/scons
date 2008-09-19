@@ -43,8 +43,8 @@ if sys.platform != 'win32':
 test.write('SConstruct',"""
 import os
 env = Environment()
-env.Append(CPPPATH=os.environ['INCLUDE'],
-           LIBPATH=os.environ['LIB'])
+env.Append(CPPPATH=os.environ.get('INCLUDE', ''),
+           LIBPATH=os.environ.get('LIB', ''))
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
