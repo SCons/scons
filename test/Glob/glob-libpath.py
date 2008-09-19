@@ -77,11 +77,11 @@ test.write(['src', 'util', 'util.cpp'], """int i=0;
 """)
 
 test.run(arguments = '-Q .')
-if not test.match_re_dotall(test.stdout(), r".*-Lbuild/util.*"):
-    print repr(test.stdout())+" should contain -Lbuild/util"
+if not test.match_re_dotall(test.stdout(), r".*(-L|/LIBPATH:)build[/\\]util.*"):
+    print repr(test.stdout())+" should contain -Lbuild/util or /LIBPATH:build\\util"
     test.fail_test()
-if test.match_re_dotall(test.stdout(), r".*-Lsrc/util.*"):
-    print repr(test.stdout())+" should not contain -Lsrc/util"
+if test.match_re_dotall(test.stdout(), r".*(-L|/LIBPATH:)src[/\\]util.*"):
+    print repr(test.stdout())+" should not contain -Lsrc/util or /LIBPATH:src\\util"
     test.fail_test()
 
 test.pass_test()
