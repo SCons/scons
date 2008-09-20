@@ -84,6 +84,7 @@ foo = Environment(SWIGFLAGS='-python',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   FRAMEWORKS='%(python_frameworks)s',
+                  SWIG=r'%(swig)s',
                   #LIBS=%(python_library_path)s,
                   )
 
