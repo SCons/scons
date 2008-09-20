@@ -2402,7 +2402,12 @@ class GlobTestCase(_tempdirTestCase):
         # At least sometimes this should return out-of-order items
         # if Glob doesn't sort.
         g = self.fs.Glob('disk-sub/*', strings=True)
-        assert g == ['disk-sub/disk-ddd', 'disk-sub/disk-eee', 'disk-sub/disk-fff'], str(g) + " is not sorted, but should be!"
+        expect = [
+            os.path.join('disk-sub', 'disk-ddd'),
+            os.path.join('disk-sub', 'disk-eee'),
+            os.path.join('disk-sub', 'disk-fff'),
+        ]
+        assert g == expect, str(g) + " is not sorted, but should be!"
 
 
 class RepositoryTestCase(_tempdirTestCase):
