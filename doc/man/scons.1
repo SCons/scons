@@ -2682,7 +2682,7 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.AppendENVPath( name ", " newpath ", [" envname ", " sep ", " preserve_old_paths ])
+.RI env.AppendENVPath( name ", " newpath ", [" envname ", " sep ", " delete_existing ])
 This appends new path elements to the given path in the
 specified external environment
 .RB ( ENV
@@ -2700,8 +2700,8 @@ case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
 
 If 
-.I preserve_old_paths
-is 1, then adding a path that already exists
+.I delete_existing
+is 0, then adding a path that already exists
 will not move it to the end; it will stay where it is in the list.
 
 Example:
@@ -4886,7 +4886,7 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.PrependENVPath( name ", " newpath ", [" envname ", " sep ", " preserve_old_paths ])
+.RI env.PrependENVPath( name ", " newpath ", [" envname ", " sep ", " delete_existing ])
 This appends new path elements to the given path in the
 specified external environment
 .RB ( ENV
@@ -4904,8 +4904,8 @@ case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
 
 If
-.I preserve_old_paths
-is 1, then adding a path that already exists
+.I delete_existing
+is 0, then adding a path that already exists
 will not move it to the beginning;
 it will stay where it is in the list.
 
