@@ -205,10 +205,9 @@ test.must_not_exist(test.workpath('work1', 'Test.sln'))
 # Test that running SCons with $PYTHON_ROOT in the environment
 # changes the .vcproj output as expected.
 os.environ['PYTHON_ROOT'] = 'xyzzy'
+python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSCons.python)[1])
 
 test.run(chdir='work1', arguments='Test.vcproj')
-
-python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSCons.python)[1])
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
@@ -218,6 +217,7 @@ expect = test.msvs_substitute(expected_vcprojfile, '7.1', 'work1', 'SConstruct',
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 os.environ['PYTHON_ROOT'] = ''
+python = None
 
 
 
