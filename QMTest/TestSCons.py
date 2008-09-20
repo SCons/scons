@@ -757,7 +757,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
 
     def msvs_substitute(self, input, msvs_ver,
                         subdir=None, sconscript=None,
-                        python=sys.executable,
+                        python=None,
                         project_guid=None):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
@@ -769,6 +769,9 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
 
         if sconscript is None:
             sconscript = self.workpath('SConstruct')
+
+        if python is None:
+            python = sys.executable
 
         if project_guid is None:
             project_guid = "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
