@@ -110,9 +110,9 @@ def gccFortranLibs():
     for l in stderr.readlines():
         list = string.split(l)
         if len(list) > 3 and list[:2] == ['gcc', 'version']:
-             if list[2][:3] in ('4.1','4.2','4.3'):
-                 libs = ['gfortranbegin']
-                 break
+            if list[2][:3] in ('4.1','4.2','4.3'):
+                libs = ['gfortranbegin']
+                break
             if list[2][:2] in ('3.', '4.'):
                 libs = ['frtbegin'] + libs
                 break
