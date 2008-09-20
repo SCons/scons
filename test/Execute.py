@@ -82,7 +82,15 @@ test.write('k.in', "k.in\n")
 test.write('l.in', "l.in\n")
 test.write('m.in', "m.in\n")
 
-expect = """\
+import sys
+if sys.platform == 'win32':
+    expect = """\
+scons: *** Error 1
+scons: *** Error 2
+scons: *** nonexistent.in/*.*: The system cannot find the path specified
+"""
+else:
+    expect = """\
 scons: *** Error 1
 scons: *** Error 2
 scons: *** nonexistent.in: No such file or directory
