@@ -3063,32 +3063,36 @@ def generate(env):
             SCons.SConsign.File = capture
 
             env.SConsignFile('foo')
-            assert fnames[0] == os.path.join(os.sep, 'dir', 'foo'), fnames
-            assert dbms[0] == None, dbms
+            assert fnames[-1] == os.path.join(os.sep, 'dir', 'foo'), fnames
+            assert dbms[-1] == None, dbms
 
             env.SConsignFile('$FOO')
-            assert fnames[1] == os.path.join(os.sep, 'dir', 'SConsign'), fnames
-            assert dbms[1] == None, dbms
+            assert fnames[-1] == os.path.join(os.sep, 'dir', 'SConsign'), fnames
+            assert dbms[-1] == None, dbms
 
             env.SConsignFile('/$FOO')
-            assert fnames[2] == '/SConsign', fnames
-            assert dbms[2] == None, dbms
+            assert fnames[-1] == os.sep + 'SConsign', fnames
+            assert dbms[-1] == None, dbms
+
+            env.SConsignFile(os.sep + '$FOO')
+            assert fnames[-1] == os.sep + 'SConsign', fnames
+            assert dbms[-1] == None, dbms
 
             env.SConsignFile('$BAR', 'x')
-            assert fnames[3] == os.path.join(os.sep, 'File'), fnames
-            assert dbms[3] == 'x', dbms
+            assert fnames[-1] == os.path.join(os.sep, 'File'), fnames
+            assert dbms[-1] == 'x', dbms
 
             env.SConsignFile('__$BAR', 7)
-            assert fnames[4] == os.path.join(os.sep, 'dir', '__', 'File'), fnames
-            assert dbms[4] == 7, dbms
+            assert fnames[-1] == os.path.join(os.sep, 'dir', '__', 'File'), fnames
+            assert dbms[-1] == 7, dbms
 
             env.SConsignFile()
-            assert fnames[5] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
-            assert dbms[5] == None, dbms
+            assert fnames[-1] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
+            assert dbms[-1] == None, dbms
 
             env.SConsignFile(None)
-            assert fnames[6] == None, fnames
-            assert dbms[6] == None, dbms
+            assert fnames[-1] == None, fnames
+            assert dbms[-1] == None, dbms
         finally:
             SCons.SConsign.File = save_SConsign_File
 
