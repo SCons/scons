@@ -50,6 +50,7 @@ if not os.path.exists(Python_h):
 test.write(['SConstruct'], """\
 env = Environment(SWIGFLAGS = '-python -c++',
                   CPPPATH=r"%(python_include_dir)s",
+                  SWIG=r'%(swig)s',
 		  FRAMEWORKS='%(python_frameworks_flags)s',
 		  )
 

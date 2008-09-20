@@ -66,6 +66,7 @@ test.write(['SConstruct'], """\
 #
 env = Environment(CPPPATH = [".", r'%(python_include_dir)s'],
                   CPPDEFINES = "NDEBUG",
+                  SWIG =r'%(swig)s',
                   SWIGFLAGS = ["-python", "-c++"],
                   SWIGCXXFILESUFFIX = "_wrap.cpp",
                   LDMODULEPREFIX='_',

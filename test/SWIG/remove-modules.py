@@ -73,6 +73,7 @@ foo = Environment(SWIGFLAGS='-python',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   FRAMEWORKS='%(python_frameworks_flags)s',
+                  SWIG=r'%(swig)s',
                   )
 
 import sys
