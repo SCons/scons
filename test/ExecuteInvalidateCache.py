@@ -69,10 +69,10 @@ exists( n2 )
 Execute(Copy('abc', 'def'))
 exists( n1 )
 
-n3 = File("%(subfn)s")
+n3 = File(r"%(subfn)s")
 exists( n3 )
 Execute(Mkdir('sub'))
-Execute(Touch("%(subfn)s"))
+Execute(Touch(r"%(subfn)s"))
 exists( n3 )
 """ % locals())
 
