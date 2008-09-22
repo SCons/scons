@@ -126,16 +126,17 @@ class LaTeX(SCons.Scanner.Base):
             """
             def __init__(self, dictionary):
                 self.dictionary = {}
-                for k, n  in dictionary.iteritems():
+                for k,n in dictionary.items():
                     self.dictionary[k] = SCons.Scanner.FindPathDirs(n)
-            def __call__(self, env, dir=None, target=None, source=None, argument=None):
+
+            def __call__(self, env, dir=None, target=None, source=None,
+                                    argument=None):
                 di = {}
-                for k, c  in self.dictionary.iteritems():
-                    p = c(env, dir=None, target=None, source=None, argument=None)
-                    di[k] = p
+                for k,c  in self.dictionary.items():
+                    di[k] = c(env, dir=None, target=None, source=None,
+                                   argument=None)
                 # To prevent "dict is not hashable error"
-                rv = tuple([(k,v) for k, v in di.iteritems()])
-                return rv
+                return tuple(di.items())
 
         class LaTeXScanCheck:
             """Skip all but LaTeX source files, i.e., do not scan *.eps,
@@ -177,7 +178,8 @@ class LaTeX(SCons.Scanner.Base):
         if include[0] == 'includegraphics':
             base, ext = os.path.splitext( filename )
             if ext == "":
-                return [filename + e for e in self.graphics_extensions]
+                #FUTURE return [filename + e for e in self.graphics_extensions]
+                return map(lambda e, f=filename: f+e, self.graphics_extensions)
         return [filename]
 
     def sort_key(self, include):

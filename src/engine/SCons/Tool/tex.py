@@ -128,10 +128,12 @@ def modify_env_var(env, var, abspath):
     env.PrependENVPath(var, abspath)
     try:
         if SCons.Util.is_List(env[var]):
-            env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
+            #FUTURE env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
         else:
             # Split at os.pathsep to convert into absolute path
-            env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
+            #FUTURE env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), str(env[var]).split(os.pathsep)))
     except KeyError:
         pass
     # Convert into a string explicitly to append ":" (without which it won't search system
