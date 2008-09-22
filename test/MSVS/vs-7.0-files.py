@@ -214,7 +214,7 @@ expect = test.msvs_substitute(expected_vcprojfile, '7.0', 'work1', 'SConstruct',
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
-os.environ['PYTHON_ROOT'] = ''
+del os.environ['PYTHON_ROOT']
 python = None
 
 
