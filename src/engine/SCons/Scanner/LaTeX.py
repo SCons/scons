@@ -95,7 +95,7 @@ class LaTeX(SCons.Scanner.Base):
     """
     keyword_paths = {'include': 'TEXINPUTS',
                      'input': 'TEXINPUTS',
-                     'includegraphics': 'TEXPICTS',
+                     'includegraphics': 'TEXINPUTS',
                      'bibliography': 'BIBINPUTS',
                      'bibliographystyle': 'BSTINPUTS',
                      'usepackage': 'TEXINPUTS'}
