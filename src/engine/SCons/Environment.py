@@ -37,7 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
 import os
-import os.path
+import sys
 import re
 import shlex
 import string
@@ -537,13 +537,9 @@ class SubstitutionEnvironment:
         # run constructed command
         #FUTURE p = SCons.Action._subproc(self, command, **kw)
         p = apply(SCons.Action._subproc, (self, command), kw)
-        out = p.stdout.read()
-        p.stdout.close()
-        err = p.stderr.read()
-        p.stderr.close()
+        out,err = p.communicate()
         status = p.wait()
         if err:
-            import sys
             sys.stderr.write(err)
         if status:
             raise OSError("'%s' exited %d" % (command, status))
@@ -1847,7 +1843,6 @@ class Base(SubstitutionEnvironment):
             errstr = result.errstr
             if result.filename:
                 errstr = result.filename + ': ' + errstr
-            import sys
             sys.stderr.write("scons: *** %s\n" % errstr)
             return result.status
         else:

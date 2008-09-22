@@ -543,8 +543,8 @@ def _subproc(env, cmd, error = 'ignore', **kw):
         # return a dummy Popen instance that only returns error
         class popen:
             def __init__(self, e): self.exception = e
-            def communicate(): return ('','')
-            def wait(): return -self.exception.errno
+            def communicate(self): return ('','')
+            def wait(self): return -self.exception.errno
             stdin = None
             class f:
                 def read(self): return ''

@@ -63,9 +63,11 @@ def generate(env):
         env['SHOBJSUFFIX'] = '.pic.o'
     # determine compiler version
     if env['CXX']:
+        #pipe = SCons.Action._subproc(env, [env['CXX'], '-dumpversion'],
         pipe = SCons.Action._subproc(env, [env['CXX'], '--version'],
                                      stderr = subprocess.PIPE,
                                      stdout = subprocess.PIPE)
+        if pipe.wait() != 0: return
         # -dumpversion was added in GCC 3.0.  As long as we're supporting
         # GCC versions older than that, we should use --version and a
         # regular expression.
