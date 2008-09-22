@@ -146,7 +146,7 @@ class LaTeX(SCons.Scanner.Base):
                 self.suffixes = suffixes
             def __call__(self, node, env):
                 current = not node.has_builder() or node.is_up_to_date()
-                scannable = node.get_suffix() in env.subst(self.suffixes)
+                scannable = node.get_suffix() in env.subst_list(self.suffixes)[0]
                 # Returning false means that the file is not scanned.
                 return scannable and current
 

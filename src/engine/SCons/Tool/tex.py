@@ -341,7 +341,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             continue
         if saved_env[var] is _null:
             try:
-                env['ENV'].pop(var)
+                del env['ENV'][var]
             except KeyError:
                 pass # was never set
         else:
