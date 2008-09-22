@@ -111,7 +111,7 @@ def deps_match(self, deps, headers):
 
 class LaTeXScannerTestCase1(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment()
+        env = DummyEnvironment(LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
         s = SCons.Scanner.LaTeX.LaTeXScanner()
         path = s.path(env)
         deps = s(env.File('test1.latex'), env, path)
@@ -120,7 +120,7 @@ class LaTeXScannerTestCase1(unittest.TestCase):
 
 class LaTeXScannerTestCase2(unittest.TestCase):
      def runTest(self):
-         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")])
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
          s = SCons.Scanner.LaTeX.LaTeXScanner()
          path = s.path(env)
          deps = s(env.File('test2.latex'), env, path)
@@ -129,11 +129,11 @@ class LaTeXScannerTestCase2(unittest.TestCase):
 
 class LaTeXScannerTestCase3(unittest.TestCase):
      def runTest(self):
-         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")])
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
          s = SCons.Scanner.LaTeX.LaTeXScanner()
          path = s.path(env)
          deps = s(env.File('test3.latex'), env, path)
-         files = ['subdir/inc4.eps', 'inc5.xyz']
+         files = ['inc5.xyz', 'subdir/inc4.eps']
          deps_match(self, deps, files)
 
 
