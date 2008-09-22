@@ -29,9 +29,14 @@ Verify the ability to make a SConsignFile() in a non-existent
 subdirectory.
 """
 
+import os
+
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+sub_dir = os.path.join('sub', 'dir')
+bar_foo_txt = os.path.join('bar', 'foo.txt')
 
 test.write('SConstruct', """
 import SCons.dblite
@@ -42,8 +47,8 @@ env.Install('bar', 'foo.txt')
 
 test.write('foo.txt', "Foo\n")
 
-expect = test.wrap_stdout(read_str = 'Mkdir("sub/dir")\n',
-              build_str = 'Install file: "foo.txt" as "bar/foo.txt"\n')
+expect = test.wrap_stdout(read_str = 'Mkdir("%s")\n' % sub_dir,
+              build_str = 'Install file: "foo.txt" as "%s"\n' % bar_foo_txt)
 
 test.run(options='-n', stdout=expect)
 
