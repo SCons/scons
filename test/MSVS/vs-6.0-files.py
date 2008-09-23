@@ -32,9 +32,9 @@ Test that we can generate Visual Studio 6 project (.dsp) and solution
 import os
 import sys
 
-import TestSCons
+import TestSConsMSVS
 
-test = TestSCons.TestSCons()
+test = TestSConsMSVS.TestSConsMSVS()
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['6.0']
