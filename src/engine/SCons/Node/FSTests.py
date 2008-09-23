@@ -1708,7 +1708,7 @@ class DirTestCase(_tempdirTestCase):
         e = self.fs.Dir(os.path.join('d', 'empty'))
         s = self.fs.Dir(os.path.join('d', 'sub'))
 
-        files = d.get_contents().split('\n')
+        files = string.split(d.get_contents(), '\n')
 
         assert e.get_contents() == '', e.get_contents()
         assert e.get_csig()+" empty" == files[0], files
