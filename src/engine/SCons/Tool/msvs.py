@@ -79,7 +79,9 @@ def _generateGUID(slnfile, name):
     based on the MD5 signatures of the sln filename plus the name of
     the project.  It basically just needs to be unique, and not
     change with each invocation."""
-    solution = _hexdigest(md5.new(str(slnfile)+str(name)).digest()).upper()
+    # TODO(1.5)
+    #solution = _hexdigest(md5.new(str(slnfile)+str(name)).digest()).upper()
+    solution = string.upper(_hexdigest(md5.new(str(slnfile)+str(name)).digest()))
     # convert most of the signature to GUID form (discard the rest)
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
@@ -295,7 +297,9 @@ class _DSPGenerator:
                         self.sources[t[0]].append(self.env[t[1]])
 
         for n in sourcenames:
-            self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
+            # TODO(1.5):
+            #self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
+            self.sources[n].sort(lambda a, b: cmp(string.lower(a), string.lower(b)))
 
         def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, dspfile=dspfile):
             config = Config()
@@ -394,7 +398,9 @@ class _GenerateV6DSP(_DSPGenerator):
             for base in ("BASE ",""):
                 self.file.write('# PROP %sUse_MFC 0\n'
                                 '# PROP %sUse_Debug_Libraries ' % (base, base))
-                if kind.lower().find('debug') < 0:
+                # TODO(1.5):
+                #if kind.lower().find('debug') < 0:
+                if string.find(string.lower(kind), 'debug') < 0:
                     self.file.write('0\n')
                 else:
                     self.file.write('1\n')
@@ -445,13 +451,17 @@ class _GenerateV6DSP(_DSPGenerator):
                       'Other Files': ''}
 
         cats = categories.keys()
-        cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        # TODO(1.5):
+        #cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        cats.sort(lambda a, b: cmp(string.lower(a), string.lower(b)))
         for kind in cats:
             if not self.sources[kind]:
                 continue # skip empty groups
 
             self.file.write('# Begin Group "' + kind + '"\n\n')
-            typelist = categories[kind].replace('|',';')
+            # TODO(1.5)
+            #typelist = categories[kind].replace('|', ';')
+            typelist = string.replace(categories[kind], '|', ';')
             self.file.write('# PROP Default_Filter "' + typelist + '"\n')
 
             for file in self.sources[kind]:
@@ -474,7 +484,9 @@ class _GenerateV6DSP(_DSPGenerator):
 
         line = dspfile.readline()
         while line:
-            if line.find("# End Project") > -1:
+            # TODO(1.5):
+            #if line.find("# End Project") > -1:
+            if string.find(line, "# End Project") > -1:
                 break
             line = dspfile.readline()
 
@@ -692,7 +704,9 @@ class _GenerateV7DSP(_DSPGenerator):
 
     def printSources(self, hierarchy, commonprefix):
         sorteditems = hierarchy.items()
-        sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
+        # TODO(1.5):
+        #sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
+        sorteditems.sort(lambda a, b: cmp(string.lower(a[0]), string.lower(b[0])))
 
         # First folders, then files
         for key, value in sorteditems:
@@ -723,7 +737,9 @@ class _GenerateV7DSP(_DSPGenerator):
         self.file.write('\t<Files>\n')
 
         cats = categories.keys()
-        cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        # TODO(1.5)
+        #cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        cats.sort(lambda a, b: cmp(string.lower(a), string.lower(b)))
         cats = filter(lambda k, s=self: s.sources[k], cats)
         for kind in cats:
             if len(cats) > 1:
@@ -772,7 +788,9 @@ class _GenerateV7DSP(_DSPGenerator):
 
         line = dspfile.readline()
         while line:
-            if line.find('<!-- SCons Data:') > -1:
+            # TODO(1.5)
+            #if line.find('<!-- SCons Data:') > -1:
+            if string.find(line, '<!-- SCons Data:') > -1:
                 break
             line = dspfile.readline()
 
@@ -1252,7 +1270,9 @@ def get_default_visualstudio8_suite(env):
         env['MSVS'] = {}
 
     if env.has_key('MSVS_SUITE'):
-        suite = env['MSVS_SUITE'].upper()
+        # TODO(1.5)
+        #suite = env['MSVS_SUITE'].upper()
+        suite = string.upper(env['MSVS_SUITE'])
         suites = [suite]
     else:
         suite = 'EXPRESS'
@@ -1471,11 +1491,18 @@ def get_msvs_install_dirs(version = None, vs8suite = None):
                     while 1:
                         try:
                             (vk,vv,t) = SCons.Util.RegEnumValue(sdk,j)
-                            if vk.lower() == 'keyword':
+                            # TODO(1.5):
+                            #if vk.lower() == 'keyword':
+                            #    name = vv
+                            #if vk.lower() == 'propagation_date':
+                            #    date = vv
+                            #if vk.lower() == 'version':
+                            #    version = vv
+                            if string.lower(vk) == 'keyword':
                                 name = vv
-                            if vk.lower() == 'propagation_date':
+                            if string.lower(vk) == 'propagation_date':
                                 date = vv
-                            if vk.lower() == 'version':
+                            if string.lower(vk) == 'version':
                                 version = vv
                             j = j + 1
                         except SCons.Util.RegError:
