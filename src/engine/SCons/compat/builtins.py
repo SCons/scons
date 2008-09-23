@@ -135,6 +135,12 @@ except NameError:
     # Assign to True in this module namespace so it shows up in pydoc output.
     True = True
 
+try:
+    file
+except NameError:
+    # Pre-2.2 Python has no file() function.
+    __builtin__.file = open
+
 #
 try:
     zip
