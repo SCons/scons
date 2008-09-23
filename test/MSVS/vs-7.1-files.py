@@ -33,9 +33,9 @@ import os
 import os.path
 import sys
 
-import TestSCons
+import TestSConsMSVS
 
-test = TestSCons.TestSCons()
+test = TestSConsMSVS.TestSConsMSVS()
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']
@@ -205,7 +205,7 @@ test.must_not_exist(test.workpath('work1', 'Test.sln'))
 # Test that running SCons with $PYTHON_ROOT in the environment
 # changes the .vcproj output as expected.
 os.environ['PYTHON_ROOT'] = 'xyzzy'
-python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSCons.python)[1])
+python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSConsMSVS.python)[1])
 
 test.run(chdir='work1', arguments='Test.vcproj')
 

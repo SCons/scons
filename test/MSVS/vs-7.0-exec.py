@@ -32,9 +32,9 @@ Visual Studio 7.0 project (.vcproj) and solution (.sln) files.
 import os
 import sys
 
-import TestSCons
+import TestSConsMSVS
 
-test = TestSCons.TestSCons()
+test = TestSConsMSVS.TestSConsMSVS()
 
 if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform

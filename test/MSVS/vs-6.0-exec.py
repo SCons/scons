@@ -32,9 +32,9 @@ Visual Studio 6 project (.dsp) and solution (.dsw) files.
 import os
 import sys
 
-import TestSCons
+import TestSConsMSVS
 
-test = TestSCons.TestSCons()
+test = TestSConsMSVS.TestSConsMSVS()
 
 if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
