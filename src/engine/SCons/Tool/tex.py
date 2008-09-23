@@ -205,7 +205,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     #
     # routine to update MD5 hash and compare
     #
-    def check_MD5(filenode, suffix):
+    def check_MD5(filenode, suffix, saved_hashes=saved_hashes):
         global must_rerun_latex
         # two calls to clear old csig
         filenode.clear_memoized_values()
