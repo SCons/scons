@@ -26,7 +26,7 @@ The latest release is 1.0.1, released 7 September 2008.
 Our goal is to meet the dates
 for release candidates and the releases themselves;
 the beta checkpoint dates are our best guess as this was published,
-but they may be adjusted on no notice.
+but they may be adjusted without notice.
 </p>
 
 <table>
@@ -175,24 +175,22 @@ Our goal is that as a user of SCons,
 you should always be able to upgrade to a later
 release of the same major version
 with complete confidence that your build will not break.
+We expect that our major releases will be long-lived platforms
+with many minor releases to add functionality and fix bugs.
 </p>
 </li>
 <li>
 <strong>Minor release (1.1, 1.2, 1.3, etc.)</strong>
 <p>
-Minor numbers increment for releases that
-add new functionality and/or bug fixes
+Minor numbers increment for releases
+that add new functionality and/or bug fixes
 to an existing major release.
-All new functionality will be added so as to never
-knowingly break backwards compatibility with any
-previous minor releases from the same major release.
-We expect that our major releases will be long-lived
-platforms for delivering many minor releases to
-add functionality and fix bugs.
+Any new functionality will never knowingly break backwards compatibility
+with any previous minor releases from the same major release.
 </p>
 </li>
 <li>
-<strong>Bug-fix revisions (1.1.1, 1.1.2, 1.1.3, etc.)</strong>
+<strong>Bug-fix revisions (1.0.1, 1.1.1, 1.2.1, etc.)</strong>
 <p>
 Revision numbers are appended and/or incremented
 whenever a critical bug fix is necessary
@@ -204,22 +202,31 @@ one per minor release.
 </p>
 </li>
 <li>
-<strong>Checkpoints (x.y.dyyyymmdd or x.y.z.dyyyymmdd )</strong>
+<strong>Release candidates (x.y.z.dyyyymmdd )</strong>
+<p>
+A release candidates is a special form of checkpoint
+(see below)
+that is expected to be the next major or minor release.
+If blocking issues show up in the candidate,
+another candidate will normally be issued
+(potentially delaying the release date),
+otherwise the candidate will be repackaged as the major or minor release.
+</p>
+</li>
+<li>
+<strong>Checkpoints (x.y.z.dyyyymmdd )</strong>
 <p>
 A checkpoint has a 'd<i>yyymmdd</i>' suffix
 and is made every couple of weeks between major or minor releases.
 It is intended for beta testing new features
 and for ensuring that bug fixes work as intended.
-Although existing features will not change,
-compatibility of features under test
-is not guaranteed between checkpoints
+Although existing features from the previous release will not change,
+compatibility of features under test is not guaranteed between checkpoints
 (<i>i.e.</i>, the implementation of the feature may change).
 Checkpoints are intended not only to allow for wider testing,
 but also to make new features available to users
-who urgently need to use the feature in advance
-of it being published in the next major or minor release.
-Checkpoints can also act as release candidates
-immediately prior to a major or minor release.
+(who may urgently need one of them)
+in advance of them being published in the next major or minor release.
 </p>
 </li>
 </ul>
