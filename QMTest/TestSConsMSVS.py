@@ -24,6 +24,382 @@ import sys
 from TestSCons import *
 from TestSCons import __all__
 
+
+
+expected_slnfile_7_0 = """\
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+EndProject
+Global
+\tGlobalSection(SolutionConfiguration) = preSolution
+\t\tConfigName.0 = Release
+\tEndGlobalSection
+\tGlobalSection(ProjectDependencies) = postSolution
+\tEndGlobalSection
+\tGlobalSection(ProjectConfiguration) = postSolution
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.ActiveCfg = Release|Win32
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ExtensibilityGlobals) = postSolution
+\tEndGlobalSection
+\tGlobalSection(ExtensibilityAddIns) = postSolution
+\tEndGlobalSection
+EndGlobal
+"""
+
+expected_vcprojfile_7_0 = """\
+<?xml version="1.0" encoding = "Windows-1252"?>
+<VisualStudioProject
+\tProjectType="Visual C++"
+\tVersion="7.00"
+\tName="Test"
+\tProjectGUID=""
+\tSccProjectName=""
+\tSccLocalPath=""
+\tKeyword="MakeFileProj">
+\t<Platforms>
+\t\t<Platform
+\t\t\tName="Win32"/>
+\t</Platforms>
+\t<Configurations>
+\t\t<Configuration
+\t\t\tName="Release|Win32"
+\t\t\tOutputDirectory=""
+\t\t\tIntermediateDirectory=""
+\t\t\tConfigurationType="0"
+\t\t\tUseOfMFC="0"
+\t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
+\t\t\t<Tool
+\t\t\t\tName="VCNMakeTool"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
+\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tOutput="Test.exe"/>
+\t\t</Configuration>
+\t</Configurations>
+\t<Files>
+\t\t<Filter
+\t\t\tName="Header Files"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="sdk.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Local Headers"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="test.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Other Files"
+\t\t\tFilter="">
+\t\t\t<File
+\t\t\t\tRelativePath="readme.txt">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Resource Files"
+\t\t\tFilter="r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
+\t\t\t<File
+\t\t\t\tRelativePath="test.rc">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Source Files"
+\t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
+\t\t\t<File
+\t\t\t\tRelativePath="test1.cpp">
+\t\t\t</File>
+\t\t\t<File
+\t\t\t\tRelativePath="test2.cpp">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<File
+\t\t\tRelativePath="<SCONSCRIPT>">
+\t\t</File>
+\t</Files>
+\t<Globals>
+\t</Globals>
+</VisualStudioProject>
+"""
+
+SConscript_contents_7_0 = """\
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.0')
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = ['sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+env.MSVSProject(target = 'Test.vcproj',
+                slnguid = '{SLNGUID}',
+                srcs = testsrc,
+                incs = testincs,
+                localincs = testlocalincs,
+                resources = testresources,
+                misc = testmisc,
+                buildtarget = 'Test.exe',
+                variant = 'Release')
+"""
+
+
+
+expected_slnfile_7_1 = """\
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+\tProjectSection(ProjectDependencies) = postProject
+\tEndProjectSection
+EndProject
+Global
+\tGlobalSection(SolutionConfiguration) = preSolution
+\t\tConfigName.0 = Release
+\tEndGlobalSection
+\tGlobalSection(ProjectConfiguration) = postSolution
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.ActiveCfg = Release|Win32
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ExtensibilityGlobals) = postSolution
+\tEndGlobalSection
+\tGlobalSection(ExtensibilityAddIns) = postSolution
+\tEndGlobalSection
+EndGlobal
+"""
+
+expected_vcprojfile_7_1 = """\
+<?xml version="1.0" encoding = "Windows-1252"?>
+<VisualStudioProject
+\tProjectType="Visual C++"
+\tVersion="7.10"
+\tName="Test"
+\tProjectGUID=""
+\tSccProjectName=""
+\tSccLocalPath=""
+\tKeyword="MakeFileProj">
+\t<Platforms>
+\t\t<Platform
+\t\t\tName="Win32"/>
+\t</Platforms>
+\t<Configurations>
+\t\t<Configuration
+\t\t\tName="Release|Win32"
+\t\t\tOutputDirectory=""
+\t\t\tIntermediateDirectory=""
+\t\t\tConfigurationType="0"
+\t\t\tUseOfMFC="0"
+\t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
+\t\t\t<Tool
+\t\t\t\tName="VCNMakeTool"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
+\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tOutput="Test.exe"/>
+\t\t</Configuration>
+\t</Configurations>
+\t<References>
+\t</References>
+\t<Files>
+\t\t<Filter
+\t\t\tName="Header Files"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="sdk.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Local Headers"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="test.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Other Files"
+\t\t\tFilter="">
+\t\t\t<File
+\t\t\t\tRelativePath="readme.txt">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Resource Files"
+\t\t\tFilter="r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
+\t\t\t<File
+\t\t\t\tRelativePath="test.rc">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Source Files"
+\t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
+\t\t\t<File
+\t\t\t\tRelativePath="test1.cpp">
+\t\t\t</File>
+\t\t\t<File
+\t\t\t\tRelativePath="test2.cpp">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<File
+\t\t\tRelativePath="<SCONSCRIPT>">
+\t\t</File>
+\t</Files>
+\t<Globals>
+\t</Globals>
+</VisualStudioProject>
+"""
+
+SConscript_contents_7_1 = """\
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1')
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = ['sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+env.MSVSProject(target = 'Test.vcproj',
+                slnguid = '{SLNGUID}',
+                srcs = testsrc,
+                incs = testincs,
+                localincs = testlocalincs,
+                resources = testresources,
+                misc = testmisc,
+                buildtarget = 'Test.exe',
+                variant = 'Release')
+"""
+
+
+
+expected_slnfile_8_0 = """\
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+EndProject
+Global
+\tGlobalSection(SolutionConfigurationPlatforms) = preSolution
+\t\tRelease|Win32 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ProjectConfigurationPlatforms) = postSolution
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release|Win32.ActiveCfg = Release|Win32
+\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release|Win32.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(SolutionProperties) = preSolution
+\t\tHideSolutionNode = FALSE
+\tEndGlobalSection
+EndGlobal
+"""
+
+expected_vcprojfile_8_0 = """\
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+\tProjectType="Visual C++"
+\tVersion="8.00"
+\tName="Test"
+\tProjectGUID="<PROJECT_GUID>"
+\tSccProjectName=""
+\tSccLocalPath=""
+\tRootNamespace="Test"
+\tKeyword="MakeFileProj">
+\t<Platforms>
+\t\t<Platform
+\t\t\tName="Win32"/>
+\t</Platforms>
+\t<ToolFiles>
+\t</ToolFiles>
+\t<Configurations>
+\t\t<Configuration
+\t\t\tName="Release|Win32"
+\t\t\tConfigurationType="0"
+\t\t\tUseOfMFC="0"
+\t\t\tATLMinimizesCRunTimeLibraryUsage="false"
+\t\t\t>
+\t\t\t<Tool
+\t\t\t\tName="VCNMakeTool"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
+\t\t\t\tOutput="Test.exe"
+\t\t\t\tPreprocessorDefinitions=""
+\t\t\t\tIncludeSearchPath=""
+\t\t\t\tForcedIncludes=""
+\t\t\t\tAssemblySearchPath=""
+\t\t\t\tForcedUsingAssemblies=""
+\t\t\t\tCompileAsManaged=""
+\t\t\t/>
+\t\t</Configuration>
+\t</Configurations>
+\t<References>
+\t</References>
+\t<Files>
+\t\t<Filter
+\t\t\tName="Header Files"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="sdk.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Local Headers"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="test.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Other Files"
+\t\t\tFilter="">
+\t\t\t<File
+\t\t\t\tRelativePath="readme.txt">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Resource Files"
+\t\t\tFilter="r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
+\t\t\t<File
+\t\t\t\tRelativePath="test.rc">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Source Files"
+\t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
+\t\t\t<File
+\t\t\t\tRelativePath="test1.cpp">
+\t\t\t</File>
+\t\t\t<File
+\t\t\t\tRelativePath="test2.cpp">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<File
+\t\t\tRelativePath="<SCONSCRIPT>">
+\t\t</File>
+\t</Files>
+\t<Globals>
+\t</Globals>
+</VisualStudioProject>
+"""
+
+SConscript_contents_8_0 = """\
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0')
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = ['sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+env.MSVSProject(target = 'Test.vcproj',
+                slnguid = '{SLNGUID}',
+                srcs = testsrc,
+                incs = testincs,
+                localincs = testlocalincs,
+                resources = testresources,
+                misc = testmisc,
+                buildtarget = 'Test.exe',
+                variant = 'Release')
+"""
+
+
+
 class TestSConsMSVS(TestSCons):
     """Subclass for testing MSVS-specific portions of SCons."""
 
