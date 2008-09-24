@@ -26,7 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that we can generate Visual Studio 6 project (.dsp) and solution
-(.dsw) files that look correct.
+(.dsw) files that look correct when using a variant_dir.
 """
 
 import TestSConsMSVS
@@ -43,36 +43,39 @@ expected_dswfile = TestSConsMSVS.expected_dswfile_6_0
 SConscript_contents = TestSConsMSVS.SConscript_contents_6_0
 
 
+test.subdir('src')
 
-test.write('SConstruct', SConscript_contents)
+test.write('SConstruct', """\
+SConscript('src/SConscript', variant_dir='build')
+""")
 
-test.run(arguments="Test.dsp")
+test.write(['src', 'SConscript'], SConscript_contents)
 
-test.must_exist(test.workpath('Test.dsp'))
-dsp = test.read('Test.dsp', 'r')
+test.run(arguments=".")
+
+dsp = test.read(['src', 'Test.dsp'], 'r')
 expect = test.msvs_substitute(expected_dspfile, '6.0', None, 'SConstruct')
 # don't compare the pickled data
 assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
-test.must_exist(test.workpath('Test.dsw'))
-dsw = test.read('Test.dsw', 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0', None, 'SConstruct')
+test.must_exist(test.workpath('src', 'Test.dsw'))
+dsw = test.read(['src', 'Test.dsw'], 'r')
+expect = test.msvs_substitute(expected_dswfile, '6.0', 'src')
 assert dsw == expect, test.diff_substr(expect, dsw)
 
-test.run(arguments='-c .')
+test.must_match(['build', 'Test.dsp'], """\
+This is just a placeholder file.
+The real project file is here:
+%s
+""" % test.workpath('src', 'Test.dsp'),
+                mode='r')
 
-test.must_not_exist(test.workpath('Test.dsp'))
-test.must_not_exist(test.workpath('Test.dsw'))
-
-test.run(arguments='Test.dsp')
-
-test.must_exist(test.workpath('Test.dsp'))
-test.must_exist(test.workpath('Test.dsw'))
-
-test.run(arguments='-c Test.dsw')
-
-test.must_not_exist(test.workpath('Test.dsp'))
-test.must_not_exist(test.workpath('Test.dsw'))
+test.must_match(['build', 'Test.dsw'], """\
+This is just a placeholder file.
+The real workspace file is here:
+%s
+""" % test.workpath('src', 'Test.dsw'),
+                mode='r')
 
 
 
