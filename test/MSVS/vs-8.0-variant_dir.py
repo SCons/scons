@@ -26,10 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that we can generate Visual Studio 8.0 project (.vcproj) and
-solution (.sln) files that look correct.
+solution (.sln) files that look correct when using a variant_dir.
 """
-
-import os
 
 import TestSConsMSVS
 
@@ -46,52 +44,44 @@ SConscript_contents = TestSConsMSVS.SConscript_contents_8_0
 
 
 
-test.write('SConstruct', SConscript_contents)
+test.subdir('src')
 
-test.run(arguments="Test.vcproj")
+test.write('SConstruct', """\
+SConscript('src/SConscript', variant_dir='build')
+""")
 
-test.must_exist(test.workpath('Test.vcproj'))
-vcproj = test.read('Test.vcproj', 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '8.0', None, 'SConstruct')
+test.write(['src', 'SConscript'], SConscript_contents)
+
+test.run(arguments=".")
+
+vcproj = test.read(['src', 'Test.vcproj'], 'r')
+expect = test.msvs_substitute(expected_vcprojfile,
+                              '8.0',
+                              None,
+                              'SConstruct',
+                              project_guid="{FC63FE9E-71B3-06CC-11AF-2077D8108DFE}")
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
-test.must_exist(test.workpath('Test.sln'))
-sln = test.read('Test.sln', 'r')
-expect = test.msvs_substitute(expected_slnfile, '8.0', None, 'SConstruct')
+test.must_exist(test.workpath('src', 'Test.sln'))
+sln = test.read(['src', 'Test.sln'], 'r')
+expect = test.msvs_substitute(expected_slnfile, '8.0', 'src')
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
-test.run(arguments='-c .')
+test.must_match(['build', 'Test.vcproj'], """\
+This is just a placeholder file.
+The real project file is here:
+%s
+""" % test.workpath('src', 'Test.vcproj'),
+                mode='r')
 
-test.must_not_exist(test.workpath('Test.vcproj'))
-test.must_not_exist(test.workpath('Test.sln'))
-
-test.run(arguments='Test.vcproj')
-
-test.must_exist(test.workpath('Test.vcproj'))
-test.must_exist(test.workpath('Test.sln'))
-
-test.run(arguments='-c Test.sln')
-
-test.must_not_exist(test.workpath('Test.vcproj'))
-test.must_not_exist(test.workpath('Test.sln'))
-
-
-
-# Test that running SCons with $PYTHON_ROOT in the environment
-# changes the .vcproj output as expected.
-os.environ['PYTHON_ROOT'] = 'xyzzy'
-python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSConsMSVS.python)[1])
-
-test.run(arguments='Test.vcproj')
-
-test.must_exist(test.workpath('Test.vcproj'))
-vcproj = test.read('Test.vcproj', 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '8.0', None, 'SConstruct',
-                              python=python)
-# don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+test.must_match(['build', 'Test.sln'], """\
+This is just a placeholder file.
+The real workspace file is here:
+%s
+""" % test.workpath('src', 'Test.sln'),
+                mode='r')
 
 
 
