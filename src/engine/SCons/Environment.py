@@ -535,7 +535,7 @@ class SubstitutionEnvironment:
         # othewise force a shell
         if not SCons.Util.is_List(command): kw['shell'] = True
         # run constructed command
-        #FUTURE p = SCons.Action._subproc(self, command, **kw)
+        #TODO(1.5) p = SCons.Action._subproc(self, command, **kw)
         p = apply(SCons.Action._subproc, (self, command), kw)
         out,err = p.communicate()
         status = p.wait()
