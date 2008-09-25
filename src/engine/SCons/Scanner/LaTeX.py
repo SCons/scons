@@ -178,7 +178,7 @@ class LaTeX(SCons.Scanner.Base):
         if include[0] == 'includegraphics':
             base, ext = os.path.splitext( filename )
             if ext == "":
-                #FUTURE return [filename + e for e in self.graphics_extensions]
+                #TODO(1.5) return [filename + e for e in self.graphics_extensions]
                 return map(lambda e, f=filename: f+e, self.graphics_extensions)
         return [filename]
 

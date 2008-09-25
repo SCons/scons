@@ -128,11 +128,11 @@ def modify_env_var(env, var, abspath):
     env.PrependENVPath(var, abspath)
     try:
         if SCons.Util.is_List(env[var]):
-            #FUTURE env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
+            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
             env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
         else:
             # Split at os.pathsep to convert into absolute path
-            #FUTURE env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
+            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
             env.PrependENVPath(var, map(lambda p: os.path.abspath(p), str(env[var]).split(os.pathsep)))
     except KeyError:
         pass
