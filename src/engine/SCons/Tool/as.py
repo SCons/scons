@@ -40,7 +40,7 @@ import SCons.Util
 assemblers = ['as']
 
 ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP']
+ASPPSuffixes = ['.spp', '.SPP', '.sx']
 if SCons.Util.case_sensitive_suffixes('.s', '.S'):
     ASPPSuffixes.extend(['.S'])
 else:
