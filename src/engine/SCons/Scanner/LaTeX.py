@@ -188,7 +188,7 @@ class LaTeX(SCons.Scanner.Base):
     def find_include(self, include, source_dir, path):
         try:
             sub_path = path[include[0]]
-        except:
+        except (IndexError, KeyError):
             sub_path = ()
         try_names = self._latex_names(include)
         for n in try_names:
