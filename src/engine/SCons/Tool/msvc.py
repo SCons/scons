@@ -45,6 +45,7 @@ import SCons.Tool
 import SCons.Tool.msvs
 import SCons.Util
 import SCons.Warnings
+import SCons.Scanner.RC
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -663,7 +664,7 @@ pch_builder = SCons.Builder.Builder(action=pch_action, suffix='.pch',
 
 
 # Logic to build .rc files into .res files (resource files)
-res_scanner = SCons.Scanner.RCScan()
+res_scanner = SCons.Scanner.RC.RCScan()
 res_action  = SCons.Action.Action('$RCCOM', '$RCCOMSTR')
 res_builder = SCons.Builder.Builder(action=res_action,
                                     src_suffix='.rc',
