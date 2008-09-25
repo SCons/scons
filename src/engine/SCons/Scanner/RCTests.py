@@ -111,6 +111,8 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
 def deps_match(self, deps, headers):
     scanned = map(my_normpath, map(str, deps))
     expect = map(my_normpath, headers)
+    scanned.sort()
+    expect.sort()
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:
