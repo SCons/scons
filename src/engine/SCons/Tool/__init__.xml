@@ -273,6 +273,8 @@ Source files must have one of the following extensions:
   .mm     Object C++ file
   .s      assembly language file
   .S      Windows:  assembly language file
+          ARM: CodeSourcery Sourcery Lite
+  .sx     assembly language file + C pre-processor
           POSIX:  assembly language file + C pre-processor
   .spp    assembly language file + C pre-processor
   .SPP    assembly language file + C pre-processor
