@@ -38,7 +38,7 @@ import SCons.Tool
 import SCons.Util
 
 ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP', 'sx']
+ASPPSuffixes = ['.spp', '.SPP', '.sx']
 if SCons.Util.case_sensitive_suffixes('.s', '.S'):
     ASPPSuffixes.extend(['.S'])
 else:
