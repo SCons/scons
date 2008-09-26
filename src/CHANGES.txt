@@ -10,6 +10,11 @@
 
 RELEASE 1.X - XXX
 
+  From Chris AtLee
+
+    - Use the specified environment when checking for the GCC compiler
+      version.
+
   From Ian P. Cardenas:
 
     - Fix Glob() polluting LIBPATH by returning copy of list
@@ -18,6 +23,9 @@ RELEASE 1.X - XXX
 
     - Add CheckCC, CheckCXX, CheckSHCC and CheckSHCXX tests to
       configuration contexts.
+
+    - Have the --profile= argument use the much faster cProfile module 
+      (if it's available in the running Python version).
 
     - Reorder MSVC compilation arguments so the /Fo is first.
 
@@ -29,6 +37,10 @@ RELEASE 1.X - XXX
 
     - When scanning for a #include file, don't use a directory that
       has the same name as the file.
+
+  From Ralf W. Grosse-Kunstleve
+
+    - Suppress error output when checking for the GCC compiler version.
 
   From Jared Grubb:
 
@@ -87,11 +99,8 @@ RELEASE 1.X - XXX
 
     - Fix typos and format bugs in the man page.
 
-    - Have the --profile= argument use the much faster cProfile module 
-      (if it's available in the running Python version).
-
-    - Use the specified environment and suppress error output when
-      checking for the gcc compiler version.
+    - Add a first draft of a wrapper module for Python's subprocess
+      module.
 
     - Refactor use of the SCons.compat module so other modules don't
       have to import it individually.
