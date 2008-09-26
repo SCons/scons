@@ -122,20 +122,20 @@ def deps_match(self, deps, headers):
 
 class RCScannerTestCase1(unittest.TestCase):
     def runTest(self):
+        path = []
         env = DummyEnvironment(RCSUFFIXES=['.rc','.rc2'],
-                               CPPPATH=sys.path)
+                               CPPPATH=path)
         s = SCons.Scanner.RC.RCScan()
-        path = s.path(env)
         deps = s(env.File('t1.rc'), env, path)
         headers = ['t1.h']
         deps_match(self, deps, headers)
 
 class RCScannerTestCase2(unittest.TestCase):
     def runTest(self):
+        path = []
         env = DummyEnvironment(RCSUFFIXES=['.rc','.rc2'],
-                               CPPPATH=sys.path)
+                               CPPPATH=path)
         s = SCons.Scanner.RC.RCScan()
-        path = s.path(env)
         deps = s(env.File('t2.rc'), env, path)
         headers = ['MSG00410.bin',
                    'abc.ico','bullseye.cur',
