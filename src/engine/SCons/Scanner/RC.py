@@ -38,9 +38,9 @@ def RCScan():
     """Return a prototype Scanner instance for scanning RC source files"""
  
     res_re= r'^(?:\s*#\s*(?:include)|' \
-            '.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY)' \
+            '.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)' \
             '\s*.*?)' \
-            '\s*(<|"| )([^>" \Z\t]+)(?:[>" ])*$'
+            '\s*(<|"| )([^>"\s]+)(?:[>" ])*$'
     resScanner = SCons.Scanner.ClassicCPP( "ResourceScanner",
                                            "$RCSUFFIXES",
                                            "CPPPATH",

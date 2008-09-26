@@ -54,12 +54,15 @@ ID_RESPONSE_ERROR_PAGE  HTML  "responseerrorpage.htm"
 1  MESSAGETABLE MSG00410.bin
 1 TYPELIB "testtypelib.tlb"
 TEST_REGIS   REGISTRY MOVEABLE PURE  "testregis.rgs"
+TEST_D3DFX   D3DFX DISCARDABLE "testEffect.fx"
+
 """)
 
 
 # Create dummy include files
 headers = ['t1.h',
            'abc.ico','def.bmp','bullseye.cur','responseerrorpage.htm','cmroman.fnt',
+           'testEffect.fx',
            'MSG00409.bin','MSG00410.bin','testtypelib.tlb','testregis.rgs']
 
 for h in headers:
@@ -140,6 +143,7 @@ class RCScannerTestCase2(unittest.TestCase):
                    'MSG00409.bin',
                    'responseerrorpage.htm',
                    't1.h',
+                   'testEffect.fx',
                    'testregis.rgs','testtypelib.tlb']
         deps_match(self, deps, headers)
 
