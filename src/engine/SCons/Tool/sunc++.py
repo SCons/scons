@@ -34,12 +34,8 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons
-subproc = SCons.Action._subproc
 
-import os
-import re
-import subprocess
-PIPE = subprocess.PIPE
+import os.path
 
 cplusplus = __import__('c++', globals(), locals(), [])
 
@@ -59,33 +55,19 @@ def get_cppc(env):
 
     def look_pkg_db(pkginfo=pkginfo, pkgchk=pkgchk):
         version = None
+        path = None
         for package in ['SPROcpl']:
-            #cmd = "%s -l %s 2>/dev/null" % (pkginfo, package)
-            cmd = [pkginfo, '-l', package]
-            c = subproc(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-            lines,err = c.communicate()
-            if c.wait(): continue
-            for line in string.split(lines, '\n'):
-                # grep '^ *VERSION:'
-                line = string.strip(line)
-                if line[:8] == 'VERSION:': break
-            else:
-                continue
-            version = string.split(line)[-1]
-            #cmd = "%s -l %s 2>/dev/null" % (pkgchk, package)
-            cmd = [pkgchk, '-l', package]
-            c = subproc(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-            lines,err = c.communicate()
-            if c.wait(): continue
-            for line in string.split(lines, '\n'):
-                # grep '^Pathname:.*/bin/CC$'
-                if line[:9] != 'Pathname:': continue
-                if line[-7:] != '/bin/CC': continue
-                # grep -v '/SC[0-9]*\.[0-9]*/'
-                if re.search(r'/SC[0-9]*\.[0-9]*/', line): continue
-                return os.path.dirname(string.split(line)[-1]), version
+            cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo, package)
+            line = os.popen(cmd).readline()
+            if line:
+                version = line.split()[-1]
+                cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
+                line = os.popen(cmd).readline()
+                if line:
+                    path = os.path.dirname(line.split()[-1])
+                    break
 
-        return None, version
+        return path, version
 
     path, version = look_pkg_db()
     if path and version:
