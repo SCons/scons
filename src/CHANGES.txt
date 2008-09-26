@@ -21,6 +21,10 @@ RELEASE 1.X - XXX
 
     - Reorder MSVC compilation arguments so the /Fo is first.
 
+  From Bill Deegan:
+
+    - Add scanning Windows resource (.rc) files for implicit dependencies.
+
   From John Gozde:
 
     - When scanning for a #include file, don't use a directory that
@@ -29,18 +33,6 @@ RELEASE 1.X - XXX
   From Jared Grubb:
 
     - Fix VariantDir duplication of #included files in subdirectories.
-
-  From Steven Knight:
-
-    - Fix the ability of the add_src_builder() method to add a new
-      source builder to any other builder.
-
-    - Avoid an infinite loop on non-Windows systems trying to find the
-      SCons library directory if the Python library directory does not
-      begin with the string "python".
-
-    - Search for the SCons library directory in "scons-local" (with
-      no version number) after "scons-local-{VERSION}".
 
   From Ludwig Hähne:
 
@@ -58,12 +50,38 @@ RELEASE 1.X - XXX
 
     - Reduce memory usage from Null Executor objects.
 
+  From Steven Knight:
+
+    - Fix the ability of the add_src_builder() method to add a new
+      source builder to any other builder.
+
+    - Avoid an infinite loop on non-Windows systems trying to find the
+      SCons library directory if the Python library directory does not
+      begin with the string "python".
+
+    - Search for the SCons library directory in "scons-local" (with
+      no version number) after "scons-local-{VERSION}".
+
   From Rob Managan:
 
     - Fix the user's ability to interrupt the TeX build chain.
 
     - Fix the TeX builder's allowing the user to specify the target name,
       instead of always using its default output name based on the source.
+
+    - Iterate building TeX output files until all warning are gone
+      and the auxiliary files stop changing, or until we reach the
+      (configurable) maximum number of retries.
+
+    - Add TeX scanner support for:  glossaries, nomenclatures, lists of
+      figures, lists of tables, hyperref and beamer.
+
+    - Use the $BIBINPUTS, $BSTINPUTS, $TEXINPUTS and $TEXPICTS construction
+      variables as search paths for the relevant types of input file.
+
+    - Fix building TeX with VariantDir(duplicate=0) in effect.
+
+    - Fix the LaTeX scanner to search for graphics on the TEXINPUTS path.
 
   From Greg Noel:
 
@@ -78,10 +96,16 @@ RELEASE 1.X - XXX
     - Refactor use of the SCons.compat module so other modules don't
       have to import it individually.
 
+    - Add .sx as a suffix for assembly language files that use the
+      C preprocessor.
+
   From Gary Oberbrunner:
 
     - Make Glob() sort the returned list of Files or Nodes
       to prevent spurious rebuilds.
+
+    - Add a delete_existing keyword argument to the AppendENVPath()
+      and PrependENVPath() Environment methods.
 
   From Damyan Pepper:
 
