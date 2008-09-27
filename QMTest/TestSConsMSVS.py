@@ -575,7 +575,7 @@ class TestSConsMSVS(TestSCons):
             # doesn't fill it in when packaging SCons.
             input = """\
 import SCons
-print "self._scons_version =", repr(SCons.__%s__)
+print "self.scons_version =", repr(SCons.__%s__)
 env = Environment();
 print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
 """ % 'version'
@@ -621,7 +621,7 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         if os.environ.has_key('SCONS_LIB_DIR'):
             exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % os.environ['SCONS_LIB_DIR']
         else:
-            exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self._scons_version, self._scons_version)
+            exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self.scons_version, self.scons_version)
         exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
 
         result = string.replace(input, r'<WORKPATH>', workpath)
