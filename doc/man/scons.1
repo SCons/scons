@@ -1071,6 +1071,19 @@ of 0 means to always use the cached signature,
 no matter how old the file is.
 
 .TP
+.RI --md5-chunksize= KILOBYTES
+Set the block size used to compute MD5 signatures to
+.IR KILOBYTES . 
+This value determines the size of the chunks which are read in at once when
+computing MD5 signatures.  Files below that size are fully stored in memory
+before performing the signature computation while bigger files are read in
+block-by-block. A huge block-size leads to high memory consumption while a very
+small block-size slows down the build considerably.
+
+The default value is to use a chunk size of 64 kilobytes, which should
+be appropriate for most uses.
+
+.TP
 -n, --just-print, --dry-run, --recon
 No execute.  Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.

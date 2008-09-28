@@ -1496,6 +1496,12 @@ md5 = False
 def MD5signature(s):
     return str(s)
 
+def MD5filesignature(fname, chunksize=65536):
+    f = open(fname, "rb")
+    result = f.read()
+    f.close()
+    return result
+
 try:
     import hashlib
 except ImportError:
@@ -1508,6 +1514,17 @@ else:
             m.update(str(s))
             return m.hexdigest()
 
+        def MD5filesignature(fname, chunksize=65536):
+            m = hashlib.md5()
+            f = open(fname, "rb")
+            while 1:
+                blck = f.read(chunksize)
+                if not blck:
+                    break
+                m.update(str(blck))
+            f.close()
+            return m.hexdigest()
+            
 def MD5collect(signatures):
     """
     Collects a list of signatures into an aggregate signature.
