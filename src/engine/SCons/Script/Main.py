@@ -966,6 +966,9 @@ def _main(parser):
 
     SCons.Job.explicit_stack_size = options.stack_size
 
+    if options.md5_chunksize:
+        SCons.Node.FS.File.md5_chunksize = options.md5_chunksize
+
     platform = SCons.Platform.platform_module()
 
     if options.interactive:

@@ -2160,6 +2160,8 @@ class File(Base):
     NodeInfo = FileNodeInfo
     BuildInfo = FileBuildInfo
 
+    md5_chunksize = 64
+
     def diskcheck_match(self):
         diskcheck_match(self, self.isdir,
                         "Directory %s found where file expected.")
@@ -2232,6 +2234,23 @@ class File(Base):
                 e.filename = fname
             raise
         return r
+
+    def get_content_hash(self):
+        """
+        Compute and return the MD5 hash for this file.
+        """
+        if not self.rexists():
+            return SCons.Util.MD5signature('')
+        fname = self.rfile().abspath
+        try:
+            cs = SCons.Util.MD5filesignature(fname,
+                chunksize=SCons.Node.FS.File.md5_chunksize*1024)
+        except EnvironmentError, e:
+            if not e.filename:
+                e.filename = fname
+            raise
+        return cs
+        
 
     memoizer_counters.append(SCons.Memoize.CountValue('get_size'))
 
@@ -2697,7 +2716,10 @@ class File(Base):
         if csig is None:
 
             try:
-                contents = self.get_contents()
+                if self.get_size() < SCons.Node.FS.File.md5_chunksize:
+                    contents = self.get_contents()
+                else:
+                    csig = self.get_content_hash()
             except IOError:
                 # This can happen if there's actually a directory on-disk,
                 # which can be the case if they've disabled disk checks,
@@ -2705,7 +2727,8 @@ class File(Base):
                 # create a same-named directory by mistake.
                 csig = ''
             else:
-                csig = SCons.Util.MD5signature(contents)
+                if not csig:
+                    csig = SCons.Util.MD5signature(contents)
 
         ninfo.csig = csig
 
@@ -2833,8 +2856,8 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            contents = open(cachefile, 'rb').read()
-            self.cachedir_csig = SCons.Util.MD5signature(contents)
+            self.cachedir_csig = SCons.Util.MD5filesignature(cachefile, \
+                SCons.Node.FS.File.md5_chunksize * 1024)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
@@ -2855,6 +2878,7 @@ class File(Base):
         sigs.append(self.path)
         self.cachesig = SCons.Util.MD5collect(sigs)
         return self.cachesig
+
 
 default_fs = None
 
