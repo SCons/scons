@@ -44,31 +44,33 @@ else:
 test = TestSCons.TestSCons()
 
 swig = test.where_is('swig')
-
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
-python = test.get_platform_python()
-_python_ = test.get_quoted_platform_python()
 
+python = test.where_is('python')
 
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
-python_include_dir = test.get_python_inc()
+test.run(program = python, stdin = """\
+import os, sys
+try:
+	py_ver = 'python%d.%d' % sys.version_info[:2]
+except AttributeError:
+	py_ver = 'python' + sys.version[:3]
+print os.path.join(sys.prefix, 'include', py_ver)
+print os.path.join(sys.prefix, 'lib', py_ver, 'config')
+print py_ver
+""")
 
-Python_h = os.path.join(python_include_dir, 'Python.h')
+#TODO(1.5) config_info = test.stdout().strip().split('\n')
+config_info = string.split(string.strip(test.stdout()), '\n')
+python_include,python_libpath,python_lib = config_info
+
+Python_h = os.path.join(python_include, 'Python.h')
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
-
-python_frameworks = test.get_python_frameworks_flags()
-
-# To test the individual Python versions on OS X,
-# particularly versions installed in non-framework locations,
-# we'll need something like this.
-python_library_path = test.get_python_library_path()
-if python_library_path:
-    python_library_path = 'File("""%s""")' % python_library_path
 
 test.write("wrapper.py",
 """import os
@@ -78,14 +80,14 @@ open('%s', 'wb').write("wrapper.py\\n")
 os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(python_include_dir)s/',
+                  CPPPATH=r'%(python_include)s',
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKS='%(python_frameworks)s',
                   SWIG=r'%(swig)s',
-                  #LIBS=%(python_library_path)s,
+                  LIBPATH=r'%(python_libpath)s',
+                  LIBS='%(python_lib)s',
                   )
 
 import sys
@@ -94,7 +96,7 @@ if sys.version[0] == '1':
     foo.Append(SWIGFLAGS = ' -classic')
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = r'%(_python_)s wrapper.py ' + swig)
+bar = foo.Clone(SWIG = r'"%(python)s" wrapper.py ' + swig)
 foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
 bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])
 """ % locals())
@@ -173,7 +175,6 @@ This is bar.c!
 """)
 
 test.up_to_date(arguments = '.')
-
 
 
 test.pass_test()
