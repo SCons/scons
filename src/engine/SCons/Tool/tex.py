@@ -171,7 +171,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     for var in SCons.Scanner.LaTeX.LaTeX.env_variables:
         saved_env[var] = modify_env_var(env, var, abspath)
 
-    # Create base file names with the target directory since the auxiliary files
+    # Create a base file names with the target directory since the auxiliary files
     # will be made there.   That's because the *COM variables have the cd
     # command in the prolog. We check
     # for the existence of files before opening them--even ones like the
@@ -395,6 +395,10 @@ def tex_emitter(target, source, env):
     targetbase = SCons.Util.splitext(str(target[0]))[0]
     basename = SCons.Util.splitext(str(source[0]))[0]
     basefile = os.path.split(str(basename))[1]
+    
+    basedir = os.path.split(str(source[0]))[0]
+    abspath = os.path.abspath(basedir)
+    target[0].attributes.path = abspath
 
     #
     # file names we will make use of in searching the sources and log file

@@ -53,7 +53,7 @@ def PDFLaTeXScanner():
     ds = LaTeX(name = "PDFLaTeXScanner",
                suffixes =  '$LATEXSUFFIXES',
                # in the search order, see below in LaTeX class docstring
-               graphics_extensions = ['.png', '.pdf', '.jpg', '.tif'],
+               graphics_extensions = ['.pdf', '.png', '.jpg', '.gif', '.tif'],
                recursive = 0)
     return ds
 
@@ -86,7 +86,7 @@ class LaTeX(SCons.Scanner.Base):
     Another difference is that the search path is determined by the type
     of the file being searched:
     env['TEXINPUTS'] for "input" and "include" keywords
-    env['TEXPICTS'] for "includegraphics" keyword
+    env['TEXINPUTS'] for "includegraphics" keyword
     env['BIBINPUTS'] for "bibliography" keyword
     env['BSTINPUTS'] for "bibliographystyle" keyword
 
@@ -103,7 +103,7 @@ class LaTeX(SCons.Scanner.Base):
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
 
-        regex = '\\\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
+        regex = '^[^%]*\\\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
         self.cre = re.compile(regex, re.M)
         self.graphics_extensions = graphics_extensions
 
