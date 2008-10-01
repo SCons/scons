@@ -116,6 +116,8 @@ RELEASE 1.X - XXX
     - Add a delete_existing keyword argument to the AppendENVPath()
       and PrependENVPath() Environment methods.
 
+    - Add ability to use "$SOURCE" when specifying a target to a builder
+
   From Damyan Pepper:
 
     - Add a test case to verify that SConsignFile() files can be
