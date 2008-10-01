@@ -270,7 +270,13 @@ def subst_dict(target, source):
     dict = {}
 
     if target:
-        tnl = NLWrapper(target, lambda x: x.get_subst_proxy())
+        def get_tgt_subst_proxy(thing):
+            try:
+                subst_proxy = thing.get_subst_proxy()
+            except AttributeError:
+                subst_proxy = thing # probably a string, just return it
+            return subst_proxy
+        tnl = NLWrapper(target, get_tgt_subst_proxy)
         dict['TARGETS'] = Targets_or_Sources(tnl)
         dict['TARGET'] = Target_or_Source(tnl)
     else:
@@ -285,7 +291,10 @@ def subst_dict(target, source):
                 pass
             else:
                 node = rfile()
-            return node.get_subst_proxy()
+            try:
+                return node.get_subst_proxy()
+            except AttributeError:
+                return node     # probably a String, just return it
         snl = NLWrapper(source, get_src_subst_proxy)
         dict['SOURCES'] = Targets_or_Sources(snl)
         dict['SOURCE'] = Target_or_Source(snl)
