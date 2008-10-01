@@ -103,7 +103,12 @@ class LaTeX(SCons.Scanner.Base):
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
 
-        regex = '^[^%]*\\\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
+        # We have to include \n with the % we exclude from the first part
+        # part of the regex because the expression is compiled with re.M.
+        # Without the \n,  the ^ could match the beginning of a *previous*
+        # line followed by one or more newline characters (i.e. blank
+        # lines), interfering with a match on the next line.
+        regex = r'^[^%\n]*\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
         self.cre = re.compile(regex, re.M)
         self.graphics_extensions = graphics_extensions
 

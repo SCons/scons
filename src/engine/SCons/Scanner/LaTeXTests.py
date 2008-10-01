@@ -39,6 +39,9 @@ test = TestCmd.TestCmd(workdir = '')
 test.write('test1.latex',"""
 \include{inc1}
 \input{inc2}
+include{incNO}
+%\include{incNO}
+xyzzy \include{inc6}
 """)
 
 test.write('test2.latex',"""
@@ -58,6 +61,8 @@ test.write('inc2.tex',"\n")
 test.write(['subdir', 'inc3.tex'], "\n")
 test.write(['subdir', 'inc4.eps'], "\n")
 test.write('inc5.xyz', "\n")
+test.write('inc6.tex', "\n")
+test.write('incNO.tex', "\n")
 
 # define some helpers:
 #   copied from CTest.py
@@ -115,7 +120,7 @@ class LaTeXScannerTestCase1(unittest.TestCase):
         s = SCons.Scanner.LaTeX.LaTeXScanner()
         path = s.path(env)
         deps = s(env.File('test1.latex'), env, path)
-        headers = ['inc1.tex', 'inc2.tex']
+        headers = ['inc1.tex', 'inc2.tex', 'inc6.tex']
         deps_match(self, deps, headers)
 
 class LaTeXScannerTestCase2(unittest.TestCase):
