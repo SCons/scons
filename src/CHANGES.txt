@@ -62,6 +62,10 @@ RELEASE 1.X - XXX
 
     - Reduce memory usage from Null Executor objects.
 
+    - Compute MD5 checksums of large files without reading the entire
+      file contents into memory.  Add a new --md5-chunksize option to
+      control the size of each chunk read into memory.
+
   From Steven Knight:
 
     - Fix the ability of the add_src_builder() method to add a new
@@ -94,6 +98,8 @@ RELEASE 1.X - XXX
     - Fix building TeX with VariantDir(duplicate=0) in effect.
 
     - Fix the LaTeX scanner to search for graphics on the TEXINPUTS path.
+
+    - Have the PDFLaTeX scanner search for .gif files as well.
 
   From Greg Noel:
 
