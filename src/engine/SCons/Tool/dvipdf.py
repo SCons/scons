@@ -57,7 +57,7 @@ def DviPdfPsFunction(XXXDviAction, target = None, source= None, env=None):
 
     if saved_env['TEXPICTS'] is _null:
         try:
-            env['ENV'].pop('TEXPICTS')
+            del env['ENV']['TEXPICTS']
         except KeyError:
             pass # was never set
     else:
