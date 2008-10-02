@@ -13,7 +13,7 @@ def row(*cells, **kw):
 	for cell in cells:
 		print '    <%s>%s</%s>' % (td,cell,td)
 	print '  </tr>'
-row('Estimated date', 'Type', 'Name', 'Comments', tr = 'th')
+row('Est. date', 'Type', 'Comments', tr = 'th')
 
 if len(sys.argv) > 1:
 	f = open(sys.argv[1])
@@ -32,14 +32,13 @@ for line in f:
 	else:
 		print 'dunna understand code', line[0]
 		sys.exit(1)
-	name = current + '.d' + str(now).replace('-','')
+	#name = current + '.d' + str(now).replace('-','')
 	date = '%s-%s-%s' % (now.day,months[now.month-1],now.year)
 	if type == 'ck':
-		category = 'checkpoint'
+		category = 'Ckpt'
 	elif type == 'rc':
-		category = 'candidate'
+		category = 'RC'
 	else:
-		current = name = type
-		category = 'release'
-	row(date, category, name, desc)
+		category = current = type
+	row(date, category, desc)
 print '</table>'
