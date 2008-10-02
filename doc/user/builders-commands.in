@@ -131,3 +131,26 @@
   <scons_output example="ex2">
     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
+
+  <para>
+
+  Note that &cv-link-SOURCE; and &cv-link-TARGET; are expanded 
+  in the source and target as well as of SCons 1.1,
+  so you can write:
+
+  </para>
+
+  <scons_example name="ex3">
+     <file name="SConstruct" printme="1">
+     env.Command('${SOURCE.basename}.out', 'foo.in', build)
+     </file>
+  </scons_example>
+
+
+  <para>
+
+  which does the same thing as the previous example, but allows you
+  to avoid repeating yourself.
+
+  </para>
+

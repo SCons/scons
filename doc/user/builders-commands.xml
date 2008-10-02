@@ -123,3 +123,24 @@
     % <userinput>scons -Q</userinput>
     build(["foo.out"], ["foo.in"])
   </screen>
+
+  <para>
+
+  Note that &cv-link-SOURCE; and &cv-link-TARGET; are expanded 
+  in the source and target as well as of SCons 1.1,
+  so you can write:
+
+  </para>
+
+  <programlisting>
+     env.Command('${SOURCE.basename}.out', 'foo.in', build)
+  </programlisting>
+
+
+  <para>
+
+  which does the same thing as the previous example, but allows you
+  to avoid repeating yourself.
+
+  </para>
+
