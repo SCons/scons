@@ -1181,9 +1181,11 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def AppendUnique(self, **kw):
+    def AppendUnique(self, delete_existing=0, **kw):
         """Append values to existing construction variables
         in an Environment, if they're not already there.
+        If delete_existing is 1, removes existing values first, so
+        values move to end.
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
@@ -1196,17 +1198,26 @@ class Base(SubstitutionEnvironment):
                 dk = self._dict[key]
                 if not SCons.Util.is_List(dk):
                     dk = [dk]
-                val = filter(lambda x, dk=dk: x not in dk, val)
+                if delete_existing:
+                    dk = filter(lambda x, val=val: x not in val, dk)
+                else:
+                    val = filter(lambda x, dk=dk: x not in dk, val)
                 self._dict[key] = dk + val
             else:
                 dk = self._dict[key]
                 if SCons.Util.is_List(dk):
                     # By elimination, val is not a list.  Since dk is a
                     # list, wrap val in a list first.
-                    if not val in dk:
+                    if delete_existing:
+                        dk = filter(lambda x, val=val: x not in val, dk)
                         self._dict[key] = dk + [val]
+                    else:
+                        if not val in dk:
+                            self._dict[key] = dk + [val]
                 else:
-                    self._dict[key] = self._dict[key] + val
+                    if delete_existing:
+                        dk = filter(lambda x, val=val: x not in val, dk)
+                    self._dict[key] = dk + val
         self.scanner_map_delete(kw)
 
     def Clone(self, tools=[], toolpath=None, parse_flags = None, **kw):
@@ -1523,9 +1534,11 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def PrependUnique(self, **kw):
-        """Append values to existing construction variables
+    def PrependUnique(self, delete_existing=0, **kw):
+        """Prepend values to existing construction variables
         in an Environment, if they're not already there.
+        If delete_existing is 1, removes existing values first, so
+        values move to front.
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
@@ -1538,16 +1551,25 @@ class Base(SubstitutionEnvironment):
                 dk = self._dict[key]
                 if not SCons.Util.is_List(dk):
                     dk = [dk]
-                val = filter(lambda x, dk=dk: x not in dk, val)
+                if delete_existing:
+                    dk = filter(lambda x, val=val: x not in val, dk)
+                else:
+                    val = filter(lambda x, dk=dk: x not in dk, val)
                 self._dict[key] = val + dk
             else:
                 dk = self._dict[key]
                 if SCons.Util.is_List(dk):
                     # By elimination, val is not a list.  Since dk is a
                     # list, wrap val in a list first.
-                    if not val in dk:
+                    if delete_existing:
+                        dk = filter(lambda x, val=val: x not in val, dk)
                         self._dict[key] = [val] + dk
+                    else:
+                        if not val in dk:
+                            self._dict[key] = [val] + dk
                 else:
+                    if delete_existing:
+                        dk = filter(lambda x, val=val: x not in val, dk)
                     self._dict[key] = val + dk
         self.scanner_map_delete(kw)
 
