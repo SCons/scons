@@ -6,14 +6,14 @@ import datetime
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
 	  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-print '<table>'
+print '<table width="100%">'
 def row(*cells, **kw):
 	td = kw.get('tr','td')
 	print '  <tr>'
 	for cell in cells:
 		print '    <%s>%s</%s>' % (td,cell,td)
 	print '  </tr>'
-row('Est. date', 'Type', 'Comments', tr = 'th')
+row('Estimated&nbsp;date', 'Type', 'Comments', tr = 'th')
 
 if len(sys.argv) > 1:
 	f = open(sys.argv[1])

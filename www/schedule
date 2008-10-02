@@ -11,8 +11,8 @@
 +14 ck	Beta for testing new features.
 +7 rc	Release candidate for 1.3.
 +7 1.3	Third minor release of 1.0.
-+7 ck	Beta for testing new featurea; breaks backward compatibility with Python 1.5.2.
++7 ck	Beta for testing new features; breaks backward compatibility with Python 1.5.2.
 +7 ck	Beta for testing new features.
 +7 rc	Release candidate for 2.0.
 +7 rc	Release candidate for 2.0, if needed.
-+7 2.0	Public release that breaks backward compatibility
++7 2.0	Public release that breaks backward compatibility and drops deprecated features
