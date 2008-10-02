@@ -1576,7 +1576,8 @@ def exists(env):
                           BBB4 = ['b4'],
                           BBB5 = ['b5'],
                           CCC1 = '',
-                          CCC2 = '')
+                          CCC2 = '',
+                          DDD1 = ['a', 'b', 'c'])
         env.AppendUnique(AAA1 = 'a1',
                          AAA2 = ['a2'],
                          AAA3 = ['a3', 'b', 'c', 'a3'],
@@ -1588,7 +1589,8 @@ def exists(env):
                          BBB4 = 'b4.new',
                          BBB5 = ['b5.new'],
                          CCC1 = 'c1',
-                         CCC2 = ['c2'])
+                         CCC2 = ['c2'],
+                         DDD1 = 'b')
 
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
@@ -1602,7 +1604,13 @@ def exists(env):
         assert env['BBB5'] == ['b5', 'b5.new'], env['BBB5']
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
+        assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
 
+        env.AppendUnique(DDD1 = 'b', delete_existing=1)
+        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # b moves to end
+        env.AppendUnique(DDD1 = ['a','b'], delete_existing=1)
+        assert env['DDD1'] == ['c', 'a', 'b'], env['DDD1'] # a & b move to end
+        
         env['CLVar'] = CLVar([])
         env.AppendUnique(CLVar = 'bar')
         result = env['CLVar']
@@ -2224,7 +2232,8 @@ f5: \
                           BBB4 = ['b4'],
                           BBB5 = ['b5'],
                           CCC1 = '',
-                          CCC2 = '')
+                          CCC2 = '',
+                          DDD1 = ['a', 'b', 'c'])
         env.PrependUnique(AAA1 = 'a1',
                           AAA2 = ['a2'],
                           AAA3 = ['a3', 'b', 'c', 'a3'],
@@ -2236,7 +2245,8 @@ f5: \
                           BBB4 = 'b4.new',
                           BBB5 = ['b5.new'],
                           CCC1 = 'c1',
-                          CCC2 = ['c2'])
+                          CCC2 = ['c2'],
+                          DDD1 = 'b')
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
         assert env['AAA3'] == ['b', 'c', 'a3'], env['AAA3']
@@ -2249,6 +2259,13 @@ f5: \
         assert env['BBB5'] == ['b5.new', 'b5'], env['BBB5']
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
+        assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
+
+        env.PrependUnique(DDD1 = 'b', delete_existing=1)
+        assert env['DDD1'] == ['b', 'a', 'c'], env['DDD1'] # b moves to front
+        env.PrependUnique(DDD1 = ['a','c'], delete_existing=1)
+        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # a & c move to front
+
 
         env['CLVar'] = CLVar([])
         env.PrependUnique(CLVar = 'bar')

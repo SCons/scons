@@ -2732,7 +2732,7 @@ after: /biz:/foo/bar:/foo
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.AppendUnique( key = val ", [...])"
+.RI env.AppendUnique( key = val ", [...], delete_existing=0)"
 Appends the specified keyword arguments
 to the end of construction variables in the environment.
 If the Environment does not have
@@ -2743,6 +2743,9 @@ then any value(s) that already exist in the
 construction variable will
 .I not
 be added again to the list.
+However, if delete_existing is 1, 
+existing matching values are removed first, so
+existing values in the arg list move to the end of the list.
 
 Example:
 
@@ -4940,7 +4943,7 @@ after: /foo/bar:/foo:/biz
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.PrependUnique( key = val ", [...])"
+.RI env.PrependUnique( key = val ", delete_existing=0, [...])"
 Appends the specified keyword arguments
 to the beginning of construction variables in the environment.
 If the Environment does not have
@@ -4951,6 +4954,9 @@ then any value(s) that already exist in the
 construction variable will
 .I not
 be added again to the list.
+However, if delete_existing is 1, 
+existing matching values are removed first, so
+existing values in the arg list move to the front of the list.
 
 Example:
 
