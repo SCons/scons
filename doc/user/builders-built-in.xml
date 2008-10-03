@@ -157,8 +157,8 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      cl /nologo /c goodbye.c /Fogoodbye.obj
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fogoodbye.obj /c goodbye.c /nologo
+      cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe /LIBPATH:\usr\dir1 /LIBPATH:dir2 foo1.lib foo2.lib hello.obj goodbye.obj
     </screen>
 

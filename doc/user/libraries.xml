@@ -73,9 +73,9 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      cl /nologo /c f1.c /Fof1.obj
-      cl /nologo /c f2.c /Fof2.obj
-      cl /nologo /c f3.c /Fof3.obj
+      cl /Fof1.obj /c f1.c /nologo
+      cl /Fof2.obj /c f2.c /nologo
+      cl /Fof3.obj /c f3.c /nologo
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
     </screen>
 
@@ -201,9 +201,9 @@
 
       <screen>
         C:\><userinput>scons -Q</userinput>
-        cl /nologo /c f1.c /Fof1.obj
-        cl /nologo /c f2.c /Fof2.obj
-        cl /nologo /c f3.c /Fof3.obj
+        cl /Fof1.obj /c f1.c /nologo
+        cl /Fof2.obj /c f2.c /nologo
+        cl /Fof3.obj /c f3.c /nologo
         link /nologo /dll /out:foo.dll /implib:foo.lib f1.obj f2.obj f3.obj
         RegServerFunc(target, source, env)
       </screen>
@@ -282,11 +282,11 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      cl /nologo /c f1.c /Fof1.obj
-      cl /nologo /c f2.c /Fof2.obj
-      cl /nologo /c f3.c /Fof3.obj
+      cl /Fof1.obj /c f1.c /nologo
+      cl /Fof2.obj /c f2.c /nologo
+      cl /Fof3.obj /c f3.c /nologo
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
-      cl /nologo /c prog.c /Foprog.obj
+      cl /Foprog.obj /c prog.c /nologo
       link /nologo /OUT:prog.exe /LIBPATH:. foo.lib bar.lib prog.obj
     </screen>
 
@@ -410,7 +410,7 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      cl /nologo /c prog.c /Foprog.obj
+      cl /Foprog.obj /c prog.c /nologo
       link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
     </screen>
     <!-- The link command is too wide in the PDF version. 

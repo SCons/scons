@@ -109,8 +109,8 @@ is pretty smart about rebuilding things when you change options.
   <screen>
     C:\><userinput>scons -Q OS=windows</userinput>
     Install file: "build/windows/world/world.h" as "export/windows/include/world.h"
-    cl /nologo /Iexport\windows\include /c build\windows\hello\hello.c /Fobuild\windows\hello\hello.obj
-    cl /nologo /Iexport\windows\include /c build\windows\world\world.c /Fobuild\windows\world\world.obj
+    cl /Fobuild\windows\hello\hello.obj /c build\windows\hello\hello.c /nologo /Iexport\windows\include
+    cl /Fobuild\windows\world\world.obj /c build\windows\world\world.c /nologo /Iexport\windows\include
     lib /nologo /OUT:build\windows\world\world.lib build\windows\world\world.obj
     Install file: "build/windows/world/world.lib" as "export/windows/lib/world.lib"
     link /nologo /OUT:build\windows\hello\hello.exe /LIBPATH:export\windows\lib world.lib build\windows\hello\hello.obj
