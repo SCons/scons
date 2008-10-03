@@ -341,7 +341,6 @@
       { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
         'CC': 'cl',
         'CCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
-        'CCCOMFLAGS': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS',
         'CCFLAGS': ['/nologo'],
         'CCPCHFLAGS': ['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'],
         'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
@@ -371,7 +370,7 @@
                          '.spp',
                          '.SPP'],
         'CXX': '$CC',
-        'CXXCOM': '$CXX $CXXFLAGS $CCCOMFLAGS',
+        'CXXCOM': '$CXX /Fo$TARGET /c $SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM',
         'CXXFILESUFFIX': '.cc',
         'CXXFLAGS': ['$CCFLAGS', '$(', '/TP', '$)'],
         'DSUFFIXES': ['.d'],
@@ -407,6 +406,7 @@
         'RC': 'rc',
         'RCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
         'RCFLAGS': [],
+        'RCSUFFIXES': ['.rc', '.rc2'],
         'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
         'SCANNERS': [],
         'SHCC': '$CC',
@@ -414,7 +414,7 @@
         'SHCCFLAGS': ['$CCFLAGS'],
         'SHCFLAGS': ['$CFLAGS'],
         'SHCXX': '$CXX',
-        'SHCXXCOM': '$SHCXX $SHCXXFLAGS $CCCOMFLAGS',
+        'SHCXXCOM': '$SHCXX /Fo$TARGET /c $SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM',
         'SHCXXFLAGS': ['$CXXFLAGS'],
         'SHELL': None,
         'SHLIBPREFIX': '',
@@ -426,6 +426,7 @@
         'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0x700000&gt;,
         'TEMPFILEPREFIX': '@',
         'TOOLS': ['msvc', 'install', 'install'],
+        '_CCCOMCOM': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS',
         '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
         '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
@@ -1115,9 +1116,9 @@
       % <userinput>scons -Q --debug=stacktrace</userinput>
       scons: *** Source `prog.c' not found, needed by target `prog.o'.  Stop.
       scons: internal stack trace:
-        File "bootstrap/src/engine/SCons/Job.py", line 198, in start
-        File "bootstrap/src/engine/SCons/Script/Main.py", line 169, in prepare
-        File "bootstrap/src/engine/SCons/Taskmaster.py", line 184, in prepare
+        File "bootstrap/src/engine/SCons/Job.py", line 197, in start
+        File "bootstrap/src/engine/SCons/Script/Main.py", line 167, in prepare
+        File "bootstrap/src/engine/SCons/Taskmaster.py", line 182, in prepare
         File "bootstrap/src/engine/SCons/Executor.py", line 171, in prepare
     </screen>
 

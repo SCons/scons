@@ -990,7 +990,7 @@
 
     <screen>
        C:\><userinput>scons -Q hello.exe</userinput>
-       cl /nologo /Iinclude /I\home\project\inc /c hello.c /Fohello.obj
+       cl /Fohello.obj /c hello.c /nologo /Iinclude /I\home\project\inc
        link /nologo /OUT:hello.exe hello.obj
     </screen>
 

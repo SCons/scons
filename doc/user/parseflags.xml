@@ -91,7 +91,7 @@
     CPPPATH ['/opt/include']
     LIBPATH ['/opt/lib']
     LIBS ['foo']
-    cl /nologo /I\opt\include /c f1.c /Fof1.obj
+    cl /Fof1.obj /c f1.c /nologo /I\opt\include
     link /nologo /OUT:f1.exe /LIBPATH:\opt\lib foo.lib f1.obj
  </screen>
 

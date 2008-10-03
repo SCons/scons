@@ -104,7 +104,6 @@
   XXX ParseDepends()
   XXX Platform()
   XXX SConsignFile()
-  XXX SideEffect()
   XXX Tools()
 
   XXX GetOption('duplicate')

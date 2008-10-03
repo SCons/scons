@@ -108,7 +108,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
       scons: done building targets.
    </screen>
@@ -195,7 +195,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fohello.obj /c hello.c /nologo
       scons: done building targets.
    </screen>
 
@@ -298,7 +298,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
       scons: done building targets.
       C:\><userinput>scons -c</userinput>
@@ -505,7 +505,7 @@
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
       scons: Building targets ...
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
       scons: done building targets.
    </screen>
@@ -534,7 +534,7 @@
 
    <screen>
       C:\><userinput>scons -Q</userinput>
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
    </screen>
 

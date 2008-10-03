@@ -128,8 +128,8 @@
 
     <screen>
        C:\><userinput>scons -Q</userinput>
-       cl -DGOODBYE /c goodbye.c /Fogoodbye.obj
-       cl -DHELLO /c hello.c /Fohello.obj
+       cl /Fogoodbye.obj /c goodbye.c -DGOODBYE
+       cl /Fohello.obj /c hello.c -DHELLO
        link /nologo /OUT:hello.exe hello.obj goodbye.obj
     </screen>
 
@@ -268,7 +268,7 @@
       C:\><userinput>scons -Q</userinput>
       The object file is: hello.obj
       The program file is: hello.exe
-      cl /nologo /c hello.c /Fohello.obj
+      cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
     </screen>
 
