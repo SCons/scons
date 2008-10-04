@@ -243,7 +243,7 @@ else:
             while 1:
                 task = self.requestQueue.get()
 
-                if not task:
+                if task is None:
                     # The "None" value is used as a sentinel by
                     # ThreadPool.cleanup().  This indicates that there
                     # are no more tasks, so we should quit.
