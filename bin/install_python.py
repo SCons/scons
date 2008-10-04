@@ -22,6 +22,7 @@ all_versions = [
     '2.3.7',
     '2.4.5',
     #'2.5.2',
+    '2.6',
 ]
 
 def main(argv=None):

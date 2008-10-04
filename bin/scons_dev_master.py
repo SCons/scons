@@ -50,6 +50,7 @@ DOCUMENTATION_PACKAGES = [
     'docbook-doc',
     'epydoc-doc',
     'gcc-doc',
+    'pkg-config',
     'python-doc',
     'sun-java5-doc',
     'sun-java6-doc',
