@@ -188,6 +188,97 @@ else:
 
 _python_ = '"' + python + '"'
 
+_null = SCons.Action._null
+
+def test_varlist(pos_call, str_call, cmd, cmdstrfunc, **kw):
+    def call_action(a, pos_call=pos_call, str_call=str_call, kw=kw):
+        #FUTURE a = SCons.Action.Action(*a, **kw)
+        a = apply(SCons.Action.Action, a, kw)
+        # returned object must provide these entry points
+        assert hasattr(a, '__call__')
+        assert hasattr(a, 'get_contents')
+        assert hasattr(a, 'genstring')
+        pos_call(a)
+        str_call(a)
+        return a
+
+    a = call_action((cmd, cmdstrfunc))
+    assert a.varlist == (), a.varlist
+
+    a = call_action((cmd, cmdstrfunc, 'foo'))
+    assert a.varlist == ('foo',), a.varlist
+
+    a = call_action((cmd, cmdstrfunc, 'a', 'b', 'c'))
+    assert a.varlist == ('a', 'b', 'c'), a.varlist
+
+    kw['varlist'] = 'foo'
+    a = call_action((cmd, cmdstrfunc))
+    assert a.varlist == ('foo',), a.varlist
+
+    kw['varlist'] = ['x', 'y', 'z']
+    a = call_action((cmd, cmdstrfunc))
+    assert a.varlist == ('x', 'y', 'z'), a.varlist
+
+    a = call_action((cmd, cmdstrfunc, 'foo'))
+    assert a.varlist == ('foo', 'x', 'y', 'z'), a.varlist
+
+    a = call_action((cmd, cmdstrfunc, 'a', 'b', 'c'))
+    assert a.varlist == ('a', 'b', 'c', 'x', 'y', 'z'), a.varlist
+
+def test_positional_args(pos_callback, cmd, **kw):
+    """Test that Action() returns the expected type and that positional args work.
+    """
+    #FUTURE act = SCons.Action.Action(cmd, **kw)
+    act = apply(SCons.Action.Action, (cmd,), kw)
+    pos_callback(act)
+    assert act.varlist is (), act.varlist
+
+    if not isinstance(act, SCons.Action._ActionAction):
+        # only valid cmdstrfunc is None
+        def none(a): pass
+        #FUTURE test_varlist(pos_callback, none, cmd, None, **kw)
+        apply(test_varlist, (pos_callback, none, cmd, None), kw)
+    else:
+        # _ActionAction should have set these
+        assert hasattr(act, 'strfunction')
+        assert act.cmdstr is _null, act.cmdstr
+        assert act.presub is _null, act.presub
+        assert act.chdir is None, act.chdir
+        assert act.exitstatfunc is SCons.Action.default_exitstatfunc, \
+                                        act.exitstatfunc
+
+        def cmdstr(a):
+            assert hasattr(a, 'strfunction')
+            assert a.cmdstr == 'cmdstr', a.cmdstr
+        #FUTURE test_varlist(pos_callback, cmdstr, cmd, 'cmdstr', **kw)
+        apply(test_varlist, (pos_callback, cmdstr, cmd, 'cmdstr'), kw)
+
+        def fun(): pass
+        def strfun(a, fun=fun):
+            assert a.strfunction is fun, a.strfunction
+            assert a.cmdstr == _null, a.cmdstr
+        #FUTURE test_varlist(pos_callback, strfun, cmd, fun, **kw)
+        apply(test_varlist, (pos_callback, strfun, cmd, fun), kw)
+
+        def none(a):
+            assert hasattr(a, 'strfunction')
+            assert a.cmdstr == None, a.cmdstr
+        #FUTURE test_varlist(pos_callback, none, cmd, None, **kw)
+        apply(test_varlist, (pos_callback, none, cmd, None), kw)
+
+        """Test handling of bad cmdstrfunc arguments """
+        try:
+            #FUTURE a = SCons.Action.Action(cmd, [], **kw)
+            a = apply(SCons.Action.Action, (cmd, []), kw)
+        except SCons.Errors.UserError, e:
+            s = str(e)
+            m = 'Invalid command display variable'
+            assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
+        else:
+            raise Exception, "did not catch expected UserError"
+
+    return act
+
 class ActionTestCase(unittest.TestCase):
     """Test the Action() factory function"""
 
@@ -196,49 +287,39 @@ class ActionTestCase(unittest.TestCase):
         """
         def foo():
             pass
-        def bar():
-            pass
-        a1 = SCons.Action.Action(foo)
-        assert isinstance(a1, SCons.Action.FunctionAction), a1
-        assert a1.execfunction == foo, a1.execfunction
 
-        a11 = SCons.Action.Action(foo, strfunction=bar)
-        assert isinstance(a11, SCons.Action.FunctionAction), a11
-        assert a11.execfunction == foo, a11.execfunction
-        assert a11.strfunction == bar, a11.strfunction
+        def func_action(a, foo=foo):
+            assert isinstance(a, SCons.Action.FunctionAction), a
+            assert a.execfunction == foo, a.execfunction
+        test_positional_args(func_action, foo)
+        # a singleton list returns the contained action
+        test_positional_args(func_action, [foo])
 
     def test_CommandAction(self):
         """Test the Action() factory's creation of CommandAction objects
         """
-        a1 = SCons.Action.Action("string")
-        assert isinstance(a1, SCons.Action.CommandAction), a1
-        assert a1.cmd_list == "string", a1.cmd_list
+        def cmd_action(a):
+            assert isinstance(a, SCons.Action.CommandAction), a
+            assert a.cmd_list == "string", a.cmd_list
+        test_positional_args(cmd_action, "string")
+        # a singleton list returns the contained action
+        test_positional_args(cmd_action, ["string"])
 
         if hasattr(types, 'UnicodeType'):
-            exec "a2 = SCons.Action.Action(u'string')"
-            exec "assert isinstance(a2, SCons.Action.CommandAction), a2"
+            a2 = eval("SCons.Action.Action(u'string')")
+            assert isinstance(a2, SCons.Action.CommandAction), a2
 
-        a3 = SCons.Action.Action(["a3"])
-        assert isinstance(a3, SCons.Action.CommandAction), a3
-        assert a3.cmd_list == "a3", a3.cmd_list
-
-        a4 = SCons.Action.Action([[ "explicit", "command", "line" ]])
-        assert isinstance(a4, SCons.Action.CommandAction), a4
-        assert a4.cmd_list == [ "explicit", "command", "line" ], a4.cmd_list
-
-        def foo():
-            pass
-
-        a5 = SCons.Action.Action("string", strfunction=foo)
-        assert isinstance(a5, SCons.Action.CommandAction), a5
-        assert a5.cmd_list == "string", a5.cmd_list
-        assert a5.strfunction == foo, a5.strfunction
+        def line_action(a):
+            assert isinstance(a, SCons.Action.CommandAction), a
+            assert a.cmd_list == [ "explicit", "command", "line" ], a.cmd_list
+        test_positional_args(line_action, [[ "explicit", "command", "line" ]])
 
     def test_ListAction(self):
         """Test the Action() factory's creation of ListAction objects
         """
         a1 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
         assert isinstance(a1, SCons.Action.ListAction), a1
+        assert a1.varlist is (), a1.varlist
         assert isinstance(a1.list[0], SCons.Action.CommandAction), a1.list[0]
         assert a1.list[0].cmd_list == "x", a1.list[0].cmd_list
         assert isinstance(a1.list[1], SCons.Action.CommandAction), a1.list[1]
@@ -250,6 +331,7 @@ class ActionTestCase(unittest.TestCase):
 
         a2 = SCons.Action.Action("x\ny\nz")
         assert isinstance(a2, SCons.Action.ListAction), a2
+        assert a2.varlist is (), a2.varlist
         assert isinstance(a2.list[0], SCons.Action.CommandAction), a2.list[0]
         assert a2.list[0].cmd_list == "x", a2.list[0].cmd_list
         assert isinstance(a2.list[1], SCons.Action.CommandAction), a2.list[1]
@@ -262,6 +344,7 @@ class ActionTestCase(unittest.TestCase):
 
         a3 = SCons.Action.Action(["x", foo, "z"])
         assert isinstance(a3, SCons.Action.ListAction), a3
+        assert a3.varlist is (), a3.varlist
         assert isinstance(a3.list[0], SCons.Action.CommandAction), a3.list[0]
         assert a3.list[0].cmd_list == "x", a3.list[0].cmd_list
         assert isinstance(a3.list[1], SCons.Action.FunctionAction), a3.list[1]
@@ -271,6 +354,7 @@ class ActionTestCase(unittest.TestCase):
 
         a4 = SCons.Action.Action(["x", "y"], strfunction=foo)
         assert isinstance(a4, SCons.Action.ListAction), a4
+        assert a4.varlist is (), a4.varlist
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
         assert a4.list[0].cmd_list == "x", a4.list[0].cmd_list
         assert a4.list[0].strfunction == foo, a4.list[0].strfunction
@@ -280,6 +364,7 @@ class ActionTestCase(unittest.TestCase):
 
         a5 = SCons.Action.Action("x\ny", strfunction=foo)
         assert isinstance(a5, SCons.Action.ListAction), a5
+        assert a5.varlist is (), a5.varlist
         assert isinstance(a5.list[0], SCons.Action.CommandAction), a5.list[0]
         assert a5.list[0].cmd_list == "x", a5.list[0].cmd_list
         assert a5.list[0].strfunction == foo, a5.list[0].strfunction
@@ -290,29 +375,22 @@ class ActionTestCase(unittest.TestCase):
     def test_CommandGeneratorAction(self):
         """Test the Action() factory's creation of CommandGeneratorAction objects
         """
-        def foo():
-            pass
-        def bar():
-            pass
-        a1 = SCons.Action.Action(foo, generator=1)
-        assert isinstance(a1, SCons.Action.CommandGeneratorAction), a1
-        assert a1.generator is foo, a1.generator
+        def foo(): pass
 
-        a2 = SCons.Action.Action(foo, strfunction=bar, generator=1)
-        assert isinstance(a2, SCons.Action.CommandGeneratorAction), a2
-        assert a2.generator is foo, a2.generator
+        def gen_action(a, foo=foo):
+            assert isinstance(a, SCons.Action.CommandGeneratorAction), a
+            assert a.generator is foo, a.generator
+        test_positional_args(gen_action, foo, generator=1)
 
     def test_LazyCmdGeneratorAction(self):
         """Test the Action() factory's creation of lazy CommandGeneratorAction objects
         """
-        def foo():
-            pass
-
-        a1 = SCons.Action.Action("$FOO")
-        assert isinstance(a1, SCons.Action.LazyAction), a1
-
-        a2 = SCons.Action.Action("$FOO", strfunction=foo)
-        assert isinstance(a2, SCons.Action.LazyAction), a2
+        def lazy_action(a):
+            assert isinstance(a, SCons.Action.LazyAction), a
+            assert a.var == "FOO", a.var
+            assert a.cmd_list == "${FOO}", a.cmd_list
+        test_positional_args(lazy_action, "$FOO")
+        test_positional_args(lazy_action, "${FOO}")
 
     def test_no_action(self):
         """Test when the Action() factory can't create an action object
@@ -332,7 +410,7 @@ class ActionBaseTestCase(unittest.TestCase):
         """Test the ActionBase.get_executor() method"""
         a = SCons.Action.Action('foo')
         x = a.get_executor({}, {}, [], [], {})
-        assert not x is None, x
+        assert x is not None, x
  
 class _ActionActionTestCase(unittest.TestCase):
 
@@ -346,15 +424,44 @@ class _ActionActionTestCase(unittest.TestCase):
         def func2():
             pass
 
+        def func3():
+            pass
+
         a = SCons.Action._ActionAction()
         assert not hasattr(a, 'strfunction')
+        assert a.cmdstr is _null, a.cmdstr
+        assert a.varlist == (), a.varlist
+        assert a.presub is _null, a.presub
+        assert a.chdir is None, a.chdir
+        assert a.exitstatfunc is SCons.Action.default_exitstatfunc, a.exitstatfunc
 
         assert SCons.Action._ActionAction(kwarg = 1)
-        assert not hasattr(a, 'strfunction')
         assert not hasattr(a, 'kwarg')
+        assert not hasattr(a, 'strfunction')
+        assert a.cmdstr is _null, a.cmdstr
+        assert a.varlist == (), a.varlist
+        assert a.presub is _null, a.presub
+        assert a.chdir is None, a.chdir
+        assert a.exitstatfunc is SCons.Action.default_exitstatfunc, a.exitstatfunc
 
         a = SCons.Action._ActionAction(strfunction=func1)
         assert a.strfunction is func1, a.strfunction
+
+        a = SCons.Action._ActionAction(strfunction=None)
+        assert not hasattr(a, 'strfunction')
+        assert a.cmdstr is None, a.cmdstr
+
+        a = SCons.Action._ActionAction(cmdstr='cmdstr')
+        assert not hasattr(a, 'strfunction')
+        assert a.cmdstr is 'cmdstr', a.cmdstr
+
+        a = SCons.Action._ActionAction(cmdstr=None)
+        assert not hasattr(a, 'strfunction')
+        assert a.cmdstr is None, a.cmdstr
+
+        t = ('a','b','c')
+        a = SCons.Action._ActionAction(varlist=t)
+        assert a.varlist == t, a.varlist
 
         a = SCons.Action._ActionAction(presub=func1)
         assert a.presub is func1, a.presub
@@ -362,10 +469,37 @@ class _ActionActionTestCase(unittest.TestCase):
         a = SCons.Action._ActionAction(chdir=1)
         assert a.chdir is 1, a.chdir
 
-        a = SCons.Action._ActionAction(func1, func2, 'x')
-        assert a.strfunction is func1, a.strfunction
-        assert a.presub is func2, a.presub
+        a = SCons.Action._ActionAction(exitstatfunc=func1)
+        assert a.exitstatfunc is func1, a.exitstatfunc
+
+        a = SCons.Action._ActionAction(
+                                 # alphabetical order ...
+                                 chdir='x',
+                                 cmdstr='cmdstr',
+                                 exitstatfunc=func3,
+                                 presub=func2,
+                                 strfunction=func1,
+                                 varlist=t,
+                          )
         assert a.chdir is 'x', a.chdir
+        assert a.cmdstr is 'cmdstr', a.cmdstr
+        assert a.exitstatfunc is func3, a.exitstatfunc
+        assert a.presub is func2, a.presub
+        assert a.strfunction is func1, a.strfunction
+        assert a.varlist is t, a.varlist
+
+    def test_dup_keywords(self):
+        """Test handling of both cmdstr and strfunction arguments
+        """
+        def func(): pass
+        try:
+            a = SCons.Action.Action('foo', cmdstr='string', strfunction=func)
+        except SCons.Errors.UserError, e:
+            s = str(e)
+            m = 'Cannot have both strfunction and cmdstr args to Action()'
+            assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
+        else:
+            raise Exception, "did not catch expected UserError"
 
     def test___cmp__(self):
         """Test Action comparison
@@ -695,23 +829,11 @@ class CommandActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.CommandAction(["xyzzy"])
         assert a.cmd_list == [ "xyzzy" ], a.cmd_list
-        assert a.cmdstr is None, a.cmdstr
+        assert a.cmdstr is _null, a.cmdstr
 
-        a = SCons.Action.CommandAction(["abra"], "cadabra")
+        a = SCons.Action.CommandAction(["abra"], cmdstr="cadabra")
         assert a.cmd_list == [ "abra" ], a.cmd_list
         assert a.cmdstr == "cadabra", a.cmdstr
-
-    def test_bad_cmdstr(self):
-        """Test handling of bad CommandAction(cmdstr) arguments
-        """
-        try:
-            a = SCons.Action.CommandAction('foo', [])
-        except SCons.Errors.UserError, e:
-            s = str(e)
-            m = 'Invalid command display variable'
-            assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
-        else:
-            raise Exception, "did not catch expected UserError"
 
     def test___str__(self):
         """Test fetching the pre-substitution string for command Actions
@@ -783,7 +905,7 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == 'xyzzy t1 s1', s
 
         act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE',
-                                         'cmdstr - $SOURCE - $TARGET -')
+                                         cmdstr='cmdstr - $SOURCE - $TARGET -')
         s = act.strfunction([], [], env)
         assert s == 'cmdstr -  -  -', s
         s = act.strfunction([t1], [s1], env)
@@ -800,7 +922,7 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == 'xyzzy t1 t2 s1 s2', s
 
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES',
-                                         'cmdstr = $SOURCES = $TARGETS =')
+                                         cmdstr='cmdstr = $SOURCES = $TARGETS =')
         s = act.strfunction([], [], env)
         assert s == 'cmdstr =  =  =', s
         s = act.strfunction([t1], [s1], env)
@@ -819,7 +941,7 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == 'xyzzy t1 s1 t1 t2 s1 s2', s
 
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES',
-                                         'cmdstr\t$TARGETS\n$SOURCES   ')
+                                         cmdstr='cmdstr\t$TARGETS\n$SOURCES   ')
                     
         s = act.strfunction([], [], env)
         assert s == 'cmdstr\t\n   ', s
@@ -1255,12 +1377,16 @@ class CommandActionTestCase(unittest.TestCase):
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
+    def factory(self, act, **kw):
+        """Pass any keywords as a dict"""
+        return SCons.Action.CommandGeneratorAction(act, kw)
+
     def test___init__(self):
         """Test creation of a command generator Action
         """
         def f(target, source, env):
             pass
-        a = SCons.Action.CommandGeneratorAction(f)
+        a = self.factory(f)
         assert a.generator == f
 
     def test___str__(self):
@@ -1276,7 +1402,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
             env.FindIxes
             return "FOO"
-        a = SCons.Action.CommandGeneratorAction(f)
+        a = self.factory(f)
         s = str(a)
         assert s == 'FOO', s
 
@@ -1287,7 +1413,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             dummy = env['dummy']
             self.dummy = dummy
             return "$FOO $TARGET $SOURCE $TARGETS $SOURCES"
-        a = SCons.Action.CommandGeneratorAction(f)
+        a = self.factory(f)
         self.dummy = 0
         s = a.genstring([], [], env=Environment(FOO='xyzzy', dummy=1))
         assert self.dummy == 1, self.dummy
@@ -1314,7 +1440,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             self.cmd.append(cmd)
             self.args.append(args)
 
-        a = SCons.Action.CommandGeneratorAction(f)
+        a = self.factory(f)
         self.dummy = 0
         self.cmd = []
         self.args = []
@@ -1325,7 +1451,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert self.cmd == ['foo', 'bar'], self.cmd
         assert self.args == [[ 'foo', 'baz' ], [ 'bar', 'ack' ]], self.args
 
-        b = SCons.Action.CommandGeneratorAction(f2)
+        b = self.factory(f2)
         self.dummy = 0
         b(target=[], source=[], env=Environment(foo =  'bar',
                                                         dummy =  2 ))
@@ -1342,7 +1468,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                 return self
         def f3(target, source, env, for_signature):
             return ''
-        c = SCons.Action.CommandGeneratorAction(f3)
+        c = self.factory(f3)
         c(target=[], source=DummyFile(self), env=Environment())
         assert self.rfile_called
 
@@ -1362,7 +1488,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         env = Environment(foo = 'FFF', bar =  'BBB',
                           ignore = 'foo', test=test)
-        a = SCons.Action.CommandGeneratorAction(f)
+        a = self.factory(f)
         c = a.get_contents(target=[], source=[], env=env)
         assert c == "guux FFF BBB test", c
 
@@ -1381,41 +1507,27 @@ class FunctionActionTestCase(unittest.TestCase):
         def func4():
             pass
 
-        a = SCons.Action.FunctionAction(func1)
+        a = SCons.Action.FunctionAction(func1, {})
         assert a.execfunction == func1, a.execfunction
         assert isinstance(a.strfunction, types.MethodType), type(a.strfunction)
 
-        a = SCons.Action.FunctionAction(func2, strfunction=func3)
+        a = SCons.Action.FunctionAction(func2, { 'strfunction' : func3 })
         assert a.execfunction == func2, a.execfunction
         assert a.strfunction == func3, a.strfunction
-
-    def test_cmdstr_bad(self):
-        """Test handling of bad FunctionAction(cmdstr) arguments
-        """
-        def func():
-            pass
-        try:
-            a = SCons.Action.FunctionAction(func, [])
-        except SCons.Errors.UserError, e:
-            s = str(e)
-            m = 'Invalid function display variable'
-            assert string.find(s, m) != -1, 'Unexpected string:  %s' % s
-        else:
-            raise "did not catch expected UserError"
 
     def test___str__(self):
         """Test the __str__() method for function Actions
         """
         def func1():
             pass
-        a = SCons.Action.FunctionAction(func1)
+        a = SCons.Action.FunctionAction(func1, {})
         s = str(a)
         assert s == "func1(target, source, env)", s
 
         class class1:
             def __call__(self):
                 pass
-        a = SCons.Action.FunctionAction(class1())
+        a = SCons.Action.FunctionAction(class1(), {})
         s = str(a)
         assert s == "class1(target, source, env)", s
 
@@ -1430,7 +1542,7 @@ class FunctionActionTestCase(unittest.TestCase):
             s.source=source
             assert env.subst("$BAR") == 'foo bar', env.subst("$BAR")
             return 0
-        a = SCons.Action.FunctionAction(f)
+        a = SCons.Action.FunctionAction(f, {})
         a(target=1, source=2, env=Environment(BAR = 'foo bar',
                                                       s = self))
         assert self.inc == 1, self.inc
@@ -1446,7 +1558,7 @@ class FunctionActionTestCase(unittest.TestCase):
                 open(t, 'w').write("function1\n")
             return 1
 
-        act = SCons.Action.FunctionAction(function1)
+        act = SCons.Action.FunctionAction(function1, {})
         r = act(target = [outfile, outfile2], source=[], env=Environment())
         assert r.status == 1, r.status
 
@@ -1460,7 +1572,7 @@ class FunctionActionTestCase(unittest.TestCase):
             def __init__(self, target, source, env):
                 open(env['out'], 'w').write("class1a\n")
 
-        act = SCons.Action.FunctionAction(class1a)
+        act = SCons.Action.FunctionAction(class1a, {})
         r = act([], [], Environment(out = outfile))
         assert isinstance(r.status, class1a), r.status
         c = test.read(outfile, 'r')
@@ -1471,7 +1583,7 @@ class FunctionActionTestCase(unittest.TestCase):
                 open(env['out'], 'w').write("class1b\n")
                 return 2
 
-        act = SCons.Action.FunctionAction(class1b())
+        act = SCons.Action.FunctionAction(class1b(), {})
         r = act([], [], Environment(out = outfile))
         assert r.status == 2, r.status
         c = test.read(outfile, 'r')
@@ -1483,7 +1595,7 @@ class FunctionActionTestCase(unittest.TestCase):
         def string_it(target, source, env, self=self):
             self.string_it = 1
             return None
-        act = SCons.Action.FunctionAction(build_it, strfunction=string_it)
+        act = SCons.Action.FunctionAction(build_it, { 'strfunction' : string_it })
         r = act([], [], Environment())
         assert r == 0, r
         assert self.build_it
@@ -1506,37 +1618,37 @@ class FunctionActionTestCase(unittest.TestCase):
             "1,1,0,0,(),(),(d\x00\x00S),(),()",
         ]
 
-        a = SCons.Action.FunctionAction(GlobalFunc)
+        def factory(act, **kw):
+            return SCons.Action.FunctionAction(act, kw)
+
+        a = factory(GlobalFunc)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in func_matches, repr(c)
 
-        a = SCons.Action.FunctionAction(LocalFunc)
+        a = factory(LocalFunc)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in func_matches, repr(c)
-
-        a = SCons.Action.FunctionAction(GlobalFunc, varlist=['XYZ'])
 
         matches_foo = map(lambda x: x + "foo", func_matches)
 
+        a = factory(GlobalFunc, varlist=['XYZ'])
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in func_matches, repr(c)
-        c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
+        c = a.get_contents(target=[], source=[], env=Environment(XYZ='foo'))
         assert c in matches_foo, repr(c)
 
+        ##TODO: is this set of tests still needed?
         # Make sure a bare string varlist works
-        a = SCons.Action.FunctionAction(GlobalFunc, varlist='XYZ')
-
-        matches_foo = map(lambda x: x + "foo", func_matches)
-
+        a = factory(GlobalFunc, varlist='XYZ')
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in func_matches, repr(c)
-        c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
+        c = a.get_contents(target=[], source=[], env=Environment(XYZ='foo'))
         assert c in matches_foo, repr(c)
 
         class Foo:
             def get_contents(self, target, source, env):
                 return 'xyzzy'
-        a = SCons.Action.FunctionAction(Foo())
+        a = factory(Foo())
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c == 'xyzzy', repr(c)
 
@@ -1544,7 +1656,7 @@ class FunctionActionTestCase(unittest.TestCase):
             def LocalMethod(self):
                 pass
         lc = LocalClass()
-        a = SCons.Action.FunctionAction(lc.LocalMethod)
+        a = factory(lc.LocalMethod)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in meth_matches, repr(c)
 
@@ -1554,15 +1666,18 @@ class FunctionActionTestCase(unittest.TestCase):
         def func():
             pass
 
-        a = SCons.Action.FunctionAction(func)
+        def factory(act, **kw):
+            return SCons.Action.FunctionAction(act, kw)
+
+        a = factory(func)
         s = a.strfunction(target=[], source=[], env=Environment())
         assert s == 'func([], [])', s
 
-        a = SCons.Action.FunctionAction(func, None)
+        a = factory(func, strfunction=None)
         s = a.strfunction(target=[], source=[], env=Environment())
         assert s is None, s
 
-        a = SCons.Action.FunctionAction(func, 'function')
+        a = factory(func, cmdstr='function')
         s = a.strfunction(target=[], source=[], env=Environment())
         assert s == 'function', s
 
@@ -1881,9 +1996,9 @@ class ActionCompareTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ ActionTestCase,
-                 ActionBaseTestCase,
+    tclasses = [ ActionBaseTestCase,
                  _ActionActionTestCase,
+                 ActionTestCase,
                  CommandActionTestCase,
                  CommandGeneratorActionTestCase,
                  FunctionActionTestCase,
