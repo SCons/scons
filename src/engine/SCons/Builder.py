@@ -232,7 +232,7 @@ def Builder(**kw):
     if kw.has_key('generator'):
         if kw.has_key('action'):
             raise UserError, "You must not specify both an action and a generator."
-        kw['action'] = SCons.Action.CommandGeneratorAction(kw['generator'])
+        kw['action'] = SCons.Action.CommandGeneratorAction(kw['generator'], {})
         del kw['generator']
     elif kw.has_key('action'):
         source_ext_match = kw.get('source_ext_match', 1)
@@ -240,7 +240,7 @@ def Builder(**kw):
             del kw['source_ext_match']
         if SCons.Util.is_Dict(kw['action']):
             composite = DictCmdGenerator(kw['action'], source_ext_match)
-            kw['action'] = SCons.Action.CommandGeneratorAction(composite)
+            kw['action'] = SCons.Action.CommandGeneratorAction(composite, {})
             kw['src_suffix'] = composite.src_suffixes()
         else:
             kw['action'] = SCons.Action.Action(kw['action'])
