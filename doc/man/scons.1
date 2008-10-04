@@ -2323,9 +2323,9 @@ include:
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Action( action ", [" strfunction ", " varlist ])
+.RI Action( action ", [" cmd/str/fun ", [" var ", ...]] [" option = value ", ...])"
 .TP
-.RI env.Action( action ", [" strfunction ", " varlist ])
+.IR env .Action( action ", [" cmd/str/fun ", [" var ", ...]] [" option = value ", ...])"
 Creates an Action object for
 the specified
 .IR action .
@@ -2335,13 +2335,12 @@ below, for a complete explanation of the arguments and behavior.
 Note that the
 .BR env.Action ()
 form of the invocation will expand
-construction variables in any arguments strings,
+construction variables in any argument strings,
 including the
 .I action
-argument,
-at the time it is called
+argument, at the time it is called
 using the construction variables in the
-.B env
+.I env
 construction environment through which
 .BR env.Action ()
 was called.
@@ -8428,18 +8427,15 @@ the object is simply returned.
 .IP String
 If the first argument is a string,
 a command-line Action is returned.
-Note that the command line string
+Note that the command-line string
 may be preceded by an
 .B @
 (at-sign)
-to suppress printing of the
-specified command line,
+to suppress printing of the specified command line,
 or by a
 .B \-
 (hyphen)
-to ignore the exit status from
-the specified command.
-Examples:
+to ignore the exit status from the specified command:
 
 .ES
 Action('$CC -c -o $TARGET $SOURCES')
@@ -8447,10 +8443,9 @@ Action('$CC -c -o $TARGET $SOURCES')
 # Doesn't print the line being executed.
 Action('@build $TARGET $SOURCES')
 
-# Ignores
+# Ignores return value
 Action('-build $TARGET $SOURCES')
 .EE
-
 .\" XXX From Gary Ruben, 23 April 2002:
 .\" What would be useful is a discussion of how you execute command
 .\" shell commands ie. what is the process used to spawn the shell, pass
@@ -8459,7 +8454,6 @@ Action('-build $TARGET $SOURCES')
 .\" make documentation to see what they think is important to discuss about
 .\" a build system. I'm sure you can do a better job of organising the
 .\" documentation than they have :-)
-
 
 .IP List
 If the first argument is a list,
@@ -8483,7 +8477,7 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 .IP Function
 If the first argument is a Python function,
 a function Action is returned.
-The Python function takes three keyword arguments,
+The Python function must take three keyword arguments,
 .B target
 (a Node object representing the target file),
 .B source
@@ -8528,19 +8522,22 @@ If the action argument is not one of the above,
 None is returned.
 .PP
 
-The second, optional argument
-is used to define the output which is printed
-when the Action is actually performed.
-In the absence of this parameter, or if it's an
-empty string, a default output depending on the type of the action
-is used. For example, a command-line action will print
-the executed command. The argument is either a python function
-or a string.
+The second argument is optional and is used to define the output
+which is printed when the Action is actually performed.
+In the absence of this parameter,
+or if it's an empty string,
+a default output depending on the type of the action is used.
+For example, a command-line action will print the executed command.
+The argument must be either a Python function or a string.
 
-In the first case, it's a function that returns
-a string to be printed to describe the action being executed.
+In the first case,
+it's a function that returns a string to be printed
+to describe the action being executed.
+The function may also be specified by the
+.IR strfunction =
+keyword argument.
 Like a function to build a file,
-this function takes three arguments:
+this function must take three keyword arguments:
 .B target
 (a Node object representing the target file),
 .B source
@@ -8556,6 +8553,9 @@ arguments may be lists of Node objects if there is
 more than one target file or source file.
 
 In the second case, you provide the string itself.
+The string may also be specified by the
+.IR cmdstr =
+keyword argument.
 The string typically contains variables, notably
 $TARGET(S) and $SOURCE(S), or consists of just a single
 variable, which is optionally defined somewhere else.
@@ -8583,17 +8583,20 @@ s = Action(build_it, cmdstr="building '$TARGET' from '$SOURCE'")
 l = Action(build_it, '$STRINGIT')
 .EE
 
-The third, also optional argument
-is a list of construction variables
-whose values will be included
-in the signature of the Action
-when deciding whether a target should
-be rebuilt because the action changed.
-This is necessary whenever you want a target to
-be rebuilt when a specific
-construction variable changes,
-because the underlying Python code for a function
-will not change when the value of the construction variable does.
+The third and succeeding arguments, if present,
+may either be a construction variable or a list of construction variables
+whose values will be included in the signature of the Action
+when deciding whether a target should be rebuilt because the action changed.
+The variables may also be specified by a
+.IR varlist =
+keyword parameter;
+if both are present, they are combined.
+This is necessary whenever you want a target to be rebuilt
+when a specific construction variable changes.
+This is not often needed for a string action,
+as the expanded variables will normally be part of the command line,
+but may be needed if a Python function action uses
+the value of a construction variable when generating the command line.
 
 .ES
 def build_it(target, source, env):
