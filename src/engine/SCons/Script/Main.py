@@ -216,6 +216,8 @@ class BuildTask(SCons.Taskmaster.Task):
                 sys.stderr.write("\n")
                 try:
                     raise SCons.Errors.BuildError(t, errstr)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.exception_set()
                 self.do_failed()
