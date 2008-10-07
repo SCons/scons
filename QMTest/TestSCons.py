@@ -100,12 +100,19 @@ def gccFortranLibs():
     a more reliable way, but using popen3 is relatively efficient."""
 
     libs = ['g2c']
+    cmd = 'gcc -v'
 
     try:
-        import popen2
-        stderr = popen2.popen3('gcc -v')[2]
-    except OSError:
-        return libs
+        import subprocess
+    except ImportError:
+        try:
+            import popen2
+            stderr = popen2.popen3(cmd)[2]
+        except OSError:
+            return libs
+    else:
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+        stderr = p.stderr
 
     for l in stderr.readlines():
         list = string.split(l)
