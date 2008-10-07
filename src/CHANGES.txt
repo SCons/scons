@@ -10,6 +10,15 @@
 
 RELEASE 1.X - XXX
 
+  From Steven Knight:
+
+    - Fix label placement by the "scons-time.py func" subcommand
+      when a profile value was close to (or equal to) 0.0.
+
+
+
+RELEASE 1.X - XXX
+
   From Chris AtLee
 
     - Use the specified environment when checking for the GCC compiler

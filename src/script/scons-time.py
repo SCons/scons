@@ -166,13 +166,13 @@ class Gnuplotter(Plotter):
         result = []
         for line in self.lines:
             result.extend(line.get_x_values())
-        return filter(None, result)
+        return filter(lambda r: not r is None, result)
 
     def get_all_y_values(self):
         result = []
         for line in self.lines:
             result.extend(line.get_y_values())
-        return filter(None, result)
+        return filter(lambda r: not r is None, result)
 
     def get_min_x(self):
         try:
