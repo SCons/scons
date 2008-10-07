@@ -89,7 +89,6 @@ import getopt
 import glob
 import os
 import os.path
-import popen2
 import re
 import stat
 import string
@@ -345,25 +344,37 @@ class SystemExecutor(Base):
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
 try:
-    popen2.Popen3
-except AttributeError:
-    class PopenExecutor(Base):
-        def execute(self):
-            (tochild, fromchild, childerr) = os.popen3(self.command_str)
-            tochild.close()
-            self.stderr = childerr.read()
-            self.stdout = fromchild.read()
-            fromchild.close()
-            self.status = childerr.close()
-            if not self.status:
-                self.status = 0
+    import subprocess
+except ImportError:
+    import popen2
+    try:
+        popen2.Popen3
+    except AttributeError:
+        class PopenExecutor(Base):
+            def execute(self):
+                (tochild, fromchild, childerr) = os.popen3(self.command_str)
+                tochild.close()
+                self.stderr = childerr.read()
+                self.stdout = fromchild.read()
+                fromchild.close()
+                self.status = childerr.close()
+                if not self.status:
+                    self.status = 0
+    else:
+        class PopenExecutor(Base):
+            def execute(self):
+                p = popen2.Popen3(self.command_str, 1)
+                p.tochild.close()
+                self.stdout = p.fromchild.read()
+                self.stderr = p.childerr.read()
+                self.status = p.wait()
 else:
     class PopenExecutor(Base):
         def execute(self):
-            p = popen2.Popen3(self.command_str, 1)
-            p.tochild.close()
-            self.stdout = p.fromchild.read()
-            self.stderr = p.childerr.read()
+            p = subprocess.Popen(self.command_str, shell=True)
+            p.stdin.close()
+            self.stdout = p.stdout.read()
+            self.stdout = p.stderr.read()
             self.status = p.wait()
 
 class Aegis(SystemExecutor):
