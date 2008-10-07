@@ -44,7 +44,7 @@ import SCons.Node.FS
 import SCons.Util
 import SCons.Scanner.LaTeX
 
-Verbose = True
+Verbose = False
 
 must_rerun_latex = True
 
