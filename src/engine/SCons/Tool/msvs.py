@@ -34,7 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import base64
-import md5
+import hashlib
 import os.path
 import pickle
 import re
@@ -79,9 +79,11 @@ def _generateGUID(slnfile, name):
     based on the MD5 signatures of the sln filename plus the name of
     the project.  It basically just needs to be unique, and not
     change with each invocation."""
+    m = hashlib.md5()
+    m.update(str(slnfile) + str(name))
     # TODO(1.5)
-    #solution = _hexdigest(md5.new(str(slnfile)+str(name)).digest()).upper()
-    solution = string.upper(_hexdigest(md5.new(str(slnfile)+str(name)).digest()))
+    #solution = m.hexdigest().upper()
+    solution = string.upper(_hexdigest(m.digest()))
     # convert most of the signature to GUID form (discard the rest)
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
