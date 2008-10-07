@@ -49,8 +49,6 @@ while test.where_is('qmtest'):
     path.remove(dir)
     os.environ['PATH'] = string.join(path, os.pathsep)
 
-print "PATH: %s"%os.environ['PATH']
-
 test.subdir('test')
 
 test_pass_py = os.path.join('test', 'pass.py')
