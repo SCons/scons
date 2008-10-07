@@ -1,6 +1,7 @@
 """SCons.Tool.pdf
 
 Common PDF Builder definition for various other Tool modules that use it.
+Add an explicit action to run epstopdf to convert .eps files to .pdf
 
 """
 
@@ -34,6 +35,8 @@ import SCons.Tool
 
 PDFBuilder = None
 
+EpsPdfAction = SCons.Action.Action('$EPSTOPDFCOM', '$EPSTOPDFCOMSTR')
+
 def generate(env):
     try:
         env['BUILDERS']['PDF']
@@ -45,11 +48,23 @@ def generate(env):
                                                prefix = '$PDFPREFIX',
                                                suffix = '$PDFSUFFIX',
                                                emitter = {},
-                                               source_ext_match = None)
+                                               source_ext_match = None,
+                                               single_source=True)
         env['BUILDERS']['PDF'] = PDFBuilder
 
     env['PDFPREFIX'] = ''
     env['PDFSUFFIX'] = '.pdf'
+
+# put the epstopdf builder in this routine so we can add it after 
+# the pdftex builder so that one is the default for no source suffix
+def generate2(env):
+    bld = env['BUILDERS']['PDF']
+    bld.add_action('.ps',  EpsPdfAction)
+    bld.add_action('.eps', EpsPdfAction)
+
+    env['EPSTOPDF']      = 'epstopdf'
+    env['EPSTOPDFFLAGS'] = SCons.Util.CLVar('')
+    env['EPSTOPDFCOM']   = '$EPSTOPDF $EPSTOPDFFLAGS ${SOURCE} -o ${TARGET}'
 
 def exists(env):
     # This only puts a skeleton Builder in place, so if someone

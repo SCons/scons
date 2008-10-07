@@ -42,8 +42,9 @@ import SCons.Action
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
+import SCons.Scanner.LaTeX
 
-Verbose = False
+Verbose = True
 
 must_rerun_latex = True
 
@@ -78,18 +79,28 @@ undefined_references_re = re.compile(undefined_references_str, re.MULTILINE)
 
 # used by the emitter
 auxfile_re = re.compile(r".", re.MULTILINE)
-tableofcontents_re = re.compile(r"^[^%]*\\tableofcontents", re.MULTILINE)
-makeindex_re = re.compile(r"^[^%]*\\makeindex", re.MULTILINE)
-bibliography_re = re.compile(r"^[^%]*\\bibliography", re.MULTILINE)
-listoffigures_re = re.compile(r"^[^%]*\\listoffigures", re.MULTILINE)
-listoftables_re = re.compile(r"^[^%]*\\listoftables", re.MULTILINE)
-hyperref_re = re.compile(r"^[^%]*\\usepackage.*\{hyperref\}", re.MULTILINE)
-makenomenclature_re = re.compile(r"^[^%]*\\makenomenclature", re.MULTILINE)
-makeglossary_re = re.compile(r"^[^%]*\\makeglossary", re.MULTILINE)
-beamer_re = re.compile(r"^[^%]*\\documentclass\{beamer\}", re.MULTILINE)
+tableofcontents_re = re.compile(r"^[^%\n]*\\tableofcontents", re.MULTILINE)
+makeindex_re = re.compile(r"^[^%\n]*\\makeindex", re.MULTILINE)
+bibliography_re = re.compile(r"^[^%\n]*\\bibliography", re.MULTILINE)
+listoffigures_re = re.compile(r"^[^%\n]*\\listoffigures", re.MULTILINE)
+listoftables_re = re.compile(r"^[^%\n]*\\listoftables", re.MULTILINE)
+hyperref_re = re.compile(r"^[^%\n]*\\usepackage.*\{hyperref\}", re.MULTILINE)
+makenomenclature_re = re.compile(r"^[^%\n]*\\makenomenclature", re.MULTILINE)
+makeglossary_re = re.compile(r"^[^%\n]*\\makeglossary", re.MULTILINE)
+beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
+
+# search to find all files included by Latex
+include_re = re.compile(r'^[^%\n]*\\(?:include|input){([^}]*)}', re.MULTILINE)
+
+# search to find all graphics files included by Latex
+includegraphics_re = re.compile(r'^[^%\n]*\\(?:includegraphics(?:\[[^\]]+\])?){([^}]*)}', re.MULTILINE)
 
 # search to find all files opened by Latex (recorded in .log file)
 openout_re = re.compile(r"\\openout.*`(.*)'")
+
+# list of graphics file extensions for TeX and LaTeX
+TexGraphics   = SCons.Scanner.LaTeX.TexGraphics
+LatexGraphics = SCons.Scanner.LaTeX.LatexGraphics
 
 # An Action sufficient to build any generic tex file.
 TeXAction = None
@@ -111,39 +122,41 @@ MakeNclAction = None
 MakeGlossaryAction = None
 
 # Used as a return value of modify_env_var if the variable is not set.
-class _Null:
-    pass
-_null = _Null
+_null = SCons.Scanner.LaTeX._null
 
-# The user specifies the paths in env[variable], similar to other builders.
-# They may be relative and must be converted to absolute, as expected
-# by LaTeX and Co. The environment may already have some paths in
-# env['ENV'][var]. These paths are honored, but the env[var] paths have
-# higher precedence. All changes are un-done on exit.
-def modify_env_var(env, var, abspath):
-    try:
-        save = env['ENV'][var]
-    except KeyError:
-        save = _null
-    env.PrependENVPath(var, abspath)
-    try:
-        if SCons.Util.is_List(env[var]):
-            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
+modify_env_var = SCons.Scanner.LaTeX.modify_env_var
+
+def FindFile(name,suffixes,paths,env):
+    #print "FindFile: name %s, suffixes "% name,suffixes," paths ",paths
+    if Verbose:
+        print " searching for '%s' with extensions: " % name,suffixes
+
+    for path in paths:
+        testName = os.path.join(path,name)
+        if Verbose:
+            print " look for '%s'" % testName
+        if os.path.exists(testName):
+            if Verbose:
+                print " found '%s'" % testName
+            return env.fs.File(testName)
         else:
-            # Split at os.pathsep to convert into absolute path
-            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), str(env[var]).split(os.pathsep)))
-    except KeyError:
-        pass
-    # Convert into a string explicitly to append ":" (without which it won't search system
-    # paths as well). The problem is that env.AppendENVPath(var, ":")
-    # does not work, refuses to append ":" (os.pathsep).
-    if SCons.Util.is_List(env['ENV'][var]):
-        env['ENV'][var] = os.pathsep.join(env['ENV'][var])
-    # Append the trailing os.pathsep character here to catch the case with no env[var]
-    env['ENV'][var] = env['ENV'][var] + os.pathsep
-    return save
+            name_ext = SCons.Util.splitext(testName)[1]
+            if name_ext:
+                continue
+
+            # if no suffix try adding those passed in
+            for suffix in suffixes:
+                testNameExt = testName + suffix
+                if Verbose:
+                    print " look for '%s'" % testNameExt
+
+                if os.path.exists(testNameExt):
+                    if Verbose:
+                        print " found '%s'" % testNameExt
+                    return env.fs.File(testNameExt)
+    if Verbose:
+        print " did not find '%s'" % name
+    return None
 
 def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None):
     """A builder for LaTeX files that checks the output in the aux file
@@ -171,7 +184,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     for var in SCons.Scanner.LaTeX.LaTeX.env_variables:
         saved_env[var] = modify_env_var(env, var, abspath)
 
-    # Create a base file names with the target directory since the auxiliary files
+    # Create base file names with the target directory since the auxiliary files
     # will be made there.   That's because the *COM variables have the cd
     # command in the prolog. We check
     # for the existence of files before opening them--even ones like the
@@ -386,7 +399,25 @@ def TeXLaTeXStrFunction(target = None, source= None, env=None):
         result = ''
     return result
 
-def tex_emitter(target, source, env):
+def tex_eps_emitter(target, source, env):
+    """An emitter for TeX and LaTeX sources when
+    executing tex or latex. It will accept .ps and .eps
+    graphics files
+    """
+    (target, source) = tex_emitter_core(target, source, env, TexGraphics)
+
+    return (target, source)
+
+def tex_pdf_emitter(target, source, env):
+    """An emitter for TeX and LaTeX sources when
+    executing pdftex or pdflatex. It will accept graphics
+    files of types .pdf, .jpg, .png, .gif, and .tif
+    """
+    (target, source) = tex_emitter_core(target, source, env, LatexGraphics)
+
+    return (target, source)
+
+def tex_emitter_core(target, source, env, graphics_extensions):
     """An emitter for TeX and LaTeX sources.
     For LaTeX sources we try and find the common created files that
     are needed on subsequent runs of latex to finish tables of contents,
@@ -395,8 +426,9 @@ def tex_emitter(target, source, env):
     targetbase = SCons.Util.splitext(str(target[0]))[0]
     basename = SCons.Util.splitext(str(source[0]))[0]
     basefile = os.path.split(str(basename))[1]
-    
+
     basedir = os.path.split(str(source[0]))[0]
+    targetdir = os.path.split(str(target[0]))[0]
     abspath = os.path.abspath(basedir)
     target[0].attributes.path = abspath
 
@@ -413,26 +445,98 @@ def tex_emitter(target, source, env):
     env.Clean(target[0],logfilename)
 
     content = source[0].get_contents()
+
     idx_exists = os.path.exists(targetbase + '.idx')
     nlo_exists = os.path.exists(targetbase + '.nlo')
     glo_exists = os.path.exists(targetbase + '.glo')
 
-    file_tests = [(auxfile_re.search(content),['.aux']),
-                  (makeindex_re.search(content) or idx_exists,['.idx', '.ind', '.ilg']),
-                  (bibliography_re.search(content),['.bbl', '.blg']),
-                  (tableofcontents_re.search(content),['.toc']),
-                  (listoffigures_re.search(content),['.lof']),
-                  (listoftables_re.search(content),['.lot']),
-                  (hyperref_re.search(content),['.out']),
-                  (makenomenclature_re.search(content) or nlo_exists,['.nlo', '.nls', '.nlg']),
-                  (makeglossary_re.search(content) or glo_exists,['.glo', '.gls', '.glg']),
-                  (beamer_re.search(content),['.nav', '.snm', '.out', '.toc']) ]
-    # Note we add the various makeindex files if the file produced by latex exists (.idx, .glo, .nlo)
-    # This covers the case where the \makeindex, \makenomenclature, or \makeglossary
-    # is not in the main file but we want to clean the files and those made by makeindex
+    # set up list with the regular expressions
+    # we use to find features used
+    file_tests_search = [auxfile_re,
+                         makeindex_re,
+                         bibliography_re,
+                         tableofcontents_re,
+                         listoffigures_re,
+                         listoftables_re,
+                         hyperref_re,
+                         makenomenclature_re,
+                         makeglossary_re,
+                         beamer_re ]
+    # set up list with the file suffixes that need emitting
+    # when a feature is found
+    file_tests_suff = [['.aux'],
+                  ['.idx', '.ind', '.ilg'],
+                  ['.bbl', '.blg'],
+                  ['.toc'],
+                  ['.lof'],
+                  ['.lot'],
+                  ['.out'],
+                  ['.nlo', '.nls', '.nlg'],
+                  ['.glo', '.gls', '.glg'],
+                  ['.nav', '.snm', '.out', '.toc'] ]
+    # build the list of lists
+    file_tests = []
+    for i in range(len(file_tests_search)):
+        file_tests.append( [file_tests_search[i].search(content), file_tests_suff[i]] )
 
     # TO-DO: need to add a way for the user to extend this list for whatever
     # auxiliary files they create in other (or their own) packages
+
+    inc_files = [str(source[0]), ]
+    inc_files.extend( include_re.findall(content) )
+    if Verbose:
+        print "files included by '%s': "%source[0],inc_files
+    # inc_files is list of file names as given. need to find them
+    # using TEXINPUTS paths.
+
+    # get path list from both env['TEXINPUTS'] and env['ENV']['TEXINPUTS']
+    savedpath = modify_env_var(env, 'TEXINPUTS', abspath)
+    paths = env['ENV']['TEXINPUTS']
+    if SCons.Util.is_List(paths):
+        pass
+    else:
+        # Split at os.pathsep to convert into absolute path
+        paths = paths.split(os.pathsep)
+
+    # now that we have the path list restore the env
+    if savedpath is _null:
+        try:
+            del env['ENV']['TEXINPUTS']
+        except KeyError:
+            pass # was never set
+    else:
+        env['ENV']['TEXINPUTS'] = savedpath
+    if Verbose:
+        print "search path ",paths
+
+    # search all files read (including the original source file)
+    # for files that are \input or \include
+    for src in inc_files:
+        # we already did this for the base file
+        if src != inc_files[0]:
+            content = ""
+            srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env)
+            if srcNode:
+                content = srcNode.get_contents()
+            for i in range(len(file_tests_search)):
+                if file_tests[i][0] == None:
+                    file_tests[i][0] = file_tests_search[i].search(content)
+
+        # For each file see if any graphics files are included
+        # and set up target to create ,pdf graphic
+        # is this is in pdflatex toolchain
+        src_inc_files = includegraphics_re.findall(content)
+        if Verbose:
+            print "graphics files in '%s': "%basename,src_inc_files
+        for graphFile in src_inc_files:
+            graphicNode = FindFile(graphFile,graphics_extensions,paths,env)
+            # see if we can build this graphics file by epstopdf
+            graphicSrc = FindFile(graphFile,TexGraphics,paths,env)
+            if graphicSrc != None:
+                if Verbose and (graphicNode == None):
+                    print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
+                graphicNode = env.PDF(os.path.join(targetdir,str(graphicSrc)))
+                env.Depends(target[0],graphicNode)
 
     for (theSearch,suffix_list) in file_tests:
         if theSearch:
@@ -496,7 +600,7 @@ def generate(env):
 
     bld = env['BUILDERS']['DVI']
     bld.add_action('.tex', TeXLaTeXAction)
-    bld.add_emitter('.tex', tex_emitter)
+    bld.add_emitter('.tex', tex_eps_emitter)
 
     env['TEX']      = 'tex'
     env['TEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
