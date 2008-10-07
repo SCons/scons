@@ -39,7 +39,7 @@ import SCons.Tool.pdf
 import SCons.Tool.tex
 import SCons.Util
 
-_null = SCons.Tool.tex._Null
+_null = SCons.Scanner.LaTeX._null
 
 def DviPdfPsFunction(XXXDviAction, target = None, source= None, env=None):
     """A builder for DVI files that sets the TEXPICTS environment
@@ -50,18 +50,17 @@ def DviPdfPsFunction(XXXDviAction, target = None, source= None, env=None):
     except AttributeError :
         abspath =  ''
 
-    saved_env = {}
-    saved_env['TEXPICTS'] = SCons.Tool.tex.modify_env_var(env, 'TEXPICTS', abspath)
+    saved_env = SCons.Scanner.LaTeX.modify_env_var(env, 'TEXPICTS', abspath)
 
     result = XXXDviAction(target, source, env)
 
-    if saved_env['TEXPICTS'] is _null:
+    if saved_env is _null:
         try:
             del env['ENV']['TEXPICTS']
         except KeyError:
             pass # was never set
     else:
-        env['ENV']['TEXPICTS'] = saved_env['TEXPICTS']
+        env['ENV']['TEXPICTS'] = saved_env
 
     return result
 

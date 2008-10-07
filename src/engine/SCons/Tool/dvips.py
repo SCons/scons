@@ -71,7 +71,8 @@ def generate(env):
                                           prefix = '$PSPREFIX',
                                           suffix = '$PSSUFFIX',
                                           src_suffix = '.dvi',
-                                          src_builder = 'DVI')
+                                          src_builder = 'DVI',
+                                          single_source=True)
 
     env['BUILDERS']['PostScript'] = PSBuilder
     

@@ -34,6 +34,67 @@ import string
 import re
 
 import SCons.Scanner
+import SCons.Util
+
+# list of graphics file extensions for TeX and LaTeX
+TexGraphics   = ['.eps', '.ps']
+LatexGraphics = ['.pdf', '.png', '.jpg', '.gif', '.tif']
+
+# Used as a return value of modify_env_var if the variable is not set.
+class _Null:
+    pass
+_null = _Null
+
+# The user specifies the paths in env[variable], similar to other builders.
+# They may be relative and must be converted to absolute, as expected
+# by LaTeX and Co. The environment may already have some paths in
+# env['ENV'][var]. These paths are honored, but the env[var] paths have
+# higher precedence. All changes are un-done on exit.
+def modify_env_var(env, var, abspath):
+    try:
+        save = env['ENV'][var]
+    except KeyError:
+        save = _null
+    env.PrependENVPath(var, abspath)
+    try:
+        if SCons.Util.is_List(env[var]):
+            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
+        else:
+            # Split at os.pathsep to convert into absolute path
+            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), str(env[var]).split(os.pathsep)))
+    except KeyError:
+        pass
+
+    # Convert into a string explicitly to append ":" (without which it won't search system
+    # paths as well). The problem is that env.AppendENVPath(var, ":")
+    # does not work, refuses to append ":" (os.pathsep).
+
+    if SCons.Util.is_List(env['ENV'][var]):
+        env['ENV'][var] = os.pathsep.join(env['ENV'][var])
+    # Append the trailing os.pathsep character here to catch the case with no env[var]
+    env['ENV'][var] = env['ENV'][var] + os.pathsep
+
+    return save
+
+class FindENVPathDirs:
+    """A class to bind a specific *PATH variable name to a function that
+    will return all of the *path directories."""
+    def __init__(self, variable):
+        self.variable = variable
+    def __call__(self, env, dir=None, target=None, source=None, argument=None):
+        import SCons.PathList
+        try:
+            path = env['ENV'][self.variable]
+        except KeyError:
+            return ()
+
+        dir = dir or env.fs._cwd
+        path = SCons.PathList.PathList(path).subst_path(env, target, source)
+        return tuple(dir.Rfindalldirs(path))
+
+
 
 def LaTeXScanner():
     """Return a prototype Scanner instance for scanning LaTeX source files
@@ -42,7 +103,7 @@ def LaTeXScanner():
     ds = LaTeX(name = "LaTeXScanner",
                suffixes =  '$LATEXSUFFIXES',
                # in the search order, see below in LaTeX class docstring
-               graphics_extensions = ['.eps', '.ps'],
+               graphics_extensions = TexGraphics,
                recursive = 0)
     return ds
 
@@ -53,7 +114,7 @@ def PDFLaTeXScanner():
     ds = LaTeX(name = "PDFLaTeXScanner",
                suffixes =  '$LATEXSUFFIXES',
                # in the search order, see below in LaTeX class docstring
-               graphics_extensions = ['.pdf', '.png', '.jpg', '.gif', '.tif'],
+               graphics_extensions = LatexGraphics,
                recursive = 0)
     return ds
 
@@ -132,14 +193,17 @@ class LaTeX(SCons.Scanner.Base):
             def __init__(self, dictionary):
                 self.dictionary = {}
                 for k,n in dictionary.items():
-                    self.dictionary[k] = SCons.Scanner.FindPathDirs(n)
+                    self.dictionary[k] = ( SCons.Scanner.FindPathDirs(n),
+                                           FindENVPathDirs(n) )
 
             def __call__(self, env, dir=None, target=None, source=None,
                                     argument=None):
                 di = {}
-                for k,c  in self.dictionary.items():
-                    di[k] = c(env, dir=None, target=None, source=None,
-                                   argument=None)
+                for k,(c,cENV)  in self.dictionary.items():
+                    di[k] = ( c(env, dir=None, target=None, source=None,
+                                   argument=None) ,
+                              cENV(env, dir=None, target=None, source=None,
+                                   argument=None) )
                 # To prevent "dict is not hashable error"
                 return tuple(di.items())
 
@@ -197,7 +261,12 @@ class LaTeX(SCons.Scanner.Base):
             sub_path = ()
         try_names = self._latex_names(include)
         for n in try_names:
-            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path)
+            # see if we find it using the path in env[var]
+            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path[0])
+            if i:
+                return i, include
+            # see if we find it using the path in env['ENV'][var]
+            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path[1])
             if i:
                 return i, include
         return i, include

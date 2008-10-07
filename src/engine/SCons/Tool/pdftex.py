@@ -79,7 +79,11 @@ def generate(env):
 
     bld = env['BUILDERS']['PDF']
     bld.add_action('.tex', PDFTeXLaTeXAction)
-    bld.add_emitter('.tex', SCons.Tool.tex.tex_emitter)
+    bld.add_emitter('.tex', SCons.Tool.tex.tex_pdf_emitter)
+
+    # Add the epstopdf builder after the pdftex builder 
+    # so pdftex is the default for no source suffix
+    pdf.generate2(env)
 
     env['PDFTEX']      = 'pdftex'
     env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')

@@ -63,8 +63,10 @@ def generate(env):
     bld = env['BUILDERS']['PDF']
     bld.add_action('.ltx', PDFLaTeXAuxAction)
     bld.add_action('.latex', PDFLaTeXAuxAction)
-    bld.add_emitter('.ltx', SCons.Tool.tex.tex_emitter)
-    bld.add_emitter('.latex', SCons.Tool.tex.tex_emitter)
+    bld.add_action('.tex', PDFLaTeXAuxAction)
+    bld.add_emitter('.ltx', SCons.Tool.tex.tex_pdf_emitter)
+    bld.add_emitter('.latex', SCons.Tool.tex.tex_pdf_emitter)
+    bld.add_emitter('.tex', SCons.Tool.tex.tex_pdf_emitter)
 
     env['PDFLATEX']      = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
