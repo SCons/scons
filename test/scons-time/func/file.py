@@ -74,8 +74,8 @@ vertical_bars = (
 expect2 = \
 r"""set title "ST2.CONF TITLE"
 set key bottom left
-set label 3 "label 1.5" at 0.5,1.5 right
-set label 4 "label 1.6" at 0.6,1.5 right
+set label 3 "label 1.5" at 0.5,0.5 right
+set label 4 "label 1.6" at 0.6,0.4 right
 plot '-' title "Startup" with lines lt 1, \
      '-' notitle with lines lt 7, \
      '-' title "label 1.5" with lines lt 7, \
