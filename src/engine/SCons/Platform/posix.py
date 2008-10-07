@@ -35,8 +35,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import errno
 import os
 import os.path
-import popen2
 import string
+import subprocess
 import sys
 import select
 
@@ -131,8 +131,10 @@ def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
                 raise
 
 def exec_popen3(l, env, stdout, stderr):
-    proc = popen2.Popen3(string.join(l), 1)
-    process_cmd_output(proc.fromchild, proc.childerr, stdout, stderr)
+    proc = subprocess.Popen(string.join(l),
+                            stdout=stdout,
+                            stderr=stderr,
+                            shell=True)
     stat = proc.wait()
     if stat & 0xff:
         return stat | 0x80
