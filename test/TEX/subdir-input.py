@@ -49,7 +49,8 @@ if not pdflatex:
 test.subdir('sub')
 
 test.write('SConstruct', """\
-env = Environment(TOOLS = ['tex', 'pdftex'])
+import os
+env = Environment(TOOLS = ['tex', 'pdftex'], ENV = {'PATH' : os.environ['PATH']})
 env.PDF( 'sub/x.tex' )
 env.DVI( 'sub/x.tex' )
 """)

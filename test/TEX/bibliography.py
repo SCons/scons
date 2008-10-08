@@ -44,7 +44,8 @@ if not dvips or not bibtex:
     test.skip_test("Could not find dvips or bibtex; skipping test(s).\n")
 
 test.write('SConstruct', """\
-env = Environment(tools = ['tex', 'latex', 'dvips'])
+import os
+env = Environment(tools = ['tex', 'latex', 'dvips'],ENV = {'PATH' : os.environ['PATH']})
 env.PostScript('simple', 'simple.tex')
 """)
 
