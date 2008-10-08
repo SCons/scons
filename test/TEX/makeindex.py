@@ -44,8 +44,11 @@ if not pdflatex or not makeindex:
     test.skip_test("Could not find pdflatex or makeindex; skipping test(s).\n")
 
 test.write('SConstruct', """\
-PDF( "no_index.tex" )
-PDF( "simple.tex" )
+import os
+env = Environment(tools = ['pdftex', 'dvipdf', 'tex', 'latex'],
+                  ENV = {'PATH' : os.environ['PATH']})
+env.PDF( "no_index.tex" )
+env.PDF( "simple.tex" )
 """)
 
 test.write('no_index.tex', r"""

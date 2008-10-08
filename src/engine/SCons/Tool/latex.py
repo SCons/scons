@@ -64,10 +64,8 @@ def generate(env):
     bld = env['BUILDERS']['DVI']
     bld.add_action('.ltx', LaTeXAuxAction)
     bld.add_action('.latex', LaTeXAuxAction)
-    bld.add_action('.tex', LaTeXAuxAction)
     bld.add_emitter('.ltx', SCons.Tool.tex.tex_eps_emitter)
     bld.add_emitter('.latex', SCons.Tool.tex.tex_eps_emitter)
-    bld.add_emitter('.tex', SCons.Tool.tex.tex_eps_emitter)
 
     env['LATEX']        = 'latex'
     env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode')
