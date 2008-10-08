@@ -25,9 +25,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
 import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -109,13 +108,13 @@ test.write('test4.latex', r"""This is a .latex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.ps') != "This is a .dvi test.\n")
+test.must_match('test1.ps', "This is a .dvi test.\n")
 
-test.fail_test(test.read('test2.ps') != "This is a .tex test.\n")
+test.must_match('test2.ps', "This is a .tex test.\n")
 
-test.fail_test(test.read('test3.ps') != "This is a .ltx test.\n")
+test.must_match('test3.ps', "This is a .ltx test.\n")
 
-test.fail_test(test.read('test4.ps') != "This is a .latex test.\n")
+test.must_match('test4.ps', "This is a .latex test.\n")
 
 
 
@@ -162,9 +161,9 @@ This is the %s LaTeX file.
 
     test.run(arguments = 'foo.dvi', stderr = None)
 
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+    test.must_not_exist(test.workpath('wrapper.out'))
 
-    test.fail_test(not os.path.exists(test.workpath('foo.dvi')))
+    test.must_exist(test.workpath('foo.dvi'))
 
     test.run(arguments = 'bar1.ps bar2.ps bar3.ps', stderr = None)
 
@@ -173,10 +172,10 @@ dvips -o bar2.ps bar2.dvi
 dvips -o bar3.ps bar3.dvi
 """
 
-    test.fail_test(test.read('wrapper.out') != expect)
+    test.must_match('wrapper.out', expect)
 
-    test.fail_test(not os.path.exists(test.workpath('bar1.ps')))
-    test.fail_test(not os.path.exists(test.workpath('bar2.ps')))
-    test.fail_test(not os.path.exists(test.workpath('bar3.ps')))
+    test.must_exist(test.workpath('bar1.ps'))
+    test.must_exist(test.workpath('bar2.ps'))
+    test.must_exist(test.workpath('bar3.ps'))
 
 test.pass_test()
