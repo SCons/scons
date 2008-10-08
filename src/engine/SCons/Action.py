@@ -580,29 +580,29 @@ def get_default_ENV(env):
 # one special arg (so far?), 'error', to tell what to do with exceptions.
 def _subproc(env, cmd, error = 'ignore', **kw):
     """Do setup for a subprocess.Popen() call"""
+    ### TODO: allow std{in,out,err} to be "'devnull'" (see issue 2228)
 
-    # If the env has no shell environment, get a default
-    ENV = get_default_ENV(env)
+    # Figure out what shell environment to use
+    ENV = kw.get('env', None)
+    if ENV is None: ENV = get_default_ENV(env)
 
     # Ensure that the ENV values are all strings:
     new_env = {}
     for key, value in ENV.items():
-        if is_String(value):
-            # Call str() even though it's a "string" because it might be
-            # a *Unicode* string, which makes subprocess.Popen() gag.
-            new_env[key] = str(value)
-        elif is_List(value):
-            # If the value is a list, then we assume it is a
-            # path list, because that's a pretty common list-like
-            # value to stick in an environment variable:
+        if is_List(value):
+            # If the value is a list, then we assume it is a path list,
+            # because that's a pretty common list-like value to stick
+            # in an environment variable:
             value = SCons.Util.flatten_sequence(value)
-            ENV[key] = string.join(map(str, value), os.pathsep)
+            new_env[key] = string.join(map(str, value), os.pathsep)
         else:
-            # If it isn't a string or a list, then we just coerce
-            # it to a string, which is the proper way to handle
-            # Dir and File instances and will produce something
-            # reasonable for just about everything else:
-            ENV[key] = str(value)
+            # It's either a string or something else.  If it's a string,
+            # we still want to call str() because it might be a *Unicode*
+            # string, which makes subprocess.Popen() gag.  If it isn't a
+            # string or a list, then we just coerce it to a string, which
+            # is the proper way to handle Dir and File instances and will
+            # produce something reasonable for just about everything else:
+            new_env[key] = str(value)
     kw['env'] = new_env
 
     try:
