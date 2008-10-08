@@ -496,7 +496,9 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         pass
     else:
         # Split at os.pathsep to convert into absolute path
-        paths = paths.split(os.pathsep)
+        # TODO(1.5)
+        #paths = paths.split(os.pathsep)
+        paths = string.split(paths, os.pathsep)
 
     # now that we have the path list restore the env
     if savedpath is _null:
