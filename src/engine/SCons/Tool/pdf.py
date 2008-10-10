@@ -59,7 +59,7 @@ def generate(env):
 # the pdftex builder so that one is the default for no source suffix
 def generate2(env):
     bld = env['BUILDERS']['PDF']
-    bld.add_action('.ps',  EpsPdfAction)
+    #bld.add_action('.ps',  EpsPdfAction) # this is covered by direct Ghostcript action in gs.py
     bld.add_action('.eps', EpsPdfAction)
 
     env['EPSTOPDF']      = 'epstopdf'
