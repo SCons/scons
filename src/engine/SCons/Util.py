@@ -1022,6 +1022,10 @@ class CLVar(UserList):
     """
     def __init__(self, seq = []):
         UserList.__init__(self, Split(seq))
+    def __add__(self, other):
+        return UserList.__add__(self, CLVar(other))
+    def __radd__(self, other):
+        return UserList.__radd__(self, CLVar(other))
     def __coerce__(self, other):
         return (self, CLVar(other))
     def __str__(self):
