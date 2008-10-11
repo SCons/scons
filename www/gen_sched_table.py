@@ -23,7 +23,7 @@ current = 'UNKNOWN'
 for line in f:
 	if line[0] == '#': continue	# comment
 	if line[0] == '=':
-		date,current = line[1:].strip().split()
+		date,current = line[1:].strip().split(None, 1)
 		now = datetime.date(*tuple([int(i) for i in date.split('-')]))
 		continue
 	if line[0] == '+':
