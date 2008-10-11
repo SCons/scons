@@ -232,7 +232,7 @@ SCons.Tool.%(tool)s.generate(env)
 
 failures = []
 for tool in tools:
-    if tool[0] in '0123456789' or '+' in tool:
+    if tool[0] in '0123456789' or '+' in tool or tool in ('as'):
         test.write('SConstruct', indirect_import % locals())
     else:
         test.write('SConstruct', direct_import % locals())
