@@ -134,6 +134,10 @@ class CLVar(UserList.UserList):
         if type(seq) == type(''):
             seq = string.split(seq)
         UserList.UserList.__init__(self, seq)
+    def __add__(self, other):
+        return UserList.UserList.__add__(self, CLVar(other))
+    def __radd__(self, other):
+        return UserList.UserList.__radd__(self, CLVar(other))
     def __coerce__(self, other):
         return (self, CLVar(other))
 
