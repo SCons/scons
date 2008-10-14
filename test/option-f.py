@@ -43,6 +43,11 @@ import os
 print "subdir/BuildThis", os.getcwd()
 """)
 
+test.write('Build2', """
+import os
+print "Build2", os.getcwd()
+""")
+
 wpath = test.workpath()
 
 test.run(arguments = '-f SConscript .',
@@ -83,6 +88,10 @@ print "STDIN " + os.getcwd()
 """,
          stdout = test.wrap_stdout(read_str = 'STDIN %s\n' % wpath,
                                    build_str = "scons: `.' is up to date.\n"))
+
+expect = test.wrap_stdout(read_str = 'Build2 %s\nSConscript %s\n' % (wpath, wpath),
+                          build_str = "scons: `.' is up to date.\n")
+test.run(arguments = '-f Build2 -f SConscript .', stdout=expect)
 
 test.run(arguments = '-f no_such_file .',
          stdout = test.wrap_stdout("scons: `.' is up to date.\n"),
