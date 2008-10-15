@@ -18,6 +18,9 @@ RELEASE 1.X - XXX
     - Fix env.Append() and env.Prepend()'s ability to add a string to
       list-like variables like $CCFLAGS under Python 2.6.
 
+    - Support using the -f option to search for a different top-level
+      file name when walking up with the -D, -U or -u options.
+
 
 
 RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
