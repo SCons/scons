@@ -279,7 +279,20 @@ def _SConscript(fs, *files, **kw):
                 fs.chdir(frame.prev_dir, change_os_dir=0)
                 rdir = frame.prev_dir.rdir()
                 rdir._create()  # Make sure there's a directory there.
-                os.chdir(rdir.get_abspath())
+                try:
+                    os.chdir(rdir.get_abspath())
+                except OSError, e:
+                    # We still couldn't chdir there, so raise the error,
+                    # but only if actions are being executed.
+                    #
+                    # If the -n option was used, the directory would *not*
+                    # have been created and we should just carry on and
+                    # let things muddle through.  This isn't guaranteed
+                    # to work if the SConscript files are reading things
+                    # from disk (for example), but it should work well
+                    # enough for most configurations.
+                    if SCons.Action.execute_actions:
+                        raise e
 
             results.append(frame.retval)
 
