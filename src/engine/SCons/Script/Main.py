@@ -600,12 +600,14 @@ def _scons_internal_error():
     traceback.print_exc()
     sys.exit(2)
 
-def _SConstruct_exists(dirname='', repositories=[]):
+def _SConstruct_exists(dirname='', repositories=[], filelist=None):
     """This function checks that an SConstruct file exists in a directory.
     If so, it returns the path of the file. By default, it checks the
     current directory.
     """
-    for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
+    if not filelist:
+        filelist = ['SConstruct', 'Sconstruct', 'sconstruct']
+    for file in filelist:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):
             return sfile
@@ -779,13 +781,15 @@ def _main(parser):
     if options.climb_up:
         target_top = '.'  # directory to prepend to targets
         script_dir = os.getcwd()  # location of script
-        while script_dir and not _SConstruct_exists(script_dir, options.repository):
+        while script_dir and not _SConstruct_exists(script_dir,
+                                                    options.repository,
+                                                    options.file):
             script_dir, last_part = os.path.split(script_dir)
             if last_part:
                 target_top = os.path.join(last_part, target_top)
             else:
                 script_dir = ''
-        if script_dir:
+        if script_dir and script_dir != os.getcwd():
             display("scons: Entering directory `%s'" % script_dir)
             os.chdir(script_dir)
 
@@ -804,7 +808,8 @@ def _main(parser):
     if options.file:
         scripts.extend(options.file)
     if not scripts:
-        sfile = _SConstruct_exists(repositories=options.repository)
+        sfile = _SConstruct_exists(repositories=options.repository,
+                                   filelist=options.file)
         if sfile:
             scripts.append(sfile)
 
