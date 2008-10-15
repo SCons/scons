@@ -8,7 +8,7 @@
 
 
 
-RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
+RELEASE 1.X - XXX
 
   From Steven Knight:
 
@@ -20,7 +20,7 @@ RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
 
 
 
-RELEASE 1.X - XXX
+RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
 
   From Chris AtLee
 
