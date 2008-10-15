@@ -21,6 +21,9 @@ RELEASE 1.X - XXX
     - Support using the -f option to search for a different top-level
       file name when walking up with the -D, -U or -u options.
 
+    - Fix use of VariantDir when the -n option is used and doesn't,
+      therefore, actually create the variant directory.
+
 
 
 RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
