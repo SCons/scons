@@ -29,8 +29,7 @@ Test that the -u option only builds targets at or below
 the current directory.
 """
 
-import os.path
-import sys
+import os
 
 import TestSCons
 
@@ -140,40 +139,5 @@ test.must_not_exist(test.workpath('sub4', 'dir', 'f4b.out'))
 test.must_match(['build', 'f4a.out'], "sub4/f4a.in")
 test.must_match(['build', 'dir', 'f4b.out'], "sub4/dir/f4b.in")
 
-# Make sure explicit targets beginning with ../ get built.
-test.subdir('sub6', ['sub6', 'dir'])
-
-test.write(['sub6', 'SConstruct'], """\
-def cat(env, source, target):
-    target = str(target[0])
-    source = map(str, source)
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(src, "rb").read())
-    f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
-env.Cat('f1.out', 'f1.in')
-env.Cat('f2.out', 'f2.in')
-SConscript('dir/SConscript', "env")
-""")
-
-test.write(['sub6', 'f1.in'], "f1.in\n")
-test.write(['sub6', 'f2.in'], "f2.in\n")
-
-test.write(['sub6', 'dir', 'SConscript'], """\
-Import("env")
-env.Cat('f3.out', 'f3.in')
-env.Cat('f4.out', 'f4.in')
-""")
-
-test.write(['sub6', 'dir', 'f3.in'], "f3.in\n")
-test.write(['sub6', 'dir', 'f4.in'], "f4.in\n")
-
-test.run(chdir = 'sub6/dir', arguments = '-u ../f2.out')
-
-test.must_not_exist(test.workpath('sub6', 'f1.out'))
-test.must_exist(test.workpath('sub6', 'f2.out'))
-test.must_not_exist(test.workpath('sub6', 'dir', 'f3.out'))
-test.must_not_exist(test.workpath('sub6', 'dir', 'f4.out'))
 
 test.pass_test()

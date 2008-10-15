@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import os.path
 import sys
 
 import TestSCons
@@ -138,64 +136,5 @@ test.must_exist(test.workpath('sub2b', 'bar.out'))
 test.must_not_exist(test.workpath('sub3', 'baz.out'))
 test.must_not_exist(test.workpath('bar.out'))
 test.must_not_exist(test.workpath('sub2/xxx.out'))
-
-# Make sure that a Default() directory doesn't cause an exception.
-test.subdir('sub4')
-
-test.write(['sub4', 'SConstruct'], """
-Default('.')
-""")
-
-test.run(chdir = 'sub4', arguments = '-U')
-
-# Make sure no Default() targets doesn't cause an exception.
-test.subdir('sub5')
-
-test.write(['sub5', 'SConstruct'], "\n")
-
-test.run(chdir = 'sub5',
-         arguments = '-U',
-         stderr = "scons: *** No targets specified and no Default() targets found.  Stop.\n",
-         status = 2)
-
-#
-test.write('SConstruct', """
-Default('not_a_target.in')
-""")
-
-test.run(arguments = '-U', status=2, stderr="""\
-scons: *** Do not know how to make target `not_a_target.in'.  Stop.
-""")
-
-# Make sure explicit targets beginning with ../ get built.
-test.subdir('sub6', ['sub6', 'dir'])
-
-test.write(['sub6', 'SConstruct'], """\
-def cat(env, source, target):
-    target = str(target[0])
-    source = map(str, source)
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(src, "rb").read())
-    f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
-env.Cat('foo.out', 'foo.in')
-SConscript('dir/SConscript', "env")
-""")
-
-test.write(['sub6', 'foo.in'], "foo.in\n")
-
-test.write(['sub6', 'dir', 'SConscript'], """\
-Import("env")
-bar = env.Cat('bar.out', 'bar.in')
-Default(bar)
-""")
-
-test.write(['sub6', 'dir', 'bar.in'], "bar.in\n")
-
-test.run(chdir = 'sub6/dir', arguments = '-U ../foo.out')
-
-test.must_exist(test.workpath('sub6', 'foo.out'))
-test.must_not_exist(test.workpath('sub6', 'dir', 'bar.out'))
 
 test.pass_test()
