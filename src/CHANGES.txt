@@ -24,6 +24,9 @@ RELEASE 1.X - XXX
     - Fix use of VariantDir when the -n option is used and doesn't,
       therefore, actually create the variant directory.
 
+    - Fix a stack trace from the --debug=includes option when passed a
+      static or shared library as an argument.
+
 
 
 RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700

@@ -38,8 +38,16 @@ import time
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
-env.Program('foo', Split('foo.c bar.c'))
+env = Environment(OBJSUFFIX = '.obj',
+                  SHOBJSUFFIX = '.shobj',
+                  LIBPREFIX = '',
+                  LIBSUFFIX = '.lib',
+                  SHLIBPREFIX = '',
+                  SHLIBSUFFIX = '.shlib',
+                  )
+env.Program('foo.exe', ['foo.c', 'bar.c'])
+env.StaticLibrary('foo', ['foo.c', 'bar.c'])
+env.SharedLibrary('foo', ['foo.c', 'bar.c'])
 """)
 
 test.write('foo.c', r"""
@@ -78,7 +86,7 @@ includes = """
   +-foo.h
     +-bar.h
 """
-test.run(arguments = "--debug=includes foo.ooo")
+test.run(arguments = "--debug=includes foo.obj")
 
 if string.find(test.stdout(), includes) == -1:
     print "Did not find expected string in standard output."
@@ -87,6 +95,8 @@ if string.find(test.stdout(), includes) == -1:
     print "Actual ============================================================"
     print test.stdout()
     test.fail_test()
+
+
 
 # In an ideal world, --debug=includes would also work when there's a build
 # failure, but this would require even more complicated logic to scan
@@ -102,14 +112,20 @@ if string.find(test.stdout(), includes) == -1:
 #THIS SHOULD CAUSE A BUILD FAILURE
 #""")
 
-#test.run(arguments = "--debug=includes foo.xxx",
+#test.run(arguments = "--debug=includes foo.exe",
 #         status = 2,
 #         stderr = None)
 #test.fail_test(string.find(test.stdout(), includes) == -1)
+
+
 
 # These shouldn't print out anything in particular, but
 # they shouldn't crash either:
 test.run(arguments = "--debug=includes .")
 test.run(arguments = "--debug=includes foo.c")
+test.run(arguments = "--debug=includes foo.lib")
+test.run(arguments = "--debug=includes foo.shlib")
+
+
 
 test.pass_test()
