@@ -75,6 +75,9 @@ def generate(env):
             for var in ['%sCOM' % dialect, '%sPPCOM' % dialect,
                         'SH%sCOM' % dialect, 'SH%sPPCOM' % dialect]:
                 env[var] = string.replace(env[var], '-o $TARGET', '-object:$TARGET')
+        env['FORTRANMODDIRPREFIX'] = "/module:"
+    else:
+        env['FORTRANMODDIRPREFIX'] = "-module "
 
 def exists(env):
     return env.Detect('ifort')
