@@ -1,7 +1,7 @@
 """SCons.Tool.ifort
 
 Tool-specific initialization for newer versions of the Intel Fortran Compiler
-for Linux.
+for Linux/Windows (and possibly Mac OS X).
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
