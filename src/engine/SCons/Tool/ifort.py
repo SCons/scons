@@ -1,7 +1,7 @@
 """SCons.Tool.ifort
 
 Tool-specific initialization for newer versions of the Intel Fortran Compiler
-for Linux. 
+for Linux.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -47,7 +47,7 @@ def generate(env):
     fscan = FortranScan("FORTRANPATH")
     SCons.Tool.SourceFileScanner.add_scanner('.i', fscan)
     SCons.Tool.SourceFileScanner.add_scanner('.i90', fscan)
-     
+
     if not env.has_key('FORTRANFILESUFFIXES'):
         env['FORTRANFILESUFFIXES'] = ['.i']
     else:
