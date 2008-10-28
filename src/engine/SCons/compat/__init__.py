@@ -155,6 +155,19 @@ except ImportError:
     # Pre-2.3 Python has no optparse module.
     import_as('_scons_optparse', 'optparse')
 
+import os
+try:
+    os.devnull
+except AttributeError:
+    # Pre-2.4 Python has no os.devnull attribute
+    import sys
+    _names = sys.builtin_module_names
+    if 'posix' in _names:
+        os.devnull = '/dev/null'
+    elif 'nt' in _names:
+        os.devnull = 'nul'
+    os.path.devnull = os.devnull
+
 import shlex
 try:
     shlex.split
