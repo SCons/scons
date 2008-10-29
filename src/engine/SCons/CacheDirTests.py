@@ -241,7 +241,8 @@ class FileTestCase(BaseTestCase):
             warn_caught = 0
             try:
                 f7.built()
-            except SCons.Warnings.CacheWriteErrorWarning:
+            except SCons.Errors.BuildError, e:
+                assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
                 warn_caught = 1
             assert warn_caught
         finally:

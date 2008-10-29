@@ -109,7 +109,7 @@ test.write('zzz', "zzz 1\n")
 test.run(arguments = '.',
          status = 2,
          stderr = """\
-scons: *** kfile_scan error:  yyy 1
+scons: *** [foo] Exception : kfile_scan error:  yyy 1
 """)
 
 test.pass_test()

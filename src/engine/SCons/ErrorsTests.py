@@ -32,10 +32,49 @@ class ErrorsTestCase(unittest.TestCase):
     def test_BuildError(self):
         """Test the BuildError exception."""
         try:
-            raise SCons.Errors.BuildError(node = "n", errstr = "foo")
+            raise SCons.Errors.BuildError(
+                errstr = "foo", status=57, filename="file", exc_info=(1,2,3),
+                node = "n", executor="e", action="a", command="c")
         except SCons.Errors.BuildError, e:
-            assert e.node == "n"
             assert e.errstr == "foo"
+            assert e.status == 57
+            assert e.exitstatus == 2, e.exitstatus
+            assert e.filename == "file"
+            assert e.exc_info == (1,2,3)
+
+            assert e.node == "n"
+            assert e.executor == "e"
+            assert e.action == "a"
+            assert e.command == "c"
+
+        try:
+            raise SCons.Errors.BuildError("n", "foo", 57, 3, "file", 
+                                          "e", "a", "c", (1,2,3))
+        except SCons.Errors.BuildError, e:
+            assert e.errstr == "foo", e.errstr
+            assert e.status == 57, e.status
+            assert e.exitstatus == 3, e.exitstatus
+            assert e.filename == "file", e.filename
+            assert e.exc_info == (1,2,3), e.exc_info
+
+            assert e.node == "n"
+            assert e.executor == "e"
+            assert e.action == "a"
+            assert e.command == "c"
+
+        try:
+            raise SCons.Errors.BuildError()
+        except SCons.Errors.BuildError, e:
+            assert e.errstr == "Unknown error"
+            assert e.status == 2
+            assert e.exitstatus == 2
+            assert e.filename == None
+            assert e.exc_info == (None, None, None)
+
+            assert e.node == None
+            assert e.executor == None
+            assert e.action == None
+            assert e.command == None
 
     def test_InternalError(self):
         """Test the InternalError exception."""
@@ -57,14 +96,6 @@ class ErrorsTestCase(unittest.TestCase):
             raise SCons.Errors.ExplicitExit, "node"
         except SCons.Errors.ExplicitExit, e:
             assert e.node == "node"
-
-    def test_TaskmasterException(self):
-        """Test the TaskmasterException exception."""
-        try:
-            raise SCons.Errors.TaskmasterException("tm exception", (1, 2, 3))
-        except SCons.Errors.TaskmasterException, e:
-            assert e.node == "tm exception"
-            assert e.exc_info == (1, 2, 3)
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(ErrorsTestCase, 'test_')

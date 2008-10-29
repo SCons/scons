@@ -220,12 +220,13 @@ if os.name == 'posix':
             return None
         return _status(self) != status
     def _status(self):
-        if os.WIFEXITED(self.status):
-            return os.WEXITSTATUS(self.status)
-        elif os.WIFSIGNALED(self.status):
-            return os.WTERMSIG(self.status)
-        else:
-            return None
+        return self.status      # p.wait() has already retrieved the OS status from the status val; don't do it again here!
+#         if os.WIFEXITED(self.status):
+#             return os.WEXITSTATUS(self.status)
+#         elif os.WIFSIGNALED(self.status):
+#             return os.WTERMSIG(self.status)
+#         else:
+#             return None
 elif os.name == 'nt':
     def _failed(self, status = 0):
         return not (self.status is None or status is None) and \

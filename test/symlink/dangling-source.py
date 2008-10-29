@@ -45,7 +45,7 @@ Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 test.symlink('nonexistent', 'file.in')
 
 expect = """\
-scons: *** Source `file.in' not found, needed by target `file.out'.  Stop.
+scons: *** [file.out] Source `file.in' not found, needed by target `file.out'.
 """
 
 test.run(arguments = '.', status = 2, stderr = expect)

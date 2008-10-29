@@ -225,9 +225,11 @@ class Task:
             raise
         except SCons.Errors.BuildError:
             raise
-        except:
-            raise SCons.Errors.TaskmasterException(self.targets[0],
-                                                   sys.exc_info())
+        except Exception, e:
+            buildError = SCons.Errors.convert_to_BuildError(e)
+            buildError.node = self.targets[0]
+            buildError.exc_info = sys.exc_info()
+            raise buildError
 
     def executed_without_callbacks(self):
         """

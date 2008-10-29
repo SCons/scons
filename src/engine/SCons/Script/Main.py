@@ -231,54 +231,51 @@ class BuildTask(SCons.Taskmaster.Task):
         # Handle the failure of a build task.  The primary purpose here
         # is to display the various types of Errors and Exceptions
         # appropriately.
-        status = 2
         exc_info = self.exc_info()
         try:
             t, e, tb = exc_info
         except ValueError:
             t, e = exc_info
             tb = None
+
         if t is None:
             # The Taskmaster didn't record an exception for this Task;
             # see if the sys module has one.
-            t, e = sys.exc_info()[:2]
+            try:
+                t, e, tb = sys.exc_info()[:]
+            except ValueError:
+                t, e = exc_info
+                tb = None
+                
+        # Deprecated string exceptions will have their string stored
+        # in the first entry of the tuple.
+        if e is None:
+            e = t
 
-        def nodestring(n):
-            if not SCons.Util.is_List(n):
-                n = [ n ]
-            return string.join(map(str, n), ', ')
+        buildError = SCons.Errors.convert_to_BuildError(e)
+        if not buildError.node:
+            buildError.node = self.node
+
+        node = buildError.node
+        if not SCons.Util.is_List(node):
+                node = [ node ]
+        nodename = string.join(map(str, node), ', ')
 
         errfmt = "scons: *** [%s] %s\n"
+        sys.stderr.write(errfmt % (nodename, buildError))
 
-        if t == SCons.Errors.BuildError:
-            tname = nodestring(e.node)
-            errstr = e.errstr
-            if e.filename:
-                errstr = e.filename + ': ' + errstr
-            sys.stderr.write(errfmt % (tname, errstr))
-        elif t == SCons.Errors.TaskmasterException:
-            tname = nodestring(e.node)
-            sys.stderr.write(errfmt % (tname, e.errstr))
-            type, value, trace = e.exc_info
+        if (buildError.exc_info[2] and buildError.exc_info[1] and 
+            not isinstance(
+                buildError.exc_info[1], 
+                (EnvironmentError, SCons.Errors.StopError, SCons.Errors.UserError))):
+            type, value, trace = buildError.exc_info
             traceback.print_exception(type, value, trace)
-        elif t == SCons.Errors.ExplicitExit:
-            status = e.status
-            tname = nodestring(e.node)
-            errstr = 'Explicit exit, status %s' % status
-            sys.stderr.write(errfmt % (tname, errstr))
-        else:
-            if e is None:
-                e = t
-            s = str(e)
-            if t == SCons.Errors.StopError and not self.options.keep_going:
-                s = s + '  Stop.'
-            sys.stderr.write("scons: *** %s\n" % s)
+        elif tb and print_stacktrace:
+            sys.stderr.write("scons: internal stack trace:\n")
+            traceback.print_tb(tb, file=sys.stderr)
 
-            if tb and print_stacktrace:
-                sys.stderr.write("scons: internal stack trace:\n")
-                traceback.print_tb(tb, file=sys.stderr)
-
-        self.do_failed(status)
+        self.exception = (e, buildError, tb) # type, value, traceback
+        self.do_failed(buildError.exitstatus)
 
         self.exc_clear()
 
@@ -1273,6 +1270,8 @@ def main():
     except SConsPrintHelpException:
         parser.print_help()
         exit_status = 0
+    except SCons.Errors.BuildError, e:
+        exit_status = e.exitstatus
     except:
         # An exception here is likely a builtin Python exception Python
         # code in an SConscript file.  Show them precisely what the

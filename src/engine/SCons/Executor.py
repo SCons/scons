@@ -134,7 +134,11 @@ class Executor:
                 raise status
             elif status:
                 msg = "Error %s" % status
-                raise SCons.Errors.BuildError(errstr=msg, executor=self, action=act)
+                raise SCons.Errors.BuildError(
+                    errstr=msg, 
+                    node=self.targets,
+                    executor=self, 
+                    action=act)
         return status
 
     # use extra indirection because with new-style objects (Python 2.2

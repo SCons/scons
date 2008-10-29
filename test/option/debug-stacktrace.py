@@ -65,14 +65,14 @@ env.Command('foo', 'foo.k', Copy('$TARGET', '$SOURCE'))
 
 test.write('foo.k', "foo.k\n")
 
-test.run(status = 2, stderr = "scons: *** kfile_scan error\n")
+test.run(status = 2, stderr = "scons: *** [foo] Exception : kfile_scan error\n")
 
 test.run(arguments = "--debug=stacktrace",
          status = 2,
          stderr = None)
 
 lines = [
-    "scons: *** kfile_scan error",
+    "scons: *** [foo] Exception : kfile_scan error",
     "scons: internal stack trace:",
     'raise Exception, "kfile_scan error"',
 ]

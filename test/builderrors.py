@@ -181,5 +181,31 @@ test.fail_test(string.find(err, 'Exception') != -1 or \
                string.find(err, 'Traceback') != -1)
 
 
+# Test SConscript with errors and an atexit function.
+# Should not give traceback; the task error should get converted
+# to a BuildError.
+test.write('SConstruct', """
+import atexit
+
+env = Environment()
+env2 = env.Clone()
+
+env.Install("target", "dir1/myFile")
+env2.Install("target", "dir2/myFile")
+
+def print_build_failures():
+    from SCons.Script import GetBuildFailures
+    for bf in GetBuildFailures():
+	print bf.action
+
+atexit.register(print_build_failures)
+""")
+
+test.run(status=2, stderr=None)
+err = test.stderr()
+test.fail_test(string.find(err, 'Exception') != -1 or \
+               string.find(err, 'Traceback') != -1)
+
+
 # No tests failed; OK.
 test.pass_test()

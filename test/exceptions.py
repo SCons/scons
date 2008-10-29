@@ -47,7 +47,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.write('foo.in', "foo.in\n")
 
-expected_stderr = """scons: \*\*\* \[foo.out\] Exception
+expected_stderr = """scons: \*\*\* \[foo.out\] Exception : func exception
 Traceback \((most recent call|innermost) last\):
 (  File ".+", line \d+, in \S+
     [^\n]+
@@ -109,7 +109,7 @@ test.run(arguments = '.', status = 2, stderr = expected_stderr)
 
 expected_stderr_list = [
     "scons: *** [out.f1] Error 1\n",
-    "scons: *** Source `in.f2' not found, needed by target `out.f2'.\n",
+    "scons: *** [out.f2] Source `in.f2' not found, needed by target `out.f2'.\n",
     "scons: *** [out.f3] Error 1\n",
 ]
 
