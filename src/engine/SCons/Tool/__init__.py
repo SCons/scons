@@ -142,7 +142,7 @@ class Tool:
                         file.close()
                     return module
                 except ImportError, e:
-                    if e!="No module named %s"%self.name:
+                    if str(e)!="No module named %s"%self.name:
                         raise SCons.Errors.EnvironmentError, e
                     try:
                         import zipimport
