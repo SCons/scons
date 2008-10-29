@@ -2967,14 +2967,11 @@ class FileFinder:
             except KeyError:
                 pass
 
-        if verbose:
+        if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            if not callable(verbose):
-                verbose = '  %s: ' % verbose
-                verbose = lambda s, v=verbose: sys.stdout.write(v + s)
-        else:
-            verbose = lambda x: x
+            verbose = '  %s: ' % verbose
+            verbose = lambda s, v=verbose: sys.stdout.write(v + s)
 
         filedir, filename = os.path.split(filename)
         if filedir:
@@ -3013,10 +3010,12 @@ class FileFinder:
 
         result = None
         for dir in paths:
-            verbose("looking for '%s' in '%s' ...\n" % (filename, dir))
+            if verbose:
+                verbose("looking for '%s' in '%s' ...\n" % (filename, dir))
             node, d = dir.srcdir_find_file(filename)
             if node:
-                verbose("... FOUND '%s' in '%s'\n" % (filename, d))
+                if verbose:
+                    verbose("... FOUND '%s' in '%s'\n" % (filename, d))
                 result = node
                 break
 
