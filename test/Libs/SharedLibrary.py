@@ -213,13 +213,13 @@ if sys.platform == 'win32' or string.find(sys.platform, 'irix') != -1:
     test.run(arguments = '-f SConstructFoo')
 else:
     test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
-scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
+scons: \*\*\* \[.*\] Source file: foo\..* is static and is not compatible with shared target: .*
 ''',
     match=TestSCons.match_re_dotall)
     # Run it again to make sure that we still get the error
     # even though the static objects already exist.
     test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
-scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
+scons: \*\*\* \[.*\] Source file: foo\..* is static and is not compatible with shared target: .*
 ''',
     match=TestSCons.match_re_dotall)
 

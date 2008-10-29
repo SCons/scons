@@ -876,9 +876,9 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         try:
             t.execute()
-        except SCons.Errors.TaskmasterException, e:
+        except SCons.Errors.BuildError, e:
             assert e.node == n4, e.node
-            assert e.errstr == "Exception", e.errstr
+            assert e.errstr == "OtherError : ", e.errstr
             assert len(e.exc_info) == 3, e.exc_info
             exc_traceback = sys.exc_info()[2]
             assert type(e.exc_info[2]) == type(exc_traceback), e.exc_info[2]

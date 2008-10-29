@@ -122,7 +122,7 @@ expect = """\
 
 scons: warning: Ignoring missing SConscript '%(sub_SConscript)s'
 %(SConstruct_file_line)s
-scons: *** Source `aaa.in' not found, needed by target `aaa.out'.  Stop.
+scons: *** [aaa.out] Source `aaa.in' not found, needed by target `aaa.out'.
 """ % locals()
 
 test.run(status=2, stderr=expect)

@@ -51,9 +51,10 @@ test.write('foo.c', """\
 test.symlink('nonexistent', 'foo.h')
 
 expect = """\
-scons: *** Implicit dependency `foo.h' not found, needed by target `%s'.  Stop.
+scons: \\*\\*\\* \\[foo.o(bj)?\\] Implicit dependency `foo.h' not found, needed by target `%s'.(  Stop.)?
 """% foo_obj
 
-test.run(arguments = '.', status = 2, stderr = expect)
+test.run(arguments = '.', status = 2, stderr = expect, 
+         match=TestSCons.match_re_dotall)
 
 test.pass_test()

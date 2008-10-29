@@ -41,7 +41,7 @@ env = Environment(BUILDERS = {'MyAction' :
 env.MyAction('target', [])
 """)
 
-expect = "scons: *** Calling Configure from Builders is not supported.\n"
+expect = "scons: *** [target] Calling Configure from Builders is not supported.\n"
 
 test.run(status=2, stderr=expect)
 

@@ -53,7 +53,7 @@ test.write('exit.in', 'exit\n')
 # no longer exists or that line in the source file no longer exists,
 # so make sure the proper variations are supported in the following
 # regexp.
-expect = """scons: \*\*\* \[exit.out\] Exception
+expect = """scons: \*\*\* \[exit.out\] Exception : exit
 Traceback \((most recent call|innermost) last\):
 (  File ".+", line \d+, in \S+
     [^\n]+
