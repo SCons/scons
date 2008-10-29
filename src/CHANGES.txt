@@ -27,6 +27,8 @@ RELEASE 1.X - XXX
     - Fix a stack trace from the --debug=includes option when passed a
       static or shared library as an argument.
 
+    - Speed up the internal find_file() function (used for searching
+      CPPPATH, LIBPATH, etc.).
 
 
 RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
