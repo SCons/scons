@@ -154,7 +154,9 @@ def convert_to_BuildError(status, exc_info=None):
             status=status,      # might be 0, OK here
             exitstatus=status,      # might be 0, OK here
             exc_info=exc_info)
-    elif isinstance(status, (StopError, UserError)):
+    # TODO(1.5):
+    #elif isinstance(status, (StopError, UserError)):
+    elif isinstance(status, StopError) or isinstance(status, UserError):
         buildError = BuildError(
             errstr=str(status),
             status=2,
