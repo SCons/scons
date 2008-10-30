@@ -127,7 +127,6 @@ _null = SCons.Scanner.LaTeX._null
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
 def FindFile(name,suffixes,paths,env):
-    #print "FindFile: name %s, suffixes "% name,suffixes," paths ",paths
     if Verbose:
         print " searching for '%s' with extensions: " % name,suffixes
 
@@ -417,6 +416,49 @@ def tex_pdf_emitter(target, source, env):
 
     return (target, source)
 
+def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir):
+    # for theFile (a Node) update any file_tests and search for graphics files
+    # then find all included files and call ScanFiles for each of them
+    content = theFile.get_contents()
+    if Verbose:
+        print " scanning ",str(theFile)
+
+    for i in range(len(file_tests_search)):
+        if file_tests[i][0] == None:
+            file_tests[i][0] = file_tests_search[i].search(content)
+
+    # For each file see if any graphics files are included
+    # and set up target to create ,pdf graphic
+    # is this is in pdflatex toolchain
+    graphic_files = includegraphics_re.findall(content)
+    if Verbose:
+        print "graphics files in '%s': "%str(theFile),graphic_files
+    for graphFile in graphic_files:
+        graphicNode = FindFile(graphFile,graphics_extensions,paths,env)
+        # see if we can build this graphics file by epstopdf
+        graphicSrc = FindFile(graphFile,TexGraphics,paths,env)
+        if graphicSrc != None:
+            if Verbose and (graphicNode == None):
+                print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
+            graphicNode = env.PDF(os.path.join(targetdir,str(graphicSrc)))
+            env.Depends(target[0],graphicNode)
+
+    # recursively call this on each of the included files
+    inc_files = [ ]
+    inc_files.extend( include_re.findall(content) )
+    if Verbose:
+        print "files included by '%s': "%str(theFile),inc_files
+    # inc_files is list of file names as given. need to find them
+    # using TEXINPUTS paths.
+
+    for src in inc_files:
+        srcNode = srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env)
+        if srcNode != None:
+            file_test = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
+    if Verbose:
+        print " done scanning ",str(theFile)
+    return file_tests
+
 def tex_emitter_core(target, source, env, graphics_extensions):
     """An emitter for TeX and LaTeX sources.
     For LaTeX sources we try and find the common created files that
@@ -477,17 +519,10 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     # build the list of lists
     file_tests = []
     for i in range(len(file_tests_search)):
-        file_tests.append( [file_tests_search[i].search(content), file_tests_suff[i]] )
+        file_tests.append( [None, file_tests_suff[i]] )
 
     # TO-DO: need to add a way for the user to extend this list for whatever
     # auxiliary files they create in other (or their own) packages
-
-    inc_files = [str(source[0]), ]
-    inc_files.extend( include_re.findall(content) )
-    if Verbose:
-        print "files included by '%s': "%source[0],inc_files
-    # inc_files is list of file names as given. need to find them
-    # using TEXINPUTS paths.
 
     # get path list from both env['TEXINPUTS'] and env['ENV']['TEXINPUTS']
     savedpath = modify_env_var(env, 'TEXINPUTS', abspath)
@@ -511,34 +546,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     if Verbose:
         print "search path ",paths
 
-    # search all files read (including the original source file)
-    # for files that are \input or \include
-    for src in inc_files:
-        # we already did this for the base file
-        if src != inc_files[0]:
-            content = ""
-            srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env)
-            if srcNode:
-                content = srcNode.get_contents()
-            for i in range(len(file_tests_search)):
-                if file_tests[i][0] == None:
-                    file_tests[i][0] = file_tests_search[i].search(content)
-
-        # For each file see if any graphics files are included
-        # and set up target to create ,pdf graphic
-        # is this is in pdflatex toolchain
-        src_inc_files = includegraphics_re.findall(content)
-        if Verbose:
-            print "graphics files in '%s': "%basename,src_inc_files
-        for graphFile in src_inc_files:
-            graphicNode = FindFile(graphFile,graphics_extensions,paths,env)
-            # see if we can build this graphics file by epstopdf
-            graphicSrc = FindFile(graphFile,TexGraphics,paths,env)
-            if graphicSrc != None:
-                if Verbose and (graphicNode == None):
-                    print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
-                graphicNode = env.PDF(os.path.join(targetdir,str(graphicSrc)))
-                env.Depends(target[0],graphicNode)
+    file_tests = ScanFiles(source[0], target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
 
     for (theSearch,suffix_list) in file_tests:
         if theSearch:
