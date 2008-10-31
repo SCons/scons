@@ -265,9 +265,13 @@ class BuildTask(SCons.Taskmaster.Task):
         sys.stderr.write(errfmt % (nodename, buildError))
 
         if (buildError.exc_info[2] and buildError.exc_info[1] and 
-            not isinstance(
-                buildError.exc_info[1], 
-                (EnvironmentError, SCons.Errors.StopError, SCons.Errors.UserError))):
+           # TODO(1.5)
+           #not isinstance(
+           #    buildError.exc_info[1], 
+           #    (EnvironmentError, SCons.Errors.StopError, SCons.Errors.UserError))):
+           not isinstance(buildError.exc_info[1], EnvironmentError) and
+           not isinstance(buildError.exc_info[1], SCons.Errors.StopError) and
+           not isinstance(buildError.exc_info[1], SCons.Errors.UserError)):
             type, value, trace = buildError.exc_info
             traceback.print_exception(type, value, trace)
         elif tb and print_stacktrace:
