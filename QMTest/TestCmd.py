@@ -181,8 +181,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.31.D001 2008/01/01 09:05:59 knight"
-__version__ = "0.31"
+__revision__ = "TestCmd.py 0.32.D001 2008/10/30 23:00:04 knight"
+__version__ = "0.32"
 
 import errno
 import os
@@ -265,7 +265,7 @@ def _caller(tblist, skip):
         arr = [(file, line, name, text)] + arr
     atfrom = "at"
     for file, line, name, text in arr[skip:]:
-        if name == "?":
+        if name in ("?", "<module>"):
             name = ""
         else:
             name = " (" + name + ")"
@@ -490,7 +490,13 @@ except ImportError:
                 self.stdout.close()
                 self.resultcode = self.stderr.close()
             def wait(self):
-                return self.resultcode
+                resultcode = self.resultcode
+                if os.WIFEXITED(resultcode):
+                    return os.WEXITSTATUS(resultcode)
+                elif os.WIFSIGNALED(resultcode):
+                    return os.WTERMSIG(resultcode)
+                else:
+                    return None
 
     else:
         try:
@@ -539,6 +545,14 @@ except ImportError:
                 self.stdin = self.tochild
                 self.stdout = self.fromchild
                 self.stderr = self.childerr
+            def wait(self, *args, **kw):
+                resultcode = apply(popen2.Popen3.wait, (self,)+args, kw)
+                if os.WIFEXITED(resultcode):
+                    return os.WEXITSTATUS(resultcode)
+                elif os.WIFSIGNALED(resultcode):
+                    return os.WTERMSIG(resultcode)
+                else:
+                    return None
 
     subprocess.Popen = Popen3
 
