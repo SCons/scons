@@ -68,11 +68,11 @@ Command('f07', 'f07.in', r'@%(_python_)s mypass.py f07 -   $TARGET $SOURCE')
 
 import SCons.Errors
 def raiseExcAction(exc):
-    def action(env, target, source):
+    def action(env, target, source, exc=exc):
         raise exc
     return action
 def returnExcAction(exc):
-    def action(env, target, source):
+    def action(env, target, source, exc=exc):
         return exc
     return action
 class MyBuildError(SCons.Errors.BuildError):
