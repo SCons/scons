@@ -951,6 +951,8 @@ class FunctionAction(_ActionAction):
             rsources = map(rfile, source)
             try:
                 result = self.execfunction(target=target, source=rsources, env=env)
+            except SystemExit, e:
+                raise
             except Exception, e:
                 result = e
                 exc_info = sys.exc_info()
