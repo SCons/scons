@@ -75,6 +75,7 @@ if java_parsing:
             self.stackBrackets = []
             self.brackets = 0
             self.nextAnon = 1
+            self.localClasses = []
             self.stackAnonClassBrackets = []
             self.anonStacksStack = [[0]]
             self.package = None
@@ -126,6 +127,7 @@ if java_parsing:
             if len(self.stackBrackets) and \
                self.brackets == self.stackBrackets[-1]:
                 self.listOutputs.append(string.join(self.listClasses, '$'))
+                self.localClasses.pop()
                 self.listClasses.pop()
                 self.anonStacksStack.pop()
                 self.stackBrackets.pop()
@@ -240,6 +242,20 @@ if java_parsing:
             # the next non-whitespace token should be the name of the class
             if token == '\n':
                 return self
+            # If that's an inner class which is declared in a method, it
+            # requires an index prepended to the class-name, e.g.
+            # 'Foo$1Inner' (Tigris Issue 2087)
+            if self.outer_state.localClasses and \
+                self.outer_state.stackBrackets[-1] > \
+                self.outer_state.stackBrackets[-2]+1:
+                locals = self.outer_state.localClasses[-1]
+                try:
+                    idx = locals[token]
+                    locals[token] = locals[token]+1
+                except KeyError:
+                    locals[token] = 1
+                token = str(locals[token]) + token
+            self.outer_state.localClasses.append({})
             self.outer_state.listClasses.append(token)
             self.outer_state.anonStacksStack.append([0])
             return self.outer_state
