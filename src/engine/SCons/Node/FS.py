@@ -1171,7 +1171,7 @@ class FS(LocalFS):
         return root._lookup_abs(p, fsclass, create)
 
     def Entry(self, name, directory = None, create = 1):
-        """Lookup or create a generic Entry node with the specified name.
+        """Look up or create a generic Entry node with the specified name.
         If the name is a relative path (begins with ./, ../, or a file
         name), then it is looked up relative to the supplied directory
         node, or to the top level directory of the FS (supplied at
@@ -1180,7 +1180,7 @@ class FS(LocalFS):
         return self._lookup(name, directory, Entry, create)
 
     def File(self, name, directory = None, create = 1):
-        """Lookup or create a File node with the specified name.  If
+        """Look up or create a File node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
         or to the top level directory of the FS (supplied at construction
@@ -1192,7 +1192,7 @@ class FS(LocalFS):
         return self._lookup(name, directory, File, create)
 
     def Dir(self, name, directory = None, create = True):
-        """Lookup or create a Dir node with the specified name.  If
+        """Look up or create a Dir node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
         or to the top level directory of the FS (supplied at construction
@@ -1367,8 +1367,7 @@ class Dir(Base):
         Looks up or creates a directory node named 'name' relative to
         this directory.
         """
-        dir = self.fs.Dir(name, self, create)
-        return dir
+        return self.fs.Dir(name, self, create)
 
     def File(self, name):
         """
@@ -2172,16 +2171,14 @@ class File(Base):
         self._morph()
 
     def Entry(self, name):
-        """Create an entry node named 'name' relative to
-        the SConscript directory of this file."""
-        cwd = self.cwd or self.fs._cwd
-        return cwd.Entry(name)
+        #"""Create an entry node named 'name' relative to
+        #the directory of this file."""
+        return self.dir.Entry(name)
 
     def Dir(self, name, create=True):
-        """Create a directory node named 'name' relative to
-        the SConscript directory of this file."""
-        cwd = self.cwd or self.fs._cwd
-        return cwd.Dir(name, create)
+        #"""Create a directory node named 'name' relative to
+        #the directory of this file."""
+        return self.dir.Dir(name, create=create)
 
     def Dirs(self, pathlist):
         """Create a list of directories relative to the SConscript
@@ -2189,10 +2186,9 @@ class File(Base):
         return map(lambda p, s=self: s.Dir(p), pathlist)
 
     def File(self, name):
-        """Create a file node named 'name' relative to
-        the SConscript directory of this file."""
-        cwd = self.cwd or self.fs._cwd
-        return cwd.File(name)
+        #"""Create a file node named 'name' relative to
+        #the directory of this file."""
+        return self.dir.File(name)
 
     #def generate_build_dict(self):
     #    """Return an appropriate dictionary of values for building
