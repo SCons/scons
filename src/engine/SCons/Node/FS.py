@@ -225,8 +225,6 @@ def LinkFunc(target, source, env):
             if func == Link_Funcs[-1]:
                 # exception of the last link method (copy) are fatal
                 raise
-            else:
-                pass
     return 0
 
 Link = SCons.Action.Action(LinkFunc, None)
@@ -592,7 +590,7 @@ class Base(SCons.Node.Node):
         if self.duplicate or self.is_derived():
             return self.get_path()
         srcnode = self.srcnode()
-        if srcnode.stat() is None and not self.stat() is None:
+        if srcnode.stat() is None and self.stat() is not None:
             result = self.get_path()
         else:
             result = srcnode.get_path()
@@ -607,7 +605,7 @@ class Base(SCons.Node.Node):
             # values that the underlying stat() method saved.
             try: del self._memo['stat']
             except KeyError: pass
-            if not self is srcnode:
+            if self is not srcnode:
                 try: del srcnode._memo['stat']
                 except KeyError: pass
         return result
@@ -625,7 +623,7 @@ class Base(SCons.Node.Node):
         return result
 
     def exists(self):
-        return not self.stat() is None
+        return self.stat() is not None
 
     def rexists(self):
         return self.rfile().exists()
@@ -642,11 +640,11 @@ class Base(SCons.Node.Node):
 
     def isdir(self):
         st = self.stat()
-        return not st is None and stat.S_ISDIR(st[stat.ST_MODE])
+        return st is not None and stat.S_ISDIR(st[stat.ST_MODE])
 
     def isfile(self):
         st = self.stat()
-        return not st is None and stat.S_ISREG(st[stat.ST_MODE])
+        return st is not None and stat.S_ISREG(st[stat.ST_MODE])
 
     if hasattr(os, 'symlink'):
         def islink(self):
@@ -886,7 +884,7 @@ class Entry(Base):
     def must_be_same(self, klass):
         """Called to make sure a Node is a Dir.  Since we're an
         Entry, we can morph into one."""
-        if not self.__class__ is klass:
+        if self.__class__ is not klass:
             self.__class__ = klass
             self._morph()
             self.clear()
@@ -910,7 +908,7 @@ class Entry(Base):
 
     def rel_path(self, other):
         d = self.disambiguate()
-        if d.__class__ == Entry:
+        if d.__class__ is Entry:
             raise "rel_path() could not disambiguate File/Dir"
         return d.rel_path(other)
 
@@ -1065,7 +1063,7 @@ class FS(LocalFS):
         """
         curr=self._cwd
         try:
-            if not dir is None:
+            if dir is not None:
                 self._cwd = dir
                 if change_os_dir:
                     os.chdir(dir.abspath)
@@ -1348,7 +1346,7 @@ class Dir(Base):
                         del node._srcreps
                     except AttributeError:
                         pass
-                    if duplicate != None:
+                    if duplicate is not None:
                         node.duplicate=duplicate
 
     def __resetDuplicate(self, node):
@@ -1450,15 +1448,15 @@ class Dir(Base):
         """Return a path to "other" relative to this directory.
         """
 
-	# This complicated and expensive method, which constructs relative
-	# paths between arbitrary Node.FS objects, is no longer used
-	# by SCons itself.  It was introduced to store dependency paths
-	# in .sconsign files relative to the target, but that ended up
-	# being significantly inefficient.
+        # This complicated and expensive method, which constructs relative
+        # paths between arbitrary Node.FS objects, is no longer used
+        # by SCons itself.  It was introduced to store dependency paths
+        # in .sconsign files relative to the target, but that ended up
+        # being significantly inefficient.
         #
-	# We're continuing to support the method because some SConstruct
-	# files out there started using it when it was available, and
-	# we're all about backwards compatibility..
+        # We're continuing to support the method because some SConstruct
+        # files out there started using it when it was available, and
+        # we're all about backwards compatibility..
 
         try:
             memo_dict = self._memo['rel_path']
@@ -1472,11 +1470,9 @@ class Dir(Base):
                 pass
 
         if self is other:
-
             result = '.'
 
         elif not other in self.path_elements:
-
             try:
                 other_dir = other.get_dir()
             except AttributeError:
@@ -1490,9 +1486,7 @@ class Dir(Base):
                         result = other.name
                     else:
                         result = dir_rel_path + os.sep + other.name
-
         else:
-
             i = self.path_elements.index(other) + 1
 
             path_elems = ['..'] * (len(self.path_elements) - i) \
@@ -1543,7 +1537,7 @@ class Dir(Base):
     def build(self, **kw):
         """A null "builder" for directories."""
         global MkdirBuilder
-        if not self.builder is MkdirBuilder:
+        if self.builder is not MkdirBuilder:
             apply(SCons.Node.Node.build, [self,], kw)
 
     #
@@ -1559,10 +1553,9 @@ class Dir(Base):
             if parent.exists():
                 break
             listDirs.append(parent)
-            p = parent.up()
-            if p is None:
-                raise SCons.Errors.StopError, parent.path
-            parent = p
+            parent = parent.up()
+        else:
+            raise SCons.Errors.StopError, parent.path
         listDirs.reverse()
         for dirnode in listDirs:
             try:
@@ -1582,7 +1575,7 @@ class Dir(Base):
 
     def multiple_side_effect_has_builder(self):
         global MkdirBuilder
-        return not self.builder is MkdirBuilder and self.has_builder()
+        return self.builder is not MkdirBuilder and self.has_builder()
 
     def alter_targets(self):
         """Return any corresponding targets in a variant directory.
@@ -1621,7 +1614,7 @@ class Dir(Base):
     def is_up_to_date(self):
         """If any child is not up-to-date, then this directory isn't,
         either."""
-        if not self.builder is MkdirBuilder and not self.exists():
+        if self.builder is not MkdirBuilder and not self.exists():
             return 0
         up_to_date = SCons.Node.up_to_date
         for kid in self.children():
@@ -1794,7 +1787,7 @@ class Dir(Base):
             except TypeError: pass
         node = self.srcdir_duplicate(name)
         if isinstance(node, Dir):
-            node = None
+            return None
         return node
 
     def walk(self, func, arg):
@@ -1900,30 +1893,29 @@ class Dir(Base):
                 try:
                     disk_names = os.listdir(dir.abspath)
                 except os.error:
-                    pass
-                else:
-                    names.extend(disk_names)
-                    if not strings:
-                        # We're going to return corresponding Nodes in
-                        # the local directory, so we need to make sure
-                        # those Nodes exist.  We only want to create
-                        # Nodes for the entries that will match the
-                        # specified pattern, though, which means we
-                        # need to filter the list here, even though
-                        # the overall list will also be filtered later,
-                        # after we exit this loop.
-                        if pattern[0] != '.':
-                            #disk_names = [ d for d in disk_names if d[0] != '.' ]
-                            disk_names = filter(lambda x: x[0] != '.', disk_names)
-                        disk_names = fnmatch.filter(disk_names, pattern)
-                        rep_nodes = map(dir.Entry, disk_names)
-                        #rep_nodes = [ n.disambiguate() for n in rep_nodes ]
-                        rep_nodes = map(lambda n: n.disambiguate(), rep_nodes)
-                        for node, name in izip(rep_nodes, disk_names):
-                            n = self.Entry(name)
-                            if n.__class__ != node.__class__:
-                                n.__class__ = node.__class__
-                                n._morph()
+                    continue
+                names.extend(disk_names)
+                if not strings:
+                    # We're going to return corresponding Nodes in
+                    # the local directory, so we need to make sure
+                    # those Nodes exist.  We only want to create
+                    # Nodes for the entries that will match the
+                    # specified pattern, though, which means we
+                    # need to filter the list here, even though
+                    # the overall list will also be filtered later,
+                    # after we exit this loop.
+                    if pattern[0] != '.':
+                        #disk_names = [ d for d in disk_names if d[0] != '.' ]
+                        disk_names = filter(lambda x: x[0] != '.', disk_names)
+                    disk_names = fnmatch.filter(disk_names, pattern)
+                    dirEntry = dir.Entry
+                    selfEntry = self.Entry
+                    for name in disk_names:
+                        node = dirEntry(name).disambiguate()
+                        n = selfEntry(name)
+                        if n.__class__ != node.__class__:
+                            n.__class__ = node.__class__
+                            n._morph()
 
         names = set(names)
         if pattern[0] != '.':
@@ -2132,14 +2124,13 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 strings = getattr(self, nattr)
                 nodeinfos = getattr(self, sattr)
             except AttributeError:
-                pass
-            else:
-                nodes = []
-                for s, ni in izip(strings, nodeinfos):
-                    if not isinstance(s, SCons.Node.Node):
-                        s = ni.str_to_node(s)
-                    nodes.append(s)
-                setattr(self, nattr, nodes)
+                continue
+            nodes = []
+            for s, ni in izip(strings, nodeinfos):
+                if not isinstance(s, SCons.Node.Node):
+                    s = ni.str_to_node(s)
+                nodes.append(s)
+            setattr(self, nattr, nodes)
     def format(self, names=0):
         result = []
         bkids = self.bsources + self.bdepends + self.bimplicit
@@ -2171,23 +2162,24 @@ class File(Base):
         self._morph()
 
     def Entry(self, name):
-        #"""Create an entry node named 'name' relative to
-        #the directory of this file."""
+        """Create an entry node named 'name' relative to
+        the directory of this file."""
         return self.dir.Entry(name)
 
     def Dir(self, name, create=True):
-        #"""Create a directory node named 'name' relative to
-        #the directory of this file."""
+        """Create a directory node named 'name' relative to
+        the directory of this file."""
         return self.dir.Dir(name, create=create)
 
     def Dirs(self, pathlist):
         """Create a list of directories relative to the SConscript
         directory of this file."""
-        return map(lambda p, s=self: s.Dir(p), pathlist)
+        # return [self.Dir(p) for p in pathlist]
+        return map(lambda p: self.Dir(p), pathlist)
 
     def File(self, name):
-        #"""Create a file node named 'name' relative to
-        #the directory of this file."""
+        """Create a file node named 'name' relative to
+        the directory of this file."""
         return self.dir.File(name)
 
     #def generate_build_dict(self):
@@ -2382,26 +2374,24 @@ class File(Base):
             try:
                 value = getattr(old_entry, attr)
             except AttributeError:
-                pass
-            else:
-                setattr(binfo, attr, value)
-                delattr(old_entry, attr)
+                continue
+            setattr(binfo, attr, value)
+            delattr(old_entry, attr)
         for attr in self.convert_sig_attrs:
             try:
                 sig_list = getattr(old_entry, attr)
             except AttributeError:
-                pass
-            else:
-                value = []
-                for sig in sig_list:
-                    ninfo = self.new_ninfo()
-                    if len(sig) == 32:
-                        ninfo.csig = sig
-                    else:
-                        ninfo.timestamp = sig
-                    value.append(ninfo)
-                setattr(binfo, attr, value)
-                delattr(old_entry, attr)
+                continue
+            value = []
+            for sig in sig_list:
+                ninfo = self.new_ninfo()
+                if len(sig) == 32:
+                    ninfo.csig = sig
+                else:
+                    ninfo.timestamp = sig
+                value.append(ninfo)
+            setattr(binfo, attr, value)
+            delattr(old_entry, attr)
         return new_entry
 
     memoizer_counters.append(SCons.Memoize.CountValue('get_stored_info'))
@@ -2465,6 +2455,7 @@ class File(Base):
                 pass
 
         if scanner:
+            # result = [n.disambiguate() for n in scanner(self, env, path)]
             result = scanner(self, env, path)
             result = map(lambda N: N.disambiguate(), result)
         else:
@@ -2568,7 +2559,7 @@ class File(Base):
             scb = self.sbuilder
         except AttributeError:
             scb = self.sbuilder = self.find_src_builder()
-        return not scb is None
+        return scb is not None
 
     def alter_targets(self):
         """Return any corresponding targets in a variant directory.
@@ -2641,7 +2632,7 @@ class File(Base):
         # Duplicate from source path if we are set up to do this.
         if self.duplicate and not self.is_derived() and not self.linked:
             src = self.srcnode()
-            if not src is self:
+            if src is not self:
                 # At this point, src is meant to be copied in a variant directory.
                 src = src.rfile()
                 if src.abspath != self.abspath:
@@ -2675,23 +2666,22 @@ class File(Base):
         old = self.get_stored_info()
         mtime = self.get_timestamp()
 
-        csig = None
         max_drift = self.fs.max_drift
         if max_drift > 0:
             if (time.time() - mtime) > max_drift:
                 try:
                     n = old.ninfo
                     if n.timestamp and n.csig and n.timestamp == mtime:
-                        csig = n.csig
+                        return n.csig
                 except AttributeError:
                     pass
         elif max_drift == 0:
             try:
-                csig = old.ninfo.csig
+                return old.ninfo.csig
             except AttributeError:
                 pass
 
-        return csig
+        return None
 
     def get_csig(self):
         """
@@ -2746,7 +2736,7 @@ class File(Base):
             return 1
 
     def changed_state(self, target, prev_ni):
-        return (self.state != SCons.Node.up_to_date)
+        return self.state != SCons.Node.up_to_date
 
     def changed_timestamp_then_content(self, target, prev_ni):
         if not self.changed_timestamp_match(target, prev_ni):
@@ -2867,13 +2857,14 @@ class File(Base):
         # Add the path to the cache signature, because multiple
         # targets built by the same action will all have the same
         # build signature, and we have to differentiate them somehow.
-        children =  self.children()
-        sigs = map(lambda n: n.get_cachedir_csig(), children)
+        children = self.children()
         executor = self.get_executor()
+        # sigs = [n.get_cachedir_csig() for n in children]
+        sigs = map(lambda n: n.get_cachedir_csig(), children)
         sigs.append(SCons.Util.MD5signature(executor.get_contents()))
         sigs.append(self.path)
-        self.cachesig = SCons.Util.MD5collect(sigs)
-        return self.cachesig
+        result = self.cachesig = SCons.Util.MD5collect(sigs)
+        return result
 
 
 default_fs = None
@@ -3039,12 +3030,11 @@ def invalidate_node_memos(targets):
     # affected. XXX The way to check if Execute() is in the stacktrace
     # is a very dirty hack and should be replaced by a more sensible
     # solution.
-    must_invalidate = 0
-    tb = extract_stack()
-    for f in tb:
+    for f in extract_stack():
         if f[2] == 'Execute' and f[0][-14:] == 'Environment.py':
-            must_invalidate = 1
-    if not must_invalidate:
+            break
+    else:
+        # Dont have to invalidate, so return
         return
 
     if not SCons.Util.is_List(targets):
