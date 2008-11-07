@@ -2174,8 +2174,9 @@ class File(Base):
     def Dirs(self, pathlist):
         """Create a list of directories relative to the SConscript
         directory of this file."""
+        # TODO(1.5)
         # return [self.Dir(p) for p in pathlist]
-        return map(lambda p: self.Dir(p), pathlist)
+        return map(lambda p, s=self: s.Dir(p), pathlist)
 
     def File(self, name):
         """Create a file node named 'name' relative to
