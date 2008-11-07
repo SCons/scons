@@ -6939,6 +6939,10 @@ or
 .B C++
 and selects the compiler to be used for the check;
 the default is "C".
+Example:
+.ES
+sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
+.EE
 
 .TP
 .RI Configure.CheckCC( self )
