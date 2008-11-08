@@ -1911,6 +1911,9 @@ class Dir(Base):
                     dirEntry = dir.Entry
                     selfEntry = self.Entry
                     for name in disk_names:
+                        # Add './' before disk filename so that '#' at
+                        # beginning of filename isn't interpreted.
+                        name = './' + name
                         node = dirEntry(name).disambiguate()
                         n = selfEntry(name)
                         if n.__class__ != node.__class__:

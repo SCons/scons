@@ -2126,6 +2126,7 @@ class GlobTestCase(_tempdirTestCase):
         self.test.write('disk-aaa', "disk-aaa\n")
         self.test.write('disk-bbb', "disk-bbb\n")
         self.test.write('disk-ccc', "disk-ccc\n")
+        self.test.write('#disk-hash', "#disk-hash\n")
         self.test.subdir('disk-sub')
         self.test.write(['disk-sub', 'disk-ddd'], "disk-sub/disk-ddd\n")
         self.test.write(['disk-sub', 'disk-eee'], "disk-sub/disk-eee\n")
@@ -2136,6 +2137,7 @@ class GlobTestCase(_tempdirTestCase):
         self.test.write('both-aaa', "both-aaa\n")
         self.test.write('both-bbb', "both-bbb\n")
         self.test.write('both-ccc', "both-ccc\n")
+        self.test.write('#both-hash', "#both-hash\n")
         self.test.subdir('both-sub1')
         self.test.write(['both-sub1', 'both-ddd'], "both-sub1/both-ddd\n")
         self.test.write(['both-sub1', 'both-eee'], "both-sub1/both-eee\n")
@@ -2148,6 +2150,7 @@ class GlobTestCase(_tempdirTestCase):
         self.both_aaa = fs.File('both-aaa')
         self.both_bbb = fs.File('both-bbb')
         self.both_ccc = fs.File('both-ccc')
+        self._both_hash = fs.File('./#both-hash')
         self.both_sub1 = fs.Dir('both-sub1')
         self.both_sub1_both_ddd = self.both_sub1.File('both-ddd')
         self.both_sub1_both_eee = self.both_sub1.File('both-eee')
@@ -2162,6 +2165,7 @@ class GlobTestCase(_tempdirTestCase):
         self.ggg = fs.File('ggg')
         self.hhh = fs.File('hhh')
         self.iii = fs.File('iii')
+        self._hash = fs.File('./#hash')
         self.subdir1 = fs.Dir('subdir1')
         self.subdir1_lll = self.subdir1.File('lll')
         self.subdir1_jjj = self.subdir1.File('jjj')
@@ -2253,11 +2257,13 @@ class GlobTestCase(_tempdirTestCase):
              [self.hhh]),
 
             ('*',
-             ['both-aaa', 'both-bbb', 'both-ccc',
+             ['#both-hash', '#hash',
+              'both-aaa', 'both-bbb', 'both-ccc',
               'both-sub1', 'both-sub2',
               'ggg', 'hhh', 'iii',
               'sub', 'subdir1', 'subdir2'],
-             [self.both_aaa, self.both_bbb, self.both_ccc,
+             [self._both_hash, self._hash,
+              self.both_aaa, self.both_bbb, self.both_ccc,
               self.both_sub1, self.both_sub2,
               self.ggg, self.hhh, self.iii,
               self.sub, self.subdir1, self.subdir2]),
@@ -2271,7 +2277,9 @@ class GlobTestCase(_tempdirTestCase):
              None),
 
             ('*',
-             ['both-aaa', 'both-bbb', 'both-ccc', 'both-sub1', 'both-sub2',
+             ['#both-hash', '#disk-hash', '#hash',
+              'both-aaa', 'both-bbb', 'both-ccc',
+              'both-sub1', 'both-sub2',
               'disk-aaa', 'disk-bbb', 'disk-ccc', 'disk-sub',
               'ggg', 'hhh', 'iii',
               'sub', 'subdir1', 'subdir2'],
@@ -2331,8 +2339,12 @@ class GlobTestCase(_tempdirTestCase):
               join('both-sub2', 'both-ddd'),
               join('both-sub2', 'both-eee'),
               join('both-sub2', 'both-fff')],
-             [self.both_sub1_both_ddd, self.both_sub1_both_eee, self.both_sub1_both_fff,
-              self.both_sub2_both_ddd, self.both_sub2_both_eee, self.both_sub2_both_fff],
+             [self.both_sub1_both_ddd,
+              self.both_sub1_both_eee,
+              self.both_sub1_both_fff,
+              self.both_sub2_both_ddd,
+              self.both_sub2_both_eee,
+              self.both_sub2_both_fff],
              ),
 
             ('subdir?/*',
