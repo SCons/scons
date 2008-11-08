@@ -69,6 +69,11 @@ RELEASE 1.X - XXX
 
     - Make the Action() function handle positional parameters consistently.
 
+  From Randall Spangler:
+
+    - Fix Glob() so an on-disk file or directory beginning with '#'
+      doesn't throw an exception.
+
 
 
 RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
