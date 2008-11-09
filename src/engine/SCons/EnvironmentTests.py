@@ -233,6 +233,21 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env.has_key('XXX')
         assert not env.has_key('YYY')
 
+    def test_contains(self):
+        """Test the SubstitutionEnvironment __contains__() method
+        """
+        try:
+            'x' in {'x':1}
+        except TypeError:
+            # TODO(1.5)
+            # An early version of Python that doesn't support "in"
+            # on dictionaries.  Just pass the test.
+            pass
+        else:
+            env = SubstitutionEnvironment(XXX = 'x')
+            assert 'XXX' in env
+            assert not 'YYY' in env
+
     def test_items(self):
         """Test the SubstitutionEnvironment items() method
         """
@@ -3506,6 +3521,27 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert not env.has_key('ZZZ'), env.has_key('ZZZ')
         assert not env2.has_key('ZZZ'), env2.has_key('ZZZ')
         assert env3.has_key('ZZZ'), env3.has_key('ZZZ')
+
+    def test_contains(self):
+        """Test the OverrideEnvironment __contains__() method"""
+        try:
+            'x' in {'x':1}
+        except TypeError:
+            # TODO(1.5)
+            # An early version of Python that doesn't support "in"
+            # on dictionaries.  Just pass the test.
+            pass
+        else:
+            env, env2, env3 = self.envs
+            assert 'XXX' in env
+            assert 'XXX' in env2
+            assert 'XXX' in env3
+            assert 'YYY' in env
+            assert 'YYY' in env2
+            assert 'YYY' in env3
+            assert not 'ZZZ' in env
+            assert not 'ZZZ' in env2
+            assert 'ZZZ' in env3
 
     def test_items(self):
         """Test the OverrideEnvironment Dictionary() method"""

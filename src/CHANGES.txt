@@ -46,6 +46,9 @@ RELEASE 1.X - XXX
     - Speed up the internal find_file() function (used for searching
       CPPPATH, LIBPATH, etc.).
 
+    - Add support for using the Python "in" keyword on construction
+      environments (for example, if "CPPPATH" in env: ...).
+
   From Rob Managan:
 
     - Scan for TeX files in the paths specified in the $TEXINPUTS
