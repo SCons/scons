@@ -399,6 +399,9 @@ class SubstitutionEnvironment:
     def has_key(self, key):
         return self._dict.has_key(key)
 
+    def __contains__(self, key):
+        return self._dict.__contains__(key)
+
     def items(self):
         return self._dict.items()
 
@@ -2169,6 +2172,10 @@ class OverrideEnvironment(Base):
             return 1
         except KeyError:
             return self.__dict__['__subject'].has_key(key)
+    def __contains__(self, key):
+        if self.__dict__['overrides'].__contains__(key):
+            return 1
+        return self.__dict__['__subject'].__contains__(key)
     def Dictionary(self):
         """Emulates the items() method of dictionaries."""
         d = self.__dict__['__subject'].Dictionary().copy()
