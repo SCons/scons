@@ -102,7 +102,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import cPickle
 import dis
 import os
-import os.path
 import string
 import sys
 import subprocess
@@ -579,8 +578,17 @@ def get_default_ENV(env):
 # it'll have to be tweaked to get the full desired functionality.
 # one special arg (so far?), 'error', to tell what to do with exceptions.
 def _subproc(env, cmd, error = 'ignore', **kw):
-    """Do setup for a subprocess.Popen() call"""
-    ### TODO: allow std{in,out,err} to be "'devnull'" (see issue 2228)
+    """Do common setup for a subprocess.Popen() call"""
+    # allow std{in,out,err} to be "'devnull'"
+    io = kw.get('stdin')
+    if is_String(io) and io == 'devnull':
+        kw['stdin'] = open(os.devnull)
+    io = kw.get('stdout')
+    if is_String(io) and io == 'devnull':
+        kw['stdout'] = open(os.devnull, 'w')
+    io = kw.get('stderr')
+    if is_String(io) and io == 'devnull':
+        kw['stderr'] = open(os.devnull, 'w')
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)
@@ -971,7 +979,7 @@ class FunctionAction(_ActionAction):
                 # probably be best to always return them by value here, but
                 # some codes do not check the return value of Actions and I do
                 # not have the time to modify them at this point.
-                if (exc_info[1] and 
+                if (exc_info[1] and
                     not isinstance(exc_info[1],EnvironmentError)):
                     raise result
 

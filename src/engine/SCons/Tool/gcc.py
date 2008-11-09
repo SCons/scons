@@ -55,7 +55,8 @@ def generate(env):
     if env['CC']:
         #pipe = SCons.Action._subproc(env, [env['CC'], '-dumpversion'],
         pipe = SCons.Action._subproc(env, [env['CC'], '--version'],
-                                     stderr = subprocess.PIPE,
+                                     stdin = 'devnull',
+                                     stderr = 'devnull',
                                      stdout = subprocess.PIPE)
         if pipe.wait() != 0: return
         # -dumpversion was added in GCC 3.0.  As long as we're supporting

@@ -527,7 +527,8 @@ class SubstitutionEnvironment:
     def backtick(self, command):
         import subprocess
         # common arguments
-        kw = { 'stdout' : subprocess.PIPE,
+        kw = { 'stdin' : 'devnull',
+               'stdout' : subprocess.PIPE,
                'stderr' : subprocess.PIPE,
                'universal_newlines' : True,
              }
