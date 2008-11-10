@@ -47,7 +47,7 @@ env = Environment(OBJSUFFIX = '.obj',
                   )
 env.Program('foo.exe', ['foo.c', 'bar.c'])
 env.StaticLibrary('foo', ['foo.c', 'bar.c'])
-env.SharedLibrary('foo', ['foo.c', 'bar.c'])
+env.SharedLibrary('foo', ['foo.c', 'bar.c'], no_import_lib=True)
 """)
 
 test.write('foo.c', r"""
