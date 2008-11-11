@@ -104,317 +104,356 @@ else:
         return string.replace(str, '/', os.sep)
 
 class SubstTestCase(unittest.TestCase):
-    def test_subst(self):
-        """Test the subst() function"""
-        class MyNode(DummyNode):
-            """Simple node work-alike with some extra stuff for testing."""
-            def __init__(self, name):
-                DummyNode.__init__(self, name)
-                class Attribute:
-                    pass
-                self.attribute = Attribute()
-                self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
-                self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
-            def get_stuff(self, extra):
-                return self.name + extra
-            foo = 1
-
-        class TestLiteral:
-            def __init__(self, literal):
-                self.literal = literal
-            def __str__(self):
-                return self.literal
-            def is_literal(self):
-                return 1
-
-        class TestCallable:
-            def __init__(self, value):
-                self.value = value
-            def __call__(self):
+    class MyNode(DummyNode):
+        """Simple node work-alike with some extra stuff for testing."""
+        def __init__(self, name):
+            DummyNode.__init__(self, name)
+            class Attribute:
                 pass
-            def __str__(self):
-                return self.value
+            self.attribute = Attribute()
+            self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
+            self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
+        def get_stuff(self, extra):
+            return self.name + extra
+        foo = 1
 
-        def function_foo(arg):
+    class TestLiteral:
+        def __init__(self, literal):
+            self.literal = literal
+        def __str__(self):
+            return self.literal
+        def is_literal(self):
+            return 1
+
+    class TestCallable:
+        def __init__(self, value):
+            self.value = value
+        def __call__(self):
             pass
+        def __str__(self):
+            return self.value
 
-        target = [ MyNode("./foo/bar.exe"),
-                   MyNode("/bar/baz.obj"),
-                   MyNode("../foo/baz.obj") ]
-        source = [ MyNode("./foo/blah.cpp"),
-                   MyNode("/bar/ack.cpp"),
-                   MyNode("../foo/ack.c") ]
+    def function_foo(arg):
+        pass
 
-        callable_object = TestCallable('callable-1')
+    target = [ MyNode("./foo/bar.exe"),
+               MyNode("/bar/baz with spaces.obj"),
+               MyNode("../foo/baz.obj") ]
+    source = [ MyNode("./foo/blah with spaces.cpp"),
+               MyNode("/bar/ack.cpp"),
+               MyNode("../foo/ack.c") ]
 
-        loc = {
-            'xxx'       : None,
-            'null'      : '',
-            'zero'      : 0,
-            'one'       : 1,
-            'BAR'       : 'baz',
-            'ONE'       : '$TWO',
-            'TWO'       : '$THREE',
-            'THREE'     : 'four',
+    callable_object_1 = TestCallable('callable-1')
+    callable_object_2 = TestCallable('callable-2')
 
-            'AAA'       : 'a',
-            'BBB'       : 'b',
-            'CCC'       : 'c',
+    def _defines(defs):
+        l = []
+        for d in defs:
+            if SCons.Util.is_List(d) or type(d) is types.TupleType:
+                l.append(str(d[0]) + '=' + str(d[1]))
+            else:
+                l.append(str(d))
+        return l
 
-            # $XXX$HHH should expand to GGGIII, not BADNEWS.
-            'XXX'       : '$FFF',
-            'FFF'       : 'GGG',
-            'HHH'       : 'III',
-            'FFFIII'    : 'BADNEWS',
+    loc = {
+        'xxx'       : None,
+        'NEWLINE'   : 'before\nafter',
 
-            'LITERAL'   : TestLiteral("$XXX"),
+        'null'      : '',
+        'zero'      : 0,
+        'one'       : 1,
+        'BAZ'       : 'baz',
+        'ONE'       : '$TWO',
+        'TWO'       : '$THREE',
+        'THREE'     : 'four',
 
-            # Test that we can expand to and return a function.
-            #'FUNCTION'  : function_foo,
+        'AAA'       : 'a',
+        'BBB'       : 'b',
+        'CCC'       : 'c',
 
-            'CMDGEN1'   : CmdGen1,
-            'CMDGEN2'   : CmdGen2,
+        'DO'        : DummyNode('do something'),
+        'FOO'       : DummyNode('foo.in'),
+        'BAR'       : DummyNode('bar with spaces.out'),
+        'CRAZY'     : DummyNode('crazy\nfile.in'),
 
-            'NOTHING'   : "",
-            'NONE'      : None,
+        # $XXX$HHH should expand to GGGIII, not BADNEWS.
+        'XXX'       : '$FFF',
+        'FFF'       : 'GGG',
+        'HHH'       : 'III',
+        'FFFIII'    : 'BADNEWS',
 
-            # Test various combinations of strings, lists and functions.
-            'N'         : None,
-            'X'         : 'x',
-            'Y'         : '$X',
-            'R'         : '$R',
-            'S'         : 'x y',
-            'LS'        : ['x y'],
-            'L'         : ['x', 'y'],
-            'TS'        : ('x y'),
-            'T'         : ('x', 'y'),
-            'CS'        : cs,
-            'CL'        : cl,
-            'US'        : UserString.UserString('us'),
+        'LITERAL'   : TestLiteral("$XXX"),
 
-            # Test function calls within ${}.
-            'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
-            'FUNC1'     : lambda x: x,
-            'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
+        # Test that we can expand to and return a function.
+        #'FUNCTION'  : function_foo,
 
-            # Various tests refactored from ActionTests.py.
-            'LIST'      : [["This", "is", "$(", "$a", "$)", "test"]],
+        'CMDGEN1'   : CmdGen1,
+        'CMDGEN2'   : CmdGen2,
 
-            # Test recursion.
-            'RECURSE'   : 'foo $RECURSE bar',
-            'RRR'       : 'foo $SSS bar',
-            'SSS'       : '$RRR',
+        'LITERALS'  : [ Literal('foo\nwith\nnewlines'),
+                        Literal('bar\nwith\nnewlines') ],
 
-            # Test callables that don't match the calling arguments.
-            'CALLABLE'  : callable_object,
-        }
+        'NOTHING'   : "",
+        'NONE'      : None,
 
-        env = DummyEnv(loc)
+        # Test various combinations of strings, lists and functions.
+        'N'         : None,
+        'X'         : 'x',
+        'Y'         : '$X',
+        'R'         : '$R',
+        'S'         : 'x y',
+        'LS'        : ['x y'],
+        'L'         : ['x', 'y'],
+        'TS'        : ('x y'),
+        'T'         : ('x', 'y'),
+        'CS'        : cs,
+        'CL'        : cl,
+        'US'        : UserString.UserString('us'),
 
-        # Basic tests of substitution functionality.
-        cases = [
-            # Basics:  strings without expansions are left alone, and
-            # the simplest possible expansion to a null-string value.
-            "test",                 "test",
-            "$null",                "",
+        # Test function calls within ${}.
+        'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
+        'FUNC1'     : lambda x: x,
+        'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
 
-            # Test expansion of integer values.
-            "test $zero",           "test 0",
-            "test $one",            "test 1",
+        # Various tests refactored from ActionTests.py.
+        'LIST'      : [["This", "is", "$(", "$a", "$)", "test"]],
 
-            # Test multiple re-expansion of values.
-            "test $ONE",            "test four",
+        # Test recursion.
+        'RECURSE'   : 'foo $RECURSE bar',
+        'RRR'       : 'foo $SSS bar',
+        'SSS'       : '$RRR',
 
-            # Test a whole bunch of $TARGET[S] and $SOURCE[S] expansions.
-            "test $TARGETS $SOURCES",
-            "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c",
+        # Test callables that don't match the calling arguments.
+        'CALLABLE1' : callable_object_1,
+        'CALLABLE2' : callable_object_2,
 
-            "test ${TARGETS[:]} ${SOURCES[0]}",
-            "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp",
+        '_defines'  : _defines,
+        'DEFS'      : [ ('Q1', '"q1"'), ('Q2', '"$AAA"') ],
+    }
 
-            "test ${TARGETS[1:]}v",
-            "test /bar/baz.obj ../foo/baz.objv",
-
-            "test $TARGET",
-            "test foo/bar.exe",
-
-            "test $TARGET$FOO[0]",
-            "test foo/bar.exe[0]",
-
-            "test $TARGETS.foo",
-            "test 1 1 1",
-
-            "test ${SOURCES[0:2].foo}",
-            "test 1 1",
-
-            "test $SOURCE.foo",
-            "test 1",
-
-            "test ${TARGET.get_stuff('blah')}",
-            "test foo/bar.exeblah",
-
-            "test ${SOURCES.get_stuff('blah')}",
-            "test foo/blah.cppblah /bar/ack.cppblah ../foo/ack.cblah",
-
-            "test ${SOURCES[0:2].get_stuff('blah')}",
-            "test foo/blah.cppblah /bar/ack.cppblah",
-
-            "test ${SOURCES[0:2].get_stuff('blah')}",
-            "test foo/blah.cppblah /bar/ack.cppblah",
-
-            "test ${SOURCES.attribute.attr1}",
-            "test attr$1-blah.cpp attr$1-ack.cpp attr$1-ack.c",
-
-            "test ${SOURCES.attribute.attr2}",
-            "test attr$2-blah.cpp attr$2-ack.cpp attr$2-ack.c",
-
-            # Test adjacent expansions.
-            "foo$BAR",
-            "foobaz",
-
-            "foo${BAR}",
-            "foobaz",
-
-            # Test that adjacent expansions don't get re-interpreted
-            # together.  The correct disambiguated expansion should be:
-            #   $XXX$HHH => ${FFF}III => GGGIII
-            # not:
-            #   $XXX$HHH => ${FFFIII} => BADNEWS
-            "$XXX$HHH",             "GGGIII",
-
-            # Test double-dollar-sign behavior.
-            "$$FFF$HHH",            "$FFFIII",
-
-            # Test that a Literal will stop dollar-sign substitution.
-            "$XXX $LITERAL $FFF",   "GGG $XXX GGG",
-
-            # Test that we don't blow up even if they subscript
-            # something in ways they "can't."
-            "${FFF[0]}",            "G",
-            "${FFF[7]}",            "",
-            "${NOTHING[1]}",        "",
-
-            # Test various combinations of strings and lists.
-            #None,                   '',
-            '',                     '',
-            'x',                    'x',
-            'x y',                  'x y',
-            '$N',                   '',
-            '$X',                   'x',
-            '$Y',                   'x',
-            '$R',                   '',
-            '$S',                   'x y',
-            '$LS',                  'x y',
-            '$L',                   'x y',
-            '$TS',                  'x y',
-            '$T',                   'x y',
-            '$S z',                 'x y z',
-            '$LS z',                'x y z',
-            '$L z',                 'x y z',
-            '$TS z',                'x y z',
-            '$T z',                 'x y z',
-            #cs,                     'cs',
-            #cl,                     'cl',
-            '$CS',                  'cs',
-            '$CL',                  'cl',
-
-            # Various uses of UserString.
-            UserString.UserString('x'),         'x',
-            UserString.UserString('$X'),        'x',
-            UserString.UserString('$US'),       'us',
-            '$US',                              'us',
-
-            # Test function calls within ${}.
-            '$FUNCCALL',            'a xc b',
-
-            # Bug reported by Christoph Wiedemann.
-            cvt('$xxx/bin'),        '/bin',
-
-            # Tests callables that don't match our calling arguments.
-            '$CALLABLE',            'callable-1',
-
-            # Test handling of quotes.
-            'aaa "bbb ccc" ddd',    'aaa "bbb ccc" ddd',
-        ]
-
-        kwargs = {'target' : target, 'source' : source,
+    def basic_comparisons(self, function, convert):
+        env = DummyEnv(self.loc)
+        cases = self.basic_cases[:]
+        kwargs = {'target' : self.target, 'source' : self.source,
                   'gvars' : env.Dictionary()}
 
         failed = 0
         while cases:
             input, expect = cases[:2]
-            expect = cvt(expect)
+            expect = convert(expect)
             try:
-                result = apply(scons_subst, (input, env), kwargs)
+                result = apply(function, (input, env), kwargs)
             except Exception, e:
-                print "    input %s generated %s %s" % (repr(input), e.__class__.__name__, str(e))
+                fmt = "    input %s generated %s (%s)"
+                print fmt % (repr(input), e.__class__.__name__, repr(e))
                 failed = failed + 1
-            if result != expect:
-                if failed == 0: print
-                print "    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect))
-                failed = failed + 1
+            else:
+                if result != expect:
+                    if failed == 0: print
+                    print "    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect))
+                    failed = failed + 1
             del cases[:2]
-        assert failed == 0, "%d subst() cases failed" % failed
+        fmt = "%d %s() cases failed"
+        assert failed == 0, fmt % (failed, function.__name__)
 
+class scons_subst_TestCase(SubstTestCase):
+
+    # Basic tests of substitution functionality.
+    basic_cases = [
+        # Basics:  strings without expansions are left alone, and
+        # the simplest possible expansion to a null-string value.
+        "test",                 "test",
+        "$null",                "",
+
+        # Test expansion of integer values.
+        "test $zero",           "test 0",
+        "test $one",            "test 1",
+
+        # Test multiple re-expansion of values.
+        "test $ONE",            "test four",
+
+        # Test a whole bunch of $TARGET[S] and $SOURCE[S] expansions.
+        "test $TARGETS $SOURCES",
+        "test foo/bar.exe /bar/baz with spaces.obj ../foo/baz.obj foo/blah with spaces.cpp /bar/ack.cpp ../foo/ack.c",
+
+        "test ${TARGETS[:]} ${SOURCES[0]}",
+        "test foo/bar.exe /bar/baz with spaces.obj ../foo/baz.obj foo/blah with spaces.cpp",
+
+        "test ${TARGETS[1:]}v",
+        "test /bar/baz with spaces.obj ../foo/baz.objv",
+
+        "test $TARGET",
+        "test foo/bar.exe",
+
+        "test $TARGET$NO_SUCH_VAR[0]",
+        "test foo/bar.exe[0]",
+
+        "test $TARGETS.foo",
+        "test 1 1 1",
+
+        "test ${SOURCES[0:2].foo}",
+        "test 1 1",
+
+        "test $SOURCE.foo",
+        "test 1",
+
+        "test ${TARGET.get_stuff('blah')}",
+        "test foo/bar.exeblah",
+
+        "test ${SOURCES.get_stuff('blah')}",
+        "test foo/blah with spaces.cppblah /bar/ack.cppblah ../foo/ack.cblah",
+
+        "test ${SOURCES[0:2].get_stuff('blah')}",
+        "test foo/blah with spaces.cppblah /bar/ack.cppblah",
+
+        "test ${SOURCES[0:2].get_stuff('blah')}",
+        "test foo/blah with spaces.cppblah /bar/ack.cppblah",
+
+        "test ${SOURCES.attribute.attr1}",
+        "test attr$1-blah with spaces.cpp attr$1-ack.cpp attr$1-ack.c",
+
+        "test ${SOURCES.attribute.attr2}",
+        "test attr$2-blah with spaces.cpp attr$2-ack.cpp attr$2-ack.c",
+
+        # Test adjacent expansions.
+        "foo$BAZ",
+        "foobaz",
+
+        "foo${BAZ}",
+        "foobaz",
+
+        # Test that adjacent expansions don't get re-interpreted
+        # together.  The correct disambiguated expansion should be:
+        #   $XXX$HHH => ${FFF}III => GGGIII
+        # not:
+        #   $XXX$HHH => ${FFFIII} => BADNEWS
+        "$XXX$HHH",             "GGGIII",
+
+        # Test double-dollar-sign behavior.
+        "$$FFF$HHH",            "$FFFIII",
+
+        # Test that a Literal will stop dollar-sign substitution.
+        "$XXX $LITERAL $FFF",   "GGG $XXX GGG",
+
+        # Test that we don't blow up even if they subscript
+        # something in ways they "can't."
+        "${FFF[0]}",            "G",
+        "${FFF[7]}",            "",
+        "${NOTHING[1]}",        "",
+
+        # Test various combinations of strings and lists.
+        #None,                   '',
+        '',                     '',
+        'x',                    'x',
+        'x y',                  'x y',
+        '$N',                   '',
+        '$X',                   'x',
+        '$Y',                   'x',
+        '$R',                   '',
+        '$S',                   'x y',
+        '$LS',                  'x y',
+        '$L',                   'x y',
+        '$TS',                  'x y',
+        '$T',                   'x y',
+        '$S z',                 'x y z',
+        '$LS z',                'x y z',
+        '$L z',                 'x y z',
+        '$TS z',                'x y z',
+        '$T z',                 'x y z',
+        #cs,                     'cs',
+        #cl,                     'cl',
+        '$CS',                  'cs',
+        '$CL',                  'cl',
+
+        # Various uses of UserString.
+        UserString.UserString('x'),         'x',
+        UserString.UserString('$X'),        'x',
+        UserString.UserString('$US'),       'us',
+        '$US',                              'us',
+
+        # Test function calls within ${}.
+        '$FUNCCALL',            'a xc b',
+
+        # Bug reported by Christoph Wiedemann.
+        cvt('$xxx/bin'),        '/bin',
+
+        # Tests callables that don't match our calling arguments.
+        '$CALLABLE1',            'callable-1',
+
+        # Test handling of quotes.
+        'aaa "bbb ccc" ddd',    'aaa "bbb ccc" ddd',
+    ]
+
+    def test_scons_subst(self):
+        """Test scons_subst():  basic substitution"""
+        return self.basic_comparisons(scons_subst, cvt)
+
+    subst_cases = [
+        "test $xxx",
+            "test ",
+            "test",
+            "test",
+
+        "test $($xxx$)",
+            "test $($)",
+            "test",
+            "test",
+
+        "test $( $xxx $)",
+            "test $(  $)",
+            "test",
+            "test",
+
+        "$AAA ${AAA}A $BBBB $BBB",
+            "a aA  b",
+            "a aA b",
+            "a aA b",
+
+        "$RECURSE",
+           "foo  bar",
+           "foo bar",
+           "foo bar",
+
+        "$RRR",
+           "foo  bar",
+           "foo bar",
+           "foo bar",
+
+        # Verify what happens with no target or source nodes.
+        "$TARGET $SOURCES",
+            " ",
+            "",
+            "",
+
+        "$TARGETS $SOURCE",
+            " ",
+            "",
+            "",
+
+        # Various tests refactored from ActionTests.py.
+        "${LIST}",
+           "This is $(  $) test",
+           "This is test",
+           "This is test",
+
+        ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
+            ["|", "$(", "a", "|", "b", "$)", "|", "c", "1"],
+            ["|", "a", "|", "b", "|", "c", "1"],
+            ["|", "|", "c", "1"],
+    ]
+
+    def test_subst_env(self):
+        """Test scons_subst():  expansion dictionary"""
         # The expansion dictionary no longer comes from the construction
         # environment automatically.
+        env = DummyEnv(self.loc)
         s = scons_subst('$AAA', env)
         assert s == '', s
 
-        # Tests of the various SUBST_* modes of substitution.
-        subst_cases = [
-            "test $xxx",
-                "test ",
-                "test",
-                "test",
-
-            "test $($xxx$)",
-                "test $($)",
-                "test",
-                "test",
-
-            "test $( $xxx $)",
-                "test $(  $)",
-                "test",
-                "test",
-
-            "$AAA ${AAA}A $BBBB $BBB",
-                "a aA  b",
-                "a aA b",
-                "a aA b",
-
-            "$RECURSE",
-               "foo  bar",
-               "foo bar",
-               "foo bar",
-
-            "$RRR",
-               "foo  bar",
-               "foo bar",
-               "foo bar",
-
-            # Verify what happens with no target or source nodes.
-            "$TARGET $SOURCES",
-                " ",
-                "",
-                "",
-
-            "$TARGETS $SOURCE",
-                " ",
-                "",
-                "",
-
-            # Various tests refactored from ActionTests.py.
-            "${LIST}",
-               "This is $(  $) test",
-               "This is test",
-               "This is test",
-
-            ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
-                ["|", "$(", "a", "|", "b", "$)", "|", "c", "1"],
-                ["|", "a", "|", "b", "|", "c", "1"],
-                ["|", "|", "c", "1"],
-        ]
+    def test_subst_SUBST_modes(self):
+        """Test scons_subst():  SUBST_* modes"""
+        env = DummyEnv(self.loc)
+        subst_cases = self.subst_cases[:]
 
         gvars = env.Dictionary()
 
@@ -439,10 +478,13 @@ class SubstTestCase(unittest.TestCase):
             del subst_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
 
-        t1 = MyNode('t1')
-        t2 = MyNode('t2')
-        s1 = MyNode('s1')
-        s2 = MyNode('s2')
+    def test_subst_target_source(self):
+        """Test scons_subst():  target= and source= arguments"""
+        env = DummyEnv(self.loc)
+        t1 = self.MyNode('t1')
+        t2 = self.MyNode('t2')
+        s1 = self.MyNode('s1')
+        s2 = self.MyNode('s2')
         result = scons_subst("$TARGET $SOURCES", env,
                                   target=[t1, t2],
                                   source=[s1, s2])
@@ -458,13 +500,18 @@ class SubstTestCase(unittest.TestCase):
         result = scons_subst("$TARGETS $SOURCE", env, target=[], source=[])
         assert result == " ", result
 
-        # Test interpolating a callable.
-        newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS",
-                             env, target=MyNode('t'), source=MyNode('s'),
+    def test_subst_callable_expansion(self):
+        """Test scons_subst():  expanding a callable"""
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
+        newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS", env,
+                             target=self.MyNode('t'), source=self.MyNode('s'),
                              gvars=gvars)
-        assert newcom == "test foo baz s t", newcom
+        assert newcom == "test foo bar with spaces.out s t", newcom
 
-        # Test that we handle attribute errors during expansion as expected.
+    def test_subst_attribute_errors(self):
+        """Test scons_subst():  handling attribute errors"""
+        env = DummyEnv(self.loc)
         try:
             class Foo:
                 pass
@@ -479,7 +526,9 @@ class SubstTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
-        # Test that we handle syntax errors during expansion as expected.
+    def test_subst_syntax_errors(self):
+        """Test scons_subst():  handling syntax errors"""
+        env = DummyEnv(self.loc)
         try:
             scons_subst('$foo.bar.3.0', env)
         except SCons.Errors.UserError, e:
@@ -495,7 +544,9 @@ class SubstTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
-        # Test that we handle type errors 
+    def test_subst_type_errors(self):
+        """Test scons_subst():  handling type errors"""
+        env = DummyEnv(self.loc)
         try:
             scons_subst("${NONE[2]}", env, gvars={'NONE':None})
         except SCons.Errors.UserError, e:
@@ -524,21 +575,25 @@ class SubstTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
+    def test_subst_raw_function(self):
+        """Test scons_subst():  fetch function with SUBST_RAW plus conv"""
         # Test that the combination of SUBST_RAW plus a pass-through
         # conversion routine allows us to fetch a function through the
         # dictionary.  CommandAction uses this to allow delayed evaluation
         # of $SPAWN variables.
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
         x = lambda x: x
-        r = scons_subst("$CALLABLE", env, mode=SUBST_RAW, conv=x, gvars=gvars)
-        assert r is callable_object, repr(r)
-        r = scons_subst("$CALLABLE", env, mode=SUBST_RAW, gvars=gvars)
+        r = scons_subst("$CALLABLE1", env, mode=SUBST_RAW, conv=x, gvars=gvars)
+        assert r is self.callable_object_1, repr(r)
+        r = scons_subst("$CALLABLE1", env, mode=SUBST_RAW, gvars=gvars)
         assert r == 'callable-1', repr(r)
 
         # Test how we handle overriding the internal conversion routines.
         def s(obj):
             return obj
 
-        n1 = MyNode('n1')
+        n1 = self.MyNode('n1')
         env = DummyEnv({'NODE' : n1})
         gvars = env.Dictionary()
         node = scons_subst("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
@@ -548,23 +603,26 @@ class SubstTestCase(unittest.TestCase):
         node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node is n1, node
 
-        # Test returning a function.
-        #env = DummyEnv({'FUNCTION' : foo})
-        #gvars = env.Dictionary()
-        #func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None, gvars=gvars)
-        #assert func is function_foo, func
-        #func = scons_subst("$FUNCTION", env, mode=SUBST_CMD, call=None, gvars=gvars)
-        #assert func is function_foo, func
-        #func = scons_subst("$FUNCTION", env, mode=SUBST_SIG, call=None, gvars=gvars)
-        #assert func is function_foo, func
+    #def test_subst_function_return(self):
+    #    """Test scons_subst():  returning a function"""
+    #    env = DummyEnv({'FUNCTION' : foo})
+    #    gvars = env.Dictionary()
+    #    func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None, gvars=gvars)
+    #    assert func is function_foo, func
+    #    func = scons_subst("$FUNCTION", env, mode=SUBST_CMD, call=None, gvars=gvars)
+    #    assert func is function_foo, func
+    #    func = scons_subst("$FUNCTION", env, mode=SUBST_SIG, call=None, gvars=gvars)
+    #    assert func is function_foo, func
 
-        # Test supplying an overriding gvars dictionary.
+    def test_subst_overriding_gvars(self):
+        """Test scons_subst():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX' : 'xxx'})
         result = scons_subst('$XXX', env, gvars=env.Dictionary())
         assert result == 'xxx', result
         result = scons_subst('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == 'yyy', result
 
+class CLVar_TestCase(unittest.TestCase):
     def test_CLVar(self):
         """Test scons_subst() and scons_subst_list() with CLVar objects"""
 
@@ -587,276 +645,232 @@ class SubstTestCase(unittest.TestCase):
         assert cmd_list[0][3] == "call", cmd_list[0][3]
         assert cmd_list[0][4] == "test", cmd_list[0][4]
 
-    def test_subst_list(self):
-        """Testing the scons_subst_list() method..."""
-        class MyNode(DummyNode):
-            """Simple node work-alike with some extra stuff for testing."""
-            def __init__(self, name):
-                DummyNode.__init__(self, name)
-                class Attribute:
-                    pass
-                self.attribute = Attribute()
-                self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
-                self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
+class scons_subst_list_TestCase(SubstTestCase):
 
-        class TestCallable:
-            def __init__(self, value):
-                self.value = value
-            def __call__(self):
-                pass
-            def __str__(self):
-                return self.value
+    basic_cases = [
+        "$TARGETS",
+        [
+            ["foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj"],
+        ],
 
-        target = [ MyNode("./foo/bar.exe"),
-                   MyNode("/bar/baz with spaces.obj"),
-                   MyNode("../foo/baz.obj") ]
-        source = [ MyNode("./foo/blah with spaces.cpp"),
-                   MyNode("/bar/ack.cpp"),
-                   MyNode("../foo/ack.c") ]
+        "$SOURCES $NEWLINE $TARGETS",
+        [
+            ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.c", "before"],
+            ["after", "foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj"],
+        ],
 
-        callable_object = TestCallable('callable-2')
+        "$SOURCES$NEWLINE",
+        [
+            ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
+            ["after"],
+        ],
 
-        def _defines(defs):
-            l = []
-            for d in defs:
-                if SCons.Util.is_List(d) or type(d) is types.TupleType:
-                    l.append(str(d[0]) + '=' + str(d[1]))
-                else:
-                    l.append(str(d))
-            return l
+        "foo$FFF",
+        [
+            ["fooGGG"],
+        ],
 
-        loc = {
-            'xxx'       : None,
-            'NEWLINE'   : 'before\nafter',
+        "foo${FFF}",
+        [
+            ["fooGGG"],
+        ],
 
-            'AAA'       : 'a',
-            'BBB'       : 'b',
-            'CCC'       : 'c',
+        "test ${SOURCES.attribute.attr1}",
+        [
+            ["test", "attr$1-blah with spaces.cpp", "attr$1-ack.cpp", "attr$1-ack.c"],
+        ],
 
-            'DO'        : DummyNode('do something'),
-            'FOO'       : DummyNode('foo.in'),
-            'BAR'       : DummyNode('bar with spaces.out'),
-            'CRAZY'     : DummyNode('crazy\nfile.in'),
+        "test ${SOURCES.attribute.attr2}",
+        [
+            ["test", "attr$2-blah with spaces.cpp", "attr$2-ack.cpp", "attr$2-ack.c"],
+        ],
 
-            # $XXX$HHH should expand to GGGIII, not BADNEWS.
-            'XXX'       : '$FFF',
-            'FFF'       : 'GGG',
-            'HHH'       : 'III',
-            'FFFIII'    : 'BADNEWS',
+        "$DO --in=$FOO --out=$BAR",
+        [
+            ["do something", "--in=foo.in", "--out=bar with spaces.out"],
+        ],
 
-            'CMDGEN1'   : CmdGen1,
-            'CMDGEN2'   : CmdGen2,
+        # This test is now fixed, and works like it should.
+        "$DO --in=$CRAZY --out=$BAR",
+        [
+            ["do something", "--in=crazy\nfile.in", "--out=bar with spaces.out"],
+        ],
 
-            'LITERALS'  : [ Literal('foo\nwith\nnewlines'),
-                            Literal('bar\nwith\nnewlines') ],
+        # Try passing a list to scons_subst_list().
+        [ "$SOURCES$NEWLINE", "$TARGETS", "This is a test"],
+        [
+            ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
+            ["after", "foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj", "This is a test"],
+        ],
 
-            # Test various combinations of strings, lists and functions.
-            'N'         : None,
-            'X'         : 'x',
-            'Y'         : '$X',
-            'R'         : '$R',
-            'S'         : 'x y',
-            'LS'        : ['x y'],
-            'L'         : ['x', 'y'],
-            'CS'        : cs,
-            'CL'        : cl,
-            'US'        : UserString.UserString('us'),
+        # Test against a former bug in scons_subst_list().
+        "$XXX$HHH",
+        [
+            ["GGGIII"],
+        ],
 
-            # Test function calls within ${}.
-            'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
-            'FUNC1'     : lambda x: x,
-            'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
+        # Test double-dollar-sign behavior.
+        "$$FFF$HHH",
+        [
+            ["$FFFIII"],
+        ],
 
-            # Various tests refactored from ActionTests.py.
-            'LIST'      : [["This", "is", "$(", "$a", "$)", "test"]],
+        # Test various combinations of strings, lists and functions.
+        None,                   [[]],
+        [None],                 [[]],
+        '',                     [[]],
+        [''],                   [[]],
+        'x',                    [['x']],
+        ['x'],                  [['x']],
+        'x y',                  [['x', 'y']],
+        ['x y'],                [['x y']],
+        ['x', 'y'],             [['x', 'y']],
+        '$N',                   [[]],
+        ['$N'],                 [[]],
+        '$X',                   [['x']],
+        ['$X'],                 [['x']],
+        '$Y',                   [['x']],
+        ['$Y'],                 [['x']],
+        #'$R',                   [[]],
+        #['$R'],                 [[]],
+        '$S',                   [['x', 'y']],
+        '$S z',                 [['x', 'y', 'z']],
+        ['$S'],                 [['x', 'y']],
+        ['$S z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
+        ['$S', 'z'],            [['x', 'y', 'z']],
+        '$LS',                  [['x y']],
+        '$LS z',                [['x y', 'z']],
+        ['$LS'],                [['x y']],
+        ['$LS z'],              [['x y z']],
+        ['$LS', 'z'],           [['x y', 'z']],
+        '$L',                   [['x', 'y']],
+        '$L z',                 [['x', 'y', 'z']],
+        ['$L'],                 [['x', 'y']],
+        ['$L z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
+        ['$L', 'z'],            [['x', 'y', 'z']],
+        cs,                     [['cs']],
+        [cs],                   [['cs']],
+        cl,                     [['cl']],
+        [cl],                   [['cl']],
+        '$CS',                  [['cs']],
+        ['$CS'],                [['cs']],
+        '$CL',                  [['cl']],
+        ['$CL'],                [['cl']],
 
-            # Test recursion.
-            'RECURSE'   : 'foo $RECURSE bar',
-            'RRR'       : 'foo $SSS bar',
-            'SSS'       : '$RRR',
+        # Various uses of UserString.
+        UserString.UserString('x'),         [['x']],
+        [UserString.UserString('x')],       [['x']],
+        UserString.UserString('$X'),        [['x']],
+        [UserString.UserString('$X')],      [['x']],
+        UserString.UserString('$US'),       [['us']],
+        [UserString.UserString('$US')],     [['us']],
+        '$US',                              [['us']],
+        ['$US'],                            [['us']],
 
-            # Test callable objects that don't match our calling arguments.
-            'CALLABLE'  : callable_object,
+        # Test function calls within ${}.
+        '$FUNCCALL',            [['a', 'xc', 'b']],
 
-            '_defines'  : _defines,
-            'DEFS'      : [ ('Q1', '"q1"'), ('Q2', '"$AAA"') ],
-        }
+        # Test handling of newlines in white space.
+        'foo\nbar',             [['foo'], ['bar']],
+        'foo\n\nbar',           [['foo'], ['bar']],
+        'foo \n \n bar',        [['foo'], ['bar']],
+        'foo \nmiddle\n bar',   [['foo'], ['middle'], ['bar']],
 
-        env = DummyEnv(loc)
+        # Bug reported by Christoph Wiedemann.
+        cvt('$xxx/bin'),        [['/bin']],
 
-        cases = [
-            "$TARGETS",
-            [
-                ["foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj"],
-            ],
+        # Test variables smooshed together with different prefixes.
+        'foo$AAA',              [['fooa']],
+        '<$AAA',                [['<', 'a']],
+        '>$AAA',                [['>', 'a']],
+        '|$AAA',                [['|', 'a']],
 
-            "$SOURCES $NEWLINE $TARGETS",
-            [
-                ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.c", "before"],
-                ["after", "foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj"],
-            ],
+        # Test callables that don't match our calling arguments.
+        '$CALLABLE2',            [['callable-2']],
 
-            "$SOURCES$NEWLINE",
-            [
-                ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
-                ["after"],
-            ],
+        # Test handling of quotes.
+        # XXX Find a way to handle this in the future.
+        #'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
 
-            "foo$FFF",
-            [
-                ["fooGGG"],
-            ],
+        '${_defines(DEFS)}',     [['Q1="q1"', 'Q2="a"']],
+    ]
 
-            "foo${FFF}",
-            [
-                ["fooGGG"],
-            ],
+    def test_scons_subst_list(self):
+        """Test scons_subst_list():  basic substitution"""
+        def convert_lists(expect):
+            return map(lambda l: map(cvt, l), expect)
+        return self.basic_comparisons(scons_subst_list, convert_lists)
 
-            "test ${SOURCES.attribute.attr1}",
-            [
-                ["test", "attr$1-blah with spaces.cpp", "attr$1-ack.cpp", "attr$1-ack.c"],
-            ],
+    subst_list_cases = [
+        "test $xxx",
+            [["test"]],
+            [["test"]],
+            [["test"]],
 
-            "test ${SOURCES.attribute.attr2}",
-            [
-                ["test", "attr$2-blah with spaces.cpp", "attr$2-ack.cpp", "attr$2-ack.c"],
-            ],
+        "test $($xxx$)",
+            [["test", "$($)"]],
+            [["test"]],
+            [["test"]],
 
-            "$DO --in=$FOO --out=$BAR",
-            [
-                ["do something", "--in=foo.in", "--out=bar with spaces.out"],
-            ],
+        "test $( $xxx $)",
+            [["test", "$(", "$)"]],
+            [["test"]],
+            [["test"]],
 
-            # This test is now fixed, and works like it should.
-            "$DO --in=$CRAZY --out=$BAR",
-            [
-                ["do something", "--in=crazy\nfile.in", "--out=bar with spaces.out"],
-            ],
+        "$AAA ${AAA}A $BBBB $BBB",
+            [["a", "aA", "b"]],
+            [["a", "aA", "b"]],
+            [["a", "aA", "b"]],
 
-            # Try passing a list to scons_subst_list().
-            [ "$SOURCES$NEWLINE", "$TARGETS", "This is a test"],
-            [
-                ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
-                ["after", "foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj", "This is a test"],
-            ],
+        "$RECURSE",
+            [["foo", "bar"]],
+            [["foo", "bar"]],
+            [["foo", "bar"]],
 
-            # Test against a former bug in scons_subst_list().
-            "$XXX$HHH",
-            [
-                ["GGGIII"],
-            ],
+        "$RRR",
+            [["foo", "bar"]],
+            [["foo", "bar"]],
+            [["foo", "bar"]],
 
-            # Test double-dollar-sign behavior.
-            "$$FFF$HHH",
-            [
-                ["$FFFIII"],
-            ],
+        # Verify what happens with no target or source nodes.
+        "$TARGET $SOURCES",
+            [[]],
+            [[]],
+            [[]],
 
-            # Test various combinations of strings, lists and functions.
-            None,                   [[]],
-            [None],                 [[]],
-            '',                     [[]],
-            [''],                   [[]],
-            'x',                    [['x']],
-            ['x'],                  [['x']],
-            'x y',                  [['x', 'y']],
-            ['x y'],                [['x y']],
-            ['x', 'y'],             [['x', 'y']],
-            '$N',                   [[]],
-            ['$N'],                 [[]],
-            '$X',                   [['x']],
-            ['$X'],                 [['x']],
-            '$Y',                   [['x']],
-            ['$Y'],                 [['x']],
-            #'$R',                   [[]],
-            #['$R'],                 [[]],
-            '$S',                   [['x', 'y']],
-            '$S z',                 [['x', 'y', 'z']],
-            ['$S'],                 [['x', 'y']],
-            ['$S z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
-            ['$S', 'z'],            [['x', 'y', 'z']],
-            '$LS',                  [['x y']],
-            '$LS z',                [['x y', 'z']],
-            ['$LS'],                [['x y']],
-            ['$LS z'],              [['x y z']],
-            ['$LS', 'z'],           [['x y', 'z']],
-            '$L',                   [['x', 'y']],
-            '$L z',                 [['x', 'y', 'z']],
-            ['$L'],                 [['x', 'y']],
-            ['$L z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
-            ['$L', 'z'],            [['x', 'y', 'z']],
-            cs,                     [['cs']],
-            [cs],                   [['cs']],
-            cl,                     [['cl']],
-            [cl],                   [['cl']],
-            '$CS',                  [['cs']],
-            ['$CS'],                [['cs']],
-            '$CL',                  [['cl']],
-            ['$CL'],                [['cl']],
+        "$TARGETS $SOURCE",
+            [[]],
+            [[]],
+            [[]],
 
-            # Various uses of UserString.
-            UserString.UserString('x'),         [['x']],
-            [UserString.UserString('x')],       [['x']],
-            UserString.UserString('$X'),        [['x']],
-            [UserString.UserString('$X')],      [['x']],
-            UserString.UserString('$US'),       [['us']],
-            [UserString.UserString('$US')],     [['us']],
-            '$US',                              [['us']],
-            ['$US'],                            [['us']],
+        # Various test refactored from ActionTests.py
+        "${LIST}",
+            [['This', 'is', '$(', '$)', 'test']],
+            [['This', 'is', 'test']],
+            [['This', 'is', 'test']],
 
-            # Test function calls within ${}.
-            '$FUNCCALL',            [['a', 'xc', 'b']],
+        ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
+            [["|", "$(", "a", "|", "b", "$)", "|", "c", "1"]],
+            [["|", "a", "|", "b", "|", "c", "1"]],
+            [["|", "|", "c", "1"]],
+    ]
 
-            # Test handling of newlines in white space.
-            'foo\nbar',             [['foo'], ['bar']],
-            'foo\n\nbar',           [['foo'], ['bar']],
-            'foo \n \n bar',        [['foo'], ['bar']],
-            'foo \nmiddle\n bar',   [['foo'], ['middle'], ['bar']],
-
-            # Bug reported by Christoph Wiedemann.
-            cvt('$xxx/bin'),        [['/bin']],
-
-            # Test variables smooshed together with different prefixes.
-            'foo$AAA',              [['fooa']],
-            '<$AAA',                [['<', 'a']],
-            '>$AAA',                [['>', 'a']],
-            '|$AAA',                [['|', 'a']],
-
-            # Test callables that don't match our calling arguments.
-            '$CALLABLE',            [['callable-2']],
-
-            # Test handling of quotes.
-            # XXX Find a way to handle this in the future.
-            #'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
-
-            '${_defines(DEFS)}',     [['Q1="q1"', 'Q2="a"']],
-        ]
-
-        gvars = env.Dictionary()
-
-        kwargs = {'target' : target, 'source' : source, 'gvars' : gvars}
-
-        failed = 0
-        while cases:
-            input, expect = cases[:2]
-            expect = map(lambda l: map(cvt, l), expect)
-            result = apply(scons_subst_list, (input, env), kwargs)
-            if result != expect:
-                if failed == 0: print
-                print "    input %s => %s did not match %s" % (repr(input), result, repr(expect))
-                failed = failed + 1
-            del cases[:2]
-        assert failed == 0, "%d subst_list() cases failed" % failed
-
+    def test_subst_env(self):
+        """Test scons_subst_list():  expansion dictionary"""
         # The expansion dictionary no longer comes from the construction
         # environment automatically.
+        env = DummyEnv()
         s = scons_subst_list('$AAA', env)
         assert s == [[]], s
 
-        t1 = MyNode('t1')
-        t2 = MyNode('t2')
-        s1 = MyNode('s1')
-        s2 = MyNode('s2')
+    def test_subst_target_source(self):
+        """Test scons_subst_list():  target= and source= arguments"""
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
+        t1 = self.MyNode('t1')
+        t2 = self.MyNode('t2')
+        s1 = self.MyNode('s1')
+        s2 = self.MyNode('s2')
         result = scons_subst_list("$TARGET $SOURCES", env,
                                   target=[t1, t2],
                                   source=[s1, s2],
@@ -876,7 +890,10 @@ class SubstTestCase(unittest.TestCase):
                                     gvars=gvars)
         assert cmd_list == [['testing', 'foo', 'bar with spaces.out', 't', 's']], cmd_list
 
-        # Test escape functionality.
+    def test_subst_escape(self):
+        """Test scons_subst_list():  escape functionality"""
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
         def escape_func(foo):
             return '**' + foo + '**'
         cmd_list = scons_subst_list("abc $LITERALS xyz", env, gvars=gvars)
@@ -905,6 +922,8 @@ class SubstTestCase(unittest.TestCase):
         #assert c == '**bar\nwith\nnewlinesxyz**', c
         assert c == 'bar\nwith\nnewlinesxyz', c
 
+        _t = DummyNode('t')
+
         cmd_list = scons_subst_list('echo "target: $TARGET"', env,
                                     target=_t, gvars=gvars)
         c = cmd_list[0][0].escape(escape_func)
@@ -914,61 +933,10 @@ class SubstTestCase(unittest.TestCase):
         c = cmd_list[0][2].escape(escape_func)
         assert c == 't"', c
 
-        # Tests of the various SUBST_* modes of substitution.
-        subst_list_cases = [
-            "test $xxx",
-                [["test"]],
-                [["test"]],
-                [["test"]],
-
-            "test $($xxx$)",
-                [["test", "$($)"]],
-                [["test"]],
-                [["test"]],
-
-            "test $( $xxx $)",
-                [["test", "$(", "$)"]],
-                [["test"]],
-                [["test"]],
-
-            "$AAA ${AAA}A $BBBB $BBB",
-                [["a", "aA", "b"]],
-                [["a", "aA", "b"]],
-                [["a", "aA", "b"]],
-
-            "$RECURSE",
-                [["foo", "bar"]],
-                [["foo", "bar"]],
-                [["foo", "bar"]],
-
-            "$RRR",
-                [["foo", "bar"]],
-                [["foo", "bar"]],
-                [["foo", "bar"]],
-
-            # Verify what happens with no target or source nodes.
-            "$TARGET $SOURCES",
-                [[]],
-                [[]],
-                [[]],
-
-            "$TARGETS $SOURCE",
-                [[]],
-                [[]],
-                [[]],
-
-            # Various test refactored from ActionTests.py
-            "${LIST}",
-                [['This', 'is', '$(', '$)', 'test']],
-                [['This', 'is', 'test']],
-                [['This', 'is', 'test']],
-
-            ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
-                [["|", "$(", "a", "|", "b", "$)", "|", "c", "1"]],
-                [["|", "a", "|", "b", "|", "c", "1"]],
-                [["|", "|", "c", "1"]],
-        ]
-
+    def test_subst_SUBST_modes(self):
+        """Test scons_subst_list():  SUBST_* modes"""
+        env = DummyEnv(self.loc)
+        subst_list_cases = self.subst_list_cases[:]
         gvars = env.Dictionary()
 
         r = scons_subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW, gvars=gvars)
@@ -995,7 +963,9 @@ class SubstTestCase(unittest.TestCase):
             del subst_list_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
 
-        # Test that we handle attribute errors during expansion as expected.
+    def test_subst_attribute_errors(self):
+        """Test scons_subst_list():  handling attribute errors"""
+        env = DummyEnv()
         try:
             class Foo:
                 pass
@@ -1010,7 +980,9 @@ class SubstTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
-        # Test that we handle syntax errors during expansion as expected.
+    def test_subst_syntax_errors(self):
+        """Test scons_subst_list():  handling syntax errors"""
+        env = DummyEnv()
         try:
             scons_subst_list('$foo.bar.3.0', env)
         except SCons.Errors.UserError, e:
@@ -1023,20 +995,26 @@ class SubstTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected SyntaxError"
 
+    def test_subst_raw_function(self):
+        """Test scons_subst_list():  fetch function with SUBST_RAW plus conv"""
         # Test that the combination of SUBST_RAW plus a pass-through
         # conversion routine allows us to fetch a function through the
         # dictionary.
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
         x = lambda x: x
-        r = scons_subst_list("$CALLABLE", env, mode=SUBST_RAW, conv=x, gvars=gvars)
-        assert r == [[callable_object]], repr(r)
-        r = scons_subst_list("$CALLABLE", env, mode=SUBST_RAW, gvars=gvars)
+        r = scons_subst_list("$CALLABLE2", env, mode=SUBST_RAW, conv=x, gvars=gvars)
+        assert r == [[self.callable_object_2]], repr(r)
+        r = scons_subst_list("$CALLABLE2", env, mode=SUBST_RAW, gvars=gvars)
         assert r == [['callable-2']], repr(r)
 
-        # Test we handle overriding the internal conversion routines.
+    def test_subst_list_overriding_gvars(self):
+        """Test scons_subst_list():  overriding conv()"""
+        env = DummyEnv()
         def s(obj):
             return obj
 
-        n1 = MyNode('n1')
+        n1 = self.MyNode('n1')
         env = DummyEnv({'NODE' : n1})
         gvars=env.Dictionary()
         node = scons_subst_list("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
@@ -1046,66 +1024,69 @@ class SubstTestCase(unittest.TestCase):
         node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node == [[n1]], node
 
-        # Test supplying an overriding gvars dictionary.
+    def test_subst_list_overriding_gvars(self):
+        """Test scons_subst_list():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX' : 'xxx'})
         result = scons_subst_list('$XXX', env, gvars=env.Dictionary())
         assert result == [['xxx']], result
         result = scons_subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == [['yyy']], result
 
+class scons_subst_once_TestCase(unittest.TestCase):
+
+    loc = {
+        'CCFLAGS'           : '-DFOO',
+        'ONE'               : 1,
+        'RECURSE'           : 'r $RECURSE r',
+        'LIST'              : ['a', 'b', 'c'],
+    }
+
+    basic_cases = [
+        '$CCFLAGS -DBAR',
+        'OTHER_KEY',
+        '$CCFLAGS -DBAR',
+
+        '$CCFLAGS -DBAR',
+        'CCFLAGS',
+        '-DFOO -DBAR',
+
+        'x $ONE y',
+        'ONE',
+        'x 1 y',
+
+        'x $RECURSE y',
+        'RECURSE',
+        'x r $RECURSE r y',
+
+        '$LIST',
+        'LIST',
+        'a b c',
+
+        ['$LIST'],
+        'LIST',
+        ['a', 'b', 'c'],
+
+        ['x', '$LIST', 'y'],
+        'LIST',
+        ['x', 'a', 'b', 'c', 'y'],
+
+        ['x', 'x $LIST y', 'y'],
+        'LIST',
+        ['x', 'x a b c y', 'y'],
+
+        ['x', 'x $CCFLAGS y', 'y'],
+        'LIST',
+        ['x', 'x $CCFLAGS y', 'y'],
+
+        ['x', 'x $RECURSE y', 'y'],
+        'LIST',
+        ['x', 'x $RECURSE y', 'y'],
+    ]
+
     def test_subst_once(self):
-        """Testing the scons_subst_once() method"""
-
-        loc = {
-            'CCFLAGS'           : '-DFOO',
-            'ONE'               : 1,
-            'RECURSE'           : 'r $RECURSE r',
-            'LIST'              : ['a', 'b', 'c'],
-        }
-
-        env = DummyEnv(loc)
-
-        cases = [
-            '$CCFLAGS -DBAR',
-            'OTHER_KEY',
-            '$CCFLAGS -DBAR',
-
-            '$CCFLAGS -DBAR',
-            'CCFLAGS',
-            '-DFOO -DBAR',
-
-            'x $ONE y',
-            'ONE',
-            'x 1 y',
-
-            'x $RECURSE y',
-            'RECURSE',
-            'x r $RECURSE r y',
-
-            '$LIST',
-            'LIST',
-            'a b c',
-
-            ['$LIST'],
-            'LIST',
-            ['a', 'b', 'c'],
-
-            ['x', '$LIST', 'y'],
-            'LIST',
-            ['x', 'a', 'b', 'c', 'y'],
-
-            ['x', 'x $LIST y', 'y'],
-            'LIST',
-            ['x', 'x a b c y', 'y'],
-
-            ['x', 'x $CCFLAGS y', 'y'],
-            'LIST',
-            ['x', 'x $CCFLAGS y', 'y'],
-
-            ['x', 'x $RECURSE y', 'y'],
-            'LIST',
-            ['x', 'x $RECURSE y', 'y'],
-        ]
+        """Test the scons_subst_once() function"""
+        env = DummyEnv(self.loc)
+        cases = self.basic_cases[:]
 
         failed = 0
         while cases:
@@ -1118,8 +1099,9 @@ class SubstTestCase(unittest.TestCase):
             del cases[:3]
         assert failed == 0, "%d subst() cases failed" % failed
 
+class quote_spaces_TestCase(unittest.TestCase):
     def test_quote_spaces(self):
-        """Testing the quote_spaces() method..."""
+        """Test the quote_spaces() method..."""
         q = quote_spaces('x')
         assert q == 'x', q
 
@@ -1152,6 +1134,7 @@ class SubstTestCase(unittest.TestCase):
         def current(self):
             return 1
 
+class LiteralTestCase(unittest.TestCase):
     def test_Literal(self):
         """Test the Literal() function."""
         input_list = [ '$FOO', Literal('$BAR') ]
@@ -1164,6 +1147,7 @@ class SubstTestCase(unittest.TestCase):
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
+class SpecialAttrWrapperTestCase(unittest.TestCase):
     def test_SpecialAttrWrapper(self):
         """Test the SpecialAttrWrapper() function."""
         input_list = [ '$FOO', SpecialAttrWrapper('$BAR', 'BLEH') ]
@@ -1180,6 +1164,7 @@ class SubstTestCase(unittest.TestCase):
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
+class subst_dict_TestCase(unittest.TestCase):
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
         """
@@ -1233,6 +1218,19 @@ class SubstTestCase(unittest.TestCase):
         assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(SubstTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [
+        CLVar_TestCase,
+        LiteralTestCase,
+        SpecialAttrWrapperTestCase,
+        quote_spaces_TestCase,
+        scons_subst_TestCase,
+        scons_subst_list_TestCase,
+        scons_subst_once_TestCase,
+        subst_dict_TestCase,
+    ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
