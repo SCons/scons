@@ -58,12 +58,13 @@ def modify_env_var(env, var, abspath):
     env.PrependENVPath(var, abspath)
     try:
         if SCons.Util.is_List(env[var]):
-            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
+            #TODO(1.5)
+            #env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
             env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
         else:
             # Split at os.pathsep to convert into absolute path
             #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), str(env[var]).split(os.pathsep)))
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), string.split(str(env[var]), os.pathsep)))
     except KeyError:
         pass
 
@@ -72,7 +73,9 @@ def modify_env_var(env, var, abspath):
     # does not work, refuses to append ":" (os.pathsep).
 
     if SCons.Util.is_List(env['ENV'][var]):
-        env['ENV'][var] = os.pathsep.join(env['ENV'][var])
+        # TODO(1.5)
+        #env['ENV'][var] = os.pathsep.join(env['ENV'][var])
+        env['ENV'][var] = string.join(env['ENV'][var], os.pathsep)
     # Append the trailing os.pathsep character here to catch the case with no env[var]
     env['ENV'][var] = env['ENV'][var] + os.pathsep
 
