@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 test.subdir('install')
 
 test.write('SConstruct', """\
-env = Environment(INSTALLSTR = 'INSTALL $SOURCE => $TARGET!\\n')
+env = Environment(INSTALLSTR = 'INSTALL $SOURCE => $TARGET!')
 env.Install('install', 'file')
 """)
 
