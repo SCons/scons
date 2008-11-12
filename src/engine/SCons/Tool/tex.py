@@ -441,7 +441,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
         if graphicSrc != None:
             if Verbose and (graphicNode == None):
                 print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
-            graphicNode = env.PDF(os.path.join(targetdir,str(graphicSrc)))
+            graphicNode = env.PDF(graphicSrc)
             env.Depends(target[0],graphicNode)
 
     # recursively call this on each of the included files
