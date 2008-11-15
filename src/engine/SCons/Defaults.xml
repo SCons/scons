@@ -52,7 +52,7 @@ to define values.
 The value of &cv-_CPPDEFFLAGS; is created
 by appending &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
 to the beginning and end
-of each directory in &cv-CPPDEFINES;.
+of each definition in &cv-CPPDEFINES;.
 </summary>
 </cvar>
 
