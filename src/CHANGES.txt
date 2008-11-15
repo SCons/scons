@@ -19,6 +19,11 @@ RELEASE 1.X - XXX
 
     - Fix $FORTRANMODDIRPREFIX for the ifort (Intel Fortran) tool.
 
+  From Brad Fitzpatrick:
+
+    - Don't pre-generate an exception message (which will likely be
+      ignored anyway) when an EntryProxy re-raises an AttributeError.
+
   From Ludwig Hähne:
 
     - Handle Java inner classes declared within a method.

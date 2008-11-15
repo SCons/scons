@@ -61,6 +61,23 @@ from SCons.Debug import Trace
 
 do_store_info = True
 
+
+class EntryProxyAttributeError(AttributeError):
+    """
+    An AttributeError subclass for recording and displaying the name
+    of the underlying Entry involved in an AttributeError exception.
+    """
+    def __init__(self, entry_proxy, attribute):
+        AttributeError.__init__(self)
+        self.entry_proxy = entry_proxy
+        self.attribute = attribute
+    def __str__(self):
+        entry = self.entry_proxy.get()
+        fmt = "%s instance %s has no attribute %s"
+        return fmt % (entry.__class__.__name__,
+                      repr(entry.name),
+                      repr(self.attribute))
+
 # The max_drift value:  by default, use a cached signature value for
 # any file that's been untouched for more than two days.
 default_max_drift = 2*24*60*60
@@ -483,16 +500,11 @@ class EntryProxy(SCons.Util.Proxy):
         except KeyError:
             try:
                 attr = SCons.Util.Proxy.__getattr__(self, name)
-            except AttributeError:
-                entry = self.get()
-                classname = string.split(str(entry.__class__), '.')[-1]
-                if classname[-2:] == "'>":
-                    # new-style classes report their name as:
-                    #   "<class 'something'>"
-                    # instead of the classic classes:
-                    #   "something"
-                    classname = classname[:-2]
-                raise AttributeError, "%s instance '%s' has no attribute '%s'" % (classname, entry.name, name)
+            except AttributeError, e:
+                # Raise our own AttributeError subclass with an
+                # overridden __str__() method that identifies the
+                # name of the entry that caused the exception.
+                raise EntryProxyAttributeError(self, name)
             return attr
         else:
             return attr_function(self)
