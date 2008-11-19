@@ -955,17 +955,22 @@ This functionality could be invoked as in the following example:
     to include in &SConscript;s; just put that module in
     <filename>site_scons/my_utils.py</filename> or any valid Python module name of your
     choice.  For instance you can do something like this in
-    <filename>site_scons/my_utils.py</filename> to add a build_id method:
+    <filename>site_scons/my_utils.py</filename> to add build_id and MakeWorkDir functions:
   </para>
     
   <scons_example name="site2">
     <file name="site_scons/my_utils.py" printme=1>
+      from SCons.Script import *   # for Execute and Mkdir
       def build_id():
          """Return a build ID (stub version)"""
          return "100"
+      def MakeWorkDir(workdir):
+         """Create the specified dir immediately"""
+         Execute(Mkdir(workdir))
     </file>
     <file name="SConscript">
       import my_utils
+      MakeWorkDir('/tmp/work')
       print "build_id=" + my_utils.build_id()
     </file>
   </scons_example>
@@ -980,7 +985,26 @@ This functionality could be invoked as in the following example:
   <sconstruct>
       import my_utils
       print "build_id=" + my_utils.build_id()
+      my_utils.MakeWorkDir('/tmp/work')
   </sconstruct>
+
+  <para>
+    Note that although you can put this library in
+    <filename>site_scons/site_init.py</filename>,
+    it is no better there than <filename>site_scons/my_utils.py</filename>
+    since you still have to import that module into your &SConscript;.
+    Also note that in order to refer to objects in the SCons namespace
+    such as &Environment; or &Mkdir; or &Execute; in any file other
+    than a &SConstruct; or &SConscript; you always need to do
+  </para>
+  <sconstruct>
+      from SCons.Script import *
+  </sconstruct>
+
+  <para>
+    This is true in modules in <filename>site_scons</filename> such as
+    <filename>site_scons/site_init.py</filename> as well.
+  </para>
 
   <para>
 
