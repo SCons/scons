@@ -141,6 +141,11 @@ builder method).
 &scons;
 will raise an error if there is any mismatch.
 
+On some platforms, there is a distinction between a shared library
+(loaded automatically by the system to resolve external references)
+and a loadable module (explicitly loaded by user action).
+For maximum portability, use the &b-LoadableModule; builder for the latter.
+
 On Windows systems, specifying
 <literal>register=1</literal>
 will cause the <filename>.dll</filename> to be
