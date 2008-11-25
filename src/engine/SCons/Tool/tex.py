@@ -126,7 +126,9 @@ _null = SCons.Scanner.LaTeX._null
 
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
-def FindFile(name,suffixes,paths,env):
+def FindFile(name,suffixes,paths,env,requireExt=False):
+    if requireExt:
+        name = SCons.Util.splitext(name)[0]
     if Verbose:
         print " searching for '%s' with extensions: " % name,suffixes
 
@@ -435,14 +437,22 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
     if Verbose:
         print "graphics files in '%s': "%str(theFile),graphic_files
     for graphFile in graphic_files:
-        graphicNode = FindFile(graphFile,graphics_extensions,paths,env)
-        # see if we can build this graphics file by epstopdf
-        graphicSrc = FindFile(graphFile,TexGraphics,paths,env)
-        if graphicSrc != None:
-            if Verbose and (graphicNode == None):
-                print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
-            graphicNode = env.PDF(graphicSrc)
-            env.Depends(target[0],graphicNode)
+        graphicNode = FindFile(graphFile,graphics_extensions,paths,env,requireExt=True)
+        # if building with pdflatex see if we need to build the .pdf version of the graphic file
+        # I should probably come up with a better way to tell which builder we are using.
+        if graphics_extensions == LatexGraphics:
+            # see if we can build this graphics file by epstopdf
+            graphicSrc = FindFile(graphFile,TexGraphics,paths,env,requireExt=True)
+            # it seems that FindFile checks with no extension added
+            # so if the extension is included in the name then both searches find it
+            # we don't want to try to build a .pdf from a .pdf so make sure src!=file wanted
+            if (graphicSrc != None) and (graphicSrc != graphicNode):
+                if Verbose and (graphicNode == None):
+                    print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
+                else:
+                    print "no need to build '%s', but source file %s exists" % (graphicNode,graphicSrc)
+                graphicNode = env.PDF(graphicSrc)
+                env.Depends(target[0],graphicNode)
 
     # recursively call this on each of the included files
     inc_files = [ ]
@@ -453,7 +463,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
     # using TEXINPUTS paths.
 
     for src in inc_files:
-        srcNode = srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env)
+        srcNode = srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
         if srcNode != None:
             file_test = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
     if Verbose:
