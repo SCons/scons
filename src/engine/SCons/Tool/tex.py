@@ -447,10 +447,11 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
             # so if the extension is included in the name then both searches find it
             # we don't want to try to build a .pdf from a .pdf so make sure src!=file wanted
             if (graphicSrc != None) and (graphicSrc != graphicNode):
-                if Verbose and (graphicNode == None):
-                    print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
-                else:
-                    print "no need to build '%s', but source file %s exists" % (graphicNode,graphicSrc)
+                if Verbose:
+                    if graphicNode == None:
+                        print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
+                    else:
+                        print "no need to build '%s', but source file %s exists" % (graphicNode,graphicSrc)
                 graphicNode = env.PDF(graphicSrc)
                 env.Depends(target[0],graphicNode)
 
