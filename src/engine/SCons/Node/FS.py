@@ -1892,6 +1892,7 @@ class Dir(Base):
         for srcdir in self.srcdir_list():
             search_dir_list.extend(srcdir.get_all_rdirs())
 
+        selfEntry = self.Entry
         names = []
         for dir in search_dir_list:
             # We use the .name attribute from the Node because the keys of
@@ -1901,6 +1902,10 @@ class Dir(Base):
             entry_names = filter(lambda n: n not in ('.', '..'), dir.entries.keys())
             node_names = map(lambda n, e=dir.entries: e[n].name, entry_names)
             names.extend(node_names)
+            if not strings:
+                # Make sure the working directory (self) actually has
+                # entries for all Nodes in repositories or variant dirs.
+                map(selfEntry, node_names)
             if ondisk:
                 try:
                     disk_names = os.listdir(dir.abspath)
@@ -1921,7 +1926,6 @@ class Dir(Base):
                         disk_names = filter(lambda x: x[0] != '.', disk_names)
                     disk_names = fnmatch.filter(disk_names, pattern)
                     dirEntry = dir.Entry
-                    selfEntry = self.Entry
                     for name in disk_names:
                         # Add './' before disk filename so that '#' at
                         # beginning of filename isn't interpreted.

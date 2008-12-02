@@ -54,6 +54,9 @@ RELEASE 1.X - XXX
     - Add support for using the Python "in" keyword on construction
       environments (for example, if "CPPPATH" in env: ...).
 
+    - Fix use of Glob() when a repository or source directory contains
+      an in-memory Node without a corresponding on-disk file or directory.
+
   From Rob Managan:
 
     - Scan for TeX files in the paths specified in the $TEXINPUTS

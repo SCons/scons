@@ -2206,12 +2206,24 @@ class GlobTestCase(_tempdirTestCase):
             r = apply(self.fs.Glob, (input,), kwargs)
             if node_expect:
                 r.sort(lambda a,b: cmp(a.path, b.path))
-                result = node_expect
+                result = []
+                for n in node_expect:
+                    if type(n) == type(''):
+                        n = self.fs.Entry(n)
+                    result.append(n)
+                fmt = lambda n: "%s %s" % (repr(n), repr(str(n)))
             else:
                 r = map(str, r)
                 r.sort()
                 result = string_expect
-            assert r == result, "Glob(%s) expected %s, got %s" % (input, map(str, result), map(str, r))
+                fmt = lambda n: n
+            if r != result:
+                import pprint
+                print "Glob(%s) expected:" % repr(input)
+                pprint.pprint(map(fmt, result))
+                print "Glob(%s) got:" % repr(input)
+                pprint.pprint(map(fmt, r))
+                self.fail()
 
     def test_exact_match(self):
         """Test globbing for exact Node matches"""
@@ -2249,8 +2261,8 @@ class GlobTestCase(_tempdirTestCase):
 
         self.do_cases(cases)
 
-    def test_asterisk(self):
-        """Test globbing for simple asterisk Node matches"""
+    def test_asterisk1(self):
+        """Test globbing for simple asterisk Node matches (1)"""
         cases = (
             ('h*',
              ['hhh'],
@@ -2263,14 +2275,16 @@ class GlobTestCase(_tempdirTestCase):
               'ggg', 'hhh', 'iii',
               'sub', 'subdir1', 'subdir2'],
              [self._both_hash, self._hash,
-              self.both_aaa, self.both_bbb, self.both_ccc,
+              self.both_aaa, self.both_bbb, self.both_ccc, 'both-hash',
               self.both_sub1, self.both_sub2,
-              self.ggg, self.hhh, self.iii,
+              self.ggg, 'hash', self.hhh, self.iii,
               self.sub, self.subdir1, self.subdir2]),
         )
 
         self.do_cases(cases, ondisk=False)
 
+    def test_asterisk2(self):
+        """Test globbing for simple asterisk Node matches (2)"""
         cases = (
             ('disk-b*',
              ['disk-bbb'],
@@ -2283,7 +2297,12 @@ class GlobTestCase(_tempdirTestCase):
               'disk-aaa', 'disk-bbb', 'disk-ccc', 'disk-sub',
               'ggg', 'hhh', 'iii',
               'sub', 'subdir1', 'subdir2'],
-             None),
+             ['./#both-hash', './#disk-hash', './#hash',
+              'both-aaa', 'both-bbb', 'both-ccc', 'both-hash',
+              'both-sub1', 'both-sub2',
+              'disk-aaa', 'disk-bbb', 'disk-ccc', 'disk-sub',
+              'ggg', 'hash', 'hhh', 'iii',
+              'sub', 'subdir1', 'subdir2']),
         )
 
         self.do_cases(cases)
