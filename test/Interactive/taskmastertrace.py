@@ -75,15 +75,28 @@ scons>>>
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'foo.out'> and its children:
 Taskmaster:        <no_state   0   'foo.in'>
-Taskmaster:      adjusting ref count: <pending    1   'foo.out'>
+Taskmaster:      adjusting ref count: <pending    1   'foo.out'>, child 'foo.in'
 Taskmaster:     Considering node <no_state   0   'foo.in'> and its children:
 Taskmaster: Evaluating <pending    0   'foo.in'>
+
+Task.make_ready_current(): node <pending    0   'foo.in'>
+Task.prepare():      node <up_to_date 0   'foo.in'>
+Task.executed_with_callbacks(): node <up_to_date 0   'foo.in'>
+Task.postprocess():  node <up_to_date 0   'foo.in'>
+Task.postprocess():  removing <up_to_date 0   'foo.in'>
+Task.postprocess():  adjusting parent ref count <pending    0   'foo.out'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   'foo.out'> and its children:
 Taskmaster:        <up_to_date 0   'foo.in'>
 Taskmaster: Evaluating <pending    0   'foo.out'>
+
+Task.make_ready_current(): node <pending    0   'foo.out'>
+Task.prepare():      node <executing  0   'foo.out'>
+Task.execute():      node <executing  0   'foo.out'>
 Copy("foo.out", "foo.in")
+Task.executed_with_callbacks(): node <executing  0   'foo.out'>
+Task.postprocess():  node <executed   0   'foo.out'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
