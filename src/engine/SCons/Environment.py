@@ -142,6 +142,24 @@ def _set_SCANNERS(env, key, value):
     env._dict[key] = value
     env.scanner_map_delete()
 
+def _delete_duplicates(l, keep_last):
+    """Delete duplicates from a sequence, keeping the first or last."""
+    seen={}
+    result=[]
+    if keep_last:           # reverse in & out, then keep first
+        l.reverse()
+    for i in l:
+        try:
+            if not seen.has_key(i):
+                result.append(i)
+                seen[i]=1
+        except TypeError:
+            # probably unhashable.  Just keep it.
+            result.append(i)
+    if keep_last:
+        result.reverse()
+    return result
+
 
 
 # The following is partly based on code in a comment added by Peter
@@ -1193,6 +1211,8 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if SCons.Util.is_List(val):
+                val = _delete_duplicates(val, delete_existing)
             if not self._dict.has_key(key) or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
@@ -1546,6 +1566,8 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if SCons.Util.is_List(val):
+                val = _delete_duplicates(val, not delete_existing)
             if not self._dict.has_key(key) or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
