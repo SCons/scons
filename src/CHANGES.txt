@@ -15,6 +15,9 @@ RELEASE 1.X - XXX
     - Improve the robustness of GetBuildFailures() by refactoring
       SCons exception handling (especially BuildError exceptions).
 
+    - Have the --taskmastertrace= option print information about
+      individual Task methods, not just the Taskmaster control flow.
+
   From David Cournapeau:
 
     - Fix $FORTRANMODDIRPREFIX for the ifort (Intel Fortran) tool.
@@ -27,11 +30,6 @@ RELEASE 1.X - XXX
   From Ludwig Hähne:
 
     - Handle Java inner classes declared within a method.
-
-  From Jason Kenny:
-
-    - Have the --taskmastertrace= option print information about
-      individual Task methods, not just the Taskmaster control flow.
 
   From Steven Knight:
 
