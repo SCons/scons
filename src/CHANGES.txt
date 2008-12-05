@@ -28,6 +28,11 @@ RELEASE 1.X - XXX
 
     - Handle Java inner classes declared within a method.
 
+  From Jason Kenny:
+
+    - Have the --taskmastertrace= option print information about
+      individual Task methods, not just the Taskmaster control flow.
+
   From Steven Knight:
 
     - Fix label placement by the "scons-time.py func" subcommand
