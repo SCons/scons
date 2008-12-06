@@ -18,6 +18,9 @@ RELEASE 1.X - XXX
     - Have the --taskmastertrace= option print information about
       individual Task methods, not just the Taskmaster control flow.
 
+    - Eliminate some spurious dependency cycles by being more aggressive
+      about pruning pending children from the Taskmaster walk.
+
   From David Cournapeau:
 
     - Fix $FORTRANMODDIRPREFIX for the ifort (Intel Fortran) tool.
