@@ -303,13 +303,12 @@ class Task:
         the executing state, it might also be invoked on up-to-date
         nodes when using Configure().
         """
-        
         T = self.tm.trace
         if T: T.write(self.trace_message('Task.failed_stop()', self.node))
 
         # Invoke will_not_build() to clean-up the pending children
         # list.
-        self.tm.will_not_build(self.targets)
+        self.tm.will_not_build(self.targets, lambda n: n.set_state(NODE_FAILED))
 
         # Tell the taskmaster to not start any new tasks
         self.tm.stop()
@@ -334,8 +333,8 @@ class Task:
         T = self.tm.trace
         if T: T.write(self.trace_message('Task.failed_continue()', self.node))
 
-        self.tm.will_not_build(self.targets)
-        
+        self.tm.will_not_build(self.targets, lambda n: n.set_state(NODE_FAILED))
+
     def make_ready_all(self):
         """
         Marks all targets in a task ready for execution.
@@ -382,7 +381,7 @@ class Task:
                 t.set_state(NODE_EXECUTING)
                 for s in t.side_effects:
                     s.set_state(NODE_EXECUTING)
-        else:                
+        else:
             for t in self.targets:
                 # We must invoke visited() to ensure that the node
                 # information has been computed before allowing the
@@ -415,6 +414,7 @@ class Task:
 
         targets = set(self.targets)
 
+        pending_children = self.tm.pending_children
         parents = {}
         for t in targets:
             # A node can only be in the pending_children set if it has
@@ -423,6 +423,7 @@ class Task:
                 if T: T.write(self.trace_message('Task.postprocess()',
                                                  t,
                                                  'removing'))
+                pending_children.discard(t)
             for p in t.waiting_parents:
                 parents[p] = parents.get(p, 0) + 1
 
@@ -435,7 +436,6 @@ class Task:
                 for p in s.waiting_s_e:
                     if p.ref_count == 0:
                         self.tm.candidates.append(p)
-                        self.tm.pending_children.discard(p)
 
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract
@@ -444,7 +444,6 @@ class Task:
                                              'adjusting parent ref count'))
             if p.ref_count == 0:
                 self.tm.candidates.append(p)
-                self.tm.pending_children.discard(p)
 
         for t in targets:
             t.postprocess()
@@ -575,7 +574,7 @@ class Taskmaster:
     def no_next_candidate(self):
         """
         Stops Taskmaster processing by not returning a next candidate.
-        
+
         Note that we have to clean-up the Taskmaster candidate list
         because the cycle detection depends on the fact all nodes have
         been processed somehow.
@@ -583,8 +582,87 @@ class Taskmaster:
         while self.candidates:
             candidates = self.candidates
             self.candidates = []
-            self.will_not_build(candidates, lambda n: n.state < NODE_UP_TO_DATE)
+            self.will_not_build(candidates)
         return None
+
+    def _validate_pending_children(self):
+        """
+        Validate the content of the pending_children set. Assert if an
+        internal error is found.
+
+        This function is used strictly for debugging the taskmaster by
+        checking that no invariants are violated. It is not used in
+        normal operation.
+
+        The pending_children set is used to detect cycles in the
+        dependency graph. We call a "pending child" a child that is
+        found in the "pending" state when checking the dependencies of
+        its parent node.
+
+        A pending child can occur when the Taskmaster completes a loop
+        through a cycle. For example, lets imagine a graph made of
+        three node (A, B and C) making a cycle. The evaluation starts
+        at node A. The taskmaster first consider whether node A's
+        child B is up-to-date. Then, recursively, node B needs to
+        check whether node C is up-to-date. This leaves us with a
+        dependency graph looking like:
+
+                                      Next candidate \
+                                                      \
+        Node A (Pending) --> Node B(Pending) --> Node C (NoState)
+                ^                                     |
+                |                                     |
+                +-------------------------------------+
+
+        Now, when the Taskmaster examines the Node C's child Node A,
+        it finds that Node A is in the "pending" state. Therefore,
+        Node A is a pending child of node C.
+
+        Pending children indicate that the Taskmaster has potentially
+        loop back through a cycle. We say potentially because it could
+        also occur when a DAG is evaluated in parallel. For example,
+        consider the following graph:
+
+
+        Node A (Pending) --> Node B(Pending) --> Node C (Pending) --> ...
+                |                                     ^
+                |                                     |
+                +----------> Node D (NoState) --------+
+                                  /
+                  Next candidate /
+
+        The Taskmaster first evaluates the nodes A, B, and C and
+        starts building some children of node C. Assuming, that the
+        maximum parallel level has not been reached, the Taskmaster
+        will examine Node D. It will find that Node C is a pending
+        child of Node D.
+
+        In summary, evaluating a graph with a cycle will always
+        involve a pending child at one point. A pending child might
+        indicate either a cycle or a diamond-shaped DAG. Only a
+        fraction of the nodes ends-up being a "pending child" of
+        another node. This keeps the pending_children set small in
+        practice.
+
+        We can differentiate between the two cases if we wait until
+        the end of the build. At this point, all the pending children
+        nodes due to a diamond-shaped DAG will have been properly
+        built (or will have failed to build). But, the pending
+        children involved in a cycle will still be in the pending
+        state.
+
+        The taskmaster removes nodes from the pending_children set as
+        soon as a pending_children node moves out of the pending
+        state. This also helps to keep the pending_children set small.
+        """
+
+        for n in self.pending_children:
+            assert n.state in (NODE_PENDING, NODE_EXECUTING), \
+                (str(n), StateString[n.state])
+            assert len(n.waiting_parents) != 0, (str(n), len(n.waiting_parents))
+            for p in n.waiting_parents:
+                assert p.ref_count > 0, (str(n), str(p), p.ref_count)
+
 
     def trace_message(self, message):
         return 'Taskmaster: %s\n' % message
@@ -630,6 +708,14 @@ class Taskmaster:
             node = node.disambiguate()
             state = node.get_state()
 
+            # For debugging only:
+            #
+            # try:
+            #     self._validate_pending_children()
+            # except:
+            #     self.ready_exc = sys.exc_info()
+            #     return node
+
             if CollectStats:
                 if not hasattr(node, 'stats'):
                     node.stats = Stats()
@@ -656,7 +742,7 @@ class Taskmaster:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
-                if T: T.write('Taskmaster:        SystemExit\n')
+                if T: T.write(self.trace_message('       SystemExit'))
                 return node
             except Exception, e:
                 # We had a problem just trying to figure out the
@@ -720,8 +806,7 @@ class Taskmaster:
                 node.set_state(NODE_FAILED)
 
                 if S: S.child_failed = S.child_failed + 1
-                if T: T.write('Taskmaster:****** <%-10s %-3s %s>\n' % 
-                              (StateString[node.get_state()], node.ref_count, repr(str(node))))
+                if T: T.write(self.trace_message('****** %s\n' % self.trace_node(node)))
                 continue
 
             if children_not_ready:
@@ -738,8 +823,12 @@ class Taskmaster:
                     if T: T.write(self.trace_message('     adjusting ref count: %s, child %s' %
                                   (self.trace_node(node), repr(str(child)))))
 
+                if T:
+                    for pc in children_pending:
+                        T.write(self.trace_message('       adding %s to the pending children set\n' %
+                                self.trace_node(pc)))
                 self.pending_children = self.pending_children | children_pending
-                
+
                 continue
 
             # Skip this node if it has side-effects that are
@@ -759,6 +848,15 @@ class Taskmaster:
             if S: S.build = S.build + 1
             if T: T.write(self.trace_message('Evaluating %s\n' %
                                              self.trace_node(node)))
+
+            # For debugging only:
+            #
+            # try:
+            #     self._validate_pending_children()
+            # except:
+            #     self.ready_exc = sys.exc_info()
+            #     return node
+
             return node
 
         return None
@@ -794,23 +892,24 @@ class Taskmaster:
 
         return task
 
-    def will_not_build(self, nodes, mark_fail=lambda n: n.state != NODE_FAILED):
+    def will_not_build(self, nodes, node_func=lambda n: None):
         """
-        Perform clean-up about nodes that will never be built.
+        Perform clean-up about nodes that will never be built. Invokes
+        a user defined function on all of these nodes (including all
+        of their parents).
         """
+
+        T = self.trace
 
         pending_children = self.pending_children
 
-        to_visit = set()
-        for node in nodes:
-            # Set failure state on all of the parents that were dependent
-            # on this failed build.
-            if mark_fail(node):
-                node.set_state(NODE_FAILED)
-                parents = node.waiting_parents
-                to_visit = to_visit | parents
-                pending_children = pending_children - parents
+        to_visit = set(nodes)
+        pending_children = pending_children - to_visit
 
+        if T:
+            for n in nodes:
+                T.write(self.trace_message('       removing %s from the pending children set\n' %
+                        self.trace_node(n)))
         try:
             while 1:
                 try:
@@ -822,11 +921,21 @@ class Taskmaster:
                         to_visit.remove(node)
                     else:
                         break
-                if mark_fail(node):
-                    node.set_state(NODE_FAILED)
-                    parents = node.waiting_parents
-                    to_visit = to_visit | parents
-                    pending_children = pending_children - parents
+
+                node_func(node)
+
+                # Prune recursion by flushing the waiting children
+                # list immediately.
+                parents = node.waiting_parents
+                node.waiting_parents = set()
+
+                to_visit = to_visit | parents
+                pending_children = pending_children - parents
+
+                if T:
+                    for p in parents:
+                        T.write(self.trace_message('       removing %s from the pending children set\n' %
+                                self.trace_node(p)))
         except KeyError:
             # The container to_visit has been emptied.
             pass
@@ -855,6 +964,6 @@ class Taskmaster:
                 else:
                     desc = desc + \
                         "  Internal Error: no cycle found for node %s (%s) in state %s\n" %  \
-                        (node, repr(node), StateString[node.get_state()]) 
+                        (node, repr(node), StateString[node.get_state()])
 
             raise SCons.Errors.UserError, desc
