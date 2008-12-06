@@ -504,12 +504,12 @@ class _ActionAction(ActionBase):
             l = string.join(self.presub_lines(env), '\n  ')
             out = "Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
-        s = None
+        cmd = None
         if show and self.strfunction:
-            s = self.strfunction(target, source, env)
-            if s:
+            cmd = self.strfunction(target, source, env)
+            if cmd:
                 if chdir:
-                    s = ('os.chdir(%s)\n' % repr(chdir)) + s
+                    cmd = ('os.chdir(%s)\n' % repr(chdir)) + cmd
                 try:
                     get = env.get
                 except AttributeError:
@@ -518,7 +518,7 @@ class _ActionAction(ActionBase):
                     print_func = get('PRINT_CMD_LINE_FUNC')
                     if not print_func:
                         print_func = self.print_cmd_line
-                print_func(s, target, source, env)
+                print_func(cmd, target, source, env)
         stat = 0
         if execute:
             if chdir:
@@ -536,7 +536,7 @@ class _ActionAction(ActionBase):
             finally:
                 if save_cwd:
                     os.chdir(save_cwd)
-        if s and save_cwd:
+        if cmd and save_cwd:
             print_func('os.chdir(%s)' % repr(save_cwd), target, source, env)
 
         return stat
