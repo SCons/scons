@@ -1120,22 +1120,56 @@ env4.builder1.env, env3)
         assert env.Dictionary('ENV')['PATH'] == '/foo:/bar'
 
     def test_ReservedVariables(self):
-        """Test generation of warnings when reserved variable names
-        are set in an environment."""
+        """Test warning generation when reserved variable names are set"""
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.ReservedVariableWarning)
+        reserved_variables = [
+            'SOURCE',
+            'SOURCES',
+            'TARGET',
+            'TARGETS',
+        ]
+
+        warning = SCons.Warnings.ReservedVariableWarning
+        SCons.Warnings.enableWarningClass(warning)
         old = SCons.Warnings.warningAsException(1)
 
         try:
             env4 = Environment()
-            for kw in ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']:
+            for kw in reserved_variables:
                 exc_caught = None
                 try:
                     env4[kw] = 'xyzzy'
-                except SCons.Warnings.ReservedVariableWarning:
+                except warning:
                     exc_caught = 1
                 assert exc_caught, "Did not catch ReservedVariableWarning for `%s'" % kw
                 assert not env4.has_key(kw), "`%s' variable was incorrectly set" % kw
+        finally:
+            SCons.Warnings.warningAsException(old)
+
+    def test_FutureReservedVariables(self):
+        """Test warning generation when future reserved variable names are set"""
+
+        future_reserved_variables = [
+            'CHANGED_SOURCES',
+            'CHANGED_TARGETS',
+            'UNCHANGED_SOURCES',
+            'UNCHANGED_TARGETS',
+        ]
+
+        warning = SCons.Warnings.FutureReservedVariableWarning
+        SCons.Warnings.enableWarningClass(warning)
+        old = SCons.Warnings.warningAsException(1)
+
+        try:
+            env4 = Environment()
+            for kw in future_reserved_variables:
+                exc_caught = None
+                try:
+                    env4[kw] = 'xyzzy'
+                except warning:
+                    exc_caught = 1
+                assert exc_caught, "Did not catch FutureReservedVariableWarning for `%s'" % kw
+                assert env4.has_key(kw), "`%s' variable was not set" % kw
         finally:
             SCons.Warnings.warningAsException(old)
 
