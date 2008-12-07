@@ -53,10 +53,10 @@ Taskmaster:        <no_state   0   'SConstruct'>
 Taskmaster:        <no_state   0   'Tfile.in'>
 Taskmaster:        <no_state   0   'Tfile.mid'>
 Taskmaster:        <no_state   0   'Tfile.out'>
-Taskmaster:      adjusting ref count: <pending    1   '.'>, child 'SConstruct'
-Taskmaster:      adjusting ref count: <pending    2   '.'>, child 'Tfile.in'
-Taskmaster:      adjusting ref count: <pending    3   '.'>, child 'Tfile.mid'
-Taskmaster:      adjusting ref count: <pending    4   '.'>, child 'Tfile.out'
+Taskmaster:      adjusted ref count: <pending    1   '.'>, child 'SConstruct'
+Taskmaster:      adjusted ref count: <pending    2   '.'>, child 'Tfile.in'
+Taskmaster:      adjusted ref count: <pending    3   '.'>, child 'Tfile.mid'
+Taskmaster:      adjusted ref count: <pending    4   '.'>, child 'Tfile.out'
 Taskmaster:     Considering node <no_state   0   'SConstruct'> and its children:
 Taskmaster: Evaluating <pending    0   'SConstruct'>
 
@@ -65,7 +65,7 @@ Task.prepare():      node <up_to_date 0   'SConstruct'>
 Task.executed_with_callbacks(): node <up_to_date 0   'SConstruct'>
 Task.postprocess():  node <up_to_date 0   'SConstruct'>
 Task.postprocess():  removing <up_to_date 0   'SConstruct'>
-Task.postprocess():  adjusting parent ref count <pending    3   '.'>
+Task.postprocess():  adjusted parent ref count <pending    3   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
@@ -76,7 +76,7 @@ Task.prepare():      node <up_to_date 0   'Tfile.in'>
 Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.in'>
 Task.postprocess():  node <up_to_date 0   'Tfile.in'>
 Task.postprocess():  removing <up_to_date 0   'Tfile.in'>
-Task.postprocess():  adjusting parent ref count <pending    2   '.'>
+Task.postprocess():  adjusted parent ref count <pending    2   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
@@ -90,7 +90,7 @@ Copy("Tfile.mid", "Tfile.in")
 Task.executed_with_callbacks(): node <executing  0   'Tfile.mid'>
 Task.postprocess():  node <executed   0   'Tfile.mid'>
 Task.postprocess():  removing <executed   0   'Tfile.mid'>
-Task.postprocess():  adjusting parent ref count <pending    1   '.'>
+Task.postprocess():  adjusted parent ref count <pending    1   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
@@ -104,7 +104,7 @@ Copy("Tfile.out", "Tfile.mid")
 Task.executed_with_callbacks(): node <executing  0   'Tfile.out'>
 Task.postprocess():  node <executed   0   'Tfile.out'>
 Task.postprocess():  removing <executed   0   'Tfile.out'>
-Task.postprocess():  adjusting parent ref count <pending    0   '.'>
+Task.postprocess():  adjusted parent ref count <pending    0   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   '.'> and its children:
@@ -148,10 +148,10 @@ Taskmaster:        <no_state   0   'SConstruct'>
 Taskmaster:        <no_state   0   'Tfile.in'>
 Taskmaster:        <no_state   0   'Tfile.mid'>
 Taskmaster:        <no_state   0   'Tfile.out'>
-Taskmaster:      adjusting ref count: <pending    1   '.'>, child 'SConstruct'
-Taskmaster:      adjusting ref count: <pending    2   '.'>, child 'Tfile.in'
-Taskmaster:      adjusting ref count: <pending    3   '.'>, child 'Tfile.mid'
-Taskmaster:      adjusting ref count: <pending    4   '.'>, child 'Tfile.out'
+Taskmaster:      adjusted ref count: <pending    1   '.'>, child 'SConstruct'
+Taskmaster:      adjusted ref count: <pending    2   '.'>, child 'Tfile.in'
+Taskmaster:      adjusted ref count: <pending    3   '.'>, child 'Tfile.mid'
+Taskmaster:      adjusted ref count: <pending    4   '.'>, child 'Tfile.out'
 Taskmaster:     Considering node <no_state   0   'SConstruct'> and its children:
 Taskmaster: Evaluating <pending    0   'SConstruct'>
 
@@ -160,7 +160,7 @@ Task.prepare():      node <up_to_date 0   'SConstruct'>
 Task.executed_with_callbacks(): node <up_to_date 0   'SConstruct'>
 Task.postprocess():  node <up_to_date 0   'SConstruct'>
 Task.postprocess():  removing <up_to_date 0   'SConstruct'>
-Task.postprocess():  adjusting parent ref count <pending    3   '.'>
+Task.postprocess():  adjusted parent ref count <pending    3   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
@@ -171,7 +171,7 @@ Task.prepare():      node <up_to_date 0   'Tfile.in'>
 Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.in'>
 Task.postprocess():  node <up_to_date 0   'Tfile.in'>
 Task.postprocess():  removing <up_to_date 0   'Tfile.in'>
-Task.postprocess():  adjusting parent ref count <pending    2   '.'>
+Task.postprocess():  adjusted parent ref count <pending    2   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
@@ -184,7 +184,7 @@ Task.execute():      node <executing  0   'Tfile.mid'>
 Task.executed_with_callbacks(): node <executing  0   'Tfile.mid'>
 Task.postprocess():  node <executed   0   'Tfile.mid'>
 Task.postprocess():  removing <executed   0   'Tfile.mid'>
-Task.postprocess():  adjusting parent ref count <pending    1   '.'>
+Task.postprocess():  adjusted parent ref count <pending    1   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
@@ -197,7 +197,7 @@ Task.execute():      node <executing  0   'Tfile.out'>
 Task.executed_with_callbacks(): node <executing  0   'Tfile.out'>
 Task.postprocess():  node <executed   0   'Tfile.out'>
 Task.postprocess():  removing <executed   0   'Tfile.out'>
-Task.postprocess():  adjusting parent ref count <pending    0   '.'>
+Task.postprocess():  adjusted parent ref count <pending    0   '.'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   '.'> and its children:
