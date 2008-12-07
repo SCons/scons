@@ -737,6 +737,7 @@ def _main(parser):
     default_warnings = [ SCons.Warnings.CorruptSConsignWarning,
                          SCons.Warnings.DeprecatedWarning,
                          SCons.Warnings.DuplicateEnvironmentWarning,
+                         SCons.Warnings.FutureReservedVariableWarning,
                          SCons.Warnings.LinkWarning,
                          SCons.Warnings.MissingSConscriptWarning,
                          SCons.Warnings.NoMD5ModuleWarning,
@@ -744,7 +745,9 @@ def _main(parser):
                          SCons.Warnings.NoObjectCountWarning,
                          SCons.Warnings.NoParallelSupportWarning,
                          SCons.Warnings.MisleadingKeywordsWarning,
-                         SCons.Warnings.StackSizeWarning, ]
+                         SCons.Warnings.ReservedVariableWarning,
+                         SCons.Warnings.StackSizeWarning,
+                       ]
 
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)

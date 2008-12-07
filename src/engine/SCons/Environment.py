@@ -105,24 +105,40 @@ def apply_tools(env, tools, toolpath):
         else:
             env.Tool(tool)
 
-# These names are controlled by SCons; users should never set or override
-# them.  This warning can optionally be turned off, but scons will still
-# ignore the illegal variable names even if it's off.
-reserved_construction_var_names = \
-    ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']
+# These names are (or will be) controlled by SCons; users should never
+# set or override them.  This warning can optionally be turned off,
+# but scons will still ignore the illegal variable names even if it's off.
+reserved_construction_var_names = [
+    'SOURCE',
+    'SOURCES',
+    'TARGET',
+    'TARGETS',
+]
+
+future_reserved_construction_var_names = [
+    'CHANGED_SOURCES',
+    'CHANGED_TARGETS',
+    'UNCHANGED_SOURCES',
+    'UNCHANGED_TARGETS',
+]
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
     for k in result.keys():
         if k in reserved_construction_var_names:
-            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
-                                "Ignoring attempt to set reserved variable `%s'" % k)
+            msg = "Ignoring attempt to set reserved variable `$%s'"
+            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % k)
             del result[k]
     return result
 
 def _set_reserved(env, key, value):
-    msg = "Ignoring attempt to set reserved variable `%s'" % key
-    SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg)
+    msg = "Ignoring attempt to set reserved variable `$%s'"
+    SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % key)
+
+def _set_future_reserved(env, key, value):
+    env._dict[key] = value
+    msg = "`$%s' will be reserved in a future release and setting it will become ignored"
+    SCons.Warnings.warn(SCons.Warnings.FutureReservedVariableWarning, msg % key)
 
 def _set_BUILDERS(env, key, value):
     try:
@@ -364,6 +380,8 @@ class SubstitutionEnvironment:
         self._special_set = {}
         for key in reserved_construction_var_names:
             self._special_set[key] = _set_reserved
+        for key in future_reserved_construction_var_names:
+            self._special_set[key] = _set_future_reserved
         self._special_set['BUILDERS'] = _set_BUILDERS
         self._special_set['SCANNERS'] = _set_SCANNERS
 

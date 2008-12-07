@@ -74,6 +74,12 @@ RELEASE 1.X - XXX
     - Fix use of Glob() when a repository or source directory contains
       an in-memory Node without a corresponding on-disk file or directory.
 
+    - Add a warning about future reservation of $CHANGED_SOURCES,
+      $CHANGED_TARGETS, $UNCHANGED_SOURCES and $UNCHANGED_TARGETS.
+
+    - Enable by default the existing warnings about setting the resource
+      $SOURCE, $SOURCES, $TARGET and $TARGETS variable.
+
   From Rob Managan:
 
     - Scan for TeX files in the paths specified in the $TEXINPUTS

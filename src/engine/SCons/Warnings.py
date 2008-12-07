@@ -64,6 +64,9 @@ class DeprecatedTargetSignaturesWarning(DeprecatedWarning):
 class DuplicateEnvironmentWarning(Warning):
     pass
 
+class FutureReservedVariableWarning(Warning):
+    pass
+
 class LinkWarning(Warning):
     pass
 
