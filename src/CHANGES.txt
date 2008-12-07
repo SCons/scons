@@ -34,6 +34,11 @@ RELEASE 1.X - XXX
 
     - Handle Java inner classes declared within a method.
 
+  From Jason Kenny:
+
+    - Suppress mistaken reports of a dependency cycle when a child
+      left on the pending list is a single Node in EXECUTED state.
+
   From Steven Knight:
 
     - Fix label placement by the "scons-time.py func" subcommand

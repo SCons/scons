@@ -1067,7 +1067,7 @@ Taskmaster:        already handled (executed)
 Taskmaster:     Considering node <no_state   0   'n3'> and its children:
 Taskmaster:        <executed   0   'n1'>
 Taskmaster:        <no_state   0   'n2'>
-Taskmaster:      adjusting ref count: <pending    1   'n3'>, child 'n2'
+Taskmaster:      adjusted ref count: <pending    1   'n3'>, child 'n2'
 Taskmaster:     Considering node <no_state   0   'n2'> and its children:
 Taskmaster: Evaluating <pending    0   'n2'>
 
@@ -1076,7 +1076,7 @@ Task.prepare():      node <executing  0   'n2'>
 Task.execute():      node <executing  0   'n2'>
 Task.postprocess():  node <executing  0   'n2'>
 Task.postprocess():  removing <executing  0   'n2'>
-Task.postprocess():  adjusting parent ref count <pending    0   'n3'>
+Task.postprocess():  adjusted parent ref count <pending    0   'n3'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   'n3'> and its children:

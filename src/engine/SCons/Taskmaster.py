@@ -441,7 +441,7 @@ class Task:
             p.ref_count = p.ref_count - subtract
             if T: T.write(self.trace_message('Task.postprocess()',
                                              p,
-                                             'adjusting parent ref count'))
+                                             'adjusted parent ref count'))
             if p.ref_count == 0:
                 self.tm.candidates.append(p)
 
@@ -820,7 +820,7 @@ class Taskmaster:
                     # count so we can be put back on the list for
                     # re-evaluation when they've all finished.
                     node.ref_count =  node.ref_count + child.add_to_waiting_parents(node)
-                    if T: T.write(self.trace_message('     adjusting ref count: %s, child %s' %
+                    if T: T.write(self.trace_message('     adjusted ref count: %s, child %s' %
                                   (self.trace_node(node), repr(str(child)))))
 
                 if T:
@@ -908,7 +908,7 @@ class Taskmaster:
 
         if T:
             for n in nodes:
-                T.write(self.trace_message('       removing %s from the pending children set\n' %
+                T.write(self.trace_message('       removing node %s from the pending children set\n' %
                         self.trace_node(n)))
         try:
             while 1:
@@ -932,10 +932,10 @@ class Taskmaster:
                 to_visit = to_visit | parents
                 pending_children = pending_children - parents
 
-                if T:
-                    for p in parents:
-                        T.write(self.trace_message('       removing %s from the pending children set\n' %
-                                self.trace_node(p)))
+                for p in parents:
+                    p.ref_count = p.ref_count - 1
+                    if T: T.write(self.trace_message('       removing parent %s from the pending children set\n' %
+                                  self.trace_node(p)))
         except KeyError:
             # The container to_visit has been emptied.
             pass
@@ -955,15 +955,31 @@ class Taskmaster:
         """
         Check for dependency cycles.
         """
-        if self.pending_children:
-            desc = 'Found dependency cycle(s):\n'
-            for node in self.pending_children:
-                cycle = find_cycle([node], set())
-                if cycle:
-                    desc = desc + "  " + string.join(map(str, cycle), " -> ") + "\n"
-                else:
-                    desc = desc + \
-                        "  Internal Error: no cycle found for node %s (%s) in state %s\n" %  \
-                        (node, repr(node), StateString[node.get_state()])
+        if not self.pending_children:
+            return
 
-            raise SCons.Errors.UserError, desc
+        # TODO(1.5)
+        #nclist = [ (n, find_cycle([n], set())) for n in self.pending_children ]
+        nclist = map(lambda n: (n, find_cycle([n], set())), self.pending_children)
+
+        # TODO(1.5)
+        #genuine_cycles = [
+        #    node for node, cycle in nclist
+        #             if cycle or node.get_state() != NODE_EXECUTED
+        #]
+        genuine_cycles = filter(lambda t: t[1] or t[0].get_state() != NODE_EXECUTED, nclist)
+        if not genuine_cycles:
+            # All of the "cycles" found were single nodes in EXECUTED state,
+            # which is to say, they really weren't cycles.  Just return.
+            return
+
+        desc = 'Found dependency cycle(s):\n'
+        for node, cycle in nclist:
+            if cycle:
+                desc = desc + "  " + string.join(map(str, cycle), " -> ") + "\n"
+            else:
+                desc = desc + \
+                    "  Internal Error: no cycle found for node %s (%s) in state %s\n" %  \
+                    (node, repr(node), StateString[node.get_state()])
+
+        raise SCons.Errors.UserError, desc

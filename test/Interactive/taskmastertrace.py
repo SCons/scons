@@ -75,7 +75,7 @@ scons>>>
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'foo.out'> and its children:
 Taskmaster:        <no_state   0   'foo.in'>
-Taskmaster:      adjusting ref count: <pending    1   'foo.out'>, child 'foo.in'
+Taskmaster:      adjusted ref count: <pending    1   'foo.out'>, child 'foo.in'
 Taskmaster:     Considering node <no_state   0   'foo.in'> and its children:
 Taskmaster: Evaluating <pending    0   'foo.in'>
 
@@ -84,7 +84,7 @@ Task.prepare():      node <up_to_date 0   'foo.in'>
 Task.executed_with_callbacks(): node <up_to_date 0   'foo.in'>
 Task.postprocess():  node <up_to_date 0   'foo.in'>
 Task.postprocess():  removing <up_to_date 0   'foo.in'>
-Task.postprocess():  adjusting parent ref count <pending    0   'foo.out'>
+Task.postprocess():  adjusted parent ref count <pending    0   'foo.out'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   'foo.out'> and its children:

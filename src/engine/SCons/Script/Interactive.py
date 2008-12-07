@@ -258,14 +258,12 @@ class SConsInteractiveCmd(cmd.Cmd):
             # node.set_state() to reset it manually
             node.set_state(SCons.Node.no_state)
             node.implicit = None
-            # Make sure Taskmaster reference counts are reset to zero.
-            #
-            # TODO: Look for a way to avoid having to reset this here
-            # by making sure the Taskmaster will always end up reverting
-            # every Node's ref_count to 0 before terminating.  That may
-            # provide clues about intermittent phantom cycles that have
-            # been reported (e.g. issue 2265 at tigris.org).
-            node.ref_count = 0
+
+            # Debug:  Uncomment to verify that all Taskmaster reference
+            # counts have been reset to zero.
+            #if node.ref_count != 0:
+            #    from SCons.Debug import Trace
+            #    Trace('node %s, ref_count %s !!!\n' % (node, node.ref_count))
 
         SCons.SConsign.Reset()
         SCons.Script.Main.progress_display("scons: done clearing node information.")
