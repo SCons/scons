@@ -30,6 +30,12 @@ RELEASE 1.X - XXX
     - Don't pre-generate an exception message (which will likely be
       ignored anyway) when an EntryProxy re-raises an AttributeError.
 
+  From Jared Grubb:
+
+    - Clean up coding style and white space in Node/FS.py.
+
+    - Fix a typo in the documentation for $_CPPDEFFLAGS.
+
   From Ludwig Hähne:
 
     - Handle Java inner classes declared within a method.
@@ -87,9 +93,31 @@ RELEASE 1.X - XXX
 
     - Recursive scan included input TeX files.
 
+    - Handle requiring searched-for TeX input graphics files to have
+      extensions (to avoid trying to build a .eps from itself, e.g.).
+
   From Greg Noel:
 
     - Make the Action() function handle positional parameters consistently.
+
+    - Clarify use of Configure.CheckType().
+
+    - Make the File.{Dir,Entry,File}() methods create their entries
+      relative to the calling File's directory, not the SConscript
+      directory.
+
+    - Use the Python os.devnull variable to discard error output when
+      looking for the $CC or $CXX version.
+
+    - Mention LoadableModule() in the SharedLibrary() documentation.
+
+  From Gary Oberbrunner:
+
+    - Update the User's Guide to clarify use of the site_scons/
+      directory and the site_init.py module.
+
+    - Make env.AppendUnique() and env.PrependUnique remove duplicates
+      within a passed-in list being added, too.
 
   From Randall Spangler:
 
