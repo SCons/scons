@@ -203,7 +203,7 @@ class Streamer:
         self.s.flush()
         
 
-class SConfBuildTask(SCons.Taskmaster.Task):
+class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
     """
     This is almost the same as SCons.Script.BuildTask. Handles SConfErrors
     correctly and knows about the current cache_mode.
