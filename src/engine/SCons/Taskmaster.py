@@ -197,14 +197,11 @@ class Task:
         return self.node
 
     def needs_execute(self):
-        """
-        Called to determine whether the task's execute() method should
-        be run.
-
-        This method allows one to skip the somethat costly execution
-        of the execute() method in a seperate thread. For example,
-        that would be unnecessary for up-to-date targets.
-        """
+        # TODO(deprecate):  "return True" is the old default behavior;
+        # change it to NotImplementedError (after running through the
+        # Deprecation Cycle) so the desired behavior is explicitly
+        # determined by which concrete subclass is used.
+        #raise NotImplementedError
         return True
 
     def execute(self):
@@ -501,6 +498,30 @@ class Task:
             exc_traceback = None
         raise exc_type, exc_value, exc_traceback
 
+class AlwaysTask(Task):
+    def needs_execute(self):
+        """
+        Always returns True (indicating this Task should always
+        be executed).
+
+        Subclasses that need this behavior (as opposed to the default
+        of only executing Nodes that are out of date w.r.t. their
+        dependencies) can use this as follows:
+
+            class MyTaskSubclass(SCons.Taskmaster.Task):
+                needs_execute = SCons.Taskmaster.Task.execute_always
+        """
+        return True
+
+class OutOfDateTask(Task):
+    def needs_execute(self):
+        """
+        Returns True (indicating this Task should be executed) if this
+        Task's target state indicates it needs executing, which has
+        already been determined by an earlier up-to-date check.
+        """
+        return self.targets[0].get_state() == SCons.Node.executing
+
 
 def find_cycle(stack, visited):
     if stack[-1] in visited:
@@ -521,11 +542,13 @@ class Taskmaster:
     The Taskmaster for walking the dependency DAG.
     """
 
-    def __init__(self, targets=[], tasker=Task, order=None, trace=None):
+    def __init__(self, targets=[], tasker=None, order=None, trace=None):
         self.original_top = targets
         self.top_targets_left = targets[:]
         self.top_targets_left.reverse()
         self.candidates = []
+        if tasker is None:
+            tasker = OutOfDateTask
         self.tasker = tasker
         if not order:
             order = lambda l: l

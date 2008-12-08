@@ -437,7 +437,9 @@ class _SConsTaskTest(unittest.TestCase):
         for tnum in range(num_tasks):
             testnodes.append(node_seq[tnum % len(node_seq)]())
 
-        taskmaster = SCons.Taskmaster.Taskmaster(testnodes)
+        taskmaster = SCons.Taskmaster.Taskmaster(testnodes,
+                                                 tasker=SCons.Taskmaster.AlwaysTask)
+
         jobs = SCons.Job.Jobs(num_jobs, taskmaster)
 
         # Exceptions thrown by tasks are not actually propagated to
