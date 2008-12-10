@@ -2834,6 +2834,19 @@ class File(Base):
                    (isinstance(node, File) or isinstance(node, Entry) \
                     or not node.is_derived()):
                         result = node
+                        # Copy over our local attributes to the repository
+                        # Node so we identify shared object files in the
+                        # repository and don't assume they're static.
+                        #
+                        # This isn't perfect; the attribute would ideally
+                        # be attached to the object in the repository in
+                        # case it was built statically in the repository
+                        # and we changed it to shared locally, but that's
+                        # rarely the case and would only occur if you
+                        # intentionally used the same suffix for both
+                        # shared and static objects anyway.  So this
+                        # should work well in practice.
+                        result.attributes = self.attributes
                         break
         self._memo['rfile'] = result
         return result
