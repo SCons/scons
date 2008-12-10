@@ -10,6 +10,15 @@
 
 RELEASE 1.X - XXX
 
+  From Matthew Wesley:
+
+    - Copy file attributes so we identify, and can link a shared library
+      from, shared object files in a Repository.
+
+
+
+RELEASE 1.X - XXX
+
   From Benoit Belley:
 
     - Improve the robustness of GetBuildFailures() by refactoring

@@ -1,0 +1,144 @@
+#!/usr/bin/env python
+#
+# __COPYRIGHT__
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""
+Verify that we can create a local shared library containing shared
+object files built in a repository.
+"""
+
+import os
+import string
+import sys
+
+import TestCmd
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+#
+test.subdir('repository', 'work')
+
+#
+workpath_repository = test.workpath('repository')
+
+#
+opts = '-Y ' + workpath_repository
+
+#
+test.write(['repository', 'SConstruct'], """\
+env = Environment()
+f1 = env.SharedObject('f1.c')
+f2 = env.SharedObject('f2.c')
+f3 = env.SharedObject('f3.c')
+if ARGUMENTS.get('PROGRAM'):
+    lib = env.SharedLibrary(target = 'foo',
+                            source = ['f1.os', 'f2.os', 'f3.os'],
+                            WINDOWS_INSERT_DEF = 1)
+    env.Program(target='prog', source='prog.c', LIBS='foo', LIBPATH=['.'])
+""")
+
+test.write(['repository', 'f1.c'], r"""
+#include <stdio.h>
+
+void
+f1(void)
+{
+        printf("f1.c\n");
+        fflush(stdout);
+}
+""")
+
+test.write(['repository', 'f2.c'], r"""
+#include <stdio.h>
+
+void
+f2(void)
+{
+        printf("f2.c\n");
+        fflush(stdout);
+}
+""")
+
+test.write(['repository', 'f3.c'], r"""
+#include <stdio.h>
+
+void
+f3(void)
+{
+        printf("f3.c\n");
+        fflush(stdout);
+}
+""")
+
+test.write(['repository', "foo.def"], r"""
+LIBRARY        "foo"
+DESCRIPTION    "Foo Shared Library"
+
+EXPORTS
+   f1
+   f2
+   f3
+""")
+
+test.write(['repository', 'prog.c'], r"""
+#include <stdio.h>
+void f1(void);
+void f2(void);
+void f3(void);
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = "--";
+        f1();
+        f2();
+        f3();
+        printf("prog.c\n");
+        return 0;
+}
+""")
+
+test.run(chdir = 'repository', arguments = '.')
+
+# Make the repository non-writable,
+# so we'll detect if we try to write into it accidentally.
+test.writable('repository', 0)
+
+#
+test.run(chdir='work',
+         options=opts,
+         arguments='PROGRAM=1',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
+
+if os.name == 'posix':
+    os.environ['LD_LIBRARY_PATH'] = test.workpath('work')
+if string.find(sys.platform, 'irix') != -1:
+    os.environ['LD_LIBRARYN32_PATH'] = test.workpath('work')
+
+test.run(program = test.workpath('work', 'prog'),
+         stdout = "f1.c\nf2.c\nf3.c\nprog.c\n")
+
+test.pass_test()
