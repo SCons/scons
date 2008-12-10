@@ -10,6 +10,11 @@
 
 RELEASE 1.X - XXX
 
+  From Steven Knight:
+
+    - Print the message, "scons: Build interrupted." on error output,
+      not standard output.
+
   From Matthew Wesley:
 
     - Copy file attributes so we identify, and can link a shared library

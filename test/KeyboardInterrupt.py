@@ -87,8 +87,6 @@ Default( Alias('all', all))
 
 interruptedStr = """\
 .*\
-scons: Build interrupted\\.
-.*\
 scons: building terminated because of errors\\.
 .*\
 scons: writing .sconsign file\\.
@@ -98,7 +96,9 @@ scons: writing .sconsign file\\.
 def runtest(arguments):
     test.run(arguments='-c')
     test.run(arguments=arguments, status=2,
-             stdout=interruptedStr, stderr=r'.*', match=TestSCons.match_re_dotall)
+             stdout=interruptedStr,
+             stderr='.*scons: Build interrupted\\.',
+             match=TestSCons.match_re_dotall)
 
 for i in range(2):
     runtest('-j1')
