@@ -226,7 +226,7 @@ def mkdir_func(dest):
         except os.error, e:
             p = str(entry)
             if e[0] == errno.EEXIST and os.path.isdir(str(entry)):
-                pass
+                pass            # not an error if already exists
             else:
                 raise
 

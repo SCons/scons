@@ -34,7 +34,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('work1', 'work2')
+test.subdir('work1', 'work2', 'work3')
 
 test.write(['work1', 'SConstruct'], """
 Execute(Mkdir('d1'))
@@ -152,4 +152,40 @@ test.run(chdir = 'work2', arguments = 'hello/file2.out output')
 
 test.must_match(['work2', 'output'], "work2/file1.in\nwork2/file2.in\n")
 
+
+#----------------------------------------
+# Regression test for bug #1249
+
+test.subdir(['work3', 'sub1'], ['work3', 'sub1', 'sub11'])
+
+test.write(['work3', 'SConstruct'], """\
+#/SConstruct ------------------------------------------
+import os
+env = Environment(ENV = os.environ)
+BuildDir('build', 'sub1', duplicate=0)
+base = '#build/sub1'
+Export('env base')
+SConscript('sub1/SConscript', exports='env')
+""")
+
+test.write(['work3', 'sub1', 'SConscript'], """\
+#/sub1/SConscript ----------------------------------
+Import ('env base')
+test1 = base + '/test1'
+Export ('env test1')
+env.Command(Dir(test1), '', Mkdir('$TARGET'))
+SConscript('sub11/SConscript')
+""")
+
+test.write(['work3', 'sub1', 'sub11', 'SConscript'], """\
+#/sub1/sub11/SConscript-------------------------
+Import('env test1')
+test11 = test1 + '/test11'
+print 'test11 = ' + test11
+env.Command(Dir(test11), '', Mkdir('$TARGET'))
+""")
+
+test.run(chdir = 'work3', arguments = '')
+
 test.pass_test()
+
