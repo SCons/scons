@@ -144,7 +144,8 @@ Default(all)
 re_error = """\
 (scons: \\*\\*\\* \\[failed\\d+] Error 2\\n)|\
 (scons: \\*\\*\\* \\[missing\\d+] Source `MissingSrc' not found, needed by target `missing\\d+'\\.(  Stop\\.)?\\n)|\
-(scons: \\*\\*\\* \\[\\w+] Build interrupted\.\\n)\
+(scons: \\*\\*\\* \\[\\w+] Build interrupted\.\\n)|\
+(scons: Build interrupted\.\\n)\
 """
 
 re_errors = "(" + re_error + ")+"
