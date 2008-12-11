@@ -38,6 +38,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import errno
 import shutil
 import stat
 import string
@@ -220,7 +221,14 @@ def mkdir_func(dest):
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for entry in dest:
-        os.makedirs(str(entry))
+        try:
+            os.makedirs(str(entry))
+        except os.error, e:
+            p = str(entry)
+            if e[0] == errno.EEXIST and os.path.isdir(str(entry)):
+                pass
+            else:
+                raise
 
 Mkdir = ActionFactory(mkdir_func,
                       lambda dir: 'Mkdir(%s)' % get_paths_str(dir))
