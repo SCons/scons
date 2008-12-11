@@ -1352,8 +1352,16 @@ These warnings are disabled by default.
 
 .TP
 --warn=deprecated, --warn=no-deprecated
-Enables or disables all warnings about use of deprecated features.
+Enables or disables all warnings about use of
+currently deprecated features.
 These warnings are enabled by default.
+Note that the
+.b --warn=no-deprecated
+option does not disable warnings about absolutely all deprecated features.
+Warnings for some deprecated features that have already been through
+several releases with deprecation warnings
+may be mandatory for a release or two
+before they are officially no longer supported by SCons.
 Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.
@@ -1394,6 +1402,18 @@ These warnings are enabled by default.
 Enables or disables the specific warning about linking
 Fortran and C++ object files in a single executable,
 which can yield unpredictable behavior with some compilers.
+
+.TP
+--warn=future-deprecated, --warn=no-future-deprecated
+Enables or disables warnings about features
+that will be deprecated in the future.
+These warnings are disabled by default.
+Enabling this warning is especially
+recommended for projects that redistribute
+SCons configurations for other users to build,
+so that the project can be warned as soon as possible
+about to-be-deprecated features
+that may require changes to the configuration.
 
 .TP
 --warn=link, --warn=no-link

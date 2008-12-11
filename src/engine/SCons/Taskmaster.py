@@ -58,6 +58,7 @@ import traceback
 
 import SCons.Errors
 import SCons.Node
+import SCons.Warnings
 
 StateString = SCons.Node.StateString
 NODE_NO_STATE = SCons.Node.no_state
@@ -202,6 +203,9 @@ class Task:
         # Deprecation Cycle) so the desired behavior is explicitly
         # determined by which concrete subclass is used.
         #raise NotImplementedError
+        msg = ('Direct use of the Taskmaster.Task class will be deprecated\n'
+               + '\tin a future release.')
+        SCons.Warnings.warn(SCons.Warnings.TaskmasterNeedsExecuteWarning, msg)
         return True
 
     def execute(self):
