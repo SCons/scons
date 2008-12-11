@@ -94,6 +94,10 @@ class WarningsTestCase(unittest.TestCase):
                             "Foo")
         assert to.out is None, to.out
 
+        SCons.Warnings.warn(SCons.Warnings.MandatoryWarning,
+                            "Foo")
+        assert to.out is None, to.out
+
         SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
         SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                             "Foo")
