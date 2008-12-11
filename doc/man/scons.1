@@ -8833,10 +8833,10 @@ Examples:
 Execute(Mkdir('/tmp/outputdir'))
 
 env.Command('foo.out', 'foo.in',
-            [Mkdir('/tmp/builddir',
-             Copy('$SOURCE', '/tmp/builddir/foo.in')
+            [Mkdir('/tmp/builddir'),
+             Copy('/tmp/builddir/foo.in', '$SOURCE'),
              "cd /tmp/builddir && make",
-             Copy('/tmp/builddir/foo.out', '$TARGET')])
+             Copy('$TARGET', '/tmp/builddir/foo.out')])
 .EE
 
 .TP
