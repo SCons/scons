@@ -18,10 +18,6 @@ RELEASE 1.X - XXX
     - Add a --warn=future-deprecated option for advance warnings about
       deprecated features that still have warnings hidden by default.
 
-  From Dmitri Rubinestein:
-
-    - Add detection of Microsoft Visual Studio 9.
-
   From Greg Spencer:
 
     - Support implicit dependency scanning of files encoded in utf-8
