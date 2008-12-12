@@ -138,8 +138,8 @@ class _Automoc:
                     print "scons: qt: '%s' is no cxx file. Discarded." % str(cpp) 
                 # c or fortran source
                 continue
-            #cpp_contents = comment.sub('', cpp.get_contents())
-            cpp_contents = cpp.get_contents()
+            #cpp_contents = comment.sub('', cpp.get_text_contents())
+            cpp_contents = cpp.get_text_contents()
             h=None
             for h_ext in header_extensions:
                 # try to find the header file in the corresponding source
@@ -149,8 +149,8 @@ class _Automoc:
                 if h:
                     if debug:
                         print "scons: qt: Scanning '%s' (header of '%s')" % (str(h), str(cpp))
-                    #h_contents = comment.sub('', h.get_contents())
-                    h_contents = h.get_contents()
+                    #h_contents = comment.sub('', h.get_text_contents())
+                    h_contents = h.get_text_contents()
                     break
             if not h and debug:
                 print "scons: qt: no header for '%s'." % (str(cpp))
@@ -221,7 +221,7 @@ def uicScannerFunc(node, env, path):
     lookout = []
     lookout.extend(env['CPPPATH'])
     lookout.append(str(node.rfile().dir))
-    includes = re.findall("<include.*?>(.*?)</include>", node.get_contents())
+    includes = re.findall("<include.*?>(.*?)</include>", node.get_text_contents())
     result = []
     for incFile in includes:
         dep = env.FindFile(incFile,lookout)

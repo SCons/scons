@@ -22,6 +22,11 @@ RELEASE 1.X - XXX
 
     - Add detection of Microsoft Visual Studio 9.
 
+  From Greg Spencer:
+
+    - Support implicit dependency scanning of files encoded in utf-8
+      and utf-16.
+
   From Matthew Wesley:
 
     - Copy file attributes so we identify, and can link a shared library

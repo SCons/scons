@@ -67,7 +67,7 @@ def _fortranEmitter(target, source, env):
     mod_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
     cre = re.compile(mod_regex,re.M)
     # Retrieve all USE'd module names
-    modules = cre.findall(node.get_contents())
+    modules = cre.findall(node.get_text_contents())
     # Remove unique items from the list
     modules = SCons.Util.unique(modules)
     # Convert module name to a .mod filename

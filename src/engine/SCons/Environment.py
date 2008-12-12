@@ -429,7 +429,7 @@ class SubstitutionEnvironment:
             self._dict[key] = value
 
     def get(self, key, default=None):
-        "Emulates the get() method of dictionaries."""
+        """Emulates the get() method of dictionaries."""
         return self._dict.get(key, default)
 
     def has_key(self, key):

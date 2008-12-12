@@ -84,11 +84,11 @@ class F90Scanner(SCons.Scanner.Classic):
             mods_and_includes = node.includes
         else:
             # retrieve all included filenames
-            includes = self.cre_incl.findall(node.get_contents())
+            includes = self.cre_incl.findall(node.get_text_contents())
             # retrieve all USE'd module names
-            modules = self.cre_use.findall(node.get_contents())
+            modules = self.cre_use.findall(node.get_text_contents())
             # retrieve all defined module names
-            defmodules = self.cre_def.findall(node.get_contents())
+            defmodules = self.cre_def.findall(node.get_text_contents())
 
             # Remove all USE'd module names that are defined in the same file
             d = {}

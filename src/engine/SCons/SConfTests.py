@@ -335,7 +335,7 @@ int main() {
         self.scons_env[comp] = oldcomp
         self.scons_env['%sFLAGS' % comp] = 'qwertyuiop'
         r = func()
-        assert not r, "%s worked with %sFLAGS = qwertyuiop ?" % name
+        assert not r, "%s worked with %sFLAGS = qwertyuiop ?" % (name, comp)
 
     def test_CheckCC(self):
         """Test SConf.CheckCC()

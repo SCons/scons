@@ -377,7 +377,7 @@ def soelim(target, source, env):
     tfp.close()
 
 def soscan(node, env, path):
-    c = node.get_contents()
+    c = node.get_text_contents()
     return re.compile(r"^[\.']so\s+(\S+)", re.M).findall(c)
 
 soelimbuilder = Builder(action = Action(soelim),

@@ -9391,7 +9391,7 @@ source files of different types:
 
 .ES
 def xyz_scan(node, env, path):
-    contents = node.get_contents()
+    contents = node.get_text_contents()
     # Scan the contents and return the included files.
 
 XYZScanner = Scanner(xyz_scan)
@@ -9663,7 +9663,7 @@ import re
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
 def kfile_scan(node, env, path, arg):
-    contents = node.get_contents()
+    contents = node.get_text_contents()
     includes = include_re.findall(contents)
     return includes
 
@@ -9692,7 +9692,7 @@ for files that actually exist:
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
 def my_scan(node, env, path, arg):
-   contents = node.get_contents()
+   contents = node.get_text_contents()
    includes = include_re.findall(contents)
    if includes == []:
         return []
