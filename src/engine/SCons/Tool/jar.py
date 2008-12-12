@@ -49,7 +49,7 @@ def jarSources(target, source, env, for_signature):
             jarchdir = env.fs.Dir(jarchdir)
     result = []
     for src in source:
-        contents = src.get_contents()
+        contents = src.get_text_contents()
         if contents[:16] != "Manifest-Version":
             if jarchdir_set:
                 _chdir = jarchdir
@@ -70,7 +70,7 @@ def jarSources(target, source, env, for_signature):
 def jarManifest(target, source, env, for_signature):
     """Look in sources for a manifest file, if any."""
     for src in source:
-        contents = src.get_contents()
+        contents = src.get_text_contents()
         if contents[:16] == "Manifest-Version":
             return src
     return ''
@@ -80,7 +80,7 @@ def jarFlags(target, source, env, for_signature):
     flag is specified."""
     jarflags = env.subst('$JARFLAGS', target=target, source=source)
     for src in source:
-        contents = src.get_contents()
+        contents = src.get_text_contents()
         if contents[:16] == "Manifest-Version":
             if not 'm' in jarflags:
                 return jarflags + 'm'

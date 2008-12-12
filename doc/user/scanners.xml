@@ -170,7 +170,7 @@ over the file scanning rather than being called for each input line:
       include_re = re.compile(r'^include\s+(\S+)$', re.M)
       
       def kfile_scan(node, env, path, arg):
-          contents = node.get_contents()
+          contents = node.get_text_contents()
           return include_re.findall(contents)
     </programlisting>
 
@@ -199,7 +199,7 @@ over the file scanning rather than being called for each input line:
       The path name to the file can be
       used by converting the node to a string
       using the <literal>str()</literal> function,
-      or an internal &SCons; <literal>get_contents()</literal>
+      or an internal &SCons; <literal>get_text_contents()</literal>
       object method can be used to fetch the contents.
 
       </para>
@@ -280,7 +280,7 @@ over the file scanning rather than being called for each input line:
         include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
         def kfile_scan(node, env, path):
-            contents = node.get_contents()
+            contents = node.get_text_contents()
             includes = include_re.findall(contents)
             return includes
 

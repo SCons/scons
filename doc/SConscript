@@ -76,7 +76,7 @@ format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format=
 def scanxml(node, env, target):
     includes = []
 
-    contents = node.get_contents()
+    contents = node.get_text_contents()
 
     includes.extend(entity_re.findall(contents))
 

@@ -79,7 +79,7 @@ import re
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
 def kfile_scan(node, env, path, arg):
-    contents = node.get_contents()
+    contents = node.get_text_contents()
     includes = include_re.findall(contents)
     if includes == []:
          return []

@@ -285,7 +285,7 @@ class LaTeX(SCons.Scanner.Base):
         if node.includes != None:
             includes = node.includes
         else:
-            includes = self.cre.findall(node.get_contents())
+            includes = self.cre.findall(node.get_text_contents())
             # 1. Split comma-separated lines, e.g.
             #      ('bibliography', 'phys,comp')
             #    should become two entries

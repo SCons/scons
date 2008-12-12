@@ -44,12 +44,12 @@ include_re = re.compile(r'^include\s+(\S+)$', re.M)
 input_re = re.compile(r'^input\s+(\S+)$', re.M)
 
 scan1 = Scanner(name = 'Include',
-                function = lambda N,E,P,A: A.findall(N.get_contents()),
+                function = lambda N,E,P,A: A.findall(N.get_text_contents()),
                 argument = include_re,
                 skeys = ['.inp'])
 
 scan2 = Scanner(name = 'Input',
-                function = lambda N,E,P,A: A.findall(N.get_contents()),
+                function = lambda N,E,P,A: A.findall(N.get_text_contents()),
                 argument = input_re,
                 skeys = ['.inp'])
 

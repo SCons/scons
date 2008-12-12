@@ -35,8 +35,9 @@ that can be used by scripts or modules looking for the canonical default.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import fnmatch
 from itertools import izip
+import cStringIO
+import fnmatch
 import os
 import os.path
 import re
@@ -45,7 +46,11 @@ import stat
 import string
 import sys
 import time
-import cStringIO
+
+try:
+    import codecs
+except ImportError:
+    pass
 
 import SCons.Action
 from SCons.Debug import logInstanceCreation
@@ -876,11 +881,8 @@ class Entry(Base):
         return self.get_suffix()
 
     def get_contents(self):
-        """Fetch the contents of the entry.
-
-        Since this should return the real contents from the file
-        system, we check to see into what sort of subclass we should
-        morph this Entry."""
+        """Fetch the contents of the entry.  Returns the exact binary
+        contents of the file."""
         try:
             self = self.disambiguate(must_exist=1)
         except SCons.Errors.UserError:
@@ -892,6 +894,24 @@ class Entry(Base):
             return ''
         else:
             return self.get_contents()
+
+    def get_text_contents(self):
+        """Fetch the decoded text contents of a Unicode encoded Entry.
+
+        Since this should return the text contents from the file
+        system, we check to see into what sort of subclass we should
+        morph this Entry."""
+        try:
+            self = self.disambiguate(must_exist=1)
+        except SCons.Errors.UserError:
+            # There was nothing on disk with which to disambiguate
+            # this entry.  Leave it as an Entry, but return a null
+            # string so calls to get_text_contents() in emitters and
+            # the like (e.g. in qt.py) don't have to disambiguate by
+            # hand or catch the exception.
+            return ''
+        else:
+            return self.get_text_contents()
 
     def must_be_same(self, klass):
         """Called to make sure a Node is a Dir.  Since we're an
@@ -1598,13 +1618,18 @@ class Dir(Base):
         """A directory does not get scanned."""
         return None
 
+    def get_text_contents(self):
+        """We already emit things in text, so just return the binary
+        version."""
+        return self.get_contents()
+
     def get_contents(self):
         """Return content signatures and names of all our children
         separated by new-lines. Ensure that the nodes are sorted."""
         contents = []
         name_cmp = lambda a, b: cmp(a.name, b.name)
         sorted_children = self.children()[:]
-        sorted_children.sort(name_cmp)        
+        sorted_children.sort(name_cmp)
         for node in sorted_children:
             contents.append('%s %s\n' % (node.get_csig(), node.name))
         return string.join(contents, '')
@@ -2236,12 +2261,28 @@ class File(Base):
             return ''
         fname = self.rfile().abspath
         try:
-            r = open(fname, "rb").read()
+            contents = open(fname, "rb").read()
         except EnvironmentError, e:
             if not e.filename:
                 e.filename = fname
             raise
-        return r
+        return contents
+
+    try:
+        import codecs
+    except ImportError:
+        get_text_contents = get_contents
+    else:
+        # This attempts to figure out what the encoding of the text is
+        # based upon the BOM bytes, and then decodes the contents so that
+        # it's a valid python string.
+        def get_text_contents(self):
+            contents = self.get_contents()
+            if contents.startswith(codecs.BOM_UTF8):
+                contents = contents.decode('utf-8')
+            elif contents.startswith(codecs.BOM_UTF16):
+                contents = contents.decode('utf-16')
+            return contents
 
     def get_content_hash(self):
         """

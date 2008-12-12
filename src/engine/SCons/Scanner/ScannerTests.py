@@ -481,6 +481,8 @@ class ClassicTestCase(unittest.TestCase):
                 return self._exists
             def get_contents(self):
                 return self._contents
+            def get_text_contents(self):
+                return self._contents
             def get_dir(self):
                 return self._dir
 

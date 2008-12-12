@@ -1192,6 +1192,18 @@ class FSTestCase(_tempdirTestCase):
         f1 = fs.File(test.workpath("binary_file"))
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
+        try:
+            # TODO(1.5)
+            eval('test_string = u"Foo\x1aBar"')
+        except SyntaxError:
+            pass
+        else:
+            # This tests to make sure we can decode UTF-8 text files.
+            test.write("utf8_file", test_string.encode('utf-8'))
+            f1 = fs.File(test.workpath("utf8_file"))
+            assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
+                   f1.get_text_contents()
+
         def nonexistent(method, s):
             try:
                 x = method(s, create = 0)
@@ -1257,11 +1269,32 @@ class FSTestCase(_tempdirTestCase):
         finally:
             test.unlink("file")
 
+        # test Entry.get_text_contents()
+        e = fs.Entry('does_not_exist')
+        c = e.get_text_contents()
+        assert c == "", c
+        assert e.__class__ == SCons.Node.FS.Entry
+
+        test.write("file", "file\n")
+        try:
+            e = fs.Entry('file')
+            c = e.get_text_contents()
+            assert c == "file\n", c
+            assert e.__class__ == SCons.Node.FS.File
+        finally:
+            test.unlink("file")
+
         test.subdir("dir")
         e = fs.Entry('dir')
         c = e.get_contents()
         assert c == "", c
         assert e.__class__ == SCons.Node.FS.Dir
+
+        c = e.get_text_contents()
+        try:
+            eval('assert c == u"", c')
+        except SyntaxError:
+            assert c == ""
 
         if hasattr(os, 'symlink'):
             os.symlink('nonexistent', test.workpath('dangling_symlink'))
@@ -1269,6 +1302,11 @@ class FSTestCase(_tempdirTestCase):
             c = e.get_contents()
             assert e.__class__ == SCons.Node.FS.Entry, e.__class__
             assert c == "", c
+            c = e.get_text_contents()
+            try:
+                eval('assert c == u"", c')
+            except SyntaxError:
+                assert c == "", c
 
         test.write("tstamp", "tstamp\n")
         try:
@@ -1712,6 +1750,7 @@ class DirTestCase(_tempdirTestCase):
         files = string.split(d.get_contents(), '\n')
 
         assert e.get_contents() == '', e.get_contents()
+        assert e.get_text_contents() == '', e.get_text_contents()
         assert e.get_csig()+" empty" == files[0], files
         assert f.get_csig()+" f" == files[1], files
         assert g.get_csig()+" g" == files[2], files
@@ -2755,6 +2794,48 @@ class RepositoryTestCase(_tempdirTestCase):
         try:
             c = fs.File("contents").get_contents()
             assert c == "Con\x1aTents\n", "got '%s'" % c
+        finally:
+            test.unlink(["rep3", "contents"])
+
+    def test_get_text_contents(self):
+        """Ensure get_text_contents() returns text contents from
+        Repositories"""
+        fs = self.fs
+        test = self.test
+
+        # Use a test string that has a file terminator in it to make
+        # sure we read the entire file, regardless of its contents.
+        try:
+            eval('test_string = u"Con\x1aTents\n"')
+        except SyntaxError:
+            import UserString
+            class FakeUnicodeString(UserString.UserString):
+                def encode(self, encoding):
+                    return str(self)
+            test_string = FakeUnicodeString("Con\x1aTents\n")
+
+
+        # Test with ASCII.
+        test.write(["rep3", "contents"], test_string.encode('ascii'))
+        try:
+            c = fs.File("contents").get_text_contents()
+            assert test_string == c, "got %s" % repr(c)
+        finally:
+            test.unlink(["rep3", "contents"])
+
+        # Test with utf-8
+        test.write(["rep3", "contents"], test_string.encode('utf-8'))
+        try:
+            c = fs.File("contents").get_text_contents()
+            assert test_string == c, "got %s" % repr(c)
+        finally:
+            test.unlink(["rep3", "contents"])
+
+        # Test with utf-16
+        test.write(["rep3", "contents"], test_string.encode('utf-16'))
+        try:
+            c = fs.File("contents").get_text_contents()
+            assert test_string == c, "got %s" % repr(c)
         finally:
             test.unlink(["rep3", "contents"])
 

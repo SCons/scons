@@ -198,7 +198,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # we have to run makeindex at least once to keep the build
     # happy even if there is no index.
     # Same for glossaries and nomenclature
-    src_content = source[0].get_contents()
+    src_content = source[0].get_text_contents()
     run_makeindex = makeindex_re.search(src_content) and not os.path.exists(targetbase + '.idx')
     run_nomenclature = makenomenclature_re.search(src_content) and not os.path.exists(targetbase + '.nlo')
     run_glossary = makeglossary_re.search(src_content) and not os.path.exists(targetbase + '.glo')
@@ -373,7 +373,7 @@ LaTeX_re = re.compile("\\\\document(style|class)")
 def is_LaTeX(flist):
     # Scan a file list to decide if it's TeX- or LaTeX-flavored.
     for f in flist:
-        content = f.get_contents()
+        content = f.get_text_contents()
         if LaTeX_re.search(content):
             return 1
     return 0
@@ -422,7 +422,7 @@ def tex_pdf_emitter(target, source, env):
 def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir):
     # for theFile (a Node) update any file_tests and search for graphics files
     # then find all included files and call ScanFiles for each of them
-    content = theFile.get_contents()
+    content = theFile.get_text_contents()
     if Verbose:
         print " scanning ",str(theFile)
 
@@ -498,7 +498,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     env.Clean(target[0],auxfilename)
     env.Clean(target[0],logfilename)
 
-    content = source[0].get_contents()
+    content = source[0].get_text_contents()
 
     idx_exists = os.path.exists(targetbase + '.idx')
     nlo_exists = os.path.exists(targetbase + '.nlo')
