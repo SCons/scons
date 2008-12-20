@@ -39,7 +39,7 @@ except NameError:
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 SConstruct_path = test.workpath('SConstruct')
 
@@ -70,21 +70,27 @@ print env['x11']
 Default(env.Alias('dummy', None))
 """)
 
-test.run()
+warnings = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+%s
+scons: warning: The PackageOption\\(\\) function is deprecated; use the PackageVariable\\(\\) function instead.
+%s""" % (TestSCons.file_expr, TestSCons.file_expr)
+
+test.run(stderr=warnings)
 check([str(True)])
 
-test.run(arguments='x11=no')
+test.run(arguments='x11=no', stderr=warnings)
 check([str(False)])
 
-test.run(arguments='x11=0')
+test.run(arguments='x11=0', stderr=warnings)
 check([str(False)])
 
-test.run(arguments=['x11=%s' % test.workpath()])
+test.run(arguments=['x11=%s' % test.workpath()], stderr=warnings)
 check([test.workpath()])
 
-expect_stderr = """
-scons: *** Path does not exist for option x11: /non/existing/path/
-""" + test.python_file_line(SConstruct_path, 14)
+expect_stderr = warnings + """
+scons: \\*\\*\\* Path does not exist for option x11: /non/existing/path/
+""" + TestSCons.file_expr
 
 test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
 

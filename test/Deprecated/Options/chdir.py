@@ -31,7 +31,7 @@ file lives by using the __name__ value.
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.subdir('bin', 'subdir')
 
@@ -66,6 +66,10 @@ expect = """\
 VARIABLE = 'opts2.cfg value'
 """
 
-test.run(arguments = '-q -Q .', stdout=expect)
+warnings = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+""" + TestSCons.file_expr
+
+test.run(arguments = '-q -Q .', stdout=expect, stderr=warnings)
 
 test.pass_test()

@@ -31,5 +31,14 @@ and will then be removed entirely (some day).
 """
 
 import SCons.Variables
+import SCons.Warnings
 
-ListOption = SCons.Variables.ListVariable
+warned = False
+
+def ListOption(*args, **kw):
+    global warned
+    if not warned:
+        msg = "The ListOption() function is deprecated; use the ListVariable() function instead."
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
+        warned = True
+    return apply(SCons.Variables.ListVariable, args, kw)

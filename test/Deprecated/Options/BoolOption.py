@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the BoolOption canned Option type.
 """
 
-import os.path
 import string
 
 try:
@@ -39,7 +38,7 @@ except NameError:
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 SConstruct_path = test.workpath('SConstruct')
 
@@ -71,19 +70,25 @@ Default(env.Alias('dummy', None))
 """)
 
 
+warnings = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+%s
+scons: warning: The BoolOption\\(\\) function is deprecated; use the BoolVariable\\(\\) function instead.
+%s""" % (TestSCons.file_expr, TestSCons.file_expr)
 
-test.run()
+test.run(stderr=warnings)
+
 check([str(True), str(False)])
 
-test.run(arguments='warnings=0 profile=no profile=true')
+test.run(arguments='warnings=0 profile=no profile=true', stderr=warnings)
 check([str(False), str(True)])
 
-expect_stderr = """
-scons: *** Error converting option: warnings
+expect_stderr = (warnings + """
+scons: \\*\\*\\* Error converting option: warnings
 Invalid value for boolean option: irgendwas
-""" + test.python_file_line(SConstruct_path, 12)
+""" + TestSCons.file_expr)
 
-test.run(arguments='warnings=irgendwas', stderr = expect_stderr, status=2)
+test.run(arguments='warnings=irgendwas', stderr=expect_stderr, status=2)
 
 
 

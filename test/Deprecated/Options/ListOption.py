@@ -35,7 +35,7 @@ import string
 import TestSCons
 
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 SConstruct_path = test.workpath('SConstruct')
 
@@ -81,7 +81,13 @@ print env.subst_path('$shared')
 Default(env.Alias('dummy', None))
 """)
 
-test.run()
+warnings = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+%s
+scons: warning: The ListOption\\(\\) function is deprecated; use the ListVariable\\(\\) function instead.
+%s""" % (TestSCons.file_expr, TestSCons.file_expr)
+
+test.run(stderr=warnings)
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
 
@@ -91,61 +97,61 @@ test.must_match(test.workpath('scons.options'), expect)
 check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
        "['gl ical qt x11']"])
 
-test.run(arguments='shared=none')
+test.run(arguments='shared=none', stderr=warnings)
 check(['none', '0', '', '', "['']"])
 
-test.run(arguments='shared=')
+test.run(arguments='shared=', stderr=warnings)
 check(['none', '0', '', '', "['']"])
 
-test.run(arguments='shared=x11,ical')
+test.run(arguments='shared=x11,ical', stderr=warnings)
 check(['ical,x11', '1', 'ical x11', 'ical x11',
        "['ical x11']"])
 
-test.run(arguments='shared=x11,,ical,,')
+test.run(arguments='shared=x11,,ical,,', stderr=warnings)
 check(['ical,x11', '1', 'ical x11', 'ical x11',
        "['ical x11']"])
 
-test.run(arguments='shared=GL')
+test.run(arguments='shared=GL', stderr=warnings)
 check(['gl', '0', 'gl', 'gl'])
 
-test.run(arguments='shared=QT,GL')
+test.run(arguments='shared=QT,GL', stderr=warnings)
 check(['gl,qt', '0', 'gl qt', 'gl qt', "['gl qt']"])
 
 
-expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 19)
+expect_stderr = warnings + """
+scons: \\*\\*\\* Error converting option: shared
+Invalid value\\(s\\) for option: foo
+""" + TestSCons.file_expr
 
 test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 
 # be paranoid in testing some more combinations
 
-expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 19)
+expect_stderr = warnings + """
+scons: \\*\\*\\* Error converting option: shared
+Invalid value\\(s\\) for option: foo
+""" + TestSCons.file_expr
 
 test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
 
-expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 19)
+expect_stderr = warnings +"""
+scons: \\*\\*\\* Error converting option: shared
+Invalid value\\(s\\) for option: foo
+""" + TestSCons.file_expr
 
 test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
 
-expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 19)
+expect_stderr = warnings +"""
+scons: \\*\\*\\* Error converting option: shared
+Invalid value\\(s\\) for option: foo
+""" + TestSCons.file_expr
 
 test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
 
-expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo,bar
-""" + test.python_file_line(SConstruct_path, 19)
+expect_stderr = warnings +"""
+scons: \\*\\*\\* Error converting option: shared
+Invalid value\\(s\\) for option: foo,bar
+""" + TestSCons.file_expr
 
 test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
 
@@ -169,9 +175,11 @@ print env['gpib']
 Default(env.Alias('dummy', None))
 """)
 
-test.run(stdout=test.wrap_stdout(read_str="ENET,GPIB\n", build_str="""\
+expect = test.wrap_stdout(read_str="ENET,GPIB\n", build_str="""\
 scons: Nothing to be done for `dummy'.
-"""))
+""")
+
+test.run(stdout=expect, stderr=warnings)
 
 
 

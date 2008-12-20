@@ -42,7 +42,7 @@ str_False = str(False)
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 
@@ -97,54 +97,71 @@ Default(env.Alias('dummy', None))
 """ % locals())
 
 
-test.run(arguments='-h',
-         stdout = """\
+expected_stdout = """\
 scons: Reading SConscript files ...
 %(str_True)s
 %(str_False)s
 scons: done reading SConscript files.
 
-warnings: compilation with -Wall and similiar (yes|no)
+warnings: compilation with -Wall and similiar \\(yes|no\\)
     default: 1
     actual: %(str_True)s
 
-profile: create profiling informations (yes|no)
+profile: create profiling informations \\(yes|no\\)
     default: 0
     actual: %(str_False)s
 
-debug: debug output and symbols (yes|no|full)
+debug: debug output and symbols \\(yes|no|full\\)
     default: no
     actual: no
 
-guilib: gui lib to use (motif|gtk|kde)
+guilib: gui lib to use \\(motif|gtk|kde\\)
     default: gtk
     actual: gtk
 
-some: some option (xaver|eins)
+some: some option \\(xaver|eins\\)
     default: xaver
     actual: xaver
 
 shared: libraries to build as shared libraries
-    (all|none|comma-separated list of names)
+    \\(all|none|comma-separated list of names\\)
     allowed names: x11 gl qt ical
     default: all
     actual: x11 gl qt ical
 
-x11: use X11 installed here (yes = search some places)
-    ( yes | no | /path/to/x11 )
+x11: use X11 installed here \\(yes = search some places\\)
+    \\( yes | no | /path/to/x11 \\)
     default: yes
     actual: %(str_True)s
 
-qtdir: where the root of Qt is installed ( /path/to/qtdir )
+qtdir: where the root of Qt is installed \\( /path/to/qtdir \\)
     default: %(qtpath)s
     actual: %(qtpath)s
 
-qt_libraries: where the Qt library is installed ( /path/to/qt_libraries )
+qt_libraries: where the Qt library is installed \\( /path/to/qt_libraries \\)
     default: %(libdirvar)s
     actual: %(libpath)s
 
 Use scons -H for help about command-line options.
-""" % locals())
+""" % locals()
+
+file_expr = TestSCons.file_expr
+
+expected_stderr = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+%(file_expr)s
+scons: warning: The BoolOption\\(\\) function is deprecated; use the BoolVariable\\(\\) function instead.
+%(file_expr)s
+scons: warning: The EnumOption\\(\\) function is deprecated; use the EnumVariable\\(\\) function instead.
+%(file_expr)s
+scons: warning: The ListOption\\(\\) function is deprecated; use the ListVariable\\(\\) function instead.
+%(file_expr)s
+scons: warning: The PackageOption\\(\\) function is deprecated; use the PackageVariable\\(\\) function instead.
+%(file_expr)s
+scons: warning: The PathOption\\(\\) function is deprecated; use the PathVariable\\(\\) function instead.
+%(file_expr)s""" % locals()
+
+test.run(arguments='-h', stdout=expected_stdout, stderr=expected_stderr)
 
 
 

@@ -31,7 +31,7 @@ a module in that directory.
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 workpath = test.workpath('')
 
@@ -62,8 +62,12 @@ VARIABLE = 'bin/local_options.py'
 
 test.write(['subdir', 'SConscript'], SConscript_contents)
 
-expect = "VARIABLE = bin/local_options.py\n"
+stdout = "VARIABLE = bin/local_options.py\n"
 
-test.run(arguments = '-q -Q .', stdout = expect)
+stderr = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+""" + TestSCons.file_expr
+
+test.run(arguments = '-q -Q .', stdout = stdout, stderr = stderr)
 
 test.pass_test()
