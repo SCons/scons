@@ -51,6 +51,19 @@ try:
     import codecs
 except ImportError:
     pass
+else:
+    # TODO(2.2):  Remove when 2.3 becomes the minimal supported version.
+    try:
+        codecs.BOM_UTF8
+    except AttributeError:
+        codecs.BOM_UTF8 = '\xef\xbb\xbf'
+    try:
+        codecs.BOM_UTF16
+    except AttributeError:
+        if sys.byteorder == 'little':
+            codecs.BOM_UTF16 = '\xff\xfe'
+        else:
+            codecs.BOM_UTF16 = '\xfe\xff'
 
 import SCons.Action
 from SCons.Debug import logInstanceCreation
