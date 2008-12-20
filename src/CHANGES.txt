@@ -18,6 +18,8 @@ RELEASE 1.X - XXX
     - Add a --warn=future-deprecated option for advance warnings about
       deprecated features that still have warnings hidden by default.
 
+    - Don't fail if can't import a _subprocess module on Windows.
+
   From Greg Spencer:
 
     - Support implicit dependency scanning of files encoded in utf-8
