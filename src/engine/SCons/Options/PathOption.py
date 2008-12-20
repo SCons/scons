@@ -31,5 +31,40 @@ and will then be removed entirely (some day).
 """
 
 import SCons.Variables
+import SCons.Warnings
 
-PathOption = SCons.Variables.PathVariable
+warned = False
+
+class _PathOptionClass:
+    def warn(self):
+        global warned
+        if not warned:
+            msg = "The PathOption() function is deprecated; use the PathVariable() function instead."
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
+            warned = True
+
+    def __call__(self, *args, **kw):
+        self.warn()
+        return apply(SCons.Variables.PathVariable, args, kw)
+
+    def PathAccept(self, *args, **kw):
+        self.warn()
+        return apply(SCons.Variables.PathVariable.PathAccept, args, kw)
+
+    def PathIsDir(self, *args, **kw):
+        self.warn()
+        return apply(SCons.Variables.PathVariable.PathIsDir, args, kw)
+
+    def PathIsDirCreate(self, *args, **kw):
+        self.warn()
+        return apply(SCons.Variables.PathVariable.PathIsDirCreate, args, kw)
+
+    def PathIsFile(self, *args, **kw):
+        self.warn()
+        return apply(SCons.Variables.PathVariable.PathIsFile, args, kw)
+
+    def PathExists(self, *args, **kw):
+        self.warn()
+        return apply(SCons.Variables.PathVariable.PathExists, args, kw)
+
+PathOption = _PathOptionClass()

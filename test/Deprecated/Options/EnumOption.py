@@ -33,7 +33,7 @@ import string
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 SConstruct_path = test.workpath('SConstruct')
 
@@ -75,29 +75,36 @@ Default(env.Alias('dummy', None))
 """)
 
 
-test.run(); check(['no', 'gtk', 'xaver'])
 
-test.run(arguments='debug=yes guilib=Motif some=xAVER')
+warnings = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+%s
+scons: warning: The EnumOption\\(\\) function is deprecated; use the EnumVariable\\(\\) function instead.
+%s""" % (TestSCons.file_expr, TestSCons.file_expr)
+
+test.run(stderr=warnings); check(['no', 'gtk', 'xaver'])
+
+test.run(arguments='debug=yes guilib=Motif some=xAVER', stderr=warnings)
 check(['yes', 'Motif', 'xaver'])
 
-test.run(arguments='debug=full guilib=KdE some=EiNs')
+test.run(arguments='debug=full guilib=KdE some=EiNs', stderr=warnings)
 check(['full', 'KdE', 'eins'])
 
-expect_stderr = """
-scons: *** Invalid value for option debug: FULL
-""" + test.python_file_line(SConstruct_path, 21)
+expect_stderr = warnings + """
+scons: \\*\\*\\* Invalid value for option debug: FULL
+""" + TestSCons.file_expr
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
-expect_stderr = """
-scons: *** Invalid value for option guilib: irgendwas
-""" + test.python_file_line(SConstruct_path, 21)
+expect_stderr = warnings + """
+scons: \\*\\*\\* Invalid value for option guilib: irgendwas
+""" + TestSCons.file_expr
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
-expect_stderr = """
-scons: *** Invalid value for option some: irgendwas
-""" + test.python_file_line(SConstruct_path, 21)
+expect_stderr = warnings + """
+scons: \\*\\*\\* Invalid value for option some: irgendwas
+""" + TestSCons.file_expr
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
 

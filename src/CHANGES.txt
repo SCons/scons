@@ -20,6 +20,8 @@ RELEASE 1.X - XXX
 
     - Don't fail if can't import a _subprocess module on Windows.
 
+    - Add warnings for use of the deprecated Options object.
+
   From Greg Spencer:
 
     - Support implicit dependency scanning of files encoded in utf-8

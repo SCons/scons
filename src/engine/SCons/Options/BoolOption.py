@@ -31,5 +31,14 @@ and will then be removed entirely (some day).
 """
 
 import SCons.Variables
+import SCons.Warnings
 
-BoolOption = SCons.Variables.BoolVariable
+warned = False
+
+def BoolOption(*args, **kw):
+    global warned
+    if not warned:
+        msg = "The BoolOption() function is deprecated; use the BoolVariable() function instead."
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
+        warned = True
+    return apply(SCons.Variables.BoolVariable, args, kw)

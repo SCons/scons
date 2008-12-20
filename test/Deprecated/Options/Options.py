@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import string
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """
 import string
@@ -127,26 +127,31 @@ Default(env.Alias('dummy', None))
 
 """)
 
+warnings = """
+scons: warning: The Options class is deprecated; use the Variables class instead.
+""" + TestSCons.file_expr
+
+
 def check(expect):
     result = string.split(test.stdout(), '\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
-test.run()
+test.run(stderr=warnings)
 check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
-test.run(arguments='RELEASE_BUILD=1')
+test.run(arguments='RELEASE_BUILD=1', stderr=warnings)
 check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
-test.run(arguments='RELEASE_BUILD=1 DEBUG_BUILD=0')
+test.run(arguments='RELEASE_BUILD=1 DEBUG_BUILD=0', stderr=warnings)
 check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
 
-test.run(arguments='CC=not_a_c_compiler')
+test.run(arguments='CC=not_a_c_compiler', stderr=warnings)
 check(['0', '1', 'not_a_c_compiler', string.strip(ccflags + ' -g'), 'v', 'v'])
 
-test.run(arguments='UNDECLARED=foo')
+test.run(arguments='UNDECLARED=foo', stderr=warnings)
 check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
-test.run(arguments='CCFLAGS=--taco')
+test.run(arguments='CCFLAGS=--taco', stderr=warnings)
 check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
 test.write('custom.py', """
@@ -154,10 +159,10 @@ DEBUG_BUILD=0
 RELEASE_BUILD=1
 """)
 
-test.run()
+test.run(stderr=warnings)
 check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
 
-test.run(arguments='DEBUG_BUILD=1')
+test.run(arguments='DEBUG_BUILD=1', stderr=warnings)
 check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
 test.run(arguments='-h',
@@ -201,7 +206,8 @@ UNSPECIFIED: An option with no value
     actual: None
 
 Use scons -H for help about command-line options.
-"""%(cc, ccflags and ccflags + ' -O' or '-O', cc))
+"""%(cc, ccflags and ccflags + ' -O' or '-O', cc),
+         stderr=warnings)
 
 # Test saving of options and multi loading
 #
@@ -240,17 +246,17 @@ def checkSave(file, expected):
 
 # First test with no command line options
 # This should just leave the custom.py settings
-test.run()
+test.run(stderr=warnings)
 check(['1','0'])
 checkSave('options.saved', { 'RELEASE_BUILD':1, 'DEBUG_BUILD':0})
 
 # Override with command line arguments
-test.run(arguments='DEBUG_BUILD=3')
+test.run(arguments='DEBUG_BUILD=3', stderr=warnings)
 check(['1','3'])
 checkSave('options.saved', {'RELEASE_BUILD':1, 'DEBUG_BUILD':3})
 
 # Now make sure that saved options are overridding the custom.py
-test.run()
+test.run(stderr=warnings)
 check(['1','3'])
 checkSave('options.saved', {'DEBUG_BUILD':3, 'RELEASE_BUILD':1})
 
@@ -288,17 +294,17 @@ opts.Save('options.saved', env)
 """)
 
 # First check for empty output file when nothing is passed on command line
-test.run()
+test.run(stderr=warnings)
 check(['0','1'])
 checkSave('options.saved', {})
 
 # Now specify one option the same as default and make sure it doesn't write out
-test.run(arguments='DEBUG_BUILD=1')
+test.run(arguments='DEBUG_BUILD=1', stderr=warnings)
 check(['0','1'])
 checkSave('options.saved', {})
 
 # Now specify same option non-default and make sure only it is written out
-test.run(arguments='DEBUG_BUILD=0 LISTOPTION_TEST=a,b')
+test.run(arguments='DEBUG_BUILD=0 LISTOPTION_TEST=a,b', stderr=warnings)
 check(['0','0'])
 checkSave('options.saved',{'DEBUG_BUILD':0, 'LISTOPTION_TEST':'a,b'})
 
@@ -351,7 +357,8 @@ UNSPECIFIED: An option with no value
     actual: None
 
 Use scons -H for help about command-line options.
-"""%cc)
+"""%cc,
+         stderr=warnings)
 
 test.write('SConstruct', """
 import SCons.Options
@@ -359,6 +366,6 @@ env1 = Environment(options = Options())
 env2 = Environment(options = SCons.Options.Options())
 """)
 
-test.run()
+test.run(stderr=warnings)
 
 test.pass_test()
