@@ -55,9 +55,9 @@ test = TestSCons.TestSCons()
 #    h) Builds that are interrupted
 
 test.write('SConstruct', """
-opts = Options()
-opts.Add( BoolOption('interrupt', 'Interrupt the build.', 0 ) )
-optEnv = Environment(options=opts)
+vars = Variables()
+vars.Add( BoolVariable('interrupt', 'Interrupt the build.', 0 ) )
+varEnv = Environment(variables=vars)
 
 def fail_action(target = None, source = None, env = None):
     return 2
@@ -93,7 +93,7 @@ prev_prereq = prereq0
 prev_ignore = ignore0
 prev_igreq  = igreq0
 
-if optEnv['interrupt']:
+if varEnv['interrupt']:
     prev_level = prev_level + interrupt
 
 for i in range(1,20):
