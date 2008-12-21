@@ -18,10 +18,6 @@ RELEASE 1.X - XXX
     - Add a --warn=future-deprecated option for advance warnings about
       deprecated features that still have warnings hidden by default.
 
-    - Don't fail if can't import a _subprocess module on Windows.
-
-    - Add warnings for use of the deprecated Options object.
-
   From Greg Spencer:
 
     - Support implicit dependency scanning of files encoded in utf-8
@@ -34,7 +30,17 @@ RELEASE 1.X - XXX
 
 
 
-RELEASE 1.X - XXX
+RELEASE 1.2.0 - Sat, 20 Dec 2008 22:47:29 -0800
+
+  From Steven Knight:
+
+    - Don't fail if can't import a _subprocess module on Windows.
+
+    - Add warnings for use of the deprecated Options object.
+
+
+
+RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
 
   From Benoit Belley:
 

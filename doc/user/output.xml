@@ -683,9 +683,9 @@
           scons: `.' is up to date.
           Build succeeded.
           % <userinput>scons -Q fail=1</userinput>
-          scons: *** Source `source' not found, needed by target `target'.  Stop.
+          scons: *** [target] Source `source' not found, needed by target `target'.
           FAILED!!!!
-          Failed building Source `source' not found, needed by target `target'.
+          Failed building target: Source `source' not found, needed by target `target'.
     </screen>
 
   </section>
