@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE XXX -
+RELEASE 1.2.0 - Sat, 20 Dec 2008 22:47:29 -0800
 
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
@@ -45,6 +45,35 @@ RELEASE XXX -
         should be changed to use different variable names, in order
         to ensure that the configuration continues to work with future
         versions of SCons.
+
+    --  THE Options OBJECT AND RELATED FUNCTIONS NOW GENERATE WARNINGS
+
+	Use of the Options object, and related functions BoolOption(),
+	EnumOption(), ListOption(), PackageOption() and PathOption()
+	were announced as deprecated in release 0.98.1.  Since then,
+	however, no warning messages were ever implemented for the
+        use of these deprecated functions.
+
+        By default, release 1.2.0 prints warning messages when these
+        deprecated features are used.  Warnings about all deprecated
+        features may be suppressed by using the --warn=no-deprecated
+        command-line option:
+
+            $ scons --warn=no-deprecated
+
+        Or by using the appropriate SetOption() call in any SConscript
+        file:
+
+            SetOption('warn', 'no-deprecated')
+
+        You may optionally disable just warnings about the deprecation
+        of the Options object and its related functions as follows:
+
+            SetOption('warn', 'no-deprecated-options')
+
+        The current plan is for these warnings to become mandatory
+        (non-suppressible) in release 1.3.0, and for the use of Options
+        and its related functions to generate errors in release 2.0.
 
   Please note the following important changes since release 0.98.4:
 

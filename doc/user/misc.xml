@@ -350,7 +350,7 @@
        % <userinput>scons -Q</userinput>
        None
        derived
-       scons: *** Source `leaf' not found, needed by target `derived'.  Stop.
+       scons: *** [derived] Source `leaf' not found, needed by target `derived'.
     </screen>
 
     <programlisting>
