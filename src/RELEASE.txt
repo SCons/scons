@@ -25,6 +25,34 @@ RELEASE 1.2.0 - Sat, 20 Dec 2008 22:47:29 -0800
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
 
+  Please note the following important changes scheduled for the next
+  minor release (1.3.0):
+
+    --  DEPRECATED FEATURES WILL GENERATE MANDATORY WARNINGS IN 1.3.0
+
+        In keeping with our deprecation cycle, the following deprecated
+        features will still be supported in 1.3.0 but will generate
+        mandatory, non-disableable warnings:
+
+            --  Support for Python versions 1.5, 1.6, 2.0 and 2.1.
+            --  The overrides= keyword argument to the Builder() call.
+            --  The scanner= keyword argument to the Builder() call.
+            --  The BuildDir() function and env.BuildDir() method.
+            --  The env.Copy() method.
+            --  The SourceSignatures() function and
+                env.SourceSignatures() method.
+            --  The TargetSignatures() function and
+                env.TargetSignatures() method.
+            --  The Sig module (now an unnused stub).
+            --  The --debug=dtree, --debug=stree and --debug=tree options.
+            --  The --debug=nomemoizer option.
+
+        The mandatory warnings will be issued in order to make sure
+        users of 1.3.0 notice *prior* to the release of SCons 2.0.0, that
+        these features will be removed.  In SCons 2.0.0 these features
+        will no longer work at all, and will instead generate specific
+        fatal errors when anyone tries to use them.
+
   Please note the following important changes since release 1.1.0:
 
     --  THE $CHANGED_SOURCES, $CHANGED_TARGETS, $UNCHANGED_SOURCES
