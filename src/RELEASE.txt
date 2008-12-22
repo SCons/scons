@@ -46,6 +46,9 @@ RELEASE 1.2.0 - Sat, 20 Dec 2008 22:47:29 -0800
             --  The Sig module (now an unnused stub).
             --  The --debug=dtree, --debug=stree and --debug=tree options.
             --  The --debug=nomemoizer option.
+            --  The Options object and the related BoolOption(),
+                EnumOption(), ListOption(), PackageOption() and
+                PathOption() functions.
 
         The mandatory warnings will be issued in order to make sure
         users of 1.3.0 notice *prior* to the release of SCons 2.0.0, that
