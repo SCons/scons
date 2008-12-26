@@ -59,6 +59,7 @@ The TestCommon module also provides the following variables
     TestCommon.python_executable
     TestCommon.exe_suffix
     TestCommon.obj_suffix
+    TestCommon.shobj_prefix
     TestCommon.shobj_suffix
     TestCommon.lib_prefix
     TestCommon.lib_suffix
