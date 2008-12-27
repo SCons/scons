@@ -42,10 +42,7 @@ test = TestSCons.TestSCons()
 test.subdir('repository', 'work')
 
 #
-workpath_repository = test.workpath('repository')
-
-#
-opts = '-Y ' + workpath_repository
+opts = '-Y ' + test.workpath('repository')
 
 #
 test.write(['repository', 'SConstruct'], """\
@@ -55,43 +52,22 @@ f2 = env.SharedObject('f2.c')
 f3 = env.SharedObject('f3.c')
 if ARGUMENTS.get('PROGRAM'):
     lib = env.SharedLibrary(target = 'foo',
-                            source = ['f1.os', 'f2.os', 'f3.os'],
+                            source = f1 + f2 + f3,
                             WINDOWS_INSERT_DEF = 1)
     env.Program(target='prog', source='prog.c', LIBS='foo', LIBPATH=['.'])
 """)
 
-test.write(['repository', 'f1.c'], r"""
+for fx in ['1', '2', '3']:
+    test.write(['repository', 'f%s.c' % (fx)], r"""
 #include <stdio.h>
 
 void
-f1(void)
+f%s(void)
 {
-        printf("f1.c\n");
+        printf("f%s.c\n");
         fflush(stdout);
 }
-""")
-
-test.write(['repository', 'f2.c'], r"""
-#include <stdio.h>
-
-void
-f2(void)
-{
-        printf("f2.c\n");
-        fflush(stdout);
-}
-""")
-
-test.write(['repository', 'f3.c'], r"""
-#include <stdio.h>
-
-void
-f3(void)
-{
-        printf("f3.c\n");
-        fflush(stdout);
-}
-""")
+""" % (fx,fx))
 
 test.write(['repository', "foo.def"], r"""
 LIBRARY        "foo"
@@ -120,21 +96,26 @@ main(int argc, char *argv[])
 }
 """)
 
+# Build the relocatable objects within the repository
 test.run(chdir = 'repository', arguments = '.')
 
 # Make the repository non-writable,
 # so we'll detect if we try to write into it accidentally.
 test.writable('repository', 0)
 
-#
+# Build the library and the program within the work area
 test.run(chdir='work',
          options=opts,
          arguments='PROGRAM=1',
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
+# Run the program and verify that the library worked
 if os.name == 'posix':
-    os.environ['LD_LIBRARY_PATH'] = test.workpath('work')
+    if sys.platform[:6] == 'darwin':
+        os.environ['DYLD_LIBRARY_PATH'] = test.workpath('work')
+    else:
+        os.environ['LD_LIBRARY_PATH'] = test.workpath('work')
 if string.find(sys.platform, 'irix') != -1:
     os.environ['LD_LIBRARYN32_PATH'] = test.workpath('work')
 
