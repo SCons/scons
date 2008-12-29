@@ -29,6 +29,7 @@ Test the Options help messages.
 """
 
 import os.path
+import re
 import string
 
 try:
@@ -50,6 +51,10 @@ workpath = test.workpath()
 qtpath  = os.path.join(workpath, 'qt')
 libpath = os.path.join(qtpath, 'lib')
 libdirvar = os.path.join('$qtdir', 'lib')
+
+qtpath_re = re.escape(qtpath)
+libpath_re = re.escape(libpath)
+libdirvar_re = re.escape(libdirvar)
 
 test.subdir(qtpath)
 test.subdir(libpath)
@@ -135,12 +140,12 @@ x11: use X11 installed here \\(yes = search some places\\)
     actual: %(str_True)s
 
 qtdir: where the root of Qt is installed \\( /path/to/qtdir \\)
-    default: %(qtpath)s
-    actual: %(qtpath)s
+    default: %(qtpath_re)s
+    actual: %(qtpath_re)s
 
 qt_libraries: where the Qt library is installed \\( /path/to/qt_libraries \\)
-    default: %(libdirvar)s
-    actual: %(libpath)s
+    default: %(libdirvar_re)s
+    actual: %(libpath_re)s
 
 Use scons -H for help about command-line options.
 """ % locals()
