@@ -30,6 +30,7 @@ various canned validators.
 """
 
 import os.path
+import re
 import string
 
 import TestSCons
@@ -99,15 +100,16 @@ test.run(arguments=['qtdir=%s' % qtpath, 'qt_libraries=%s' % libpath], stderr=wa
 check([qtpath, libpath, libpath])
 
 qtpath = os.path.join(workpath, 'non', 'existing', 'path')
+qtpath_re = re.escape(qtpath)
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* Path for option qtdir does not exist: %(qtpath)s
+scons: \\*\\*\\* Path for option qtdir does not exist: %(qtpath_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['qtdir=%s' % qtpath], stderr=expect_stderr, status=2)
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* Path for option qt_libraries does not exist: %(qtpath)s
+scons: \\*\\*\\* Path for option qt_libraries does not exist: %(qtpath_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['qt_libraries=%s' % qtpath], stderr=expect_stderr, status=2)
@@ -125,6 +127,13 @@ test.write(existing_file, "existing_file\n")
 
 non_existing_subdir = test.workpath('non_existing_subdir')
 non_existing_file = test.workpath('non_existing_file')
+
+default_file_re = re.escape(default_file)
+default_subdir_re = re.escape(default_subdir)
+existing_subdir_re = re.escape(existing_subdir)
+existing_file_re = re.escape(existing_file)
+non_existing_subdir_re = re.escape(non_existing_subdir)
+non_existing_file_re = re.escape(non_existing_file)
 
 
 
@@ -175,7 +184,7 @@ Default(env.Alias('dummy', None))
 """ % default_file)
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* File path for option X does not exist: %(default_file)s
+scons: \\*\\*\\* File path for option X does not exist: %(default_file_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(status=2, stderr=expect_stderr)
@@ -186,7 +195,7 @@ test.run(stderr=warnings)
 check([default_file])
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* File path for option X is a directory: %(existing_subdir)s
+scons: \\*\\*\\* File path for option X is a directory: %(existing_subdir_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['X=%s' % existing_subdir], status=2, stderr=expect_stderr)
@@ -195,7 +204,7 @@ test.run(arguments=['X=%s' % existing_file], stderr=warnings)
 check([existing_file])
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* File path for option X does not exist: %(non_existing_file)s
+scons: \\*\\*\\* File path for option X does not exist: %(non_existing_file_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['X=%s' % non_existing_file], status=2, stderr=expect_stderr)
@@ -216,7 +225,7 @@ Default(env.Alias('dummy', None))
 """ % default_subdir)
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* Directory path for option X does not exist: %(default_subdir)s
+scons: \\*\\*\\* Directory path for option X does not exist: %(default_subdir_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(status=2, stderr=expect_stderr)
@@ -227,7 +236,7 @@ test.run(stderr=warnings)
 check([default_subdir])
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* Directory path for option X is a file: %(existing_file)s
+scons: \\*\\*\\* Directory path for option X is a file: %(existing_file_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['X=%s' % existing_file],
@@ -238,7 +247,7 @@ test.run(arguments=['X=%s' % existing_subdir], stderr=warnings)
 check([existing_subdir])
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* Directory path for option X does not exist: %(non_existing_subdir)s
+scons: \\*\\*\\* Directory path for option X does not exist: %(non_existing_subdir_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['X=%s' % non_existing_subdir],
@@ -264,7 +273,7 @@ test.run(stderr=warnings)
 check([default_subdir])
 
 expect_stderr = warnings + ("""
-scons: \\*\\*\\* Path for option X is a file, not a directory: %(existing_file)s
+scons: \\*\\*\\* Path for option X is a file, not a directory: %(existing_file_re)s
 """ % locals()) + TestSCons.file_expr
 
 test.run(arguments=['X=%s' % existing_file], status=2, stderr=expect_stderr)
