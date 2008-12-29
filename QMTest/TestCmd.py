@@ -181,8 +181,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.32.D001 2008/10/30 23:00:04 knight"
-__version__ = "0.32"
+__revision__ = "TestCmd.py 0.34.D001 2008/12/28 23:12:34 knight"
+__version__ = "0.34"
 
 import errno
 import os
@@ -239,6 +239,8 @@ re_space = re.compile('\s')
 
 _Cleanup = []
 
+_chain_to_exitfunc = None
+
 def _clean():
     global _Cleanup
     cleanlist = filter(None, _Cleanup)
@@ -246,8 +248,29 @@ def _clean():
     cleanlist.reverse()
     for test in cleanlist:
         test.cleanup()
+    if _chain_to_exitfunc:
+        _chain_to_exitfunc()
 
-sys.exitfunc = _clean
+try:
+    import atexit
+except ImportError:
+    # TODO(1.5): atexit requires python 2.0, so chain sys.exitfunc
+    try:
+        _chain_to_exitfunc = sys.exitfunc
+    except AttributeError:
+        pass
+    sys.exitfunc = _clean
+else:
+    atexit.register(_clean)
+
+try:
+    zip
+except NameError:
+    def zip(*lists):
+        result = []
+        for i in xrange(min(map(len, lists))):
+            result.append(tuple(map(lambda l, i=i: l[i], lists)))
+        return result
 
 class Collector:
     def __init__(self, top):
@@ -365,7 +388,13 @@ def match_re(lines = None, res = None):
     if len(lines) != len(res):
         return
     for i in range(len(lines)):
-        if not re.compile("^" + res[i] + "$").search(lines[i]):
+        s = "^" + res[i] + "$"
+        try:
+            expr = re.compile(s)
+        except re.error, e:
+            msg = "Regular expression error in %s: %s"
+            raise re.error, msg % (repr(s), e[0])
+        if not expr.search(lines[i]):
             return
     return 1
 
@@ -376,7 +405,13 @@ def match_re_dotall(lines = None, res = None):
         lines = string.join(lines, "\n")
     if not type(res) is type(""):
         res = string.join(res, "\n")
-    if re.compile("^" + res + "$", re.DOTALL).match(lines):
+    s = "^" + res + "$"
+    try:
+        expr = re.compile(s, re.DOTALL)
+    except re.error, e:
+        msg = "Regular expression error in %s: %s"
+        raise re.error, msg % (repr(s), e[0])
+    if expr.match(lines):
         return 1
 
 def diff_re(a, b, fromfile='', tofile='',
@@ -396,7 +431,13 @@ def diff_re(a, b, fromfile='', tofile='',
         b = b + ['']*diff
     i = 0
     for aline, bline in zip(a, b):
-        if not re.compile("^" + aline + "$").search(bline):
+        s = "^" + aline + "$"
+        try:
+            expr = re.compile(s)
+        except re.error, e:
+            msg = "Regular expression error in %s: %s"
+            raise re.error, msg % (repr(s), e[0])
+        if not expr.search(bline):
             result.append("%sc%s" % (i+1, i+1))
             result.append('< ' + repr(a[i]))
             result.append('---')
