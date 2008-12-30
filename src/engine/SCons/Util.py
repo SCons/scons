@@ -136,11 +136,6 @@ class NodeList(UserList):
         return string.join(map(str, self.data))
 
     def __getattr__(self, name):
-        if not self.data:
-            # If there is nothing in the list, then we have no attributes to
-            # pass through, so raise AttributeError for everything.
-            raise AttributeError, "NodeList has no attribute: %s" % name
-
         # Return a list of the attribute, gotten from every element
         # in the list
         attrList = map(lambda x, n=name: getattr(x, n), self.data)
@@ -1549,29 +1544,29 @@ def MD5collect(signatures):
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
 
+# TODO(1.5):
+#class Null(object):
 class Null:
-    """ Null objects always and reliably "do nothging." """
-
+    """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):
         if not '_inst' in vars(cls):
             #cls._inst = type.__new__(cls, *args, **kwargs)
             cls._inst = apply(type.__new__, (cls,) + args, kwargs)
         return cls._inst
-    def __init__(self, *args, **kwargs):
-        pass
-    def __call__(self, *args, **kwargs):
-        return self
-    def __repr__(self):
-        return "Null()"
-    def __nonzero__(self):
-        return False
-    def __getattr__(self, mname):
-        return self
-    def __setattr__(self, name, value):
-        return self
-    def __delattr__(self, name):
-        return self
+    def __init__(self, *args, **kwargs): pass
+    def __call__(self, *args, **kwargs): return self
+    def __repr__(self): return "Null(0x%08X)" % id(self)
+    def __nonzero__(self): return False
+    def __getattr__(self, mname): return self
+    def __setattr__(self, name, value): return self
+    def __delattr__(self, name): return self
 
+class NullSeq(Null):
+  def __len__(self): return 0
+  def __iter__(self): return iter(())
+  def __getitem__(self, i): return self
+  def __delitem__(self, i): return self
+  def __setitem__(self, i, v): return self
 
 
 del __revision__
