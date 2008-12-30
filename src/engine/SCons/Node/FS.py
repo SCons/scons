@@ -582,7 +582,7 @@ class Base(SCons.Node.Node):
         This node, which already existed, is being looked up as the
         specified klass.  Raise an exception if it isn't.
         """
-        if self.__class__ is klass or klass is Entry:
+        if isinstance(self, klass) or klass is Entry:
             return
         raise TypeError, "Tried to lookup %s '%s' as a %s." %\
               (self.__class__.__name__, self.path, klass.__name__)
