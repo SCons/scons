@@ -18,6 +18,9 @@ RELEASE 1.X - XXX
     - Add a --warn=future-deprecated option for advance warnings about
       deprecated features that still have warnings hidden by default.
 
+    - Fix use of $SOURCE and $SOURCES attributes when there are no
+      sources specified in the Builder call.
+
   From Arve Knudsen:
 
     - Document TestCommon.shobj_prefix variable.
