@@ -1691,6 +1691,13 @@ class DirTestCase(_tempdirTestCase):
         assert a[0] == 'pre', a
         assert a[2] == 'post', a
 
+    def test_subclass(self):
+        """Test looking up subclass of Dir nodes"""
+        class DirSubclass(SCons.Node.FS.Dir):
+            pass
+        sd = self.fs._lookup('special_dir', None, DirSubclass, create=1)
+        sd.must_be_same(SCons.Node.FS.Dir)
+
     def test_get_env_scanner(self):
         """Test the Dir.get_env_scanner() method
         """
@@ -2108,6 +2115,13 @@ class EntryTestCase(_tempdirTestCase):
 
 
 class FileTestCase(_tempdirTestCase):
+
+    def test_subclass(self):
+        """Test looking up subclass of File nodes"""
+        class FileSubclass(SCons.Node.FS.File):
+            pass
+        sd = self.fs._lookup('special_file', None, FileSubclass, create=1)
+        sd.must_be_same(SCons.Node.FS.File)
 
     def test_Dirs(self):
         """Test the File.Dirs() method"""
