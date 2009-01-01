@@ -25,6 +25,11 @@ RELEASE 1.X - XXX
 
     - Document TestCommon.shobj_prefix variable.
 
+  From Gary Oberbrunner:
+
+    - Allow AppendENVPath() and PrependENVPath() to interpret '#'
+      for paths relative to the top-level SConstruct directory.
+
   From Greg Spencer:
 
     - Support implicit dependency scanning of files encoded in utf-8

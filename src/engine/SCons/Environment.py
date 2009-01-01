@@ -1203,7 +1203,7 @@ class Base(SubstitutionEnvironment):
     def _canonicalize(self, path):
         if not SCons.Util.is_String(path): # typically a Dir
             path = str(path)
-        if path[0] == '#':
+        if path and path[0] == '#':
             path = str(self.fs.Dir(path))
         return path
 
