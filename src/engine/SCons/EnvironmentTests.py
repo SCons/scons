@@ -1613,6 +1613,13 @@ def exists(env):
         assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
 
+        test = TestCmd.TestCmd(workdir = '')
+        test.subdir('sub1', 'sub2')
+        p=env1['ENV']['PATH']
+        env1.AppendENVPath('PATH','#sub1', sep = ';')
+        env1.AppendENVPath('PATH',env1.fs.Dir('sub2'), sep = ';')
+        assert env1['ENV']['PATH'] == p + ';sub1;sub2', env1['ENV']['PATH']
+
     def test_AppendUnique(self):
         """Test appending to unique values to construction variables
 
@@ -2259,17 +2266,12 @@ f5: \
         assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
 
-    def test_PrependENVPath(self):
-        """Test prepending to an ENV path."""
-        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
-                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
-        # have to include the pathsep here so that the test will work on UNIX too.
-        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
-        env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
-        assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
-        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+        test = TestCmd.TestCmd(workdir = '')
+        test.subdir('sub1', 'sub2')
+        p=env1['ENV']['PATH']
+        env1.PrependENVPath('PATH','#sub1', sep = ';')
+        env1.PrependENVPath('PATH',env1.fs.Dir('sub2'), sep = ';')
+        assert env1['ENV']['PATH'] == 'sub2;sub1;' + p, env1['ENV']['PATH']
 
     def test_PrependUnique(self):
         """Test prepending unique values to construction variables
