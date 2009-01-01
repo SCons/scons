@@ -1198,6 +1198,15 @@ class Base(SubstitutionEnvironment):
                                 orig[val] = None
         self.scanner_map_delete(kw)
 
+    # allow Dirs and strings beginning with # for top-relative
+    # Note this uses the current env's fs (in self).
+    def _canonicalize(self, path):
+        if not SCons.Util.is_String(path): # typically a Dir
+            path = str(path)
+        if path[0] == '#':
+            path = str(self.fs.Dir(path))
+        return path
+
     def AppendENVPath(self, name, newpath, envname = 'ENV', 
                       sep = os.pathsep, delete_existing=1):
         """Append path elements to the path 'name' in the 'ENV'
@@ -1214,7 +1223,8 @@ class Base(SubstitutionEnvironment):
         if self._dict.has_key(envname) and self._dict[envname].has_key(name):
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.AppendPath(orig, newpath, sep, delete_existing)
+        nv = SCons.Util.AppendPath(orig, newpath, sep, delete_existing,
+                                   canonicalize=self._canonicalize)
 
         if not self._dict.has_key(envname):
             self._dict[envname] = {}
@@ -1569,7 +1579,8 @@ class Base(SubstitutionEnvironment):
         if self._dict.has_key(envname) and self._dict[envname].has_key(name):
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.PrependPath(orig, newpath, sep, delete_existing)
+        nv = SCons.Util.PrependPath(orig, newpath, sep, delete_existing,
+                                    canonicalize=self._canonicalize)
 
         if not self._dict.has_key(envname):
             self._dict[envname] = {}

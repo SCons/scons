@@ -839,7 +839,8 @@ else:
                     continue
         return None
 
-def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
+def PrependPath(oldpath, newpath, sep = os.pathsep, 
+                delete_existing=1, canonicalize=None):
     """This prepends newpath elements to the given oldpath.  Will only
     add any particular path once (leaving the first one it encounters
     and ignoring the rest, to preserve path order), and will
@@ -856,6 +857,9 @@ def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
     If delete_existing is 0, then adding a path that exists will
     not move it to the beginning; it will stay where it is in the
     list.
+
+    If canonicalize is not None, it is applied to each element of 
+    newpath before use.
     """
 
     orig = oldpath
@@ -865,10 +869,15 @@ def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if is_List(newpath) or is_Tuple(newpath):
-        newpaths = newpath
-    else:
+    if is_String(newpath):
         newpaths = string.split(newpath, sep)
+    elif not is_List(newpath) and not is_Tuple(newpath):
+        newpaths = [ newpath ]  # might be a Dir
+    else:
+        newpaths = newpath
+
+    if canonicalize:
+        newpaths=map(canonicalize, newpaths)
 
     if not delete_existing:
         # First uniquify the old paths, making sure to 
@@ -912,7 +921,8 @@ def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
     else:
         return string.join(paths, sep)
 
-def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
+def AppendPath(oldpath, newpath, sep = os.pathsep, 
+               delete_existing=1, canonicalize=None):
     """This appends new path elements to the given old path.  Will
     only add any particular path once (leaving the last one it
     encounters and ignoring the rest, to preserve path order), and
@@ -928,6 +938,9 @@ def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
 
     If delete_existing is 0, then adding a path that exists
     will not move it to the end; it will stay where it is in the list.
+
+    If canonicalize is not None, it is applied to each element of 
+    newpath before use.
     """
 
     orig = oldpath
@@ -937,10 +950,15 @@ def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if is_List(newpath) or is_Tuple(newpath):
-        newpaths = newpath
-    else:
+    if is_String(newpath):
         newpaths = string.split(newpath, sep)
+    elif not is_List(newpath) and not is_Tuple(newpath):
+        newpaths = [ newpath ]  # might be a Dir
+    else:
+        newpaths = newpath
+
+    if canonicalize:
+        newpaths=map(canonicalize, newpaths)
 
     if not delete_existing:
         # add old paths to result, then
