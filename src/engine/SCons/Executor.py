@@ -59,8 +59,7 @@ class Executor:
         self.env = env
         self.overridelist = overridelist
         self.targets = targets
-        self.sources = sources[:]
-        self.sources_need_sorting = False
+        self.sources = SCons.Util.UniqueList(sources[:])
         self.builder_kw = builder_kw
         self._memo = {}
 
@@ -156,12 +155,8 @@ class Executor:
         for "multi" Builders that can be called repeatedly to build up
         a source file list for a given target."""
         self.sources.extend(sources)
-        self.sources_need_sorting = True
 
     def get_sources(self):
-        if self.sources_need_sorting:
-            self.sources = SCons.Util.uniquer_hashables(self.sources)
-            self.sources_need_sorting = False
         return self.sources
 
     def prepare(self):
