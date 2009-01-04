@@ -107,18 +107,6 @@ def updrive(path):
         path = string.upper(drive) + rest
     return path
 
-class CallableComposite(UserList):
-    """A simple composite callable class that, when called, will invoke all
-    of its contained callables with the same arguments."""
-    def __call__(self, *args, **kwargs):
-        retvals = map(lambda x, args=args, kwargs=kwargs: apply(x,
-                                                                args,
-                                                                kwargs),
-                      self.data)
-        if self.data and (len(self.data) == len(filter(callable, retvals))):
-            return self.__class__(retvals)
-        return NodeList(retvals)
-
 class NodeList(UserList):
     """This class is almost exactly like a regular list of Nodes
     (actually it can hold any object), with one important difference.
@@ -135,18 +123,20 @@ class NodeList(UserList):
     def __str__(self):
         return string.join(map(str, self.data))
 
-    def __getattr__(self, name):
-        # Return a list of the attribute, gotten from every element
-        # in the list
-        attrList = map(lambda x, n=name: getattr(x, n), self.data)
+    def __iter__(self):
+        return iter(self.data)
 
-        # Special case.  If the attribute is callable, we do not want
-        # to return a list of callables.  Rather, we want to return a
-        # single callable that, when called, will invoke the function on
-        # all elements of this list.
-        if self.data and (len(self.data) == len(filter(callable, attrList))):
-            return CallableComposite(attrList)
-        return self.__class__(attrList)
+    def __call__(self, *args, **kwargs):
+        result = map(lambda x, args=args, kwargs=kwargs: apply(x,
+                                                               args,
+                                                               kwargs),
+                     self.data)
+        return self.__class__(result)
+
+    def __getattr__(self, name):
+        result = map(lambda x, n=name: getattr(x, n), self.data)
+        return self.__class__(result)
+
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
