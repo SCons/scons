@@ -51,7 +51,17 @@ def swigSuffixEmitter(env, source):
         return '$SWIGCFILESUFFIX'
 
 # Match '%module test', as well as '%module(directors="1") test'
-_reModule = re.compile(r'%module(?:\s*\(.*\))?\s+(.+)')
+# Also allow for test to be quoted (SWIG permits double quotes, but not single)
+_reModule = re.compile(r'%module(\s*\(.*\))?\s+("?)(.+)\2')
+
+def _find_modules(src):
+    """Find all modules referenced by %module lines in `src`, a SWIG .i file.
+       Returns a list of all modules."""
+    mnames = []
+    matches = _reModule.findall(open(src).read())
+    for m in matches:
+        mnames.append(m[2])
+    return mnames
 
 def _swigEmitter(target, source, env):
     swigflags = env.subst("$SWIGFLAGS", target=target, source=source)
@@ -61,12 +71,12 @@ def _swigEmitter(target, source, env):
         mnames = None
         if "-python" in flags and "-noproxy" not in flags:
             if mnames is None:
-                mnames = _reModule.findall(open(src).read())
+                mnames = _find_modules(src)
             target.extend(map(lambda m, d=target[0].dir:
                                      d.File(m + ".py"), mnames))
         if "-java" in flags:
             if mnames is None:
-                mnames = _reModule.findall(open(src).read())
+                mnames = _find_modules(src)
             java_files = map(lambda m: [m + ".java", m + "JNI.java"], mnames)
             java_files = SCons.Util.flatten(java_files)
             outdir = env.subst('$SWIGOUTDIR', target=target, source=source)
