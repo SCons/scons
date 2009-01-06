@@ -99,10 +99,13 @@ def generate(env):
     # setting them the same means that LoadableModule works everywhere.
     SCons.Tool.createLoadableModuleBuilder(env)
     env['LDMODULE'] = '$SHLINK'
+    # don't set up the emitter, cause AppendUnique will generate a list
+    # starting with None :-(
+    env.Append(LDMODULEEMITTER='$SHLIBEMITTER')
     env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
-    env['LDMODULECOM'] = '$SHLINKCOM'
+    env['LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 
 

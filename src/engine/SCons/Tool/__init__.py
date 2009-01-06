@@ -272,7 +272,7 @@ def createLoadableModuleBuilder(env):
         action_list = [ SCons.Defaults.SharedCheck,
                         SCons.Defaults.LdModuleLinkAction ]
         ld_module = SCons.Builder.Builder(action = action_list,
-                                          emitter = "$SHLIBEMITTER",
+                                          emitter = "$LDMODULEEMITTER",
                                           prefix = '$LDMODULEPREFIX',
                                           suffix = '$LDMODULESUFFIX',
                                           target_scanner = ProgramScanner,

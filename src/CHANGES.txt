@@ -23,6 +23,9 @@ RELEASE 1.X - XXX
 
   From Arve Knudsen:
 
+    - Make linker tools differentiate properly between SharedLibrary
+      and LoadableModule.
+
     - Document TestCommon.shobj_prefix variable.
 
   From Gary Oberbrunner:
