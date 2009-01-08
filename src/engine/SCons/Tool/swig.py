@@ -112,7 +112,7 @@ def generate(env):
     env['SWIGFLAGS']         = SCons.Util.CLVar('')
     env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
     env['SWIGCXXFILESUFFIX'] = '_wrap$CXXFILESUFFIX'
-    env['_SWIGOUTDIR']       = '${"-outdir " + str(SWIGOUTDIR)}'
+    env['_SWIGOUTDIR']       = r'${"-outdir \"%s\"" % SWIGOUTDIR}'
     env['SWIGPATH']          = []
     env['SWIGINCPREFIX']     = '-I'
     env['SWIGINCSUFFIX']     = ''

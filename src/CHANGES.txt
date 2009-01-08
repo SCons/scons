@@ -28,6 +28,8 @@ RELEASE 1.X - XXX
 
     - Document TestCommon.shobj_prefix variable.
 
+    - Support $SWIGOUTDIR values with spaces.
+
   From Gary Oberbrunner:
 
     - Allow AppendENVPath() and PrependENVPath() to interpret '#'
