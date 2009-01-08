@@ -55,7 +55,7 @@ env = Environment(tools = ['default', 'swig'],
 Java_foo_interface = env.SharedLibrary(
     'Java_foo_interface', 
     'Java_foo_interface.i', 
-    SWIGOUTDIR = 'java/build',
+    SWIGOUTDIR = 'java/build dir',
     SWIGFLAGS = '-c++ -java -Wall',
     SWIGCXXFILESUFFIX = "_wrap.cpp")
 """ % locals())
@@ -64,19 +64,24 @@ test.write('Java_foo_interface.i', """\
 %module foopack
 """)
 
-# SCons should realize that it needs to create the java/build
-# subdirectory to hold the generate .java files.
+# SCons should realize that it needs to create the "java/build dir"
+# subdirectory to hold the generated .java files.
 test.run(arguments = '.')
 
-# SCons should remove the built .java files.
-test.run(arguments = '-c java/build/foopack.java java/build/foopackJNI.java')
+test.must_exist('java/build dir/foopackJNI.java')
+test.must_exist('java/build dir/foopack.java') 
 
-test.must_not_exist('java/build/foopackJNI.java')
-test.must_not_exist('java/build/foopack.java') 
+# SCons should remove the built .java files.
+test.run(arguments = '-c')
+
+test.must_not_exist('java/build dir/foopackJNI.java')
+test.must_not_exist('java/build dir/foopack.java') 
 
 # SCons should realize it needs to rebuild the removed .java files.
 test.not_up_to_date(arguments = '.')
 
+test.must_exist('java/build dir/foopackJNI.java')
+test.must_exist('java/build dir/foopack.java') 
 
 
 test.pass_test()
