@@ -109,18 +109,17 @@ def apply_tools(env, tools, toolpath):
 # set or override them.  This warning can optionally be turned off,
 # but scons will still ignore the illegal variable names even if it's off.
 reserved_construction_var_names = [
+    'CHANGED_SOURCES',
+    'CHANGED_TARGETS',
     'SOURCE',
     'SOURCES',
     'TARGET',
     'TARGETS',
-]
-
-future_reserved_construction_var_names = [
-    'CHANGED_SOURCES',
-    'CHANGED_TARGETS',
     'UNCHANGED_SOURCES',
     'UNCHANGED_TARGETS',
 ]
+
+future_reserved_construction_var_names = []
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
@@ -490,7 +489,7 @@ class SubstitutionEnvironment:
     def lvars(self):
         return {}
 
-    def subst(self, string, raw=0, target=None, source=None, conv=None):
+    def subst(self, string, raw=0, target=None, source=None, conv=None, executor=None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -503,6 +502,8 @@ class SubstitutionEnvironment:
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
+        if executor:
+            lvars.update(executor.get_lvars())
         return SCons.Subst.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_kw(self, kw, raw=0, target=None, source=None):
@@ -514,12 +515,14 @@ class SubstitutionEnvironment:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw=0, target=None, source=None, conv=None):
+    def subst_list(self, string, raw=0, target=None, source=None, conv=None, executor=None):
         """Calls through to SCons.Subst.scons_subst_list().  See
         the documentation for that function."""
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
+        if executor:
+            lvars.update(executor.get_lvars())
         return SCons.Subst.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_path(self, path, target=None, source=None):

@@ -110,9 +110,11 @@ class ExecutorTestCase(unittest.TestCase):
         assert x.action_list == ['a'], x.action_list
         assert x.env == 'e', x.env
         assert x.overridelist == ['o'], x.overridelist
-        assert x.targets == 't', x.targets
+        targets = x.get_all_targets()
+        assert targets == ['t'], targets
         source_list.append('s3')
-        assert x.sources == ['s1', 's2'], x.sources
+        sources = x.get_all_sources()
+        assert sources == ['s1', 's2'], sources
         try:
             x = SCons.Executor.Executor(None, 'e', ['o'], 't', source_list)
         except SCons.Errors.UserError:
@@ -200,11 +202,11 @@ class ExecutorTestCase(unittest.TestCase):
                                     ['s1', 's2'],
                                     builder_kw={'X':1, 'Y':2})
         kw = x.get_kw()
-        assert kw == {'X':1, 'Y':2}, kw
+        assert kw == {'X':1, 'Y':2, 'executor':x}, kw
         kw = x.get_kw({'Z':3})
-        assert kw == {'X':1, 'Y':2, 'Z':3}, kw
+        assert kw == {'X':1, 'Y':2, 'Z':3, 'executor':x}, kw
         kw = x.get_kw({'X':4})
-        assert kw == {'X':4, 'Y':2}, kw
+        assert kw == {'X':4, 'Y':2, 'executor':x}, kw
 
     def test__call__(self):
         """Test calling an Executor"""
@@ -222,7 +224,7 @@ class ExecutorTestCase(unittest.TestCase):
         a = MyAction([action1, action2])
         t = MyNode('t')
 
-        x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
+        x = SCons.Executor.Executor(a, env, [], [t], ['s1', 's2'])
         x.add_pre_action(pre)
         x.add_post_action(post)
         x(t)
@@ -233,7 +235,7 @@ class ExecutorTestCase(unittest.TestCase):
             result.append('pre_err')
             return 1
 
-        x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
+        x = SCons.Executor.Executor(a, env, [], [t], ['s1', 's2'])
         x.add_pre_action(pre_err)
         x.add_post_action(post)
         try:
@@ -268,22 +270,30 @@ class ExecutorTestCase(unittest.TestCase):
     def test_add_sources(self):
         """Test adding sources to an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
-        assert x.sources == ['s1', 's2'], x.sources
+        sources = x.get_all_sources()
+        assert sources == ['s1', 's2'], sources
+
         x.add_sources(['s1', 's2'])
-        assert x.sources == ['s1', 's2'], x.sources
+        sources = x.get_all_sources()
+        assert sources == ['s1', 's2', 's1', 's2'], sources
+
         x.add_sources(['s3', 's1', 's4'])
-        assert x.sources == ['s1', 's2', 's3', 's4'], x.sources
+        sources = x.get_all_sources()
+        assert sources == ['s1', 's2', 's1', 's2', 's3', 's1', 's4'], sources
 
     def test_get_sources(self):
         """Test getting sources from an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
-        assert x.sources == ['s1', 's2'], x.sources
+        sources = x.get_sources()
+        assert sources == ['s1', 's2'], sources
+
         x.add_sources(['s1', 's2'])
-        x.get_sources()
-        assert x.sources == ['s1', 's2'], x.sources
+        sources = x.get_sources()
+        assert sources == ['s1', 's2', 's1', 's2'], sources
+
         x.add_sources(['s3', 's1', 's4'])
-        x.get_sources()
-        assert x.sources == ['s1', 's2', 's3', 's4'], x.sources
+        sources = x.get_sources()
+        assert sources == ['s1', 's2', 's1', 's2', 's3', 's1', 's4'], sources
 
     def test_prepare(self):
         """Test the Executor's prepare() method"""
@@ -429,33 +439,14 @@ class ExecutorTestCase(unittest.TestCase):
         s3 = MyNode('s3')
         x = SCons.Executor.Executor('b', env, [{}], [], [s1, s2, s3])
 
-        r = x.get_unignored_sources([])
+        r = x.get_unignored_sources(None, [])
         assert r == [s1, s2, s3], map(str, r)
 
-        r = x.get_unignored_sources([s2])
+        r = x.get_unignored_sources(None, [s2])
         assert r == [s1, s3], map(str, r)
 
-        r = x.get_unignored_sources([s1, s3])
+        r = x.get_unignored_sources(None, [s1, s3])
         assert r == [s2], map(str, r)
-
-    def test_process_sources(self):
-        """Test processing the source list through a function"""
-        env = MyEnvironment()
-        s1 = MyNode('s1')
-        s2 = MyNode('s2')
-        s3 = MyNode('s3')
-        x = SCons.Executor.Executor('b', env, [{}], [], [s1, s2, s3])
-
-        r = x.process_sources(str)
-        assert r == ['s1', 's2', 's3'], r
-
-        r = x.process_sources(str, [s2])
-        assert r == ['s1', 's3'], r
-
-        def xxx(x):
-            return 'xxx-' + str(x)
-        r = x.process_sources(xxx, [s1, s3])
-        assert r == ['xxx-s2'], r
 
 
 

@@ -166,8 +166,21 @@ class Node:
             class Executor:
                 def prepare(self):
                     pass
+                def get_action_targets(self):
+                    return self.targets
+                def get_all_targets(self):
+                    return self.targets
+                def get_all_children(self):
+                    result = []
+                    for node in self.targets:
+                        result.extend(node.children())
+                    return result
+                def get_all_prerequisites(self):
+                    return []
+                def get_action_side_effects(self):
+                    return []
             self.executor = Executor()
-        self.executor.targets = self.targets
+            self.executor.targets = self.targets
         return self.executor
 
 class OtherError(Exception):
@@ -752,7 +765,7 @@ class TaskmasterTestCase(unittest.TestCase):
         # set it up by having something that approximates a real Builder
         # return this list--but that's more work than is probably
         # warranted right now.
-        t.targets = [n1, n2]
+        n1.get_executor().targets = [n1, n2]
         t.prepare()
         assert n1.prepared
         assert n2.prepared
@@ -763,7 +776,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         # More bogus reaching in and setting the targets.
         n3.set_state(SCons.Node.up_to_date)
-        t.targets = [n3, n4]
+        n3.get_executor().targets = [n3, n4]
         t.prepare()
         assert n3.prepared
         assert n4.prepared
@@ -803,7 +816,7 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = SCons.Taskmaster.Taskmaster([n6, n7])
         t = tm.next_task()
         # More bogus reaching in and setting the targets.
-        t.targets = [n6, n7]
+        n6.get_executor().targets = [n6, n7]
         t.prepare()
         assert n6.prepared
         assert n7.prepared
@@ -815,9 +828,21 @@ class TaskmasterTestCase(unittest.TestCase):
         class ExceptionExecutor:
             def prepare(self):
                 raise Exception, "Executor.prepare() exception"
+            def get_all_targets(self):
+                return self.nodes
+            def get_all_children(self):
+                result = []
+                for node in self.nodes:
+                    result.extend(node.children())
+                return result
+            def get_all_prerequisites(self):
+                return []
+            def get_action_side_effects(self):
+                return []
 
         n11 = Node("n11")
         n11.executor = ExceptionExecutor()
+        n11.executor.nodes = [n11]
         tm = SCons.Taskmaster.Taskmaster([n11])
         t = tm.next_task()
         try:

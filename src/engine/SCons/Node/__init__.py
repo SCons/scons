@@ -621,7 +621,7 @@ class Node:
                 # essentially short-circuits an N*M scan of the
                 # sources for each individual target, which is a hell
                 # of a lot more efficient.
-                for tgt in executor.targets:
+                for tgt in executor.get_all_targets():
                     tgt.add_to_implicit(implicit)
 
                 if implicit_deps_unchanged or self.is_up_to_date():
@@ -714,7 +714,7 @@ class Node:
                 if s not in ignore_set:
                     sources.append(s)
         else:
-            sources = executor.get_unignored_sources(self.ignore)
+            sources = executor.get_unignored_sources(self, self.ignore)
         seen = set()
         bsources = []
         bsourcesigs = []

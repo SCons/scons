@@ -65,7 +65,10 @@ def _dllSources(target, source, env, for_signature, paramtp):
 
     deffile = env.FindIxes(source, "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX")
     for src in source:
-        if src == deffile:
+        # Check explicitly for a non-None deffile so that the __cmp__
+        # method of the base SCons.Util.Proxy class used for some Node
+        # proxies doesn't try to use a non-existent __dict__ attribute.
+        if deffile and src == deffile:
             # Treat this source as a .def file.
             listCmd.append("/def:%s" % src.get_string(for_signature))
         else:

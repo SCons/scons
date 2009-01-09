@@ -219,10 +219,11 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def get_executor(self):
                         class Executor:
-                            pass
-                        e = Executor()
-                        e.targets = [self]
-                        return e
+                            def __init__(self, targets):
+                                self.targets = targets
+                            def get_all_targets(self):
+                                return self.targets
+                        return Executor([self])
                 return [MyNode('n1'), MyNode('n2')]
         try:
             self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})

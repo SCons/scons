@@ -186,8 +186,9 @@ class Task:
         # target t.prepare() methods check that each target's explicit
         # or implicit dependencies exists, and also initialize the
         # .sconsign info.
-        self.targets[0].get_executor().prepare()
-        for t in self.targets:
+        executor = self.targets[0].get_executor()
+        executor.prepare()
+        for t in executor.get_action_targets():
             t.prepare()
             for s in t.side_effects:
                 s.prepare()
@@ -763,8 +764,10 @@ class Taskmaster:
                 if T: T.write(self.trace_message('       already handled (executed)'))
                 continue
 
+            executor = node.get_executor()
+
             try:
-                children = node.children()
+                children = executor.get_all_children()
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
@@ -786,7 +789,7 @@ class Taskmaster:
             children_not_ready = []
             children_failed = False
 
-            for child in chain(children,node.prerequisites):
+            for child in chain(children, executor.get_all_prerequisites()):
                 childstate = child.get_state()
 
                 if T: T.write(self.trace_message('       ' + self.trace_node(child)))
@@ -830,7 +833,8 @@ class Taskmaster:
             # added the other children to the list of candidate nodes
             # to keep on building (--keep-going).
             if children_failed:
-                node.set_state(NODE_FAILED)
+                for n in executor.get_action_targets():
+                    n.set_state(NODE_FAILED)
 
                 if S: S.child_failed = S.child_failed + 1
                 if T: T.write(self.trace_message('****** %s\n' % self.trace_node(node)))
@@ -861,7 +865,7 @@ class Taskmaster:
             # Skip this node if it has side-effects that are
             # currently being built:
             wait_side_effects = False
-            for se in node.side_effects:
+            for se in executor.get_action_side_effects():
                 if se.get_state() == NODE_EXECUTING:
                     se.add_to_waiting_s_e(node)
                     wait_side_effects = True
@@ -900,7 +904,7 @@ class Taskmaster:
         if node is None:
             return None
 
-        tlist = node.get_executor().targets
+        tlist = node.get_executor().get_all_targets()
 
         task = self.tasker(self, tlist, node in self.original_top, node)
         try:

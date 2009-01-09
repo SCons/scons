@@ -405,13 +405,6 @@ class ActionTestCase(unittest.TestCase):
         a2 = SCons.Action.Action(a1)
         assert a2 is a1, a2
 
-class ActionBaseTestCase(unittest.TestCase):
-    def test_get_executor(self):
-        """Test the ActionBase.get_executor() method"""
-        a = SCons.Action.Action('foo')
-        x = a.get_executor({}, {}, [], [], {})
-        assert x is not None, x
- 
 class _ActionActionTestCase(unittest.TestCase):
 
     def test__init__(self):
@@ -1589,13 +1582,14 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
-        def build_it(target, source, env, self=self):
+        def build_it(target, source, env, executor=None, self=self):
             self.build_it = 1
             return 0
-        def string_it(target, source, env, self=self):
+        def string_it(target, source, env, executor=None, self=self):
             self.string_it = 1
             return None
-        act = SCons.Action.FunctionAction(build_it, { 'strfunction' : string_it })
+        act = SCons.Action.FunctionAction(build_it,
+                                          { 'strfunction' : string_it })
         r = act([], [], Environment())
         assert r == 0, r
         assert self.build_it
@@ -1996,8 +1990,7 @@ class ActionCompareTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ ActionBaseTestCase,
-                 _ActionActionTestCase,
+    tclasses = [ _ActionActionTestCase,
                  ActionTestCase,
                  CommandActionTestCase,
                  CommandGeneratorActionTestCase,

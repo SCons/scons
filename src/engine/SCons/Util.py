@@ -1092,11 +1092,12 @@ class Selector(OrderedDict):
     """A callable ordered dictionary that maps file suffixes to
     dictionary values.  We preserve the order in which items are added
     so that get_suffix() calls always return the first suffix added."""
-    def __call__(self, env, source):
-        try:
-            ext = source[0].suffix
-        except IndexError:
-            ext = ""
+    def __call__(self, env, source, ext=None):
+        if ext is None:
+            try:
+                ext = source[0].suffix
+            except IndexError:
+                ext = ""
         try:
             return self[ext]
         except KeyError:
@@ -1561,20 +1562,32 @@ class Null:
             #cls._inst = type.__new__(cls, *args, **kwargs)
             cls._inst = apply(type.__new__, (cls,) + args, kwargs)
         return cls._inst
-    def __init__(self, *args, **kwargs): pass
-    def __call__(self, *args, **kwargs): return self
-    def __repr__(self): return "Null(0x%08X)" % id(self)
-    def __nonzero__(self): return False
-    def __getattr__(self, mname): return self
-    def __setattr__(self, name, value): return self
-    def __delattr__(self, name): return self
+    def __init__(self, *args, **kwargs):
+        pass
+    def __call__(self, *args, **kwargs):
+        return self
+    def __repr__(self):
+        return "Null(0x%08X)" % id(self)
+    def __nonzero__(self):
+        return False
+    def __getattr__(self, name):
+        return self
+    def __setattr__(self, name, value):
+        return self
+    def __delattr__(self, name):
+        return self
 
 class NullSeq(Null):
-  def __len__(self): return 0
-  def __iter__(self): return iter(())
-  def __getitem__(self, i): return self
-  def __delitem__(self, i): return self
-  def __setitem__(self, i, v): return self
+    def __len__(self):
+        return 0
+    def __iter__(self):
+        return iter(())
+    def __getitem__(self, i):
+        return self
+    def __delitem__(self, i):
+        return self
+    def __setitem__(self, i, v):
+        return self
 
 
 del __revision__

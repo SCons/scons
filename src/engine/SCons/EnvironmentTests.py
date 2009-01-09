@@ -172,6 +172,7 @@ class TestEnvironmentFixture:
                                                suffix = '.o',
                                                single_source = 1)
             kw['BUILDERS'] = {'Object' : static_obj}
+            static_obj.add_action('.cpp', 'fake action')
             
         env = apply(Environment, args, kw)
         return env
@@ -887,6 +888,17 @@ sys.exit(0)
 
 class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
+    reserved_variables = [
+        'CHANGED_SOURCES',
+        'CHANGED_TARGETS',
+        'SOURCE',
+        'SOURCES',
+        'TARGET',
+        'TARGETS',
+        'UNCHANGED_SOURCES',
+        'UNCHANGED_TARGETS',
+    ]
+
     def test___init__(self):
         """Test construction Environment creation
 
@@ -1123,10 +1135,14 @@ env4.builder1.env, env3)
         """Test warning generation when reserved variable names are set"""
 
         reserved_variables = [
+            'CHANGED_SOURCES',
+            'CHANGED_TARGETS',
             'SOURCE',
             'SOURCES',
             'TARGET',
             'TARGETS',
+            'UNCHANGED_SOURCES',
+            'UNCHANGED_TARGETS',
         ]
 
         warning = SCons.Warnings.ReservedVariableWarning
@@ -1135,7 +1151,7 @@ env4.builder1.env, env3)
 
         try:
             env4 = Environment()
-            for kw in reserved_variables:
+            for kw in self.reserved_variables:
                 exc_caught = None
                 try:
                     env4[kw] = 'xyzzy'
@@ -1149,12 +1165,7 @@ env4.builder1.env, env3)
     def test_FutureReservedVariables(self):
         """Test warning generation when future reserved variable names are set"""
 
-        future_reserved_variables = [
-            'CHANGED_SOURCES',
-            'CHANGED_TARGETS',
-            'UNCHANGED_SOURCES',
-            'UNCHANGED_TARGETS',
-        ]
+        future_reserved_variables = []
 
         warning = SCons.Warnings.FutureReservedVariableWarning
         SCons.Warnings.enableWarningClass(warning)
@@ -3365,19 +3376,22 @@ def generate(env):
         f = env.xxx('$FOO')
         assert f == 'foo', f
 
-    def test_bad_keywords(type):
+    def test_bad_keywords(self):
         """Test trying to use reserved keywords in an Environment"""
-        reserved = ['TARGETS','SOURCES', 'SOURCE','TARGET']
         added = []
 
-        env = type.TestEnvironment(TARGETS = 'targets',
+        env = self.TestEnvironment(TARGETS = 'targets',
                                    SOURCES = 'sources',
                                    SOURCE = 'source',
                                    TARGET = 'target',
+                                   CHANGED_SOURCES = 'changed_sources',
+                                   CHANGED_TARGETS = 'changed_targets',
+                                   UNCHANGED_SOURCES = 'unchanged_sources',
+                                   UNCHANGED_TARGETS = 'unchanged_targets',
                                    INIT = 'init')
         bad_msg = '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'
         added.append('INIT')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not env.has_key(x), env[x]
         for x in added:
             assert env.has_key(x), bad_msg % x
@@ -3386,9 +3400,13 @@ def generate(env):
                    SOURCES = 'sources',
                    SOURCE = 'source',
                    TARGET = 'target',
+                   CHANGED_SOURCES = 'changed_sources',
+                   CHANGED_TARGETS = 'changed_targets',
+                   UNCHANGED_SOURCES = 'unchanged_sources',
+                   UNCHANGED_TARGETS = 'unchanged_targets',
                    APPEND = 'append')
         added.append('APPEND')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not env.has_key(x), env[x]
         for x in added:
             assert env.has_key(x), bad_msg % x
@@ -3397,9 +3415,13 @@ def generate(env):
                          SOURCES = 'sources',
                          SOURCE = 'source',
                          TARGET = 'target',
+                         CHANGED_SOURCES = 'changed_sources',
+                         CHANGED_TARGETS = 'changed_targets',
+                         UNCHANGED_SOURCES = 'unchanged_sources',
+                         UNCHANGED_TARGETS = 'unchanged_targets',
                          APPENDUNIQUE = 'appendunique')
         added.append('APPENDUNIQUE')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not env.has_key(x), env[x]
         for x in added:
             assert env.has_key(x), bad_msg % x
@@ -3408,9 +3430,13 @@ def generate(env):
                     SOURCES = 'sources',
                     SOURCE = 'source',
                     TARGET = 'target',
+                    CHANGED_SOURCES = 'changed_sources',
+                    CHANGED_TARGETS = 'changed_targets',
+                    UNCHANGED_SOURCES = 'unchanged_sources',
+                    UNCHANGED_TARGETS = 'unchanged_targets',
                     PREPEND = 'prepend')
         added.append('PREPEND')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not env.has_key(x), env[x]
         for x in added:
             assert env.has_key(x), bad_msg % x
@@ -3419,9 +3445,13 @@ def generate(env):
                     SOURCES = 'sources',
                     SOURCE = 'source',
                     TARGET = 'target',
+                    CHANGED_SOURCES = 'changed_sources',
+                    CHANGED_TARGETS = 'changed_targets',
+                    UNCHANGED_SOURCES = 'unchanged_sources',
+                    UNCHANGED_TARGETS = 'unchanged_targets',
                     PREPENDUNIQUE = 'prependunique')
         added.append('PREPENDUNIQUE')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not env.has_key(x), env[x]
         for x in added:
             assert env.has_key(x), bad_msg % x
@@ -3430,9 +3460,13 @@ def generate(env):
                     SOURCES = 'sources',
                     SOURCE = 'source',
                     TARGET = 'target',
+                    CHANGED_SOURCES = 'changed_sources',
+                    CHANGED_TARGETS = 'changed_targets',
+                    UNCHANGED_SOURCES = 'unchanged_sources',
+                    UNCHANGED_TARGETS = 'unchanged_targets',
                     REPLACE = 'replace')
         added.append('REPLACE')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not env.has_key(x), env[x]
         for x in added:
             assert env.has_key(x), bad_msg % x
@@ -3441,8 +3475,12 @@ def generate(env):
                          SOURCES = 'sources',
                          SOURCE = 'source',
                          TARGET = 'target',
+                         CHANGED_SOURCES = 'changed_sources',
+                         CHANGED_TARGETS = 'changed_targets',
+                         UNCHANGED_SOURCES = 'unchanged_sources',
+                         UNCHANGED_TARGETS = 'unchanged_targets',
                          COPY = 'copy')
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not copy.has_key(x), env[x]
         for x in added + ['COPY']:
             assert copy.has_key(x), bad_msg % x
@@ -3451,8 +3489,12 @@ def generate(env):
                              'SOURCES' : 'sources',
                              'SOURCE' : 'source',
                              'TARGET' : 'target',
+                             'CHANGED_SOURCES' : 'changed_sources',
+                             'CHANGED_TARGETS' : 'changed_targets',
+                             'UNCHANGED_SOURCES' : 'unchanged_sources',
+                             'UNCHANGED_TARGETS' : 'unchanged_targets',
                              'OVERRIDE' : 'override'})
-        for x in reserved:
+        for x in self.reserved_variables:
             assert not over.has_key(x), over[x]
         for x in added + ['OVERRIDE']:
             assert over.has_key(x), bad_msg % x
