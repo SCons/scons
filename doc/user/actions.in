@@ -222,19 +222,183 @@ solutions to the above limitations.
 
 -->
 
- <para>
+  <para>
 
-   XXX
+  &SCons; supports several types of &build_actions;
+  that can be performed to build one or more target files.
+  Usually, a &build_action; is a command-line string
+  that invokes an external command.
+  A build action can also be an external  command
+  specified as a list of arguments,
+  or even a Python function.
 
- </para>
+  </para>
 
- <section>
- <title>XXX</title>
+  <para>
 
-   <para>
+  Build action objects are created by the &Action; function.
+  This function is, in fact, what &SCons; uses
+  to interpret the &action;
+  keyword argument when you call the &Builder; function.
+  So the following line that creates a simple Builder:
 
-   XXX
+  </para>
 
-   </para>
+  <sconstruct>
+    b = Builder(action = 'build < $SOURCE > $TARGET')
+  </sconstruct>
 
- </section>
+  <para>
+
+  Is equivalent to:
+
+  </para>
+
+  <sconstruct>
+    b = Builder(action = Action('build < $SOURCE > $TARGET'))
+  </sconstruct>
+
+  <para>
+
+  The advantage of using the &Action; function directly
+  is that it can take a number of additional options
+  to modify the action's behavior in many useful ways.
+
+  </para>
+
+  <section>
+  <title>Command Strings as Actions</title>
+
+    <section>
+    <title>Suppressing Command-Line Printing</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+    <section>
+    <title>Ignoring Exit Status</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Argument Lists as Actions</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Python Functions as Actions</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Modifying How an Action is Printed</title>
+
+    <section>
+    <title>XXX:  the &strfunction; keyword argument</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+    <section>
+    <title>XXX:  the &cmdstr; keyword argument</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Making an Action Depend on Variable Contents:  the &varlist; keyword argument</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>chdir=1</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Batch Building of Multiple Targets from Separate Sources:  the &batch_key; keyword argument</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Manipulating the Exit Status of an Action:  the &exitstatfunc; keyword argument</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <!--
+
+  ???
+
+  <section>
+  <title>presub=</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  -->

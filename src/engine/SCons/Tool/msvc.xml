@@ -140,6 +140,26 @@ env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
 </summary>
 </cvar>
 
+<cvar name="MSVC_BATCH">
+<summary>
+When set to any true value,
+specifies that &SCons; should batch
+compilation of object files
+when calling the Microsoft Visual C/C++ compiler.
+All compilations of source files from the same source directory
+that generate target files in a same output directory
+and were configured in &SCons; using the same construction environment
+will be built in a single call to the compiler.
+Only source files that have changed since their
+object files were built will be passed to each compiler invocation
+(via the &cv-link-CHANGED_SOURCES; construction variable).
+Any compilations where the object (target) file base name
+(minus the <filename>.obj</filename>)
+does not match the source file base name
+will be compiled separately.
+</summary>
+</cvar>
+
 <cvar name="PCH">
 <summary>
 The Microsoft Visual C++ precompiled header that will be used when compiling

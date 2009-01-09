@@ -115,6 +115,22 @@ below, for more information.
 </summary>
 </cvar>
 
+<cvar name="CHANGED_SOURCES">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="CHANGED_TARGETS">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
 <cvar name="SOURCE">
 <summary>
 A reserved variable name
@@ -140,6 +156,22 @@ that may not be set or used in a construction environment.
 </cvar>
 
 <cvar name="TARGETS">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="UNCHANGED_SOURCES">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="UNCHANGED_TARGETS">
 <summary>
 A reserved variable name
 that may not be set or used in a construction environment.

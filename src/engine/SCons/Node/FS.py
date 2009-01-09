@@ -966,6 +966,9 @@ class Entry(Base):
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
         return self.disambiguate()._glob1(pattern, ondisk, source, strings)
 
+    def get_subst_proxy(self):
+        return self.disambiguate().get_subst_proxy()
+
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
 _classEntry = Entry

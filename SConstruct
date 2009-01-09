@@ -76,6 +76,7 @@ dh_builddeb = whereis('dh_builddeb')
 fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
 rpmbuild = whereis('rpmbuild') or whereis('rpm')
+hg = whereis('hg')
 svn = whereis('svn')
 unzip = whereis('unzip')
 zip = whereis('zip')
@@ -104,12 +105,45 @@ version = ARGUMENTS.get('VERSION', '')
 if not version:
     version = default_version
 
+hg_status_lines = []
+svn_status_lines = []
+
+if hg:
+    cmd = "%s status --all 2> /dev/null" % hg
+    hg_status_lines = os.popen(cmd, "r").readlines()
+
+if svn:
+    cmd = "%s status --verbose 2> /dev/null" % svn
+    svn_status_lines = os.popen(cmd, "r").readlines()
+
 revision = ARGUMENTS.get('REVISION', '')
+def generate_build_id(revision):
+    return revision
+
+if not revision and hg:
+    hg_heads = os.popen("%s heads 2> /dev/null" % hg, "r").read()
+    cs = re.search('changeset:\s+(\S+)', hg_heads)
+    if cs:
+        revision = cs.group(1)
+        b = re.search('branch:\s+(\S+)', hg_heads)
+        if b:
+            revision = b.group(1) + ':' + revision
+        def generate_build_id(revision):
+            result = revision
+            if filter(lambda l: l[0] in 'AMR!', hg_status_lines):
+                result = result + '[MODIFIED]'
+            return result
+
 if not revision and svn:
     svn_info = os.popen("%s info 2> /dev/null" % svn, "r").read()
     m = re.search('Revision: (\d+)', svn_info)
     if m:
         revision = m.group(1)
+        def generate_build_id(revision):
+            result = 'r' + revision
+            if filter(lambda l: l[0] in 'ACDMR', svn_status_lines):
+                result = result + '[MODIFIED]'
+            return result
 
 checkpoint = ARGUMENTS.get('CHECKPOINT', '')
 if checkpoint:
@@ -120,19 +154,10 @@ if checkpoint:
         checkpoint = 'r' + revision
     version = version + '.' + checkpoint
 
-svn_status = None
-svn_status_lines = []
-
-if svn:
-    svn_status = os.popen("%s status --verbose 2> /dev/null" % svn, "r").read()
-    svn_status_lines = svn_status[:-1].split('\n')
-
 build_id = ARGUMENTS.get('BUILD_ID')
 if build_id is None:
     if revision:
-        build_id = 'r' + revision
-        if filter(lambda l: l[0] in 'ACDMR', svn_status_lines):
-            build_id = build_id + '[MODIFIED]'
+        build_id = generate_build_id(revision)
     else:
         build_id = ''
 
@@ -1173,17 +1198,24 @@ SConscript('doc/SConscript')
 # source archive from the project files and files in the change.
 #
 
-if not svn_status:
-   "Not building in a Subversion tree; skipping building src package."
-else:
+sfiles = None
+if hg_status_lines:
+    slines = filter(lambda l: l[0] in 'ACM', hg_status_lines)
+    sfiles = map(lambda l: l.split()[-1], slines)
+elif svn_status_lines:
     slines = filter(lambda l: l[0] in ' MA', svn_status_lines)
     sentries = map(lambda l: l.split()[-1], slines)
     sfiles = filter(os.path.isfile, sentries)
+else:
+   "Not building in a Mercurial or Subversion tree; skipping building src package."
 
+if sfiles:
     remove_patterns = [
+        '.hgt/*',
         '.svnt/*',
         '*.aeignore',
         '*.cvsignore',
+        '*.hgignore',
         'www/*',
     ]
 

@@ -401,6 +401,8 @@
 -->
 
 <!ENTITY buildfunc "<literal>builder function</literal>">
+<!ENTITY build_action "<literal>build action</literal>">
+<!ENTITY build_actions "<literal>build actions</literal>">
 <!ENTITY builder_method "<literal>builder method</literal>">
 
 <!ENTITY Configure_Contexts "<literal>Configure Contexts</literal>">
@@ -441,6 +443,19 @@
 <!ENTITY false "<literal>false</literal>">
 
 <!ENTITY typedef "<literal>typedef</literal>">
+
+<!--
+
+  Python keyword arguments
+
+-->
+
+<!ENTITY action "<literal>action=</literal>">
+<!ENTITY batch_key "<literal>batch_key=</literal>">
+<!ENTITY cmdstr "<literal>cmdstr=</literal>">
+<!ENTITY exitstatfunc "<literal>exitstatfunc=</literal>">
+<!ENTITY strfunction "<literal>strfunction=</literal>">
+<!ENTITY varlist "<literal>varlist=</literal>">
 
 <!--
 

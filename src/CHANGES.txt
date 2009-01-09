@@ -10,6 +10,11 @@
 
 RELEASE 1.X - XXX
 
+  From Stanislav Baranov, Ted Johnson and Steven Knight:
+
+    - Add support for batch compilation of Visual Studio C/C++ source
+      files, controlled by a new MSVC_BATCH construction variable.
+
   From Steven Knight:
 
     - Print the message, "scons: Build interrupted." on error output,
@@ -20,6 +25,12 @@ RELEASE 1.X - XXX
 
     - Fix use of $SOURCE and $SOURCES attributes when there are no
       sources specified in the Builder call.
+
+    - Add support for new $CHANGED_SOURCES, $CHANGED_TARGETS,
+      $UNCHANGED_SOURCES and $UNCHANGED_TARGETS variables.
+
+    - Add general support for batch builds through new batch_key= and
+      targets= keywords to Action object creation.
 
   From Arve Knudsen:
 

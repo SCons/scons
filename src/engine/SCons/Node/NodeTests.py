@@ -67,8 +67,11 @@ class MyAction(MyActionBase):
     def __init__(self):
         self.order = 0
 
-    def __call__(self, target, source, env):
+    def __call__(self, target, source, env, executor=None):
         global built_it, built_target, built_source, built_args, built_order
+        if executor:
+            target = executor.get_all_targets()
+            source = executor.get_all_sources()
         built_it = 1
         built_target = target
         built_source = source

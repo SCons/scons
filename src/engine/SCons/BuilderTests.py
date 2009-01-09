@@ -406,25 +406,6 @@ class BuilderTestCase(unittest.TestCase):
         """Test the get_name() method
         """
 
-    def test_get_single_executor(self):
-        """Test the get_single_executor() method
-        """
-        b = SCons.Builder.Builder(action='foo')
-        x = b.get_single_executor({}, [], [], {})
-        assert not x is None, x
-
-    def test_get_multi_executor(self):
-        """Test the get_multi_executor() method
-        """
-        b = SCons.Builder.Builder(action='foo', multi=1)
-        t1 = MyNode('t1')
-        s1 = MyNode('s1')
-        s2 = MyNode('s2')
-        x1 = b.get_multi_executor({}, [t1], [s1], {})
-        t1.executor = x1
-        x2 = b.get_multi_executor({}, [t1], [s2], {})
-        assert x1 is x2, "%s is not %s" % (repr(x1), repr(x2))
-
     def test_cmp(self):
         """Test simple comparisons of Builder objects
         """
@@ -1472,8 +1453,13 @@ class BuilderTestCase(unittest.TestCase):
         assert b5.get_name(None) == 'builder5', b5.get_name(None)
         assert b6.get_name(None) in b6_names, b6.get_name(None)
 
-        tgt = b4(env, target = 'moo', source='cow')
-        assert tgt[0].builder.get_name(env) == 'bldr4'
+        # This test worked before adding batch builders, but we must now
+        # be able to disambiguate a CompositeAction into a more specific
+        # action based on file suffix at call time.  Leave this commented
+        # out (for now) in case this reflects a real-world use case that
+        # we must accomodate and we want to resurrect this test.
+        #tgt = b4(env, target = 'moo', source='cow')
+        #assert tgt[0].builder.get_name(env) == 'bldr4'
 
 class CompositeBuilderTestCase(unittest.TestCase):
 
@@ -1517,12 +1503,11 @@ class CompositeBuilderTestCase(unittest.TestCase):
         builder = self.builder
 
         flag = 0
-        tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
         try:
-            tgt.build()
+            builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
         except SCons.Errors.UserError, e:
             flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
         assert str(e) == expect, e
 
@@ -1558,12 +1543,11 @@ class CompositeBuilderTestCase(unittest.TestCase):
         env['FOO_SUFFIX'] = '.BAR2'
         builder.add_action('$NEW_SUFFIX', func_action)
         flag = 0
-        tgt = builder(env, target='test5', source=['test5.BAR2'])[0]
         try:
-            tgt.build()
+            builder(env, target='test5', source=['test5.BAR2'])[0]
         except SCons.Errors.UserError:
             flag = 1
-        assert flag, "UserError should be thrown when we build targets with ambigous suffixes."
+        assert flag, "UserError should be thrown when we call a builder with ambigous suffixes."
 
     def test_src_builder(self):
         """Test CompositeBuilder's use of a src_builder"""
@@ -1603,52 +1587,47 @@ class CompositeBuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
 
         flag = 0
-        tgt = builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])[0]
         try:
-            tgt.build()
+            builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])[0]
         except SCons.Errors.UserError, e:
             flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t5']' from `test5b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
         assert str(e) == expect, e
 
         flag = 0
-        tgt = builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])[0]
         try:
-            tgt.build()
+            builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])[0]
         except SCons.Errors.UserError, e:
             flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t6']' from `test6b.foo': Cannot build multiple sources with different extensions: .bar, .foo"
         assert str(e) == expect, e
 
         flag = 0
-        tgt = builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])[0]
         try:
-            tgt.build()
+            builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])[0]
         except SCons.Errors.UserError, e:
             flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t4']' from `test4b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
         assert str(e) == expect, e
 
         flag = 0
-        tgt = builder(env, target='t7', source=[env.fs.File('test7')])[0]
         try:
-            tgt.build()
+            builder(env, target='t7', source=[env.fs.File('test7')])[0]
         except SCons.Errors.UserError, e:
             flag = 1
-        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t7']': Cannot deduce file extension from source files: ['test7']"
         assert str(e) == expect, e
 
         flag = 0
-        tgt = builder(env, target='t8', source=['test8.unknown'])[0]
         try:
-            tgt.build()
+            builder(env, target='t8', source=['test8.unknown'])[0]
         except SCons.Errors.UserError, e:
             flag = 1
-        assert flag, "UserError should be thrown when we build a target with an unknown suffix."
+        assert flag, "UserError should be thrown when we call a builder target with an unknown suffix."
         expect = "While building `['t8']' from `['test8.unknown']': Don't know how to build from a source file with suffix `.unknown'.  Expected a suffix in this list: ['.foo', '.bar']."
         assert str(e) == expect, e
 
