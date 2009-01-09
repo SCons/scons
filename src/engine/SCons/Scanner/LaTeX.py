@@ -251,6 +251,9 @@ class LaTeX(SCons.Scanner.Base):
             base, ext = os.path.splitext( filename )
             if ext == "":
                 #TODO(1.5) return [filename + e for e in self.graphics_extensions]
+                #return map(lambda e, f=filename: f+e, self.graphics_extensions + TexGraphics)
+                # use the line above to find dependency for PDF builder when only .eps figure is present
+                # Since it will be found if the user tell scons how to make the pdf figure leave it out for now.
                 return map(lambda e, f=filename: f+e, self.graphics_extensions)
         return [filename]
 

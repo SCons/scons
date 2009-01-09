@@ -51,6 +51,7 @@ import os
 
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 
+env.PDF('docs/Fig1.eps')
 test = env.PDF(source='docs/test.tex')
 """)
 
