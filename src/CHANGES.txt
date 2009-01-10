@@ -13,7 +13,7 @@ RELEASE 1.X - XXX
   From Stanislav Baranov, Ted Johnson and Steven Knight:
 
     - Add support for batch compilation of Visual Studio C/C++ source
-      files, controlled by a new MSVC_BATCH construction variable.
+      files, controlled by a new $MSVC_BATCH construction variable.
 
   From Steven Knight:
 
@@ -41,10 +41,26 @@ RELEASE 1.X - XXX
 
     - Support $SWIGOUTDIR values with spaces.
 
+  From Rob Managan:
+
+    - Don't automatically try to build .pdf graphics files for
+      .eps files in \includegraphics{} calls in .tex files.
+
+  From Greg Noel:
+
+    - Handle quoted module names in SWIG source files.
+
   From Gary Oberbrunner:
 
     - Allow AppendENVPath() and PrependENVPath() to interpret '#'
       for paths relative to the top-level SConstruct directory.
+
+    - Use the Borland ilink -e option to specify the output file name.
+
+    - Document that the msvc Tool module uses $PCH, $PCHSTOP and $PDB.
+
+    - Allow WINDOWS_INSERT_DEF=0 to disable --output-def when linking
+      under MinGW.
 
   From Greg Spencer:
 
