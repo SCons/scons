@@ -764,7 +764,7 @@ def generate(env):
     env['SHCFLAGS']   = SCons.Util.CLVar('$CFLAGS')
     env['SHCCCOM']    = '$SHCC $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $SHCFLAGS $SHCCFLAGS $_CCCOMCOM'
     env['CXX']        = '$CC'
-    env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS $( /TP $)')
+    env['CXXFLAGS']   = SCons.Util.CLVar('$( /TP $)')
     env['CXXCOM']     = '$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
