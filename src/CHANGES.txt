@@ -67,6 +67,12 @@ RELEASE 1.X - XXX
     - Support implicit dependency scanning of files encoded in utf-8
       and utf-16.
 
+  From Roberto de Vecchi:
+
+    - Remove $CCFLAGS from the the default definitions of $CXXFLAGS for
+      Visual C/C++ and MIPSpro C++ on SGI so, they match other tools
+      and avoid flag duplication on C++ command lines.
+
   From Matthew Wesley:
 
     - Copy file attributes so we identify, and can link a shared library
