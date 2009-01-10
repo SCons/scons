@@ -46,10 +46,6 @@ RELEASE 1.X - XXX
     - Don't automatically try to build .pdf graphics files for
       .eps files in \includegraphics{} calls in .tex files.
 
-  From Greg Noel:
-
-    - Handle quoted module names in SWIG source files.
-
   From Gary Oberbrunner:
 
     - Allow AppendENVPath() and PrependENVPath() to interpret '#'
@@ -72,6 +68,10 @@ RELEASE 1.X - XXX
     - Remove $CCFLAGS from the the default definitions of $CXXFLAGS for
       Visual C/C++ and MIPSpro C++ on SGI so, they match other tools
       and avoid flag duplication on C++ command lines.
+
+  From Ben Webb:
+
+    - Handle quoted module names in SWIG source files.
 
   From Matthew Wesley:
 
