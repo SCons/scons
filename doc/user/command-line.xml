@@ -44,7 +44,7 @@
 
     Command-line options always begin with
     one or two <literal>-</literal> (hyphen) characters.
-    &SCons; provides ways for you to examind
+    &SCons; provides ways for you to examine
     and set options values from within your &SConscript; files,
     as well as the ability to define your own
     custom options.
@@ -800,7 +800,7 @@
 
     <para>
 
-    Yields the followig output:
+    Yields the following output:
 
     </para>
 
@@ -1788,7 +1788,7 @@
 
       Of course, you can process the items in the
       dictionary returned by the &UnknownVariables; function
-      in any way appropriate to your bulid configuration,
+      in any way appropriate to your build configuration,
       including just printing a warning message
       but not exiting,
       logging an error somewhere,

@@ -102,7 +102,7 @@ This functionality could be invoked as in the following example:
   programs, libraries, documents.
   you frequently want to be
   able to build some other type of file
-  not supported directly by &SCons;
+  not supported directly by &SCons;.
   Fortunately, &SCons; makes it very easy
   to define your own &Builder; objects
   for any custom file types you want to build.
@@ -172,7 +172,8 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    With the &Builder; so attached to our &consenv;
+    With the &Builder; attached to our &consenv;
+    with the name &Foo;,
     we can now actually call it like so:
 
     </para>
@@ -670,7 +671,7 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    One very flexible thing that you can is specify
+    One very flexible thing that you can do is
     use a construction variable to specify
     different emitter functions for different
     construction variable.

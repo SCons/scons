@@ -256,7 +256,7 @@
     that &SCons; is configured to supply
     the right options to the compiler,
     or a developer may want to
-    cut-and-paste a comiloe command
+    cut-and-paste a compile command
     to add a few options
     for a custom test.
 
