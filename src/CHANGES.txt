@@ -59,6 +59,10 @@ RELEASE 1.X - XXX
     - Allow WINDOWS_INSERT_DEF=0 to disable --output-def when linking
       under MinGW.
 
+  From Zia Sobhani:
+
+    - Fix typos in the User's Guide.
+
   From Greg Spencer:
 
     - Support implicit dependency scanning of files encoded in utf-8

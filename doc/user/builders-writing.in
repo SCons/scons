@@ -773,7 +773,7 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    One very flexible thing that you can is specify
+    One very flexible thing that you can do is
     use a construction variable to specify
     different emitter functions for different
     construction variable.

@@ -415,7 +415,7 @@ environment, of directory names, suffixes, etc.
   This avoids a whole class of problems with builds
   where a developer's local build works
   because a custom variable setting
-  causes a different comiler or build option to be used,
+  causes a different compiler or build option to be used,
   but the checked-in change breaks the official build
   because it uses different environment variable settings.
 
@@ -459,7 +459,7 @@ environment, of directory names, suffixes, etc.
   <envar>os.environ</envar>
   dictionary.
   This means that you must add an
-  <literal>import os</literal> statuement
+  <literal>import os</literal> statement
   to any &SConscript; file
   in which you want to use
   values from the user's external environment.
