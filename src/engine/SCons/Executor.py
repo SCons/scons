@@ -372,7 +372,7 @@ class Executor:
         # TODO(batch):  extend to multiple batches
         assert (len(self.batches) == 1)
         # TODO(batch):  remove duplicates?
-        #slist = filter(lambda x, s=self.batches[0].sources: x not in s, sources)
+        sources = filter(lambda x, s=self.batches[0].sources: x not in s, sources)
         self.batches[0].sources.extend(sources)
 
     def get_sources(self):
