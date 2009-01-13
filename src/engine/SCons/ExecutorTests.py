@@ -275,11 +275,11 @@ class ExecutorTestCase(unittest.TestCase):
 
         x.add_sources(['s1', 's2'])
         sources = x.get_all_sources()
-        assert sources == ['s1', 's2', 's1', 's2'], sources
+        assert sources == ['s1', 's2'], sources
 
         x.add_sources(['s3', 's1', 's4'])
         sources = x.get_all_sources()
-        assert sources == ['s1', 's2', 's1', 's2', 's3', 's1', 's4'], sources
+        assert sources == ['s1', 's2', 's3', 's4'], sources
 
     def test_get_sources(self):
         """Test getting sources from an Executor"""
@@ -289,11 +289,11 @@ class ExecutorTestCase(unittest.TestCase):
 
         x.add_sources(['s1', 's2'])
         sources = x.get_sources()
-        assert sources == ['s1', 's2', 's1', 's2'], sources
+        assert sources == ['s1', 's2'], sources
 
         x.add_sources(['s3', 's1', 's4'])
         sources = x.get_sources()
-        assert sources == ['s1', 's2', 's1', 's2', 's3', 's1', 's4'], sources
+        assert sources == ['s1', 's2', 's3', 's4'], sources
 
     def test_prepare(self):
         """Test the Executor's prepare() method"""
