@@ -173,7 +173,7 @@ This functionality could be invoked as in the following example:
     <para>
 
     With the &Builder; attached to our &consenv;
-    with the name &Foo;,
+    with the name <function>Foo</function>,
     we can now actually call it like so:
 
     </para>
