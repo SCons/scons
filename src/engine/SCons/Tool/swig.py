@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
+import string
 
 import SCons.Action
 import SCons.Defaults
@@ -56,12 +57,27 @@ _reModule = re.compile(r'%module(\s*\(.*\))?\s+("?)(.+)\2')
 
 def _find_modules(src):
     """Find all modules referenced by %module lines in `src`, a SWIG .i file.
-       Returns a list of all modules."""
+       Returns a list of all modules, and a flag set if SWIG directors have
+       been requested (SWIG will generate an additional header file in this
+       case.)"""
+    directors = 0
     mnames = []
     matches = _reModule.findall(open(src).read())
     for m in matches:
         mnames.append(m[2])
-    return mnames
+        directors = directors or string.find(m[0], 'directors') >= 0
+    return mnames, directors
+
+def _add_director_header_targets(target, env):
+    # Directors only work with C++ code, not C
+    suffix = env.subst(env['SWIGCXXFILESUFFIX'])
+    # For each file ending in SWIGCXXFILESUFFIX, add a new target director
+    # header by replacing the ending with SWIGDIRECTORSUFFIX.
+    for x in target[:]:
+        n = x.name
+        d = x.dir
+        if n[-len(suffix):] == suffix:
+            target.append(d.File(n[:-len(suffix)] + env['SWIGDIRECTORSUFFIX']))
 
 def _swigEmitter(target, source, env):
     swigflags = env.subst("$SWIGFLAGS", target=target, source=source)
@@ -71,12 +87,16 @@ def _swigEmitter(target, source, env):
         mnames = None
         if "-python" in flags and "-noproxy" not in flags:
             if mnames is None:
-                mnames = _find_modules(src)
+                mnames, directors = _find_modules(src)
+            if directors:
+                _add_director_header_targets(target, env)
             target.extend(map(lambda m, d=target[0].dir:
                                      d.File(m + ".py"), mnames))
         if "-java" in flags:
             if mnames is None:
-                mnames = _find_modules(src)
+                mnames, directors = _find_modules(src)
+            if directors:
+                _add_director_header_targets(target, env)
             java_files = map(lambda m: [m + ".java", m + "JNI.java"], mnames)
             java_files = SCons.Util.flatten(java_files)
             outdir = env.subst('$SWIGOUTDIR', target=target, source=source)
@@ -110,6 +130,7 @@ def generate(env):
 
     env['SWIG']              = 'swig'
     env['SWIGFLAGS']         = SCons.Util.CLVar('')
+    env['SWIGDIRECTORSUFFIX'] = '_wrap.h'
     env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
     env['SWIGCXXFILESUFFIX'] = '_wrap$CXXFILESUFFIX'
     env['_SWIGOUTDIR']       = r'${"-outdir \"%s\"" % SWIGOUTDIR}'

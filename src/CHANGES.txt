@@ -78,6 +78,8 @@ RELEASE 1.X - XXX
 
     - Handle quoted module names in SWIG source files.
 
+    - Emit *_wrap.h when SWIG generates header file for directors
+
   From Matthew Wesley:
 
     - Copy file attributes so we identify, and can link a shared library
