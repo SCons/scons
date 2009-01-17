@@ -61,16 +61,7 @@ if sys.version[0] == '1':
 
 env.LoadableModule('test1.so', ['test1.i', 'test1.cc'])
 env.LoadableModule('test2.so', ['test2.i', 'test2.cc'])
-env.Clean('.', ['test1_wrap.h', 'test2_wrap.h'])  ### SEE NOTE BELOW
 """ % locals())
-# NOTE: For some reason, this test on OS X is unstable.  The first time 'scons'
-# is run, it works as expected.  However, when 'scons' is run again, the
-# 'test?_wrap.os' files are rebuilt.  (When run a third time, it correctly
-# determines that nothing is to be rebuilt.)  When 'scons -c' is run, the
-# 'test?_wrap.h' files are not removed, meaning that they are not identified
-# by the emitter.  Mentioning the two files in the SConscript file stabilizes
-# the runs and makes the test reliable.  When whatever that is causing this
-# instability is chased down and cured, this hack should be removed.
 
 test.write(['test1.cc'], """\
 int test1func()
@@ -116,6 +107,11 @@ test.write(['test2.i'], """\
 
 test.run(arguments = '.')
 
+# Note that both tests use directors, so a file *_wrap.h should be generated
+# in each case. If the emitter does not correctly allow for this, the test will
+# not be up to date.
+test.must_exist('test1_wrap.h')
+test.must_exist('test2_wrap.h')
 test.up_to_date(arguments = '.')
 
 test.pass_test()
