@@ -1601,9 +1601,12 @@ class Dir(Base):
             if parent.exists():
                 break
             listDirs.append(parent)
-            parent = parent.up()
-        else:
-            raise SCons.Errors.StopError, parent.path
+            p = parent.up()
+            if p is None:
+                # Don't use while: - else: for this condition because
+                # if so, then parent is None and has no .path attribute.
+                raise SCons.Errors.StopError, parent.path
+            parent = p
         listDirs.reverse()
         for dirnode in listDirs:
             try:

@@ -334,7 +334,7 @@ int main() {
 
         # Check that Check* does fail if CFLAGS is buggy
         self.scons_env[comp] = oldcomp
-        self.scons_env['%sFLAGS' % comp] = 'qwertyuiop'
+        self.scons_env['%sFLAGS' % comp] = '/WX qwertyuiop.c'
         r = func()
         assert not r, "%s worked with %sFLAGS = qwertyuiop ?" % (name, comp)
 
@@ -346,7 +346,11 @@ int main() {
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
         try:
-            self._test_check_compilers('CC', sconf.CheckCC, 'CheckCC')
+            try:
+                self._test_check_compilers('CC', sconf.CheckCC, 'CheckCC')
+            except AssertionError:
+                sys.stderr.write(self.test.read('config.log'))
+                raise
         finally:
             sconf.Finish()
 
@@ -358,7 +362,11 @@ int main() {
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
         try:
-            self._test_check_compilers('SHCC', sconf.CheckSHCC, 'CheckSHCC')
+            try:
+                self._test_check_compilers('SHCC', sconf.CheckSHCC, 'CheckSHCC')
+            except AssertionError:
+                sys.stderr.write(self.test.read('config.log'))
+                raise
         finally:
             sconf.Finish()
 
@@ -370,7 +378,11 @@ int main() {
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
         try:
-            self._test_check_compilers('CXX', sconf.CheckCXX, 'CheckCXX')
+            try:
+                self._test_check_compilers('CXX', sconf.CheckCXX, 'CheckCXX')
+            except AssertionError:
+                sys.stderr.write(self.test.read('config.log'))
+                raise
         finally:
             sconf.Finish()
 
@@ -382,7 +394,11 @@ int main() {
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
         try:
-            self._test_check_compilers('SHCXX', sconf.CheckSHCXX, 'CheckSHCXX')
+            try:
+                self._test_check_compilers('SHCXX', sconf.CheckSHCXX, 'CheckSHCXX')
+            except AssertionError:
+                sys.stderr.write(self.test.read('config.log'))
+                raise
         finally:
             sconf.Finish()
 

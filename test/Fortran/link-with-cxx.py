@@ -25,8 +25,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify the warnings message used when attempting to link C++ and
-Fortran object files, and the ability to suppress them with the
+Verify the smart_link() warning messages used when attempting to link
+C++ and Fortran object files, and the ability to suppress them with the
 right --warn= options.
 """
 
@@ -41,8 +41,13 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.write('test_linker.py', r"""
 import sys
-outfile = open(sys.argv[2], 'wb')
-for infile in sys.argv[3:]:
+if sys.argv[1] == '-o':
+    outfile = open(sys.argv[2], 'wb')
+    infiles = sys.argv[3:]
+elif sys.argv[1][:5] == '/OUT:':
+    outfile = open(sys.argv[1][5:], 'wb')
+    infiles = sys.argv[2:]
+for infile in infiles:
     outfile.write(open(infile, 'rb').read())
 outfile.close()
 sys.exit(0)
@@ -60,12 +65,16 @@ sys.exit(0)
 
 
 test.write('SConstruct', """
+import SCons.Tool.link
 def copier(target, source, env):
     s = str(source[0])
     t = str(target[0])
     open(t, 'wb').write(open(s, 'rb').read())
 env = Environment(CXX = r'%(_python_)s test_linker.py',
                   CXXCOM = Action(copier),
+                  SMARTLINK = SCons.Tool.link.smart_link,
+                  LINK = r'$SMARTLINK',
+                  LINKFLAGS = '',
                   # We want to re-define this as follows (so as to
                   # not rely on a real Fortran compiler) but can't
                   # because $FORTRANCOM is defined with an extra space
