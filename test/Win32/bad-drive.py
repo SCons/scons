@@ -96,16 +96,13 @@ test.run(arguments = bad_drive + 'not_mentioned',
          stderr = "scons: *** Do not know how to make target `%snot_mentioned'.  Stop.\n" % (bad_drive),
          status = 2)
 
-test.run(arguments = bad_drive + 'no_target_1',
-         stderr = "scons: *** No drive `%s' for target `%sno_target_1'.  Stop.\n" % (bad_drive, bad_drive),
-         status = 2)
+expect = "scons: *** [%sno_target_1] No drive `%s' for target `%sno_target_1'.\n" % (bad_drive, bad_drive, bad_drive)
+test.run(arguments=bad_drive + 'no_target_1', stderr=expect, status=2)
 
-test.run(arguments = bad_drive + 'no_target_2',
-         stderr = "scons: *** Source `ccc.does_not_exist' not found, needed by target `%sno_target_2'.  Stop.\n" % bad_drive,
-         status = 2)
+expect = "scons: *** [%sno_target_2] Source `ccc.does_not_exist' not found, needed by target `%sno_target_2'.\n" % (bad_drive, bad_drive)
+test.run(arguments=bad_drive + 'no_target_2', stderr=expect, status=2)
 
-test.run(arguments = 'ddd.out',
-         stderr = "scons: *** Source `%sno_source' not found, needed by target `ddd.out'.  Stop.\n" % bad_drive,
-         status = 2)
+expect = "scons: *** [ddd.out] Source `%sno_source' not found, needed by target `ddd.out'.\n" % bad_drive
+test.run(arguments='ddd.out', stderr=expect, status=2)
 
 test.pass_test()

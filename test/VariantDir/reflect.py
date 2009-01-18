@@ -90,7 +90,7 @@ INC_CNI = re.escape(os.path.join('INC_dir1', 'dir2', 'dir1', 'dir2_CNI'))
 # The .+ after mycc\\.py below handles /nologo flags from Visual C/C++.
 expect = test.wrap_stdout("""\
 scons: building associated VariantDir targets: %(targets)s
-"%(re_python)s" mycc\\.py.* %(INC_CNI)s .+
+"%(re_python)s" mycc\\.py.* %(INC_CNI)s.*
 Compile
 "%(re_python)s" mylink\\.py .+
 Link
@@ -120,7 +120,7 @@ INC_CNI = re.escape(os.path.join('INC_dir1', 'dir2_CNI'))
 test.run(arguments = '',
          stdout=test.wrap_stdout("""\
 scons: building associated VariantDir targets: %(targets)s
-"%(re_python)s" mycc\\.py.* %(INC_CNI)s .+
+"%(re_python)s" mycc\\.py.* %(INC_CNI)s.*
 Compile
 "%(re_python)s" mylink\\.py .+
 Link
