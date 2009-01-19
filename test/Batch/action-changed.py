@@ -82,7 +82,6 @@ test.up_to_date(arguments = '.')
 test.write('build.py', build_py_contents % (python, 'two'))
 os.chmod(test.workpath('build.py'), 0755)
 
-#test.not_up_to_date(options = 'CALLER=1 --taskmastertrace=/dev/tty', arguments = '.')
 test.not_up_to_date(arguments = '.')
 
 test.must_match('f1.out', "two\nf1.in\n")
