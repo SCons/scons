@@ -24,9 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import string
-import sys
+
+import TestSCons
 
 test = TestSCons.TestSCons()
 
