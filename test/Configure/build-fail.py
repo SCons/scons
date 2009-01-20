@@ -37,6 +37,7 @@ Thanks to Ben Webb for the test case.
 """
 
 import os
+import re
 
 import TestSCons
 
@@ -73,12 +74,12 @@ conf.Finish()
 
 test.write(['b', 'boost.hpp'], """#define FILE "b/boost.hpp"\n""")
 
-expect = test.wrap_stdout(read_str = "%s: yes\n" % b_boost_hpp,
+expect = test.wrap_stdout(read_str = "%s: yes\n" % re.escape(b_boost_hpp),
                           build_str = "scons: `.' is up to date.\n")
 
 test.run(arguments='--config=force', stdout=expect)
 
-expect = test.wrap_stdout(read_str = "%s: yes\n" % a_boost_hpp,
+expect = test.wrap_stdout(read_str = "%s: yes\n" % re.escape(a_boost_hpp),
                           build_str = "scons: `.' is up to date.\n")
 
 test.write(['a', 'boost.hpp'], """#define FILE "a/boost.hpp"\n""")
