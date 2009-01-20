@@ -88,6 +88,7 @@ env1.BuildFile('file1.out',             'file.in')
 envNone.BuildFile('fileNone.out',       'file.in')
 envFalse.BuildFile('fileFalse.out',     'file.in')
 envTrue.BuildFile('fileTrue.out',       'file.in')
+envTrue.BuildFile('fileQuote.out',      'file.in', BUILD_PY='"build.py"')
 """ % locals())
 
 
@@ -104,6 +105,7 @@ test.must_match('file1.out',        expect_none % 'file1.out')
 test.must_match('fileNone.out',     expect_none % 'fileNone.out')
 test.must_match('fileFalse.out',    expect_none % 'fileFalse.out')
 test.must_match('fileTrue.out',     expect_none % 'fileTrue.out')
+test.must_match('fileQuote.out',    expect_none % 'fileQuote.out')
 
 
 
@@ -120,6 +122,7 @@ test.must_match('file1.out',        expect_extra % 'file1.out')
 test.must_match('fileNone.out',     expect_none % 'fileNone.out')
 test.must_match('fileFalse.out',    expect_none % 'fileFalse.out')
 test.must_match('fileTrue.out',     expect_extra % 'fileTrue.out')
+test.must_match('fileQuote.out',    expect_extra % 'fileQuote.out')
 
 
 test.pass_test()

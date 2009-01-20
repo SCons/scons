@@ -102,6 +102,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import cPickle
 import dis
 import os
+import re
 import string
 import sys
 import subprocess
@@ -153,6 +154,8 @@ else:
                 result.append(c)
                 i = i+1
         return string.join(result, '')
+
+strip_quotes = re.compile('^[\'"](.*)[\'"]$')
 
 
 def _callable_contents(obj):
@@ -822,7 +825,11 @@ class CommandAction(_ActionAction):
         res = []
         for cmd_line in cmd_list:
             if cmd_line:
-                d = env.WhereIs(str(cmd_line[0]))
+                d = str(cmd_line[0])
+                m = strip_quotes.match(d)
+                if m:
+                    d = m.group(1)
+                d = env.WhereIs(d)
                 if d:
                     res.append(env.fs.File(d))
         return res
