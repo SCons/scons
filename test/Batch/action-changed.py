@@ -58,7 +58,8 @@ os.chmod(test.workpath('build.py'), 0755)
 
 test.write('SConstruct', """
 env = Environment()
-bb = Action('%s $CHANGED_TARGETS -- $CHANGED_SOURCES',
+env.PrependENVPath('PATHEXT', '.PY')
+bb = Action(r'"%s" $CHANGED_TARGETS -- $CHANGED_SOURCES',
             batch_key=True,
             targets='CHANGED_TARGETS')
 env['BUILDERS']['Batch'] = Builder(action=bb)
