@@ -28,11 +28,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify a lot of the basic operation of the --debug=explain option.
 """
 
-import os.path
+import os
 import string
 import sys
 import TestSCons
 
+python = TestSCons.python
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
@@ -316,8 +317,8 @@ env.Cat('file3', ['zzz', 'yyy', 'xxx'])
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because the dependency order changed:
-               old: ['xxx', 'yyy', 'zzz']
-               new: ['zzz', 'yyy', 'xxx']
+               old: ['xxx', 'yyy', 'zzz', '%(python)s']
+               new: ['zzz', 'yyy', 'xxx', '%(python)s']
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 """ % locals())
 

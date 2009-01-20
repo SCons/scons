@@ -36,6 +36,7 @@ SourceSignatures('timestamp') with TargetSignatures('content').
 import TestSCons
 import TestSConsign
 
+python = TestSCons.python
 _python_ = TestSCons._python_
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
@@ -50,7 +51,7 @@ sub1_hello_obj  = 'sub1/hello.obj'
 test.subdir('sub1', 'sub2')
 
 test.write('fake_cc.py', r"""
-import os.path
+import os
 import re
 import string
 import sys
@@ -135,18 +136,22 @@ date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/.sconsign",
          stdout = r"""hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
+        %(python)s: None \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: None \d+ \d+
+        %(python)s: None \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r sub1/.sconsign",
          stdout = r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
+        %(python)s: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_c)s: None '%(date_re)s' \d+
+        %(python)s: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
