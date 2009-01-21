@@ -44,8 +44,7 @@ test.write('SConstruct',"""
 import os.path
 import os
 
-env = Environment(CCFLAGS = ' -nologo ',
-                  CPPPATH = '${TARGET.dir}',
+env = Environment(CPPPATH = '${TARGET.dir}',
                   MSVS_USE_MFC_DIRS = 1)
 Export('env')
 
@@ -75,7 +74,7 @@ local.TypeLibrary('bar.idl')
 
 local.SharedLibrary(target = 'bar.dll',
                     source = barsrc,
-                    PCH=local.PCH('BarPCH.cpp')[0],
+                    PCH=local.PCH('BarPCH.cpp', CXXFLAGS='/nologo')[0],
                     PCHSTOP = 'BarPCH.h',
                     register=1)
 """)
