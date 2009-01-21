@@ -76,8 +76,6 @@ import os
 os.chdir('work/sub1')
 scons = test.start(chdir = 'work/sub1', arguments = '-Q -u --interactive')
 
-scons.send("shell pwd\n")
-
 scons.send("build\n")
 
 scons.send("build %s\n" % marker_1)
