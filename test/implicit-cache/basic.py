@@ -274,14 +274,19 @@ test.write(['include', 'foo.h'], r"""
 #include "bar.h"
 """)
 
+# Cache the dependencies of prog_obj:  foo.h and its included bar.h.
 test.run(arguments = "--implicit-cache " + args)
 
+# Now add baz.h to the implicit dependencies in foo.h.
 test.write(['include', 'foo.h'], r"""
 #define FOO_STRING "include/foo.h 3\n"
 #include "baz.h"
 #include "bar.h"
 """)
 
+# Rebuild variant_prog_obj because the already-cached foo.h changed,
+# but use --implicit-deps-unchanged to avoid noticing the addition
+# of baz.h to the implicit dependencies.
 test.not_up_to_date(options = "--implicit-deps-unchanged",
                     arguments = variant_prog_obj)
 
@@ -289,11 +294,16 @@ test.write(['include', 'baz.h'], r"""
 #define BAZ_STRING "include/baz.h 2\n"
 """)
 
+# variant_prog_obj is still up to date, because it doesn't know about
+# baz.h and therefore the change we just made to it.
 test.up_to_date(options = "--implicit-deps-unchanged",
-                arguments = variant_prog)
+                arguments = variant_prog_obj)
 
+# Now rebuild it normally.
 test.not_up_to_date(arguments = variant_prog_obj)
 
+# And rebuild its executable, just so everything's normal.
+test.run(arguments = variant_prog)
 
 
 # Test forcing rescanning:
