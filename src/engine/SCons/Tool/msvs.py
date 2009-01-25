@@ -35,7 +35,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import base64
 import hashlib
-import os.path
+import ntpath
+import os
 import pickle
 import re
 import string
@@ -80,7 +81,10 @@ def _generateGUID(slnfile, name):
     the project.  It basically just needs to be unique, and not
     change with each invocation."""
     m = hashlib.md5()
-    m.update(str(slnfile) + str(name))
+    # Normalize the slnfile path to a Windows path (\ separators) so
+    # the generated file has a consistent GUID even if we generate
+    # it on a non-Windows platform.
+    m.update(ntpath.normpath(str(slnfile)) + str(name))
     # TODO(1.5)
     #solution = m.hexdigest().upper()
     solution = string.upper(_hexdigest(m.digest()))
