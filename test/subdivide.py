@@ -35,25 +35,29 @@ TargetSignatures('content'), but we now rely on the default behavior
 being the equivalent of Decider('content').
 """
 
-import os.path
+import os
 
 import TestSCons
 
-_python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
-
-#if os.path.exists('sconsign.py'):
-#    sconsign = 'sconsign.py'
-#elif os.path.exists('sconsign'):
-#    sconsign = 'sconsign'
-#else:
-#    print "Can find neither 'sconsign.py' nor 'sconsign' scripts."
-#    test.no_result(1)
 
 test.subdir('src', ['src', 'sub'])
 
-test.write('fake_cc.py', """\
+# Because this test sets SConsignFile(None), we execute our fake
+# scripts directly, not by feeding them to the Python executable.
+# That is, we chmod 0755 and us a "#!/usr/bin/env python" first
+# line for POSIX systems, and add .PY to the %PATHEXT% variable on
+# Windows.  If we didn't do this, then running this script with
+# suitable prileveges would create a .sconsign file in the directory
+# where the Python executable lives.  This can happen out of the
+# box on Mac OS X, with the result that the .sconsign statefulness
+# can mess up other tests.
+
+fake_cc_py = test.workpath('fake_cc.py')
+fake_link_py = test.workpath('fake_link.py')
+
+test.write(fake_cc_py, """\
+#!/usr/bin/env python
 import sys
 ofp = open(sys.argv[1], 'wb')
 ofp.write('fake_cc.py:  %s\\n' % sys.argv)
@@ -61,7 +65,8 @@ for s in sys.argv[2:]:
     ofp.write(open(s, 'rb').read())
 """)
 
-test.write('fake_link.py', """\
+test.write(fake_link_py, """\
+#!/usr/bin/env python
 import sys
 ofp = open(sys.argv[1], 'wb')
 ofp.write('fake_link.py:  %s\\n' % sys.argv)
@@ -69,12 +74,16 @@ for s in sys.argv[2:]:
     ofp.write(open(s, 'rb').read())
 """)
 
+test.chmod(fake_cc_py, 0755)
+test.chmod(fake_link_py, 0755)
+
 test.write('SConstruct', """\
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
-                  CCCOM = r'%(_python_)s fake_cc.py $TARGET $SOURCES',
-                  LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCES')
+                  CCCOM = r'%(fake_cc_py)s $TARGET $SOURCES',
+                  LINKCOM = r'%(fake_link_py)s $TARGET $SOURCES')
+env.PrependENVPath('PATHEXT', '.PY')
 env.SConscript('src/SConstruct', exports=['env'])
 env.Object('foo.c')
 """ % locals())
@@ -83,8 +92,9 @@ test.write(['src', 'SConstruct'], """\
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
-                  CCCOM = r'%(_python_)s fake_cc.py $TARGET $SOURCES',
-                  LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCES')
+                  CCCOM = r'%(fake_cc_py)s $TARGET $SOURCES',
+                  LINKCOM = r'%(fake_link_py)s $TARGET $SOURCES')
+env.PrependENVPath('PATHEXT', '.PY')
 p = env.Program('prog', ['main.c', '../foo$OBJSUFFIX', 'sub/bar.c'])
 env.Default(p)
 """ % locals())
@@ -110,12 +120,12 @@ src_sub_bar_c   = os.path.join('src', 'sub', 'bar.c')
 src_sub_bar_obj = os.path.join('src', 'sub', 'bar.obj')
 
 expect = """\
-fake_link.py:  ['fake_link.py', '%(src_prog_exe)s', '%(src_main_obj)s', 'foo.obj', '%(src_sub_bar_obj)s']
-fake_cc.py:  ['fake_cc.py', '%(src_main_obj)s', '%(src_main_c)s']
+fake_link.py:  ['%(fake_link_py)s', '%(src_prog_exe)s', '%(src_main_obj)s', 'foo.obj', '%(src_sub_bar_obj)s']
+fake_cc.py:  ['%(fake_cc_py)s', '%(src_main_obj)s', '%(src_main_c)s']
 src/main.c
-fake_cc.py:  ['fake_cc.py', 'foo.obj', 'foo.c']
+fake_cc.py:  ['%(fake_cc_py)s', 'foo.obj', 'foo.c']
 foo.c
-fake_cc.py:  ['fake_cc.py', '%(src_sub_bar_obj)s', '%(src_sub_bar_c)s']
+fake_cc.py:  ['%(fake_cc_py)s', '%(src_sub_bar_obj)s', '%(src_sub_bar_c)s']
 src/sub/bar.c
 """ % locals()
 

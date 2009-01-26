@@ -32,14 +32,24 @@ Verify that the sconsign script works when using an individual
 import TestSCons
 import TestSConsign
 
-python = TestSCons.python
-_python_ = TestSCons._python_
-
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 test.subdir('sub1', 'sub2')
 
-test.write('fake_cc.py', r"""
+# Because this test sets SConsignFile(None), we execute our fake
+# scripts directly, not by feeding them to the Python executable.
+# That is, we chmod 0755 and us a "#!/usr/bin/env python" first
+# line for POSIX systems, and add .PY to the %PATHEXT% variable on
+# Windows.  If we didn't do this, then running this script with
+# suitable prileveges would create a .sconsign file in the directory
+# where the Python executable lives.  This can happen out of the
+# box on Mac OS X, with the result that the .sconsign statefulness
+# can mess up other tests.
+
+fake_cc_py = test.workpath('fake_cc.py')
+fake_link_py = test.workpath('fake_link.py')
+
+test.write(fake_cc_py, r"""#!/usr/bin/env python
 import os
 import re
 import string
@@ -72,7 +82,7 @@ process(input, output)
 sys.exit(0)
 """)
 
-test.write('fake_link.py', r"""
+test.write(fake_link_py, r"""#!/usr/bin/env python
 import sys
 
 output = open(sys.argv[1], 'wb')
@@ -84,6 +94,9 @@ output.write(input.read())
 
 sys.exit(0)
 """)
+
+test.chmod(fake_cc_py, 0755)
+test.chmod(fake_link_py, 0755)
 
 # Note:  We don't use os.path.join() representations of the file names
 # in the expected output because paths in the .sconsign files are
@@ -100,8 +113,9 @@ test.write(['SConstruct'], """
 SConsignFile(None)
 env1 = Environment(PROGSUFFIX = '.exe',
                    OBJSUFFIX = '.obj',
-                   CCCOM = r'%(_python_)s fake_cc.py sub2 $TARGET $SOURCE',
-                   LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCE')
+                   CCCOM = r'%(fake_cc_py)s sub2 $TARGET $SOURCE',
+                   LINKCOM = r'%(fake_link_py)s $TARGET $SOURCE')
+env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH = ['sub2'])
 env2.Program('sub2/hello.c')
@@ -132,11 +146,11 @@ sig_re = r'[0-9a-fA-F]{32}'
 expect = r"""hello.c: %(sig_re)s \d+ \d+
 hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_link\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals()
 
@@ -148,11 +162,11 @@ test.run_sconsign(arguments = "--raw sub1/.sconsign",
          stdout = r"""hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
 hello.exe: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
         %(sub1_hello_obj)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
-        %(python)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        fake_link\.py: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
         %(sig_re)s \[.*\]
 hello.obj: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
         %(sub1_hello_c)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
-        %(python)s: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
+        fake_cc\.py: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
         %(sig_re)s \[.*\]
 """ % locals())
 
@@ -170,7 +184,7 @@ hello.exe:
             csig: %(sig_re)s
             timestamp: \d+
             size: \d+
-        %(python)s:
+        fake_link\.py:
             csig: %(sig_re)s
             timestamp: \d+
             size: \d+
@@ -184,7 +198,7 @@ hello.obj:
             csig: %(sig_re)s
             timestamp: \d+
             size: \d+
-        %(python)s:
+        fake_cc\.py:
             csig: %(sig_re)s
             timestamp: \d+
             size: \d+
@@ -221,22 +235,22 @@ hello.obj:
 test.run_sconsign(arguments = "-e hello.obj sub1/.sconsign",
          stdout = r"""hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj sub1/.sconsign",
          stdout = r"""hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_link\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
@@ -244,13 +258,13 @@ test.run_sconsign(arguments = "sub2/.sconsign",
          stdout = r"""hello.c: %(sig_re)s \d+ \d+
 hello.exe: %(sig_re)s \d+ \d+
         %(sub2_hello_obj)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_link\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub2_hello_c)s: %(sig_re)s \d+ \d+
         %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
         %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 inc1.h: %(sig_re)s \d+ \d+
 inc2.h: %(sig_re)s \d+ \d+
@@ -273,11 +287,11 @@ test.run_sconsign(arguments = "-e hello.obj sub2/.sconsign sub1/.sconsign",
         %(sub2_hello_c)s: %(sig_re)s \d+ \d+
         %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
         %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        %(python)s: %(sig_re)s \d+ \d+
+        fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
