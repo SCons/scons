@@ -36,9 +36,6 @@ SourceSignatures('timestamp') with TargetSignatures('content').
 import TestSCons
 import TestSConsign
 
-python = TestSCons.python
-_python_ = TestSCons._python_
-
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 # Note:  We don't use os.path.join() representations of the file names
@@ -50,7 +47,20 @@ sub1_hello_obj  = 'sub1/hello.obj'
 
 test.subdir('sub1', 'sub2')
 
-test.write('fake_cc.py', r"""
+# Because this test sets SConsignFile(None), we execute our fake
+# scripts directly, not by feeding them to the Python executable.
+# That is, we chmod 0755 and us a "#!/usr/bin/env python" first
+# line for POSIX systems, and add .PY to the %PATHEXT% variable on
+# Windows.  If we didn't do this, then running this script with
+# suitable prileveges would create a .sconsign file in the directory
+# where the Python executable lives.  This can happen out of the
+# box on Mac OS X, with the result that the .sconsign statefulness
+# can mess up other tests.
+
+fake_cc_py = test.workpath('fake_cc.py')
+fake_link_py = test.workpath('fake_link.py')
+
+test.write(fake_cc_py, r"""#!/usr/bin/env python
 import os
 import re
 import string
@@ -83,7 +93,7 @@ process(input, output)
 sys.exit(0)
 """)
 
-test.write('fake_link.py', r"""
+test.write(fake_link_py, r"""#!/usr/bin/env python
 import sys
 
 output = open(sys.argv[1], 'wb')
@@ -96,13 +106,16 @@ output.write(input.read())
 sys.exit(0)
 """)
 
+test.chmod(fake_cc_py, 0755)
+test.chmod(fake_link_py, 0755)
+
 test.write('SConstruct', """
 SConsignFile(None)
 Decider('timestamp-newer')
 env1 = Environment(PROGSUFFIX = '.exe',
                    OBJSUFFIX = '.obj',
-                   CCCOM = r'%(_python_)s fake_cc.py sub2 $TARGET $SOURCE',
-                   LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCE')
+                   CCCOM = r'%(fake_cc_py)s sub2 $TARGET $SOURCE',
+                   LINKCOM = r'%(fake_link_py)s $TARGET $SOURCE')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH = ['sub2'])
 env2.Program('sub2/hello.c')
@@ -136,22 +149,22 @@ date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/.sconsign",
          stdout = r"""hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        %(python)s: None \d+ \d+
+        fake_link\.py: None \d+ \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: None \d+ \d+
-        %(python)s: None \d+ \d+
+        fake_cc\.py: None \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r sub1/.sconsign",
          stdout = r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
-        %(python)s: None '%(date_re)s' \d+
+        fake_link\.py: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
 hello.obj: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_c)s: None '%(date_re)s' \d+
-        %(python)s: None '%(date_re)s' \d+
+        fake_cc\.py: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
 """ % locals())
 

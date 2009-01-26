@@ -110,6 +110,7 @@ env1 = Environment(PROGSUFFIX = '.exe',
                    OBJSUFFIX = '.obj',
                    CCCOM = r'%(_python_)s fake_cc.py sub2 $TARGET $SOURCE',
                    LINKCOM = r'%(_python_)s fake_link.py $TARGET $SOURCE')
+env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH = ['sub2'])
 env2.Program('sub2/hello.c')
