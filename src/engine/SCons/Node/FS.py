@@ -1735,9 +1735,19 @@ class Dir(Base):
                 pass
             else:
                 for entry in map(_my_normcase, entries):
-                    d[entry] = 1
+                    d[entry] = True
             self.on_disk_entries = d
-        return d.has_key(_my_normcase(name))
+        if sys.platform == 'win32':
+            name = _my_normcase(name)
+            result = d.get(name)
+            if result is None:
+                # Belt-and-suspenders for Windows:  check directly for
+                # 8.3 file names that don't show up in os.listdir().
+                result = os.path.exists(self.abspath + os.sep + name)
+                d[name] = result
+            return result
+        else:
+            return d.has_key(name)
 
     memoizer_counters.append(SCons.Memoize.CountValue('srcdir_list'))
 
