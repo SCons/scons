@@ -31,10 +31,8 @@ Verify a lot of the basic operation of the --debug=explain option.
 import os
 import string
 import sys
-import TestSCons
 
-python = TestSCons.python
-_python_ = TestSCons._python_
+import TestSCons
 
 test = TestSCons.TestSCons()
 
@@ -53,7 +51,7 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 
-test.write(cat_py, r"""
+test.write(cat_py, r"""#!/usr/bin/env python
 import sys
 
 def process(outfp, infp):
@@ -78,6 +76,9 @@ for f in sys.argv[2:]:
 sys.exit(0)
 """)
 
+test.chmod(cat_py, 0755)
+
+
 SConstruct_contents = """\
 import re
 
@@ -93,12 +94,13 @@ kscan = Scanner(name = 'kfile',
                 argument = None,
                 skeys = ['.k'])
 
-cat = Builder(action = r'%(_python_)s %(cat_py)s $TARGET $SOURCES')
-one_cat = Builder( action = r'%(_python_)s %(cat_py)s $TARGET ${SOURCES[0]}')
+cat = Builder(action = [[r'%(cat_py)s', '$TARGET', '$SOURCES']])
+one_cat = Builder( action = [[r'%(cat_py)s', '$TARGET', '${SOURCES[0]}']])
 
 env = Environment()
 env.Append(BUILDERS = {'Cat':cat, 'OneCat':one_cat},
            SCANNERS = kscan)
+env.PrependENVPath('PATHEXT', '.PY')
 
 Export("env")
 SConscript('SConscript')
@@ -117,7 +119,7 @@ env.Cat('file1', 'file1.in')
 env.Cat('file2', 'file2.k')
 env.Cat('file3', ['xxx', 'yyy', 'zzz'])
 env.Command('file4', 'file4.in',
-             r'%(_python_)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES',
+             r'%(cat_py)s $TARGET $FILE4FLAG $SOURCES',
              FILE4FLAG='-')
 env.Cat('file5', 'file5.k')
 file6 = env.Cat('file6', 'file6.in')
@@ -175,13 +177,13 @@ args = '--debug=explain .'
 
 expect = test.wrap_stdout("""\
 scons: building `file1' because it doesn't exist
-%(_python_)s %(cat_py)s file1 file1.in
+%(cat_py)s file1 file1.in
 scons: building `file2' because it doesn't exist
-%(_python_)s %(cat_py)s file2 file2.k
+%(cat_py)s file2 file2.k
 scons: building `file3' because it doesn't exist
-%(_python_)s %(cat_py)s file3 xxx yyy zzz
+%(cat_py)s file3 xxx yyy zzz
 scons: building `file4' because it doesn't exist
-%(_python_)s %(cat_py)s file4 - file4.in
+%(cat_py)s file4 - file4.in
 scons: building `%(inc_aaa)s' because it doesn't exist
 Install file: "aaa" as "%(inc_aaa)s"
 scons: building `%(inc_ddd)s' because it doesn't exist
@@ -191,15 +193,15 @@ Install file: "eee.in" as "%(inc_eee)s"
 scons: building `%(inc_bbb_k)s' because it doesn't exist
 Install file: "bbb.k" as "%(inc_bbb_k)s"
 scons: building `file5' because it doesn't exist
-%(_python_)s %(cat_py)s file5 file5.k
+%(cat_py)s file5 file5.k
 scons: building `file6' because it doesn't exist
-%(_python_)s %(cat_py)s file6 file6.in
+%(cat_py)s file6 file6.in
 scons: building `%(subdir_file7)s' because it doesn't exist
-%(_python_)s %(cat_py)s %(subdir_file7)s %(subdir_file7_in)s
+%(cat_py)s %(subdir_file7)s %(subdir_file7_in)s
 scons: building `%(subdir_file8)s' because it doesn't exist
-%(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
+%(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
 scons: building `%(subdir_file9)s' because it doesn't exist
-%(_python_)s %(cat_py)s %(subdir_file9)s %(subdir_file7_in)s
+%(cat_py)s %(subdir_file9)s %(subdir_file7_in)s
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -236,26 +238,26 @@ WriteInitialTest( locals() )
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file1' because `file1.in' changed
-%(_python_)s %(cat_py)s file1 file1.in
+%(cat_py)s file1 file1.in
 scons: rebuilding `file2' because `yyy' changed
-%(_python_)s %(cat_py)s file2 file2.k
+%(cat_py)s file2 file2.k
 scons: rebuilding `file3' because:
            `yyy' changed
            `zzz' changed
-%(_python_)s %(cat_py)s file3 xxx yyy zzz
+%(cat_py)s file3 xxx yyy zzz
 scons: rebuilding `%(inc_bbb_k)s' because:
            `%(inc_ddd)s' is no longer a dependency
            `%(inc_eee)s' is no longer a dependency
            `bbb.k' changed
 Install file: "bbb.k" as "%(inc_bbb_k)s"
 scons: rebuilding `file5' because `%(inc_bbb_k)s' changed
-%(_python_)s %(cat_py)s file5 file5.k
+%(cat_py)s file5 file5.k
 scons: rebuilding `file6' because AlwaysBuild() is specified
-%(_python_)s %(cat_py)s file6 file6.in
+%(cat_py)s file6 file6.in
 scons: rebuilding `%(subdir_file8)s' because:
            `first' is no longer a dependency
            `second' is a new dependency
-%(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
+%(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -285,7 +287,7 @@ env.Cat('file3', ['xxx', 'yyy'])
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because `zzz' is no longer a dependency
-%(_python_)s %(cat_py)s file3 xxx yyy
+%(cat_py)s file3 xxx yyy
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -301,7 +303,7 @@ env.Cat('file3', ['xxx', 'yyy', 'zzz'])
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because `zzz' is a new dependency
-%(_python_)s %(cat_py)s file3 xxx yyy zzz
+%(cat_py)s file3 xxx yyy zzz
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -315,11 +317,13 @@ Import("env")
 env.Cat('file3', ['zzz', 'yyy', 'xxx'])
 """)
 
+cat_py_sep = string.replace(cat_py, '\\', '\\\\')
+
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because the dependency order changed:
-               old: ['xxx', 'yyy', 'zzz', '%(python)s']
-               new: ['zzz', 'yyy', 'xxx', '%(python)s']
-%(_python_)s %(cat_py)s file3 zzz yyy xxx
+               old: ['xxx', 'yyy', 'zzz', '%(cat_py_sep)s']
+               new: ['zzz', 'yyy', 'xxx', '%(cat_py_sep)s']
+%(cat_py)s file3 zzz yyy xxx
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -332,19 +336,19 @@ test.write(['src', 'SConscript'], """\
 Import("env")
 f3 = File('file3')
 env.Cat(f3, ['zzz', 'yyy', 'xxx'])
-env.AddPostAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy')
-env.AddPreAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES')
+env.AddPostAction(f3, r'%(cat_py)s ${TARGET}.yyy $SOURCES yyy')
+env.AddPreAction(f3, r'%(cat_py)s ${TARGET}.alt $SOURCES')
 """ % locals())
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because the build action changed:
-               old: %(_python_)s %(cat_py)s $TARGET $SOURCES
-               new: %(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES
-                    %(_python_)s %(cat_py)s $TARGET $SOURCES
-                    %(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy
-%(_python_)s %(cat_py)s file3.alt zzz yyy xxx
-%(_python_)s %(cat_py)s file3 zzz yyy xxx
-%(_python_)s %(cat_py)s file3.yyy zzz yyy xxx yyy
+               old: %(cat_py)s $TARGET $SOURCES
+               new: %(cat_py)s ${TARGET}.alt $SOURCES
+                    %(cat_py)s $TARGET $SOURCES
+                    %(cat_py)s ${TARGET}.yyy $SOURCES yyy
+%(cat_py)s file3.alt zzz yyy xxx
+%(cat_py)s file3 zzz yyy xxx
+%(cat_py)s file3.yyy zzz yyy xxx yyy
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -359,21 +363,21 @@ test.write(['src', 'SConscript'], """\
 Import("env")
 f3 = File('file3')
 env.Cat(f3, ['zzz', 'yyy', 'xxx'])
-env.AddPostAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES xxx')
-env.AddPreAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES')
+env.AddPostAction(f3, r'%(cat_py)s ${TARGET}.yyy $SOURCES xxx')
+env.AddPreAction(f3, r'%(cat_py)s ${TARGET}.alt $SOURCES')
 """ % locals())
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because the build action changed:
-               old: %(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES
-                    %(_python_)s %(cat_py)s $TARGET $SOURCES
-                    %(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy
-               new: %(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES
-                    %(_python_)s %(cat_py)s $TARGET $SOURCES
-                    %(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES xxx
-%(_python_)s %(cat_py)s file3.alt zzz yyy xxx
-%(_python_)s %(cat_py)s file3 zzz yyy xxx
-%(_python_)s %(cat_py)s file3.yyy zzz yyy xxx xxx
+               old: %(cat_py)s ${TARGET}.alt $SOURCES
+                    %(cat_py)s $TARGET $SOURCES
+                    %(cat_py)s ${TARGET}.yyy $SOURCES yyy
+               new: %(cat_py)s ${TARGET}.alt $SOURCES
+                    %(cat_py)s $TARGET $SOURCES
+                    %(cat_py)s ${TARGET}.yyy $SOURCES xxx
+%(cat_py)s file3.alt zzz yyy xxx
+%(cat_py)s file3 zzz yyy xxx
+%(cat_py)s file3.yyy zzz yyy xxx xxx
 """ % locals())
 
 test.run(chdir='src', arguments=args, stdout=expect)
@@ -387,14 +391,14 @@ test.must_match(['src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nxxx 1\n")
 test.write(['src', 'SConscript'], """\
 Import("env")
 env.Command('file4', 'file4.in',
-            r'%(_python_)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES',
+            r'%(cat_py)s $TARGET $FILE4FLAG $SOURCES',
             FILE4FLAG='')
 """ % locals())
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file4' because the contents of the build action changed
-               action: %(_python_)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES
-%(_python_)s %(cat_py)s file4 file4.in
+               action: %(cat_py)s $TARGET $FILE4FLAG $SOURCES
+%(cat_py)s file4 file4.in
 """ % locals())
 
 test.run(chdir='src',arguments=args, stdout=expect)
