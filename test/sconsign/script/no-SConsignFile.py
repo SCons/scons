@@ -113,8 +113,11 @@ test.write(['SConstruct'], """
 SConsignFile(None)
 env1 = Environment(PROGSUFFIX = '.exe',
                    OBJSUFFIX = '.obj',
-                   CCCOM = r'%(fake_cc_py)s sub2 $TARGET $SOURCE',
-                   LINKCOM = r'%(fake_link_py)s $TARGET $SOURCE')
+                   # Specify the command lines with lists-of-lists so
+                   # finding the implicit dependencies works even with
+                   # spaces in the fake_*_py path names.
+                   CCCOM = [[r'%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
+                   LINKCOM = [[r'%(fake_link_py)s', '$TARGET', '$SOURCE']])
 env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH = ['sub2'])
@@ -155,8 +158,6 @@ hello.obj: %(sig_re)s \d+ \d+
 """ % locals()
 
 test.run_sconsign(arguments = "sub1/.sconsign", stdout=expect)
-#test.run_sconsign(arguments = "sub1/.sconsign")
-#print test.stdout()
 
 test.run_sconsign(arguments = "--raw sub1/.sconsign",
          stdout = r"""hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+, 'size': \d+L?, '_version_id': 1}
