@@ -396,7 +396,7 @@
      <para>
 
      &SCons; reflects this distinction between
-     <emphasis>calling a builder method like</emphasis> &b-Program;>
+     <emphasis>calling a builder method like</emphasis> &b-Program;
      and <emphasis>actually building the program</emphasis>
      by printing the status messages that indicate
      when it's "just reading" the &SConstruct; file,
