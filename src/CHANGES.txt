@@ -20,6 +20,10 @@ RELEASE X.X.X - XXX
     - Detect implicit dependencies on commands even when the command is
       quoted.
 
+  From Robert P. J. Day:
+
+    - User's Guide updates.
+
 
 
 RELEASE 1.2.0.d20090113 - Tue, 13 Jan 2009 02:50:30 -0800

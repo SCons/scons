@@ -62,7 +62,7 @@
   than the cryptic languages of other build tools,
   which are usually invented by programmers for other programmers.
   This is in no small part due to the
-  consistency and readability that are built in to Python.
+  consistency and readability that are hallmarks of Python.
   It just so happens that making a real, live
   scripting language the basis for the
   configuration files

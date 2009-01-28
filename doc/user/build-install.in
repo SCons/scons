@@ -136,7 +136,7 @@
     If you need to install Python and have a choice,
     we recommend using the most recent Python 2.5 version available.
     Python 2.5 has significant improvements
-    the help speed up the performance of &SCons;'.
+    the help speed up the performance of &SCons;.
 
     </para>
 
@@ -150,7 +150,7 @@
     &SCons; comes pre-packaged for installation on a number of systems,
     including Linux and Windows systems.
     You do not need to read this entire section,
-    you should only need to read the section
+    you should need to read only the section
     appropriate to the type of system you're running on.
 
     </para>
@@ -162,11 +162,11 @@
 
       &SCons; comes in RPM (Red Hat Package Manager) format,
       pre-built and ready to install on Red Hat Linux,
-      Fedora Core,
+      Fedora,
       or any other Linux distribution that uses RPM.
       Your distribution may
       already have an &SCons; RPM built specifically for it;
-      many do, including SuSe, Mandrake and Fedora.
+      many do, including SUSE, Mandrake and Fedora.
       You can check for the availability of an &SCons; RPM
       on your distribution's download servers,
       or by consulting an RPM search site like
@@ -174,6 +174,18 @@
       <ulink url="http://rpm.pbone.net/">http://rpm.pbone.net/</ulink>.
 
       </para>
+
+      <para>
+
+      If your distribution supports installation via
+      <application>yum</application>,
+      you should be able to install &SCons; by running:
+
+      </para>
+
+      <screen>
+        # <userinput>yum install scons</userinput>
+      </screen>
 
       <para>
 
@@ -197,7 +209,7 @@
       </para>
 
       <screen>
-        # <userinput>rpm -Uvh scons-0.96-1.noarch.rpm</userinput>
+        # <userinput>rpm -Uvh scons-__VERSION__-1.noarch.rpm</userinput>
       </screen>
 
       <para>
@@ -260,9 +272,9 @@
 
       &SCons; provides a Windows installer
       that makes installation extremely easy.
-      Download the <filename>scons-0.95.win32.exe</filename>
+      Download the <filename>scons-__VERSION__.win32.exe</filename>
       file from the &SCons; download page at
-      <ulink url="http://www.scons.org/download.html">http://www.scons.org/download.html</ulink>.
+      <ulink url="http://www.scons.org/download.php">http://www.scons.org/download.php</ulink>.
       Then all you need to do is execute the file
       (usually by clicking on its icon in Windows Explorer).
       These will take you through a small
