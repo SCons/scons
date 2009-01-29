@@ -35,8 +35,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 if not hasattr(os, 'symlink'):
-    print "No os.symlink() method, no symlinks to test."
-    test.no_result(1)
+    test.skip_test('No os.symlink() method, no symlinks to test.\n')
 
 foo_obj = 'foo' + TestSCons._obj
 

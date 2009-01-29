@@ -39,7 +39,8 @@ test = TestSCons.TestSCons()
 # Writing this to accomodate both our in-line tool chain and the
 # MSVC command lines is too hard, and will be completely unnecessary
 # some day when we separate our tests.  Punt for now.
-test.no_result(sys.platform == 'win32')
+if sys.platform == 'win32':
+    test.skip_test('Skipping on win32.\n')
 
 
 
