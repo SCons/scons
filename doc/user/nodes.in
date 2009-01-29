@@ -44,7 +44,7 @@
     &Node; objects that identify the
     target file or files that will be built.
     These returned &Nodes; can be passed
-    as source files to other builder methods,
+    as arguments to other builder methods.
 
     </para>
 
@@ -81,7 +81,7 @@
 
     <para>
 
-    The problem with listing the names as strings
+    The problem with specifying the names as strings
     is that our &SConstruct; file is no longer portable
     across operating systems.
     It won't, for example, work on Windows
@@ -155,7 +155,7 @@
     between Nodes that represent files
     and Nodes that represent directories.
     &SCons; supports &File; and &Dir;
-    functions that, repectively,
+    functions that, respectively,
     return a file or directory Node:
 
     </para>
@@ -231,6 +231,11 @@
     One of the most common things you can do
     with a Node is use it to print the
     file name that the node represents.
+    Keep in mind, though, that because the object
+    returned by a builder call
+    is a <emphasis>list</emphasis> of Nodes,
+    you must use Python subscripts
+    to fetch individual Nodes from the list.
     For example, the following &SConstruct; file:
 
     </para>
@@ -267,6 +272,17 @@
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
+    <para>
+
+    Note that in the above example,
+    the <literal>object_list[0]</literal>
+    extracts an actual Node <emphasis>object</emphasis>
+    from the list,
+    and the Python <literal>print</literal> statement
+    converts the object to a string for printing.
+
+    </para>
+
   </section>
 
   <section>
@@ -276,7 +292,7 @@
 
     Printing a &Node;'s name
     as described in the previous section
-    works because the string representation of a &Node;
+    works because the string representation of a &Node; object
     is the name of the file.
     If you want to do something other than
     print the name of the file,

@@ -62,7 +62,7 @@
     &SCons; uses the appropriate library prefix and suffix for your system.
     So on POSIX or Linux systems,
     the above example would build as follows
-    (although &ranlib may not be called on all systems):
+    (although &ranlib; may not be called on all systems):
 
     </para>
 

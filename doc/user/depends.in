@@ -27,10 +27,10 @@
 
   So far we've seen how &SCons; handles one-time builds.
   But one of the main functions of a build tool like &SCons;
-  is to rebuild only the necessary things
+  is to rebuild only what is necessary
   when source files change--or, put another way,
   &SCons; should <emphasis>not</emphasis>
-  waste time rebuilding things that have already been built.
+  waste time rebuilding things that don't need to be rebuilt.
   You can see this at work simply by re-invoking &SCons;
   after building our simple &hello; example:
 
@@ -168,7 +168,7 @@
 
         <para>
 
-        Using MD5 Signatures to decide if an input file has changed
+        Using MD5 signatures to decide if an input file has changed
         has one surprising benefit:
         if a source file has been changed
         in such a way that the contents of the
@@ -237,7 +237,7 @@
       The most familiar way to use time stamps
       is the way &Make; does:
       that is, have &SCons; decide
-      and target must be rebuilt if
+      that a target must be rebuilt
       if a source file's modification time is
       <emphasis>newer</emphasis>
       than the target file.
@@ -366,8 +366,8 @@
       As a performance enhancement,
       &SCons; provides a way to use
       MD5 checksums of file contents
-      but to only read the contents
-      whenever the file's timestamp has changed.
+      but to read those contents
+      only when the file's timestamp has changed.
       To do this, call the &Decider;
       function with <literal>'MD5-timestamp'</literal>
       argument as follows:
@@ -444,11 +444,11 @@
       While most developers are programming,
       this isn't a problem in practice,
       since it's unlikely that someone will have built
-      and then thought quickly enought to make a substantive
+      and then thought quickly enough to make a substantive
       change to a source file within one second.
       Certain build scripts or
       continuous integration tools may, however,
-      rely on the ability to applying changes to files
+      rely on the ability to apply changes to files
       automatically and then rebuild as quickly as possible,
       in which case use of
       <literal>Decider('MD5-timestamp')</literal>
@@ -486,7 +486,7 @@
       We'd like to have each target file depend on
       only its section of the input file.
       However, since the input file may contain a lot of data,
-      we only want to open the input file if its timestamp has changed.
+      we want to open the input file only if its timestamp has changed.
       This could done with a custom
       &Decider; function that might look something like this:
 
@@ -615,7 +615,7 @@
 
       For example, if we arbitrarily want to build
       one program using MD5 checkums
-      and another use file modification times
+      and another using file modification times
       from the same source
       we might configure it this way:
 

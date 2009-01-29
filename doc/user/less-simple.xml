@@ -220,8 +220,12 @@
 
     <para>
 
-    The SCons man page has more details on using &Glob; with Variant
-    directories and Repositories, and returning strings rather than Nodes.
+    The SCons man page has more details on using &Glob;
+    with variant directories
+    (see <xref linkend="chap-variants"></xref>, below)
+    and repositories
+    (see <xref linkend="chap-repositories"></xref>, below),
+    and returning strings rather than Nodes.
 
     </para>
 
@@ -544,7 +548,7 @@
 
     &SCons; recognizes that the object files for
     the &common1_c; and &common2_c; source files
-    each only need to be built once,
+    each need to be built only once,
     even though the resulting object files are
     each linked in to both of the resulting executable programs:
 
