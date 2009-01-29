@@ -46,7 +46,6 @@
 <!ENTITY ranlib         "<application>ranlib</application>">
 <!ENTITY rmic           "<application>rmic</application>">
 <!ENTITY SCons          "<application>SCons</application>">
-<!ENTITY scons          "<application>scons</application>">
 <!ENTITY ScCons         "<application>ScCons</application>">
 <!ENTITY swig           "<application>swig</application>">
 <!ENTITY tar            "<application>tar</application>">
@@ -128,6 +127,7 @@
 <!ENTITY build "<filename>build</filename>">
 <!ENTITY Makefile "<filename>Makefile</filename>">
 <!ENTITY Makefiles "<filename>Makefiles</filename>">
+<!ENTITY scons "<filename>scons</filename>">
 <!ENTITY SConscript "<filename>SConscript</filename>">
 <!ENTITY SConstruct "<filename>SConstruct</filename>">
 <!ENTITY Sconstruct "<filename>Sconstruct</filename>">
@@ -463,11 +463,11 @@
 
 -->
 
-<!ENTITY bar "<application>bar</application>">
+<!ENTITY bar "<filename>bar</filename>">
 <!ENTITY common1_c "<filename>common1.c</filename>">
 <!ENTITY common2_c "<filename>common2.c</filename>">
 <!ENTITY custom_py "<filename>custom.py</filename>">
-<!ENTITY goodbye "<application>goodbye</application>">
+<!ENTITY goodbye "<filename>goodbye</filename>">
 <!ENTITY goodbye_o "<filename>goodbye.o</filename>">
 <!ENTITY goodbye_obj "<filename>goodbye.obj</filename>">
 <!ENTITY file_dll "<filename>file.dll</filename>">
@@ -476,10 +476,10 @@
 <!ENTITY file_o "<filename>file.o</filename>">
 <!ENTITY file_obj "<filename>file.obj</filename>">
 <!ENTITY file_out "<filename>file.out</filename>">
-<!ENTITY foo "<application>foo</application>">
+<!ENTITY foo "<filename>foo</filename>">
 <!ENTITY foo_o "<filename>foo.o</filename>">
 <!ENTITY foo_obj "<filename>foo.obj</filename>">
-<!ENTITY hello "<application>hello</application>">
+<!ENTITY hello "<filename>hello</filename>">
 <!ENTITY hello_c "<filename>hello.c</filename>">
 <!ENTITY hello_exe "<filename>hello.exe</filename>">
 <!ENTITY hello_h "<filename>hello.h</filename>">
@@ -487,8 +487,8 @@
 <!ENTITY hello_obj "<filename>hello.obj</filename>">
 <!ENTITY libfile_a "<filename>libfile_a</filename>">
 <!ENTITY libfile_so "<filename>libfile_so</filename>">
-<!ENTITY new_hello "<application>new_hello</application>">
-<!ENTITY new_hello_exe "<application>new_hello.exe</application>">
+<!ENTITY new_hello "<filename>new_hello</filename>">
+<!ENTITY new_hello_exe "<filename>new_hello.exe</filename>">
 <!ENTITY prog "<filename>prog</filename>">
 <!ENTITY prog1 "<filename>prog1</filename>">
 <!ENTITY prog2 "<filename>prog2</filename>">

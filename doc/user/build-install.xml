@@ -136,7 +136,7 @@
     If you need to install Python and have a choice,
     we recommend using the most recent Python 2.5 version available.
     Python 2.5 has significant improvements
-    the help speed up the performance of &SCons;.
+    that help speed up the performance of &SCons;.
 
     </para>
 
@@ -214,8 +214,7 @@
 
       <para>
 
-      Or, you can use a graphical RPM package manager
-      like <application>gnorpm</application>.
+      Or, you can use a graphical RPM package manager.
       See your package manager application's documention
       for specific instructions about
       how to use it to install a downloaded RPM.
@@ -411,7 +410,7 @@
     <para>
 
     This will build &SCons;,
-    install the <application>scons</application> script
+    install the &scons; script
     in the default system scripts directory
     (<filename>/usr/local/bin</filename> or
     <filename>C:\Python25\Scripts</filename>),
@@ -549,7 +548,7 @@
       For example,
       to install &SCons; in appropriate locations
       relative to the user's <literal>$HOME</literal> directory,
-      the <application>scons</application> script in
+      the &scons; script in
       <filename>$HOME/bin</filename>
       and the build engine in 
       <filename>$HOME/lib/scons</filename>,
@@ -567,6 +566,21 @@
       and may use the <option>--version-lib</option> option
       if you would like to install version-specific directories
       relative to the specified prefix.
+
+      </para>
+
+      <para>
+
+      This can also be used to experiment with a newer
+      version of &SCons; than the one installed
+      in your system locations.
+      Of course, the location in which you install the
+      newer version of the &scons; script
+      (<filename>$HOME/bin</filename> in the above example)
+      must be configured in your &PATH; variable
+      before the directory containing
+      the system-installed version
+      of the &scons; script.
 
       </para>
 
