@@ -79,7 +79,7 @@ test.checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
 
 # Same should be true for the default behavior of Decider('content').
 
-test.run(arguments='--config=force target_signatures_content=1')
+test.run(arguments='target_signatures_content=1 --config=force')
 test.checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
                        "Checking for C library no_c_library_SAFFDG... "],
                       ["no"]*2,

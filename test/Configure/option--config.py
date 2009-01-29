@@ -50,12 +50,12 @@ env = Environment(CPPPATH='#/include')
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure(env)
-r1 = conf.CheckCHeader('non_system_header1.h')
-r2 = conf.CheckCHeader('non_system_header2.h')
+conf.CheckCHeader('non_system_header0.h')
+conf.CheckCHeader('non_system_header1.h')
 env = conf.Finish()
 """)
 
-test.write(['include', 'non_system_header1.h'], """
+test.write(['include', 'non_system_header0.h'], """
 /* A header */
 """)
 
@@ -70,53 +70,53 @@ scons: *** "%(conftest_0_c)s" is not yet built and cache is forced.
 test.run(arguments='--config=cache', status=2, stderr=expect)
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",
-                    "Checking for C header file non_system_header2.h... "],
+test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
+                    "Checking for C header file non_system_header1.h... "],
                     ["yes", "no"],
                     [[((".c", NCR), (_obj, NCR))],
                      [((".c", NCR), (_obj, NCF))]],
                     "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",
-                    "Checking for C header file non_system_header2.h... "],
+test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
+                    "Checking for C header file non_system_header1.h... "],
                     ["yes", "no"],
                     [[((".c", CR), (_obj, CR))],
                      [((".c", CR), (_obj, CF))]],
                     "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=force')
-test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",
-                    "Checking for C header file non_system_header2.h... "],
+test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
+                    "Checking for C header file non_system_header1.h... "],
                     ["yes", "no"],
                     [[((".c", NCR), (_obj, NCR))],
                      [((".c", NCR), (_obj, NCF))]],
                     "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=cache')
-test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",
-                    "Checking for C header file non_system_header2.h... "],
+test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
+                    "Checking for C header file non_system_header1.h... "],
                     ["yes", "no"],
                     [[((".c", CR), (_obj, CR))],
                      [((".c", CR), (_obj, CF))]],
                     "config.log", ".sconf_temp", "SConstruct")
 
-test.write(['include', 'non_system_header2.h'], """
+test.write(['include', 'non_system_header1.h'], """
 /* Another header */
 """)
-test.unlink(['include', 'non_system_header1.h'])
+test.unlink(['include', 'non_system_header0.h'])
 
 test.run(arguments='--config=cache')
-test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",
-                    "Checking for C header file non_system_header2.h... "],
+test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
+                    "Checking for C header file non_system_header1.h... "],
                     ["yes", "no"],
                     [[((".c", CR), (_obj, CR))],
                      [((".c", CR), (_obj, CF))]],
                     "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout( ["Checking for C header file non_system_header1.h... ",
-                    "Checking for C header file non_system_header2.h... "],
+test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
+                    "Checking for C header file non_system_header1.h... "],
                     ["no", "yes"],
                     [[((".c", CR), (_obj, NCF))],
                      [((".c", CR), (_obj, NCR))]],

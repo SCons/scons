@@ -314,6 +314,17 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             s = sys.stdout = sys.stderr = Streamer(sys.stdout)
             try:
                 env = self.targets[0].get_build_env()
+                if cache_mode == FORCE:
+                    # Set up the Decider() to force rebuilds by saying
+                    # that every source has changed.  Note that we still
+                    # call the environment's underlying source decider so
+                    # that the correct .sconsign info will get calculated
+                    # and keep the build state consistent.
+                    def force_build(dependency, target, prev_ni,
+                                    env_decider=env.decide_source):
+                        env_decider(dependency, target, prev_ni)
+                        return True
+                    env.Decider(force_build)
                 env['PSTDOUT'] = env['PSTDERR'] = s
                 try:
                     sconf.cached = 0
