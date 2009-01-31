@@ -208,7 +208,11 @@ for o, a in opts:
     elif o in ['-P', '--python']:
         python = a
     elif o in ['--qmtest']:
-        qmtest = 'qmtest'
+        if sys.platform == 'win32':
+            # typically in c:/PythonXX/Scripts
+            qmtest = 'qmtest.py'
+        else:
+            qmtest = 'qmtest'
     elif o in ['-q', '--quiet']:
         printcommand = 0
     elif o in ['--sp']:
@@ -264,15 +268,19 @@ else:
                     return f
         return None
 
+# See if --qmtest or --noqmtest specified
 try:
     qmtest
 except NameError:
-    q = 'qmtest'
-    qmtest = whereis(q)
-    if qmtest:
-        qmtest = q
-    else:
-        sys.stderr.write('Warning:  %s not found on $PATH, assuming --noqmtest option.\n' % q)
+    # Neither specified; find it in path.
+    qmtest = None
+    for q in ['qmtest', 'qmtest.py']:
+        path = whereis(q)
+        if path:
+            qmtest = path
+            break
+    if not qmtest:
+        sys.stderr.write('Warning:  qmtest/qmtest.py not found on $PATH, assuming --noqmtest option.\n')
         sys.stderr.flush()
 
 aegis = whereis('aegis')
