@@ -280,7 +280,9 @@ except NameError:
             qmtest = path
             break
     if not qmtest:
-        sys.stderr.write('Warning:  qmtest/qmtest.py not found on $PATH, assuming --noqmtest option.\n')
+        msg = ('Warning:  found neither qmtest nor qmtest.py on $PATH;\n' +
+               '\tassuming --noqmtest option.\n')
+        sys.stderr.write(msg)
         sys.stderr.flush()
 
 aegis = whereis('aegis')
