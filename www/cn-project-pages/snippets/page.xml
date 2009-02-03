@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <page visibility="1">
   <component_list>
-    <component visibility="2" type="Html" order="1">
+    <component visibility="1" type="ProjectMetadata" order="1">
+      <title localize="false" />
+    </component>
+    <component visibility="2" type="Html" order="2">
       <title localize="false">Administrivia</title>
       <filename>HtmlSnippet1.html</filename>
-    </component>
-    <component visibility="1" type="ProjectMetadata" order="2">
-      <title localize="false" />
     </component>
     <component visibility="1" type="Html" order="3">
       <title localize="false" />
