@@ -29,7 +29,6 @@ Verify that the Chmod() Action works.
 """
 
 import os
-import os.path
 import stat
 
 import TestSCons

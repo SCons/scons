@@ -32,10 +32,8 @@ under the covers).
 Note that using BuildDir() does not yet print a deprecation warning.
 """
 
-import os.path
 import string
-import sys
-import time
+
 import TestSCons
 
 _exe = TestSCons._exe

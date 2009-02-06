@@ -33,7 +33,6 @@ but
 
 """
 
-import sys
 import TestSCons
 
 _exe = TestSCons._exe

@@ -29,7 +29,6 @@ Test that the $LINKCOMSTR construction variable allows you to customize
 the displayed linker string.
 """
 
-import os
 import string
 import sys
 import TestSCons

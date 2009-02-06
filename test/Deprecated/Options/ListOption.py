@@ -29,7 +29,6 @@ Test the ListOption canned Option type.
 """
 
 import os
-import os.path
 import string
 
 import TestSCons

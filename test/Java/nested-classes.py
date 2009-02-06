@@ -29,9 +29,7 @@ Test Java compilation with inner and anonymous classes (Issue 2087).
 """
 
 import os
-import os.path
-import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

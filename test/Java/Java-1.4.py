@@ -29,9 +29,8 @@ Test Java compilation with a live Java 1.4 "javac" compiler.
 """
 
 import os
-import os.path
-import string
 import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

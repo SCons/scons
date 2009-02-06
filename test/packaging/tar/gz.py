@@ -29,7 +29,6 @@ This tests the SRC 'targz' packager, which does the following:
  - create a targz package containing the specified files.
 """
 
-import os
 import TestSCons
 
 python = TestSCons.python

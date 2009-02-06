@@ -29,7 +29,6 @@ Verify that invoking scons-test with an unknown argument generates
 the appropriate error message and exits non-zero.
 """
 
-import os
 
 import TestSCons_time
 

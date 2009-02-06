@@ -29,7 +29,6 @@ Test the ability to use a explicit target package name and the use
 of FindInstalledFiles() in conjuction with .msi packages.
 """
 
-import os
 import TestSCons
 
 python = TestSCons.python

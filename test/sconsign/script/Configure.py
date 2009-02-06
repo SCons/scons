@@ -29,7 +29,7 @@ Verify that we can print .sconsign files with Configure context
 info in them (which have different BuildInfo entries).
 """
 
-import os.path
+import os
 import re
 
 import TestSCons

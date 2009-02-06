@@ -29,7 +29,7 @@ Test the --install-sandbox commandline option for Install() and InstallAs().
 """
 
 import os.path
-import sys
+
 import TestSCons
 
 test = TestSCons.TestSCons()

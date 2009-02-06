@@ -29,7 +29,6 @@ Test the ability to configure the $ASCOM construction variable.
 """
 
 import os
-import string
 import sys
 import TestSCons
 

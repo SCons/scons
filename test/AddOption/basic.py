@@ -29,8 +29,6 @@ Verify the help text when the AddOption() function is used (and when
 it's not).
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()

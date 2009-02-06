@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ability to create a simple msi package.
 """
 
-import os
 import TestSCons
 
 python = TestSCons.python

@@ -29,8 +29,6 @@ Test that the -P option lets us specify a Python version to use.
 """
 
 import os.path
-import re
-import sys
 
 if not hasattr(os.path, 'pardir'):
     os.path.pardir = '..'

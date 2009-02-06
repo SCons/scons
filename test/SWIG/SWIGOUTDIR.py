@@ -29,8 +29,6 @@ Verify that use of the $SWIGOUTDIR variable causes SCons to recognize
 that Java files are created in the specified output directory.
 """
 
-import sys
-
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -62,7 +62,7 @@ test = TestSCons.TestSCons()
 # it sees the failure from the first script.
 
 test.write('myfail.py', r"""\
-import os.path
+import os
 import sys
 import time
 while not os.path.exists('mycopy.started'):

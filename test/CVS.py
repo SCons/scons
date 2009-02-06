@@ -29,7 +29,6 @@ Test fetching source files from CVS.
 """
 
 import os
-import os.path
 
 import TestSCons
 

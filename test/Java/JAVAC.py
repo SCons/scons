@@ -29,9 +29,8 @@ Test setting the JAVAC variable.
 """
 
 import os
-import os.path
-import string
 import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

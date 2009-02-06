@@ -29,7 +29,6 @@ Test fetching source files using the SourceCode() method.
 """
 
 import os
-import stat
 
 import TestSCons
 
@@ -38,7 +37,7 @@ test = TestSCons.TestSCons()
 test.subdir('sub', 'sub2')
 
 test.write('SConstruct', """\
-import os.path
+import os
 
 def cat(env, source, target):
     target = str(target[0])

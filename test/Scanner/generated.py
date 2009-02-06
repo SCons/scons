@@ -34,10 +34,8 @@ factors triggered the bug Scott saw, and partly because the real-world
 complexity is valuable in its own right.
 """
 
-import os.path
 import sys
 
-import TestCmd
 import TestSCons
 
 test = TestSCons.TestSCons()

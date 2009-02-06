@@ -29,11 +29,8 @@ Test the use of a preceding @ to suppress printing a command.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
-import re
-import string
 import sys
-import TestCmd
+
 import TestSCons
 
 _python_ = TestSCons._python_

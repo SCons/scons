@@ -29,7 +29,6 @@ Test that $M4 and $M4FLAGS work with repositories.
 """
 
 import os
-import os.path
 import string
 import sys
 import TestSCons

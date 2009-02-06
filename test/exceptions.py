@@ -24,11 +24,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import re
 import sys
-import TestSCons
+
 import TestCmd
+import TestSCons
 
 _python_ = TestSCons._python_
 

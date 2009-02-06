@@ -31,10 +31,8 @@ solution (.sln) files that look correct.
 """
 
 import os
-import os.path
 import sys
 
-import TestCmd
 import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()

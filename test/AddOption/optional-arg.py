@@ -29,8 +29,6 @@ Verify use of the nargs='?' keyword argument to specify a long
 command-line option with an optional argument value.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()

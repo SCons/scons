@@ -32,8 +32,6 @@ complete dependencies of a target.
 import TestSCons
 import sys
 import string
-import re
-import time
 
 test = TestSCons.TestSCons()
 

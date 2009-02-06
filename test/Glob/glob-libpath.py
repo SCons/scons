@@ -30,7 +30,6 @@ See bug #2184, "Glob pollutes LIBPATH" from Ian P. Cardenas.
 Test output should not contain -Lsrc/util.
 """
 
-import TestCmd
 import TestSCons
 
 test = TestSCons.TestSCons()

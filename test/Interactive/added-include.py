@@ -30,8 +30,6 @@ rebuild a target when an implicit dependency (include line) is
 added to the source file.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify specifying an alternate SCons through a config file.
 """
 
-import os
 
 import TestSCons_time
 

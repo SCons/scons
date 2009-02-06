@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ability to configure the $SHCXXCOM construction variable.
 """
 
-import os
-import string
 import sys
 import TestSCons
 

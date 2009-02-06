@@ -28,7 +28,6 @@ import os
 import string
 import sys
 
-import TestCmd
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -30,7 +30,6 @@ Test a list of tests to run in a file specified with the -f option.
 
 import os.path
 
-import TestCmd
 import TestRuntest
 
 test_fail_py = os.path.join('test', 'fail.py')

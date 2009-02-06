@@ -30,7 +30,6 @@ file" as the side effect "target."
 """
 
 import os.path
-import string
 
 import TestSCons
 

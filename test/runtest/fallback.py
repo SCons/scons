@@ -30,7 +30,6 @@ if it can't find qmtest on the $PATH.
 """
 
 import os
-import os.path
 import re
 import string
 

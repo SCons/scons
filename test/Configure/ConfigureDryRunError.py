@@ -28,7 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify the ConfigureDryRunError.
 """
 
-import os.path
+import os
 
 import TestSCons
 

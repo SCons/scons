@@ -30,9 +30,8 @@ Test that the $PDFLATEXCOMSTR construction variable allows you to configure
 the C compilation output.
 """
 
-import os
-import string
 import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

@@ -52,7 +52,6 @@ test.subdir('layer',
 
 test.write('SConstruct', """\
 import os
-import sys
 aa=os.getcwd()
 
 env=Environment(tools=['default','expheaders','qt'],toolpath=[aa])

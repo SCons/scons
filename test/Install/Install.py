@@ -30,8 +30,8 @@ Verify that the Install() Builder works
 
 import os.path
 import string
-import sys
 import time
+
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -30,6 +30,8 @@ whether or not the implicit dependency on executed commands
 is added to targets.
 """
 
+import os
+
 import TestSCons
 
 python = TestSCons.python
@@ -44,7 +46,7 @@ import sys
 
 open(sys.argv[1], 'w').write('''\
 #!/usr/bin/env %(python)s
-import os.path
+import os
 import string
 import sys
 fp = open(sys.argv[1], 'wb')

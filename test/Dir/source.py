@@ -31,7 +31,6 @@ In other words, if a build has a directory as a source file, any
 change in any file under that directory should trigger a rebuild.
 """
 
-import sys
 import TestSCons
 
 

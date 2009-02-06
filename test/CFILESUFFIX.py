@@ -29,7 +29,6 @@ Verify that we can set CFILESUFFIX to arbitrary values.
 """
 
 import os
-import os.path
 import string
 import sys
 import TestSCons

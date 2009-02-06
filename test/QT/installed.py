@@ -29,7 +29,6 @@ Look if qt is installed, and try out all builders.
 """
 
 import os
-import re
 import string
 import sys
 
