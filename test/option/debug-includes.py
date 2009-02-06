@@ -31,7 +31,6 @@ dependencies of a target.
 
 import TestSCons
 import sys
-import string
 import re
 import time
 
@@ -88,13 +87,7 @@ includes = """
 """
 test.run(arguments = "--debug=includes foo.obj")
 
-if string.find(test.stdout(), includes) == -1:
-    print "Did not find expected string in standard output."
-    print "Expected =========================================================="
-    print includes
-    print "Actual ============================================================"
-    print test.stdout()
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), [includes])
 
 
 
@@ -115,7 +108,7 @@ if string.find(test.stdout(), includes) == -1:
 #test.run(arguments = "--debug=includes foo.exe",
 #         status = 2,
 #         stderr = None)
-#test.fail_test(string.find(test.stdout(), includes) == -1)
+#test.must_contain_all_lines(test.stdout(), [includes])
 
 
 

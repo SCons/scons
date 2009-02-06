@@ -31,7 +31,6 @@ dependencies (sources or Depends()) of a target.
 
 import TestSCons
 import sys
-import string
 import re
 import time
 
@@ -80,7 +79,7 @@ dtree1 = """
 """
 
 test.run(arguments = "--tree=derived foo.xxx")
-test.fail_test(string.find(test.stdout(), dtree1) == -1)
+test.must_contain_all_lines(test.stdout(), [dtree1])
 
 dtree2 = """
 +-.
@@ -92,7 +91,7 @@ dtree2 = """
 """
 
 test.run(arguments = "--tree=derived .")
-test.fail_test(string.find(test.stdout(), dtree2) == -1)
+test.must_contain_all_lines(test.stdout(), [dtree2])
 
 dtree3 = """
 +-.
@@ -104,7 +103,7 @@ dtree3 = """
 """
 
 test.run(arguments = "--tree=derived,prune .")
-test.fail_test(string.find(test.stdout(), dtree3) == -1)
+test.must_contain_all_lines(test.stdout(), [dtree3])
 
 dtree4 = """
  E         = exists
@@ -126,7 +125,7 @@ dtree4 = """
 test.run(arguments = '-c foo.xxx')
 
 test.run(arguments = "--no-exec --tree=derived,status foo.xxx")
-test.fail_test(string.find(test.stdout(), dtree4) == -1)
+test.must_contain_all_lines(test.stdout(), [dtree4])
 
 # Make sure we print the debug stuff even if there's a build failure.
 test.write('bar.h', """
@@ -140,6 +139,6 @@ THIS SHOULD CAUSE A BUILD FAILURE
 test.run(arguments = "--tree=derived foo.xxx",
          status = 2,
          stderr = None)
-test.fail_test(string.find(test.stdout(), dtree1) == -1)
+test.must_contain_all_lines(test.stdout(), [dtree1])
 
 test.pass_test()

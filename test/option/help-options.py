@@ -39,8 +39,11 @@ test.write('SConstruct', "")
 
 test.run(arguments = '-H')
 
-test.fail_test(string.find(test.stdout(), '-H, --help-options') == -1)
-test.fail_test(string.find(test.stdout(), '--debug=TYPE') == -1)
+expect = [
+    '-H, --help-options',
+    '--debug=TYPE',
+]
+test.must_contain_all_lines(test.stdout(), expect)
 
 # Validate that the help output lists the options in case-insensitive
 # alphabetical order.

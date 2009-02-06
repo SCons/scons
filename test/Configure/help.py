@@ -68,23 +68,23 @@ lines = [
 # The help setting should have no effect on -H, so the -H output
 # should never contain the lines.
 test.run(arguments = '-H help=0')
-test.must_not_contain_lines(lines, test.stdout())
+test.must_not_contain_any_line(test.stdout(), lines)
 
 test.run(arguments = '-H help=1')
-test.must_not_contain_lines(lines, test.stdout())
+test.must_not_contain_any_line(test.stdout(), lines)
 
 # For -h and --help, the lines appear or not depending on how Configure()
 # is initialized.
 test.run(arguments = '-h help=0')
-test.must_not_contain_lines(lines, test.stdout())
+test.must_not_contain_any_line(test.stdout(), lines)
 
 test.run(arguments = '-h help=1')
-test.must_contain_lines(lines, test.stdout())
+test.must_contain_all_lines(test.stdout(), lines)
 
 test.run(arguments = '--help help=0')
-test.must_not_contain_lines(lines, test.stdout())
+test.must_not_contain_any_line(test.stdout(), lines)
 
 test.run(arguments = '--help help=1')
-test.must_contain_lines(lines, test.stdout())
+test.must_contain_all_lines(test.stdout(), lines)
 
 test.pass_test()

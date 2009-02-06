@@ -36,7 +36,9 @@ provided by the TestCommon class:
 
     test.must_contain('file', 'required text\n')
 
-    test.must_contain_lines(lines, output)
+    test.must_contain_all_lines(output, lines, ['title', find])
+
+    test.must_contain_any_line(output, lines, ['title', find])
 
     test.must_exist('file1', ['file2', ...])
 
@@ -44,7 +46,7 @@ provided by the TestCommon class:
 
     test.must_not_be_writable('file1', ['file2', ...])
 
-    test.must_not_contain_lines(lines, output)
+    test.must_not_contain_any_line(output, lines, ['title', find])
 
     test.must_not_exist('file1', ['file2', ...])
 
@@ -307,18 +309,45 @@ class TestCommon(TestCmd):
             print file_contents
             self.fail_test(not contains)
 
-    def must_contain_lines(self, lines, output, title=None):
-        if title is None:
-            title = 'output'
-
-        missing = filter(lambda l, o=output: string.find(o, l) == -1, lines)
+    def must_contain_all_lines(self, output, lines, title=None, find=None):
+        if find is None:
+            find = lambda o, l: string.find(o, l) != -1
+        missing = []
+        for line in lines:
+            if not find(output, line):
+                missing.append(line)
 
         if missing:
-            print "Missing lines from %s:" % title
-            print string.join(missing, '\n')
-            print "%s ============================================================" % title
-            print output
+            if title is None:
+                title = 'output'
+            sys.stdout.write("Missing expected lines from %s:\n" % title)
+            for line in missing:
+                sys.stdout.write('    ' + repr(line) + '\n')
+            separator = title + ' ' + '=' * (78 - len(title) - 1)
+            sys.stdout.write(separator + '\n')
+            sys.stdout.write(output)
             self.fail_test()
+
+    def must_contain_any_line(self, output, lines, title=None, find=None):
+        if find is None:
+            find = lambda o, l: string.find(o, l) != -1
+        for line in lines:
+            if find(output, line):
+                return
+
+        if title is None:
+            title = 'output'
+        sys.stdout.write("Missing any expected line from %s:\n" % title)
+        for line in lines:
+            sys.stdout.write('    ' + repr(line) + '\n')
+        separator = title + ' ' + '=' * (78 - len(title) - 1)
+        sys.stdout.write(separator + '\n')
+        sys.stdout.write(output)
+        self.fail_test()
+
+    def must_contain_lines(self, lines, output, title=None):
+        # Deprecated; retain for backwards compatibility.
+        return self.must_contain_all_lines(output, lines, title)
 
     def must_exist(self, *files):
         """Ensures that the specified file(s) must exist.  An individual
@@ -348,18 +377,27 @@ class TestCommon(TestCmd):
             self.diff(expect, file_contents, 'contents ')
             raise
 
-    def must_not_contain_lines(self, lines, output=None, title=None):
-        if title is None:
-            title = 'output'
-
-        unexpected = filter(lambda l, o=output: string.find(o, l) != -1, lines)
+    def must_not_contain_any_line(self, output, lines, title=None, find=None):
+        if find is None:
+            find = lambda o, l: string.find(o, l) != -1
+        unexpected = []
+        for line in lines:
+            if find(output, line):
+                unexpected.append(line)
 
         if unexpected:
-            print "Unexpected lines in %s:" % title
-            print string.join(unexpected, '\n')
-            print "%s ============================================================" % title
-            print output
+            if title is None:
+                title = 'output'
+            sys.stdout.write("Unexpected lines in %s:\n" % title)
+            for line in unexpected:
+                sys.stdout.write('    ' + repr(line) + '\n')
+            separator = title + ' ' + '=' * (78 - len(title) - 1)
+            sys.stdout.write(separator + '\n')
+            sys.stdout.write(output)
             self.fail_test()
+
+    def must_not_contain_lines(self, lines, output, title=None, find=None):
+        return self.must_not_contain_any_line(output, lines, title, find)
 
     def must_not_exist(self, *files):
         """Ensures that the specified file(s) must not exist.

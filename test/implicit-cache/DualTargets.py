@@ -29,8 +29,6 @@ Test that --implicit-cache works correctly in conjonction with a
 builder that produces multiple targets.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -84,7 +82,7 @@ test.must_exist('x.lib')
 test.must_exist('x.a')
 test.must_exist('x.b')
 
-test.fail_test(string.find(test.stdout(), 'Copy') == -1)
+test.must_contain_all_lines(test.stdout(), ['Copy'])
 
 # Double check that targets are not rebuilt.
 test.run(arguments = '.')
@@ -93,7 +91,7 @@ test.must_exist('x.lib')
 test.must_exist('x.a')
 test.must_exist('x.b')
 
-test.fail_test(string.find(test.stdout(), 'Copy') != -1)
+test.must_not_contain_any_line(test.stdout(), ['Copy'])
 
 # Double check that targets are not rebuilt even with --implicit-cache
 test.run(arguments = '--implicit-cache x.a')
@@ -102,7 +100,7 @@ test.must_exist('x.lib')
 test.must_exist('x.a')
 test.must_exist('x.b')
 
-test.fail_test(string.find(test.stdout(), 'Copy') != -1)
+test.must_not_contain_any_line(test.stdout(), ['Copy'])
 
 # Double check that targets are not rebuilt even with --implicit-cache
 # a second time.
@@ -112,7 +110,7 @@ test.must_exist('x.lib')
 test.must_exist('x.a')
 test.must_exist('x.b')
 
-test.fail_test(string.find(test.stdout(), 'Copy') != -1)
+test.must_not_contain_any_line(test.stdout(), ['Copy'])
 
 # Double check that targets are not rebuilt if we reran without
 # --implicit-cache
@@ -122,7 +120,7 @@ test.must_exist('x.lib')
 test.must_exist('x.a')
 test.must_exist('x.b')
 
-test.fail_test(string.find(test.stdout(), 'Copy') != -1)
+test.must_not_contain_any_line(test.stdout(), ['Copy'])
 
 # Double check again
 test.run(arguments = '.')
@@ -131,7 +129,7 @@ test.must_exist('x.lib')
 test.must_exist('x.a')
 test.must_exist('x.b')
 
-test.fail_test(string.find(test.stdout(), 'Copy') != -1)
+test.must_not_contain_any_line(test.stdout(), ['Copy'])
 
 # Then only of the targets using --implicit-cache
 test.pass_test()

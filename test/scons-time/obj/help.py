@@ -40,18 +40,18 @@ expect = [
 
 test.run(arguments = 'obj -h')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'obj -?')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'obj --help')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'help obj')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()

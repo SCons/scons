@@ -31,8 +31,6 @@ and when we explicity set it to None (it should not use the Java()
 classdir attribute at all).
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -75,13 +73,7 @@ foo/bar/a.class
 foo/bar/b.class
 """
 
-if string.find(test.stdout(), expect) == -1:
-    print "Did not find expected string in standard output."
-    print "Expected =========================================================="
-    print expect
-    print "Output ============================================================"
-    print test.stdout()
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), [expect])
 
 
 
@@ -109,13 +101,7 @@ classes/foo/bar/a.class
 classes/foo/bar/b.class
 """
 
-if string.find(test.stdout(), expect) == -1:
-    print "Did not find expected string in standard output."
-    print "Expected =========================================================="
-    print expect
-    print "Output ============================================================"
-    print test.stdout()
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), [expect])
 
 
 

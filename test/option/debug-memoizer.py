@@ -30,8 +30,6 @@ Test calling the --debug=memoizer option.
 
 import os
 import new
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
@@ -85,14 +83,7 @@ if use_metaclass:
 
     def run_and_check(test, args, desc):
         test.run(arguments = args)
-        stdout = test.stdout()
-        missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
-        if missing:
-            print "Missing the following strings in the %s output:" % desc
-            print "    " + string.join(missing, "\n    ")
-            print "STDOUT ============"
-            print stdout
-            test.fail_test()
+        test.must_contain_any_line(test.stdout(), expect)
 
 else:
 
@@ -104,14 +95,7 @@ scons: warning: memoization is not supported in this version of Python \\(%s\\)
 
     def run_and_check(test, args, desc):
         test.run(arguments = args, stderr = expect_no_metaclasses)
-        stdout = test.stdout()
-        present = filter(lambda e, s=stdout: string.find(s, e) != -1, expect)
-        if present:
-            print "The following unexpected strings are present in the %s output:" % desc
-            print "    " + string.join(present, "\n    ")
-            print "STDOUT ============"
-            print stdout
-            test.fail_test()
+        test.must_contain_not_contain_any_line(test.stdout(), expect)
 
 
 for args in ['-h --debug=memoizer', '--debug=memoizer']:

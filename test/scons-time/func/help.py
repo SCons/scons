@@ -40,18 +40,18 @@ expect = [
 
 test.run(arguments = 'func -h')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'func -?')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'func --help')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'help func')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()

@@ -24,36 +24,34 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.run(arguments = '-h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.run(arguments = '-u -h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.run(arguments = '-U -h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.run(arguments = '-D -h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.write('SConstruct', "")
 
 test.run(arguments = '-h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.run(arguments = '-u -h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.run(arguments = '-U -h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.run(arguments = '-D -h')
-test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+test.must_contain_all_lines(test.stdout(), ['-h, --help'])
 
 test.pass_test()

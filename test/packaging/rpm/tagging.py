@@ -29,7 +29,6 @@ Test the ability to add file tags
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -97,6 +96,6 @@ test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
 test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 expect = '(0755, root, users) /bin/main'
-test.fail_test(string.find(test.read('foo-1.2.3.spec'), expect) == -1)
+test.must_contain_all_lines(test.read('foo-1.2.3.spec'), [expect])
 
 test.pass_test()

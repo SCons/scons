@@ -66,15 +66,15 @@ lines = [
 ]
 
 test.run(arguments = '-c clean=0')
-test.must_not_contain_lines(lines, test.stdout())
+test.must_not_contain_any_line(test.stdout(), lines)
 
 test.run(arguments = '-c clean=1')
-test.must_contain_lines(lines, test.stdout())
+test.must_contain_all_lines(test.stdout(), lines)
 
 test.run(arguments = '--clean clean=0')
-test.must_not_contain_lines(lines, test.stdout())
+test.must_not_contain_any_line(test.stdout(), lines)
 
 test.run(arguments = '--clean clean=1')
-test.must_contain_lines(lines, test.stdout())
+test.must_contain_all_lines(test.stdout(), lines)
 
 test.pass_test()

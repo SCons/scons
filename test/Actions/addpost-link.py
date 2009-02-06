@@ -85,6 +85,6 @@ test.must_not_exist('test1.obj')
 test.run(arguments="-Q case=2", stderr=None)
 
 expect = 'strip.py: %s' % test.workpath('test1.exe')
-test.fail_test(string.find(test.stdout(), expect) == -1)
+test.must_contain_all_lines(test.stdout(), [expect])
 
 test.pass_test()

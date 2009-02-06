@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
-import string
 import sys
 import TestSCons
 import TestCmd
@@ -99,10 +98,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
     out3 = """create\\(\\["f3.out"\\], \\[<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
 
-    test.fail_test(string.find(test.stdout(), out1) == -1)
-    test.fail_test(string.find(test.stdout(), out2) == -1)
-    test.fail_test(string.find(test.stdout(), out7) == -1)
-    test.fail_test(string.find(test.stdout(), out8) == -1)
+    test.must_contain_all_lines(test.stdout(), [out1, out2, out7, out8])
     test.fail_test(re.search(out3, test.stdout()) == None)
 
     test.must_match('f1.out', "/usr/local")
@@ -118,8 +114,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
     out5 = """create(["f2.out"], [4])"""
     out6 = """create\\(\\["f3.out"\\], \\[<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
-    test.fail_test(string.find(test.stdout(), out4) == -1)
-    test.fail_test(string.find(test.stdout(), out5) == -1)
+    test.must_contain_all_lines(test.stdout(), [out4, out5])
     test.fail_test(re.search(out6, test.stdout()) == None)
 
     test.must_match('f1.out', "/usr")
@@ -134,10 +129,8 @@ for source_signature in ['MD5', 'timestamp-newer']:
     test.run(arguments='prefix=/var')
     out4 = """create(["f1.out"], ['/var'])"""
 
-    test.fail_test(string.find(test.stdout(), out4) == -1)
-    test.fail_test(string.find(test.stdout(), out5) != -1)
-    test.fail_test(string.find(test.stdout(), out7) == -1)
-    test.fail_test(string.find(test.stdout(), out8) == -1)
+    test.must_contain_all_lines(test.stdout(), [out4, out7, out8])
+    test.must_not_contain_any_line(test.stdout(), [out5])
     test.fail_test(re.search(out6, test.stdout()) == None)
 
     test.up_to_date('prefix=/var', '.')

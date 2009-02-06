@@ -109,14 +109,7 @@ cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """, '\n')
 
-stdout = test.stdout()
-missing = filter(lambda l, s=stdout: string.find(s, l) == -1, lines)
-if missing:
-    print "Missing the following output lines:"
-    print string.join(missing, '\n')
-    print "Actual STDOUT =========="
-    print stdout
-    test.fail_test(1)
+test.must_contain_all_lines(test.stdout(), lines)
 
 test.must_match('all', """\
 %F% aaa.in
