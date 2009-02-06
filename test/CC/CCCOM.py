@@ -29,7 +29,6 @@ Test the ability to configure the $CCCOM construction variable.
 """
 
 import os
-import string
 import sys
 import TestSCons
 

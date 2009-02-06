@@ -32,7 +32,6 @@ of Python.
 import os
 import re
 import string
-import sys
 
 import TestCmd
 import TestSCons

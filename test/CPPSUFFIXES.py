@@ -35,7 +35,6 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.write('mycc.py', r"""
-import string
 import sys
 def do_file(outf, inf):
     for line in open(inf, 'rb').readlines():

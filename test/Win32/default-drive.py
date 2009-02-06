@@ -31,8 +31,6 @@ file's drive as the default.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
-import string
 import sys
 
 import TestSCons

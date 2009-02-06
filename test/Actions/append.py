@@ -51,7 +51,6 @@ int main(void)
 """)
 
 test.write('SConstruct', """
-import os.path
 
 env=Environment()
 

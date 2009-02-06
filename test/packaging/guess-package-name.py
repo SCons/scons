@@ -33,7 +33,6 @@ Also overriding this default package name is tested
 Furthermore that targz is the default packager is tested.
 """
 
-import os
 import TestSCons
 
 python = TestSCons.python

@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the cache mechanism works when checks are not ok.
 """
 
-import os.path
-
 import TestSCons
 
 _exe = TestSCons._exe

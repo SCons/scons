@@ -31,7 +31,6 @@ hashlib and no underlying md5 module available.
 
 import imp
 import os
-import os.path
 
 import TestSCons
 

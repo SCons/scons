@@ -29,11 +29,9 @@ Test that the --debug=stree option prints a dependency tree with output
 that indicates the state of various Node status flags.
 """
 
-import TestSCons
-import sys
 import string
-import re
-import time
+
+import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 

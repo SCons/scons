@@ -24,10 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import sys
 import os.path
 import time
+
+import TestSCons
 
 _exe = TestSCons._exe
 _dll = TestSCons._dll

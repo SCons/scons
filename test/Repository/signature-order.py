@@ -30,7 +30,6 @@ signatures changes because an included file shifts from the local sandbox
 to a Repository and vice versa.
 """
 
-import sys
 import TestSCons
 
 _exe = TestSCons._exe

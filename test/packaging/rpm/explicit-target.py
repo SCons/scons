@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ability to create a rpm package from a explicit target name.
 """
 
-import os
 import TestSCons
 
 _python_ = TestSCons._python_

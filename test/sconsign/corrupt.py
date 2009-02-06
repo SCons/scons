@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that we get proper warnings when .sconsign* files are corrupt.
 """
 
-import os
 import TestSCons
 import TestCmd
 import cPickle

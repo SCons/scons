@@ -28,9 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that a directory (Dir()) works as a SideEffect() "target."
 """
 
-import os.path
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -46,7 +46,6 @@ if not os.environ.get('QTDIR', None):
 
 test.write('SConstruct', """
 import os
-import os.path
 
 def DoWithVariables(variables, prefix, what):
   saved_variables = { }

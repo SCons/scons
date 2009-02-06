@@ -29,7 +29,6 @@ Test the Variables help messages.
 """
 
 import os.path
-import string
 
 try:
     True, False

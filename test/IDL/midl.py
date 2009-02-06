@@ -26,10 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 import sys
-import os.path
 import os
 import TestCmd
-import time
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 

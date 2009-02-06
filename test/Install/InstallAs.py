@@ -29,7 +29,7 @@ Test the InstallAs() Environment method.
 """
 
 import os.path
-import sys
+
 import TestSCons
 
 test = TestSCons.TestSCons()

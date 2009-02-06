@@ -30,9 +30,6 @@ complete dependencies of a target.
 """
 
 import TestSCons
-import sys
-import re
-import time
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 

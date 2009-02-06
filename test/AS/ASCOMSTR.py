@@ -30,7 +30,6 @@ the assembly output.
 """
 
 import os
-import string
 import sys
 import TestSCons
 

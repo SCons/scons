@@ -33,8 +33,6 @@ on disk.)
 Issue 1363:  http://scons.tigris.org/issues/show_bug.cgi?id=1363
 """
 
-import sys
-
 import TestSCons
 
 test = TestSCons.TestSCons()

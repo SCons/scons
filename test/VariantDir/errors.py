@@ -31,7 +31,6 @@ is read-only.
 """
 
 import os
-import os.path
 import stat
 import sys
 import TestSCons

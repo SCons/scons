@@ -29,9 +29,6 @@ Verify that --debug=explain correctly handles changes to actions
 that contain a list of function Actions.
 """
 
-import os.path
-import string
-import sys
 import TestSCons
 
 _python_ = TestSCons._python_

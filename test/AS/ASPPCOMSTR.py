@@ -29,7 +29,6 @@ Test that the $ASPPCOMSTR construction variable allows you to customize
 the displayed assembler string.
 """
 
-import os
 import string
 import sys
 import TestSCons

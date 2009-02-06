@@ -29,8 +29,7 @@ Test building Java applications when using Repositories.
 """
 
 import os
-import string
-import sys
+
 import TestSCons
 
 python = TestSCons.python

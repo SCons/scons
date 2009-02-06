@@ -28,7 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test explicit checkouts from local RCS files.
 """
 
-import os.path
+import os
 
 import TestSCons
 

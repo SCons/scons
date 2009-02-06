@@ -30,7 +30,6 @@ default behavior.
 """
 
 import os
-import os.path
 import re
 
 import TestSCons

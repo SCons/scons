@@ -30,7 +30,6 @@ as an actualy symlink, not by copying the file contents.
 """
 
 import os
-import os.path
 
 import TestSCons
 

@@ -30,9 +30,8 @@ times and modes.
 """
 
 import os
-import os.path
-import sys
 import stat
+import sys
 
 import TestSCons
 

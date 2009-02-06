@@ -30,7 +30,6 @@ Test the Options help messages.
 
 import os.path
 import re
-import string
 
 try:
     True, False

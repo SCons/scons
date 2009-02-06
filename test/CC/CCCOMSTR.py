@@ -30,7 +30,6 @@ the C compilation output.
 """
 
 import os
-import string
 import sys
 import TestSCons
 

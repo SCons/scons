@@ -29,8 +29,6 @@ Verify that we don't perform Configure context actions when the
 -H, -h or --help options have been specified.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)

@@ -28,8 +28,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test various uses of the -c (clean) option.
 """
 
-import os.path
+import os
 import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

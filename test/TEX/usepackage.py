@@ -31,9 +31,7 @@ and that we can use this to wrap calls to the real latex utility.
 """
 
 import os
-import os.path
-import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

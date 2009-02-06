@@ -33,8 +33,6 @@ to build it because it doesn't exist in the CacheDir, and the time our
 build of the file completes and we push it out.
 """
 
-import os
-
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)

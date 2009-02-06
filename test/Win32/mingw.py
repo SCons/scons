@@ -28,13 +28,12 @@ This tests the MinGW C/C++ compiler support.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import sys
-import os.path
 import os
-import TestCmd
-import time
 import string
+import sys
+
+import TestSCons
+import TestCmd
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 

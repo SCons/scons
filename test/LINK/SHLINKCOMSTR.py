@@ -29,9 +29,6 @@ Test that the $SHLINKCOMSTR construction variable allows you to customize
 the displayed linker string for programs using shared libraries.
 """
 
-import os
-import string
-import sys
 import TestSCons
 
 _python_ = TestSCons._python_

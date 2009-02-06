@@ -30,8 +30,7 @@ a Tool specification's generate() method.
 """
 
 import os.path
-import sys
-import time
+
 import TestSCons
 
 test = TestSCons.TestSCons()

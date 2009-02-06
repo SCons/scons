@@ -29,8 +29,7 @@ Test construction variable expansion in Builder paths.
 """
 
 import os.path
-import sys
-import time
+
 import TestSCons
 
 _exe = TestSCons._exe

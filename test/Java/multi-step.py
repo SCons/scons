@@ -29,6 +29,8 @@ Real-world test (courtesy Leanid Nazdrynau) of the multi-step
 capabilities of the various Java Builders.
 """
 
+import os
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -562,7 +564,6 @@ test.must_exist(['buildout', 'jni', 'SampleTest.java'])
 # a SampleTest.class file, while others do.  Only issue a warning if
 # it doesn't exist.
 p = test.workpath('buildout', 'jni', 'SampleTest.class')
-import os.path
 if not os.path.exists(p):
     print 'Warning:  %s does not exist' % p
 

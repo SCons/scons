@@ -52,7 +52,6 @@ print "VARIABLE =", env.get('VARIABLE')
 """
 
 test.write(['bin', 'opts.cfg'], """\
-import sys
 from local_options import VARIABLE
 """ % locals())
 

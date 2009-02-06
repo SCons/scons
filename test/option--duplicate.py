@@ -29,10 +29,7 @@ SConscript settable option.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-import sys
 import os
-import os.path
 import stat
 import TestSCons
 

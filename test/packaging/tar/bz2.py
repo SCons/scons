@@ -29,7 +29,6 @@ This tests the SRC bz2 packager, which does the following:
  - create a tar package from the specified files
 """
 
-import os
 import TestSCons
 
 python = TestSCons.python
