@@ -29,8 +29,6 @@ Verify that targets with the same SideEffect are not built in parallel
 when the -j option is used.
 """
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -80,8 +78,6 @@ test.write('baz.in', 'baz.in\n')
 
 test.run(arguments = "-j 4 .")
 
-stdout = test.stdout()
-
 
 build_lines =  [
     'build.py h1.in h1.out', 
@@ -89,20 +85,7 @@ build_lines =  [
     'build.py f3.in f3.out', 
 ]
 
-missing = []
-for line in build_lines:
-    if string.find(stdout, line) == -1:
-        missing.append(line)
-
-if missing:
-    print "===== standard output is missing the following lines:"
-    print string.join(missing, '\n')
-    print "===== STDOUT ========================================"
-    print stdout
-    test.fail_test()
-
-
-log = test.read('log.txt')
+test.must_contain_all_lines(test.stdout(), build_lines)
 
 log_lines = [
     'f3.in -> f3.out',
@@ -110,17 +93,7 @@ log_lines = [
     'g2.in -> g2.out',
 ]
 
-missing = []
-for line in log_lines:
-    if string.find(log, line) == -1:
-        missing.append(line)
-
-if missing:
-    print "===== log file 'log.txt' is missing the following lines:"
-    print string.join(missing, '\n')
-    print "===== STDOUT ==========================================="
-    print log
-    test.fail_test()
+test.must_contain_all_lines(test.read('log.txt'), log_lines)
 
 
 test.pass_test()

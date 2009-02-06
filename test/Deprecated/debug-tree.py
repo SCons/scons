@@ -31,7 +31,6 @@ complete dependencies of a target.
 
 import TestSCons
 import sys
-import string
 import re
 import time
 
@@ -104,10 +103,7 @@ tree1 = """
 
 test.run(arguments = "--debug=tree Foo.xxx",
          stderr = stderr)
-if string.find(test.stdout(), tree1) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
-    sys.stdout.write(test.stdout())
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), tree1)
 
 tree2 = """
 +-.
@@ -142,10 +138,7 @@ tree2 = """
 
 test.run(arguments = "--debug=tree .",
          stderr = stderr)
-if string.find(test.stdout(), tree2) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
-    sys.stdout.write(test.stdout())
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), tree2)
 
 # Make sure we print the debug stuff even if there's a build failure.
 test.write('Bar.h', """
@@ -159,9 +152,6 @@ THIS SHOULD CAUSE A BUILD FAILURE
 test.run(arguments = "--debug=tree Foo.xxx",
          status = 2,
          stderr = None)
-if string.find(test.stdout(), tree1) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
-    sys.stdout.write(test.stdout())
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), tree1)
 
 test.pass_test()

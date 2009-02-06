@@ -46,7 +46,7 @@ test.write('file.in', "file.in\n")
 scons_prof = test.workpath('scons.prof')
 
 test.run(arguments = "--profile=%s -h" % scons_prof)
-test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
+test.must_contain_all_lines(test.stdout(), ['usage: scons [OPTION]'])
 
 try:
     save_stdout = sys.stdout
@@ -61,8 +61,7 @@ try:
 finally:
     sys.stdout = save_stdout
 
-test.fail_test(string.find(s, 'Main.py') == -1)
-test.fail_test(string.find(s, '_main') == -1)
+test.must_contain_all_lines(s, ['Main.py', '_main'])
 
 
 
@@ -83,17 +82,18 @@ try:
 finally:
     sys.stdout = save_stdout
 
-test.fail_test(string.find(s, 'Main.py') == -1)
-test.fail_test(string.find(s, '_main') == -1)
-test.fail_test(string.find(s, 'FS.py') == -1)
+test.must_contain_all_lines(s, ['Main.py', '_main', 'FS.py'])
 
 
 
 scons_prof = test.workpath('scons3.prof')
 
 test.run(arguments = "--profile %s --debug=memory -h" % scons_prof)
-test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
-test.fail_test(string.find(test.stdout(), 'Options:') == -1)
+expect = [
+    'usage: scons [OPTION]',
+    'Options:'
+]
+test.must_contain_all_lines(test.stdout(), expect)
 
 expect = 'Memory before reading SConscript files'
 lines = string.split(test.stdout(), '\n')

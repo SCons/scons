@@ -31,8 +31,6 @@ be aware of the necessary created bibliography files.
 Test configuration contributed by Christopher Drexler.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -111,7 +109,7 @@ test.must_exist(test.workpath('simple.blg'))
 test.run(arguments = '-c .')
 
 x = "Could not remove 'simple.aux': No such file or directory"
-test.fail_test(string.find(test.stdout(), x) != -1)
+test.must_not_contain_any_line(test.stdout(), [x])
 
 test.must_not_exist(test.workpath('simple.aux'))
 test.must_not_exist(test.workpath('simple.bbl'))

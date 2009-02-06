@@ -40,18 +40,18 @@ expect = [
 
 test.run(arguments = 'time -h')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'time -?')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'time --help')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'help time')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()

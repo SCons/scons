@@ -35,8 +35,6 @@ done to speed-up a partial rebuild when the developer knows that only
 a subset of the targets need to be rebuilt.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -92,12 +90,12 @@ test.must_not_exist('build/dir1/x.cpp')
 # Build everything first.
 test.run(arguments = 'duplicate=False view_all_dependencies=True .')
 test.must_exist('build/dir1/x.cpp')
-test.fail_test(string.find(test.stdout(), "`.' is up to date.") != -1)
+test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # Double check that targets are not rebuilt.
 test.run(arguments = 'duplicate=False view_all_dependencies=True .')
 test.must_exist('build/dir1/x.cpp')
-test.fail_test(string.find(test.stdout(), "`.' is up to date.") == -1)
+test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # Clean-up only the object file
 test.run(arguments = 'duplicate=False view_all_dependencies=False -c .')
@@ -106,17 +104,17 @@ test.must_exist('build/dir1/x.cpp')
 # Rebuild the only object file without seeing all the dependencies.
 test.run(arguments = 'duplicate=False view_all_dependencies=False .')
 test.must_exist('build/dir1/x.cpp')
-test.fail_test(string.find(test.stdout(), "`.' is up to date.") != -1)
+test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # Double check that targets are not rebuilt without and with all the
 # dependencies.
 test.run(arguments = 'duplicate=False view_all_dependencies=False .')
 test.must_exist('build/dir1/x.cpp')
-test.fail_test(string.find(test.stdout(), "`.' is up to date.") == -1)
+test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 test.run(arguments = 'duplicate=False view_all_dependencies=True .')
 test.must_exist('build/dir1/x.cpp')
-test.fail_test(string.find(test.stdout(), "`.' is up to date.") == -1)
+test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # Clean-up everything.
 test.run(arguments = 'duplicate=False view_all_dependencies=True -c .')
@@ -136,12 +134,12 @@ test.must_not_exist('build/dir1/x.cpp')
 # # Build everything first.
 # test.run(arguments = 'duplicate=True view_all_dependencies=True .')
 # test.must_exist('build/dir1/x.cpp')
-# test.fail_test(string.find(test.stdout(), "`.' is up to date.") != -1)
+# test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # # Double check that targets are not rebuilt.
 # test.run(arguments = 'duplicate=True view_all_dependencies=True .')
 # test.must_exist('build/dir1/x.cpp')
-# test.fail_test(string.find(test.stdout(), "`.' is up to date.") == -1)
+# test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # # Clean-up only the object file
 # test.run(arguments = 'duplicate=True view_all_dependencies=False -c .')
@@ -150,17 +148,17 @@ test.must_not_exist('build/dir1/x.cpp')
 # # Rebuild the only object file without seeing all the dependencies.
 # test.run(arguments = 'duplicate=True view_all_dependencies=False .')
 # test.must_exist('build/dir1/x.cpp')
-# test.fail_test(string.find(test.stdout(), "`.' is up to date.") != -1)
+# test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # # Double check that targets are not rebuilt without and with all the
 # # dependencies.
 # test.run(arguments = 'duplicate=True view_all_dependencies=False .')
 # test.must_exist('build/dir1/x.cpp')
-# test.fail_test(string.find(test.stdout(), "`.' is up to date.") == -1)
+# test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # test.run(arguments = 'duplicate=True view_all_dependencies=True .')
 # test.must_exist('build/dir1/x.cpp')
-# test.fail_test(string.find(test.stdout(), "`.' is up to date.") == -1)
+# test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # # Clean-up everything.
 # test.run(arguments = 'duplicate=True view_all_dependencies=True -c .')

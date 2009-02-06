@@ -32,8 +32,6 @@ correctly re-run to resolve undefined references.
 Also verifies that package warnings are caught and re-run as needed.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -151,10 +149,7 @@ env.PDF( "foo.tex" )
     test.must_exist(['work1', 'foo.bbl'])
 
     foo_log = test.read(['work1', 'foo.log'])
-    if string.find(foo_log, 'undefined references') != -1:
-        print 'foo.log contains "undefined references":'
-        print foo_log
-        test.fail_test(1)
+    test.must_not_contain_any_line(foo_log, ['undefined references'], 'foo.log')
 
     test.write(['work3', 'SConstruct'], """\
 import os
@@ -168,10 +163,7 @@ env.DVI( "foo3.tex" )
     test.run(chdir = 'work3', arguments = '.')
 
     foo_log = test.read(['work3', 'foo3.log'])
-    if string.find(foo_log, 'Rerun LaTeX') != -1:
-        print 'foo.log contains "Rerun LaTeX":'
-        print foo_log
-        test.fail_test(1)
+    test.must_not_contain_any_line(foo_log, ['Rerun LaTeX'], 'foo3.log')
 
 
 
@@ -193,10 +185,7 @@ env.PDF( "foo.ltx" )
     test.must_exist(['work2', 'foo.bbl'])
 
     foo_log = test.read(['work2', 'foo.log'])
-    if string.find(foo_log, 'undefined references') != -1:
-        print 'foo.log contains "undefined references":'
-        print foo_log
-        test.fail_test(1)
+    test.must_not_contain_any_line(foo_log, ['undefined references'], 'foo.log')
 
     test.write(['work3', 'SConstruct'], """\
 import os
@@ -211,10 +200,7 @@ env.PDF( "foo3.tex" )
     test.run(chdir = 'work3', arguments = '.')
 
     foo_log = test.read(['work3', 'foo3.log'])
-    if string.find(foo_log, 'Rerun LaTeX') != -1:
-        print 'foo.log contains "Rerun LaTeX":'
-        print foo_log
-        test.fail_test(1)
+    test.must_not_contain_any_line(foo_log, ['Rerun LaTeX'], 'foo3.log')
 
 
     test.write(['work4', 'SConstruct'], """\

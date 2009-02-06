@@ -67,6 +67,8 @@ expect = [
 
 content = test.read(test.workpath('foo-617-2.log'), mode='r')
 
-test.must_contain_all_lines('foo-617-2.log', content, expect, re.search)
+def re_find(content, line):
+    return re.search(line, content)
+test.must_contain_all_lines(content, expect, 'foo-617-2.log', re_find)
 
 test.pass_test()

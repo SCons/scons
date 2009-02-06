@@ -146,7 +146,7 @@ warn = \
 """scons: warning: parallel builds are unsupported by this version of Python;
 \tignoring -j or num_jobs option.
 """
-test.fail_test(string.find(test.stderr(), warn) == -1)
+test.must_contain_all_lines(test.stderr(), [warn])
 
 str = test.read("f1")
 start1,finish1 = map(float, string.split(str, "\n"))

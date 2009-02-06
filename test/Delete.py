@@ -29,7 +29,6 @@ Verify that the Delete() Action works.
 """
 
 import os.path
-import string
 
 import TestSCons
 
@@ -180,8 +179,11 @@ test.write('f14.in', "f14.in\n")
 
 test.run(status=2, stderr=None)
 
-stderr = test.stderr()
-test.fail_test(string.find(stderr, "No such file or directory") == -1 and
-               string.find(stderr, "The system cannot find the path specified") == -1)
+fail_strings = [
+    "No such file or directory",
+    "The system cannot find the path specified",
+]
+
+test.must_contain_any_line(test.stderr(), fail_strings)
 
 test.pass_test()

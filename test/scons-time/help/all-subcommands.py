@@ -53,6 +53,6 @@ expect = map(lambda x: '    %s ' % x, subcommands)
 
 test.run(arguments = 'help')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()

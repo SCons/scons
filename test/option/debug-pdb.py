@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -35,7 +33,6 @@ env = Environment()
 """)
 
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
-test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)
-test.fail_test(string.find(test.stdout(), "SCons") == -1)
+test.must_contain_all_lines(test.stdout(), ["(Pdb)", "SCons"])
 
 test.pass_test()

@@ -29,25 +29,8 @@ Test the --debug=stacktrace option.
 """
 
 import TestSCons
-import sys
-import string
-import re
-import time
 
 test = TestSCons.TestSCons()
-
-def must_contain_all_lines(content, lines):
-    missing = filter(lambda l, c=content: string.find(c, l) == -1, lines)
-    if missing:
-        return [
-                "Missing the following lines:\n",
-                "\t" + string.join(missing, "\n\t") + "\n",
-                "Output =====\n",
-                content
-                ]
-    return None
-
-
 
 test.write('SConstruct', """\
 def kfile_scan(node, env, target):
@@ -77,10 +60,7 @@ lines = [
     'raise Exception, "kfile_scan error"',
 ]
 
-err = must_contain_all_lines(test.stderr(), lines)
-if err:
-    print string.join(err, '')
-    test.fail_test(1)
+test.must_contain_all_lines(test.stderr(), lines)
 
 
 
@@ -96,7 +76,7 @@ test.run(arguments = '--debug=stacktrace',
          status = 2,
          stderr = None)
 
-lines = [
+user_error_lines = [
     'UserError: explicit UserError!',
     'scons: *** explicit UserError!',
 ]
@@ -104,15 +84,13 @@ lines = [
 # The "(most recent call last)" message is used by more recent Python
 # versions than the "(innermost last)" message, so that's the one
 # we report if neither matches.
-recent_lines = [ "Traceback (most recent call last)" ] + lines
-inner_lines = [ "Traceback (innermost last)" ] + lines
+traceback_lines = [
+    "Traceback (most recent call last)",
+    "Traceback (innermost last)",
+]
 
-err = must_contain_all_lines(test.stderr(), recent_lines)
-if err and must_contain_all_lines(test.stderr(), inner_lines):
-    print string.join(err, '')
-    test.fail_test(1)
-
-
+test.must_contain_all_lines(test.stderr(), user_error_lines)
+test.must_contain_any_line(test.stderr(), traceback_lines)
 
 # Test that full path names to SConscript files show up in stack traces.
 
@@ -128,10 +106,7 @@ lines = [
     '  File "%s", line 1:' % test.workpath('SConstruct'),
 ]
 
-err = must_contain_all_lines(test.stderr(), lines)
-if err:
-    print string.join(err, '')
-    test.fail_test(1)
+test.must_contain_all_lines(test.stderr(), lines)
 
 
 

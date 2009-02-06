@@ -99,11 +99,6 @@ else:
         Permission_denied % (test.workdir, 'f3'),
         Permission_denied % (test.workdir, 'f3'),
     ]
-    error_message_not_found = 1
-    for err in errs:
-        if string.find(test.stderr(), err) != -1:
-            error_message_not_found = None
-            break
-    test.fail_test(error_message_not_found)
+    test.must_contain_any_line(test.stderr(), errs)
 
 test.pass_test()

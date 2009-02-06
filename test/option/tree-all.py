@@ -134,10 +134,7 @@ tree2 = """
 """ % locals()
 
 test.run(arguments = "--tree=all .")
-if string.find(test.stdout(), tree2) == -1:
-    sys.stdout.write('Did not find expected tree in the following output:\n')
-    sys.stdout.write(test.stdout())
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), [tree2])
 
 tree3 = """
 +-.

@@ -25,8 +25,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -79,7 +79,11 @@ print 'FOO:', os.environ['FOO']
 
 test.run()
 
-test.fail_test(string.find(test.stdout(), "LIST: foo%sbar"%os.pathsep) == -1)
-test.fail_test(string.find(test.stdout(), "FOO: foo") == -1)
+expect = [
+    "LIST: foo%sbar" % os.pathsep,
+    "FOO: foo",
+]
+
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()

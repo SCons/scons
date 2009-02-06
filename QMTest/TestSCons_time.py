@@ -213,24 +213,6 @@ class TestSCons_time(TestCommon):
         else:
             return os.path.splitext(path)
 
-    def must_contain_all_lines(self, name, content, expected, exists=None):
-        missing_lines = []
-
-        if exists is None:
-            exists = lambda e, c: string.find(c, e) != -1
-
-        for e in expected:
-            if not exists(e, content):
-                missing_lines.append(e)
-
-        if missing_lines:
-            sys.stdout.write('%s is missing expected string(s):\n' % name)
-            for m in missing_lines:
-                sys.stdout.write('    ' + repr(m) + '\n')
-            sys.stdout.write('%s content:\n' % name)
-            sys.stdout.write(content)
-            self.fail_test()
-
     def fake_logfile(self, logfile_name, index=0):
         self.write(self.workpath(logfile_name), logfile_contents % locals())
 

@@ -40,18 +40,18 @@ expect = [
 
 test.run(arguments = 'mem -h')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'mem -?')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'mem --help')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.run(arguments = 'help mem')
 
-test.must_contain_all_lines('Standard output', test.stdout(), expect)
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()

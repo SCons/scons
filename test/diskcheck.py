@@ -30,8 +30,6 @@ control where or not we look for on-disk matches files and directories
 that we look up.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -50,7 +48,7 @@ File('subdir')
 test.run()
 
 test.run(arguments='--diskcheck=match', status=2, stderr=None)
-test.fail_test(string.find(test.stderr(), "found where file expected") == -1)
+test.must_contain_all_lines(test.stderr(), ["found where file expected"])
 
 
 
@@ -62,7 +60,7 @@ Dir('file')
 test.run()
 
 test.run(arguments='--diskcheck=match', status=2, stderr=None)
-test.fail_test(string.find(test.stderr(), "found where directory expected") == -1)
+test.must_contain_all_lines(test.stderr(), ["found where directory expected"])
 
 
 
@@ -74,7 +72,7 @@ Dir('file/subdir')
 test.run()
 
 test.run(arguments='--diskcheck=match', status=2, stderr=None)
-test.fail_test(string.find(test.stderr(), "found where directory expected") == -1)
+test.must_contain_all_lines(test.stderr(), ["found where directory expected"])
 
 
 

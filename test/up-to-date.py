@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify appropriate printing of "is up to date" messages.
 """
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -79,19 +77,7 @@ expected_lines = [
 ]
 
 test.run(options = '-j4 f1.out f2.out f3.out f4.out')
-stdout = test.stdout()
 
-missing = []
-for line in expected_lines:
-    if string.find(stdout, line) == -1:
-        missing.append(line)
-
-if missing:
-    print "Missing the following expected lines:"
-    for line in missing:
-        print line
-    print "STDOUT =========="
-    print stdout
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), expected_lines)
 
 test.pass_test()

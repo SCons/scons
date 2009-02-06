@@ -31,8 +31,6 @@ aware of the necessary created index files.
 Test configuration courtesy Joel B. Mohler.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -93,9 +91,9 @@ test.must_not_exist(test.workpath('no_index.ind'))
 test.run(arguments = '-c .')
 
 x = "Could not remove 'no_index.aux': No such file or directory"
-test.fail_test(string.find(test.stdout(), x) != -1)
+test.must_not_contain_any_line(test.stdout(), [x])
 x = "Could not remove 'simple.aux': No such file or directory"
-test.fail_test(string.find(test.stdout(), x) != -1)
+test.must_not_contain_any_line(test.stdout(), [x])
 
 test.must_not_exist(test.workpath('simple.aux'))
 test.must_not_exist(test.workpath('simple.idx'))

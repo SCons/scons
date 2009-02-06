@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
@@ -73,11 +71,6 @@ test.run(arguments='foo.out exit.out', stderr=expect, status=2)
 stdout = test.stdout()
 
 expect = "scons: `foo.out' is up to date."
-
-if string.find(stdout, expect) == -1:
-    print "Did not find expected string %s" % repr(expect)
-    print "STDOUT ======================================================="
-    print stdout
-    test.fail_test()
+test.must_contain_all_lines(test.stdout(), [expect])
 
 test.pass_test()

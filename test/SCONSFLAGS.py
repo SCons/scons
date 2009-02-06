@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestCmd
 import TestSCons
@@ -61,8 +60,8 @@ test.run(stdout = expect,
 # for the deprecation warning.
 test.run(arguments = "-H")
 
-test.fail_test(string.find(test.stdout(), 'Help text.') >= 0)
-test.fail_test(string.find(test.stdout(), '-H, --help-options') == -1)
+test.must_not_contain_any_line(test.stdout(), ['Help text.'])
+test.must_contain_all_lines(test.stdout(), ['-H, --help-options'])
 
 os.environ['SCONSFLAGS'] = '-Z'
 
