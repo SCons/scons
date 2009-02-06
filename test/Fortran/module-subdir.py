@@ -29,7 +29,7 @@ Validate that $FORTRANMODDIR values get expanded correctly on Fortran
 command lines relative to the appropriate subdirectory.
 """
 
-import os.path
+import os
 
 import TestSCons
 
