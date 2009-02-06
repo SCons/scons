@@ -95,7 +95,7 @@ scons: warning: memoization is not supported in this version of Python \\(%s\\)
 
     def run_and_check(test, args, desc):
         test.run(arguments = args, stderr = expect_no_metaclasses)
-        test.must_contain_not_contain_any_line(test.stdout(), expect)
+        test.must_not_contain_any_line(test.stdout(), expect)
 
 
 for args in ['-h --debug=memoizer', '--debug=memoizer']:
