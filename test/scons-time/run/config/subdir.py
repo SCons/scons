@@ -58,6 +58,8 @@ expect = [
     'SConstruct file directory: .*%ssubdir$' % re.escape(os.sep),
 ]
 
-test.must_contain_all_lines('foo-000-0.log', content, expect, re.search)
+def re_find(content, line):
+    return re.search(line, content)
+test.must_contain_all_lines(content, expect, 'foo-000-0.log', re_find)
 
 test.pass_test()
