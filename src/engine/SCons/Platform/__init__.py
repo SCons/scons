@@ -51,6 +51,7 @@ import sys
 import tempfile
 
 import SCons.Errors
+import SCons.Subst
 import SCons.Tool
 
 def platform_default():
@@ -147,8 +148,18 @@ class TempFileMunge:
 
     def __call__(self, target, source, env, for_signature):
         if for_signature:
+            # If we're being called for signature calculation, it's
+            # because we're being called by the string expansion in
+            # Subst.py, which has the logic to strip any $( $) that
+            # may be in the command line we squirreled away.  So we
+            # just return the raw command line and let the upper
+            # string substitution layers do their thing.
             return self.cmd
-        cmd = env.subst_list(self.cmd, 0, target, source)[0]
+
+        # Now we're actually being called because someone is actually
+        # going to try to execute the command, so we have to do our
+        # own expansion.
+        cmd = env.subst_list(self.cmd, SCons.Subst.SUBST_CMD, target, source)[0]
         try:
             maxline = int(env.subst('$MAXLINELENGTH'))
         except ValueError:
