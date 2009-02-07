@@ -277,7 +277,9 @@ except NameError:
     for q in ['qmtest', 'qmtest.py']:
         path = whereis(q)
         if path:
-            qmtest = path
+            # The name was found on $PATH; just execute the found name so
+            # we don't have to worry about paths containing white space.
+            qmtest = q
             break
     if not qmtest:
         msg = ('Warning:  found neither qmtest nor qmtest.py on $PATH;\n' +
