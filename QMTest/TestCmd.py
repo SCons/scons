@@ -16,8 +16,7 @@ A TestCmd environment object is created via the usual invocation:
     import TestCmd
     test = TestCmd.TestCmd()
 
-There are a bunch of keyword arguments that you can use at instantiation
-time:
+There are a bunch of keyword arguments available at instantiation:
 
     test = TestCmd.TestCmd(description = 'string',
                            program = 'program_or_script_to_test',
@@ -28,8 +27,7 @@ time:
                            match = default_match_function,
                            combine = Boolean)
 
-There are a bunch of methods that let you do a bunch of different
-things.  Here is an overview of them:
+There are a bunch of methods that let you do different things:
 
     test.verbose_set(1)
 
@@ -65,11 +63,23 @@ things.  Here is an overview of them:
 
     test.cleanup(condition)
 
+    test.command_args(program = 'program_or_script_to_run',
+                      interpreter = 'script_interpreter',
+                      arguments = 'arguments to pass to program')
+
     test.run(program = 'program_or_script_to_run',
              interpreter = 'script_interpreter',
              arguments = 'arguments to pass to program',
              chdir = 'directory_to_chdir_to',
              stdin = 'input to feed to the program\n')
+             universal_newlines = True)
+
+    p = test.start(program = 'program_or_script_to_run',
+                   interpreter = 'script_interpreter',
+                   arguments = 'arguments to pass to program',
+                   universal_newlines = None)
+
+    test.finish(self, p)
 
     test.pass_test()
     test.pass_test(condition)
@@ -181,8 +191,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.34.D001 2008/12/28 23:12:34 knight"
-__version__ = "0.34"
+__revision__ = "TestCmd.py 0.35.D001 2009/02/08 07:10:39 knight"
+__version__ = "0.35"
 
 import errno
 import os
@@ -851,6 +861,12 @@ class TestCmd:
             path = os.path.join(self.workdir, path)
         return path
 
+    def chmod(self, path, mode):
+        """Changes permissions on the specified file or directory
+        path name."""
+        path = self.canonicalize(path)
+        os.chmod(path, mode)
+
     def cleanup(self, condition = None):
         """Removes any temporary working directories for the specified
         TestCmd environment.  If the environment variable PRESERVE was
@@ -889,11 +905,28 @@ class TestCmd:
         except (AttributeError, ValueError):
             pass
 
-    def chmod(self, path, mode):
-        """Changes permissions on the specified file or directory
-        path name."""
-        path = self.canonicalize(path)
-        os.chmod(path, mode)
+    def command_args(self, program = None,
+                           interpreter = None,
+                           arguments = None):
+        if program:
+            if type(program) == type('') and not os.path.isabs(program):
+                program = os.path.join(self._cwd, program)
+        else:
+            program = self.program
+            if not interpreter:
+                interpreter = self.interpreter
+        if not type(program) in [type([]), type(())]:
+            program = [program]
+        cmd = list(program)
+        if interpreter:
+            if not type(interpreter) in [type([]), type(())]:
+                interpreter = [interpreter]
+            cmd = list(interpreter) + cmd
+        if arguments:
+            if type(arguments) == type(''):
+                arguments = string.split(arguments)
+            cmd.extend(arguments)
+        return cmd
 
     def description_set(self, description):
         """Set the description of the functionality being tested.
@@ -1015,24 +1048,7 @@ class TestCmd:
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
         """
-        if program:
-            if type(program) == type('') and not os.path.isabs(program):
-                program = os.path.join(self._cwd, program)
-        else:
-            program = self.program
-            if not interpreter:
-                interpreter = self.interpreter
-        if not type(program) in [type([]), type(())]:
-            program = [program]
-        cmd = list(program)
-        if interpreter:
-            if not type(interpreter) in [type([]), type(())]:
-                interpreter = [interpreter]
-            cmd = list(interpreter) + cmd
-        if arguments:
-            if type(arguments) == type(''):
-                arguments = string.split(arguments)
-            cmd.extend(arguments)
+        cmd = self.command_args(program, interpreter, arguments)
         cmd_string = string.join(map(self.escape, cmd), ' ')
         if self.verbose:
             sys.stderr.write(cmd_string + "\n")
