@@ -1959,7 +1959,7 @@ class Dir(Base):
             if not strings:
                 # Make sure the working directory (self) actually has
                 # entries for all Nodes in repositories or variant dirs.
-                map(selfEntry, node_names)
+                for name in node_names: selfEntry(name)
             if ondisk:
                 try:
                     disk_names = os.listdir(dir.abspath)

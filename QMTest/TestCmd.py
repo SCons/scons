@@ -1335,9 +1335,8 @@ class TestCmd:
             do_chmod(top)
 
             def chmod_entries(arg, dirname, names, do_chmod=do_chmod):
-                pathnames = map(lambda n, d=dirname: os.path.join(d, n),
-                                names)
-                map(lambda p, do=do_chmod: do(p), pathnames)
+                for n in names:
+                    do_chmod(os.path.join(dirname, n))
 
             os.path.walk(top, chmod_entries, None)
         else:
@@ -1352,7 +1351,7 @@ class TestCmd:
             col = Collector(top)
             os.path.walk(top, col, None)
             col.entries.reverse()
-            map(lambda d, do=do_chmod: do(d), col.entries)
+            for d in col.entries: do_chmod(d)
 
     def writable(self, top, write=1):
         """Make the specified directory tree writable (write == 1)
@@ -1388,7 +1387,7 @@ class TestCmd:
         else:
             col = Collector(top)
             os.path.walk(top, col, None)
-            map(lambda d, do=do_chmod: do(d), col.entries)
+            for d in col.entries: do_chmod(d)
 
     def executable(self, top, execute=1):
         """Make the specified directory tree executable (execute == 1)
@@ -1425,9 +1424,8 @@ class TestCmd:
             do_chmod(top)
 
             def chmod_entries(arg, dirname, names, do_chmod=do_chmod):
-                pathnames = map(lambda n, d=dirname: os.path.join(d, n),
-                                names)
-                map(lambda p, do=do_chmod: do(p), pathnames)
+                for n in names:
+                    do_chmod(os.path.join(dirname, n))
 
             os.path.walk(top, chmod_entries, None)
         else:
@@ -1442,7 +1440,7 @@ class TestCmd:
             col = Collector(top)
             os.path.walk(top, col, None)
             col.entries.reverse()
-            map(lambda d, do=do_chmod: do(d), col.entries)
+            for d in col.entries: do_chmod(d)
 
     def write(self, file, content, mode = 'wb'):
         """Writes the specified content text (second argument) to the
