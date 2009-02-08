@@ -2132,17 +2132,13 @@ class Base(SubstitutionEnvironment):
         #            result.append(s)
         build_source(node.all_children(), sources)
 
-        # now strip the build_node from the sources by calling the srcnode
-        # function
-        def get_final_srcnode(file):
-            srcnode = file.srcnode()
-            while srcnode != file.srcnode():
-                srcnode = file.srcnode()
-            return srcnode
-
-        # get the final srcnode for all nodes, this means stripping any
-        # attached build node.
-        map( get_final_srcnode, sources )
+    # THIS CODE APPEARS TO HAVE NO EFFECT
+    #    # get the final srcnode for all nodes, this means stripping any
+    #    # attached build node by calling the srcnode function
+    #    for file in sources:
+    #        srcnode = file.srcnode()
+    #        while srcnode != file.srcnode():
+    #            srcnode = file.srcnode()
 
         # remove duplicates
         return list(set(sources))

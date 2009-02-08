@@ -287,11 +287,11 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
 
     if children:
         margin.append(1)
-        map(lambda C, cf=child_func, p=prune, i=IDX(showtags), m=margin, v=visited:
-                   print_tree(C, cf, p, i, m, v),
-            children[:-1])
+        idx = IDX(showtags)
+        for C in children[:-1]:
+            print_tree(C, child_func, prune, idx, margin, visited)
         margin[-1] = 0
-        print_tree(children[-1], child_func, prune, IDX(showtags), margin, visited)
+        print_tree(children[-1], child_func, prune, idx, margin, visited)
         margin.pop()
 
 
