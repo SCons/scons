@@ -25,6 +25,8 @@ RELEASE X.X.X - XXX
     - Fix finding #include files when the string contains escaped
       backslashes like "C:\\some\\include.h".
 
+    - Pass $CCFLAGS to Visual C/C++ precompiled header compilation.
+
   From Robert P. J. Day:
 
     - User's Guide updates.
