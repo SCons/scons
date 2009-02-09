@@ -352,3 +352,9 @@ class TestSCons_time(TestCommon):
         path = write_sample(archive, dir, self.sample_project_files)
 
         return path
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

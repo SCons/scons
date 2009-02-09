@@ -211,3 +211,9 @@ test.fail_test(string.find(test.stderr(), expect1) == -1 and
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

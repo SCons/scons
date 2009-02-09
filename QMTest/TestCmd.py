@@ -1471,3 +1471,9 @@ class TestCmd:
         if mode[0] != 'w':
             raise ValueError, "mode must begin with 'w'"
         open(file, mode).write(content)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

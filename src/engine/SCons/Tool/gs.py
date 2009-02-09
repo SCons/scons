@@ -73,3 +73,9 @@ def exists(env):
         return env.Detect(env['PS2PDF'])
     else:
         return env.Detect(gs) or SCons.Util.WhereIs(gs)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -71,3 +71,9 @@ test.must_exist('foo-000-0.log',
                 'foo-000-2.prof')
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -77,3 +77,9 @@ test.must_match(['install', 'f1.out'], "f1.in\n")
 test.must_match(['install', 'f2.out'], "f2.in\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -69,3 +69,9 @@ test.must_match('test01.obj', "A .f90 file.\n")
 test.must_match('test02.obj', "A .F90 file.\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

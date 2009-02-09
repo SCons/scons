@@ -81,3 +81,9 @@ test.fail_test(open('before.txt', 'rb').read() != "Bar\n")
 os.chmod(after_exe, os.stat(after_exe)[stat.ST_MODE] | stat.S_IXUSR)
 test.run(program=after_exe, stdout="Foo\n")
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

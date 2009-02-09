@@ -92,3 +92,9 @@ test.fail_test(test.read(work_aaa_out) != "repository/aaa.in\n")
 
 #
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

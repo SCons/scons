@@ -85,3 +85,9 @@ expect = r"""qmtest run --output baseline.qmr --format none --result-stream="sco
 test.run(arguments = '-b . test', status = 1, stdout = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

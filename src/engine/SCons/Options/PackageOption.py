@@ -42,3 +42,9 @@ def PackageOption(*args, **kw):
         SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
         warned = True
     return apply(SCons.Variables.PackageVariable, args, kw)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

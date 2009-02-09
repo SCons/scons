@@ -68,3 +68,9 @@ sys.exitfunc = f
 test.run(arguments='-f SConstruct .', stdout = expected_output)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

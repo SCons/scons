@@ -64,3 +64,9 @@ while upper-lower > 1:
 # show which revision was first to fail
 if upperfails != lowerfails: lower = upper
 print "The error was caused by revision", lower
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

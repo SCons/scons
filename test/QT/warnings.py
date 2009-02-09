@@ -98,3 +98,9 @@ File "%s", line \d+, in (\?|<module>)
 test.fail_test(not test.match_re(test.stderr(), expect))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

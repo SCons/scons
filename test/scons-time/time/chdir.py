@@ -55,3 +55,9 @@ test.run(arguments = 'time -C logs foo-*.log', stdout = expect)
 test.run(arguments = 'time --chdir logs foo-?.log', stdout = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

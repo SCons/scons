@@ -138,3 +138,9 @@ test.fail_test( not elements[4].attributes['Title'].value == 'Java Part' )
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

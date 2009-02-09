@@ -103,3 +103,9 @@ bar.M4(target = 'bar', source = 'bar.m4')
     test.fail_test(test.read('bar', 'r') != "line 1\nbbb\nline 3\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

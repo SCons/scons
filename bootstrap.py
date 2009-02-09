@@ -211,3 +211,9 @@ sys.stdout.flush()
 os.environ['SCONS_LIB_DIR'] = os.path.join(bootstrap_dir, src_engine)
 
 os.execve(sys.executable, args, os.environ)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

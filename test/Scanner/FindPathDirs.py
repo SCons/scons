@@ -148,3 +148,9 @@ test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 2\ninc1/yyy 2\nfoo.k 1 line 4\n
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

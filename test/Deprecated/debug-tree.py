@@ -152,3 +152,9 @@ test.run(arguments = "--debug=tree Foo.xxx",
 test.must_contain_all_lines(test.stdout(), tree1)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

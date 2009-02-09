@@ -103,3 +103,9 @@ def scan_in_memory(node, env, path=()):
     entry_list = filter(do_not_scan, entries.keys())
     entry_list.sort()
     return map(lambda n, e=entries: e[n], entry_list)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

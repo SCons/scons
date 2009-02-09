@@ -55,3 +55,9 @@ class TimeStampNull(SCons.Util.Null):
 
 MD5 = MD5Null()
 TimeStamp = TimeStampNull()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

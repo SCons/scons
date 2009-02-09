@@ -52,3 +52,9 @@ def exists(env):
     # Uses bcc32 to do linking as it generally knows where the standard
     # LIBS are and set up the linking correctly
     return SCons.Tool.bcc32.findIt('bcc32', env)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -83,3 +83,9 @@ def BoolVariable(key, help, default):
     """
     return (key, '%s (yes|no)' % help, default,
             _validator, _text2bool)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

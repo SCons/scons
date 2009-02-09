@@ -81,3 +81,9 @@ test.must_match('f6.out', "f6.in\n")
 test.must_match('f7.out', "f7.in\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

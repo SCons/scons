@@ -167,3 +167,9 @@ test.fail_test(test.read(['work2', 'all']) != "import/aaa.in\nwork2/bbb.in\nimpo
 test.fail_test(test.read(['work2', 'sub', 'all']) != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

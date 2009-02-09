@@ -43,3 +43,9 @@ test.run(arguments = '-q no_such_target', status = 1)
 test.run(arguments = '--question no_such_target', status = 1)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

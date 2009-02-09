@@ -114,3 +114,9 @@ test.must_match(['work2', 'build', 'in3.h'], src_in3_h)
 test.up_to_date(chdir = 'work2', arguments = 'build')
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

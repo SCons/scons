@@ -127,3 +127,9 @@ test.must_exist(test.workpath('f7.out-Touch'))
 test.must_exist(test.workpath('f8'))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

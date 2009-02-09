@@ -74,3 +74,9 @@ test.must_match(['out', 'aaa.c'],	"aaa.l\n -x -t\n out in\n", mode='r')
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

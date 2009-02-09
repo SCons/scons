@@ -91,3 +91,9 @@ test.must_exist( 'temp/libfoo-1.2.3/src/main.c' )
 test.must_exist( 'temp/libfoo-1.2.3/SConstruct' )
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

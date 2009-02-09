@@ -84,3 +84,9 @@ if test.match_re_dotall(test.stdout(), r".*(-L|/LIBPATH:)src[/\\]util.*"):
     test.fail_test()
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

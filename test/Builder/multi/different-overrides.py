@@ -56,3 +56,9 @@ scons: warning: Two different environments were specified for target file3.out,
 test.run(arguments='file3.out', stderr=expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

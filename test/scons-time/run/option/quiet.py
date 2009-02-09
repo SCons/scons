@@ -80,3 +80,9 @@ test.must_exist('foo-001-0.log',
 test.run(arguments = 'run --quiet foo.tar.gz', stdout = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

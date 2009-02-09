@@ -47,3 +47,9 @@ def generate(env):
     env['TEMPFILE']    = TempFileMunge
     env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

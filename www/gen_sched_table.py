@@ -42,3 +42,9 @@ for line in f:
 		category = current = type
 	row(date, category, desc)
 print '</table>'
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -116,3 +116,9 @@ def takewhile(predicate, iterable):
 
 def tee(*args, **kw):
     raise NotImplementedError
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

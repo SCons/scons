@@ -368,3 +368,9 @@ test.fail_test(not (oldtime4 == os.path.getmtime(foo4)))
 test.fail_test(not (oldtime5 == os.path.getmtime(foo5)))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -163,3 +163,9 @@ if __name__ == "__main__":
     # this does all the work, and calls sys.exit
     # with the proper exit status when done.
     SCons.Script.main()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

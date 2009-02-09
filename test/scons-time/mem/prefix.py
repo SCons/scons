@@ -60,3 +60,9 @@ test.run(arguments = 'mem -p bar', stdout = bar_expect)
 test.run(arguments = 'mem --prefix=foo', stdout = foo_expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

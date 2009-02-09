@@ -76,3 +76,9 @@ test.run(arguments = 'time --file st2.conf --fmt gnuplot', stdout = expect2)
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

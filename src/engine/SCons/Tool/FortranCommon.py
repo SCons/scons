@@ -239,3 +239,9 @@ def add_all_to_env(env):
     add_f77_to_env(env)
     add_f90_to_env(env)
     add_f95_to_env(env)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

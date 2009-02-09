@@ -575,3 +575,9 @@ class _TemporarilyImmutableSet(BaseSet):
 
     def __hash__(self):
         return self._set._compute_hash()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

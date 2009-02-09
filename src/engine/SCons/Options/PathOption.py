@@ -68,3 +68,9 @@ class _PathOptionClass:
         return apply(SCons.Variables.PathVariable.PathExists, args, kw)
 
 PathOption = _PathOptionClass()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

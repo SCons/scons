@@ -99,3 +99,9 @@ def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
         converter = lambda val, map=map: \
                     map.get(val, val)
     return (key, help, default, validator, converter)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

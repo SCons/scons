@@ -83,3 +83,9 @@ test.checkLogAndStdout(["Checking for C header file math.h... ",
                       "config.log", ".sconf_temp", "SConstruct")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

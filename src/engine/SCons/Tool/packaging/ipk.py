@@ -177,3 +177,9 @@ Description: $X_IPK_DESCRIPTION
         content += env['CHANGE_SPECFILE'](target)
 
     return 0
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

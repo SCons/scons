@@ -121,3 +121,9 @@ for func in FunctionList:
     for label, args, kw in Data:
         r = apply(timer, (func,)+args, kw)
         display(label, r)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

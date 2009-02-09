@@ -127,3 +127,9 @@ test.run(arguments='', stderr = None)
 test.must_exist( 'foo_0.0_arm.ipk' )
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -83,3 +83,9 @@ new = md5obj
 
 def md5(string=''):
     return md5obj('md5', string)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

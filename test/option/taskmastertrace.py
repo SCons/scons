@@ -221,3 +221,9 @@ Taskmaster: No candidate anymore.
 test.must_match('trace.out', expect_trace)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

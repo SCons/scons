@@ -242,3 +242,9 @@ try:
 except ImportError:
     # Pre-1.6 Python has no UserString module.
     import_as('_scons_UserString', 'UserString')
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

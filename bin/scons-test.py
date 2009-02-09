@@ -239,3 +239,9 @@ else:
     command = '"%s" runtest.py %s' % (sys.executable, runtest_args)
     #print command
     os.system(command)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

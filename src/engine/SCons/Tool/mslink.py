@@ -278,3 +278,9 @@ def exists(env):
         # think Visual Studio is installed.
         return env.Detect('link')
     return None
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -138,3 +138,9 @@ bar.Tar(target = 'bar.tar', source = 'file15')
     test.fail_test(test.stdout() != "file13\nfile14\nfile15\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

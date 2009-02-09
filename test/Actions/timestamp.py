@@ -54,3 +54,9 @@ env.Command('file.out', 'file.in', my_copy)
 test.not_up_to_date(arguments = 'file.out')
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

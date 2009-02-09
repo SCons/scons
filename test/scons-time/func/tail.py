@@ -54,3 +54,9 @@ test.run(arguments = 'func -t 3 foo-*.prof', stdout = ''.join(expect[-3:]))
 test.run(arguments = 'func --tail 5 foo-*.prof', stdout = ''.join(expect[-5:]))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
