@@ -29,14 +29,23 @@ Verify the ability to #include a file with an absolute path name.  (Which
 is not strictly a test of using $CPPPATH, but it's in the ball park...)
 """
 
+import os
+import string
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.subdir('include', 'work')
 
-inc_h = test.workpath('include', 'inc.h')
+inc1_h = test.workpath('include', 'inc1.h')
+inc2_h = test.workpath('include', 'inc2.h')
 does_not_exist_h = test.workpath('include', 'does_not_exist.h')
+
+# Verify that including an absolute path still works even if they
+# double the separators in the input file.  This can happen especially
+# on Windows if they use \\ to represent an escaped backslash.
+inc2_h = string.replace(inc2_h, os.sep, os.sep+os.sep)
 
 test.write(['work', 'SConstruct'], """\
 Program('prog.c')
@@ -44,7 +53,8 @@ Program('prog.c')
 
 test.write(['work', 'prog.c'], """\
 #include <stdio.h>
-#include "%(inc_h)s"
+#include "%(inc1_h)s"
+#include "%(inc2_h)s"
 #if     0
 #include "%(does_not_exist_h)s"
 #endif
@@ -53,29 +63,34 @@ int
 main(int argc, char *argv[])
 {
     argv[argc++] = "--";
-    printf("%%s\\n", STRING);
+    printf("%%s\\n", STRING1);
+    printf("%%s\\n", STRING2);
     return 0;
 }
 """ % locals())
 
-test.write(['include', 'inc.h'], """\
-#define STRING  "include/inc.h 1\\n"
+test.write(['include', 'inc1.h'], """\
+#define STRING1  "include/inc1.h A\\n"
+""")
+
+test.write(['include', 'inc2.h'], """\
+#define STRING2  "include/inc2.h A\\n"
 """)
 
 test.run(chdir = 'work', arguments = '.')
 
 test.up_to_date(chdir = 'work', arguments = '.')
 
-test.write(['include', 'inc.h'], """\
-#define STRING  "include/inc.h 2\\n"
+test.write(['include', 'inc1.h'], """\
+#define STRING1  "include/inc1.h B\\n"
+""")
+
+test.not_up_to_date(chdir = 'work', arguments = '.')
+
+test.write(['include', 'inc2.h'], """\
+#define STRING2  "include/inc2.h B\\n"
 """)
 
 test.not_up_to_date(chdir = 'work', arguments = '.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
