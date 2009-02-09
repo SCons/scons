@@ -85,3 +85,9 @@ test.must_match('file3.out', "file3.in\nextra1.txt\n")
 test.must_match('file4.out', "file4.in\nextra2.txt\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

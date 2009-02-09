@@ -44,3 +44,9 @@ def generate(*args, **kw):
 
 def exists(*args, **kw):
     return apply(SCons.Tool.intelc.exists, args, kw)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

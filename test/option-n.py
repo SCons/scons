@@ -235,3 +235,9 @@ log2_mtime = os.path.getmtime(test.workpath("configure","config.log"))
 test.fail_test( log1_mtime != log2_mtime )
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

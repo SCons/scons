@@ -1014,3 +1014,9 @@ class Taskmaster:
                     (node, repr(node), StateString[node.get_state()])
 
         raise SCons.Errors.UserError, desc
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

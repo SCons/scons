@@ -46,3 +46,9 @@ expect = test.wrap_stdout(read_str="""\
 test.run(arguments='a=1 bz=3 xx=sd zzz=foo=bar .', stdout = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

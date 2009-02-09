@@ -170,3 +170,9 @@ componentrefs = features[2].getElementsByTagName( 'ComponentRef' )
 test.fail_test( not componentrefs[0].attributes['Id'].value == 'file3.dll' )
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

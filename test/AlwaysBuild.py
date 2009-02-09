@@ -92,3 +92,9 @@ test.not_up_to_date(arguments = 'dir')
 test.must_match('dir_build.txt', "dir_build()\ndir_build()\ndir_build()\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

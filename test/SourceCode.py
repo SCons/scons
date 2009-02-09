@@ -103,3 +103,9 @@ test.must_match('all', "sub/sc-aaa.in\nsub/sc-bbb.in\nsub/sc-ccc.in\n")
 test.must_match('ddd.out', "sub2/sc-ddd.in\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

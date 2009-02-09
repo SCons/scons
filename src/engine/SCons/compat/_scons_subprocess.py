@@ -1288,3 +1288,9 @@ if __name__ == "__main__":
         _demo_windows()
     else:
         _demo_posix()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

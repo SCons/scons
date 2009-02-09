@@ -40,3 +40,9 @@ scons-time: obj: Must specify an object name.
 test.run(arguments = 'obj', status = 1, stderr = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

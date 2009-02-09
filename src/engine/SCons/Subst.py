@@ -903,3 +903,9 @@ def scons_subst_once(strSubst, env, key):
         return _dollar_exps.sub(sub_match, strSubst)
     else:
         return strSubst
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

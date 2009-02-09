@@ -82,3 +82,9 @@ class TestSConsign(TestSCons):
     def run_sconsign(self, *args, **kw):
         kw.update(self.my_kw)
         return apply(self.run, args, kw)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -53,3 +53,9 @@ test.run(arguments='file1.out')
 test.must_match('file1.out', "file1a.in\nfile1b.in\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

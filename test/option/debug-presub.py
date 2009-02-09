@@ -201,3 +201,9 @@ test.must_match('file18.out', "file18.in\n")
 test.must_match('file20.obj', "file20.c\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

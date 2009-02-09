@@ -97,3 +97,9 @@ test.run(arguments = "variant_dir=1 chdir=1 dup=0 " +
 test.must_exist(['build_dup0', moc])
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

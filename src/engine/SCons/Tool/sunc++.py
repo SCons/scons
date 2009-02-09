@@ -98,3 +98,9 @@ def exists(env):
         if os.path.exists(cppc):
             return cppc
     return None
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

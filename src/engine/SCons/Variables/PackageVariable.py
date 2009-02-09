@@ -101,3 +101,9 @@ def PackageVariable(key, help, default, searchfunc=None):
     return (key, help, default,
             lambda k, v, e, f=searchfunc: _validator(k,v,e,f),
             _converter)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

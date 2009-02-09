@@ -287,3 +287,9 @@ test.run(program=blender_exe,
          stdout='src/component1/message.c\nsrc/component2/hello.c\n')
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

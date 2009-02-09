@@ -101,3 +101,9 @@ test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

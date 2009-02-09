@@ -57,3 +57,9 @@ scons: *** Two different target lists have a target in common: file10b.out  (fro
 test.run(arguments='file10.out', status=2, stderr=expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

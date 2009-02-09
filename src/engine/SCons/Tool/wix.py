@@ -92,3 +92,9 @@ def exists(env):
             pass # ignore this, could be a stale PATH entry.
 
     return None
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

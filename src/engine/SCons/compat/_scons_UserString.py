@@ -90,3 +90,9 @@ class UserString:
     def __mul__(self, n):
         return self.__class__(self.data*n)
     __rmul__ = __mul__
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

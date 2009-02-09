@@ -102,3 +102,9 @@ test.must_match('test21' + _exe, "This is a .f90 file.\n")
 test.must_match('test22' + _exe, "This is a .F90 file.\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -860,3 +860,9 @@ class CompositeBuilder(SCons.Util.Proxy):
     def add_action(self, suffix, action):
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

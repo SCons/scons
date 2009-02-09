@@ -322,3 +322,9 @@ def generate(env):
     env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048
     env['ESCAPE']         = escape
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

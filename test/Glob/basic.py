@@ -57,3 +57,9 @@ test.run(arguments = '.')
 test.must_match('f.out', "f1.in\nf2.in\nf3.in\n")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

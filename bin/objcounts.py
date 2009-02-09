@@ -101,3 +101,9 @@ keys = c2.keys()
 keys.sort()
 for k in keys:
     printline(['--']*4, c2[k], k)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

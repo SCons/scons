@@ -179,3 +179,9 @@ test.must_exist( src_rpm )
 test.must_exist( machine_rpm )
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

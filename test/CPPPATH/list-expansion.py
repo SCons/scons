@@ -130,3 +130,9 @@ sub4/string4.h
 test.run(program = test.workpath('test' + TestSCons._exe), stdout=expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

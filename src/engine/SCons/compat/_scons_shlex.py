@@ -317,3 +317,9 @@ if __name__ == '__main__':
             print "Token: " + repr(tt)
         else:
             break
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

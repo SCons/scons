@@ -55,3 +55,9 @@ test.run(arguments = 'obj -C logs Environment.Base foo-*.log', stdout = expect)
 test.run(arguments = 'obj --chdir logs Environment.Base foo-?.log', stdout = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

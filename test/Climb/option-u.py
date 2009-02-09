@@ -141,3 +141,9 @@ test.must_match(['build', 'dir', 'f4b.out'], "sub4/dir/f4b.in")
 
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

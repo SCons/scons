@@ -55,3 +55,9 @@ scons: *** Multiple ways to build the same target were specified for: file2.out 
 test.run(arguments='file2.out', status=2, stderr=expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

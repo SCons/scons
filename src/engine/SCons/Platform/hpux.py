@@ -38,3 +38,9 @@ def generate(env):
     posix.generate(env)
     #Based on HP-UX11i: ARG_MAX=2048000 - 3000 for environment expansion
     env['MAXLINELENGTH']  = 2045000
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

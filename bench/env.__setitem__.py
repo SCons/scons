@@ -360,3 +360,9 @@ run_it('Results for adding 100 new, unique variable names:',
       common_imports + """
 import __main__ ; names = __main__.uniq_variable_names
 """)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

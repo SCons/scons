@@ -177,3 +177,9 @@ class TestRuntest(TestCommon):
 
     def write_passing_test(self, name):
         self.write(name, passing_test_template)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

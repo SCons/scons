@@ -92,3 +92,9 @@ test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
 test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

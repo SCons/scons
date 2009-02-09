@@ -1717,3 +1717,9 @@ def _match_abbrev(s, wordmap):
 # which will become a factory function when there are many Option
 # classes.
 make_option = Option
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

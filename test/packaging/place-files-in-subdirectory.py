@@ -106,3 +106,9 @@ str = os.popen( 'tar -tzf %s'%test.workpath('libfoo-1.2.3.tar.gz') ).read()
 test.fail_test( str != "libfoo-1.2.3/src/main.c\nlibfoo-1.2.3/SConstruct\n" )
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

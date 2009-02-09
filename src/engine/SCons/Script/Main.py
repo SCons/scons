@@ -1318,3 +1318,9 @@ def main():
         print "Total command execution time: %f seconds"%ct
 
     sys.exit(exit_status)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

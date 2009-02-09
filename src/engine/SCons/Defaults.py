@@ -470,3 +470,9 @@ ConstructionEnvironment = {
     'File'          : Variable_Method_Caller('TARGET', 'File'),
     'RDirs'         : Variable_Method_Caller('TARGET', 'RDirs'),
 }
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

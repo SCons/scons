@@ -620,3 +620,9 @@ class TestCommon(TestCmd):
             # We're under the development directory for this change,
             # so this is an Aegis invocation; pass the test (exit 0).
             self.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

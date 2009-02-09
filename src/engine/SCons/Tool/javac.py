@@ -226,3 +226,9 @@ def generate(env):
 
 def exists(env):
     return 1
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

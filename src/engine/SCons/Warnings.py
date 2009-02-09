@@ -209,3 +209,9 @@ def process_warn_strings(arguments):
                 sys.stderr.write(fmt % arg)
             else:
                 suppressWarningClass(clazz)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

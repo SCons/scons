@@ -40,3 +40,9 @@ scons-time: run: No arguments or -f config file specified.
 test.run(arguments = 'run', status = 1, stderr = expect)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

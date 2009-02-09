@@ -131,3 +131,9 @@ def ListVariable(key, help, default, names, map={}):
     return (key, help, default,
             None, #_validator,
             lambda val, elems=names, m=map: _converter(val, elems, m))
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

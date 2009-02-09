@@ -344,3 +344,9 @@ test.must_not_be_writable(test.workpath('work3', 'sub', 'ddd.in'))
 test.must_not_be_writable(test.workpath('work3', 'sub', 'fff.in'))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

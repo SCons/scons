@@ -256,3 +256,9 @@ def generate(env):
 
     # This platform supports RPATH specifications.
     env['__RPATH'] = '$_RPATH'
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

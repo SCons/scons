@@ -65,3 +65,9 @@ test.must_match(['bar', 'foo.txt'], "Foo\n")
 test.must_exist(['sub', 'dir', 'sconsign.dblite'])
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -38,3 +38,9 @@ def generate(env):
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
     env['ENV']['PATH'] = env['ENV']['PATH'] + ':/sw/bin'
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

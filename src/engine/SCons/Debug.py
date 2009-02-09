@@ -214,3 +214,9 @@ def Trace(msg, file=None, mode='w'):
             fp = file
     fp.write(msg)
     fp.flush()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

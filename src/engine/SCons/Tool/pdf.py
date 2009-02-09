@@ -70,3 +70,9 @@ def exists(env):
     # This only puts a skeleton Builder in place, so if someone
     # references this Tool directly, it's always "available."
     return 1
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

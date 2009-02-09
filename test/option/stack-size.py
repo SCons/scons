@@ -355,3 +355,9 @@ else:
     test.must_not_exist(['work2', 'f2.out'])
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

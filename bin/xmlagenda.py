@@ -85,3 +85,9 @@ for issue in issues:
 	writer.writerow(['','','consensus','','','',''])
 	writer.writerow(['','','','','','',''])
 	for member in team: writer.writerow(['','',member,'','','',''])
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

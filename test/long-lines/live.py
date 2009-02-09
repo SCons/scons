@@ -132,3 +132,9 @@ test.must_exist(lib_static_lib)
 test.must_exist(lib_shared_dll)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

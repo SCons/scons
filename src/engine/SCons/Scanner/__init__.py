@@ -404,3 +404,9 @@ class ClassicCPP(Classic):
 
     def sort_key(self, include):
         return SCons.Node.FS._my_normcase(string.join(include))
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

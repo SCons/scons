@@ -113,3 +113,9 @@ def exists(env):
     # This module isn't really a Tool on its own, it's common logic for
     # other linkers.
     return None
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -179,3 +179,9 @@ except NameError:
 #    object.__setattr__(str, 'lstrip', lstrip)
 #    object.__setattr__(str, 'rstrip', rstrip)
 #    object.__setattr__(str, 'strip', strip)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

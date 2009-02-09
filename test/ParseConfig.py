@@ -106,3 +106,9 @@ test.run(arguments = "-q -Q -f SConstruct2 .", stdout = good_stdout)
 test.run(arguments = "-q -Q -f SConstruct3 .", stdout = stdout3)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

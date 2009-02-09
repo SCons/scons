@@ -1232,3 +1232,9 @@ class ActionFactory:
         ac = ActionCaller(self, args, kw)
         action = Action(ac, strfunction=ac.strfunction)
         return action
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

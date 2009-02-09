@@ -100,3 +100,9 @@ test.must_exist(test.workpath('test3_wrap.cc'))
 test.must_exist(test.workpath('test3_wrap' + _obj))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

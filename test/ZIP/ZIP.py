@@ -178,3 +178,9 @@ except ImportError:
         test.fail_test(f4stored_size == f4deflated_size)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

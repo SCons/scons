@@ -66,3 +66,9 @@ class D(SCons.Scanner.Classic):
         for i in self.cre.findall(node.get_text_contents()):
             includes = includes + self.cre2.findall(i)
         return includes
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

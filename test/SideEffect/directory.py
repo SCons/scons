@@ -71,3 +71,9 @@ test.must_exist(test.workpath('log', 'bar.out'))
 test.must_exist(test.workpath('log', 'blat.out'))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

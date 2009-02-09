@@ -335,3 +335,9 @@ class LaTeX(SCons.Scanner.Base):
         nodes.sort()
         nodes = map(lambda pair: pair[1], nodes)
         return nodes
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

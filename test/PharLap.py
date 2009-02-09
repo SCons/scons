@@ -309,3 +309,9 @@ test.run(arguments = '.')
 test.fail_test(oldtime == os.path.getmtime(test.workpath('minasm.exe')))
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

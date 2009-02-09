@@ -66,3 +66,9 @@ test.must_match('foo-000-1.log', "my_python.py: %s\n" % prof1)
 test.must_match('foo-000-2.log', "my_python.py: %s\n" % prof2)
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

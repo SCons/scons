@@ -130,3 +130,9 @@ def addPharLapPaths(env):
     env['PHARLAP_PATH'] = getPharLapPath()
     env['PHARLAP_VERSION'] = str(getPharLapVersion())
     
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

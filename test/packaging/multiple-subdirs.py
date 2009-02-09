@@ -78,3 +78,9 @@ test.must_exist(['two', 'two-1.0.0.tar.gz'])
 test.must_exist(['three', 'three-1.0.0.tar.gz'])
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

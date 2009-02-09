@@ -277,3 +277,9 @@ test.must_match(work2_sub_f1_out, "work2/sub/f1.in")
 test.must_match(work2_sub_f2_out, "work2/sub/f2.in")
 
 test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

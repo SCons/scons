@@ -116,3 +116,9 @@ Revision_Bars = Bars(
         2380 : 'The Big Signature Refactoring hits branches/core.',
     },
 )
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
