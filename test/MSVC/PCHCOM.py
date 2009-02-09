@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test the ability to configure the $MIDLCOM construction variable.
+Test the ability to configure the $PCHCOM construction variable.
 """
 
 import TestSCons
