@@ -3005,8 +3005,9 @@ class FileFinder:
             fd = self.default_filedir
         dir, name = os.path.split(fd)
         drive, d = os.path.splitdrive(dir)
-        if d in ('/', os.sep):
-            return p.fs.get_root(drive).dir_on_disk(name)
+        if not name and d[:1] in ('/', os.sep):
+            #return p.fs.get_root(drive).dir_on_disk(name)
+            return p.fs.get_root(drive)
         if dir:
             p = self.filedir_lookup(p, dir)
             if not p:
