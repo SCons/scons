@@ -56,6 +56,19 @@ RELEASE 1.2.0.d20090113 - Tue, 13 Jan 2009 02:50:30 -0800
         will no longer work at all, and will instead generate specific
         fatal errors when anyone tries to use them.
 
+  Please note the following important changes since release 1.2.0:
+
+    --  VISUAL C/C++ PRECOMPILED HEADERS WILL BE REBUILT
+
+        Precompiled header files built with Visual C/C++ will be
+        rebuilt after upgrading from 1.2.0.
+
+        This rebuild is normal will occur because the command line
+        defined by the $PCHCOM construction variable has had the
+        $CCFLAGS variable added, and has been rearranged to put the
+        "/Fo" output flag towards the beginning of the line, consistent
+        with the related command lines for $CCCOM, $CXXCOM, etc.
+
   Please note the following important changes since release 1.1.0:
 
     --  THE $CHANGED_SOURCES, $CHANGED_TARGETS, $UNCHANGED_SOURCES

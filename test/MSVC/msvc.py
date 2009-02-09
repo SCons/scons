@@ -24,6 +24,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify basic invocation of Microsoft Visual C/C++, including use
+of a precompiled header with the $CCFLAGS variable.
+"""
+
 import os
 import sys
 import time
@@ -43,7 +48,8 @@ test.write('SConstruct',"""
 import os
 env = Environment()
 env.Append(CPPPATH=os.environ.get('INCLUDE', ''),
-           LIBPATH=os.environ.get('LIB', ''))
+           LIBPATH=os.environ.get('LIB', ''),
+           CCFLAGS='/DPCHDEF')
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
@@ -92,6 +98,9 @@ test.write('StdAfx.h', '''
 
 test.write('StdAfx.cpp', '''
 #include "StdAfx.h"
+#ifndef PCHDEF
+this line generates an error if PCHDEF is not defined!
+#endif
 ''')
 
 #  Visual Studio 8 has deprecated the /Yd option and prints warnings
