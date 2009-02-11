@@ -30,9 +30,8 @@ the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
 """
 
-import os
 import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

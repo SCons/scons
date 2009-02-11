@@ -30,7 +30,7 @@ the displayed assembler string.
 """
 
 import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

@@ -32,8 +32,6 @@ explicit suffix settings so that the test should work when run on any
 platform.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -30,7 +30,7 @@ the displayed linker string.
 """
 
 import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

@@ -29,8 +29,7 @@ Test that $M4 and $M4FLAGS work with repositories.
 """
 
 import os
-import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

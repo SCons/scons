@@ -29,7 +29,6 @@ Test various uses of the -c (clean) option.
 """
 
 import os
-import sys
 
 import TestSCons
 

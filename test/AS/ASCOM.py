@@ -29,7 +29,7 @@ Test the ability to configure the $ASCOM construction variable.
 """
 
 import os
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

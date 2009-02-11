@@ -51,8 +51,6 @@ test.write( 'file1.exe', "file1" )
 test.write( 'file2.exe', "file2" )
 
 test.write('SConstruct', """
-import os
-
 env  = Environment(tools=['default', 'packaging'])
 
 f1  = env.Install( '/usr/' , 'file1.exe'  )
@@ -96,7 +94,6 @@ test.write( 'file4.dll', "file4" )
 test.write( 'file5.dll', "file5" )
 
 test.write('SConstruct', """
-import os
 env = Environment(tools=['default', 'packaging'])
 f1  = env.Install( '/usr/' , 'file1.exe'  )
 f2  = env.Install( '/usr/' , 'file2.exe'  )

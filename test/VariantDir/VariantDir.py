@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import string
-import sys
+
 import TestSCons
 
 _exe = TestSCons._exe
@@ -91,7 +91,6 @@ SConscript('../build/var6/SConscript', "env")
 
 test.subdir(['work1', 'src'])
 test.write(['work1', 'src', 'SConscript'], """
-import os
 import os.path
 
 def buildIt(target, source, env):

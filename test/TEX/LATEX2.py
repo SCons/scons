@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Validate that we can produce several .pdf at once from several sources.
 """
 
-import os
-
 import TestSCons
 
 _python_ = TestSCons._python_

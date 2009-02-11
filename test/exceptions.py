@@ -25,14 +25,12 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
-import sys
 
-import TestCmd
 import TestSCons
 
 _python_ = TestSCons._python_
 
-test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 SConstruct_path = test.workpath('SConstruct')
 

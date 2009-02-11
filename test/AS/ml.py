@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify correct use of the live 'ml' assembler.
 """
 
-import os
 import string
 import sys
 
