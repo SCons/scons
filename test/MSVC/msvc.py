@@ -29,7 +29,6 @@ Verify basic invocation of Microsoft Visual C/C++, including use
 of a precompiled header with the $CCFLAGS variable.
 """
 
-import os
 import sys
 import time
 

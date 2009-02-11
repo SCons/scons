@@ -29,8 +29,7 @@ Verify that we can set CFILESUFFIX to arbitrary values.
 """
 
 import os
-import string
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

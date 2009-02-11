@@ -29,7 +29,7 @@ Verify various combinations of arguments to Default() work properly.
 """
 
 import os
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

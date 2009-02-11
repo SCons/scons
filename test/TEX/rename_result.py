@@ -29,8 +29,6 @@ Validate that we can rename the output from latex to the
 target name provided by the user.
 """
 
-import os
-
 import TestSCons
 
 _python_ = TestSCons._python_

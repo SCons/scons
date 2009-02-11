@@ -30,7 +30,6 @@ Verify a lot of the basic operation of the --debug=explain option.
 
 import os
 import string
-import sys
 
 import TestSCons
 

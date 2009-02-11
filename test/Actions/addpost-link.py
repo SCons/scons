@@ -32,8 +32,6 @@ This is a test for fix of Issue 1004, reported by Matt Doar and
 packaged by Gary Oberbrunner.
 """
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_

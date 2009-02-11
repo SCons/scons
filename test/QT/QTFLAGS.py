@@ -29,7 +29,6 @@ Testing the configuration mechanisms of the 'qt' tool.
 """
 
 import TestSCons
-import os.path
 
 _python_ = TestSCons._python_
 _exe = TestSCons._exe

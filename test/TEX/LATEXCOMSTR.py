@@ -29,8 +29,6 @@ Test that the $LATEXCOMSTR construction variable allows you to configure
 the C compilation output.
 """
 
-import sys
-
 import TestSCons
 
 _python_ = TestSCons._python_

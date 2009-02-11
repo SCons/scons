@@ -24,12 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import sys
 import os
-import TestCmd
+import sys
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+import TestSCons
+
+test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 if sys.platform != 'win32':
     msg = "Skipping test on non-Windows platform '%s'\n" % sys.platform
@@ -39,7 +39,6 @@ if sys.platform != 'win32':
 # Test the basics
 
 test.write('SConstruct',"""
-import os.path
 import os
 
 env = Environment(CPPPATH = '${TARGET.dir}',
@@ -56,8 +55,6 @@ SConscript(os.path.join('build2','SConscript'))
 test.subdir('src','build')
 
 test.write('src/SConscript',"""
-import os.path
-
 Import('env')
 
 local = env.Clone(WINDOWS_INSERT_DEF = 1)

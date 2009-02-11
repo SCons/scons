@@ -29,7 +29,6 @@ Test setting the JAVAC variable.
 """
 
 import os
-import sys
 
 import TestSCons
 

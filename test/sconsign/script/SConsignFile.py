@@ -29,7 +29,6 @@ Verify that the sconsign script works with files generated when
 using the signatures in an SConsignFile().
 """
 
-import os
 import re
 
 import TestSCons

@@ -30,7 +30,7 @@ the shared object C compilation output.
 """
 
 import os
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_

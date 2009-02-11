@@ -29,7 +29,6 @@ Test that the $SHCXXCOMSTR construction variable allows you to customize
 the shared object C++ compilation output.
 """
 
-import sys
 import TestSCons
 
 _python_ = TestSCons._python_

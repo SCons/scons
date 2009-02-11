@@ -85,7 +85,6 @@ SConscript('../build/var6/SConscript', "env")
 
 test.subdir(['work1', 'src'])
 test.write(['work1', 'src', 'SConscript'], """
-import os
 import os.path
 
 def buildIt(target, source, env):

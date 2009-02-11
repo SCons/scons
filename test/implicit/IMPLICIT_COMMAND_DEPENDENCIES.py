@@ -30,8 +30,6 @@ whether or not the implicit dependency on executed commands
 is added to targets.
 """
 
-import os
-
 import TestSCons
 
 python = TestSCons.python

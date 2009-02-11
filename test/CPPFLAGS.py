@@ -46,8 +46,6 @@ if sys.platform == 'win32':
 if sys.platform == 'win32':
 
     test.write('mylink.py', r"""
-import getopt
-import os
 import sys
 args = sys.argv[1:]
 while args:
@@ -68,7 +66,6 @@ else:
 
     test.write('mylink.py', r"""
 import getopt
-import os
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'o:s:')
 for opt, arg in opts:
