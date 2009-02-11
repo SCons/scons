@@ -27,6 +27,10 @@ RELEASE X.X.X - XXX
 
     - Pass $CCFLAGS to Visual C/C++ precompiled header compilation.
 
+    - Remove unnecessary nested $( $) around $_LIBDIRFLAGS on link lines
+      for the Microsoft linker, the OS/2 ilink linker and the Phar Lap
+      linkloc linker.
+
   From Robert P. J. Day:
 
     - User's Guide updates.

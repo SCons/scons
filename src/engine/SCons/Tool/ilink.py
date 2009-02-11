@@ -43,7 +43,7 @@ def generate(env):
     
     env['LINK']        = 'ilink'
     env['LINKFLAGS']   = SCons.Util.CLVar('')
-    env['LINKCOM']     = '$LINK $LINKFLAGS /O:$TARGET $SOURCES $( $_LIBDIRFLAGS $) $_LIBFLAGS'
+    env['LINKCOM']     = '$LINK $LINKFLAGS /O:$TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']=''
