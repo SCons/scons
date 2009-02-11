@@ -61,13 +61,24 @@ RELEASE 1.2.0.d20090113 - Tue, 13 Jan 2009 02:50:30 -0800
     --  VISUAL C/C++ PRECOMPILED HEADERS WILL BE REBUILT
 
         Precompiled header files built with Visual C/C++ will be
-        rebuilt after upgrading from 1.2.0.
+        rebuilt after upgrading from 1.2.0 to a later release.
 
-        This rebuild is normal will occur because the command line
-        defined by the $PCHCOM construction variable has had the
-        $CCFLAGS variable added, and has been rearranged to put the
-        "/Fo" output flag towards the beginning of the line, consistent
-        with the related command lines for $CCCOM, $CXXCOM, etc.
+        This rebuild is normal and will occur because the command line
+        defined by the $PCHCOM construction variable has had the $CCFLAGS
+        variable added, and has been rearranged to put the "/Fo" output
+        flag towards the beginning of the line, consistent with the
+        related command lines for $CCCOM, $CXXCOM, etc.
+
+    --  CHANGES TO SOME LINKER COMMAND LINES WILL CAUSE RELINKING
+
+        Changes to the command line definitions for the Microsoft link.exe
+        linker, the OS/2 ilink linker and the Phar Lap linkloc linker
+        will cause targets built with those tools be to be rebuilt after
+        upgrading from 1.2.0 to a later release.
+
+        This relink is normal and will occur because the command lines for
+        these tools have been redefined to remove unnecessary nested $(
+        and $) character strings.
 
   Please note the following important changes since release 1.1.0:
 
