@@ -582,7 +582,7 @@ V8DSPHeader = """\
 
 V8DSPConfiguration = """\
 \t\t<Configuration
-\t\t\tName="%(variant)s|Win32"
+\t\t\tName="%(variant)s|%(platform)s"
 \t\t\tConfigurationType="0"
 \t\t\tUseOfMFC="0"
 \t\t\tATLMinimizesCRunTimeLibraryUsage="false"

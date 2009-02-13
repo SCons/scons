@@ -10,6 +10,10 @@
 
 RELEASE X.X.X - XXX
 
+  From Dan Eaton:
+
+    - Fix generation of Visual Studio 8 project files on x64 platforms.
+
   From Steven Knight:
 
     - Fix the error message when use of a non-existent drive on Windows
