@@ -10,6 +10,10 @@
 
 RELEASE X.X.X - XXX
 
+  From Stanislav Baranov:
+
+    - Make suffix-matching for scanners case-insensitive on Windows.
+
   From Dan Eaton:
 
     - Fix generation of Visual Studio 8 project files on x64 platforms.
