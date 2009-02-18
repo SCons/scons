@@ -1086,6 +1086,8 @@ class Base(SubstitutionEnvironment):
             scanners.reverse()
             for scanner in scanners:
                 for k in scanner.get_skeys(self):
+                    if self['PLATFORM'] == 'win32':
+                        k = string.lower(k)
                     result[k] = scanner
 
         self._memo['_gsm'] = result
@@ -1095,6 +1097,8 @@ class Base(SubstitutionEnvironment):
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).
         """
+        if self['PLATFORM'] == 'win32':
+            skey = string.lower(skey)
         return self._gsm().get(skey)
 
     def scanner_map_delete(self, kw=None):

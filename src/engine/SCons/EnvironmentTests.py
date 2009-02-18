@@ -1122,6 +1122,23 @@ env4.builder1.env, env3)
         s = map(env.get_scanner, suffixes)
         assert s == [s1, s1, None, s3, s3], s
 
+        # Verify behavior of case-insensitive suffix matches on Windows.
+        uc_suffixes = map(string.upper, suffixes)
+
+        env = Environment(SCANNERS = [s1, s2, s3],
+                          PLATFORM = 'linux')
+
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, s2, s3], s
+
+        s = map(env.get_scanner, uc_suffixes)
+        assert s == [None, None, None, None, None], s
+
+        env['PLATFORM'] = 'win32'
+
+        s = map(env.get_scanner, uc_suffixes)
+        assert s == [s1, s1, None, s2, s3], s
+
     def test_ENV(self):
         """Test setting the external ENV in Environments
         """
