@@ -39,14 +39,14 @@ def main(argv=None):
     long_options = ['all', 'help', 'no-exec', 'prefix=', 'quiet']
 
     helpstr = """\
-sage:  installs-scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
+Usage:  install_python.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
 
   -a, --all                     Install all SCons versions.
   -d DIR, --downloads=DIR       Downloads directory.
   -h, --help                    Print this help and exit
-  -n, --no-exec                 No execute, just print the command line
+  -n, --no-exec                 No execute, just print command lines
   -p PREFIX, --prefix=PREFIX    Installation prefix.
-  -q, --quiet                   Quiet, don't print the command line
+  -q, --quiet                   Quiet, don't print command lines
 """
 
     try:
@@ -103,13 +103,12 @@ sage:  installs-scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
 
         if not os.path.exists(tar_gz):
             if not os.path.exists(downloads_dir):
-                cmd.run((os.mkdir, downloads_dir),
-                        'mkdir %(downloads_dir)s')
+                cmd.run('mkdir %(downloads_dir)s')
             cmd.run('wget -O %(tar_gz)s %(tar_gz_url)s')
 
         cmd.run('tar zxf %(tar_gz)s')
 
-        cmd.run((os.chdir, python), 'cd %(python)s')
+        cmd.run('cd %(python)s')
 
         if (version.startswith('1.6') or
             version.startswith('2.0')):
@@ -128,7 +127,7 @@ sage:  installs-scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
 
         cmd.run('%(sudo)s rm -f %(prefix)s/bin/{idle,pydoc,python,python-config,smtpd.py}')
 
-        cmd.run((os.chdir, '..'), 'cd ..')
+        cmd.run('cd ..')
 
         cmd.run((shutil.rmtree, python), 'rm -rf %(python)s')
 

@@ -7,6 +7,7 @@
 
 import getopt
 import os
+import shlex
 import sys
 
 class Usage(Exception):
@@ -58,12 +59,19 @@ class CommandRunner:
         pass
 
     def do_execute(self, command):
+        if type(command) == type(''):
+            command = self.subst(command)
+            cmdargs = shlex.split(command)
+            if cmdargs[0] == 'cd':
+                 command = (os.chdir,) + tuple(cmdargs[1:])
+            elif cmdargs[0] == 'mkdir':
+                 command = (os.mkdir,) + tuple(cmdargs[1:])
         if type(command) == type(()):
             func = command[0]
             args = command[1:]
             return func(*args)
         else:
-            return os.system(self.subst(command))
+            return os.system(command)
 
     def do_not_execute(self, command):
         pass
@@ -94,8 +102,8 @@ def main(argv=None):
 Usage:  script-template.py [-hnq] 
 
   -h, --help                    Print this help and exit
-  -n, --no-exec                 No execute, just print the command line
-  -q, --quiet                   Quiet, don't print the command line
+  -n, --no-exec                 No execute, just print command lines
+  -q, --quiet                   Quiet, don't print command lines
 """
 
     try:

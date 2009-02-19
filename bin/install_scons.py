@@ -73,6 +73,11 @@ all_versions = [
     '1.0.1.d20080915',
     '1.0.1.d20081001',
     '1.1.0',
+    '1.1.0.d20081104',
+    '1.1.0.d20081125',
+    '1.1.0.d20081207',
+    '1.2.0',
+    '1.2.0.d20090113',
 ]
 
 def main(argv=None):
@@ -90,14 +95,14 @@ def main(argv=None):
     long_options = ['all', 'help', 'no-exec', 'prefix=', 'quiet']
 
     helpstr = """\
-Usage:  install-scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
+Usage:  install_scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
 
   -a, --all                     Install all SCons versions.
   -d DIR, --downloads=DIR       Downloads directory.
   -h, --help                    Print this help and exit
-  -n, --no-exec                 No execute, just print the command line
+  -n, --no-exec                 No execute, just print command lines
   -p PREFIX, --prefix=PREFIX    Installation prefix.
-  -q, --quiet                   Quiet, don't print the command line
+  -q, --quiet                   Quiet, don't print command lines
 """
 
     try:
@@ -144,13 +149,12 @@ Usage:  install-scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
 
         if not os.path.exists(tar_gz):
             if not os.path.exists(downloads_dir):
-                cmd.run((os.mkdir, downloads_dir),
-                        'mkdir %(downloads_dir)s')
+                cmd.run('mkdir %(downloads_dir)s')
             cmd.run('wget -O %(tar_gz)s %(tar_gz_url)s')
 
         cmd.run('tar zxf %(tar_gz)s')
 
-        cmd.run((os.chdir, scons), 'cd %(scons)s')
+        cmd.run('cd %(scons)s')
 
         if version in ('0.01', '0.02', '0.03', '0.04', '0.05',
                        '0.06', '0.07', '0.08', '0.09', '0.10'):
@@ -197,7 +201,7 @@ Usage:  install-scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
             cmd.run('%(python)s setup.py build')
             cmd.run('%(sudo)s %(python)s setup.py install --prefix=%(prefix)s --no-scons-script')
 
-        cmd.run((os.chdir, '..'), 'cd ..')
+        cmd.run('cd ..')
 
         cmd.run((shutil.rmtree, scons), 'rm -rf %(scons)s')
 
