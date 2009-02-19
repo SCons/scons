@@ -1059,6 +1059,7 @@ env4.builder1.env, env3)
         s1 = Scanner(name = 'scanner1', skeys = [".c", ".cc"])
         s2 = Scanner(name = 'scanner2', skeys = [".m4"])
         s3 = Scanner(name = 'scanner3', skeys = [".m4", ".m5"])
+        s4 = Scanner(name = 'scanner4', skeys = [None])
 
 #        XXX Tests for scanner execution through different environments,
 #        XXX if we ever want to do that some day
@@ -1138,6 +1139,12 @@ env4.builder1.env, env3)
 
         s = map(env.get_scanner, uc_suffixes)
         assert s == [s1, s1, None, s2, s3], s
+
+        # Verify behavior for a scanner returning None (on Windows
+        # where we might try to perform case manipulation on None).
+        env.Replace(SCANNERS = [s4])
+        s = map(env.get_scanner, suffixes)
+        assert s == [None, None, None, None, None], s
 
     def test_ENV(self):
         """Test setting the external ENV in Environments
