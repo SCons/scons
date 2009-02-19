@@ -192,7 +192,7 @@ def escape(x):
 def get_system_root():
     # A resonable default if we can't read the registry
     try:
-        val = os.environ['SYSTEMROOT']
+        val = os.environ['SystemRoot']
     except KeyError:
         val = "C:/WINDOWS"
         pass
@@ -268,8 +268,8 @@ def generate(env):
     # contain an ENV and a PATH.
     if not cmd_interp:
         systemroot = r'C:\Windows'
-        if os.environ.has_key('SYSTEMROOT'):
-            systemroot = os.environ['SYSTEMROOT']
+        if os.environ.has_key('SystemRoot'):
+            systemroot = os.environ['SystemRoot']
         tmp_path = systemroot + os.pathsep + \
                    os.path.join(systemroot,'System32')
         tmp_pathext = '.com;.exe;.bat;.cmd'
@@ -291,12 +291,12 @@ def generate(env):
     # Import things from the external environment to the construction
     # environment's ENV.  This is a potential slippery slope, because we
     # *don't* want to make builds dependent on the user's environment by
-    # default.  We're doing this for SYSTEMROOT, though, because it's
+    # default.  We're doing this for SystemRoot, though, because it's
     # needed for anything that uses sockets, and seldom changes, and
-    # for SYSTEMDRIVE because it's related.
+    # for SystemDrive because it's related.
     #
     # Weigh the impact carefully before adding other variables to this list.
-    import_env = [ 'SYSTEMDRIVE', 'SYSTEMROOT', 'TEMP', 'TMP' ]
+    import_env = [ 'SystemDrive', 'SystemRoot', 'TEMP', 'TMP' ]
     for var in import_env:
         v = os.environ.get(var)
         if v:

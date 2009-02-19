@@ -182,7 +182,7 @@ if format == '--xml':
         'MSDEVDIR',
         'OS',
         'PATHEXT',
-        'SYSTEMROOT',
+        'SystemRoot',
         'TEMP',
         'TMP',
         'USERNAME',
