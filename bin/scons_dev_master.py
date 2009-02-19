@@ -83,6 +83,11 @@ TESTING_PACKAGES = [
     'zip',
 ]
 
+BUILDBOT_PACKAGES = [
+    'buildbot',
+    'cron',
+]
+
 default_args = [
     'upgrade',
     'checkout',
@@ -111,6 +116,9 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
         testing                 Install packages for testing SCons
         scons-versions          Install versions of SCons
         python-versions         Install versions of Python
+
+    ACTIONS (optional):
+        buildbot                Install packages for running BuildBot
 """
 
     scons_url = 'http://scons.tigris.org/svn/scons/trunk'
@@ -151,6 +159,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
     install_packages = ' '.join(INSTALL_PACKAGES)
     building_packages = ' '.join(BUILDING_PACKAGES)
     testing_packages = ' '.join(TESTING_PACKAGES)
+    buildbot_packages = ' '.join(BUILDBOT_PACKAGES)
     python_packages = ' '.join(PYTHON_PACKAGES)
 
     cmd = CommandRunner(locals())
@@ -165,6 +174,8 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(building_packages)s')
         elif arg == 'testing':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(testing_packages)s')
+        elif arg == 'buildbot':
+            cmd.run('%(sudo)s apt-get %(yesflag)s install %(buildbot_packages)s')
         elif arg == 'python-versions':
             if install_packages:
                 cmd.run('%(sudo)s apt-get %(yesflag)s install %(install_packages)s')
