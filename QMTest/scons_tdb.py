@@ -188,7 +188,7 @@ environ_keys = [
    'MSDEVDIR',
    'OS',
    'PATHEXT',
-   'SYSTEMROOT',
+   'SystemRoot',
    'TEMP',
    'TMP',
    'USERNAME',
