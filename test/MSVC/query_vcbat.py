@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -24,11 +23,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-# Test error reporting
-"""
-
-import re
 import sys
 
 import TestSCons
@@ -39,37 +33,30 @@ if sys.platform != 'win32':
     msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+#####
+# Test the basics
 
-
-SConstruct_path = test.workpath('SConstruct')
-
-test.write(SConstruct_path, """\
-env = Environment()
-env['PDB'] = File('test.pdb')
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-if int(ARGUMENTS.get('SET_PCHSTOP')):
-    env['PCHSTOP'] = File('StdAfx.h')
-env.Program('test', 'test.cpp')
+test.write('SConstruct', """
+#from SCons.Tool.MSCommon.misc import FindMSVSBatFile, \\
+#                                       ParseBatFile, \\
+#                                       MergeMSVSBatFile
+from SCons.Tool.MSCommon import query_versions
+#env = Environment(tools = ['mingw'])
+DefaultEnvironment(tools = [])
+#for v in [9, 8, 7.1, 7]:
+#    print " ==== Testing for version %s ==== " % str(v)
+#    bat = FindMSVSBatFile(v)
+#    print bat
+#    if bat:
+#        d = ParseBatFile(bat)
+#        for k, v in d.items():
+#            print k, v
+#MergeMSVSBatFile(env, 9.0)
+#print env['ENV']['PATH']
+print query_versions()
 """)
 
-
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction must be defined if PCH is defined.
-''' + TestSCons.file_expr
-
-test.run(arguments='SET_PCHSTOP=0', status=2, stderr=expect_stderr)
-
-
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction variable must be a string: .+
-''' + TestSCons.file_expr
-
-test.run(arguments='SET_PCHSTOP=1', status=2, stderr=expect_stderr)
-
-
-
+test.run(stderr = None)
 test.pass_test()
 
 # Local Variables:

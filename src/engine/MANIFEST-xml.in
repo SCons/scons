@@ -59,6 +59,7 @@ SCons/Tool/midl.xml
 SCons/Tool/mingw.xml
 SCons/Tool/mslib.xml
 SCons/Tool/mslink.xml
+SCons/Tool/mssdk.xml
 SCons/Tool/msvc.xml
 SCons/Tool/msvs.xml
 SCons/Tool/mwcc.xml

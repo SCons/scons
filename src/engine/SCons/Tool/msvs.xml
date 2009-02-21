@@ -238,7 +238,7 @@ this dictionary with the following keys:
 
 <envar>VERSION</envar>:
 the version of MSVS being used (can be set via
-MSVS_VERSION)
+&cv-link-MSVS_VERSION;)
 
 <envar>VERSIONS</envar>:
 the available versions of MSVS installed
@@ -271,6 +271,19 @@ the values are 2-tuples where the first is the release date, and the
 second is the version number.
 
 If a value isn't set, it wasn't available in the registry.
+</summary>
+</cvar>
+
+<cvar name="MSVS_ARCH">
+<summary>
+Sets the architecture for which the generated project(s) should build.
+
+The default value is <literal>x86</literal>.
+<literal>amd64</literal> is also supported
+by &SCons; for some Visual Studio versions.
+Trying to set &cv-MSVS_ARCH; to an architecture that's not
+supported for a given Visual Studio version
+will generate an error.
 </summary>
 </cvar>
 

@@ -33,6 +33,8 @@ import UserDict
 class Environment(UserDict.UserDict):
     def Detect(self, cmd):
         return cmd
+    def AppendENVPath(self, key, value):
+        pass
 
 class PlatformTestCase(unittest.TestCase):
     def test_Platform(self):

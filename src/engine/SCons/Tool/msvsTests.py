@@ -28,10 +28,16 @@ import string
 import sys
 import TestCmd
 import unittest
+import copy
 
 from SCons.Tool.msvs import *
 import SCons.Util
 import SCons.Warnings
+
+from SCons.Tool.MSCommon.common import debug
+
+from SCons.Tool.MSCommon import get_default_version, \
+                                query_versions
 
 regdata_6a = string.split(r'''[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio]
 [HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\6.0]
@@ -280,11 +286,74 @@ regdata_8exp = string.split(r'''
 "VCXDCMakeTool"="*.xdc"
 ''','\n')
 
+regdata_80 = string.split(r'''
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0]
+"CLR Version"="v2.0.50727"
+"ApplicationID"="VisualStudio"
+"ThisVersionDTECLSID"="{BA018599-1DB3-44f9-83B4-461454C84BF8}"
+"ThisVersionSolutionCLSID"="{1B2EEDD6-C203-4d04-BD59-78906E3E8AAB}"
+"SecurityAppID"="{DF99D4F5-9F04-4CEF-9D39-095821B49C77}"
+"InstallDir"="C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\"
+"EnablePreloadCLR"=dword:00000001
+"RestoreAppPath"=dword:00000001
+"Source Directories"="C:\Program Files\Microsoft Visual Studio 8\VC\crt\src\;C:\Program Files\Microsoft Visual Studio 8\VC\atlmfc\src\mfc\;C:\Program Files\Microsoft Visual Studio 8\VC\atlmfc\src\atl\;C:\Program Files\Microsoft Visual Studio 8\VC\atlmfc\include\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\InstalledProducts]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\InstalledProducts\Microsoft Visual C++]
+"UseInterface"=dword:00000001
+"Package"="{F1C25864-3097-11D2-A5C5-00C04F7968B4}"
+"DefaultProductAttribute"="VC"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup]
+"Dbghelp_path"="C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup\EF]
+"ProductDir"="C:\Program Files\Microsoft Visual Studio 8\EnterpriseFrameworks\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup\Microsoft Visual Studio 2005 Professional Edition - ENU]
+"SrcPath"="d:\vs\"
+"InstallSuccess"=dword:00000001
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup\VC]
+"ProductDir"="C:\Program Files\Microsoft Visual Studio 8\VC\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup\VS]
+"ProductDir"="C:\Program Files\Microsoft Visual Studio 8\"
+"VS7EnvironmentLocation"="C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\devenv.exe"
+"EnvironmentPath"="C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\devenv.exe"
+"EnvironmentDirectory"="C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\"
+"VS7CommonDir"="C:\Program Files\Microsoft Visual Studio 8\Common7\"
+"VS7CommonBinDir"="C:\Program Files\Microsoft Visual Studio 8\Common7\Tools\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup\VS\BuildNumber]
+"1033"="8.0.50727.42"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\Setup\VS\Pro]
+"ProductDir"="C:\Program Files\Microsoft Visual Studio 8\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\VC]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\VC\VC_OBJECTS_PLATFORM_INFO]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\VC\VC_OBJECTS_PLATFORM_INFO\Win32]
+@="{72f11281-2429-11d7-8bf6-00b0d03daa06}"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\8.0\VC\VC_OBJECTS_PLATFORM_INFO\Win32\ToolDefaultExtensionLists]
+"VCCLCompilerTool"="*.cpp;*.cxx;*.cc;*.c"
+"VCLinkerTool"="*.obj;*.res;*.lib;*.rsc;*.licenses"
+"VCLibrarianTool"="*.obj;*.res;*.lib;*.rsc"
+"VCMIDLTool"="*.idl;*.odl"
+"VCCustomBuildTool"="*.bat"
+"VCResourceCompilerTool"="*.rc"
+"VCPreBuildEventTool"="*.bat"
+"VCPreLinkEventTool"="*.bat"
+"VCPostBuildEventTool"="*.bat"
+"VCBscMakeTool"="*.sbr"
+"VCFxCopTool"="*.dll;*.exe"
+"VCNMakeTool"=""
+"VCWebServiceProxyGeneratorTool"="*.discomap"
+"VCWebDeploymentTool"=""
+"VCALinkTool"="*.resources"
+"VCManagedResourceCompilerTool"="*.resx"
+"VCXMLDataGeneratorTool"="*.xsd"
+"VCManifestTool"="*.manifest"
+"VCXDCMakeTool"="*.xdc"
+''','\n')
+
 regdata_cv = string.split(r'''[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion]
 "ProgramFilesDir"="C:\Program Files"
 "CommonFilesDir"="C:\Program Files\Common Files"
 "MediaPath"="C:\WINDOWS\Media"
 ''','\n')
+
 
 regdata_none = []
 
@@ -314,6 +383,8 @@ class RegKey:
     def __init__(self,key):
         self.key = key
 
+# Warning: this is NOT case-insensitive, unlike the Windows registry.
+# So e.g. HKLM\Software is NOT the same key as HKLM\SOFTWARE.
 class RegNode:
     """node in the dummy registry"""
     def __init__(self,name):
@@ -453,49 +524,59 @@ def DummyExists(path):
     return 1
 
 class msvsTestCase(unittest.TestCase):
+    """This test case is run several times with different defaults.
+    See its subclasses below."""
     def setUp(self):
         global registry
         registry = self.registry
+        from SCons.Tool.MSCommon.vs import reset_installed_visual_studios
+        reset_installed_visual_studios()
 
-    def test_get_default_visual_studio_version(self):
+    def test_detect_msvs(self):
+        """Test the detect_msvs() function"""
+        r = detect_msvs()
+        assert r == (self.number_of_versions > 0), r
+
+    def test_get_default_version(self):
         """Test retrieval of the default visual studio version"""
+        
+        debug("Testing for default version %s"%self.default_version)
         env = DummyEnv()
-        v1 = get_default_visualstudio_version(env)
-        assert env['MSVS_VERSION'] == self.default_version, env['MSVS_VERSION']
-        assert env['MSVS']['VERSION'] == self.default_version, env['MSVS']['VERSION']
-        assert v1 == self.default_version, v1
+        v1 = get_default_version(env)
+        assert env['MSVS_VERSION'] == self.default_version, \
+               (self.default_version, env['MSVS_VERSION'])
+        assert env['MSVS']['VERSION'] == self.default_version, \
+               (self.default_version, env['MSVS']['VERSION'])
+        assert v1 == self.default_version, (self.default_version, v1)
 
         env = DummyEnv({'MSVS_VERSION':'7.0'})
-        v2 = get_default_visualstudio_version(env)
+        v2 = get_default_version(env)
         assert env['MSVS_VERSION'] == '7.0', env['MSVS_VERSION']
         assert env['MSVS']['VERSION'] == '7.0', env['MSVS']['VERSION']
         assert v2 == '7.0', v2
 
         env = DummyEnv()
-        v3 = get_default_visualstudio_version(env)
+        v3 = get_default_version(env)
         if v3 == '7.1':
             override = '7.0'
         else:
             override = '7.1'
         env['MSVS_VERSION'] = override
-        v3 = get_default_visualstudio_version(env)
+        v3 = get_default_version(env)
         assert env['MSVS_VERSION'] == override, env['MSVS_VERSION']
         assert env['MSVS']['VERSION'] == override, env['MSVS']['VERSION']
         assert v3 == override, v3
 
-    def test_get_visual_studio_versions(self):
-        """Test retrieval of the list of visual studio versions"""
-        v1 = get_visualstudio_versions()
-        assert not v1 or v1[0] == self.highest_version, v1
-        assert len(v1) == self.number_of_versions, v1
+    def _TODO_test_merge_default_version(self):
+        """Test the merge_default_version() function"""
+        pass
 
-    def test_get_msvs_install_dirs(self):
-        """Test retrieval of the list of visual studio installed locations"""
-        v1 = get_msvs_install_dirs()
-        assert v1 == self.default_install_loc, v1
-        for key, loc in self.install_locs.items():
-            v2 = get_msvs_install_dirs(key)
-            assert v2 == loc, key + ': ' + str(v2)
+    def test_query_versions(self):
+        """Test retrieval of the list of visual studio versions"""
+        v1 = query_versions()
+        assert not v1 or str(v1[0]) == self.highest_version, \
+               (v1, self.highest_version)
+        assert len(v1) == self.number_of_versions, v1
 
 class msvs6aTestCase(msvsTestCase):
     """Test MSVS 6 Registry"""
@@ -504,7 +585,7 @@ class msvs6aTestCase(msvsTestCase):
     highest_version = '6.0'
     number_of_versions = 1
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio\\VC98'},
+        '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio\\VC98', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio\\VC98\\Bin'},
         '7.0' : {},
         '7.1' : {},
         '8.0' : {},
@@ -519,7 +600,7 @@ class msvs6bTestCase(msvsTestCase):
     highest_version = '6.0'
     number_of_versions = 1
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\VS6', 'VCINSTALLDIR': 'C:\\VS6\\VC98'},
+        '6.0' : {'VSINSTALLDIR': 'C:\\VS6\\VC98', 'VCINSTALLDIR': 'C:\\VS6\\VC98\\Bin'},
         '7.0' : {},
         '7.1' : {},
         '8.0' : {},
@@ -534,8 +615,8 @@ class msvs6and7TestCase(msvsTestCase):
     highest_version = '7.0'
     number_of_versions = 2
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\VS6', 'VCINSTALLDIR': 'C:\\VS6\\VC98'},
-        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Vc7\\'},
+        '6.0' : {'VSINSTALLDIR': 'C:\\VS6\\VC98', 'VCINSTALLDIR': 'C:\\VS6\\VC98\\Bin'},
+        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
         '7.1' : {},
         '8.0' : {},
         '8.0Exp' : {},
@@ -549,8 +630,8 @@ class msvs7TestCase(msvsTestCase):
     highest_version = '7.0'
     number_of_versions = 1
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio'},
-        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Vc7\\'},
+        '6.0' : {},
+        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
         '7.1' : {},
         '8.0' : {},
         '8.0Exp' : {},
@@ -564,37 +645,52 @@ class msvs71TestCase(msvsTestCase):
     highest_version = '7.1'
     number_of_versions = 1
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio'},
+        '6.0' : {},
         '7.0' : {},
-        '7.1' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Vc7\\'},
+        '7.1' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Common7', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Common7\\Tools'},
         '8.0' : {},
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['7.1']
 
-class msvs8ExpTestCase(msvsTestCase):
+class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
     """Test MSVS 8 Express Registry"""
     registry = DummyRegistry(regdata_8exp + regdata_cv)
     default_version = '8.0Exp'
     highest_version = '8.0Exp'
     number_of_versions = 1
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio'},
+        '6.0' : {},
         '7.0' : {},
         '7.1' : {},
-        '8.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC\\'},
-        '8.0Exp' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC\\'},
+        '8.0' : {},
+        '8.0Exp' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
     }
     default_install_loc = install_locs['8.0Exp']
+
+class msvs80TestCase(msvsTestCase):
+    """Test MSVS 8 Registry"""
+    registry = DummyRegistry(regdata_80 + regdata_cv)
+    default_version = '8.0'
+    highest_version = '8.0'
+    number_of_versions = 1
+    install_locs = {
+        '6.0' : {},
+        '7.0' : {},
+        '7.1' : {},
+        '8.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
+        '8.0Exp' : {},
+    }
+    default_install_loc = install_locs['8.0']
 
 class msvsEmptyTestCase(msvsTestCase):
     """Test Empty Registry"""
     registry = DummyRegistry(regdata_none)
-    default_version = '6.0'
+    default_version = '9.0'
     highest_version = None
     number_of_versions = 0
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio'},
+        '6.0' : {},
         '7.0' : {},
         '7.1' : {},
         '8.0' : {},
@@ -614,6 +710,8 @@ if __name__ == "__main__":
     SCons.Util.RegEnumValue = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
     os.path.exists = DummyExists # make sure all files exist :-)
+    os.path.isfile = DummyExists # make sure all files are files :-)
+    os.path.isdir  = DummyExists # make sure all dirs are dirs :-)
 
     exit_val = 0
 
@@ -624,14 +722,28 @@ if __name__ == "__main__":
         msvs7TestCase,
         msvs71TestCase,
         msvs8ExpTestCase,
+        msvs80TestCase,
         msvsEmptyTestCase,
     ]
 
     for test_class in test_classes:
-        print test_class.__doc__
-        suite = unittest.makeSuite(test_class, 'test_')
-        if not unittest.TextTestRunner().run(suite).wasSuccessful():
-            exit_val = 1
+        print "TEST: ", test_class.__doc__
+        back_osenv = copy.deepcopy(os.environ)
+        try:
+            # XXX: overriding the os.environ is bad, but doing it
+            # correctly is too complicated for now. Those tests should
+            # be fixed
+            for k in ['VS71COMNTOOLS',
+                      'VS80COMNTOOLS',
+                      'VS90COMNTOOLS']:
+                if os.environ.has_key(k):
+                    del os.environ[k]
+
+            suite = unittest.makeSuite(test_class, 'test_')
+            if not unittest.TextTestRunner().run(suite).wasSuccessful():
+                exit_val = 1
+        finally:
+            os.env = back_osenv
 
     sys.exit(exit_val)
 

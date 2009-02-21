@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -24,53 +23,24 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-# Test error reporting
+__doc__ = """
+Common functions for Microsoft Visual Studio and Visual C/C++.
 """
 
+import copy
+import os
 import re
-import sys
+import subprocess
 
-import TestSCons
+import SCons.Errors
+import SCons.Platform.win32
+import SCons.Util
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
-
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
-
-
-SConstruct_path = test.workpath('SConstruct')
-
-test.write(SConstruct_path, """\
-env = Environment()
-env['PDB'] = File('test.pdb')
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-if int(ARGUMENTS.get('SET_PCHSTOP')):
-    env['PCHSTOP'] = File('StdAfx.h')
-env.Program('test', 'test.cpp')
-""")
-
-
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction must be defined if PCH is defined.
-''' + TestSCons.file_expr
-
-test.run(arguments='SET_PCHSTOP=0', status=2, stderr=expect_stderr)
-
-
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction variable must be a string: .+
-''' + TestSCons.file_expr
-
-test.run(arguments='SET_PCHSTOP=1', status=2, stderr=expect_stderr)
-
-
-
-test.pass_test()
+from SCons.Tool.MSCommon.vs import detect_msvs, \
+                                   get_default_version, \
+                                   get_vs_by_version, \
+                                   merge_default_version, \
+                                   query_versions
 
 # Local Variables:
 # tab-width:4

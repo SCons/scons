@@ -43,7 +43,7 @@ import SCons.Errors
 import SCons.Tool
 import SCons.Util
 
-from SCons.Tool.msvc import get_msvc_paths
+from SCons.Tool.MSCommon import detect_msvs, merge_default_version
 from SCons.Tool.PharLapCommon import addPharLapPaths
 
 _re_linker_command = re.compile(r'(\s)@\s*([^\s]+)')
@@ -94,15 +94,16 @@ def generate(env):
     env['LIBLINKPREFIX']='-lib '
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
 
-    msvs_version = env.get('MSVS_VERSION')
-    include_path, lib_path, exe_path = get_msvc_paths(env, version = msvs_version)
-    env['ENV']['LIB'] = lib_path
-    env.PrependENVPath('PATH', exe_path)
+    # Set-up ms tools paths for default version
+    merge_default_version(env)
 
     addPharLapPaths(env)
 
 def exists(env):
-    return env.Detect('linkloc')
+    if detect_msvs():
+        return env.Detect('linkloc')
+    else:
+        return 0
 
 # Local Variables:
 # tab-width:4

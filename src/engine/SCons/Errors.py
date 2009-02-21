@@ -125,6 +125,9 @@ class StopError(Exception):
 class EnvironmentError(Exception):
     pass
 
+class MSVCError(IOError):
+    pass
+
 class ExplicitExit(Exception):
     def __init__(self, node=None, status=None, *args):
         self.node = node
