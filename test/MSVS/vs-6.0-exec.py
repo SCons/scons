@@ -40,8 +40,10 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-if not '6.0' in test.msvs_versions():
-    msg = "Visual Studio 6 not installed; skipping test.\n"
+msvs_version = '6.0'
+
+if not msvs_version in test.msvs_versions():
+    msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
 
 
@@ -51,9 +53,9 @@ if not '6.0' in test.msvs_versions():
 # environment so we can execute msdev and really try to build something.
 
 test.run(arguments = '-n -q -Q -f -', stdin = """\
-env = Environment(tools = ['msvc'])
-print "os.environ.update(%s)" % repr(env['ENV'])
-""")
+env = Environment(tools = ['msvc'], MSVS_VERSION='%(msvs_version)s')
+print "os.environ.update(%%s)" %% repr(env['ENV'])
+""" % locals())
 
 exec(test.stdout())
 
@@ -62,7 +64,7 @@ exec(test.stdout())
 test.subdir('sub dir')
 
 test.write(['sub dir', 'SConstruct'], """\
-env=Environment(MSVS_VERSION = '6.0')
+env=Environment(MSVS_VERSION = '%(msvs_version)s')
 
 env.MSVSProject(target = 'foo.dsp',
                 srcs = ['foo.c'],
@@ -70,7 +72,7 @@ env.MSVSProject(target = 'foo.dsp',
                 variant = 'Release')
 
 env.Program('foo.c')
-""")
+""" % locals())
 
 test.write(['sub dir', 'foo.c'], r"""
 int
@@ -84,7 +86,7 @@ main(int argc, char *argv)
 test.run(chdir='sub dir', arguments='.')
 
 test.run(chdir='sub dir',
-         program=[test.get_msvs_executable('6.0')],
+         program=[test.get_msvs_executable(msvs_version)],
          arguments=['Test.dsp', '/MAKE', 'foo - Win32 Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")

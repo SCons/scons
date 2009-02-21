@@ -41,6 +41,8 @@ test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 CC = test.detect('CC', norm=1)
 CC_dir, CC_file = os.path.split(CC)
+
+CC = re.escape(CC)
 CC_dir = re.escape(os.path.normcase(CC_dir))
 CC_file = re.escape(CC_file)
 

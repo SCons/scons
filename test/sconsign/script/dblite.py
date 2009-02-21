@@ -29,6 +29,8 @@ Verify that various ways of getting at a an sconsign file written with
 the default dblite module and default .dblite suffix work correctly.
 """
 
+import re
+
 import TestSConsign
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
@@ -36,6 +38,9 @@ test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 CC = test.detect('CC', norm=1)
 LINK = test.detect('LINK', norm=1)
 if LINK is None: LINK = CC
+
+CC = re.escape(CC)
+LINK = re.escape(LINK)
 
 test.subdir('sub1', 'sub2')
 
