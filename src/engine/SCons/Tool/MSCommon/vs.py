@@ -47,31 +47,6 @@ class VisualStudio:
         self.__dict__.update(kw)
         self._cache = {}
 
-    def batch_file_path(self):
-        pdir = self.get_vc_product_dir()
-        if not pdir:
-            return None
-        return os.path.join(pdir, self.batch_file)
-
-    def common_tools_path(self):
-        return os.environ.get(self.common_tools_var)
-
-    def vc_product_dir_path(self):
-        if not SCons.Util.can_read_reg:
-            debug('SCons can not read registry')
-            return None
-        key = self.hkey_root + '\\' + self.vc_product_dir_key
-        try:
-            comps = read_reg(key)
-        except WindowsError, e:
-            debug('Did not find product dir key %s in registry' % key)
-        else:
-            if self.batch_file_dir_reg_relpath:
-                comps = os.path.join(comps, self.batch_file_dir_reg_relpath)
-            if os.path.exists(comps):
-                return comps
-            debug('%s is not found on the file system' % comps)
-
     #
 
     def find_batch_file(self):
@@ -81,47 +56,57 @@ class VisualStudio:
         """
         pdir = self.get_vc_product_dir()
         if not pdir:
-            debug('find_batch_file();  no pdir')
+            debug('find_batch_file():  no pdir')
             return None
-        batch_file = os.path.join(pdir, self.batch_file)
+        batch_file = os.path.normpath(os.path.join(pdir, self.batch_file))
+        batch_file = os.path.normpath(batch_file)
         if not os.path.isfile(batch_file):
-            debug('%s file not on file system' % batch_file)
+            debug('find_batch_file():  %s not on file system' % batch_file)
             return None
         return batch_file
 
     def find_executable(self):
         pdir = self.get_vc_product_dir()
         if not pdir:
+            debug('find_executable():  no pdir')
             return None
         executable = os.path.join(pdir, self.executable_path)
+        executable = os.path.normpath(executable)
         if not os.path.isfile(executable):
-            debug('%s file not on file system' % executable)
+            debug('find_executable():  %s not on file system' % executable)
             return None
         return executable
 
     def find_vc_product_dir(self):
-        if SCons.Util.can_read_reg:
-            key = self.hkey_root + '\\' + self.vc_product_dir_key
-            try:
-                comps = read_reg(key)
-            except WindowsError, e:
-                debug('Did not find product dir key %s in registry' % key)
-            else:
-                if self.batch_file_dir_reg_relpath:
-                    comps = os.path.join(comps, self.batch_file_dir_reg_relpath)
-                if os.path.exists(comps):
-                    return comps
-                debug('%s is not found on the file system' % comps)
+        if not SCons.Util.can_read_reg:
+            debug('find_vc_product_dir():  can not read registry')
+            return None
+        key = self.hkey_root + '\\' + self.vc_product_dir_key
+        try:
+            comps = read_reg(key)
+        except WindowsError, e:
+            debug('find_vc_product_dir():  no registry key %s' % key)
         else:
-            debug('SCons can not read registry')
+            if self.batch_file_dir_reg_relpath:
+                comps = os.path.join(comps, self.batch_file_dir_reg_relpath)
+                comps = os.path.normpath(comps)
+            if os.path.exists(comps):
+                return comps
+            else:
+                debug('find_vc_product_dir():  %s not on file system' % comps)
 
         d = os.environ.get(self.common_tools_var)
-        if d and os.path.isdir(d):
-            debug('%s found from %s' % (d, self.common_tools_var))
-            if self.batch_file_dir_env_relpath:
-                d = os.path.join(d, self.batch_file_dir_env_relpath)
-            return d
-        return None
+        if not d:
+            msg = 'find_vc_product_dir():  no %s variable'
+            debug(msg % self.common_tools_var)
+            return None
+        if not os.path.isdir(d):
+            debug('find_vc_product_dir():  %s not on file system' % d)
+            return None
+        if self.batch_file_dir_env_relpath:
+            d = os.path.join(d, self.batch_file_dir_env_relpath)
+            d = os.path.normpath(d)
+        return d
 
     #
 
@@ -221,6 +206,8 @@ SupportedVSList = [
     #),
 
     # Visual Studio 2008
+    # The batch file we look for is in the VC directory,
+    # so the devenv.com executable is up in ..\..\Common7\IDE.
     VisualStudio('9.0',
                  hkey_root=r'Software\Microsoft\VisualStudio\9.0',
                  common_tools_var='VS90COMNTOOLS',
@@ -234,6 +221,8 @@ SupportedVSList = [
     ),
 
     # Visual C++ 2008 Express Edition
+    # The batch file we look for is in the VC directory,
+    # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
     VisualStudio('9.0Exp',
                  hkey_root=r'Software\Microsoft\VisualStudio\9.0',
                  common_tools_var='VS90COMNTOOLS',
@@ -247,6 +236,8 @@ SupportedVSList = [
     ),
 
     # Visual Studio 2005
+    # The batch file we look for is in the VC directory,
+    # so the devenv.com executable is up in ..\..\Common7\IDE.
     VisualStudio('8.0',
                  hkey_root=r'Software\Microsoft\VisualStudio\8.0',
                  common_tools_var='VS80COMNTOOLS',
@@ -260,6 +251,8 @@ SupportedVSList = [
     ),
 
     # Visual C++ 2005 Express Edition
+    # The batch file we look for is in the VC directory,
+    # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
     VisualStudio('8.0Exp',
                  hkey_root=r'Software\Microsoft\VCExpress\8.0',
                  common_tools_var='VS80COMNTOOLS',
@@ -267,12 +260,16 @@ SupportedVSList = [
                  vc_product_dir_key=r'Setup\VC\ProductDir',
                  batch_file_dir_reg_relpath=None,
                  batch_file_dir_env_relpath=r'..\..\VC',
+                 # The batch file is in the VC directory, so
+                 # so the devenv.com executable is next door in ..\IDE.
                  executable_path=r'..\Common7\IDE\VCExpress.exe',
                  default_dirname='Microsoft Visual Studio 8',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio .NET 2003
+    # The batch file we look for is in the Common7\Tools directory,
+    # so the devenv.com executable is next door in ..\IDE.
     VisualStudio('7.1',
                  hkey_root=r'Software\Microsoft\VisualStudio\7.1',
                  common_tools_var='VS71COMNTOOLS',
@@ -280,12 +277,14 @@ SupportedVSList = [
                  vc_product_dir_key=r'Setup\VC\ProductDir',
                  batch_file_dir_reg_relpath=r'..\Common7\Tools',
                  batch_file_dir_env_relpath=None,
-                 executable_path=r'..\Common7\IDE\devenv.com',
+                 executable_path=r'..\IDE\devenv.com',
                  default_dirname='Microsoft Visual Studio .NET',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio .NET
+    # The batch file we look for is in the Common7\Tools directory,
+    # so the devenv.com executable is next door in ..\IDE.
     VisualStudio('7.0',
                  hkey_root=r'Software\Microsoft\VisualStudio\7.0',
                  common_tools_var='VS70COMNTOOLS',
@@ -293,7 +292,7 @@ SupportedVSList = [
                  vc_product_dir_key=r'Setup\VC\ProductDir',
                  batch_file_dir_reg_relpath=r'..\Common7\Tools',
                  batch_file_dir_env_relpath=None,
-                 executable_path=r'..\Common7\IDE\devenv.com',
+                 executable_path=r'..\IDE\devenv.com',
                  default_dirname='Microsoft Visual Studio .NET',
                  supported_arch=['x86'],
     ),
@@ -333,9 +332,9 @@ def get_installed_visual_studios():
         InstalledVSList = []
         InstalledVSMap = {}
         for vs in SupportedVSList:
-            debug('trying to find %s' % vs.version)
-            if vs.get_batch_file():
-                debug('found %s' % vs.version)
+            debug('trying to find VS %s' % vs.version)
+            if vs.get_executable():
+                debug('found VS %s' % vs.version)
                 InstalledVSList.append(vs)
                 InstalledVSMap[vs.version] = vs
     return InstalledVSList

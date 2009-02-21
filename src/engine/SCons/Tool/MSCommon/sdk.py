@@ -63,43 +63,42 @@ class SDKDefinition:
         self.version = version
         self.__dict__.update(kw)
 
-    def find_install_dir(self):
+    def find_sdk_dir(self):
         """Try to find the MS SDK from the registry.
 
         Return None if failed or the directory does not exist.
         """
         if not SCons.Util.can_read_reg:
-            debug('SCons cannot read registry')
+            debug('find_sdk_dir():  can not read registry')
             return None
 
         hkey = self.HKEY_FMT % self.hkey_data
 
         try:
-            install_dir = read_reg(hkey)
-            debug('Found sdk dir in registry: %s' % install_dir)
+            sdk_dir = read_reg(hkey)
         except WindowsError, e:
-            debug('Did not find sdk dir key %s in registry' % hkey)
+            debug('find_sdk_dir(): no registry key %s' % hkey)
             return None
 
-        if not os.path.exists(install_dir):
-            debug('%s is not found on the filesystem' % install_dir)
+        if not os.path.exists(sdk_dir):
+            debug('find_sdk_dir():  %s not on file system' % sdk_dir)
             return None
 
-        ftc = os.path.join(install_dir, self.sanity_check_file)
+        ftc = os.path.join(sdk_dir, self.sanity_check_file)
         if not os.path.exists(ftc):
-            debug("File %s used for sanity check not found" % ftc)
+            debug("find_sdk_dir():  sanity check %s not found" % ftc)
             return None
 
-        return install_dir
+        return sdk_dir
 
-    def get_install_dir(self):
+    def get_sdk_dir(self):
         """Return the MSSSDK given the version string."""
         try:
-            return self._install_dir
+            return self._sdk_dir
         except AttributeError:
-            install_dir = self.find_install_dir()
-            self._install_dir = install_dir
-            return install_dir
+            sdk_dir = self.find_sdk_dir()
+            self._sdk_dir = sdk_dir
+            return sdk_dir
 
 class WindowsSDK(SDKDefinition):
     """
@@ -165,7 +164,9 @@ def get_installed_sdks():
         InstalledSDKList = []
         InstalledSDKMap = {}
         for sdk in SupportedSDKList:
-            if sdk.get_install_dir():
+            debug('trying to find SDK %s' % sdk.version)
+            if sdk.get_sdk_dir():
+                debug('found SDK %s' % sdk.version)
                 InstalledSDKList.append(sdk)
                 InstalledSDKMap[sdk.version] = sdk
     return InstalledSDKList
@@ -239,7 +240,7 @@ def set_sdk_by_version(env, mssdk):
     if not sdk:
         msg = "SDK version %s is not installed" % repr(mssdk)
         raise SCons.Errors.UserError, msg
-    set_sdk_by_directory(env, sdk.get_install_dir())
+    set_sdk_by_directory(env, sdk.get_sdk_dir())
 
 def set_default_sdk(env, msver):
     """Set up the default Platform/Windows SDK."""
@@ -247,7 +248,7 @@ def set_default_sdk(env, msver):
     if msver >= 8:
         sdks = get_installed_sdks()
         if len(sdks) > 0:
-            set_sdk_by_directory(env, sdks[0].get_install_dir())
+            set_sdk_by_directory(env, sdks[0].get_sdk_dir())
 
 # Local Variables:
 # tab-width:4

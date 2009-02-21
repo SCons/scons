@@ -34,17 +34,19 @@ import re
 
 import SCons.Util
 
-# Uncomment to enable debug logging to your choice of file
-#import logging,os
-#os.unlink('c:/tmp/debug.log')
-#logging.basicConfig(filename='c:/tmp/debug.log', level=logging.DEBUG,)
 
-try:
-    from logging import debug
-except ImportError:
-    debug = lambda x : None
+logfile = os.environ.get('SCONS_MSCOMMON_DEBUG')
+if logfile:
+    try:
+        import logging
+    except ImportError:
+        debug = lambda x: open(logfile, 'a').write(x + '\n')
+    else:
+        logging.basicConfig(filename=logfile, level=logging.DEBUG)
+        debug = logging.debug
+else:
+    debug = lambda x: None
 
-#debug = lambda x : open('con', 'w').write(x + '\n')
 
 # TODO(sgk): unused
 def is_win64():

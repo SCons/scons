@@ -26,7 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that we can actually build a simple program using our generated
-Visual Studio 8.0 project (.vcproj) and solution (.sln) files.
+Visual Studio 8.0 project (.vcproj) and solution (.sln) files
+using Visual Studio 8.0 (Professional edition).
 """
 
 import os
@@ -40,8 +41,10 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-if not '8.0' in test.msvs_versions():
-    msg = "Visual Studio 8.0 not installed; skipping test.\n"
+msvs_version = '8.0'
+
+if not msvs_version in test.msvs_versions():
+    msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
 
 
@@ -51,9 +54,9 @@ if not '8.0' in test.msvs_versions():
 # environment so we can execute devenv and really try to build something.
 
 test.run(arguments = '-n -q -Q -f -', stdin = """\
-env = Environment(tools = ['msvc'])
-print "os.environ.update(%s)" % repr(env['ENV'])
-""")
+env = Environment(tools = ['msvc'], MSVS_VERSION='%(msvs_version)s')
+print "os.environ.update(%%s)" %% repr(env['ENV'])
+""" % locals())
 
 exec(test.stdout())
 
@@ -62,7 +65,7 @@ exec(test.stdout())
 test.subdir('sub dir')
 
 test.write(['sub dir', 'SConstruct'], """\
-env=Environment(MSVS_VERSION = '8.0')
+env=Environment(MSVS_VERSION = '%(msvs_version)s')
 
 env.MSVSProject(target = 'foo.vcproj',
                 srcs = ['foo.c'],
@@ -70,7 +73,7 @@ env.MSVSProject(target = 'foo.vcproj',
                 variant = 'Release')
 
 env.Program('foo.c')
-""")
+""" % locals())
 
 test.write(['sub dir', 'foo.c'], r"""
 int
@@ -90,7 +93,7 @@ system_dll_path = os.path.join( SCons.Platform.win32.get_system_root(), 'System3
 os.environ['PATH'] = os.environ['PATH'] + os.pathsep + system_dll_path
 
 test.run(chdir='sub dir',
-         program=[test.get_msvs_executable('8.0')],
+         program=[test.get_msvs_executable(msvs_version)],
          arguments=['foo.sln', '/build', 'Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
