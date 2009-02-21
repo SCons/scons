@@ -180,7 +180,7 @@ test.run(arguments='slow.obj', stderr=None)
 slow = time.time() - start
 
 # using precompiled headers should be faster
-limit = slow*0.85
+limit = slow*0.90
 if fast >= limit:
     print "Using precompiled headers was not fast enough:"
     print "slow.obj:  %.3fs" % slow

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -24,53 +23,39 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""engine.SCons.Tool.mssdk
+
+Tool-specific initialization for Microsoft SDKs, both Platform
+SDKs and Windows SDKs.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
 """
-# Test error reporting
-"""
 
-import re
-import sys
+from SCons.Tool.MSCommon.sdk import detect_sdk, \
+                                    set_default_sdk, \
+                                    set_sdk_by_directory, \
+                                    set_sdk_by_version
 
-import TestSCons
+def generate(env):
+    """Add construction variables for an MS SDK to an Environment."""
+    if env.has_key('MSSDK_DIR'):
+        set_sdk_by_directory(env, env.subst('$MSSDK_DIR'))
+        return
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+    if env.has_key('MSSDK_VERSION'):
+        set_sdk_by_version(env, env.subst('$MSSDK_VERSION'))
+        return
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+    if env.has_key('MSVS_VERSION'):
+        set_default_sdk(env, env['MSVS_VERSION'])
 
+    #print "No MSVS_VERSION: this is likely to be a bug"
+    return
 
-
-SConstruct_path = test.workpath('SConstruct')
-
-test.write(SConstruct_path, """\
-env = Environment()
-env['PDB'] = File('test.pdb')
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-if int(ARGUMENTS.get('SET_PCHSTOP')):
-    env['PCHSTOP'] = File('StdAfx.h')
-env.Program('test', 'test.cpp')
-""")
-
-
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction must be defined if PCH is defined.
-''' + TestSCons.file_expr
-
-test.run(arguments='SET_PCHSTOP=0', status=2, stderr=expect_stderr)
-
-
-
-expect_stderr = r'''
-scons: \*\*\* The PCHSTOP construction variable must be a string: .+
-''' + TestSCons.file_expr
-
-test.run(arguments='SET_PCHSTOP=1', status=2, stderr=expect_stderr)
-
-
-
-test.pass_test()
+def exists(env):
+    return detect_sdk()
 
 # Local Variables:
 # tab-width:4

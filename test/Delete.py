@@ -181,6 +181,7 @@ test.run(status=2, stderr=None)
 
 fail_strings = [
     "No such file or directory",
+    "The system cannot find the file specified",
     "The system cannot find the path specified",
 ]
 

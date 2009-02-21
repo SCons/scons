@@ -636,31 +636,12 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
         """Returns a full path to the executable (MSDEV or devenv)
         for the specified version of Visual Studio.
         """
-        common_msdev98_bin_msdev_com = ['Common', 'MSDev98', 'Bin', 'MSDEV.COM']
-        common7_ide_devenv_com       = ['Common7', 'IDE', 'devenv.com']
-        common7_ide_vcexpress_exe    = ['Common7', 'IDE', 'VCExpress.exe']
-        sub_paths = {
-            '6.0' : [
-                common_msdev98_bin_msdev_com,
-            ],
-            '7.0' : [
-                common7_ide_devenv_com,
-            ],
-            '7.1' : [
-                common7_ide_devenv_com,
-            ],
-            '8.0' : [
-                common7_ide_devenv_com,
-                common7_ide_vcexpress_exe,
-            ],
-        }
-        from SCons.Tool.msvs import get_msvs_install_dirs
-        vs_path = get_msvs_install_dirs(version)['VSINSTALLDIR']
-        for sp in sub_paths[version]:
-            p = apply(os.path.join, [vs_path] + sp)
-            if os.path.exists(p):
-                return p
-        return apply(os.path.join, [vs_path] + sub_paths[version][0])
+        from SCons.Tool.MSCommon import get_vs_by_version
+
+        msvs = get_vs_by_version(version)
+        if not msvs:
+            return None
+        return msvs.get_executable()
 
 # Local Variables:
 # tab-width:4

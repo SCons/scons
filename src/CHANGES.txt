@@ -14,6 +14,15 @@ RELEASE X.X.X - XXX
 
     - Make suffix-matching for scanners case-insensitive on Windows.
 
+  From David Cournapeau:
+
+    - Change the way SCons finds versions of Visual C/C++ and Visual
+      Studio to find and use the Microsoft v*vars.bat files.
+
+  From Robert P. J. Day:
+
+    - User's Guide updates.
+
   From Dan Eaton:
 
     - Fix generation of Visual Studio 8 project files on x64 platforms.
@@ -41,10 +50,6 @@ RELEASE X.X.X - XXX
 
     - Spell the Windows environment variables consistently "SystemDrive"
       and "SystemRoot" instead of "SYSTEMDRIVE" and "SYSTEMROOT".
-
-  From Robert P. J. Day:
-
-    - User's Guide updates.
 
 
 
