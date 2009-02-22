@@ -207,6 +207,8 @@ class SConfTestCase(unittest.TestCase):
                         return None
                     def prepare(self):
                         pass
+                    def push_to_cache(self):
+                        pass
                     def retrieve_from_cache(self):
                         return 0
                     def build(self, **kw):

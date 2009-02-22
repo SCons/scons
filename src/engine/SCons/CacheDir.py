@@ -190,22 +190,16 @@ class CacheDir:
         if not self.is_enabled():
             return False
 
-        retrieved = False
-
+        env = node.get_build_env()
         if cache_show:
-            if CacheRetrieveSilent(node, [], node.get_build_env(), execute=1) == 0:
+            if CacheRetrieveSilent(node, [], env, execute=1) == 0:
                 node.build(presub=0, execute=0)
-                retrieved = 1
+                return True
         else:
-            if CacheRetrieve(node, [], node.get_build_env(), execute=1) == 0:
-                retrieved = 1
-        if retrieved:
-            # Record build signature information, but don't
-            # push it out to cache.  (We just got it from there!)
-            node.set_state(SCons.Node.executed)
-            SCons.Node.Node.built(node)
+            if CacheRetrieve(node, [], env, execute=1) == 0:
+                return True
 
-        return retrieved
+        return False
 
     def push(self, node):
         if not self.is_enabled():

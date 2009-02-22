@@ -194,10 +194,10 @@ class FileTestCase(BaseTestCase):
 
             cd_f3 = self.test.workpath("cd.f3")
             f3 = self.File(cd_f3)
-            f3.built()
+            f3.push_to_cache()
             assert self.pushed == [], self.pushed
             self.test.write(cd_f3, "cd.f3\n")
-            f3.built()
+            f3.push_to_cache()
             assert self.pushed == [f3], self.pushed
 
             self.pushed = []
@@ -240,7 +240,7 @@ class FileTestCase(BaseTestCase):
 
             warn_caught = 0
             try:
-                f7.built()
+                f7.push_to_cache()
             except SCons.Errors.BuildError, e:
                 assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
                 warn_caught = 1

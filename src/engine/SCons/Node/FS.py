@@ -2562,6 +2562,22 @@ class File(Base):
         # created.
         self.dir._create()
 
+    def push_to_cache(self):
+        """Try to push the node into a cache
+        """
+        # This should get called before the Nodes' .built() method is
+        # called, which would clear the build signature if the file has
+        # a source scanner.
+        #
+        # We have to clear the local memoized values *before* we push
+        # the node to cache so that the memoization of the self.exists()
+        # return value doesn't interfere.
+        if self.nocache:
+            return
+        self.clear_memoized_values()
+        if self.exists():
+            self.get_build_env().get_CacheDir().push(self)
+
     def retrieve_from_cache(self):
         """Try to retrieve the node's content from a cache
 
@@ -2576,22 +2592,6 @@ class File(Base):
         if not self.is_derived():
             return None
         return self.get_build_env().get_CacheDir().retrieve(self)
-
-    def built(self):
-        """
-        Called just after this node is successfully built.
-        """
-        # Push this file out to cache before the superclass Node.built()
-        # method has a chance to clear the build signature, which it
-        # will do if this file has a source scanner.
-        #
-        # We have to clear the memoized values *before* we push it to
-        # cache so that the memoization of the self.exists() return
-        # value doesn't interfere.
-        self.clear_memoized_values()
-        if self.exists():
-            self.get_build_env().get_CacheDir().push(self)
-        SCons.Node.Node.built(self)
 
     def visited(self):
         if self.exists():
