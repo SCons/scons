@@ -595,8 +595,8 @@ V8DSPConfiguration = """\
 \t\t\t\tReBuildCommandLine="%(rebuildcmd)s"
 \t\t\t\tCleanCommandLine="%(cleancmd)s"
 \t\t\t\tOutput="%(runfile)s"
-\t\t\t\tPreprocessorDefinitions=""
-\t\t\t\tIncludeSearchPath=""
+\t\t\t\tPreprocessorDefinitions="%(preprocdefs)s"
+\t\t\t\tIncludeSearchPath="%(includepath)s"
 \t\t\t\tForcedIncludes=""
 \t\t\t\tAssemblySearchPath=""
 \t\t\t\tForcedUsingAssemblies=""
@@ -685,6 +685,9 @@ class _GenerateV7DSP(_DSPGenerator):
             buildcmd    = xmlify(starting + self.env.subst('$MSVSBUILDCOM', 1) + cmdargs)
             rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1) + cmdargs)
             cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1) + cmdargs)
+
+            preprocdefs = xmlify(';'.join(self.env.get('CPPDEFINES', [])))
+            includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
