@@ -1,5 +1,0 @@
-Last Change: Fri Oct 17 04:00 PM 2008 J
-
-- Make sure VS 6 and VS 2003 .Net work (with their own SDK)
-- See whether current unit tests can be updated and need to be rewritten from
-  scratch
