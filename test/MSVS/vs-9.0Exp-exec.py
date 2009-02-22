@@ -43,6 +43,10 @@ if sys.platform != 'win32':
 
 msvs_version = '9.0Exp'
 
+# TODO:  remove when we add support
+msg = "Generating Visual Studio %s project files is not supported yet; skipping test.\n"
+test.skip_test(msg % msvs_version)
+
 if not msvs_version in test.msvs_versions():
     msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
