@@ -69,6 +69,9 @@ class Node:
     def disambiguate(self):
         return self
 
+    def push_to_cache(self):
+        pass
+
     def retrieve_from_cache(self):
         global cache_text
         if self.cached:
@@ -87,7 +90,8 @@ class Node:
 
     def built(self):
         global built_text
-        built_text = built_text + " really"
+        if not self.cached:
+            built_text = built_text + " really"
 
     def has_builder(self):
         return not self.builder is None

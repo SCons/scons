@@ -223,7 +223,14 @@ class Task:
         try:
             everything_was_cached = 1
             for t in self.targets:
-                if not t.retrieve_from_cache():
+                if t.retrieve_from_cache():
+                    # Call the .built() method without calling the
+                    # .push_to_cache() method, since we just got the
+                    # target from the cache and don't need to push
+                    # it back there.
+                    t.set_state(NODE_EXECUTED)
+                    t.built()
+                else:
                     everything_was_cached = 0
                     break
             if not everything_was_cached:
@@ -279,6 +286,7 @@ class Task:
                 for side_effect in t.side_effects:
                     side_effect.set_state(NODE_NO_STATE)
                 t.set_state(NODE_EXECUTED)
+                t.push_to_cache()
                 t.built()
             t.visited()
 

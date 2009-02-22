@@ -435,6 +435,12 @@ class NodeTestCase(unittest.TestCase):
         assert n.cleared, n.cleared
         assert n.ninfo.updated, n.ninfo.cleared
 
+    def test_push_to_cache(self):
+        """Test the base push_to_cache() method"""
+        n = SCons.Node.Node()
+        r = n.push_to_cache()
+        assert r is None, r
+
     def test_retrieve_from_cache(self):
         """Test the base retrieve_from_cache() method"""
         n = SCons.Node.Node()
