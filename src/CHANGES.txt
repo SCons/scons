@@ -27,6 +27,11 @@ RELEASE X.X.X - XXX
 
     - Fix generation of Visual Studio 8 project files on x64 platforms.
 
+  From Allan Erskine:
+
+    - Set IncludeSearchPath and PreprocessorDefinitions in generated
+      Visual Studio 8 project files, to help IntelliSense work.
+
   From Steven Knight:
 
     - Fix the error message when use of a non-existent drive on Windows
