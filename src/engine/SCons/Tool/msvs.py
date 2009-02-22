@@ -686,8 +686,11 @@ class _GenerateV7DSP(_DSPGenerator):
             rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1) + cmdargs)
             cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1) + cmdargs)
 
-            preprocdefs = xmlify(';'.join(self.env.get('CPPDEFINES', [])))
-            includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
+            # TODO(1.5)
+            #preprocdefs = xmlify(';'.join(self.env.get('CPPDEFINES', [])))
+            #includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
+            preprocdefs = xmlify(string.join(self.env.get('CPPDEFINES', []), ';'))
+            includepath = xmlify(string.join(self.env.get('CPPPATH', []), ';'))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
