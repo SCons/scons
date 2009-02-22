@@ -70,8 +70,7 @@ def copier(target, source, env):
     s = str(source[0])
     t = str(target[0])
     open(t, 'wb').write(open(s, 'rb').read())
-env = Environment(tools = ['gcc', 'gnulink', 'fortran'],
-                  CXX = r'%(_python_)s test_linker.py',
+env = Environment(CXX = r'%(_python_)s test_linker.py',
                   CXXCOM = Action(copier),
                   SMARTLINK = SCons.Tool.link.smart_link,
                   LINK = r'$SMARTLINK',
