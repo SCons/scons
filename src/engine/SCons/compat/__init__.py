@@ -167,6 +167,13 @@ except AttributeError:
     elif 'nt' in _names:
         os.devnull = 'nul'
     os.path.devnull = os.devnull
+try:
+    os.path.lexists
+except AttributeError:
+    # Pre-2.4 Python has no os.path.lexists function
+    def lexists(path):
+        return os.path.exists(path) or os.path.islink(path)
+    os.path.lexists = lexists
 
 import shlex
 try:
