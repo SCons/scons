@@ -32,6 +32,10 @@ RELEASE X.X.X - XXX
     - Set IncludeSearchPath and PreprocessorDefinitions in generated
       Visual Studio 8 project files, to help IntelliSense work.
 
+  From Mateusz Gruca:
+
+    - Fix deletion of broken symlinks by the --clean option.
+
   From Steven Knight:
 
     - Fix the error message when use of a non-existent drive on Windows

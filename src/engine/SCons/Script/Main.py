@@ -305,8 +305,8 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
     """An SCons clean task."""
     def fs_delete(self, path, pathstr, remove=1):
         try:
-            if os.path.exists(path):
-                if os.path.isfile(path):
+            if os.path.lexists(path):
+                if os.path.isfile(path) or os.path.islink(path):
                     if remove: os.unlink(path)
                     display("Removed " + pathstr)
                 elif os.path.isdir(path) and not os.path.islink(path):
@@ -326,6 +326,11 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                     # then delete dir itself
                     if remove: os.rmdir(path)
                     display("Removed directory " + pathstr)
+                else:
+                    errstr = "Path '%s' exists but isn't a file or directory."
+                    raise SCons.Errors.UserError(errstr % (pathstr))
+        except SCons.Errors.UserError, e:
+            print e
         except (IOError, OSError), e:
             print "scons: Could not remove '%s':" % pathstr, e.strerror
 
