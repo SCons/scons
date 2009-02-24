@@ -3000,6 +3000,14 @@ Clean('dist', env.Program('hello', 'hello.c'))
 Clean(['foo', 'bar'], 'something_else_to_clean')
 .EE
 
+In this example,
+installing the project creates a subdirectory for the documentation.
+This statement causes the subdirectory to be removed
+if the project is deinstalled.
+.ES
+Clean(docdir, os.path.join(docdir, projectname))
+.EE
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Command( target ", " source ", " action ", [" key = val ", ...])"
@@ -3513,7 +3521,7 @@ print env.Dump('CCCOM')
 .IP
 will print:
 .ES
-\&'$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+\&'$CC -c -o $TARGET $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES'
 .EE
 
 .ES
