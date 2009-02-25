@@ -27,7 +27,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that use of a VariantDir works when the -n option is used (and
-the VariantDir, therefore, isn't actually created).
+the VariantDir, therefore, isn't actually created) when both duplicate=0
+and duplicate=1 are used.
 """
 
 import os
@@ -36,12 +37,24 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+a_file_in = os.path.join('a', 'file.in')
+build0_a_file_out = os.path.join('build0', 'a', 'file.out')
+build1_file_out = os.path.join('build1', 'file.out')
+build1_file_in = os.path.join('build1', 'file.in')
+
 test.subdir('a')
 
 test.write('SConstruct', """\
 env = Environment()
 Export('env')
-env.SConscript('SConscript', exported=['env'], variant_dir='build', duplicate=0)
+env.SConscript('SConscript',
+               exported=['env'],
+               variant_dir='build0',
+               duplicate=0)
+env.SConscript('a/SConscript',
+               exported=['env'],
+               variant_dir='build1',
+               duplicate=1)
 """)
 
 test.write('SConscript', """\
@@ -57,12 +70,23 @@ env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 test.write(['a', 'file.in'], "a/file.in\n")
 
 expect = """\
-scons: building associated VariantDir targets: build
-Copy("%s", "%s")
-""" % (os.path.join('build', 'a', 'file.out'),
-       os.path.join('a', 'file.in'))
+scons: building associated VariantDir targets: build0
+Copy("%(build0_a_file_out)s", "%(a_file_in)s")
+Copy("%(build1_file_out)s", "%(build1_file_in)s")
+""" % locals()
 
 test.run(arguments = '-Q -n', stdout=expect)
+
+test.must_not_exist('build0')
+test.must_not_exist('build1')
+
+# Sanity check that the right thing happens when we *do* build it, just
+# to make sure that the expected -n behavior above isn't a side effect
+# of doing something wrong without -n.
+test.run()
+
+test.must_match(['build0', 'a', 'file.out'], "a/file.in\n")
+test.must_match(['build1', 'file.out'], "a/file.in\n")
 
 test.pass_test()
 

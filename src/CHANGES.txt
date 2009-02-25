@@ -8,6 +8,15 @@
 
 
 
+RELEASE X.X.X - XXX
+
+  From Steven Knight:
+
+    - Fix the -n option when used with VariantDir(duplicate=1)
+      and the variant directory doesn't already exist.
+
+
+
 RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 
   From Stanislav Baranov:
