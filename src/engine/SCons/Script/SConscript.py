@@ -189,7 +189,11 @@ def _SConscript(fs, *files, **kw):
                 # fs match so we can open the SConscript.
                 fs.chdir(top, change_os_dir=1)
                 if f.rexists():
-                    _file_ = open(f.rfile().get_abspath(), "r")
+                    actual = f.rfile()
+                    _file_ = open(actual.get_abspath(), "r")
+                elif f.srcnode().rexists():
+                    actual = f.srcnode().rfile()
+                    _file_ = open(actual.get_abspath(), "r")
                 elif f.has_src_builder():
                     # The SConscript file apparently exists in a source
                     # code management system.  Build it, but then clear
@@ -233,8 +237,7 @@ def _SConscript(fs, *files, **kw):
                         # interpret the stuff within the SConscript file
                         # relative to where we are logically.
                         fs.chdir(ldir, change_os_dir=0)
-                        # TODO Not sure how to handle src_dir here
-                        os.chdir(f.rfile().dir.get_abspath())
+                        os.chdir(actual.dir.get_abspath())
 
                     # Append the SConscript directory to the beginning
                     # of sys.path so Python modules in the SConscript
