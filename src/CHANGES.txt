@@ -8,7 +8,7 @@
 
 
 
-RELEASE X.X.X - XXX
+RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 
   From Stanislav Baranov:
 
