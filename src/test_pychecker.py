@@ -70,8 +70,16 @@ files = filter(lambda f: f[-3:] == '.py', files)
 
 ignore = [
     'SCons/compat/__init__.py',
+    'SCons/compat/_scons_UserString.py',
+    'SCons/compat/_scons_hashlib.py',
+    'SCons/compat/_scons_itertools.py',
+    'SCons/compat/_scons_optparse.py',
+    'SCons/compat/_scons_sets.py',
+    'SCons/compat/_scons_sets15.py',
+    'SCons/compat/_scons_shlex.py',
+    'SCons/compat/_scons_subprocess.py',
+    'SCons/compat/_scons_textwrap.py',
     'SCons/compat/builtins.py',
-    'SCons/compat/_subprocess.py',
 ]
 
 u = {}
@@ -92,6 +100,10 @@ mismatches = []
 default_arguments.extend([
     '--quiet',
     '--limit=1000',
+    # Suppress warnings about unused arguments to functions and methods.
+    # We have too many wrapper functions that intentionally only use some
+    # of their arguments.
+    '--no-argsused',
 ])
 
 if sys.platform == 'win32':
@@ -100,9 +112,10 @@ if sys.platform == 'win32':
     ])
 
 per_file_arguments = {
-    'SCons/__init__.py' : [
-        '--varlist', '"__revision__,__version__,__build__,__buildsys__,__date__,__developer__"',
-    ],
+    #'SCons/__init__.py' : [
+    #    '--varlist',
+    #    '"__revision__,__version__,__build__,__buildsys__,__date__,__developer__"',
+    #],
 }
 
 pywintypes_warning = "warning: couldn't find real module for class pywintypes.error (module name: pywintypes)\n"
@@ -111,8 +124,9 @@ os.environ['PYTHONPATH'] = src_engine
 
 for file in files:
 
-    file = os.path.join(src_engine, file)
-    args = default_arguments + per_file_arguments.get(file, []) + [file]
+    args = (default_arguments + 
+            per_file_arguments.get(file, []) +
+            [os.path.join(src_engine, file)])
 
     test.run(program=program, arguments=args, status=None, stderr=None)
 
