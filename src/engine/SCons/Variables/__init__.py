@@ -166,7 +166,7 @@ class Variables:
                     sys.path.insert(0, dir)
                 try:
                     values['__name__'] = filename
-                    execfile(filename, {}, values)
+                    exec string.replace(open(filename).read(), '\r', '\n') in {}, values
                 finally:
                     if dir:
                         del sys.path[0]

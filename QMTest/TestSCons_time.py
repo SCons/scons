@@ -46,6 +46,7 @@ scons_py = """\
 #!/usr/bin/env python
 import os
 import sys
+import string
 def write_args(fp, args):
     fp.write(args[0] + '\\n')
     for arg in args[1:]:
@@ -58,7 +59,7 @@ for arg in sys.argv[1:]:
         write_args(profile, sys.argv)
         break
 sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + '\\n')
-execfile('SConstruct')
+exec(string.replace(open('SConstruct').read(), '\\r', '\\n'))
 """
 
 aegis_py = """\

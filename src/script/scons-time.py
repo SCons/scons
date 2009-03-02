@@ -79,6 +79,17 @@ def make_temp_file(**kw):
             tempfile.template = save_template
     return result
 
+def HACK_for_exec(cmd, *args):
+    '''
+    For some reason, Python won't allow an exec() within a function
+    that also declares an internal function (including lambda functions).
+    This function is a hack that calls exec() in a function with no
+    internal functions.
+    '''
+    if not args:          exec(cmd)
+    elif len(args) == 1:  exec cmd in args[0]
+    else:                 exec cmd in args[0], args[1]
+
 class Plotter:
     def increment_size(self, largest):
         """
@@ -830,7 +841,7 @@ class SConsTimer:
                 self.title = a
 
         if self.config_file:
-            execfile(self.config_file, self.__dict__)
+            exec string.replace(open(self.config_file).read(), '\r', '\n') in self.__dict__
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -859,18 +870,17 @@ class SConsTimer:
 
         if format == 'ascii':
 
-            def print_function_timing(file, func):
+            for file in args:
                 try:
-                    f, line, func, time = self.get_function_profile(file, func)
+                    f, line, func, time = \
+                            self.get_function_profile(file, function_name)
                 except ValueError, e:
-                    sys.stderr.write("%s: func: %s: %s\n" % (self.name, file, e))
+                    sys.stderr.write("%s: func: %s: %s\n" %
+                                     (self.name, file, e))
                 else:
                     if f.startswith(cwd_):
                         f = f[len(cwd_):]
                     print "%.3f %s:%d(%s)" % (time, f, line, func)
-
-            for file in args:
-                print_function_timing(file, function_name)
 
         elif format == 'gnuplot':
 
@@ -950,7 +960,7 @@ class SConsTimer:
                 self.title = a
 
         if self.config_file:
-            execfile(self.config_file, self.__dict__)
+            HACK_for_exec(string.replace(open(self.config_file).read(), '\r', '\n'), self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -1070,7 +1080,7 @@ class SConsTimer:
         object_name = args.pop(0)
 
         if self.config_file:
-            execfile(self.config_file, self.__dict__)
+            HACK_for_exec(string.replace(open(self.config_file).read(), '\r', '\n'), self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -1208,7 +1218,7 @@ class SConsTimer:
             sys.exit(1)
 
         if self.config_file:
-            execfile(self.config_file, self.__dict__)
+            exec string.replace(open(self.config_file).read(), '\r', '\n') in self.__dict__
 
         if args:
             self.archive_list = args
@@ -1448,7 +1458,7 @@ class SConsTimer:
                 which = a
 
         if self.config_file:
-            execfile(self.config_file, self.__dict__)
+            HACK_for_exec(string.replace(open(self.config_file).read(), '\r', '\n'), self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
