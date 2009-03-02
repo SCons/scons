@@ -58,12 +58,46 @@ else:
     except AttributeError:
         codecs.BOM_UTF8 = '\xef\xbb\xbf'
     try:
-        codecs.BOM_UTF16
+        codecs.BOM_UTF16_LE
+        codecs.BOM_UTF16_BE
     except AttributeError:
-        if sys.byteorder == 'little':
-            codecs.BOM_UTF16 = '\xff\xfe'
+        codecs.BOM_UTF16_LE = '\xff\xfe'
+        codecs.BOM_UTF16_BE = '\xfe\xff'
+
+    # Provide a wrapper function to handle decoding differences in
+    # different versions of Python.  Normally, we'd try to do this in the
+    # compat layer (and maybe it still makes sense to move there?) but
+    # that doesn't provide a way to supply the string class used in
+    # pre-2.3 Python versions with a .decode() method that all strings
+    # naturally have.  Plus, the 2.[01] encodings behave differently
+    # enough that we have to settle for a lowest-common-denominator
+    # wrapper approach.
+    #
+    # Note that the 2.[012] implementations below may be inefficient
+    # because they perform an explicit look up of the encoding for every
+    # decode, but they're old enough (and we want to stop supporting
+    # them soon enough) that it's not worth complicating the interface.
+    # Think of it as additional incentive for people to upgrade...
+    try:
+        ''.decode
+    except AttributeError:
+        # 2.0 through 2.2:  strings have no .decode() method
+        try:
+            codecs.lookup('ascii').decode
+        except AttributeError:
+            # 2.0 and 2.1:  encodings are a tuple of functions, and the
+            # decode() function returns a (result, length) tuple.
+            def my_decode(contents, encoding):
+                return codecs.lookup(encoding)[1](contents)[0]
         else:
-            codecs.BOM_UTF16 = '\xfe\xff'
+            # 2.2:  encodings are an object with methods, and the
+            # .decode() method returns just the decoded bytes.
+            def my_decode(contents, encoding):
+                return codecs.lookup(encoding).decode(contents)
+    else:
+        # 2.3 or later:  use the .decode() string method
+        def my_decode(contents, encoding):
+            return contents.decode(encoding)
 
 import SCons.Action
 from SCons.Debug import logInstanceCreation
@@ -2309,10 +2343,27 @@ class File(Base):
         # it's a valid python string.
         def get_text_contents(self):
             contents = self.get_contents()
+            # The behavior of various decode() methods and functions
+            # w.r.t. the initial BOM bytes is different for different
+            # encodings and/or Python versions.  ('utf-8' does not strip
+            # them, but has a 'utf-8-sig' which does; 'utf-16' seems to
+            # strip them; etc.)  Just side step all the complication by
+            # explicitly stripping the BOM before we decode().
             if contents.startswith(codecs.BOM_UTF8):
-                contents = contents.decode('utf-8')
-            elif contents.startswith(codecs.BOM_UTF16):
-                contents = contents.decode('utf-16')
+                contents = contents[len(codecs.BOM_UTF8):]
+                # TODO(2.2):  Remove when 2.3 becomes floor.
+                #contents = contents.decode('utf-8')
+                contents = my_decode(contents, 'utf-8')
+            elif contents.startswith(codecs.BOM_UTF16_LE):
+                contents = contents[len(codecs.BOM_UTF16_LE):]
+                # TODO(2.2):  Remove when 2.3 becomes floor.
+                #contents = contents.decode('utf-16-le')
+                contents = my_decode(contents, 'utf-16-le')
+            elif contents.startswith(codecs.BOM_UTF16_BE):
+                contents = contents[len(codecs.BOM_UTF16_BE):]
+                # TODO(2.2):  Remove when 2.3 becomes floor.
+                #contents = contents.decode('utf-16-be')
+                contents = my_decode(contents, 'utf-16-be')
             return contents
 
     def get_content_hash(self):
