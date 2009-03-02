@@ -17,6 +17,8 @@ RELEASE X.X.X - XXX
 
     - Fix scanning of Unicode files for both UTF-16 endian flavors.
 
+    - Fix a TypeError on #include of file names with Unicode characters.
+
 
 
 RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800

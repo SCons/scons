@@ -568,6 +568,17 @@ class ClassicCPPTestCase(unittest.TestCase):
             assert n == 'path/bbb', n
             assert i == 'bbb', i
 
+            # TODO(1.5):  remove when 2.2 is minimal; replace ccc
+            # variable in find_include() call below with in-line u'ccc'.
+            try:
+                ccc = eval("u'ccc'")
+            except SyntaxError:
+                ccc = 'ccc'
+
+            n, i = s.find_include(('<', ccc), 'foo', ('path',))
+            assert n == 'path/ccc', n
+            assert i == 'ccc', i
+
         finally:
             SCons.Node.FS.find_file = save
 
