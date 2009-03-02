@@ -28,6 +28,7 @@ import getopt
 import sys
 import time
 import types
+import string
 
 Usage = """\
 Usage:  bench.py OPTIONS file.py
@@ -87,7 +88,7 @@ if len(args) != 1:
     sys.exit(1)
 
 
-execfile(args[0])
+exec(string.replace(open(args[0]).read(), '\r', '\n'))
 
 
 try:

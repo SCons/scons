@@ -241,7 +241,7 @@ opts.Save('options.saved', env)
 def checkSave(file, expected):
     gdict = {}
     ldict = {}
-    execfile(file, gdict, ldict)
+    exec string.replace(open(file).read(), '\r', '\n') in gdict, ldict
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 # First test with no command line options
