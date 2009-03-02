@@ -405,7 +405,13 @@ class ClassicCPP(Classic):
 
         n = SCons.Node.FS.find_file(include[1], paths)
 
-        return n, intern(include[1])
+        i = include[1]
+        try:
+            i = intern(i)
+        except TypeError:
+            # Probably a unicode object; just don't worry about intern().
+            pass
+        return n, i
 
     def sort_key(self, include):
         return SCons.Node.FS._my_normcase(string.join(include))
