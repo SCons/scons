@@ -868,7 +868,7 @@ def _main(parser):
     targets = []
     xmit_args = []
     for a in parser.largs:
-        if a[0] == '-':
+        if a[:1] == '-':
             continue
         if '=' in a:
             xmit_args.append(a)
