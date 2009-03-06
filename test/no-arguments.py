@@ -26,8 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that we use a default target of the current directory when there
-are no command-line arguments (and, implicitly, no Default() in the
-SConstruct).
+is no Default() in the SConstruct file and there are no command-line
+arguments, or a null command-line argument.
 """
 
 import os.path
@@ -52,10 +52,21 @@ env.Build('aaa.out', 'aaa.in')
 
 test.write('aaa.in', "aaa.in\n")
 
+up_to_date = test.wrap_stdout("scons: `.' is up to date.\n")
+
 #
 test.run()
+test.must_match('aaa.out', "aaa.in\n")
+test.run(stdout=up_to_date)
 
-test.fail_test(test.read('aaa.out') != "aaa.in\n")
+#
+test.unlink('aaa.out')
+test.must_not_exist('aaa.out')
+
+#
+test.run([''])
+test.must_match('aaa.out', "aaa.in\n")
+test.run([''], stdout=up_to_date)
 
 #
 test.pass_test()
