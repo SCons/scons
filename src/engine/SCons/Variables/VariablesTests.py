@@ -23,7 +23,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import sys
 import unittest
 import TestSCons
@@ -54,7 +53,7 @@ def check(key, value, env):
 def checkSave(file, expected):
     gdict = {}
     ldict = {}
-    exec string.replace(open(file).read(), '\r', '\n') in gdict, ldict
+    exec open(file, 'rU').read() in gdict, ldict
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 class VariablesTestCase(unittest.TestCase):
