@@ -920,7 +920,7 @@ class Values:
 
     def read_file(self, filename, mode="careful"):
         vars = {}
-        exec string.replace(open(filename).read(), '\r', '\n') in vars
+        exec open(filename, 'rU').read() in vars
         self._update(vars, mode)
 
     def ensure_value(self, attr, value):
