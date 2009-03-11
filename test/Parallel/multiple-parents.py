@@ -73,19 +73,21 @@ def simulate_keyboard_interrupt(target = None, source = None, env = None):
 
 interrupt = Command(target='interrupt',  source='', action=simulate_keyboard_interrupt)
 
+touch0 = Touch('${TARGETS[0]}')
+touch1 = Touch('${TARGETS[1]}')
+touch2 = Touch('${TARGETS[2]}')
 
 failed0  = Command(target='failed00',  source='', action=fail_action)
 ok0      = Command(target=['ok00a', 'ok00b', 'ok00c'], 
                    source='', 
-                   action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}')])
-prereq0  = Command(target='prereq00',  source='', action=Touch('${TARGET}'))
-ignore0  = Command(target='ignore00',  source='', action=Touch('${TARGET}'))
-igreq0   = Command(target='igreq00',   source='', action=Touch('${TARGET}'))
-missing0 = Command(target='missing00', source='MissingSrc', action=Touch('${TARGET}'))
+                   action=[touch0, touch1, touch2])
+prereq0  = Command(target='prereq00',  source='', action=touch0)
+ignore0  = Command(target='ignore00',  source='', action=touch0)
+igreq0   = Command(target='igreq00',   source='', action=touch0)
+missing0 = Command(target='missing00', source='MissingSrc', action=touch0)
 withSE0  = Command(target=['withSE00a', 'withSE00b', 'withSE00c'], 
                    source='', 
-                   action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}'), 
-                           Touch('side_effect')])
+                   action=[touch0, touch1, touch2, Touch('side_effect')])
 SideEffect('side_effect', withSE0) 
 
 prev_level  = failed0 + ok0 + ignore0 + missing0 + withSE0
@@ -101,15 +103,14 @@ for i in range(1,20):
     failed = Command(target='failed%02d' % i,  source='', action=fail_action)
     ok     = Command(target=['ok%02da' % i, 'ok%02db' % i, 'ok%02dc' % i], 
                      source='',
-                     action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}')])
-    prereq = Command(target='prereq%02d' % i,  source='', action=Touch('${TARGET}'))
-    ignore = Command(target='ignore%02d' % i,  source='', action=Touch('${TARGET}'))
-    igreq  = Command(target='igreq%02d' % i,   source='', action=Touch('${TARGET}'))
-    missing = Command(target='missing%02d' %i, source='MissingSrc', action=Touch('${TARGET}'))
+                     action=[touch0, touch1, touch2])
+    prereq = Command(target='prereq%02d' % i,  source='', action=touch0)
+    ignore = Command(target='ignore%02d' % i,  source='', action=touch0)
+    igreq  = Command(target='igreq%02d' % i,   source='', action=touch0)
+    missing = Command(target='missing%02d' %i, source='MissingSrc', action=touch0)
     withSE  = Command(target=['withSE%02da' % i, 'withSE%02db' % i, 'withSE%02dc' % i], 
                        source='', 
-                       action=[Touch('${TARGETS[0]}'), Touch('${TARGETS[1]}'), Touch('${TARGETS[2]}'), 
-                               Touch('side_effect')])
+                       action=[touch0, touch1, touch2, Touch('side_effect')])
     SideEffect('side_effect', withSE) 
 
     next_level = failed + ok + ignore + igreq + missing + withSE
@@ -158,12 +159,18 @@ for i in range(20):
     test.must_not_exist(test.workpath('ok%02da' % i))
     test.must_not_exist(test.workpath('ok%02db' % i))
     test.must_not_exist(test.workpath('ok%02dc' % i))
-    test.must_not_exist(test.workpath('prereq%02d' % i))
     test.must_not_exist(test.workpath('ignore%02d' % i))
-    test.must_not_exist(test.workpath('igreq%02d' % i))
     test.must_not_exist(test.workpath('withSE%02da' % i))
     test.must_not_exist(test.workpath('withSE%02db' % i))
     test.must_not_exist(test.workpath('withSE%02dc' % i))
+
+# prereq19 and igreq19 will exist because, as prerequisites,
+# they are now evaluated *before* the direct children of the Node.
+for i in range(19):
+    test.must_not_exist(test.workpath('prereq%02d' % i))
+    test.must_not_exist(test.workpath('igreq%02d' % i))
+test.must_exist(test.workpath('prereq19'))
+test.must_exist(test.workpath('igreq19'))
 
 
 for i in range(5):
