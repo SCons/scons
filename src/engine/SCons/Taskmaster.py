@@ -797,7 +797,7 @@ class Taskmaster:
             children_not_ready = []
             children_failed = False
 
-            for child in chain(children, executor.get_all_prerequisites()):
+            for child in chain(executor.get_all_prerequisites(), children):
                 childstate = child.get_state()
 
                 if T: T.write(self.trace_message('       ' + self.trace_node(child)))
