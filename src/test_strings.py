@@ -111,6 +111,13 @@ class CheckUnexpandedStrings(Checker):
     def must_be_built(self):
         return None
 
+class CheckPassTest(Checker):
+    expressions = [
+        re.compile(r'\.pass_test()'),
+    ]
+    def must_be_built(self):
+        return None
+
 class CheckExpandedCopyright(Checker):
     expressions = [
         re.compile('Copyright.*The SCons Foundation'),
@@ -138,6 +145,14 @@ check_list = [
     CheckUnexpandedStrings(
         'test',
         search_list = [ '*.py' ],
+    ),
+
+    CheckPassTest(
+        'test',
+        search_list = [ '*.py' ],
+        remove_list = [
+            'Fortran/common.py',
+        ],
     ),
 
     CheckExpandedCopyright(
