@@ -90,8 +90,18 @@ def _swigEmitter(target, source, env):
                 mnames, directors = _find_modules(src)
             if directors:
                 _add_director_header_targets(target, env)
-            target.extend(map(lambda m, d=target[0].dir:
-                                     d.File(m + ".py"), mnames))
+            python_files = map(lambda m: m + ".py", mnames)
+            outdir = env.subst('$SWIGOUTDIR', target=target, source=source)
+            # .py files should be generated in SWIGOUTDIR if specified,
+            # otherwise in the same directory as the target
+            if outdir:
+                 python_files = map(lambda j, o=outdir:
+                                       env.fs.File(os.path.join(o, j)),
+                                    python_files)
+            else:
+                python_files = map(lambda m, d=target[0].dir:
+                                       d.File(m), python_files)
+            target.extend(python_files)
         if "-java" in flags:
             if mnames is None:
                 mnames, directors = _find_modules(src)
