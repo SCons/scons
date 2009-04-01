@@ -95,8 +95,8 @@ def _swigEmitter(target, source, env):
             # .py files should be generated in SWIGOUTDIR if specified,
             # otherwise in the same directory as the target
             if outdir:
-                 python_files = map(lambda j, o=outdir:
-                                       env.fs.File(os.path.join(o, j)),
+                 python_files = map(lambda j, o=outdir, e=env:
+                                       e.fs.File(os.path.join(o, j)),
                                     python_files)
             else:
                 python_files = map(lambda m, d=target[0].dir:
