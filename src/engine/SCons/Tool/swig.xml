@@ -19,6 +19,7 @@ SWIGINCPREFIX
 SWIGINCSUFFIX
 SWIGCOM
 SWIGPATH
+SWIGVERSION
 </sets>
 <uses>
 SWIGCOMSTR
@@ -201,5 +202,11 @@ include &cv-_SWIGINCFLAGS;:
 <example>
 env = Environment(SWIGCOM="my_swig -o $TARGET $_SWIGINCFLAGS $SORUCES")
 </example>
+</summary>
+</cvar>
+
+<cvar name="SWIGVERSION">
+<summary>
+The version number of the SWIG tool.
 </summary>
 </cvar>
