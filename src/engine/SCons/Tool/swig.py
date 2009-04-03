@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import re
 import string
+import subprocess
 
 import SCons.Action
 import SCons.Defaults
@@ -121,7 +122,13 @@ def _swigEmitter(target, source, env):
 
 def _get_swig_version(env):
     """Run the SWIG command line tool to get and return the version number"""
-    out = os.popen(env['SWIG'] + ' -version').read()
+    pipe = SCons.Action._subproc(env, [env['SWIG'], '-version'],
+                                 stdin = 'devnull',
+                                 stderr = 'devnull',
+                                 stdout = subprocess.PIPE)
+    if pipe.wait() != 0: return
+
+    out = pipe.stdout.read()
     match = re.search(r'SWIG Version\s+(\S+)$', out, re.MULTILINE)
     if match:
         return match.group(1)
