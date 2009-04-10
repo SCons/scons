@@ -306,8 +306,8 @@
     the &Message; call prints the
     specified message (with no trailing newline)
     and the &Result; call prints
-    <literal>ok</literal> if the check succeeds and
-    <literal>failed</literal> if it doesn't.
+    <literal>yes</literal> if the check succeeds and
+    <literal>no</literal> if it doesn't.
     The &TryLink; method
     actually tests for whether the
     specified program text
@@ -435,7 +435,7 @@
 
     <screen>
     % <userinput>scons -Q -c</userinput>
-    Checking for MyLibrary... ok
+    Checking for MyLibrary... yes
     Removed foo.o
     Removed foo
     </screen>

@@ -784,8 +784,7 @@ class CheckContext:
 
     def Result(self, res):
         """Inform about the result of the test. res may be an integer or a
-        string. In case of an integer, the written text will be 'ok' or
-        'failed'.
+        string. In case of an integer, the written text will be 'yes' or 'no'.
         The result is only displayed when self.did_show_result is not set.
         """
         if type(res) in BooleanTypes:
