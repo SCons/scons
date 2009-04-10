@@ -896,9 +896,6 @@ class Base(SubstitutionEnvironment):
     Environment.
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
     memoizer_counters = []
 
     #######################################################################
@@ -2175,9 +2172,6 @@ class OverrideEnvironment(Base):
     be proxied because they need *this* object's methods to fetch the
     values from the overrides dictionary.
     """
-
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, subject, overrides={}):
         if __debug__: logInstanceCreation(self, 'Environment.OverrideEnvironment')
