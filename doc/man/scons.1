@@ -4184,6 +4184,8 @@ uses Unix shell style metacharacters for matching:
 .EE
 
 .IP
+If the first character of a filename is a dot,
+it must be matched explicitly.
 Character matches do
 .I not
 span directory separators.
@@ -4255,10 +4257,11 @@ not the original
 .B SConscript
 directory.)
 
-Example:
+Examples:
 
 .ES
 Program('foo', Glob('*.c'))
+Zip('/tmp/everything', Glob('.??*') + Glob('*'))
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
