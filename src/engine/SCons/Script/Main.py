@@ -885,9 +885,9 @@ def _main(parser):
     # module will no longer work.  This affects the behavior during
     # --interactive mode.  --interactive should only be used when stdin and
     # stdout refer to a tty.
-    if not sys.stdout.isatty():
+    if not hasattr(sys.stdout, 'isatty') or not sys.stdout.isatty():
         sys.stdout = SCons.Util.Unbuffered(sys.stdout)
-    if not sys.stderr.isatty():
+    if not hasattr(sys.stderr, 'isatty') or not sys.stderr.isatty():
         sys.stderr = SCons.Util.Unbuffered(sys.stderr)
 
     memory_stats.append('before reading SConscript files:')
