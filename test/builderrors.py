@@ -201,6 +201,16 @@ test.run(status=2, stderr=None)
 test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 
 
+# Bug #1053: Alias is called "all", but default is the File "all"
+test.write('SConstruct', """
+env = Environment()
+env.Default("all")
+env.Alias("all", env.Install("dir", "file.txt"))
+""")
+test.run(status=2, match=TestSCons.match_re, stderr="""\
+scons: \*\*\* Do not know how to make File target `all' \(.*all\).  Stop.
+""")
+
 # No tests failed; OK.
 test.pass_test()
 

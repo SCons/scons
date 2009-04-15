@@ -207,7 +207,12 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         t = self.targets[0]
         if self.top and not t.has_builder() and not t.side_effect:
             if not t.exists():
-                errstr="Do not know how to make target `%s'." % t
+                def classname(obj):
+                    return string.split(str(obj.__class__), '.')[-1]
+                if classname(t) in ('File', 'Dir', 'Entry'):
+                    errstr="Do not know how to make %s target `%s' (%s)." % (classname(t), t, t.abspath)
+                else: # Alias or Python or ...
+                    errstr="Do not know how to make %s target `%s'." % (classname(t), t)
                 sys.stderr.write("scons: *** " + errstr)
                 if not self.options.keep_going:
                     sys.stderr.write("  Stop.")

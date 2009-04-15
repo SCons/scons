@@ -46,13 +46,14 @@ Dir('ddd')
 """)
 
 test.run(arguments = 'foo',
-         stderr = "scons: \\*\\*\\* Do not know how to make target `foo'.( *Stop.)?\n",
+         stderr = "scons: \\*\\*\\* Do not know how to make File target `foo' \\(.*foo\\).( *Stop.)?\n",
          status = 2,
          match=TestSCons.match_re_dotall)
 
 test.run(arguments = '-k foo/bar foo',
-         stderr = "scons: *** Do not know how to make target `%s'.\n" % foo_bar,
-         status = 2)
+         stderr = "scons: \\*\\*\\* Do not know how to make File target `%s' \\(.*foo.bar\\).\n" % foo_bar,
+         status = 2,
+         match=TestSCons.match_re_dotall)
 
 test.run(arguments = "aaa.out",
          stderr = "scons: *** [aaa.out] Source `aaa.in' not found, needed by target `aaa.out'.\n",
@@ -65,14 +66,15 @@ scons: *** [aaa.out] Source `aaa.in' not found, needed by target `aaa.out'.
          status = 2)
 
 test.run(arguments = '-k aaa.in bbb.in',
-         stderr = """scons: *** Do not know how to make target `aaa.in'.
-scons: *** Do not know how to make target `bbb.in'.
+         stderr = """scons: \\*\\*\\* Do not know how to make File target `aaa.in' \\(.*aaa.in\\).
+scons: \\*\\*\\* Do not know how to make File target `bbb.in' \\(.*bbb.in\\).
 """,
-         status = 2)
+         status = 2,
+         match=TestSCons.match_re_dotall)
 
 
 test.run(arguments = 'xxx',
-         stderr = "scons: \\*\\*\\* Do not know how to make target `xxx'.( *Stop.)?\n",
+         stderr = "scons: \\*\\*\\* Do not know how to make File target `xxx' \\(.*xxx\\).( *Stop.)?\n",
          status = 2,
          match=TestSCons.match_re_dotall)
 
