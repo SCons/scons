@@ -34,31 +34,37 @@ These are the SCons development branches and their intended uses.
 <li>
 <strong><tt>trunk</tt></strong>
 <p>
-The main code line from which SCons gets released.
-This currently lags patches that the mailing list
-discussions describe as "checked in to Subversion."
-The real latest-and-greatest checked-in source
-containing SK's patches is in
-<tt>branches/core</tt>.
-This is, however, where we check in
-web site changes into the
-<tt>www/</tt> and <tt>scons.org/</tt> subdirectories
-(for the <a href="http://scons.tigris.org/">tigris.org</a>
-and <a href="http://www.scons.org/">scons.org</a>
-web sites, respectively).
+The main development branch for changes to
+the SCons infrastructure.
+This branch is thelatest-and-greatest checked-in source,
+where SK checks in most of the stuff he's working on
+and which gets sent for review to the scons-dev mailing list.
+This is also where we check in
+web site changes into the <tt>www/</tt> subdirectory
+for the <a href="http://scons.tigris.org/">tigris.org</a>
+web site.
 </p>
 </li>
 
 <li>
-<strong><tt>branches/core</tt></strong>
+<strong><tt>checkpoint</tt></strong>
 <p>
-The main development branch for changes to
-the SCons infrastructure.
-This is where SK checks in most of the
-stuff he's working on
-and which gets sent for review to the
-scons-dev mailing list.
+The branch from which we release checkpoints and release candidates.
+These are considered beta releases to be reviewed by the community.
+This branch lags patches that the mailing list
+discussions describe as "checked in to Subversion."
 This branch's parent is <tt>trunk</tt>.
+</p>
+</li>
+
+<li>
+<strong><tt>release</tt></strong>
+<p>
+The main code line from which SCons gets released.
+Once a release candidate in the <tt>checkpoint</tt> branch
+has achieved sufficient stability,
+it is promoted into this branch.
+This branch's parent is <tt>checkpoint</tt>.
 </p>
 </li>
 
@@ -108,7 +114,7 @@ This branch's parent is <tt>trunk</tt>.
 <p>
 </p>
 
-<h2>How to create a branch off the trunk and initialize it for bi-directional merging</h2>
+<h2 id="rebase">How to create a branch off the trunk and initialize it for bi-directional merging</h2>
 
 <p>
 This should take place between any branch and its parent
