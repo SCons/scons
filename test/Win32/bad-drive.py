@@ -92,7 +92,7 @@ test.fail_test(test.read('aaa.out') != "aaa.in\n")
 # becomes an issue or some refactoring restores the old behavior.
 
 test.run(arguments = bad_drive + 'not_mentioned',
-         stderr = "scons: *** Do not know how to make File target `%snot_mentioned'.  Stop.\n" % (bad_drive),
+         stderr = "scons: *** Do not know how to make File target `%snot_mentioned' (%snot_mentioned).  Stop.\n" % (bad_drive, bad_drive),
          status = 2)
 
 expect = "scons: *** [%sno_target_1] No drive `%s' for target `%sno_target_1'.\n" % (bad_drive, bad_drive, bad_drive)
