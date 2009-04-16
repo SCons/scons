@@ -31,6 +31,8 @@ or uses a nonexistent source file.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import re
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -51,7 +53,7 @@ test.run(arguments = 'foo',
          match=TestSCons.match_re_dotall)
 
 test.run(arguments = '-k foo/bar foo',
-         stderr = "scons: \\*\\*\\* Do not know how to make File target `%s' \\(.*foo.bar\\).\n" % foo_bar,
+         stderr = "scons: \\*\\*\\* Do not know how to make File target `%s' \\(.*foo.bar\\).\n" % re.escape(foo_bar),
          status = 2,
          match=TestSCons.match_re_dotall)
 

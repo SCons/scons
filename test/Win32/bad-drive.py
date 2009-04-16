@@ -86,13 +86,13 @@ test.run(arguments = 'aaa.out')
 test.fail_test(test.read('aaa.out') != "aaa.in\n")
 
 # This next test used to provide a slightly different error message:
-# "scons: *** Do not know how to make target `%snot_mentioned'.  Stop.\n"
+# "scons: *** Do not know how to make File target `%snot_mentioned'.  Stop.\n"
 # Right now, it doesn't seem important enough to track down exactly
 # why this changed and fix it, but we'll preserve it here in case it
 # becomes an issue or some refactoring restores the old behavior.
 
 test.run(arguments = bad_drive + 'not_mentioned',
-         stderr = "scons: *** Do not know how to make target `%snot_mentioned'.  Stop.\n" % (bad_drive),
+         stderr = "scons: *** Do not know how to make File target `%snot_mentioned'.  Stop.\n" % (bad_drive),
          status = 2)
 
 expect = "scons: *** [%sno_target_1] No drive `%s' for target `%sno_target_1'.\n" % (bad_drive, bad_drive, bad_drive)
