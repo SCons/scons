@@ -46,32 +46,26 @@ test = TestSCons.TestSCons()
 test.subdir('sub')
 
 swig = test.where_is('swig')
-
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
-python = test.get_platform_python()
-_python_ = test.get_quoted_platform_python()
+python, python_include, python_libpath, python_lib = \
+             test.get_platform_python_info()
+Python_h = os.path.join(python_include, 'Python.h')
+if not os.path.exists(Python_h):
+    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
-python_include_dir = test.get_python_inc()
-
-Python_h = os.path.join(python_include_dir, 'Python.h')
-
-if not os.path.exists(Python_h):
-    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
-
-python_frameworks_flags = test.get_python_frameworks_flags()
-
 test.write('SConstruct', """
 env = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%(python_include_dir)s/',
+                  CPPPATH=['%(python_include)s/'],
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  FRAMEWORKS='%(python_frameworks_flags)s',
                   SWIG=r'%(swig)s',
+                  LIBPATH=[r'%(python_libpath)s'],
+                  LIBS='%(python_lib)s',
                   )
 
 import sys

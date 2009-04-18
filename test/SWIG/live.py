@@ -47,30 +47,14 @@ swig = test.where_is('swig')
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
-
-python = test.where_is('python')
-
-# handle testing on other platforms:
-ldmodule_prefix = '_'
-
-test.run(program = python, stdin = """\
-import os, sys
-try:
-	py_ver = 'python%d.%d' % sys.version_info[:2]
-except AttributeError:
-	py_ver = 'python' + sys.version[:3]
-print os.path.join(sys.prefix, 'include', py_ver)
-print os.path.join(sys.prefix, 'lib', py_ver, 'config')
-print py_ver
-""")
-
-#TODO(1.5) config_info = test.stdout().strip().split('\n')
-config_info = string.split(string.strip(test.stdout()), '\n')
-python_include,python_libpath,python_lib = config_info
-
+python, python_include, python_libpath, python_lib = \
+             test.get_platform_python_info()
 Python_h = os.path.join(python_include, 'Python.h')
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
+
+# handle testing on other platforms:
+ldmodule_prefix = '_'
 
 test.write("wrapper.py",
 """import os
@@ -82,11 +66,11 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """\
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH=r'%(python_include)s',
+                  CPPPATH=[r'%(python_include)s'],
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
-                  SWIG=r'%(swig)s',
-                  LIBPATH=r'%(python_libpath)s',
+                  SWIG=[r'%(swig)s'],
+                  LIBPATH=[r'%(python_libpath)s'],
                   LIBS='%(python_lib)s',
                   )
 
@@ -96,7 +80,7 @@ if sys.version[0] == '1':
     foo.Append(SWIGFLAGS = ' -classic')
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = r'"%(python)s" wrapper.py ' + swig)
+bar = foo.Clone(SWIG = [r'%(python)s', 'wrapper.py', swig])
 foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
 bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])
 """ % locals())
