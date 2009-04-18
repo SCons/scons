@@ -34,27 +34,23 @@ import os
 
 test = TestSCons.TestSCons()
 
-test = TestSCons.TestSCons()
-
 swig = test.where_is('swig')
-
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
-python_include_dir = test.get_python_inc()
-
-python_frameworks_flags = test.get_python_frameworks_flags()
-
-Python_h = os.path.join(python_include_dir, 'Python.h')
+python, python_include, python_libpath, python_lib = \
+             test.get_platform_python_info()
+Python_h = os.path.join(python_include, 'Python.h')
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
 test.write(['SConstruct'], """\
 env = Environment(SWIGFLAGS = '-python -c++',
-                  CPPPATH=r"%(python_include_dir)s",
-                  SWIG=r'%(swig)s',
+                  CPPPATH=[r"%(python_include)s"],
+                  SWIG=[r'%(swig)s'],
                   SWIGOUTDIR='python/build dir',
-                  FRAMEWORKS='%(python_frameworks_flags)s',
+                  LIBPATH=[r'%(python_libpath)s'],
+                  LIBS='%(python_lib)s',
                  )
 
 import sys

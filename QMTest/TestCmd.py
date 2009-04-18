@@ -456,11 +456,8 @@ def diff_re(a, b, fromfile='', tofile='',
     return result
 
 if os.name == 'java':
-
     python_executable = os.path.join(sys.prefix, 'jython')
-
 else:
-
     python_executable = sys.executable
 
 if sys.platform == 'win32':

@@ -35,8 +35,9 @@ _obj   = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
-_python_ = test.get_quoted_platform_python()
-
+python = test.where_is('python')
+if not python:
+    test,skip_test('Can not find installed "python", skipping test.\n')
 
 
 test.write('myswig.py', r"""
@@ -55,7 +56,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'swig'], SWIG = r'%(_python_)s myswig.py')
+env = Environment(tools=['default', 'swig'],
+                  SWIG = [r'%(python)s', 'myswig.py'])
 env.Program(target = 'test1', source = 'test1.i')
 env.CFile(target = 'test2', source = 'test2.i')
 env.Clone(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
