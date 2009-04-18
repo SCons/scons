@@ -30,7 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-_python_ = TestSCons._python_
+python = TestSCons.python
 
 try:
     import threading
@@ -65,10 +65,12 @@ test.write('myfail.py', r"""\
 import os
 import sys
 import time
-while not os.path.exists('mycopy.started'):
-    time.sleep(1)
-os.mkdir('myfail.exiting')
-sys.exit(1)
+for i in [1, 2, 3, 4, 5]:
+    time.sleep(2)
+    if os.path.exists('mycopy.started'):
+        os.mkdir('myfail.exiting')
+        sys.exit(1)
+sys.exit(99)
 """)
 
 test.write('mycopy.py', r"""\
@@ -77,14 +79,16 @@ import sys
 import time
 os.mkdir('mycopy.started')
 open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
-while not os.path.exists('myfail.exiting'):
-    time.sleep(1)
-sys.exit(0)
+for i in [1, 2, 3, 4, 5]:
+    time.sleep(2)
+    if os.path.exists('myfail.exiting'):
+        sys.exit(0)
+sys.exit(99)
 """)
 
 test.write('SConstruct', """
-MyCopy = Builder(action = r'%(_python_)s mycopy.py $TARGET $SOURCE')
-Fail = Builder(action = r'%(_python_)s myfail.py $TARGETS $SOURCE')
+MyCopy = Builder(action = [[r'%(python)s', 'mycopy.py', '$TARGET', '$SOURCE']])
+Fail = Builder(action = [[r'%(python)s', 'myfail.py', '$TARGETS', '$SOURCE']])
 env = Environment(BUILDERS = { 'MyCopy' : MyCopy, 'Fail' : Fail })
 env.Fail(target = 'f3', source = 'f3.in')
 env.MyCopy(target = 'f4', source = 'f4.in')
