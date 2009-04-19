@@ -10,6 +10,18 @@
 
 RELEASE X.X.X - XXX
 
+  From Lukas Erlinghagen:
+
+    - Have AddOption() remove variables from the list of
+      seen-but-unknown variables (which are reported later).
+
+    - An option name and aliases can now be specified as a tuple.
+
+  From Jim Hunziker:
+
+    - Avoid adding -gphobos to a command line multiple times
+      when initializing use of the DMD compiler.
+
   From Steven Knight:
 
     - Fix the -n option when used with VariantDir(duplicate=1)
@@ -23,6 +35,28 @@ RELEASE X.X.X - XXX
 
     - Evaluate Requires() prerequisites before a Node's direct children
       (sources and dependencies).
+
+  From Greg Noel:
+
+    - Remove leftover __metaclass__ initializations in Environment.py.
+
+    - Correct the documentation of text returned by sconf.Result().
+
+    - Document that filenames with '.' as the first character are
+      ignored by Glob() by default (matching UNIX glob semantics).
+
+    - Fix SWIG testing infrastructure to work on Mac OS X.
+
+  From Gary Oberbrunner:
+
+    - When reporting a target that SCons doesn't know how to make,
+      specify whether it's a File, Dir, etc.
+
+  From Ben Webb:
+
+    - Fix use of $SWIGOUTDIR when generating Python wrappers.
+
+    - Add $SWIGDIRECTORSUFFIX and $SWIGVERSION construction variables.
 
 
 
