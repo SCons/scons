@@ -38,7 +38,7 @@ RELEASE X.X.X - XXX
 
   From Greg Noel:
 
-    - Remove leftover __metaclass__ initializations in Environment.py.
+    - Remove redundant __metaclass__ initializations in Environment.py.
 
     - Correct the documentation of text returned by sconf.Result().
 
@@ -46,6 +46,11 @@ RELEASE X.X.X - XXX
       ignored by Glob() by default (matching UNIX glob semantics).
 
     - Fix SWIG testing infrastructure to work on Mac OS X.
+
+    - Restructure a test that occasionally hung so that the test would
+      detect when it was stuck and fail instead.
+
+    - Add the Textfile and Substfile builders.
 
   From Gary Oberbrunner:
 
