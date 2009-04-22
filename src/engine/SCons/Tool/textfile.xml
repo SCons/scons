@@ -36,6 +36,7 @@ and &cv-TEXTFILESUFFIX; construction variables
 (the null string and <filename>.txt</filename> by default, respectively)
 are automatically added to the target if they are not already present.
 Examples:
+
 <example>
 # builds/writes foo.txt
 env.Textfile(target = 'foo.txt', source = ['Goethe', 42, 'Schiller'])
@@ -56,25 +57,25 @@ env.Textfile(target = 'concat',  # concatenate files with a marker between
 
 Results are:
 foo.txt
-  ....8<----
+  ....8&lt;----
   Goethe
   42
   Schiller
-  ....8<---- (no linefeed at the end)
+  ....8&lt;---- (no linefeed at the end)
 
 bar.txt:
-  ....8<----
+  ....8&lt;----
   lalala|*tanteratei
-  ....8<---- (no linefeed at the end)
+  ....8&lt;---- (no linefeed at the end)
 
-blog.txt
-  ....8<----
+blob.txt
+  ....8&lt;----
   lalala
   Goethe
   42
   Schiller
   tanteratei
-  ....8<---- (no linefeed at the end)
+  ....8&lt;---- (no linefeed at the end)
 </example>
 </summary>
 </builder>
@@ -108,7 +109,8 @@ are replaced by the corresponding value,
 which may be a Python callable function or a string.
 If a value is a function,
 it is first called (with no arguments) to produce a string.
-The string is &subst;-expanded and the result is substituted.
+The string is <emphasis>subst</emphasis>-expanded
+and the result replaces the key.
 
 <example>
 env = Environment(tools = ['default', 'textfile'])
@@ -125,7 +127,7 @@ bad_foo = {'$foo': '$foo', '$foobar': '$foobar'}
 env.Substfile('foo.in', SUBST_DICT = bad_foo)
 
 # PREDICTABLE - keys are applied longest first
-good_foo = ['$foobar': '$foobar', '$foo': '$foo']
+good_foo = [('$foobar', '$foobar'), ('$foo', '$foo')]
 env.Substfile('foo.in', SUBST_DICT = good_foo)
 
 # UNPREDICTABLE - one substitution could be futher expanded
@@ -185,7 +187,6 @@ the null string by default.
 <summary>
 The suffix used for &b-Substfile; file names,
 the null string by default.
-</example>
 </summary>
 </cvar>
 
