@@ -17,6 +17,10 @@ RELEASE X.X.X - XXX
 
     - An option name and aliases can now be specified as a tuple.
 
+  From Hartmut Goebel:
+
+    - Textfile builder.
+
   From Jim Hunziker:
 
     - Avoid adding -gphobos to a command line multiple times
@@ -50,7 +54,7 @@ RELEASE X.X.X - XXX
     - Restructure a test that occasionally hung so that the test would
       detect when it was stuck and fail instead.
 
-    - Add the Textfile and Substfile builders.
+    - Substfile builder.
 
   From Gary Oberbrunner:
 
