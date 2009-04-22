@@ -169,6 +169,7 @@ SCons/Tool/sunlink.py
 SCons/Tool/swig.py
 SCons/Tool/tar.py
 SCons/Tool/tex.py
+SCons/Tool/textfile.py
 SCons/Tool/tlib.py
 SCons/Tool/wix.py
 SCons/Tool/yacc.py

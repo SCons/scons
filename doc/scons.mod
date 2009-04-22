@@ -384,7 +384,9 @@
 <!ENTITY SharedObject "<function>SharedObject</function>">
 <!ENTITY StaticLibrary "<function>StaticLibrary</function>">
 <!ENTITY StaticObject "<function>StaticObject</function>">
+<!ENTITY Substfile "<function>Substfile</function>">
 <!ENTITY Tar "<function>Tar</function>">
+<!ENTITY Textfile "<function>Textfile</function>">
 <!ENTITY VariantDir "<function>VariantDir</function>">
 <!ENTITY Zip "<function>Zip</function>">
 
