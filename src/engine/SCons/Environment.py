@@ -1034,7 +1034,7 @@ class Base(SubstitutionEnvironment):
         """
         name = default
         try:
-            is_node = issubclass(factory, SCons.Node.Node)
+            is_node = issubclass(factory, SCons.Node.FS.Base)
         except TypeError:
             # The specified factory isn't a Node itself--it's
             # most likely None, or possibly a callable.
