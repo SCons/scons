@@ -88,16 +88,19 @@ class Value(SCons.Node.Node):
             self.built_value = self.value
         return self.built_value
 
-    def get_contents(self):
+    def get_text_contents(self):
         """By the assumption that the node.built_value is a
         deterministic product of the sources, the contents of a Value
         are the concatenation of all the contents of its sources.  As
         the value need not be built when get_contents() is called, we
         cannot use the actual node.built_value."""
+        ###TODO: something reasonable about universal newlines
         contents = str(self.value)
         for kid in self.children(None):
             contents = contents + kid.get_contents()
         return contents
+
+    get_contents = get_text_contents    ###TODO should return 'bytes' value
 
     def changed_since_last_build(self, target, prev_ni):
         cur_csig = self.get_csig()
