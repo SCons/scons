@@ -117,17 +117,17 @@ def _action(target, source, env):
 def _strfunc(target, source, env):
     return "Creating '%s'" % target[0]
 
+def _convert_list_R(newlist, sources):
+    for elem in sources:
+        if is_Sequence(elem):
+            _convert_list_R(newlist, elem)
+        elif isinstance(elem, Node):
+            newlist.append(elem)
+        else:
+            newlist.append(Value(elem))
 def _convert_list(target, source, env):
     if len(target) != 1:
         raise SCons.Errors.UserError("Only one target file allowed")
-    def _convert_list_R(newlist, sources):
-        for elem in sources:
-            if is_List(elem):
-                _convert_list_R(newlist, elem)
-            elif isinstance(elem, Node):
-                newlist.append(elem)
-            else:
-                newlist.append(Value(elem))
     newlist = []
     _convert_list_R(newlist, source)
     return target, newlist
@@ -164,3 +164,9 @@ def generate(env):
 
 def exists(env):
     return 1
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
