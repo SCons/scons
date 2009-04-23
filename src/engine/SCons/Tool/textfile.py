@@ -50,7 +50,7 @@ import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value
-from SCons.Util import is_List, is_String
+from SCons.Util import is_String, is_Sequence, is_Dict
 
 def _do_subst(node, subs):
     """
@@ -85,9 +85,9 @@ def _action(target, source, env):
         subs = None    # no substitutions
     else:
         d = env['SUBST_DICT']
-        if SCons.Util.is_Dict(d):
+        if is_Dict(d):
             d = d.items()
-        elif SCons.Util.is_Sequence(d):
+        elif is_Sequence(d):
             pass
         else:
             raise SCons.Errors.UserError('SUBST_DICT must be dict or sequence')
@@ -95,7 +95,7 @@ def _action(target, source, env):
         for (k,v) in d:
             if callable(v):
                 v = v()
-            if SCons.Util.is_String(v):
+            if is_String(v):
                 v = env.subst(v)
             else:
                 v = str(v)
