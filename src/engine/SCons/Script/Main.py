@@ -701,17 +701,30 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
         try:
             fp, pathname, description = imp.find_module(site_init_modname,
                                                         [site_dir])
+            # Load the file into SCons.Script namespace.  This is
+            # opaque and clever; m is the module object for the
+            # SCons.Script module, and the exec ... in call executes a
+            # file (or string containing code) in the context of the
+            # module's dictionary, so anything that code defines ends
+            # up adding to that module.  This is really short, but all
+            # the error checking makes it longer.
             try:
-                imp.load_module(site_init_modname, fp, pathname, description)
-            finally:
-                if fp:
-                    fp.close()
+                m=sys.modules['SCons.Script']
+            except Exception, e:
+                raise SCons.Errors.InternalError, \
+                    "can't import site_init.py: missing SCons.Script module, %s"%str(e)
+            try:
+                # This is the magic.
+                exec fp in m.__dict__
+            except Exception, e:
+                sys.stderr.write("*** Error loading site_init file %s:\n"%site_init_file)
+                raise
         except ImportError, e:
-            sys.stderr.write("Can't import site init file '%s': %s\n"%(site_init_file, e))
+            sys.stderr.write("Can't import site init file '%s':\n"%site_init_file)
             raise
-        except Exception, e:
-            sys.stderr.write("Site init file '%s' raised exception: %s\n"%(site_init_file, e))
-            raise
+        finally:
+            if fp:
+                fp.close()
     if os.path.exists(site_tools_dir):
         SCons.Tool.DefaultToolpath.append(os.path.abspath(site_tools_dir))
 
