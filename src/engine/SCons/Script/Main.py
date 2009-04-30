@@ -718,10 +718,14 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                 try:
                     # This is the magic.
                     exec fp in m.__dict__
+                except KeyboardInterrupt:
+                    raise
                 except Exception, e:
                     fmt = '*** Error loading site_init file %s:\n'
                     sys.stderr.write(fmt % repr(site_init_file))
                     raise
+            except KeyboardInterrupt:
+                raise
             except ImportError, e:
                 fmt = '*** cannot import site init file %s:\n'
                 sys.stderr.write(fmt % repr(site_init_file))
