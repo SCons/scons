@@ -21,7 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-"""
+
+__doc__ = """
 Textfile/Substfile builder for SCons.
 
     Create file 'target' which typically is a textfile.  The 'source'
@@ -42,6 +43,8 @@ Textfile/Substfile builder for SCons.
     substitution could be further expanded by another subsitition, it
     is unpredictible whether the expansion will occur.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons
 
