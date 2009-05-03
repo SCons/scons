@@ -295,9 +295,9 @@ class NodeTestCase(unittest.TestCase):
         # Make sure it doesn't blow up if no builder is set.
         node = MyNode("www")
         node.build()
-        assert built_it == None
+        assert built_it is None
         node.build(extra_kw_argument = 1)
-        assert built_it == None
+        assert built_it is None
 
         node = MyNode("xxx")
         node.builder_set(Builder())
@@ -522,7 +522,7 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
         t, m = n.alter_targets()
         assert t == [], t
-        assert m == None, m
+        assert m is None, m
 
     def test_is_up_to_date(self):
         """Test the default is_up_to_date() method
@@ -622,7 +622,7 @@ class NodeTestCase(unittest.TestCase):
         node.fs = FS()
         node.fs.Top = SCons.Node.Node()
         result = node.explain()
-        assert result == None, result
+        assert result is None, result
 
         def get_null_info():
             class Null_SConsignEntry:
@@ -1020,7 +1020,7 @@ class NodeTestCase(unittest.TestCase):
 
     def test_scanner_key(self):
         """Test that a scanner_key() method exists"""
-        assert SCons.Node.Node().scanner_key() == None
+        assert SCons.Node.Node().scanner_key() is None
 
     def test_children(self):
         """Test fetching the non-ignored "children" of a Node.
@@ -1104,7 +1104,7 @@ class NodeTestCase(unittest.TestCase):
         assert not nw.is_done()
         assert nw.next().name ==  "n1"
         assert nw.is_done()
-        assert nw.next() == None
+        assert nw.next() is None
 
         n2 = MyNode("n2")
         n3 = MyNode("n3")
@@ -1118,7 +1118,7 @@ class NodeTestCase(unittest.TestCase):
         n = nw.next()
         assert n.name ==  "n1", n.name
         n = nw.next()
-        assert n == None, n
+        assert n is None, n
 
         n4 = MyNode("n4")
         n5 = MyNode("n5")
@@ -1138,7 +1138,7 @@ class NodeTestCase(unittest.TestCase):
         assert nw.next().name ==  "n3"
         assert nw.history.has_key(n1)
         assert nw.next().name ==  "n1"
-        assert nw.next() == None
+        assert nw.next() is None
 
         n8 = MyNode("n8")
         n8.add_dependency([n3])
@@ -1160,7 +1160,7 @@ class NodeTestCase(unittest.TestCase):
         n = nw.next()
         assert n.name == "n7", n.name
         n = nw.next()
-        assert nw.next() == None
+        assert nw.next() is None
 
     def test_abspath(self):
         """Test the get_abspath() method."""

@@ -1127,7 +1127,7 @@ class Selector(OrderedDict):
             # the dictionary before giving up.
             s_dict = {}
             for (k,v) in self.items():
-                if not k is None:
+                if k is not None:
                     s_k = env.subst(k)
                     if s_dict.has_key(s_k):
                         # We only raise an error when variables point

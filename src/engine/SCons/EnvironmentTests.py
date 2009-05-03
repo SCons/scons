@@ -956,20 +956,20 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
                                  'builder2' : b2 })
         called_it = {}
         env.builder1('in1')
-        assert called_it['target'] == None, called_it
+        assert called_it['target'] is None, called_it
         assert called_it['source'] == ['in1'], called_it
 
         called_it = {}
         env.builder2(source = 'in2', xyzzy = 1)
-        assert called_it['target'] == None, called_it
+        assert called_it['target'] is None, called_it
         assert called_it['source'] == ['in2'], called_it
         assert called_it['xyzzy'] == 1, called_it
 
         called_it = {}
         env.builder1(foo = 'bar')
         assert called_it['foo'] == 'bar', called_it
-        assert called_it['target'] == None, called_it
-        assert called_it['source'] == None, called_it
+        assert called_it['target'] is None, called_it
+        assert called_it['source'] is None, called_it
 
     def test_BuilderWrapper_attributes(self):
         """Test getting and setting of BuilderWrapper attributes
@@ -1976,12 +1976,12 @@ def generate(env):
 
         assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
         assert paths[1] == env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-        assert None == env.FindIxes(paths, 'PREFIX', 'POST')
+        assert None is env.FindIxes(paths, 'PREFIX', 'POST')
 
         paths = ['libfoo.a', 'prefoopost']
 
         assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
-        assert None == env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+        assert None is env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
         assert paths[1] == env.FindIxes(paths, 'PREFIX', 'SUFFIX')
 
     def test_ParseConfig(self):
@@ -2729,20 +2729,20 @@ def generate(env):
         env = self.TestEnvironment(FOO = 'xyzzy')
 
         b = env.Builder(action = 'foo')
-        assert not b is None, b
+        assert b is not None, b
 
         b = env.Builder(action = '$FOO')
-        assert not b is None, b
+        assert b is not None, b
 
         b = env.Builder(action = ['$FOO', 'foo'])
-        assert not b is None, b
+        assert b is not None, b
 
         def func(arg):
             pass
         b = env.Builder(action = func)
-        assert not b is None, b
+        assert b is not None, b
         b = env.Builder(generator = func)
-        assert not b is None, b
+        assert b is not None, b
 
     def test_CacheDir(self):
         """Test the CacheDir() method"""
@@ -2785,7 +2785,7 @@ def generate(env):
         env = Environment()
         t = env.Command(target='foo.out', source=['foo1.in', 'foo2.in'],
                         action='buildfoo $target $source')[0]
-        assert not t.builder is None
+        assert t.builder is not None
         assert t.builder.action.__class__.__name__ == 'CommandAction'
         assert t.builder.action.cmd_list == 'buildfoo $target $source'
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
@@ -2802,7 +2802,7 @@ def generate(env):
             return 0
         t = env.Command(target='foo.out', source=['foo1.in','foo2.in'],
                         action=testFunc)[0]
-        assert not t.builder is None
+        assert t.builder is not None
         assert t.builder.action.__class__.__name__ == 'FunctionAction'
         t.build()
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
@@ -2815,7 +2815,7 @@ def generate(env):
         t = env.Command(target='baz.out', source='baz.in',
                         action='${TEST2(XYZ)}',
                         XYZ='magic word')[0]
-        assert not t.builder is None
+        assert t.builder is not None
         t.build()
         assert x[0] == 'magic word', x
 
@@ -2846,11 +2846,11 @@ def generate(env):
                 pass
 
             c = env.Configure()
-            assert not c is None, c
+            assert c is not None, c
             c.Finish()
 
             c = env.Configure(custom_tests = {'foo' : func, '$FOO' : func})
-            assert not c is None, c
+            assert c is not None, c
             assert hasattr(c, 'foo')
             assert hasattr(c, 'xyzzy')
             c.Finish()
@@ -3139,17 +3139,17 @@ def generate(env):
         env = self.TestEnvironment(FOO = scan)
 
         s = env.Scanner('foo')
-        assert not s is None, s
+        assert s is not None, s
 
         s = env.Scanner(function = 'foo')
-        assert not s is None, s
+        assert s is not None, s
 
         if 0:
             s = env.Scanner('$FOO')
-            assert not s is None, s
+            assert s is not None, s
 
             s = env.Scanner(function = '$FOO')
-            assert not s is None, s
+            assert s is not None, s
 
     def test_SConsignFile(self):
         """Test the SConsignFile() method"""
@@ -3175,19 +3175,19 @@ def generate(env):
 
             env.SConsignFile('foo')
             assert fnames[-1] == os.path.join(os.sep, 'dir', 'foo'), fnames
-            assert dbms[-1] == None, dbms
+            assert dbms[-1] is None, dbms
 
             env.SConsignFile('$FOO')
             assert fnames[-1] == os.path.join(os.sep, 'dir', 'SConsign'), fnames
-            assert dbms[-1] == None, dbms
+            assert dbms[-1] is None, dbms
 
             env.SConsignFile('/$FOO')
             assert fnames[-1] == os.sep + 'SConsign', fnames
-            assert dbms[-1] == None, dbms
+            assert dbms[-1] is None, dbms
 
             env.SConsignFile(os.sep + '$FOO')
             assert fnames[-1] == os.sep + 'SConsign', fnames
-            assert dbms[-1] == None, dbms
+            assert dbms[-1] is None, dbms
 
             env.SConsignFile('$BAR', 'x')
             assert fnames[-1] == os.path.join(os.sep, 'File'), fnames
@@ -3199,11 +3199,11 @@ def generate(env):
 
             env.SConsignFile()
             assert fnames[-1] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
-            assert dbms[-1] == None, dbms
+            assert dbms[-1] is None, dbms
 
             env.SConsignFile(None)
-            assert fnames[-1] == None, fnames
-            assert dbms[-1] == None, dbms
+            assert fnames[-1] is None, fnames
+            assert dbms[-1] is None, dbms
         finally:
             SCons.SConsign.File = save_SConsign_File
 
@@ -3611,8 +3611,8 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert env.get('YYY') == 'y', env.get('YYY')
         assert env2.get('YYY') == 'y', env2.get('YYY')
         assert env3.get('YYY') == 'y3', env3.get('YYY')
-        assert env.get('ZZZ') == None, env.get('ZZZ')
-        assert env2.get('ZZZ') == None, env2.get('ZZZ')
+        assert env.get('ZZZ') is None, env.get('ZZZ')
+        assert env2.get('ZZZ') is None, env2.get('ZZZ')
         assert env3.get('ZZZ') == 'z3', env3.get('ZZZ')
 
     def test_has_key(self):
@@ -3937,15 +3937,15 @@ class EnvironmentVariableTestCase(unittest.TestCase):
     def test_is_valid_construction_var(self):
         """Testing is_valid_construction_var()"""
         r = is_valid_construction_var("_a")
-        assert not r is None, r
+        assert r is not None, r
         r = is_valid_construction_var("z_")
-        assert not r is None, r
+        assert r is not None, r
         r = is_valid_construction_var("X_")
-        assert not r is None, r
+        assert r is not None, r
         r = is_valid_construction_var("2a")
         assert r is None, r
         r = is_valid_construction_var("a2_")
-        assert not r is None, r
+        assert r is not None, r
         r = is_valid_construction_var("/")
         assert r is None, r
         r = is_valid_construction_var("_/")

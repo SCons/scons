@@ -431,7 +431,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
         print " scanning ",str(theFile)
 
     for i in range(len(file_tests_search)):
-        if file_tests[i][0] == None:
+        if file_tests[i][0] is None:
             file_tests[i][0] = file_tests_search[i].search(content)
 
     # recursively call this on each of the included files
@@ -444,7 +444,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
 
     for src in inc_files:
         srcNode = srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
-        if srcNode != None:
+        if srcNode is not None:
             file_test = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
     if Verbose:
         print " done scanning ",str(theFile)

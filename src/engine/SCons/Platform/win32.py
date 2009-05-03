@@ -134,18 +134,18 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
                 ret = exitvalmap[e[0]]
             except KeyError:
                 sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e[0], cmd, e[1]))
-            if stderr != None:
+            if stderr is not None:
                 stderr.write("scons: %s: %s\n" % (cmd, e[1]))
         # copy child output from tempfiles to our streams
         # and do clean up stuff
-        if stdout != None and stdoutRedirected == 0:
+        if stdout is not None and stdoutRedirected == 0:
             try:
                 stdout.write(open( tmpFileStdout, "r" ).read())
                 os.remove( tmpFileStdout )
             except (IOError, OSError):
                 pass
 
-        if stderr != None and stderrRedirected == 0:
+        if stderr is not None and stderrRedirected == 0:
             try:
                 stderr.write(open( tmpFileStderr, "r" ).read())
                 os.remove( tmpFileStderr )

@@ -611,7 +611,7 @@ class BaseTestCase(_tempdirTestCase):
 
         e1 = fs.Entry('e1')
         s = e1.stat()
-        assert not s is None, s
+        assert s is not None, s
 
         e2 = fs.Entry('e2')
         s = e2.stat()
@@ -1386,7 +1386,7 @@ class FSTestCase(_tempdirTestCase):
 
         f = fs.File('does_not_exist')
         r = f.remove()
-        assert r == None, r
+        assert r is None, r
 
         test.write('exists', "exists\n")
         f = fs.File('exists')

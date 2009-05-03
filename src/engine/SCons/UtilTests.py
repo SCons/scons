@@ -625,13 +625,13 @@ class UtilTestCase(unittest.TestCase):
 
         s = Selector({'.d' : 'DDD', '.e' : 'EEE'})
         ret = s(env, [])
-        assert ret == None, ret
+        assert ret is None, ret
         ret = s(env, [MyNode('foo.d')])
         assert ret == 'DDD', ret
         ret = s(env, [MyNode('bar.e')])
         assert ret == 'EEE', ret
         ret = s(env, [MyNode('bar.x')])
-        assert ret == None, ret
+        assert ret is None, ret
         s[None] = 'XXX'
         ret = s(env, [MyNode('bar.x')])
         assert ret == 'XXX', ret

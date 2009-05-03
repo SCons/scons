@@ -398,11 +398,11 @@ class SConfBase:
         if not SConfFS:
             SConfFS = SCons.Node.FS.default_fs or \
                       SCons.Node.FS.FS(env.fs.pathTop)
-        if not sconf_global is None:
+        if sconf_global is not None:
             raise (SCons.Errors.UserError,
                    "Only one SConf object may be active at one time")
         self.env = env
-        if log_file != None:
+        if log_file is not None:
             log_file = SConfFS.File(env.subst(log_file))
         self.logfile = log_file
         self.logstream = None
@@ -429,7 +429,7 @@ class SConfBase:
         self.AddTests(default_tests)
         self.AddTests(custom_tests)
         self.confdir = SConfFS.Dir(env.subst(conf_dir))
-        if not config_h is None:
+        if config_h is not None:
             config_h = SConfFS.File(config_h)
         self.config_h = config_h
         self._startup()
@@ -471,7 +471,7 @@ class SConfBase:
         Tries to build the given nodes immediately. Returns 1 on success,
         0 on error.
         """
-        if self.logstream != None:
+        if self.logstream is not None:
             # override stdout / stderr to write in log file
             oldStdout = sys.stdout
             sys.stdout = self.logstream
@@ -510,7 +510,7 @@ class SConfBase:
             SConfFS.set_max_drift(save_max_drift)
             os.chdir(old_os_dir)
             SConfFS.chdir(old_fs_dir, change_os_dir=0)
-            if self.logstream != None:
+            if self.logstream is not None:
                 # restore stdout / stderr
                 sys.stdout = oldStdout
                 sys.stderr = oldStderr
@@ -559,7 +559,7 @@ class SConfBase:
             self.env['SPAWN'] = self.pspawn_wrapper
             sourcetext = self.env.Value(text)
 
-            if text != None:
+            if text is not None:
                 textFile = self.confdir.File(f + extension)
                 textFileNode = self.env.SConfSourceBuilder(target=textFile,
                                                            source=sourcetext)
@@ -645,7 +645,7 @@ class SConfBase:
                        "Test called after sconf.Finish()")
             context = CheckContext(self.sconf)
             ret = apply(self.test, (context,) +  args, kw)
-            if not self.sconf.config_h is None:
+            if self.sconf.config_h is not None:
                 self.sconf.config_h_text = self.sconf.config_h_text + context.config_h
             context.Result("error: no result")
             return ret
@@ -685,7 +685,7 @@ class SConfBase:
         self._createDir(self.confdir)
         self.confdir.up().add_ignore( [self.confdir] )
 
-        if self.logfile != None and not dryrun:
+        if self.logfile is not None and not dryrun:
             # truncate logfile, if SConf.Configure is called for the first time
             # in a build
             if _ac_config_logs.has_key(self.logfile):
@@ -724,7 +724,7 @@ class SConfBase:
 
         if not self.active:
             raise SCons.Errors.UserError, "Finish may be called only once!"
-        if self.logstream != None and not dryrun:
+        if self.logstream is not None and not dryrun:
             self.logstream.write("\n")
             self.logstream.close()
             self.logstream = None
@@ -869,7 +869,7 @@ class CheckContext:
         self.Log("scons: Configure: " + msg + "\n")
 
     def Log(self, msg):
-        if self.sconf.logstream != None:
+        if self.sconf.logstream is not None:
             self.sconf.logstream.write(msg)
 
     #### End of stuff used by Conftest.py.

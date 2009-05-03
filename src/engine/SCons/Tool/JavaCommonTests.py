@@ -75,7 +75,7 @@ public class BadDep {
 }
 """
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
-        assert pkg_dir == None, pkg_dir
+        assert pkg_dir is None, pkg_dir
         assert classes == ['BadDep'], classes
 
 
@@ -246,7 +246,7 @@ public class Test {
 """
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
-        assert pkg_dir == None, pkg_dir
+        assert pkg_dir is None, pkg_dir
         assert classes == ['Test'], classes
 
 
@@ -265,7 +265,7 @@ public class MyTabs
 """
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
-        assert pkg_dir == None, pkg_dir
+        assert pkg_dir is None, pkg_dir
         assert classes == ['MyTabs$MyInternal', 'MyTabs'], classes
 
 
@@ -302,7 +302,7 @@ public abstract class TestClass
 """
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
-        assert pkg_dir == None, pkg_dir
+        assert pkg_dir is None, pkg_dir
         assert classes == ['TestClass$1', 'TestClass$2', 'TestClass'], classes
 
 
@@ -320,7 +320,7 @@ class Foo { }
 """
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
-        assert pkg_dir == None, pkg_dir
+        assert pkg_dir is None, pkg_dir
         assert classes == ['TestSCons', 'Foo'], classes
 
 
@@ -354,7 +354,7 @@ public class A {
 """
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input)
-        assert pkg_dir == None, pkg_dir
+        assert pkg_dir is None, pkg_dir
         assert classes == ['A$B', 'A'], classes
 
     def test_anonymous_classes_with_parentheses(self):

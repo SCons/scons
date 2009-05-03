@@ -715,7 +715,7 @@ class SConsTimer:
         lines = open(file).readlines()
         line = [ l for l in lines if l.endswith(object_string) ][0]
         result = [ int(field) for field in line.split()[:4] ]
-        if not index is None:
+        if index is not None:
             result = result[index]
         return result
 
