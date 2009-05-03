@@ -352,7 +352,7 @@ class Classic(Current):
     def scan(self, node, path=()):
 
         # cache the includes list in node so we only scan it once:
-        if node.includes != None:
+        if node.includes is not None:
             includes = node.includes
         else:
             includes = self.find_include_names (node)

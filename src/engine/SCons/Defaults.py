@@ -273,7 +273,7 @@ def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
         return list
 
     l = f(SCons.PathList.PathList(list).subst_path(env, target, source))
-    if not l is None:
+    if l is not None:
         list = l
 
     return _concat_ixes(prefix, list, suffix, env)

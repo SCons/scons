@@ -118,10 +118,10 @@ for f in files:
                 exc_all_seen = 0
                 line = l
                 #print " -> reset"
-            elif not m1 is None:
+            elif m1 is not None:
                 exc_keyboardint_seen = 1
                 #print " -> keyboard -> ", m1.groups()
-            elif not m2 is None:
+            elif m2 is not None:
                 exc_all_seen = 1
                 #print " -> all -> ", m2.groups()
             else:

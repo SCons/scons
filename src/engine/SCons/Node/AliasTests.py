@@ -35,7 +35,7 @@ class AliasTestCase(unittest.TestCase):
         """Test creating an Alias name space
         """
         ans = SCons.Node.Alias.AliasNameSpace()
-        assert not ans is None, ans
+        assert ans is not None, ans
 
     def test_ANS_Alias(self):
         """Test the Alias() factory
@@ -82,7 +82,7 @@ class AliasTestCase(unittest.TestCase):
         assert a is a1, a1
 
         a = ans.lookup('a2')
-        assert a == None, a
+        assert a is None, a
 
     def test_Alias(self):
         """Test creating an Alias() object

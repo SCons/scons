@@ -240,6 +240,8 @@ RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
 
     - Fix a typo in the documentation for $_CPPDEFFLAGS.
 
+    - Issue 2401: Fix usage of comparisons with None.
+
   From Ludwig Hähne:
 
     - Handle Java inner classes declared within a method.

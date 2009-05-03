@@ -1101,14 +1101,14 @@ def _build_targets(fs, options, targets, target_top):
         else:
             node = None
             # Why would ltop be None? Unfortunately this happens.
-            if ltop == None: ltop = ''
+            if ltop is None: ltop = ''
             # Curdir becomes important when SCons is called with -u, -C,
             # or similar option that changes directory, and so the paths
             # of targets given on the command line need to be adjusted.
             curdir = os.path.join(os.getcwd(), str(ltop))
             for lookup in SCons.Node.arg2nodes_lookups:
                 node = lookup(x, curdir=curdir)
-                if node != None:
+                if node is not None:
                     break
             if node is None:
                 node = fs.Entry(x, directory=ltop, create=1)

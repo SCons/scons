@@ -53,7 +53,7 @@ class Value(SCons.Node.Node):
     def __init__(self, value, built_value=None):
         SCons.Node.Node.__init__(self)
         self.value = value
-        if not built_value is None:
+        if built_value is not None:
             self.built_value = built_value
 
     def str_for_display(self):

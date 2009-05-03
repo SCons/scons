@@ -41,8 +41,8 @@ class PackageVariableTestCase(unittest.TestCase):
         assert o.key == 'test', o.key
         assert o.help == 'test option help\n    ( yes | no | /path/to/test )', repr(o.help)
         assert o.default == '/default/path', o.default
-        assert not o.validator is None, o.validator
-        assert not o.converter is None, o.converter
+        assert o.validator is not None, o.validator
+        assert o.converter is not None, o.converter
 
     def test_converter(self):
         """Test the PackageVariable converter"""

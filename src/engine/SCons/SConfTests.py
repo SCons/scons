@@ -141,9 +141,9 @@ class SConfTestCase(unittest.TestCase):
         log = self.test.read( self.test.workpath('config.log') )
         expr = re.compile( ".*failed in a previous run and all", re.DOTALL ) 
         firstOcc = expr.match( log )
-        assert firstOcc != None, log
+        assert firstOcc is not None, log
         secondOcc = expr.match( log, firstOcc.end(0) )
-        assert secondOcc == None, log
+        assert secondOcc is None, log
 
         # 2.2 test the error caching mechanism (dependencies have changed)
         self._resetSConfState()
@@ -285,9 +285,9 @@ int main() {
         log = self.test.read( self.test.workpath('config.log') )
         expr = re.compile( ".*failed in a previous run and all", re.DOTALL )
         firstOcc = expr.match( log )
-        assert firstOcc != None, log
+        assert firstOcc is not None, log
         secondOcc = expr.match( log, firstOcc.end(0) )
-        assert secondOcc == None, log
+        assert secondOcc is None, log
 
 
     def test_TryAction(self):

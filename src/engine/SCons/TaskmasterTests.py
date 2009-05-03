@@ -207,7 +207,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.prepare()
         t.execute()
         t = tm.next_task()
-        assert t == None
+        assert t is None
 
         n1 = Node("n1")
         n2 = Node("n2")
@@ -236,7 +236,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         t.postprocess()
 
-        assert tm.next_task() == None
+        assert tm.next_task() is None
 
         built_text = "up to date: "
         top_node = n3
@@ -281,7 +281,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         t.postprocess()
 
-        assert tm.next_task() == None
+        assert tm.next_task() is None
 
 
         n1 = Node("n1")
@@ -316,13 +316,13 @@ class TaskmasterTestCase(unittest.TestCase):
         t5.executed()
         t5.postprocess()
 
-        assert tm.next_task() == None
+        assert tm.next_task() is None
 
 
         n4 = Node("n4")
         n4.set_state(SCons.Node.executed)
         tm = SCons.Taskmaster.Taskmaster([n4])
-        assert tm.next_task() == None
+        assert tm.next_task() is None
 
         n1 = Node("n1")
         n2 = Node("n2", [n1])
@@ -331,7 +331,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         t.postprocess()
         t = tm.next_task()
-        assert tm.next_task() == None
+        assert tm.next_task() is None
 
 
         n1 = Node("n1")
@@ -353,7 +353,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert target == n3, target
         t.executed()
         t.postprocess()
-        assert tm.next_task() == None
+        assert tm.next_task() is None
 
         n1 = Node("n1")
         n2 = Node("n2")
@@ -379,14 +379,14 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.get_target() == n4
         t.executed()
         t.postprocess()
-        assert tm.next_task() == None
+        assert tm.next_task() is None
         assert scan_called == 4, scan_called
 
         tm = SCons.Taskmaster.Taskmaster([n5])
         t = tm.next_task()
         assert t.get_target() == n5, t.get_target()
         t.executed()
-        assert tm.next_task() == None
+        assert tm.next_task() is None
         assert scan_called == 5, scan_called
 
         n1 = Node("n1")

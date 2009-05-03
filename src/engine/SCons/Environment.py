@@ -245,9 +245,9 @@ class BuilderWrapper(MethodWrapper):
         if source is _null:
             source = target
             target = None
-        if not target is None and not SCons.Util.is_List(target):
+        if target is not None and not SCons.Util.is_List(target):
             target = [target]
-        if not source is None and not SCons.Util.is_List(source):
+        if source is not None and not SCons.Util.is_List(source):
             source = [source]
         return apply(MethodWrapper.__call__, (self, target, source) + args, kw)
 
@@ -457,9 +457,9 @@ class SubstitutionEnvironment:
                 n = None
                 for l in lookup_list:
                     n = l(v)
-                    if not n is None:
+                    if n is not None:
                         break
-                if not n is None:
+                if n is not None:
                     if SCons.Util.is_String(n):
                         # n = self.subst(n, raw=1, **kw)
                         kw['raw'] = 1
@@ -1822,7 +1822,7 @@ class Base(SubstitutionEnvironment):
 
     def CacheDir(self, path):
         import SCons.CacheDir
-        if not path is None:
+        if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path
 
@@ -2013,7 +2013,7 @@ class Base(SubstitutionEnvironment):
         return apply(SCons.Scanner.Base, nargs, nkw)
 
     def SConsignFile(self, name=".sconsign", dbm_module=None):
-        if not name is None:
+        if name is not None:
             name = self.subst(name)
             if not os.path.isabs(name):
                 name = os.path.join(str(self.fs.SConstruct_dir), name)

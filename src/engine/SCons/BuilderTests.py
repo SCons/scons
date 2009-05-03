@@ -1108,7 +1108,7 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.get_prefix(env)
         assert r == 'A_', r
         r = builder.get_suffix(env)
-        assert r == None, r
+        assert r is None, r
         r = builder.get_src_suffix(env)
         assert r == '', r
         r = builder.src_suffixes(env)
@@ -1127,9 +1127,9 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.get_prefix(env)
         assert r == 'A_', r
         r = builder.get_suffix(env)
-        assert r == None, r
+        assert r is None, r
         r = builder.get_suffix(env, [MyNode('X.src_sfx1')])
-        assert r == None, r
+        assert r is None, r
         r = builder.get_src_suffix(env)
         assert r == '.src_sfx1', r
         r = builder.src_suffixes(env)
@@ -1145,7 +1145,7 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.get_prefix(env)
         assert r == 'A_', r
         r = builder.get_suffix(env)
-        assert r ==  None, r
+        assert r is None, r
         r = builder.get_src_suffix(env)
         assert r == '.src_sfx1', r
         r = builder.src_suffixes(env)

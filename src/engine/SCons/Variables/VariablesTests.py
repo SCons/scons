@@ -85,9 +85,9 @@ class VariablesTestCase(unittest.TestCase):
         o = opts.options[0]
         assert o.key == 'VAR'
         assert o.help == ''
-        assert o.default == None
-        assert o.validator == None
-        assert o.converter == None
+        assert o.default is None
+        assert o.validator is None
+        assert o.converter is None
 
         o = opts.options[1]
         assert o.key == 'ANSWER'
@@ -120,9 +120,9 @@ class VariablesTestCase(unittest.TestCase):
         o = opts.options[0]
         assert o.key == 'VAR2', o.key
         assert o.help == '', o.help
-        assert o.default == None, o.default
-        assert o.validator == None, o.validator
-        assert o.converter == None, o.converter
+        assert o.default is None, o.default
+        assert o.validator is None, o.validator
+        assert o.converter is None, o.converter
 
         o = opts.options[1]
         assert o.key == 'ANSWER2', o.key

@@ -262,7 +262,7 @@ def test_positional_args(pos_callback, cmd, **kw):
 
         def none(a):
             assert hasattr(a, 'strfunction')
-            assert a.cmdstr == None, a.cmdstr
+            assert a.cmdstr is None, a.cmdstr
         #FUTURE test_varlist(pos_callback, none, cmd, None, **kw)
         apply(test_varlist, (pos_callback, none, cmd, None), kw)
 
