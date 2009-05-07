@@ -853,6 +853,11 @@ class CheckContext:
         self.env.Append(LIBS = lib_name_list)
         return oldLIBS
 
+    def PrependLIBS(self, lib_name_list):
+        oldLIBS = self.env.get( 'LIBS', [] )
+        self.env.Prepend(LIBS = lib_name_list)
+        return oldLIBS
+
     def SetLIBS(self, val):
         oldLIBS = self.env.get( 'LIBS', [] )
         self.env.Replace(LIBS = val)
