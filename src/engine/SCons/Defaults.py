@@ -237,7 +237,7 @@ Mkdir = ActionFactory(mkdir_func,
 def move_func(dest, src):
     SCons.Node.FS.invalidate_node_memos(dest)
     SCons.Node.FS.invalidate_node_memos(src)
-    os.rename(src, dest)
+    shutil.move(src, dest)
 
 Move = ActionFactory(move_func,
                      lambda dest, src: 'Move("%s", "%s")' % (dest, src),
