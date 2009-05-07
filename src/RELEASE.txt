@@ -867,6 +867,18 @@ RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 
                     EnsureSConsVersion(0, 96, 93)
 
+    --  THE CheckLib Configure TEST WILL CHANGE BEHAVIOR
+
+    	The CheckLib() Configure test appends the lib(s) to the
+    	Environment's LIBS list in 1.3 and earlier.  In 1.3 there is a
+    	new CheckLib argument, append, which defaults to True to
+    	preserve the old behavior.  In a future release, append will
+    	be changed to default to False, to conform with autoconf and
+    	user expectations, since it is usually used to build up
+    	library lists in a right-to-left way.
+
+
+
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it

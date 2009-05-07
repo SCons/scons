@@ -64,13 +64,19 @@ Autoconf-like configuration support; low level implementation of tests.
 #                       Append "lib_name_list" to the value of LIBS.
 #                       "lib_namelist" is a list of strings.
 #                       Return the value of LIBS before changing it (any type
-#                       can be used, it is passed to SetLIBS() later.
+#                       can be used, it is passed to SetLIBS() later.)
+#
+# context.PrependLIBS(lib_name_list)
+#                       Prepend "lib_name_list" to the value of LIBS.
+#                       "lib_namelist" is a list of strings.
+#                       Return the value of LIBS before changing it (any type
+#                       can be used, it is passed to SetLIBS() later.)
 #
 # context.SetLIBS(value)
 #                       Set LIBS to "value".  The type of "value" is what
 #                       AppendLIBS() returned.
 #                       Return the value of LIBS before changing it (any type
-#                       can be used, it is passed to SetLIBS() later.
+#                       can be used, it is passed to SetLIBS() later.)
 #
 # context.headerfilename
 #                       Name of file to append configure results to, usually
@@ -572,7 +578,8 @@ int main()
     return st
 
 def CheckLib(context, libs, func_name = None, header = None,
-                 extra_libs = None, call = None, language = None, autoadd = 1):
+             extra_libs = None, call = None, language = None, autoadd = 1,
+             append = True):
     """
     Configure check for a C or C++ libraries "libs".  Searches through
     the list of libraries, until one is found where the test succeeds.
@@ -657,7 +664,10 @@ return 0;
             l = [ lib_name ]
             if extra_libs:
                 l.extend(extra_libs)
-            oldLIBS = context.AppendLIBS(l)
+            if append:
+                oldLIBS = context.AppendLIBS(l)
+            else:
+                oldLIBS = context.PrependLIBS(l)
             sym = "HAVE_LIB" + lib_name
         else:
             oldLIBS = -1
