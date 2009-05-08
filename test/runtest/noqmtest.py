@@ -42,13 +42,13 @@ test = TestRuntest.TestRuntest(noqmtest=1)
 
 test.subdir('test')
 
-test_pass_py = os.path.join('test', 'pass.py')
-test_fail_py = os.path.join('test', 'fail.py')
+test_fail_py      = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
+test_pass_py      = os.path.join('test', 'pass.py')
 
-workpath_pass_py = test.workpath(test_pass_py)
-workpath_fail_py = test.workpath(test_fail_py)
+workpath_fail_py      = test.workpath(test_fail_py)
 workpath_no_result_py = test.workpath(test_no_result_py)
+workpath_pass_py      = test.workpath(test_pass_py)
 
 test.write_failing_test(test_fail_py)
 test.write_no_result_test(test_no_result_py)
@@ -62,10 +62,10 @@ else:
 def escape(s):
     return string.replace(s, '\\', '\\\\')
 
-expect_python			= escape(expect_python)
-expect_workpath_pass_py		= escape(workpath_pass_py)
-expect_workpath_fail_py		= escape(workpath_fail_py)
-expect_workpath_no_result_py	= escape(workpath_no_result_py)
+expect_python                = escape(expect_python)
+expect_workpath_fail_py      = escape(test_fail_py)
+expect_workpath_no_result_py = escape(test_no_result_py)
+expect_workpath_pass_py      = escape(test_pass_py)
 
 expect_stdout = """\
 %(expect_python)s -tt %(expect_workpath_fail_py)s
