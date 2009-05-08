@@ -609,16 +609,23 @@ elif all and not qmtest:
 
     def find_Tests_py(tdict, dirname, names):
         for n in filter(lambda n: n[-8:] == "Tests.py", names):
-            t = os.path.join(dirname, n)
-            if not tdict.has_key(t):
-                tdict[t] = 1
+            tdict[os.path.join(dirname, n)] = 1
     os.path.walk('src', find_Tests_py, tdict)
 
     def find_py(tdict, dirname, names):
-        for n in filter(lambda n: n[-3:] == ".py", names):
-            t = os.path.join(dirname, n)
-            if not tdict.has_key(t):
-                tdict[t] = 1
+        tests = filter(lambda n: n[-3:] == ".py", names)
+        try:
+            excludes = open(os.path.join(dirname,".exclude_tests")).readlines()
+        except (OSError, IOError):
+            pass
+        else:
+            for exclude in excludes:
+                exclude = string.split(exclude, '#' , 1)[0]
+                exclude = string.strip(exclude)
+                if not exclude: continue
+                tests = filter(lambda n, ex = exclude: n != ex, tests)
+        for n in tests:
+            tdict[os.path.join(dirname, n)] = 1
     os.path.walk('test', find_py, tdict)
 
     if format == '--aegis' and aegis:
@@ -711,7 +718,7 @@ sys.stdout = Unbuffered(sys.stdout)
 
 if list_only:
     for t in tests:
-        sys.stdout.write(t.abspath + "\n")
+        sys.stdout.write(t.path + "\n")
     sys.exit(0)
 
 #
@@ -740,7 +747,7 @@ for t in tests:
     t.command_args = [python, '-tt']
     if debug:
         t.command_args.append(debug)
-    t.command_args.append(t.abspath)
+    t.command_args.append(t.path)
     t.command_str = string.join(map(escape, t.command_args), " ")
     if printcommand:
         sys.stdout.write(t.command_str + "\n")
