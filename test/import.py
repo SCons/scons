@@ -33,8 +33,10 @@ import os
 import re
 import sys
 
-import TestSCons
+# must do this here, since TestSCons will chdir
+tooldir = os.path.join(os.getcwd(), 'src', 'engine', 'SCons', 'Tool')
 
+import TestSCons
 test = TestSCons.TestSCons()
 
 # Before executing the any of the platform or tool modules, add some
@@ -68,90 +70,23 @@ x = SCons.Platform.%(platform)s.generate
 """ % locals())
     test.run()
 
-tools = [
-    # Can't import '386asm' everywhere due to Windows registry dependency.
-    'aixc++',
-    'aixcc',
-    'aixf77',
-    'aixlink',
-    'applelink',
-    'ar',
-    'as',
-    'bcc32',
-    'BitKeeper',
-    'c++',
-    'cc',
-    'cvf',
-    'CVS',
-    'default',
-    'dmd',
-    'dvi',
-    'dvipdf',
-    'dvips',
-    'f77',
-    'f90',
-    'f95',
-    'fortran',
-    'g++',
-    'g77',
-    'gas',
-    'gcc',
-    'gfortran',
-    'gnulink',
-    'gs',
-    'hpc++',
-    'hpcc',
-    'hplink',
-    'icc',
-    'icl',
-    'ifort',
-    'ifl',
-    'ilink',
-    'ilink32',
-    'intelc',
-    'jar',
-    'javac',
-    'javah',
-    'latex',
-    'lex',
-    'link',
-    # Can't import 'linkloc' everywhere due to Windows registry dependency.
-    'm4',
-    'masm',
-    'midl',
-    'mingw',
-    'mslib',
-    'mslink',
-    'msvc',
-    'msvs',
-    'mwcc',
-    'mwld',
-    'nasm',
-    'pdf',
-    'pdflatex',
-    'pdftex',
-    'Perforce',
-    'qt',
-    'RCS',
-    'rmic',
-    'rpcgen',
-    'SCCS',
-    'sgiar',
-    'sgic++',
-    'sgicc',
-    'sgilink',
-    'Subversion',
-    'sunar',
-    'sunc++',
-    'suncc',
-    'sunlink',
-    'swig',
-    'tar',
-    'tex',
-    'tlib',
-    'yacc',
-    'zip',
-]
+ignore = ('__init__.py',
+        # Can't import these everywhere due to Windows registry dependency.
+        '386asm.py', 'linkloc.py',
+        # Directory of common stuff for MSVC and MSVS
+        'MSCommon',
+        # Sun pkgchk and pkginfo common stuff
+        'sun_pkg.py',
+        )
+tools = []
+for name in os.listdir(tooldir):
+    if name in ignore: continue
+    if name[-3:] == '.py':
+        if name[-8:] not in ('Tests.py', 'ommon.py'):
+            tools.append(name[:-3])
+    elif os.path.exists(os.path.join(tooldir,name,'__init__.py')):
+        tools.append(name)
+tools.sort()    # why not?
 
 #if sys.platform == 'win32':
 # Just comment out (for now?) due to registry dependency.
