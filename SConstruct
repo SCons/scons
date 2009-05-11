@@ -48,6 +48,8 @@ project = 'scons'
 default_version = '1.2.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
+platform = distutils.util.get_platform()
+
 SConsignFile()
 
 #
@@ -55,15 +57,20 @@ SConsignFile()
 # is available on this system.
 #
 def whereis(file):
+    exts = ['']
+    if platform == "win32":
+        exts += ['.exe']
     for dir in string.split(os.environ['PATH'], os.pathsep):
         f = os.path.join(dir, file)
-        if os.path.isfile(f):
-            try:
-                st = os.stat(f)
-            except:
-                continue
-            if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
-                return f
+        for ext in exts:
+            f_ext = f + ext
+            if os.path.isfile(f_ext):
+                try:
+                    st = os.stat(f_ext)
+                except:
+                    continue
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                    return f_ext
     return None
 
 #
@@ -162,8 +169,6 @@ if build_id is None:
         build_id = ''
 
 python_ver = sys.version[0:3]
-
-platform = distutils.util.get_platform()
 
 # Re-exporting LD_LIBRARY_PATH is necessary if the Python version was
 # built with the --enable-shared option.
@@ -836,7 +841,7 @@ for p in [ scons ]:
     AddPostAction(dist_distutils_targets, Chmod(dist_distutils_targets, 0644))
 
     if not gzip:
-        print "gzip not found; skipping .tar.gz package for %s." % pkg
+        print "gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg)
     else:
 
         distutils_formats.append('gztar')
