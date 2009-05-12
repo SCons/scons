@@ -45,7 +45,10 @@ class dblite:
   _open = __builtin__.open
   _cPickle_dump = cPickle.dump
   _os_chmod = os.chmod
-  _os_chown = os.chown
+  try:
+      _os_chown = os.chown
+  except AttributeError:
+      _os_chown = None
   _os_rename = os.rename
   _os_unlink = os.unlink
   _shutil_copyfile = shutil.copyfile
@@ -66,7 +69,7 @@ class dblite:
     self._mode = mode
     self._dict = {}
     self._needs_sync = 00000
-    if os.geteuid()==0 or os.getuid()==0:
+    if self._os_chown is not None and (os.geteuid()==0 or os.getuid()==0):
       # running as root; chown back to current owner/group when done
       try:
         statinfo = os.stat(self._file_name)
@@ -118,7 +121,7 @@ class dblite:
     except OSError: pass
     self._os_unlink(self._file_name)
     self._os_rename(self._tmp_name, self._file_name)
-    if self._chown_to > 0:      # don't chown to root or -1
+    if self._os_chown is not None and self._chown_to > 0: # don't chown to root or -1
       try:
         self._os_chown(self._file_name, self._chown_to, self._chgrp_to)
       except OSError:
