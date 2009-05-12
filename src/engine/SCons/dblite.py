@@ -45,6 +45,7 @@ class dblite:
   _open = __builtin__.open
   _cPickle_dump = cPickle.dump
   _os_chmod = os.chmod
+  _os_chown = os.chown
   _os_rename = os.rename
   _os_unlink = os.unlink
   _shutil_copyfile = shutil.copyfile
@@ -65,6 +66,20 @@ class dblite:
     self._mode = mode
     self._dict = {}
     self._needs_sync = 00000
+    if os.geteuid()==0 or os.getuid()==0:
+      # running as root; chown back to current owner/group when done
+      try:
+        statinfo = os.stat(self._file_name)
+        self._chown_to = statinfo.st_uid
+        self._chgrp_to = statinfo.st_gid
+      except OSError, e:
+        # db file doesn't exist yet.
+        # Check os.environ for SUDO_UID, use if set
+        self._chown_to = int(os.environ.get('SUDO_UID', -1))
+        self._chgrp_to = int(os.environ.get('SUDO_GID', -1))
+    else:
+      self._chown_to = -1        # don't chown
+      self._chgrp_to = -1        # don't chgrp
     if (self._flag == "n"):
       self._open(self._file_name, "wb", self._mode)
     else:
@@ -103,6 +118,11 @@ class dblite:
     except OSError: pass
     self._os_unlink(self._file_name)
     self._os_rename(self._tmp_name, self._file_name)
+    if self._chown_to > 0:      # don't chown to root or -1
+      try:
+        self._os_chown(self._file_name, self._chown_to, self._chgrp_to)
+      except OSError:
+        pass
     self._needs_sync = 00000
     if (keep_all_files):
       self._shutil_copyfile(
