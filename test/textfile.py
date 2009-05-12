@@ -142,7 +142,7 @@ line3a = 'This line has %subst% substitutions'
 line3b = 'This line has many substitutions'
 
 def matchem(file, lines):
-    lines = string.join(lines, '\n')
+    lines = string.join(lines, os.linesep)
     test.must_match(file, lines)
 
 matchem('text.txt', [line1, line2a, line3a])
