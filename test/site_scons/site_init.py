@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import sys
 
 """
 Verify site_scons/site_init.py file can define a tool, and it shows up
@@ -35,14 +36,19 @@ test = TestSCons.TestSCons()
 
 test.subdir('site_scons')
 
+if sys.platform == 'win32':
+    cat_cmd='type'
+else:
+    cat_cmd='cat'
+
 test.write(['site_scons', 'site_init.py'], """
 def TOOL_FOO(env):
-      env['FOO'] = 'cat'
+      env['FOO'] = '%s'
       bld = Builder(action = '$FOO ${SOURCE} > ${TARGET}',
 				      suffix = '.tgt')
       env.Append(BUILDERS = {'Foo' : bld})
 
-""")
+"""%cat_cmd)
 
 test.write('SConstruct', """
 e=Environment(tools=['default', TOOL_FOO])
@@ -50,7 +56,7 @@ e.Foo(target='foo.out', source='SConstruct')
 """)
 
 test.run(arguments = '-Q .',
-         stdout = """cat SConstruct > foo.out\n""")
+         stdout = """%s SConstruct > foo.out\n"""%cat_cmd)
 
 
 """
