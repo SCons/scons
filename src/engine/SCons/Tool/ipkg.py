@@ -35,9 +35,10 @@ packages fake_root.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import string
+
 import SCons.Builder
-from os import popen
-from os.path import dirname
 
 def generate(env):
     """Add Builders and construction variables for ipkg to an Environment."""
@@ -52,8 +53,11 @@ def generate(env):
 
     env['IPKG']       = 'ipkg-build'
     env['IPKGCOM']    = '$IPKG $IPKGFLAGS ${SOURCE}'
-    env['IPKGUSER']   = popen('id -un').read().strip()
-    env['IPKGGROUP']  = popen('id -gn').read().strip()
+    # TODO(1.5)
+    #env['IPKGUSER']   = os.popen('id -un').read().strip()
+    #env['IPKGGROUP']  = os.popen('id -gn').read().strip()
+    env['IPKGUSER']   = string.strip(os.popen('id -un').read())
+    env['IPKGGROUP']  = string.strip(os.popen('id -gn').read())
     env['IPKGFLAGS']  = SCons.Util.CLVar('-o $IPKGUSER -g $IPKGGROUP')
     env['IPKGSUFFIX'] = '.ipk'
 
