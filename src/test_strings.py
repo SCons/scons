@@ -240,6 +240,7 @@ check_list = [
             'src/engine/SCons/dblite.py',
             'src/script/MANIFEST.in',
             'src/script/setup.cfg',
+            'test/Fortran/.exclude_tests',
         ],
     ),
 
