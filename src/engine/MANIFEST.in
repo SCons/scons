@@ -108,6 +108,7 @@ SCons/Tool/ilink.py
 SCons/Tool/ilink32.py
 SCons/Tool/install.py
 SCons/Tool/intelc.py
+SCons/Tool/ipkg.py
 SCons/Tool/jar.py
 SCons/Tool/JavaCommon.py
 SCons/Tool/javac.py
