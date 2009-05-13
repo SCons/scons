@@ -106,7 +106,7 @@ def _action(target, source, env):
 
     # write the file
     try:
-        fd = open(target[0].get_path(), "w")
+        fd = open(target[0].get_path(), "wb")
     except (OSError,IOError), e:
         raise SCons.Errors.UserError("Can't write target file %s" % target[0])
     # separate lines by 'linesep' only if linesep is not empty
