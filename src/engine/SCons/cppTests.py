@@ -300,6 +300,10 @@ macro_function_input = """
 
 /* Make sure we don't die if the expansion isn't a string. */
 #define FUNC_INTEGER(x)       1
+
+/* Make sure one-character names are recognized. */
+#define _(x)       translate(x)
+#undef _
 """
 
 
