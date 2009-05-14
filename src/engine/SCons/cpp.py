@@ -66,10 +66,10 @@ cpp_lines_dict = {
     #   2) The optional parentheses and arguments (if it's a function-like
     #      macro, '' if it's not).
     #   3) The expansion value.
-    ('define',)         : '\s+([_A-Za-z][_A-Za-z0-9_]+)(\([^)]*\))?\s*(.*)',
+    ('define',)         : '\s+([_A-Za-z][_A-Za-z0-9_]*)(\([^)]*\))?\s*(.*)',
 
     # Fetch the #undefed keyword from a #undef line.
-    ('undef',)          : '\s+([_A-Za-z][A-Za-z0-9_]+)',
+    ('undef',)          : '\s+([_A-Za-z][A-Za-z0-9_]*)',
 }
 
 # Create a table that maps each individual C preprocessor directive to
