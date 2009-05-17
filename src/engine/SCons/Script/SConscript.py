@@ -491,9 +491,10 @@ class SConsEnvironment(SCons.Environment.Base):
     def Exit(self, value=0):
         sys.exit(value)
 
-    def Export(self, *vars):
+    def Export(self, *vars, **kw):
         for var in vars:
             global_exports.update(compute_exports(self.Split(var)))
+        global_exports.update(kw)
 
     def GetLaunchDir(self):
         global launch_dir
