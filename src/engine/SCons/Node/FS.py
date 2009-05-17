@@ -588,22 +588,22 @@ class Base(SCons.Node.Node):
 
         # Filenames and paths are probably reused and are intern'ed to
         # save some memory.
-        self.name = intern(name)
-        self.suffix = intern(SCons.Util.splitext(name)[1])
+        self.name = SCons.Util.silent_intern(name)
+        self.suffix = SCons.Util.silent_intern(SCons.Util.splitext(name)[1])
         self.fs = fs
 
         assert directory, "A directory must be provided"
 
-        self.abspath = intern(directory.entry_abspath(name))
-        self.labspath = intern(directory.entry_labspath(name))
+        self.abspath = SCons.Util.silent_intern(directory.entry_abspath(name))
+        self.labspath = SCons.Util.silent_intern(directory.entry_labspath(name))
         if directory.path == '.':
-            self.path = intern(name)
+            self.path = SCons.Util.silent_intern(name)
         else:
-            self.path = intern(directory.entry_path(name))
+            self.path = SCons.Util.silent_intern(directory.entry_path(name))
         if directory.tpath == '.':
-            self.tpath = intern(name)
+            self.tpath = SCons.Util.silent_intern(name)
         else:
-            self.tpath = intern(directory.entry_tpath(name))
+            self.tpath = SCons.Util.silent_intern(directory.entry_tpath(name))
         self.path_elements = directory.path_elements + [self]
 
         self.dir = directory

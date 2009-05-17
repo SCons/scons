@@ -358,10 +358,7 @@ class Classic(Current):
             includes = self.find_include_names (node)
             # Intern the names of the include files. Saves some memory
             # if the same header is included many times.
-            try:
-                node.includes = map(intern, includes)
-            except TypeError:
-                node.includes = includes
+            node.includes = map(SCons.Util.silent_intern, includes)
 
         # This is a hand-coded DSU (decorate-sort-undecorate, or
         # Schwartzian transform) pattern.  The sort key is the raw name
@@ -405,12 +402,7 @@ class ClassicCPP(Classic):
 
         n = SCons.Node.FS.find_file(include[1], paths)
 
-        i = include[1]
-        try:
-            i = intern(i)
-        except TypeError:
-            # Probably a unicode object; just don't worry about intern().
-            pass
+        i = SCons.Util.silent_intern(include[1])
         return n, i
 
     def sort_key(self, include):
