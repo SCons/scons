@@ -695,6 +695,14 @@ bling
             'bling\n',
         ], lines
 
+    def test_intern(self):
+        s1 = silent_intern("spam")
+        s2 = silent_intern(u"unicode spam")
+        s3 = silent_intern(42)
+        s4 = silent_intern("spam")
+        assert id(s1) == id(s4)
+
+
 class MD5TestCase(unittest.TestCase):
 
     def test_collect(self):
