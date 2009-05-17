@@ -33,18 +33,19 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 
+# SConscript to detect if exported variables are intact
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
 # Test exporting all global variables as a list of keys:
 test.write("SConstruct", """
 x = 'x'
 y = 'zoom'
 Export(globals().keys())                         
 SConscript('SConscript')
-""")
-
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
 """)
 
 test.run(arguments = ".")
@@ -54,12 +55,6 @@ test.write("SConstruct", """
 x = 'x'
 y = 'zoom'
 SConscript('SConscript', globals().keys())
-""")
-
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
 """)
 
 test.run(arguments = ".")
@@ -72,12 +67,6 @@ Export(globals())
 SConscript('SConscript')
 """)
 
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
-""")
-
 test.run(arguments = ".")
 
 # Test exporting all global variables as dictionary in SConscript call:
@@ -87,10 +76,11 @@ y = 'zoom'
 SConscript('SConscript', globals())
 """)
 
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
+test.run(arguments = ".")
+
+# Test exporting variables as keywords:
+test.write("SConstruct", """
+Export(x = 'x', y = 'zoom')
 """)
 
 test.run(arguments = ".")
@@ -106,12 +96,6 @@ f()
 SConscript('SConscript')
 """)
 
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
-""")
-
 test.run(arguments = ".")
 
 # Test export of local variables in SConscript call:
@@ -121,12 +105,6 @@ def f():
     y = 'zoom'
     SConscript('SConscript', ['x', 'y'])
 f()
-""")
-
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
 """)
 
 test.run(arguments = ".")
@@ -140,12 +118,6 @@ def f():
 
 f()
 SConscript('SConscript')
-""")
-
-test.write("SConscript", """
-Import(['x', 'y'])
-assert x == 'x'
-assert y == 'zoom'
 """)
 
 test.run(arguments = ".")

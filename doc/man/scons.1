@@ -3669,9 +3669,10 @@ so subsequent calls to
 will over-write previous exports that have the same name.
 Multiple variable names can be passed to
 .BR Export ()
-as separate arguments or as a list. A dictionary can be used to map
-variables to a different name when exported. Both local variables and
-global variables can be exported.
+as separate arguments or as a list.
+Keyword arguments can be used to provide names and their values.
+A dictionary can be used to map variables to a different name when exported.
+Both local variables and global variables can be exported.
 
 Examples:
 
@@ -3687,7 +3688,10 @@ Export("env", "package")
 # Make env and package available for all SConscript files:
 Export(["env", "package"])
 
-# Make env available using the name debug:.
+# Make env available using the name debug:
+Export(debug = env)
+
+# Make env available using the name debug:
 Export({"debug":env})
 .EE
 
