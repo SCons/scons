@@ -74,7 +74,7 @@ Since SCons compiles in simple ASCII mode by default,
 the compiler will generate warnings about unmappable characters,
 which may lead to errors as the file is processed further.
 In this case, the user must specify the <literal>LANG</literal>
-environment variable to tell the compiler what encoding is uesd.
+environment variable to tell the compiler what encoding is used.
 For portibility, it's best if the encoding is hard-coded
 so that the compile will work if it is done on a system
 with a different encoding.
