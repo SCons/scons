@@ -259,7 +259,9 @@ def get_intel_compiler_top(version, abi):
         if not SCons.Util.can_read_reg:
             raise NoRegistryModuleError, "No Windows registry module was found"
         top = get_intel_registry_value('ProductDir', version, abi)
-        if not os.path.exists(os.path.join(top, "Bin", "icl.exe")):
+        # pre-11, icl was in Bin.  11 and later, it's in Bin/<abi> apparently.
+        if not os.path.exists(os.path.join(top, "Bin", "icl.exe")) \
+              and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")):
             raise MissingDirError, \
                   "Can't find Intel compiler in %s"%(top)
     elif is_mac or is_linux:
