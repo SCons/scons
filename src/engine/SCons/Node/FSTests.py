@@ -2179,8 +2179,8 @@ class GlobTestCase(_tempdirTestCase):
 
         # Make entries on disk that will not have Nodes, so we can verify
         # the behavior of looking for things on disk.
-        self.test.write('disk-aaa', "disk-aaa\n")
         self.test.write('disk-bbb', "disk-bbb\n")
+        self.test.write('disk-aaa', "disk-aaa\n")
         self.test.write('disk-ccc', "disk-ccc\n")
         self.test.write('#disk-hash', "#disk-hash\n")
         self.test.subdir('disk-sub')
@@ -2489,12 +2489,18 @@ class GlobTestCase(_tempdirTestCase):
         join = os.path.join
         # At least sometimes this should return out-of-order items
         # if Glob doesn't sort.
+        # It's not a very good test though since it depends on the
+        # order returned by glob, which might already be sorted.
         g = self.fs.Glob('disk-sub/*', strings=True)
         expect = [
             os.path.join('disk-sub', 'disk-ddd'),
             os.path.join('disk-sub', 'disk-eee'),
             os.path.join('disk-sub', 'disk-fff'),
         ]
+        assert g == expect, str(g) + " is not sorted, but should be!"
+
+        g = self.fs.Glob('disk-*', strings=True)
+        expect = [ 'disk-aaa', 'disk-bbb', 'disk-ccc', 'disk-sub' ]
         assert g == expect, str(g) + " is not sorted, but should be!"
 
 
