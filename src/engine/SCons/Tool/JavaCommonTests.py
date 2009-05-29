@@ -184,6 +184,23 @@ class Private {
                  ]
         assert classes == expect, (expect, classes)
 
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '5')
+        assert pkg_dir is None, pkg_dir
+        expect = [
+                   'Empty',
+                   'Listener',
+                   'Test$Inner$1',
+                   'Test$Inner',
+                   'Test$Inner2',
+                   'Test$Inner3',
+                   'Test$1',
+                   'Test$1$1',
+                   'Test',
+                   'Private$1',
+                   'Private',
+                 ]
+        assert classes == expect, (expect, classes)
+
 
 
     def test_comments(self):
@@ -386,6 +403,9 @@ public class Foo {
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
         assert classes == ['Foo$1', 'Foo$1$1', 'Foo'], classes
 
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '6')
+        assert classes == ['Foo$1', 'Foo$1$1', 'Foo'], classes
+
 
 
     def test_nested_anonymous_inner_classes(self):
@@ -430,6 +450,10 @@ public class NestedExample
         assert expect == classes, (expect, classes)
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.5')
+        expect = [ 'NestedExample$1', 'NestedExample$1$1', 'NestedExample' ]
+        assert expect == classes, (expect, classes)
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '6')
         expect = [ 'NestedExample$1', 'NestedExample$1$1', 'NestedExample' ]
         assert expect == classes, (expect, classes)
 
@@ -533,6 +557,9 @@ public class Foo
         expect = [ 'Foo$1', 'Foo' ]
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.6')
+        assert expect == classes, (expect, classes)
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '6')
         assert expect == classes, (expect, classes)
 
 

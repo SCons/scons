@@ -65,7 +65,8 @@ if java_parsing:
         interfaces, and anonymous inner classes."""
         def __init__(self, version=default_java_version):
 
-            if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6'):
+            if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6',
+                               '5', '6'):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError, msg
 
@@ -171,7 +172,7 @@ if java_parsing:
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
                 self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
-            elif self.version in ('1.5', '1.6'):
+            elif self.version in ('1.5', '1.6', '5', '6'):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
                 className.extend(self.listClasses)
