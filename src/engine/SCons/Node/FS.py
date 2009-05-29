@@ -1953,7 +1953,9 @@ class Dir(Base):
         """
         dirname, basename = os.path.split(pathname)
         if not dirname:
-            return self._glob1(basename, ondisk, source, strings)
+            result = self._glob1(basename, ondisk, source, strings)
+            result.sort(lambda a, b: cmp(str(a), str(b)))
+            return result
         if has_glob_magic(dirname):
             list = self.glob(dirname, ondisk, source, strings=False)
         else:
