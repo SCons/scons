@@ -219,6 +219,26 @@
       <scons_output_command>scons -Q -c classes</scons_output_command>
     </scons_output>
 
+    <para>
+
+    To ensure correct handling of <filename>.class</filename>
+    dependencies in all cases, you need to tell &SCons; which Java
+    version is being used.  This is needed because Java 1.5 changed
+    the <filename>.class</filename> file names for nested anonymous
+    inner classes.  Use the <varname>JAVAVERSION</varname> construction
+    variable to specify the version in use.  With Java 1.6, the
+    one-liner example can then be defined like this:
+
+    </para> 
+
+    <sconstruct>
+      Java('classes', 'src', JAVAVERSION='1.6')
+    </sconstruct>
+
+    <para>
+    See <varname>JAVAVERSION</varname> in the man page for more information.
+    </para>
+
   </section>
 
   <section>
