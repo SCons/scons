@@ -697,7 +697,9 @@ bling
 
     def test_intern(self):
         s1 = silent_intern("spam")
-        s2 = silent_intern(u"unicode spam")
+        # Python 1.5 and 3.x do not have a unicode() built-in
+        if sys.version[0] == '2': 
+            s2 = silent_intern(unicode("unicode spam"))
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)
