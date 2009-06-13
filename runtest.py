@@ -245,7 +245,7 @@ runtest.py:  No tests were specified.
 if sys.platform in ('win32', 'cygwin'):
 
     def whereis(file):
-        pathext = [''] + string.split(os.environ['PATHEXT'])
+        pathext = [''] + string.split(os.environ['PATHEXT'], os.pathsep)
         for dir in string.split(os.environ['PATH'], os.pathsep):
             f = os.path.join(dir, file)
             for ext in pathext:
