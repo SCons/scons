@@ -222,7 +222,7 @@ program using the F<build/foo.c> path name.
 
     The most direct reason to duplicate source files
     in variant directories
-    is simply that some tools (mostly older vesions)
+    is simply that some tools (mostly older versions)
     are written to only build their output files
     in the same directory as the source files.
     In this case, the choices are either
