@@ -115,6 +115,12 @@ class StackSizeWarning(Warning):
 class TaskmasterNeedsExecuteWarning(FutureDeprecatedWarning):
     pass
 
+class VisualCMissingWarning(Warning):
+    pass
+
+class VisualStudioMissingWarning(Warning):
+    pass
+
 class FortranCxxMixWarning(LinkWarning):
     pass
 

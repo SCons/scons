@@ -478,7 +478,7 @@ expected_vcprojfile_8_0 = """\
 \t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
 \t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
 \t\t\t\tOutput="Test.exe"
-\t\t\t\tPreprocessorDefinitions="DEF1;DEF2"
+\t\t\t\tPreprocessorDefinitions="DEF1;DEF2;DEF3=1234"
 \t\t\t\tIncludeSearchPath="inc1;inc2"
 \t\t\t\tForcedIncludes=""
 \t\t\t\tAssemblySearchPath=""
@@ -539,7 +539,7 @@ expected_vcprojfile_8_0 = """\
 
 SConscript_contents_8_0 = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0',
-                CPPDEFINES=['DEF1', 'DEF2'],
+                CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'])
 
 testsrc = ['test1.cpp', 'test2.cpp']

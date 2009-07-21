@@ -31,6 +31,7 @@ selection method.
 #
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+import win32
 
 def generate(env):
     if not env.has_key('ENV'):
@@ -47,6 +48,8 @@ def generate(env):
     env['SHLIBSUFFIX']    = '.dll'
     env['LIBPREFIXES']    = '$LIBPREFIX'
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['HOST_OS']        = 'os2'
+    env['HOST_ARCH']      = win32.get_architecture().arch
 
 # Local Variables:
 # tab-width:4

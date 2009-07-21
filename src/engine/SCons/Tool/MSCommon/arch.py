@@ -23,28 +23,39 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""engine.SCons.Tool.mssdk
-
-Tool-specific initialization for Microsoft SDKs, both Platform
-SDKs and Windows SDKs.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
+__doc__ = """Module to define supported Windows chip architectures.
 """
 
-from MSCommon import mssdk_exists, \
-                     mssdk_setup_env
+import os
 
-def generate(env):
-    """Add construction variables for an MS SDK to an Environment."""
-    mssdk_setup_env(env)
+class ArchDefinition:
+    """
+    A class for defining architecture-specific settings and logic.
+    """
+    def __init__(self, arch, synonyms=[]):
+        self.arch = arch
+        self.synonyms = synonyms
 
-def exists(env):
-    return mssdk_exists()
+SupportedArchitectureList = [
+    ArchitectureDefinition(
+        'x86',
+        ['i386', 'i486', 'i586', 'i686'],
+    ),
 
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+    ArchitectureDefinition(
+        'x86_64',
+        ['AMD64', 'amd64', 'em64t', 'EM64T', 'x86_64'],
+    ),
+
+    ArchitectureDefinition(
+        'ia64',
+        ['IA64'],
+    ),
+]
+
+SupportedArchitectureMap = {}
+for a in SupportedArchitectureList:
+    SupportedArchitectureMap[a.arch] = a
+    for s in a.synonyms:
+        SupportedArchitectureMap[s] = a
+

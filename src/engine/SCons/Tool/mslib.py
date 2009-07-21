@@ -39,7 +39,7 @@ import SCons.Tool.msvs
 import SCons.Tool.msvc
 import SCons.Util
 
-from MSCommon import detect_msvs, merge_default_version
+from MSCommon import msvs_exists, merge_default_version
 
 def generate(env):
     """Add Builders and construction variables for lib to an Environment."""
@@ -55,7 +55,7 @@ def generate(env):
     env['LIBSUFFIX']   = '.lib'
 
 def exists(env):
-    return detect_msvs()
+    return msvs_exists()
 
 # Local Variables:
 # tab-width:4

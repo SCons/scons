@@ -274,3 +274,15 @@ in the &cv-CPPPATH; construction variable
 when the &cv-RCINCFLAGS; variable is expanded.
 </summary>
 </cvar>
+
+<cvar name="MSVC_VERSION">
+<summary>
+Sets the preferred  version of Microsoft Visual C/C++ to use.
+
+If &v-MSVC_VERSION; is not set,
+&SCons; will (by default) select the latest version
+of Visual C/C++ installed on your system.
+If the specified version isn't installed,
+tool initialization will fail.
+</summary>
+</cvar>

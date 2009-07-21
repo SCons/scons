@@ -495,7 +495,7 @@ class DummyRegistry:
             mykey = 'HKEY_CURRENT_USER\\' + key
         if root == SCons.Util.HKEY_LOCAL_MACHINE:
             mykey = 'HKEY_LOCAL_MACHINE\\' + key
-        #print "Open Key",mykey
+        debug("Open Key:%s"%mykey)
         return self.root.key(mykey)
 
 def DummyOpenKeyEx(root, key):
@@ -527,14 +527,15 @@ class msvsTestCase(unittest.TestCase):
     """This test case is run several times with different defaults.
     See its subclasses below."""
     def setUp(self):
+        debug("THIS TYPE :%s"%self)
         global registry
         registry = self.registry
         from SCons.Tool.MSCommon.vs import reset_installed_visual_studios
         reset_installed_visual_studios()
 
-    def test_detect_msvs(self):
-        """Test the detect_msvs() function"""
-        r = detect_msvs()
+    def test_msvs_exists(self):
+        """Test the msvs_exists() function"""
+        r = msvs_exists()
         assert r == (self.number_of_versions > 0), r
 
     def test_get_default_version(self):
@@ -544,9 +545,9 @@ class msvsTestCase(unittest.TestCase):
         env = DummyEnv()
         v1 = get_default_version(env)
         assert env['MSVS_VERSION'] == self.default_version, \
-               (self.default_version, env['MSVS_VERSION'])
+               ("env['MSVS_VERSION'] != self.default_version",self.default_version, env['MSVS_VERSION'])
         assert env['MSVS']['VERSION'] == self.default_version, \
-               (self.default_version, env['MSVS']['VERSION'])
+               ("env['MSVS']['VERSION'] != self.default_version",self.default_version, env['MSVS']['VERSION'])
         assert v1 == self.default_version, (self.default_version, v1)
 
         env = DummyEnv({'MSVS_VERSION':'7.0'})
@@ -615,8 +616,10 @@ class msvs6and7TestCase(msvsTestCase):
     highest_version = '7.0'
     number_of_versions = 2
     install_locs = {
-        '6.0' : {'VSINSTALLDIR': 'C:\\VS6\\VC98', 'VCINSTALLDIR': 'C:\\VS6\\VC98\\Bin'},
-        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
+        '6.0' : {'VSINSTALLDIR': 'C:\\VS6\\VC98',
+                 'VCINSTALLDIR': 'C:\\VS6\\VC98\\Bin'},
+        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7',
+                 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
         '7.1' : {},
         '8.0' : {},
         '8.0Exp' : {},
@@ -631,7 +634,8 @@ class msvs7TestCase(msvsTestCase):
     number_of_versions = 1
     install_locs = {
         '6.0' : {},
-        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
+        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7',
+                 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
         '7.1' : {},
         '8.0' : {},
         '8.0Exp' : {},
@@ -647,7 +651,8 @@ class msvs71TestCase(msvsTestCase):
     install_locs = {
         '6.0' : {},
         '7.0' : {},
-        '7.1' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Common7', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Common7\\Tools'},
+        '7.1' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Common7',
+                 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Common7\\Tools'},
         '8.0' : {},
         '8.0Exp' : {},
     }
@@ -664,7 +669,8 @@ class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
         '7.0' : {},
         '7.1' : {},
         '8.0' : {},
-        '8.0Exp' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
+        '8.0Exp' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8',
+                    'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
     }
     default_install_loc = install_locs['8.0Exp']
 
@@ -678,7 +684,8 @@ class msvs80TestCase(msvsTestCase):
         '6.0' : {},
         '7.0' : {},
         '7.1' : {},
-        '8.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
+        '8.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8',
+                 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['8.0']
@@ -705,10 +712,11 @@ if __name__ == "__main__":
         sys.stdout.write("NO RESULT for msvsTests.py:  '%s' is not win32\n" % sys.platform)
         sys.exit(0)
 
-    SCons.Util.RegOpenKeyEx = DummyOpenKeyEx
-    SCons.Util.RegEnumKey = DummyEnumKey
-    SCons.Util.RegEnumValue = DummyEnumValue
+    SCons.Util.RegOpenKeyEx    = DummyOpenKeyEx
+    SCons.Util.RegEnumKey      = DummyEnumKey
+    SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
+    
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)
     os.path.isdir  = DummyExists # make sure all dirs are dirs :-)

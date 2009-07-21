@@ -41,7 +41,7 @@ import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
 
-from MSCommon import detect_msvs
+from MSCommon import msvs_exists
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
@@ -81,7 +81,7 @@ def generate(env):
     env['BUILDERS']['TypeLibrary'] = midl_builder
 
 def exists(env):
-    return detect_msvs()
+    return msvs_exists()
 
 # Local Variables:
 # tab-width:4
