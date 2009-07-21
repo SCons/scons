@@ -54,6 +54,7 @@ import SCons.Node.Alias
 import SCons.Node.FS
 import SCons.Node.Python
 import SCons.Platform
+import SCons.SConf
 import SCons.SConsign
 import SCons.Subst
 import SCons.Tool
