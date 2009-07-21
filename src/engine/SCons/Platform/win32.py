@@ -281,8 +281,8 @@ def get_architecture(arch=None):
     if arch is None:
         arch = os.environ.get('PROCESSOR_ARCHITEW6432')
         if not arch:
-            arch = os.environ['PROCESSOR_ARCHITECTURE']
-    return SupportedArchitectureMap.get(arch, '')
+            arch = os.environ.get('PROCESSOR_ARCHITECTURE')
+    return SupportedArchitectureMap.get(arch, ArchDefinition('', ['']))
 
 def generate(env):
     # Attempt to find cmd.exe (for WinNT/2k/XP) or

@@ -259,6 +259,8 @@ def get_sdk_by_version(mssdk):
 def get_default_sdk():
     """Set up the default Platform/Windows SDK."""
     get_installed_sdks()
+    if not InstalledSDKList:
+        return None
     return InstalledSDKList[0]
 
 def mssdk_setup_env(env):
