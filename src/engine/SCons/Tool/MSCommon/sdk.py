@@ -287,6 +287,8 @@ def mssdk_setup_env(env):
         import vs
         msvs = vs.get_vs_by_version(msvs_version)
         debug('msvs is :%s'%msvs)
+        if not msvs:
+            return
         sdk_version = msvs.sdk_version
         if not sdk_version:
             return
