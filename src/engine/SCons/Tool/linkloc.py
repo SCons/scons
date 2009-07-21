@@ -43,7 +43,7 @@ import SCons.Errors
 import SCons.Tool
 import SCons.Util
 
-from SCons.Tool.MSCommon import detect_msvs, merge_default_version
+from SCons.Tool.MSCommon import msvs_exists, merge_default_version
 from SCons.Tool.PharLapCommon import addPharLapPaths
 
 _re_linker_command = re.compile(r'(\s)@\s*([^\s]+)')
@@ -100,7 +100,7 @@ def generate(env):
     addPharLapPaths(env)
 
 def exists(env):
-    if detect_msvs():
+    if msvs_exists():
         return env.Detect('linkloc')
     else:
         return 0

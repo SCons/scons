@@ -42,8 +42,6 @@ from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
 import SCons.Util
 
-
-
 try:
     import msvcrt
     import win32api
@@ -67,7 +65,7 @@ else:
 
     _builtin_file = __builtin__.file
     _builtin_open = __builtin__.open
-
+    
     def _scons_file(*args, **kw):
         fp = apply(_builtin_file, args, kw)
         win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
@@ -239,6 +237,53 @@ def get_program_files_dir():
         
     return val
 
+
+
+# Determine which windows CPU were running on.
+class ArchDefinition:
+    """
+    A class for defining architecture-specific settings and logic.
+    """
+    def __init__(self, arch, synonyms=[]):
+        self.arch = arch
+        self.synonyms = synonyms
+
+SupportedArchitectureList = [
+    ArchDefinition(
+        'x86',
+        ['i386', 'i486', 'i586', 'i686'],
+    ),
+
+    ArchDefinition(
+        'x86_64',
+        ['AMD64', 'amd64', 'em64t', 'EM64T', 'x86_64'],
+    ),
+
+    ArchDefinition(
+        'ia64',
+        ['IA64'],
+    ),
+]
+
+SupportedArchitectureMap = {}
+for a in SupportedArchitectureList:
+    SupportedArchitectureMap[a.arch] = a
+    for s in a.synonyms:
+        SupportedArchitectureMap[s] = a
+
+def get_architecture(arch=None):
+    """Returns the definition for the specified architecture string.
+
+    If no string is specified, the system default is returned (as defined
+    by the PROCESSOR_ARCHITEW6432 or PROCESSOR_ARCHITECTURE environment
+    variables).
+    """
+    if arch is None:
+        arch = os.environ.get('PROCESSOR_ARCHITEW6432')
+        if not arch:
+            arch = os.environ['PROCESSOR_ARCHITECTURE']
+    return SupportedArchitectureMap.get(arch, '')
+
 def generate(env):
     # Attempt to find cmd.exe (for WinNT/2k/XP) or
     # command.com for Win9x
@@ -329,6 +374,10 @@ def generate(env):
     env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048
     env['ESCAPE']         = escape
+    
+    env['HOST_OS']        = 'win32'
+    env['HOST_ARCH']      = get_architecture().arch
+    
 
 # Local Variables:
 # tab-width:4

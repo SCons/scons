@@ -491,10 +491,11 @@ external environment variable is left untouched.
 
 <cvar name="MSVS_VERSION">
 <summary>
-Sets the preferred version of MSVS to use.
+Sets the preferred version of Microsoft Visual Studio to use.
 
-SCons will (by default) select the latest version of MSVS
-installed on your machine.
+If &v-MSVS_VERSION; is not set,
+&SCons; will (by default) select the latest version
+of Visual Studio installed on your system.
 So, if you have version 6 and version 7 (MSVS .NET) installed,
 it will prefer version 7.
 You can override this by
@@ -502,7 +503,8 @@ specifying the
 <envar>MSVS_VERSION</envar>
 variable in the Environment initialization, setting it to the
 appropriate version ('6.0' or '7.0', for example).
-If the given version isn't installed, tool initialization will fail.
+If the specified version isn't installed,
+tool initialization will fail.
 </summary>
 </cvar>
 

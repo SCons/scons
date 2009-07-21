@@ -675,11 +675,11 @@ try:
     can_read_reg = 1
     hkey_mod = _winreg
 
-    RegOpenKeyEx = _winreg.OpenKeyEx
-    RegEnumKey = _winreg.EnumKey
-    RegEnumValue = _winreg.EnumValue
+    RegOpenKeyEx    = _winreg.OpenKeyEx
+    RegEnumKey      = _winreg.EnumKey
+    RegEnumValue    = _winreg.EnumValue
     RegQueryValueEx = _winreg.QueryValueEx
-    RegError = _winreg.error
+    RegError        = _winreg.error
 
 except ImportError:
     try:
@@ -688,11 +688,11 @@ except ImportError:
         can_read_reg = 1
         hkey_mod = win32con
 
-        RegOpenKeyEx = win32api.RegOpenKeyEx
-        RegEnumKey = win32api.RegEnumKey
-        RegEnumValue = win32api.RegEnumValue
+        RegOpenKeyEx    = win32api.RegOpenKeyEx
+        RegEnumKey      = win32api.RegEnumKey
+        RegEnumValue    = win32api.RegEnumValue
         RegQueryValueEx = win32api.RegQueryValueEx
-        RegError = win32api.error
+        RegError        = win32api.error
 
     except ImportError:
         class _NoError(Exception):
@@ -700,10 +700,10 @@ except ImportError:
         RegError = _NoError
 
 if can_read_reg:
-    HKEY_CLASSES_ROOT = hkey_mod.HKEY_CLASSES_ROOT
+    HKEY_CLASSES_ROOT  = hkey_mod.HKEY_CLASSES_ROOT
     HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
-    HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
-    HKEY_USERS = hkey_mod.HKEY_USERS
+    HKEY_CURRENT_USER  = hkey_mod.HKEY_CURRENT_USER
+    HKEY_USERS         = hkey_mod.HKEY_USERS
 
     def RegGetValue(root, key):
         """This utility function returns a value in the registry

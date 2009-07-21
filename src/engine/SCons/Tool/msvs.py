@@ -49,7 +49,8 @@ import SCons.Script.SConscript
 import SCons.Util
 import SCons.Warnings
 
-from MSCommon import detect_msvs, merge_default_version
+from MSCommon import msvs_exists, merge_default_version
+from SCons.Defaults import processDefines
 
 ##############################################################################
 # Below here are the classes and functions for generation of
@@ -689,7 +690,7 @@ class _GenerateV7DSP(_DSPGenerator):
             # TODO(1.5)
             #preprocdefs = xmlify(';'.join(self.env.get('CPPDEFINES', [])))
             #includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
-            preprocdefs = xmlify(string.join(self.env.get('CPPDEFINES', []), ';'))
+            preprocdefs = xmlify(string.join(processDefines(self.env.get('CPPDEFINES', [])), ';'))
             includepath = xmlify(string.join(self.env.get('CPPPATH', []), ';'))
 
             if not env_has_buildtarget:
@@ -1424,7 +1425,7 @@ def generate(env):
     env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
 
 def exists(env):
-    return detect_msvs()
+    return msvs_exists()
 
 # Local Variables:
 # tab-width:4

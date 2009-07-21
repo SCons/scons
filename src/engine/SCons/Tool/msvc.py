@@ -48,7 +48,7 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from MSCommon import merge_default_version, detect_msvs
+from MSCommon import msvc_exists, msvc_setup_env
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -233,7 +233,7 @@ def generate(env):
     env['SHOBJSUFFIX']    = '$OBJSUFFIX'
 
     # Set-up ms tools paths for default version
-    merge_default_version(env)
+    msvc_setup_env(env)
 
     import mssdk
     mssdk.generate(env)
@@ -251,7 +251,7 @@ def generate(env):
         env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
 def exists(env):
-    return detect_msvs()
+    return msvc_exists('cl')
 
 # Local Variables:
 # tab-width:4

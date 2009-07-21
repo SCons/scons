@@ -24,7 +24,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __doc__ = """
-Common helper functions for working with
+Common helper functions for working with the Microsoft tool chain.
 """
 
 import copy
@@ -36,7 +36,10 @@ import SCons.Util
 
 
 logfile = os.environ.get('SCONS_MSCOMMON_DEBUG')
-if logfile:
+if logfile == '-':
+    def debug(x):
+        print x
+elif logfile:
     try:
         import logging
     except ImportError:
@@ -48,19 +51,25 @@ else:
     debug = lambda x: None
 
 
-# TODO(sgk): unused
+_is_win64 = None
+
 def is_win64():
     """Return true if running on windows 64 bits."""
-    # Unfortunately, python does not seem to have anything useful: neither
-    # sys.platform nor os.name gives something different on windows running on
-    # 32 bits or 64 bits. Note that we don't care about whether python itself
-    # is 32 or 64 bits here
-    value = "Software\Wow6432Node"
-    yo = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, value)[0]
-    if yo is None:
-        return 0
-    else:
-        return 1
+    # Unfortunately, python does not provide a useful way to determine
+    # if the underlying Windows OS is 32-bit or 64-bit.  Worse, whether
+    # the Python itself is 32-bit or 64-bit affects what it returns,
+    # so nothing in sys.* or os.* help.  So we go to the registry to
+    # look directly for a clue from Windows, caching the result to
+    # avoid repeated registry calls.
+    global _is_win64
+    if _is_win64 is None:
+        try:
+            yo = read_reg(r'Software\Wow6432Node')
+        except WindowsError:
+            yo = None
+        _is_win64 = (yo is not None)
+    return _is_win64
+
 
 def read_reg(value):
     return SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, value)[0]

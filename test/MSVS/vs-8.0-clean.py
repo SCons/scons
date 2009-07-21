@@ -45,7 +45,7 @@ expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_8_0
 
 test.write('SConstruct', """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0',
-                CPPDEFINES=['DEF1', 'DEF2'],
+                CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'])
 
 testsrc = ['test1.cpp', 'test2.cpp']

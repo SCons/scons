@@ -31,11 +31,14 @@ import os
 import SCons.Errors
 import SCons.Util
 
-from SCons.Tool.MSCommon.common import debug, \
-                                       read_reg, \
-                                       normalize_env, \
-                                       get_output, \
-                                       parse_output
+from common import debug, \
+                   get_output, \
+                   is_win64, \
+                   normalize_env, \
+                   parse_output, \
+                   read_reg
+
+import SCons.Tool.MSCommon.vc
 
 class VisualStudio:
     """
@@ -44,70 +47,75 @@ class VisualStudio:
     """
     def __init__(self, version, **kw):
         self.version = version
+        kw['vc_version']  = kw.get('vc_version', version)
+        kw['sdk_version'] = kw.get('sdk_version', version)
         self.__dict__.update(kw)
         self._cache = {}
 
     #
 
     def find_batch_file(self):
-        """Try to find the Visual Studio or Visual C/C++ batch file.
-
-        Return None if failed or the batch file does not exist.
-        """
-        pdir = self.get_vc_product_dir()
-        if not pdir:
-            debug('find_batch_file():  no pdir')
+        vs_dir = self.get_vs_dir()
+        if not vs_dir:
+            debug('find_executable():  no vs_dir')
             return None
-        batch_file = os.path.normpath(os.path.join(pdir, self.batch_file))
+        batch_file = os.path.join(vs_dir, self.batch_file_path)
         batch_file = os.path.normpath(batch_file)
         if not os.path.isfile(batch_file):
             debug('find_batch_file():  %s not on file system' % batch_file)
             return None
         return batch_file
 
-    def find_executable(self):
-        pdir = self.get_vc_product_dir()
-        if not pdir:
-            debug('find_executable():  no pdir')
+    def find_vs_dir_by_vc(self):
+        SCons.Tool.MSCommon.vc.get_installed_vcs()
+        ivc = SCons.Tool.MSCommon.vc.InstalledVCMap.get(self.vc_version)
+        if not ivc:
+            debug('find_vs_dir():  no installed VC %s' % self.vc_version)
             return None
-        executable = os.path.join(pdir, self.executable_path)
+        return ivc.get_vc_dir()[:-len(ivc.vc_subdir)]
+        
+    def find_vs_dir_by_reg(self):
+        root = 'Software\\'
+
+        if is_win64():
+            root = root + 'Wow6432Node\\'
+        for key in self.hkeys:
+            if key=='use_dir':
+                return self.find_vs_dir_by_vc()
+            key = root + key
+            try:
+                comps = read_reg(key)
+            except WindowsError, e:
+                debug('find_vs_dir_by_reg(): no VS registry key %s' % repr(key))
+            else:
+                debug('find_vs_dir_by_reg(): found VS in registry: %s' % comps)
+                return comps
+        return None
+    
+    def find_vs_dir(self):
+        """ Can use registry or location of VC to find vs dir
+        First try to find by registry, and if that fails find via VC dir
+        """
+        
+        
+        if True:
+            vs_dir=self.find_vs_dir_by_reg()
+            return vs_dir
+        else:
+            return self.find_vs_dir_by_vc()
+
+    def find_executable(self):
+        vs_dir = self.get_vs_dir()
+        if not vs_dir:
+            debug('find_executable():  no vs_dir (%s)'%vs_dir)
+            return None
+        executable = os.path.join(vs_dir, self.executable_path)
         executable = os.path.normpath(executable)
         if not os.path.isfile(executable):
             debug('find_executable():  %s not on file system' % executable)
             return None
         return executable
-
-    def find_vc_product_dir(self):
-        if not SCons.Util.can_read_reg:
-            debug('find_vc_product_dir():  can not read registry')
-            return None
-        key = self.hkey_root + '\\' + self.vc_product_dir_key
-        try:
-            comps = read_reg(key)
-        except WindowsError, e:
-            debug('find_vc_product_dir():  no registry key %s' % key)
-        else:
-            if self.batch_file_dir_reg_relpath:
-                comps = os.path.join(comps, self.batch_file_dir_reg_relpath)
-                comps = os.path.normpath(comps)
-            if os.path.exists(comps):
-                return comps
-            else:
-                debug('find_vc_product_dir():  %s not on file system' % comps)
-
-        d = os.environ.get(self.common_tools_var)
-        if not d:
-            msg = 'find_vc_product_dir():  no %s variable'
-            debug(msg % self.common_tools_var)
-            return None
-        if not os.path.isdir(d):
-            debug('find_vc_product_dir():  %s not on file system' % d)
-            return None
-        if self.batch_file_dir_env_relpath:
-            d = os.path.join(d, self.batch_file_dir_env_relpath)
-            d = os.path.normpath(d)
-        return d
-
+    
     #
 
     def get_batch_file(self):
@@ -120,11 +128,21 @@ class VisualStudio:
 
     def get_executable(self):
         try:
+            debug('get_executable using cache'%self._cache['executable'])
             return self._cache['executable']
         except KeyError:
             executable = self.find_executable()
             self._cache['executable'] = executable
+            debug('get_executable not in cache:%s'%executable)
             return executable
+
+    def get_vs_dir(self):
+        try:
+            return self._cache['vs_dir']
+        except KeyError:
+            vs_dir = self.find_vs_dir()
+            self._cache['vs_dir'] = vs_dir
+            return vs_dir
 
     def get_supported_arch(self):
         try:
@@ -134,14 +152,6 @@ class VisualStudio:
             # supported_arch = self.find_supported_arch()
             self._cache['supported_arch'] = self.supported_arch
             return self.supported_arch
-
-    def get_vc_product_dir(self):
-        try:
-            return self._cache['vc_product_dir']
-        except KeyError:
-            vc_product_dir = self.find_vc_product_dir()
-            self._cache['vc_product_dir'] = vc_product_dir
-            return vc_product_dir
 
     def reset(self):
         self._cache = {}
@@ -197,10 +207,6 @@ SupportedVSList = [
     #VisualStudio('TBD',
     #             hkey_root=r'TBD',
     #             common_tools_var='TBD',
-    #             batch_file='TBD',
-    #             vc_product_dir_key=r'TBD',
-    #             batch_file_dir_reg_relpath=None,
-    #             batch_file_dir_env_relpath=r'TBD',
     #             executable_path=r'TBD',
     #             default_dirname='TBD',
     #),
@@ -209,13 +215,11 @@ SupportedVSList = [
     # The batch file we look for is in the VC directory,
     # so the devenv.com executable is up in ..\..\Common7\IDE.
     VisualStudio('9.0',
-                 hkey_root=r'Software\Microsoft\VisualStudio\9.0',
+                 sdk_version='6.1',
+                 hkeys=[r'Microsoft\VisualStudio\9.0\Setup\VS\ProductDir'],
                  common_tools_var='VS90COMNTOOLS',
-                 batch_file='vcvarsall.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=None,
-                 batch_file_dir_env_relpath=r'..\..\VC',
-                 executable_path=r'..\Common7\IDE\devenv.com',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio 9',
                  supported_arch=['x86', 'amd64'],
     ),
@@ -224,13 +228,12 @@ SupportedVSList = [
     # The batch file we look for is in the VC directory,
     # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
     VisualStudio('9.0Exp',
-                 hkey_root=r'Software\Microsoft\VisualStudio\9.0',
+                 vc_version='9.0',
+                 sdk_version='6.1',
+                 hkeys=[r'Microsoft\VCExpress\9.0\Setup\VS\ProductDir'],
                  common_tools_var='VS90COMNTOOLS',
-                 batch_file='vcvarsall.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=None,
-                 batch_file_dir_env_relpath=r'..\..\VC',
-                 executable_path=r'..\Common7\IDE\VCExpress.exe',
+                 executable_path=r'Common7\IDE\VCExpress.exe',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio 9',
                  supported_arch=['x86'],
     ),
@@ -239,13 +242,11 @@ SupportedVSList = [
     # The batch file we look for is in the VC directory,
     # so the devenv.com executable is up in ..\..\Common7\IDE.
     VisualStudio('8.0',
-                 hkey_root=r'Software\Microsoft\VisualStudio\8.0',
+                 sdk_version='6.0A',
+                 hkeys=[r'Microsoft\VisualStudio\8.0\Setup\VS\ProductDir'],
                  common_tools_var='VS80COMNTOOLS',
-                 batch_file='vcvarsall.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=None,
-                 batch_file_dir_env_relpath=r'..\..\VC',
-                 executable_path=r'..\Common7\IDE\devenv.com',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio 8',
                  supported_arch=['x86', 'amd64'],
     ),
@@ -254,15 +255,12 @@ SupportedVSList = [
     # The batch file we look for is in the VC directory,
     # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
     VisualStudio('8.0Exp',
-                 hkey_root=r'Software\Microsoft\VCExpress\8.0',
+                 vc_version='8.0',
+                 sdk_version='6.0A',
+                 hkeys=[r'Microsoft\VCExpress\8.0\Setup\VS\ProductDir'],
                  common_tools_var='VS80COMNTOOLS',
-                 batch_file='vcvarsall.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=None,
-                 batch_file_dir_env_relpath=r'..\..\VC',
-                 # The batch file is in the VC directory, so
-                 # so the devenv.com executable is next door in ..\IDE.
-                 executable_path=r'..\Common7\IDE\VCExpress.exe',
+                 executable_path=r'Common7\IDE\VCExpress.exe',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio 8',
                  supported_arch=['x86'],
     ),
@@ -271,13 +269,11 @@ SupportedVSList = [
     # The batch file we look for is in the Common7\Tools directory,
     # so the devenv.com executable is next door in ..\IDE.
     VisualStudio('7.1',
-                 hkey_root=r'Software\Microsoft\VisualStudio\7.1',
+                 sdk_version='6.0',
+                 hkeys=[r'Microsoft\VisualStudio\7.1\Setup\VS\ProductDir'],
                  common_tools_var='VS71COMNTOOLS',
-                 batch_file='vsvars32.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=r'..\Common7\Tools',
-                 batch_file_dir_env_relpath=None,
-                 executable_path=r'..\IDE\devenv.com',
+                 executable_path=r'IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio .NET',
                  supported_arch=['x86'],
     ),
@@ -286,26 +282,23 @@ SupportedVSList = [
     # The batch file we look for is in the Common7\Tools directory,
     # so the devenv.com executable is next door in ..\IDE.
     VisualStudio('7.0',
-                 hkey_root=r'Software\Microsoft\VisualStudio\7.0',
+                 sdk_version='2003R2',
+                 hkeys=[r'Microsoft\VisualStudio\7.0\Setup\VS\ProductDir'],
                  common_tools_var='VS70COMNTOOLS',
-                 batch_file='vsvars32.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=r'..\Common7\Tools',
-                 batch_file_dir_env_relpath=None,
-                 executable_path=r'..\IDE\devenv.com',
+                 executable_path=r'IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio .NET',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio 6.0
     VisualStudio('6.0',
-                 hkey_root=r'Software\Microsoft\VisualStudio\6.0',
+                 sdk_version='2003R1',
+                 hkeys=[r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual Studio\ProductDir',
+                        'use_dir'],
                  common_tools_var='VS60COMNTOOLS',
-                 batch_file='vcvars32.bat',
-                 vc_product_dir_key='Setup\Microsoft Visual C++\ProductDir',
-                 batch_file_dir_reg_relpath='Bin',
-                 batch_file_dir_env_relpath=None,
                  executable_path=r'Common\MSDev98\Bin\MSDEV.COM',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
                  default_dirname='Microsoft Visual Studio',
                  supported_arch=['x86'],
     ),
@@ -323,7 +316,7 @@ for vs in SupportedVSList:
 # requested, and cache it.
 
 InstalledVSList = None
-InstalledVSMap = None
+InstalledVSMap  = None
 
 def get_installed_visual_studios():
     global InstalledVSList
@@ -343,10 +336,14 @@ def reset_installed_visual_studios():
     global InstalledVSList
     global InstalledVSMap
     InstalledVSList = None
-    InstalledVSMap = None
+    InstalledVSMap  = None
     for vs in SupportedVSList:
         vs.reset()
-
+        
+    # Need to clear installed VC's as well as they are used in finding
+    # installed VS's
+    SCons.Tool.MSCommon.vc.reset_installed_vcs()
+        
 
 # We may be asked to update multiple construction environments with
 # SDK information.  When doing this, we check on-disk for whether
@@ -380,15 +377,19 @@ def reset_installed_visual_studios():
 #    for variable, directory in env_tuple_list:
 #        env.PrependENVPath(variable, directory)
 
-def detect_msvs():
+def msvs_exists():
     return (len(get_installed_visual_studios()) > 0)
 
 def get_vs_by_version(msvs):
+    global InstalledVSMap
+    global SupportedVSMap
+
     if not SupportedVSMap.has_key(msvs):
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError, msg
     get_installed_visual_studios()
     vs = InstalledVSMap.get(msvs)
+    debug('InstalledVSMap:%s'%InstalledVSMap)
     # Some check like this would let us provide a useful error message
     # if they try to set a Visual Studio version that's not installed.
     # However, we also want to be able to run tests (like the unit

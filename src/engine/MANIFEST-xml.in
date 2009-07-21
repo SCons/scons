@@ -22,6 +22,7 @@ SCons/Tool/ar.xml
 SCons/Tool/as.xml
 SCons/Tool/bcc32.xml
 SCons/Tool/c++.xml
+SCons/Tool/c++.xml
 SCons/Tool/cc.xml
 SCons/Tool/cvf.xml
 SCons/Tool/default.xml
@@ -37,6 +38,7 @@ SCons/Tool/g++.xml
 SCons/Tool/g77.xml
 SCons/Tool/gas.xml
 SCons/Tool/gcc.xml
+SCons/Tool/gfortran.xml
 SCons/Tool/gnulink.xml
 SCons/Tool/gs.xml
 SCons/Tool/hpc++.xml
@@ -84,6 +86,9 @@ SCons/Tool/sgilink.xml
 SCons/Tool/sunar.xml
 SCons/Tool/sunc++.xml
 SCons/Tool/suncc.xml
+SCons/Tool/sunf77.xml
+SCons/Tool/sunf90.xml
+SCons/Tool/sunf95.xml
 SCons/Tool/sunlink.xml
 SCons/Tool/swig.xml
 SCons/Tool/tar.xml

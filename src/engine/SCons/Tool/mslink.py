@@ -44,7 +44,7 @@ import SCons.Tool.msvc
 import SCons.Tool.msvs
 import SCons.Util
 
-from MSCommon import merge_default_version, detect_msvs
+from MSCommon import merge_default_version, msvs_exists
 
 def pdbGenerator(env, target, source, for_signature):
     try:
@@ -256,7 +256,7 @@ def generate(env):
     env['LDMODULECOM'] = compositeLdmodAction
 
 def exists(env):
-    return detect_msvs()
+    return msvs_exists()
 
 # Local Variables:
 # tab-width:4

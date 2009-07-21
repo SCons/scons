@@ -83,6 +83,47 @@ else:
 </summary>
 </cvar>
 
+<cvar name="HOST_OS">
+    <summary>
+        The name of the host operating system used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+    </summary>
+</cvar>
+
+<cvar name="HOST_ARCH">
+    <summary>
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+    </summary>
+</cvar>
+
+<cvar name="TARGET_OS">
+    <summary>
+        The name of the target operating system for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_OS, and the user can override it.
+        Currently only set for Win32.
+    </summary>
+</cvar>
+
+<cvar name="TARGET_ARCH">
+    <summary>
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+    </summary>
+</cvar>
+
+
 <cvar name="PROGPREFIX">
 <summary>
 The prefix used for executable file names.
