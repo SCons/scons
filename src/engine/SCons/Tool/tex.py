@@ -481,7 +481,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     targetdir = os.path.split(str(target[0]))[0]
     abspath = os.path.abspath(basedir)
     target[0].attributes.path = abspath
-
+    
     #
     # file names we will make use of in searching the sources and log file
     #
@@ -566,13 +566,13 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 env.Clean(target[0],targetbase + suffix)
 
     # read fls file to get all other files that latex creates and will read on the next pass
+    # remove files from list that we explicitly dealt with above
     if os.path.exists(flsfilename):
         content = open(flsfilename, "rb").read()
         out_files = openout_re.findall(content)
-        mysuffixes = ['.log' , '.fls' , targetext]
-        for filename in out_files:
-            base,ext = SCons.Util.splitext(filename)
-            if ext in mysuffixes:
+        myfiles = [auxfilename, logfilename, flsfilename, targetbase+'.dvi',targetbase+'.pdf']
+        for filename in out_files[:]:
+            if filename in myfiles:
                 out_files.remove(filename)
         env.SideEffect(out_files,target[0])
         env.Clean(target[0],out_files)
