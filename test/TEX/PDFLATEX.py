@@ -44,7 +44,7 @@ test.write('mypdflatex.py', r"""
 import sys
 import os
 import getopt
-cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
 infile = open(arg[0], 'rb')
 pdf_file = open(base_name+'.pdf', 'wb')

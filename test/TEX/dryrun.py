@@ -56,7 +56,7 @@ This is the foo.ltx file.
 """)
 
 test.run(arguments = '--dry-run', stdout = test.wrap_stdout("""\
-cd . && latex -interaction=nonstopmode foo.ltx ...
+cd . && latex -interaction=nonstopmode -recorder foo.ltx ...
 """), stderr = None)
 
 
