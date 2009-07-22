@@ -44,6 +44,8 @@ LaTeXAction = None
 
 def LaTeXAuxFunction(target = None, source= None, env=None):
     result = SCons.Tool.tex.InternalLaTeXAuxAction( LaTeXAction, target, source, env )
+    if result != 0:
+        print env['LATEX']," returned an error, check the log file"
     return result
 
 LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction,
@@ -68,7 +70,7 @@ def generate(env):
     bld.add_emitter('.latex', SCons.Tool.tex.tex_eps_emitter)
 
     env['LATEX']        = 'latex'
-    env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode')
+    env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['LATEXCOM']     = 'cd ${TARGET.dir} && $LATEX $LATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES'] = 3
 

@@ -42,6 +42,8 @@ PDFLaTeXAction = None
 
 def PDFLaTeXAuxFunction(target = None, source= None, env=None):
     result = SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+    if result != 0:
+        print env['PDFLATEX']," returned an error, check the log file"
     return result
 
 PDFLaTeXAuxAction = None
@@ -67,7 +69,7 @@ def generate(env):
     bld.add_emitter('.latex', SCons.Tool.tex.tex_pdf_emitter)
 
     env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
+    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES']  = 3
 

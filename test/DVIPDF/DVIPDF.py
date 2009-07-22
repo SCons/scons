@@ -38,7 +38,7 @@ test.write('mytex.py', r"""
 import os
 import sys
 import getopt
-cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
 infile = open(arg[0], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
@@ -52,7 +52,7 @@ test.write('mylatex.py', r"""
 import os
 import sys
 import getopt
-cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
 infile = open(arg[0], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
@@ -66,7 +66,7 @@ test.write('mydvipdf.py', r"""
 import os
 import sys
 import getopt
-cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:', [])
+cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 infile = open(arg[0], 'rb')
 out_file = open(arg[1], 'wb')
 for l in infile.readlines():

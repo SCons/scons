@@ -53,8 +53,12 @@ def PDFTeXLaTeXFunction(target = None, source= None, env=None):
     program."""
     if SCons.Tool.tex.is_LaTeX(source):
         result = PDFLaTeXAuxAction(target,source,env)
+        if result != 0:
+            print env['PDFLATEX']," returned an error, check the log file"
     else:
         result = PDFTeXAction(target,source,env)
+        if result != 0:
+            print env['PDFTEX']," returned an error, check the log file"
     return result
 
 PDFTeXLaTeXAction = None
@@ -86,12 +90,12 @@ def generate(env):
     pdf.generate2(env)
 
     env['PDFTEX']      = 'pdftex'
-    env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
+    env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['PDFTEXCOM']   = 'cd ${TARGET.dir} && $PDFTEX $PDFTEXFLAGS ${SOURCE.file}'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
+    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES']  = 3
 
