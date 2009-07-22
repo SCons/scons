@@ -128,7 +128,7 @@ class VisualStudio:
 
     def get_executable(self):
         try:
-            debug('get_executable using cache'%self._cache['executable'])
+            debug('get_executable using cache:%s'%self._cache['executable'])
             return self._cache['executable']
         except KeyError:
             executable = self.find_executable()
