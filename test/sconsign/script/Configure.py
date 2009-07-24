@@ -37,7 +37,8 @@ import TestSConsign
 
 _obj = TestSCons._obj
 
-test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
+test = TestSConsign.TestSConsign(match = TestSConsign.match_re,
+                                 diff = TestSConsign.diff_re)
 
 CC = test.detect('CC', norm=1)
 CC_dir, CC_file = os.path.split(CC)

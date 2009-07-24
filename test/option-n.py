@@ -168,7 +168,8 @@ test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
 
 # test Configure-calls in conjunction with -n
 test.subdir('configure')
-test.match_func = TestSCons.match_re_dotall
+test.match_function = TestSCons.match_re_dotall
+test.diff_function = TestSCons.diff_re
 test.write('configure/SConstruct',
 """def CustomTest(context):
     def userAction(target,source,env):
