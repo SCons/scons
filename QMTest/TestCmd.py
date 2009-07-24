@@ -25,6 +25,7 @@ There are a bunch of keyword arguments available at instantiation:
                            subdir = 'subdir',
                            verbose = Boolean,
                            match = default_match_function,
+                           diff = default_diff_function,
                            combine = Boolean)
 
 There are a bunch of methods that let you do different things:
@@ -103,6 +104,11 @@ There are a bunch of methods that let you do different things:
 
     test.symlink(target, link)
 
+    test.banner(string)
+    test.banner(string, width)
+
+    test.diff(actual, expected)
+
     test.match(actual, expected)
 
     test.match_exact("actual 1\nactual 2\n", "expected 1\nexpected 2\n")
@@ -164,6 +170,24 @@ in the same way as the match_*() methods described above.
 
     test = TestCmd.TestCmd(match = TestCmd.match_re_dotall)
 
+The TestCmd module provides unbound functions that can be used for the
+"diff" argument to TestCmd.TestCmd instantiation:
+
+    import TestCmd
+
+    test = TestCmd.TestCmd(match = TestCmd.match_re,
+                           diff = TestCmd.diff_re)
+
+    test = TestCmd.TestCmd(diff = TestCmd.simple_diff)
+
+The "diff" argument can also be used with standard difflib functions:
+
+    import difflib
+
+    test = TestCmd.TestCmd(diff = difflib.context_diff)
+
+    test = TestCmd.TestCmd(diff = difflib.unified_diff)
+
 Lastly, the where_is() method also exists in an unbound function
 version.
 
@@ -191,8 +215,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.35.D001 2009/02/08 07:10:39 knight"
-__version__ = "0.35"
+__revision__ = "TestCmd.py 0.36.D001 2009/07/24 08:45:26 knight"
+__version__ = "0.36"
 
 import errno
 import os
@@ -219,6 +243,11 @@ __all__ = [
     'python_executable',
     'TestCmd'
 ]
+
+try:
+    import difflib
+except ImportError:
+    __all__.append('simple_diff')
 
 def is_List(e):
     return type(e) is types.ListType \
@@ -424,6 +453,36 @@ def match_re_dotall(lines = None, res = None):
     if expr.match(lines):
         return 1
 
+try:
+    import difflib
+except ImportError:
+    pass
+else:
+    def simple_diff(a, b, fromfile='', tofile='',
+                    fromfiledate='', tofiledate='', n=3, lineterm='\n'):
+        """
+        A function with the same calling signature as difflib.context_diff
+        (diff -c) and difflib.unified_diff (diff -u) but which prints
+        output like the simple, unadorned 'diff" command.
+        """
+        sm = difflib.SequenceMatcher(None, a, b)
+        def comma(x1, x2):
+            return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
+        result = []
+        for op, a1, a2, b1, b2 in sm.get_opcodes():
+            if op == 'delete':
+                result.append("%sd%d" % (comma(a1, a2), b1))
+                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+            elif op == 'insert':
+                result.append("%da%s" % (a1, comma(b1, b2)))
+                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+            elif op == 'replace':
+                result.append("%sc%s" % (comma(a1, a2), comma(b1, b2)))
+                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+                result.append('---')
+                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+        return result
+
 def diff_re(a, b, fromfile='', tofile='',
                 fromfiledate='', tofiledate='', n=3, lineterm='\n'):
     """
@@ -456,8 +515,11 @@ def diff_re(a, b, fromfile='', tofile='',
     return result
 
 if os.name == 'java':
+
     python_executable = os.path.join(sys.prefix, 'jython')
+
 else:
+
     python_executable = sys.executable
 
 if sys.platform == 'win32':
@@ -756,6 +818,7 @@ def recv_some(p, t=.1, e=1, tr=5, stderr=0):
             time.sleep(max((x-time.time())/tr, 0))
     return ''.join(y)
 
+# TODO(3.0:  rewrite to use memoryview()
 def send_all(p, data):
     while len(data):
         sent = p.send(data)
@@ -776,6 +839,7 @@ class TestCmd:
                        subdir = None,
                        verbose = None,
                        match = None,
+                       diff = None,
                        combine = 0,
                        universal_newlines = 1):
         self._cwd = os.getcwd()
@@ -791,9 +855,20 @@ class TestCmd:
         self.combine = combine
         self.universal_newlines = universal_newlines
         if not match is None:
-            self.match_func = match
+            self.match_function = match
         else:
-            self.match_func = match_re
+            self.match_function = match_re
+        if not diff is None:
+            self.diff_function = diff
+        else:
+            try:
+                difflib
+            except NameError:
+                pass
+            else:
+                self.diff_function = simple_diff
+                #self.diff_function = difflib.context_diff
+                #self.diff_function = difflib.unified_diff
         self._dirlist = []
         self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
         if os.environ.has_key('PRESERVE') and not os.environ['PRESERVE'] is '':
@@ -825,6 +900,14 @@ class TestCmd:
 
     def __repr__(self):
         return "%x" % id(self)
+
+    banner_char = '='
+    banner_width = 80
+
+    def banner(self, s, width=None):
+        if width is None:
+            width = self.banner_width
+        return s + self.banner_char * (width - len(s))
 
     if os.name == 'posix':
 
@@ -930,9 +1013,21 @@ class TestCmd:
         """
         self.description = description
 
-#    def diff(self):
-#        """Diff two arrays.
-#        """
+    try:
+        difflib
+    except NameError:
+        def diff(self, a, b, name, *args, **kw):
+            print self.banner('Expected %s' % name)
+            print a
+            print self.banner('Actual %s' % name)
+            print b
+    else:
+        def diff(self, a, b, name, *args, **kw):
+            print self.banner(name)
+            args = (a.splitlines(), b.splitlines()) + args
+            lines = apply(self.diff_function, args, kw)
+            for l in lines:
+                print l
 
     def fail_test(self, condition = 1, function = None, skip = 0):
         """Cause the test to fail.
@@ -954,7 +1049,7 @@ class TestCmd:
     def match(self, lines, matches):
         """Compare actual and expected file contents.
         """
-        return self.match_func(lines, matches)
+        return self.match_function(lines, matches)
 
     def match_exact(self, lines, matches):
         """Compare actual and expected file contents.

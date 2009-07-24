@@ -35,8 +35,8 @@ import TestSCons_time
 _python_ = re.escape(TestSCons_time._python_)
 
 
-test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re)
-test.diff_function = TestSCons_time.diff_re
+test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re,
+                                     diff = TestSCons_time.diff_re)
 
 scons_py = re.escape(test.workpath('src', 'script', 'scons.py'))
 src_engine = re.escape(test.workpath('src', 'engine'))

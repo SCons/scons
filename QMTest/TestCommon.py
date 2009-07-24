@@ -87,8 +87,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.35.D001 2009/02/08 07:10:39 knight"
-__version__ = "0.35"
+__revision__ = "TestCommon.py 0.36.D001 2009/07/24 08:45:26 knight"
+__version__ = "0.36"
 
 import copy
 import os
@@ -169,36 +169,6 @@ else:
     dll_prefix   = 'lib'
     dll_suffix   = '.so'
 
-try:
-    import difflib
-except ImportError:
-    pass
-else:
-    def simple_diff(a, b, fromfile='', tofile='',
-                    fromfiledate='', tofiledate='', n=3, lineterm='\n'):
-        """
-        A function with the same calling signature as difflib.context_diff
-        (diff -c) and difflib.unified_diff (diff -u) but which prints
-        output like the simple, unadorned 'diff" command.
-        """
-        sm = difflib.SequenceMatcher(None, a, b)
-        def comma(x1, x2):
-            return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
-        result = []
-        for op, a1, a2, b1, b2 in sm.get_opcodes():
-            if op == 'delete':
-                result.append("%sd%d" % (comma(a1, a2), b1))
-                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
-            elif op == 'insert':
-                result.append("%da%s" % (a1, comma(b1, b2)))
-                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
-            elif op == 'replace':
-                result.append("%sc%s" % (comma(a1, a2), comma(b1, b2)))
-                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
-                result.append('---')
-                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
-        return result
-
 def is_List(e):
     return type(e) is types.ListType \
         or isinstance(e, UserList.UserList)
@@ -247,38 +217,6 @@ class TestCommon(TestCmd):
         """
         apply(TestCmd.__init__, [self], kw)
         os.chdir(self.workdir)
-        try:
-            difflib
-        except NameError:
-            pass
-        else:
-            self.diff_function = simple_diff
-            #self.diff_function = difflib.context_diff
-            #self.diff_function = difflib.unified_diff
-
-    banner_char = '='
-    banner_width = 80
-
-    def banner(self, s, width=None):
-        if width is None:
-            width = self.banner_width
-        return s + self.banner_char * (width - len(s))
-
-    try:
-        difflib
-    except NameError:
-        def diff(self, a, b, name, *args, **kw):
-            print self.banner('Expected %s' % name)
-            print a
-            print self.banner('Actual %s' % name)
-            print b
-    else:
-        def diff(self, a, b, name, *args, **kw):
-            print self.banner(name)
-            args = (a.splitlines(), b.splitlines()) + args
-            lines = apply(self.diff_function, args, kw)
-            for l in lines:
-                print l
 
     def must_be_writable(self, *files):
         """Ensures that the specified file(s) exist and are writable.

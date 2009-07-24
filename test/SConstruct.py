@@ -36,7 +36,7 @@ test.run(arguments = ".",
 scons: \*\*\* No SConstruct file found.
 """ + TestSCons.file_expr)
 
-test.match_func = TestCmd.match_exact
+test.match_function = TestCmd.match_exact
 
 wpath = test.workpath()
 
