@@ -493,7 +493,7 @@ external environment variable is left untouched.
 <summary>
 Sets the preferred version of Microsoft Visual Studio to use.
 
-If &v-MSVS_VERSION; is not set,
+If &cv-MSVS_VERSION; is not set,
 &SCons; will (by default) select the latest version
 of Visual Studio installed on your system.
 So, if you have version 6 and version 7 (MSVS .NET) installed,

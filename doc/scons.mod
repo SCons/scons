@@ -27,6 +27,9 @@
 <!ENTITY Cons           "<application>Cons</application>">
 <!ENTITY cp             "<application>cp</application>">
 <!ENTITY csh            "<application>csh</application>">
+<!ENTITY f77            "<application>f77</application>">
+<!ENTITY f90            "<application>f90</application>">
+<!ENTITY f95            "<application>f95</application>">
 <!ENTITY gas            "<application>gas</application>">
 <!ENTITY gcc            "<application>gcc</application>">
 <!ENTITY g77            "<application>g77</application>">
