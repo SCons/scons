@@ -30,7 +30,8 @@ Verify the func --format=gnuplot option.
 
 import TestSCons_time
 
-test = TestSCons_time.TestSCons_time()
+test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re,
+                                     diff = TestSCons_time.diff_re)
 
 try:
     import pstats
@@ -50,22 +51,21 @@ test.profile_data('foo-001-0.prof', 'prof.py', '_main', content)
 test.profile_data('foo-001-1.prof', 'prof.py', '_main', content)
 test.profile_data('foo-001-2.prof', 'prof.py', '_main', content)
 
-expect_notitle = """\
-set key bottom left
+expect_notitle = r"""set key bottom left
 plot '-' title "Startup" with lines lt 1, \\
      '-' title "Full build" with lines lt 2, \\
      '-' title "Up-to-date build" with lines lt 3
 # Startup
-0 0.000
-1 0.000
+0 0.00[012]
+1 0.00[012]
 e
 # Full build
-0 0.000
-1 0.000
+0 0.00[012]
+1 0.00[012]
 e
 # Up-to-date build
-0 0.000
-1 0.000
+0 0.00[012]
+1 0.00[012]
 e
 """
 
