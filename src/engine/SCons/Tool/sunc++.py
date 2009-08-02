@@ -35,14 +35,56 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons
 
-import os.path
+import os
+import re
+import subprocess
 
 cplusplus = __import__('c++', globals(), locals(), [])
+
+package_info = {}
+
+def get_package_info(package_name, pkginfo, pkgchk):
+    try:
+        return package_info[package_name]
+    except KeyError:
+        version = None
+        pathname = None
+        try:
+            sadm_contents = open('/var/sadm/install/contents', 'r').read()
+        except EnvironmentError:
+            pass
+        else:
+            sadm_re = re.compile('^(\S*/bin/CC)[= ].* %s$' % package_name, re.M)
+            sadm_match = sadm_re.search(sadm_contents)
+            if sadm_match:
+                pathname = sadm_match.group(1)
+
+        p = subprocess.Popen([pkginfo, '-l', package_name],
+                             stdout=subprocess.PIPE,
+                             stderr=open('/dev/null', 'w'))
+        pkginfo_contents = p.communicate()[0]
+        version_re = re.compile('^ *VERSION:\s*(.*)$', re.M)
+        version_match = version_re.search(pkginfo_contents)
+        if version_match:
+            version = version_match.group(1)
+
+        if pathname is None:
+            p = subprocess.Popen([pkgchk, '-l', package_name],
+                                 stdout=subprocess.PIPE,
+                                 stderr=open('/dev/null', 'w'))
+            pkgchk_contents = p.communicate()[0]
+            pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
+            pathname_match = pathname_re.search(pkgchk_contents)
+            if pathname_match:
+                pathname = pathname_match.group(1)
+
+        package_info[package_name] = (version, pathname)
+        return package_info[package_name]
 
 # use the package installer tool lslpp to figure out where cppc and what
 # version of it is installed
 def get_cppc(env):
-    cxx = env.get('CXX', None)
+    cxx = env.subst('$CXX')
     if cxx:
         cppcPath = os.path.dirname(cxx)
     else:
@@ -53,25 +95,11 @@ def get_cppc(env):
     pkginfo = env.subst('$PKGINFO')
     pkgchk = env.subst('$PKGCHK')
 
-    def look_pkg_db(pkginfo=pkginfo, pkgchk=pkgchk):
-        version = None
-        path = None
-        for package in ['SPROcpl']:
-            cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo, package)
-            line = os.popen(cmd).readline()
-            if line:
-                version = line.split()[-1]
-                cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
-                line = os.popen(cmd).readline()
-                if line:
-                    path = os.path.dirname(line.split()[-1])
-                    break
-
-        return path, version
-
-    path, version = look_pkg_db()
-    if path and version:
-        cppcPath, cppcVersion = path, version
+    for package in ['SPROcpl']:
+        path, version = get_package_info(package, pkginfo, pkgchk)
+        if path and version:
+            cppcPath, cppcVersion = path, version
+            break
 
     return (cppcPath, 'CC', 'CC', cppcVersion)
 
