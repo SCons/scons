@@ -59,24 +59,32 @@ def get_package_info(package_name, pkginfo, pkgchk):
             if sadm_match:
                 pathname = sadm_match.group(1)
 
-        p = subprocess.Popen([pkginfo, '-l', package_name],
-                             stdout=subprocess.PIPE,
-                             stderr=open('/dev/null', 'w'))
-        pkginfo_contents = p.communicate()[0]
-        version_re = re.compile('^ *VERSION:\s*(.*)$', re.M)
-        version_match = version_re.search(pkginfo_contents)
-        if version_match:
-            version = version_match.group(1)
-
-        if pathname is None:
-            p = subprocess.Popen([pkgchk, '-l', package_name],
+        try:
+            p = subprocess.Popen([pkginfo, '-l', package_name],
                                  stdout=subprocess.PIPE,
                                  stderr=open('/dev/null', 'w'))
-            pkgchk_contents = p.communicate()[0]
-            pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
-            pathname_match = pathname_re.search(pkgchk_contents)
-            if pathname_match:
-                pathname = pathname_match.group(1)
+        except EnvironmentError:
+            pass
+        else:
+            pkginfo_contents = p.communicate()[0]
+            version_re = re.compile('^ *VERSION:\s*(.*)$', re.M)
+            version_match = version_re.search(pkginfo_contents)
+            if version_match:
+                version = version_match.group(1)
+
+        if pathname is None:
+            try:
+                p = subprocess.Popen([pkgchk, '-l', package_name],
+                                     stdout=subprocess.PIPE,
+                                     stderr=open('/dev/null', 'w'))
+            except EnvironmentError:
+                pass
+            else:
+                pkgchk_contents = p.communicate()[0]
+                pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
+                pathname_match = pathname_re.search(pkgchk_contents)
+                if pathname_match:
+                    pathname = pathname_match.group(1)
 
         package_info[package_name] = (version, pathname)
         return package_info[package_name]
