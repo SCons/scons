@@ -64,6 +64,8 @@ env.Clone(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
 """ % locals())
 
 test.write('test1.i', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[]) {
         argv[argc++] = "--";

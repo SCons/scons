@@ -48,13 +48,23 @@ test.run(arguments='-Q -q', stdout='Mkdir("testdir")\n')
 
 os.mkfifo('testdir/namedpipe')
 
-expect = """\
+expect1 = """\
 Mkdir("testdir")
 Path '%s' exists but isn't a file or directory.
 scons: Could not remove 'testdir': Directory not empty
 """ % os.path.join('testdir', 'namedpipe')
 
-test.run(arguments='-c -Q -q', stdout=expect)
+expect2 = """\
+Mkdir("testdir")
+Path '%s' exists but isn't a file or directory.
+scons: Could not remove 'testdir': File exists
+""" % os.path.join('testdir', 'namedpipe')
+
+test.run(arguments='-c -Q -q')
+
+if test.stdout() not in [expect1, expect2]:
+    test.diff(expect1, test.stdout(), 'STDOUT ')
+    test.fail_test()
  
 test.must_exist(test.workpath('testdir/namedpipe'))
 
