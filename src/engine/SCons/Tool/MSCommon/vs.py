@@ -272,9 +272,9 @@ SupportedVSList = [
                  sdk_version='6.0',
                  hkeys=[r'Microsoft\VisualStudio\7.1\Setup\VS\ProductDir'],
                  common_tools_var='VS71COMNTOOLS',
-                 executable_path=r'IDE\devenv.com',
+                 executable_path=r'Common7\IDE\devenv.com',
                  batch_file_path=r'Common7\Tools\vsvars32.bat',
-                 default_dirname='Microsoft Visual Studio .NET',
+                 default_dirname='Microsoft Visual Studio .NET 2003',
                  supported_arch=['x86'],
     ),
 
