@@ -110,7 +110,12 @@ class VisualC:
                 debug('find_vc_dir(): no VC registry key %s' % repr(key))
             else:
                 debug('find_vc_dir(): found VC in registry: %s' % comps)
-                return comps
+                if os.path.exists(comps):
+                    return comps
+                else:
+                    debug('find_vc_dir(): reg says dir is %s, but it does not exist. (ignoring)'\
+                              % comps)
+                    return None
         return None
 
     #
@@ -277,6 +282,7 @@ def script_env(script):
 def msvc_setup_env(env):
     debug('msvc_setup_env()')
     installed_vcs = get_installed_vcs()
+    debug('InstalledVCMap:%s'%InstalledVCMap)
     msvc_version = env.get('MSVC_VERSION')
     if not msvc_version:
         if not installed_vcs:
@@ -287,8 +293,10 @@ def msvc_setup_env(env):
         msvc = installed_vcs[0]
         msvc_version = msvc.version
         env['MSVC_VERSION'] = msvc_version
+        debug('msvc_setup_env: using default installed MSVC version %s\n' % repr(msvc_version))
     else:
         msvc = InstalledVCMap.get(msvc_version)
+        debug('msvc_setup_env: using specified MSVC version %s\n' % repr(msvc_version))
         if not msvc:
             msg = 'VC version %s not installed' % msvc_version
             debug('msv %s\n' % repr(msg))
