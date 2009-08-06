@@ -621,6 +621,8 @@ def generate(env):
         TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
                               strfunction=TeXLaTeXStrFunction)
 
+    env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)
+
     import dvi
     dvi.generate(env)
 
