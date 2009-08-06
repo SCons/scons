@@ -463,7 +463,7 @@ ConstructionEnvironment = {
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'ENV'           : {},
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
-    'LATEXSUFFIXES' : SCons.Tool.LaTeXSuffixes,
+#    'LATEXSUFFIXES' : SCons.Tool.LaTeXSuffixes, # moved to the TeX tools generate functions
     '_concat'       : _concat,
     '_defines'      : _defines,
     '_stripixes'    : _stripixes,

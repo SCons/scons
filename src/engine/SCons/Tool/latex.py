@@ -57,6 +57,8 @@ def generate(env):
     if LaTeXAction is None:
         LaTeXAction = SCons.Action.Action('$LATEXCOM', '$LATEXCOMSTR')
 
+    env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)
+
     import dvi
     dvi.generate(env)
 

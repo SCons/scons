@@ -78,6 +78,8 @@ def generate(env):
         PDFTeXLaTeXAction = SCons.Action.Action(PDFTeXLaTeXFunction,
                               strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
 
+    env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)
+
     import pdf
     pdf.generate(env)
 
