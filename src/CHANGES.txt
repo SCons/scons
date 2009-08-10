@@ -21,6 +21,10 @@ RELEASE X.X.X - XXX
 
     - Textfile builder.
 
+  From Jared Grubb:
+
+    - use "is/is not" in comparisons with None instead of "==" or "!=".
+
   From Jim Hunziker:
 
     - Avoid adding -gphobos to a command line multiple times
