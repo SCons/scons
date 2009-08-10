@@ -71,7 +71,16 @@ RELEASE X.X.X - XXX
 
     - Add $SWIGDIRECTORSUFFIX and $SWIGVERSION construction variables.
 
+  From Rob Managan:
 
+    - Add -recorder flag to Latex commands and updated internals to
+      use the output to find files TeX creates. This allows the MiKTeX
+      installations to find the created files
+
+    - Notify user of Latex errors that would get buried in the 
+      Latex output
+
+    - Remove LATEXSUFFIXES from environments that don't initialize Tex.
 
 RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 
