@@ -10,6 +10,14 @@
 
 RELEASE X.X.X - XXX
 
+  From William Deegan:
+    - Final merge from vs_revamp branch to main
+
+    - Added definition and usage of HOST_OS, HOST_ARCH, TARGET_OS, 
+      TARGET_ARCH, currently only defined/used by Visual Studio
+      Compilers. This will be rolled out to other platforms/tools
+      in the future.
+
   From Lukas Erlinghagen:
 
     - Have AddOption() remove variables from the list of
