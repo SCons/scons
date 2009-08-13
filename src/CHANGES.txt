@@ -37,6 +37,10 @@ RELEASE X.X.X - XXX
 
     - Avoid adding -gphobos to a command line multiple times
       when initializing use of the DMD compiler.
+  
+  From Jason Kenney:
+
+    - Sugguested HOST/TARGET OS/ARCH separation.
 
   From Steven Knight:
 
@@ -246,6 +250,9 @@ RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
     - Eliminate some spurious dependency cycles by being more aggressive
       about pruning pending children from the Taskmaster walk.
 
+    - Suppress mistaken reports of a dependency cycle when a child
+      left on the pending list is a single Node in EXECUTED state.
+
   From David Cournapeau:
 
     - Fix $FORTRANMODDIRPREFIX for the ifort (Intel Fortran) tool.
@@ -266,11 +273,6 @@ RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
   From Ludwig Hähne:
 
     - Handle Java inner classes declared within a method.
-
-  From Jason Kenny:
-
-    - Suppress mistaken reports of a dependency cycle when a child
-      left on the pending list is a single Node in EXECUTED state.
 
   From Steven Knight:
 
