@@ -1,6 +1,7 @@
 """SCons.Tool.pdftex
 
 Tool-specific initialization for pdftex.
+Generates .pdf files from .tex files
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -91,15 +92,7 @@ def generate(env):
     # so pdftex is the default for no source suffix
     pdf.generate2(env)
 
-    env['PDFTEX']      = 'pdftex'
-    env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
-    env['PDFTEXCOM']   = 'cd ${TARGET.dir} && $PDFTEX $PDFTEXFLAGS ${SOURCE.file}'
-
-    # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
-    env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
-    env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
-    env['LATEXRETRIES']  = 3
+    SCons.Tool.tex.generate_common(env)
 
 def exists(env):
     return env.Detect('pdftex')

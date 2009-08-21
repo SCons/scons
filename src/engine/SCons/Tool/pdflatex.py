@@ -1,6 +1,7 @@
 """SCons.Tool.pdflatex
 
 Tool-specific initialization for pdflatex.
+Generates .pdf files from .latex or .ltx files
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -70,10 +71,7 @@ def generate(env):
     bld.add_emitter('.ltx', SCons.Tool.tex.tex_pdf_emitter)
     bld.add_emitter('.latex', SCons.Tool.tex.tex_pdf_emitter)
 
-    env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
-    env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
-    env['LATEXRETRIES']  = 3
+    SCons.Tool.tex.generate_common(env)
 
 def exists(env):
     return env.Detect('pdflatex')

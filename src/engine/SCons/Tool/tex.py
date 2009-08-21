@@ -1,6 +1,7 @@
 """SCons.Tool.tex
 
 Tool-specific initialization for TeX.
+Generates .dvi files from .tex files
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -491,12 +492,12 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     are needed on subsequent runs of latex to finish tables of contents,
     bibliographies, indices, lists of figures, and hyperlink references.
     """
-    targetbase, targetext = SCons.Util.splitext(str(target[0]))
     basename = SCons.Util.splitext(str(source[0]))[0]
     basefile = os.path.split(str(basename))[1]
+    targetdir = os.path.split(str(target[0]))[0]
+    targetbase = os.path.join(targetdir, basefile)
 
     basedir = os.path.split(str(source[0]))[0]
-    targetdir = os.path.split(str(target[0]))[0]
     abspath = os.path.abspath(basedir)
     target[0].attributes.path = abspath
     
@@ -614,6 +615,25 @@ TeXLaTeXAction = None
 def generate(env):
     """Add Builders and construction variables for TeX to an Environment."""
 
+    global TeXLaTeXAction
+    if TeXLaTeXAction is None:
+        TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
+                              strfunction=TeXLaTeXStrFunction)
+
+    env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)
+
+    generate_common(env)
+
+    import dvi
+    dvi.generate(env)
+
+    bld = env['BUILDERS']['DVI']
+    bld.add_action('.tex', TeXLaTeXAction)
+    bld.add_emitter('.tex', tex_eps_emitter)
+
+def generate_common(env):
+    """Add internal Builders and construction variables for LaTeX to an Environment."""
+
     # A generic tex file Action, sufficient for all tex files.
     global TeXAction
     if TeXAction is None:
@@ -650,29 +670,22 @@ def generate(env):
     if MakeAcronymsAction is None:
         MakeAcronymsAction = SCons.Action.Action("$MAKEACRONYMSCOM", "$MAKEACRONYMSCOMSTR")
 
-    global TeXLaTeXAction
-    if TeXLaTeXAction is None:
-        TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
-                              strfunction=TeXLaTeXStrFunction)
-
-    env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)
-
-    import dvi
-    dvi.generate(env)
-
-    bld = env['BUILDERS']['DVI']
-    bld.add_action('.tex', TeXLaTeXAction)
-    bld.add_emitter('.tex', tex_eps_emitter)
-
     env['TEX']      = 'tex'
     env['TEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['TEXCOM']   = 'cd ${TARGET.dir} && $TEX $TEXFLAGS ${SOURCE.file}'
 
-    # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
+    env['PDFTEX']      = 'pdftex'
+    env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
+    env['PDFTEXCOM']   = 'cd ${TARGET.dir} && $PDFTEX $PDFTEXFLAGS ${SOURCE.file}'
+
     env['LATEX']        = 'latex'
     env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['LATEXCOM']     = 'cd ${TARGET.dir} && $LATEX $LATEXFLAGS ${SOURCE.file}'
     env['LATEXRETRIES'] = 3
+
+    env['PDFLATEX']      = 'pdflatex'
+    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
+    env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
@@ -693,14 +706,9 @@ def generate(env):
     env['MAKEACRONYMSCOM']   = 'cd ${TARGET.dir} && $MAKEACRONYMS ${SOURCE.filebase}.acn $MAKEACRONYMSFLAGS -o ${SOURCE.filebase}.acr'
 
     env['MAKENCL']      = 'makeindex'
-    env['MAKENCLSTYLE'] = '$nomencl.ist'
+    env['MAKENCLSTYLE'] = 'nomencl.ist'
     env['MAKENCLFLAGS'] = '-s ${MAKENCLSTYLE} -t ${SOURCE.filebase}.nlg'
     env['MAKENCLCOM']   = 'cd ${TARGET.dir} && $MAKENCL ${SOURCE.filebase}.nlo $MAKENCLFLAGS -o ${SOURCE.filebase}.nls'
-
-    # Duplicate from pdflatex.py.  If latex.py goes away, then this is still OK.
-    env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
-    env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
 
 def exists(env):
     return env.Detect('tex')
