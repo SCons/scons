@@ -52,7 +52,7 @@ must_rerun_latex = True
 check_suffixes = ['.toc', '.lof', '.lot', '.out', '.nav', '.snm']
 
 # these are files that require bibtex or makeindex to be run when they change
-all_suffixes = check_suffixes + ['.bbl', '.idx', '.nlo', '.glo']
+all_suffixes = check_suffixes + ['.bbl', '.idx', '.nlo', '.glo', '.acn']
 
 #
 # regular expressions used to search for Latex features
@@ -87,6 +87,8 @@ listoftables_re = re.compile(r"^[^%\n]*\\listoftables", re.MULTILINE)
 hyperref_re = re.compile(r"^[^%\n]*\\usepackage.*\{hyperref\}", re.MULTILINE)
 makenomenclature_re = re.compile(r"^[^%\n]*\\makenomenclature", re.MULTILINE)
 makeglossary_re = re.compile(r"^[^%\n]*\\makeglossary", re.MULTILINE)
+makeglossaries_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
+makeacronyms_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
 beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
 
 # search to find all files included by Latex
@@ -120,6 +122,9 @@ MakeNclAction = None
 
 # An action to run MakeIndex (for glossary) on a file.
 MakeGlossaryAction = None
+
+# An action to run MakeIndex (for acronyms) on a file.
+MakeAcronymsAction = None
 
 # Used as a return value of modify_env_var if the variable is not set.
 _null = SCons.Scanner.LaTeX._null
@@ -206,6 +211,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     run_makeindex = makeindex_re.search(src_content) and not os.path.exists(targetbase + '.idx')
     run_nomenclature = makenomenclature_re.search(src_content) and not os.path.exists(targetbase + '.nlo')
     run_glossary = makeglossary_re.search(src_content) and not os.path.exists(targetbase + '.glo')
+    run_glossaries = makeglossaries_re.search(src_content) and not os.path.exists(targetbase + '.glo')
+    run_acronyms = makeacronyms_re.search(src_content) and not os.path.exists(targetbase + '.acn')
 
     saved_hashes = {}
     suffix_nodes = {}
@@ -324,7 +331,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 return result
 
         # Now decide if latex will need to be run again due to glossary.
-        if check_MD5(suffix_nodes['.glo'],'.glo') or (count == 1 and run_glossary):
+        if check_MD5(suffix_nodes['.glo'],'.glo') or (count == 1 and run_glossaries) or (count == 1 and run_glossary):
             # We must run makeindex
             if Verbose:
                 print "Need to run makeindex for glossary"
@@ -332,6 +339,17 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             result = MakeGlossaryAction(glofile, glofile, env)
             if result != 0:
                 print env['MAKEGLOSSARY']," (glossary) returned an error, check the glg file"
+                return result
+
+        # Now decide if latex will need to be run again due to acronyms.
+        if check_MD5(suffix_nodes['.acn'],'.acn') or (count == 1 and run_acronyms):
+            # We must run makeindex
+            if Verbose:
+                print "Need to run makeindex for acronyms"
+            acrfile = suffix_nodes['.acn']
+            result = MakeAcronymsAction(acrfile, acrfile, env)
+            if result != 0:
+                print env['MAKEACRONYMS']," (acronymns) returned an error, check the alg file"
                 return result
 
         # Now decide if latex needs to be run yet again to resolve warnings.
@@ -485,7 +503,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     #
     # file names we will make use of in searching the sources and log file
     #
-    emit_suffixes = ['.aux', '.log', '.ilg', '.blg', '.nls', '.nlg', '.gls', '.glg'] + all_suffixes
+    emit_suffixes = ['.aux', '.log', '.ilg', '.blg', '.nls', '.nlg', '.gls', '.glg', '.alg'] + all_suffixes
     auxfilename = targetbase + '.aux'
     logfilename = targetbase + '.log'
     flsfilename = targetbase + '.fls'
@@ -493,6 +511,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     env.SideEffect(auxfilename,target[0])
     env.SideEffect(logfilename,target[0])
     env.SideEffect(flsfilename,target[0])
+    if Verbose:
+        print "side effect :",auxfilename,logfilename,flsfilename
     env.Clean(target[0],auxfilename)
     env.Clean(target[0],logfilename)
     env.Clean(target[0],flsfilename)
@@ -502,6 +522,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     idx_exists = os.path.exists(targetbase + '.idx')
     nlo_exists = os.path.exists(targetbase + '.nlo')
     glo_exists = os.path.exists(targetbase + '.glo')
+    acr_exists = os.path.exists(targetbase + '.acn')
 
     # set up list with the regular expressions
     # we use to find features used
@@ -514,6 +535,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          hyperref_re,
                          makenomenclature_re,
                          makeglossary_re,
+                         makeglossaries_re,
+                         makeacronyms_re,
                          beamer_re ]
     # set up list with the file suffixes that need emitting
     # when a feature is found
@@ -526,6 +549,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.out'],
                   ['.nlo', '.nls', '.nlg'],
                   ['.glo', '.gls', '.glg'],
+                  ['.glo', '.gls', '.glg'],
+                  ['.acn', '.acr', '.alg'],
                   ['.nav', '.snm', '.out', '.toc'] ]
     # build the list of lists
     file_tests = []
@@ -563,6 +588,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         if theSearch:
             for suffix in suffix_list:
                 env.SideEffect(targetbase + suffix,target[0])
+                if Verbose:
+                    print "side effect :",targetbase + suffix
                 env.Clean(target[0],targetbase + suffix)
 
     # read fls file to get all other files that latex creates and will read on the next pass
@@ -575,6 +602,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
             if filename in myfiles:
                 out_files.remove(filename)
         env.SideEffect(out_files,target[0])
+        if Verbose:
+            print "side effect :",out_files
         env.Clean(target[0],out_files)
 
     return (target, source)
@@ -616,6 +645,11 @@ def generate(env):
     if MakeGlossaryAction is None:
         MakeGlossaryAction = SCons.Action.Action("$MAKEGLOSSARYCOM", "$MAKEGLOSSARYCOMSTR")
 
+    # Define an action to run MakeIndex on a file for acronyms.
+    global MakeAcronymsAction
+    if MakeAcronymsAction is None:
+        MakeAcronymsAction = SCons.Action.Action("$MAKEACRONYMSCOM", "$MAKEACRONYMSCOMSTR")
+
     global TeXLaTeXAction
     if TeXLaTeXAction is None:
         TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
@@ -652,6 +686,11 @@ def generate(env):
     env['MAKEGLOSSARYSTYLE'] = '${SOURCE.filebase}.ist'
     env['MAKEGLOSSARYFLAGS'] = SCons.Util.CLVar('-s ${MAKEGLOSSARYSTYLE} -t ${SOURCE.filebase}.glg')
     env['MAKEGLOSSARYCOM']   = 'cd ${TARGET.dir} && $MAKEGLOSSARY ${SOURCE.filebase}.glo $MAKEGLOSSARYFLAGS -o ${SOURCE.filebase}.gls'
+
+    env['MAKEACRONYMS']      = 'makeindex'
+    env['MAKEACRONYMSSTYLE'] = '${SOURCE.filebase}.ist'
+    env['MAKEACRONYMSFLAGS'] = SCons.Util.CLVar('-s ${MAKEACRONYMSSTYLE} -t ${SOURCE.filebase}.alg')
+    env['MAKEACRONYMSCOM']   = 'cd ${TARGET.dir} && $MAKEACRONYMS ${SOURCE.filebase}.acn $MAKEACRONYMSFLAGS -o ${SOURCE.filebase}.acr'
 
     env['MAKENCL']      = 'makeindex'
     env['MAKENCLSTYLE'] = '$nomencl.ist'
