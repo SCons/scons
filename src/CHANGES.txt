@@ -93,6 +93,8 @@ RELEASE X.X.X - XXX
       Latex output
 
     - Remove LATEXSUFFIXES from environments that don't initialize Tex.
+    
+    - Add support for the glosaaries package for glossaries and acronyms
 
 RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 
