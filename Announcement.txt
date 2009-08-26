@@ -1,0 +1,68 @@
+  A new SCons checkpoint release, 0.XX.0dYYYYMMDD, is now available at the
+  SCons download page:
+
+          http://www.scons.org/download.php
+
+  A SCons "checkpoint release" is intended to provide early access to
+  new features so they can be tested in the field before being released
+  for adoption by other software distributions.
+
+  Note that a checkpoint release is developed using the same test-driven
+  development methdology as all SCons releases.  Existing SCons
+  functionality should all work as it does in previous releases (except
+  for any changes identified in the release notes) and early adopters
+  should be able to use a checkpoint release safely for production work
+  with existing SConscript files.  If not, it represents not only a bug
+  in SCons but also a hole in the regression test suite, and we want to
+  hear about it.
+
+  New features may be more lightly tested than in past releases,
+  especially as concerns their interaction with all of the other
+  functionality in SCons.  We are especially interested in hearing bug
+  reports about new functionality.
+
+  We do not recommend that downstream distributions (Debian, Fedora,
+  etc.) package a checkpoint release, mainly to avoid confusing the
+  "public" release numbering with the long checkpoint release names.
+
+  Here is a summary of the changes since 0.XX:
+
+  NEW FUNCTIONALITY
+
+  - List new features (presumably why a checkpoint is being released)
+
+  DEPRECATED FUNCTIONALITY
+
+  - List anything that's been deprecated since the last release
+
+  CHANGED/ENHANCED EXISTING FUNCTIONALITY
+
+  - List modifications to existing features, where the previous behavior
+    wouldn't actually be considered a bug
+
+  FIXES
+
+  - List fixes of outright bugs
+
+  IMPROVEMENTS
+
+  - List improvements that wouldn't be visible to the user in the
+    documentation:  performance improvements (describe the circumstances
+    under which they would be observed), or major code cleanups
+
+  PACKAGING
+
+  - List changes in the way SCons is packaged and/or released
+
+  DOCUMENTATION
+
+  - List any significant changes to the documentation (not individual
+    typo fixes, even if they're mentioned in src/CHANGES.txt to give
+    the contributor credit)
+
+  DEVELOPMENT
+
+  - List visible changes in the way SCons is developed
+
+  Thanks to LARRY, MOE and CURLY for their contributions to this release.
+
