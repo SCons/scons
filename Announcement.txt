@@ -1,3 +1,6 @@
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__
+
   A new SCons checkpoint release, 0.XX.0dYYYYMMDD, is now available at the
   SCons download page:
 
