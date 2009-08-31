@@ -37,9 +37,13 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 latex = test.where_is('latex')
+nomencl = os.system('kpsewhich nomencl.sty')
 
 if not latex:
     test.skip_test("Could not find latex; skipping test(s).\n")
+
+if not nomencl==0:
+    test.skip_test("nomencl.sty not installed; skipping test(s).\n")
 
 test.write('SConstruct', """\
 import os
