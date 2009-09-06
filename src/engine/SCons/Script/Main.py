@@ -431,7 +431,7 @@ def python_version_unsupported(version=sys.version_info):
     return version < (1, 5, 2)
 
 def python_version_deprecated(version=sys.version_info):
-    return version < (2, 2, 0)
+    return version < (2, 4, 0)
 
 
 # Global variables
@@ -959,7 +959,7 @@ def _main(parser):
     # warning about deprecated Python versions--delayed until here
     # in case they disabled the warning in the SConscript files.
     if python_version_deprecated():
-        msg = "Support for pre-2.2 Python (%s) is deprecated.\n" + \
+        msg = "Support for pre-2.4 Python (%s) is deprecated.\n" + \
               "    If this will cause hardship, contact dev@scons.tigris.org."
         SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning,
                             msg % python_version_string())
