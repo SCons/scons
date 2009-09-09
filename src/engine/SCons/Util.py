@@ -754,6 +754,9 @@ else:
     def RegGetValue(root, key):
         raise WindowsError
 
+    def RegOpenKeyEx(root, key):
+        raise WindowsError
+
 if sys.platform == 'win32':
 
     def WhereIs(file, path=None, pathext=None, reject=[]):
