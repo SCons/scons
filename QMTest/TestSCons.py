@@ -176,11 +176,11 @@ def unsupported_python_version(version=sys.version_info):
     return version < (1, 5, 2)
 
 def deprecated_python_version(version=sys.version_info):
-    return version < (2, 2, 0)
+    return version < (2, 4, 0)
 
 if deprecated_python_version():
     msg = r"""
-scons: warning: Support for pre-2.2 Python (%s) is deprecated.
+scons: warning: Support for pre-2.4 Python (%s) is deprecated.
     If this will cause hardship, contact dev@scons.tigris.org.
 """
 
