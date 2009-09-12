@@ -81,8 +81,8 @@ expect = [
 
 if use_metaclass:
 
-    def run_and_check(test, args, desc):
-        test.run(arguments = args)
+    def run_and_check(test, args, desc,stderr=None):
+        test.run(arguments = args,stderr=".*"+TestSCons.deprecated_python_expr)
         test.must_contain_any_line(test.stdout(), expect)
 
 else:
@@ -94,7 +94,7 @@ scons: warning: memoization is not supported in this version of Python \\(%s\\)
     expect_no_metaclasses = expect_no_metaclasses + TestSCons.file_expr
 
     def run_and_check(test, args, desc):
-        test.run(arguments = args, stderr = expect_no_metaclasses)
+        test.run(arguments = args, stderr = expect_no_metaclasses+".*"+TestSCons.deprecated_python_expr)
         test.must_not_contain_any_line(test.stdout(), expect)
 
 
