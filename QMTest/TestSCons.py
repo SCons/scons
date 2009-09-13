@@ -245,15 +245,6 @@ class TestSCons(TestCommon):
         # TERM can cause test failures due to control chars in prompts etc.
         os.environ['TERM'] = 'dumb'
 
-        if deprecated_python_version():
-            sconsflags = os.environ.get('SCONSFLAGS')
-            if sconsflags:
-                sconsflags = [sconsflags]
-            else:
-                sconsflags = []
-            sconsflags = sconsflags + ['--warn=no-python-version']
-            os.environ['SCONSFLAGS'] = string.join(sconsflags)
-
         apply(TestCommon.__init__, [self], kw)
 
         import SCons.Node.FS
@@ -340,6 +331,26 @@ class TestSCons(TestCommon):
                "scons: %sing targets ...\n" % cap + \
                build_str + \
                term
+
+    def run(self, *args, **kw):
+        """
+        Add the --warn=no-python-version option to SCONSFLAGS every
+        command so test scripts don't have to filter out Python version
+        deprecation warnings.
+        """
+        save_sconsflags = os.environ.get('SCONSFLAGS')
+        if deprecated_python_version():
+            if save_sconsflags:
+                sconsflags = [save_sconsflags]
+            else:
+                sconsflags = []
+            sconsflags = sconsflags + ['--warn=no-python-version']
+            os.environ['SCONSFLAGS'] = string.join(sconsflags)
+        try:
+            result = apply(TestCommon.run, (self,)+args, kw)
+        finally:
+            sconsflags = save_sconsflags
+        return result
 
     def up_to_date(self, options = None, arguments = None, read_str = "", **kw):
         s = ""
