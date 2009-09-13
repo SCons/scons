@@ -54,10 +54,9 @@ env.PDF('nomencl', 'nomencl.tex')
 test.write('nomencl.tex', r"""
 \documentclass{article}
 
-\usepackage[refpage,compatible]{nomencl}
+\usepackage[refpage]{nomencl}
 
-%\makenomenclature
-\makeglossary
+\makenomenclature
 
 
 \begin{document}
@@ -65,8 +64,7 @@ test.write('nomencl.tex', r"""
 A nomenclature entry \nomenclature{gnu}{an animal or software group} 
 and another\nomenclature{nix}{not sure}.
 
-%\printnomenclature
-\printglossary
+\printnomenclature
 
 \end{document}
 """)
@@ -75,9 +73,9 @@ test.run(arguments = '.', stderr=None)
 
 test.must_exist(test.workpath('nomencl.aux'))
 test.must_exist(test.workpath('nomencl.fls'))
-#test.must_exist(test.workpath('nomencl.nlg'))
-#test.must_exist(test.workpath('nomencl.nlo'))
-#test.must_exist(test.workpath('nomencl.nls'))
+test.must_exist(test.workpath('nomencl.nlg'))
+test.must_exist(test.workpath('nomencl.nlo'))
+test.must_exist(test.workpath('nomencl.nls'))
 test.must_exist(test.workpath('nomencl.log'))
 test.must_exist(test.workpath('nomencl.pdf'))
 
@@ -88,9 +86,9 @@ test.must_not_contain_any_line(test.stdout(), [x])
 
 test.must_not_exist(test.workpath('nomencl.aux'))
 test.must_not_exist(test.workpath('nomencl.fls'))
-#test.must_not_exist(test.workpath('nomencl.nlg'))
-#test.must_not_exist(test.workpath('nomencl.nlo'))
-#test.must_not_exist(test.workpath('nomencl.nls'))
+test.must_not_exist(test.workpath('nomencl.nlg'))
+test.must_not_exist(test.workpath('nomencl.nlo'))
+test.must_not_exist(test.workpath('nomencl.nls'))
 test.must_not_exist(test.workpath('nomencl.log'))
 test.must_not_exist(test.workpath('nomencl.pdf'))
 
