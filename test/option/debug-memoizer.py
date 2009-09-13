@@ -82,7 +82,10 @@ expect = [
 if use_metaclass:
 
     def run_and_check(test, args, desc,stderr=None):
-        test.run(arguments = args,stderr=".*"+TestSCons.deprecated_python_expr)
+        if stderr:
+            test.run(arguments = args,stderr=stderr)
+        else:
+            test.run(arguments = args)
         test.must_contain_any_line(test.stdout(), expect)
 
 else:
@@ -93,28 +96,27 @@ scons: warning: memoization is not supported in this version of Python \\(%s\\)
 
     expect_no_metaclasses = expect_no_metaclasses + TestSCons.file_expr
 
-    def run_and_check(test, args, desc):
-        test.run(arguments = args, stderr = expect_no_metaclasses+".*"+TestSCons.deprecated_python_expr)
+    def run_and_check(test, args, desc,stderr=None):
+        if stderr:
+            test.run(arguments = args,stderr=expect_no_metaclasses+stderr)
+        else:
+            test.run(arguments = args,stderr=expect_no_metaclasses)
+        #test.run(arguments = args, stderr = expect_no_metaclasses+TestSCons.deprecated_python_expr)
         test.must_not_contain_any_line(test.stdout(), expect)
 
 
-for args in ['-h --debug=memoizer', '--debug=memoizer']:
-    run_and_check(test, args, "command line '%s'" % args)
+for (args,stderr) in [('-h --debug=memoizer',''), ('--debug=memoizer','')]:
+    run_and_check(test, args, "command line '%s'" % args,stderr)
 
 test.must_match('file.out', "file.in\n")
-
-
 
 test.unlink("file.out")
 
-
-
 os.environ['SCONSFLAGS'] = '--debug=memoizer'
 
-run_and_check(test, '', 'SCONSFLAGS=--debug=memoizer')
+run_and_check(test, '', 'SCONSFLAGS=--debug=memoizer',stderr=TestSCons.deprecated_python_expr)
 
 test.must_match('file.out', "file.in\n")
-
 
 
 test.pass_test()
