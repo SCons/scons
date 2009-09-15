@@ -36,7 +36,7 @@ import string
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
+test = TestSCons.TestSCons(match = TestCmd.match_re_dotall,ignore_python_version=0)
 
 test.write('SConstruct', "\n")
 
@@ -53,11 +53,6 @@ if TestSCons.unsupported_python_version():
 else:
 
     if TestSCons.deprecated_python_version():
-
-        sconsflags = os.environ.get('SCONSFLAGS')
-        if sconsflags:
-            sconsflags = string.replace(sconsflags, '--warn=no-python-version', '')
-            os.environ['SCONSFLAGS'] = sconsflags
 
         test.run(arguments = '-Q', stderr = TestSCons.deprecated_python_expr)
 
