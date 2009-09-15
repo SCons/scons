@@ -244,6 +244,19 @@ class TestSCons(TestCommon):
         # control character output on FC8
         # TERM can cause test failures due to control chars in prompts etc.
         os.environ['TERM'] = 'dumb'
+        
+        self.ignore_python_version=kw.get('ignore_python_version',1)
+        if kw.get('ignore_python_version',-1) != -1:
+            del kw['ignore_python_version']
+
+        if self.ignore_python_version and deprecated_python_version():
+            sconsflags = os.environ.get('SCONSFLAGS')
+            if sconsflags:
+                sconsflags = [sconsflags]
+            else:
+                sconsflags = []
+            sconsflags = sconsflags + ['--warn=no-python-version']
+            os.environ['SCONSFLAGS'] = string.join(sconsflags)
 
         apply(TestCommon.__init__, [self], kw)
 
@@ -339,7 +352,7 @@ class TestSCons(TestCommon):
         deprecation warnings.
         """
         save_sconsflags = os.environ.get('SCONSFLAGS')
-        if deprecated_python_version():
+        if self.ignore_python_version and deprecated_python_version():
             if save_sconsflags:
                 sconsflags = [save_sconsflags]
             else:

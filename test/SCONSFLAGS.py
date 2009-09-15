@@ -29,7 +29,7 @@ import os
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
+test = TestSCons.TestSCons(match = TestCmd.match_re_dotall,ignore_python_version=0)
 
 wpath = test.workpath()
 
