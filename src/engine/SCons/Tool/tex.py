@@ -329,7 +329,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             result = MakeNclAction(nclfile, nclfile, env)
             if result != 0:
                 print env['MAKENCL']," (nomenclature) returned an error, check the nlg file"
-                return result
+                #return result
 
         # Now decide if latex will need to be run again due to glossary.
         if check_MD5(suffix_nodes['.glo'],'.glo') or (count == 1 and run_glossaries) or (count == 1 and run_glossary):
@@ -340,7 +340,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             result = MakeGlossaryAction(glofile, glofile, env)
             if result != 0:
                 print env['MAKEGLOSSARY']," (glossary) returned an error, check the glg file"
-                return result
+                #return result
 
         # Now decide if latex will need to be run again due to acronyms.
         if check_MD5(suffix_nodes['.acn'],'.acn') or (count == 1 and run_acronyms):
