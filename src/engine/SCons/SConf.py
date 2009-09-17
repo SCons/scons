@@ -625,8 +625,8 @@ class SConfBase:
         ok = self.TryLink(text, extension)
         if( ok ):
             prog = self.lastTarget
-            pname = str(prog)
-            output = SConfFS.File(pname+'.out')
+            pname = prog.path
+            output = self.confdir.File(os.path.basename(pname)+'.out')
             node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
             ok = self.BuildNodes(node)
             if ok:
