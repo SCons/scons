@@ -989,13 +989,13 @@ class TestCmd:
                            interpreter = None,
                            arguments = None):
         if program:
-            if type(program) == type('') and not os.path.isabs(program):
+            if type(program) is type('') and not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
         else:
             program = self.program
             if not interpreter:
                 interpreter = self.interpreter
-        if not type(program) in [type([]), type(())]:
+        if type(program) not in [type([]), type(())]:
             program = [program]
         cmd = list(program)
         if interpreter:
@@ -1003,7 +1003,7 @@ class TestCmd:
                 interpreter = [interpreter]
             cmd = list(interpreter) + cmd
         if arguments:
-            if type(arguments) == type(''):
+            if type(arguments) is type(''):
                 arguments = string.split(arguments)
             cmd.extend(arguments)
         return cmd
