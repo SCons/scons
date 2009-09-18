@@ -36,16 +36,11 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-where_javac, java_version = test.java_where_javac()
-where_java = test.java_where_java()
+javac, java_version = test.java_where_javac()
+java = test.java_where_java()
 
-# where_java_home=test.java_where_java_home()
-os.environ['JAVA_HOME'] = test.java_where_java_home()
-
-
-
-java = where_java
-javac = where_javac
+# where_java_home=test.java_where_java_home(java_version)
+os.environ['JAVA_HOME'] = test.java_where_java_home(java_version)
 
 ###############################################################################
 

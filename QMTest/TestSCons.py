@@ -17,7 +17,6 @@ attributes defined in this subclass.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
 import re
 import string
 import sys
@@ -547,10 +546,18 @@ class TestSCons(TestCommon):
 
 
     def java_where_java_home(self,version=None):
-        import os.path
-        jar=self.java_where_jar(version)
-        home=os.path.normpath('%s/..'%jar)
-        return home
+        if sys.platform[:6] == 'darwin':
+            if version is None:
+                home = '/System/Library/Frameworks/JavaVM.framework/Home'
+            else:
+                home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+        else:
+            jar = self.java_where_jar(version)
+            home = os.path.normpath('%s/..'%jar)
+        if os.path.isdir(home):
+            return home
+        print("Could not determine JAVA_HOME: %s is not a directory" % home)
+        self.fail_test()
 
     def java_where_jar(self, version=None):
         ENV = self.java_ENV(version)
