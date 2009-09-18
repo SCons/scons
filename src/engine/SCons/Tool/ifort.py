@@ -65,7 +65,8 @@ def generate(env):
     for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
         env['%s' % dialect] = fc
         env['SH%s' % dialect] = '$%s' % dialect
-        env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+        if env['PLATFORM'] == 'posix':
+            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
 
     if env['PLATFORM'] == 'win32':
         # On Windows, the ifort compiler specifies the object on the
