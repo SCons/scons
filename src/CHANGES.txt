@@ -10,6 +10,9 @@
 
 RELEASE X.X.X - XXX
 
+  From David Cournapeau:
+    - Fixed tryRun when sconf directory is in a variant dir.
+
   From William Deegan:
     - Final merge from vs_revamp branch to main
 
