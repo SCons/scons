@@ -35,8 +35,7 @@ tasks and how to implement them in &Python;.
 <example>
 <title>Wildcard globbing to create a list of filenames</title>
 <programlisting>
-import glob
-files = glob.glob(wildcard)
+files = Glob(wildcard)
 </programlisting>
 </example>
 
