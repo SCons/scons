@@ -12,6 +12,9 @@ RELEASE X.X.X - XXX
 
   From David Cournapeau:
     - Fixed tryRun when sconf directory is in a variant dir.
+    - Do not add -fPIC for ifort tool on non-posix platforms (darwin and
+      windows).
+    - Fix bug 2294 (spurious CheckCC failures).
 
   From William Deegan:
     - Final merge from vs_revamp branch to main
