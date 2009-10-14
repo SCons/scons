@@ -68,6 +68,7 @@ class VisualC:
         ('x86_64', 'x86_64') : [
             r'bin\amd64\vcvarsamd64.bat',
             r'bin\x86_amd64\vcvarsx86_amd64.bat',
+            r'bin\vcvarsx86_amd64.bat',
         ],
         ('x86_64', 'x86') : [
             r'bin\x86_amd64\vcvarsx86_amd64.bat',
