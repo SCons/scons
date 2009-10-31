@@ -15,6 +15,7 @@ RELEASE X.X.X - XXX
     - Do not add -fPIC for ifort tool on non-posix platforms (darwin and
       windows).
     - Fix bug 2294 (spurious CheckCC failures).
+    - Fix scons bootstrap process on windows 64 (wrong wininst name)
 
   From William Deegan:
     - Final merge from vs_revamp branch to main

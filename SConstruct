@@ -721,7 +721,10 @@ for p in [ scons ]:
     platform_zip = os.path.join(build,
                                 'dist',
                                 "%s.%s.zip" % (pkg_version, platform))
-    win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+    if platform == "win-amd64":
+        win32_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
+    else:
+        win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
 
     #
     # Update the environment with the relevant information
