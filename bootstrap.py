@@ -201,7 +201,7 @@ if update_only:
     sys.exit(0)
 
 args = [
-            os.path.split(sys.executable)[1],
+            sys.executable,
             os.path.join(bootstrap_dir, scons_py)
        ] + pass_through_args
 
