@@ -28,6 +28,10 @@ RELEASE X.X.X - XXX
     - Add check for python >= 3.0.0 and exit gracefully.
       For 1.3 python >= 1.5.2 and < 3.0.0 are supported
 
+    - Fix bug 1944 - Handle non-existent .i file in swig emitter, previously
+      it would crash with an IOError exception. Now it will try to make an
+      educated guess on the module name based on the filename.
+
   From Lukas Erlinghagen:
 
     - Have AddOption() remove variables from the list of

@@ -63,7 +63,13 @@ def _find_modules(src):
        case.)"""
     directors = 0
     mnames = []
-    matches = _reModule.findall(open(src).read())
+    try:
+        matches = _reModule.findall(open(src).read())
+    except IOError:
+        # If the file's not yet generated, guess the module name from the filename
+        matches = []
+        mnames += [os.path.splitext(src)[0]]
+
     for m in matches:
         mnames.append(m[2])
         directors = directors or string.find(m[0], 'directors') >= 0
@@ -96,12 +102,12 @@ def _swigEmitter(target, source, env):
             # .py files should be generated in SWIGOUTDIR if specified,
             # otherwise in the same directory as the target
             if outdir:
-                 python_files = map(lambda j, o=outdir, e=env:
-                                       e.fs.File(os.path.join(o, j)),
-                                    python_files)
+                python_files = map(lambda j, o=outdir, e=env:
+                                   e.fs.File(os.path.join(o, j)),
+                                   python_files)
             else:
                 python_files = map(lambda m, d=target[0].dir:
-                                       d.File(m), python_files)
+                                   d.File(m), python_files)
             target.extend(python_files)
         if "-java" in flags:
             if mnames is None:
