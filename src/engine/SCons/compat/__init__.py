@@ -258,7 +258,7 @@ except AttributeError:
     # adapted from the mkstemp implementation in python 3.
     import os
     import errno
-    def mkstemp( *args, **kw ) :
+    def mkstemp(*args, **kw):
         text = False
         if 'text' in kw :
             text = kw['text']
@@ -271,7 +271,7 @@ except AttributeError:
             flags = flags | os.O_BINARY
         while True:
             try :
-                name = tempfile.mktemp( *args, **kw )
+                name = apply(tempfile.mktemp, args, kw)
                 fd = os.open( name, flags, 0600 )
                 return (fd, os.path.abspath(name))
             except OSError, e:
