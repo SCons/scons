@@ -10,6 +10,9 @@
 
 RELEASE X.X.X - XXX
 
+  From Jim Randall:
+    - Fixed temp filename race condition on Windows with long cmd lines.
+
   From David Cournapeau:
     - Fixed tryRun when sconf directory is in a variant dir.
     - Do not add -fPIC for ifort tool on non-posix platforms (darwin and

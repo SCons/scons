@@ -44,6 +44,8 @@ their own platform definition.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import imp
 import os
 import string
@@ -176,8 +178,8 @@ class TempFileMunge:
         # We use the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        tmp = os.path.normpath(tempfile.mktemp('.lnk'))
-        native_tmp = SCons.Util.get_native_path(tmp)
+        (fd, tmp) = tempfile.mkstemp('.lnk', text=True)
+        native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
         if env['SHELL'] and env['SHELL'] == 'sh':
             # The sh shell will try to escape the backslashes in the
@@ -197,7 +199,8 @@ class TempFileMunge:
             prefix = '@'
 
         args = map(SCons.Subst.quote_spaces, cmd[1:])
-        open(tmp, 'w').write(string.join(args, " ") + "\n")
+        os.write(fd, string.join(args, " ") + "\n")
+        os.close(fd)
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should
         # really be rewritten as an Action that defines the
