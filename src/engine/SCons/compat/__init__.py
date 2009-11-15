@@ -250,6 +250,41 @@ except ImportError:
     # Pre-1.6 Python has no UserString module.
     import_as('_scons_UserString', 'UserString')
 
+import tempfile
+try:
+    tempfile.mkstemp
+except AttributeError:
+    # Pre-2.3 Python has no tempfile.mkstemp function, so try to simulate it.
+    # adapted from the mkstemp implementation in python 3.
+    import os
+    import errno
+    def mkstemp( *args, **kw ) :
+        text = False
+        if 'text' in kw :
+            text = kw['text']
+            del kw['text']
+        elif len( args ) == 4 :
+            text = args[3]
+            args = args[:3]
+        flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
+        if not text and hasattr( os, 'O_BINARY' ) :
+            flags |= os.O_BINARY
+        while True:
+            try :
+                name = tempfile.mktemp( *args, **kw )
+                fd = os.open( name, flags, 0600 )
+                return (fd, os.path.abspath(name))
+            except OSError, e:
+                if e.errno == errno.EEXIST:
+                    continue
+                raise
+
+    tempfile.mkstemp = mkstemp
+    del mkstemp
+
+
+
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
