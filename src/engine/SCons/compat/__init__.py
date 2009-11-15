@@ -268,7 +268,7 @@ except AttributeError:
             args = args[:3]
         flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
         if not text and hasattr( os, 'O_BINARY' ) :
-            flags |= os.O_BINARY
+            flags = flags | os.O_BINARY
         while True:
             try :
                 name = tempfile.mktemp( *args, **kw )
