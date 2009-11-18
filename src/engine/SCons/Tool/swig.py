@@ -69,7 +69,7 @@ def _find_modules(src):
         # If the file's not yet generated, guess the module name from the filename
         matches = []
         # TODO(1.5):  +=
-        mnames = mname + [os.path.splitext(src)[0]]
+        mnames = mnames + [os.path.splitext(src)[0]]
 
     for m in matches:
         mnames.append(m[2])
