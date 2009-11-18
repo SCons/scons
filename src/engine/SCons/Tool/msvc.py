@@ -251,7 +251,7 @@ def generate(env):
         env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
 def exists(env):
-    return msvc_exists('cl')
+    return msvc_exists()
 
 # Local Variables:
 # tab-width:4
