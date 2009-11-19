@@ -27,6 +27,7 @@ __doc__ = """Module for Visual C/C++ detection and configuration.
 """
 
 import os
+import platform
 
 import SCons.Warnings
 
@@ -298,21 +299,35 @@ def get_default_version(env):
 
     return msvc_version
 
-_TARGET_ARCH_TO_BAT_ARCH = {
-        "x86_64": "amd64",
+# Dict to 'canonalize' the arch
+_ARCH_TO_CANONICAL = {
+        "x86": "x86",
+        "amd64": "amd64",
         "i386": "x86",
-        "amd64": "amd64"}
+        "emt64": "amd64",
+        "x86_64": "amd64"
+}
+
+# Given a (host, target) tuple, return the argument for the bat file. Both host
+# and targets should be canonalized.
+_HOST_TARGET_ARCH_TO_BAT_ARCH = {
+        ("x86", "x86"): "x86",
+        ("x86", "amd64"): "x86_amd64",
+        ("amd64", "amd64"): "amd64",
+        ("amd64", "x86"): "x86"
+}
 
 def get_host_target(env):
     host_platform = env.get('HOST_ARCH')
     if not host_platform:
       #host_platform = get_default_host_platform()
-      host_platform = 'x86'
+      host_platform = platform.machine()
     target_platform = env.get('TARGET_ARCH')
     if not target_platform:
       target_platform = host_platform
 
-    return host_platform, target_platform
+    return (_ARCH_TO_CANONICAL[host_platform], 
+            _ARCH_TO_CANONICAL[target_platform])
 
 def msvc_setup_env_once(env):
     try:
@@ -347,9 +362,9 @@ def msvc_setup_env(env):
         # XXX: this is VS 2008 specific, fix this
         script = os.path.join(msvc.find_vc_dir(), "vcvarsall.bat")
 
-        arch = _TARGET_ARCH_TO_BAT_ARCH[target_platform]
-        debug('use_script 2 %s, args:%s\n' % (repr(script), arch))
-        d = script_env(script, args=arch)
+        arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[(host_platform, target_platform)]
+        debug('use_script 2 %s, args:%s\n' % (repr(script), arg))
+        d = script_env(script, args=arg)
     else:
         debug('msvc.get_default_env()\n')
         d = msvc.get_default_env()
