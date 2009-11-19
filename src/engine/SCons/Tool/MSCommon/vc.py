@@ -173,6 +173,16 @@ def find_batch_file(msvc_version):
         debug("Not found: %s" % batfilename)
         return None
 
+__INSTALLED_VCS_RUN = None
+
+def cached_get_installed_vcs():
+    global __INSTALLED_VCS_RUN
+
+    if __INSTALLED_VCS_RUN is None:
+        ret = get_installed_vcs()
+        __INSTALLED_VCS_RUN = ret
+
+    return __INSTALLED_VCS_RUN
 
 def get_installed_vcs():
     installed_versions = []
@@ -219,7 +229,7 @@ def get_default_version(env):
                     % (msvc_version, msvs_version))
         return msvs_version
     if not msvc_version:
-        installed_vcs = get_installed_vcs()
+        installed_vcs = cached_get_installed_vcs()
         debug('installed_vcs:%s' % installed_vcs)
         if not installed_vcs:
             msg = 'No installed VCs'
@@ -267,7 +277,7 @@ def msvc_setup_env(env):
         debug('Caught exception while looking for batch file (%s)' % msg)
         warn_msg = "VC version %s not installed - C/C++ compilers most " \
                    "likely not set correctly" % version
-        warn_msg += " \n Install versions are: %s" % get_installed_vcs()
+        warn_msg += " \n Install versions are: %s" % cached_get_installed_vcs()
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return None
 
@@ -296,7 +306,7 @@ def msvc_setup_env(env):
         env.PrependENVPath(k, v, delete_existing=True)
 
 def msvc_exists(version=None):
-    vcs = get_installed_vcs()
+    vcs = cached_get_installed_vcs()
     if version is None:
         return len(vcs) > 0
     return version in vcs
