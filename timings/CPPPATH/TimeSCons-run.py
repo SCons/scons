@@ -22,27 +22,23 @@
 #
 
 """
-scons-time.py configuration file for the "JTimer" timing test.
+This configuration times searching long lists of CPPPATH directories.
+
+We create 5000 on-disk directories.  A single checked-in .h file exists
+in the 'include' directory.  The SConstruct sets CPPPATH to a list of Dir
+Nodes for the created directories, followed by 'include'.  A checked-in .c
+file #includes the .h file to be found in the last directory in the list.
 """
 
-archive_list = [ 'SConstruct' ]
-subdir = '.'
-targets = '-j2'
+import TestSCons
 
-import sys
-sys.path.insert(0, '..')
-import SCons_Bars
+test = TestSCons.TimeSCons()
 
-revs = [
-    1261,   # Fix -j re-scanning built files for implicit deps.
-    1307,   # Move signature Node tranlation of rel_paths into the class.
-    1407,   # Use a Dir scanner instead of a hard-coded method.
-    1435,   # Don't prep .sconsign dependencies until needed.
-    1468,   # Use waiting-Node reference counts to speed up Taskmaster.
-    1703,   # Lobotomize Memoizer.
-    1706,   # Fix _doLookup value-cache misspellings.
-    2380,   # The Big Signature Refactoring hits branches/core.
-]
+dir_count = 5000
 
-vertical_bars = SCons_Bars.Release_Bars.gnuplot(labels=True) + \
-                SCons_Bars.Revision_Bars.gnuplot(labels=False, revs=revs)
+for d in xrange(dir_count):
+    test.subdir('inc_%04d' % d)
+
+test.main(options='DIR_COUNT=%s' % dir_count)
+
+test.pass_test()

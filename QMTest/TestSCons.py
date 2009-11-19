@@ -18,6 +18,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
+import shutil
 import string
 import sys
 import time
@@ -942,6 +943,129 @@ print py_ver
         else:
             alt_cpp_suffix = '.C'
         return alt_cpp_suffix
+
+
+class TimeSCons(TestSCons):
+    """Class for timing SCons."""
+    def __init__(self, *args, **kw):
+        """
+        In addition to normal TestSCons.TestSCons intialization,
+        this enables verbose mode (which causes the command lines to
+        be displayed in the output) and copies the contents of the
+        directory containing the executing script to the temporary
+        working directory.
+        """
+        if not kw.has_key('verbose'):
+            kw['verbose'] = True
+        TestSCons.__init__(self, *args, **kw)
+
+        # TODO(sgk):    better way to get the script dir than sys.argv[0]
+        test_dir = os.path.dirname(sys.argv[0])
+        test_name = os.path.basename(test_dir)
+
+        if not os.path.isabs(test_dir):
+            test_dir = os.path.join(self.orig_cwd, test_dir)
+        self.copy_timing_configuration(test_dir, self.workpath())
+
+    def main(self, *args, **kw):
+        """
+        The main entry point for standard execution of timings.
+
+        This method run SCons three times:
+
+          Once with the --help option, to have it exit after just reading
+          the configuration.
+
+          Once as a full build of all targets.
+
+          Once again as a (presumably) null or up-to-date build of
+          all targets.
+
+        The elapsed time to execute each build is printed after
+        it has finished.
+        """
+        self.help(*args, **kw)
+        self.full(*args, **kw)
+        self.null(*args, **kw)
+
+    def help(self, *args, **kw):
+        """
+        Runs scons with the --help option.
+
+        This serves as a way to isolate just the amount of time spent
+        reading up the configuration, since --help exits before any
+        "real work" is done.
+        """
+        kw['options'] = kw.get('options', '') + ' --help'
+        self.run_build(*args, **kw)
+        sys.stdout.write(self.stdout())
+        print "RESULT", self.elapsed_time()
+
+    def full(self, *args, **kw):
+        """
+        Runs a full build of SCons.
+        """
+        self.run_build(*args, **kw)
+        sys.stdout.write(self.stdout())
+        print "RESULT", self.elapsed_time()
+
+    def null(self, *args, **kw):
+        """
+        Runs an up-to-date null build of SCons.
+        """
+        # TODO(sgk):  allow the caller to specify the target (argument)
+        # that must be up-to-date.
+        self.up_to_date(arguments='.', **kw)
+        sys.stdout.write(self.stdout())
+        print "RESULT", self.elapsed_time()
+
+    def elapsed_time(self):
+        """
+        Returns the elapsed time of the most recent command execution.
+        """
+        return self.endTime - self.startTime
+
+    def run_build(self, *args, **kw):
+        """
+        Runs a single build command, capturing output in the specified file.
+
+        Because this class is about timing SCons, we record the start
+        and end times of the elapsed execution, and also add the
+        --debug=memory and --debug=time options to have SCons report
+        its own memory and timing statistics.
+        """
+        kw['options'] = kw.get('options', '') + ' --debug=memory --debug=time'
+        self.startTime = time.time()
+        try:
+            result = TestSCons.run(self, *args, **kw)
+        finally:
+            self.endTime = time.time()
+        return result
+
+    def copy_timing_configuration(self, source_dir, dest_dir):
+        """
+        Copies the timing configuration from the specified source_dir (the
+        directory in which the controlling script lives) to the specified
+        dest_dir (a temporary working directory).
+
+        This ignores all files and directories that begin with the string
+        'TimeSCons-', and all '.svn' subdirectories.
+        """
+        for root, dirs, files in os.walk(source_dir):
+            if '.svn' in dirs:
+                dirs.remove('.svn')
+            dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
+            files = [ f for f in files if not f.startswith('TimeSCons-') ]
+            for dirname in dirs:
+                source = os.path.join(root, dirname)
+                destination = source.replace(source_dir, dest_dir)
+                os.mkdir(destination)
+                if sys.platform != 'win32':
+                    shutil.copystat(source, destination)
+            for filename in files:
+                source = os.path.join(root, filename)
+                destination = source.replace(source_dir, dest_dir)
+                shutil.copy2(source, destination)
     
 
 # In some environments, $AR will generate a warning message to stderr

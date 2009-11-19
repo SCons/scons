@@ -19,26 +19,25 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
 
 """
-scons-time.py configuration file for the "CPPPATH" timing test.
+This configuration is for timing how we evaluate long chains of
+dependencies, specifically when -j is used.
+
+We set up a chain of 500 targets that get built from a Python function
+action with no source files (equivalent to "echo junk > $TARGET").
+Each target explicitly depends on the next target in turn, so the
+Taskmaster will do a deep walk of the dependency graph.
+
+This test case was contributed by Kevin Massey.  Prior to revision 1468,
+we had a serious O(N^2) problem in the Taskmaster when handling long
+dependency chains like this.  That was fixed by adding reference counts
+to the Taskmaster so it could be smarter about not re-evaluating Nodes.
 """
 
-archive_list = [ 'SConstruct' ]
-subdir = '.'
+import TestSCons
 
-import sys
-sys.path.insert(0, '..')
-import SCons_Bars
+target_count = 500
 
-revs = [
-    1224,   # Don't create a Node for every file we try to find during scan.
-    1349,   # More efficient checking for on-disk file entries.
-    1407,   # Use a Dir scanner instead of a hard-coded method.
-    1433,   # Remove unnecessary creation of RCS and SCCS Node.Dir nodes.
-    1703,   # Lobotomize Memoizer.
-    2380,   # The Big Signature Refactoring hits branches/core.
-]
-
-vertical_bars = SCons_Bars.Release_Bars.gnuplot(labels=True) + \
-                SCons_Bars.Revision_Bars.gnuplot(labels=False, revs=revs)
+TestSCons.TimeSCons().main(options='TARGET_COUNT=%d' % target_count)

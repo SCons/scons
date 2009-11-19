@@ -21,33 +21,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-"""
-This configuration is for timing how we evaluate long chains of
-dependencies, specifically when -j is used.
-
-We set up a chain of 100 targets that get built from a Python function
-action with no source files (equivalent to "echo junk > $TARGET").
-Each target explicitly depends on the next target in turn, so the
-Taskmaster will do a deep walk of the dependency graph.
-
-This test case was contributed by Kevin Massey.  Prior to revision 1468,
-we had a serious O(N^2) problem in the Taskmaster when handling long
-dependency chains like this.  That was fixed by adding reference counts
-to the Taskmaster so it could be smarter about not re-evaluating Nodes.
-"""
-
-target_cnt = 100
+target_count = int(ARGUMENTS['TARGET_COUNT'])
 
 env = Environment()
 
 def write_file( env, target, source ):
-    path_target = env.File( target ).path
+    path_target = env.File( target )[0].path
     outfile = open( path_target, 'w' )
     outfile.write( 'junk' )
     outfile.close()
 
 list = []
-for i in range( target_cnt ):
+for i in range( target_count ):
     target = 'target_%03d' % i
     env.Command( target, [], write_file )
     env.Depends( target, list )
