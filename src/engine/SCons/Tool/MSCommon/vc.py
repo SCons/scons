@@ -73,8 +73,17 @@ def get_host_target(env):
     if not target_platform:
         target_platform = host_platform
 
-    return (_ARCH_TO_CANONICAL[host_platform], 
-            _ARCH_TO_CANONICAL[target_platform])
+    try:
+        host = _ARCH_TO_CANONICAL[host_platform]
+    except KeyError, e:
+        raise ValueError("Unrecognized host architecture %s" % host_platform)
+
+    try:
+        target = _ARCH_TO_CANONICAL[target_platform]
+    except KeyError, e:
+        raise ValueError("Unrecognized target architecture %s" % target_platform)
+
+    return (host, target)
 
 _VCVER = ["10.0", "9.0", "8.0", "7.1", "7.0", "6.0"]
 
