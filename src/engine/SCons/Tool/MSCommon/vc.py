@@ -295,16 +295,6 @@ def msvc_setup_env(env):
     for k, v in d.items():
         env.PrependENVPath(k, v, delete_existing=True)
 
-def msvc_setup_env_once(env):
-    try:
-        has_run  = env["MSVC_SETUP_RUN"]
-    except KeyError:
-        has_run = False
-
-    if not has_run:
-        msvc_setup_env(env)
-        env["MSVC_SETUP_RUN"] = True
-
 def msvc_exists(version=None):
     vcs = get_installed_vcs()
     if version is None:
