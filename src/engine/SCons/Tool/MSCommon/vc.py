@@ -318,17 +318,17 @@ def msvc_setup_env(env):
     debug('msvc_setup_env()')
 
     version = get_default_version(env)
+    host_platform, target_platform = get_host_target(env)
+    debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
     env['MSVC_VERSION'] = version
 
     msvc = InstalledVCMap.get(version)
-    debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
     if not msvc:
         msg = 'VC version %s not installed' % version
         debug('msv %s\n' % repr(msg))
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
         return None
 
-    host_platform, target_platform = get_host_target(env)
     use_script = env.get('MSVC_USE_SCRIPT', True)
     if SCons.Util.is_String(use_script):
         debug('use_script 1 %s\n' % repr(use_script))
