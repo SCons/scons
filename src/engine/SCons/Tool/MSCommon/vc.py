@@ -245,6 +245,12 @@ def msvc_setup_env(env):
     debug('msvc_setup_env()')
 
     version = get_default_version(env)
+    if version is None:
+        warn_msg = "No version of Visual Studio compiler found - C/C++ " \
+                   "compilers most likely not set correctly"
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+        return None
+
     host_platform, target_platform = get_host_target(env)
     debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
 
