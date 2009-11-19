@@ -276,8 +276,8 @@ def set_vc_by_version(env, msvc):
 
 # New stuff
 
-def script_env(script):
-    stdout = common.get_output(script)
+def script_env(script, args=None):
+    stdout = common.get_output(script, args)
     return common.parse_output(stdout)
 
 def get_default_version(env):
