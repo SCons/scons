@@ -337,8 +337,9 @@ def msvc_setup_env(env):
         # XXX: this is VS 2008 specific, fix this
         script = os.path.join(msvc.find_vc_dir(), "vcvarsall.bat")
 
-        debug('use_script 2 %s, args:%s\n' % (repr(script), target_platform))
-        d = script_env(script, args=target_platform)
+        arch = _TARGET_ARCH_TO_BAT_ARCH[target_platform]
+        debug('use_script 2 %s, args:%s\n' % (repr(script), arch))
+        d = script_env(script, args=arch)
     else:
         debug('msvc.get_default_env()\n')
         d = msvc.get_default_env()
