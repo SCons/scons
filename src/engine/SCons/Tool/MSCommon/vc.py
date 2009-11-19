@@ -121,7 +121,12 @@ _VCVER_TO_PRODUCT_DIR = {
 
 def find_vc_pdir(msvc_version):
     """Try to find the product directory for the given
-    version."""
+    version.
+
+    Note
+    ----
+    If for some reason the requested version could not be found, an
+    exception which inherits from VisualCException will be raised."""
     root = 'Software\\'
     if common.is_win64():
         root = root + 'Wow6432Node\\'
@@ -173,9 +178,14 @@ def get_installed_vcs():
     installed_versions = []
     for ver in _VCVER:
         debug('trying to find VC %s' % ver)
-        if find_vc_pdir(ver):
-            debug('found VC %s' % ver)
-            installed_versions.append(ver)
+        try:
+            if find_vc_pdir(ver):
+                debug('found VC %s' % ver)
+                installed_versions.append(ver)
+            else:
+                debug('find_vc_pdir return None for ver %s' % ver)
+        except VisualCException, e:
+            debug('did not find VC %s: caught exception %s' % (ver, str(e)))
     return installed_versions
 
 def script_env(script, args=None):
