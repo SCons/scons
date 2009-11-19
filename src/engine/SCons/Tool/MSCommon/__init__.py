@@ -39,7 +39,7 @@ import SCons.Util
 from SCons.Tool.MSCommon.sdk import mssdk_exists, \
                                     mssdk_setup_env
 
-from SCons.Tool.MSCommon.vc import msvc_exists, \
+from SCons.Tool.MSCommon.vc2 import msvc_exists, \
                                    msvc_setup_env, \
                                    msvc_setup_env_once
 
