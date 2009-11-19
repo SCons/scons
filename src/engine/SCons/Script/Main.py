@@ -777,6 +777,7 @@ def _main(parser):
                          SCons.Warnings.ReservedVariableWarning,
                          SCons.Warnings.StackSizeWarning,
                          SCons.Warnings.VisualVersionMismatch,
+                         SCons.Warnings.VisualCMissingWarning,
                        ]
 
     for warning in default_warnings:
