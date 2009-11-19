@@ -137,7 +137,8 @@ def get_installed_vcs():
         if find_vc_pdir(ver):
             debug('found VC %s' % ver)
             installed_versions.append(ver)
-    return installed_versions
+    # Sort version to get the most recent first
+    return sorted(installed_versions)[::-1]
 
 def script_env(script, args=None):
     stdout = common.get_output(script, args)
