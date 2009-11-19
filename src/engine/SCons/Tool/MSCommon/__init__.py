@@ -40,7 +40,8 @@ from SCons.Tool.MSCommon.sdk import mssdk_exists, \
                                     mssdk_setup_env
 
 from SCons.Tool.MSCommon.vc import msvc_exists, \
-                                   msvc_setup_env
+                                   msvc_setup_env, \
+                                   msvc_setup_env_once
 
 from SCons.Tool.MSCommon.vs import get_default_version, \
                                    get_vs_by_version, \
