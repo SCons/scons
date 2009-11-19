@@ -505,6 +505,10 @@ variable in the Environment initialization, setting it to the
 appropriate version ('6.0' or '7.0', for example).
 If the specified version isn't installed,
 tool initialization will fail.
+
+This is obsolete: use &cv-MSVC_VERSION; instead. If &cv-MSVS_VERSION; and not
+&cv-MSVC_VERSION; is set, &cv-MSVC_VERSION; will be set to &cv-MSVS_VERSION;.
+If both are set to a different value, scons will raise an error.
 </summary>
 </cvar>
 
