@@ -65,7 +65,9 @@ _ARCH_TO_CANONICAL = {
     "amd64": "amd64",
     "i386": "x86",
     "emt64": "amd64",
-    "x86_64": "amd64"
+    "x86_64": "amd64",
+    "itanium": "ia64",
+    "ia64": "ia64",
 }
 
 # Given a (host, target) tuple, return the argument for the bat file. Both host
@@ -74,7 +76,8 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("x86", "x86"): "x86",
     ("x86", "amd64"): "x86_amd64",
     ("amd64", "amd64"): "amd64",
-    ("amd64", "x86"): "x86"
+    ("amd64", "x86"): "x86",
+    ("x86", "ia64"): "x86_ia64"
 }
 
 def get_host_target(env):
