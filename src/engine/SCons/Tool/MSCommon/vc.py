@@ -239,7 +239,7 @@ def msvc_setup_env_once(env):
 
     if not has_run:
         msvc_setup_env(env)
-        env["MSVC_SETUP_RUN"] = False
+        env["MSVC_SETUP_RUN"] = True
 
 def msvc_setup_env(env):
     debug('msvc_setup_env()')
