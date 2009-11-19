@@ -286,8 +286,11 @@ def msvc_setup_env(env):
                   (script, arg, str(e))
             raise SCons.Errors.UserError(msg)
     else:
-        debug('msvc.get_default_env()\n')
-        d = msvc.get_default_env()
+        debug('MSVC_USE_SCRIPT set to False')
+        warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment " \
+                   "set correctly."
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+        return None
 
     for k, v in d.items():
         env.PrependENVPath(k, v, delete_existing=True)
