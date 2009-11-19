@@ -76,8 +76,11 @@ def get_host_target(env):
     return (_ARCH_TO_CANONICAL[host_platform], 
             _ARCH_TO_CANONICAL[target_platform])
 
+_VCVER = ["10.0", "9.0", "8.0", "7.1", "7.0", "6.0"]
 
 _VCVER_TO_PRODUCT_DIR = {
+        '10.0': [
+            r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'],
         '9.0': [
             r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir',
             r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'],
@@ -144,13 +147,12 @@ def find_batch_file(msvc_version):
 
 def get_installed_vcs():
     installed_versions = []
-    for ver in _VCVER_TO_PRODUCT_DIR.keys():
+    for ver in _VCVER:
         debug('trying to find VC %s' % ver)
         if find_vc_pdir(ver):
             debug('found VC %s' % ver)
             installed_versions.append(ver)
-    # Sort version to get the most recent first
-    return sorted(installed_versions)[::-1]
+    return installed_versions
 
 def script_env(script, args=None):
     stdout = common.get_output(script, args)
