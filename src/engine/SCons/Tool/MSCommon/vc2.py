@@ -21,6 +21,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# TODO:
+#   * supported arch for versions: for old versions of batch file without
+#     argument, giving bogus argument cannot be detected, so we have to hardcode
+#     this here
+#   * print warning when msvc version specified but not found
+#   * find out why warning do not print
+#   * test on 64 bits XP +  VS 2005 (and VS 6 if possible)
+#   * SDK
+#   * Assembly
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __doc__ = """Module for Visual C/C++ detection and configuration.
