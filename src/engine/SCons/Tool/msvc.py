@@ -48,7 +48,7 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from MSCommon import msvc_exists, msvc_setup_env
+from MSCommon import msvc_exists, msvc_setup_env_once
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -232,8 +232,8 @@ def generate(env):
     env['SHOBJPREFIX']    = '$OBJPREFIX'
     env['SHOBJSUFFIX']    = '$OBJSUFFIX'
 
-    # Set-up ms tools paths for default version
-    msvc_setup_env(env)
+    # Set-up ms tools paths
+    msvc_setup_env_once(env)
 
     import mssdk
     mssdk.generate(env)
