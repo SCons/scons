@@ -776,6 +776,7 @@ def _main(parser):
                          SCons.Warnings.MisleadingKeywordsWarning,
                          SCons.Warnings.ReservedVariableWarning,
                          SCons.Warnings.StackSizeWarning,
+                         SCons.Warnings.VisualVersionMismatch,
                        ]
 
     for warning in default_warnings:

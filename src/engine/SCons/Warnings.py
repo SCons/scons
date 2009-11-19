@@ -118,6 +118,11 @@ class TaskmasterNeedsExecuteWarning(FutureDeprecatedWarning):
 class VisualCMissingWarning(Warning):
     pass
 
+# Used when MSVC_VERSION and MSVS_VERSION do not point to the
+# same version (MSVS_VERSION is deprecated)
+class VisualVersionMismatch(Warning):
+    pass
+
 class VisualStudioMissingWarning(Warning):
     pass
 
