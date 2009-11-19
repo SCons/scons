@@ -303,12 +303,7 @@ _TARGET_ARCH_TO_BAT_ARCH = {
         "i386": "x86",
         "amd64": "amd64"}
 
-def msvc_setup_env(env):
-    debug('msvc_setup_env()')
-
-    version = get_default_version(env)
-    env['MSVC_VERSION'] = version
-
+def get_host_target(env):
     host_platform = env.get('HOST_ARCH')
     if not host_platform:
       #host_platform = get_default_host_platform()
@@ -316,6 +311,14 @@ def msvc_setup_env(env):
     target_platform = env.get('TARGET_ARCH')
     if not target_platform:
       target_platform = host_platform
+
+    return host_platform, target_platform
+
+def msvc_setup_env(env):
+    debug('msvc_setup_env()')
+
+    version = get_default_version(env)
+    env['MSVC_VERSION'] = version
 
     msvc = InstalledVCMap.get(version)
     debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
@@ -325,6 +328,7 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
         return None
 
+    host_platform, target_platform = get_host_target(env)
     use_script = env.get('MSVC_USE_SCRIPT', True)
     if SCons.Util.is_String(use_script):
         debug('use_script 1 %s\n' % repr(use_script))
