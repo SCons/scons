@@ -44,7 +44,19 @@ import common
 
 debug = common.debug
 
-class BatchFileExecutionError(Exception):
+class VisualCException(Exception):
+    pass
+
+class UnsupportedVersion(VisualCException):
+    pass
+
+class MissingConfiguration(VisualCException):
+    pass
+
+class NoVersionFound(VisualCException):
+    pass
+
+class BatchFileExecutionError(VisualCException):
     pass
 
 # Dict to 'canonalize' the arch
@@ -114,7 +126,7 @@ def find_vc_pdir(msvc_version):
         hkeys = _VCVER_TO_PRODUCT_DIR[msvc_version]
     except KeyError:
         debug("Unknown version of MSVC: %s" % msvc_version)
-        return None
+        raise UnsupportedVersion("Unknown version %s" % msvc_version)
 
     for key in hkeys:
         key = root + key
@@ -129,13 +141,13 @@ def find_vc_pdir(msvc_version):
             else:
                 debug('find_vc_dir(): reg says dir is %s, but it does not exist. (ignoring)'\
                           % comps)
-                return None
+                raise MissingConfiguration("registry dir %s not found on the filesystem" % comps)
     return None
 
 def find_batch_file(msvc_version):
     pdir = find_vc_pdir(msvc_version)
     if pdir is None:
-        return None
+        raise NoVersionFound("No version of Visual Studio found")
 
     vernum = float(msvc_version)
     if 7 <= vernum < 8:
@@ -229,14 +241,16 @@ def msvc_setup_env(env):
     env['MSVS_VERSION'] = version
     env['MSVS'] = {}
 
-    script = find_batch_file(version)
-    if not script:
-        msg = 'VC version %s not installed' % version
-        debug('msv %s\n' % repr(msg))
-        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
+    try:
+        script = find_batch_file(version)
+    except VisualCException, e:
+        msg = str(e)
+        debug('Caught exception while looking for batch file (%s)' % msg)
+        warn_msg = "VC version %s not installed - C/C++ compilers most " \
+                   "likely not set correctly" % version
+        warn_msg += " \n Install versions are: %s" % get_installed_vcs()
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return None
-    print script
-
 
     use_script = env.get('MSVC_USE_SCRIPT', True)
     if SCons.Util.is_String(use_script):
@@ -249,13 +263,9 @@ def msvc_setup_env(env):
         try:
             d = script_env(script, args=arg)
         except BatchFileExecutionError, e:
-            # XXX: find out why warnings do not work here
-            print "+++++++++++++++++++++++++++++"
-            msg = "Error while executing %s with args %s (error was %s)" % \
+            msg = "MSVC error while executing %s with args %s (error was %s)" % \
                   (script, arg, str(e))
-            print msg
-            print "+++++++++++++++++++++++++++++"
-            return None
+            raise SCons.Errors.UserError(msg)
     else:
         debug('msvc.get_default_env()\n')
         d = msvc.get_default_env()
