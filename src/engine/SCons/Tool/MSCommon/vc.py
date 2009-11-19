@@ -222,7 +222,12 @@ def msvc_setup_env(env):
     version = get_default_version(env)
     host_platform, target_platform = get_host_target(env)
     debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
+
+    # XXX: we set-up both MSVS version for backward
+    # compatibility with the msvs tool
     env['MSVC_VERSION'] = version
+    env['MSVS_VERSION'] = version
+    env['MSVS'] = {}
 
     script = find_batch_file(version)
     if not script:
