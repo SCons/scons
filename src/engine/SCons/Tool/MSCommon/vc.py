@@ -280,29 +280,29 @@ def script_env(script):
     stdout = common.get_output(script)
     return common.parse_output(stdout)
 
-def msvc_setup_env(env):
-    debug('msvc_setup_env()')
-    installed_vcs = get_installed_vcs()
-    debug('InstalledVCMap:%s'%InstalledVCMap)
+def get_default_version(env):
+    debug('get_default_version()')
+
     msvc_version = env.get('MSVC_VERSION')
     if not msvc_version:
+        installed_vcs = get_installed_vcs()
+        debug('InstalledVCMap:%s'%InstalledVCMap)
         if not installed_vcs:
             msg = 'No installed VCs'
             debug('msv %s\n' % repr(msg))
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
-            return
+            return None
         msvc = installed_vcs[0]
         msvc_version = msvc.version
-        env['MSVC_VERSION'] = msvc_version
         debug('msvc_setup_env: using default installed MSVC version %s\n' % repr(msvc_version))
-    else:
-        msvc = InstalledVCMap.get(msvc_version)
-        debug('msvc_setup_env: using specified MSVC version %s\n' % repr(msvc_version))
-        if not msvc:
-            msg = 'VC version %s not installed' % msvc_version
-            debug('msv %s\n' % repr(msg))
-            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
-            return
+
+    return msvc_version
+
+def msvc_setup_env(env):
+    debug('msvc_setup_env()')
+
+    version = get_default_version(env)
+    env['MSVC_VERSION'] = version
 
     host_platform = env.get('HOST_ARCH')
     if not host_platform:
@@ -311,6 +311,14 @@ def msvc_setup_env(env):
     target_platform = env.get('TARGET_ARCH')
     if not target_platform:
       target_platform = host_platform
+
+    msvc = InstalledVCMap.get(version)
+    debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
+    if not msvc:
+        msg = 'VC version %s not installed' % version
+        debug('msv %s\n' % repr(msg))
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
+        return None
 
     use_script = env.get('MSVC_USE_SCRIPT', True)
     if SCons.Util.is_String(use_script):
