@@ -314,6 +314,16 @@ def get_host_target(env):
 
     return host_platform, target_platform
 
+def msvc_setup_env_once(env):
+    try:
+        has_run  = env["MSVC_SETUP_RUN"]
+    except KeyError:
+        has_run = False
+
+    if not has_run:
+        msvc_setup_env(env)
+        env["MSVC_SETUP_RUN"] = False
+
 def msvc_setup_env(env):
     debug('msvc_setup_env()')
 
