@@ -298,6 +298,11 @@ def get_default_version(env):
 
     return msvc_version
 
+_TARGET_ARCH_TO_BAT_ARCH = {
+        "x86_64": "amd64",
+        "i386": "x86",
+        "amd64": "amd64"}
+
 def msvc_setup_env(env):
     debug('msvc_setup_env()')
 
@@ -325,9 +330,11 @@ def msvc_setup_env(env):
         debug('use_script 1 %s\n' % repr(use_script))
         d = script_env(use_script)
     elif use_script:
-        script = msvc.get_batch_file(target_platform, host_platform)
-        debug('use_script 2 %s target_platform:%s host_platform:%s\n' % (repr(script),target_platform,host_platform))
-        d = script_env(script)
+        # XXX: this is VS 2008 specific, fix this
+        script = os.path.join(msvc.find_vc_dir(), "vcvarsall.bat")
+
+        debug('use_script 2 %s, args:%s\n' % (repr(script), target_platform))
+        d = script_env(script, args=target_platform)
     else:
         debug('msvc.get_default_env()\n')
         d = msvc.get_default_env()
