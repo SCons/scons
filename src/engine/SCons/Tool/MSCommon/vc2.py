@@ -35,6 +35,9 @@ import common
 
 debug = common.debug
 
+class BatchFileExecutionError(Exception):
+    pass
+
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
     "x86": "x86",
@@ -142,6 +145,12 @@ def get_installed_vcs():
 
 def script_env(script, args=None):
     stdout = common.get_output(script, args)
+    # Stupid batch files do not set return code: we take a look at the
+    # beginning of the output for an error message instead
+    olines = stdout.splitlines()
+    if olines[0].startswith("The specified configuration type is missing"):
+        raise BatchFileExecutionError("\n".join(olines[:2]))
+
     return common.parse_output(stdout)
 
 def get_default_version(env):
@@ -196,7 +205,16 @@ def msvc_setup_env(env):
         host_target = (host_platform, target_platform)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
         debug('use_script 2 %s, args:%s\n' % (repr(script), arg))
-        d = script_env(script, args=arg)
+        try:
+            d = script_env(script, args=arg)
+        except BatchFileExecutionError, e:
+            # XXX: find out why warnings do not work here
+            print "+++++++++++++++++++++++++++++"
+            msg = "Error while executing %s with args %s (error was %s)" % \
+                  (script, arg, str(e))
+            print msg
+            print "+++++++++++++++++++++++++++++"
+            return None
     else:
         debug('msvc.get_default_env()\n')
         d = msvc.get_default_env()
