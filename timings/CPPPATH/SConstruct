@@ -21,45 +21,10 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-"""
-This configuration is for testing the timing of searching long lists of
-CPPPATH directories.
+dir_count = int(ARGUMENTS['DIR_COUNT'])
 
-We create 100 on-disk directories, with a single .h file in the last
-directory in the list.  We set CPPPATH to a list of Dir Nodes for the
-created directories.  The .c file we create #includes the .h file to be
-found in the last directory in the list.
-"""
-
-import os
-import os.path
-
-dir_cnt = 100
-
-dir_list = map(lambda t: 'inc_%03d' % t, xrange(dir_cnt))
-
-for dir in dir_list:
-    if not os.path.isdir(dir):
-        os.mkdir(dir)
-
-foo_h = 'inc_099/foo.h'
-
-if not os.path.isfile(foo_h):
-    open(foo_h, 'w').write('#define     FOO     1\n')
-
-contents = """\
-#include "foo.h"
-void
-foo(void)
-{
-    ;
-}
-"""
-
-if not os.path.isfile('foo.c'):
-    open('foo.c', 'w').write(contents)
-
-inc_list = map(lambda d: Dir(d), dir_list)
+inc_list = [ Dir('inc_%04d' % t) for t in xrange(dir_count) ]
+inc_list.append(Dir('include'))
 
 env = Environment(CPPPATH = inc_list)
 
