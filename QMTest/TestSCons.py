@@ -957,7 +957,9 @@ class TimeSCons(TestSCons):
         """
         if not kw.has_key('verbose'):
             kw['verbose'] = True
-        TestSCons.__init__(self, *args, **kw)
+        # TODO(1.5)
+        #TestSCons.__init__(self, *args, **kw)
+        apply(TestSCons.__init__, (self,)+args, kw)
 
         # TODO(sgk):    better way to get the script dir than sys.argv[0]
         test_dir = os.path.dirname(sys.argv[0])
@@ -984,9 +986,13 @@ class TimeSCons(TestSCons):
         The elapsed time to execute each build is printed after
         it has finished.
         """
-        self.help(*args, **kw)
-        self.full(*args, **kw)
-        self.null(*args, **kw)
+        # TODO(1.5)
+        #self.help(*args, **kw)
+        #self.full(*args, **kw)
+        #self.null(*args, **kw)
+        apply(self.help, args, kw)
+        apply(self.full, args, kw)
+        apply(self.null, args, kw)
 
     def help(self, *args, **kw):
         """
@@ -997,7 +1003,9 @@ class TimeSCons(TestSCons):
         "real work" is done.
         """
         kw['options'] = kw.get('options', '') + ' --help'
-        self.run_build(*args, **kw)
+        # TODO(1.5)
+        #self.run_build(*args, **kw)
+        apply(self.run_build, args, kw)
         sys.stdout.write(self.stdout())
         print "RESULT", self.elapsed_time()
 
@@ -1005,7 +1013,9 @@ class TimeSCons(TestSCons):
         """
         Runs a full build of SCons.
         """
-        self.run_build(*args, **kw)
+        # TODO(1.5)
+        #self.run_build(*args, **kw)
+        apply(self.run_build, args, kw)
         sys.stdout.write(self.stdout())
         print "RESULT", self.elapsed_time()
 
@@ -1015,7 +1025,11 @@ class TimeSCons(TestSCons):
         """
         # TODO(sgk):  allow the caller to specify the target (argument)
         # that must be up-to-date.
-        self.up_to_date(arguments='.', **kw)
+        # TODO(1.5)
+        #self.up_to_date(arguments='.', **kw)
+        kw = kw.copy()
+        kw['arguments'] = '.'
+        apply(self.up_to_date, (), kw)
         sys.stdout.write(self.stdout())
         print "RESULT", self.elapsed_time()
 
@@ -1037,7 +1051,9 @@ class TimeSCons(TestSCons):
         kw['options'] = kw.get('options', '') + ' --debug=memory --debug=time'
         self.startTime = time.time()
         try:
-            result = TestSCons.run(self, *args, **kw)
+            # TODO(1.5)
+            #result = TestSCons.run(self, *args, **kw)
+            result = apply(TestSCons.run, (self,)+args, kw)
         finally:
             self.endTime = time.time()
         return result
@@ -1054,8 +1070,12 @@ class TimeSCons(TestSCons):
         for root, dirs, files in os.walk(source_dir):
             if '.svn' in dirs:
                 dirs.remove('.svn')
-            dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
-            files = [ f for f in files if not f.startswith('TimeSCons-') ]
+            # TODO(1.5)
+            #dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
+            #files = [ f for f in files if not f.startswith('TimeSCons-') ]
+            timescons_entries = lambda s: s.startswith('TimeSCons-')
+            dirs = filter(timescons_entries, dirs)
+            files = filter(timescons_entries, files)
             for dirname in dirs:
                 source = os.path.join(root, dirname)
                 destination = source.replace(source_dir, dest_dir)
