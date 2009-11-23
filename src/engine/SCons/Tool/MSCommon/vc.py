@@ -260,8 +260,6 @@ def msvc_setup_env(env):
                    "compilers most likely not set correctly"
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return None
-
-    host_platform, target_platform = get_host_target(env)
     debug('msvc_setup_env: using specified MSVC version %s\n' % repr(version))
 
     # XXX: we set-up both MSVS version for backward
@@ -286,6 +284,7 @@ def msvc_setup_env(env):
         debug('use_script 1 %s\n' % repr(use_script))
         d = script_env(use_script)
     elif use_script:
+        host_platform, target_platform = get_host_target(env)
         host_target = (host_platform, target_platform)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
         debug('use_script 2 %s, args:%s\n' % (repr(script), arg))
