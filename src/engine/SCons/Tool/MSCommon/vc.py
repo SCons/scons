@@ -50,6 +50,9 @@ class VisualCException(Exception):
 class UnsupportedVersion(VisualCException):
     pass
 
+class UnsupportedArch(VisualCException):
+    pass
+
 class MissingConfiguration(VisualCException):
     pass
 
@@ -118,6 +121,42 @@ _VCVER_TO_PRODUCT_DIR = {
         '6.0': [
             r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++\ProductDir']
 }
+
+def msvc_version_to_maj_min(msvc_version):
+    t = msvc_version.split(".")
+    if not len(t) == 2:
+        raise ValueError("Unrecognized version %s" % msvc_version)
+    try:
+        maj = int(t[0])
+        min = int(t[1])
+        return maj, min
+    except ValueError, e:
+        raise ValueError("Unrecognized version %s" % msvc_version)
+
+def is_host_target_supported(host_target, msvc_version):
+    """Return True if the given (host, target) tuple is supported given the
+    msvc version.
+
+    Parameters
+    ----------
+    host_target: tuple
+        tuple of (canonalized) host-target, e.g. ("x86", "amd64") for cross
+        compilation from 32 bits windows to 64 bits.
+    msvc_version: str
+        msvc version (major.minor, e.g. 10.0)
+
+    Note
+    ----
+    This only check whether a given version *may* support the given (host,
+    target), not that the toolchain is actually present on the machine.
+    """
+    # We assume that any Visual Studio version supports x86 as a target
+    if host_target != "x86":
+        maj, min = msvc_version_to_maj_min(msvc_version)
+        if maj < 8:
+            return False
+
+    return True
 
 def find_vc_pdir(msvc_version):
     """Try to find the product directory for the given
@@ -286,6 +325,10 @@ def msvc_setup_env(env):
     elif use_script:
         host_platform, target_platform = get_host_target(env)
         host_target = (host_platform, target_platform)
+        if not is_host_target_supported(host_target, version):
+            raise UnsupportedVersion(
+                    "host, target = %s not supported for MSVC version %s" %
+                    (host_target, version))
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
         debug('use_script 2 %s, args:%s\n' % (repr(script), arg))
         try:
