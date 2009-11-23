@@ -260,7 +260,9 @@ except AttributeError:
     import errno
     def mkstemp(*args, **kw):
         text = False
-        if 'text' in kw :
+        # TODO (1.5)
+        #if 'text' in kw :
+        if 'text' in kw.keys() :
             text = kw['text']
             del kw['text']
         elif len( args ) == 4 :
