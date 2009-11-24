@@ -151,7 +151,7 @@ def is_host_target_supported(host_target, msvc_version):
     target), not that the toolchain is actually present on the machine.
     """
     # We assume that any Visual Studio version supports x86 as a target
-    if host_target != "x86":
+    if host_target[1] != "x86":
         maj, min = msvc_version_to_maj_min(msvc_version)
         if maj < 8:
             return False
