@@ -373,7 +373,9 @@ class TestSCons(TestCommon):
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
         stdout = self.wrap_stdout(read_str = read_str, build_str = s)
-        kw['stdout'] = re.escape(stdout)
+        # Append '.*' so that timing output that comes after the
+        # up-to-date output is okay.
+        kw['stdout'] = re.escape(stdout) + '.*'
         kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
 
@@ -1004,8 +1006,8 @@ class TimeSCons(TestSCons):
         """
         kw['options'] = kw.get('options', '') + ' --help'
         # TODO(1.5)
-        #self.run_build(*args, **kw)
-        apply(self.run_build, args, kw)
+        #self.run(*args, **kw)
+        apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
         print "RESULT", self.elapsed_time()
 
@@ -1014,8 +1016,8 @@ class TimeSCons(TestSCons):
         Runs a full build of SCons.
         """
         # TODO(1.5)
-        #self.run_build(*args, **kw)
-        apply(self.run_build, args, kw)
+        #self.run(*args, **kw)
+        apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
         print "RESULT", self.elapsed_time()
 
@@ -1039,7 +1041,7 @@ class TimeSCons(TestSCons):
         """
         return self.endTime - self.startTime
 
-    def run_build(self, *args, **kw):
+    def run(self, *args, **kw):
         """
         Runs a single build command, capturing output in the specified file.
 
