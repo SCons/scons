@@ -1073,9 +1073,9 @@ class TimeSCons(TestSCons):
             # TODO(1.5)
             #dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
             #files = [ f for f in files if not f.startswith('TimeSCons-') ]
-            timescons_entries = lambda s: s.startswith('TimeSCons-')
-            dirs = filter(timescons_entries, dirs)
-            files = filter(timescons_entries, files)
+            not_timescons_entries = lambda s: not s.startswith('TimeSCons-')
+            dirs = filter(not_timescons_entries, dirs)
+            files = filter(not_timescons_entries, files)
             for dirname in dirs:
                 source = os.path.join(root, dirname)
                 destination = source.replace(source_dir, dest_dir)
