@@ -350,15 +350,17 @@ class TestSCons(TestCommon):
         Add the --warn=no-python-version option to SCONSFLAGS every
         command so test scripts don't have to filter out Python version
         deprecation warnings.
+        Same for --warn=no-visual-c-missing.
         """
         save_sconsflags = os.environ.get('SCONSFLAGS')
+        if save_sconsflags:
+            sconsflags = [save_sconsflags]
+        else:
+            sconsflags = []
         if self.ignore_python_version and deprecated_python_version():
-            if save_sconsflags:
-                sconsflags = [save_sconsflags]
-            else:
-                sconsflags = []
             sconsflags = sconsflags + ['--warn=no-python-version']
-            os.environ['SCONSFLAGS'] = string.join(sconsflags)
+        sconsflags = sconsflags + ['--warn=no-visual-c-missing']
+        os.environ['SCONSFLAGS'] = string.join(sconsflags)
         try:
             result = apply(TestCommon.run, (self,)+args, kw)
         finally:
