@@ -237,6 +237,10 @@ def get_installed_vcs():
             debug('did not find VC %s: caught exception %s' % (ver, str(e)))
     return installed_versions
 
+def reset_installed_vcs():
+    """Make it try again to find VC.  This is just for the tests."""
+    __INSTALLED_VCS_RUN = None
+
 def script_env(script, args=None):
     stdout = common.get_output(script, args)
     # Stupid batch files do not set return code: we take a look at the
