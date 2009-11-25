@@ -645,6 +645,24 @@ print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
             return None
         return msvs.get_executable()
 
+    def run(self, *args, **kw):
+        """
+        Suppress MSVS deprecation warnings.
+        """
+        save_sconsflags = os.environ.get('SCONSFLAGS')
+        if save_sconsflags:
+            sconsflags = [save_sconsflags]
+        else:
+            sconsflags = []
+        sconsflags = sconsflags + ['--warn=no-deprecated']
+        os.environ['SCONSFLAGS'] = string.join(sconsflags)
+        try:
+            result = apply(TestSCons.run, (self,)+args, kw)
+            pass
+        finally:
+            sconsflags = save_sconsflags
+        return result
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
