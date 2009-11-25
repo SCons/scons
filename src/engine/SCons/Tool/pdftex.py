@@ -34,6 +34,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import SCons.Action
 import SCons.Util
 import SCons.Tool.tex
@@ -52,7 +53,10 @@ def PDFTeXLaTeXFunction(target = None, source= None, env=None):
     """A builder for TeX and LaTeX that scans the source file to
     decide the "flavor" of the source and then executes the appropriate
     program."""
-    if SCons.Tool.tex.is_LaTeX(source):
+    basedir = os.path.split(str(source[0]))[0]
+    abspath = os.path.abspath(basedir)
+
+    if SCons.Tool.tex.is_LaTeX(source,env,abspath):
         result = PDFLaTeXAuxAction(target,source,env)
         if result != 0:
             print env['PDFLATEX']," returned an error, check the log file"

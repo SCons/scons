@@ -406,19 +406,85 @@ def LaTeXAuxAction(target = None, source= None, env=None):
 
 LaTeX_re = re.compile("\\\\document(style|class)")
 
-def is_LaTeX(flist):
-    # Scan a file list to decide if it's TeX- or LaTeX-flavored.
+def is_LaTeX(flist,env,abspath):
+    """Scan a file list to decide if it's TeX- or LaTeX-flavored."""
+
+    # We need to scan files that are included in case the
+    # \documentclass command is in them.
+
+    # get path list from both env['TEXINPUTS'] and env['ENV']['TEXINPUTS']
+    savedpath = modify_env_var(env, 'TEXINPUTS', abspath)
+    paths = env['ENV']['TEXINPUTS']
+    if SCons.Util.is_List(paths):
+        pass
+    else:
+        # Split at os.pathsep to convert into absolute path
+        # TODO(1.5)
+        #paths = paths.split(os.pathsep)
+        paths = string.split(paths, os.pathsep)
+
+    # now that we have the path list restore the env
+    if savedpath is _null:
+        try:
+            del env['ENV']['TEXINPUTS']
+        except KeyError:
+            pass # was never set
+    else:
+        env['ENV']['TEXINPUTS'] = savedpath
+    if Verbose:
+        print "is_LaTeX search path ",paths
+        print "files to search :",flist
+
+    # Now that we have the search path and file list, check each one
     for f in flist:
+        if Verbose:
+            print " checking for Latex source ",str(f)
+
         content = f.get_text_contents()
         if LaTeX_re.search(content):
+            if Verbose:
+                print "file %s is a LaTeX file" % str(f)
             return 1
+        if Verbose:
+            print "file %s is not a LaTeX file" % str(f)
+
+        # now find included files
+        inc_files = [ ]
+        inc_files.extend( include_re.findall(content) )
+        if Verbose:
+            print "files included by '%s': "%str(f),inc_files
+        # inc_files is list of file names as given. need to find them
+        # using TEXINPUTS paths.
+
+        # search the included files
+        for src in inc_files:
+            srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
+            # make this a list since is_LaTeX takes a list.
+            fileList = [srcNode,]
+            if Verbose:
+                print "FindFile found ",srcNode
+            if srcNode is not None:
+                file_test = is_LaTeX(fileList, env, abspath)
+
+            # return on first file that finds latex is needed.
+            if file_test:
+                return file_test
+
+        if Verbose:
+            print " done scanning ",str(f)
+
     return 0
 
 def TeXLaTeXFunction(target = None, source= None, env=None):
     """A builder for TeX and LaTeX that scans the source file to
     decide the "flavor" of the source and then executes the appropriate
     program."""
-    if is_LaTeX(source):
+
+    # find these paths for use in is_LaTeX to search for included files
+    basedir = os.path.split(str(source[0]))[0]
+    abspath = os.path.abspath(basedir)
+
+    if is_LaTeX(source,env,abspath):
         result = LaTeXAuxAction(target,source,env)
         if result != 0:
             print env['LATEX']," returned an error, check the log file"
@@ -433,7 +499,12 @@ def TeXLaTeXStrFunction(target = None, source= None, env=None):
     decide the "flavor" of the source and then returns the appropriate
     command string."""
     if env.GetOption("no_exec"):
-        if is_LaTeX(source):
+
+        # find these paths for use in is_LaTeX to search for included files
+        basedir = os.path.split(str(source[0]))[0]
+        abspath = os.path.abspath(basedir)
+
+        if is_LaTeX(source,env,abspath):
             result = env.subst('$LATEXCOM',0,target,source)+" ..."
         else:
             result = env.subst("$TEXCOM",0,target,source)+" ..."
@@ -460,8 +531,9 @@ def tex_pdf_emitter(target, source, env):
     return (target, source)
 
 def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir):
-    # for theFile (a Node) update any file_tests and search for graphics files
-    # then find all included files and call ScanFiles for each of them
+    """ For theFile (a Node) update any file_tests and search for graphics files
+    then find all included files and call ScanFiles recursively for each of them"""
+
     content = theFile.get_text_contents()
     if Verbose:
         print " scanning ",str(theFile)
@@ -479,9 +551,9 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
     # using TEXINPUTS paths.
 
     for src in inc_files:
-        srcNode = srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
+        srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
         if srcNode is not None:
-            file_test = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
+            file_tests = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
     if Verbose:
         print " done scanning ",str(theFile)
     return file_tests
