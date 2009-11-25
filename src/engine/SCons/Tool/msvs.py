@@ -1410,7 +1410,12 @@ def generate(env):
     # Set-up ms tools paths for default version
     msvc_setup_env_once(env)
 
-    version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+    if env.has_key('MSVS_VERSION'):
+        version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+    else:
+        (version_num, suite) = (7.0, None) # guess at a default
+    if not env.has_key('MSVS'):
+        env['MSVS'] = {}
     if (version_num < 7.0):
         env['MSVS']['PROJECTSUFFIX']  = '.dsp'
         env['MSVS']['SOLUTIONSUFFIX'] = '.dsw'
