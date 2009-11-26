@@ -316,9 +316,10 @@ def msvc_setup_env(env):
     except VisualCException, e:
         msg = str(e)
         debug('Caught exception while looking for batch file (%s)' % msg)
-        warn_msg = "VC version %s not installed - C/C++ compilers most " \
-                   "likely not set correctly" % version
-        warn_msg += " \n Install versions are: %s" % cached_get_installed_vcs()
+        warn_msg = "VC version %s not installed.  " + \
+                   "C/C++ compilers are most likely not set correctly.\n" + \
+                   " Installed versions are: %s"
+        warn_msg = warn_msg % (version, cached_get_installed_vcs())
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return None
 
