@@ -331,9 +331,9 @@ def msvc_setup_env(env):
         host_platform, target_platform = get_host_target(env)
         host_target = (host_platform, target_platform)
         if not is_host_target_supported(host_target, version):
-            raise UnsupportedVersion(
-                    "host, target = %s not supported for MSVC version %s" %
-                    (host_target, version))
+            msg = "host, target = %s not supported for MSVC version %s" % \
+                    (host_target, version)
+            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
         debug('use_script 2 %s, args:%s\n' % (repr(script), arg))
         try:
