@@ -34,6 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __doc__ = """Module for Visual C/C++ detection and configuration.
 """
+import SCons.compat
 
 import os
 import platform
