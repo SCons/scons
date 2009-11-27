@@ -175,6 +175,14 @@ except AttributeError:
         return os.path.exists(path) or os.path.islink(path)
     os.path.lexists = lexists
 
+
+try:
+    import platform
+except ImportError:
+    # Pre-2.3 Python has no platform module.
+    import_as('_scons_platform', 'platform')
+
+
 import shlex
 try:
     shlex.split
