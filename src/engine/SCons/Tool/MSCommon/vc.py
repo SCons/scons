@@ -88,6 +88,11 @@ def get_host_target(env):
     host_platform = env.get('HOST_ARCH')
     if not host_platform:
         host_platform = platform.machine()
+        # TODO(2.5):  the native Python platform.machine() function returns
+        # '' on all Python versions before 2.6, after which it also uses
+        # PROCESSOR_ARCHITECTURE.
+        if not host_platform:
+            host_platform = os.environ.get('PROCESSOR_ARCHITECTURE', '')
     target_platform = env.get('TARGET_ARCH')
     if not target_platform:
         target_platform = host_platform
@@ -95,7 +100,8 @@ def get_host_target(env):
     try:
         host = _ARCH_TO_CANONICAL[host_platform]
     except KeyError, e:
-        raise ValueError("Unrecognized host architecture %s" % host_platform)
+        msg = "Unrecognized host architecture %s"
+        raise ValueError(msg % repr(host_platform))
 
     try:
         target = _ARCH_TO_CANONICAL[target_platform]
