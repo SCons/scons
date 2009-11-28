@@ -577,9 +577,9 @@ class TestSConsMSVS(TestSCons):
             # doesn't fill it in when packaging SCons.
             input = """\
 import SCons
+import SCons.Tool.MSCommon
 print "self.scons_version =", repr(SCons.__%s__)
-env = Environment();
-print "self._msvs_versions =", str(env['MSVS']['VERSIONS'])
+print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
 """ % 'version'
         
             self.run(arguments = '-n -q -Q -f -', stdin = input)
