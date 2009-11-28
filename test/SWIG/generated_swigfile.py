@@ -49,7 +49,6 @@ else:
     _dll   = '.so' 
 
 test = TestSCons.TestSCons()
-test.verbose_set(1)
 
 swig = test.where_is('swig')
 if not swig:
@@ -77,16 +76,13 @@ java_c_file     = foo.CFile( target='java_swig_test'  ,source=java_interface, SW
 
 """ % locals())
 
-expected_stdout = """scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-echo '%module test_java_swig' > test_java_swig.i
-/usr/bin/swig -o java_swig_test_wrap.cc -java -c++ test_java_swig.i
-echo '%module test_py_swig' > test_py_swig.i
-/usr/bin/swig -o python_swig_test_wrap.cc -python -c++ test_py_swig.i
-scons: done building targets.
-"""
-test.run(arguments = '.',stdout=expected_stdout)
+expected_stdout = """\
+echo '%%module test_java_swig' > test_java_swig.i
+%(swig)s -o java_swig_test_wrap.cc -java -c++ test_java_swig.i
+echo '%%module test_py_swig' > test_py_swig.i
+%(swig)s -o python_swig_test_wrap.cc -python -c++ test_py_swig.i
+""" % locals()
+test.run(arguments = '.',stdout=test.wrap_stdout(expected_stdout))
 
 
 # If we mistakenly depend on the .py file that SWIG didn't create
