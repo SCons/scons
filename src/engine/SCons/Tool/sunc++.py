@@ -54,10 +54,10 @@ def get_package_info(package_name, pkginfo, pkgchk):
         except EnvironmentError:
             pass
         else:
-            sadm_re = re.compile('^(\S*/bin/CC)[= ].* %s$' % package_name, re.M)
+            sadm_re = re.compile('^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
             sadm_match = sadm_re.search(sadm_contents)
             if sadm_match:
-                pathname = sadm_match.group(1)
+                pathname = os.path.dirname(sadm_match.group(1))
 
         try:
             p = subprocess.Popen([pkginfo, '-l', package_name],
@@ -84,9 +84,9 @@ def get_package_info(package_name, pkginfo, pkgchk):
                 pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
                 pathname_match = pathname_re.search(pkgchk_contents)
                 if pathname_match:
-                    pathname = pathname_match.group(1)
+                    pathname = os.path.dirname(pathname_match.group(1))
 
-        package_info[package_name] = (version, pathname)
+        package_info[package_name] = (pathname, version)
         return package_info[package_name]
 
 # use the package installer tool lslpp to figure out where cppc and what
