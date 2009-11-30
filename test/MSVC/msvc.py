@@ -45,7 +45,9 @@ if sys.platform != 'win32':
 
 test.write('SConstruct',"""
 import os
-env = Environment()
+# TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
+# and ideally we shouldn't need to specify the tools= list anyway.
+env = Environment(tools=['mssdk', 'msvc', 'mslink'])
 env.Append(CPPPATH=os.environ.get('INCLUDE', ''),
            LIBPATH=os.environ.get('LIB', ''),
            CCFLAGS='/DPCHDEF')
