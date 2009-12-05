@@ -806,16 +806,13 @@ def _main(parser):
     # want to start everything, which means first handling any relevant
     # options that might cause us to chdir somewhere (-C, -D, -U, -u).
     if options.directory:
-        cdir = _create_path(options.directory)
-        try:
-            os.chdir(cdir)
-        except OSError:
-            sys.stderr.write("Could not change directory to %s\n" % cdir)
+        script_dir = os.path.abspath(_create_path(options.directory))
+    else:
+        script_dir = os.getcwd()
 
     target_top = None
     if options.climb_up:
         target_top = '.'  # directory to prepend to targets
-        script_dir = os.getcwd()  # location of script
         while script_dir and not _SConstruct_exists(script_dir,
                                                     options.repository,
                                                     options.file):
@@ -824,9 +821,13 @@ def _main(parser):
                 target_top = os.path.join(last_part, target_top)
             else:
                 script_dir = ''
-        if script_dir and script_dir != os.getcwd():
-            display("scons: Entering directory `%s'" % script_dir)
+
+    if script_dir and script_dir != os.getcwd():
+        display("scons: Entering directory `%s'" % script_dir)
+        try:
             os.chdir(script_dir)
+        except OSError:
+            sys.stderr.write("Could not change directory to %s\n" % script_dir)
 
     # Now that we're in the top-level SConstruct directory, go ahead
     # and initialize the FS object that represents the file system,
