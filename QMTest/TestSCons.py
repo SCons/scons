@@ -1011,7 +1011,7 @@ class TimeSCons(TestSCons):
         #self.run(*args, **kw)
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
-        print "RESULT", self.elapsed_time()
+        print "TimeSCons elapsed time:", self.elapsed_time()
 
     def full(self, *args, **kw):
         """
@@ -1021,7 +1021,7 @@ class TimeSCons(TestSCons):
         #self.run(*args, **kw)
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
-        print "RESULT", self.elapsed_time()
+        print "TimeSCons elapsed time:", self.elapsed_time()
 
     def null(self, *args, **kw):
         """
@@ -1035,7 +1035,7 @@ class TimeSCons(TestSCons):
         kw['arguments'] = '.'
         apply(self.up_to_date, (), kw)
         sys.stdout.write(self.stdout())
-        print "RESULT", self.elapsed_time()
+        print "TimeSCons elapsed time:", self.elapsed_time()
 
     def elapsed_time(self):
         """
