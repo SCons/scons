@@ -949,6 +949,36 @@ print py_ver
         return alt_cpp_suffix
 
 
+class Graph:
+    def __init__(self, name, units, expression, important=False):
+        self.name = name
+        self.units = units
+        self.expression = re.compile(expression)
+        self.important = important
+
+GraphList = [
+    Graph('TimeSCons-elapsed', 'seconds',
+          r'TimeSCons elapsed time:\s+([\d.]+)',
+          important=True),
+
+    Graph('memory-initial', 'bytes',
+          r'Memory before reading SConscript files:\s+(\d+)'),
+    Graph('memory-prebuild', 'bytes',
+          r'Memory before building targets:\s+(\d+)'),
+    Graph('memory-final', 'bytes',
+          r'Memory after building targets:\s+(\d+)'),
+
+    Graph('time-sconscript', 'seconds',
+          r'Total SConscript file execution time:\s+([\d.]+) seconds'),
+    Graph('time-scons', 'seconds',
+          r'Total SCons execution time:\s+([\d.]+) seconds'),
+    Graph('time-commands', 'seconds',
+          r'Total command execution time:\s+([\d.]+) seconds'),
+    Graph('time-total', 'seconds',
+          r'Total build time:\s+([\d.]+) seconds'),
+]
+
+
 class TimeSCons(TestSCons):
     """Class for timing SCons."""
     def __init__(self, *args, **kw):
@@ -998,6 +1028,18 @@ class TimeSCons(TestSCons):
         apply(self.full, args, kw)
         apply(self.null, args, kw)
 
+    def trace(self, graph, name, value, units):
+        fmt = "TRACE: graph=%s name=%s value=%s units=%s\n"
+        sys.stdout.write(fmt % (graph, name, value, units))
+        sys.stdout.flush()
+
+    def report_traces(self, trace, input):
+        self.trace('TimeSCons-elapsed', trace, self.elapsed_time(), "seconds")
+        for graph in GraphList:
+            m = graph.expression.search(input)
+            if m:
+                self.trace(graph.name, trace, m.group(1), graph.units)
+
     def help(self, *args, **kw):
         """
         Runs scons with the --help option.
@@ -1011,7 +1053,7 @@ class TimeSCons(TestSCons):
         #self.run(*args, **kw)
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
-        print "TimeSCons elapsed time:", self.elapsed_time()
+        self.report_traces('help', self.stdout())
 
     def full(self, *args, **kw):
         """
@@ -1021,7 +1063,7 @@ class TimeSCons(TestSCons):
         #self.run(*args, **kw)
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
-        print "TimeSCons elapsed time:", self.elapsed_time()
+        self.report_traces('full', self.stdout())
 
     def null(self, *args, **kw):
         """
@@ -1035,7 +1077,7 @@ class TimeSCons(TestSCons):
         kw['arguments'] = '.'
         apply(self.up_to_date, (), kw)
         sys.stdout.write(self.stdout())
-        print "TimeSCons elapsed time:", self.elapsed_time()
+        self.report_traces('null', self.stdout())
 
     def elapsed_time(self):
         """
