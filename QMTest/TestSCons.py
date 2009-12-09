@@ -34,6 +34,14 @@ except AttributeError:
         return result
     __builtin__.zip = zip
 
+try:
+    x = True
+except NameError:
+    True = not 0
+    False = not 1
+else:
+    del x
+
 from TestCommon import *
 from TestCommon import __all__
 
@@ -950,16 +958,16 @@ print py_ver
 
 
 class Graph:
-    def __init__(self, name, units, expression, important=False):
+    def __init__(self, name, units, expression, sort=None):
         self.name = name
         self.units = units
         self.expression = re.compile(expression)
-        self.important = important
+        self.sort = sort
 
 GraphList = [
     Graph('TimeSCons-elapsed', 'seconds',
           r'TimeSCons elapsed time:\s+([\d.]+)',
-          important=True),
+          sort=0),
 
     Graph('memory-initial', 'bytes',
           r'Memory before reading SConscript files:\s+(\d+)'),
@@ -1028,13 +1036,21 @@ class TimeSCons(TestSCons):
         apply(self.full, args, kw)
         apply(self.null, args, kw)
 
-    def trace(self, graph, name, value, units):
-        fmt = "TRACE: graph=%s name=%s value=%s units=%s\n"
-        sys.stdout.write(fmt % (graph, name, value, units))
+    def trace(self, graph, name, value, units, sort=None):
+        fmt = "TRACE: graph=%s name=%s value=%s units=%s"
+        line = fmt % (graph, name, value, units)
+        if sort is not None:
+          line = line + (' sort=%s' % sort)
+        line = line + '\n'
+        sys.stdout.write(line)
         sys.stdout.flush()
 
     def report_traces(self, trace, input):
-        self.trace('TimeSCons-elapsed', trace, self.elapsed_time(), "seconds")
+        self.trace('TimeSCons-elapsed',
+                   trace,
+                   self.elapsed_time(),
+                   "seconds",
+                   sort=0)
         for graph in GraphList:
             m = graph.expression.search(input)
             if m:
