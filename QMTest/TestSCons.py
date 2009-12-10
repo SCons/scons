@@ -958,23 +958,29 @@ print py_ver
 
 
 class Graph:
-    def __init__(self, name, units, expression, sort=None):
+    def __init__(self, name, units, expression, sort=None, convert=None):
+        if convert is None:
+            convert = lambda x: x
         self.name = name
         self.units = units
         self.expression = re.compile(expression)
         self.sort = sort
+        self.convert = convert
 
 GraphList = [
     Graph('TimeSCons-elapsed', 'seconds',
           r'TimeSCons elapsed time:\s+([\d.]+)',
           sort=0),
 
-    Graph('memory-initial', 'bytes',
-          r'Memory before reading SConscript files:\s+(\d+)'),
-    Graph('memory-prebuild', 'bytes',
-          r'Memory before building targets:\s+(\d+)'),
-    Graph('memory-final', 'bytes',
-          r'Memory after building targets:\s+(\d+)'),
+    Graph('memory-initial', 'kbytes',
+          r'Memory before reading SConscript files:\s+(\d+)',
+          convert=lambda s: int(s) / 1024),
+    Graph('memory-prebuild', 'kbytes',
+          r'Memory before building targets:\s+(\d+)',
+          convert=lambda s: int(s) / 1024),
+    Graph('memory-final', 'kbytes',
+          r'Memory after building targets:\s+(\d+)',
+          convert=lambda s: int(s) / 1024),
 
     Graph('time-sconscript', 'seconds',
           r'Total SConscript file execution time:\s+([\d.]+) seconds'),
@@ -1081,7 +1087,10 @@ class TimeSCons(TestSCons):
         for graph in GraphList:
             m = graph.expression.search(input)
             if m:
-                self.trace(graph.name, trace, m.group(1), graph.units)
+                self.trace(graph.name,
+                           trace,
+                           graph.convert(m.group(1)),
+                           graph.units)
 
     def help(self, *args, **kw):
         """
