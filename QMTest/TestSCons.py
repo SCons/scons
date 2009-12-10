@@ -367,7 +367,13 @@ class TestSCons(TestCommon):
             sconsflags = []
         if self.ignore_python_version and deprecated_python_version():
             sconsflags = sconsflags + ['--warn=no-python-version']
-        sconsflags = sconsflags + ['--warn=no-visual-c-missing']
+        # Provide a way to suppress or provide alternate flags for
+        # TestSCons purposes by setting TESTSCONS_SCONSFLAGS.
+        # (The intended use case is to set it to null when running
+        # timing tests of earlier versions of SCons which don't
+        # support the --warn=no-visual-c-missing warning.)
+        sconsflags = sconsflags + [os.environ.get('TESTSCONS_SCONSFLAGS',
+                                                  '--warn=no-visual-c-missing')]
         os.environ['SCONSFLAGS'] = string.join(sconsflags)
         try:
             result = apply(TestCommon.run, (self,)+args, kw)
