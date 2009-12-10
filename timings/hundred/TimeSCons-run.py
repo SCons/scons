@@ -33,13 +33,11 @@ equivalent of "echo contents > $TARGET".
 
 import TestSCons
 
-test = TestSCons.TimeSCons()
+test = TestSCons.TimeSCons(variables={'TARGET_COUNT':500})
 
-target_count = 500
-
-for t in xrange(target_count):
+for t in xrange(test.variables['TARGET_COUNT']):
     open('source_%04d' % t, 'wb' ).write('contents\n')
 
-test.main(options='TARGET_COUNT=%s' % target_count)
+test.main()
 
 test.pass_test()

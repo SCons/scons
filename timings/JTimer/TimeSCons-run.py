@@ -38,6 +38,8 @@ to the Taskmaster so it could be smarter about not re-evaluating Nodes.
 
 import TestSCons
 
-target_count = 500
+test = TestSCons.TimeSCons(variables={'TARGET_COUNT':500})
 
-TestSCons.TimeSCons().main(options='TARGET_COUNT=%d' % target_count)
+test.main()
+
+test.pass_test()

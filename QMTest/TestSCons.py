@@ -997,8 +997,23 @@ class TimeSCons(TestSCons):
         directory containing the executing script to the temporary
         working directory.
         """
+        self.variables = kw.get('variables')
+        if self.variables is not None:
+            for variable, value in self.variables.items():
+                value = os.environ.get(variable, value)
+                try:
+                    value = int(value)
+                except ValueError:
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        pass
+                self.variables[variable] = value
+            del kw['variables']
+
         if not kw.has_key('verbose'):
             kw['verbose'] = True
+
         # TODO(1.5)
         #TestSCons.__init__(self, *args, **kw)
         apply(TestSCons.__init__, (self,)+args, kw)
@@ -1028,13 +1043,24 @@ class TimeSCons(TestSCons):
         The elapsed time to execute each build is printed after
         it has finished.
         """
-        # TODO(1.5)
-        #self.help(*args, **kw)
-        #self.full(*args, **kw)
-        #self.null(*args, **kw)
-        apply(self.help, args, kw)
-        apply(self.full, args, kw)
-        apply(self.null, args, kw)
+        if not kw.has_key('options') and self.variables:
+            options = []
+            for variable, value in self.variables.items():
+                options.append('%s=%s' % (variable, value))
+            kw['options'] = ' '.join(options)
+        calibrate = os.environ.get('TIMESCONS_CALIBRATE')
+        if calibrate in (None, '0'):
+            # TODO(1.5)
+            #self.help(*args, **kw)
+            #self.full(*args, **kw)
+            #self.null(*args, **kw)
+            apply(self.help, args, kw)
+            apply(self.full, args, kw)
+            apply(self.null, args, kw)
+        else:
+            # TODO(1.5)
+            #self.calibration(*args, **kw)
+            apply(self.calibration, args, kw)
 
     def trace(self, graph, name, value, units, sort=None):
         fmt = "TRACE: graph=%s name=%s value=%s units=%s"
@@ -1080,6 +1106,20 @@ class TimeSCons(TestSCons):
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
         self.report_traces('full', self.stdout())
+
+    def calibration(self, *args, **kw):
+        """
+        Runs a full build of SCons, but only reports calibration
+        information (the variable(s) that were set for this configuration,
+        and the elapsed time to run.
+        """
+        # TODO(1.5)
+        #self.run(*args, **kw)
+        apply(self.run, args, kw)
+        if self.variables:
+            for variable, value in self.variables.items():
+                sys.stdout.write('VARIABLE: %s=%s\n' % (variable, value))
+        sys.stdout.write('ELAPSED: %s\n' % self.elapsed_time())
 
     def null(self, *args, **kw):
         """
