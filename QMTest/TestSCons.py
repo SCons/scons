@@ -957,39 +957,34 @@ print py_ver
         return alt_cpp_suffix
 
 
-class Graph:
-    def __init__(self, name, units, expression, sort=None, convert=None):
+class Stat:
+    def __init__(self, name, units, expression, convert=None):
         if convert is None:
             convert = lambda x: x
         self.name = name
         self.units = units
         self.expression = re.compile(expression)
-        self.sort = sort
         self.convert = convert
 
-GraphList = [
-    Graph('TimeSCons-elapsed', 'seconds',
-          r'TimeSCons elapsed time:\s+([\d.]+)',
-          sort=0),
+StatList = [
+    Stat('memory-initial', 'kbytes',
+         r'Memory before reading SConscript files:\s+(\d+)',
+         convert=lambda s: int(s) / 1024),
+    Stat('memory-prebuild', 'kbytes',
+         r'Memory before building targets:\s+(\d+)',
+         convert=lambda s: int(s) / 1024),
+    Stat('memory-final', 'kbytes',
+         r'Memory after building targets:\s+(\d+)',
+         convert=lambda s: int(s) / 1024),
 
-    Graph('memory-initial', 'kbytes',
-          r'Memory before reading SConscript files:\s+(\d+)',
-          convert=lambda s: int(s) / 1024),
-    Graph('memory-prebuild', 'kbytes',
-          r'Memory before building targets:\s+(\d+)',
-          convert=lambda s: int(s) / 1024),
-    Graph('memory-final', 'kbytes',
-          r'Memory after building targets:\s+(\d+)',
-          convert=lambda s: int(s) / 1024),
-
-    Graph('time-sconscript', 'seconds',
-          r'Total SConscript file execution time:\s+([\d.]+) seconds'),
-    Graph('time-scons', 'seconds',
-          r'Total SCons execution time:\s+([\d.]+) seconds'),
-    Graph('time-commands', 'seconds',
-          r'Total command execution time:\s+([\d.]+) seconds'),
-    Graph('time-total', 'seconds',
-          r'Total build time:\s+([\d.]+) seconds'),
+    Stat('time-sconscript', 'seconds',
+         r'Total SConscript file execution time:\s+([\d.]+) seconds'),
+    Stat('time-scons', 'seconds',
+         r'Total SCons execution time:\s+([\d.]+) seconds'),
+    Stat('time-commands', 'seconds',
+         r'Total command execution time:\s+([\d.]+) seconds'),
+    Stat('time-total', 'seconds',
+         r'Total build time:\s+([\d.]+) seconds'),
 ]
 
 
@@ -1078,19 +1073,28 @@ class TimeSCons(TestSCons):
         sys.stdout.write(line)
         sys.stdout.flush()
 
-    def report_traces(self, trace, input):
+    def report_traces(self, trace, stats):
         self.trace('TimeSCons-elapsed',
                    trace,
                    self.elapsed_time(),
                    "seconds",
                    sort=0)
-        for graph in GraphList:
-            m = graph.expression.search(input)
+        for name, args in stats.items():
+            # TODO(1.5)
+            #self.trace(name, trace, *args)
+            apply(self.trace, (name, trace), args)
+
+    def collect_stats(self, input):
+        result = {}
+        for stat in StatList:
+            m = stat.expression.search(input)
             if m:
-                self.trace(graph.name,
-                           trace,
-                           graph.convert(m.group(1)),
-                           graph.units)
+                value = stat.convert(m.group(1))
+                # The dict keys match the keyword= arguments
+                # of the trace() method above so they can be
+                # applied directly to that call.
+                result[stat.name] = {'value':value, 'units':stat.units}
+        return result
 
     def help(self, *args, **kw):
         """
@@ -1105,7 +1109,11 @@ class TimeSCons(TestSCons):
         #self.run(*args, **kw)
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
-        self.report_traces('help', self.stdout())
+        stats = self.collect_stats(self.stdout())
+        # Delete the time-commands, since no commands are ever
+        # executed on the help run and it is (or should be) always 0.0.
+        del stats['time-commands']
+        self.report_traces('help', stats)
 
     def full(self, *args, **kw):
         """
@@ -1115,7 +1123,15 @@ class TimeSCons(TestSCons):
         #self.run(*args, **kw)
         apply(self.run, args, kw)
         sys.stdout.write(self.stdout())
-        self.report_traces('full', self.stdout())
+        stats = self.collect_stats(self.stdout())
+        self.report_traces('full', stats)
+        # TODO(1.5)
+        #self.trace('full-memory', 'initial', **stats['memory-initial'])
+        #self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
+        #self.trace('full-memory', 'final', **stats['memory-final'])
+        apply(self.trace, ('full-memory', 'initial'), stats['memory-initial'])
+        apply(self.trace, ('full-memory', 'prebuild'), stats['memory-prebuild'])
+        apply(self.trace, ('full-memory', 'final'), stats['memory-final'])
 
     def calibration(self, *args, **kw):
         """
@@ -1143,7 +1159,22 @@ class TimeSCons(TestSCons):
         kw['arguments'] = '.'
         apply(self.up_to_date, (), kw)
         sys.stdout.write(self.stdout())
-        self.report_traces('null', self.stdout())
+        stats = self.collect_stats(self.stdout())
+        # time-commands should always be 0.0 on a null build, because
+        # no commands should be executed.  Remove it from the stats
+        # so we don't trace it, but only if it *is* 0 so that we'll
+        # get some indication if a supposedly-null build actually does
+        # build something.
+        if float(stats['time-commands']['value']) == 0.0:
+            del stats['time-commands']
+        self.report_traces('null', stats)
+        # TODO(1.5)
+        #self.trace('null-memory', 'initial', **stats['memory-initial'])
+        #self.trace('null-memory', 'prebuild', **stats['memory-prebuild'])
+        #self.trace('null-memory', 'final', **stats['memory-final'])
+        apply(self.trace, ('null-memory', 'initial'), stats['memory-initial'])
+        apply(self.trace, ('null-memory', 'prebuild'), stats['memory-prebuild'])
+        apply(self.trace, ('null-memory', 'final'), stats['memory-final'])
 
     def elapsed_time(self):
         """
