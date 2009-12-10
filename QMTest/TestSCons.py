@@ -1011,7 +1011,9 @@ class TimeSCons(TestSCons):
                 self.variables[variable] = value
             del kw['variables']
 
-        if not kw.has_key('verbose'):
+        self.calibrate = os.environ.get('TIMESCONS_CALIBRATE', '0') != '0'
+
+        if not kw.has_key('verbose') and not self.calibrate:
             kw['verbose'] = True
 
         # TODO(1.5)
@@ -1048,8 +1050,11 @@ class TimeSCons(TestSCons):
             for variable, value in self.variables.items():
                 options.append('%s=%s' % (variable, value))
             kw['options'] = ' '.join(options)
-        calibrate = os.environ.get('TIMESCONS_CALIBRATE')
-        if calibrate in (None, '0'):
+        if self.calibrate:
+            # TODO(1.5)
+            #self.calibration(*args, **kw)
+            apply(self.calibration, args, kw)
+        else:
             # TODO(1.5)
             #self.help(*args, **kw)
             #self.full(*args, **kw)
@@ -1057,10 +1062,6 @@ class TimeSCons(TestSCons):
             apply(self.help, args, kw)
             apply(self.full, args, kw)
             apply(self.null, args, kw)
-        else:
-            # TODO(1.5)
-            #self.calibration(*args, **kw)
-            apply(self.calibration, args, kw)
 
     def trace(self, graph, name, value, units, sort=None):
         fmt = "TRACE: graph=%s name=%s value=%s units=%s"
