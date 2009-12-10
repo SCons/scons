@@ -32,13 +32,11 @@ file #includes the .h file to be found in the last directory in the list.
 
 import TestSCons
 
-test = TestSCons.TimeSCons()
+test = TestSCons.TimeSCons(variables={'DIR_COUNT':5000})
 
-dir_count = 5000
-
-for d in xrange(dir_count):
+for d in xrange(test.variables['DIR_COUNT']):
     test.subdir('inc_%04d' % d)
 
-test.main(options='DIR_COUNT=%s' % dir_count)
+test.main()
 
 test.pass_test()
