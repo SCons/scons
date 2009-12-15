@@ -272,20 +272,21 @@ else:
 try:
     qmtest
 except NameError:
-    # Neither specified; find it in path.
     qmtest = None
-    for q in ['qmtest', 'qmtest.py']:
-        path = whereis(q)
-        if path:
-            # The name was found on $PATH; just execute the found name so
-            # we don't have to worry about paths containing white space.
-            qmtest = q
-            break
-    if not qmtest:
-        msg = ('Warning:  found neither qmtest nor qmtest.py on $PATH;\n' +
-               '\tassuming --noqmtest option.\n')
-        sys.stderr.write(msg)
-        sys.stderr.flush()
+    # Old code for using QMTest by default if it's installed.
+    # We now default to not using QMTest unless explicitly asked for.
+    #for q in ['qmtest', 'qmtest.py']:
+    #    path = whereis(q)
+    #    if path:
+    #        # The name was found on $PATH; just execute the found name so
+    #        # we don't have to worry about paths containing white space.
+    #        qmtest = q
+    #        break
+    #if not qmtest:
+    #    msg = ('Warning:  found neither qmtest nor qmtest.py on $PATH;\n' +
+    #           '\tassuming --noqmtest option.\n')
+    #    sys.stderr.write(msg)
+    #    sys.stderr.flush()
 
 aegis = whereis('aegis')
 
