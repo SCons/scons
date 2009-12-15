@@ -870,7 +870,7 @@ def Parser(version):
     def opt_not_yet(option, opt, value, parser):
         msg = "Warning:  the %s option is not yet implemented\n" % opt
         sys.stderr.write(msg)
-        sys.exit(0)
+        sys.exit(1)
 
 
     op.add_option('-l', '--load-average', '--max-load',
