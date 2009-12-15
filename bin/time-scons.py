@@ -245,7 +245,7 @@ def do_revisions(cr, opts, branch, revisions, scripts):
             commands.append(['svn', 'up', '-q', '-r', str(this_revision)]
                             + TimeSCons_pieces)
 
-        status = cr.run(commands, stdout=stdout, stderr=stderr)
+        status = cr.run_list(commands, stdout=stdout, stderr=stderr)
         if status:
             return status
 
