@@ -30,11 +30,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--override=foo .',
-         stderr = "Warning:  the --override option is not yet implemented\n")
+test.option_not_yet_implemented('--override', '=foo .')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

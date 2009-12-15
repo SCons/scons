@@ -38,11 +38,9 @@ test.pass_test()        #XXX Short-circuit until then.
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--warn-undefined-variables',
-        stderr = "Warning:  the --warn-undefined-variables option is not yet implemented\n")
+test.option_not_yet_implemented('--warn-undefined-variables')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

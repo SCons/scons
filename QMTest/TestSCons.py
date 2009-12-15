@@ -412,6 +412,25 @@ class TestSCons(TestCommon):
         kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
 
+    def option_not_yet_implemented(self, option, arguments=None, **kw):
+        """
+        Verifies expected behavior for options that are not yet implemented:
+        a warning message, and exit status 1.
+        """
+        msg = "Warning:  the %s option is not yet implemented\n" % option
+        kw['stderr'] = msg
+        kw['status'] = 1
+        if arguments:
+            # If it's a long option and the argument string begins with '=',
+            # it's of the form --foo=bar and needs no separating space.
+            if option[:2] == '--' and arguments[0] == '=':
+                kw['arguments'] = option + arguments
+            else:
+                kw['arguments'] = option + ' ' + arguments
+        # TODO(1.5)
+        #return self.run(**kw)
+        return apply(self.run, (), kw)
+
     def diff_substr(self, expect, actual, prelen=20, postlen=40):
         i = 0
         for x, y in zip(expect, actual):

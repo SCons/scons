@@ -30,17 +30,13 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-l 1 .',
-         stderr = "Warning:  the -l option is not yet implemented\n")
+test.option_not_yet_implemented('-l', '1 .')
 
-test.run(arguments = '--load-average=1 .',
-         stderr = "Warning:  the --load-average option is not yet implemented\n")
+test.option_not_yet_implemented('--load-average', '=1 .')
 
-test.run(arguments = '--max-load=1 .',
-         stderr = "Warning:  the --max-load option is not yet implemented\n")
+test.option_not_yet_implemented('--max-load', '=1 .')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

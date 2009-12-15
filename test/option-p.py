@@ -30,11 +30,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-p .',
-         stderr = "Warning:  the -p option is not yet implemented\n")
+test.option_not_yet_implemented('-p', '.')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

@@ -30,17 +30,13 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-o foo .',
-         stderr = "Warning:  the -o option is not yet implemented\n")
+test.option_not_yet_implemented('-o', 'foo .')
 
-test.run(arguments = '--old-file=foo .',
-         stderr = "Warning:  the --old-file option is not yet implemented\n")
+test.option_not_yet_implemented('--old-file', '=foo .')
 
-test.run(arguments = '--assume-old=foo .',
-         stderr = "Warning:  the --assume-old option is not yet implemented\n")
+test.option_not_yet_implemented('--assume-old', '=foo .')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4
