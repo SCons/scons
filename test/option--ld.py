@@ -30,11 +30,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--list-derived .',
-         stderr = "Warning:  the --list-derived option is not yet implemented\n")
+test.option_not_yet_implemented('--list-derived', '.')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

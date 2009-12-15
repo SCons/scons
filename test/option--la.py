@@ -30,11 +30,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--list-actions .',
-         stderr = "Warning:  the --list-actions option is not yet implemented\n")
+test.option_not_yet_implemented('--list-actions', '.')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

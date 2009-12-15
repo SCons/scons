@@ -30,11 +30,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--list-where .',
-         stderr = "Warning:  the --list-where option is not yet implemented\n")
+test.option_not_yet_implemented('--list-where', '.')
 
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4
