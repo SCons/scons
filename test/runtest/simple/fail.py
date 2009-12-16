@@ -30,36 +30,27 @@ Test how we handle a failing test specified on the command line.
 
 import TestRuntest
 
+python = TestRuntest.python
+
 test = TestRuntest.TestRuntest()
 
 test.subdir('test')
 
 test.write_failing_test(['test', 'fail.py'])
 
-# NOTE:  The "test/fail.py   : FAIL" line has spaces at the end.
+expect_stdout = """\
+%(python)s -tt test/fail.py
+FAILING TEST STDOUT
+""" % locals()
 
-expect = r"""qmtest run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" test/fail.py
---- TEST RESULTS -------------------------------------------------------------
-
-  test/fail.py                                  : FAIL    
-
-    FAILING TEST STDOUT
-
-    FAILING TEST STDERR
-
---- TESTS THAT DID NOT PASS --------------------------------------------------
-
-  test/fail.py                                  : FAIL    
-
-
---- STATISTICS ---------------------------------------------------------------
-
-       1        tests total
-
-       1 (100%) tests FAIL
+expect_stderr = """\
+FAILING TEST STDERR
 """
 
-test.run(arguments = 'test/fail.py', status = 1, stdout = expect)
+test.run(arguments='test/fail.py',
+         status=1,
+         stdout=expect_stdout,
+         stderr=expect_stderr)
 
 test.pass_test()
 

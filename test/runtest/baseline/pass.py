@@ -30,30 +30,26 @@ Test how we handle a passing test specified on the command line.
 
 import TestRuntest
 
+python = TestRuntest.python
+
 test = TestRuntest.TestRuntest()
 
 test.subdir('test')
 
 test.write_passing_test(['test', 'pass.py'])
 
-# NOTE:  The "test/pass.py   : PASS" line has spaces at the end.
+expect_stdout = """\
+%(python)s -tt test/pass.py
+PASSING TEST STDOUT
+""" % locals()
 
-expect = r"""qmtest run --output baseline.qmr --format none --result-stream="scons_tdb.AegisBaselineStream" test/pass.py
---- TEST RESULTS -------------------------------------------------------------
-
-  test/pass.py                                  : PASS    
-
---- TESTS WITH UNEXPECTED OUTCOMES -------------------------------------------
-
-  test/pass.py                                  : PASS    
-
-
---- STATISTICS ---------------------------------------------------------------
-
-       1 (100%) tests unexpected PASS
+expect_stderr = """\
+PASSING TEST STDERR
 """
 
-test.run(arguments = '-b . test/pass.py', stdout = expect)
+test.run(arguments='-b . test',
+         stdout=expect_stdout,
+         stderr=expect_stderr)
 
 test.pass_test()
 

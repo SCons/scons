@@ -40,7 +40,13 @@ test.write_no_result_test(['test', 'no_result.py'])
 
 test.write_passing_test(['test', 'pass.py'])
 
-test.run(arguments = '-o aegis.out --aegis test', status=1)
+expect_stderr = """\
+FAILING TEST STDERR
+NO RESULT TEST STDERR
+PASSING TEST STDERR
+"""
+
+test.run(arguments = '-o aegis.out --aegis test', stderr=expect_stderr)
 
 expect = """\
 test_result = [
