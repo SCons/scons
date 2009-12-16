@@ -34,6 +34,7 @@ import os.path
 
 import TestRuntest
 
+python = TestRuntest.python
 test_fail_py = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
 test_pass_py = os.path.join('test', 'pass.py')
@@ -48,41 +49,31 @@ test.write_no_result_test(['test', 'no_result.py'])
 
 test.write_passing_test(['test', 'pass.py'])
 
-# NOTE:  The "test/fail.py : FAIL" and "test/pass.py : PASS" lines both
-# have spaces at the end.
+expect_stdout = """\
+%(python)s -tt test/fail.py
+FAILING TEST STDOUT
+%(python)s -tt test/no_result.py
+NO RESULT TEST STDOUT
+%(python)s -tt test/pass.py
+PASSING TEST STDOUT
 
-expect = r"""qmtest run --output baseline.qmr --format none --result-stream="scons_tdb.AegisBaselineStream" test
---- TEST RESULTS -------------------------------------------------------------
+Failed the following test:
+\ttest/fail.py
 
-  %(test_fail_py)s                                  : FAIL    
-
-    FAILING TEST STDOUT
-
-    FAILING TEST STDERR
-
-  %(test_no_result_py)s                             : NO_RESULT
-
-    NO RESULT TEST STDOUT
-
-    NO RESULT TEST STDERR
-
-  %(test_pass_py)s                                  : PASS    
-
---- TESTS WITH UNEXPECTED OUTCOMES -------------------------------------------
-
-  %(test_no_result_py)s                             : NO_RESULT
-
-  %(test_pass_py)s                                  : PASS    
-
-
---- STATISTICS ---------------------------------------------------------------
-
-       1 ( 33%%) tests as expected
-       1 ( 33%%) tests unexpected PASS
-       1 ( 33%%) tests unexpected NO_RESULT
+NO RESULT from the following test:
+\ttest/no_result.py
 """ % locals()
 
-test.run(arguments = '-b . test', status = 1, stdout = expect)
+expect_stderr = """\
+FAILING TEST STDERR
+NO RESULT TEST STDERR
+PASSING TEST STDERR
+"""
+
+test.run(arguments='-b . test',
+         status=1,
+         stdout=expect_stdout,
+         stderr=expect_stderr)
 
 test.pass_test()
 

@@ -91,8 +91,6 @@ NO RESULT from the following test:
 """ % locals()
 
 expect_stderr = """\
-Warning:  found neither qmtest nor qmtest.py on $PATH;
-\tassuming --noqmtest option.
 FAILING TEST STDERR
 NO RESULT TEST STDERR
 PASSING TEST STDERR

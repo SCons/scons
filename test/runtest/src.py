@@ -33,11 +33,12 @@ import os.path
 
 import TestRuntest
 
-test = TestRuntest.TestRuntest(verbose=1)
+test = TestRuntest.TestRuntest()
 
 test.subdir(['src'],
             ['src', 'suite'])
 
+python = TestRuntest.python
 src_passTests_py = os.path.join('src', 'passTests.py')
 src_suite_passTests_py = os.path.join('src', 'suite', 'passTests.py')
 
@@ -49,29 +50,19 @@ test.write_passing_test(['src', 'suite', 'pass.py'])
 
 test.write_passing_test(['src', 'suite', 'passTests.py'])
 
-# NOTE:  The "test/pass.py : PASS" and "test/passTests.py : PASS" lines
-# both have spaces at the end.
-
-expect = r"""qmtest run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" src
---- TEST RESULTS -------------------------------------------------------------
-
-  %(src_passTests_py)s                              : PASS    
-
-  %(src_suite_passTests_py)s                        : PASS    
-
---- TESTS THAT DID NOT PASS --------------------------------------------------
-
-  None.
-
-
---- STATISTICS ---------------------------------------------------------------
-
-       2        tests total
-
-       2 (100%%) tests PASS
+expect_stdout = """\
+%(python)s -tt src/passTests.py
+PASSING TEST STDOUT
+%(python)s -tt src/suite/passTests.py
+PASSING TEST STDOUT
 """ % locals()
 
-test.run(arguments = 'src', stdout = expect)
+expect_stderr = """\
+PASSING TEST STDERR
+PASSING TEST STDERR
+""" % locals()
+
+test.run(arguments='src', stdout=expect_stdout, stderr=expect_stderr)
 
 test.pass_test()
 

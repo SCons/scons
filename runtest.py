@@ -373,6 +373,8 @@ except ImportError:
                 self.status = childerr.close()
                 if not self.status:
                     self.status = 0
+                else:
+                    self.status = self.status >> 8
     else:
         class PopenExecutor(Base):
             def execute(self):
@@ -381,13 +383,16 @@ except ImportError:
                 self.stdout = p.fromchild.read()
                 self.stderr = p.childerr.read()
                 self.status = p.wait()
+                self.status = self.status >> 8
 else:
     class PopenExecutor(Base):
         def execute(self):
-            p = subprocess.Popen(self.command_str, shell=True)
-            p.stdin.close()
+            p = subprocess.Popen(self.command_str,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 shell=True)
             self.stdout = p.stdout.read()
-            self.stdout = p.stderr.read()
+            self.stderr = p.stderr.read()
             self.status = p.wait()
 
 class Aegis(SystemExecutor):
@@ -575,6 +580,25 @@ if old_pythonpath:
 
 tests = []
 
+def find_Tests_py(tdict, dirname, names):
+    for n in filter(lambda n: n[-8:] == "Tests.py", names):
+        tdict[os.path.join(dirname, n)] = 1
+
+def find_py(tdict, dirname, names):
+    tests = filter(lambda n: n[-3:] == ".py", names)
+    try:
+        excludes = open(os.path.join(dirname,".exclude_tests")).readlines()
+    except (OSError, IOError):
+        pass
+    else:
+        for exclude in excludes:
+            exclude = string.split(exclude, '#' , 1)[0]
+            exclude = string.strip(exclude)
+            if not exclude: continue
+            tests = filter(lambda n, ex = exclude: n != ex, tests)
+    for n in tests:
+        tdict[os.path.join(dirname, n)] = 1
+
 if args:
     if spe:
         for a in args:
@@ -589,7 +613,18 @@ if args:
                         break
     else:
         for a in args:
-            tests.extend(glob.glob(a))
+            for path in glob.glob(a):
+                if os.path.isdir(path):
+                    tdict = {}
+                    if path[:3] == 'src':
+                        os.path.walk(path, find_Tests_py, tdict)
+                    elif path[:4] == 'test':
+                        os.path.walk(path, find_py, tdict)
+                    t = tdict.keys()
+                    t.sort()
+                    tests.extend(t)
+                else:
+                    tests.append(path)
 elif testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = filter(lambda x: x[0] != '#', tests)
@@ -607,28 +642,8 @@ elif all and not qmtest:
     # by the Aegis packaging build to make sure that we're building
     # things correctly.)
     tdict = {}
-
-    def find_Tests_py(tdict, dirname, names):
-        for n in filter(lambda n: n[-8:] == "Tests.py", names):
-            tdict[os.path.join(dirname, n)] = 1
     os.path.walk('src', find_Tests_py, tdict)
-
-    def find_py(tdict, dirname, names):
-        tests = filter(lambda n: n[-3:] == ".py", names)
-        try:
-            excludes = open(os.path.join(dirname,".exclude_tests")).readlines()
-        except (OSError, IOError):
-            pass
-        else:
-            for exclude in excludes:
-                exclude = string.split(exclude, '#' , 1)[0]
-                exclude = string.strip(exclude)
-                if not exclude: continue
-                tests = filter(lambda n, ex = exclude: n != ex, tests)
-        for n in tests:
-            tdict[os.path.join(dirname, n)] = 1
     os.path.walk('test', find_py, tdict)
-
     if format == '--aegis' and aegis:
         cmd = "aegis -list -unf pf 2>/dev/null"
         for line in os.popen(cmd, "r").readlines():
@@ -716,6 +731,7 @@ class Unbuffered:
         return getattr(self.file, attr)
 
 sys.stdout = Unbuffered(sys.stdout)
+sys.stderr = Unbuffered(sys.stderr)
 
 if list_only:
     for t in tests:
