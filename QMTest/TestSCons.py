@@ -419,7 +419,6 @@ class TestSCons(TestCommon):
         """
         msg = "Warning:  the %s option is not yet implemented\n" % option
         kw['stderr'] = msg
-        kw['status'] = 1
         if arguments:
             # If it's a long option and the argument string begins with '=',
             # it's of the form --foo=bar and needs no separating space.
