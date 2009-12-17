@@ -120,6 +120,9 @@ RELEASE X.X.X - XXX
 
     - Fix problem with filenames of sideeffects when the user changes
       the name of the output file from the latex default
+      
+    - Add scanning of files included in Latex by means of \lstinputlisting{}
+      Patch from Stefan Hepp.
 
 RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 

@@ -151,6 +151,7 @@ class LaTeX(SCons.Scanner.Base):
     of the file being searched:
     env['TEXINPUTS'] for "input" and "include" keywords
     env['TEXINPUTS'] for "includegraphics" keyword
+    env['TEXINPUTS'] for "lstinputlisting" keyword
     env['BIBINPUTS'] for "bibliography" keyword
     env['BSTINPUTS'] for "bibliographystyle" keyword
 
@@ -162,7 +163,8 @@ class LaTeX(SCons.Scanner.Base):
                      'includegraphics': 'TEXINPUTS',
                      'bibliography': 'BIBINPUTS',
                      'bibliographystyle': 'BSTINPUTS',
-                     'usepackage': 'TEXINPUTS'}
+                     'usepackage': 'TEXINPUTS',
+                     'lstinputlisting': 'TEXINPUTS'}
     env_variables = SCons.Util.unique(keyword_paths.values())
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
@@ -172,7 +174,7 @@ class LaTeX(SCons.Scanner.Base):
         # Without the \n,  the ^ could match the beginning of a *previous*
         # line followed by one or more newline characters (i.e. blank
         # lines), interfering with a match on the next line.
-        regex = r'^[^%\n]*\\(include|includegraphics(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
+        regex = r'^[^%\n]*\\(include|includegraphics(?:\[[^\]]+\])?|lstinputlisting(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
         self.cre = re.compile(regex, re.M)
         self.graphics_extensions = graphics_extensions
 
