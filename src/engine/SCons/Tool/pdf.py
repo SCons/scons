@@ -64,7 +64,7 @@ def generate2(env):
 
     env['EPSTOPDF']      = 'epstopdf'
     env['EPSTOPDFFLAGS'] = SCons.Util.CLVar('')
-    env['EPSTOPDFCOM']   = '$EPSTOPDF $EPSTOPDFFLAGS ${SOURCE} -o ${TARGET}'
+    env['EPSTOPDFCOM']   = '$EPSTOPDF $EPSTOPDFFLAGS ${SOURCE} --outfile=${TARGET}'
 
 def exists(env):
     # This only puts a skeleton Builder in place, so if someone
