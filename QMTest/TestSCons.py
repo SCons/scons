@@ -1129,6 +1129,10 @@ class TimeSCons(TestSCons):
         "real work" is done.
         """
         kw['options'] = kw.get('options', '') + ' --help'
+        # Ignore the exit status.  If the --help run dies, we just
+        # won't report any statistics for it, but we can still execute
+        # the full and null builds.
+        kw['status'] = None
         # TODO(1.5)
         #self.run(*args, **kw)
         apply(self.run, args, kw)
