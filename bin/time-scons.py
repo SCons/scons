@@ -114,9 +114,11 @@ class CommandRunner:
             if stdout is sys.stdout:
                 # Same as passing sys.stdout, except works with python2.4.
                 subout = None
-            else:
+            elif stdout is None:
                 # Open pipe for anything else so Popen works on python2.4.
                 subout = subprocess.PIPE
+            else:
+                subout = stdout
             if stderr is sys.stderr:
                 # Same as passing sys.stdout, except works with python2.4.
                 suberr = None
@@ -124,19 +126,12 @@ class CommandRunner:
                 # Merge with stdout if stderr isn't specified.
                 suberr = subprocess.STDOUT
             else:
-                # Open pipe for anything else so Popen works on python2.4.
-                suberr = subprocess.PIPE
+                suberr = stderr
             p = subprocess.Popen(command,
                                  shell=(sys.platform == 'win32'),
                                  stdout=subout,
                                  stderr=suberr)
             p.wait()
-            if stdout is None:
-                self.stdout = p.stdout.read()
-            elif stdout is not sys.stdout:
-                stdout.write(p.stdout.read())
-            if stderr not in (None, sys.stderr):
-                stderr.write(p.stderr.read())
             return p.returncode
 
     def run(self, command, display=None, stdout=None, stderr=None):
