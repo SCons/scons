@@ -33,11 +33,12 @@ import xml.sax.handler
 SubversionURL = 'http://scons.tigris.org/svn/scons'
 
 
-# This is the earliest revision when the TimeSCons scripts collected
-# "real," stable timings.  If we're timing a revision prior to this,
-# we'll forcibly update the TimeSCons pieces of the tree to this revision
-# to collect consistent timings for earlier revisions.
-TimeSCons_revision = 4547
+# This is the baseline revision when the TimeSCons scripts first
+# stabilized and collected "real," consistent timings.  If we're timing
+# a revision prior to this, we'll forcibly update the TimeSCons pieces
+# of the tree to this revision to collect consistent timings for earlier
+# revisions.
+TimeSCons_revision = 4557
 
 # The pieces of the TimeSCons infrastructure that are necessary to
 # produce consistent timings, even when the rest of the tree is from
@@ -149,10 +150,11 @@ class CommandRunner:
 
         Returns the exit status of the first failed command, or 0 on success.
         """
+        status = 0
         for command in command_list:
-            status = self.run(command, **kw)
-            if status:
-                return status
+            s = self.run(command, **kw)
+            if s and status == 0:
+                status = s
         return 0
 
 
@@ -182,14 +184,14 @@ def get_svn_revisions(branch, revisions=None):
     return sorted(handler.revisions)
 
 
-def script_commands(script):
+def script_commands(scripts):
     """
     Returns a list of the commands to be executed to test the specified
-    TimeSCons script.  This involves building SCons (specifically the
+    TimeSCons scripts.  This involves building SCons (specifically the
     'tar-gz' Alias that creates and unpacks a SCons .tar.gz package,
     in order to have the *.py files compiled to *.pyc) after first
     removing the build directory, and then actually calling runtest.py
-    to run the timing script.
+    to run the timing scripts.
     """
     commands = []
     if os.path.exists('build'):
@@ -197,12 +199,10 @@ def script_commands(script):
             ['mv', 'build', 'build.OLD'],
             ['rm', '-rf', 'build.OLD'],
         ])
-    commands.extend([
-        [sys.executable, 'bootstrap.py', 'tar-gz'],
-        # --noqmtest is necessary for the log to contain the
-        # actual scons output (which qmtest normally swallows).
-        [sys.executable, 'runtest.py', '--noqmtest', '-p', 'tar-gz', script],
-    ])
+    commands.append([sys.executable, 'bootstrap.py', 'tar-gz'])
+    for script in scripts:
+        c = [sys.executable, 'runtest.py', '-p', 'tar-gz', script]
+        commands.append(c)
     return commands
 
 def do_revisions(cr, opts, branch, revisions, scripts):
@@ -215,10 +215,15 @@ def do_revisions(cr, opts, branch, revisions, scripts):
     stdout = sys.stdout
     stderr = sys.stderr
 
+    status = 0
+
     for this_revision in revisions:
 
-        if opts.logfiles:
-            log_file = os.path.join(opts.origin, '%s.log' % this_revision)
+        if opts.logsdir and not opts.no_exec:
+            # TODO:  This sticks the output for all of the scripts
+            # in a single log.  These should really be separated.
+            log_name = '%s.log' % this_revision
+            log_file = os.path.join(opts.origin, opts.logsdir, log_name)
             stdout = open(log_file, 'w')
             stderr = None
 
@@ -230,8 +235,7 @@ def do_revisions(cr, opts, branch, revisions, scripts):
             commands.append(['svn', 'up', '-q', '-r', str(TimeSCons_revision)]
                             + TimeSCons_pieces)
 
-        for script in scripts:
-            commands.extend(script_commands(script))
+        commands.extend(script_commands(scripts))
 
         if int(this_revision) < int(TimeSCons_revision):
             # "Revert" the pieces that we previously updated to the
@@ -240,20 +244,28 @@ def do_revisions(cr, opts, branch, revisions, scripts):
             commands.append(['svn', 'up', '-q', '-r', str(this_revision)]
                             + TimeSCons_pieces)
 
-        status = cr.run_list(commands, stdout=stdout, stderr=stderr)
-        if status:
-            return status
+        s = cr.run_list(commands, stdout=stdout, stderr=stderr)
+        if s and status == 0:
+            status = s
 
-    return 0
+        if stdout not in (sys.stdout, None):
+            stdout.close()
+            stdout = None
+
+    return status
+
+Usage = """\
+time-scons.py [-hnq] [-r REVISION ...] [--branch BRANCH]
+              [--logsdir DIR] [--svn] SCRIPT ..."""
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = optparse.OptionParser(usage="time-scons.py [-hnq] [-r REVISION ...] [--branch BRANCH] [--svn] SCRIPT ...")
+    parser = optparse.OptionParser(usage=Usage)
     parser.add_option("--branch", metavar="BRANCH", default="trunk",
                       help="time revision on BRANCH")
-    parser.add_option("--logfiles", action="store_true",
+    parser.add_option("--logsdir", metavar="DIR", default='.',
                       help="generate separate log files for each revision")
     parser.add_option("-n", "--no-exec", action="store_true",
                       help="no execute, just print the command line")
@@ -283,6 +295,9 @@ def main(argv=None):
         # TODO(sgk):  parse this for SVN-style revision strings
         revisions = opts.revision
 
+    if opts.logsdir and not os.path.exists(opts.logsdir):
+        os.makedirs(opts.logsdir)
+
     if revisions:
         opts.origin = os.getcwd()
         tempdir = tempfile.mkdtemp(prefix='time-scons-')
@@ -293,11 +308,8 @@ def main(argv=None):
             os.chdir(opts.origin)
             shutil.rmtree(tempdir)
     else:
-        for script in scripts:
-            commands = script_commands(script)
-            status = cr.run_list(commands, stdout=sys.stdout, stderr=sys.stderr)
-            if status:
-                return status
+        commands = script_commands(scripts)
+        status = cr.run_list(commands, stdout=sys.stdout, stderr=sys.stderr)
 
     return status
 
