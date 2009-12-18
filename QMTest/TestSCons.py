@@ -1080,6 +1080,7 @@ class TimeSCons(TestSCons):
             #self.calibration(*args, **kw)
             apply(self.calibration, args, kw)
         else:
+            self.uptime()
             # TODO(1.5)
             #self.help(*args, **kw)
             #self.full(*args, **kw)
@@ -1107,6 +1108,18 @@ class TimeSCons(TestSCons):
             # TODO(1.5)
             #self.trace(name, trace, *args)
             apply(self.trace, (name, trace), args)
+
+    def uptime(self):
+        try:
+            fp = open('/proc/loadavg')
+        except EnvironmentError:
+            pass
+        else:
+            avg1, avg5, avg15 = fp.readline().split(" ")[:3]
+            fp.close()
+            self.trace('load-average',  'average1', avg1, 'processes')
+            self.trace('load-average',  'average5', avg5, 'processes')
+            self.trace('load-average',  'average15', avg15, 'processes')
 
     def collect_stats(self, input):
         result = {}
