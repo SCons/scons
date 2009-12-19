@@ -38,7 +38,7 @@ SubversionURL = 'http://scons.tigris.org/svn/scons'
 # a revision prior to this, we'll forcibly update the TimeSCons pieces
 # of the tree to this revision to collect consistent timings for earlier
 # revisions.
-TimeSCons_revision = 4567
+TimeSCons_revision = 4569
 
 # The pieces of the TimeSCons infrastructure that are necessary to
 # produce consistent timings, even when the rest of the tree is from
@@ -208,7 +208,7 @@ def prepare_commands():
 
 def script_command(script):
     """Returns the command to actually invoke the specified timing
-    script using our "built" scons."
+    script using our "built" scons."""
     return [sys.executable, 'runtest.py', '-x', 'build/usr/bin/scons', script]
 
 def do_revisions(cr, opts, branch, revisions, scripts):
