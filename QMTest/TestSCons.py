@@ -241,6 +241,8 @@ class TestSCons(TestCommon):
                     kw['program'] = 'scons'
                 else:
                     kw['program'] = 'scons.py'
+            elif not os.path.isabs(kw['program']):
+                kw['program'] = os.path.join(self.orig_cwd, kw['program'])
         if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
             kw['interpreter'] = [python, '-tt']
         if not kw.has_key('match'):
