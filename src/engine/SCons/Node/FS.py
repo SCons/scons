@@ -2110,7 +2110,8 @@ class RootDir(Dir):
             result = self._lookupDict[k]
         except KeyError:
             if not create:
-                raise SCons.Errors.UserError
+                msg = "No such file or directory: '%s' in '%s' (and create is False)" % (p, str(self))
+                raise SCons.Errors.UserError, msg
             # There is no Node for this path name, and we're allowed
             # to create it.
             dir_name, file_name = os.path.split(p)
