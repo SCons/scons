@@ -324,7 +324,8 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                                     env_decider=env.decide_source):
                         env_decider(dependency, target, prev_ni)
                         return True
-                    env.Decider(force_build)
+                    if env.decide_source.func_code is not force_build.func_code:
+                        env.Decider(force_build)
                 env['PSTDOUT'] = env['PSTDERR'] = s
                 try:
                     sconf.cached = 0
