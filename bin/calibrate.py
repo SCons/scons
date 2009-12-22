@@ -34,11 +34,13 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = optparse.OptionParser(usage="calibrate.py [-h] [--min time] [--max time] timings/*/*-run.py")
+    parser = optparse.OptionParser(usage="calibrate.py [-h] [-p PACKAGE], [--min time] [--max time] timings/*/*-run.py")
     parser.add_option('--min', type='float', default=9.5,
                       help="minimum acceptable execution time (default 9.5)")
     parser.add_option('--max', type='float', default=10.00,
                       help="maximum acceptable execution time (default 10.00)")
+    parser.add_option('-p', '--package', type="string",
+                      help="package type")
     opts, args = parser.parse_args(argv[1:])
 
     os.environ['TIMESCONS_CALIBRATE'] = '1'
@@ -47,7 +49,10 @@ def main(argv=None):
         if len(args) > 1:
             print arg + ':'
 
-        command = [sys.executable, 'runtest.py', '--noqmtest', arg]
+        command = [sys.executable, 'runtest.py', '--noqmtest']
+        if opts.package:
+            command.extend(['-p', opts.package])
+        command.append(arg)
 
         run = 1
         good = 0
