@@ -241,7 +241,13 @@ check_list = [
             'src/script/MANIFEST.in',
             'src/script/setup.cfg',
             'test/Fortran/.exclude_tests',
+            'timings/changelog.html',
+            'timings/graph.html',
+            'timings/index.html',
         ],
+        remove_patterns = [
+            '*.js',
+        ]
     ),
 
 ]
