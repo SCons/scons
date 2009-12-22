@@ -97,7 +97,7 @@ Config.source = "http://scons.tigris.org/svn/scons/trunk";
 Config.changeLinkPrefix = "changelog.html?mode=html&range=";
 Config.builder = "TODO";
 Config.buildbotLink = "http://buildbot.scons.org:8010/";
-Config.detailTabs = ['view-change'];
+Config.detailTabs = {'view-change': 'CL'};
 document.title = Config.title + ' - ' + Config.buildslave;
 
 var did_position_details = false;
@@ -358,7 +358,7 @@ document.write('Timings for the <b>' + Config.title + '</b> configuration ' +
 
 <div id="explain">
 The vertical axis is measured values, and the horizontal
-axis is the revision number for the build being tested.
+axis is the revision number being tested.
 </div>
 <p></p>
 <div id="switcher">
