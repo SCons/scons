@@ -6,11 +6,12 @@
       var perf_url = DirName(window.location.href);
       function DisplayGraph(name, heighth, width, thumbnail, graph) {
         var params = ParseParams();
-        var url = perf_url + '/' + name + '/graph.html' +
-                  '?history=50' +
-                  '&lookout';
+        var url = perf_url + '/' + name + '/graph.html' + '?lookout';
         //var debug = url;
         var debug = '';
+        if ('history' in params) {
+          url += '&history=' + params.history
+        }
         if (typeof graph == 'undefined') {
           if ('graph' in params) {
             graph = params.graph;
