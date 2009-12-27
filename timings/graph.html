@@ -165,7 +165,14 @@ function on_clicked_plot(prev_cl, cl) {
   // Define sources for detail tabs
   if ('view-change' in Config.detailTabs) {
     document.getElementById('view-change').
-        setAttribute('src', Config.changeLinkPrefix + prev_cl + ':' + cl);
+        // TODO:  The tigris.org source browser only lets us pull up
+        // one revision.  That's okay for our current behavior of
+        // timing each revision separately, but if we go back to merging
+        // build requests from multiple revisions, we'll need an
+        // intermediary CGI script.
+        //setAttribute('src', Config.changeLinkPrefix + prev_cl + ':' + cl);
+        setAttribute('src',
+          'http://scons.tigris.org/source/browse/scons?view=rev&revision=' + cl);
   }
   if ('view-pages' in Config.detailTabs) {
     document.getElementById('view-pages').
