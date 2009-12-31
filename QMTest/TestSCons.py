@@ -675,7 +675,8 @@ import getopt
 import sys
 import string
 import re
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'io:', [])
+# -w and -z are fake options used in test/QT/QTFLAGS.py
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'io:wz', [])
 output = None
 impl = 0
 opt_string = ''
@@ -683,6 +684,7 @@ for opt, arg in cmd_opts:
     if opt == '-o': output = open(arg, 'wb')
     elif opt == '-i': impl = 1
     else: opt_string = opt_string + ' ' + opt
+output.write("/* mymoc.py%s */\\n" % opt_string)
 for a in args:
     contents = open(a, 'rb').read()
     a = string.replace(a, '\\\\', '\\\\\\\\')
@@ -703,6 +705,7 @@ output_arg = 0
 impl_arg = 0
 impl = None
 source = None
+opt_string = ''
 for arg in sys.argv[1:]:
     if output_arg:
         output = open(arg, 'wb')
@@ -714,11 +717,14 @@ for arg in sys.argv[1:]:
         output_arg = 1
     elif arg == "-impl":
         impl_arg = 1
+    elif arg[0:1] == "-":
+        opt_string = opt_string + ' ' + arg
     else:
         if source:
             sys.exit(1)
         source = open(arg, 'rb')
         sourceFile = arg
+output.write("/* myuic.py%s */\\n" % opt_string)
 if impl:
     output.write( '#include "' + impl + '"\\n' )
     includes = re.findall('<include.*?>(.*?)</include>', source.read())
@@ -741,7 +747,7 @@ void my_qt_symbol(const char *arg);
 #include "../include/my_qobject.h"
 #include <stdio.h>
 void my_qt_symbol(const char *arg) {
-  printf( arg );
+  fputs( arg, stdout );
 }
 """)
 
