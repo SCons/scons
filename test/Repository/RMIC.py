@@ -91,6 +91,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class Foo1 extends UnicastRemoteObject implements Hello {
 
+    static final long serialVersionUID = 0;
+
     public Foo1() throws RemoteException {
         super();
     }
@@ -127,6 +129,8 @@ import java.rmi.RMISecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Foo2 extends UnicastRemoteObject implements Hello {
+
+    static final long serialVersionUID = 0;
 
     public Foo2() throws RemoteException {
         super();
@@ -207,6 +211,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class Foo1 extends UnicastRemoteObject implements Hello {
 
+    static final long serialVersionUID = 0;
+
     public Foo1() throws RemoteException {
         super();
     }
@@ -243,6 +249,8 @@ import java.rmi.RMISecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Foo2 extends UnicastRemoteObject implements Hello {
+
+    static final long serialVersionUID = 0;
 
     public Foo2() throws RemoteException {
         super();
