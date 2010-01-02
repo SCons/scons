@@ -56,16 +56,16 @@ plot '-' title "Startup" with lines lt 1, \\
      '-' title "Full build" with lines lt 2, \\
      '-' title "Up-to-date build" with lines lt 3
 # Startup
-0 0.00[012]
-1 0.00[012]
+0 \d.\d\d\d
+1 \d.\d\d\d
 e
 # Full build
-0 0.00[012]
-1 0.00[012]
+0 \d.\d\d\d
+1 \d.\d\d\d
 e
 # Up-to-date build
-0 0.00[012]
-1 0.00[012]
+0 \d.\d\d\d
+1 \d.\d\d\d
 e
 """
 
