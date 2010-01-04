@@ -182,7 +182,7 @@ class LaTeX(SCons.Scanner.Base):
             node = node.rfile()
             if not node.exists():
                 return []
-            return self.scan(node, path)
+            return self.scan_recurse(node, path)
 
         class FindMultiPathDirs:
             """The stock FindPathDirs function has the wrong granularity:
@@ -226,7 +226,7 @@ class LaTeX(SCons.Scanner.Base):
 
         kw['function'] = _scan
         kw['path_function'] = FindMultiPathDirs(LaTeX.keyword_paths)
-        kw['recursive'] = 1
+        kw['recursive'] = 0
         kw['skeys'] = suffixes
         kw['scan_check'] = LaTeXScanCheck(suffixes)
         kw['name'] = name
@@ -279,13 +279,13 @@ class LaTeX(SCons.Scanner.Base):
                 return i, include
         return i, include
 
-    def scan(self, node, path=()):
+    def scan(self, node):
         # Modify the default scan function to allow for the regular
         # expression to return a comma separated list of file names
         # as can be the case with the bibliography keyword.
 
         # Cache the includes list in node so we only scan it once:
-        path_dict = dict(list(path))
+        # path_dict = dict(list(path))
         noopt_cre = re.compile('\[.*$')
         if node.includes != None:
             includes = node.includes
@@ -310,6 +310,19 @@ class LaTeX(SCons.Scanner.Base):
             includes = split_includes
             node.includes = includes
 
+        return includes
+
+    def scan_recurse(self, node, path=()):
+        """ do a recursive scan of the top level target file
+        This lets us search for included files based on the
+        directory of the main file just as latex does"""
+
+        path_dict = dict(list(path))
+        
+        queue = [] 
+        queue.extend( self.scan(node) )
+        seen = {}
+
         # This is a hand-coded DSU (decorate-sort-undecorate, or
         # Schwartzian transform) pattern.  The sort key is the raw name
         # of the file as specifed on the \include, \input, etc. line.
@@ -319,7 +332,16 @@ class LaTeX(SCons.Scanner.Base):
         # is actually found in a Repository or locally."""
         nodes = []
         source_dir = node.get_dir()
-        for include in includes:
+        #for include in includes:
+        while queue:
+            
+            include = queue.pop()
+            try:
+                if seen[include[1]] == 1:
+                    continue
+            except KeyError:
+                seen[include[1]] = 1
+
             #
             # Handle multiple filenames in include[1]
             #
@@ -333,6 +355,9 @@ class LaTeX(SCons.Scanner.Base):
             else:
                 sortkey = self.sort_key(n)
                 nodes.append((sortkey, n))
+                # recurse down 
+                queue.extend( self.scan(n) )
+
         #
         nodes.sort()
         nodes = map(lambda pair: pair[1], nodes)

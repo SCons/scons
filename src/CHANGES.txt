@@ -128,6 +128,13 @@ RELEASE X.X.X - XXX
       since this works on all platforms.
       Patch from Stefan Hepp.
 
+    - Change scanner to properly search for included file from the
+      directory of the main file instead of the file it is included from.
+      Also update the emitter to add the .aux file associated with
+      \include{filename} commands. This makes sure the required directories
+      if any are created for variantdir cases.
+      Half of the patch from Stefan Hepp.
+
 RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
 
   From Stanislav Baranov:
