@@ -94,6 +94,7 @@ beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
 
 # search to find all files included by Latex
 include_re = re.compile(r'^[^%\n]*\\(?:include|input){([^}]*)}', re.MULTILINE)
+includeOnly_re = re.compile(r'^[^%\n]*\\(?:include){([^}]*)}', re.MULTILINE)
 
 # search to find all graphics files included by Latex
 includegraphics_re = re.compile(r'^[^%\n]*\\(?:includegraphics(?:\[[^\]]+\])?){([^}]*)}', re.MULTILINE)
@@ -530,7 +531,7 @@ def tex_pdf_emitter(target, source, env):
 
     return (target, source)
 
-def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir):
+def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir, aux_files):
     """ For theFile (a Node) update any file_tests and search for graphics files
     then find all included files and call ScanFiles recursively for each of them"""
 
@@ -542,6 +543,11 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
         if file_tests[i][0] is None:
             file_tests[i][0] = file_tests_search[i].search(content)
 
+    incResult = includeOnly_re.search(content)
+    if incResult:
+        aux_files.append(os.path.join(targetdir, incResult.group(1)))
+    if Verbose:
+        print "\include file names : ", aux_files
     # recursively call this on each of the included files
     inc_files = [ ]
     inc_files.extend( include_re.findall(content) )
@@ -553,7 +559,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
     for src in inc_files:
         srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
         if srcNode is not None:
-            file_tests = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
+            file_tests = ScanFiles(srcNode, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir, aux_files)
     if Verbose:
         print " done scanning ",str(theFile)
     return file_tests
@@ -655,7 +661,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     if Verbose:
         print "search path ",paths
 
-    file_tests = ScanFiles(source[0], target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir)
+    aux_files = []
+    file_tests = ScanFiles(source[0], target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir, aux_files)
 
     for (theSearch,suffix_list) in file_tests:
         if theSearch:
@@ -665,6 +672,12 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                     print "side effect :",targetbase + suffix
                 env.Clean(target[0],targetbase + suffix)
 
+    for aFile in aux_files:
+        aFile_base = SCons.Util.splitext(aFile)[0]
+        env.SideEffect(aFile_base + '.aux',target[0])
+        if Verbose:
+            print "side effect :",aFile_base + '.aux'
+        env.Clean(aFile_base + '.aux',target[0])
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
     if os.path.exists(flsfilename):
