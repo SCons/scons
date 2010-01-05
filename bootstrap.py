@@ -80,18 +80,14 @@ executing it for the full build of all the packages, as specified in our
 local SConstruct file.
 """
 
-bootstrap_dir = 'bootstrap'
 try:
-    script_dir = os.path.split(__file__)[0]
+    script_dir = os.path.abspath(os.path.dirname(__file__))
 except NameError:
     # Pre-2.3 versions of Python don't have __file__.
-    script_dir = os.path.split(sys.argv[0])[0]
-    if not script_dir:
-        script_dir = os.getcwd()
-    elif not os.path.is_abs(script_dir):
-        script_dir = os.path.join(os.getcwd(), script_dir)
-if script_dir:
-    bootstrap_dir = os.path.join(script_dir, bootstrap_dir)
+    script_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+
+bootstrap_dir = os.path.join(script_dir, 'bootstrap')
+
 pass_through_args = []
 update_only = None
 
@@ -102,8 +98,7 @@ def must_copy(dst, src):
         return 1
     return open(dst, 'rb').read() != open(src, 'rb').read()
 
-search = [os.path.dirname(sys.argv[0])]
-if search[0] == '': search[0] = '.'
+search = [script_dir]
 
 # Note:  We don't use the getopt module to process the command-line
 # arguments because we'd have to teach it about all of the SCons options.
