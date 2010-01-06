@@ -73,7 +73,7 @@ The
 .I SConstruct
 file can specify subsidiary
 configuration files using the
-.B SConscript()
+.BR SConscript ()
 function.
 By convention,
 these subsidiary files are named
@@ -5321,17 +5321,24 @@ The
 '\" .I src_dir
 '\" arguments are interpreted relative to the directory of the calling
 argument is interpreted relative to the directory of the calling
-.BR SConscript file.
+.B SConscript
+file.
 See the description of the
 .BR VariantDir ()
 function below for additional details and restrictions.
 
 If
-'\" .IR variant_dir " is present, but"
+.I variant_dir
+is present,
+'\" but
 '\" .IR src_dir " is not,"
-.IR variant_dir " is present,"
-the source directory is relative to the called
-.BR SConscript " file."
+the source directory is the directory in which the
+.B SConscript
+file resides and the
+.B SConscript
+file is evaluated as if it were in the
+.I variant_dir
+directory:
 .ES
 SConscript('src/SConscript', variant_dir = 'build')
 .EE
@@ -5342,7 +5349,7 @@ SConscript('build/SConscript')
 .EE
 This later paradigm is often used when the sources are
 in the same directory as the
-.BR SConstruct file:
+.BR SConstruct:
 .ES
 SConscript('SConscript', variant_dir = 'build')
 .EE
