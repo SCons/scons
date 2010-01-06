@@ -691,13 +691,15 @@ class BuilderTestCase(unittest.TestCase):
         env['CNT'] = [0]
         tgt = builder(env, target=outfiles[0], source=infiles[0])[0]
         s = str(tgt)
-        assert s == test.workpath('0.out'), s
+        t = os.path.normcase(test.workpath('0.out'))
+        assert os.path.normcase(s) == t, s
         tgt.prepare()
         tgt.build()
         assert env['CNT'][0] == 1, env['CNT'][0]
         tgt = builder(env, outfiles[1], infiles[1])[0]
         s = str(tgt)
-        assert s == test.workpath('1.out'), s
+        t = os.path.normcase(test.workpath('1.out'))
+        assert os.path.normcase(s) == t, s
         tgt.prepare()
         tgt.build()
         assert env['CNT'][0] == 2
@@ -713,9 +715,10 @@ class BuilderTestCase(unittest.TestCase):
             # support anyway, don't bother trying to test for it.
             pass
         else:
-            s = str(tgts)
-            expect = str([test.workpath('2.out'), test.workpath('3.out')])
-            assert s == expect, s
+            s = map(str, tgts)
+            expect = [test.workpath('2.out'), test.workpath('3.out')]
+            expect = map(os.path.normcase, expect)
+            assert map(os.path.normcase, s) == expect, s
         for t in tgts: t.prepare()
         tgts[0].build()
         tgts[1].build()
