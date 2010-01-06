@@ -43,6 +43,8 @@ test = TestSCons.TestSCons()
 
 test.subdir('src', ['src', 'sub'])
 
+_python_ = TestSCons._python_
+
 # Because this test sets SConsignFile(None), we execute our fake
 # scripts directly, not by feeding them to the Python executable.
 # That is, we chmod 0755 and us a "#!/usr/bin/env python" first
@@ -81,8 +83,8 @@ test.write('SConstruct', """\
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
-                  CCCOM = r'%(fake_cc_py)s $TARGET $SOURCES',
-                  LINKCOM = r'%(fake_link_py)s $TARGET $SOURCES')
+                  CCCOM = r'%(_python_)s %(fake_cc_py)s $TARGET $SOURCES',
+                  LINKCOM = r'%(_python_)s %(fake_link_py)s $TARGET $SOURCES')
 env.PrependENVPath('PATHEXT', '.PY')
 env.SConscript('src/SConstruct', exports=['env'])
 env.Object('foo.c')
@@ -92,8 +94,8 @@ test.write(['src', 'SConstruct'], """\
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
-                  CCCOM = r'%(fake_cc_py)s $TARGET $SOURCES',
-                  LINKCOM = r'%(fake_link_py)s $TARGET $SOURCES')
+                  CCCOM = r'%(_python_)s %(fake_cc_py)s $TARGET $SOURCES',
+                  LINKCOM = r'%(_python_)s %(fake_link_py)s $TARGET $SOURCES')
 env.PrependENVPath('PATHEXT', '.PY')
 p = env.Program('prog', ['main.c', '../foo$OBJSUFFIX', 'sub/bar.c'])
 env.Default(p)
