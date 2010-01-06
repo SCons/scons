@@ -89,8 +89,20 @@ def object_emitter(target, source, env, parent_emitter):
 
     parent_emitter(target, source, env)
 
-    if env.has_key('PCH') and env['PCH']:
-        env.Depends(target, env['PCH'])
+    # Add a dependency, but only if the target (e.g. 'Source1.obj')
+    # doesn't correspond to the pre-compiled header ('Source1.pch').
+    # If the basenames match, then this was most likely caused by
+    # someone adding the source file to both the env.PCH() and the
+    # env.Program() calls, and adding the explicit dependency would
+    # cause a cycle on the .pch file itself.
+    #
+    # See issue #2505 for a discussion of what to do if it turns
+    # out this assumption causes trouble in the wild:
+    # http://scons.tigris.org/issues/show_bug.cgi?id=2505
+    if env.has_key('PCH'):
+        pch = env['PCH']
+        if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
+            env.Depends(target, pch)
 
     return (target, source)
 
