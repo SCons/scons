@@ -38,10 +38,11 @@ test = TestSCons_time.TestSCons_time()
 
 test.write_sample_project('foo.tar')
 
+_python_ = TestSCons_time._python_
 my_svn_py = test.write_fake_svn_py('my_svn.py')
 
 test.write('config', """\
-svn = r'%(my_svn_py)s'
+svn = r'%(_python_)s %(my_svn_py)s'
 """ % locals())
 
 test.run(arguments = 'run -f config --svn http://xyzzy --number 617,716 foo.tar')
