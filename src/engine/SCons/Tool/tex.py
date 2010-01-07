@@ -677,7 +677,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         env.SideEffect(aFile_base + '.aux',target[0])
         if Verbose:
             print "side effect :",aFile_base + '.aux'
-        env.Clean(aFile_base + '.aux',target[0])
+        env.Clean(target[0],aFile_base + '.aux')
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
     if os.path.exists(flsfilename):
