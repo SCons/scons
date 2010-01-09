@@ -79,6 +79,7 @@ TESTING_PACKAGES = [
     'sun-java6-jdk',
     'swig',
     'texlive-base-bin',
+    'texlive-extra-utils',
     'texlive-latex-base',
     'texlive-latex-extra',
     'zip',
