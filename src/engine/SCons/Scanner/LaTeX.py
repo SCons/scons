@@ -336,11 +336,19 @@ class LaTeX(SCons.Scanner.Base):
         while queue:
             
             include = queue.pop()
+            # TODO(1.5):  more compact:
+            #try:
+            #    if seen[include[1]] == 1:
+            #        continue
+            #except KeyError:
+            #    seen[include[1]] = 1
             try:
-                if seen[include[1]] == 1:
-                    continue
+                already_seen = seen[include[1]]
             except KeyError:
                 seen[include[1]] = 1
+                already_seen = False
+            if already_seen:
+                continue
 
             #
             # Handle multiple filenames in include[1]
