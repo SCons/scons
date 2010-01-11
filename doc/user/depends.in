@@ -1458,8 +1458,9 @@
 
     <scons_example name="ignore">
       <file name="SConstruct" printme="1">
-      hello = Program('hello.c')
-      Ignore(hello, 'hello.h')
+      hello_obj=Object('hello.c')
+      hello = Program(hello_obj)
+      Ignore(hello_obj, 'hello.h')
       </file>
       <file name="hello.c">
       #include "hello.h"
