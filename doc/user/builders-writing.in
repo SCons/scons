@@ -900,11 +900,13 @@ This functionality could be invoked as in the following example:
     <para>
 
     The <filename>site_scons</filename> directory gives you a place to
-    put Python modules you can import into your SConscripts
-    (site_scons), add-on tools that can integrate into &SCons;
-    (site_scons/site_tools), and a site_scons/site_init.py file that
-    gets read before any &SConstruct; or &SConscript;, allowing you to
-    change &SCons;'s default behavior.
+    put Python modules you can import into your &SConscript; files
+    (<filename>site_scons</filename>),
+    add-on tools that can integrate into &SCons;
+    (<filename>site_scons/site_tools</filename>),
+    and a <filename>site_scons/site_init.py</filename> file that
+    gets read before any &SConstruct; or &SConscript; file,
+    allowing you to change &SCons;'s default behavior.
 
     </para>
 
@@ -914,8 +916,8 @@ This functionality could be invoked as in the following example:
     for instance) and you'd like to use it in your project, the
     <filename>site_scons</filename> dir is the simplest place to put it.
     Tools come in two flavors; either a Python function that operates on
-    an &Environment; or a Python file containing two functions, exists()
-    and generate().
+    an &Environment; or a Python file containing two functions,
+    <function>exists()</function> and <function>generate()</function>.
 
     </para>
 
@@ -990,7 +992,9 @@ This functionality could be invoked as in the following example:
       to include in &SConscript;s; just put that module in
       <filename>site_scons/my_utils.py</filename> or any valid Python module name of your
       choice.  For instance you can do something like this in
-      <filename>site_scons/my_utils.py</filename> to add build_id and MakeWorkDir functions:
+      <filename>site_scons/my_utils.py</filename> to add
+      <function>build_id</function> and <function>MakeWorkDir</function>
+      functions:
     </para>
       
     <scons_example name="site2">
