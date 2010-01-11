@@ -287,37 +287,6 @@ will generate an error.
 </summary>
 </cvar>
 
-<cvar name="MSVS_IGNORE_IDE_PATHS">
-<summary>
-Tells the MS Visual Studio tools to use minimal INCLUDE, LIB, and PATH settings,
-instead of the settings from the IDE.
-
-For Visual Studio, SCons will (by default) automatically determine
-where MSVS is installed, and use the LIB, INCLUDE, and PATH variables
-set by the IDE.  You can override this behavior by setting these
-variables after Environment initialization, or by setting
-<envar>MSVS_IGNORE_IDE_PATHS = 1</envar>
-in the Environment initialization.
-Specifying this will not leave these unset, but will set them to a
-minimal set of paths needed to run the tools successfully.
-
-For VS6, the mininimal set is:
-<example>
-   INCLUDE:'&lt;VSDir&gt;\VC98\ATL\include;&lt;VSDir&gt;\VC98\MFC\include;&lt;VSDir&gt;\VC98\include'
-   LIB:'&lt;VSDir&gt;\VC98\MFC\lib;&lt;VSDir&gt;\VC98\lib'
-   PATH:'&lt;VSDir&gt;\Common\MSDev98\bin;&lt;VSDir&gt;\VC98\bin'
-</example>
-For VS7, it is:
-<example>
-   INCLUDE:'&lt;VSDir&gt;\Vc7\atlmfc\include;&lt;VSDir&gt;\Vc7\include'
-   LIB:'&lt;VSDir&gt;\Vc7\atlmfc\lib;&lt;VSDir&gt;\Vc7\lib'
-   PATH:'&lt;VSDir&gt;\Common7\Tools\bin;&lt;VSDir&gt;\Common7\Tools;&lt;VSDir&gt;\Vc7\bin'
-</example>
-
-Where '&lt;VSDir&gt;' is the installed location of Visual Studio.
-</summary>
-</cvar>
-
 <cvar name="MSVS_PROJECT_BASE_PATH">
 <summary>
 The string
@@ -408,84 +377,6 @@ attribute of the
 <literal>GlobalSection(SourceCodeControl)</literal>
 section of the Microsoft Visual Studio solution file.
 There is no default value.
-</summary>
-</cvar>
-
-<cvar name="MSVS_USE_MFC_DIRS">
-<summary>
-Tells the MS Visual Studio tool(s) to use
-the MFC directories in its default paths
-for compiling and linking.
-The &cv-MSVS_USE_MFC_DIRS; variable has no effect if the
-<envar>INCLUDE</envar>
-or
-<envar>LIB</envar>
-environment variables are set explictly.
-
-Under Visual Studio version 6,
-setting
-&cv-MSVS_USE_MFC_DIRS;
-to a non-zero value
-adds the
-<filename>ATL\include</filename>
-and
-<filename>MFC\include</filename>
-directories to
-the default
-<envar>INCLUDE</envar>
-external environment variable,
-and adds the
-<filename>MFC\lib</filename>
-directory to
-the default
-<envar>LIB</envar>
-external environment variable.
-
-Under Visual Studio version 7,
-setting
-&cv-MSVS_USE_MFC_DIRS;
-to a non-zero value
-adds the
-<filename>atlmfc\include</filename>
-directory to the default
-<envar>INCLUDE</envar>
-external environment variable,
-and adds the
-<filename>atlmfc\lib</filename>
-directory to the default
-<envar>LIB</envar>
-external environment variable.
-
-Under Visual Studio version 8,
-setting
-&cv-MSVS_USE_MFC_DIRS;
-to a non-zero value will,
-by default,
-add the
-<filename>atlmfc\include</filename>
-directory to the default
-<envar>INCLUDE</envar>
-external environment variable,
-and the
-<filename>atlmfc\lib</filename>
-directory to the default
-<envar>LIB</envar>
-external environment variable.
-If, however, the
-<envar>['MSVS']['PLATFORMSDKDIR']</envar>
-variable is set,
-then the
-<filename>mfc</filename>
-and the
-<filename>atl</filename>
-subdirectories of the
-<envar>PLATFORMSDKDIR</envar>
-are added to the default value of the
-<envar>INCLUDE</envar>
-external environment variable,
-and the default value of the
-<envar>LIB</envar>
-external environment variable is left untouched.
 </summary>
 </cvar>
 

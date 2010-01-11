@@ -41,8 +41,7 @@ if sys.platform != 'win32':
 test.write('SConstruct',"""
 import os
 
-env = Environment(CPPPATH = '${TARGET.dir}',
-                  MSVS_USE_MFC_DIRS = 1)
+env = Environment(CPPPATH = '${TARGET.dir}')
 Export('env')
 
 VariantDir('build', 'src')

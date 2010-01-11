@@ -80,6 +80,9 @@ RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
         these tools have been redefined to remove unnecessary nested $(
         and $) character strings.
 
+    --  MSVS_USE_MFC_DIRS and MSVS_IGNORE_IDE_PATHS are obsoleted and
+        have no effect.
+
   Please note the following important changes since release 1.1.0:
 
     --  THE $CHANGED_SOURCES, $CHANGED_TARGETS, $UNCHANGED_SOURCES
