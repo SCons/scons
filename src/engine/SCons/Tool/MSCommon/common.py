@@ -60,12 +60,27 @@ def is_win64():
     # Unfortunately, python does not provide a useful way to determine
     # if the underlying Windows OS is 32-bit or 64-bit.  Worse, whether
     # the Python itself is 32-bit or 64-bit affects what it returns,
-    # so nothing in sys.* or os.* help.  So we go to the registry to
-    # look directly for a clue from Windows, caching the result to
-    # avoid repeated registry calls.
+    # so nothing in sys.* or os.* help.  
+
+    # Apparently the best solution is to use env vars that Windows
+    # sets.  If PROCESSOR_ARCHITECTURE is not x86, then the python
+    # process is running in 64 bit mode (on a 64-bit OS, 64-bit
+    # hardware, obviously).
+    # If this python is 32-bit but the OS is 64, Windows will set
+    # ProgramW6432 and PROCESSOR_ARCHITEW6432 to non-null.
+    # (Checking for HKLM\Software\Wow6432Node in the registry doesn't
+    # work, because some 32-bit installers create it.)
     global _is_win64
     if _is_win64 is None:
-        _is_win64 = has_reg(r"Software\Wow6432Node")
+        # I structured these tests to make it easy to add new ones or
+        # add exceptions in the future, because this is a bit fragile.
+        _is_win64 = False
+        if os.environ.get('PROCESSOR_ARCHITECTURE','x86') != 'x86':
+            _is_win64 = True
+        if os.environ.get('PROCESSOR_ARCHITEW6432'):
+            _is_win64 = True
+        if os.environ.get('ProgramW6432'):
+            _is_win64 = True
     return _is_win64
 
 
