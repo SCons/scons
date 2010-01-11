@@ -426,7 +426,12 @@ def command_scons(args, c, test, dict):
             os.environ[key] = val
     test.run(interpreter = sys.executable,
              program = scons_py,
-             arguments = '-f - ' + string.join(args),
+             # We use ToolSurrogates to capture win32 output by "building"
+             # examples using a fake win32 tool chain.  Suppress the
+             # warnings that come from the new revamped VS support so
+             # we can build doc on (Linux) systems that don't have
+             # Visual C installed.
+             arguments = '--warn=no-visual-c-missing -f - ' + string.join(args),
              chdir = test.workpath('WORK'),
              stdin = Stdin % dict)
     os.environ.update(save_vals)
