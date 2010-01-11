@@ -1424,8 +1424,9 @@
     </para>
 
     <programlisting>
-      hello = Program('hello.c')
-      Ignore(hello, 'hello.h')
+      hello_obj=Object('hello.c')
+      hello = Program(hello_obj)
+      Ignore(hello_obj, 'hello.h')
     </programlisting>
 
     <!-- XXX mention that you can use lists for target and source? -->
