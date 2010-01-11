@@ -411,11 +411,11 @@
 
     This will build &SCons;,
     install the &scons; script
-    in the default system scripts directory
+    in the python which is used to run the setup.py's scripts directory
     (<filename>/usr/local/bin</filename> or
     <filename>C:\Python25\Scripts</filename>),
     and will install the &SCons; build engine
-    in an appropriate stand-alone library directory
+    in the corresponding library directory for the python used
     (<filename>/usr/local/lib/scons</filename> or
     <filename>C:\Python25\scons</filename>).
     Because these are system directories,
