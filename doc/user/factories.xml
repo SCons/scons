@@ -344,7 +344,7 @@
       Copy("tempdir/file.in", "file.in")
       process tempdir
       Move("file.out", "tempdir/output_file")
-      scons: *** [file.out] No such file or directory
+      scons: *** [file.out] tempdir/output_file: No such file or directory
     </screen>
 
   </section>
