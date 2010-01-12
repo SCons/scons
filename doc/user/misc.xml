@@ -473,7 +473,7 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      AttributeError: NodeList instance has no attribute 'abspath':
+      AttributeError: 'NodeList' object has no attribute 'abspath':
         File "/home/my/project/SConstruct", line 8:
           print object_file.abspath
     </screen>
