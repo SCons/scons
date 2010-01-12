@@ -198,7 +198,7 @@ version.
     TestCmd.where_is('foo', 'PATH1;PATH2', '.suffix3;.suffix4')
 """
 
-# Copyright 2000, 2001, 2002, 2003, 2004 Steven Knight
+# Copyright 2000-2010 Steven Knight
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
 # and disclaimer are retained in their original form.
@@ -215,8 +215,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.36.D001 2009/07/24 08:45:26 knight"
-__version__ = "0.36"
+__revision__ = "TestCmd.py 0.37.D001 2010/01/11 16:55:50 knight"
+__version__ = "0.37"
 
 import errno
 import os
@@ -828,7 +828,15 @@ def send_all(p, data):
 
 
 
-class TestCmd:
+try:
+    object
+except NameError:
+    class object:
+        pass
+
+
+
+class TestCmd(object):
     """Class TestCmd
     """
 
@@ -989,13 +997,13 @@ class TestCmd:
                            interpreter = None,
                            arguments = None):
         if program:
-            if type(program) is type('') and not os.path.isabs(program):
+            if type(program) == type('') and not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
         else:
             program = self.program
             if not interpreter:
                 interpreter = self.interpreter
-        if type(program) not in [type([]), type(())]:
+        if not type(program) in [type([]), type(())]:
             program = [program]
         cmd = list(program)
         if interpreter:
@@ -1003,7 +1011,7 @@ class TestCmd:
                 interpreter = [interpreter]
             cmd = list(interpreter) + cmd
         if arguments:
-            if type(arguments) is type(''):
+            if type(arguments) == type(''):
                 arguments = string.split(arguments)
             cmd.extend(arguments)
         return cmd
@@ -1147,6 +1155,14 @@ class TestCmd:
         if universal_newlines is None:
             universal_newlines = self.universal_newlines
 
+        # On Windows, if we make stdin a pipe when we plan to send 
+        # no input, and the test program exits before
+        # Popen calls msvcrt.open_osfhandle, that call will fail.
+        # So don't use a pipe for stdin if we don't need one.
+        stdin = kw.get('stdin', None)
+        if stdin is not None:
+            stdin = subprocess.PIPE
+
         combine = kw.get('combine', self.combine)
         if combine:
             stderr_value = subprocess.STDOUT
@@ -1154,7 +1170,7 @@ class TestCmd:
             stderr_value = subprocess.PIPE
 
         return Popen(cmd,
-                     stdin=subprocess.PIPE,
+                     stdin=stdin,
                      stdout=subprocess.PIPE,
                      stderr=stderr_value,
                      universal_newlines=universal_newlines)
@@ -1196,14 +1212,18 @@ class TestCmd:
             if self.verbose:
                 sys.stderr.write("chdir(" + chdir + ")\n")
             os.chdir(chdir)
-        p = self.start(program, interpreter, arguments, universal_newlines)
+        p = self.start(program,
+                       interpreter,
+                       arguments,
+                       universal_newlines,
+                       stdin=stdin)
         if stdin:
             if is_List(stdin):
                 for line in stdin:
                     p.stdin.write(line)
             else:
                 p.stdin.write(stdin)
-        p.stdin.close()
+            p.stdin.close()
 
         out = p.stdout.read()
         if p.stderr is None:
