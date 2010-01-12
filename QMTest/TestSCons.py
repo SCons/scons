@@ -959,6 +959,18 @@ print py_ver
 
         return [python] + string.split(string.strip(self.stdout()), '\n')
 
+    def start(self, *args, **kw):
+        """
+        Starts SCons in the test environment.
+
+        This method exists to tell Test{Cmd,Common} that we're going to
+        use standard input without forcing every .start() call in the
+        individual tests to do so explicitly.
+        """
+        if not kw.has_key('stdin'):
+            kw['stdin'] = True
+        return apply(TestCommon.start, (self,) + args, kw)
+
     def wait_for(self, fname, timeout=10.0, popen=None):
         """
         Waits for the specified file name to exist.
