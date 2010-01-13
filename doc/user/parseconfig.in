@@ -78,9 +78,22 @@
 
  </para>
 
+ <!--
+ This is how we used to generate the screen output below, but
+ as of (at least) Ubuntu Karmic, the pkg-config output for x11
+ no longer reports back an include directory.  Since this is just
+ for example anyway, we're just hard-coding the output.
+
  <scons_output example="ParseConfig1">
     <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
+ -->
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    ['/lib/compat', '/usr/X11/include']
+    scons: `.' is up to date.
+ </screen>
 
  <para>
 
@@ -109,6 +122,19 @@
    </file>
  </scons_example>
 
+ <!--
+ This is how we used to generate the screen output below, but
+ as of (at least) Ubuntu Karmic, the pkg-config output for x11
+ no longer reports back an include directory.  Since this is just
+ for example anyway, we're just hard-coding the output.
+
  <scons_output example="ParseConfig2">
     <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
+ -->
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    ['/usr/X11/include']
+    scons: `.' is up to date.
+ </screen>
