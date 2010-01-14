@@ -1485,6 +1485,55 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=env)
         assert c == "guux FFF BBB test", c
 
+    def test_get_contents_of_function_action(self):
+        """Test contents of a CommandGeneratorAction-generated FunctionAction
+        """
+
+        def LocalFunc():
+            pass
+
+        func_matches = [
+            "0,0,0,0,(),(),(d\000\000S),(),()",
+            "0,0,0,0,(),(),(d\x00\x00S),(),()",
+            ]
+        
+        meth_matches = [
+            "1,1,0,0,(),(),(d\000\000S),(),()",
+            "1,1,0,0,(),(),(d\x00\x00S),(),()",
+        ]
+
+        def f_global(target, source, env, for_signature):
+            return SCons.Action.Action(GlobalFunc)
+
+        def f_local(target, source, env, for_signature):
+            return SCons.Action.Action(LocalFunc)
+
+        env = Environment(XYZ = 'foo')
+
+        a = self.factory(f_global)
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in func_matches, repr(c)
+
+        a = self.factory(f_local)
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in func_matches, repr(c)
+
+        def f_global(target, source, env, for_signature):
+            return SCons.Action.Action(GlobalFunc, varlist=['XYZ'])
+
+        def f_local(target, source, env, for_signature):
+            return SCons.Action.Action(LocalFunc, varlist=['XYZ'])
+
+        matches_foo = map(lambda x: x + "foo", func_matches)
+
+        a = self.factory(f_global)
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in matches_foo, repr(c)
+
+        a = self.factory(f_local)
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in matches_foo, repr(c)
+
 
 class FunctionActionTestCase(unittest.TestCase):
 
@@ -1807,6 +1856,47 @@ class LazyActionTestCase(unittest.TestCase):
         env = Environment(FOO = [["This", "is", "a", "test"]])
         c = a.get_contents(target=[], source=[], env=env)
         assert c == "This is a test", c
+
+    def test_get_contents_of_function_action(self):
+        """Test fetching the contents of a lazy-evaluation FunctionAction
+        """
+
+        def LocalFunc():
+            pass
+
+        func_matches = [
+            "0,0,0,0,(),(),(d\000\000S),(),()",
+            "0,0,0,0,(),(),(d\x00\x00S),(),()",
+            ]
+        
+        meth_matches = [
+            "1,1,0,0,(),(),(d\000\000S),(),()",
+            "1,1,0,0,(),(),(d\x00\x00S),(),()",
+        ]
+
+        def factory(act, **kw):
+            return SCons.Action.FunctionAction(act, kw)
+
+
+        a = SCons.Action.Action("${FOO}")
+
+        env = Environment(FOO = factory(GlobalFunc))
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in func_matches, repr(c)
+
+        env = Environment(FOO = factory(LocalFunc))
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in func_matches, repr(c)
+
+        matches_foo = map(lambda x: x + "foo", func_matches)
+
+        env = Environment(FOO = factory(GlobalFunc, varlist=['XYZ']))
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in func_matches, repr(c)
+
+        env['XYZ'] = 'foo'
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c in matches_foo, repr(c)
 
 class ActionCallerTestCase(unittest.TestCase):
     def test___init__(self):
