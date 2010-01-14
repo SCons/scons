@@ -1505,7 +1505,9 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f_global(target, source, env, for_signature):
             return SCons.Action.Action(GlobalFunc)
 
-        def f_local(target, source, env, for_signature):
+        # TODO(1.5):
+        #def f_local(target, source, env, for_signature):
+        def f_local(target, source, env, for_signature, LocalFunc=LocalFunc):
             return SCons.Action.Action(LocalFunc)
 
         env = Environment(XYZ = 'foo')
@@ -1521,7 +1523,9 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f_global(target, source, env, for_signature):
             return SCons.Action.Action(GlobalFunc, varlist=['XYZ'])
 
-        def f_local(target, source, env, for_signature):
+        # TODO(1.5):
+        #def f_local(target, source, env, for_signature):
+        def f_local(target, source, env, for_signature, LocalFunc=LocalFunc):
             return SCons.Action.Action(LocalFunc, varlist=['XYZ'])
 
         matches_foo = map(lambda x: x + "foo", func_matches)
