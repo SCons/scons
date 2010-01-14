@@ -205,7 +205,7 @@ def Trace(msg, file=None, mode='w', tstamp=None):
     """Write a trace message to a file.  Whenever a file is specified,
     it becomes the default for the next call to Trace()."""
     global TraceDefault
-    global TimeStamp
+    global TimeStampDefault
     global PreviousTime
     if file is None:
         file = TraceDefault
