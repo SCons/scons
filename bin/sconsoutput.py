@@ -745,6 +745,10 @@ class MySGML(sgmllib.SGMLParser):
         # Massage addresses in object repr strings to a constant.
         address_re = re.compile(r' at 0x[0-9a-fA-F]*\>')
 
+        # Massage file names in stack traces (sometimes reported as absolute
+        # paths) to a consistent relative path.
+        engine_re = re.compile(r' File ".*/src/engine/SCons/')
+
         # Python 2.5 changed the stack trace when the module is read
         # from standard input from read "... line 7, in ?" to
         # "... line 7, in <module>".
@@ -769,6 +773,7 @@ class MySGML(sgmllib.SGMLParser):
                 content = string.join(lines, '\n' + p)
             if content:
                 content = address_re.sub(r' at 0x700000&gt;', content)
+                content = engine_re.sub(r' File "bootstrap/src/engine/SCons/', content)
                 content = file_re.sub(r'\1 <module>', content)
                 content = nodelist_re.sub(r"\1 'NodeList' object \2", content)
                 content = string.replace(content, '<', '&lt;')
