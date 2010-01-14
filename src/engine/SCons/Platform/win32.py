@@ -195,7 +195,7 @@ def get_system_root():
         return _system_root
 
     # A resonable default if we can't read the registry
-    val = os.environ.get('SystemRoot', "C:/WINDOWS")
+    val = os.environ.get('SystemRoot', "C:\\WINDOWS")
 
     if SCons.Util.can_read_reg:
         try:
