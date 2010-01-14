@@ -658,9 +658,8 @@ print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
         os.environ['SCONSFLAGS'] = string.join(sconsflags)
         try:
             result = apply(TestSCons.run, (self,)+args, kw)
-            pass
         finally:
-            sconsflags = save_sconsflags
+            os.environ['SCONSFLAGS'] = save_sconsflags or ''
         return result
 
 # Local Variables:
