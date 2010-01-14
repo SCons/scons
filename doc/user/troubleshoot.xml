@@ -289,9 +289,10 @@
         'ENV': {'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
         'ESCAPE': &lt;function escape at 0x700000&gt;,
         'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'HOST_ARCH': None,
+        'HOST_OS': None,
         'IDLSUFFIXES': ['.idl', '.IDL'],
         'INSTALL': &lt;function copyFunc at 0x700000&gt;,
-        'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': 'lib',
         'LIBPREFIXES': ['$LIBPREFIX'],
         'LIBSUFFIX': '.a',
@@ -311,6 +312,8 @@
         'SHOBJPREFIX': '$OBJPREFIX',
         'SHOBJSUFFIX': '$OBJSUFFIX',
         'SPAWN': &lt;function spawnvpe_spawn at 0x700000&gt;,
+        'TARGET_ARCH': None,
+        'TARGET_OS': None,
         'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0x700000&gt;,
         'TEMPFILEPREFIX': '@',
         'TOOLS': ['install', 'install'],
@@ -370,34 +373,32 @@
                          '.spp',
                          '.SPP'],
         'CXX': '$CC',
-        'CXXCOM': '$CXX /Fo$TARGET /c $SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM',
+        'CXXCOM': '$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM',
         'CXXFILESUFFIX': '.cc',
-        'CXXFLAGS': ['$CCFLAGS', '$(', '/TP', '$)'],
+        'CXXFLAGS': ['$(', '/TP', '$)'],
         'DSUFFIXES': ['.d'],
         'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
         'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
-        'ENV': { 'INCLUDE': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\include',
-                 'LIB': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\lib',
-                 'PATH': 'C:\\Program Files\\Microsoft Visual Studio\\Common\\tools\\WIN95;C:\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\bin;C:\\Program Files\\Microsoft Visual Studio\\Common\\tools;C:\\Program Files\\Microsoft Visual Studio/VC98\\bin',
+        'ENV': { 'PATH': 'C:\\WINDOWS\\System32',
                  'PATHEXT': '.COM;.EXE;.BAT;.CMD',
-                 'SystemRoot': 'C:/WINDOWS'},
+                 'SystemRoot': 'C:\\WINDOWS'},
         'ESCAPE': &lt;function escape at 0x700000&gt;,
         'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'HOST_ARCH': '',
+        'HOST_OS': 'win32',
         'IDLSUFFIXES': ['.idl', '.IDL'],
         'INCPREFIX': '/I',
         'INCSUFFIX': '',
         'INSTALL': &lt;function copyFunc at 0x700000&gt;,
-        'LATEXSUFFIXES': ['.tex', '.ltx', '.latex'],
         'LIBPREFIX': '',
         'LIBPREFIXES': ['$LIBPREFIX'],
         'LIBSUFFIX': '.lib',
         'LIBSUFFIXES': ['$LIBSUFFIX'],
         'MAXLINELENGTH': 2048,
-        'MSVS': {'VERSION': '6.0', 'VERSIONS': ['6.0']},
-        'MSVS_VERSION': '6.0',
+        'MSVC_SETUP_RUN': True,
         'OBJPREFIX': '',
         'OBJSUFFIX': '.obj',
-        'PCHCOM': '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS',
+        'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS',
         'PCHPDBFLAGS': ['${(PDB and "/Yd") or ""}'],
         'PLATFORM': 'win32',
         'PROGPREFIX': '',
@@ -414,7 +415,7 @@
         'SHCCFLAGS': ['$CCFLAGS'],
         'SHCFLAGS': ['$CFLAGS'],
         'SHCXX': '$CXX',
-        'SHCXXCOM': '$SHCXX /Fo$TARGET /c $SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM',
+        'SHCXXCOM': '$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM',
         'SHCXXFLAGS': ['$CXXFLAGS'],
         'SHELL': None,
         'SHLIBPREFIX': '',
@@ -423,6 +424,8 @@
         'SHOBJSUFFIX': '$OBJSUFFIX',
         'SPAWN': &lt;function spawn at 0x700000&gt;,
         'STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME': 1,
+        'TARGET_ARCH': '',
+        'TARGET_OS': 'win32',
         'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0x700000&gt;,
         'TEMPFILEPREFIX': '@',
         'TOOLS': ['msvc', 'install', 'install'],
@@ -431,6 +434,7 @@
         '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
         '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
+        '_MSVC_OUTPUT_FLAG': &lt;function msvc_output_flag at 0x700000&gt;,
         '_concat': &lt;function _concat at 0x700000&gt;,
         '_defines': &lt;function _defines at 0x700000&gt;,
         '_stripixes': &lt;function _stripixes at 0x700000&gt;}
@@ -501,11 +505,9 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'INCLUDE': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\include',
-        'LIB': 'C:\\Program Files\\Microsoft Visual Studio/VC98\\lib',
-        'PATH': 'C:\\Program Files\\Microsoft Visual Studio\\Common\\tools\\WIN95;C:\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\bin;C:\\Program Files\\Microsoft Visual Studio\\Common\\tools;C:\\Program Files\\Microsoft Visual Studio/VC98\\bin',
+      { 'PATH': 'C:\\WINDOWS\\System32',
         'PATHEXT': '.COM;.EXE;.BAT;.CMD',
-        'SystemRoot': 'C:/WINDOWS'}
+        'SystemRoot': 'C:\\WINDOWS'}
       scons: done reading SConscript files.
       scons: Building targets ...
       scons: `.' is up to date.
@@ -1117,9 +1119,13 @@
       scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
       scons: internal stack trace:
         File "bootstrap/src/engine/SCons/Job.py", line 197, in start
+          task.prepare()
         File "bootstrap/src/engine/SCons/Script/Main.py", line 167, in prepare
-        File "bootstrap/src/engine/SCons/Taskmaster.py", line 188, in prepare
-        File "bootstrap/src/engine/SCons/Executor.py", line 175, in prepare
+          return SCons.Taskmaster.OutOfDateTask.prepare(self)
+        File "bootstrap/src/engine/SCons/Taskmaster.py", line 190, in prepare
+          executor.prepare()
+        File "bootstrap/src/engine/SCons/Executor.py", line 397, in prepare
+          raise SCons.Errors.StopError, msg % (s, self.batches[0].targets[0])
     </screen>
 
     <para>
