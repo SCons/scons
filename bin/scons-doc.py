@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
-
+#!/usr/bin/env python
 #
-# Copyright (c) 2003 Steven Knight
+# Copyright (c) 2010 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,14 +20,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "/home/scons/sconsoutput/branch.0/baseline/src/sconsoutput.py 0.4.D001 2004/11/27 18:44:37 knight"
 
 #
-# sconsoutput.py -   an SGML preprocessor for capturing SCons output
-#                    and inserting it into examples in our DocBook
-#                    documentation
+# scons-doc.py -    an SGML preprocessor for capturing SCons output
+#                   and inserting it into examples in our DocBook
+#                   documentation
 #
 # This script looks for some SGML tags that describe SCons example
 # configurations and commands to execute in those configurations, and
@@ -93,8 +89,8 @@ __revision__ = "/home/scons/sconsoutput/branch.0/baseline/src/sconsoutput.py 0.4
 # can see if there are any problems executing the command.
 #
 
+import optparse
 import os
-import os.path
 import re
 import sgmllib
 import string
@@ -518,10 +514,11 @@ class MySGML(sgmllib.SGMLParser):
     Note that this doesn't work with the 1.5.2 sgmllib module, because
     that didn't have the ability to work with ENTITY declarations.
     """
-    def __init__(self):
+    def __init__(self, outfp):
         sgmllib.SGMLParser.__init__(self)
         self.examples = {}
         self.afunclist = []
+        self.outfp = outfp
 
     # The first set of methods here essentially implement pass-through
     # handling of most of the stuff in an SGML file.  We're really
@@ -532,21 +529,21 @@ class MySGML(sgmllib.SGMLParser):
         try:
             f = self.afunclist[-1]
         except IndexError:
-            sys.stdout.write(data)
+            self.outfp.write(data)
         else:
             f(data)
 
     def handle_comment(self, data):
-        sys.stdout.write('<!--' + data + '-->')
+        self.outfp.write('<!--' + data + '-->')
 
     def handle_decl(self, data):
-        sys.stdout.write('<!' + data + '>')
+        self.outfp.write('<!' + data + '>')
 
     def unknown_starttag(self, tag, attrs):
         try:
             f = self.example.afunc
         except AttributeError:
-            f = sys.stdout.write
+            f = self.outfp.write
         if not attrs:
             f('<' + tag + '>')
         else:
@@ -556,13 +553,13 @@ class MySGML(sgmllib.SGMLParser):
             f('>')
 
     def unknown_endtag(self, tag):
-        sys.stdout.write('</' + tag + '>')
+        self.outfp.write('</' + tag + '>')
 
     def unknown_entityref(self, ref):
-        sys.stdout.write('&' + ref + ';')
+        self.outfp.write('&' + ref + ';')
 
     def unknown_charref(self, ref):
-        sys.stdout.write('&#' + ref + ';')
+        self.outfp.write('&#' + ref + ';')
 
     # Here is where the heavy lifting begins.  The following methods
     # handle the begin-end tags of our SCons examples.
@@ -586,7 +583,7 @@ class MySGML(sgmllib.SGMLParser):
         e = self.e
         files = filter(lambda f: f.printme, e.files)
         if files:
-            sys.stdout.write('<programlisting>')
+            self.outfp.write('<programlisting>')
             for f in files:
                 if f.printme:
                     i = len(f.data) - 1
@@ -595,10 +592,10 @@ class MySGML(sgmllib.SGMLParser):
                     output = string.replace(f.data[:i+1], '__ROOT__', '')
                     output = string.replace(output, '<', '&lt;')
                     output = string.replace(output, '>', '&gt;')
-                    sys.stdout.write(output)
+                    self.outfp.write(output)
             if e.data and e.data[0] == '\n':
                 e.data = e.data[1:]
-            sys.stdout.write(e.data + '</programlisting>')
+            self.outfp.write(e.data + '</programlisting>')
         delattr(self, 'e')
         self.afunclist = self.afunclist[:-1]
 
@@ -669,8 +666,8 @@ class MySGML(sgmllib.SGMLParser):
 
     def end_scons_example_file(self):
         f = self.f
-        sys.stdout.write('<programlisting>')
-        sys.stdout.write(f.data + '</programlisting>')
+        self.outfp.write('<programlisting>')
+        self.outfp.write(f.data + '</programlisting>')
         delattr(self, 'f')
 
     def start_scons_output(self, attrs):
@@ -736,7 +733,7 @@ class MySGML(sgmllib.SGMLParser):
         while o.prefix[i-1] != '\n':
             i = i - 1
 
-        sys.stdout.write('<screen>' + o.prefix[:i])
+        self.outfp.write('<screen>' + o.prefix[:i])
         p = o.prefix[i:]
 
         # Regular expressions for making the doc output consistent,
@@ -759,9 +756,9 @@ class MySGML(sgmllib.SGMLParser):
         nodelist_re = re.compile(r'(AttributeError:) NodeList instance (has no attribute \S+)')
 
         for c in o.commandlist:
-            sys.stdout.write(p + Prompt[o.os])
+            self.outfp.write(p + Prompt[o.os])
             d = string.replace(c.data, '__ROOT__', '')
-            sys.stdout.write('<userinput>' + d + '</userinput>\n')
+            self.outfp.write('<userinput>' + d + '</userinput>\n')
 
             e = string.replace(c.data, '__ROOT__', t.workpath('ROOT'))
             args = string.split(e)
@@ -778,11 +775,11 @@ class MySGML(sgmllib.SGMLParser):
                 content = nodelist_re.sub(r"\1 'NodeList' object \2", content)
                 content = string.replace(content, '<', '&lt;')
                 content = string.replace(content, '>', '&gt;')
-                sys.stdout.write(p + content + '\n')
+                self.outfp.write(p + content + '\n')
 
         if o.data[0] == '\n':
             o.data = o.data[1:]
-        sys.stdout.write(o.data + '</screen>')
+        self.outfp.write(o.data + '</screen>')
         delattr(self, 'o')
         self.afunclist = self.afunclist[:-1]
 
@@ -813,39 +810,52 @@ class MySGML(sgmllib.SGMLParser):
 
     def end_sconstruct(self):
         f = self.f
-        sys.stdout.write('<programlisting>')
+        self.outfp.write('<programlisting>')
         output = string.replace(f.data, '__ROOT__', '')
-        sys.stdout.write(output + '</programlisting>')
+        self.outfp.write(output + '</programlisting>')
         delattr(self, 'f')
         self.afunclist = self.afunclist[:-1]
 
-# The main portion of the program itself, short and simple.
-try:
-    file = sys.argv[1]
-except IndexError:
-    file = '-'
+def process(filename):
+    if filename == '-':
+        f = sys.stdin
+    else:
+        try:
+            f = open(filename, 'r')
+        except EnvironmentError, e:
+            sys.stderr.write('%s: %s\n' % (filename, msg))
+            return 1
 
-if file == '-':
-    f = sys.stdin
-else:
-    try:
-        f = open(file, 'r')
-    except IOError, msg:
-        print file, ":", msg
-        sys.exit(1)
+    data = f.read()
+    if f is not sys.stdin:
+        f.close()
 
-data = f.read()
-if f is not sys.stdin:
-    f.close()
+    if data.startswith('<?xml '):
+        first_line, data = data.split('\n', 1)
+        sys.stdout.write(first_line + '\n')
 
-if data.startswith('<?xml '):
-    first_line, data = data.split('\n', 1)
-    sys.stdout.write(first_line + '\n')
+    x = MySGML(sys.stdout)
+    for c in data:
+        x.feed(c)
+    x.close()
 
-x = MySGML()
-for c in data:
-    x.feed(c)
-x.close()
+    return 0
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    parser = optparse.OptionParser()
+    opts, args = parser.parse_args(argv[1:])
+
+    if not args:
+        args = ['-']
+
+    for arg in args:
+        process(arg)
+
+if __name__ == "__main__":
+    sys.exit(main())
 
 # Local Variables:
 # tab-width:4
