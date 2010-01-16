@@ -1563,7 +1563,7 @@
     <para>
 
     If we list <filename>version.c</filename> as an actual source file,
-    though, then <filename>version.o</filename>
+    though, then the <filename>version.o</filename> file
     will get rebuilt every time we run &SCons;
     (because the &SConstruct; file itself changes
     the contents of <filename>version.c</filename>)
@@ -1573,27 +1573,30 @@
 
     </para>
 
-    <!--
-
-    <scons_output example="no-Requires">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-    </scons_output>
-
-    -->
-
     <screen>
-      % <userinput>scons -Q</userinput>
-      gcc -o hello.o -c hello.c
-      gcc -o version.o -c version.c
-      gcc -o hello hello.o version.o
-      % <userinput>scons -Q</userinput>
-      gcc -o version.o -c version.c
-      gcc -o hello hello.o version.o
-      % <userinput>scons -Q</userinput>
-      gcc -o version.o -c version.c
-      gcc -o hello hello.o version.o
+      % <userinput>scons -Q hello</userinput>
+      cc -o hello.o -c hello.c
+      cc -o version.o -c version.c
+      cc -o hello hello.o version.o
+      % <userinput>sleep 1</userinput>
+      % <userinput>scons -Q hello</userinput>
+      cc -o version.o -c version.c
+      cc -o hello hello.o version.o
+      % <userinput>sleep 1</userinput>
+      % <userinput>scons -Q hello</userinput>
+      cc -o version.o -c version.c
+      cc -o hello hello.o version.o
     </screen>
+
+    <para>
+
+    (Note that for the above example to work,
+    we &sleep; for one second in between each run,
+    so that the &SConstruct; file will create a
+    <filename>version.c</filename> file with a time string
+    that's one second later than the previous run.)
+
+    </para>
 
     <para>
 
@@ -1639,27 +1642,35 @@
     <para>
 
     With these changes,
-    we get the desired behavior of
-    re-building the <filename>version.o</filename> file,
-    and therefore re-linking the <filename>hello</filename> executable,
-    only when the <filename>hello.c</filename> has changed:
+    we get the desired behavior of only
+    re-linking the <filename>hello</filename> executable
+    when the <filename>hello.c</filename> has changed,
+    even though the <filename>version.o</filename> is rebuilt
+    (because the &SConstruct; file still changes the
+    <filename>version.c</filename> contents directly each run):
 
     </para>
 
     <screen>
-      % <userinput>scons -Q</userinput>
+      % <userinput>scons -Q hello</userinput>
       cc -o version.o -c version.c
       cc -o hello.o -c hello.c
       cc -o hello version.o hello.o
-      % <userinput>scons -Q</userinput>
-      scons: `.' is up to date.
+      % <userinput>sleep 1</userinput>
+      % <userinput>scons -Q hello</userinput>
+      cc -o version.o -c version.c
+      scons: `hello' is up to date.
+      % <userinput>sleep 1</userinput>
       % <userinput>edit hello.c</userinput>
           [CHANGE THE CONTENTS OF hello.c]
-      % <userinput>scons -Q</userinput>
+      % <userinput>scons -Q hello</userinput>
+      cc -o version.o -c version.c
       cc -o hello.o -c hello.c
       cc -o hello version.o hello.o
-      % <userinput>scons -Q</userinput>
-      scons: `.' is up to date.
+      % <userinput>sleep 1</userinput>
+      % <userinput>scons -Q hello</userinput>
+      cc -o version.o -c version.c
+      scons: `hello' is up to date.
     </screen>
 
   </section>

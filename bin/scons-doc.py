@@ -490,11 +490,15 @@ def command_ls(args, c, test, dict):
     else:
         return ls(test.workpath('WORK'))
 
+def command_sleep(args, c, test, dict):
+    time.sleep(int(args[0]))
+
 CommandDict = {
     'scons' : command_scons,
     'touch' : command_touch,
     'edit'  : command_edit,
     'ls'    : command_ls,
+    'sleep' : command_sleep,
 }
 
 def ExecuteCommand(args, c, t, dict):

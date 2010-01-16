@@ -50,6 +50,7 @@
 <!ENTITY rmic           "<application>rmic</application>">
 <!ENTITY SCons          "<application>SCons</application>">
 <!ENTITY ScCons         "<application>ScCons</application>">
+<!ENTITY sleep          "<application>sleep</application>">
 <!ENTITY swig           "<application>swig</application>">
 <!ENTITY tar            "<application>tar</application>">
 <!ENTITY tex            "<application>tex</application>">
