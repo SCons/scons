@@ -259,7 +259,7 @@
       </para>
 
       <programlisting>
-        Program('hello.c')
+        Object('hello.c')
         Decider('timestamp-newer')
       </programlisting>
 
@@ -272,13 +272,11 @@
       </para>
 
       <screen>
-         % <userinput>scons -Q hello</userinput>
+         % <userinput>scons -Q hello.o</userinput>
          cc -o hello.o -c hello.c
-         cc -o hello hello.o
          % <userinput>touch hello.c</userinput>
-         % <userinput>scons -Q hello</userinput>
+         % <userinput>scons -Q hello.o</userinput>
          cc -o hello.o -c hello.c
-         cc -o hello hello.o
       </screen>
 
       <para>
@@ -292,7 +290,7 @@
       </para>
 
       <programlisting>
-        Program('hello.c')
+        Object('hello.c')
         Decider('make')
       </programlisting>
 
@@ -327,7 +325,7 @@
       </para>
 
       <programlisting>
-        Program('hello.c')
+        Object('hello.c')
         Decider('timestamp-match')
       </programlisting>
 
@@ -344,13 +342,11 @@
       </para>
 
       <screen>
-         % <userinput>scons -Q hello</userinput>
+         % <userinput>scons -Q hello.o</userinput>
          cc -o hello.o -c hello.c
-         cc -o hello hello.o
          % <userinput>touch -t 198901010000 hello.c</userinput>
-         % <userinput>scons -Q hello</userinput>
+         % <userinput>scons -Q hello.o</userinput>
          cc -o hello.o -c hello.c
-         cc -o hello hello.o
       </screen>
 
       <para>
