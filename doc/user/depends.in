@@ -248,7 +248,7 @@
 
       <scons_example name="newer">
         <file name="SConstruct" printme="1">
-        Program('hello.c')
+        Object('hello.c')
         Decider('timestamp-newer')
         </file>
         <file name="hello.c">
@@ -265,9 +265,9 @@
       </para>
 
       <scons_output example="newer" os="posix">
-         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
          <scons_output_command>touch hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -281,7 +281,7 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
+        Object('hello.c')
         Decider('make')
       </sconstruct>
 
@@ -317,7 +317,7 @@
 
       <scons_example name="match">
         <file name="SConstruct" printme="1">
-        Program('hello.c')
+        Object('hello.c')
         Decider('timestamp-match')
         </file>
         <file name="hello.c">
@@ -338,9 +338,9 @@
       </para>
 
       <scons_output example="match" os="posix">
-         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
          <scons_output_command>touch -t 198901010000 hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
       </scons_output>
 
       <para>
