@@ -56,7 +56,7 @@
 
   <screen>
     % <userinput>scons -Q /</userinput>
-    [?1034hcc -o hello.o -c hello.c
+    cc -o hello.o -c hello.c
     cc -o hello hello.o
     Install file: "hello" as "/usr/bin/hello"
     Install file: "hello" as "install/bin/hello"
@@ -100,7 +100,7 @@
 
   <screen>
     % <userinput>scons -Q</userinput>
-    [?1034hcc -o test_stuff.o -c test_stuff.c
+    cc -o test_stuff.o -c test_stuff.c
     cc -o tests/test_stuff test_stuff.o
   </screen>
 
@@ -110,40 +110,9 @@
 
   <screen>
     C:\><userinput>scons -Q</userinput>
-    IndexError: list index out of range:
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\Main.py", line 1294:
-        _exec_main(parser, values)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\Main.py", line 1259:
-        _main(parser)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\Main.py", line 929:
-        SCons.Script._SConscript._SConscript(fs, script)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\SConscript.py", line 179:
-        exec sys.stdin in call_stack[-1].globals
-      File "&lt;stdin&gt;", line 219:
-        None
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\SConscript.py", line 614:
-        env = self.factory()
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\SConscript.py", line 594:
-        default_env = SCons.Defaults.DefaultEnvironment()
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Defaults.py", line 91:
-        _default_env = apply(SCons.Environment.Environment, args, kw)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Environment.py", line 1004:
-        apply_tools(self, tools, toolpath)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Environment.py", line 106:
-        env.Tool(tool)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Environment.py", line 1703:
-        tool(self)
-      File "&lt;stdin&gt;", line 67:
-        None
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\msvc.py", line 239:
-        mssdk.generate(env)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\mssdk.py", line 41:
-        mssdk_setup_env(env)
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\MSCommon\sdk.py", line 298:
-        mssdk = get_default_sdk()
-      File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\MSCommon\sdk.py", line 262:
-        return InstalledSDKList[0]
-    [?1034h
+    rc /fores.res res.rc
+    cl /Fotest_stuff.obj /c test_stuff.c /nologo
+    link /nologo /OUT:tests\test_stuff.exe test_stuff.obj res.res
   </screen>
 
   <para>

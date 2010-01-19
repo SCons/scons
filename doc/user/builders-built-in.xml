@@ -144,7 +144,7 @@
 
     <screen>
       % <userinput>scons -Q</userinput>
-      [?1034hcc -o goodbye.o -c goodbye.c
+      cc -o goodbye.o -c goodbye.c
       cc -o hello.o -c hello.c
       cc -o hello hello.o goodbye.o -L/usr/dir1 -Ldir2 -lfoo1 -lfoo2
     </screen>
@@ -157,40 +157,9 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      IndexError: list index out of range:
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\Main.py", line 1294:
-          _exec_main(parser, values)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\Main.py", line 1259:
-          _main(parser)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\Main.py", line 929:
-          SCons.Script._SConscript._SConscript(fs, script)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\SConscript.py", line 179:
-          exec sys.stdin in call_stack[-1].globals
-        File "&lt;stdin&gt;", line 219:
-          None
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\SConscript.py", line 614:
-          env = self.factory()
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Script\SConscript.py", line 594:
-          default_env = SCons.Defaults.DefaultEnvironment()
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Defaults.py", line 91:
-          _default_env = apply(SCons.Environment.Environment, args, kw)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Environment.py", line 1004:
-          apply_tools(self, tools, toolpath)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Environment.py", line 106:
-          env.Tool(tool)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Environment.py", line 1703:
-          tool(self)
-        File "&lt;stdin&gt;", line 67:
-          None
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\msvc.py", line 239:
-          mssdk.generate(env)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\mssdk.py", line 41:
-          mssdk_setup_env(env)
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\MSCommon\sdk.py", line 298:
-          mssdk = get_default_sdk()
-        File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Tool\MSCommon\sdk.py", line 262:
-          return InstalledSDKList[0]
-      [?1034h
+      cl /Fogoodbye.obj /c goodbye.c /nologo
+      cl /Fohello.obj /c hello.c /nologo
+      link /nologo /OUT:hello.exe /LIBPATH:\usr\dir1 /LIBPATH:dir2 foo1.lib foo2.lib hello.obj goodbye.obj
     </screen>
 
     <para>
@@ -758,7 +727,7 @@
 
       <screen>
         % <userinput>scons -Q .</userinput>
-        [?1034htar -c -f out1.tar file1 file2
+        tar -c -f out1.tar file1 file2
         tar -c -f out2.tar directory
       </screen>
 
@@ -784,3 +753,185 @@
 
       <screen>
         % <userinput>scons -Q .</userinput>
+        tar -c -z -f out.tar.gz directory
+      </screen>
+
+      <para>
+
+      you may also wish to set the value of the
+      &cv-link-TARSUFFIX; construction variable
+      to your desired suffix for compress &tar; archives,
+      so that &SCons; can append it to the target file name
+      without your having to specify it explicitly:
+
+      </para>
+
+      <programlisting>
+        env = Environment(TARFLAGS = '-c -z',
+                          TARSUFFIX = '.tgz')
+        env.Tar('out', 'directory')
+      </programlisting>
+
+      <screen>
+        % <userinput>scons -Q .</userinput>
+        tar -c -z -f out.tgz directory
+      </screen>
+
+    </section>
+
+    <section>
+    <title>The &Zip; Builder</title>
+
+      <para>
+
+      The &b-link-Zip; Builder object creates archives of files
+      and/or directory trees in the ZIP file format.
+      Python versions 1.6 or later
+      contain an internal &zipfile; module
+      that &SCons; will use.
+      In this case, given the following
+      &SConstruct; file:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Zip('out', ['file1', 'file2'])
+      </programlisting>
+
+      <para>
+
+      Your output will reflect the fact
+      that an internal Python function
+      is being used to create the output ZIP archive:
+
+      </para>
+
+      <screen>
+        % <userinput>scons -Q .</userinput>
+        zip(["out.zip"], ["file1", "file2"])
+      </screen>
+
+      <para>
+
+      If you're using Python version 1.5.2 to run &SCons;,
+      then &SCons; will try to use an external
+      &zip; program as follows:
+
+      </para>
+
+      <screen>
+        % <userinput>scons -Q .</userinput>
+        zip /home/my/project/zip.out file1 file2
+      </screen>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Java</title>
+
+    <para>
+
+    &SCons; provides Builder objects
+    for creating various types of Java output files.
+
+    </para>
+
+    <section>
+    <title>Building Class Files:  the &Java; Builder</title>
+
+      <para>
+
+      The &b-link-Java; builder takes one or more input
+      <filename>.java</filename> files
+      and turns them into one or more
+      <filename>.class</filename> files
+      Unlike most builders, however,
+      the &Java; builder takes
+      target and source <emphasis>directories</emphasis>,
+      not files, as input.
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Java(target = 'classes', source = 'src')
+      </programlisting>
+
+      <para>
+
+      The &Java; builder will then
+      search the specified source directory
+      tree for all <filename>.java</filename> files,
+      and pass any out-of-date
+
+      </para>
+
+      <screen>
+        XXX Java() screen
+      </screen>
+
+    </section>
+
+    <section>
+    <title>The &Jar; Builder</title>
+
+      <para>
+
+      XXX The &Jar; builder object
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Java(target = 'classes', source = 'src')
+        env.Jar(target = '', source = 'classes')
+      </programlisting>
+
+      <screen>
+        XXX Jar() screen
+      </screen>
+
+    </section>
+
+    <section>
+    <title>Building C header and stub files:  the &JavaH; Builder</title>
+
+      <para>
+
+      XXX JavaH() para
+
+      </para>
+
+      <programlisting>
+        XXX JavaH() programlisting
+      </programlisting>
+
+      <screen>
+        XXX JavaH() screen
+      </screen>
+
+    </section>
+
+    <section>
+    <title>Building RMI stub and skeleton class files:  the &RMIC; Builder</title>
+
+      <para>
+
+      XXX RMIC() para
+
+      </para>
+
+      <programlisting>
+        XXX RMIC() programlisting
+      </programlisting>
+
+      <screen>
+        XXX RMIC() screen
+      </screen>
+
+    </section>
+
+  </section>

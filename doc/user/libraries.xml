@@ -73,12 +73,6 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       cl /Fof1.obj /c f1.c /nologo
       cl /Fof2.obj /c f2.c /nologo
       cl /Fof3.obj /c f3.c /nologo
@@ -207,12 +201,6 @@
 
       <screen>
         C:\><userinput>scons -Q</userinput>
-        
-        scons: warning: No installed VCs
-        File "&lt;stdin&gt;", line 67, in __call__
-        
-        scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-        File "&lt;stdin&gt;", line 67, in __call__
         cl /Fof1.obj /c f1.c /nologo
         cl /Fof2.obj /c f2.c /nologo
         cl /Fof3.obj /c f3.c /nologo
@@ -294,12 +282,6 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       cl /Fof1.obj /c f1.c /nologo
       cl /Fof2.obj /c f2.c /nologo
       cl /Fof3.obj /c f3.c /nologo
@@ -428,12 +410,6 @@
 
     <screen>
       C:\><userinput>scons -Q</userinput>
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       cl /Foprog.obj /c prog.c /nologo
       link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
     </screen>

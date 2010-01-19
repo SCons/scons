@@ -89,17 +89,8 @@
 
  <screen>
     % <userinput>scons -Q</userinput>
-    Package x11 was not found in the pkg-config search path.
-    Perhaps you should add the directory containing `x11.pc'
-    to the PKG_CONFIG_PATH environment variable
-    No package 'x11' found
-    OSError: 'pkg-config x11 --cflags --libs' exited 1:
-      File "/home/my/project/SConstruct", line 3:
-        env.ParseConfig("pkg-config x11 --cflags --libs")
-      File "bootstrap/src/engine/SCons/Environment.py", line 1474:
-        None
-      File "bootstrap/src/engine/SCons/Environment.py", line 593:
-        None
+    ['/lib/compat', '/usr/X11/include']
+    scons: `.' is up to date.
  </screen>
 
  <para>
@@ -140,15 +131,6 @@
 
  <screen>
     % <userinput>scons -Q</userinput>
-    Package x11 was not found in the pkg-config search path.
-    Perhaps you should add the directory containing `x11.pc'
-    to the PKG_CONFIG_PATH environment variable
-    No package 'x11' found
-    OSError: 'pkg-config x11 --cflags --libs' exited 1:
-      File "/home/my/project/SConstruct", line 2:
-        env.ParseConfig("pkg-config x11 --cflags --libs")
-      File "bootstrap/src/engine/SCons/Environment.py", line 1474:
-        None
-      File "bootstrap/src/engine/SCons/Environment.py", line 593:
-        None
+    ['/usr/X11/include']
+    scons: `.' is up to date.
  </screen>

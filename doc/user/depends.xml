@@ -347,7 +347,6 @@
          % <userinput>touch -t 198901010000 hello.c</userinput>
          % <userinput>scons -Q hello.o</userinput>
          cc -o hello.o -c hello.c
-         cc -o hello hello.o
       </screen>
 
       <para>
@@ -987,12 +986,6 @@
 
     <screen>
        C:\><userinput>scons -Q hello.exe</userinput>
-       
-       scons: warning: No installed VCs
-       File "&lt;stdin&gt;", line 67, in __call__
-       
-       scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-       File "&lt;stdin&gt;", line 67, in __call__
        cl /Fohello.obj /c hello.c /nologo /Iinclude /I\home\project\inc
        link /nologo /OUT:hello.exe hello.obj
     </screen>
@@ -1657,14 +1650,16 @@
     <screen>
       % <userinput>scons -Q hello</userinput>
       cc -o version.o -c version.c
-      cc -o version.o -c version.c
       cc -o hello.o -c hello.c
+      cc -o hello version.o hello.o
+      % <userinput>sleep 1</userinput>
+      % <userinput>scons -Q hello</userinput>
+      cc -o version.o -c version.c
       scons: `hello' is up to date.
       % <userinput>sleep 1</userinput>
       % <userinput>edit hello.c</userinput>
           [CHANGE THE CONTENTS OF hello.c]
       % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
       cc -o version.o -c version.c
       cc -o hello.o -c hello.c
       cc -o hello version.o hello.o
