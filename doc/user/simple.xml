@@ -106,12 +106,6 @@
    <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       scons: done reading SConscript files.
       scons: Building targets ...
       cl /Fohello.obj /c hello.c /nologo
@@ -199,12 +193,6 @@
    <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       scons: done reading SConscript files.
       scons: Building targets ...
       cl /Fohello.obj /c hello.c /nologo
@@ -308,12 +296,6 @@
    <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       scons: done reading SConscript files.
       scons: Building targets ...
       cl /Fohello.obj /c hello.c /nologo
@@ -321,12 +303,6 @@
       scons: done building targets.
       C:\><userinput>scons -c</userinput>
       scons: Reading SConscript files ...
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       scons: done reading SConscript files.
       scons: Cleaning targets ...
       Removed hello.obj
@@ -527,12 +503,6 @@
    <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       scons: done reading SConscript files.
       scons: Building targets ...
       cl /Fohello.obj /c hello.c /nologo
@@ -564,12 +534,6 @@
 
    <screen>
       C:\><userinput>scons -Q</userinput>
-      
-      scons: warning: No installed VCs
-      File "&lt;stdin&gt;", line 67, in __call__
-      
-      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
-      File "&lt;stdin&gt;", line 67, in __call__
       cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
    </screen>

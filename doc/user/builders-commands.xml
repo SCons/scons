@@ -85,3 +85,62 @@
 
   <screen>
     % <userinput>scons -Q</userinput>
+    sed 's/x/y/' &lt; foo.in &gt; foo.out
+  </screen>
+
+  <para>
+
+  This is often more convenient than
+  creating a &Builder; object
+  and adding it to the &cv-link-BUILDERS; variable
+  of a &consenv;
+
+  </para>
+
+  <para>
+
+  Note that the action you specify to the
+  &Command; &Builder; can be any legal &SCons; &Action;,
+  such as a Python function:
+
+  </para>
+
+  <programlisting>
+     env = Environment()
+     def build(target, source, env):
+         # Whatever it takes to build
+         return None
+     env.Command('foo.out', 'foo.in', build)
+  </programlisting>
+
+  <para>
+
+  Which executes as follows:
+
+  </para>
+
+  <screen>
+    % <userinput>scons -Q</userinput>
+    build(["foo.out"], ["foo.in"])
+  </screen>
+
+  <para>
+
+  Note that &cv-link-SOURCE; and &cv-link-TARGET; are expanded 
+  in the source and target as well as of SCons 1.1,
+  so you can write:
+
+  </para>
+
+  <programlisting>
+     env.Command('${SOURCE.basename}.out', 'foo.in', build)
+  </programlisting>
+
+
+  <para>
+
+  which does the same thing as the previous example, but allows you
+  to avoid repeating yourself.
+
+  </para>
+
