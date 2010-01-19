@@ -1102,10 +1102,10 @@ class TimeSCons(TestSCons):
         else:
             self.uptime()
             # TODO(1.5)
-            #self.help(*args, **kw)
+            #self.startup(*args, **kw)
             #self.full(*args, **kw)
             #self.null(*args, **kw)
-            apply(self.help, args, kw)
+            apply(self.startup, args, kw)
             apply(self.full, args, kw)
             apply(self.null, args, kw)
 
@@ -1153,12 +1153,12 @@ class TimeSCons(TestSCons):
                 result[stat.name] = {'value':value, 'units':stat.units}
         return result
 
-    def help(self, *args, **kw):
+    def startup(self, *args, **kw):
         """
         Runs scons with the --help option.
 
-        This serves as a way to isolate just the amount of time spent
-        reading up the configuration, since --help exits before any
+        This serves as a way to isolate just the amount of startup time
+        spent reading up the configuration, since --help exits before any
         "real work" is done.
         """
         kw['options'] = kw.get('options', '') + ' --help'
@@ -1174,7 +1174,7 @@ class TimeSCons(TestSCons):
         # Delete the time-commands, since no commands are ever
         # executed on the help run and it is (or should be) always 0.0.
         del stats['time-commands']
-        self.report_traces('help', stats)
+        self.report_traces('startup', stats)
 
     def full(self, *args, **kw):
         """
