@@ -46,7 +46,7 @@
 
   <screen>
      % <userinput>scons -Q install</userinput>
-     cc -o hello.o -c hello.c
+     [?1034hcc -o hello.o -c hello.c
      cc -o hello hello.o
      Install file: "hello" as "/usr/bin/hello"
   </screen>
@@ -86,23 +86,23 @@
 
   <screen>
      % <userinput>scons -Q install-bin</userinput>
-     cc -o foo.o -c foo.c
+     [?1034hcc -o foo.o -c foo.c
      cc -o foo foo.o
      Install file: "foo" as "/usr/bin/foo"
      % <userinput>scons -Q install-lib</userinput>
-     cc -o bar.o -c bar.c
+     [?1034hcc -o bar.o -c bar.c
      ar rc libbar.a bar.o
      ranlib libbar.a
      Install file: "libbar.a" as "/usr/lib/libbar.a"
      % <userinput>scons -Q -c /</userinput>
-     Removed foo.o
+     [?1034hRemoved foo.o
      Removed foo
      Removed /usr/bin/foo
      Removed bar.o
      Removed libbar.a
      Removed /usr/lib/libbar.a
      % <userinput>scons -Q install</userinput>
-     cc -o foo.o -c foo.c
+     [?1034hcc -o foo.o -c foo.c
      cc -o foo foo.o
      Install file: "foo" as "/usr/bin/foo"
      cc -o bar.o -c bar.c

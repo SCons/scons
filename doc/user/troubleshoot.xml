@@ -341,6 +341,18 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
+      
+      scons: warning: No installed VCs
+      File "&lt;stdin&gt;", line 67, in __call__
+      
+      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+      File "&lt;stdin&gt;", line 67, in __call__
+      
+      scons: warning: No installed VCs
+      File "&lt;stdin&gt;", line 67, in __call__
+      
+      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+      File "&lt;stdin&gt;", line 67, in __call__
       { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
         'CC': 'cl',
         'CCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
@@ -379,7 +391,7 @@
         'DSUFFIXES': ['.d'],
         'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
         'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
-        'ENV': { 'PATH': 'C:\\WINDOWS\\System32',
+        'ENV': { 'PATH': 'C:/WINDOWS\\System32',
                  'PATHEXT': '.COM;.EXE;.BAT;.CMD',
                  'SystemRoot': 'C:\\WINDOWS'},
         'ESCAPE': &lt;function escape at 0x700000&gt;,
@@ -505,7 +517,18 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'PATH': 'C:\\WINDOWS\\System32',
+      scons: warning: No installed VCs
+      File "&lt;stdin&gt;", line 67, in __call__
+      
+      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+      File "&lt;stdin&gt;", line 67, in __call__
+      
+      scons: warning: No installed VCs
+      File "&lt;stdin&gt;", line 67, in __call__
+      
+      scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+      File "&lt;stdin&gt;", line 67, in __call__
+      { 'PATH': 'C:/WINDOWS\\System32',
         'PATHEXT': '.COM;.EXE;.BAT;.CMD',
         'SystemRoot': 'C:\\WINDOWS'}
       scons: done reading SConscript files.
@@ -1121,11 +1144,8 @@
         File "bootstrap/src/engine/SCons/Job.py", line 197, in start
           task.prepare()
         File "bootstrap/src/engine/SCons/Script/Main.py", line 167, in prepare
-          return SCons.Taskmaster.OutOfDateTask.prepare(self)
         File "bootstrap/src/engine/SCons/Taskmaster.py", line 190, in prepare
-          executor.prepare()
         File "bootstrap/src/engine/SCons/Executor.py", line 397, in prepare
-          raise SCons.Errors.StopError, msg % (s, self.batches[0].targets[0])
     </screen>
 
     <para>
