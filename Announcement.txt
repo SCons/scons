@@ -1,71 +1,187 @@
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__
+SCons checkpoint release 1.2.0.d20090223 is now available at the SCons
+download page:
 
-  A new SCons checkpoint release, 0.XX.0dYYYYMMDD, is now available at the
-  SCons download page:
+        http://www.scons.org/download.php
 
-          http://www.scons.org/download.php
+This checkpoint provides early access to new features and fixes
+scheduled for release in SCons 1.3.0.
 
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
 
-  Note that a checkpoint release is developed using the same test-driven
-  development methdology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
+IMPORTANT:
 
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
+- This checkpoint release notably contains completely new code for
+  detecting installed versions of Microsoft Visual C/C++.  The new code
+  has been tested extensively, but it is possible that it will fail to
+  find installed versions on configurations that we don't have available
+  for testing.  Please report *any* problems with support for Microsoft
+  Visual C/C++ as soon as possible so that we can diagnose and fix
+  them before releasing SCons 1.3.0.
 
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
+- Python versions prior to 2.4 are supported by SCons 1.2.0, but are
+  officially deprecated and will generate a disableable warning message.
+  We plan to remove support for these older versions in SCons 2.0.
+  If removing this support would cause a problem for you, please contact
+  the dev@scons.tigris.org mailing list.
 
-  Here is a summary of the changes since 0.XX:
+- The following deprecated features will still be supported in 1.3.0
+  but will generate mandatory, non-disableable warnings:
 
-  NEW FUNCTIONALITY
+    --  Support for Python versions 1.5, 1.6, 2.0, 2.1, 2.2, and 2.3.
+    --  The overrides= keyword argument to the Builder() call.
+    --  The scanner= keyword argument to the Builder() call.
+    --  The BuildDir() function and env.BuildDir() method.
+    --  The env.Copy() method.
+    --  The SourceSignatures() function and
+        env.SourceSignatures() method.
+    --  The TargetSignatures() function and
+        env.TargetSignatures() method.
+    --  The Sig module (now an unnused stub).
+    --  The --debug=dtree, --debug=stree and --debug=tree options.
+    --  The --debug=nomemoizer option.
+    --  The Options object and the related BoolOption(), EnumOption(),
+        ListOption(), PackageOption() and PathOption() functions.
 
-  - List new features (presumably why a checkpoint is being released)
 
-  DEPRECATED FUNCTIONALITY
+WHAT'S NEW IN THIS RELEASE
 
-  - List anything that's been deprecated since the last release
+For a complete description of important changes since other recent
+releases, see:
 
-  CHANGED/ENHANCED EXISTING FUNCTIONALITY
+        http://www.scons.org/RELEASE.txt
 
-  - List modifications to existing features, where the previous behavior
-    wouldn't actually be considered a bug
+For a complete list of changes in all releases, see the official
+change log:
 
-  FIXES
+        http://www.scons.org/CHANGES.txt
 
-  - List fixes of outright bugs
+We do not recommend that downstream distributions (Debian, Fedora,
+etc.) package a checkpoint release, mainly to avoid confusing the
+"public" release numbering with the long checkpoint release names.
 
-  IMPROVEMENTS
 
-  - List improvements that wouldn't be visible to the user in the
-    documentation:  performance improvements (describe the circumstances
-    under which they would be observed), or major code cleanups
+Here is a summary of all changes since the 1.1.0 release:
 
-  PACKAGING
 
-  - List changes in the way SCons is packaged and/or released
+NEW FUNCTIONALITY
 
-  DOCUMENTATION
+- SCons now supports batch compilation of Visual Studio C/C++ source
+  files when the new $MSVC_BATCH construction variable is set.
+- New reserved $CHANGED_SOURCES, $CHANGED_TARGETS, $UNCHANGED_SOURCES
+  and $UNCHANGED_TARGETS variables provide finer-grained control
+  over what source or targets to pass to a command line.
+- A new batch_key= keyword argument to Action object creation supports
+  general batched builds.
+- A new --warn=future-deprecated option provides advance warnings about
+  future deprecated features that still have warnings hidden by default.
+- Visual Studio 8 project files can now be generated for 64-bit platforms.
+- Visual Studio & Visual C++ now support TARGET_OS, TARGET_ARCH for
+  cross-compiling to x86, x86_64, ia64
 
-  - List any significant changes to the documentation (not individual
-    typo fixes, even if they're mentioned in src/CHANGES.txt to give
-    the contributor credit)
+CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-  DEVELOPMENT
+- $CCFLAGS is no longer included in the default definitions of $CXXFLAGS
+  for Visual C/C++ and MIPSpro C++ on SGI (to match other tools and
+  avoid flag duplication on C++ command lines).
+- The $CCFLAGS variable is now passed to Visual C/C++ precompiled header
+  compilation.
+- Scanning files encoded in utf-8 and utf-16 for implicit dependencies
+  is now supported.
+- Linker tools modules now differentiate properly between the SharedLibrary
+  and LoadableModule Builders.
+- Don't automatically try to build .pdf graphics files for .eps files in
+  \includegraphics{} calls in TeX/LaTeX files when building with the PDF
+  builder (and thus using pdflatex).
+- Setting WINDOWS_INSERT_DEF=0 now disables --output-def when linking
+  under MinGW.
+- AppendENVPath() and PrependENVPath() now interpret '#' in paths
+  relative to the top-level SConstruct directory.
+- The message, "scons: Build interrupted." is no printed on error output,
+  not standard output.
+- Quoted module names in SWIG source files are no handled correctly.
+- Suffix-matching for scanners is now case-insensitive on Windows.
+- Generated Visual Studio 8 project files now work better with
+  IntelliSense, by defining IncludeSearchPath and PreprocessorDefinitions.
+- Unnecessary nested $( $) strings around $_LIBDIRFLAGS have been removed
+  from the default command lines for the Microsoft linker, the OS/2
+  ilink linker and the Phar Lap linkloc linker.
+- SCons now internally spells the Windows environment variables
+  "SystemDrive" and "SystemRoot" (instead of "SYSTEMDRIVE" and
+  "SYSTEMROOT.")
+- Major revamp of Visual Studio/Visual C++ logic for locating and
+  configuring available version on the machine.
 
-  - List visible changes in the way SCons is developed
+FIXES
 
-  Thanks to LARRY, MOE and CURLY for their contributions to this release.
+- The $CHANGED_SOURCES variable now correctly includes files whose
+  corresponding targets don't exist.
+- The $CHANGED_SOURCES variable now works correctly with the
+  --config=force option.
+- $SOURCE and $SOURCES attributes now work even when there are no
+  sources specified in the Builder call.
+- $SWIGOUTDIR values with spaces now work properly.
+- Fix use of $SWIGOUTDIR when generating Python wrappers.
+- Add $SWIGDIRECTORSUFFIX and $SWIGVERSION construction variables.
+- The Borland ilink linker now uses the -e option to specify the output
+  file name.
+- SCons now correctly identifies shared libraries and shared object files
+  in a Repository.
+- Implicit command dependencies are detected even when the first argument
+  is quoted on the command line.
+- #include file names that contain escaped backslashes (\\) are now
+  handled correctly.
+- Have AddOption() remove variables from the list of
+  seen-but-unknown variables (which are reported later).
+- An option name and aliases can now be specified as a tuple.
+- Textfile builder.
+- Fix the -n option when used with VariantDir(duplicate=1)
+  and the variant directory doesn't already exist.
+- Fix scanning of Unicode files for both UTF-16 endian flavors.
+- Fix a TypeError on #include of file names with Unicode characters.
+- Fix an exception if a null command-line argument is passed in.
+- Evaluate Requires() prerequisites before a Node's direct children
+  (sources and dependencies).
+- Remove redundant __metaclass__ initializations in Environment.py.
+- Fix SWIG testing infrastructure to work on Mac OS X.
+- Substfile builder.
+- When reporting a target that SCons doesn't know how to make,
+  specify whether it's a File, Dir, etc.
+- Add -recorder flag to Latex commands and updated internals to
+  use the output to find files TeX creates. This allows the MiKTeX
+  installations to find the created files
+- Notify user of Latex errors that would get buried in the
+  Latex output
+- Remove LATEXSUFFIXES from environments that don't initialize Tex.
+- Add support for the glosaaries package for glossaries and acronyms
+- Fix problem that pdftex, latex, and pdflatex tools by themselves did
+  not create the actions for bibtex, makeindex,... by creating them
+  and other environment settings in one routine called by all four
+  tex tools.
+- Fix problem with filenames of sideeffects when the user changes
+  the name of the output file from the latex default
 
+
+
+
+DOCUMENTATION
+
+- The TestCommon.shobj_prefix variable is now documented.
+- Document that the msvc Tool module uses $PCH, $PCHSTOP and $PDB.
+- The User's Guide has had numerous typos fixed and other corrections.
+- Document that filenames with '.' as the first character are
+  ignored by Glob() by default (matching UNIX glob semantics).
+- Correct the documentation of text returned by sconf.Result().
+
+
+Thanks to Stanislav Baranov, David Cornapeau, Robert P.J. Day, 
+Lukas Erlinghagen, Allan Erskine, Hartmut Goebel, Jared Grubb, 
+Mateusz Gruca, Jim Hunziker, Ted Johnson, Jason Kenney, Steven Knight, 
+Arve Knudsen, Rob Managan, Greg Noel, Gary Oberbrunner, Zia Sobhani, 
+Greg Spencer, Roberto de Vecchi, Ben Webb and Matthew Wesley, 
+Steven Knight for their contributions to this release.
+
+
+On behalf of the SCons team,
+
+        --WPD

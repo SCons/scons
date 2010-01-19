@@ -100,6 +100,12 @@
 
     <screen>
        C:\><userinput>scons -Q</userinput>
+       
+       scons: warning: No installed VCs
+       File "&lt;stdin&gt;", line 67, in __call__
+       
+       scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+       File "&lt;stdin&gt;", line 67, in __call__
        cl /Fohello.obj /c hello.c /nologo
        link /nologo /OUT:new_hello.exe hello.obj
     </screen>
@@ -189,6 +195,12 @@
 
     <screen>
        C:\><userinput>scons -Q</userinput>
+       
+       scons: warning: No installed VCs
+       File "&lt;stdin&gt;", line 67, in __call__
+       
+       scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+       File "&lt;stdin&gt;", line 67, in __call__
        cl /Fofile1.obj /c file1.c /nologo
        cl /Fofile2.obj /c file2.c /nologo
        cl /Foprog.obj /c prog.c /nologo

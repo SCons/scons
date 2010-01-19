@@ -108,6 +108,18 @@ is pretty smart about rebuilding things when you change options.
 
   <screen>
     C:\><userinput>scons -Q OS=windows</userinput>
+    
+    scons: warning: No installed VCs
+    File "&lt;stdin&gt;", line 67, in __call__
+    
+    scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+    File "&lt;stdin&gt;", line 67, in __call__
+    
+    scons: warning: No installed VCs
+    File "&lt;stdin&gt;", line 67, in __call__
+    
+    scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+    File "&lt;stdin&gt;", line 67, in __call__
     Install file: "build/windows/world/world.h" as "export/windows/include/world.h"
     cl /Fobuild\windows\hello\hello.obj /c build\windows\hello\hello.c /nologo /Iexport\windows\include
     cl /Fobuild\windows\world\world.obj /c build\windows\world\world.c /nologo /Iexport\windows\include

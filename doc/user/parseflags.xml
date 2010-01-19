@@ -88,6 +88,18 @@
 
  <screen>
     C:\><userinput>scons -Q</userinput>
+    
+    scons: warning: No installed VCs
+    File "&lt;stdin&gt;", line 67, in __call__
+    
+    scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+    File "&lt;stdin&gt;", line 67, in __call__
+    
+    scons: warning: No installed VCs
+    File "&lt;stdin&gt;", line 67, in __call__
+    
+    scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+    File "&lt;stdin&gt;", line 67, in __call__
     CPPPATH ['/opt/include']
     LIBPATH ['/opt/lib']
     LIBS ['foo']

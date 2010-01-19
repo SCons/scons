@@ -150,14 +150,14 @@
 
       <screen>
         % <userinput>scons</userinput>
-        scons: Reading SConscript files ...
+        [?1034hscons: Reading SConscript files ...
         scons: done reading SConscript files.
         scons: Building targets ...
             ... [build output] ...
         scons: done building targets.
         % <userinput>export SCONSFLAGS="-Q"</userinput>
         % <userinput>scons</userinput>
-            ... [build output] ...
+        [?1034h    ... [build output] ...
       </screen>
 
       <para>
@@ -309,7 +309,7 @@
 
       <screen>
         % <userinput>scons -Q</userinput>
-        running with -j 2
+        [?1034hrunning with -j 2
         scons: `.' is up to date.
       </screen>
 
@@ -324,7 +324,7 @@
       <screen>
         % <userinput>export NUM_CPU="4"</userinput>
         % <userinput>scons -Q</userinput>
-        running with -j 4
+        [?1034hrunning with -j 4
         scons: `.' is up to date.
       </screen>
 
@@ -341,11 +341,11 @@
 
       <screen>
         % <userinput>scons -Q -j 7</userinput>
-        running with -j 7
+        [?1034hrunning with -j 7
         scons: `.' is up to date.
         % <userinput>export NUM_CPU="4"</userinput>
         % <userinput>scons -Q -j 3</userinput>
-        running with -j 3
+        [?1034hrunning with -j 3
         scons: `.' is up to date.
       </screen>
 
@@ -630,7 +630,7 @@
 
       <screen>
         % <userinput>scons -Q -n</userinput>
-        Install file: "foo.in" as "/usr/bin/foo.in"
+        [?1034hInstall file: "foo.in" as "/usr/bin/foo.in"
       </screen>
 
       <para>
@@ -643,7 +643,7 @@
 
       <screen>
         % <userinput>scons -Q -n --prefix=/tmp/install</userinput>
-        Install file: "foo.in" as "/tmp/install/usr/bin/foo.in"
+        [?1034hInstall file: "foo.in" as "/tmp/install/usr/bin/foo.in"
       </screen>
 
     </section>
@@ -718,15 +718,14 @@
 
     <screen>
        % <userinput>scons -Q debug=0</userinput>
-       cc -o prog.o -c prog.c
+       [?1034hcc -o prog.o -c prog.c
        cc -o prog prog.o
        % <userinput>scons -Q debug=0</userinput>
-       scons: `.' is up to date.
+       [?1034hscons: `.' is up to date.
        % <userinput>scons -Q debug=1</userinput>
-       cc -o prog.o -c -g prog.c
-       cc -o prog prog.o
+       [?1034hscons: `.' is up to date.
        % <userinput>scons -Q debug=1</userinput>
-       scons: `.' is up to date.
+       [?1034hscons: `.' is up to date.
     </screen>
 
     <para>
@@ -806,9 +805,9 @@
 
     <screen>
        % <userinput>scons -Q define=FOO</userinput>
-       cc -o prog.o -c -DFOO prog.c
+       [?1034hcc -o prog.o -c -DFOO prog.c
        % <userinput>scons -Q define=FOO define=BAR</userinput>
-       cc -o prog.o -c -DFOO -DBAR prog.c
+       [?1034hscons: `.' is up to date.
     </screen>
 
     <para>
@@ -909,7 +908,7 @@
 
       <screen>
         % <userinput>scons -Q RELEASE=1</userinput>
-        cc -o bar.o -c -DRELEASE_BUILD=1 bar.c
+        [?1034hcc -o bar.o -c -DRELEASE_BUILD=1 bar.c
         cc -o foo.o -c -DRELEASE_BUILD=1 foo.c
         cc -o foo foo.o bar.o
       </screen>
@@ -972,7 +971,7 @@
 
       <screen>
         % <userinput>scons -Q -h</userinput>
-        
+        [?1034h
         RELEASE: Set to 1 to build for release
             default: 0
             actual: 0
@@ -1037,7 +1036,7 @@
 
       <screen>
         % <userinput>scons -Q</userinput>
-        cc -o bar.o -c -DRELEASE_BUILD=1 bar.c
+        [?1034hcc -o bar.o -c -DRELEASE_BUILD=1 bar.c
         cc -o foo.o -c -DRELEASE_BUILD=1 foo.c
         cc -o foo foo.o bar.o
       </screen>
@@ -1061,7 +1060,7 @@
 
       <screen>
         % <userinput>scons -Q</userinput>
-        cc -o bar.o -c -DRELEASE_BUILD=0 bar.c
+        [?1034hcc -o bar.o -c -DRELEASE_BUILD=0 bar.c
         cc -o foo.o -c -DRELEASE_BUILD=0 foo.c
         cc -o foo foo.o bar.o
       </screen>
@@ -1127,12 +1126,12 @@
 
         <screen>
           % <userinput>scons -Q RELEASE=yes foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=True foo.c
+          [?1034hcc -o foo.o -c -DRELEASE_BUILD=True foo.c
         </screen>
 
         <screen>
           % <userinput>scons -Q RELEASE=t foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=True foo.c
+          [?1034hcc -o foo.o -c -DRELEASE_BUILD=True foo.c
         </screen>
 
         <para>
@@ -1158,12 +1157,12 @@
 
         <screen>
           % <userinput>scons -Q RELEASE=no foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=False foo.c
+          [?1034hcc -o foo.o -c -DRELEASE_BUILD=False foo.c
         </screen>
 
         <screen>
           % <userinput>scons -Q RELEASE=f foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=False foo.c
+          [?1034hcc -o foo.o -c -DRELEASE_BUILD=False foo.c
         </screen>
 
         <para>
@@ -1190,7 +1189,8 @@
           
           scons: *** Error converting option: RELEASE
           Invalid value for boolean option: bad_value
-          File "/home/my/project/SConstruct", line 4, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\__init__.py", line 214, in Update
+          [?1034h
         </screen>
 
       </section>
@@ -1233,11 +1233,11 @@
 
         <screen>
           % <userinput>scons -Q COLOR=red foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="red" foo.c
+          [?1034hcc -o foo.o -c -DCOLOR="red" foo.c
           % <userinput>scons -Q COLOR=blue foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
+          [?1034hscons: `foo.o' is up to date.
           % <userinput>scons -Q COLOR=green foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="green" foo.c
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
         <para>
@@ -1253,7 +1253,8 @@
           % <userinput>scons -Q COLOR=magenta foo.o</userinput>
           
           scons: *** Invalid value for option COLOR: magenta
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\EnumVariable.py", line 51, in _validator
+          [?1034h
         </screen>
 
         <para>
@@ -1292,7 +1293,7 @@
 
         <screen>
           % <userinput>scons -Q COLOR=navy foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
+          [?1034hcc -o foo.o -c -DCOLOR="blue" foo.c
         </screen>
 
         <para>
@@ -1309,15 +1310,18 @@
           % <userinput>scons -Q COLOR=Red foo.o</userinput>
           
           scons: *** Invalid value for option COLOR: Red
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\EnumVariable.py", line 51, in _validator
+          [?1034h
           % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
           
           scons: *** Invalid value for option COLOR: BLUE
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\EnumVariable.py", line 51, in _validator
+          [?1034h
           % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
           
           scons: *** Invalid value for option COLOR: nAvY
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\EnumVariable.py", line 51, in _validator
+          [?1034h
         </screen>
 
         <para>
@@ -1349,13 +1353,13 @@
 
         <screen>
           % <userinput>scons -Q COLOR=Red foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="Red" foo.c
+          [?1034hcc -o foo.o -c -DCOLOR="Red" foo.c
           % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="BLUE" foo.c
+          [?1034hscons: `foo.o' is up to date.
           % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
+          [?1034hscons: `foo.o' is up to date.
           % <userinput>scons -Q COLOR=green foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="green" foo.c
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
         <para>
@@ -1393,11 +1397,11 @@
 
         <screen>
           % <userinput>scons -Q COLOR=Red foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="red" foo.c
+          [?1034hcc -o foo.o -c -DCOLOR="red" foo.c
           % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
+          [?1034hscons: `foo.o' is up to date.
           % <userinput>scons -Q COLOR=GREEN foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="green" foo.c
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
       </section>
@@ -1436,9 +1440,9 @@
 
         <screen>
           % <userinput>scons -Q COLORS=red,blue foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="red blue" foo.c
+          [?1034hcc -o foo.o -c -DCOLORS="red blue" foo.c
           % <userinput>scons -Q COLORS=blue,green,red foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="blue green red" foo.c
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
         <para>
@@ -1453,9 +1457,9 @@
 
         <screen>
           % <userinput>scons -Q COLORS=all foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="red green blue" foo.c
+          [?1034hcc -o foo.o -c -DCOLORS="red green blue" foo.c
           % <userinput>scons -Q COLORS=none foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="" foo.c
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
         <para>
@@ -1470,7 +1474,8 @@
           
           scons: *** Error converting option: COLORS
           Invalid value(s) for option: magenta
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\__init__.py", line 214, in Update
+          [?1034h
         </screen>
 
       </section>
@@ -1510,9 +1515,9 @@
 
         <screen>
           % <userinput>scons -Q foo.o</userinput>
-          cc -o foo.o -c -DCONFIG_FILE="/etc/my_config" foo.c
+          [?1034hcc -o foo.o -c -DCONFIG_FILE="/etc/my_config" foo.c
           % <userinput>scons -Q CONFIG=/usr/local/etc/other_config foo.o</userinput>
-          scons: `foo.o' is up to date.
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
         <para>
@@ -1527,7 +1532,8 @@
           % <userinput>scons -Q CONFIG=/does/not/exist foo.o</userinput>
           
           scons: *** Path for option CONFIG does not exist: /does/not/exist
-          File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
+          File "p:\cyghome\bdeegan\scons\trunk\bootstrap\src\engine\SCons\Variables\PathVariable.py", line 117, in PathExists
+          [?1034h
         </screen>
 
         <para>
@@ -1655,13 +1661,13 @@
 
         <screen>
           % <userinput>scons -Q foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="/opt/location" foo.c
+          [?1034hcc -o foo.o -c -DPACKAGE="/opt/location" foo.c
           % <userinput>scons -Q PACKAGE=/usr/local/location foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="/usr/local/location" foo.c
+          [?1034hscons: `foo.o' is up to date.
           % <userinput>scons -Q PACKAGE=yes foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="True" foo.c
+          [?1034hscons: `foo.o' is up to date.
           % <userinput>scons -Q PACKAGE=no foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="False" foo.c
+          [?1034hscons: `foo.o' is up to date.
         </screen>
 
       </section>
@@ -1781,7 +1787,7 @@
 
       <screen>
         % <userinput>scons -Q NOT_KNOWN=foo</userinput>
-        Unknown variables: ['NOT_KNOWN']
+        [?1034hUnknown variables: ['NOT_KNOWN']
       </screen>
 
       <para>
@@ -1849,10 +1855,10 @@
 
       <screen>
         % <userinput>scons -Q</userinput>
-        cc -o foo.o -c foo.c
+        [?1034hcc -o foo.o -c foo.c
         cc -o foo foo.o
         % <userinput>scons -Q bar</userinput>
-        Don't forget to copy `bar' to the archive!
+        [?1034hDon't forget to copy `bar' to the archive!
         cc -o bar.o -c bar.c
         cc -o bar bar.o
       </screen>
@@ -1908,12 +1914,12 @@
 
       <screen>
          % <userinput>scons -Q</userinput>
-         cc -o hello.o -c hello.c
+         [?1034hcc -o hello.o -c hello.c
          cc -o hello hello.o
          % <userinput>scons -Q</userinput>
-         scons: `hello' is up to date.
+         [?1034hscons: `hello' is up to date.
          % <userinput>scons -Q goodbye</userinput>
-         cc -o goodbye.o -c goodbye.c
+         [?1034hcc -o goodbye.o -c goodbye.c
          cc -o goodbye goodbye.o
       </screen>
 
@@ -1930,7 +1936,7 @@
 
       <screen>
          % <userinput>scons -Q .</userinput>
-         cc -o goodbye.o -c goodbye.c
+         [?1034hcc -o goodbye.o -c goodbye.c
          cc -o goodbye goodbye.o
          cc -o hello.o -c hello.c
          cc -o hello hello.o
@@ -1982,12 +1988,12 @@
 
       <screen>
          % <userinput>scons -Q</userinput>
-         cc -o prog1.o -c prog1.c
+         [?1034hcc -o prog1.o -c prog1.c
          cc -o prog1 prog1.o
          cc -o prog3.o -c prog3.c
          cc -o prog3 prog3.o
          % <userinput>scons -Q .</userinput>
-         cc -o prog2.o -c prog2.c
+         [?1034hcc -o prog2.o -c prog2.c
          cc -o prog2 prog2.o
       </screen>
 
@@ -2014,13 +2020,13 @@
 
       <screen>
          % <userinput>scons -Q</userinput>
-         cc -o prog1/foo.o -c prog1/foo.c
+         [?1034hcc -o prog1/foo.o -c prog1/foo.c
          cc -o prog1/main.o -c prog1/main.c
          cc -o prog1/main prog1/main.o prog1/foo.o
          % <userinput>scons -Q</userinput>
-         scons: `prog1' is up to date.
+         [?1034hscons: `prog1' is up to date.
          % <userinput>scons -Q .</userinput>
-         cc -o prog2/bar.o -c prog2/bar.c
+         [?1034hcc -o prog2/bar.o -c prog2/bar.c
          cc -o prog2/main.o -c prog2/main.c
          cc -o prog2/main prog2/main.o prog2/bar.o
       </screen>
@@ -2050,8 +2056,9 @@
       <screen>
          % <userinput>scons -Q</userinput>
          scons: *** No targets specified and no Default() targets found.  Stop.
+         [?1034h
          % <userinput>scons -Q .</userinput>
-         cc -o prog1.o -c prog1.c
+         [?1034hcc -o prog1.o -c prog1.c
          cc -o prog1 prog1.o
          cc -o prog2.o -c prog2.c
          cc -o prog2 prog2.o
@@ -2094,7 +2101,7 @@
 
         <screen>
            % <userinput>scons</userinput>
-           scons: Reading SConscript files ...
+           [?1034hscons: Reading SConscript files ...
            DEFAULT_TARGETS is ['prog1']
            scons: done reading SConscript files.
            scons: Building targets ...
@@ -2129,7 +2136,7 @@
 
         <screen>
            % <userinput>scons</userinput>
-           scons: Reading SConscript files ...
+           [?1034hscons: Reading SConscript files ...
            DEFAULT_TARGETS is now ['prog1']
            DEFAULT_TARGETS is now ['prog1', 'prog2']
            scons: done reading SConscript files.
@@ -2224,15 +2231,15 @@
 
       <screen>
         % <userinput>scons -Q</userinput>
-        BUILD_TARGETS is ['prog1']
+        [?1034hBUILD_TARGETS is ['prog1']
         cc -o prog1.o -c prog1.c
         cc -o prog1 prog1.o
         % <userinput>scons -Q prog2</userinput>
-        BUILD_TARGETS is ['prog2']
+        [?1034hBUILD_TARGETS is ['prog2']
         cc -o prog2.o -c prog2.c
         cc -o prog2 prog2.o
         % <userinput>scons -Q -c .</userinput>
-        BUILD_TARGETS is ['.']
+        [?1034hBUILD_TARGETS is ['.']
         Removed prog1.o
         Removed prog1
         Removed prog2.o
