@@ -62,7 +62,7 @@ by re-running LaTeX up to three times.
 
 <cvar name="TEXINPUTS">
 <summary>
-List of directories that the LaTeX programm will search
+List of directories that the LaTeX program will search
 for include directories.
 The LaTeX implicit dependency scanner will search these
 directories for \include and \import files.

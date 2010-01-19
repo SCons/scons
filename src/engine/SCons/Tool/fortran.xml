@@ -230,7 +230,7 @@ construction variables are included on this command line.
 <summary>
 The string displayed when a Fortran source file
 is compiled to an object file
-after first running the file throught the C preprocessor.
+after first running the file through the C preprocessor.
 If this is not set, then &cv-link-FORTRANPPCOM;
 (the command line) is displayed.
 </summary>
@@ -295,7 +295,7 @@ are included on this command line.
 <summary>
 The string displayed when a Fortran source file
 is compiled to a shared-library object file
-after first running the file throught the C preprocessor.
+after first running the file through the C preprocessor.
 If this is not set, then &cv-link-SHFORTRANPPCOM;
 (the command line) is displayed.
 </summary>

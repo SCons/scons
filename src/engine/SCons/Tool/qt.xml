@@ -132,7 +132,7 @@ builder method.
 
 <cvar name="QT_AUTOSCAN">
 <summary>
-Turn off scanning for mocable files. Use the Moc Builder to explicitely
+Turn off scanning for mocable files. Use the Moc Builder to explicitly
 specify files to run moc on.
 </summary>
 </cvar>

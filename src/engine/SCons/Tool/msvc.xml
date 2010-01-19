@@ -314,10 +314,16 @@ constructor; setting it later has no effect.
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 
-Valid values for Windows are 'x86', 'i386' (for 32 bits); 
-'amd64', 'emt64', 'x86_64' (64 bits);
-and 'ia64' (Itanium).
+Valid values for Windows are
+<literal>x86</literal>,
+<literal>i386</literal>
+(for 32 bits); 
+<literal>amd64</literal>,
+<literal>emt64</literal>,
+<literal>x86_64</literal>
+(for 64 bits);
+and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
-TARGET_ARCH='x86_64' in your SCons environment.
+<literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </summary>
 </cvar>

@@ -32,7 +32,7 @@ On Mac OS X with gcc,
 general user-supplied frameworks options to be added at
 the end of a command
 line building a loadable module.
-(This has been largely superceded by
+(This has been largely superseded by
 the &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKPATHPREFIX;,
 &cv-link-FRAMEWORKPREFIX; and &cv-link-FRAMEWORKS; variables
 described above.)
