@@ -136,7 +136,7 @@ The linker for programs that use shared libraries.
 
 <cvar name="SHLINKCOM">
 <summary>
-The command line used to link programs using shared libaries.
+The command line used to link programs using shared libraries.
 </summary>
 </cvar>
 
