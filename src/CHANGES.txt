@@ -8,15 +8,19 @@
 
 
 
-RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800  
+RELEASE X.X.X - XXX
 
   From Luca Falavigna:
 
     - Fix typos in the man page.
 
+  From Steven Knight:
+
+    - Make the messages for Configure checks of compilers consistent.
 
 
-RELEASE X.X.X - XXX
+
+RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800  
 
   From Jim Randall:
     - Fixed temp filename race condition on Windows with long cmd lines.
