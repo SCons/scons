@@ -85,7 +85,7 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
         system. This is only supported for Visual Studio/Visual C++
         at this time.
 
-    --  Support for Latex glosseries and acronyms has been added
+    --  Support for Latex glossaries and acronyms has been added
 
     --  VISUAL C/C++ PRECOMPILED HEADERS WILL BE REBUILT
 
