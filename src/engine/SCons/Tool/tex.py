@@ -600,7 +600,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
 
     content = source[0].get_text_contents()
 
-    # not sure what these were for but they are unused
+    # These never got used. Fix them anyway
     #idx_exists = os.path.exists(targetbase + '.idx') and os.path.isfile(targetbase + '.idx')
     #nlo_exists = os.path.exists(targetbase + '.nlo') and os.path.isfile(targetbase + '.nlo')
     #glo_exists = os.path.exists(targetbase + '.glo') and os.path.isfile(targetbase + '.glo')
