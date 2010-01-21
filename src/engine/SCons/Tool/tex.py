@@ -146,7 +146,7 @@ def FindFile(name,suffixes,paths,env,requireExt=False):
         testName = os.path.join(path,name)
         if Verbose:
             print " look for '%s'" % testName
-        if os.path.exists(testName) and os.path.isfile(testName):
+        if os.path.exists(testName):
             if Verbose:
                 print " found '%s'" % testName
             return env.fs.File(testName)
@@ -161,7 +161,7 @@ def FindFile(name,suffixes,paths,env,requireExt=False):
                 if Verbose:
                     print " look for '%s'" % testNameExt
 
-                if os.path.exists(testNameExt) and os.path.isfile(testNameExt):
+                if os.path.exists(testNameExt):
                     if Verbose:
                         print " found '%s'" % testNameExt
                     return env.fs.File(testNameExt)
@@ -268,7 +268,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         # Read the log file to find warnings/errors
         logfilename = targetbase + '.log'
         logContent = ''
-        if os.path.exists(logfilename) and os.path.isfile(logfilename):
+        if os.path.exists(logfilename):
             logContent = open(logfilename, "rb").read()
 
 
@@ -276,7 +276,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         flsfilename = targetbase + '.fls'
         flsContent = ''
         auxfiles = []
-        if os.path.exists(flsfilename) and os.path.isfile(flsfilename):
+        if os.path.exists(flsfilename):
             flsContent = open(flsfilename, "rb").read()
             auxfiles = openout_aux_re.findall(flsContent)
         if Verbose:
@@ -290,7 +290,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         if count == 1:
             for auxfilename in auxfiles:
                 target_aux = os.path.join(targetdir, auxfilename)
-                if os.path.exists(target_aux) and os.path.isfile(target_aux):
+                if os.path.exists(target_aux):
                     content = open(target_aux, "rb").read()
                     if string.find(content, "bibdata") != -1:
                         if Verbose:
@@ -375,10 +375,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 # end of while loop
 
     # rename Latex's output to what the target name is
-    if not (str(target[0]) == resultfilename  and  
-            os.path.exists(resultfilename) and 
-            os.path.isfile(resultfilename)):
-        if os.path.exists(resultfilename) and os.path.isfile(resultfilename):
+    if not (str(target[0]) == resultfilename  and  os.path.exists(resultfilename)):
+        if os.path.exists(resultfilename):
             print "move %s to %s" % (resultfilename, str(target[0]), )
             shutil.move(resultfilename,str(target[0]))
 
@@ -600,11 +598,10 @@ def tex_emitter_core(target, source, env, graphics_extensions):
 
     content = source[0].get_text_contents()
 
-    # These never got used. Fix them anyway
-    #idx_exists = os.path.exists(targetbase + '.idx') and os.path.isfile(targetbase + '.idx')
-    #nlo_exists = os.path.exists(targetbase + '.nlo') and os.path.isfile(targetbase + '.nlo')
-    #glo_exists = os.path.exists(targetbase + '.glo') and os.path.isfile(targetbase + '.glo')
-    #acr_exists = os.path.exists(targetbase + '.acn') and os.path.isfile(targetbase + '.acn')
+    idx_exists = os.path.exists(targetbase + '.idx')
+    nlo_exists = os.path.exists(targetbase + '.nlo')
+    glo_exists = os.path.exists(targetbase + '.glo')
+    acr_exists = os.path.exists(targetbase + '.acn')
 
     # set up list with the regular expressions
     # we use to find features used
@@ -683,7 +680,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         env.Clean(target[0],aFile_base + '.aux')
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
-    if os.path.exists(flsfilename) and os.path.isfile(flsfilename):
+    if os.path.exists(flsfilename):
         content = open(flsfilename, "rb").read()
         out_files = openout_re.findall(content)
         myfiles = [auxfilename, logfilename, flsfilename, targetbase+'.dvi',targetbase+'.pdf']

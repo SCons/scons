@@ -58,12 +58,15 @@ import os
 env = Environment(TOOLS = ['tex', 'pdftex'],ENV = {'PATH' : os.environ['PATH']})
 
 env.VariantDir('build', 'docs', duplicate=0)
+graph = env.PDF('build/fig/graph.eps')
 pdf = env.PDF('build/main.tex')
+Depends(pdf, graph)
 """)
 
 test.write(['docs','main.tex'],
 r"""\documentclass{article}
 \usepackage{makeidx}
+\usepackage{graphicx}
 \makeindex
 \begin{document}
 Hi there.
@@ -84,9 +87,70 @@ Sub-chapter 2
 
 """)
 
+test.write(['docs','fig','graph.eps'], """\
+%!PS-Adobe-2.0 EPSF-2.0
+%%Title: Fig1.fig
+%%Creator: fig2dev Version 3.2 Patchlevel 4
+%%CreationDate: Tue Apr 25 09:56:11 2006
+%%For: managan@mangrove.llnl.gov (Rob Managan)
+%%BoundingBox: 0 0 98 98
+%%Magnification: 1.0000
+%%EndComments
+/$F2psDict 200 dict def
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/col-1 {0 setgray} bind def
+/col0 {0.000 0.000 0.000 srgb} bind def
+
+end
+save
+newpath 0 98 moveto 0 0 lineto 98 0 lineto 98 98 lineto closepath clip newpath
+-24.9 108.2 translate
+1 -1 scale
+
+/gr {grestore} bind def
+/gs {gsave} bind def
+/rs {restore} bind def
+/n {newpath} bind def
+/s {stroke} bind def
+/slw {setlinewidth} bind def
+/srgb {setrgbcolor} bind def
+/sc {scale} bind def
+/sf {setfont} bind def
+/scf {scalefont} bind def
+/tr {translate} bind def
+ /DrawEllipse {
+	/endangle exch def
+	/startangle exch def
+	/yrad exch def
+	/xrad exch def
+	/y exch def
+	/x exch def
+	/savematrix mtrx currentmatrix def
+	x y tr xrad yrad sc 0 0 1 startangle endangle arc
+	closepath
+	savematrix setmatrix
+	} def
+
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+
+$F2psBegin
+10 setmiterlimit
+ 0.06299 0.06299 sc
+%
+% Fig objects follow
+% 
+7.500 slw
+% Ellipse
+n 1170 945 766 766 0 360 DrawEllipse gs col0 s gr
+
+$F2psEnd
+rs
+""")
+
 #test.run(arguments = '.')
 test.run(arguments = '.', stderr=None, stdout=None)
-#test.run(arguments = 'build/main.pdf', stderr=None, stdout=None)
 
 test.must_exist(['build', 'main.aux'])
 test.must_exist(['build', 'main.fls'])
@@ -127,7 +191,7 @@ test.must_not_exist(['docs', 'content', 'chapter.aux'])
 test.up_to_date(arguments = '.', stderr=None, stdout=None)
 
 test.write(['docs','content', 'subchap.tex'], """\
-Sub-document 2a
+Sub-document 2
 """)
 
 test.not_up_to_date(arguments = '.')
