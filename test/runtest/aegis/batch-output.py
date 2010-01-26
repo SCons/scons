@@ -28,7 +28,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test writing Aegis batch output to a file.
 """
 
+import os
+
 import TestRuntest
+
+test_fail_py = os.path.join('test', 'fail.py')
+test_no_result_py = os.path.join('test', 'no_result.py')
+test_pass_py = os.path.join('test', 'pass.py')
 
 test = TestRuntest.TestRuntest()
 
@@ -50,14 +56,14 @@ test.run(arguments = '-o aegis.out --aegis test', stderr=expect_stderr)
 
 expect = """\
 test_result = [
-    { file_name = "test/fail.py";
+    { file_name = "%(test_fail_py)s";
       exit_status = 1; },
-    { file_name = "test/no_result.py";
+    { file_name = "%(test_no_result_py)s";
       exit_status = 2; },
-    { file_name = "test/pass.py";
+    { file_name = "%(test_pass_py)s";
       exit_status = 0; },
 ];
-"""
+""" % locals()
 
 # The mode is 'r' (not default 'rb') because QMTest opens the file
 # description on which we write as non-binary.

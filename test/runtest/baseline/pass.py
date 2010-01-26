@@ -28,9 +28,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test how we handle a passing test specified on the command line.
 """
 
+import os
+
 import TestRuntest
 
-python = TestRuntest.python
+pythonstring = TestRuntest.pythonstring
+test_pass_py = os.path.join('test', 'pass.py')
 
 test = TestRuntest.TestRuntest()
 
@@ -39,7 +42,7 @@ test.subdir('test')
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(python)s -tt test/pass.py
+%(pythonstring)s -tt %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 

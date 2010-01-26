@@ -29,7 +29,7 @@ Verify that we find tests under the src/ tree only if they end
 with *Tests.py.
 """
 
-import os.path
+import os
 
 import TestRuntest
 
@@ -38,7 +38,7 @@ test = TestRuntest.TestRuntest()
 test.subdir(['src'],
             ['src', 'suite'])
 
-python = TestRuntest.python
+pythonstring = TestRuntest.pythonstring
 src_passTests_py = os.path.join('src', 'passTests.py')
 src_suite_passTests_py = os.path.join('src', 'suite', 'passTests.py')
 
@@ -51,9 +51,9 @@ test.write_passing_test(['src', 'suite', 'pass.py'])
 test.write_passing_test(['src', 'suite', 'passTests.py'])
 
 expect_stdout = """\
-%(python)s -tt src/passTests.py
+%(pythonstring)s -tt %(src_passTests_py)s
 PASSING TEST STDOUT
-%(python)s -tt src/suite/passTests.py
+%(pythonstring)s -tt %(src_suite_passTests_py)s
 PASSING TEST STDOUT
 """ % locals()
 

@@ -29,10 +29,11 @@ Test a list of tests to run in a file specified with the -f option.
 """
 
 import os.path
+import re
 
 import TestRuntest
 
-python = TestRuntest.python
+pythonstring = TestRuntest.pythonstring
 test_fail_py = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
 test_pass_py = os.path.join('test', 'pass.py')
@@ -53,7 +54,7 @@ test.write('t.txt', """\
 """ % locals())
 
 expect_stdout = """\
-%(python)s -tt test/pass.py
+%(pythonstring)s -tt %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 

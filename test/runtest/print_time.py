@@ -29,13 +29,13 @@ Test a combination of a passing test, failing test, and no-result
 test with no argument on the command line.
 """
 
-import os.path
+import os
 import re
 
 import TestCmd
 import TestRuntest
 
-python = TestRuntest.python
+pythonstring = re.escape(TestRuntest.pythonstring)
 test_fail_py = re.escape(os.path.join('test', 'fail.py'))
 test_no_result_py = re.escape(os.path.join('test', 'no_result.py'))
 test_pass_py = re.escape(os.path.join('test', 'pass.py'))
@@ -51,22 +51,22 @@ test.write_no_result_test(['test', 'no_result.py'])
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(python)s -tt test/fail.py
+%(pythonstring)s -tt %(test_fail_py)s
 FAILING TEST STDOUT
 Test execution time: \\d+.\\d seconds
-%(python)s -tt test/no_result.py
+%(pythonstring)s -tt %(test_no_result_py)s
 NO RESULT TEST STDOUT
 Test execution time: \\d+.\\d seconds
-%(python)s -tt test/pass.py
+%(pythonstring)s -tt %(test_pass_py)s
 PASSING TEST STDOUT
 Test execution time: \\d+.\\d seconds
 Total execution time for all tests: \\d+.\\d seconds
 
 Failed the following test:
-\ttest/fail.py
+\t%(test_fail_py)s
 
 NO RESULT from the following test:
-\ttest/no_result.py
+\t%(test_no_result_py)s
 """ % locals()
 
 expect_stderr = """\
