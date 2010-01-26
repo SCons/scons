@@ -28,7 +28,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that the -P option lets us specify a Python version to use.
 """
 
-import os.path
+import os
+import re
+import string
 
 if not hasattr(os.path, 'pardir'):
     os.path.pardir = '..'
@@ -44,12 +46,20 @@ head, dir = os.path.split(head)
 
 mypython = os.path.join(head, dir, os.path.pardir, dir, python)
 
+def escape(s):
+    return string.replace(s, '\\', '\\\\')
+
+if re.search('\s', mypython):
+    mypythonstring = '"%s"' % escape(mypython)
+else:
+    mypythonstring = escape(mypython)
+
 test.subdir('test')
 
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(mypython)s -tt test/pass.py
+%(mypythonstring)s -tt %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 

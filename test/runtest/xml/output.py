@@ -28,27 +28,19 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test writing XML output to a file.
 """
 
-import os.path
+import os
 import re
-import sys
+import string
 
 import TestCmd
 import TestRuntest
 
 test = TestRuntest.TestRuntest(match = TestCmd.match_re)
 
-python = TestRuntest.python
+pythonstring = re.escape(TestRuntest.pythonstring)
 test_fail_py = re.escape(os.path.join('test', 'fail.py'))
 test_no_result_py = re.escape(os.path.join('test', 'no_result.py'))
 test_pass_py = re.escape(os.path.join('test', 'pass.py'))
-
-# sys.stdout and sys.stderr are open non-binary ('w' instead of 'wb')
-# so the lines written on Windows are terminated \r\n, not just \n.  The
-# expressions below use 'cr' as the optional carriage return character.
-if sys.platform in ['win32']:
-    cr = '\r'
-else:
-    cr = ''
 
 test.subdir('test')
 
@@ -65,8 +57,8 @@ test.run(arguments = '-o xml.out --xml test', status=1)
 expect = """\
   <results>
     <test>
-      <file_name>test/fail.py</file_name>
-      <command_line>%(python)s -tt test/fail.py</command_line>
+      <file_name>%(test_fail_py)s</file_name>
+      <command_line>%(pythonstring)s -tt %(test_fail_py)s</command_line>
       <exit_status>1</exit_status>
       <stdout>FAILING TEST STDOUT
 </stdout>
@@ -75,8 +67,8 @@ expect = """\
       <time>\\d+\.\d</time>
     </test>
     <test>
-      <file_name>test/no_result.py</file_name>
-      <command_line>%(python)s -tt test/no_result.py</command_line>
+      <file_name>%(test_no_result_py)s</file_name>
+      <command_line>%(pythonstring)s -tt %(test_no_result_py)s</command_line>
       <exit_status>2</exit_status>
       <stdout>NO RESULT TEST STDOUT
 </stdout>
@@ -85,8 +77,8 @@ expect = """\
       <time>\\d+\.\d</time>
     </test>
     <test>
-      <file_name>test/pass.py</file_name>
-      <command_line>%(python)s -tt test/pass.py</command_line>
+      <file_name>%(test_pass_py)s</file_name>
+      <command_line>%(pythonstring)s -tt %(test_pass_py)s</command_line>
       <exit_status>0</exit_status>
       <stdout>PASSING TEST STDOUT
 </stdout>

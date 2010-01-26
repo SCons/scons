@@ -18,6 +18,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import re
 import string
 import shutil
 import sys
@@ -27,11 +28,18 @@ from TestCommon import __all__
 
 __all__.extend([ 'TestRuntest',
                  'python',
+                 'pythonstring',
                  '_python_',
                ])
 
 python = python_executable
 _python_ = '"' + python_executable + '"'
+
+if re.search('\s', python):
+    pythonstring = _python_
+else:
+    pythonstring = python
+pythonstring = string.replace(pythonstring, '\\', '\\\\')
 
 
 failing_test_template = """\

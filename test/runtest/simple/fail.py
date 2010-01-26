@@ -30,7 +30,7 @@ Test how we handle a failing test specified on the command line.
 
 import TestRuntest
 
-python = TestRuntest.python
+pythonstring = TestRuntest.pythonstring
 
 test = TestRuntest.TestRuntest()
 
@@ -39,7 +39,7 @@ test.subdir('test')
 test.write_failing_test(['test', 'fail.py'])
 
 expect_stdout = """\
-%(python)s -tt test/fail.py
+%(pythonstring)s -tt test/fail.py
 FAILING TEST STDOUT
 """ % locals()
 

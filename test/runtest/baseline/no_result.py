@@ -30,7 +30,7 @@ Test how we handle a no-results test specified on the command line.
 
 import TestRuntest
 
-python = TestRuntest.python
+pythonstring = TestRuntest.pythonstring
 
 test = TestRuntest.TestRuntest()
 
@@ -39,7 +39,7 @@ test.subdir('test')
 test.write_no_result_test(['test', 'no_result.py'])
 
 expect_stdout = """\
-%(python)s -tt test/no_result.py
+%(pythonstring)s -tt test/no_result.py
 NO RESULT TEST STDOUT
 """ % locals()
 
