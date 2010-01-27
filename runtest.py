@@ -761,11 +761,12 @@ else:
 
 total_start_time = time_func()
 for t in tests:
-    t.command_args = [python, '-tt']
+    command_args = ['-tt']
     if debug:
-        t.command_args.append(debug)
-    t.command_args.append(t.path)
-    t.command_str = string.join(map(escape, t.command_args), " ")
+        command_args.append(debug)
+    command_args.append(t.path)
+    t.command_args = [python] + command_args
+    t.command_str = string.join([escape(python)] + command_args, " ")
     if printcommand:
         sys.stdout.write(t.command_str + "\n")
     test_start_time = time_func()
