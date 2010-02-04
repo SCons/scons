@@ -45,6 +45,11 @@ import common
 
 debug = common.debug
 
+import sdk
+
+get_installed_sdks = sdk.get_installed_sdks
+
+
 class VisualCException(Exception):
     pass
 
@@ -198,7 +203,11 @@ def find_vc_pdir(msvc_version):
                 raise MissingConfiguration("registry dir %s not found on the filesystem" % comps)
     return None
 
-def find_batch_file(msvc_version):
+def find_batch_file(env,msvc_version):
+    """
+    Find the location of the batch script which should set up the compiler
+    for any TARGET_ARCH whose compilers were installed by Visual Studio/VCExpress
+    """
     pdir = find_vc_pdir(msvc_version)
     if pdir is None:
         raise NoVersionFound("No version of Visual Studio found")
@@ -213,11 +222,21 @@ def find_batch_file(msvc_version):
     else: # >= 8
         batfilename = os.path.join(pdir, "vcvarsall.bat")
 
-    if os.path.exists(batfilename):
-        return batfilename
-    else:
+    if not os.path.exists(batfilename):
         debug("Not found: %s" % batfilename)
-        return None
+        batfilename = None
+    
+    installed_sdks=get_installed_sdks()
+    (host_arch,target_arch)=get_host_target(env)
+    for _sdk in installed_sdks:
+        #print "Trying :%s"%_sdk.vc_setup_scripts
+        sdk_bat_file=_sdk.get_sdk_vc_script(host_arch,target_arch)
+        sdk_bat_file_path=os.path.join(pdir,sdk_bat_file)
+        #print "PATH: %s"%sdk_bat_file_path
+        if os.path.exists(sdk_bat_file_path):
+            return (batfilename,sdk_bat_file_path)
+    else:
+        return (batfilename,None)
 
 __INSTALLED_VCS_RUN = None
 
@@ -319,7 +338,7 @@ def msvc_setup_env(env):
     env['MSVS'] = {}
 
     try:
-        script = find_batch_file(version)
+        (vc_script,sdk_script) = find_batch_file(env,version)
     except VisualCException, e:
         msg = str(e)
         debug('Caught exception while looking for batch file (%s)' % msg)
@@ -342,13 +361,16 @@ def msvc_setup_env(env):
                 (host_target, version)
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
-        debug('use_script 2 %s, args:%s\n' % (repr(script), arg))
+        debug('use_script 2 %s, args:%s\n' % (repr(vc_script), arg))
         try:
-            d = script_env(script, args=arg)
+            d = script_env(vc_script, args=arg)
         except BatchFileExecutionError, e:
-            msg = "MSVC error while executing %s with args %s (error was %s)" % \
-                  (script, arg, str(e))
-            raise SCons.Errors.UserError(msg)
+            #print "Trying:%s"%sdk_script
+            debug('use_script 3: failed running %s: %s: Error:%s'%(repr(vc_script),arg,e))
+            debug('use_script 4: trying sdk script: %s %s'%(sdk_script,arg))
+            d = script_env(sdk_script,args=[])
+            #return None
+
     else:
         debug('MSVC_USE_SCRIPT set to False')
         warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment " \

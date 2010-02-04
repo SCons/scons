@@ -381,7 +381,21 @@ if mswindows:
         # can't import it.
         pass
     import msvcrt
-    if 0: # <-- change this to use pywin32 instead of the _subprocess driver
+    try:
+        # Try to get _subprocess
+        from _subprocess import *
+        class STARTUPINFO:
+            dwFlags = 0
+            hStdInput = None
+            hStdOutput = None
+            hStdError = None
+            wShowWindow = 0
+        class pywintypes:
+            error = IOError
+    except ImportError:
+        # If not there, then drop back to requiring pywin32
+        # TODO: Should this be wrapped in try as well? To notify user to install
+        #       pywin32 ? With URL to it?
         import pywintypes
         from win32api import GetStdHandle, STD_INPUT_HANDLE, \
                              STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
@@ -393,20 +407,8 @@ if mswindows:
                                  GetExitCodeProcess, STARTF_USESTDHANDLES, \
                                  STARTF_USESHOWWINDOW, CREATE_NEW_CONSOLE
         from win32event import WaitForSingleObject, INFINITE, WAIT_OBJECT_0
-    else:
-        # SCons:  don't die on Python versions that don't have _subprocess.
-        try:
-            from _subprocess import *
-        except ImportError:
-            pass
-        class STARTUPINFO:
-            dwFlags = 0
-            hStdInput = None
-            hStdOutput = None
-            hStdError = None
-            wShowWindow = 0
-        class pywintypes:
-            error = IOError
+
+
 else:
     import select
     import errno
