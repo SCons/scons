@@ -362,14 +362,22 @@ def msvc_setup_env(env):
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
         debug('use_script 2 %s, args:%s\n' % (repr(vc_script), arg))
-        try:
-            d = script_env(vc_script, args=arg)
-        except BatchFileExecutionError, e:
-            #print "Trying:%s"%sdk_script
-            debug('use_script 3: failed running %s: %s: Error:%s'%(repr(vc_script),arg,e))
+        if vc_script:
+            try:
+                d = script_env(vc_script, args=arg)
+            except BatchFileExecutionError, e:
+                debug('use_script 3: failed running VC script %s: %s: Error:%s'%(repr(vc_script),arg,e))
+                vc_script=None
+        if not vc_script and sdk_script:
             debug('use_script 4: trying sdk script: %s %s'%(sdk_script,arg))
-            d = script_env(sdk_script,args=[])
-            #return None
+            try:
+                d = script_env(sdk_script,args=[])
+            except BatchFileExecutionError,e:
+                debug('use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script),e))
+                return None
+        else:
+            debug('use_script 6: Neither VC script nor SDK script found')
+            return None
 
     else:
         debug('MSVC_USE_SCRIPT set to False')
