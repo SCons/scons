@@ -92,7 +92,9 @@ class Base:
                  argument = _null,
                  skeys = _null,
                  path_function = None,
-                 node_class = SCons.Node.FS.Entry,
+                 # Node.FS.Base so that, by default, it's okay for a
+                 # scanner to return a Dir, File or Entry.
+                 node_class = SCons.Node.FS.Base,
                  node_factory = None,
                  scan_check = None,
                  recursive = None):
