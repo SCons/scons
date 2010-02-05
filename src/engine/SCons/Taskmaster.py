@@ -359,7 +359,8 @@ class Task:
         for t in self.targets:
             t.disambiguate().set_state(NODE_EXECUTING)
             for s in t.side_effects:
-                s.set_state(NODE_EXECUTING)
+                # add disambiguate here to mirror the call on targets above
+                s.disambiguate().set_state(NODE_EXECUTING)
 
     def make_ready_current(self):
         """
@@ -390,7 +391,8 @@ class Task:
             for t in self.targets:
                 t.set_state(NODE_EXECUTING)
                 for s in t.side_effects:
-                    s.set_state(NODE_EXECUTING)
+                    # add disambiguate here to mirror the call on targets in first loop above
+                    s.disambiguate().set_state(NODE_EXECUTING)
         else:
             for t in self.targets:
                 # We must invoke visited() to ensure that the node
