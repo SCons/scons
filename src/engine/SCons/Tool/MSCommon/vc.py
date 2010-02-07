@@ -375,7 +375,7 @@ def msvc_setup_env(env):
             except BatchFileExecutionError,e:
                 debug('use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script),e))
                 return None
-        else:
+        elif not vc_script and not sdk_script:
             debug('use_script 6: Neither VC script nor SDK script found')
             return None
 
