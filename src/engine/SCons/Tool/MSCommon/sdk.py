@@ -106,16 +106,20 @@ class SDKDefinition:
     def get_sdk_vc_script(self,host_arch, target_arch):
         """ Return the script to initialize the VC compiler installed by SDK
         """
+
+        if (host_arch == 'amd64' and target_arch == 'x86'):
+            # No cross tools needed compiling 32 bits on 64 bit machine
+            host_arch=target_arch
         
         arch_string=target_arch
         if (host_arch != target_arch):
             arch_string='%s_%s'%(host_arch,target_arch)
             
-        #print "arch_string:%s host_arch:%s target_arch:%s"%(arch_string,
-        #                                                   host_arch,
-        #                                                   target_arch)
+        debug("sdk.py: get_sdk_vc_script():arch_string:%s host_arch:%s target_arch:%s"%(arch_string,
+                                                           host_arch,
+                                                           target_arch))
         file=self.vc_setup_scripts.get(arch_string,None)
-        #print "FILE:%s"%file
+        debug("sdk.py: get_sdk_vc_script():file:%s"%file)
         return file
 
 class WindowsSDK(SDKDefinition):
@@ -231,9 +235,9 @@ def get_installed_sdks():
         InstalledSDKList = []
         InstalledSDKMap = {}
         for sdk in SupportedSDKList:
-            debug('trying to find SDK %s' % sdk.version)
+            debug('MSCommon/sdk.py: trying to find SDK %s' % sdk.version)
             if sdk.get_sdk_dir():
-                debug('found SDK %s' % sdk.version)
+                debug('MSCommon/sdk.py:found SDK %s' % sdk.version)
                 InstalledSDKList.append(sdk)
                 InstalledSDKMap[sdk.version] = sdk
     return InstalledSDKList
@@ -316,6 +320,7 @@ def mssdk_setup_env(env):
         if sdk_dir is None:
             return
         sdk_dir = env.subst(sdk_dir)
+        debug('mssdk_setup_env: Using MSSDK_DIR:%s'%sdk_dir)
     elif env.has_key('MSSDK_VERSION'):
         sdk_version = env['MSSDK_VERSION']
         if sdk_version is None:
@@ -324,6 +329,7 @@ def mssdk_setup_env(env):
         sdk_version = env.subst(sdk_version)
         mssdk = get_sdk_by_version(sdk_version)
         sdk_dir = mssdk.get_sdk_dir()
+        debug('mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
     elif env.has_key('MSVS_VERSION'):
         msvs_version = env['MSVS_VERSION']
         debug('Getting MSVS_VERSION from env:%s'%msvs_version)
@@ -344,11 +350,13 @@ def mssdk_setup_env(env):
             if not mssdk:
                 return
         sdk_dir = mssdk.get_sdk_dir()
+        debug('mssdk_setup_env: Using MSVS_VERSION:%s'%sdk_dir)
     else:
         mssdk = get_default_sdk()
         if not mssdk:
             return
         sdk_dir = mssdk.get_sdk_dir()
+        debug('mssdk_setup_env: not using any env values. sdk_dir:%s'%sdk_dir)
 
     set_sdk_by_directory(env, sdk_dir)
 
