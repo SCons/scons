@@ -149,11 +149,17 @@ preSDK61VCSetupScripts = { 'x86'      : r'bin\vcvars32.bat',
                            'x86_ia64' : r'bin\vcvarsx86_ia64.bat',
                            'ia64'     : r'bin\vcvarsia64.bat'}
 
-SDk61AndLaterVCSetupScripts = {'x86'      : r'bin\vcvars32.bat',
-                               'amd64'    : r'bin\amd64\vcvarsamd64.bat',
-                               'x86_amd64': r'bin\x86_amd64\vcvarsx86_amd64.bat',
-                               'x86_ia64' : r'bin\x86_ia64\vcvarsx86_ia64.bat',
-                               'ia64'     : r'bin\ia64\vcvarsia64.bat'}
+SDK61VCSetupScripts = {'x86'      : r'bin\vcvars32.bat',
+                       'amd64'    : r'bin\amd64\vcvarsamd64.bat',
+                       'x86_amd64': r'bin\x86_amd64\vcvarsx86_amd64.bat',
+                       'x86_ia64' : r'bin\x86_ia64\vcvarsx86_ia64.bat',
+                       'ia64'     : r'bin\ia64\vcvarsia64.bat'}
+
+SDK70VCSetupScripts =    { 'x86'      : r'bin\vcvars32.bat',
+                           'amd64'    : r'bin\vcvars64.bat',
+                           'x86_amd64': r'bin\vcvarsx86_amd64.bat',
+                           'x86_ia64' : r'bin\vcvarsx86_ia64.bat',
+                           'ia64'     : r'bin\vcvarsia64.bat'}
 
 # The list of support SDKs which we know how to detect.
 #
@@ -171,7 +177,7 @@ SupportedSDKList = [
                    'x86_64'    : [r'lib\x64'],
                    'ia64'      : [r'lib\ia64'],
                },
-               vc_setup_scripts = SDk61AndLaterVCSetupScripts,
+               vc_setup_scripts = SDK70VCSetupScripts,
               ),
     WindowsSDK('6.1',
                sanity_check_file=r'bin\SetEnv.Cmd',
@@ -181,7 +187,7 @@ SupportedSDKList = [
                    'x86_64'    : [r'lib\x64'],
                    'ia64'      : [r'lib\ia64'],
                },
-               vc_setup_scripts = SDk61AndLaterVCSetupScripts,
+               vc_setup_scripts = SDK61VCSetupScripts,
               ),
 
     WindowsSDK('6.0A',
