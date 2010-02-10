@@ -211,6 +211,8 @@ def find_batch_file(env,msvc_version):
     pdir = find_vc_pdir(msvc_version)
     if pdir is None:
         raise NoVersionFound("No version of Visual Studio found")
+        
+    debug('vc.py: find_batch_file() pdir:%s'%pdir)
 
     vernum = float(msvc_version)
     if 7 <= vernum < 8:
@@ -229,12 +231,13 @@ def find_batch_file(env,msvc_version):
     installed_sdks=get_installed_sdks()
     (host_arch,target_arch)=get_host_target(env)
     for _sdk in installed_sdks:
-        #print "Trying :%s"%_sdk.vc_setup_scripts
         sdk_bat_file=_sdk.get_sdk_vc_script(host_arch,target_arch)
         sdk_bat_file_path=os.path.join(pdir,sdk_bat_file)
-        #print "PATH: %s"%sdk_bat_file_path
+        debug('vc.py:find_batch_file() sdk_bat_file_path:%s'%sdk_bat_file_path)
         if os.path.exists(sdk_bat_file_path):
             return (batfilename,sdk_bat_file_path)
+        else:
+            debug("vc.py:find_batch_file() not found:%s"%sdk_bat_file_path)
     else:
         return (batfilename,None)
 
@@ -339,6 +342,7 @@ def msvc_setup_env(env):
 
     try:
         (vc_script,sdk_script) = find_batch_file(env,version)
+        debug('vc.py:msvc_setup_env() vc_script:%s sdk_script:%s'%(vc_script,sdk_script))
     except VisualCException, e:
         msg = str(e)
         debug('Caught exception while looking for batch file (%s)' % msg)
@@ -348,7 +352,8 @@ def msvc_setup_env(env):
         warn_msg = warn_msg % (version, cached_get_installed_vcs())
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return None
-
+    
+    debug('vc.py:msvc_setup_env() vc_script:%s sdk_script:%s'%(vc_script,sdk_script))
     use_script = env.get('MSVC_USE_SCRIPT', True)
     if SCons.Util.is_String(use_script):
         debug('use_script 1 %s\n' % repr(use_script))
@@ -369,7 +374,7 @@ def msvc_setup_env(env):
                 debug('use_script 3: failed running VC script %s: %s: Error:%s'%(repr(vc_script),arg,e))
                 vc_script=None
         if not vc_script and sdk_script:
-            debug('use_script 4: trying sdk script: %s %s'%(sdk_script,arg))
+            debug('use_script 4: trying sdk script: %s'%(sdk_script))
             try:
                 d = script_env(sdk_script,args=[])
             except BatchFileExecutionError,e:
@@ -387,6 +392,7 @@ def msvc_setup_env(env):
         return None
 
     for k, v in d.items():
+        debug('vc.py:msvc_setup_env() env:%s -> %s'%(k,v))
         env.PrependENVPath(k, v, delete_existing=True)
 
 def msvc_exists(version=None):
