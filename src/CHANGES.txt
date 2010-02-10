@@ -31,6 +31,13 @@ RELEASE X.X.X - XXX
       the directory in which the .aux file is written was not created.
       Thanks to Stefan Hepp for finding this and part of the solution.
 
+  From James Teh:
+    - Patches to fix some issues using MS SDK V7.0
+
+  From William Deegan:
+    - Lots of testing and minor patches to handle mixed MS VC and SDK
+      installations, as well as having only the SDK installed.
+
 
 RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800  
 
