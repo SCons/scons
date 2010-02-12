@@ -288,6 +288,20 @@ value (e.g. "XXX") to see the valid values on your system.
 </summary>
 </cvar>
 
+<cvar name="MSVC_USE_SCRIPT">
+<summary>
+Use a batch script to set up Microsoft Visual Studio compiler
+
+&cv-MSVC_USE_SCRIPT; overrides &cv-MSVC_VERSION; and &cv-TARGET_ARCH;.
+If set to the name of a Visual Studio .bat file (e.g. vcvars.bat),
+SCons will run that bat file and extract the relevant variables from
+the result (typically %INCLUDE%, %LIB%, and %PATH%).  Setting
+MSVC_USE_SCRIPT to None bypasses the Visual Studio autodetection
+entirely; use this if you are running SCons in a Visual Studio cmd
+window and importing the shell's environment variables.
+</summary>
+</cvar>
+
 <cvar name="HOST_ARCH">
 <summary>
 Sets the host architecture for Visual Studio compiler. If not set,

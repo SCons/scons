@@ -76,6 +76,15 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
 	set TARGET_ARCH to "x86" or "x86_64" (various synonyms are
 	accepted).
 
+	In addition, MSVC_USE_SCRIPT can be used to bypass the 
+	above autodetection; setting it to the path of a Visual
+	Studio .bat file (e.g. vcvars.bat) will cause SCons to
+	run that bat file and extract the relevant variables
+	from the result (typically %INCLUDE%, %LIB%, and %PATH%).
+	Setting MSVC_USE_SCRIPT to None bypasses the Visual Studio
+	autodetection entirely; use this if you are importing
+	the shell env and running SCons in a Visual Studio cmd window.
+
 	Note that if you use MSVS_VERSION to build Visual Studio
 	projects from your SConstructs, MSVS_VERSION must be set to
 	the same version as MSVC_VERSION.
