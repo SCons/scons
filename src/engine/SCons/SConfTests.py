@@ -168,7 +168,8 @@ class SConfTestCase(unittest.TestCase):
         sconf = self.SConf.SConf(self.scons_env,
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
-        class MyBuilder:
+        import SCons.Builder
+        class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
                 self.suffix = ''

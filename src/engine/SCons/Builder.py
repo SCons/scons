@@ -861,6 +861,16 @@ class CompositeBuilder(SCons.Util.Proxy):
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
 
+def is_a_Builder(obj):
+    """"Returns True iff the specified obj is one of our Builder classes.
+
+    The test is complicated a bit by the fact that CompositeBuilder
+    is a proxy, not a subclass of BuilderBase.
+    """
+    return (isinstance(obj, BuilderBase)
+            or isinstance(obj, CompositeBuilder)
+            or callable(obj))
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
