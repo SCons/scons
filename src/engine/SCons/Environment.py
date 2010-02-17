@@ -152,6 +152,9 @@ def _set_BUILDERS(env, key, value):
     except KeyError:
         bd = BuilderDict(kwbd, env)
         env._dict[key] = bd
+    for k, v in value.items():
+        if not SCons.Builder.is_a_Builder(v):
+            raise SCons.Errors.UserError('%s is not a Builder.' % repr(v))
     bd.update(value)
 
 def _del_SCANNERS(env, key):

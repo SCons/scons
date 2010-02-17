@@ -82,7 +82,7 @@ def diff_dict(d1, d2):
 called_it = {}
 built_it = {}
 
-class Builder:
+class Builder(SCons.Builder.BuilderBase):
     """A dummy Builder class for testing purposes.  "Building"
     a target is simply setting a value in the dictionary.
     """
@@ -1628,9 +1628,11 @@ def exists(env):
         assert env3['X'] == {'x1': 8, 'x2': 9}, env3['X']
         assert env3['Y'] == {'y1': 10}, env3['Y']
 
-        env4 = self.TestEnvironment(BUILDERS = {'z1' : 11})
-        env4.Append(BUILDERS = {'z2' : 12})
-        assert env4['BUILDERS'] == {'z1' : 11, 'z2' : 12}, env4['BUILDERS']
+        z1 = Builder()
+        z2 = Builder()
+        env4 = self.TestEnvironment(BUILDERS = {'z1' : z1})
+        env4.Append(BUILDERS = {'z2' : z2})
+        assert env4['BUILDERS'] == {'z1' : z1, 'z2' : z2}, env4['BUILDERS']
         assert hasattr(env4, 'z1')
         assert hasattr(env4, 'z2')
 
@@ -1778,10 +1780,10 @@ def exists(env):
         assert not env1.Dictionary('ZZZ').has_key(5)
 
         #
-        env1 = self.TestEnvironment(BUILDERS = {'b1' : 1})
+        env1 = self.TestEnvironment(BUILDERS = {'b1' : Builder()})
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
         assert env1.b1.object == env1, "b1.object doesn't point to env1"
-        env2 = env1.Clone(BUILDERS = {'b2' : 2})
+        env2 = env1.Clone(BUILDERS = {'b2' : Builder()})
         assert env2 is env2
         assert env2 == env2
         assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
@@ -2281,9 +2283,11 @@ f5: \
         assert env3['X'] == {'x1': 8, 'x2' : 9}, env3['X']
         assert env3['Y'] == {'y1': 10}, env3['Y']
 
-        env4 = self.TestEnvironment(BUILDERS = {'z1' : 11})
-        env4.Prepend(BUILDERS = {'z2' : 12})
-        assert env4['BUILDERS'] == {'z1' : 11, 'z2' : 12}, env4['BUILDERS']
+        z1 = Builder()
+        z2 = Builder()
+        env4 = self.TestEnvironment(BUILDERS = {'z1' : z1})
+        env4.Prepend(BUILDERS = {'z2' : z2})
+        assert env4['BUILDERS'] == {'z1' : z1, 'z2' : z2}, env4['BUILDERS']
         assert hasattr(env4, 'z1')
         assert hasattr(env4, 'z2')
 
@@ -2399,9 +2403,11 @@ f5: \
         env2 = self.TestEnvironment(AAA = 'a', BBB = 'bbb', CCC = 'ccc')
         assert env1 == env2, diff_env(env1, env2)
 
-        env3 = self.TestEnvironment(BUILDERS = {'b1' : 1})
+        b1 = Builder()
+        b2 = Builder()
+        env3 = self.TestEnvironment(BUILDERS = {'b1' : b1})
         assert hasattr(env3, 'b1'), "b1 was not set"
-        env3.Replace(BUILDERS = {'b2' : 2})
+        env3.Replace(BUILDERS = {'b2' : b2})
         assert not hasattr(env3, 'b1'), "b1 was not cleared"
         assert hasattr(env3, 'b2'), "b2 was not set"
 

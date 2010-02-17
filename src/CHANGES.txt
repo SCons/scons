@@ -18,6 +18,9 @@ RELEASE X.X.X - XXX
 
     - Make the messages for Configure checks of compilers consistent.
 
+    - Issue an error message if a BUILDERS entry is not a Builder
+      object or a callable wrapper.
+
   From Rob Managan:
 
     - Update tex builder to handle the case where a \input{foo}
