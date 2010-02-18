@@ -44,13 +44,12 @@ env.mkdir(env.Dir('src'), None)
 
 expect_stderr = """\
 
-scons: \\*\\*\\* .* is not a Builder\\.
+scons: *** 1 is not a Builder.
 """ + test.python_file_line(SConstruct_path, 4)
 
 test.run(arguments='.',
          stderr=expect_stderr,
-         status=2,
-         match=TestSCons.match_re)
+         status=2)
 
 
 test.pass_test()
