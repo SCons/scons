@@ -160,6 +160,19 @@ else:
         # Check /usr/libfoo/scons*.
         prefs.append(libpath)
 
+    try:
+        import pkg_resources
+    except ImportError:
+        pass
+    else:
+        # when running from an egg add the egg's directory 
+        try:
+            d = pkg_resources.get_distribution('scons')
+        except pkg_resources.DistributionNotFound:
+            pass
+        else:
+            prefs.append(d.location)
+
 # Look first for 'scons-__version__' in all of our preference libs,
 # then for 'scons'.
 libs.extend(map(lambda x: os.path.join(x, scons_version), prefs))
