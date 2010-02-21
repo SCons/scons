@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -75,75 +73,6 @@ test.must_match('rpcif_clnt.c', expect_clnt)
 test.must_match('rpcif.h', expect_h)
 test.must_match('rpcif_svc.c', expect_svc)
 test.must_match('rpcif_xdr.c', expect_xdr)
-
-
-
-rpcgen = test.where_is('rpcgen')
-if rpcgen:
-
-    test.subdir('do_rpcgen')
-
-    test.write('SConstruct', """\
-import os
-env = Environment(ENV=os.environ)
-env.Program('rpcclnt', ['rpcclnt.c', 'do_rpcgen/rpcif_clnt.c'])
-env.RPCGenHeader('do_rpcgen/rpcif')
-env.RPCGenClient('do_rpcgen/rpcif')
-env.RPCGenService('do_rpcgen/rpcif')
-env.RPCGenXDR('do_rpcgen/rpcif')
-""")
-
-    test.write(['do_rpcgen', 'rpcif.x'], """\
-program RPCTEST_IF
-{
-  version RPCTEST_IF_VERSION
-  {
-    int START(unsigned long) = 1;
-    int STOP(unsigned long) = 2;
-    int STATUS(unsigned long) = 3;
-  } = 1; /* version */
-} = 0xfeedf00d; /* portmap program ID */
-""")
-
-# Following test tries to make sure it can compile and link, but when
-# it's run it doesn't actually invoke any rpc operations because that
-# would have significant dependencies on network configuration,
-# portmapper, etc. that aren't necessarily appropriate for an scons
-# test.
-
-    test.write('rpcclnt.c', """\
-#include <rpc/rpc.h>
-#include <rpc/pmap_clnt.h>
-#include "do_rpcgen/rpcif.h"
-
-int main(int argc, char **args) {
-  const char* const SERVER = "localhost";
-  CLIENT *cl;
-  int *rslt;
-  unsigned long arg = 0;
-  if (argc > 2) {
-    cl = clnt_create( SERVER, RPCTEST_IF, RPCTEST_IF_VERSION, "udp" );
-    if (cl == 0 ) { return 1; }
-    rslt = start_1(&arg, cl);
-    if (*rslt == 0) { clnt_perror( cl, SERVER ); return 1; }
-    clnt_destroy(cl);
-  } else
-    printf("Hello!\\n");
-  return 0;
-}
-""")
-
-
-    # OX X through 10.5 include an ancient version of rpcgen from 1998 that
-    # generates numerous compile warnings.  Ignore stderr for this platform.
-    if sys.platform[:6] == 'darwin':
-        test.run(stderr=None)
-    else:
-        test.run()
-
-    test.run(program=test.workpath('rpcclnt'+_exe))
-
-    test.fail_test(not test.stdout() in ["Hello!\n", "Hello!\r\n"])
 
 
 
