@@ -2,8 +2,8 @@
 #
 # Process a list of Python and/or XML files containing SCons documentation.
 #
-# This script creates formatted lists of the Builders, Tools or
-# construction variables documented in the specified XML files.
+# This script creates formatted lists of the Builders, functions, Tools
+# or construction variables documented in the specified XML files.
 #
 # Dependening on the options, the lists are output in either
 # DocBook-formatted generated XML files containing the summary text
@@ -24,9 +24,11 @@ base_sys_path = [os.getcwd() + '/build/test-tar-gz/lib/scons'] + sys.path
 
 helpstr = """\
 Usage: scons-proc.py [--man|--xml]
-                     [-b file(s)] [-t file(s)] [-v file(s)] [infile ...]
+                     [-b file(s)] [-f file(s)] [-t file(s)] [-v file(s)]
+                     [infile ...]
 Options:
   -b file(s)        dump builder information to the specified file(s)
+  -f file(s)        dump function information to the specified file(s)
   -t file(s)        dump tool information to the specified file(s)
   -v file(s)        dump variable information to the specified file(s)
   --man             print info in man page format, each -[btv] argument
@@ -36,11 +38,12 @@ Options:
 """
 
 opts, args = getopt.getopt(sys.argv[1:],
-                           "b:ht:v:",
+                           "b:f:ht:v:",
                            ['builders=', 'help',
                             'man', 'xml', 'tools=', 'variables='])
 
 buildersfiles = None
+functionsfiles = None
 output_type = '--xml'
 toolsfiles = None
 variablesfiles = None
@@ -48,6 +51,8 @@ variablesfiles = None
 for o, a in opts:
     if o in ['-b', '--builders']:
         buildersfiles = a
+    elif o in ['-f', '--functions']:
+        functionsfiles = a
     elif o in ['-h', '--help']:
         sys.stdout.write(helpstr)
         sys.exit(0)
@@ -194,8 +199,7 @@ class SCons_XML_to_man(SCons_XML):
         chunks = []
         for v in self.values:
             chunks.extend(v.mansep())
-            for n in v.initial_chunks():
-                chunks.append('.IP %s\n' % n)
+            chunks.extend(v.initial_chunks())
             chunks.extend(map(str, v.summary.body))
 
         body = ''.join(chunks)
@@ -212,7 +216,8 @@ class SCons_XML_to_man(SCons_XML):
         body = string.replace(body, '&source;', r'\fIsource\fP')
         body = re.sub('&b(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
         body = re.sub('&cv(-link)?-([^;]*);', r'$\2', body)
-        body = re.sub(r'<(command|envar|filename|literal|option)>([^<]*)</\1>',
+        body = re.sub('&f(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
+        body = re.sub(r'<(command|envar|filename|function|literal|option)>([^<]*)</\1>',
                       r'\\fB\2\\fP', body)
         body = re.sub(r'<(classname|emphasis|varname)>([^<]*)</\1>',
                       r'\\fI\2\\fP', body)
@@ -259,7 +264,27 @@ class Builder(Proxy):
     def mansep(self):
         return ['\n', "'\\" + '"'*69 + '\n']
     def initial_chunks(self):
-        return self.termfunc()
+        return [ '.IP %s\n' % t for t in self.termfunc() ]
+
+class Function(Proxy):
+    description = 'function'
+    prefix = 'f-'
+    tag = 'function'
+    def idfunc(self):
+        return self.name
+    def termfunc(self):
+        return ['%s()' % self.name, 'env.%s()' % self.name]
+    def entityfunc(self):
+        return self.name
+    def mansep(self):
+        return ['\n', "'\\" + '"'*69 + '\n']
+    def initial_chunks(self):
+        try:
+            x = self.arguments
+        except AttributeError:
+            x = '()'
+        y = ['%s%s' % (self.name, x), 'env.%s%s' % (self.name, x)]
+        return [ '.TP\n.RI %s\n' % t for t in y ]
 
 class Tool(Proxy):
     description = 'tool'
@@ -274,7 +299,7 @@ class Tool(Proxy):
     def mansep(self):
         return ['\n']
     def initial_chunks(self):
-        return [self.name]
+        return ['.IP %s\n' % self.name]
 
 class Variable(Proxy):
     description = 'construction variable'
@@ -289,7 +314,7 @@ class Variable(Proxy):
     def mansep(self):
         return ['\n']
     def initial_chunks(self):
-        return [self.name]
+        return ['.IP %s\n' % self.name]
 
 if output_type == '--man':
     processor_class = SCons_XML_to_man
@@ -302,6 +327,10 @@ else:
 if buildersfiles:
     g = processor_class([ Builder(b) for b in sorted(h.builders.values()) ])
     g.write(buildersfiles)
+
+if functionsfiles:
+    g = processor_class([ Function(b) for b in sorted(h.functions.values()) ])
+    g.write(functionsfiles)
 
 if toolsfiles:
     g = processor_class([ Tool(t) for t in sorted(h.tools.values()) ])
