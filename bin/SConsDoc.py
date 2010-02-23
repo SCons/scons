@@ -5,8 +5,8 @@
 
 __doc__ = """
 This module parses home-brew XML files that document various things
-in SCons.  Right now, it handles Builders, construction variables,
-and Tools, but we expect it to get extended in the future.
+in SCons.  Right now, it handles Builders, functions, construction
+variables, and Tools, but we expect it to get extended in the future.
 
 In general, you can use any DocBook tag in the input, and this module
 just adds processing various home-brew tags to try to make life a
@@ -14,14 +14,14 @@ little easier.
 
 Builder example:
 
-    <builder name="VARIABLE">
+    <builder name="BUILDER">
     <summary>
-    This is the summary description of an SCons Tool.
+    This is the summary description of an SCons Builder.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
     The name of any builder may be interpolated
     anywhere in the document by specifying the
-    &b-VARIABLE;
+    &b-BUILDER;
     element.  It need not be on a line by itself.
 
     Unlike normal XML, blank lines are significant in these
@@ -34,6 +34,32 @@ Builder example:
     </example>
     </summary>
     </builder>
+
+Function example:
+
+    <scons_function name="FUNCTION">
+    <arguments>
+    (arg1, arg2, key=value)
+    </arguments>
+    <summary>
+    This is the summary description of an SCons function.
+    It will get placed in the man page,
+    and in the appropriate User's Guide appendix.
+    The name of any builder may be interpolated
+    anywhere in the document by specifying the
+    &f-FUNCTION;
+    element.  It need not be on a line by itself.
+
+    Unlike normal XML, blank lines are significant in these
+    descriptions and serve to separate paragraphs.
+    They'll get replaced in DocBook output with appropriate tags
+    to indicate a new paragraph.
+
+    <example>
+    print "this is example code, it will be offset and indented"
+    </example>
+    </summary>
+    </scons_function>
 
 Construction variable example:
 
@@ -60,14 +86,14 @@ Construction variable example:
 
 Tool example:
 
-    <tool name="VARIABLE">
+    <tool name="TOOL">
     <summary>
     This is the summary description of an SCons Tool.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
     The name of any tool may be interpolated
     anywhere in the document by specifying the
-    &t-VARIABLE;
+    &t-TOOL;
     element.  It need not be on a line by itself.
 
     Unlike normal XML, blank lines are significant in these
@@ -82,8 +108,9 @@ Tool example:
     </tool>
 """
 
-import os.path
 import imp
+import os.path
+import re
 import sys
 import xml.sax.handler
 
@@ -106,6 +133,9 @@ class Item:
 class Builder(Item):
     pass
 
+class Function(Item):
+    pass
+
 class Tool(Item):
     def __init__(self, name):
         Item.__init__(self, name)
@@ -123,6 +153,22 @@ class Chunk:
     def __str__(self):
         body = ''.join(self.body)
         return "<%s>%s</%s>\n" % (self.tag, body, self.tag)
+    def append(self, data):
+        self.body.append(data)
+
+class Arguments:
+    def __init__(self, body=None):
+        if not body:
+            body = []
+        self.body = body
+    def __str__(self):
+        s = ''.join(self.body).strip()
+        result = []
+        for m in re.findall('([a-zA-Z_]+|[^a-zA-Z_]+)', s):
+            if ' ' in m:
+                m = '"%s"' % m
+            result.append(m)
+        return ' '.join(result)
     def append(self, data):
         self.body.append(data)
 
@@ -181,6 +227,7 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
         self.collect = []
         self.current_object = []
         self.builders = {}
+        self.functions = {}
         self.tools = {}
         self.cvars = {}
 
@@ -244,6 +291,17 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
     def end_builder(self):
         self.end_xxx()
 
+    def start_scons_function(self, attrs):
+        name = attrs.get('name')
+        try:
+            function = self.functions[name]
+        except KeyError:
+            function = Function(name)
+            self.functions[name] = function
+        self.begin_xxx(function)
+    def end_scons_function(self):
+        self.end_xxx()
+
     def start_tool(self, attrs):
         name = attrs.get('name')
         try:
@@ -264,6 +322,14 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
             self.cvars[name] = cvar
         self.begin_xxx(cvar)
     def end_cvar(self):
+        self.end_xxx()
+
+    def start_arguments(self, attrs):
+        arguments = Arguments()
+        self.current_object.arguments = arguments
+        self.begin_xxx(arguments)
+        self.begin_collecting(arguments)
+    def end_arguments(self):
         self.end_xxx()
 
     def start_summary(self, attrs):
