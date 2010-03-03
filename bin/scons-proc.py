@@ -221,14 +221,17 @@ class SCons_XML_to_man(SCons_XML):
                       r'\\fB\2\\fP', body)
         body = re.sub(r'<(classname|emphasis|varname)>([^<]*)</\1>',
                       r'\\fI\2\\fP', body)
+        body = re.compile(r'^\\f([BI])([^\\]* [^\\]*)\\fP\s*$', re.M).sub(r'.\1 "\2"', body)
         body = re.compile(r'^\\f([BI])(.*)\\fP\s*$', re.M).sub(r'.\1 \2', body)
-        body = re.compile(r'^\\f([BI])(.*)\\fP(\S+)', re.M).sub(r'.\1R \2 \3', body)
+        body = re.compile(r'^\\f([BI])(.*)\\fP(\S+)$', re.M).sub(r'.\1R \2 \3', body)
+        body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP$', re.M).sub(r'.R\2 \1 \3', body)
         body = string.replace(body, '&lt;', '<')
         body = string.replace(body, '&gt;', '>')
         body = re.sub(r'\\([^f])', r'\\\\\1', body)
         body = re.compile("^'\\\\\\\\", re.M).sub("'\\\\", body)
+        body = re.compile(r'^\.([BI]R?) --', re.M).sub(r'.\1 \-\-', body)
         body = re.compile(r'^\.([BI]R?) -', re.M).sub(r'.\1 \-', body)
-        body = re.compile(r'^\.([BI]R?) (\S+)\\\\(\S+)', re.M).sub(r'.\1 "\2\\\\\\\\\2"', body)
+        body = re.compile(r'^\.([BI]R?) (\S+)\\\\(\S+)$', re.M).sub(r'.\1 "\2\\\\\\\\\2"', body)
         body = re.compile(r'\\f([BI])-', re.M).sub(r'\\f\1\-', body)
         f.write(body)
 
@@ -283,8 +286,12 @@ class Function(Proxy):
             x = self.arguments
         except AttributeError:
             x = '()'
-        y = ['%s%s' % (self.name, x), 'env.%s%s' % (self.name, x)]
-        return [ '.TP\n.RI %s\n' % t for t in y ]
+        result = []
+        if self.global_signature != "0":
+            result.append('.TP\n.RI %s%s\n' % (self.name, x))
+        if self.env_signature != "0":
+            result.append('.TP\n.IR env .%s%s\n' % (self.name, x))
+        return result
 
 class Tool(Proxy):
     description = 'tool'
