@@ -114,7 +114,7 @@ import re
 import sys
 import xml.sax.handler
 
-class Item:
+class Item(object):
     def __init__(self, name):
         self.name = name
         self.sort_name = name.lower()
@@ -134,7 +134,10 @@ class Builder(Item):
     pass
 
 class Function(Item):
-    pass
+    def __init__(self, name, global_signature, env_signature):
+        super(Function, self).__init__(name)
+        self.global_signature = global_signature
+        self.env_signature = env_signature
 
 class Tool(Item):
     def __init__(self, name):
@@ -164,7 +167,7 @@ class Arguments:
     def __str__(self):
         s = ''.join(self.body).strip()
         result = []
-        for m in re.findall('([a-zA-Z_]+|[^a-zA-Z_]+)', s):
+        for m in re.findall('([a-zA-Z/_]+|[^a-zA-Z/_]+)', s):
             if ' ' in m:
                 m = '"%s"' % m
             result.append(m)
@@ -296,7 +299,9 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
         try:
             function = self.functions[name]
         except KeyError:
-            function = Function(name)
+            function = Function(name,
+                                attrs.get('global', "1"),
+                                attrs.get('env', "1"))
             self.functions[name] = function
         self.begin_xxx(function)
     def end_scons_function(self):
