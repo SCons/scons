@@ -209,7 +209,15 @@ class SCons_XML_to_man(SCons_XML):
         body = string.replace(body, '<para>\n', '')
         body = string.replace(body, '<para>', '\n')
         body = string.replace(body, '</para>\n', '')
-        body = re.sub('\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
+
+        body = string.replace(body, '<variablelist>\n', '.RS 10\n')
+        body = re.compile(r'<varlistentry>\n<term>([^<]*)</term>\n<listitem>\n').sub(r'.HP 6\n.B \1\n', body)
+        body = string.replace(body, '</listitem>\n', '')
+        body = string.replace(body, '</varlistentry>\n', '')
+        body = string.replace(body, '</variablelist>\n', '.RE\n')
+
+        body = re.sub(r'\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
+        body = string.replace(body, '\n.IP\n\'\\"', '\n\n\'\\"')
         body = re.sub('&(scons|SConstruct|SConscript|jar);', r'\\fB\1\\fP', body)
         body = string.replace(body, '&Dir;', r'\fBDir\fP')
         body = string.replace(body, '&target;', r'\fItarget\fP')
