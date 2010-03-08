@@ -291,14 +291,19 @@ class Function(Proxy):
         return ['\n', "'\\" + '"'*69 + '\n']
     def initial_chunks(self):
         try:
-            x = self.arguments
+            arguments = self.arguments
         except AttributeError:
-            x = '()'
+            arguments = ['()']
         result = []
-        if self.global_signature != "0":
-            result.append('.TP\n.RI %s%s\n' % (self.name, x))
-        if self.env_signature != "0":
-            result.append('.TP\n.IR env .%s%s\n' % (self.name, x))
+        for arg in arguments:
+            try:
+                signature = arg.signature
+            except AttributeError:
+                signature = "both"
+            if signature in ('both', 'global'):
+                result.append('.TP\n.RI %s%s\n' % (self.name, arg))
+            if signature in ('both', 'env'):
+                result.append('.TP\n.IR env .%s%s\n' % (self.name, arg))
         return result
 
 class Tool(Proxy):
