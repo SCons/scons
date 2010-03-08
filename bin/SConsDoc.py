@@ -134,10 +134,9 @@ class Builder(Item):
     pass
 
 class Function(Item):
-    def __init__(self, name, global_signature, env_signature):
+    def __init__(self, name):
         super(Function, self).__init__(name)
-        self.global_signature = global_signature
-        self.env_signature = env_signature
+        self.arguments = []
 
 class Tool(Item):
     def __init__(self, name):
@@ -160,10 +159,11 @@ class Chunk:
         self.body.append(data)
 
 class Arguments:
-    def __init__(self, body=None):
+    def __init__(self, signature, body=None):
         if not body:
             body = []
         self.body = body
+        self.signature = signature
     def __str__(self):
         s = ''.join(self.body).strip()
         result = []
@@ -299,9 +299,7 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
         try:
             function = self.functions[name]
         except KeyError:
-            function = Function(name,
-                                attrs.get('global', "1"),
-                                attrs.get('env', "1"))
+            function = Function(name)
             self.functions[name] = function
         self.begin_xxx(function)
     def end_scons_function(self):
@@ -330,8 +328,8 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
         self.end_xxx()
 
     def start_arguments(self, attrs):
-        arguments = Arguments()
-        self.current_object.arguments = arguments
+        arguments = Arguments(attrs.get('signature', "both"))
+        self.current_object.arguments.append(arguments)
         self.begin_xxx(arguments)
         self.begin_collecting(arguments)
     def end_arguments(self):
