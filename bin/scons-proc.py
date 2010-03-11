@@ -178,6 +178,12 @@ class SCons_XML_to_XML(SCons_XML):
             f.write('<!ENTITY %s%s "<%s>%s</%s>">\n' %
                         (v.prefix, v.idfunc(),
                          v.tag, v.entityfunc(), v.tag))
+        if self.env_signatures:
+            f.write('\n')
+            for v in self.values:
+                f.write('<!ENTITY %senv-%s "<%s>env.%s</%s>">\n' %
+                            (v.prefix, v.idfunc(),
+                             v.tag, v.entityfunc(), v.tag))
         f.write('\n')
         f.write(Warning)
         f.write('\n')
@@ -188,6 +194,13 @@ class SCons_XML_to_XML(SCons_XML):
                         (v.prefix, v.idfunc(),
                          v.prefix, v.idfunc(),
                          v.tag, v.entityfunc(), v.tag))
+        if self.env_signatures:
+            f.write('\n')
+            for v in self.values:
+                f.write('<!ENTITY %slink-env-%s \'<link linkend="%s%s"><%s>env.%s</%s></link>\'>\n' %
+                            (v.prefix, v.idfunc(),
+                             v.prefix, v.idfunc(),
+                             v.tag, v.entityfunc(), v.tag))
         f.write('\n')
         f.write(Warning)
 
@@ -211,6 +224,11 @@ class SCons_XML_to_man(SCons_XML):
         body = string.replace(body, '</para>\n', '')
 
         body = string.replace(body, '<variablelist>\n', '.RS 10\n')
+        # Handling <varlistentry> needs to be rationalized and made
+        # consistent.  Right now, the <term> values map to arbitrary,
+        # ad-hoc idioms in the current man page.
+        body = re.compile(r'<varlistentry>\n<term><literal>([^<]*)</literal></term>\n<listitem>\n').sub(r'.TP 6\n.B \1\n', body)
+        body = re.compile(r'<varlistentry>\n<term><parameter>([^<]*)</parameter></term>\n<listitem>\n').sub(r'.IP \1\n', body)
         body = re.compile(r'<varlistentry>\n<term>([^<]*)</term>\n<listitem>\n').sub(r'.HP 6\n.B \1\n', body)
         body = string.replace(body, '</listitem>\n', '')
         body = string.replace(body, '</varlistentry>\n', '')
@@ -218,14 +236,15 @@ class SCons_XML_to_man(SCons_XML):
 
         body = re.sub(r'\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
         body = string.replace(body, '\n.IP\n\'\\"', '\n\n\'\\"')
-        body = re.sub('&(scons|SConstruct|SConscript|jar);', r'\\fB\1\\fP', body)
+        body = re.sub('&(scons|SConstruct|SConscript|jar|Make);', r'\\fB\1\\fP', body)
         body = string.replace(body, '&Dir;', r'\fBDir\fP')
         body = string.replace(body, '&target;', r'\fItarget\fP')
         body = string.replace(body, '&source;', r'\fIsource\fP')
         body = re.sub('&b(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
         body = re.sub('&cv(-link)?-([^;]*);', r'$\2', body)
+        body = re.sub('&f(-link)?-env-([^;]*);', r'\\fBenv.\2\\fP()', body)
         body = re.sub('&f(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
-        body = re.sub(r'<(command|envar|filename|function|literal|option)>([^<]*)</\1>',
+        body = re.sub(r'<(application|command|envar|filename|function|literal|option)>([^<]*)</\1>',
                       r'\\fB\2\\fP', body)
         body = re.sub(r'<(classname|emphasis|varname)>([^<]*)</\1>',
                       r'\\fI\2\\fP', body)
@@ -345,19 +364,23 @@ else:
     sys.exit(1)
 
 if buildersfiles:
-    g = processor_class([ Builder(b) for b in sorted(h.builders.values()) ])
+    g = processor_class([ Builder(b) for b in sorted(h.builders.values()) ],
+                        env_signatures=True)
     g.write(buildersfiles)
 
 if functionsfiles:
-    g = processor_class([ Function(b) for b in sorted(h.functions.values()) ])
+    g = processor_class([ Function(b) for b in sorted(h.functions.values()) ],
+                        env_signatures=True)
     g.write(functionsfiles)
 
 if toolsfiles:
-    g = processor_class([ Tool(t) for t in sorted(h.tools.values()) ])
+    g = processor_class([ Tool(t) for t in sorted(h.tools.values()) ],
+                        env_signatures=False)
     g.write(toolsfiles)
 
 if variablesfiles:
-    g = processor_class([ Variable(v) for v in sorted(h.cvars.values()) ])
+    g = processor_class([ Variable(v) for v in sorted(h.cvars.values()) ],
+                        env_signatures=False)
     g.write(variablesfiles)
 
 # Local Variables:
