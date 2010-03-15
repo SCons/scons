@@ -96,6 +96,9 @@ for f in args:
         content = open(f).read()
     if content:
         content = content.replace('&', '&amp;')
+        # Strip newlines after comments so they don't turn into
+        # spurious paragraph separators.
+        content = content.replace('-->\n', '-->')
         input = xml_preamble + content + xml_postamble
         try:
             saxparser.parse(StringIO.StringIO(input))
@@ -236,7 +239,8 @@ class SCons_XML_to_man(SCons_XML):
 
         body = re.sub(r'\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
         body = string.replace(body, '\n.IP\n\'\\"', '\n\n\'\\"')
-        body = re.sub('&(scons|SConstruct|SConscript|jar|Make);', r'\\fB\1\\fP', body)
+        body = re.sub('&(scons|SConstruct|SConscript|jar|Make|lambda);', r'\\fB\1\\fP', body)
+        body = re.sub('&(TARGET|TARGETS|SOURCE|SOURCES);', r'\\fB$\1\\fP', body)
         body = string.replace(body, '&Dir;', r'\fBDir\fP')
         body = string.replace(body, '&target;', r'\fItarget\fP')
         body = string.replace(body, '&source;', r'\fIsource\fP')
@@ -252,6 +256,8 @@ class SCons_XML_to_man(SCons_XML):
         body = re.compile(r'^\\f([BI])(.*)\\fP\s*$', re.M).sub(r'.\1 \2', body)
         body = re.compile(r'^\\f([BI])(.*)\\fP(\S+)$', re.M).sub(r'.\1R \2 \3', body)
         body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP$', re.M).sub(r'.R\2 \1 \3', body)
+        body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP([^\s\\]+)$', re.M).sub(r'.R\2 \1 \3 \4', body)
+        body = re.compile(r'^(\.R[BI].*[\S])\s+$;', re.M).sub(r'\1', body)
         body = string.replace(body, '&lt;', '<')
         body = string.replace(body, '&gt;', '>')
         body = re.sub(r'\\([^f])', r'\\\\\1', body)
