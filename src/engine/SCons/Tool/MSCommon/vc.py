@@ -285,6 +285,8 @@ def get_default_version(env):
 
     msvc_version = env.get('MSVC_VERSION')
     msvs_version = env.get('MSVS_VERSION')
+    
+    debug('get_default_version(): msvc_version:%s msvs_version:%s'%(msvc_version,msvs_version))
 
     if msvs_version and not msvc_version:
         SCons.Warnings.warn(

@@ -76,12 +76,15 @@ class SDKDefinition:
             return None
 
         hkey = self.HKEY_FMT % self.hkey_data
+        debug('find_sdk_dir(): checking registry:%s'%hkey)
 
         try:
             sdk_dir = common.read_reg(hkey)
         except WindowsError, e:
             debug('find_sdk_dir(): no SDK registry key %s' % repr(hkey))
             return None
+
+        debug('find_sdk_dir(): Trying SDK Dir: %s'%sdk_dir)
 
         if not os.path.exists(sdk_dir):
             debug('find_sdk_dir():  %s not on file system' % sdk_dir)
