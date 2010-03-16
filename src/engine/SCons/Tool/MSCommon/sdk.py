@@ -240,6 +240,7 @@ InstalledSDKMap = None
 def get_installed_sdks():
     global InstalledSDKList
     global InstalledSDKMap
+    debug('sdk.py:get_installed_sdks()')
     if InstalledSDKList is None:
         InstalledSDKList = []
         InstalledSDKMap = {}
@@ -322,8 +323,11 @@ def get_default_sdk():
         return None
     return InstalledSDKList[0]
 
+
+
+
 def mssdk_setup_env(env):
-    debug('mssdk_setup_env()')
+    debug('sdk.py:mssdk_setup_env()')
     if env.has_key('MSSDK_DIR'):
         sdk_dir = env['MSSDK_DIR']
         if sdk_dir is None:
@@ -341,16 +345,18 @@ def mssdk_setup_env(env):
         debug('mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
     elif env.has_key('MSVS_VERSION'):
         msvs_version = env['MSVS_VERSION']
-        debug('Getting MSVS_VERSION from env:%s'%msvs_version)
+        debug('sdk.py:mssdk_setup_env:Getting MSVS_VERSION from env:%s'%msvs_version)
         if msvs_version is None:
+            debug('sdk.py:mssdk_setup_env thinks msvs_version is None')
             return
         msvs_version = env.subst(msvs_version)
         import vs
         msvs = vs.get_vs_by_version(msvs_version)
-        debug('msvs is :%s'%msvs)
+        debug('sdk.py:mssdk_setup_env:msvs is :%s'%msvs)
         if not msvs:
             return
         sdk_version = msvs.sdk_version
+        debug('sdk.py:msvs.sdk_version is %s'%sdk_version)
         if not sdk_version:
             return
         mssdk = get_sdk_by_version(sdk_version)
@@ -359,13 +365,13 @@ def mssdk_setup_env(env):
             if not mssdk:
                 return
         sdk_dir = mssdk.get_sdk_dir()
-        debug('mssdk_setup_env: Using MSVS_VERSION:%s'%sdk_dir)
+        debug('sdk.py:mssdk_setup_env: Using MSVS_VERSION:%s'%sdk_dir)
     else:
         mssdk = get_default_sdk()
         if not mssdk:
             return
         sdk_dir = mssdk.get_sdk_dir()
-        debug('mssdk_setup_env: not using any env values. sdk_dir:%s'%sdk_dir)
+        debug('sdk.py:mssdk_setup_env: not using any env values. sdk_dir:%s'%sdk_dir)
 
     set_sdk_by_directory(env, sdk_dir)
 
