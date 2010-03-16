@@ -384,6 +384,7 @@ def get_vs_by_version(msvs):
     global InstalledVSMap
     global SupportedVSMap
 
+    debug('vs.py:get_vs_by_version()')
     if not SupportedVSMap.has_key(msvs):
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError, msg
