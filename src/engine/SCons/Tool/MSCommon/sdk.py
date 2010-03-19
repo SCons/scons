@@ -333,7 +333,7 @@ def mssdk_setup_env(env):
         if sdk_dir is None:
             return
         sdk_dir = env.subst(sdk_dir)
-        debug('mssdk_setup_env: Using MSSDK_DIR:%s'%sdk_dir)
+        debug('sdk.py:mssdk_setup_env: Using MSSDK_DIR:%s'%sdk_dir)
     elif env.has_key('MSSDK_VERSION'):
         sdk_version = env['MSSDK_VERSION']
         if sdk_version is None:
@@ -342,7 +342,7 @@ def mssdk_setup_env(env):
         sdk_version = env.subst(sdk_version)
         mssdk = get_sdk_by_version(sdk_version)
         sdk_dir = mssdk.get_sdk_dir()
-        debug('mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
+        debug('sdk.py:mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
     elif env.has_key('MSVS_VERSION'):
         msvs_version = env['MSVS_VERSION']
         debug('sdk.py:mssdk_setup_env:Getting MSVS_VERSION from env:%s'%msvs_version)
@@ -354,6 +354,7 @@ def mssdk_setup_env(env):
         msvs = vs.get_vs_by_version(msvs_version)
         debug('sdk.py:mssdk_setup_env:msvs is :%s'%msvs)
         if not msvs:
+            debug('sdk.py:mssdk_setup_env: no VS version detected, bailingout:%s'%msvs)
             return
         sdk_version = msvs.sdk_version
         debug('sdk.py:msvs.sdk_version is %s'%sdk_version)
