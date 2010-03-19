@@ -36,6 +36,7 @@ __doc__ = """Module for Visual C/C++ detection and configuration.
 """
 import SCons.compat
 
+import string
 import os
 import platform
 
@@ -216,7 +217,9 @@ def find_batch_file(env,msvc_version):
         
     debug('vc.py: find_batch_file() pdir:%s'%pdir)
 
-    vernum = float(msvc_version)
+    # filter out e.g. "Exp" from the version name
+    msvc_ver_numeric = string.join(filter(lambda x: x in string.digits + ".", msvc_version), '')
+    vernum = float(msvc_ver_numeric)
     if 7 <= vernum < 8:
         pdir = os.path.join(pdir, os.pardir, "Common7", "Tools")
         batfilename = os.path.join(pdir, "vsvars32.bat")
