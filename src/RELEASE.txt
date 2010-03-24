@@ -14,19 +14,19 @@ to solve build problems.  You do not, however, need to know Python to
 use SCons effectively.
 
 So that everyone using SCons can help each other learn how to use it
-more effectively, please sign up for the scons-users mailing list at:
+more effectively, please sign up for the scons-users mailing list using
+the instructions on the following page:
 
-    http://lists.sourceforge.net/lists/listinfo/scons-users
+     http://scons.org/lists.php
 
 
 
-RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
+RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400
 
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
 
-  Please note the following important changes scheduled for the next
-  minor release (1.3.0):
+  Please note the following important changes in this release:
 
     --  DEPRECATED FEATURES WILL GENERATE MANDATORY WARNINGS IN 1.3.0
 

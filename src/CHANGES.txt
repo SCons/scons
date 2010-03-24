@@ -7,8 +7,17 @@
                             Change Log
 
 
+RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400
 
-RELEASE X.X.X - XXX
+  From Steven Knight:
+
+    - Update man page and documentation.
+
+  From William Deegan (plus minor patch from Gary Oberbrunner):
+
+    - Support Visual Studio 8.0 Express
+
+RELEASE 1.2.0.d20100306 - Sat, 06 Mar 2010 16:18:33 -0800
 
   From Luca Falavigna:
 
