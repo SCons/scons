@@ -50,7 +50,7 @@ from TestCommon import __all__
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '1.2.0'
+default_version = '1.3.0'
 
 copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010'
 
