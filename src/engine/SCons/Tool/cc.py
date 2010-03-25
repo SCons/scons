@@ -45,7 +45,7 @@ def add_common_cc_variables(env):
     Add underlying common "C compiler" variables that
     are used by multiple tools (specifically, c++).
     """
-    if not env.has_key('_CCCOMCOM'):
+    if '_CCCOMCOM' not in env:
         env['_CCCOMCOM'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS'
         # It's a hack to test for darwin here, but the alternative
         # of creating an applecc.py to contain this seems overkill.
@@ -56,10 +56,10 @@ def add_common_cc_variables(env):
         if env['PLATFORM'] == 'darwin':
             env['_CCCOMCOM'] = env['_CCCOMCOM'] + ' $_FRAMEWORKPATH'
 
-    if not env.has_key('CCFLAGS'):
+    if 'CCFLAGS' not in env:
         env['CCFLAGS']   = SCons.Util.CLVar('')
 
-    if not env.has_key('SHCCFLAGS'):
+    if 'SHCCFLAGS' not in env:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
 
 def generate(env):
@@ -73,18 +73,6 @@ def generate(env):
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
-#<<<<<<< .working
-#
-#    env['_CCCOMCOM'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS'
-#    # It's a hack to test for darwin here, but the alternative of creating
-#    # an applecc.py to contain this seems overkill.  Maybe someday the Apple
-#    # platform will require more setup and this logic will be moved.
-#    env['FRAMEWORKS'] = SCons.Util.CLVar('')
-#    env['FRAMEWORKPATH'] = SCons.Util.CLVar('')
-#    if env['PLATFORM'] == 'darwin':
-#        env['_CCCOMCOM'] = env['_CCCOMCOM'] + ' $_FRAMEWORKPATH'
-#=======
-#>>>>>>> .merge-right.r1907
 
     add_common_cc_variables(env)
 

@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -114,12 +112,11 @@ tex = test.where_is('tex')
 if dvipdf and tex:
 
     test.write("wrapper.py", """import os
-import string
 import sys
-cmd = string.join(sys.argv[1:], " ")
+cmd = " ".join(sys.argv[1:])
 open('%s', 'ab').write("%%s\\n" %% cmd)
 os.system(cmd)
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """
 import os

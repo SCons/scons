@@ -34,7 +34,6 @@ name of this script doesn't end in *Tests.py.
 import os
 import os.path
 import shutil
-import string
 import sys
 
 try: WindowsError
@@ -109,51 +108,50 @@ class MyTestSCons(TestSCons.TestSCons):
             self.version_lib = os.path.join(self.lib_dir, scons_version)
             self.man_dir = os.path.join(self.prefix, 'man', 'man1')
 
-        self.prepend_bin_dir = lambda p, d=self.bin_dir: os.path.join(d, p)
-        self.prepend_bat_dir = lambda p, d=self.bat_dir: os.path.join(d, p)
-        self.prepend_man_dir = lambda p, d=self.man_dir: os.path.join(d, p)
+        self.prepend_bin_dir = lambda p: os.path.join(self.bin_dir, p)
+        self.prepend_bat_dir = lambda p: os.path.join(self.bat_dir, p)
+        self.prepend_man_dir = lambda p: os.path.join(self.man_dir, p)
 
     def run(self, *args, **kw):
         kw['chdir'] = scons_version
         kw['program'] = python
         kw['stderr'] = None
-        return apply(TestSCons.TestSCons.run, (self,)+args, kw)
+        return TestSCons.TestSCons.run(self, *args, **kw)
 
     def remove(self, dir):
         try: shutil.rmtree(dir)
         except (OSError, WindowsError): pass
 
     def stdout_lines(self):
-        return string.split(self.stdout(), '\n')
+        return self.stdout().split('\n')
 
 
     def lib_line(self, lib):
         return 'Installed SCons library modules into %s' % lib
 
     def lib_paths(self, lib_dir):
-        prepend_lib_dir = lambda p, d=lib_dir: os.path.join(d, 'SCons', p)
-        return map(prepend_lib_dir, self._lib_modules)
+        return [os.path.join(lib_dir, 'SCons', p) for p in self._lib_modules]
 
     def scripts_line(self):
         return 'Installed SCons scripts into %s' % self.bin_dir
 
     def base_script_paths(self):
         scripts = self._base_scripts
-        return map(self.prepend_bin_dir, scripts)
+        return list(map(self.prepend_bin_dir, scripts))
 
     def version_script_paths(self):
         scripts = self._version_scripts
-        return map(self.prepend_bin_dir, scripts)
+        return list(map(self.prepend_bin_dir, scripts))
 
     def bat_script_paths(self):
         scripts = self._bat_scripts + self._bat_version_scripts
-        return map(self.prepend_bat_dir, scripts)
+        return list(map(self.prepend_bat_dir, scripts))
 
     def man_page_line(self):
         return 'Installed SCons man pages into %s' % self.man_dir
 
     def man_page_paths(self):
-        return map(self.prepend_man_dir, self._man_pages)
+        return list(map(self.prepend_man_dir, self._man_pages))
 
 
     def must_have_installed(self, paths):
@@ -321,8 +319,7 @@ test.must_have_installed(test.man_page_paths())
 other_prefix = test.workpath('other-prefix')
 test.subdir(other_prefix)
 test.run(arguments = 'setup.py install --prefix=%s' % other_prefix)
-test.fail_test(string.find(test.stderr(),
-                           "you'll have to change the search path yourself")
+test.fail_test(test.stderr().find("you'll have to change the search path yourself")
                != -1)
 
 # All done.

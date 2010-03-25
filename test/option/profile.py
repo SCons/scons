@@ -21,10 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import StringIO
 import sys
 
@@ -96,8 +96,8 @@ expect = [
 test.must_contain_all_lines(test.stdout(), expect)
 
 expect = 'Memory before reading SConscript files'
-lines = string.split(test.stdout(), '\n')
-memory_lines = filter(lambda l, e=expect: string.find(l, e) != -1, lines)
+lines = test.stdout().split('\n')
+memory_lines = [l for l in lines if l.find(expect) != -1]
 
 test.fail_test(len(memory_lines) != 1)
 

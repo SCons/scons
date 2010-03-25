@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test explicit checkouts from local SCCS files.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -71,10 +69,9 @@ for f in ['ddd.in', 'eee.in', 'fff.in']:
 test.write('SConstruct', """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
                   SCCSCOM = 'cd ${TARGET.dir} && $SCCS get $SCCSGETFLAGS ${TARGET.file}',
@@ -93,7 +90,7 @@ test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
 test.run(arguments = '.', stderr = None)
 
-lines = string.split("""
+lines = """
 sccs get -e SConscript
 sccs get -e aaa.in
 cat(["aaa.out"], ["aaa.in"])
@@ -107,7 +104,7 @@ cat(["sub/eee.out"], ["sub/eee.in"])
 sccs get -e fff.in
 cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-""", '\n')
+""".split('\n')
 
 test.must_contain_all_lines(test.stdout(), lines)
 

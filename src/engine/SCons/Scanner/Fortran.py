@@ -26,11 +26,11 @@ This module implements the dependency scanner for Fortran code.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
-import string
 
 import SCons.Node
 import SCons.Node.FS
@@ -75,7 +75,7 @@ class F90Scanner(SCons.Scanner.Classic):
         kw['skeys'] = suffixes
         kw['name'] = name
 
-        apply(SCons.Scanner.Current.__init__, (self,) + args, kw)
+        SCons.Scanner.Current.__init__(self, *args, **kw)
 
     def scan(self, node, env, path=()):
 
@@ -94,12 +94,12 @@ class F90Scanner(SCons.Scanner.Classic):
             d = {}
             for m in defmodules:
                 d[m] = 1
-            modules = filter(lambda m, d=d: not d.has_key(m), modules)
+            modules = [m for m in modules if m not in d]
             #modules = self.undefinedModules(modules, defmodules)
 
             # Convert module name to a .mod filename
             suffix = env.subst('$FORTRANMODSUFFIX')
-            modules = map(lambda x, s=suffix: string.lower(x) + s, modules)
+            modules = [x.lower() + suffix for x in modules]
             # Remove unique items from the list
             mods_and_includes = SCons.Util.unique(includes+modules)
             node.includes = mods_and_includes
@@ -124,7 +124,7 @@ class F90Scanner(SCons.Scanner.Classic):
                 nodes.append((sortkey, n))
 
         nodes.sort()
-        nodes = map(lambda pair: pair[1], nodes)
+        nodes = [pair[1] for pair in nodes]
         return nodes
 
 def FortranScan(path_variable="FORTRANPATH"):

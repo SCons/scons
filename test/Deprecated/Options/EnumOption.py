@@ -29,7 +29,6 @@ Test the EnumOption canned Option type.
 """
 
 import os.path
-import string
 
 import TestSCons
 
@@ -38,7 +37,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect):
-    result = string.split(test.stdout(), '\n')
+    result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 

@@ -83,7 +83,7 @@ SConscript('SConscript7')
 
 test.write('SConscript', """\
 # os should not be automajically imported:
-assert not globals().has_key("os")
+assert "os" not in globals()
 
 import os
 print "SConscript " + os.getcwd()

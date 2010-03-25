@@ -32,13 +32,12 @@ on port 1666, as well as that of course a client must be present.
 """
 
 import os
-import string
 
 import TestSCons
 
 class TestPerforce(TestSCons.TestSCons):
     def __init__(self, *args, **kw):
-        apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
+        TestSCons.TestSCons.__init__(self, *args, **kw)
 
         self.p4d = None
 
@@ -66,11 +65,11 @@ class TestPerforce(TestSCons.TestSCons):
                 if ' ' in a:
                     a = '"%s"' % a
                 return a
-            args = map(quote_space, [self.p4d, '-q', '-d'] + \
+            args = list(map(quote_space, [self.p4d, '-q', '-d'] + \
                                     self.p4portflags + \
                                     ['-J', 'Journal',
                                      '-L', 'Log',
-                                     '-r', self.workpath('depot')])
+                                     '-r', self.workpath('depot')]))
 
             # We don't use self.run() because the TestCmd logic will hang
             # waiting for the daemon to exit, even when we pass it
@@ -78,7 +77,7 @@ class TestPerforce(TestSCons.TestSCons):
             try:
                 spawnv = os.spawnv
             except AttributeError:
-                os.system(string.join(args))
+                os.system(' '.join(args))
             else:
                 spawnv(os.P_NOWAIT, self.p4d, args)
                 self.sleep(2)
@@ -102,7 +101,7 @@ class TestPerforce(TestSCons.TestSCons):
                 # is already clear.
                 pass
 
-        self.portflag = string.join(self.p4portflags)
+        self.portflag = ' '.join(self.p4portflags)
 
     def p4(self, *args, **kw):
         try:
@@ -110,9 +109,9 @@ class TestPerforce(TestSCons.TestSCons):
         except KeyError:
             arguments = args[0]
             args = args[1:]
-        kw['arguments'] = string.join(self.p4portflags + [arguments])
+        kw['arguments'] = ' '.join(self.p4portflags + [arguments])
         kw['program'] = self.p4path
-        return apply(self.run, args, kw)
+        return self.run(*args, **kw)
 
     def substitute(self, s, **kw):
         kw = kw.copy()
@@ -208,8 +207,8 @@ test.write(['import', 'sub', 'fff.in'], "import/sub/fff.in\n")
 os.environ["PWD"] = test.workpath('import')
 paths = [ 'aaa.in', 'bbb.in', 'ccc.in',
           'sub/ddd.in', 'sub/eee.in', 'sub/fff.in', 'sub/SConscript' ]
-paths = map(os.path.normpath, paths)
-args = '-c testclient1 add -t binary %s' % string.join(paths)
+paths = list(map(os.path.normpath, paths))
+args = '-c testclient1 add -t binary %s' % ' '.join(paths)
 test.p4(args, chdir='import')
 
 changespec = test.substitute("""
@@ -240,10 +239,9 @@ test.p4('-c testclient1 submit -i', stdin=changespec)
 SConstruct_contents = test.substitute("""
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(tools = ['default', 'Perforce'],
                   BUILDERS={'Cat':Builder(action=cat)},

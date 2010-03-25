@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -45,11 +46,11 @@ except: pass
 
 # Extract all subcommands from the the do_*() functions.
 functions = globals['SConsTimer'].__dict__.keys()
-do_funcs = filter(lambda x: x[:3] == 'do_', functions)
+do_funcs = [x for x in functions if x[:3] == 'do_']
 
-subcommands = map(lambda x: x[3:], do_funcs)
+subcommands = [x[3:] for x in do_funcs]
 
-expect = map(lambda x: '    %s ' % x, subcommands)
+expect = ['    %s ' % x for x in subcommands]
 
 test.run(arguments = 'help')
 

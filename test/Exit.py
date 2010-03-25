@@ -104,10 +104,9 @@ SConscript('subdir/SConscript')
 test.write(['subdir', 'SConscript'], """\
 def exit_builder(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
     Exit(27)
 env = Environment(BUILDERS = {'my_exit' : Builder(action=exit_builder)})
@@ -134,11 +133,9 @@ exitscan = Scanner(function = exit_scanner, skeys = ['.k'])
 
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
-
     outf = open(target, 'wb')
     for src in source:
-        outf.write(open(src, "rb").read())
+        outf.write(open(str(src), "rb").read())
     outf.close()
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})

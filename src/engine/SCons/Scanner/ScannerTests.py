@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -49,7 +50,7 @@ class DummyEnvironment(UserDict.UserDict):
     def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
-        return map(self.subst, path)
+        return list(map(self.subst, path))
     def get_factory(self, factory):
         return factory or self.fs.File
 
@@ -127,7 +128,7 @@ class BaseTestCase(unittest.TestCase):
         self.deps = deps
         path = scanner.path(env)
         scanned = scanner(filename, env, path)
-        scanned_strs = map(lambda x: str(x), scanned)
+        scanned_strs = [str(x) for x in scanned]
 
         self.failUnless(self.filename == filename, "the filename was passed incorrectly")
         self.failUnless(self.env == env, "the environment was passed incorrectly")
@@ -280,7 +281,7 @@ class BaseTestCase(unittest.TestCase):
                         "recursive = 1 didn't return all nodes: %s" % n)
 
         def odd_only(nodes):
-            return filter(lambda n: n % 2, nodes)
+            return [n for n in nodes if n % 2]
         s = SCons.Scanner.Base(function = self.func, recursive = odd_only)
         n = s.recurse_nodes(nodes)
         self.failUnless(n == [1, 3],
@@ -595,7 +596,7 @@ def suite():
                ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     return suite
 
 if __name__ == "__main__":

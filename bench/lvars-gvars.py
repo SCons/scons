@@ -19,7 +19,7 @@ def Func1(var, gvars, lvars):
 def Func2(var, gvars, lvars):
     """lvars has_key(), gvars try:-except:"""
     for i in IterationList:
-        if lvars.has_key(var):
+        if var in lvars:
             x = lvars[var]
         else:
             try:
@@ -30,9 +30,9 @@ def Func2(var, gvars, lvars):
 def Func3(var, gvars, lvars):
     """lvars has_key(), gvars has_key()"""
     for i in IterationList:
-        if lvars.has_key(var):
+        if var in lvars:
             x = lvars[var]
-        elif gvars.has_key(var):
+        elif var in gvars:
             x = gvars[var]
         else:
             x = ''

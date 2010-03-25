@@ -113,11 +113,9 @@ bar = env.BarBld(target='bar', source='bar.in')
 # Test specifying a source scanner for a Builder that gets
 # automatically applied to targets generated from that Builder
 
-import string
-
 def blork(env, target, source):
     open(str(target[0]), 'wb').write(
-        string.replace(source[0].get_text_contents(), 'getfile', 'MISSEDME'))
+        source[0].get_text_contents().replace('getfile', 'MISSEDME'))
 
 kbld = Builder(action=r'%(_python_)s build.py $SOURCES $TARGET',
                src_suffix='.lork',

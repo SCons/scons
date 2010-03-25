@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -30,7 +31,6 @@ Use pychecker to catch various Python coding errors.
 
 import os
 import os.path
-import string
 import sys
 
 import TestSCons
@@ -64,9 +64,9 @@ else:
 src_engine_ = os.path.join(src_engine, '')
 
 MANIFEST = os.path.join(src_engine, 'MANIFEST.in')
-files = string.split(open(MANIFEST).read())
+files = open(MANIFEST).read().split()
 
-files = filter(lambda f: f[-3:] == '.py', files)
+files = [f for f in files if f[-3:] == '.py']
 
 ignore = [
     'SCons/compat/__init__.py',
@@ -131,15 +131,15 @@ for file in files:
     test.run(program=program, arguments=args, status=None, stderr=None)
 
     stdout = test.stdout()
-    stdout = string.replace(stdout, src_engine_, '')
+    stdout = stdout.replace(src_engine_, '')
 
     stderr = test.stderr()
-    stderr = string.replace(stderr, src_engine_, '')
-    stderr = string.replace(stderr, pywintypes_warning, '')
+    stderr = stderr.replace(src_engine_, '')
+    stderr = stderr.replace(pywintypes_warning, '')
 
     if test.status or stdout or stderr:
         mismatches.append('\n')
-        mismatches.append(string.join([program] + args) + '\n')
+        mismatches.append(' '.join([program] + args) + '\n')
 
         mismatches.append('STDOUT =====================================\n')
         mismatches.append(stdout)
@@ -149,7 +149,7 @@ for file in files:
             mismatches.append(stderr)
 
 if mismatches:
-    print string.join(mismatches[1:], '')
+    print ''.join(mismatches[1:])
     test.fail_test()
 
 test.pass_test()

@@ -25,7 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import string
 import StringIO
 import sys
 import types
@@ -112,9 +111,9 @@ class UtilTestCase(unittest.TestCase):
       +-windows.h
 """
 
-        lines = string.split(expect, '\n')[:-1]
-        lines = map(lambda l: '[E BSPACN ]'+l, lines)
-        withtags = string.join(lines, '\n') + '\n'
+        lines = expect.split('\n')[:-1]
+        lines = ['[E BSPACN ]'+l for l in lines]
+        withtags = '\n'.join(lines) + '\n'
 
         return foo, expect, withtags
 
@@ -137,12 +136,12 @@ class UtilTestCase(unittest.TestCase):
 """
 
         if not prune:
-            expect = string.replace(expect, '[', '')
-            expect = string.replace(expect, ']', '')
+            expect = expect.replace('[', '')
+            expect = expect.replace(']', '')
 
-        lines = string.split(expect, '\n')[:-1]
-        lines = map(lambda l: '[E BSPACN ]'+l, lines)
-        withtags = string.join(lines, '\n') + '\n'
+        lines = expect.split('\n')[:-1]
+        lines = ['[E BSPACN ]'+l for l in lines]
+        withtags = '\n'.join(lines) + '\n'
 
         return blat_o, expect, withtags
 
@@ -333,20 +332,20 @@ class UtilTestCase(unittest.TestCase):
                               test.workpath('sub2'),
                               test.workpath('sub3'),
                               test.workpath('sub4'),
-                            ] + string.split(env_path, os.pathsep)
+                            ] + env_path.split(os.pathsep)
 
             pathdirs_1243 = [ test.workpath('sub1'),
                               test.workpath('sub2'),
                               test.workpath('sub4'),
                               test.workpath('sub3'),
-                            ] + string.split(env_path, os.pathsep)
+                            ] + env_path.split(os.pathsep)
 
-            os.environ['PATH'] = string.join(pathdirs_1234, os.pathsep)
+            os.environ['PATH'] = os.pathsep.join(pathdirs_1234)
             wi = WhereIs('xxx.exe')
             assert wi == test.workpath(sub3_xxx_exe), wi
             wi = WhereIs('xxx.exe', pathdirs_1243)
             assert wi == test.workpath(sub4_xxx_exe), wi
-            wi = WhereIs('xxx.exe', string.join(pathdirs_1243, os.pathsep))
+            wi = WhereIs('xxx.exe', os.pathsep.join(pathdirs_1243))
             assert wi == test.workpath(sub4_xxx_exe), wi
 
             wi = WhereIs('xxx.exe',reject = sub3_xxx_exe)
@@ -354,12 +353,12 @@ class UtilTestCase(unittest.TestCase):
             wi = WhereIs('xxx.exe', pathdirs_1243, reject = sub3_xxx_exe)
             assert wi == test.workpath(sub4_xxx_exe), wi
 
-            os.environ['PATH'] = string.join(pathdirs_1243, os.pathsep)
+            os.environ['PATH'] = os.pathsep.join(pathdirs_1243)
             wi = WhereIs('xxx.exe')
             assert wi == test.workpath(sub4_xxx_exe), wi
             wi = WhereIs('xxx.exe', pathdirs_1234)
             assert wi == test.workpath(sub3_xxx_exe), wi
-            wi = WhereIs('xxx.exe', string.join(pathdirs_1234, os.pathsep))
+            wi = WhereIs('xxx.exe', os.pathsep.join(pathdirs_1234))
             assert wi == test.workpath(sub3_xxx_exe), wi
 
             if sys.platform == 'win32':
@@ -370,13 +369,13 @@ class UtilTestCase(unittest.TestCase):
                 assert wi == test.workpath(sub4_xxx_exe), wi
 
                 wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
-                assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+                assert wi.lower() == test.workpath(sub3_xxx_exe).lower(), wi
 
                 # Test that we return a normalized path even when
                 # the path contains forward slashes.
                 forward_slash = test.workpath('') + '/sub3'
                 wi = WhereIs('xxx', path = forward_slash, pathext = '.EXE')
-                assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+                assert wi.lower() == test.workpath(sub3_xxx_exe).lower(), wi
 
             del os.environ['PATH']
             wi = WhereIs('xxx.exe')
@@ -710,7 +709,7 @@ class MD5TestCase(unittest.TestCase):
     def test_collect(self):
         """Test collecting a list of signatures into a new signature value
         """
-        s = map(MD5signature, ('111', '222', '333'))
+        s = list(map(MD5signature, ('111', '222', '333')))
         
         assert '698d51a19d8a121ce581499d7b701668' == MD5collect(s[0:1])
         assert '8980c988edc2c78cc43ccb718c06efd5' == MD5collect(s[0:2])
@@ -791,7 +790,7 @@ if __name__ == "__main__":
                ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

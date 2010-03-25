@@ -29,7 +29,6 @@ Test the ListVariable canned Variable type.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -38,7 +37,7 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect):
-    result = string.split(test.stdout(), '\n')
+    result = test.stdout().split('\n')
     r = result[1:len(expect)+1]
     assert r == expect, (r, expect)
 

@@ -41,7 +41,7 @@ import sys
 outfile = open(sys.argv[1], 'wb')
 for f in sys.argv[2:]:
     infile = open(f, 'rb')
-    for l in filter(lambda l: l != '/*gs*/\\n', infile.readlines()):
+    for l in [l for l in infile.readlines() if l != '/*gs*/\\n']:
         outfile.write(l)
 sys.exit(0)
 """)

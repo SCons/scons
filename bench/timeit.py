@@ -70,8 +70,6 @@ except ImportError:
     # Must be an older Python version (see timeit() below)
     itertools = None
 
-import string
-
 __all__ = ["Timer"]
 
 dummy_src_name = "<timeit-src>"
@@ -100,7 +98,7 @@ def inner(_it, _timer):
 
 def reindent(src, indent):
     """Helper to reindent a multi-line statement."""
-    return string.replace(src, "\n", "\n" + " "*indent)
+    return src.replace("\n", "\n" + " "*indent)
 
 class Timer:
     """Class for timing execution speed of small code snippets.
@@ -226,7 +224,7 @@ def main(args=None):
         print "use -h/--help for command line help"
         return 2
     timer = default_timer
-    stmt = string.join(args, "\n") or "pass"
+    stmt = "\n".join(args) or "pass"
     number = 0 # auto-determine
     setup = []
     repeat = default_repeat
@@ -252,7 +250,7 @@ def main(args=None):
         if o in ("-h", "--help"):
             print __doc__,
             return 0
-    setup = string.join(setup, "\n") or "pass"
+    setup = "\n".join(setup) or "pass"
     # Include the current directory, so that local imports work (sys.path
     # contains the directory of this script, rather than the current
     # directory)
@@ -279,7 +277,7 @@ def main(args=None):
         return 1
     best = min(r)
     if verbose:
-        print "raw times:", string.join(map(lambda x, p=precision: "%.*g" % (p, x), r))
+        print "raw times:", ' '.join(["%.*g" % (precision, x) for x in r])
     print "%d loops," % number,
     usec = best * 1e6 / number
     if usec < 1000:

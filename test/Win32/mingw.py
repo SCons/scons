@@ -29,7 +29,6 @@ This tests the MinGW C/C++ compiler support.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -53,7 +52,7 @@ sys.exit(0)
 """)
 
 test.run()
-if string.find(test.stdout(), 'mingw exists') == -1:
+if test.stdout().find('mingw exists') == -1:
     test.skip_test("No MinGW on this system, skipping test.\n")
 
 test.subdir('header')
@@ -149,8 +148,8 @@ test.write('header/resource2.h', '''
 # that comes out of stderr:
 test.run(arguments='test.exe', stderr='.*')
 # ensure the source def for cshared.def got used, and there wasn't a target def for chshared.dll:
-test.fail_test(string.find(test.stdout(), 'cshared.def') == -1)
-test.fail_test(string.find(test.stdout(), '-Wl,--output-def,cshared.def') != -1)
+test.fail_test(test.stdout().find('cshared.def') == -1)
+test.fail_test(test.stdout().find('-Wl,--output-def,cshared.def') != -1)
 # ensure the target def got generated for the shared.dll:
 test.fail_test(not os.path.exists(test.workpath('shared.def')))
 test.run(program=test.workpath('test.exe'), stdout='test.cpp\nshared.cpp\nstatic.cpp\ncshared.c\n2001 resource.rc\n')

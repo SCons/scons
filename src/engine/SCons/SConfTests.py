@@ -25,7 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
-import string
 import StringIO
 import sys
 from types import *
@@ -60,7 +59,7 @@ class SConfTestCase(unittest.TestCase):
         import SCons.SConsign
         SCons.SConsign.write() # simulate normal scons-finish
         for n in sys.modules.keys():
-            if string.split(n, '.')[0] == 'SCons' and n[:12] != 'SCons.compat':
+            if n.split('.')[0] == 'SCons' and n[:12] != 'SCons.compat':
                 m = sys.modules[n]
                 if type(m) is ModuleType:
                     # if this is really a scons module, clear its namespace

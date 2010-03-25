@@ -25,7 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import optparse
 import re
-import string
 import sys
 import textwrap
 
@@ -55,9 +54,10 @@ def diskcheck_convert(value):
     if value is None:
         return []
     if not SCons.Util.is_List(value):
-        value = string.split(value, ',')
+        value = value.split(',')
     result = []
-    for v in map(string.lower, value):
+    for v in value:
+        v = v.lower()
         if v == 'all':
             result = diskcheck_all
         elif v == 'none':
@@ -168,7 +168,7 @@ class SConsValues(optparse.Values):
                 value = diskcheck_convert(value)
             except ValueError, v:
                 raise SCons.Errors.UserError, "Not a valid diskcheck value: %s"%v
-            if not self.__dict__.has_key('diskcheck'):
+            if 'diskcheck' not in self.__dict__:
                 # No --diskcheck= option was specified on the command line.
                 # Set this right away so it can affect the rest of the
                 # file/Node lookups while processing the SConscript files.
@@ -197,7 +197,7 @@ class SConsOption(optparse.Option):
             if self.nargs in (1, '?'):
                 return self.check_value(opt, value)
             else:
-                return tuple(map(lambda v, o=opt, s=self: s.check_value(o, v), value))
+                return tuple([self.check_value(opt, v) for v in value])
 
     def process(self, opt, value, values, parser):
 
@@ -292,7 +292,7 @@ class SConsOptionParser(optparse.OptionParser):
         # Value explicitly attached to arg?  Pretend it's the next
         # argument.
         if "=" in arg:
-            (opt, next_arg) = string.split(arg, "=", 1)
+            (opt, next_arg) = arg.split("=", 1)
             rargs.insert(0, next_arg)
             had_explicit_value = True
         else:
@@ -356,7 +356,7 @@ class SConsOptionParser(optparse.OptionParser):
             group = self.add_option_group(group)
             self.local_option_group = group
 
-        result = apply(group.add_option, args, kw)
+        result = group.add_option(*args, **kw)
 
         if result:
             # The option was added succesfully.  We now have to add the
@@ -461,7 +461,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
                 result.append("%*s%s\n" % (self.help_position, "", line))
         elif opts[-1] != "\n":
             result.append("\n")
-        return string.join(result, "")
+        return "".join(result)
 
     # For consistent help output across Python versions, we provide a
     # subclass copy of format_option_strings() and these two variables.
@@ -473,7 +473,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_option_strings(self, option):
         """Return a comma-separated list of option strings & metavariables."""
         if option.takes_value():
-            metavar = option.metavar or string.upper(option.dest)
+            metavar = option.metavar or option.dest.upper()
             short_opts = []
             for sopt in option._short_opts:
                 short_opts.append(self._short_opt_fmt % (sopt, metavar))
@@ -489,7 +489,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         else:
             opts = long_opts + short_opts
 
-        return string.join(opts, ", ")
+        return ", ".join(opts)
 
 def Parser(version):
     """
@@ -580,7 +580,7 @@ def Parser(version):
             raise OptionValueError("Warning:  %s is not a valid config type" % value)
         setattr(parser.values, option.dest, value)
     opt_config_help = "Controls Configure subsystem: %s." \
-                      % string.join(config_options, ", ")
+                      % ", ".join(config_options)
     op.add_option('--config',
                   nargs=1, type="string",
                   dest="config", default="auto",
@@ -623,7 +623,7 @@ def Parser(version):
         else:
             raise OptionValueError("Warning:  %s is not a valid debug type" % value)
     opt_debug_help = "Print various types of debugging information: %s." \
-                     % string.join(debug_options, ", ")
+                     % ", ".join(debug_options)
     op.add_option('--debug',
                   nargs=1, type="string",
                   dest="debug", default=[],
@@ -654,7 +654,7 @@ def Parser(version):
         SCons.Node.FS.set_duplicate(value)
 
     opt_duplicate_help = "Set the preferred duplication methods. Must be one of " \
-                         + string.join(SCons.Node.FS.Valid_Duplicates, ", ")
+                         + ", ".join(SCons.Node.FS.Valid_Duplicates)
 
     op.add_option('--duplicate',
                   nargs=1, type="string",
@@ -802,7 +802,7 @@ def Parser(version):
     def opt_tree(option, opt, value, parser, tree_options=tree_options):
         import Main
         tp = Main.TreePrinter()
-        for o in string.split(value, ','):
+        for o in value.split(','):
             if o == 'all':
                 tp.derived = False
             elif o == 'derived':
@@ -816,7 +816,7 @@ def Parser(version):
         parser.values.tree_printers.append(tp)
 
     opt_tree_help = "Print a dependency tree in various formats: %s." \
-                    % string.join(tree_options, ", ")
+                    % ", ".join(tree_options)
 
     op.add_option('--tree',
                   nargs=1, type="string",
@@ -846,7 +846,7 @@ def Parser(version):
 
     def opt_warn(option, opt, value, parser, tree_options=tree_options):
         if SCons.Util.is_String(value):
-            value = string.split(value, ',')
+            value = value.split(',')
         parser.values.warn.extend(value)
 
     op.add_option('--warn', '--warning',

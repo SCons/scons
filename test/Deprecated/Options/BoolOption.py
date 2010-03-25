@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the BoolOption canned Option type.
 """
 
-import string
-
 try:
     True, False
 except NameError:
@@ -43,7 +41,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect):
-    result = string.split(test.stdout(), '\n')
+    result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 

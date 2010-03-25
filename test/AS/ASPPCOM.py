@@ -40,7 +40,7 @@ test.write('myas.py', r"""
 import sys
 infile = open(sys.argv[2], 'rb')
 outfile = open(sys.argv[1], 'wb')
-for l in filter(lambda l: l != "#as\n", infile.readlines()):
+for l in [l for l in infile.readlines() if l != "#as\n"]:
     outfile.write(l)
 sys.exit(0)
 """)

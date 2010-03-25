@@ -28,6 +28,7 @@ PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 """
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __author__ = "Steve Purcell (stephen_purcell@yahoo.com)"
 __version__ = "$ Revision: 1.23 $"[11:-2]
@@ -35,15 +36,14 @@ __version__ = "$ Revision: 1.23 $"[11:-2]
 import time
 import sys
 import traceback
-import string
 import os
 
 ##############################################################################
 # A platform-specific concession to help the code work for JPython users
 ##############################################################################
 
-plat = string.lower(sys.platform)
-_isJPython = string.find(plat, 'java') >= 0 or string.find(plat, 'jdk') >= 0
+plat = sys.platform.lower()
+_isJPython = plat.find('java') >= 0 or plat.find('jdk') >= 0
 del plat
 
 
@@ -149,7 +149,7 @@ class TestCase:
         the specified test method's docstring.
         """
         doc = self.__testMethod.__doc__
-        return doc and string.strip(string.split(doc, "\n")[0]) or None
+        return doc and doc.split("\n")[0].strip() or None
 
     def id(self):
         return "%s.%s" % (self.__class__, self.__testMethod.__name__)
@@ -205,7 +205,7 @@ class TestCase:
 
     def failIf(self, expr, msg=None):
         "Fail the test if the expression is true."
-        apply(self.assert_,(not expr,msg))
+        self.assert_(not expr,msg)
 
     def assertRaises(self, excClass, callableObj, *args, **kwargs):
         """Assert that an exception of class excClass is thrown
@@ -216,7 +216,7 @@ class TestCase:
            unexpected exception.
         """
         try:
-            apply(callableObj, args, kwargs)
+            callableObj(*args, **kwargs)
         except excClass:
             return
         else:
@@ -326,7 +326,7 @@ class FunctionTestCase(TestCase):
     def shortDescription(self):
         if self.__description is not None: return self.__description
         doc = self.__testFunc.__doc__
-        return doc and string.strip(string.split(doc, "\n")[0]) or None
+        return doc and doc.split("\n")[0].strip() or None
 
 
 
@@ -339,8 +339,7 @@ def getTestCaseNames(testCaseClass, prefix, sortUsing=cmp):
        and its base classes that start with the given prefix. This is used
        by makeSuite().
     """
-    testFnNames = filter(lambda n,p=prefix: n[:len(p)] == p,
-                         dir(testCaseClass))
+    testFnNames = [n for n in dir(testCaseClass) if n[:len(prefix)] == prefix]
     for baseclass in testCaseClass.__bases__:
         testFnNames = testFnNames + \
                       getTestCaseNames(baseclass, prefix, sortUsing=None)
@@ -355,8 +354,8 @@ def makeSuite(testCaseClass, prefix='test', sortUsing=cmp):
        prefix. The cases are sorted by their function names
        using the supplied comparison function, which defaults to 'cmp'.
     """
-    cases = map(testCaseClass,
-                getTestCaseNames(testCaseClass, prefix, sortUsing))
+    cases = list(map(testCaseClass,
+                getTestCaseNames(testCaseClass, prefix, sortUsing)))
     return TestSuite(cases)
 
 
@@ -376,18 +375,18 @@ def createTestInstance(name, module=None):
         -- returns result of calling makeSuite(ListTestCase, prefix="check")
     """
           
-    spec = string.split(name, ':')
+    spec = name.split(':')
     if len(spec) > 2: raise ValueError, "illegal test name: %s" % name
     if len(spec) == 1:
         testName = spec[0]
         caseName = None
     else:
         testName, caseName = spec
-    parts = string.split(testName, '.')
+    parts = testName.split('.')
     if module is None:
         if len(parts) < 2:
             raise ValueError, "incomplete test name: %s" % name
-        constructor = __import__(string.join(parts[:-1],'.'))
+        constructor = __import__('.'.join(parts[:-1]))
         parts = parts[1:]
     else:
         constructor = module
@@ -429,7 +428,7 @@ class _WritelnDecorator:
         return getattr(self.stream,attr)
 
     def writeln(self, *args):
-        if args: apply(self.write, args)
+        if args: self.write(*args)
         self.write(self.linesep)
 
  
@@ -468,7 +467,7 @@ class _JUnitTextTestResult(TestResult):
                                 (len(errors), errFlavour))
         i = 1
         for test,error in errors:
-            errString = string.join(apply(traceback.format_exception,error),"")
+            errString = "".join(traceback.format_exception(*error))
             self.stream.writeln("%i) %s" % (i, test))
             self.stream.writeln(errString)
             i = i + 1
@@ -567,8 +566,8 @@ class _VerboseTextTestResult(TestResult):
             self.stream.writeln(separator1)
         self.stream.writeln("\t%s" % flavour)
         self.stream.writeln(separator2)
-        for line in apply(traceback.format_exception, err):
-            for l in string.split(line,"\n")[:-1]:
+        for line in traceback.format_exception(*err):
+            for l in line.split("\n")[:-1]:
                 self.stream.writeln("\t%s" % l)
         self.stream.writeln(separator1)
 
@@ -597,9 +596,10 @@ class VerboseTextTestRunner:
         self.stream.writeln()
         if not result.wasSuccessful():
             self.stream.write("FAILED (")
-            failed, errored = map(len, (result.failures, result.errors))
+            failed = len(result.failures)
             if failed:
                 self.stream.write("failures=%d" % failed)
+            errored = len(result.errors)
             if errored:
                 if failed: self.stream.write(", ")
                 self.stream.write("errors=%d" % errored)
@@ -635,7 +635,7 @@ Examples:
                  argv=None, testRunner=None):
         if type(module) == type(''):
             self.module = __import__(module)
-            for part in string.split(module,'.')[1:]:
+            for part in module.split('.')[1:]:
                 self.module = getattr(self.module, part)
         else:
             self.module = module

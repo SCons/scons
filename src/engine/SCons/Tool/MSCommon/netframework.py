@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -28,7 +29,6 @@ __doc__ = """
 
 import os
 import re
-import string
 
 from common import read_reg, debug
 
@@ -58,14 +58,14 @@ def query_versions():
         contents = os.listdir(froot)
 
         l = re.compile('v[0-9]+.*')
-        versions = filter(lambda e, l=l: l.match(e), contents)
+        versions = [e for e in contents if l.match(e)]
 
         def versrt(a,b):
             # since version numbers aren't really floats...
             aa = a[1:]
             bb = b[1:]
-            aal = string.split(aa, '.')
-            bbl = string.split(bb, '.')
+            aal = aa.split('.')
+            bbl = bb.split('.')
             # sequence comparison in python is lexicographical
             # which is exactly what we want.
             # Note we sort backwards so the highest version is first.

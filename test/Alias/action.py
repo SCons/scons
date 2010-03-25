@@ -35,20 +35,19 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 def cat(target, source, env):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 
 def foo(target, source, env):
-    target = map(str, target)
-    source = map(str, source)
+    target = list(map(str, target))
+    source = list(map(str, source))
     open('foo', 'wb').write("foo(%s, %s)\\n" % (target, source))
 
 def bar(target, source, env):
-    target = map(str, target)
-    source = map(str, source)
+    target = list(map(str, target))
+    source = list(map(str, source))
     open('bar', 'wb').write("bar(%s, %s)\\n" % (target, source))
 
 env = Environment(BUILDERS = {'Cat':Builder(action=cat)})

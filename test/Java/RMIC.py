@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -97,14 +96,12 @@ where_rmic = test.java_where_rmic()
 
 test.write("wrapper.py", """\
 import os
-import string
 import sys
-open('%s', 'ab').write("wrapper.py %%s\\n" %% string.join(sys.argv[1:]))
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+open('%s', 'ab').write("wrapper.py %%s\\n" %% " ".join(sys.argv[1:]))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
-import string
 foo = Environment(tools = ['javac', 'rmic'],
                   JAVAC = r'%(where_javac)s',
                   RMIC = r'%(where_rmic)s')
@@ -120,7 +117,7 @@ bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant
 # does with its "excludes" attribute.  We should probably find
 # a similar friendlier way to do this.
-bar_classes = filter(lambda c: string.find(str(c), 'Hello') == -1, bar_classes)
+bar_classes = [c for c in bar_classes if str(c).find('Hello') == -1]
 bar.RMIC(target = Dir('outdir2'), source = bar_classes)
 """ % locals() )
 

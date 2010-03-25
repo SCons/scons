@@ -41,12 +41,12 @@ be able to depend on any other type of "thing."
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
 from itertools import chain, izip
-import string
 import UserList
 
 from SCons.Debug import logInstanceCreation
@@ -57,7 +57,7 @@ import SCons.Util
 from SCons.Debug import Trace
 
 def classname(obj):
-    return string.split(str(obj.__class__), '.')[-1]
+    return str(obj.__class__).split('.')[-1]
 
 # Node states
 #
@@ -372,7 +372,7 @@ class Node:
 
         """
         try:
-            apply(self.get_executor(), (self,), kw)
+            self.get_executor()(self, **kw)
         except SCons.Errors.BuildError, e:
             e.node = self
             raise
@@ -548,8 +548,7 @@ class Node:
         deps = []
         while nodes:
             n = nodes.pop(0)
-            d = filter(lambda x, seen=seen: not seen.has_key(x),
-                       n.get_found_includes(env, scanner, path))
+            d = [x for x in n.get_found_includes(env, scanner, path) if x not in seen]
             if d:
                 deps.extend(d)
                 for n in d:
@@ -832,7 +831,7 @@ class Node:
         except TypeError, e:
             e = e.args[0]
             if SCons.Util.is_List(e):
-                s = map(str, e)
+                s = list(map(str, e))
             else:
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node dependency to %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
@@ -849,7 +848,7 @@ class Node:
         except TypeError, e:
             e = e.args[0]
             if SCons.Util.is_List(e):
-                s = map(str, e)
+                s = list(map(str, e))
             else:
                 s = str(e)
             raise SCons.Errors.UserError("attempted to ignore a non-Node dependency of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
@@ -863,7 +862,7 @@ class Node:
         except TypeError, e:
             e = e.args[0]
             if SCons.Util.is_List(e):
-                s = map(str, e)
+                s = list(map(str, e))
             else:
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node as source of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
@@ -1215,11 +1214,11 @@ class Node:
 
         lines = []
 
-        removed = filter(lambda x, nk=new_bkids: not x in nk, old_bkids)
+        removed = [x for x in old_bkids if not x in new_bkids]
         if removed:
-            removed = map(stringify, removed)
+            removed = list(map(stringify, removed))
             fmt = "`%s' is no longer a dependency\n"
-            lines.extend(map(lambda s, fmt=fmt: fmt % s, removed))
+            lines.extend([fmt % s for s in removed])
 
         for k in new_bkids:
             if not k in old_bkids:
@@ -1229,14 +1228,14 @@ class Node:
 
         if len(lines) == 0 and old_bkids != new_bkids:
             lines.append("the dependency order changed:\n" +
-                         "%sold: %s\n" % (' '*15, map(stringify, old_bkids)) +
-                         "%snew: %s\n" % (' '*15, map(stringify, new_bkids)))
+                         "%sold: %s\n" % (' '*15, list(map(stringify, old_bkids))) +
+                         "%snew: %s\n" % (' '*15, list(map(stringify, new_bkids))))
 
         if len(lines) == 0:
             def fmt_with_title(title, strlines):
-                lines = string.split(strlines, '\n')
+                lines = strlines.split('\n')
                 sep = '\n' + ' '*(15 + len(title))
-                return ' '*15 + title + string.join(lines, sep) + '\n'
+                return ' '*15 + title + sep.join(lines) + '\n'
             if old.bactsig != new.bactsig:
                 if old.bact == new.bact:
                     lines.append("the contents of the build action changed\n" +
@@ -1254,7 +1253,7 @@ class Node:
             return "%s %s"  % (preamble, lines[0])
         else:
             lines = ["%s:\n" % preamble] + lines
-            return string.join(lines, ' '*11)
+            return ( ' '*11).join(lines)
 
 try:
     [].extend(UserList.UserList([]))
@@ -1267,7 +1266,7 @@ except TypeError:
 else:
     class NodeList(UserList.UserList):
         def __str__(self):
-            return str(map(str, self.data))
+            return str(list(map(str, self.data)))
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
@@ -1310,7 +1309,7 @@ class Walker:
                 node = self.stack[-1].wkids.pop(0)
                 if not self.stack[-1].wkids:
                     self.stack[-1].wkids = None
-                if self.history.has_key(node):
+                if node in self.history:
                     self.cycle_func(node, self.stack)
                 else:
                     node.wkids = copy.copy(self.kids_func(node, self.stack[-1]))

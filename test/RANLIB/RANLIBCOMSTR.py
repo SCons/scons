@@ -47,7 +47,7 @@ import sys
 outfile = open(sys.argv[1], 'wb')
 for f in sys.argv[2:]:
     infile = open(f, 'rb')
-    for l in filter(lambda l: l != '/*ar*/\\n', infile.readlines()):
+    for l in [l for l in infile.readlines() if l != '/*ar*/\\n']:
         outfile.write(l)
 sys.exit(0)
 """)
@@ -56,7 +56,7 @@ test.write('myranlib.py', """
 import sys
 lines = open(sys.argv[1], 'rb').readlines()
 outfile = open(sys.argv[1], 'wb')
-for l in filter(lambda l: l != '/*ranlib*/\\n', lines):
+for l in [l for l in lines if l != '/*ranlib*/\\n']:
     outfile.write(l)
 sys.exit(0)
 """)

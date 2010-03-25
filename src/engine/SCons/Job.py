@@ -31,6 +31,8 @@ stop, and wait on jobs.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import os
 import signal
 
@@ -127,7 +129,7 @@ class Jobs:
         turns out that it very difficult to stop the build process
         by throwing asynchronously an exception such as
         KeyboardInterrupt. For example, the python Condition
-        variables (threading.Condition) and Queue's do not seem to
+        variables (threading.Condition) and queue's do not seem to
         asynchronous-exception-safe. It would require adding a whole
         bunch of try/finally block and except KeyboardInterrupt all
         over the place.
@@ -221,7 +223,7 @@ class Serial:
 # Parallel class (and its dependent classes) will work if the interpreter
 # doesn't support threads.
 try:
-    import Queue
+    import queue
     import threading
 except ImportError:
     pass
@@ -271,8 +273,8 @@ else:
             One must specify the stack size of the worker threads. The
             stack size is specified in kilobytes.
             """
-            self.requestQueue = Queue.Queue(0)
-            self.resultsQueue = Queue.Queue(0)
+            self.requestQueue = queue.Queue(0)
+            self.resultsQueue = queue.Queue(0)
 
             try:
                 prev_size = threading.stack_size(stack_size*1024) 

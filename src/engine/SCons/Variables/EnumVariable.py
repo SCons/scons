@@ -41,7 +41,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __all__ = ['EnumVariable',]
 
-import string
 
 import SCons.Errors
 
@@ -80,24 +79,21 @@ def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
     given 'map'-dictionary (unmapped input values are returned
     unchanged). 
     """
-    help = '%s (%s)' % (help, string.join(allowed_values, '|'))
+    help = '%s (%s)' % (help, '|'.join(allowed_values))
     # define validator
     if ignorecase >= 1:
-        validator = lambda key, val, env, vals=allowed_values: \
-                    _validator(key, string.lower(val), env, vals)
+        validator = lambda key, val, env: \
+                    _validator(key, val.lower(), env, allowed_values)
     else:
-        validator = lambda key, val, env, vals=allowed_values: \
-                    _validator(key, val, env, vals)
+        validator = lambda key, val, env: \
+                    _validator(key, val, env, allowed_values)
     # define converter
     if ignorecase == 2:
-        converter = lambda val, map=map: \
-                    string.lower(map.get(string.lower(val), val))
+        converter = lambda val: map.get(val.lower(), val).lower()
     elif ignorecase == 1:
-        converter = lambda val, map=map: \
-                    map.get(string.lower(val), val)
+        converter = lambda val: map.get(val.lower(), val)
     else:
-        converter = lambda val, map=map: \
-                    map.get(val, val)
+        converter = lambda val: map.get(val, val)
     return (key, help, default, validator, converter)
 
 # Local Variables:

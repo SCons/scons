@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -28,8 +29,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify the help text when the AddOption() function is used (and when
 it's not).
 """
-
-import string
 
 import TestSCons
 
@@ -56,27 +55,27 @@ expected_lines = [
 ]
 
 test.run(arguments = '-h')
-lines = string.split(test.stdout(), '\n')
-missing = filter(lambda e, l=lines: not e in l, expected_lines)
+lines = test.stdout().split('\n')
+missing = [e for e in expected_lines if e not in lines]
 
 if missing:
     print "====== STDOUT:"
     print test.stdout()
     print "====== Missing the following lines in the above AddOption() help output:"
-    print string.join(missing, "\n")
+    print "\n".join(missing)
     test.fail_test()
 
 test.unlink('SConstruct')
 
 test.run(arguments = '-h')
-lines = string.split(test.stdout(), '\n')
-unexpected = filter(lambda e, l=lines: e in l, expected_lines)
+lines = test.stdout().split('\n')
+unexpected = [e for e in expected_lines if e in lines]
 
 if unexpected:
     print "====== STDOUT:"
     print test.stdout()
     print "====== Unexpected lines in the above non-AddOption() help output:"
-    print string.join(unexpected, "\n")
+    print "\n".join(unexpected)
     test.fail_test()
 
 test.pass_test()

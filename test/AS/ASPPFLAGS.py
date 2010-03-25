@@ -41,7 +41,6 @@ if sys.platform == 'win32':
     o_c = ' -x'
 
     test.write('mylink.py', r"""
-import string
 import sys
 args = sys.argv[1:]
 while args:
@@ -49,7 +48,7 @@ while args:
     if a[0] != '/':
         break
     args = args[1:]
-    if string.lower(a[:5]) == '/out:': out = a[5:]
+    if a[:5].lower() == '/out:': out = a[5:]
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():

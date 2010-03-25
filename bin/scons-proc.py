@@ -13,7 +13,6 @@
 import getopt
 import os.path
 import re
-import string
 import StringIO
 import sys
 import xml.sax
@@ -140,7 +139,7 @@ class SCons_XML:
 
 class SCons_XML_to_XML(SCons_XML):
     def write(self, files):
-        gen, mod = string.split(files, ',')
+        gen, mod = files.split(',')
         g.write_gen(gen)
         g.write_mod(mod)
     def write_gen(self, filename):
@@ -157,12 +156,12 @@ class SCons_XML_to_XML(SCons_XML):
             for chunk in v.summary.body:
                 f.write(str(chunk))
             if v.sets:
-                s = map(lambda x: '&cv-link-%s;' % x, v.sets)
+                s = ['&cv-link-%s;' % x for x in v.sets]
                 f.write('<para>\n')
                 f.write('Sets:  ' + ', '.join(s) + '.\n')
                 f.write('</para>\n')
             if v.uses:
-                u = map(lambda x: '&cv-link-%s;' % x, v.uses)
+                u = ['&cv-link-%s;' % x for x in v.uses]
                 f.write('<para>\n')
                 f.write('Uses:  ' + ', '.join(u) + '.\n')
                 f.write('</para>\n')
@@ -216,15 +215,15 @@ class SCons_XML_to_man(SCons_XML):
         for v in self.values:
             chunks.extend(v.mansep())
             chunks.extend(v.initial_chunks())
-            chunks.extend(map(str, v.summary.body))
+            chunks.extend(list(map(str, v.summary.body)))
 
         body = ''.join(chunks)
-        body = string.replace(body, '<programlisting>', '.ES')
-        body = string.replace(body, '</programlisting>', '.EE')
-        body = string.replace(body, '\n</para>\n<para>\n', '\n\n')
-        body = string.replace(body, '<para>\n', '')
-        body = string.replace(body, '<para>', '\n')
-        body = string.replace(body, '</para>\n', '')
+        body = body.replace('<programlisting>', '.ES')
+        body = body.replace('</programlisting>', '.EE')
+        body = body.replace('\n</para>\n<para>\n', '\n\n')
+        body = body.replace('<para>\n', '')
+        body = body.replace('<para>', '\n')
+        body = body.replace('</para>\n', '')
 
         body = string.replace(body, '<variablelist>\n', '.RS 10\n')
         # Handling <varlistentry> needs to be rationalized and made
@@ -241,9 +240,9 @@ class SCons_XML_to_man(SCons_XML):
         body = string.replace(body, '\n.IP\n\'\\"', '\n\n\'\\"')
         body = re.sub('&(scons|SConstruct|SConscript|jar|Make|lambda);', r'\\fB\1\\fP', body)
         body = re.sub('&(TARGET|TARGETS|SOURCE|SOURCES);', r'\\fB$\1\\fP', body)
-        body = string.replace(body, '&Dir;', r'\fBDir\fP')
-        body = string.replace(body, '&target;', r'\fItarget\fP')
-        body = string.replace(body, '&source;', r'\fIsource\fP')
+        body = body.replace('&Dir;', r'\fBDir\fP')
+        body = body.replace('&target;', r'\fItarget\fP')
+        body = body.replace('&source;', r'\fIsource\fP')
         body = re.sub('&b(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
         body = re.sub('&cv(-link)?-([^;]*);', r'$\2', body)
         body = re.sub('&f(-link)?-env-([^;]*);', r'\\fBenv.\2\\fP()', body)
@@ -258,8 +257,8 @@ class SCons_XML_to_man(SCons_XML):
         body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP$', re.M).sub(r'.R\2 \1 \3', body)
         body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP([^\s\\]+)$', re.M).sub(r'.R\2 \1 \3 \4', body)
         body = re.compile(r'^(\.R[BI].*[\S])\s+$;', re.M).sub(r'\1', body)
-        body = string.replace(body, '&lt;', '<')
-        body = string.replace(body, '&gt;', '>')
+        body = body.replace('&lt;', '<')
+        body = body.replace('&gt;', '>')
         body = re.sub(r'\\([^f])', r'\\\\\1', body)
         body = re.compile("^'\\\\\\\\", re.M).sub("'\\\\", body)
         body = re.compile(r'^\.([BI]R?) --', re.M).sub(r'.\1 \-\-', body)

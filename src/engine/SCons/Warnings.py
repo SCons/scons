@@ -29,7 +29,6 @@ This file implements the warnings framework for SCons.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import sys
 
 import SCons.Errors
@@ -194,11 +193,11 @@ def process_warn_strings(arguments):
         if s[:5] == "scons":
             return "SCons" + s[5:]
         else:
-            return string.capitalize(s)
+            return s.capitalize()
 
     for arg in arguments:
 
-        elems = string.split(string.lower(arg), '-')
+        elems = arg.lower().split('-')
         enable = 1
         if elems[0] == 'no':
             enable = 0
@@ -207,7 +206,7 @@ def process_warn_strings(arguments):
         if len(elems) == 1 and elems[0] == 'all':
             class_name = "Warning"
         else:
-            class_name = string.join(map(_capitalize, elems), '') + "Warning"
+            class_name = ''.join(map(_capitalize, elems)) + "Warning"
         try:
             clazz = globals()[class_name]
         except KeyError:

@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -89,9 +88,8 @@ line 3
 
 test.write('myjar2.py', r"""
 import sys
-import string
 f=open(sys.argv[2], 'wb')
-f.write(string.join(sys.argv[1:]))
+f.write(" ".join(sys.argv[1:]))
 f.write("\n")
 f.close()
 sys.exit(0)
@@ -128,11 +126,10 @@ where_jar = test.java_where_jar()
 
 test.write("wrapper.py", """\
 import os
-import string
 import sys
-open('%s', 'ab').write("wrapper.py %%s\\n" %% string.join(sys.argv[1:]))
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+open('%s', 'ab').write("wrapper.py %%s\\n" %% " ".join(sys.argv[1:]))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'jar'],
@@ -238,7 +235,7 @@ public class Example6
 test.run(arguments = '.')
 
 expected_wrapper_out = "wrapper.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
-expected_wrapper_out = string.replace(expected_wrapper_out, '/', os.sep)
+expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
                 expected_wrapper_out % locals())
 

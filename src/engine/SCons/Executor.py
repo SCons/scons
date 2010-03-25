@@ -27,10 +27,10 @@ Nodes.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import UserList
 
 from SCons.Debug import logInstanceCreation
@@ -161,10 +161,10 @@ class Executor:
         ut = []
         for b in self.batches:
             if b.targets[0].is_up_to_date():
-                us.extend(map(rfile, b.sources))
+                us.extend(list(map(rfile, b.sources)))
                 ut.extend(b.targets)
             else:
-                cs.extend(map(rfile, b.sources))
+                cs.extend(list(map(rfile, b.sources)))
                 ct.extend(b.targets)
         self._changed_sources_list = SCons.Util.NodeList(cs)
         self._changed_targets_list = SCons.Util.NodeList(ct)
@@ -190,14 +190,14 @@ class Executor:
         return rfile(self.batches[0].sources[0]).get_subst_proxy()
 
     def _get_sources(self, *args, **kw):
-        return SCons.Util.NodeList(map(lambda n: rfile(n).get_subst_proxy(), self.get_all_sources()))
+        return SCons.Util.NodeList([rfile(n).get_subst_proxy() for n in self.get_all_sources()])
 
     def _get_target(self, *args, **kw):
         #return SCons.Util.NodeList([self.batches[0].targets[0].get_subst_proxy()])
         return self.batches[0].targets[0].get_subst_proxy()
 
     def _get_targets(self, *args, **kw):
-        return SCons.Util.NodeList(map(lambda n: n.get_subst_proxy(), self.get_all_targets()))
+        return SCons.Util.NodeList([n.get_subst_proxy() for n in self.get_all_targets()])
 
     def _get_unchanged_sources(self, *args, **kw):
         try:
@@ -342,7 +342,7 @@ class Executor:
         for act in self.get_action_list():
             #args = (self.get_all_targets(), self.get_all_sources(), env)
             args = ([], [], env)
-            status = apply(act, args, kw)
+            status = act(*args, **kw)
             if isinstance(status, SCons.Errors.BuildError):
                 status.executor = self
                 raise status
@@ -372,7 +372,7 @@ class Executor:
         # TODO(batch):  extend to multiple batches
         assert (len(self.batches) == 1)
         # TODO(batch):  remove duplicates?
-        sources = filter(lambda x, s=self.batches[0].sources: x not in s, sources)
+        sources = [x for x in sources if x not in self.batches[0].sources]
         self.batches[0].sources.extend(sources)
 
     def get_sources(self):
@@ -406,9 +406,10 @@ class Executor:
 
     def my_str(self):
         env = self.get_build_env()
-        get = lambda action, t=self.get_all_targets(), s=self.get_all_sources(), e=env: \
-                     action.genstring(t, s, e)
-        return string.join(map(get, self.get_action_list()), "\n")
+        return "\n".join([action.genstring(self.get_all_targets(),
+                                           self.get_all_sources(),
+                                           env)
+                          for action in self.get_action_list()])
 
 
     def __str__(self):
@@ -417,7 +418,7 @@ class Executor:
     def nullify(self):
         self.cleanup()
         self.do_execute = self.do_nothing
-        self.my_str     = lambda S=self: ''
+        self.my_str     = lambda: ''
 
     memoizer_counters.append(SCons.Memoize.CountValue('get_contents'))
 
@@ -431,9 +432,10 @@ class Executor:
         except KeyError:
             pass
         env = self.get_build_env()
-        get = lambda action, t=self.get_all_targets(), s=self.get_all_sources(), e=env: \
-                     action.get_contents(t, s, e)
-        result = string.join(map(get, self.get_action_list()), "")
+        result = "".join([action.get_contents(self.get_all_targets(),
+                                              self.get_all_sources(),
+                                              env)
+                          for action in self.get_action_list()])
         self._memo['get_contents'] = result
         return result
 
@@ -521,7 +523,7 @@ class Executor:
             idict = {}
             for i in ignore:
                 idict[i] = 1
-            sourcelist = filter(lambda s, i=idict: not i.has_key(s), sourcelist)
+            sourcelist = [s for s in sourcelist if s not in idict]
 
         memo_dict[key] = sourcelist
 
@@ -547,7 +549,7 @@ def GetBatchExecutor(key):
     return _batch_executors[key]
 
 def AddBatchExecutor(key, executor):
-    assert not _batch_executors.has_key(key)
+    assert key not in _batch_executors
     _batch_executors[key] = executor
 
 nullenv = None

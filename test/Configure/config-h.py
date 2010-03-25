@@ -30,14 +30,13 @@ Verify creation of a config.h file from a Configure context.
 
 import os
 import re
-import string
 
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_exact)
 
 lib = test.Configure_lib
-LIB = "LIB" + string.upper(lib)
+LIB = "LIB" + lib.upper()
 
 test.write('SConstruct', """\
 env = Environment()
@@ -85,7 +84,7 @@ scons: Configure: creating config.h
 expected_stdout = test.wrap_stdout(build_str=expected_build_str,
                                        read_str=expected_read_str)
 
-expected_config_h = string.replace("""\
+expected_config_h = ("""\
 #ifndef CONFIG_H_SEEN
 #define CONFIG_H_SEEN
 
@@ -130,7 +129,7 @@ expected_config_h = string.replace("""\
 /* #undef HAVE_LIBHOPEFULLYNOLIB2 */
 
 #endif /* CONFIG_H_SEEN */
-""" % locals(), "\n", os.linesep)
+""" % locals()).replace("\n", os.linesep)
 
 test.run(stdout=expected_stdout)
 
@@ -157,7 +156,7 @@ expected_read_str = re.sub(r'\b((yes)|(no))\b',
 expected_build_str = "scons: `.' is up to date.\n"
 expected_stdout = test.wrap_stdout(build_str=expected_build_str,
                                    read_str=expected_read_str)
-#expected_stdout = string.replace(expected_stdout, "\n", os.linesep)
+#expected_stdout = expected_stdout.replace("\n", os.linesep)
 
 test.run(stdout=expected_stdout)    
 

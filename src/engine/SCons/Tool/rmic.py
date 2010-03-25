@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import SCons.Action
 import SCons.Builder
@@ -86,7 +85,7 @@ def emit_rmic_classes(target, source, env):
     tlist = []
     for s in source:
         for suff in stub_suffixes:
-            fname = string.replace(s.attributes.java_classname, '.', os.sep) + \
+            fname = s.attributes.java_classname.replace('.', os.sep) + \
                     suff + class_suffix
             t = target[0].File(fname)
             t.attributes.java_lookupdir = target[0]

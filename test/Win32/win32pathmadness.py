@@ -33,7 +33,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import sys
 import TestCmd
-import string
 import os.path
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
@@ -89,10 +88,10 @@ int bar(void);
 
 drive, rest = os.path.splitdrive(test.workpath('src'))
 
-drive_upper = string.upper(drive)
-drive_lower = string.lower(drive)
-rest_upper = rest[0] + string.upper(rest[1]) + rest[2:]
-rest_lower = rest[0] + string.lower(rest[1]) + rest[2:]
+drive_upper = drive.upper()
+drive_lower = drive.lower()
+rest_upper = rest[0] + rest[1].upper() + rest[2:]
+rest_lower = rest[0] + rest[1].lower() + rest[2:]
 
 combinations = [
     os.path.join(drive_upper, rest_upper),

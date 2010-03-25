@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import SCons.Util
 
@@ -67,8 +66,8 @@ def generate(env):
         env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
         # determine version of aCC
         line = os.popen(acc + ' -V 2>&1').readline().rstrip()
-        if string.find(line, 'aCC: HP ANSI C++') == 0:
-            env['CXXVERSION'] = string.split(line)[-1]
+        if line.find('aCC: HP ANSI C++') == 0:
+            env['CXXVERSION'] = line.split()[-1]
 
         if env['PLATFORM'] == 'cygwin':
             env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')

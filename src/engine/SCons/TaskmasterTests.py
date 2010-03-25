@@ -660,7 +660,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert t.targets == [n1], t.targets
         t.fail_stop()
-        assert t.targets == [n3], map(str, t.targets)
+        assert t.targets == [n3], list(map(str, t.targets))
         assert t.top == 1, t.top
 
     def test_stop(self):

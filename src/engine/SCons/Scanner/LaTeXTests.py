@@ -24,7 +24,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 import sys
 import types
 import unittest
@@ -88,7 +87,7 @@ class DummyEnvironment(UserDict.UserDict):
     def subst_path(self, path, target=None, source=None, conv=None):
         if type(path) != type([]):
             path = [path]
-        return map(self.subst, path)
+        return list(map(self.subst, path))
 
     def get_calculator(self):
         return None
@@ -109,8 +108,8 @@ else:
 
 def deps_match(self, deps, headers):
     global my_normpath
-    scanned = map(my_normpath, map(str, deps))
-    expect = map(my_normpath, headers)
+    scanned = list(map(my_normpath, list(map(str, deps))))
+    expect = list(map(my_normpath, headers))
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 

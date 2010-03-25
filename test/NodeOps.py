@@ -36,7 +36,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 import os
-import string
 
 _exe = TestSCons._exe
 lib_ = TestSCons.lib_
@@ -47,7 +46,7 @@ _dll = TestSCons._dll
     
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if string.find(sys.platform, 'irix') > -1:
+if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test = TestSCons.TestSCons()
@@ -67,10 +66,10 @@ Nodes.extend(bar.SharedObject(target = 'bar%(_obj)s', source = 'prog.cpp'))
 SConscript('bld/SConscript', ['Nodes'])
 if %(_E)s:
   import os
-  derived = map(lambda N: N.is_derived(), Nodes)
-  real1 = map(lambda N: os.path.exists(str(N)), Nodes)
-  exists = map(lambda N: N.exists(), Nodes)
-  real2 = map(lambda N: os.path.exists(str(N)), Nodes)
+  derived = [N.is_derived() for N in Nodes]
+  real1 = [os.path.exists(str(N)) for N in Nodes]
+  exists = [N.exists() for N in Nodes]
+  real2 = [os.path.exists(str(N)) for N in Nodes]
   for N,D,R,E,F in map(None, Nodes, derived, real1, exists, real2):
     print '%%s: %%s %%s %%s %%s'%%(N,D,R,E,F)
 foo.SharedLibrary(target = 'foo', source = 'foo%(_obj)s')

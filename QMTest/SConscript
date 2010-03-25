@@ -26,7 +26,6 @@
 #
 
 import os.path
-import string
 
 Import('build_dir', 'env')
 
@@ -50,7 +49,7 @@ def copy(target, source, env):
     # Note:  We construct the __ VERSION __ substitution string at
     # run-time so it doesn't get replaced when this file gets copied
     # into the tree for packaging.
-    c = string.replace(c, '__' + 'VERSION' + '__', env['VERSION'])
+    c = c.replace('__' + 'VERSION' + '__', env['VERSION'])
     open(t, 'wb').write(c)
 
 for file in files:

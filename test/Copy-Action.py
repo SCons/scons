@@ -43,10 +43,9 @@ Execute(Copy(File('d2.out'), 'd2.in'))
 Execute(Copy('d3.out', File('f3.in')))
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 Cat = Action(cat)
 env = Environment()
@@ -155,9 +154,9 @@ errors = 0
 def must_be_same(f1, f2):
     global errors
     if type(f1) is type([]):
-        f1 = apply(os.path.join, f1)
+        f1 = os.path.join(*f1)
     if type(f2) is type([]):
-        f2 = apply(os.path.join, f2)
+        f2 = os.path.join(*f2)
     s1 = os.stat(f1)
     s2 = os.stat(f2)
     for value in ['ST_MODE', 'ST_MTIME']:

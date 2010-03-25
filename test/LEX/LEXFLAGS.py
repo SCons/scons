@@ -39,7 +39,6 @@ test.subdir('in')
 
 test.write('mylex.py', """
 import getopt
-import string
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'I:tx', [])
 opt_string = ''
@@ -49,8 +48,8 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
-    contents = string.replace(contents, 'LEXFLAGS', opt_string)
-    contents = string.replace(contents, 'I_ARGS', i_arguments)
+    contents = contents.replace('LEXFLAGS', opt_string)
+    contents = contents.replace('I_ARGS', i_arguments)
     sys.stdout.write(contents)
 sys.exit(0)
 """)

@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -57,7 +56,7 @@ public class Example1
 """)
 
 expected_wrapper_out = "%(where_javac)s -O -d classes -sourcepath src src/Example1.java\n"
-expected_wrapper_out = string.replace(expected_wrapper_out, '/', os.sep)
+expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.run(arguments = '.',
          stdout = test.wrap_stdout(expected_wrapper_out % locals()))
 

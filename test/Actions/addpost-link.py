@@ -39,9 +39,8 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.write('strip.py', """\
-import string
 import sys
-print "strip.py: %s" % string.join(sys.argv[1:])
+print "strip.py: %s" % " ".join(sys.argv[1:])
 """)
 
 test.write('SConstruct', """\

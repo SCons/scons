@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify correct use of the live 'as' assembler.
 """
 
-import string
 import sys
 
 import TestSCons
@@ -43,7 +42,7 @@ test = TestSCons.TestSCons()
 if not test.detect('AS', 'as'):
     test.skip_test("as not found; skipping test\n")
 
-x86 = (sys.platform == 'win32' or string.find(sys.platform, 'linux') != -1)
+x86 = (sys.platform == 'win32' or sys.platform.find('linux') != -1)
 
 if not x86:
     test.skip_test("skipping as test on non-x86 platform '%s'\n" % sys.platform)
@@ -52,12 +51,11 @@ if not x86:
 
 test.write("wrapper.py", """\
 import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py: %%s\\n" %% sys.argv[-1])
-cmd = string.join(sys.argv[1:])
+cmd = " ".join(sys.argv[1:])
 os.system(cmd)
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """\
 aaa = Environment()

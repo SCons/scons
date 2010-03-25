@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -81,7 +79,7 @@ expected_stdout = test.wrap_stdout("""\
 %(_python_)s ../build.py f2.out f2.in
 """ % locals())
 
-re_expected_stdout = string.replace(expected_stdout, '\\', '\\\\')
+re_expected_stdout = expected_stdout.replace('\\', '\\\\')
 
 expect_unsupported = """
 scons: warning: Setting stack size is unsupported by this version of Python:

@@ -1,21 +1,24 @@
 #!/usr/bin/env python
 #
-# A script to compare the --debug=memoizer output found int
+# A script to compare the --debug=memoizer output found in
 # two different files.
 
-import sys,string
+import sys
 
 def memoize_output(fname):
-        mout = {}
-        lines=filter(lambda words:
-                     len(words) == 5 and
-                     words[1] == 'hits' and words[3] == 'misses',
-                     map(string.split, open(fname,'r').readlines()))
-        for line in lines:
-                mout[line[-1]] = ( int(line[0]), int(line[2]) )
-        return mout
+    mout = {}
+    #lines=filter(lambda words:
+    #             len(words) == 5 and
+    #             words[1] == 'hits' and words[3] == 'misses',
+    #             map(string.split, open(fname,'r').readlines()))
+    #for line in lines:
+    #    mout[line[-1]] = ( int(line[0]), int(line[2]) )
+    for line in open(fname,'r').readlines():
+        words = line.split()
+        if len(words) == 5 and words[1] == 'hits' and words[3] == 'misses':
+            mout[words[-1]] = ( int(words[0]), int(words[2]) )
+    return mout
 
-        
 def memoize_cmp(filea, fileb):
         ma = memoize_output(filea)
         mb = memoize_output(fileb)

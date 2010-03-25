@@ -39,10 +39,9 @@ Execute(Delete('f1'))
 Execute(Delete('d2'))
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 Cat = Action(cat)
 env = Environment()
@@ -164,10 +163,9 @@ test.must_match('f16.out', "f16.in\n")
 test.write("SConstruct", """\
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 Cat = Action(cat)
 env = Environment()

@@ -24,10 +24,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 import os.path
 import re
-import string
 
 Import('build_dir', 'env', 'whereis')
 
@@ -93,7 +93,7 @@ def scanxml(node, env, target):
                 if tail == 'doc':
                     break
                 a = [tail] + a
-            file = apply(os.path.join, a, {})
+            file = os.path.join(*a)
         includes.append(file)
 
     return includes
@@ -119,8 +119,8 @@ def chop(s): return s[:-1]
 #manifest_in = File('#src/engine/MANIFEST.in').rstr()
 
 manifest_xml_in = File('#src/engine/MANIFEST-xml.in').rstr()
-scons_doc_files = map(chop, open(manifest_xml_in).readlines())
-scons_doc_files = map(lambda x: File('#src/engine/'+x).rstr(), scons_doc_files)
+scons_doc_files = list(map(chop, open(manifest_xml_in).readlines()))
+scons_doc_files = [File('#src/engine/'+x).rstr() for x in scons_doc_files]
 
 if not jw:
     print "jw not found, skipping building User Guide."
@@ -240,7 +240,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     # get included by the document XML files in the subdirectories.
     #
     manifest = File('MANIFEST').rstr()
-    src_files = map(lambda x: x[:-1], open(manifest).readlines())
+    src_files = [x[:-1] for x in open(manifest).readlines()]
     for s in src_files:
         base, ext = os.path.splitext(s)
         if ext in ['.fig', '.jpg']:
@@ -255,8 +255,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     #
     for doc in docs.keys():
         manifest = File(os.path.join(doc, 'MANIFEST')).rstr()
-        src_files = map(lambda x: x[:-1],
-                        open(manifest).readlines())
+        src_files = [x[:-1] for x in open(manifest).readlines()]
         build_doc = docs[doc].get('scons-doc') and int(ARGUMENTS.get('BUILDDOC', 0))
         for s in src_files:
             doc_s = os.path.join(doc, s)
@@ -408,8 +407,7 @@ for m in man_page_list:
 
 man_i_files = ['builders.man', 'tools.man', 'variables.man']
 
-man_intermediate_files = map(lambda x: os.path.join(build, 'man', x),
-                             man_i_files)
+man_intermediate_files = [os.path.join(build, 'man', x) for x in man_i_files]
 
 cmd = "$PYTHON $SCONS_PROC_PY --man -b ${TARGETS[0]} -t ${TARGETS[1]} -v ${TARGETS[2]} $( $SOURCES $)"
 man_intermediate_files = env.Command(man_intermediate_files,
@@ -444,12 +442,12 @@ for man_1 in man_page_list:
         def strip_to_first_html_tag(target, source, env):
             t = str(target[0])
             contents = open(t).read()
-            contents = contents[string.find(contents, '<HTML>'):]
+            contents = contents[contents.find('<HTML>'):]
             open(t, 'w').write(contents)
             return 0
 
         cmds = [
-            "( cd %s/man && cp %s .. )" % (build, string.join(man_i_files)),
+            "( cd %s/man && cp %s .. )" % (build, ' '.join(man_i_files)),
             "( cd ${SOURCE.dir} && man2html ${SOURCE.file} ) > $TARGET",
             Action(strip_to_first_html_tag),
         ]
@@ -469,15 +467,15 @@ else:
     # the SConstruct file.
     e = os.path.join('#src', 'engine')
     manifest_in = File(os.path.join(e, 'MANIFEST.in')).rstr()
-    sources = map(lambda x: x[:-1], open(manifest_in).readlines())
-    sources = filter(lambda x: string.find(x, 'Optik') == -1, sources)
-    sources = filter(lambda x: string.find(x, 'Platform') == -1, sources)
-    sources = filter(lambda x: string.find(x, 'Tool') == -1, sources)
+    sources = [x[:-1] for x in open(manifest_in).readlines()]
+    sources = [x for x in sources if x.find('Optik') == -1]
+    sources = [x for x in sources if x.find('Platform') == -1]
+    sources = [x for x in sources if x.find('Tool') == -1]
     # XXX
-    sources = filter(lambda x: string.find(x, 'Options') == -1, sources)
+    sources = [x for x in sources if x.find('Options') == -1]
 
     e = os.path.join(build, '..', 'scons', 'engine')
-    sources = map(lambda x, e=e: os.path.join(e, x), sources)
+    sources = [os.path.join(e, x) for x in sources]
 
     epydoc_commands = [
         Delete('$OUTDIR'),
@@ -519,8 +517,7 @@ else:
 # for easy distribution to the web site.
 #
 if tar_deps:
-    tar_list = string.join(map(lambda x, b=build+'/': string.replace(x, b, ''),
-                           tar_list))
+    tar_list = ' '.join([x.replace(build+'/', '') for x in tar_list])
     t = env.Command(dist_doc_tar_gz, tar_deps,
                 "tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list))
     AddPostAction(dist_doc_tar_gz, Chmod(dist_doc_tar_gz, 0644))

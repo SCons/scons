@@ -35,7 +35,6 @@ name of this script doesn't end in *Tests.py.
 import os
 import os.path
 import re
-import string
 
 import TestSCons
 
@@ -47,7 +46,7 @@ except KeyError:
     cwd = os.getcwd()
 
 def build_path(*args):
-    return apply(os.path.join, (cwd, 'build',) + args)
+    return os.path.join(cwd, 'build', *args)
 
 build_scons_tar_gz  = build_path('unpack-tar-gz', 'scons-'+test.scons_version)
 build_scons_zip     = build_path('unpack-zip', 'scons-'+test.scons_version)
@@ -89,12 +88,12 @@ for directory, check_list in check.items():
 
 if missing:
     print "Missing the following files:\n"
-    print "\t" + string.join(missing, "\n\t")
+    print "\t" + "\n\t".join(missing)
     test.fail_test(1)
 
 if no_result:
     print "Cannot check files, the following have apparently not been built:"
-    print "\t" + string.join(no_result, "\n\t")
+    print "\t" + "\n\t".join(no_result)
     test.no_result(1)
 
 test.pass_test()

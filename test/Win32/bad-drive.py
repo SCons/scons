@@ -31,8 +31,8 @@ with an invalid drive letter.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
+from string import uppercase
 
 import TestSCons
 
@@ -43,8 +43,8 @@ if sys.platform != 'win32':
     test.skip_test(msg)
 
 bad_drive = None
-for i in range(len(string.uppercase)-1, -1, -1):
-    d = string.uppercase[i]
+for i in range(len(uppercase)-1, -1, -1):
+    d = uppercase[i]
     if not os.path.isdir(d + ':' + os.sep):
         bad_drive = d + ':'
         break
@@ -57,7 +57,7 @@ if bad_drive is None:
 test.write('SConstruct', """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
+    source = list(map(str, source))
     print 'cat(%%s) > %%s' %% (source, target)
     f = open(target, "wb")
     for src in source:

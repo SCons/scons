@@ -30,7 +30,6 @@ is not strictly a test of using $CPPPATH, but it's in the ball park...)
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -45,7 +44,7 @@ does_not_exist_h = test.workpath('include', 'does_not_exist.h')
 # Verify that including an absolute path still works even if they
 # double the separators in the input file.  This can happen especially
 # on Windows if they use \\ to represent an escaped backslash.
-inc2_h = string.replace(inc2_h, os.sep, os.sep+os.sep)
+inc2_h = inc2_h.replace(os.sep, os.sep+os.sep)
 
 test.write(['work', 'SConstruct'], """\
 Program('prog.c')

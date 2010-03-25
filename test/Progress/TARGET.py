@@ -30,7 +30,6 @@ overwriting it by setting the overwrite= keyword argument.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -59,7 +58,7 @@ S1.in\r     \rS1.out\rCopy("S1.out", "S1.in")
       \rSConstruct\r          \r.\r"""
 
 if os.linesep != '\n':
-    expect = string.replace(expect, '\n', os.linesep)
+    expect = expect.replace('\n', os.linesep)
 
 test.run(arguments = '-Q .', stdout=expect)
 

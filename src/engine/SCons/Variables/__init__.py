@@ -26,11 +26,11 @@ customizable variables to an SCons build.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 import sys
 
 import SCons.Environment
@@ -108,7 +108,7 @@ class Variables:
         """
         Returns the keywords for the options
         """
-        return map(lambda o: o.key, self.options)
+        return [o.key for o in self.options]
 
     def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
         """
@@ -124,7 +124,7 @@ class Variables:
         """
 
         if SCons.Util.is_List(key) or type(key) == type(()):
-            apply(self._do_add, key)
+            self._do_add(*key)
             return
 
         if not SCons.Util.is_String(key) or \
@@ -149,7 +149,7 @@ class Variables:
             )
         """
         for o in optlist:
-            apply(self._do_add, o)
+            self._do_add(*o)
 
 
     def Update(self, env, args=None):
@@ -203,7 +203,7 @@ class Variables:
 
         # Call the convert functions:
         for option in self.options:
-            if option.converter and values.has_key(option.key):
+            if option.converter and option.key in values:
                 value = env.subst('${%s}'%option.key)
                 try:
                     try:
@@ -216,7 +216,7 @@ class Variables:
 
         # Finally validate the values:
         for option in self.options:
-            if option.validator and values.has_key(option.key):
+            if option.validator and option.key in values:
                 option.validator(option.key, env.subst('${%s}'%option.key), env)
 
     def UnknownVariables(self):
@@ -285,26 +285,26 @@ class Variables:
 
         if sort:
             options = self.options[:]
-            options.sort(lambda x,y,func=sort: func(x.key,y.key))
+            options.sort(lambda x,y: sort(x.key,y.key))
         else:
             options = self.options
 
         def format(opt, self=self, env=env):
-            if env.has_key(opt.key):
+            if opt.key in env:
                 actual = env.subst('${%s}' % opt.key)
             else:
                 actual = None
             return self.FormatVariableHelpText(env, opt.key, opt.help, opt.default, actual, opt.aliases)
-        lines = filter(None, map(format, options))
+        lines = [_f for _f in map(format, options) if _f]
 
-        return string.join(lines, '')
+        return ''.join(lines)
 
     format  = '\n%s: %s\n    default: %s\n    actual: %s\n'
     format_ = '\n%s: %s\n    default: %s\n    actual: %s\n    aliases: %s\n'
 
     def FormatVariableHelpText(self, env, key, help, default, actual, aliases=[]):
         # Don't display the key name itself as an alias.
-        aliases = filter(lambda a, k=key: a != k, aliases)
+        aliases = [a for a in aliases if a != key]
         if len(aliases)==0:
             return self.format % (key, help, default, actual)
         else:

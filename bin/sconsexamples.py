@@ -67,12 +67,12 @@
 # Error output gets passed through to your error output so you
 # can see if there are any problems executing the command.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 import os
 import os.path
 import re
 import sgmllib
-import string
 import sys
 
 sys.path.append(os.path.join(os.getcwd(), 'etc'))
@@ -156,7 +156,6 @@ Prompt = {
 # command output.
 
 Stdin = """\
-import string
 import SCons.Defaults
 
 platform = '%s'
@@ -174,13 +173,13 @@ class Curry:
         else:
             kw = kwargs or self.kwargs
 
-        return apply(self.fun, self.pending + args, kw)
+        return self.fun(*self.pending + args, **kw)
 
 def Str(target, source, env, cmd=""):
     result = []
     for cmd in env.subst_list(cmd, target=target, source=source):
-        result.append(string.join(map(str, cmd)))
-    return string.join(result, '\\n')
+        result.append(" ".join(map(str, cmd)))
+    return '\\n'.join(result)
 
 class ToolSurrogate:
     def __init__(self, tool, variable, func):
@@ -212,7 +211,7 @@ ToolList = {
                  ('mslink', 'LINKCOM', Cat)]
 }
 
-tools = map(lambda t: apply(ToolSurrogate, t), ToolList[platform])
+tools = map(lambda t: ToolSurrogate(*t), ToolList[platform])
 
 SCons.Defaults.ConstructionEnvironment.update({
     'PLATFORM' : platform,
@@ -270,7 +269,7 @@ class MySGML(sgmllib.SGMLParser):
         sys.stdout.write('&#' + ref + ';')
 
     def start_scons_example(self, attrs):
-        t = filter(lambda t: t[0] == 'name', attrs)
+        t = [t for t in attrs if t[0] == 'name']
         if t:
             name = t[0][1]
             try:
@@ -286,7 +285,7 @@ class MySGML(sgmllib.SGMLParser):
 
     def end_scons_example(self):
         e = self.e
-        files = filter(lambda f: f.printme, e.files)
+        files = [f for f in e.files if f.printme]
         if files:
             sys.stdout.write('<programlisting>')
             for f in files:
@@ -294,7 +293,7 @@ class MySGML(sgmllib.SGMLParser):
                     i = len(f.data) - 1
                     while f.data[i] == ' ':
                         i = i - 1
-                    output = string.replace(f.data[:i+1], '__ROOT__', '')
+                    output = f.data[:i+1].replace('__ROOT__', '')
                     sys.stdout.write(output)
             if e.data and e.data[0] == '\n':
                 e.data = e.data[1:]
@@ -307,7 +306,7 @@ class MySGML(sgmllib.SGMLParser):
             e = self.e
         except AttributeError:
             self.error("<file> tag outside of <scons_example>")
-        t = filter(lambda t: t[0] == 'name', attrs)
+        t = [t for t in attrs if t[0] == 'name']
         if not t:
             self.error("no <file> name attribute found")
         try:
@@ -331,7 +330,7 @@ class MySGML(sgmllib.SGMLParser):
             e = self.e
         except AttributeError:
             self.error("<directory> tag outside of <scons_example>")
-        t = filter(lambda t: t[0] == 'name', attrs)
+        t = [t for t in attrs if t[0] == 'name']
         if not t:
             self.error("no <directory> name attribute found")
         try:
@@ -350,7 +349,7 @@ class MySGML(sgmllib.SGMLParser):
         self.afunclist = self.afunclist[:-1]
 
     def start_scons_example_file(self, attrs):
-        t = filter(lambda t: t[0] == 'example', attrs)
+        t = [t for t in attrs if t[0] == 'example']
         if not t:
             self.error("no <scons_example_file> example attribute found")
         exname = t[0][1]
@@ -358,11 +357,11 @@ class MySGML(sgmllib.SGMLParser):
             e = self.examples[exname]
         except KeyError:
             self.error("unknown example name '%s'" % exname)
-        fattrs = filter(lambda t: t[0] == 'name', attrs)
+        fattrs = [t for t in attrs if t[0] == 'name']
         if not fattrs:
             self.error("no <scons_example_file> name attribute found")
         fname = fattrs[0][1]
-        f = filter(lambda f, fname=fname: f.name == fname, e.files)
+        f = [f for f in e.files if f.name == fname]
         if not f:
             self.error("example '%s' does not have a file named '%s'" % (exname, fname))
         self.f = f[0]
@@ -377,7 +376,7 @@ class MySGML(sgmllib.SGMLParser):
         delattr(self, 'f')
 
     def start_scons_output(self, attrs):
-        t = filter(lambda t: t[0] == 'example', attrs)
+        t = [t for t in attrs if t[0] == 'example']
         if not t:
             self.error("no <scons_output> example attribute found")
         exname = t[0][1]
@@ -408,20 +407,19 @@ class MySGML(sgmllib.SGMLParser):
             i = 0
             while f.data[i] == '\n':
                 i = i + 1
-            lines = string.split(f.data[i:], '\n')
+            lines = f.data[i:].split('\n')
             i = 0
             while lines[0][i] == ' ':
                 i = i + 1
-            lines = map(lambda l, i=i: l[i:], lines)
-            path = string.replace(f.name, '__ROOT__', t.workpath('ROOT'))
+            lines = [l[i:] for l in lines]
+            path = f.name.replace('__ROOT__', t.workpath('ROOT'))
             dir, name = os.path.split(f.name)
             if dir:
                 dir = t.workpath('WORK', dir)
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-            content = string.join(lines, '\n')
-            content = string.replace(content,
-                                     '__ROOT__',
+            content = '\n'.join(lines)
+            content = content.replace('__ROOT__',
                                      t.workpath('ROOT'))
             t.write(t.workpath('WORK', f.name), content)
         i = len(o.prefix)
@@ -431,19 +429,19 @@ class MySGML(sgmllib.SGMLParser):
         p = o.prefix[i:]
         for c in o.commandlist:
             sys.stdout.write(p + Prompt[o.os])
-            d = string.replace(c.data, '__ROOT__', '')
+            d = c.data.replace('__ROOT__', '')
             sys.stdout.write('<userinput>' + d + '</userinput>\n')
-            e = string.replace(c.data, '__ROOT__', t.workpath('ROOT'))
-            args = string.split(e)[1:]
+            e = c.data.replace('__ROOT__', t.workpath('ROOT'))
+            args = e.split()[1:]
             os.environ['SCONS_LIB_DIR'] = scons_lib_dir
             t.run(interpreter = sys.executable,
                   program = scons_py,
-                  arguments = '-f - ' + string.join(args),
+                  arguments = '-f - ' + ' '.join(args),
                   chdir = t.workpath('WORK'),
                   stdin = Stdin % o.os)
-            out = string.replace(t.stdout(), t.workpath('ROOT'), '')
+            out = t.stdout().replace(t.workpath('ROOT'), '')
             if out:
-                lines = string.split(out, '\n')
+                lines = out.split('\n')
                 if lines:
                     while lines[-1] == '':
                         lines = lines[:-1]

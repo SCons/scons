@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import SCons.Defaults
 import SCons.Tool
@@ -71,7 +70,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
             if option[:l] == fileGenOption:
                 # A file generating option is present, so add the file
                 # name to the list of targets.
-                fileName = string.strip(option[l:])
+                fileName = option[l:].strip()
                 target.append(fileName)
 
     return (target, source)

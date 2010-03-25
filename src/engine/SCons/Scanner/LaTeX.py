@@ -30,7 +30,6 @@ This module implements the dependency scanner for LaTeX code.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 import re
 
 import SCons.Scanner
@@ -60,11 +59,11 @@ def modify_env_var(env, var, abspath):
         if SCons.Util.is_List(env[var]):
             #TODO(1.5)
             #env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
+            env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
         else:
             # Split at os.pathsep to convert into absolute path
             #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), string.split(str(env[var]), os.pathsep)))
+            env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
     except KeyError:
         pass
 
@@ -75,7 +74,7 @@ def modify_env_var(env, var, abspath):
     if SCons.Util.is_List(env['ENV'][var]):
         # TODO(1.5)
         #env['ENV'][var] = os.pathsep.join(env['ENV'][var])
-        env['ENV'][var] = string.join(env['ENV'][var], os.pathsep)
+        env['ENV'][var] = os.pathsep.join(env['ENV'][var])
     # Append the trailing os.pathsep character here to catch the case with no env[var]
     env['ENV'][var] = env['ENV'][var] + os.pathsep
 
@@ -231,7 +230,7 @@ class LaTeX(SCons.Scanner.Base):
         kw['scan_check'] = LaTeXScanCheck(suffixes)
         kw['name'] = name
 
-        apply(SCons.Scanner.Base.__init__, (self,) + args, kw)
+        SCons.Scanner.Base.__init__(self, *args, **kw)
 
     def _latex_names(self, include):
         filename = include[1]
@@ -253,10 +252,10 @@ class LaTeX(SCons.Scanner.Base):
             base, ext = os.path.splitext( filename )
             if ext == "":
                 #TODO(1.5) return [filename + e for e in self.graphics_extensions]
-                #return map(lambda e, f=filename: f+e, self.graphics_extensions + TexGraphics)
+                #return map(lambda e: filename+e, self.graphics_extensions + TexGraphics)
                 # use the line above to find dependency for PDF builder when only .eps figure is present
                 # Since it will be found if the user tell scons how to make the pdf figure leave it out for now.
-                return map(lambda e, f=filename: f+e, self.graphics_extensions)
+                return [filename+e for e in self.graphics_extensions]
         return [filename]
 
     def sort_key(self, include):
@@ -303,7 +302,7 @@ class LaTeX(SCons.Scanner.Base):
             split_includes = []
             for include in includes:
                 inc_type = noopt_cre.sub('', include[0])
-                inc_list = string.split(include[1],',')
+                inc_list = include[1].split(',')
                 for j in range(len(inc_list)):
                     split_includes.append( (inc_type, inc_list[j]) )
             #
@@ -368,7 +367,7 @@ class LaTeX(SCons.Scanner.Base):
 
         #
         nodes.sort()
-        nodes = map(lambda pair: pair[1], nodes)
+        nodes = [pair[1] for pair in nodes]
         return nodes
 
 # Local Variables:

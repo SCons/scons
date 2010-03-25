@@ -35,8 +35,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
-import string
-
 import SCons.Action
 import SCons.Tool
 import SCons.Util
@@ -62,7 +60,7 @@ def lexEmitter(target, source, env):
             if option[:l] == fileGenOption:
                 # A file generating option is present, so add the
                 # file name to the target list.
-                fileName = string.strip(option[l:])
+                fileName = option[l:].strip()
                 target.append(fileName)
     return (target, source)
 

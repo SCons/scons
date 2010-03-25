@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -90,7 +91,6 @@ import copy
 import os
 import re
 import shlex
-import string
 import sys
 
 try:
@@ -134,7 +134,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         print "*** Unknown command: %s" % argv[0]
 
     def onecmd(self, line):
-        line = string.strip(line)
+        line = line.strip()
         if not line:
             print self.lastcmd
             return self.emptyline()
@@ -144,7 +144,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         elif line[0] == '?':
             line = 'help ' + line[1:]
         if os.sep == '\\':
-            line = string.replace(line, '\\', '\\\\')
+            line = line.replace('\\', '\\\\')
         argv = shlex.split(line)
         argv[0] = self.synonyms.get(argv[0], argv[0])
         if not argv[0]:
@@ -222,8 +222,8 @@ class SConsInteractiveCmd(cmd.Cmd):
 
         def get_unseen_children(node, parent, seen_nodes=seen_nodes):
             def is_unseen(node, seen_nodes=seen_nodes):
-                return not seen_nodes.has_key(node)
-            return filter(is_unseen, node.children(scan=1))
+                return node not in seen_nodes
+            return list(filter(is_unseen, node.children(scan=1)))
 
         def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes):
             seen_nodes[node] = 1
@@ -307,7 +307,7 @@ class SConsInteractiveCmd(cmd.Cmd):
 
     def _strip_initial_spaces(self, s):
         #lines = s.split('\n')
-        lines = string.split(s, '\n')
+        lines = s.split('\n')
         spaces = re.match(' *', lines[0]).group(0)
         #def strip_spaces(l):
         #    if l.startswith(spaces):
@@ -318,8 +318,8 @@ class SConsInteractiveCmd(cmd.Cmd):
             if l[:len(spaces)] == spaces:
                 l = l[len(spaces):]
             return l
-        lines = map(strip_spaces, lines)
-        return string.join(lines, '\n')
+        lines = list(map(strip_spaces, lines))
+        return '\n'.join(lines)
 
     def do_exit(self, argv):
         """\

@@ -29,7 +29,6 @@ Test that the --debug=memory option works.
 """
 
 import re
-import string
 
 import TestSCons
 
@@ -60,7 +59,7 @@ test.write('file.in', "file.in\n")
 
 test.run(arguments = '--debug=memory')
 
-lines = string.split(test.stdout(), '\n')
+lines = test.stdout().split('\n')
 
 test.fail_test(re.match(r'Memory before reading SConscript files: +\d+', lines[-5]) is None)
 test.fail_test(re.match(r'Memory after reading SConscript files: +\d+', lines[-4]) is None)
@@ -71,7 +70,7 @@ test.fail_test(re.match(r'Memory after building targets: +\d+', lines[-2]) is No
 
 test.run(arguments = '-h --debug=memory')
 
-lines = string.split(test.stdout(), '\n')
+lines = test.stdout().split('\n')
 
 test.fail_test(re.match(r'Memory before reading SConscript files: +\d+', lines[-3]) is None)
 test.fail_test(re.match(r'Memory after reading SConscript files: +\d+', lines[-2]) is None)

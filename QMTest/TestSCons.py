@@ -13,13 +13,13 @@ attributes defined in this subclass.
 """
 
 # __COPYRIGHT__
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
 import shutil
-import string
 import sys
 import time
 
@@ -30,7 +30,7 @@ except AttributeError:
     def zip(*lists):
         result = []
         for i in xrange(len(lists[0])):
-            result.append(tuple(map(lambda l, i=i: l[i], lists)))
+            result.append(tuple([l[i] for l in lists]))
         return result
     __builtin__.zip = zip
 
@@ -123,7 +123,7 @@ def gccFortranLibs():
         stderr = p.stderr
 
     for l in stderr.readlines():
-        list = string.split(l)
+        list = l.split()
         if len(list) > 3 and list[:2] == ['gcc', 'version']:
             if list[2][:3] in ('4.1','4.2','4.3'):
                 libs = ['gfortranbegin']
@@ -148,7 +148,7 @@ if sys.platform == 'win32':
     fortran_lib = gccFortranLibs()
 elif sys.platform == 'cygwin':
     fortran_lib = gccFortranLibs()
-elif string.find(sys.platform, 'irix') != -1:
+elif sys.platform.find('irix') != -1:
     fortran_lib = ['ftn']
 else:
     fortran_lib = gccFortranLibs()
@@ -161,7 +161,7 @@ file_expr = r"""File "[^"]*", line \d+, in .+
 # re.escape escapes too much.
 def re_escape(str):
     for c in ['.', '[', ']', '(', ')', '*', '+', '?']:  # Not an exhaustive list.
-        str = string.replace(str, c, '\\' + c)
+        str = str.replace(c, '\\' + c)
     return str
 
 
@@ -170,12 +170,12 @@ try:
     sys.version_info
 except AttributeError:
     # Pre-1.6 Python has no sys.version_info
-    version_string = string.split(sys.version)[0]
-    version_ints = map(int, string.split(version_string, '.'))
+    version_string = sys.version.split()[0]
+    version_ints = list(map(int, version_string.split('.')))
     sys.version_info = tuple(version_ints + ['final', 0])
 
 def python_version_string():
-    return string.split(sys.version)[0]
+    return sys.version.split()[0]
 
 def python_minor_version_string():
     return sys.version[:3]
@@ -234,7 +234,7 @@ class TestSCons(TestCommon):
             pass
         else:
             os.chdir(script_dir)
-        if not kw.has_key('program'):
+        if 'program' not in kw:
             kw['program'] = os.environ.get('SCONS')
             if not kw['program']:
                 if os.path.exists('scons'):
@@ -243,11 +243,11 @@ class TestSCons(TestCommon):
                     kw['program'] = 'scons.py'
             elif not os.path.isabs(kw['program']):
                 kw['program'] = os.path.join(self.orig_cwd, kw['program'])
-        if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
+        if 'interpreter' not in kw and not os.environ.get('SCONS_EXEC'):
             kw['interpreter'] = [python, '-tt']
-        if not kw.has_key('match'):
+        if 'match' not in kw:
             kw['match'] = match_exact
-        if not kw.has_key('workdir'):
+        if 'workdir' not in kw:
             kw['workdir'] = ''
 
         # Term causing test failures due to bogus readline init
@@ -266,9 +266,9 @@ class TestSCons(TestCommon):
             else:
                 sconsflags = []
             sconsflags = sconsflags + ['--warn=no-python-version']
-            os.environ['SCONSFLAGS'] = string.join(sconsflags)
+            os.environ['SCONSFLAGS'] = ' '.join(sconsflags)
 
-        apply(TestCommon.__init__, [self], kw)
+        TestCommon.__init__(self, **kw)
 
         import SCons.Node.FS
         if SCons.Node.FS.default_fs is None:
@@ -284,7 +284,7 @@ class TestSCons(TestCommon):
         if not ENV is None:
             kw['ENV'] = ENV
         try:
-            return apply(SCons.Environment.Environment, args, kw)
+            return SCons.Environment.Environment(*args, **kw)
         except (SCons.Errors.UserError, SCons.Errors.InternalError):
             return None
 
@@ -307,7 +307,7 @@ class TestSCons(TestCommon):
             return None
         result = env.WhereIs(prog)
         if norm and os.sep != '/':
-            result = string.replace(result, os.sep, '/')
+            result = result.replace(os.sep, '/')
         return result
 
     def detect_tool(self, tool, prog=None, ENV=None):
@@ -376,16 +376,16 @@ class TestSCons(TestCommon):
         # support the --warn=no-visual-c-missing warning.)
         sconsflags = sconsflags + [os.environ.get('TESTSCONS_SCONSFLAGS',
                                                   '--warn=no-visual-c-missing')]
-        os.environ['SCONSFLAGS'] = string.join(sconsflags)
+        os.environ['SCONSFLAGS'] = ' '.join(sconsflags)
         try:
-            result = apply(TestCommon.run, (self,)+args, kw)
+            result = TestCommon.run(self, *args, **kw)
         finally:
             sconsflags = save_sconsflags
         return result
 
     def up_to_date(self, options = None, arguments = None, read_str = "", **kw):
         s = ""
-        for arg in string.split(arguments):
+        for arg in arguments.split():
             s = s + "scons: `%s' is up to date.\n" % arg
             if options:
                 arguments = options + " " + arguments
@@ -395,7 +395,7 @@ class TestSCons(TestCommon):
         # up-to-date output is okay.
         kw['stdout'] = re.escape(stdout) + '.*'
         kw['match'] = self.match_re_dotall
-        apply(self.run, [], kw)
+        self.run(**kw)
 
     def not_up_to_date(self, options = None, arguments = None, **kw):
         """Asserts that none of the targets listed in arguments is
@@ -403,16 +403,16 @@ class TestSCons(TestCommon):
         This function is most useful in conjunction with the -n option.
         """
         s = ""
-        for arg in string.split(arguments):
+        for arg in arguments.split():
             s = s + "(?!scons: `%s' is up to date.)" % re.escape(arg)
             if options:
                 arguments = options + " " + arguments
         s = '('+s+'[^\n]*\n)*'
         kw['arguments'] = arguments
         stdout = re.escape(self.wrap_stdout(build_str='ARGUMENTSGOHERE'))
-        kw['stdout'] = string.replace(stdout, 'ARGUMENTSGOHERE', s)
+        kw['stdout'] = stdout.replace('ARGUMENTSGOHERE', s)
         kw['match'] = self.match_re_dotall
-        apply(self.run, [], kw)
+        self.run(**kw)
 
     def option_not_yet_implemented(self, option, arguments=None, **kw):
         """
@@ -430,7 +430,7 @@ class TestSCons(TestCommon):
                 kw['arguments'] = option + ' ' + arguments
         # TODO(1.5)
         #return self.run(**kw)
-        return apply(self.run, (), kw)
+        return self.run(**kw)
 
     def diff_substr(self, expect, actual, prelen=20, postlen=40):
         i = 0
@@ -461,9 +461,9 @@ class TestSCons(TestCommon):
         places, abstracting out the version difference.
         """
         exec 'import traceback; x = traceback.format_stack()[-1]'
-        x = string.lstrip(x)
-        x = string.replace(x, '<string>', file)
-        x = string.replace(x, 'line 1,', 'line %s,' % line)
+        x = x.lstrip()
+        x = x.replace('<string>', file)
+        x = x.replace('line 1,', 'line %s,' % line)
         return x
 
     def normalize_pdf(self, s):
@@ -486,12 +486,12 @@ class TestSCons(TestCommon):
             end_marker = 'endstream\nendobj'
 
             encoded = []
-            b = string.find(s, begin_marker, 0)
+            b = s.find(begin_marker, 0)
             while b != -1:
                 b = b + len(begin_marker)
-                e = string.find(s, end_marker, b)
+                e = s.find(end_marker, b)
                 encoded.append((b, e))
-                b = string.find(s, begin_marker, e + len(end_marker))
+                b = s.find(begin_marker, e + len(end_marker))
 
             x = 0
             r = []
@@ -507,7 +507,7 @@ class TestSCons(TestCommon):
                 r.append(d)
                 x = e
             r.append(s[x:])
-            s = string.join(r, '')
+            s = ''.join(r)
 
         return s
 
@@ -553,7 +553,7 @@ class TestSCons(TestCommon):
             ]
             java_path = self.paths(patterns) + [env['ENV']['PATH']]
 
-        env['ENV']['PATH'] = string.join(java_path, os.pathsep)
+        env['ENV']['PATH'] = os.pathsep.join(java_path)
         return env['ENV']
 
     def java_where_includes(self,version=None):
@@ -634,7 +634,7 @@ class TestSCons(TestCommon):
                  stderr=None,
                  status=None)
         if version:
-            if string.find(self.stderr(), 'javac %s' % version) == -1:
+            if self.stderr().find('javac %s' % version) == -1:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version)
         else:
@@ -673,7 +673,6 @@ class TestSCons(TestCommon):
         self.write([dir, 'bin', 'mymoc.py'], """\
 import getopt
 import sys
-import string
 import re
 # -w and -z are fake options used in test/QT/QTFLAGS.py
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'io:wz', [])
@@ -687,11 +686,11 @@ for opt, arg in cmd_opts:
 output.write("/* mymoc.py%s */\\n" % opt_string)
 for a in args:
     contents = open(a, 'rb').read()
-    a = string.replace(a, '\\\\', '\\\\\\\\')
+    a = a.replace('\\\\', '\\\\\\\\')
     subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
     if impl:
         contents = re.sub( r'#include.*', '', contents )
-    output.write(string.replace(contents, 'Q_OBJECT', subst))
+    output.write(contents.replace('Q_OBJECT', subst))
 output.close()
 sys.exit(0)
 """)
@@ -700,7 +699,6 @@ sys.exit(0)
 import os.path
 import re
 import sys
-import string
 output_arg = 0
 impl_arg = 0
 impl = None
@@ -773,7 +771,7 @@ else:
 
     def Qt_create_SConstruct(self, place):
         if type(place) is type([]):
-            place = apply(test.workpath, place)
+            place = test.workpath(*place)
         self.write(place, """\
 if ARGUMENTS.get('noqtdir', 0): QTDIR=None
 else: QTDIR=r'%s'
@@ -845,7 +843,7 @@ SConscript( sconscript )
             lastEnd = 0
             logfile = self.read(self.workpath(logfile))
             if (doCheckLog and
-                string.find( logfile, "scons: warning: The stored build "
+                logfile.find( "scons: warning: The stored build "
                              "information has an unexpected class." ) >= 0):
                 self.fail_test()
             sconf_dir = sconf_dir
@@ -957,7 +955,7 @@ print os.path.join(sys.prefix, 'lib', py_ver, 'config')
 print py_ver
 """)
 
-        return [python] + string.split(string.strip(self.stdout()), '\n')
+        return [python] + self.stdout().strip().split('\n')
 
     def start(self, *args, **kw):
         """
@@ -967,9 +965,9 @@ print py_ver
         use standard input without forcing every .start() call in the
         individual tests to do so explicitly.
         """
-        if not kw.has_key('stdin'):
+        if 'stdin' not in kw:
             kw['stdin'] = True
-        return apply(TestCommon.start, (self,) + args, kw)
+        return TestCommon.start(self, *args, **kw)
 
     def wait_for(self, fname, timeout=10.0, popen=None):
         """
@@ -1058,12 +1056,12 @@ class TimeSCons(TestSCons):
 
         self.calibrate = os.environ.get('TIMESCONS_CALIBRATE', '0') != '0'
 
-        if not kw.has_key('verbose') and not self.calibrate:
+        if 'verbose' not in kw and not self.calibrate:
             kw['verbose'] = True
 
         # TODO(1.5)
         #TestSCons.__init__(self, *args, **kw)
-        apply(TestSCons.__init__, (self,)+args, kw)
+        TestSCons.__init__(self, *args, **kw)
 
         # TODO(sgk):    better way to get the script dir than sys.argv[0]
         test_dir = os.path.dirname(sys.argv[0])
@@ -1090,7 +1088,7 @@ class TimeSCons(TestSCons):
         The elapsed time to execute each build is printed after
         it has finished.
         """
-        if not kw.has_key('options') and self.variables:
+        if 'options' not in kw and self.variables:
             options = []
             for variable, value in self.variables.items():
                 options.append('%s=%s' % (variable, value))
@@ -1098,16 +1096,16 @@ class TimeSCons(TestSCons):
         if self.calibrate:
             # TODO(1.5)
             #self.calibration(*args, **kw)
-            apply(self.calibration, args, kw)
+            self.calibration(*args, **kw)
         else:
             self.uptime()
             # TODO(1.5)
             #self.startup(*args, **kw)
             #self.full(*args, **kw)
             #self.null(*args, **kw)
-            apply(self.startup, args, kw)
-            apply(self.full, args, kw)
-            apply(self.null, args, kw)
+            self.startup(*args, **kw)
+            self.full(*args, **kw)
+            self.null(*args, **kw)
 
     def trace(self, graph, name, value, units, sort=None):
         fmt = "TRACE: graph=%s name=%s value=%s units=%s"
@@ -1127,7 +1125,7 @@ class TimeSCons(TestSCons):
         for name, args in stats.items():
             # TODO(1.5)
             #self.trace(name, trace, *args)
-            apply(self.trace, (name, trace), args)
+            self.trace(name, trace, **args)
 
     def uptime(self):
         try:
@@ -1168,7 +1166,7 @@ class TimeSCons(TestSCons):
         kw['status'] = None
         # TODO(1.5)
         #self.run(*args, **kw)
-        apply(self.run, args, kw)
+        self.run(*args, **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
         # Delete the time-commands, since no commands are ever
@@ -1182,7 +1180,7 @@ class TimeSCons(TestSCons):
         """
         # TODO(1.5)
         #self.run(*args, **kw)
-        apply(self.run, args, kw)
+        self.run(*args, **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
         self.report_traces('full', stats)
@@ -1190,9 +1188,9 @@ class TimeSCons(TestSCons):
         #self.trace('full-memory', 'initial', **stats['memory-initial'])
         #self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
         #self.trace('full-memory', 'final', **stats['memory-final'])
-        apply(self.trace, ('full-memory', 'initial'), stats['memory-initial'])
-        apply(self.trace, ('full-memory', 'prebuild'), stats['memory-prebuild'])
-        apply(self.trace, ('full-memory', 'final'), stats['memory-final'])
+        self.trace('full-memory', 'initial', **stats['memory-initial'])
+        self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
+        self.trace('full-memory', 'final', **stats['memory-final'])
 
     def calibration(self, *args, **kw):
         """
@@ -1202,7 +1200,7 @@ class TimeSCons(TestSCons):
         """
         # TODO(1.5)
         #self.run(*args, **kw)
-        apply(self.run, args, kw)
+        self.run(*args, **kw)
         if self.variables:
             for variable, value in self.variables.items():
                 sys.stdout.write('VARIABLE: %s=%s\n' % (variable, value))
@@ -1218,7 +1216,7 @@ class TimeSCons(TestSCons):
         #self.up_to_date(arguments='.', **kw)
         kw = kw.copy()
         kw['arguments'] = '.'
-        apply(self.up_to_date, (), kw)
+        self.up_to_date(**kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
         # time-commands should always be 0.0 on a null build, because
@@ -1233,9 +1231,9 @@ class TimeSCons(TestSCons):
         #self.trace('null-memory', 'initial', **stats['memory-initial'])
         #self.trace('null-memory', 'prebuild', **stats['memory-prebuild'])
         #self.trace('null-memory', 'final', **stats['memory-final'])
-        apply(self.trace, ('null-memory', 'initial'), stats['memory-initial'])
-        apply(self.trace, ('null-memory', 'prebuild'), stats['memory-prebuild'])
-        apply(self.trace, ('null-memory', 'final'), stats['memory-final'])
+        self.trace('null-memory', 'initial', **stats['memory-initial'])
+        self.trace('null-memory', 'prebuild', **stats['memory-prebuild'])
+        self.trace('null-memory', 'final', **stats['memory-final'])
 
     def elapsed_time(self):
         """
@@ -1257,7 +1255,7 @@ class TimeSCons(TestSCons):
         try:
             # TODO(1.5)
             #result = TestSCons.run(self, *args, **kw)
-            result = apply(TestSCons.run, (self,)+args, kw)
+            result = TestSCons.run(self, *args, **kw)
         finally:
             self.endTime = time.time()
         return result
@@ -1278,8 +1276,8 @@ class TimeSCons(TestSCons):
             #dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
             #files = [ f for f in files if not f.startswith('TimeSCons-') ]
             not_timescons_entries = lambda s: not s.startswith('TimeSCons-')
-            dirs = filter(not_timescons_entries, dirs)
-            files = filter(not_timescons_entries, files)
+            dirs = list(filter(not_timescons_entries, dirs))
+            files = list(filter(not_timescons_entries, files))
             for dirname in dirs:
                 source = os.path.join(root, dirname)
                 destination = source.replace(source_dir, dest_dir)

@@ -36,7 +36,6 @@ packages fake_root.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import SCons.Builder
 
@@ -56,8 +55,8 @@ def generate(env):
     # TODO(1.5)
     #env['IPKGUSER']   = os.popen('id -un').read().strip()
     #env['IPKGGROUP']  = os.popen('id -gn').read().strip()
-    env['IPKGUSER']   = string.strip(os.popen('id -un').read())
-    env['IPKGGROUP']  = string.strip(os.popen('id -gn').read())
+    env['IPKGUSER']   = os.popen('id -un').read().strip()
+    env['IPKGGROUP']  = os.popen('id -gn').read().strip()
     env['IPKGFLAGS']  = SCons.Util.CLVar('-o $IPKGUSER -g $IPKGGROUP')
     env['IPKGSUFFIX'] = '.ipk'
 

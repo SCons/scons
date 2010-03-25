@@ -35,6 +35,7 @@ tool definition.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -170,7 +171,7 @@ class Tool:
         env.Append(TOOLS = [ self.name ])
         if hasattr(self, 'options'):
             import SCons.Variables
-            if not env.has_key('options'):
+            if 'options' not in env:
                 from SCons.Script import ARGUMENTS
                 env['options']=SCons.Variables.Variables(args=ARGUMENTS)
             opts=env['options']
@@ -178,7 +179,7 @@ class Tool:
             self.options(opts)
             opts.Update(env)
 
-        apply(self.generate, ( env, ) + args, kw)
+        self.generate(env, *args, **kw)
 
     def __str__(self):
         return self.name
@@ -474,7 +475,7 @@ class ToolInitializerMethod:
         builder = self.get_builder(env)
         if builder is None:
             return [], []
-        return apply(builder, args, kw)
+        return builder(*args, **kw)
 
 class ToolInitializer:
     """
@@ -530,9 +531,9 @@ class ToolInitializer:
 def Initializers(env):
     ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs'])
     def Install(self, *args, **kw):
-        return apply(self._InternalInstall, args, kw)
+        return self._InternalInstall(*args, **kw)
     def InstallAs(self, *args, **kw):
-        return apply(self._InternalInstallAs, args, kw)
+        return self._InternalInstallAs(*args, **kw)
     env.AddMethod(Install)
     env.AddMethod(InstallAs)
 
@@ -546,7 +547,7 @@ def FindTool(tools, env):
 def FindAllTools(tools, env):
     def ToolExists(tool, env=env):
         return Tool(tool).exists(env)
-    return filter (ToolExists, tools)
+    return list(filter (ToolExists, tools))
 
 def tool_list(platform, env):
 
@@ -666,7 +667,7 @@ def tool_list(platform, env):
               fortran_compiler, assembler, ar]
              + other_tools)
 
-    return filter(lambda x: x, tools)
+    return [x for x in tools if x]
 
 # Local Variables:
 # tab-width:4

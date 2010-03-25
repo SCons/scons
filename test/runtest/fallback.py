@@ -30,7 +30,6 @@ if it can't find qmtest on the $PATH.
 """
 
 import os
-import string
 
 import TestRuntest
 
@@ -42,9 +41,9 @@ test = TestRuntest.TestRuntest(noqmtest=1)
 while test.where_is('qmtest'):
     qmtest=test.where_is('qmtest')
     dir = os.path.split(qmtest)[0]
-    path = string.split(os.environ['PATH'], os.pathsep)
+    path = os.environ['PATH'].split(os.pathsep)
     path.remove(dir)
-    os.environ['PATH'] = string.join(path, os.pathsep)
+    os.environ['PATH'] = os.pathsep.join(path)
 
 test.subdir('test')
 
@@ -83,7 +82,7 @@ testlist = [
     test_pass_py,
 ]
 
-test.run(arguments = string.join(testlist),
+test.run(arguments = ' '.join(testlist),
          status = 1,
          stdout = expect_stdout,
          stderr = expect_stderr)

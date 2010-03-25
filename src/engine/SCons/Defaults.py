@@ -41,7 +41,6 @@ import os.path
 import errno
 import shutil
 import stat
-import string
 import time
 import types
 import sys
@@ -88,7 +87,7 @@ def DefaultEnvironment(*args, **kw):
     global _default_env
     if not _default_env:
         import SCons.Util
-        _default_env = apply(SCons.Environment.Environment, args, kw)
+        _default_env = SCons.Environment.Environment(*args, **kw)
         if SCons.Util.md5:
             _default_env.Decider('MD5')
         else:
@@ -165,7 +164,7 @@ def get_paths_str(dest):
         elem_strs = []
         for element in dest:
             elem_strs.append('"' + str(element) + '"')
-        return '[' + string.join(elem_strs, ', ') + ']'
+        return '[' + ', '.join(elem_strs) + ']'
     else:
         return '"' + str(dest) + '"'
 
@@ -315,16 +314,16 @@ def _concat_ixes(prefix, list, suffix, env):
 
     return result
 
-def _stripixes(prefix, list, suffix, stripprefixes, stripsuffixes, env, c=None):
+def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     """
-    This is a wrapper around _concat()/_concat_ixes() that checks for the
-    existence of prefixes or suffixes on list elements and strips them
+    This is a wrapper around _concat()/_concat_ixes() that checks for
+    the existence of prefixes or suffixes on list items and strips them
     where it finds them.  This is used by tools (like the GNU linker)
     that need to turn something like 'libfoo.a' into '-lfoo'.
     """
     
-    if not list:
-        return list
+    if not itms:
+        return itms
 
     if not callable(c):
         env_c = env['_concat']
@@ -337,11 +336,11 @@ def _stripixes(prefix, list, suffix, stripprefixes, stripsuffixes, env, c=None):
         else:
             c = _concat_ixes
     
-    stripprefixes = map(env.subst, SCons.Util.flatten(stripprefixes))
-    stripsuffixes = map(env.subst, SCons.Util.flatten(stripsuffixes))
+    stripprefixes = list(map(env.subst, SCons.Util.flatten(stripprefixes)))
+    stripsuffixes = list(map(env.subst, SCons.Util.flatten(stripsuffixes)))
 
     stripped = []
-    for l in SCons.PathList.PathList(list).subst_path(env, None, None):
+    for l in SCons.PathList.PathList(itms).subst_path(env, None, None):
         if isinstance(l, SCons.Node.FS.File):
             stripped.append(l)
             continue
@@ -446,11 +445,11 @@ class Variable_Method_Caller:
             frame = sys.exc_info()[2].tb_frame.f_back
         variable = self.variable
         while frame:
-            if frame.f_locals.has_key(variable):
+            if variable in frame.f_locals:
                 v = frame.f_locals[variable]
                 if v:
                     method = getattr(v, self.method)
-                    return apply(method, args, kw)
+                    return method(*args, **kw)
             frame = frame.f_back
         return None
 

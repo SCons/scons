@@ -25,16 +25,15 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import types
 
 import TestSCons
 
 def match_normcase(lines, matches):
     if not type(lines) is types.ListType:
-        lines = string.split(lines, "\n")
+        lines = lines.split("\n")
     if not type(matches) is types.ListType:
-        matches = string.split(matches, "\n")
+        matches = matches.split("\n")
     if len(lines) != len(matches):
         return
     for i in range(len(lines)):

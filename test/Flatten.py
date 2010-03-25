@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that the Flatten() function is available and works.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -39,16 +37,15 @@ test.subdir('work')
 test.write(['work', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 f1 = env.Cat('../file1.out', 'file1.in')
 f2 = env.Cat('../file2.out', ['file2a.in', 'file2b.in'])
-print map(str, Flatten(['begin', f1, 'middle', f2, 'end']))
-print map(str, env.Flatten([f1, [['a', 'b'], 'c'], f2]))
+print list(map(str, Flatten(['begin', f1, 'middle', f2, 'end'])))
+print list(map(str, env.Flatten([f1, [['a', 'b'], 'c'], f2])))
 SConscript('SConscript', "env")
 """)
 
@@ -64,7 +61,7 @@ test.write('file2b.in', "file2b.in\n")
 
 def double_backslash(f):
     p = test.workpath(f)
-    return string.replace(p, '\\', '\\\\')
+    return p.replace('\\', '\\\\')
 
 expect = """\
 ['begin', '%s', 'middle', '%s', 'end']

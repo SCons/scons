@@ -91,10 +91,9 @@ test.write(['work1', 'SConstruct'], """
 import os
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(ENV = { 'PATH' : os.environ['PATH'],
                           'EDITOR' : os.environ.get('EDITOR', 'ed') },
@@ -156,10 +155,9 @@ test.write(['work2', 'SConstruct'], """
 import os
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(ENV = { 'PATH' : os.environ['PATH'],
                           'EDITOR' : os.environ.get('EDITOR', 'ed') },
@@ -228,10 +226,9 @@ test.write(['work3', 'SConstruct'], """\
 import os
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(ENV = { 'PATH' : os.environ['PATH'],
                           'EDITOR' : os.environ.get('EDITOR', 'ed') },

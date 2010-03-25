@@ -75,10 +75,9 @@ test.run(chdir = 'import',
 test.write(['work1', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'foo/aaa.in')
@@ -123,10 +122,9 @@ test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\n
 test.write(['work2', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')

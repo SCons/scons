@@ -56,7 +56,7 @@ env.Moc('moc_eee.cpp', 'eee.cpp')
 sources.extend(env.Uic(['include/uic_fff.hpp', 'fff.cpp', 'fff.moc.cpp'],
                        'ui/fff.ui')[1:])
 
-print map(str,sources)
+print list(map(str,sources))
 env.Program(target='aaa',
             source=sources,
             CPPPATH=['$CPPPATH', './include'],

@@ -30,7 +30,6 @@ not directly via Python.
 """
 
 import os.path
-import string
 
 import TestRuntest
 
@@ -92,7 +91,7 @@ testlist = [
     test_pass_py,
 ]
 
-test.run(arguments='--qmtest %s' % string.join(testlist),
+test.run(arguments='--qmtest %s' % ' '.join(testlist),
          status=1,
          stdout=expect_stdout)
 

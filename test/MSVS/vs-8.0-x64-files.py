@@ -30,7 +30,6 @@ solution (.sln) files that look correct.
 """
 
 import os
-import string
 
 import TestSConsMSVS
 
@@ -48,9 +47,9 @@ SConscript_contents = TestSConsMSVS.SConscript_contents_8_0
 # We didn't create an API for putting parameters like this into
 # the common generated and expected files.  Until we do, just patch
 # in the values.
-expected_slnfile = string.replace(expected_slnfile, 'Win32', 'x64')
-expected_vcprojfile = string.replace(expected_vcprojfile, 'Win32', 'x64')
-SConscript_contents = string.replace(SConscript_contents, '\'Release\'', '\'Release|x64\'')
+expected_slnfile = expected_slnfile.replace('Win32', 'x64')
+expected_vcprojfile = expected_vcprojfile.replace('Win32', 'x64')
+SConscript_contents = SConscript_contents.replace('\'Release\'', '\'Release|x64\'')
 
 
 

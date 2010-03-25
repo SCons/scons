@@ -183,6 +183,15 @@ except ImportError:
     import_as('_scons_platform', 'platform')
 
 
+try:
+    import queue
+except ImportError:
+    # Before Python 3.0, the 'queue' module was named 'Queue'.
+    import imp
+    file, filename, suffix_mode_type = imp.find_module('Queue')
+    imp.load_module('queue', file, filename, suffix_mode_type)
+
+
 import shlex
 try:
     shlex.split
@@ -243,6 +252,24 @@ except ImportError:
     import_as('_scons_subprocess', 'subprocess')
 
 import sys
+try:
+    sys.intern
+except AttributeError:
+    # Pre-2.6 Python has no sys.intern() function.
+    import __builtin__
+    try:
+        sys.intern = __builtin__.intern
+    except AttributeError:
+        # Pre-2.x Python has no builtin intern() function.
+        def intern(x):
+           return x
+        sys.intern = intern
+        del intern
+try:
+    sys.maxsize
+except AttributeError:
+    # Pre-2.6 Python has no sys.maxsize attribute
+    sys.maxsize = sys.maxint
 try:
     sys.version_info
 except AttributeError:

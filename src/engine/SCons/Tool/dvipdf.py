@@ -30,6 +30,7 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -88,7 +89,7 @@ def PDFEmitter(target, source, env):
     """
     def strip_suffixes(n):
         return not SCons.Util.splitext(str(n))[1] in ['.aux', '.log']
-    source = filter(strip_suffixes, source)
+    source = list(filter(strip_suffixes, source))
     return (target, source)
 
 def generate(env):

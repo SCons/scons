@@ -34,7 +34,6 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-import string
 class Curry:
     def __init__(self, fun, *args, **kwargs):
         self.fun = fun
@@ -48,13 +47,13 @@ class Curry:
         else:
             kw = kwargs or self.kwargs
 
-        return apply(self.fun, self.pending + args, kw)
+        return self.fun(*self.pending + args, **kw)
 
 def Str(target, source, env, cmd=""):
     result = []
     for cmd in env.subst_list(cmd, target=target, source=source):
-        result.append(string.join(map(str, cmd)))
-    return string.join(result, '\\n')
+        result.append(" ".join(map(str, cmd)))
+    return '\\n'.join(result)
 
 class ToolSurrogate:
     def __init__(self, tool, variable, func):
@@ -82,7 +81,7 @@ ToolList = {
 }
 
 platform = ARGUMENTS['platform']
-tools = map(lambda t: apply(ToolSurrogate, t), ToolList[platform])
+tools = [ToolSurrogate(*t) for t in ToolList[platform]]
 
 env = Environment(tools=tools, PROGSUFFIX='.exe', OBJSUFFIX='.obj')
 env.Program('foo.c')

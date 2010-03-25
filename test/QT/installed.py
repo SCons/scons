@@ -29,7 +29,6 @@ Look if qt is installed, and try out all builders.
 """
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -51,7 +50,7 @@ dummy_env = Environment()
 ENV = dummy_env['ENV']
 try:
     PATH=ARGUMENTS['PATH']
-    if ENV.has_key('PATH'):
+    if 'PATH' in ENV:
         ENV_PATH = PATH + os.pathsep + ENV['PATH']
     else:
         Exit(0) # this is certainly a weird system :-)
@@ -191,7 +190,7 @@ if test.stdout() != "Hello World\n" or test.stderr() != '' or test.status:
     # an indication that it built correctly) but don't fail the test.
     expect = 'cannot connect to X server'
     test.fail_test(test.stdout())
-    test.fail_test(string.find(test.stderr(), expect) == -1)
+    test.fail_test(test.stderr().find(expect) == -1)
     if test.status != 1 and (test.status>>8) != 1:
         sys.stdout.write('test_realqt returned status %s\n' % test.status)
         test.fail_test()
@@ -206,8 +205,8 @@ test.run(stderr=None, arguments="-c bld/test_realqt" + TestSCons._exe)
 expect1 = "scons: warning: Could not detect qt, using empty QTDIR"
 expect2 = "scons: warning: Could not detect qt, using moc executable as a hint"
 
-test.fail_test(string.find(test.stderr(), expect1) == -1 and
-               string.find(test.stderr(), expect2) == -1)
+test.fail_test(test.stderr().find(expect1) == -1 and
+               test.stderr().find(expect2) == -1)
 
 
 test.pass_test()

@@ -29,7 +29,6 @@ CacheDir support
 
 import os.path
 import stat
-import string
 import sys
 
 import SCons.Action
@@ -158,7 +157,7 @@ class CacheDir:
             return None, None
 
         sig = node.get_cachedir_bsig()
-        subdir = string.upper(sig[0])
+        subdir = sig[0].upper()
         dir = os.path.join(self.path, subdir)
         return dir, os.path.join(dir, sig)
 

@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -90,7 +88,7 @@ test.pass_test()
 #
 test2 = TestSCons.TestSCons()
 
-if string.find(sys.platform, 'linux') == -1:
+if sys.platform.find('linux') == -1:
     test2.skip_test("skipping test on non-Linux platform '%s'\n" % sys.platform)
 
 dd = test2.where_is('dd')

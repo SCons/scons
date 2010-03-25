@@ -40,7 +40,6 @@ import time
 start_time = time.time()
 
 import os
-import string
 import sys
 import UserList
 
@@ -58,7 +57,7 @@ import UserList
 # the "--debug=memoizer" flag and enable Memoizer before we import any
 # of the other modules that use it.
 
-_args = sys.argv + string.split(os.environ.get('SCONSFLAGS', ''))
+_args = sys.argv + os.environ.get('SCONSFLAGS', '').split()
 if "--debug=memoizer" in _args:
     import SCons.Memoize
     import SCons.Warnings
@@ -211,7 +210,7 @@ _build_plus_default = TargetList()
 
 def _Add_Arguments(alist):
     for arg in alist:
-        a, b = string.split(arg, '=', 1)
+        a, b = arg.split('=', 1)
         ARGUMENTS[a] = b
         ARGLIST.append((a, b))
 

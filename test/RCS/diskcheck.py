@@ -95,10 +95,9 @@ ENV = {'PATH' : os.environ['PATH'],
        'LOGNAME' : logname}
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 SetOption('diskcheck', None)
 DefaultEnvironment()['ENV'] = ENV
@@ -116,7 +115,7 @@ test.write('bbb.in', "checked-out bbb.in\n")
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
 sub_SConscript = os.path.join('sub', 'SConscript')
-SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 23)[:-1]
+SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 22)[:-1]
 
 expect = """\
 

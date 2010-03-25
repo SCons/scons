@@ -74,9 +74,8 @@ if filename.find(old_prefix) == 0:
 <simpara>or in Python 1.5.2:</simpara>
 
 <programlisting>
-import string
-if string.find(filename, old_prefix) == 0:
-    filename = string.replace(filename, old_prefix, new_prefix)      
+if filename.find(old_prefix) == 0:
+    filename = filename.replace(old_prefix, new_prefix)      
 </programlisting>
 </example>
 

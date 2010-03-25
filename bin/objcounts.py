@@ -40,7 +40,7 @@ def fetch_counts(fname):
     list = [l.split() for l in lines if re.match('\s+\d', l)]
     d = {}
     for l in list:
-        d[l[-1]] = map(int, l[:-1])
+        d[l[-1]] = list(map(int, l[:-1]))
     return d
 
 c1 = fetch_counts(sys.argv[1])

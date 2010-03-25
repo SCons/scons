@@ -158,7 +158,7 @@ except NameError:
         """
         result = []
         for i in xrange(min(map(len, lists))):
-            result.append(tuple(map(lambda l, i=i: l[i], lists)))
+            result.append(tuple(map(lambda l: l[i], lists)))
         return result
     __builtin__.zip = zip
 

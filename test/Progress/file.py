@@ -30,7 +30,6 @@ progress output.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -74,7 +73,7 @@ stderr: .
 """
 
 if os.linesep != '\n':
-    expect = string.replace(expect, '\n', os.linesep)
+    expect = expect.replace('\n', os.linesep)
 
 test.must_match('progress.out', expect)
 

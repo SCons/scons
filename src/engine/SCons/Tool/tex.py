@@ -36,7 +36,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
-import string
 import shutil
 
 import SCons.Action
@@ -292,7 +291,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 target_aux = os.path.join(targetdir, auxfilename)
                 if os.path.exists(target_aux):
                     content = open(target_aux, "rb").read()
-                    if string.find(content, "bibdata") != -1:
+                    if content.find("bibdata") != -1:
                         if Verbose:
                             print "Need to run bibtex"
                         bibfile = env.fs.File(targetbase)
@@ -422,7 +421,7 @@ def is_LaTeX(flist,env,abspath):
         # Split at os.pathsep to convert into absolute path
         # TODO(1.5)
         #paths = paths.split(os.pathsep)
-        paths = string.split(paths, os.pathsep)
+        paths = paths.split(os.pathsep)
 
     # now that we have the path list restore the env
     if savedpath is _null:
@@ -648,7 +647,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         # Split at os.pathsep to convert into absolute path
         # TODO(1.5)
         #paths = paths.split(os.pathsep)
-        paths = string.split(paths, os.pathsep)
+        paths = paths.split(os.pathsep)
 
     # now that we have the path list restore the env
     if savedpath is _null:

@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -28,21 +29,21 @@ import SCons.Scanner
 
 def only_dirs(nodes):
     is_Dir = lambda n: isinstance(n.disambiguate(), SCons.Node.FS.Dir)
-    return filter(is_Dir, nodes)
+    return list(filter(is_Dir, nodes))
 
 def DirScanner(**kw):
     """Return a prototype Scanner instance for scanning
     directories for on-disk files"""
     kw['node_factory'] = SCons.Node.FS.Entry
     kw['recursive'] = only_dirs
-    return apply(SCons.Scanner.Base, (scan_on_disk, "DirScanner"), kw)
+    return SCons.Scanner.Base(scan_on_disk, "DirScanner", **kw)
 
 def DirEntryScanner(**kw):
     """Return a prototype Scanner instance for "scanning"
     directory Nodes for their in-memory entries"""
     kw['node_factory'] = SCons.Node.FS.Entry
     kw['recursive'] = None
-    return apply(SCons.Scanner.Base, (scan_in_memory, "DirEntryScanner"), kw)
+    return SCons.Scanner.Base(scan_in_memory, "DirEntryScanner", **kw)
 
 skip_entry = {}
 
@@ -67,7 +68,7 @@ for skip in skip_entry_list:
     skip_entry[skip] = 1
     skip_entry[SCons.Node.FS._my_normcase(skip)] = 1
 
-do_not_scan = lambda k: not skip_entry.has_key(k)
+do_not_scan = lambda k: k not in skip_entry
 
 def scan_on_disk(node, env, path=()):
     """
@@ -100,9 +101,9 @@ def scan_in_memory(node, env, path=()):
         # mixed Node types (Dirs and Files, for example) has a Dir as
         # the first entry.
         return []
-    entry_list = filter(do_not_scan, entries.keys())
+    entry_list = list(filter(do_not_scan, entries.keys()))
     entry_list.sort()
-    return map(lambda n, e=entries: e[n], entry_list)
+    return [entries[n] for n in entry_list]
 
 # Local Variables:
 # tab-width:4

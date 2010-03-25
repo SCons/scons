@@ -33,7 +33,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import posix
 
@@ -51,9 +50,9 @@ def get_xlc(env, xlc=None, xlc_r=None, packages=[]):
         cmd = "lslpp -fc " + package + " 2>/dev/null | egrep '" + xlc + "([^-_a-zA-Z0-9].*)?$'"
         line = os.popen(cmd).readline()
         if line:
-            v, p = string.split(line, ':')[1:3]
-            xlcVersion = string.split(v)[1]
-            xlcPath = string.split(p)[0]
+            v, p = line.split(':')[1:3]
+            xlcVersion = v.split()[1]
+            xlcPath = p.split()[0]
             xlcPath = xlcPath[:xlcPath.rindex('/')]
             break
     return (xlcPath, xlc, xlc_r, xlcVersion)

@@ -41,7 +41,7 @@ def ListOption(*args, **kw):
         msg = "The ListOption() function is deprecated; use the ListVariable() function instead."
         SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
         warned = True
-    return apply(SCons.Variables.ListVariable, args, kw)
+    return SCons.Variables.ListVariable(*args, **kw)
 
 # Local Variables:
 # tab-width:4

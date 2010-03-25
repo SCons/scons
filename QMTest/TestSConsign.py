@@ -19,7 +19,6 @@ in this subclass.
 
 import os
 import os.path
-import string
 import sys
 
 from TestSCons import *
@@ -48,13 +47,13 @@ class TestSConsign(TestSCons):
             os.chdir(script_dir)
         self.script_dir = os.getcwd()
 
-        apply(TestSCons.__init__, (self,)+args, kw)
+        TestSCons.__init__(self, *args, **kw)
 
         self.my_kw = {
             'interpreter' : python,     # imported from TestSCons
         }
 
-        if not kw.has_key('program'):
+        if 'program' not in kw:
             kw['program'] = os.environ.get('SCONS')
             if not kw['program']:
                 if os.path.exists('scons'):
@@ -81,7 +80,7 @@ class TestSConsign(TestSCons):
 
     def run_sconsign(self, *args, **kw):
         kw.update(self.my_kw)
-        return apply(self.run, args, kw)
+        return self.run(*args, **kw)
 
 # Local Variables:
 # tab-width:4

@@ -39,10 +39,9 @@ test = TestSCons.TestSCons()
 test.subdir('work', 'repository', ['repository', 'src'])
 
 test.write('mym4.py', """
-import string
 import sys
 contents = sys.stdin.read()
-sys.stdout.write(string.replace(contents, 'M4', 'mym4.py'))
+sys.stdout.write(contents.replace('M4', 'mym4.py'))
 sys.exit(0)
 """)
 

@@ -59,7 +59,6 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.write('build.py', """\
-import string
 import sys
 import time
 args = sys.argv[1:]
@@ -78,7 +77,7 @@ for ifile in args:
     contents = contents + open(ifile, 'rb').read()
 for ofile in outputs:
     ofp = open(ofile, 'wb')
-    ofp.write('%s:  building from %s\\n' % (ofile, string.join(args)))
+    ofp.write('%s:  building from %s\\n' % (ofile, " ".join(args)))
     ofp.write(contents)
     ofp.close()
 """)

@@ -46,7 +46,7 @@ env.Append(LIBPATH=['.'])
 
 # We first bake the LIBSUFFIXES, so that it will not change as a
 # side-effect of changing SHLIBSUFFIX.
-env['LIBSUFFIXES'] = map( env.subst, env.get('LIBSUFFIXES', []))
+env['LIBSUFFIXES'] = list(map( env.subst, env.get('LIBSUFFIXES', [])))
 
 weird_prefixes = ['libXX', 'libYY']
 
@@ -76,13 +76,13 @@ def nodeInSrc(source, lib, libname):
     return (source+lib, '')
 
 def pathInSrc(source, lib, libname):
-    return (source+map(str,lib), '')
+    return (source+list(map(str,lib)), '')
 
 def nodeInLib(source, lib, libname):
     return (source, lib)
 
 def pathInLib(source, lib, libname):
-    return (source, map(str,lib))
+    return (source, list(map(str,lib)))
 
 def nameInLib(source, lib, libname):
     # NOTE: libname must contain both the proper prefix and suffix.
@@ -116,7 +116,7 @@ def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
     kw['target'] = target
     kw['source'] = source
     kw['LIBS'] = LIBS
-    build = apply(builder, (), kw)
+    build = builder(**kw)
 
     # Check that the build target depends on at least one of the
     # library target.
@@ -128,7 +128,7 @@ def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
             break;
     assert found_dep, \
         "One of %s not found in %s, method=%s, libname=%s, shlibsuffix=%s" % \
-        (map(str,lib), map(str, build[0].children()), method.__name__, libname, shlibsuffix)
+        (list(map(str,lib)), list(map(str, build[0].children())), method.__name__, libname, shlibsuffix)
     return build
 
 def prog(i, 
@@ -194,7 +194,7 @@ except AttributeError:
     pass
 
 for i in range(200):
-  apply(prog, tests[i])
+  prog(*tests[i])
 
 """)
 

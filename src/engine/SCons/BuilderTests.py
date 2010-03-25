@@ -118,14 +118,16 @@ class Environment:
         self.d[item] = var
     def __getitem__(self, item):
         return self.d[item]
+    def __contains__(self, item):
+        return self.d.__contains__(item)
     def has_key(self, item):
-        return self.d.has_key(item)
+        return item in self.d
     def keys(self):
         return self.d.keys()
     def get(self, key, value=None):
         return self.d.get(key, value)
     def Override(self, overrides):
-        env = apply(Environment, (), self.d)
+        env = Environment(**self.d)
         env.d.update(overrides)
         env.scanner = self.scanner
         return env
@@ -255,7 +257,7 @@ class BuilderTestCase(unittest.TestCase):
             l.extend(ul)
         except TypeError:
             def mystr(l):
-                return str(map(str, l))
+                return str(list(map(str, l)))
         else:
             mystr = str
 
@@ -264,14 +266,14 @@ class BuilderTestCase(unittest.TestCase):
         tlist = builder(env, target = [nnn1, nnn2], source = [])
         s = mystr(tlist)
         assert s == "['nnn1', 'nnn2']", s
-        l = map(str, tlist)
+        l = list(map(str, tlist))
         assert l == ['nnn1', 'nnn2'], l
 
         tlist = builder(env, target = 'n3', source = 'n4')
         s = mystr(tlist)
         assert s == "['n3']", s
         target = tlist[0]
-        l = map(str, tlist)
+        l = list(map(str, tlist))
         assert l == ['n3'], l
         assert target.name == 'n3'
         assert target.sources[0].name == 'n4'
@@ -279,7 +281,7 @@ class BuilderTestCase(unittest.TestCase):
         tlist = builder(env, target = 'n4 n5', source = ['n6 n7'])
         s = mystr(tlist)
         assert s == "['n4 n5']", s
-        l = map(str, tlist)
+        l = list(map(str, tlist))
         assert l == ['n4 n5'], l
         target = tlist[0]
         assert target.name == 'n4 n5'
@@ -288,7 +290,7 @@ class BuilderTestCase(unittest.TestCase):
         tlist = builder(env, target = ['n8 n9'], source = 'n10 n11')
         s = mystr(tlist)
         assert s == "['n8 n9']", s
-        l = map(str, tlist)
+        l = list(map(str, tlist))
         assert l == ['n8 n9'], l
         target = tlist[0]
         assert target.name == 'n8 n9'
@@ -618,7 +620,7 @@ class BuilderTestCase(unittest.TestCase):
                                    src_suffix='.obj',
                                    suffix='.exe')
         tgt = b2(env, target=None, source=['foo$OBJSUFFIX'])
-        s = map(str, tgt[0].sources)
+        s = list(map(str, tgt[0].sources))
         assert s == ['foo.obj'], s
 
     def test_suffix(self):
@@ -715,10 +717,10 @@ class BuilderTestCase(unittest.TestCase):
             # support anyway, don't bother trying to test for it.
             pass
         else:
-            s = map(str, tgts)
+            s = list(map(str, tgts))
             expect = [test.workpath('2.out'), test.workpath('3.out')]
-            expect = map(os.path.normcase, expect)
-            assert map(os.path.normcase, s) == expect, s
+            expect = list(map(os.path.normcase, expect))
+            assert list(map(os.path.normcase, s)) == expect, s
         for t in tgts: t.prepare()
         tgts[0].build()
         tgts[1].build()
@@ -744,7 +746,7 @@ class BuilderTestCase(unittest.TestCase):
             for t in target:
                 open(str(t), 'w').write("function2\n")
             for t in tlist:
-                if not t in map(str, target):
+                if not t in list(map(str, target)):
                     open(t, 'w').write("function2\n")
             return 1
 
@@ -773,7 +775,7 @@ class BuilderTestCase(unittest.TestCase):
             for t in target:
                 open(str(t), 'w').write("function3\n")
             for t in tlist:
-                if not t in map(str, target):
+                if not t in list(map(str, target)):
                     open(t, 'w').write("function3\n")
             return 1
 
@@ -811,17 +813,17 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder2(env, target='baz', source=sources)[0]
         s = str(tgt)
         assert s == 'baz', s
-        s = map(str, tgt.sources)
+        s = list(map(str, tgt.sources))
         assert s == ['test.foo', 'test2.foo', 'test3.txt', 'test4.foo'], s
-        s = map(str, tgt.sources[0].sources)
+        s = list(map(str, tgt.sources[0].sources))
         assert s == ['test.bar'], s
 
         tgt = builder2(env, None, 'aaa.bar')[0]
         s = str(tgt)
         assert s == 'aaa', s
-        s = map(str, tgt.sources)
+        s = list(map(str, tgt.sources))
         assert s == ['aaa.foo'], s
-        s = map(str, tgt.sources[0].sources)
+        s = list(map(str, tgt.sources[0].sources))
         assert s == ['aaa.bar'], s
 
         builder3 = SCons.Builder.Builder(action='bld3')
@@ -841,11 +843,11 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder6(env, 'test', 'test.i')[0]
         s = str(tgt)
         assert s == 'test.exe', s
-        s = map(str, tgt.sources)
+        s = list(map(str, tgt.sources))
         assert s == ['test_wrap.obj'], s
-        s = map(str, tgt.sources[0].sources)
+        s = list(map(str, tgt.sources[0].sources))
         assert s == ['test_wrap.c'], s
-        s = map(str, tgt.sources[0].sources[0].sources)
+        s = list(map(str, tgt.sources[0].sources[0].sources))
         assert s == ['test.i'], s
 
     def test_target_scanner(self):
@@ -1198,14 +1200,14 @@ class BuilderTestCase(unittest.TestCase):
 
         tgt = builder(env, target='foo3', source='bar', foo=1)
         assert len(tgt) == 2, len(tgt)
-        assert 'foo3' in map(str, tgt), map(str, tgt)
-        assert 'bar1' in map(str, tgt), map(str, tgt)
+        assert 'foo3' in list(map(str, tgt)), list(map(str, tgt))
+        assert 'bar1' in list(map(str, tgt)), list(map(str, tgt))
 
         tgt = builder(env, target='foo4', source='bar', bar=1)[0]
         assert str(tgt) == 'foo4', str(tgt)
         assert len(tgt.sources) == 2, len(tgt.sources)
-        assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
-        assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
+        assert 'baz' in list(map(str, tgt.sources)), list(map(str, tgt.sources))
+        assert 'bar' in list(map(str, tgt.sources)), list(map(str, tgt.sources))
 
         env2=Environment(FOO=emit)
         builder2=SCons.Builder.Builder(action='foo',
@@ -1226,14 +1228,14 @@ class BuilderTestCase(unittest.TestCase):
 
         tgt = builder2(env2, target='foo6', source='bar', foo=2)
         assert len(tgt) == 2, len(tgt)
-        assert 'foo6' in map(str, tgt), map(str, tgt)
-        assert 'bar2' in map(str, tgt), map(str, tgt)
+        assert 'foo6' in list(map(str, tgt)), list(map(str, tgt))
+        assert 'bar2' in list(map(str, tgt)), list(map(str, tgt))
 
         tgt = builder2(env2, target='foo7', source='bar', bar=1)[0]
         assert str(tgt) == 'foo7', str(tgt)
         assert len(tgt.sources) == 2, len(tgt.sources)
-        assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
-        assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
+        assert 'baz' in list(map(str, tgt.sources)), list(map(str, tgt.sources))
+        assert 'bar' in list(map(str, tgt.sources)), list(map(str, tgt.sources))
 
     def test_emitter_preserve_builder(self):
         """Test an emitter not overwriting a newly-set builder"""
@@ -1262,12 +1264,12 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
 
         def emit4a(target, source, env):
-            source = map(str, source)
-            target = map(lambda x: 'emit4a-' + x[:-3], source)
+            source = list(map(str, source))
+            target = ['emit4a-' + x[:-3] for x in source]
             return (target, source)
         def emit4b(target, source, env):
-            source = map(str, source)
-            target = map(lambda x: 'emit4b-' + x[:-3], source)
+            source = list(map(str, source))
+            target = ['emit4b-' + x[:-3] for x in source]
             return (target, source)
 
         builder = SCons.Builder.Builder(action='foo',
@@ -1283,8 +1285,8 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt) == 'ccc', str(tgt)
 
         def emit4c(target, source, env):
-            source = map(str, source)
-            target = map(lambda x: 'emit4c-' + x[:-3], source)
+            source = list(map(str, source))
+            target = ['emit4c-' + x[:-3] for x in source]
             return (target, source)
 
         builder.add_emitter('.4c', emit4c)
@@ -1296,29 +1298,29 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
 
         def emit1a(target, source, env):
-            source = map(str, source)
-            target = target + map(lambda x: 'emit1a-' + x[:-2], source)
+            source = list(map(str, source))
+            target = target + ['emit1a-' + x[:-2] for x in source]
             return (target, source)
         def emit1b(target, source, env):
-            source = map(str, source)
-            target = target + map(lambda x: 'emit1b-' + x[:-2], source)
+            source = list(map(str, source))
+            target = target + ['emit1b-' + x[:-2] for x in source]
             return (target, source)
         builder1 = SCons.Builder.Builder(action='foo',
                                          emitter=[emit1a, emit1b],
                                          node_factory=MyNode)
 
         tgts = builder1(env, target='target-1', source='aaa.1')
-        tgts = map(str, tgts)
+        tgts = list(map(str, tgts))
         assert tgts == ['target-1', 'emit1a-aaa', 'emit1b-aaa'], tgts
 
         # Test a list of emitter functions through the environment.
         def emit2a(target, source, env):
-            source = map(str, source)
-            target = target + map(lambda x: 'emit2a-' + x[:-2], source)
+            source = list(map(str, source))
+            target = target + ['emit2a-' + x[:-2] for x in source]
             return (target, source)
         def emit2b(target, source, env):
-            source = map(str, source)
-            target = target + map(lambda x: 'emit2b-' + x[:-2], source)
+            source = list(map(str, source))
+            target = target + ['emit2b-' + x[:-2] for x in source]
             return (target, source)
         builder2 = SCons.Builder.Builder(action='foo',
                                          emitter='$EMITTERLIST',
@@ -1327,7 +1329,7 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment(EMITTERLIST = [emit2a, emit2b])
 
         tgts = builder2(env, target='target-2', source='aaa.2')
-        tgts = map(str, tgts)
+        tgts = list(map(str, tgts))
         assert tgts == ['target-2', 'emit2a-aaa', 'emit2b-aaa'], tgts
 
     def test_emitter_TARGET_SOURCE(self):
@@ -1345,8 +1347,8 @@ class BuilderTestCase(unittest.TestCase):
 
         targets = builder(env, target = 'TTT', source ='SSS')
         sources = targets[0].sources
-        targets = map(str, targets)
-        sources = map(str, sources)
+        targets = list(map(str, targets))
+        sources = list(map(str, sources))
         assert targets == ['TTT', 'SSS.s1', 'TTT.t1'], targets
         assert sources == ['SSS', 'TTT.t2', 'SSS.s2'], targets
 
@@ -1358,53 +1360,53 @@ class BuilderTestCase(unittest.TestCase):
 
         tgt = b(env, None, 'aaa')[0]
         assert str(tgt) == 'aaa.o', str(tgt)
-        assert len(tgt.sources) == 1, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'aaa', map(str, tgt.sources)
+        assert len(tgt.sources) == 1, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'aaa', list(map(str, tgt.sources))
 
         tgt = b(env, None, 'bbb.c')[0]
         assert str(tgt) == 'bbb.o', str(tgt)
-        assert len(tgt.sources) == 1, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'bbb.c', map(str, tgt.sources)
+        assert len(tgt.sources) == 1, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'bbb.c', list(map(str, tgt.sources))
 
         tgt = b(env, None, 'ccc.x.c')[0]
         assert str(tgt) == 'ccc.x.o', str(tgt)
-        assert len(tgt.sources) == 1, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'ccc.x.c', map(str, tgt.sources)
+        assert len(tgt.sources) == 1, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'ccc.x.c', list(map(str, tgt.sources))
 
         tgt = b(env, None, ['d0.c', 'd1.c'])[0]
         assert str(tgt) == 'd0.o', str(tgt)
-        assert len(tgt.sources) == 2,  map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'd0.c', map(str, tgt.sources)
-        assert str(tgt.sources[1]) == 'd1.c', map(str, tgt.sources)
+        assert len(tgt.sources) == 2,  list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'd0.c', list(map(str, tgt.sources))
+        assert str(tgt.sources[1]) == 'd1.c', list(map(str, tgt.sources))
 
         tgt = b(env, target = None, source='eee')[0]
         assert str(tgt) == 'eee.o', str(tgt)
-        assert len(tgt.sources) == 1, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'eee', map(str, tgt.sources)
+        assert len(tgt.sources) == 1, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'eee', list(map(str, tgt.sources))
 
         tgt = b(env, target = None, source='fff.c')[0]
         assert str(tgt) == 'fff.o', str(tgt)
-        assert len(tgt.sources) == 1, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'fff.c', map(str, tgt.sources)
+        assert len(tgt.sources) == 1, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'fff.c', list(map(str, tgt.sources))
 
         tgt = b(env, target = None, source='ggg.x.c')[0]
         assert str(tgt) == 'ggg.x.o', str(tgt)
-        assert len(tgt.sources) == 1, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'ggg.x.c', map(str, tgt.sources)
+        assert len(tgt.sources) == 1, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'ggg.x.c', list(map(str, tgt.sources))
 
         tgt = b(env, target = None, source=['h0.c', 'h1.c'])[0]
         assert str(tgt) == 'h0.o', str(tgt)
-        assert len(tgt.sources) == 2,  map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'h0.c', map(str, tgt.sources)
-        assert str(tgt.sources[1]) == 'h1.c', map(str, tgt.sources)
+        assert len(tgt.sources) == 2,  list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'h0.c', list(map(str, tgt.sources))
+        assert str(tgt.sources[1]) == 'h1.c', list(map(str, tgt.sources))
 
         w = b(env, target='i0.w', source=['i0.x'])[0]
         y = b(env, target='i1.y', source=['i1.z'])[0]
         tgt = b(env, None, source=[w, y])[0]
         assert str(tgt) == 'i0.o', str(tgt)
-        assert len(tgt.sources) == 2, map(str, tgt.sources)
-        assert str(tgt.sources[0]) == 'i0.w', map(str, tgt.sources)
-        assert str(tgt.sources[1]) == 'i1.y', map(str, tgt.sources)
+        assert len(tgt.sources) == 2, list(map(str, tgt.sources))
+        assert str(tgt.sources[0]) == 'i0.w', list(map(str, tgt.sources))
+        assert str(tgt.sources[1]) == 'i1.y', list(map(str, tgt.sources))
 
     def test_get_name(self):
         """Test getting name of builder.
@@ -1642,7 +1644,7 @@ if __name__ == "__main__":
     ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

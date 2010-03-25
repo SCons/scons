@@ -89,7 +89,7 @@ test.run(arguments="-Q go case=2")
 
 test.write('SConstruct', """\
 Command("d/current.txt", [], [Touch("$TARGET")])
-if ARGUMENTS.has_key('pass') and ARGUMENTS['pass'] == '1':
+if 'pass' in ARGUMENTS and ARGUMENTS['pass'] == '1':
   Command("d/obsolete.txt", [], [Touch("$TARGET")])
 Command("installer.exe", ['d'], [Touch("$TARGET")])
 """)

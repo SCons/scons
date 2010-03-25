@@ -25,23 +25,19 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-import string
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """
-import string
 env = Environment()
 print env['CC']
-print string.join(env['CCFLAGS'])
+print " ".join(env['CCFLAGS'])
 Default(env.Alias('dummy', None))
 """)
 test.run()
-cc, ccflags = string.split(test.stdout(), '\n')[1:3]
+cc, ccflags = test.stdout().split('\n')[1:3]
 
 test.write('SConstruct', """
-import string
-
 # test validator.  Change a key and add a new one to the environment
 def validator(key, value, environ):
     environ[key] = "v"
@@ -106,15 +102,15 @@ Help('Variables settable in custom.py or on the command line:\\n' + opts.Generat
 print env['RELEASE_BUILD']
 print env['DEBUG_BUILD']
 print env['CC']
-print string.join(env['CCFLAGS'])
+print " ".join(env['CCFLAGS'])
 print env['VALIDATE']
 print env['valid_key']
 
 # unspecified options should not be set:
-assert not env.has_key('UNSPECIFIED')
+assert 'UNSPECIFIED' not in env
 
 # undeclared options should be ignored:
-assert not env.has_key('UNDECLARED')
+assert 'UNDECLARED' not in env
 
 # calling Update() should not effect options that
 # are not declared on the options object:
@@ -133,26 +129,26 @@ scons: warning: The Options class is deprecated; use the Variables class instead
 
 
 def check(expect):
-    result = string.split(test.stdout(), '\n')
+    result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 test.run(stderr=warnings)
-check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
+check(['0', '1', cc, (ccflags + ' -g').strip(), 'v', 'v'])
 
 test.run(arguments='RELEASE_BUILD=1', stderr=warnings)
-check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
+check(['1', '1', cc, (ccflags + ' -O -g').strip(), 'v', 'v'])
 
 test.run(arguments='RELEASE_BUILD=1 DEBUG_BUILD=0', stderr=warnings)
-check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
+check(['1', '0', cc, (ccflags + ' -O').strip(), 'v', 'v'])
 
 test.run(arguments='CC=not_a_c_compiler', stderr=warnings)
-check(['0', '1', 'not_a_c_compiler', string.strip(ccflags + ' -g'), 'v', 'v'])
+check(['0', '1', 'not_a_c_compiler', (ccflags + ' -g').strip(), 'v', 'v'])
 
 test.run(arguments='UNDECLARED=foo', stderr=warnings)
-check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
+check(['0', '1', cc, (ccflags + ' -g').strip(), 'v', 'v'])
 
 test.run(arguments='CCFLAGS=--taco', stderr=warnings)
-check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
+check(['0', '1', cc, (ccflags + ' -g').strip(), 'v', 'v'])
 
 test.write('custom.py', """
 DEBUG_BUILD=0
@@ -160,10 +156,10 @@ RELEASE_BUILD=1
 """)
 
 test.run(stderr=warnings)
-check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
+check(['1', '0', cc, (ccflags + ' -O').strip(), 'v', 'v'])
 
 test.run(arguments='DEBUG_BUILD=1', stderr=warnings)
-check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
+check(['1', '1', cc, (ccflags + ' -O -g').strip(), 'v', 'v'])
 
 test.run(arguments='-h',
          stdout = """\

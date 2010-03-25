@@ -32,6 +32,7 @@ that can be used by scripts or modules looking for the canonical default.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -43,7 +44,6 @@ import os.path
 import re
 import shutil
 import stat
-import string
 import sys
 import time
 
@@ -260,7 +260,7 @@ def set_duplicate(duplicate):
                                            "should be in Valid_Duplicates")
     global Link_Funcs
     Link_Funcs = []
-    for func in string.split(duplicate,'-'):
+    for func in duplicate.split('-'):
         if link_dict[func]:
             Link_Funcs.append(link_dict[func])
 
@@ -373,7 +373,7 @@ if os.path.normcase("TeSt") == os.path.normpath("TeSt") and not _is_cygwin:
         return x
 else:
     def _my_normcase(x):
-        return string.upper(x)
+        return x.upper()
 
 
 
@@ -459,7 +459,7 @@ def set_diskcheck(list):
         dc.set(list)
 
 def diskcheck_types():
-    return map(lambda dc: dc.type, diskcheckers)
+    return [dc.type for dc in diskcheckers]
 
 
 
@@ -497,7 +497,7 @@ class EntryProxy(SCons.Util.Proxy):
             return self
         else:
             entry = self.get()
-            r = string.replace(entry.get_path(), os.sep, '/')
+            r = entry.get_path().replace(os.sep, '/')
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_posix")
 
     def __get_windows_path(self):
@@ -507,7 +507,7 @@ class EntryProxy(SCons.Util.Proxy):
             return self
         else:
             entry = self.get()
-            r = string.replace(entry.get_path(), os.sep, '\\')
+            r = entry.get_path().replace(os.sep, '\\')
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_windows")
 
     def __get_srcnode(self):
@@ -753,8 +753,8 @@ class Base(SCons.Node.Node):
         try: i = path_elems.index(dir)
         except ValueError: pass
         else: path_elems = path_elems[i+1:]
-        path_elems = map(lambda n: n.name, path_elems)
-        return string.join(path_elems, os.sep)
+        path_elems = [n.name for n in path_elems]
+        return os.sep.join(path_elems)
 
     def set_src_builder(self, builder):
         """Set the source code builder for this node."""
@@ -1249,7 +1249,7 @@ class FS(LocalFS):
             root = directory.root
 
         if os.sep != '/':
-            p = string.replace(p, os.sep, '/')
+            p = p.replace(os.sep, '/')
         return root._lookup_abs(p, fsclass, create)
 
     def Entry(self, name, directory = None, create = 1):
@@ -1327,12 +1327,12 @@ class FS(LocalFS):
                 if start_dir.is_under(bd):
                     # If already in the build-dir location, don't reflect
                     return [orig], fmt % str(orig)
-                p = apply(os.path.join, [bd.path] + tail)
+                p = os.path.join(bd.path, *tail)
                 targets.append(self.Entry(p))
             tail = [dir.name] + tail
             dir = dir.up()
         if targets:
-            message = fmt % string.join(map(str, targets))
+            message = fmt % ' '.join(map(str, targets))
         return targets, message
 
     def Glob(self, pathname, ondisk=True, source=True, strings=False, cwd=None):
@@ -1574,9 +1574,9 @@ class Dir(Base):
             i = self.path_elements.index(other) + 1
 
             path_elems = ['..'] * (len(self.path_elements) - i) \
-                         + map(lambda n: n.name, other.path_elements[i:])
+                         + [n.name for n in other.path_elements[i:]]
              
-            result = string.join(path_elems, os.sep)
+            result = os.sep.join(path_elems)
 
         memo_dict[other] = result
 
@@ -1622,7 +1622,7 @@ class Dir(Base):
         """A null "builder" for directories."""
         global MkdirBuilder
         if self.builder is not MkdirBuilder:
-            apply(SCons.Node.Node.build, [self,], kw)
+            SCons.Node.Node.build(self, **kw)
 
     #
     #
@@ -1687,7 +1687,7 @@ class Dir(Base):
         sorted_children.sort(name_cmp)
         for node in sorted_children:
             contents.append('%s %s\n' % (node.get_csig(), node.name))
-        return string.join(contents, '')
+        return ''.join(contents)
 
     def get_csig(self):
         """Compute the content signature for Directory nodes. In
@@ -1783,7 +1783,7 @@ class Dir(Base):
                 d[name] = result
             return result
         else:
-            return d.has_key(name)
+            return name in d
 
     memoizer_counters.append(SCons.Memoize.CountValue('srcdir_list'))
 
@@ -1915,8 +1915,7 @@ class Dir(Base):
         names.remove('.')
         names.remove('..')
         func(arg, self, names)
-        select_dirs = lambda n, e=entries: isinstance(e[n], Dir)
-        for dirname in filter(select_dirs, names):
+        for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
     def glob(self, pathname, ondisk=True, source=False, strings=False):
@@ -1964,7 +1963,7 @@ class Dir(Base):
         for dir in list:
             r = dir._glob1(basename, ondisk, source, strings)
             if strings:
-                r = map(lambda x, d=str(dir): os.path.join(d, x), r)
+                r = [os.path.join(str(dir), x) for x in r]
             result.extend(r)
         result.sort(lambda a, b: cmp(str(a), str(b)))
         return result
@@ -1990,9 +1989,8 @@ class Dir(Base):
             # We use the .name attribute from the Node because the keys of
             # the dir.entries dictionary are normalized (that is, all upper
             # case) on case-insensitive systems like Windows.
-            #node_names = [ v.name for k, v in dir.entries.items() if k not in ('.', '..') ]
-            entry_names = filter(lambda n: n not in ('.', '..'), dir.entries.keys())
-            node_names = map(lambda n, e=dir.entries: e[n].name, entry_names)
+            node_names = [ v.name for k, v in dir.entries.items()
+                           if k not in ('.', '..') ]
             names.extend(node_names)
             if not strings:
                 # Make sure the working directory (self) actually has
@@ -2015,7 +2013,7 @@ class Dir(Base):
                     # after we exit this loop.
                     if pattern[0] != '.':
                         #disk_names = [ d for d in disk_names if d[0] != '.' ]
-                        disk_names = filter(lambda x: x[0] != '.', disk_names)
+                        disk_names = [x for x in disk_names if x[0] != '.']
                     disk_names = fnmatch.filter(disk_names, pattern)
                     dirEntry = dir.Entry
                     for name in disk_names:
@@ -2031,14 +2029,14 @@ class Dir(Base):
         names = set(names)
         if pattern[0] != '.':
             #names = [ n for n in names if n[0] != '.' ]
-            names = filter(lambda x: x[0] != '.', names)
+            names = [x for x in names if x[0] != '.']
         names = fnmatch.filter(names, pattern)
 
         if strings:
             return names
 
         #return [ self.entries[_my_normcase(n)] for n in names ]
-        return map(lambda n, e=self.entries:  e[_my_normcase(n)], names)
+        return [self.entries[_my_normcase(n)] for n in names]
 
 class RootDir(Dir):
     """A class for the root directory of a file system.
@@ -2200,7 +2198,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 except AttributeError:
                     s = str(n)
                 else:
-                    s = string.replace(s, os.sep, '/')
+                    s = s.replace(os.sep, '/')
                 return s
         for attr in ['bsources', 'bdepends', 'bimplicit']:
             try:
@@ -2208,7 +2206,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
             except AttributeError:
                 pass
             else:
-                setattr(self, attr, map(node_to_str, val))
+                setattr(self, attr, list(map(node_to_str, val)))
     def convert_from_sconsign(self, dir, name):
         """
         Converts a newly-read FileBuildInfo object for in-SCons use
@@ -2249,9 +2247,9 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         bkidsigs = self.bsourcesigs + self.bdependsigs + self.bimplicitsigs
         for bkid, bkidsig in izip(bkids, bkidsigs):
             result.append(str(bkid) + ': ' +
-                          string.join(bkidsig.format(names=names), ' '))
+                          ' '.join(bkidsig.format(names=names)))
         result.append('%s [%s]' % (self.bactsig, self.bact))
-        return string.join(result, '\n')
+        return '\n'.join(result)
 
 class File(Base):
     """A class for files in a file system.
@@ -2288,7 +2286,7 @@ class File(Base):
         directory of this file."""
         # TODO(1.5)
         # return [self.Dir(p) for p in pathlist]
-        return map(lambda p, s=self: s.Dir(p), pathlist)
+        return [self.Dir(p) for p in pathlist]
 
     def File(self, name):
         """Create a file node named 'name' relative to
@@ -2603,7 +2601,7 @@ class File(Base):
         if scanner:
             # result = [n.disambiguate() for n in scanner(self, env, path)]
             result = scanner(self, env, path)
-            result = map(lambda N: N.disambiguate(), result)
+            result = [N.disambiguate() for N in result]
         else:
             result = []
 
@@ -3019,7 +3017,7 @@ class File(Base):
         children = self.children()
         executor = self.get_executor()
         # sigs = [n.get_cachedir_csig() for n in children]
-        sigs = map(lambda n: n.get_cachedir_csig(), children)
+        sigs = [n.get_cachedir_csig() for n in children]
         sigs.append(SCons.Util.MD5signature(executor.get_contents()))
         sigs.append(self.path)
         result = self.cachesig = SCons.Util.MD5collect(sigs)
@@ -3117,8 +3115,8 @@ class FileFinder:
         if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            verbose = '  %s: ' % verbose
-            verbose = lambda s, v=verbose: sys.stdout.write(v + s)
+            _verbose = '  %s: ' % verbose
+            verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)
         if filedir:
@@ -3153,7 +3151,7 @@ class FileFinder:
             #paths = filter(None, map(filedir_lookup, paths))
 
             self.default_filedir = filedir
-            paths = filter(None, map(self.filedir_lookup, paths))
+            paths = [_f for _f in map(self.filedir_lookup, paths) if _f]
 
         result = None
         for dir in paths:

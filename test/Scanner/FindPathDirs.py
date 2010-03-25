@@ -39,9 +39,8 @@ test.subdir('inc1', 'inc2')
 
 test.write('build.py', r"""
 import os.path
-import string
 import sys
-path = string.split(sys.argv[1])
+path = sys.argv[1].split()
 input = open(sys.argv[2], 'rb')
 output = open(sys.argv[3], 'wb')
 

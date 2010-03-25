@@ -29,7 +29,6 @@ Verify that $SHCXXFLAGS settings are used to build shared object files.
 """
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -38,7 +37,7 @@ _obj = TestSCons._obj
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if string.find(sys.platform, 'irix') > -1:
+if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test = TestSCons.TestSCons()

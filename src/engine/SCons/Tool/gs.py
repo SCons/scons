@@ -69,7 +69,7 @@ def generate(env):
 
 
 def exists(env):
-    if env.has_key('PS2PDF'):
+    if 'PS2PDF' in env:
         return env.Detect(env['PS2PDF'])
     else:
         return env.Detect(gs) or SCons.Util.WhereIs(gs)

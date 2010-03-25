@@ -45,27 +45,27 @@ class _PathOptionClass:
 
     def __call__(self, *args, **kw):
         self.warn()
-        return apply(SCons.Variables.PathVariable, args, kw)
+        return SCons.Variables.PathVariable(*args, **kw)
 
     def PathAccept(self, *args, **kw):
         self.warn()
-        return apply(SCons.Variables.PathVariable.PathAccept, args, kw)
+        return SCons.Variables.PathVariable.PathAccept(*args, **kw)
 
     def PathIsDir(self, *args, **kw):
         self.warn()
-        return apply(SCons.Variables.PathVariable.PathIsDir, args, kw)
+        return SCons.Variables.PathVariable.PathIsDir(*args, **kw)
 
     def PathIsDirCreate(self, *args, **kw):
         self.warn()
-        return apply(SCons.Variables.PathVariable.PathIsDirCreate, args, kw)
+        return SCons.Variables.PathVariable.PathIsDirCreate(*args, **kw)
 
     def PathIsFile(self, *args, **kw):
         self.warn()
-        return apply(SCons.Variables.PathVariable.PathIsFile, args, kw)
+        return SCons.Variables.PathVariable.PathIsFile(*args, **kw)
 
     def PathExists(self, *args, **kw):
         self.warn()
-        return apply(SCons.Variables.PathVariable.PathExists, args, kw)
+        return SCons.Variables.PathVariable.PathExists(*args, **kw)
 
 PathOption = _PathOptionClass()
 

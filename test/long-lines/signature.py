@@ -39,11 +39,10 @@ build_py = test.workpath('build.py')
 
 test.write(build_py, """\
 #!/usr/bin/env python
-import string
 import sys
 if sys.argv[1][0] == '@':
     args = open(sys.argv[1][1:], 'rb').read()
-    args = string.split(args)
+    args = args.split()
 else:
     args = sys.argv[1:]
 fp = open(args[0], 'wb')

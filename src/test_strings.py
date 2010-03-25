@@ -36,7 +36,6 @@ import fnmatch
 import os
 import os.path
 import re
-import string
 
 import TestCmd
 import TestSCons
@@ -47,7 +46,7 @@ test = TestCmd.TestCmd()
 scons_version = TestSCons.SConsVersion
 
 def build_path(*args):
-    return apply(os.path.join, ('build',)+args)
+    return os.path.join('build', *args)
 
 build_scons     = build_path('scons')
 build_local     = build_path('scons-local', 'scons-local-'+scons_version)
@@ -87,8 +86,7 @@ class Checker:
             return os.path.isfile(path)
 
     def visit(self, result, dirname, names):
-        make_path_tuple = lambda n, d=dirname: (n, os.path.join(d, n))
-        for name, path in map(make_path_tuple, names):
+        for name, path in [(n, os.path.join(dirname, n)) for n in names]:
             if self.remove_this(name, path):
                 names.remove(name)
             elif self.search_this(path):
@@ -263,12 +261,12 @@ for collector in check_list:
 
 if missing_strings:
     print "Found the following files with missing strings:"
-    print "\t" + string.join(missing_strings, "\n\t")
+    print "\t" + "\n\t".join(missing_strings)
     test.fail_test(1)
 
 if not_built:
     print "Cannot check all strings, the following have apparently not been built:"
-    print "\t" + string.join(not_built, "\n\t")
+    print "\t" + "\n\t".join(not_built)
     test.no_result(1)
 
 test.pass_test()

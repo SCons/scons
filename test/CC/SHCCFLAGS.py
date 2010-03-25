@@ -27,7 +27,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 import os
-import string
     
 test = TestSCons.TestSCons()
 
@@ -37,7 +36,7 @@ barflags = e['SHCCFLAGS'] + ' -DBAR'
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if string.find(sys.platform, 'irix') > -1:
+if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.write('SConstruct', """

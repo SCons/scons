@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -105,11 +104,10 @@ if java_version:
 
 test.write("wrapper.py", """\
 import os
-import string
 import sys
-open('%s', 'ab').write("wrapper.py %%s\\n" %% string.join(sys.argv[1:]))
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+open('%s', 'ab').write("wrapper.py %%s\\n" %% " ".join(sys.argv[1:]))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'javah', 'install'],

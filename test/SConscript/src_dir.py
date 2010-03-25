@@ -57,7 +57,7 @@ from os.path import join
 from os.path import basename
 Import('env')
 
-sources = map(basename, glob(join(str(env.Dir('.').srcnode()),'*.c')))
+sources = list(map(basename, glob(join(str(env.Dir('.').srcnode()),'*.c'))))
 
 # Trivial example; really I read the configuration file
 # their build system uses to generate the vcproj files

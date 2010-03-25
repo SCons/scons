@@ -78,7 +78,7 @@ def print_files(dir):
         if not d:
             l = dir.path + [n]
             sys.stdout.write('\ntest.write(%s, """\\\n' % l)
-            p = os.path.join(*([directory] + l))
+            p = os.path.join(directory, *l)
             sys.stdout.write(open(p, 'r').read())
             sys.stdout.write('""")\n')
     dir.call_for_each_entry(print_a_file)

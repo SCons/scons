@@ -89,14 +89,13 @@ Command('f15', 'f15.in', returnExcAction(SCons.Errors.InternalError("My Internal
 
 def print_build_failures():
     from SCons.Script import GetBuildFailures
-    import string
     bf_list = GetBuildFailures()
     bf_list.sort(lambda a,b: cmp(str(a.node), str(b.node)))
     for bf in bf_list:
         assert( isinstance(bf, SCons.Errors.BuildError) )
         print "BF: %%s failed (%%s):  %%s" %% (bf.node, bf.status, bf.errstr)
         if bf.command:
-            print "BF:    %%s" %% string.join(Flatten(bf.command))
+            print "BF:    %%s" %% " ".join(Flatten(bf.command))
 
 try:
     import atexit

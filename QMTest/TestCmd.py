@@ -213,6 +213,7 @@ version.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 0.37.D001 2010/01/11 16:55:50 knight"
@@ -224,7 +225,6 @@ import os.path
 import re
 import shutil
 import stat
-import string
 import sys
 import tempfile
 import time
@@ -282,7 +282,7 @@ _chain_to_exitfunc = None
 
 def _clean():
     global _Cleanup
-    cleanlist = filter(None, _Cleanup)
+    cleanlist = [_f for _f in _Cleanup if _f]
     del _Cleanup[:]
     cleanlist.reverse()
     for test in cleanlist:
@@ -307,16 +307,16 @@ try:
 except NameError:
     def zip(*lists):
         result = []
-        for i in xrange(min(map(len, lists))):
-            result.append(tuple(map(lambda l, i=i: l[i], lists)))
+        for i in xrange(min(list(map(len, lists)))):
+            result.append(tuple([l[i] for l in lists]))
         return result
 
 class Collector:
     def __init__(self, top):
         self.entries = [top]
     def __call__(self, arg, dirname, names):
-        pathjoin = lambda n, d=dirname: os.path.join(d, n)
-        self.entries.extend(map(pathjoin, names))
+        pathjoin = lambda n: os.path.join(dirname, n)
+        self.entries.extend(list(map(pathjoin, names)))
 
 def _caller(tblist, skip):
     string = ""
@@ -407,9 +407,9 @@ def match_exact(lines = None, matches = None):
     """
     """
     if not is_List(lines):
-        lines = string.split(lines, "\n")
+        lines = lines.split("\n")
     if not is_List(matches):
-        matches = string.split(matches, "\n")
+        matches = matches.split("\n")
     if len(lines) != len(matches):
         return
     for i in range(len(lines)):
@@ -421,9 +421,9 @@ def match_re(lines = None, res = None):
     """
     """
     if not is_List(lines):
-        lines = string.split(lines, "\n")
+        lines = lines.split("\n")
     if not is_List(res):
-        res = string.split(res, "\n")
+        res = res.split("\n")
     if len(lines) != len(res):
         return
     for i in range(len(lines)):
@@ -441,9 +441,9 @@ def match_re_dotall(lines = None, res = None):
     """
     """
     if not type(lines) is type(""):
-        lines = string.join(lines, "\n")
+        lines = "\n".join(lines)
     if not type(res) is type(""):
-        res = string.join(res, "\n")
+        res = "\n".join(res)
     s = "^" + res + "$"
     try:
         expr = re.compile(s, re.DOTALL)
@@ -472,15 +472,15 @@ else:
         for op, a1, a2, b1, b2 in sm.get_opcodes():
             if op == 'delete':
                 result.append("%sd%d" % (comma(a1, a2), b1))
-                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+                result.extend(['< ' + l for l in a[a1:a2]])
             elif op == 'insert':
                 result.append("%da%s" % (a1, comma(b1, b2)))
-                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+                result.extend(['> ' + l for l in b[b1:b2]])
             elif op == 'replace':
                 result.append("%sc%s" % (comma(a1, a2), comma(b1, b2)))
-                result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+                result.extend(['< ' + l for l in a[a1:a2]])
                 result.append('---')
-                result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+                result.extend(['> ' + l for l in b[b1:b2]])
         return result
 
 def diff_re(a, b, fromfile='', tofile='',
@@ -530,13 +530,13 @@ if sys.platform == 'win32':
         if path is None:
             path = os.environ['PATH']
         if is_String(path):
-            path = string.split(path, os.pathsep)
+            path = path.split(os.pathsep)
         if pathext is None:
             pathext = os.environ['PATHEXT']
         if is_String(pathext):
-            pathext = string.split(pathext, os.pathsep)
+            pathext = pathext.split(os.pathsep)
         for ext in pathext:
-            if string.lower(ext) == string.lower(file[-len(ext):]):
+            if ext.lower() == file[-len(ext):].lower():
                 pathext = ['']
                 break
         for dir in path:
@@ -553,7 +553,7 @@ else:
         if path is None:
             path = os.environ['PATH']
         if is_String(path):
-            path = string.split(path, os.pathsep)
+            path = path.split(os.pathsep)
         for dir in path:
             f = os.path.join(dir, file)
             if os.path.isfile(f):
@@ -649,14 +649,14 @@ except ImportError:
             universal_newlines = 1
             def __init__(self, command, **kw):
                 if kw.get('stderr') == 'STDOUT':
-                    apply(popen2.Popen4.__init__, (self, command, 1))
+                    popen2.Popen4.__init__(self, command, 1)
                 else:
-                    apply(popen2.Popen3.__init__, (self, command, 1))
+                    popen2.Popen3.__init__(self, command, 1)
                 self.stdin = self.tochild
                 self.stdout = self.fromchild
                 self.stderr = self.childerr
             def wait(self, *args, **kw):
-                resultcode = apply(popen2.Popen3.wait, (self,)+args, kw)
+                resultcode = popen2.Popen3.wait(self, *args, **kw)
                 if os.WIFEXITED(resultcode):
                     return os.WEXITSTATUS(resultcode)
                 elif os.WIFSIGNALED(resultcode):
@@ -879,7 +879,7 @@ class TestCmd(object):
                 #self.diff_function = difflib.unified_diff
         self._dirlist = []
         self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
-        if os.environ.has_key('PRESERVE') and not os.environ['PRESERVE'] is '':
+        if 'PRESERVE' in os.environ and not os.environ['PRESERVE'] is '':
             self._preserve['pass_test'] = os.environ['PRESERVE']
             self._preserve['fail_test'] = os.environ['PRESERVE']
             self._preserve['no_result'] = os.environ['PRESERVE']
@@ -924,9 +924,9 @@ class TestCmd(object):
             slash = '\\'
             special = '"$'
 
-            arg = string.replace(arg, slash, slash+slash)
+            arg = arg.replace(slash, slash+slash)
             for c in special:
-                arg = string.replace(arg, c, slash+c)
+                arg = arg.replace(c, slash+c)
 
             if re_space.search(arg):
                 arg = '"' + arg + '"'
@@ -944,7 +944,7 @@ class TestCmd(object):
 
     def canonicalize(self, path):
         if is_List(path):
-            path = apply(os.path.join, tuple(path))
+            path = os.path.join(*tuple(path))
         if not os.path.isabs(path):
             path = os.path.join(self.workdir, path)
         return path
@@ -1012,7 +1012,7 @@ class TestCmd(object):
             cmd = list(interpreter) + cmd
         if arguments:
             if type(arguments) == type(''):
-                arguments = string.split(arguments)
+                arguments = arguments.split()
             cmd.extend(arguments)
         return cmd
 
@@ -1033,7 +1033,7 @@ class TestCmd(object):
         def diff(self, a, b, name, *args, **kw):
             print self.banner(name)
             args = (a.splitlines(), b.splitlines()) + args
-            lines = apply(self.diff_function, args, kw)
+            lines = self.diff_function(*args, **kw)
             for l in lines:
                 print l
 
@@ -1149,7 +1149,7 @@ class TestCmd(object):
         prepended unless it is enclosed in a [list].
         """
         cmd = self.command_args(program, interpreter, arguments)
-        cmd_string = string.join(map(self.escape, cmd), ' ')
+        cmd_string = ' '.join(map(self.escape, cmd))
         if self.verbose:
             sys.stderr.write(cmd_string + "\n")
         if universal_newlines is None:
@@ -1314,7 +1314,7 @@ class TestCmd(object):
             if sub is None:
                 continue
             if is_List(sub):
-                sub = apply(os.path.join, tuple(sub))
+                sub = os.path.join(*tuple(sub))
             new = os.path.join(self.workdir, sub)
             try:
                 os.mkdir(new)
@@ -1362,7 +1362,7 @@ class TestCmd(object):
         # letters is pretty much random on win32:
         drive,rest = os.path.splitdrive(path)
         if drive:
-            path = string.upper(drive) + rest
+            path = drive.upper() + rest
 
         #
         self._dirlist.append(path)
@@ -1404,7 +1404,7 @@ class TestCmd(object):
         """Find an executable file.
         """
         if is_List(file):
-            file = apply(os.path.join, tuple(file))
+            file = os.path.join(*tuple(file))
         if not os.path.isabs(file):
             file = where_is(file, path, pathext)
         return file
@@ -1426,7 +1426,7 @@ class TestCmd(object):
         the temporary working directory name with the specified
         arguments using the os.path.join() method.
         """
-        return apply(os.path.join, (self.workdir,) + tuple(args))
+        return os.path.join(self.workdir, *tuple(args))
 
     def readable(self, top, read=1):
         """Make the specified directory tree readable (read == 1)

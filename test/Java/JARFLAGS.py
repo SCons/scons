@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -69,7 +68,7 @@ expect = test.wrap_stdout("""\
 adding: src/Example1\.class.*
 """ % locals())
 
-expect = string.replace(expect, '/', os.sep)
+expect = expect.replace('/', os.sep)
 
 test.run(arguments = '.',
          match=TestSCons.match_re_dotall,

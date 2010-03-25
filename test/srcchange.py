@@ -44,18 +44,16 @@ test = TestSCons.TestSCons()
 
 test.write('getrevision', """
 #!/usr/bin/env python
-import string
-print string.strip(open('revnum.in','rb').read())
+print open('revnum.in','rb').read().strip()
 """)
 
 test.write('SConstruct', """
 import re
-import string
 
 def subrevision(target, source ,env):
     orig = target[0].get_text_contents()
     new = re.sub('\$REV.*?\$',
-                 '$REV: %%s$'%%string.strip(source[0].get_text_contents()),
+                 '$REV: %%s$'%%source[0].get_text_contents().strip(),
                  target[0].get_text_contents())
     outf = open(str(target[0]),'wb')
     outf.write(new)
