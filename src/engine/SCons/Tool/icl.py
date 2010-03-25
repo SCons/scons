@@ -40,10 +40,10 @@ import SCons.Tool.intelc
 
 def generate(*args, **kw):
     """Add Builders and construction variables for icl to an Environment."""
-    return apply(SCons.Tool.intelc.generate, args, kw)
+    return SCons.Tool.intelc.generate(*args, **kw)
 
 def exists(*args, **kw):
-    return apply(SCons.Tool.intelc.exists, args, kw)
+    return SCons.Tool.intelc.exists(*args, **kw)
 
 # Local Variables:
 # tab-width:4

@@ -29,7 +29,6 @@ Verify a lot of the basic operation of the --debug=explain option.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -317,7 +316,7 @@ Import("env")
 env.Cat('file3', ['zzz', 'yyy', 'xxx'])
 """)
 
-python_sep = string.replace(python, '\\', '\\\\')
+python_sep = python.replace('\\', '\\\\')
 
 expect = test.wrap_stdout("""\
 scons: rebuilding `file3' because the dependency order changed:

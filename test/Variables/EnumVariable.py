@@ -29,7 +29,6 @@ Test the EnumVariable canned Variable type.
 """
 
 import os.path
-import string
 
 import TestSCons
 
@@ -38,7 +37,7 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect):
-    result = string.split(test.stdout(), '\n')
+    result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 

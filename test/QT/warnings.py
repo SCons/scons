@@ -30,7 +30,6 @@ Test the Qt tool warnings.
 
 import os
 import re
-import string
 
 import TestSCons
 
@@ -82,7 +81,7 @@ moc = test.where_is('moc')
 if moc:
     import os.path
     qtdir = os.path.dirname(os.path.dirname(moc))
-    qtdir = string.replace(qtdir, '\\', '\\\\' )
+    qtdir = qtdir.replace('\\', '\\\\' )
 
     expect = """
 scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)

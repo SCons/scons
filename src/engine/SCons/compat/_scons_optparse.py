@@ -799,7 +799,7 @@ class Option:
             if self.nargs == 1:
                 return self.check_value(opt, value)
             else:
-                return tuple(map(lambda v, o=opt, s=self: s.check_value(o, v), value))
+                return tuple(map(lambda v: self.check_value(opt, v), value))
 
     def process(self, opt, value, values, parser):
 
@@ -1700,7 +1700,7 @@ def _match_abbrev(s, wordmap):
         return s
     else:
         # Isolate all words with s as a prefix.
-        possibilities = filter(lambda w, s=s: w[:len(s)] == s, wordmap.keys())
+        possibilities = filter(lambda w: w[:len(s)] == s, wordmap.keys())
         # No exact match, so there had better be just one possibility.
         if len(possibilities) == 1:
             return possibilities[0]

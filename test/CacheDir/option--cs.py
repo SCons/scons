@@ -57,10 +57,9 @@ test.write(['src1', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
     open('cat.out', 'ab').write(target + "\\n")
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Internal':Builder(action=cat),
                             'External':Builder(action='%(_python_)s build.py $TARGET $SOURCES')})

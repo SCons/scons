@@ -97,15 +97,15 @@ def simple_diff(a, b, fromfile='', tofile='',
     for op, a1, a2, b1, b2 in sm.get_opcodes():
         if op == 'delete':
             result.append("%sd%d\n" % (comma(a1, a2), b1))
-            result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+            result.extend(['< ' + l for l in a[a1:a2]])
         elif op == 'insert':
             result.append("%da%s\n" % (a1, comma(b1, b2)))
-            result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+            result.extend(['> ' + l for l in b[b1:b2]])
         elif op == 'replace':
             result.append("%sc%s\n" % (comma(a1, a2), comma(b1, b2)))
-            result.extend(map(lambda l: '< ' + l, a[a1:a2]))
+            result.extend(['< ' + l for l in a[a1:a2]])
             result.append('---\n')
-            result.extend(map(lambda l: '> ' + l, b[b1:b2]))
+            result.extend(['> ' + l for l in b[b1:b2]])
     return result
 
 diff_map = {

@@ -44,7 +44,7 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
     missing.
     """
     def __init__(self, *args, **kw):
-        apply(SCons.cpp.PreProcessor.__init__, (self,)+args, kw)
+        SCons.cpp.PreProcessor.__init__(self, *args, **kw)
         self.missing = []
     def initialize_result(self, fname):
         self.result = SCons.Util.UniqueList([fname])

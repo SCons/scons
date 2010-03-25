@@ -29,8 +29,6 @@ Test that the --debug=stree option prints a dependency tree with output
 that indicates the state of various Node status flags.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
@@ -98,7 +96,7 @@ stree = """
 
 test.run(arguments = "--debug=stree foo.xxx",
          stderr = stderr)
-test.fail_test(string.count(test.stdout(), stree) != 1)
+test.fail_test(test.stdout().count(stree) != 1)
 
 stree2 = """
  E         = exists
@@ -130,7 +128,7 @@ test.run(arguments = '-c foo.xxx')
 
 test.run(arguments = "--no-exec --debug=stree foo.xxx",
          stderr = stderr)
-test.fail_test(string.count(test.stdout(), stree2) != 1)
+test.fail_test(test.stdout().count(stree2) != 1)
 
 test.pass_test()
 

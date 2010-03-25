@@ -67,10 +67,9 @@ test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
 import os
-import string
 def func(env, target, source):
-    cmd = r'%(_python_)s build.py %%s 3 %%s' %% (string.join(map(str, target)),
-                                       string.join(map(str, source)))
+    cmd = r'%(_python_)s build.py %%s 3 %%s' %% (' '.join(map(str, target)),
+                                       ' '.join(map(str, source)))
     print cmd
     return os.system(cmd)
 B = Builder(action = func)
@@ -86,8 +85,7 @@ test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
 import os
-assert not globals().has_key('string')
-import string
+assert 'string' not in globals()
 class bld:
     def __init__(self):
         self.cmd = r'%(_python_)s build.py %%s 4 %%s'
@@ -96,8 +94,8 @@ class bld:
         print cmd
         return os.system(cmd)
     def get_contents(self, env, target, source):
-        return self.cmd %% (string.join(map(str, target)),
-                            string.join(map(str, source)))
+        return self.cmd %% (' '.join(map(str, target)),
+                            ' '.join(map(str, source)))
 B = Builder(action = bld())
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')

@@ -58,7 +58,7 @@ env.ParseConfig([r'%(_python_)s', r"%(test_config1)s", "--libs --cflags"])
 env.ParseConfig([r'%(_python_)s', r"%(test_config2)s", "--libs --cflags"])
 print env['CPPPATH']
 print env['LIBPATH']
-print map(lambda x: str(x), env['LIBS'])
+print [str(x) for x in env['LIBS']]
 print env['CCFLAGS']
 """ % locals())
 
@@ -70,7 +70,7 @@ env.ParseConfig(r"$PYTHON %(test_config1)s --libs --cflags")
 env.ParseConfig(r"$PYTHON %(test_config2)s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']
-print map(lambda x: str(x), env['LIBS'])
+print [str(x) for x in env['LIBS']]
 print env['CCFLAGS']
 """ % locals())
 
@@ -81,7 +81,7 @@ env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [],
 env.ParseConfig(r"$PYTHON %(test_config3)s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']
-print map(lambda x: str(x), env['LIBS'])
+print [str(x) for x in env['LIBS']]
 print env['CCFLAGS']
 """ % locals())
 

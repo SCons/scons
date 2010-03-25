@@ -35,7 +35,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 # Test InternalError.
 test.write('SConstruct', """
-assert not globals().has_key("InternalError")
+assert "InternalError" not in globals()
 from SCons.Errors import InternalError
 raise InternalError, 'error inside'
 """)

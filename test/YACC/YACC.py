@@ -45,7 +45,6 @@ test = TestSCons.TestSCons()
 
 test.write('myyacc.py', """
 import getopt
-import string
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:', [])
 output = None
@@ -55,7 +54,7 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
-    output.write(string.replace(contents, 'YACC', 'myyacc.py'))
+    output.write(contents.replace('YACC', 'myyacc.py'))
 output.close()
 sys.exit(0)
 """)

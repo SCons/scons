@@ -133,7 +133,7 @@ class ExplicitExit(Exception):
         self.node = node
         self.status = status
         self.exitstatus = status
-        apply(Exception.__init__, (self,) + args)
+        Exception.__init__(self, *args)
 
 def convert_to_BuildError(status, exc_info=None):
     """

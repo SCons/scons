@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
 import TestSCons
 
@@ -39,7 +38,6 @@ test = TestSCons.TestSCons()
 if sys.platform == 'win32':
 
     test.write('mylink.py', r"""
-import string
 import sys
 args = sys.argv[1:]
 while args:
@@ -47,7 +45,7 @@ while args:
     if a[0] != '/':
         break
     args = args[1:]
-    if string.lower(a[:5]) == '/out:': out = a[5:]
+    if a[:5].lower() == '/out:': out = a[5:]
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
@@ -149,11 +147,10 @@ env.Program(target = 'test2', source = 'test2.C')
 
 test.write("wrapper.py",
 """import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
 foo = Environment()

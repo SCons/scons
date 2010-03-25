@@ -29,8 +29,6 @@ Test that the $LINKCOMSTR construction variable allows you to customize
 the displayed linker string.
 """
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -45,7 +43,7 @@ import sys
 outfile = open(sys.argv[1], 'wb')
 for f in sys.argv[2:]:
     infile = open(f, 'rb')
-    for l in filter(lambda l: l != '/*link*/\n', infile.readlines()):
+    for l in [l for l in infile.readlines() if l != '/*link*/\n']:
         outfile.write(l)
 sys.exit(0)
 """)

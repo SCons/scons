@@ -30,7 +30,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
-import string
 import StringIO
 import sys
 import traceback
@@ -96,7 +95,7 @@ sconf_global = None   # current sconf object
 
 def _createConfigH(target, source, env):
     t = open(str(target[0]), "w")
-    defname = re.sub('[^A-Za-z0-9_]', '_', string.upper(str(target[0])))
+    defname = re.sub('[^A-Za-z0-9_]', '_', str(target[0]).upper())
     t.write("""#ifndef %(DEFNAME)s_SEEN
 #define %(DEFNAME)s_SEEN
 
@@ -153,8 +152,7 @@ def _createSource( target, source, env ):
     fd.close()
 def _stringSource( target, source, env ):
     return (str(target[0]) + ' <-\n  |' +
-            string.replace( source[0].get_contents(),
-                            '\n', "\n  |" ) )
+            source[0].get_contents().replace( '\n', "\n  |" ) )
 
 # python 2.2 introduces types.BooleanType
 BooleanTypes = [types.IntType]
@@ -222,8 +220,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
               "The stored build information has an unexpected class: %s" % bi.__class__)
         else:
             self.display("The original builder output was:\n" +
-                         string.replace("  |" + str(bi.string),
-                                        "\n", "\n  |"))
+                         ("  |" + str(bi.string)).replace("\n", "\n  |"))
 
     def failed(self):
         # check, if the reason was a ConfigureDryRunError or a
@@ -246,7 +243,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 def excepthook(type, value, tb):
                     traceback.print_tb(tb)
                     print type, value
-            apply(excepthook, self.exc_info())
+            excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
     def collect_node_states(self):
@@ -465,7 +462,7 @@ class SConfBase:
         lines.append(define_str)
         lines.append('')
 
-        self.config_h_text = self.config_h_text + string.join(lines, '\n')
+        self.config_h_text = self.config_h_text + '\n'.join(lines)
 
     def BuildNodes(self, nodes):
         """
@@ -645,7 +642,7 @@ class SConfBase:
                 raise (SCons.Errors.UserError,
                        "Test called after sconf.Finish()")
             context = CheckContext(self.sconf)
-            ret = apply(self.test, (context,) +  args, kw)
+            ret = self.test(context, *args, **kw)
             if self.sconf.config_h is not None:
                 self.sconf.config_h_text = self.sconf.config_h_text + context.config_h
             context.Result("error: no result")
@@ -689,7 +686,7 @@ class SConfBase:
         if self.logfile is not None and not dryrun:
             # truncate logfile, if SConf.Configure is called for the first time
             # in a build
-            if _ac_config_logs.has_key(self.logfile):
+            if self.logfile in _ac_config_logs:
                 log_mode = "a"
             else:
                 _ac_config_logs[self.logfile] = None
@@ -804,19 +801,19 @@ class CheckContext:
             self.did_show_result = 1
 
     def TryBuild(self, *args, **kw):
-        return apply(self.sconf.TryBuild, args, kw)
+        return self.sconf.TryBuild(*args, **kw)
 
     def TryAction(self, *args, **kw):
-        return apply(self.sconf.TryAction, args, kw)
+        return self.sconf.TryAction(*args, **kw)
 
     def TryCompile(self, *args, **kw):
-        return apply(self.sconf.TryCompile, args, kw)
+        return self.sconf.TryCompile(*args, **kw)
 
     def TryLink(self, *args, **kw):
-        return apply(self.sconf.TryLink, args, kw)
+        return self.sconf.TryLink(*args, **kw)
 
     def TryRun(self, *args, **kw):
-        return apply(self.sconf.TryRun, args, kw)
+        return self.sconf.TryRun(*args, **kw)
 
     def __getattr__( self, attr ):
         if( attr == 'env' ):
@@ -889,7 +886,7 @@ def SConf(*args, **kw):
                 del kw[bt]
             except KeyError:
                 pass
-        return apply(SConfBase, args, kw)
+        return SConfBase(*args, **kw)
     else:
         return SCons.Util.Null()
 
@@ -901,7 +898,7 @@ def CheckFunc(context, function_name, header = None, language = None):
 
 def CheckType(context, type_name, includes = "", language = None):
     res = SCons.Conftest.CheckType(context, type_name,
-                                        header = includes, language = language)
+                                   header = includes, language = language)
     context.did_show_result = 1
     return not res
 
@@ -933,7 +930,7 @@ def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     for s in headers:
         l.append("#include %s%s%s\n"
                  % (include_quotes[0], s, include_quotes[1]))
-    return string.join(l, ''), lastHeader
+    return ''.join(l), lastHeader
 
 def CheckHeader(context, header, include_quotes = '<>', language = None):
     """

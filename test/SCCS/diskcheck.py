@@ -29,7 +29,6 @@ Test transparent checkouts from SCCS files in an SCCS subdirectory.
 """
 
 import os.path
-import string
 
 import TestSCons
 
@@ -74,10 +73,9 @@ test.write(['SConstruct'], """
 DefaultEnvironment()['SCCSCOM'] = 'cd ${TARGET.dir} && $SCCS get ${TARGET.file}'
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 SetOption('diskcheck', ['match', 'rcs'])
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
@@ -94,7 +92,7 @@ test.write(['bbb.in'], "checked-out bbb.in\n")
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
 sub_SConscript = os.path.join('sub', 'SConscript')
-SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 17)[:-1]
+SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 16)[:-1]
 
 expect = """\
 
@@ -107,7 +105,7 @@ test.run(status=2, stderr=expect)
 
 test.run(arguments = '--diskcheck=sccs', stderr = None)
 
-lines = string.split("""
+lines = """
 sccs get SConscript
 sccs get aaa.in
 cat(["aaa.out"], ["aaa.in"])
@@ -121,7 +119,7 @@ cat(["sub/eee.out"], ["sub/eee.in"])
 sccs get fff.in
 cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-""", '\n')
+""".split('\n')
 
 test.must_contain_all_lines(test.stdout(), lines)
 

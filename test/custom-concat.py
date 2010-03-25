@@ -37,7 +37,7 @@ test.write('SConstruct', """
 def my_concat1(pref, list, suff, env, f=None):
     if f:
         list = f(list)
-    list = map(lambda x, p=pref, s=suff: 'my'+p+x+s+'1', list)
+    list = ['my'+pref+x+suff+'1' for x in list]
     return list
 myflags = '${_stripixes(MYPREFIX, LIST, MYSUFFIX, STRIPPREFIX, STRIPSUFFIX, __env__)}'
 env1 = Environment(MYFLAGS=myflags, _concat = my_concat1,

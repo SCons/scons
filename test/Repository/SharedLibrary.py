@@ -30,7 +30,6 @@ object files built in a repository.
 """
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -115,7 +114,7 @@ if os.name == 'posix':
         os.environ['DYLD_LIBRARY_PATH'] = test.workpath('work')
     else:
         os.environ['LD_LIBRARY_PATH'] = test.workpath('work')
-if string.find(sys.platform, 'irix') != -1:
+if sys.platform.find('irix') != -1:
     os.environ['LD_LIBRARYN32_PATH'] = test.workpath('work')
 
 test.run(program = test.workpath('work', 'prog'),

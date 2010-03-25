@@ -34,7 +34,6 @@ ca. September 2005.)
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -133,7 +132,7 @@ my_obj = 'layer/aclock/qt_bug/my'+_obj
 
 test.run(arguments = my_obj, stderr=None)
 
-expect = string.replace( my_obj, '/', os.sep )
+expect = my_obj.replace( '/', os.sep )
 test.up_to_date(options = '--debug=explain',
                 arguments = (expect),
                 stderr=None)

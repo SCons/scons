@@ -60,13 +60,12 @@ opts = '-Y ' + test.workpath('rep1')
 
 #
 test.write(['rep1', 'SConstruct'], """
-import string
 env = Environment(tools = ['javac', 'rmic'],
                   JAVAC = r'%s',
                   RMIC = r'%s')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
-classes = filter(lambda c: string.find(str(c), 'Hello') == -1, classes)
+classes = [c for c in classes if str(c).find('Hello') == -1]
 env.RMIC(target = 'outdir', source = classes)
 """ % (javac, rmic))
 
@@ -329,13 +328,12 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 
 #
 test.write(['work3', 'SConstruct'], """
-import string
 env = Environment(tools = ['javac', 'rmic'],
                   JAVAC = r'%s',
                   RMIC = r'%s')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
-classes = filter(lambda c: string.find(str(c), 'Hello') == -1, classes)
+classes = [c for c in classes if str(c).find('Hello') == -1]
 rmi_classes = env.RMIC(target = 'outdir', source = classes)
 Local(rmi_classes)
 """ % (javac, rmic))

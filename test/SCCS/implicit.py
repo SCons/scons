@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test transparent SCCS checkouts of implicit dependencies.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -70,10 +68,10 @@ env.Program('foo.c')
 
 test.run(stderr = None)
 
-lines = string.split("""
+lines = """
 sccs get foo.c
 sccs get foo.h
-""", '\n')
+""".split('\n')
 
 test.must_contain_all_lines(test.stdout(), lines)
 

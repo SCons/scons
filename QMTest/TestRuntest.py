@@ -19,7 +19,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import re
-import string
 import shutil
 import sys
 
@@ -39,7 +38,7 @@ if re.search('\s', python):
     pythonstring = _python_
 else:
     pythonstring = python
-pythonstring = string.replace(pythonstring, '\\', '\\\\')
+pythonstring = pythonstring.replace('\\', '\\\\')
 
 
 failing_test_template = """\
@@ -108,14 +107,14 @@ class TestRuntest(TestCommon):
         appears in a normal workspace.
         """
         set_workpath_runtest = None
-        if not kw.has_key('program'):
+        if 'program' not in kw:
             kw['program'] = 'runtest.py'
             set_workpath_runtest = 1
-        if not kw.has_key('interpreter'):
+        if 'interpreter' not in kw:
             kw['interpreter'] = [python, '-tt']
-        if not kw.has_key('match'):
+        if 'match' not in kw:
             kw['match'] = match_exact
-        if not kw.has_key('workdir'):
+        if 'workdir' not in kw:
             kw['workdir'] = ''
 
         try:
@@ -126,7 +125,7 @@ class TestRuntest(TestCommon):
             del kw['noqmtest']
 
         orig_cwd = os.getcwd()
-        apply(TestCommon.__init__, [self], kw)
+        TestCommon.__init__(self, **kw)
   
         if not noqmtest:
             qmtest = self.where_is('qmtest')
@@ -141,7 +140,7 @@ class TestRuntest(TestCommon):
         dirs = [os.environ.get('SCONS_RUNTEST_DIR', orig_cwd)]
         
         spe = os.environ.get('SCONS_SOURCE_PATH_EXECUTABLE', orig_cwd)
-        for d in string.split(spe, os.pathsep):
+        for d in spe.split(os.pathsep):
             dirs.append(os.path.join(d, 'build'))
             dirs.append(d)
 

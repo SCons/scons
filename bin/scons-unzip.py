@@ -52,7 +52,7 @@ def outname(n, outdir=outdir):
         l.append(tail)
     l.append(outdir)
     l.reverse()
-    return apply(os.path.join, l)
+    return os.path.join(*l)
 
 for name in zf.namelist():
     dest = outname(name)

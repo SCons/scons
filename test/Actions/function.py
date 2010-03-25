@@ -136,7 +136,7 @@ genHeaderBld = SCons.Builder.Builder(
 env = Environment()
 env.Append(BUILDERS = {'GenHeader' : genHeaderBld})
 
-envdeps = map(str, range(int(optEnv['NbDeps'])))
+envdeps = list(map(str, range(int(optEnv['NbDeps']))))
 
 env.GenHeader('Out', None, ENVDEPS=envdeps)
 """)

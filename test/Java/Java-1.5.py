@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -357,7 +358,7 @@ def classes_must_match(dir, expect):
 
 def classes_must_not_exist(dir, expect):
     global failed
-    present = filter(os.path.exists, expect)
+    present = list(filter(os.path.exists, expect))
     if present:
         sys.stderr.write("Found the following unexpected class files in '%s' after cleaning:\n" % dir)
         for c in present:

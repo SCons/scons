@@ -19,7 +19,6 @@ import getopt
 import imp
 import os
 import os.path
-import string
 import sys
 import tempfile
 import time
@@ -90,7 +89,7 @@ def outname(n, outdir=outdir):
         l.append(tail)
     l.append(outdir)
     l.reverse()
-    return apply(os.path.join, l)
+    return os.path.join(*l)
 
 for name in zf.namelist():
     dest = outname(name)
@@ -135,7 +134,7 @@ fp.close()
 if not args:
     runtest_args = '-a'
 else:
-    runtest_args = string.join(args)
+    runtest_args = ' '.join(args)
 
 if format == '--xml':
 

@@ -113,7 +113,7 @@ def normalize_env(env, keys):
             normenv[k] = copy.deepcopy(env[k]).encode('mbcs')
 
         for k in keys:
-            if os.environ.has_key(k):
+            if k in os.environ:
                 normenv[k] = os.environ[k].encode('mbcs')
 
     return normenv
@@ -149,7 +149,7 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
 
     # TODO(1.5):  replace with the following list comprehension:
     #dkeep = dict([(i, []) for i in keep])
-    dkeep = dict(map(lambda i: (i, []), keep))
+    dkeep = dict([(i, []) for i in keep])
 
     # rdk will  keep the regex to match the .bat file output line starts
     rdk = {}

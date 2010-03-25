@@ -67,7 +67,7 @@ class Value(SCons.Node.Node):
 
     def build(self, **kw):
         if not hasattr(self, 'built_value'):
-            apply (SCons.Node.Node.build, (self,), kw)
+            SCons.Node.Node.build(self, **kw)
 
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 

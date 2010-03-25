@@ -32,7 +32,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import re
-import string
 
 java_parsing = 1
 
@@ -127,7 +126,7 @@ if java_parsing:
             self.brackets = self.brackets - 1
             if len(self.stackBrackets) and \
                self.brackets == self.stackBrackets[-1]:
-                self.listOutputs.append(string.join(self.listClasses, '$'))
+                self.listOutputs.append('$'.join(self.listClasses))
                 self.localClasses.pop()
                 self.listClasses.pop()
                 self.anonStacksStack.pop()
@@ -179,7 +178,7 @@ if java_parsing:
                 self.__getAnonStack()[-1] = self.__getAnonStack()[-1] + 1
                 for anon in self.__getAnonStack():
                     className.append(str(anon))
-                self.listOutputs.append(string.join(className, '$'))
+                self.listOutputs.append('$'.join(className))
 
             self.nextAnon = self.nextAnon + 1
             self.__getAnonStack().append(0)
@@ -298,7 +297,7 @@ if java_parsing:
             currstate = currstate.parseToken(token)
             if trace: trace(token, currstate)
         if initial.package:
-            package = string.replace(initial.package, '.', os.sep)
+            package = initial.package.replace('.', os.sep)
         return (package, initial.listOutputs)
 
 else:

@@ -33,7 +33,6 @@ Coded by Andy Friesen
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
-import string
 
 import SCons.Scanner
 
@@ -54,7 +53,7 @@ class D(SCons.Scanner.Classic):
 
     def find_include(self, include, source_dir, path):
         # translate dots (package separators) to slashes
-        inc = string.replace(include, '.', '/')
+        inc = include.replace('.', '/')
 
         i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
         if i is None:

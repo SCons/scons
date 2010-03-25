@@ -54,8 +54,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __all__ = ['PackageVariable',]
 
-import string
-
 import SCons.Errors
 
 __enable_strings  = ('1', 'yes', 'true',  'on', 'enable', 'search')
@@ -64,7 +62,7 @@ __disable_strings = ('0', 'no',  'false', 'off', 'disable')
 def _converter(val):
     """
     """
-    lval = string.lower(val)
+    lval = val.lower()
     if lval in __enable_strings: return True
     if lval in __disable_strings: return False
     #raise ValueError("Invalid value for boolean option: %s" % val)
@@ -95,11 +93,10 @@ def PackageVariable(key, help, default, searchfunc=None):
     A 'package list' option may either be 'all', 'none' or a list of
     package names (seperated by space).
     """
-    help = string.join(
-        (help, '( yes | no | /path/to/%s )' % key),
-        '\n    ')
+    help = '\n    '.join(
+        (help, '( yes | no | /path/to/%s )' % key))
     return (key, help, default,
-            lambda k, v, e, f=searchfunc: _validator(k,v,e,f),
+            lambda k, v, e: _validator(k,v,e,searchfunc),
             _converter)
 
 # Local Variables:

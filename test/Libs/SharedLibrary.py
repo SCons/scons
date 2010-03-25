@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -202,13 +201,13 @@ test.run(arguments = '.',
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if string.find(sys.platform, 'irix') != -1:
+if sys.platform.find('irix') != -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
-if sys.platform == 'win32' or string.find(sys.platform, 'irix') != -1:
+if sys.platform == 'win32' or sys.platform.find('irix') != -1:
     test.run(arguments = '-f SConstructFoo')
 else:
     test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
@@ -274,9 +273,9 @@ main(int argc, char *argv[])
 
     # Make sure there is (at most) one mention each of the
     # appropriate .def and .lib files per line.
-    for line in string.split(test.stdout(), '\n'):
-        test.fail_test(string.count(line, 'foo4.def') > 1)
-        test.fail_test(string.count(line, 'foo4.lib') > 1)
+    for line in test.stdout().split('\n'):
+        test.fail_test(line.count('foo4.def') > 1)
+        test.fail_test(line.count('foo4.lib') > 1)
 
     test.run(program = test.workpath('progbar'),
              stdout = "f4.c\nprogbar.c\n")

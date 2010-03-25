@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import stat
-import string
 
 import TestSCons
 
@@ -95,7 +94,7 @@ try:
 
     def files(fname):
         zf = zipfile.ZipFile(fname, 'r')
-        return map(lambda x: x.filename, zf.infolist())
+        return [x.filename for x in zf.infolist()]
 
 except ImportError:
     internal_zip = 0
@@ -104,14 +103,14 @@ except ImportError:
 
     def files(fname, test=test, unzip=unzip):
         test.run(program = unzip, arguments = "-l -qq %s" % fname)
-        lines = string.split(test.stdout(), "\n")[:-1]
+        lines = test.stdout().split("\n")[:-1]
         def lastword(line):
-            return string.split(line)[-1]
-        return map(lastword, lines)
+            return line.split()[-1]
+        return list(map(lastword, lines))
 
 if zip:
 
-    marker_out = string.replace(test.workpath('marker.out'), '\\', '\\\\')
+    marker_out = test.workpath('marker.out').replace('\\', '\\\\')
 
     test.write('SConstruct', """\
 def marker(target, source, env):

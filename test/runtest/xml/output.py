@@ -30,7 +30,6 @@ Test writing XML output to a file.
 
 import os
 import re
-import string
 
 import TestCmd
 import TestRuntest

@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __doc__ = """
 Generic Taskmaster module for the SCons build engine.
@@ -52,7 +53,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 from itertools import chain
 import operator
-import string
 import sys
 import traceback
 
@@ -1001,14 +1001,14 @@ class Taskmaster:
 
         # TODO(1.5)
         #nclist = [ (n, find_cycle([n], set())) for n in self.pending_children ]
-        nclist = map(lambda n: (n, find_cycle([n], set())), self.pending_children)
+        nclist = [(n, find_cycle([n], set())) for n in self.pending_children]
 
         # TODO(1.5)
         #genuine_cycles = [
         #    node for node, cycle in nclist
         #             if cycle or node.get_state() != NODE_EXECUTED
         #]
-        genuine_cycles = filter(lambda t: t[1] or t[0].get_state() != NODE_EXECUTED, nclist)
+        genuine_cycles = [t for t in nclist if t[1] or t[0].get_state() != NODE_EXECUTED]
         if not genuine_cycles:
             # All of the "cycles" found were single nodes in EXECUTED state,
             # which is to say, they really weren't cycles.  Just return.
@@ -1017,7 +1017,7 @@ class Taskmaster:
         desc = 'Found dependency cycle(s):\n'
         for node, cycle in nclist:
             if cycle:
-                desc = desc + "  " + string.join(map(str, cycle), " -> ") + "\n"
+                desc = desc + "  " + " -> ".join(map(str, cycle)) + "\n"
             else:
                 desc = desc + \
                     "  Internal Error: no cycle found for node %s (%s) in state %s\n" %  \

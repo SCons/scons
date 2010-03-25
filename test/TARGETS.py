@@ -36,10 +36,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 print COMMAND_LINE_TARGETS
-print map(str, BUILD_TARGETS)
+print list(map(str, BUILD_TARGETS))
 Default('.')
 print COMMAND_LINE_TARGETS
-print map(str, BUILD_TARGETS)
+print list(map(str, BUILD_TARGETS))
 """)
 
 test.write('aaa', 'aaa\n')
@@ -68,17 +68,17 @@ test.run(arguments = 'bbb ccc=xyz -n aaa', stdout = expect)
 
 test.write('SConstruct', """
 env = Environment()
-print map(str, DEFAULT_TARGETS)
-print map(str, BUILD_TARGETS)
+print list(map(str, DEFAULT_TARGETS))
+print list(map(str, BUILD_TARGETS))
 Default('aaa')
-print map(str, DEFAULT_TARGETS)
-print map(str, BUILD_TARGETS)
+print list(map(str, DEFAULT_TARGETS))
+print list(map(str, BUILD_TARGETS))
 env.Default('bbb')
-print map(str, DEFAULT_TARGETS)
-print map(str, BUILD_TARGETS)
+print list(map(str, DEFAULT_TARGETS))
+print list(map(str, BUILD_TARGETS))
 env.Default(None)
-print map(str, DEFAULT_TARGETS)
-print map(str, BUILD_TARGETS)
+print list(map(str, DEFAULT_TARGETS))
+print list(map(str, BUILD_TARGETS))
 env.Default('ccc')
 """)
 
@@ -113,9 +113,9 @@ test.run(arguments = '.', stdout = expect)
 
 
 test.write('SConstruct', """\
-print map(str, BUILD_TARGETS)
+print list(map(str, BUILD_TARGETS))
 SConscript('SConscript')
-print map(str, BUILD_TARGETS)
+print list(map(str, BUILD_TARGETS))
 """)
 
 test.write('SConscript', """\

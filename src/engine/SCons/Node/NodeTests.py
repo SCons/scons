@@ -20,12 +20,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
-import string
 import sys
 import types
 import unittest
@@ -125,7 +125,7 @@ class Environment:
     def Override(self, overrides):
         d = self._dict.copy()
         d.update(overrides)
-        return apply(Environment, (), d)
+        return Environment(**d)
     def _update(self, dict):
         self._dict.update(dict)
     def get_factory(self, factory):
@@ -889,24 +889,24 @@ class NodeTestCase(unittest.TestCase):
         d2.found_includes = [e, f]
         f.found_includes = [g]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2, e, f, g], map(str, deps)
+        assert deps == [d1, d2, e, f, g], list(map(str, deps))
 
         # Recursive scanning eliminates duplicates
         e.found_includes = [f]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2, e, f, g], map(str, deps)
+        assert deps == [d1, d2, e, f, g], list(map(str, deps))
 
         # Scanner method can select specific nodes to recurse
         def no_fff(nodes):
-            return filter(lambda n: str(n)[0] != 'f', nodes)
+            return [n for n in nodes if str(n)[0] != 'f']
         s.recurse_nodes = no_fff
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2, e, f], map(str, deps)
+        assert deps == [d1, d2, e, f], list(map(str, deps))
 
         # Scanner method can short-circuit recursing entirely
         s.recurse_nodes = lambda nodes: []
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d1, d2], map(str, deps)
+        assert deps == [d1, d2], list(map(str, deps))
 
     def test_get_env_scanner(self):
         """Test fetching the environment scanner for a Node
@@ -1130,13 +1130,13 @@ class NodeTestCase(unittest.TestCase):
         nw = SCons.Node.Walker(n1)
         assert nw.next().name ==  "n4"
         assert nw.next().name ==  "n5"
-        assert nw.history.has_key(n2)
+        assert n2 in nw.history
         assert nw.next().name ==  "n2"
         assert nw.next().name ==  "n6"
         assert nw.next().name ==  "n7"
-        assert nw.history.has_key(n3)
+        assert n3 in nw.history
         assert nw.next().name ==  "n3"
-        assert nw.history.has_key(n1)
+        assert n1 in nw.history
         assert nw.next().name ==  "n1"
         assert nw.next() is None
 
@@ -1293,7 +1293,7 @@ class NodeListTestCase(unittest.TestCase):
         # New-style classes report as "object"; classic classes report
         # as "instance"...
         r = re.sub("object", "instance", r)
-        l = string.join(["<MyNode instance at 0x>"]*3, ", ")
+        l = ", ".join(["<MyNode instance at 0x>"]*3)
         assert r == '[%s]' % l, r
 
 
@@ -1306,7 +1306,7 @@ if __name__ == "__main__":
                  NodeListTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

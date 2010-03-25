@@ -29,7 +29,6 @@ Test that $M4 and $M4FLAGS work as expected.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -40,10 +39,9 @@ test = TestSCons.TestSCons()
 
 
 test.write('mym4.py', """
-import string
 import sys
 contents = sys.stdin.read()
-sys.stdout.write(string.replace(contents, 'M4', 'mym4.py'))
+sys.stdout.write(contents.replace('M4', 'mym4.py'))
 sys.exit(0)
 """)
 
@@ -71,11 +69,10 @@ if m4:
 
     test.write("wrapper.py",
 """import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """
 foo = Environment(tools=['default', 'm4'],

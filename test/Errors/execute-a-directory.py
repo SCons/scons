@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -41,7 +40,7 @@ test.write('SConstruct', r"""
 bld = Builder(action = '%s $SOURCES $TARGET')
 env = Environment(BUILDERS = { 'bld' : bld })
 env.bld(target = 'f3', source = 'f3.in')
-""" % string.replace(test.workdir, '\\', '\\\\'))
+""" % test.workdir.replace('\\', '\\\\'))
 
 test.run(arguments='.',
          stdout = test.wrap_stdout("%s f3.in f3\n" % test.workdir, error=1),

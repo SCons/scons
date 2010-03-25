@@ -24,7 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import sys
 import TestSCons
 
@@ -73,7 +72,7 @@ if sys.platform in ['cygwin', 'win32']:
     sys.stdout.flush()
 
     test.run(stderr = None, status = None)
-    test.fail_test(string.split(test.stderr(), '\n')[0] ==
+    test.fail_test(test.stderr().split('\n')[0] ==
                    "scons: *** Multiple ways to build the same target were specified for: foo.o")
 
 else:

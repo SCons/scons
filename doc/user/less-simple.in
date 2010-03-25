@@ -371,7 +371,7 @@
     you'll have realized that this is similar to the
     <function>split()</function> method
     in the Python standard <function>string</function> module.
-    Unlike the <function>string.split()</function> method,
+    Unlike the <function>split()</function> member function of strings,
     however, the &Split; function
     does not require a string as input
     and will wrap up a single non-string object in a list,

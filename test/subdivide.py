@@ -132,8 +132,7 @@ src/sub/bar.c
 """ % locals()
 
 if os.sep == '\\':
-    import string
-    expect = string.replace(expect, '\\', '\\\\')
+    expect = expect.replace('\\', '\\\\')
 
 test.must_match(['src', 'prog.exe'], expect)
 

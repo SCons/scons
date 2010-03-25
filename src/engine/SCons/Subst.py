@@ -26,11 +26,11 @@ SCons string substitution.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
-import string
 import types
 import UserList
 import UserString
@@ -50,7 +50,7 @@ AllowableExceptions = (IndexError, NameError)
 
 def SetAllowableExceptions(*excepts):
     global AllowableExceptions
-    AllowableExceptions = filter(None, excepts)
+    AllowableExceptions = [_f for _f in excepts if _f]
 
 def raise_exception(exception, target, s):
     name = exception.__class__.__name__
@@ -152,7 +152,7 @@ class CmdStringHolder(UserString.UserString):
         else:
             return self.data
 
-def escape_list(list, escape_func):
+def escape_list(mylist, escape_func):
     """Escape a list of arguments by running the specified escape_func
     on every object in the list that has an escape() method."""
     def escape(obj, escape_func=escape_func):
@@ -162,7 +162,7 @@ def escape_list(list, escape_func):
             return obj
         else:
             return e(escape_func)
-    return map(escape, list)
+    return list(map(escape, mylist))
 
 class NLWrapper:
     """A wrapper class that delays turning a list of sources or targets
@@ -183,14 +183,14 @@ class NLWrapper:
     def _return_nodelist(self):
         return self.nodelist
     def _gen_nodelist(self):
-        list = self.list
-        if list is None:
-            list = []
-        elif not is_Sequence(list):
-            list = [list]
+        mylist = self.list
+        if mylist is None:
+            mylist = []
+        elif not is_Sequence(mylist):
+            mylist = [mylist]
         # The map(self.func) call is what actually turns
         # a list into appropriate proxies.
-        self.nodelist = SCons.Util.NodeList(map(self.func, list))
+        self.nodelist = SCons.Util.NodeList(list(map(self.func, mylist)))
         self._create_nodelist = self._return_nodelist
         return self.nodelist
     _create_nodelist = _gen_nodelist
@@ -344,7 +344,7 @@ _regex_remove = [ _rm, None, _remove ]
 
 def _rm_list(list):
     #return [ l for l in list if not l in ('$(', '$)') ]
-    return filter(lambda l: not l in ('$(', '$)'), list)
+    return [l for l in list if not l in ('$(', '$)')]
 
 def _remove_list(list):
     result = []
@@ -399,7 +399,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
-    if type(strSubst) == types.StringType and string.find(strSubst, '$') < 0:
+    if type(strSubst) == types.StringType and strSubst.find('$') < 0:
         return strSubst
 
     class StringSubber:
@@ -438,7 +438,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     return s
                 else:
                     key = s[1:]
-                    if key[0] == '{' or string.find(key, '.') >= 0:
+                    if key[0] == '{' or key.find('.') >= 0:
                         if key[0] == '{':
                             key = key[1:-1]
                         try:
@@ -450,9 +450,9 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                                 return ''
                             raise_exception(e, lvars['TARGETS'], s)
                     else:
-                        if lvars.has_key(key):
+                        if key in lvars:
                             s = lvars[key]
-                        elif self.gvars.has_key(key):
+                        elif key in self.gvars:
                             s = self.gvars[key]
                         elif not NameError in AllowableExceptions:
                             raise_exception(NameError(key), lvars['TARGETS'], s)
@@ -472,13 +472,13 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     # are probably more the exception than the norm,
                     # so it should be tolerable for now.
                     lv = lvars.copy()
-                    var = string.split(key, '.')[0]
+                    var = key.split('.')[0]
                     lv[var] = ''
                     return self.substitute(s, lv)
             elif is_Sequence(s):
                 def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                     return conv(substitute(l, lvars))
-                return map(func, s)
+                return list(map(func, s))
             elif callable(s):
                 try:
                     s = s(target=lvars['TARGETS'],
@@ -523,7 +523,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     if len(result) == 1:
                         result = result[0]
                     else:
-                        result = string.join(map(str, result), '')
+                        result = ''.join(map(str, result))
                 return result
             else:
                 return self.expand(args, lvars)
@@ -540,7 +540,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     # If we dropped that behavior (or found another way to cover it),
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
-    if not lvars.has_key('TARGET'):
+    if 'TARGET' not in lvars:
         d = subst_dict(target, source)
         if d:
             lvars = lvars.copy()
@@ -571,7 +571,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
         if mode != SUBST_RAW:
             # Compress strings of white space characters into
             # a single space.
-            result = string.strip(_space_sep.sub(' ', result))
+            result = _space_sep.sub(' ', result).strip()
     elif is_Sequence(result):
         remove = _list_remove[mode]
         if remove:
@@ -619,9 +619,9 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
             self.gvars = gvars
 
             if self.mode == SUBST_RAW:
-                self.add_strip = lambda x, s=self: s.append(x)
+                self.add_strip = lambda x: self.append(x)
             else:
-                self.add_strip = lambda x, s=self: None
+                self.add_strip = lambda x: None
             self.in_strip = None
             self.next_line()
 
@@ -653,7 +653,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     self.close_strip('$)')
                 else:
                     key = s[1:]
-                    if key[0] == '{' or string.find(key, '.') >= 0:
+                    if key[0] == '{' or key.find('.') >= 0:
                         if key[0] == '{':
                             key = key[1:-1]
                         try:
@@ -665,9 +665,9 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                                 return
                             raise_exception(e, lvars['TARGETS'], s)
                     else:
-                        if lvars.has_key(key):
+                        if key in lvars:
                             s = lvars[key]
-                        elif self.gvars.has_key(key):
+                        elif key in self.gvars:
                             s = self.gvars[key]
                         elif not NameError in AllowableExceptions:
                             raise_exception(NameError(), lvars['TARGETS'], s)
@@ -680,7 +680,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     # string for the value of the variable name
                     # we just expanded.
                     lv = lvars.copy()
-                    var = string.split(key, '.')[0]
+                    var = key.split('.')[0]
                     lv[var] = ''
                     self.substitute(s, lv, 0)
                     self.this_word()
@@ -834,7 +834,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     # If we dropped that behavior (or found another way to cover it),
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
-    if not lvars.has_key('TARGET'):
+    if 'TARGET' not in lvars:
         d = subst_dict(target, source)
         if d:
             lvars = lvars.copy()
@@ -870,7 +870,7 @@ def scons_subst_once(strSubst, env, key):
 
     We do this with some straightforward, brute-force code here...
     """
-    if type(strSubst) == types.StringType and string.find(strSubst, '$') < 0:
+    if type(strSubst) == types.StringType and strSubst.find('$') < 0:
         return strSubst
 
     matchlist = ['$' + key, '${' + key + '}']
@@ -880,7 +880,7 @@ def scons_subst_once(strSubst, env, key):
         if a in matchlist:
             a = val
         if is_Sequence(a):
-            return string.join(map(str, a))
+            return ' '.join(map(str, a))
         else:
             return str(a)
 

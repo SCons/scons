@@ -28,7 +28,6 @@ Verify the ability of the "shell" command (and its "sh" and "!" aliases)
 to shell out of interactive mode.
 """
 
-import string
 import sys
 
 import TestSCons
@@ -38,7 +37,7 @@ test = TestSCons.TestSCons(combine=1)
 _python_ = TestSCons._python_
 
 shell_command_py    = test.workpath('shell_command.py')
-_shell_command_py_  = '"%s"' % string.replace(shell_command_py, '\\', '\\\\')
+_shell_command_py_  = '"%s"' % shell_command_py.replace('\\', '\\\\')
 
 test.write(shell_command_py, """\
 print 'hello from shell_command.py'

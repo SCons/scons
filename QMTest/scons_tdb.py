@@ -22,13 +22,14 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 QMTest classes to support SCons' testing and Aegis-inspired workflow.
 
 Thanks to Stefan Seefeld for the initial code.
 """
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 ########################################################################
 # Imports
@@ -96,7 +97,7 @@ def get_explicit_arguments(e):
         # Do not record computed fields.
         if field.IsComputed():
             continue
-        if e.__dict__.has_key(name):
+        if name in e.__dict__:
             explicit_arguments[name] = e.__dict__[name]
 
     return explicit_arguments
@@ -153,10 +154,10 @@ sys_attributes = [
 
 def get_sys_values():
     sys_attributes.sort()
-    result = map(lambda k: (k, getattr(sys, k, _null)), sys_attributes)
-    result = filter(lambda t: not t[1] is _null, result)
-    result = map(lambda t: t[0] + '=' + repr(t[1]), result)
-    return string.join(result, '\n ')
+    result = [(k, getattr(sys, k, _null)) for k in sys_attributes]
+    result = [t for t in result if not t[1] is _null]
+    result = [t[0] + '=' + repr(t[1]) for t in result]
+    return '\n '.join(result)
 
 module_attributes = [
     '__version__',
@@ -168,10 +169,10 @@ module_attributes = [
 
 def get_module_info(module):
     module_attributes.sort()
-    result = map(lambda k: (k, getattr(module, k, _null)), module_attributes)
-    result = filter(lambda t: not t[1] is _null, result)
-    result = map(lambda t: t[0] + '=' + repr(t[1]), result)
-    return string.join(result, '\n ')
+    result = [(k, getattr(module, k, _null)) for k in module_attributes]
+    result = [t for t in result if not t[1] is _null]
+    result = [t[0] + '=' + repr(t[1]) for t in result]
+    return '\n '.join(result)
 
 environ_keys = [
    'PATH',
@@ -214,10 +215,10 @@ environ_keys = [
 
 def get_environment():
     environ_keys.sort()
-    result = map(lambda k: (k, os.environ.get(k, _null)), environ_keys)
-    result = filter(lambda t: not t[1] is _null, result)
-    result = map(lambda t: t[0] + '-' + t[1], result)
-    return string.join(result, '\n ')
+    result = [(k, os.environ.get(k, _null)) for k in environ_keys]
+    result = [t for t in result if not t[1] is _null]
+    result = [t[0] + '-' + t[1] for t in result]
+    return '\n '.join(result)
 
 class SConsXMLResultStream(XMLResultStream):
     def __init__(self, *args, **kw):
@@ -400,7 +401,7 @@ class AegisBatchStream(FileResultStream):
         file_names.sort()
         for file_name in file_names:
             exit_status = self._outcomes[file_name]
-            file_name = string.replace(file_name, '\\', '/')
+            file_name = file_name.replace('\\', '/')
             self.file.write('    { file_name = "%s";\n' % file_name)
             self.file.write('      exit_status = %s; },\n' % exit_status)
         self.file.write('];\n')

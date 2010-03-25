@@ -25,7 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import string
 import StringIO
 import sys
 import types
@@ -101,7 +100,7 @@ if os.sep == '/':
         return str
 else:
     def cvt(str):
-        return string.replace(str, '/', os.sep)
+        return str.replace('/', os.sep)
 
 class SubstTestCase(unittest.TestCase):
     class MyNode(DummyNode):
@@ -242,7 +241,7 @@ class SubstTestCase(unittest.TestCase):
             input, expect = cases[:2]
             expect = convert(expect)
             try:
-                result = apply(function, (input, env), kwargs)
+                result = function(input, env, **kwargs)
             except Exception, e:
                 fmt = "    input %s generated %s (%s)"
                 print fmt % (repr(input), e.__class__.__name__, repr(e))
@@ -798,7 +797,7 @@ class scons_subst_list_TestCase(SubstTestCase):
     def test_scons_subst_list(self):
         """Test scons_subst_list():  basic substitution"""
         def convert_lists(expect):
-            return map(lambda l: map(cvt, l), expect)
+            return [list(map(cvt, l)) for l in expect]
         return self.basic_comparisons(scons_subst_list, convert_lists)
 
     subst_list_cases = [
@@ -1181,11 +1180,11 @@ class subst_dict_TestCase(unittest.TestCase):
         s1 = DummyNode('s1')
         s2 = DummyNode('s2')
         d = subst_dict(target=[t1, t2], source=[s1, s2])
-        TARGETS = map(lambda x: str(x), d['TARGETS'])
+        TARGETS = [str(x) for x in d['TARGETS']]
         TARGETS.sort()
         assert TARGETS == ['t1', 't2'], d['TARGETS']
         assert str(d['TARGET']) == 't1', d['TARGET']
-        SOURCES = map(lambda x: str(x), d['SOURCES'])
+        SOURCES = [str(x) for x in d['SOURCES']]
         SOURCES.sort()
         assert SOURCES == ['s1', 's2'], d['SOURCES']
         assert str(d['SOURCE']) == 's1', d['SOURCE']
@@ -1210,10 +1209,10 @@ class subst_dict_TestCase(unittest.TestCase):
         s4 = N('s4')
         s5 = V('s5')
         d = subst_dict(target=[t3, t4, t5], source=[s3, s4, s5])
-        TARGETS = map(lambda x: str(x), d['TARGETS'])
+        TARGETS = [str(x) for x in d['TARGETS']]
         TARGETS.sort()
         assert TARGETS == ['t4', 'v-t3', 'v-t5'], TARGETS
-        SOURCES = map(lambda x: str(x), d['SOURCES'])
+        SOURCES = [str(x) for x in d['SOURCES']]
         SOURCES.sort()
         assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
@@ -1231,7 +1230,7 @@ if __name__ == "__main__":
     ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

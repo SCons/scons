@@ -30,7 +30,6 @@ SConscript settable option.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import TestSCons
 
@@ -91,10 +90,10 @@ def RunTest(args, extra):
     test.run(arguments = args)
 
     str = test.read("f1")
-    start1,finish1 = map(float, string.split(str, "\n"))
+    start1,finish1 = list(map(float, str.split("\n")))
 
     str = test.read("f2")
-    start2,finish2 = map(float, string.split(str, "\n"))
+    start2,finish2 = list(map(float, str.split("\n")))
 
     return start2, finish1
 
@@ -149,10 +148,10 @@ warn = \
 test.must_contain_all_lines(test.stderr(), [warn])
 
 str = test.read("f1")
-start1,finish1 = map(float, string.split(str, "\n"))
+start1,finish1 = list(map(float, str.split("\n")))
 
 str = test.read("f2")
-start2,finish2 = map(float, string.split(str, "\n"))
+start2,finish2 = list(map(float, str.split("\n")))
 
 test.fail_test(start2 < finish1)
 

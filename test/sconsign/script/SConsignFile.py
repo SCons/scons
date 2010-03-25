@@ -44,10 +44,9 @@ fake_link_py = test.workpath('fake_link.py')
 test.write(fake_cc_py, r"""#!/usr/bin/env python
 import os
 import re
-import string
 import sys
 
-path = string.split(sys.argv[1])
+path = sys.argv[1].split()
 output = open(sys.argv[2], 'wb')
 input = open(sys.argv[3], 'rb')
 

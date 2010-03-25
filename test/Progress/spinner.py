@@ -30,7 +30,6 @@ that represents a canonical "spinner" on the output.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -59,7 +58,7 @@ expect = """\
 \\\r|\r"""
 
 if os.linesep != '\n':
-    expect = string.replace(expect, '\n', os.linesep)
+    expect = expect.replace('\n', os.linesep)
 
 test.run(arguments = '-Q .', stdout=expect)
 

@@ -30,8 +30,6 @@ the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
 """
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -99,11 +97,10 @@ pdflatex = test.where_is('pdflatex')
 if pdflatex:
 
     test.write("wrapper.py", """import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """
 import os

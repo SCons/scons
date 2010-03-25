@@ -34,7 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import win32
 
 def generate(env):
-    if not env.has_key('ENV'):
+    if 'ENV' not in env:
         env['ENV']        = {}
     env['OBJPREFIX']      = ''
     env['OBJSUFFIX']      = '.obj'

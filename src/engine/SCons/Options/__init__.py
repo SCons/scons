@@ -48,24 +48,17 @@ class Options(SCons.Variables.Variables):
             msg = "The Options class is deprecated; use the Variables class instead."
             SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
             warned = True
-        apply(SCons.Variables.Variables.__init__,
-              (self,) + args,
-              kw)
+        SCons.Variables.Variables.__init__(self, *args, **kw)
 
     def AddOptions(self, *args, **kw):
-        return apply(SCons.Variables.Variables.AddVariables,
-                     (self,) + args,
-                     kw)
+        return SCons.Variables.Variables.AddVariables(self, *args, **kw)
 
     def UnknownOptions(self, *args, **kw):
-        return apply(SCons.Variables.Variables.UnknownVariables,
-                     (self,) + args,
-                     kw)
+        return SCons.Variables.Variables.UnknownVariables(self, *args, **kw)
 
     def FormatOptionHelpText(self, *args, **kw):
-        return apply(SCons.Variables.Variables.FormatVariableHelpText,
-                     (self,) + args,
-                     kw)
+        return SCons.Variables.Variables.FormatVariableHelpText(self, *args,
+                     **kw)
 
 # Local Variables:
 # tab-width:4

@@ -41,7 +41,7 @@ def BoolOption(*args, **kw):
         msg = "The BoolOption() function is deprecated; use the BoolVariable() function instead."
         SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
         warned = True
-    return apply(SCons.Variables.BoolVariable, args, kw)
+    return SCons.Variables.BoolVariable(*args, **kw)
 
 # Local Variables:
 # tab-width:4

@@ -33,7 +33,6 @@ Do the Right Thing (almost) regardless of how the variable is specified.
 """
 
 import os
-import string
 
 import SCons.Memoize
 import SCons.Node
@@ -98,14 +97,14 @@ class _PathList:
         over and over for each target.
         """
         if SCons.Util.is_String(pathlist):
-            pathlist = string.split(pathlist, os.pathsep)
+            pathlist = pathlist.split(os.pathsep)
         elif not SCons.Util.is_Sequence(pathlist):
             pathlist = [pathlist]
 
         pl = []
         for p in pathlist:
             try:
-                index = string.find(p, '$')
+                index = p.find('$')
             except (AttributeError, TypeError):
                 type = TYPE_OBJECT
             else:

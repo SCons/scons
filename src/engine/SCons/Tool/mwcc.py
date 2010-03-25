@@ -34,7 +34,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import string
 
 import SCons.Util
 
@@ -80,8 +79,8 @@ def set_vars(env):
     ENV['CWFolder'] = version.path
     ENV['LM_LICENSE_FILE'] = version.license
     plus = lambda x: '+%s' % x
-    ENV['MWCIncludes'] = string.join(map(plus, version.includes), os.pathsep)
-    ENV['MWLibraries'] = string.join(map(plus, version.libs), os.pathsep)
+    ENV['MWCIncludes'] = os.pathsep.join(map(plus, version.includes))
+    ENV['MWLibraries'] = os.pathsep.join(map(plus, version.libs))
     return 1
 
 

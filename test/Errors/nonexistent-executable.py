@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -39,7 +38,7 @@ test.write('SConstruct', r"""
 bld = Builder(action = '%s $SOURCES $TARGET')
 env = Environment(BUILDERS = { 'bld' : bld })
 env.bld(target = 'f1', source = 'f1.in')
-""" % string.replace(no_such_file, '\\', '\\\\'))
+""" % no_such_file.replace('\\', '\\\\'))
 
 test.run(arguments='.',
          stdout = test.wrap_stdout("%s f1.in f1\n" % no_such_file, error=1),

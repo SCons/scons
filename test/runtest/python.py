@@ -30,7 +30,6 @@ Test that the -P option lets us specify a Python version to use.
 
 import os
 import re
-import string
 
 if not hasattr(os.path, 'pardir'):
     os.path.pardir = '..'
@@ -47,7 +46,7 @@ head, dir = os.path.split(head)
 mypython = os.path.join(head, dir, os.path.pardir, dir, python)
 
 def escape(s):
-    return string.replace(s, '\\', '\\\\')
+    return s.replace('\\', '\\\\')
 
 if re.search('\s', mypython):
     mypythonstring = '"%s"' % escape(mypython)

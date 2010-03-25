@@ -25,7 +25,6 @@
 
 import xml.sax
 import xml.sax.saxutils
-import string
 import sys
 
 SFName = {
@@ -51,7 +50,7 @@ Artifacts = {}
 def nws(text):
     """Normalize white space.  This will become important if/when
     we enhance this to search for arbitrary fields."""
-    return string.join(string.split(text), ' ')
+    return ' '.join(text.split())
 
 class ClassifyArtifacts(xml.sax.saxutils.DefaultHandler):
     """

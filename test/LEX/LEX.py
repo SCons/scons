@@ -37,12 +37,11 @@ test = TestSCons.TestSCons()
 
 test.write('mylex.py', """
 import getopt
-import string
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
 for a in args:
     contents = open(a, 'rb').read()
-    sys.stdout.write(string.replace(contents, 'LEX', 'mylex.py'))
+    sys.stdout.write(contents.replace('LEX', 'mylex.py'))
 sys.exit(0)
 """)
 

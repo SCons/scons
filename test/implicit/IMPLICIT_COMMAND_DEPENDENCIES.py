@@ -45,11 +45,10 @@ import sys
 open(sys.argv[1], 'w').write('''\
 #!/usr/bin/env %(python)s
 import os
-import string
 import sys
 fp = open(sys.argv[1], 'wb')
 args = [os.path.split(sys.argv[0])[1]] + sys.argv[1:]
-fp.write(string.join(args) + '\\\\n' + '%(extra)s')
+fp.write(" ".join(args) + '\\\\n' + '%(extra)s')
 for infile in sys.argv[2:]:
     fp.write(open(infile, 'rb').read())
 fp.close()

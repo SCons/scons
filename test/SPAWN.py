@@ -44,15 +44,14 @@ ofp.close()
 
 test.write('SConstruct', """
 import os
-import string
 import sys
 def my_spawn1(sh, escape, cmd, args, env):
-    s = string.join(args + ['extra1.txt'])
+    s = " ".join(args + ['extra1.txt'])
     if sys.platform in ['win32']:
         s = '"' + s + '"'
     os.system(s)
 def my_spawn2(sh, escape, cmd, args, env):
-    s = string.join(args + ['extra2.txt'])
+    s = " ".join(args + ['extra2.txt'])
     if sys.platform in ['win32']:
         s = '"' + s + '"'
     os.system(s)

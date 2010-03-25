@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -57,7 +55,7 @@ open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
 file_names = []
 for fn in attempt_file_names:
     try:
-        in_name = string.replace(fn, '$$', '$') + '.in'
+        in_name = fn.replace('$$', '$') + '.in'
         test.write(in_name, fn + '\n')
         file_names.append(fn)
     except IOError:
@@ -68,7 +66,7 @@ for fn in attempt_file_names:
 def buildFileStr(fn):
     return "env.Build(source=r\"\"\"%s.in\"\"\", target=r\"\"\"%s.out\"\"\")" % ( fn, fn )
 
-xxx =  string.join(map(buildFileStr, file_names), '\n')
+xxx = '\n'.join(map(buildFileStr, file_names))
 
 test.write("SConstruct", """
 env=Environment(BUILDERS = {'Build' : Builder(action = '%(_python_)s cat.py $TARGET $SOURCE')})
@@ -79,7 +77,7 @@ env=Environment(BUILDERS = {'Build' : Builder(action = '%(_python_)s cat.py $TAR
 test.run(arguments='.')
 
 for fn in file_names:
-    out_name = string.replace(fn, '$$', '$') + '.out'
+    out_name = fn.replace('$$', '$') + '.out'
     test.fail_test(test.read(out_name) != fn + '\n')
 
 test.pass_test()

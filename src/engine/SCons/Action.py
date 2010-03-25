@@ -96,6 +96,7 @@ way for wrapping up the functions.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -103,7 +104,6 @@ import cPickle
 import dis
 import os
 import re
-import string
 import sys
 import subprocess
 
@@ -153,7 +153,7 @@ else:
             else:
                 result.append(c)
                 i = i+1
-        return string.join(result, '')
+        return ''.join(result)
 
 strip_quotes = re.compile('^[\'"](.*)[\'"]$')
 
@@ -249,19 +249,19 @@ def _code_contents(code):
     # Note that we also always ignore the first entry of co_consts
     # which contains the function doc string. We assume that the
     # function does not access its doc string.
-    contents.append(',(' + string.join(map(_object_contents,code.co_consts[1:]),',') + ')')
+    contents.append(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')')
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
     # the variable actually accessed and therefore changes the
     # function result.
-    contents.append(',(' + string.join(map(_object_contents,code.co_names),',') + ')')
+    contents.append(',(' + ','.join(map(_object_contents,code.co_names)) + ')')
 
 
     # The code contents depends on its actual code!!!
     contents.append(',(' + str(remove_set_lineno_codes(code.co_code)) + ')')
 
-    return string.join(contents, '')
+    return ''.join(contents)
 
 
 def _function_contents(func):
@@ -271,7 +271,7 @@ def _function_contents(func):
 
     # The function contents depends on the value of defaults arguments
     if func.func_defaults:
-        contents.append(',(' + string.join(map(_object_contents,func.func_defaults),',') + ')')
+        contents.append(',(' + ','.join(map(_object_contents,func.func_defaults)) + ')')
     else:
         contents.append(',()')
 
@@ -284,12 +284,12 @@ def _function_contents(func):
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:
-        xxx = map(lambda x: _object_contents(x.cell_contents), closure)
+        xxx = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
         xxx = []
-    contents.append(',(' + string.join(xxx, ',') + ')')
+    contents.append(',(' + ','.join(xxx) + ')')
 
-    return string.join(contents, '')
+    return ''.join(contents)
 
 
 def _actionAppend(act1, act2):
@@ -354,7 +354,7 @@ def _do_create_action(act, kw):
 
     if is_List(act):
         #TODO(1.5) return CommandAction(act, **kw)
-        return apply(CommandAction, (act,), kw)
+        return CommandAction(act, **kw)
 
     if callable(act):
         try:
@@ -378,10 +378,10 @@ def _do_create_action(act, kw):
             # like a function or a CommandGenerator in that variable
             # instead of a string.
             return LazyAction(var, kw)
-        commands = string.split(str(act), '\n')
+        commands = str(act).split('\n')
         if len(commands) == 1:
             #TODO(1.5) return CommandAction(commands[0], **kw)
-            return apply(CommandAction, (commands[0],), kw)
+            return CommandAction(commands[0], **kw)
         # The list of string commands may include a LazyAction, so we
         # reprocess them via _do_create_list_action.
         return _do_create_list_action(commands, kw)
@@ -434,7 +434,7 @@ class ActionBase:
         if is_String(vl): vl = (vl,)
         for v in vl:
             result.append(env.subst('${'+v+'}'))
-        return string.join(result, '')
+        return ''.join(result)
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -450,7 +450,7 @@ class ActionBase:
         # and CommandGeneratorAction will use this env
         # when it calls its _generate method.
         self.presub_env = env
-        lines = string.split(str(self), '\n')
+        lines = str(self).split('\n')
         self.presub_env = None      # don't need this any more
         return lines
 
@@ -534,8 +534,8 @@ class _ActionAction(ActionBase):
             if executor:
                 target = executor.get_all_targets()
                 source = executor.get_all_sources()
-            t = string.join(map(str, target), ' and ')
-            l = string.join(self.presub_lines(env), '\n  ')
+            t = ' and '.join(map(str, target))
+            l = '\n  '.join(self.presub_lines(env))
             out = "Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         cmd = None
@@ -590,7 +590,7 @@ def _string_from_cmd_list(cmd_list):
         if ' ' in arg or '\t' in arg:
             arg = '"' + arg + '"'
         cl.append(arg)
-    return string.join(cl)
+    return ' '.join(cl)
 
 # A fiddlin' little function that has an 'import SCons.Environment' which
 # can't be moved to the top level without creating an import loop.  Since
@@ -642,7 +642,7 @@ def _subproc(env, cmd, error = 'ignore', **kw):
             # because that's a pretty common list-like value to stick
             # in an environment variable:
             value = SCons.Util.flatten_sequence(value)
-            new_env[key] = string.join(map(str, value), os.pathsep)
+            new_env[key] = os.pathsep.join(map(str, value))
         else:
             # It's either a string or something else.  If it's a string,
             # we still want to call str() because it might be a *Unicode*
@@ -655,7 +655,7 @@ def _subproc(env, cmd, error = 'ignore', **kw):
 
     try:
         #FUTURE return subprocess.Popen(cmd, **kw)
-        return apply(subprocess.Popen, (cmd,), kw)
+        return subprocess.Popen(cmd, **kw)
     except EnvironmentError, e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
@@ -685,16 +685,16 @@ class CommandAction(_ActionAction):
         if __debug__: logInstanceCreation(self, 'Action.CommandAction')
 
         #TODO(1.5) _ActionAction.__init__(self, **kw)
-        apply(_ActionAction.__init__, (self,), kw)
+        _ActionAction.__init__(self, **kw)
         if is_List(cmd):
-            if filter(is_List, cmd):
+            if list(filter(is_List, cmd)):
                 raise TypeError, "CommandAction should be given only " \
                       "a single command"
         self.cmd_list = cmd
 
     def __str__(self):
         if is_List(self.cmd_list):
-            return string.join(map(str, self.cmd_list), ' ')
+            return ' '.join(map(str, self.cmd_list))
         return str(self.cmd_list)
 
     def process(self, target, source, env, executor=None):
@@ -771,7 +771,7 @@ class CommandAction(_ActionAction):
                     # path list, because that's a pretty common list-like
                     # value to stick in an environment variable:
                     value = flatten_sequence(value)
-                    ENV[key] = string.join(map(str, value), os.pathsep)
+                    ENV[key] = os.pathsep.join(map(str, value))
                 else:
                     # If it isn't a string or a list, then we just coerce
                     # it to a string, which is the proper way to handle
@@ -782,7 +782,7 @@ class CommandAction(_ActionAction):
         if executor:
             target = executor.get_all_targets()
             source = executor.get_all_sources()
-        cmd_list, ignore, silent = self.process(target, map(rfile, source), env, executor)
+        cmd_list, ignore, silent = self.process(target, list(map(rfile, source)), env, executor)
 
         # Use len() to filter out any "command" that's zero-length.
         for cmd_line in filter(len, cmd_list):
@@ -806,7 +806,7 @@ class CommandAction(_ActionAction):
         from SCons.Subst import SUBST_SIG
         cmd = self.cmd_list
         if is_List(cmd):
-            cmd = string.join(map(str, cmd))
+            cmd = ' '.join(map(str, cmd))
         else:
             cmd = str(cmd)
         if executor:
@@ -860,7 +860,7 @@ class CommandGeneratorAction(ActionBase):
                              env=env,
                              for_signature=for_signature)
         #TODO(1.5) gen_cmd = Action(ret, **self.gen_kw)
-        gen_cmd = apply(Action, (ret,), self.gen_kw)
+        gen_cmd = Action(ret, **self.gen_kw)
         if not gen_cmd:
             raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
         return gen_cmd
@@ -885,7 +885,9 @@ class CommandGeneratorAction(ActionBase):
                  show=_null, execute=_null, chdir=_null, executor=None):
         act = self._generate(target, source, env, 0, executor)
         if act is None:
-            raise UserError("While building `%s': Cannot deduce file extension from source files: %s" % (repr(map(str, target)), repr(map(str, source))))
+            raise UserError("While building `%s': "
+                            "Cannot deduce file extension from source files: %s"
+                % (repr(list(map(str, target))), repr(list(map(str, source)))))
         return act(target, source, env, exitstatfunc, presub,
                    show, execute, chdir, executor)
 
@@ -930,7 +932,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
     def __init__(self, var, kw):
         if __debug__: logInstanceCreation(self, 'Action.LazyAction')
         #FUTURE CommandAction.__init__(self, '${'+var+'}', **kw)
-        apply(CommandAction.__init__, (self, '${'+var+'}'), kw)
+        CommandAction.__init__(self, '${'+var+'}', **kw)
         self.var = SCons.Util.to_String(var)
         self.gen_kw = kw
 
@@ -946,7 +948,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         else:
             c = ''
         #TODO(1.5) gen_cmd = Action(c, **self.gen_kw)
-        gen_cmd = apply(Action, (c,), self.gen_kw)
+        gen_cmd = Action(c, **self.gen_kw)
         if not gen_cmd:
             raise SCons.Errors.UserError("$%s value %s cannot be used to create an Action." % (self.var, repr(c)))
         return gen_cmd
@@ -955,10 +957,8 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         return self._generate_cache(env)
 
     def __call__(self, target, source, env, *args, **kw):
-        args = (self, target, source, env) + args
         c = self.get_parent_class(env)
-        #TODO(1.5) return c.__call__(*args, **kw)
-        return apply(c.__call__, args, kw)
+        return c.__call__(self, target, source, env, *args, **kw)
 
     def get_presig(self, target, source, env):
         c = self.get_parent_class(env)
@@ -987,7 +987,7 @@ class FunctionAction(_ActionAction):
                 self.funccontents = _object_contents(execfunction)
 
         #TODO(1.5) _ActionAction.__init__(self, **kw)
-        apply(_ActionAction.__init__, (self,), kw)
+        _ActionAction.__init__(self, **kw)
 
     def function_name(self):
         try:
@@ -1018,7 +1018,7 @@ class FunctionAction(_ActionAction):
                 else:
                     s = str_for_display()
                 return s
-            return '[' + string.join(map(quote, a), ", ") + ']'
+            return '[' + ", ".join(map(quote, a)) + ']'
         try:
             strfunc = self.execfunction.strfunction
         except AttributeError:
@@ -1045,7 +1045,7 @@ class FunctionAction(_ActionAction):
             if executor:
                 target = executor.get_all_targets()
                 source = executor.get_all_sources()
-            rsources = map(rfile, source)
+            rsources = list(map(rfile, source))
             try:
                 result = self.execfunction(target=target, source=rsources, env=env)
             except KeyboardInterrupt, e:
@@ -1095,40 +1095,34 @@ class FunctionAction(_ActionAction):
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
-    def __init__(self, list):
+    def __init__(self, actionlist):
         if __debug__: logInstanceCreation(self, 'Action.ListAction')
         def list_of_actions(x):
             if isinstance(x, ActionBase):
                 return x
             return Action(x)
-        self.list = map(list_of_actions, list)
+        self.list = list(map(list_of_actions, actionlist))
         # our children will have had any varlist
         # applied; we don't need to do it again
         self.varlist = ()
         self.targets = '$TARGETS'
 
     def genstring(self, target, source, env):
-        return string.join(map(lambda a, t=target, s=source, e=env:
-                                  a.genstring(t, s, e),
-                               self.list),
-                           '\n')
+        return '\n'.join([a.genstring(target, source, env) for a in self.list])
 
     def __str__(self):
-        return string.join(map(str, self.list), '\n')
+        return '\n'.join(map(str, self.list))
 
     def presub_lines(self, env):
         return SCons.Util.flatten_sequence(
-            map(lambda a, env=env: a.presub_lines(env), self.list))
+            [a.presub_lines(env) for a in self.list])
 
     def get_presig(self, target, source, env):
         """Return the signature contents of this action list.
 
         Simple concatenation of the signatures of the elements.
         """
-        return string.join(map(lambda x, t=target, s=source, e=env:
-                                      x.get_contents(t, s, e),
-                               self.list),
-                           "")
+        return "".join([x.get_contents(target, source, env) for x in self.list])
 
     def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
                  show=_null, execute=_null, chdir=_null, executor=None):
@@ -1204,9 +1198,7 @@ class ActionCaller:
         return self.parent.convert(s)
 
     def subst_args(self, target, source, env):
-        return map(lambda x, self=self, t=target, s=source, e=env:
-                          self.subst(x, t, s, e),
-                   self.args)
+        return [self.subst(x, target, source, env) for x in self.args]
 
     def subst_kw(self, target, source, env):
         kw = {}
@@ -1218,17 +1210,17 @@ class ActionCaller:
         args = self.subst_args(target, source, env)
         kw = self.subst_kw(target, source, env)
         #TODO(1.5) return self.parent.actfunc(*args, **kw)
-        return apply(self.parent.actfunc, args, kw)
+        return self.parent.actfunc(*args, **kw)
 
     def strfunction(self, target, source, env):
         args = self.subst_args(target, source, env)
         kw = self.subst_kw(target, source, env)
         #TODO(1.5) return self.parent.strfunc(*args, **kw)
-        return apply(self.parent.strfunc, args, kw)
+        return self.parent.strfunc(*args, **kw)
 
     def __str__(self):
         #TODO(1.5) return self.parent.strfunc(*self.args, **self.kw)
-        return apply(self.parent.strfunc, self.args, self.kw)
+        return self.parent.strfunc(*self.args, **self.kw)
 
 class ActionFactory:
     """A factory class that will wrap up an arbitrary function

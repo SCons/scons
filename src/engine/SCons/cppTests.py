@@ -23,7 +23,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import sys
 import unittest
 
@@ -635,7 +634,7 @@ class fileTestCase(unittest.TestCase):
 
     def strip_initial_spaces(self, s):
         #lines = s.split('\n')
-        lines = string.split(s, '\n')
+        lines = s.split('\n')
         spaces = re.match(' *', lines[0]).group(0)
         def strip_spaces(l, spaces=spaces):
             #if l.startswith(spaces):
@@ -643,7 +642,7 @@ class fileTestCase(unittest.TestCase):
                 l = l[len(spaces):]
             return l
         #return '\n'.join([ strip_spaces(l) for l in lines ])
-        return string.join(map(strip_spaces, lines), '\n')
+        return '\n'.join(map(strip_spaces, lines))
 
     def write(self, file, contents):
         open(file, 'w').write(self.strip_initial_spaces(contents))
@@ -675,7 +674,7 @@ class fileTestCase(unittest.TestCase):
         """)
         class MyPreProcessor(cpp.DumbPreProcessor):
             def __init__(self, *args, **kw):
-                apply(cpp.DumbPreProcessor.__init__, (self,) + args, kw)
+                cpp.DumbPreProcessor.__init__(self, *args, **kw)
                 self.files = []
             def __call__(self, file):
                 self.files.append(file)
@@ -704,7 +703,7 @@ if __name__ == '__main__':
         except NameError:
             pass
         names.sort()
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

@@ -57,7 +57,6 @@ Lib tool variables:
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import SCons.Action
 import SCons.Builder
@@ -112,7 +111,7 @@ def generate(env):
         # This is merely for the convenience of the dependency scanner.
         dmd_path = env.WhereIs(dc)
         if dmd_path:
-            x = string.rindex(dmd_path, dc)
+            x = dmd_path.rindex(dc)
             phobosDir = dmd_path[:x] + '/../src/phobos'
             if os.path.isdir(phobosDir):
                 env.Append(DPATH = [phobosDir])

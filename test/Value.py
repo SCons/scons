@@ -73,9 +73,8 @@ env.B3('f5.out', V)
 
 test.write('put.py', """\
 import os
-import string
 import sys
-open(sys.argv[-1],'wb').write(string.join(sys.argv[1:-2]))
+open(sys.argv[-1],'wb').write(" ".join(sys.argv[1:-2]))
 """)
 
 # Run all of the tests with both types of source signature

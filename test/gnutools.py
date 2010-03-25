@@ -29,7 +29,6 @@ Testing the gnu tool chain, i.e. the tools 'gcc', 'g++' and 'gnulink'.
 """
 
 import TestSCons
-import string
 import sys
 
 _python_ = TestSCons._python_
@@ -116,8 +115,8 @@ test.run(chdir='work1')
 
 def testObject(test, obj, expect):
     contents = test.read(test.workpath('work1', obj))
-    line1 = string.split(contents,'\n')[0]
-    actual = string.join(string.split(line1))
+    line1 = contents.split('\n')[0]
+    actual = ' '.join(line1.split())
     if not expect == actual:
         print "%s:  %s != %s\n" % (obj, repr(expect), repr(actual))
         test.fail_test()

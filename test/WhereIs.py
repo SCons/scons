@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -57,13 +56,13 @@ pathdirs_1234 = [ test.workpath('sub1'),
                   test.workpath('sub2'),
                   test.workpath('sub3'),
                   test.workpath('sub4'),
-                ] + string.split(env_path, os.pathsep)
+                ] + env_path.split(os.pathsep)
 
 pathdirs_1243 = [ test.workpath('sub1'),
                   test.workpath('sub2'),
                   test.workpath('sub4'),
                   test.workpath('sub3'),
-                ] + string.split(env_path, os.pathsep)
+                ] + env_path.split(os.pathsep)
 
 test.write('SConstruct', """
 SConscript('%s')
@@ -77,13 +76,13 @@ print WhereIs('xxx.exe', %s, reject=%s)
 env.Replace( XXXNAME='xxx.exe' )
 print env.WhereIs( '$XXXNAME', %s )
 """ % (subdir_SConscript,
-       repr(string.join(pathdirs_1234, os.pathsep)),
-       repr(string.join(pathdirs_1243, os.pathsep)),
+       repr(os.pathsep.join(pathdirs_1234)),
+       repr(os.pathsep.join(pathdirs_1243)),
        repr(pathdirs_1234),
        repr(pathdirs_1243),
        repr(pathdirs_1243),
        repr(sub4_xxx_exe),
-       repr(string.join(pathdirs_1243, os.pathsep)),
+       repr(os.pathsep.join(pathdirs_1243)),
       ))
 
 test.write(subdir_SConscript, """
@@ -93,13 +92,13 @@ print WhereIs('xxx.exe', %s)
 print env.WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
-""" % (repr(string.join(pathdirs_1234, os.pathsep)),
-       repr(string.join(pathdirs_1243, os.pathsep)),
+""" % (repr(os.pathsep.join(pathdirs_1234)),
+       repr(os.pathsep.join(pathdirs_1243)),
        repr(pathdirs_1234),
        repr(pathdirs_1243),
       ))
 
-os.environ['PATH'] = string.join(pathdirs_1234, os.pathsep)
+os.environ['PATH'] = os.pathsep.join(pathdirs_1234)
 
 expect = [ test.workpath(sub3_xxx_exe),
            test.workpath(sub3_xxx_exe),
@@ -116,10 +115,10 @@ expect = [ test.workpath(sub3_xxx_exe),
          ]
 
 test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = string.join(expect, "\n") + "\n",
+         stdout = test.wrap_stdout(read_str = "\n".join(expect) + "\n",
                                    build_str = "scons: `.' is up to date.\n"))
 
-os.environ['PATH'] = string.join(pathdirs_1243, os.pathsep)
+os.environ['PATH'] = os.pathsep.join(pathdirs_1243)
 
 expect = [ test.workpath(sub4_xxx_exe),
            test.workpath(sub3_xxx_exe),
@@ -136,7 +135,7 @@ expect = [ test.workpath(sub4_xxx_exe),
          ]
 
 test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = string.join(expect, "\n") + "\n",
+         stdout = test.wrap_stdout(read_str = "\n".join(expect) + "\n",
                                    build_str = "scons: `.' is up to date.\n"))
 
 

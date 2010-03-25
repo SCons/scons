@@ -29,7 +29,6 @@ Create .cpp, .h, moc_....cpp from a .ui file.
 """
 
 import os.path
-import string
 
 import TestSCons
 
@@ -126,7 +125,7 @@ test.must_not_exist(test.workpath(cpp))
 test.must_not_exist(test.workpath(h))
 
 cppContents = test.read(test.workpath('build', cpp))
-test.fail_test(string.find(cppContents, '#include "aaa.ui.h"') == -1)
+test.fail_test(cppContents.find('#include "aaa.ui.h"') == -1)
 
 test.run(arguments = "variant_dir=1 chdir=1 " +
                      test.workpath('build', aaa_dll) )

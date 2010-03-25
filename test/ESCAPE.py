@@ -43,13 +43,12 @@ ofp.close()
 """)
 
 test.write('SConstruct', """\
-import string
 # We still need to run this through the original ESCAPE function,
 # because that's set up to work in tandem with the existing SHELL,
 # which we're not replacing.
 orig_escape = Environment()['ESCAPE']
 def my_escape(s):
-    s = string.replace(s, 'file.in', 'file.xxx')
+    s = s.replace('file.in', 'file.xxx')
     return orig_escape(s)
 env = Environment(ESCAPE = my_escape)
 env.Command('file.out', 'file.in', '%(_python_)s cat.py $TARGET $SOURCES')

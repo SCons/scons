@@ -23,7 +23,6 @@
 
 import os
 import os.path
-import string
 import sys
 
 __doc__ = """bootstrap.py
@@ -171,15 +170,15 @@ def find(file, search=search):
         if os.path.exists(f):
             return os.path.normpath(f)
     sys.stderr.write("could not find `%s' in search path:\n" % file)
-    sys.stderr.write("\t" + string.join(search, "\n\t") + "\n")
+    sys.stderr.write("\t" + "\n\t".join(search) + "\n")
     sys.exit(2)
 
 scons_py = os.path.join('src', 'script', 'scons.py')
 src_engine = os.path.join('src', 'engine')
 MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
 
-files = [ scons_py ] + map(lambda x: os.path.join(src_engine, x[:-1]),
-                           open(MANIFEST_in).readlines())
+files = [ scons_py ] + [os.path.join(src_engine, x[:-1])
+                        for x in open(MANIFEST_in).readlines()]
 
 for file in files:
     src = find(file)
@@ -200,7 +199,7 @@ args = [
             os.path.join(bootstrap_dir, scons_py)
        ] + pass_through_args
 
-sys.stdout.write(string.join(args, " ") + '\n')
+sys.stdout.write(" ".join(args) + '\n')
 sys.stdout.flush()
 
 os.environ['SCONS_LIB_DIR'] = os.path.join(bootstrap_dir, src_engine)

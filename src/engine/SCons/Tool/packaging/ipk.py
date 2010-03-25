@@ -58,7 +58,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
     buildarchitecture = os.uname()[4]
     buildarchitecture = archmap.get(buildarchitecture, buildarchitecture)
 
-    if kw.has_key('ARCHITECTURE'):
+    if 'ARCHITECTURE' in kw:
         buildarchitecture = kw['ARCHITECTURE']
 
     # setup the kw to contain the mandatory arguments to this fucntion.
@@ -76,7 +76,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
         target=[ "%s_%s_%s.ipk"%(NAME, VERSION, buildarchitecture) ]
 
     # now apply the Ipkg builder
-    return apply(bld, [env, target, specfile], kw)
+    return bld(env, target, specfile, **kw)
 
 def gen_ipk_dir(proot, source, env, kw):
     # make sure the packageroot is a Dir object.
@@ -98,7 +98,7 @@ def gen_ipk_dir(proot, source, env, kw):
     spec_target.append(control.File('preinst'))
 
     # apply the builder to the specfile targets
-    apply(s_bld, [env, spec_target, source], kw)
+    s_bld(env, spec_target, source, **kw)
 
     # the packageroot directory does now contain the specfiles.
     return proot
@@ -125,7 +125,7 @@ def build_specfiles(source, target, env):
 
     control_file=open_file('control', target)
 
-    if not env.has_key('X_IPK_DESCRIPTION'):
+    if 'X_IPK_DESCRIPTION' not in env:
         env['X_IPK_DESCRIPTION']="%s\n %s"%(env['SUMMARY'],
                                             env['DESCRIPTION'].replace('\n', '\n '))
 
@@ -173,7 +173,7 @@ Description: $X_IPK_DESCRIPTION
         f.close()
 
     # call a user specified function
-    if env.has_key('CHANGE_SPECFILE'):
+    if 'CHANGE_SPECFILE' in env:
         content += env['CHANGE_SPECFILE'](target)
 
     return 0

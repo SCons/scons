@@ -41,7 +41,7 @@ def PackageOption(*args, **kw):
         msg = "The PackageOption() function is deprecated; use the PackageVariable() function instead."
         SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
         warned = True
-    return apply(SCons.Variables.PackageVariable, args, kw)
+    return SCons.Variables.PackageVariable(*args, **kw)
 
 # Local Variables:
 # tab-width:4

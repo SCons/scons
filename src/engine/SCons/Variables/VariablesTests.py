@@ -41,8 +41,10 @@ class Environment:
         self.dict[key] = value
     def __getitem__(self, key):
         return self.dict[key]
+    def __contains__(self, key):
+        return self.dict.__contains__(key)
     def has_key(self, key):
-        return self.dict.has_key(key)
+        return key in self.dict
 
 
 def check(key, value, env):
@@ -253,7 +255,7 @@ class VariablesTestCase(unittest.TestCase):
 
         env = Environment()
         opts.Update(env, {})
-        assert not env.has_key('ANSWER')
+        assert 'ANSWER' not in env
 
         # Test that a default value of None is all right.
         test = TestSCons.TestSCons()
@@ -267,7 +269,7 @@ class VariablesTestCase(unittest.TestCase):
 
         env = Environment()
         opts.Update(env, {})
-        assert not env.has_key('ANSWER')
+        assert 'ANSWER' not in env
 
     def test_args(self):
         """Test updating an Environment with arguments overridden"""
@@ -527,12 +529,12 @@ B 42 54 b - alpha test ['B']
         env = Environment()
         opts.Update(env, {'ANSWER' : 'answer'})
         
-        assert env.has_key('ANSWER')
+        assert 'ANSWER' in env
         
         env = Environment()
         opts.Update(env, {'ANSWERALIAS' : 'answer'})
         
-        assert env.has_key('ANSWER') and not env.has_key('ANSWERALIAS')
+        assert 'ANSWER' in env and 'ANSWERALIAS' not in env
         
         # test alias as a list
         opts = SCons.Variables.Variables()
@@ -545,12 +547,12 @@ B 42 54 b - alpha test ['B']
         env = Environment()
         opts.Update(env, {'ANSWER' : 'answer'})
         
-        assert env.has_key('ANSWER')
+        assert 'ANSWER' in env
         
         env = Environment()
         opts.Update(env, {'ANSWERALIAS' : 'answer'})
         
-        assert env.has_key('ANSWER') and not env.has_key('ANSWERALIAS')
+        assert 'ANSWER' in env and 'ANSWERALIAS' not in env
 
 
 
@@ -652,7 +654,7 @@ if __name__ == "__main__":
                  UnknownVariablesTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

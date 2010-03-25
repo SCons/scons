@@ -25,7 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import string
 import sys
 import time
 import unittest
@@ -39,13 +38,6 @@ import SCons.Util
 import SCons.Warnings
 
 built_it = None
-
-# This will be built-in in 2.3.  For now fake it.
-try :
-    True , False
-except NameError :
-    True = 1 ; False = 0
-
 
 scanner_count = 0
 
@@ -341,7 +333,7 @@ class VariantDirTestCase(unittest.TestCase):
 
         f11 = fs.File('src/file11')
         t, m = f11.alter_targets()
-        bdt = map(lambda n: n.path, t)
+        bdt = [n.path for n in t]
         var1_file11 = os.path.normpath('build/var1/file11')
         var2_file11 = os.path.normpath('build/var2/file11')
         assert bdt == [var1_file11, var2_file11], bdt
@@ -349,11 +341,11 @@ class VariantDirTestCase(unittest.TestCase):
         f12 = fs.File('src/file12')
         f12.builder = 1
         bdt, m = f12.alter_targets()
-        assert bdt == [], map(lambda n: n.path, bdt)
+        assert bdt == [], [n.path for n in bdt]
 
         d13 = fs.Dir('src/new_dir')
         t, m = d13.alter_targets()
-        bdt = map(lambda n: n.path, t)
+        bdt = [n.path for n in t]
         var1_new_dir = os.path.normpath('build/var1/new_dir')
         var2_new_dir = os.path.normpath('build/var2/new_dir')
         assert bdt == [var1_new_dir, var2_new_dir], bdt
@@ -445,7 +437,7 @@ class VariantDirTestCase(unittest.TestCase):
                 self.have['copy'] = copy
 
                 self.links_to_be_called = []
-                for link in string.split(self.duplicate, '-'):
+                for link in self.duplicate.split('-'):
                     if self.have[link]:
                         self.links_to_be_called.append(link)
 
@@ -817,7 +809,7 @@ class FileBuildInfoTestCase(_tempdirTestCase):
             'actionsig [action]',
         ]
 
-        expect = string.join(expect_lines, '\n')
+        expect = '\n'.join(expect_lines)
         format = bi1.format()
         assert format == expect, (repr(expect), repr(format))
 
@@ -921,12 +913,12 @@ class FSTestCase(_tempdirTestCase):
         drive, path = os.path.splitdrive(os.getcwd())
 
         def _do_Dir_test(lpath, path_, abspath_, up_path_, sep, fileSys=fs, drive=drive):
-            dir = fileSys.Dir(string.replace(lpath, '/', sep))
+            dir = fileSys.Dir(lpath.replace('/', sep))
 
             if os.sep != '/':
-                path_ = string.replace(path_, '/', os.sep)
-                abspath_ = string.replace(abspath_, '/', os.sep)
-                up_path_ = string.replace(up_path_, '/', os.sep)
+                path_ = path_.replace('/', os.sep)
+                abspath_ = abspath_.replace('/', os.sep)
+                up_path_ = up_path_.replace('/', os.sep)
 
             def strip_slash(p, drive=drive):
                 if p[-1] == os.sep and len(p) > 1:
@@ -937,7 +929,7 @@ class FSTestCase(_tempdirTestCase):
             path = strip_slash(path_)
             abspath = strip_slash(abspath_)
             up_path = strip_slash(up_path_)
-            name = string.split(abspath, os.sep)[-1]
+            name = abspath.split(os.sep)[-1]
 
             assert dir.name == name, \
                    "dir.name %s != expected name %s" % \
@@ -978,7 +970,7 @@ class FSTestCase(_tempdirTestCase):
             Dir_test('#',           './',          sub_dir,           sub)
 
             try:
-                f2 = fs.File(string.join(['f1', 'f2'], sep), directory = d1)
+                f2 = fs.File(sep.join(['f1', 'f2']), directory = d1)
             except TypeError, x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
@@ -986,7 +978,7 @@ class FSTestCase(_tempdirTestCase):
                 raise
 
             try:
-                dir = fs.Dir(string.join(['d1', 'f1'], sep))
+                dir = fs.Dir(sep.join(['d1', 'f1']))
             except TypeError, x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
@@ -1051,7 +1043,7 @@ class FSTestCase(_tempdirTestCase):
         assert built_it
 
         def match(path, expect):
-            expect = string.replace(expect, '/', os.sep)
+            expect = expect.replace('/', os.sep)
             assert path == expect, "path %s != expected %s" % (path, expect)
 
         e1 = fs.Entry("d1")
@@ -1434,7 +1426,7 @@ class FSTestCase(_tempdirTestCase):
         test.subdir('sub', ['sub', 'dir'])
 
         def drive_workpath(drive, dirs, test=test):
-            x = apply(test.workpath, dirs)
+            x = test.workpath(*dirs)
             drive, path = os.path.splitdrive(x)
             return 'X:' + path
 
@@ -1466,11 +1458,11 @@ class FSTestCase(_tempdirTestCase):
             seps = seps + ['/']
 
         def _do_Dir_test(lpath, path_, up_path_, sep, fileSys=fs):
-            dir = fileSys.Dir(string.replace(lpath, '/', sep))
+            dir = fileSys.Dir(lpath.replace('/', sep))
 
             if os.sep != '/':
-                path_ = string.replace(path_, '/', os.sep)
-                up_path_ = string.replace(up_path_, '/', os.sep)
+                path_ = path_.replace('/', os.sep)
+                up_path_ = up_path_.replace('/', os.sep)
 
             def strip_slash(p):
                 if p[-1] == os.sep and len(p) > 3:
@@ -1478,7 +1470,7 @@ class FSTestCase(_tempdirTestCase):
                 return p
             path = strip_slash(path_)
             up_path = strip_slash(up_path_)
-            name = string.split(path, os.sep)[-1]
+            name = path.split(os.sep)[-1]
 
             assert dir.name == name, \
                    "dir.name %s != expected name %s" % \
@@ -1577,8 +1569,8 @@ class FSTestCase(_tempdirTestCase):
 
         d1 = fs.Dir('d1')
         d2 = d1.Dir('d2')
-        dirs = string.split(os.path.normpath(d2.abspath), os.sep)
-        above_path = apply(os.path.join, ['..']*len(dirs) + ['above'])
+        dirs = os.path.normpath(d2.abspath).split(os.sep)
+        above_path = os.path.join(*['..']*len(dirs) + ['above'])
         above = d2.Dir(above_path)
 
     def test_rel_path(self):
@@ -1730,7 +1722,7 @@ class DirTestCase(_tempdirTestCase):
         fs.Dir(os.path.join('ddd', 'd1', 'f4'))
         fs.Dir(os.path.join('ddd', 'd1', 'f5'))
         dir.scan()
-        kids = map(lambda x: x.path, dir.children(None))
+        kids = [x.path for x in dir.children(None)]
         kids.sort()
         assert kids == [os.path.join('ddd', 'd1'),
                         os.path.join('ddd', 'f1'),
@@ -1757,7 +1749,7 @@ class DirTestCase(_tempdirTestCase):
         s = self.fs.Dir(os.path.join('d', 'sub'))
 
         #TODO(1.5) files = d.get_contents().split('\n')
-        files = string.split(d.get_contents(), '\n')
+        files = d.get_contents().split('\n')
 
         assert e.get_contents() == '', e.get_contents()
         assert e.get_text_contents() == '', e.get_text_contents()
@@ -1776,13 +1768,13 @@ class DirTestCase(_tempdirTestCase):
 
         fs.File(os.path.join('ddd', 'f1'))
         dir.scan()
-        kids = map(lambda x: x.path, dir.children())
+        kids = [x.path for x in dir.children()]
         kids.sort()
         assert kids == [os.path.join('ddd', 'f1')], kids
 
         fs.File(os.path.join('ddd', 'f2'))
         dir.scan()
-        kids = map(lambda x: x.path, dir.children())
+        kids = [x.path for x in dir.children()]
         kids.sort()
         assert kids == [os.path.join('ddd', 'f1'),
                         os.path.join('ddd', 'f2')], kids
@@ -1818,8 +1810,8 @@ class DirTestCase(_tempdirTestCase):
         self.fs.VariantDir(sub2, src, duplicate=0)
 
         def check(result, expect):
-            result = map(str, result)
-            expect = map(os.path.normpath, expect)
+            result = list(map(str, result))
+            expect = list(map(os.path.normpath, expect))
             assert result == expect, result
 
         s = src.srcdir_list()
@@ -1922,8 +1914,8 @@ class DirTestCase(_tempdirTestCase):
         exists_e.exists = return_true
 
         def check(result, expect):
-            result = map(str, result)
-            expect = map(os.path.normpath, expect)
+            result = list(map(str, result))
+            expect = list(map(os.path.normpath, expect))
             assert result == expect, result
 
         # First check from the source directory.
@@ -2135,7 +2127,7 @@ class FileTestCase(_tempdirTestCase):
         d1 = self.fs.Dir('subdir/d1')
         d2 = self.fs.Dir('subdir/d2')
         dirs = fff.Dirs(['d1', 'd2'])
-        assert dirs == [d1, d2], map(str, dirs)
+        assert dirs == [d1, d2], list(map(str, dirs))
 
     def test_exists(self):
         """Test the File.exists() method"""
@@ -2248,7 +2240,7 @@ class GlobTestCase(_tempdirTestCase):
         strings_kwargs = copy.copy(kwargs)
         strings_kwargs['strings'] = True
         for input, string_expect, node_expect in cases:
-            r = apply(self.fs.Glob, (input,), strings_kwargs)
+            r = self.fs.Glob(input, **strings_kwargs)
             r.sort()
             assert r == string_expect, "Glob(%s, strings=True) expected %s, got %s" % (input, string_expect, r)
 
@@ -2259,7 +2251,7 @@ class GlobTestCase(_tempdirTestCase):
         # Verify those by running the list through str() before comparing
         # them with the expected list of strings.
         for input, string_expect, node_expect in cases:
-            r = apply(self.fs.Glob, (input,), kwargs)
+            r = self.fs.Glob(input, **kwargs)
             if node_expect:
                 r.sort(lambda a,b: cmp(a.path, b.path))
                 result = []
@@ -2269,16 +2261,16 @@ class GlobTestCase(_tempdirTestCase):
                     result.append(n)
                 fmt = lambda n: "%s %s" % (repr(n), repr(str(n)))
             else:
-                r = map(str, r)
+                r = list(map(str, r))
                 r.sort()
                 result = string_expect
                 fmt = lambda n: n
             if r != result:
                 import pprint
                 print "Glob(%s) expected:" % repr(input)
-                pprint.pprint(map(fmt, result))
+                pprint.pprint(list(map(fmt, result)))
                 print "Glob(%s) got:" % repr(input)
-                pprint.pprint(map(fmt, r))
+                pprint.pprint(list(map(fmt, r)))
                 self.fail()
 
     def test_exact_match(self):
@@ -2538,7 +2530,7 @@ class RepositoryTestCase(_tempdirTestCase):
         ]
 
         rep = self.fs.Dir('#').getRepositories()
-        r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
+        r = [os.path.normpath(str(x)) for x in rep]
         assert r == expect, r
 
     def test_get_all_rdirs(self):
@@ -2560,7 +2552,7 @@ class RepositoryTestCase(_tempdirTestCase):
         ]
 
         rep = self.fs.Dir('#').get_all_rdirs()
-        r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
+        r = [os.path.normpath(str(x)) for x in rep]
         assert r == expect, r
 
     def test_rentry(self):
@@ -2742,25 +2734,25 @@ class RepositoryTestCase(_tempdirTestCase):
         rep3_sub_d1 = fs.Dir(test.workpath('rep3', 'sub', 'd1'))
 
         r = fs.Top.Rfindalldirs((d1,))
-        assert r == [d1], map(str, r)
+        assert r == [d1], list(map(str, r))
 
         r = fs.Top.Rfindalldirs((d1, d2))
-        assert r == [d1, d2], map(str, r)
+        assert r == [d1, d2], list(map(str, r))
 
         r = fs.Top.Rfindalldirs(('d1',))
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], list(map(str, r))
 
         r = fs.Top.Rfindalldirs(('#d1',))
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], list(map(str, r))
 
         r = sub.Rfindalldirs(('d1',))
-        assert r == [sub_d1, rep1_sub_d1, rep2_sub_d1, rep3_sub_d1], map(str, r)
+        assert r == [sub_d1, rep1_sub_d1, rep2_sub_d1, rep3_sub_d1], list(map(str, r))
 
         r = sub.Rfindalldirs(('#d1',))
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], list(map(str, r))
 
         r = fs.Top.Rfindalldirs(('d1', d2))
-        assert r == [d1, rep1_d1, rep2_d1, rep3_d1, d2], map(str, r)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1, d2], list(map(str, r))
 
     def test_rexists(self):
         """Test the Entry.rexists() method"""
@@ -2892,10 +2884,10 @@ class find_fileTestCase(unittest.TestCase):
         nodes.append(SCons.Node.FS.find_file('pseudo', paths))
         nodes.append(SCons.Node.FS.find_file('same', paths))
 
-        file_names = map(str, nodes)
-        file_names = map(os.path.normpath, file_names)
+        file_names = list(map(str, nodes))
+        file_names = list(map(os.path.normpath, file_names))
         expect = ['./foo', './bar/baz', './pseudo', './bar/same']
-        expect = map(os.path.normpath, expect)
+        expect = list(map(os.path.normpath, expect))
         assert file_names == expect, file_names
 
         # Make sure we don't blow up if there's already a File in place
@@ -3433,14 +3425,14 @@ class SaveStringsTestCase(unittest.TestCase):
         fs1.VariantDir('d0', 'src', duplicate=0)
         fs1.VariantDir('d1', 'src', duplicate=1)
 
-        s = map(str, nodes)
-        expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
+        s = list(map(str, nodes))
+        expect = list(map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b']))
         assert s == expect, s
 
         modify(nodes)
 
-        s = map(str, nodes)
-        expect = map(os.path.normpath, ['src/f', 'src/f', 'd0/b', 'd1/b'])
+        s = list(map(str, nodes))
+        expect = list(map(os.path.normpath, ['src/f', 'src/f', 'd0/b', 'd1/b']))
         assert s == expect, s
 
         SCons.Node.FS.save_strings(1)
@@ -3449,14 +3441,14 @@ class SaveStringsTestCase(unittest.TestCase):
         fs2.VariantDir('d0', 'src', duplicate=0)
         fs2.VariantDir('d1', 'src', duplicate=1)
 
-        s = map(str, nodes)
-        expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
+        s = list(map(str, nodes))
+        expect = list(map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b']))
         assert s == expect, s
 
         modify(nodes)
 
-        s = map(str, nodes)
-        expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
+        s = list(map(str, nodes))
+        expect = list(map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b']))
         assert s == expect, 'node str() not cached: %s'%s
 
 
@@ -3509,7 +3501,7 @@ if __name__ == "__main__":
     ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(map(tclass, names))
+        suite.addTests(list(map(tclass, names)))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 

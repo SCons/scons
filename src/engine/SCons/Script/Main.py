@@ -33,12 +33,12 @@ it goes here.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import string
 import sys
 import time
 import traceback
@@ -107,7 +107,7 @@ class Progressor:
             self.func = obj
         elif SCons.Util.is_List(obj):
             self.func = self.spinner
-        elif string.find(obj, self.target_string) != -1:
+        elif obj.find(self.target_string) != -1:
             self.func = self.replace_string
         else:
             self.func = self.string
@@ -132,7 +132,7 @@ class Progressor:
         self.write(self.obj)
 
     def replace_string(self, node):
-        self.write(string.replace(self.obj, self.target_string, str(node)))
+        self.write(self.obj.replace(self.target_string, str(node)))
 
     def __call__(self, node):
         self.count = self.count + 1
@@ -145,7 +145,7 @@ ProgressObject = SCons.Util.Null()
 
 def Progress(*args, **kw):
     global ProgressObject
-    ProgressObject = apply(Progressor, args, kw)
+    ProgressObject = Progressor(*args, **kw)
 
 # Task control.
 #
@@ -208,7 +208,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         if self.top and not t.has_builder() and not t.side_effect:
             if not t.exists():
                 def classname(obj):
-                    return string.split(str(obj.__class__), '.')[-1]
+                    return str(obj.__class__).split('.')[-1]
                 if classname(t) in ('File', 'Dir', 'Entry'):
                     errstr="Do not know how to make %s target `%s' (%s)." % (classname(t), t, t.abspath)
                 else: # Alias or Python or ...
@@ -262,7 +262,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         node = buildError.node
         if not SCons.Util.is_List(node):
                 node = [ node ]
-        nodename = string.join(map(str, node), ', ')
+        nodename = ', '.join(map(str, node))
 
         errfmt = "scons: *** [%s] %s\n"
         sys.stderr.write(errfmt % (nodename, buildError))
@@ -345,7 +345,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
             for t in self.targets:
                 if not t.isdir():
                     display("Removed " + str(t))
-        if SCons.Environment.CleanTargets.has_key(target):
+        if target in SCons.Environment.CleanTargets:
             files = SCons.Environment.CleanTargets[target]
             for f in files:
                 self.fs_delete(f.abspath, str(f), 0)
@@ -366,7 +366,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                 else:
                     if removed:
                         display("Removed " + str(t))
-        if SCons.Environment.CleanTargets.has_key(target):
+        if target in SCons.Environment.CleanTargets:
             files = SCons.Environment.CleanTargets[target]
             for f in files:
                 self.fs_delete(f.abspath, str(f))
@@ -414,7 +414,7 @@ class TreePrinter:
         return node.all_children()
     def get_derived_children(self, node):
         children = node.all_children(None)
-        return filter(lambda x: x.has_builder(), children)
+        return [x for x in children if x.has_builder()]
     def display(self, t):
         if self.derived:
             func = self.get_derived_children
@@ -425,7 +425,7 @@ class TreePrinter:
 
 
 def python_version_string():
-    return string.split(sys.version)[0]
+    return sys.version.split()[0]
 
 def python_version_unsupported(version=sys.version_info):
     return version < (1, 5, 2)
@@ -469,9 +469,9 @@ class FakeOptionParser:
 OptionsParser = FakeOptionParser()
 
 def AddOption(*args, **kw):
-    if not kw.has_key('default'):
+    if 'default' not in kw:
         kw['default'] = None
-    result = apply(OptionsParser.add_local_option, args, kw)
+    result = OptionsParser.add_local_option(*args, **kw)
     return result
 
 def GetOption(name):
@@ -501,7 +501,7 @@ class CountStats(Stats):
     def do_print(self):
         stats_table = {}
         for s in self.stats:
-            for n in map(lambda t: t[0], s):
+            for n in [t[0] for t in s]:
                 stats_table[n] = [0, 0, 0, 0]
         i = 0
         for s in self.stats:
@@ -514,12 +514,12 @@ class CountStats(Stats):
         pre = ["   "]
         post = ["   %s\n"]
         l = len(self.stats)
-        fmt1 = string.join(pre + [' %7s']*l + post, '')
-        fmt2 = string.join(pre + [' %7d']*l + post, '')
+        fmt1 = ''.join(pre + [' %7s']*l + post)
+        fmt2 = ''.join(pre + [' %7d']*l + post)
         labels = self.labels[:l]
         labels.append(("", "Class"))
-        self.outfp.write(fmt1 % tuple(map(lambda x: x[0], labels)))
-        self.outfp.write(fmt1 % tuple(map(lambda x: x[1], labels)))
+        self.outfp.write(fmt1 % tuple([x[0] for x in labels]))
+        self.outfp.write(fmt1 % tuple([x[1] for x in labels]))
         for k in keys:
             r = stats_table[k][:l] + [k]
             self.outfp.write(fmt2 % tuple(r))
@@ -563,7 +563,7 @@ def find_deepest_user_frame(tb):
     # of SCons:
     for frame in tb:
         filename = frame[0]
-        if string.find(filename, os.sep+'SCons'+os.sep) == -1:
+        if filename.find(os.sep+'SCons'+os.sep) == -1:
             return frame
     return tb[0]
 
@@ -1087,7 +1087,7 @@ def _build_targets(fs, options, targets, target_top):
                         # or not a file, so go ahead and keep it as a default
                         # target and let the engine sort it out:
                         return 1                
-                d = filter(check_dir, SCons.Script.DEFAULT_TARGETS)
+                d = list(filter(check_dir, SCons.Script.DEFAULT_TARGETS))
                 SCons.Script.DEFAULT_TARGETS[:] = d
                 target_top = None
                 lookup_top = None
@@ -1122,7 +1122,7 @@ def _build_targets(fs, options, targets, target_top):
                 node = None
         return node
 
-    nodes = filter(None, map(Entry, targets))
+    nodes = [_f for _f in map(Entry, targets) if _f]
 
     task_class = BuildTask      # default action is to build targets
     opening_message = "Building targets ..."
@@ -1224,7 +1224,7 @@ def _build_targets(fs, options, targets, target_top):
 
 def _exec_main(parser, values):
     sconsflags = os.environ.get('SCONSFLAGS', '')
-    all_args = string.split(sconsflags) + sys.argv[1:]
+    all_args = sconsflags.split() + sys.argv[1:]
 
     options, args = parser.parse_args(all_args, values)
 
@@ -1285,7 +1285,7 @@ def main():
         pass 
     parts.append(version_string("engine", SCons))
     parts.append("__COPYRIGHT__")
-    version = string.join(parts, '')
+    version = ''.join(parts)
 
     import SConsOptions
     parser = SConsOptions.Parser(version)

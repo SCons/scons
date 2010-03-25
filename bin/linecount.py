@@ -22,11 +22,11 @@
 # non-comment lines.  The last figure (non-comment) lines is the most
 # interesting one for most purposes.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 fmt = "%-16s  %5s  %7s  %9s  %11s  %11s"
 
@@ -85,8 +85,8 @@ sources = Collection('sources', pred=is_source)
 def t(arg, dirname, names):
     try: names.remove('.svn')
     except ValueError: pass
-    names = filter(arg, names)
-    arg.extend(map(lambda n, d=dirname: os.path.join(d, n), names))
+    names = list(filter(arg, names))
+    arg.extend([os.path.join(dirname, n) for n in names])
 
 os.path.walk('src', t, src_Tests_py_tests)
 os.path.walk('src', t, src_test_tests)

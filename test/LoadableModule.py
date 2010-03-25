@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 import sys
 
 import TestCmd
@@ -97,13 +96,13 @@ main(int argc, char *argv[])
 foo1_name = {'darwin' : 'foo1'}.get(sys.platform[:6], dll_+'foo1'+_dll)
 
 test.write('dlopenprog.c',
-           string.replace(dlopenprog, '__foo1_name__', foo1_name))
+           dlopenprog.replace('__foo1_name__', foo1_name))
 
 test.run(arguments = '.',
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-if string.find(sys.platform, 'darwin') != -1:
+if sys.platform.find('darwin') != -1:
     test.run(program='/usr/bin/file',
              arguments = "foo1",
              match = TestCmd.match_re,

@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -29,8 +30,6 @@ Validate that we can set the TEX string to our own utility, that
 the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
 """
-
-import string
 
 import TestSCons
 
@@ -86,11 +85,10 @@ tex = test.where_is('tex')
 if tex:
 
     test.write("wrapper.py", """import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """
 import os
@@ -173,18 +171,18 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
     test.must_exist('bar-latex.dvi')
 
     test.run(stderr = None)
-    output_lines = string.split(test.stdout(), '\n')
+    output_lines = test.stdout().split('\n')
 
-    reruns = filter(lambda x: string.find(x, 'latex -interaction=nonstopmode -recorder rerun.tex') != -1, output_lines)
+    reruns = [x for x in output_lines if x.find('latex -interaction=nonstopmode -recorder rerun.tex') != -1]
     if len(reruns) != 2:
         print "Expected 2 latex calls, got %s:" % len(reruns)
-        print string.join(reruns, '\n')
+        print '\n'.join(reruns)
         test.fail_test()
 
-    bibtex = filter(lambda x: string.find(x, 'bibtex bibtex-test') != -1, output_lines)
+    bibtex = [x for x in output_lines if x.find('bibtex bibtex-test') != -1]
     if len(bibtex) != 1:
         print "Expected 1 bibtex call, got %s:" % len(bibtex)
-        print string.join(bibtex, '\n')
+        print '\n'.join(bibtex)
         test.fail_test()
 
 test.pass_test()

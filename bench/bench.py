@@ -23,6 +23,7 @@
 #
 # This will allow (as much as possible) us to time just the code itself,
 # not Python function call overhead.
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 import getopt
 import sys
@@ -93,10 +94,10 @@ exec(open(args[0], 'rU').read())
 try:
     FunctionList
 except NameError:
-    function_names = filter(lambda x: x[:4] == FunctionPrefix, locals().keys())
+    function_names = [x for x in locals().keys() if x[:4] == FunctionPrefix]
     function_names.sort()
-    l = map(lambda f, l=locals(): l[f], function_names)
-    FunctionList = filter(lambda f: type(f) == types.FunctionType, l)
+    l = [locals()[f] for f in function_names]
+    FunctionList = [f for f in l if type(f) == types.FunctionType]
 
 IterationList = [None] * Iterations
 
@@ -104,7 +105,7 @@ def timer(func, *args, **kw):
     results = []
     for i in range(Runs):
         start = Now()
-        apply(func, args, kw)
+        func(*args, **kw)
         finish = Now()
         results.append((finish - start) / Iterations)
     return results
@@ -119,7 +120,7 @@ for func in FunctionList:
     print func.__name__ + d + ':'
 
     for label, args, kw in Data:
-        r = apply(timer, (func,)+args, kw)
+        r = timer(func, *args, **kw)
         display(label, r)
 
 # Local Variables:

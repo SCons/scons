@@ -47,7 +47,6 @@ test.subdir('in')
 
 test.write('myyacc.py', """
 import getopt
-import string
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:I:x', [])
 output = None
@@ -59,8 +58,8 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
-    contents = string.replace(contents, 'YACCFLAGS', opt_string)
-    contents = string.replace(contents, 'I_ARGS', i_arguments)
+    contents = contents.replace('YACCFLAGS', opt_string)
+    contents = contents.replace('I_ARGS', i_arguments)
     output.write(contents)
 output.close()
 sys.exit(0)

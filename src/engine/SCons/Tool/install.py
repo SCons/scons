@@ -76,7 +76,7 @@ def installFunc(target, source, env):
         raise SCons.Errors.UserError('Missing INSTALL construction variable.')
 
     assert len(target)==len(source), \
-           "Installing source %s into target %s: target and source lists must have same length."%(map(str, source), map(str, target))
+           "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
     for t,s in zip(target,source):
         if install(t.get_path(),s.get_path(),env):
             return 1
@@ -159,14 +159,14 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
             # be relative to the top-level SConstruct directory.
             target = env.fs.Entry('.'+os.sep+src.name, dnode)
             #tgt.extend(BaseInstallBuilder(env, target, src, **kw))
-            tgt.extend(apply(BaseInstallBuilder, (env, target, src), kw))
+            tgt.extend(BaseInstallBuilder(env, target, src, **kw))
     return tgt
 
 def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
     result = []
     for src, tgt in map(lambda x, y: (x, y), source, target):
         #result.extend(BaseInstallBuilder(env, tgt, src, **kw))
-        result.extend(apply(BaseInstallBuilder, (env, tgt, src), kw))
+        result.extend(BaseInstallBuilder(env, tgt, src, **kw))
     return result
 
 added = None

@@ -24,7 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -40,7 +39,6 @@ workpath_bar_zzz = test.workpath('bar', 'zzz')
 workpath_work = test.workpath('work')
 
 test.write(['work', 'SConstruct'], r"""
-import string
 env_zzz = Environment(LIBPATH = ['.', 'zzz'])
 env_yyy = Environment(LIBPATH = ['yyy', '.'])
 aaa_exe = env_zzz.Program('aaa', 'aaa.c')
@@ -49,7 +47,7 @@ def write_LIBDIRFLAGS(env, target, source):
     pre = env.subst('$LIBDIRPREFIX')
     suf = env.subst('$LIBDIRSUFFIX')
     f = open(str(target[0]), 'wb')
-    for arg in string.split(env.subst('$_LIBDIRFLAGS', target=target)):
+    for arg in env.subst('$_LIBDIRFLAGS', target=target).split():
         if arg[:len(pre)] == pre:
             arg = arg[len(pre):]
         if arg[-len(suf):] == suf:
@@ -100,13 +98,13 @@ test.run(chdir = 'work', options = opts, arguments = ".")
 dirs = ['.', workpath_foo, workpath_bar,
         'zzz', workpath_foo_zzz, workpath_bar_zzz]
 test.fail_test(test.read(['work', 'zzz.out']) !=
-               string.join(dirs, '\n') + '\n')
+               '\n'.join(dirs) + '\n')
 
 #dirs = [workpath_bar_yyy, '.', workpath_foo, workpath_bar]
 dirs = ['yyy', workpath_foo_yyy, workpath_bar_yyy,
         '.', workpath_foo, workpath_bar]
 test.fail_test(test.read(['work', 'yyy.out']) !=
-               string.join(dirs, '\n') + '\n')
+               '\n'.join(dirs) + '\n')
 
 #
 test.run(chdir = 'work', options = '-c', arguments = ".")
@@ -120,13 +118,13 @@ test.run(chdir = 'work', options = opts, arguments = ".")
 dirs = ['.', workpath_foo, workpath_bar,
         'zzz', workpath_foo_zzz, workpath_bar_zzz]
 test.fail_test(test.read(['work', 'zzz.out']) !=
-               string.join(dirs, '\n') + '\n')
+               '\n'.join(dirs) + '\n')
 
 #dirs = ['yyy', workpath_bar_yyy, '.', workpath_foo, workpath_bar]
 dirs = ['yyy', workpath_foo_yyy, workpath_bar_yyy,
         '.', workpath_foo, workpath_bar]
 test.fail_test(test.read(['work', 'yyy.out']) !=
-               string.join(dirs, '\n') + '\n')
+               '\n'.join(dirs) + '\n')
 
 #
 test.pass_test()

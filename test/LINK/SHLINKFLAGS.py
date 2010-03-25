@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import string
 
 import TestSCons
 
@@ -37,12 +36,11 @@ test = TestSCons.TestSCons()
 
 test.write("wrapper.py",
 """import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-args = filter(lambda s: s != 'fake_shlink_flag', sys.argv[1:])
-os.system(string.join(args, " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+args = [s for s in sys.argv[1:] if s != 'fake_shlink_flag']
+os.system(" ".join(args))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
 foo = Environment()

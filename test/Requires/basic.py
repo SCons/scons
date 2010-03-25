@@ -36,8 +36,8 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 def append_prereq_func(target, source, env):
     fp = open(str(target[0]), 'wb')
-    for s in map(str, source):
-        fp.write(open(s, 'rb').read())
+    for s in source:
+        fp.write(open(str(s), 'rb').read())
     fp.write(open('prereq.out', 'rb').read())
     fp.close()
     return None

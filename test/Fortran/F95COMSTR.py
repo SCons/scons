@@ -37,7 +37,7 @@ import sys
 fline = '#'+sys.argv[1]+'\n'
 outfile = open(sys.argv[2], 'wb')
 infile = open(sys.argv[3], 'rb')
-for l in filter(lambda l, fl=fline: l != fl, infile.readlines()):
+for l in [l for l in infile.readlines() if l != fline]:
     outfile.write(l)
 sys.exit(0)
 """)

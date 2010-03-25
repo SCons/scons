@@ -30,8 +30,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
 from __future__ import nested_scopes
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -41,7 +41,6 @@ import os
 import os.path
 import re
 import shutil
-import string
 import sys
 import tempfile
 import time
@@ -177,13 +176,13 @@ class Gnuplotter(Plotter):
         result = []
         for line in self.lines:
             result.extend(line.get_x_values())
-        return filter(lambda r: not r is None, result)
+        return [r for r in result if not r is None]
 
     def get_all_y_values(self):
         result = []
         for line in self.lines:
             result.extend(line.get_y_values())
-        return filter(lambda r: not r is None, result)
+        return [r for r in result if not r is None]
 
     def get_min_x(self):
         try:
@@ -539,7 +538,7 @@ class SConsTimer:
 
         for file in files:
             base = os.path.splitext(file)[0]
-            run, index = string.split(base, '-')[-2:]
+            run, index = base.split('-')[-2:]
 
             run = int(run)
             index = int(index)
@@ -577,11 +576,11 @@ class SConsTimer:
         and returns the next run number after the largest it finds.
         """
         x = re.compile(re.escape(prefix) + '-([0-9]+).*')
-        matches = map(lambda e, x=x: x.match(e), os.listdir(dir))
-        matches = filter(None, matches)
+        matches = [x.match(e) for e in os.listdir(dir)]
+        matches = [_f for _f in matches if _f]
         if not matches:
             return 0
-        run_numbers = map(lambda m: int(m.group(1)), matches)
+        run_numbers = [int(m.group(1)) for m in matches]
         return int(max(run_numbers)) + 1
 
     def gnuplot_results(self, results, fmt='%s %.3f'):
@@ -964,7 +963,7 @@ class SConsTimer:
 
         if self.chdir:
             os.chdir(self.chdir)
-            logfile_path = lambda x, c=self.chdir: os.path.join(c, x)
+            logfile_path = lambda x: os.path.join(self.chdir, x)
 
         if not args:
 
@@ -1084,7 +1083,7 @@ class SConsTimer:
 
         if self.chdir:
             os.chdir(self.chdir)
-            logfile_path = lambda x, c=self.chdir: os.path.join(c, x)
+            logfile_path = lambda x: os.path.join(self.chdir, x)
 
         if not args:
 
@@ -1462,7 +1461,7 @@ class SConsTimer:
 
         if self.chdir:
             os.chdir(self.chdir)
-            logfile_path = lambda x, c=self.chdir: os.path.join(c, x)
+            logfile_path = lambda x: os.path.join(self.chdir, x)
 
         if not args:
 

@@ -30,7 +30,6 @@ on javac compilations.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -83,7 +82,7 @@ public class Example2
 # we'll just take the easy way out and examine the -n output to see if
 # the expected option shows up on the command line.
 
-bootclasspath = string.join(['dir1', 'dir2'], os.pathsep)
+bootclasspath = os.pathsep.join(['dir1', 'dir2'])
 
 expect = """\
 %(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com/Example1.java

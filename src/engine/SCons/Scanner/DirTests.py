@@ -24,7 +24,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 import sys
 import types
 import unittest
@@ -91,7 +90,7 @@ class DirScannerTestCase(DirScannerTestBase):
             os.path.join('dir', 'sub'),
         ]
         deps = s(env.Dir('dir'), env, ())
-        sss = map(str, deps)
+        sss = list(map(str, deps))
         assert sss == expect, sss
 
         expect = [
@@ -99,7 +98,7 @@ class DirScannerTestCase(DirScannerTestBase):
             os.path.join('dir', 'sub', 'f4'),
         ]
         deps = s(env.Dir('dir/sub'), env, ())
-        sss = map(str, deps)
+        sss = list(map(str, deps))
         assert sss == expect, sss
 
 class DirEntryScannerTestCase(DirScannerTestBase):
@@ -109,16 +108,16 @@ class DirEntryScannerTestCase(DirScannerTestBase):
         s = SCons.Scanner.Dir.DirEntryScanner()
 
         deps = s(env.Dir('dir'), env, ())
-        sss = map(str, deps)
+        sss = list(map(str, deps))
         assert sss == [], sss
 
         deps = s(env.Dir('dir/sub'), env, ())
-        sss = map(str, deps)
+        sss = list(map(str, deps))
         assert sss == [], sss
 
         # Make sure we don't blow up if handed a non-Dir node.
         deps = s(env.File('dir/f1'), env, ())
-        sss = map(str, deps)
+        sss = list(map(str, deps))
         assert sss == [], sss
 
 def suite():

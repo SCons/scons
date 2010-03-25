@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test use of GetOption('help') to short-circuit work.
 """
 
-import string
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -46,10 +44,10 @@ test.run(arguments = '-q -Q', stdout = "no help for you\n")
 expect = "GetOption('help') set"
 
 test.run(arguments = '-q -Q -h')
-test.fail_test(string.split(test.stdout(), '\n')[0] != expect)
+test.fail_test(test.stdout().split('\n')[0] != expect)
 
 test.run(arguments = '-q -Q --help')
-test.fail_test(string.split(test.stdout(), '\n')[0] != expect)
+test.fail_test(test.stdout().split('\n')[0] != expect)
 
 test.pass_test()
 

@@ -147,9 +147,8 @@ test.must_exist(['work1', 'mmmmocFromH.cxx'],
                 ['work1', 'mmmanother_ui_file.cxx'])
 
 def _flagTest(test,fileToContentsStart):
-    import string
     for f,c in fileToContentsStart.items():
-        if string.find(test.read(test.workpath('work1', f)), c) != 0:
+        if test.read(test.workpath('work1', f)).find(c) != 0:
             return 1
     return 0
 

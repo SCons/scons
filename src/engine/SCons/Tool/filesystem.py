@@ -44,12 +44,12 @@ def copyto_emitter(target, source, env):
     n_target = []
 
     for t in target:
-        n_target = n_target + map( lambda s, t=t: t.File( str( s ) ), source )
+        n_target = n_target + [t.File( str( s ) ) for s in source]
 
     return (n_target, source)
 
 def copy_action_func(target, source, env):
-    assert( len(target) == len(source) ), "\ntarget: %s\nsource: %s" %(map(str, target),map(str, source))
+    assert( len(target) == len(source) ), "\ntarget: %s\nsource: %s" %(list(map(str, target)),list(map(str, source)))
 
     for t, s in zip(target, source):
         if copyFunc(t.get_path(), s.get_path(), env):

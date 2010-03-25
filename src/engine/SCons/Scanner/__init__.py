@@ -30,7 +30,6 @@ The Scanner package for the SCons software construction utility.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
-import string
 
 import SCons.Node.FS
 import SCons.Util
@@ -56,9 +55,9 @@ def Scanner(function, *args, **kw):
     patterned on SCons code.
     """
     if SCons.Util.is_Dict(function):
-        return apply(Selector, (function,) + args, kw)
+        return Selector(function, *args, **kw)
     else:
-        return apply(Base, (function,) + args, kw)
+        return Base(function, *args, **kw)
 
 
 
@@ -218,7 +217,7 @@ class Base:
         nodes = []
         for l in list:
             if self.node_class and not isinstance(l, self.node_class):
-                l = apply(node_factory, (l,), kw)
+                l = node_factory(l, **kw)
             nodes.append(l)
         return nodes
 
@@ -280,7 +279,7 @@ class Selector(Base):
     for custom modules that may be out there.)
     """
     def __init__(self, dict, *args, **kw):
-        apply(Base.__init__, (self, None,)+args, kw)
+        Base.__init__(self, None, *args, **kw)
         self.dict = dict
         self.skeys = dict.keys()
 
@@ -309,7 +308,7 @@ class Current(Base):
         def current_check(node, env):
             return not node.has_builder() or node.is_up_to_date()
         kw['scan_check'] = current_check
-        apply(Base.__init__, (self,) + args, kw)
+        Base.__init__(self, *args, **kw)
 
 class Classic(Current):
     """
@@ -339,7 +338,7 @@ class Classic(Current):
         kw['skeys'] = suffixes
         kw['name'] = name
 
-        apply(Current.__init__, (self,) + args, kw)
+        Current.__init__(self, *args, **kw)
 
     def find_include(self, include, source_dir, path):
         n = SCons.Node.FS.find_file(include, (source_dir,) + tuple(path))
@@ -360,7 +359,7 @@ class Classic(Current):
             includes = self.find_include_names (node)
             # Intern the names of the include files. Saves some memory
             # if the same header is included many times.
-            node.includes = map(SCons.Util.silent_intern, includes)
+            node.includes = list(map(SCons.Util.silent_intern, includes))
 
         # This is a hand-coded DSU (decorate-sort-undecorate, or
         # Schwartzian transform) pattern.  The sort key is the raw name
@@ -383,7 +382,7 @@ class Classic(Current):
                 nodes.append((sortkey, n))
 
         nodes.sort()
-        nodes = map(lambda pair: pair[1], nodes)
+        nodes = [pair[1] for pair in nodes]
         return nodes
 
 class ClassicCPP(Classic):
@@ -408,7 +407,7 @@ class ClassicCPP(Classic):
         return n, i
 
     def sort_key(self, include):
-        return SCons.Node.FS._my_normcase(string.join(include))
+        return SCons.Node.FS._my_normcase(' '.join(include))
 
 # Local Variables:
 # tab-width:4

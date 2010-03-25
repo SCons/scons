@@ -91,10 +91,9 @@ env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
     test.write(['work1', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
                   BITKEEPERGETFLAGS='-e')
@@ -191,10 +190,9 @@ env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
     test.write(['work2', 'SConstruct'], """\
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
                   BITKEEPERGET='$BITKEEPER co',
@@ -287,10 +285,9 @@ test.run(chdir = 'import',
 test.write(['work3', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    source = map(str, source)
     f = open(target, "wb")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(str(src), "rb").read())
     f.close()
 DefaultEnvironment(tools=['SCCS'])['SCCS'] = r'%s'
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})

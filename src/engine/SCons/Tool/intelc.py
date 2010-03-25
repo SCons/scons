@@ -38,7 +38,7 @@ import math, sys, os.path, glob, string, re
 
 is_windows = sys.platform == 'win32'
 is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or 
-                           (os.environ.has_key('PROCESSOR_ARCHITEW6432') and
+                           ('PROCESSOR_ARCHITEW6432' in os.environ and
                             os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64'))
 is_linux = sys.platform == 'linux2'
 is_mac     = sys.platform == 'darwin'
@@ -406,7 +406,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                     # Couldn't get it from registry: use default subdir of topdir
                     env.PrependENVPath(p[0], os.path.join(topdir, p[2]))
                 else:
-                    env.PrependENVPath(p[0], string.split(path, os.pathsep))
+                    env.PrependENVPath(p[0], path.split(os.pathsep))
                     # print "ICL %s: %s, final=%s"%(p[0], path, str(env['ENV'][p[0]]))
 
     if is_windows:
@@ -445,7 +445,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         for ld in [envlicdir, reglicdir]:
             # If the string contains an '@', then assume it's a network
             # license (port@system) and good by definition.
-            if ld and (string.find(ld, '@') != -1 or os.path.exists(ld)):
+            if ld and (ld.find('@') != -1 or os.path.exists(ld)):
                 licdir = ld
                 break
         if not licdir:

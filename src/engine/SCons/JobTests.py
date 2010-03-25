@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -491,7 +492,7 @@ class _SConsTaskTest(unittest.TestCase):
             self.failUnless(state in [SCons.Node.no_state, N.expect_to_be],
                             "Node %s got unexpected result: %s" % (N, state))
 
-        self.failUnless(filter(lambda N: N.get_state(), testnodes),
+        self.failUnless([N for N in testnodes if N.get_state()],
                         "no nodes ran at all.")
 
 

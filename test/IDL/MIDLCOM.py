@@ -45,7 +45,7 @@ out_h = open(base + '.h', 'wb')
 out_c = open(base + '_i.c', 'wb')
 for f in sys.argv[2:]:
     infile = open(f, 'rb')
-    for l in filter(lambda l: l != '/*midl*/\\n', infile.readlines()):
+    for l in [l for l in infile.readlines() if l != '/*midl*/\\n']:
         out_tlb.write(l)
         out_h.write(l)
         out_c.write(l)

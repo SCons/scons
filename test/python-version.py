@@ -31,7 +31,6 @@ of Python.
 
 import os
 import re
-import string
 
 import TestCmd
 import TestSCons

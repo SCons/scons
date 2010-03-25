@@ -38,8 +38,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __all__ = ['BoolVariable',]
 
-import string
-
 import SCons.Errors
 
 __true_strings  = ('y', 'yes', 'true', 't', '1', 'on' , 'all' )
@@ -57,7 +55,7 @@ def _text2bool(val):
 
     This is usable as 'converter' for SCons' Variables.
     """
-    lval = string.lower(val)
+    lval = val.lower()
     if lval in __true_strings: return True
     if lval in __false_strings: return False
     raise ValueError("Invalid value for boolean option: %s" % val)

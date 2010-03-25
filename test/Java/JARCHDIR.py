@@ -34,7 +34,6 @@ ${TARGET} or ${SOURCE} work.
 """
 
 import os
-import string
 
 import TestSCons
 
@@ -100,7 +99,7 @@ test.write(['in', 's.class'], "s.class\n")
 # env.subst() in the code that handle jar).
 
 p = test.workpath('out')
-for d in string.split(test.workpath('in'), os.sep):
+for d in test.workpath('in').split(os.sep):
     p = p + d
     test.subdir(p)
     p = p + os.sep

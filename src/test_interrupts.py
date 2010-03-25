@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -32,7 +33,6 @@ keyboard interrupts (e.g. Ctrl-C).
 import os
 import os.path
 import re
-import string
 import time
 
 import TestSCons
@@ -76,8 +76,8 @@ try:
 except IOError:
     test.skip_test('%s does not exist; skipping test.\n' % MANIFEST)
 else:
-    files = string.split(fp.read())
-    files = filter(lambda f: f[-3:] == '.py', files)
+    files = fp.read().split()
+    files = [f for f in files if f[-3:] == '.py']
 
 # some regexps to parse the python files
 tryexc_pat = re.compile(
@@ -100,7 +100,7 @@ for f in files:
             indent_list = try_except_lines[match.group('indent')]
         except:
             indent_list = []
-        line_num = 1 + string.count(contents[:match.start()], '\n')
+        line_num = 1 + contents[:match.start()].count('\n')
         indent_list.append( (line_num, match.group('try_or_except') ) )
         try_except_lines[match.group('indent')] = indent_list
     uncaught_this_file = []
@@ -111,7 +111,7 @@ for f in files:
             #print "%4d %s" % (l,statement),
             m1 = keyboardint_pat.match(statement)
             m2 = exceptall_pat.match(statement)
-            if string.find(statement, indent + 'try') == 0:
+            if statement.find(indent + 'try') == 0:
                 if exc_all_seen and not exc_keyboardint_seen:
                     uncaught_this_file.append(line)
                 exc_keyboardint_seen = 0

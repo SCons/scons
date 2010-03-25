@@ -29,11 +29,11 @@ except ImportError:
         def __complex__(self): return complex(self.data)
         def __hash__(self): return hash(self.data)
 
-        def __cmp__(self, string):
-            if isinstance(string, UserString):
-                return cmp(self.data, string.data)
+        def __cmp__(self, s):
+            if isinstance(s, UserString):
+                return cmp(self.data, s.data)
             else:
-                return cmp(self.data, string)
+                return cmp(self.data, s)
         def __contains__(self, char):
             return char in self.data
 

@@ -17,7 +17,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import string
 import sys
 
 from TestCommon import *
@@ -168,7 +167,7 @@ class TestSCons_time(TestCommon):
             pass
         else:
             os.chdir(script_dir)
-        if not kw.has_key('program'):
+        if 'program' not in kw:
             p = os.environ.get('SCONS_TIME')
             if not p:
                 p = 'scons-time'
@@ -176,16 +175,16 @@ class TestSCons_time(TestCommon):
                     p = 'scons-time.py'
             kw['program'] = p
 
-        if not kw.has_key('interpreter'):
+        if 'interpreter' not in kw:
             kw['interpreter'] = [python, '-tt']
 
-        if not kw.has_key('match'):
+        if 'match' not in kw:
             kw['match'] = match_exact
 
-        if not kw.has_key('workdir'):
+        if 'workdir' not in kw:
             kw['workdir'] = ''
 
-        apply(TestCommon.__init__, [self], kw)
+        TestCommon.__init__(self, **kw)
 
         # Now that the testing object has been set up, check if we should
         # skip the test due to the Python version.  We need to be able to
@@ -196,14 +195,14 @@ class TestSCons_time(TestCommon):
         try:
             import __future__
         except ImportError:
-            version = string.split(sys.version)[0]
+            version = sys.version.split()[0]
             msg = 'scons-time does not work on Python version %s\n' % version
             self.skip_test(msg)
 
         try:
             eval('[x for x in [1, 2]]')
         except SyntaxError:
-            version = string.split(sys.version)[0]
+            version = sys.version.split()[0]
             msg = 'scons-time does not work on Python version %s\n' % version
             self.skip_test(msg)
 
@@ -247,9 +246,9 @@ class TestSCons_time(TestCommon):
             tempdir = realpath(tempdir)
 
         args = (tempdir, 'scons-time-',) + args
-        x = apply(os.path.join, args)
+        x = os.path.join(*args)
         x = re.escape(x)
-        x = string.replace(x, 'time\\-', 'time\\-[^%s]*' % sep)
+        x = x.replace('time\\-', 'time\\-[^%s]*' % sep)
         return x
 
     def write_fake_aegis_py(self, name):

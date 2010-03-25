@@ -29,7 +29,6 @@ Verify correct use of the live 'nasm' assembler.
 """
 
 import os
-import string
 import sys
 
 import TestSCons
@@ -44,7 +43,7 @@ nasm = test.where_is('nasm')
 if not nasm:
     test.skip_test('nasm not found; skipping test\n')
 
-if string.find(sys.platform, 'linux') == -1:
+if sys.platform.find('linux') == -1:
     test.skip_test("skipping test on non-Linux platform '%s'\n" % sys.platform)
 
 try:
@@ -53,7 +52,7 @@ try:
 except OSError:
     test.skip_test('could not determine nasm version; skipping test\n')
 else:
-    version = string.split(stdout.read())[2]
+    version = stdout.read().split()[2]
     if version[:4] != '0.98':
         test.skip_test("skipping test of nasm version %s\n" % version)
 
@@ -71,17 +70,16 @@ else:
 nasm_format = 'elf'
 format_map = {}
 for k, v in format_map.items():
-    if string.find(sys.platform, k) != -1:
+    if sys.platform.find(k) != -1:
         nasm_format = v
         break
 
 test.write("wrapper.py",
 """import os
-import string
 import sys
 open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
-""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
+os.system(" ".join(sys.argv[1:]))
+""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
 eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],

@@ -48,7 +48,6 @@ import SCons.compat
 
 import imp
 import os
-import string
 import sys
 import tempfile
 
@@ -69,15 +68,15 @@ def platform_default():
     if osname == 'posix':
         if sys.platform == 'cygwin':
             return 'cygwin'
-        elif string.find(sys.platform, 'irix') != -1:
+        elif sys.platform.find('irix') != -1:
             return 'irix'
-        elif string.find(sys.platform, 'sunos') != -1:
+        elif sys.platform.find('sunos') != -1:
             return 'sunos'
-        elif string.find(sys.platform, 'hp-ux') != -1:
+        elif sys.platform.find('hp-ux') != -1:
             return 'hpux'
-        elif string.find(sys.platform, 'aix') != -1:
+        elif sys.platform.find('aix') != -1:
             return 'aix'
-        elif string.find(sys.platform, 'darwin') != -1:
+        elif sys.platform.find('darwin') != -1:
             return 'darwin'
         else:
             return 'posix'
@@ -94,7 +93,7 @@ def platform_module(name = platform_default()):
     our execution environment.
     """
     full_name = 'SCons.Platform.' + name
-    if not sys.modules.has_key(full_name):
+    if full_name not in sys.modules:
         if os.name == 'java':
             eval(full_name)
         else:
@@ -184,7 +183,7 @@ class TempFileMunge:
         if env['SHELL'] and env['SHELL'] == 'sh':
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
-            native_tmp = string.replace(native_tmp, '\\', r'\\\\')
+            native_tmp = native_tmp.replace('\\', r'\\\\')
             # In Cygwin, we want to use rm to delete the temporary
             # file, because del does not exist in the sh shell.
             rm = env.Detect('rm') or 'del'
@@ -198,8 +197,8 @@ class TempFileMunge:
         if not prefix:
             prefix = '@'
 
-        args = map(SCons.Subst.quote_spaces, cmd[1:])
-        os.write(fd, string.join(args, " ") + "\n")
+        args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
+        os.write(fd, " ".join(args) + "\n")
         os.close(fd)
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should
@@ -218,7 +217,7 @@ class TempFileMunge:
         # reach into SCons.Action directly.
         if SCons.Action.print_actions:
             print("Using tempfile "+native_tmp+" for command line:\n"+
-                  str(cmd[0]) + " " + string.join(args," "))
+                  str(cmd[0]) + " " + " ".join(args))
         return [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
     
 def Platform(name = platform_default()):

@@ -35,7 +35,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import errno
 import os
 import os.path
-import string
 import subprocess
 import sys
 import select
@@ -53,14 +52,14 @@ def escape(arg):
     slash = '\\'
     special = '"$()'
 
-    arg = string.replace(arg, slash, slash+slash)
+    arg = arg.replace(slash, slash+slash)
     for c in special:
-        arg = string.replace(arg, c, slash+c)
+        arg = arg.replace(c, slash+c)
 
     return '"' + arg + '"'
 
 def exec_system(l, env):
-    stat = os.system(string.join(l))
+    stat = os.system(' '.join(l))
     if stat & 0xff:
         return stat | 0x80
     return stat >> 8
@@ -90,22 +89,22 @@ def exec_fork(l, env):
         return stat >> 8
 
 def _get_env_command(sh, escape, cmd, args, env):
-    s = string.join(args)
+    s = ' '.join(args)
     if env:
         l = ['env', '-'] + \
-            map(lambda t, e=escape: e(t[0])+'='+e(t[1]), env.items()) + \
+            [escape(t[0])+'='+escape(t[1]) for t in env.items()] + \
             [sh, '-c', escape(s)]
-        s = string.join(l)
+        s = ' '.join(l)
     return s
 
 def env_spawn(sh, escape, cmd, args, env):
     return exec_system([_get_env_command( sh, escape, cmd, args, env)], env)
 
 def spawnvpe_spawn(sh, escape, cmd, args, env):
-    return exec_spawnvpe([sh, '-c', string.join(args)], env)
+    return exec_spawnvpe([sh, '-c', ' '.join(args)], env)
 
 def fork_spawn(sh, escape, cmd, args, env):
-    return exec_fork([sh, '-c', string.join(args)], env)
+    return exec_fork([sh, '-c', ' '.join(args)], env)
 
 def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
     stdout_eof = stderr_eof = 0
@@ -131,7 +130,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
                 raise
 
 def exec_popen3(l, env, stdout, stderr):
-    proc = subprocess.Popen(string.join(l),
+    proc = subprocess.Popen(' '.join(l),
                             stdout=stdout,
                             stderr=stderr,
                             shell=True)
@@ -198,7 +197,7 @@ def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
 def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # spawn using fork / exec and providing a pipe for the command's
     # stdout / stderr stream
-    return exec_piped_fork([sh, '-c', string.join(args)],
+    return exec_piped_fork([sh, '-c', ' '.join(args)],
                            env, stdout, stderr)
 
 
@@ -217,7 +216,7 @@ def generate(env):
     # os.fork()/os.exec() works better than os.system().  There may just
     # not be a default that works best for all users.
 
-    if os.__dict__.has_key('spawnvpe'):
+    if 'spawnvpe' in os.__dict__:
         spawn = spawnvpe_spawn
     elif env.Detect('env'):
         spawn = env_spawn
@@ -229,7 +228,7 @@ def generate(env):
     else:
         pspawn = piped_fork_spawn
 
-    if not env.has_key('ENV'):
+    if 'ENV' not in env:
         env['ENV']        = {}
     env['ENV']['PATH']    = '/usr/local/bin:/opt/bin:/bin:/usr/bin'
     env['OBJPREFIX']      = ''

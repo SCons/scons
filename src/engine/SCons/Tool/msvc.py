@@ -35,7 +35,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
-import string
 import sys
 
 import SCons.Action
@@ -55,8 +54,8 @@ CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 
 def validate_vars(env):
     """Validate the PCH and PCHSTOP construction variables."""
-    if env.has_key('PCH') and env['PCH']:
-        if not env.has_key('PCHSTOP'):
+    if 'PCH' in env and env['PCH']:
+        if 'PCHSTOP' not in env:
             raise SCons.Errors.UserError, "The PCHSTOP construction must be defined if PCH is defined."
         if not SCons.Util.is_String(env['PCHSTOP']):
             raise SCons.Errors.UserError, "The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP']
@@ -99,7 +98,7 @@ def object_emitter(target, source, env, parent_emitter):
     # See issue #2505 for a discussion of what to do if it turns
     # out this assumption causes trouble in the wild:
     # http://scons.tigris.org/issues/show_bug.cgi?id=2505
-    if env.has_key('PCH'):
+    if 'PCH' in env:
         pch = env['PCH']
         if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
             env.Depends(target, pch)
@@ -254,9 +253,9 @@ def generate(env):
     env['PCHCOM'] = '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder
 
-    if not env.has_key('ENV'):
+    if 'ENV' not in env:
         env['ENV'] = {}
-    if not env['ENV'].has_key('SystemRoot'):    # required for dlls in the winsxs folders
+    if 'SystemRoot' not in env['ENV']:    # required for dlls in the winsxs folders
         env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
 def exists(env):
