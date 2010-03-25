@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 # Define a null function for use as a builder action.
 # Where this is defined in the file seems to affect its
 # byte-code contents, so try to minimize changes by
@@ -566,13 +568,11 @@ class BuilderTestCase(unittest.TestCase):
                 "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
 
         b2 = SCons.Builder.Builder(src_suffix = '.2', src_builder = b1)
-        r = b2.src_suffixes(env)
-        r.sort()
+        r = sorted(b2.src_suffixes(env))
         assert r == ['.2', '.c'], r
 
         b3 = SCons.Builder.Builder(action = {'.3a' : '', '.3b' : ''})
-        s = b3.src_suffixes(env)
-        s.sort()
+        s = sorted(b3.src_suffixes(env))
         assert s == ['.3a', '.3b'], s
 
         b4 = SCons.Builder.Builder(src_suffix = '$XSUFFIX')
@@ -1032,8 +1032,7 @@ class BuilderTestCase(unittest.TestCase):
         bld.set_src_suffix(['.bar', '.foo'])
         r = bld.get_src_suffix(env)
         assert r == '.bar', r
-        r = bld.src_suffixes(env)
-        r.sort()
+        r = sorted(bld.src_suffixes(env))
         assert r == ['.bar', '.foo'], r
 
         # adjust_suffix normalizes the suffix, adding a `.' if needed
@@ -1153,8 +1152,7 @@ class BuilderTestCase(unittest.TestCase):
         assert r is None, r
         r = builder.get_src_suffix(env)
         assert r == '.src_sfx1', r
-        r = builder.src_suffixes(env)
-        r.sort()
+        r = sorted(builder.src_suffixes(env))
         assert r == ['.src_sfx1', '.src_sfx2'], r
 
 

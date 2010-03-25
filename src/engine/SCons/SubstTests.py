@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import os
 import os.path
 import StringIO
@@ -1180,12 +1182,10 @@ class subst_dict_TestCase(unittest.TestCase):
         s1 = DummyNode('s1')
         s2 = DummyNode('s2')
         d = subst_dict(target=[t1, t2], source=[s1, s2])
-        TARGETS = [str(x) for x in d['TARGETS']]
-        TARGETS.sort()
+        TARGETS = sorted([str(x) for x in d['TARGETS']])
         assert TARGETS == ['t1', 't2'], d['TARGETS']
         assert str(d['TARGET']) == 't1', d['TARGET']
-        SOURCES = [str(x) for x in d['SOURCES']]
-        SOURCES.sort()
+        SOURCES = sorted([str(x) for x in d['SOURCES']])
         assert SOURCES == ['s1', 's2'], d['SOURCES']
         assert str(d['SOURCE']) == 's1', d['SOURCE']
 
@@ -1209,11 +1209,9 @@ class subst_dict_TestCase(unittest.TestCase):
         s4 = N('s4')
         s5 = V('s5')
         d = subst_dict(target=[t3, t4, t5], source=[s3, s4, s5])
-        TARGETS = [str(x) for x in d['TARGETS']]
-        TARGETS.sort()
+        TARGETS = sorted([str(x) for x in d['TARGETS']])
         assert TARGETS == ['t4', 'v-t3', 'v-t5'], TARGETS
-        SOURCES = [str(x) for x in d['SOURCES']]
-        SOURCES.sort()
+        SOURCES = sorted([str(x) for x in d['SOURCES']])
         assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
 if __name__ == "__main__":

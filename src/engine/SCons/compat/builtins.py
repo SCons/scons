@@ -39,6 +39,7 @@ This module checks for the following __builtin__ names:
         any()
         bool()
         dict()
+        sorted()
         True
         False
         zip()
@@ -140,6 +141,38 @@ try:
 except NameError:
     # Pre-2.2 Python has no file() function.
     __builtin__.file = open
+
+try:
+    sorted
+except NameError:
+    # Pre-2.4 Python has no sorted() function.
+    #
+    # The pre-2.4 Python list.sort() method does not support
+    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
+    # we must implement the functionality of those keyword arguments
+    # by hand instead of passing them to list.sort().
+    def sorted(iterable, cmp=None, key=None, reverse=False):
+        if key:
+            decorated = [ (key(x), x) for x in iterable ]
+            if cmp is None:
+                # Pre-2.3 Python does not support list.sort(None).
+                decorated.sort()
+            else:
+                decorated.sort(cmp)
+            if reverse:
+                decorated.reverse()
+            result = [ t[1] for t in decorated ]
+        else:
+            result = iterable[:]
+            if cmp is None:
+                # Pre-2.3 Python does not support list.sort(None).
+                result.sort()
+            else:
+                result.sort(cmp)
+            if reverse:
+                result.reverse()
+        return result
+    __builtin__.sorted = sorted
 
 #
 try:
