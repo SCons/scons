@@ -151,7 +151,7 @@ CPP_to_Python_Eval_List = [
     ['/\*.*\*/',                ''],
     ['/\*.*',                   ''],
     ['//.*',                    ''],
-    ['(0x[0-9A-Fa-f]*)[UL]+',   '\\1L'],
+    ['(0x[0-9A-Fa-f]*)[UL]+',   '\\1'],
 ]
 
 # Replace the string representations of the regular expressions in the
