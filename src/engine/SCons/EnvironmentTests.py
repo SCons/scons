@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import copy
 import os
 import StringIO
@@ -40,9 +42,7 @@ def diff_env(env1, env2):
     d = {}
     for k in env1._dict.keys() + env2._dict.keys():
         d[k] = None
-    keys = d.keys()
-    keys.sort()
-    for k in keys:
+    for k in sorted(d.keys()):
         if k in env1:
            if k in env2:
                if env1[k] != env2[k]:
@@ -62,9 +62,7 @@ def diff_dict(d1, d2):
     d = {}
     for k in d1.keys() + d2.keys():
         d[k] = None
-    keys = d.keys()
-    keys.sort()
-    for k in keys:
+    for k in sorted(d.keys()):
         if k in d1:
            if k in d2:
                if d1[k] != d2[k]:
@@ -3667,14 +3665,11 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def test_items(self):
         """Test the OverrideEnvironment items() method"""
         env, env2, env3 = self.envs
-        items = env.items()
-        items.sort()
+        items = sorted(env.items())
         assert items == [('XXX', 'x'), ('YYY', 'y')], items
-        items = env2.items()
-        items.sort()
+        items = sorted(env2.items())
         assert items == [('XXX', 'x2'), ('YYY', 'y')], items
-        items = env3.items()
-        items.sort()
+        items = sorted(env3.items())
         assert items == [('XXX', 'x3'), ('YYY', 'y3'), ('ZZZ', 'z3')], items
 
     def test_gvars(self):
