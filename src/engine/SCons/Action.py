@@ -704,7 +704,7 @@ class CommandAction(_ActionAction):
             result = env.subst_list(self.cmd_list, 0, target, source)
         silent = None
         ignore = None
-        while 1:
+        while True:
             try: c = result[0][0][0]
             except IndexError: c = None
             if c == '@': silent = 1

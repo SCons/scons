@@ -173,9 +173,7 @@ def diff_dir(left, right):
         u[l] = 1
     for r in rlist:
         u[r] = 1
-    clist = [ x for x in u.keys() if x[-4:] != '.pyc' ]
-    clist.sort()
-    for x in clist:
+    for x in sorted([ x for x in u.keys() if x[-4:] != '.pyc' ]):
         if x in llist:
             if x in rlist:
                 do_diff(os.path.join(left, x),

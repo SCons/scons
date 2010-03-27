@@ -51,7 +51,6 @@ import os.path
 import re
 import sys
 import traceback
-import types
 import UserList
 
 # The following variables used to live in this module.  Some
@@ -629,7 +628,7 @@ def BuildDefaultGlobals():
         import SCons.Script
         d = SCons.Script.__dict__
         def not_a_module(m, d=d, mtype=type(SCons.Script)):
-             return type(d[m]) != mtype
+             return not isinstance(d[m], mtype)
         for m in filter(not_a_module, dir(SCons.Script)):
              GlobalDict[m] = d[m]
 

@@ -282,8 +282,7 @@ def nodeinfo_raw(name, ninfo, prefix=""):
     try:
         keys = ninfo.field_list + ['_version_id']
     except AttributeError:
-        keys = d.keys()
-        keys.sort()
+        keys = sorted(d.keys())
     l = []
     for k in keys:
         l.append('%s: %s' % (repr(k), repr(d.get(k))))
@@ -336,9 +335,7 @@ def printentries(entries, location):
                     print nodeinfo_string(name, entry.ninfo)
                 printfield(name, entry.binfo)
     else:
-        names = entries.keys()
-        names.sort()
-        for name in names:
+        for name in sorted(entries.keys()):
             entry = entries[name]
             try:
                 ninfo = entry.ninfo
@@ -402,9 +399,7 @@ class Do_SConsignDB:
                 else:
                     self.printentries(dir, val)
         else:
-            keys = db.keys()
-            keys.sort()
-            for dir in keys:
+            for dir in sorted(db.keys()):
                 self.printentries(dir, db[dir])
 
     def printentries(self, dir, val):

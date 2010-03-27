@@ -74,10 +74,7 @@ def emit_java_classes(target, source, env):
         elif isinstance(entry, SCons.Node.FS.Dir):
             result = SCons.Util.OrderedDict()
             def visit(arg, dirname, names, dirnode=entry.rdir()):
-                java_files = [n for n in names if _my_normcase(n[-len(js):]) == js]
-                # The on-disk entries come back in arbitrary order.  Sort
-                # them so our target and source lists are determinate.
-                java_files.sort()
+                java_files = sorted([n for n in names if _my_normcase(n[-len(js):]) == js])
                 mydir = dirnode.Dir(dirname)
                 java_paths = [mydir.File(f) for f in java_files]
                 for jp in java_paths:

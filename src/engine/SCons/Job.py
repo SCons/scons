@@ -189,7 +189,7 @@ class Serial:
         fails to execute (i.e. execute() raises an exception), then the job will
         stop."""
         
-        while 1:
+        while True:
             task = self.taskmaster.next_task()
 
             if task is None:
@@ -242,7 +242,7 @@ else:
             self.start()
 
         def run(self):
-            while 1:
+            while True:
                 task = self.requestQueue.get()
 
                 if task is None:
@@ -376,7 +376,7 @@ else:
 
             jobs = 0
             
-            while 1:
+            while True:
                 # Start up as many available tasks as we're
                 # allowed to.
                 while jobs < self.maxjobs:
@@ -404,7 +404,7 @@ else:
 
                 # Let any/all completed tasks finish up before we go
                 # back and put the next batch of tasks on the queue.
-                while 1:
+                while True:
                     task, ok = self.tp.get()
                     jobs = jobs - 1
 

@@ -1682,10 +1682,7 @@ class Dir(Base):
         """Return content signatures and names of all our children
         separated by new-lines. Ensure that the nodes are sorted."""
         contents = []
-        name_cmp = lambda a, b: cmp(a.name, b.name)
-        sorted_children = self.children()[:]
-        sorted_children.sort(name_cmp)
-        for node in sorted_children:
+        for node in sorted(self.children(), key=lambda t: t.name):
             contents.append('%s %s\n' % (node.get_csig(), node.name))
         return ''.join(contents)
 
@@ -1952,9 +1949,8 @@ class Dir(Base):
         """
         dirname, basename = os.path.split(pathname)
         if not dirname:
-            result = self._glob1(basename, ondisk, source, strings)
-            result.sort(lambda a, b: cmp(str(a), str(b)))
-            return result
+            return sorted(self._glob1(basename, ondisk, source, strings),
+                          key=lambda t: str(t))
         if has_glob_magic(dirname):
             list = self.glob(dirname, ondisk, source, strings=False)
         else:

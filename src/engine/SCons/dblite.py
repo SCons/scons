@@ -5,7 +5,6 @@ import cPickle
 import time
 import shutil
 import os
-import types
 import __builtin__
 
 keep_all_files = 00000
@@ -14,13 +13,13 @@ ignore_corrupt_dbfiles = 0
 def corruption_warning(filename):
     print "Warning: Discarding corrupt database:", filename
 
-if hasattr(types, 'UnicodeType'):
+try: unicode
+except NameError:
     def is_string(s):
-        t = type(s)
-        return t is types.StringType or t is types.UnicodeType
+        return isinstance(s, str)
 else:
     def is_string(s):
-        return type(s) is types.StringType
+        return type(s) in (str, unicode)
 
 try:
     unicode('a')

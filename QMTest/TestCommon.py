@@ -98,7 +98,6 @@ import os
 import os.path
 import stat
 import sys
-import types
 import UserList
 
 from TestCmd import *
@@ -172,7 +171,7 @@ else:
     dll_suffix   = '.so'
 
 def is_List(e):
-    return type(e) is types.ListType \
+    return isinstance(e, list) \
         or isinstance(e, UserList.UserList)
 
 def is_writable(f):

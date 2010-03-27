@@ -81,10 +81,8 @@ sys.exit(0)
 
 test.write('SConstruct', """\
 def foo(target, source, env):
-    children = source[0].children()
-    children.sort(lambda a,b: cmp(a.name, b.name))
     fp = open(str(target[0]), 'wb')
-    for c in children:
+    for c in sorted(source[0].children(), key=lambda t: t.name):
         fp.write('%s\\n' % c)
     fp.close()
 Command('list.out', 'subdir', foo, source_scanner = DirScanner)

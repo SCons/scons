@@ -110,9 +110,9 @@ class BaseSet(object):
     # __str__ is the same as __repr__
     __str__ = __repr__
 
-    def _repr(self, sorted=False):
+    def _repr(self, sort_them=False):
         elements = self._data.keys()
-        if sorted:
+        if sort_them:
             elements.sort()
         return '%s(%r)' % (self.__class__.__name__, elements)
 

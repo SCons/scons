@@ -31,7 +31,6 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
-import types
 import UserList
 import UserString
 
@@ -399,7 +398,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
-    if type(strSubst) == types.StringType and strSubst.find('$') < 0:
+    if isinstance(strSubst, str) and strSubst.find('$') < 0:
         return strSubst
 
     class StringSubber:
@@ -870,7 +869,7 @@ def scons_subst_once(strSubst, env, key):
 
     We do this with some straightforward, brute-force code here...
     """
-    if type(strSubst) == types.StringType and strSubst.find('$') < 0:
+    if isinstance(strSubst, str) and strSubst.find('$') < 0:
         return strSubst
 
     matchlist = ['$' + key, '${' + key + '}']

@@ -46,6 +46,8 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 def process(outfile, name):
     if os.path.isdir(name):
+        ## TODO 2.5: the next three lines can be replaced by
+        #for entry in sorted(os.listdir(name)):
         entries = os.listdir(name)
         entries.sort()
         for entry in entries:

@@ -1722,8 +1722,7 @@ class DirTestCase(_tempdirTestCase):
         fs.Dir(os.path.join('ddd', 'd1', 'f4'))
         fs.Dir(os.path.join('ddd', 'd1', 'f5'))
         dir.scan()
-        kids = [x.path for x in dir.children(None)]
-        kids.sort()
+        kids = sorted([x.path for x in dir.children(None)])
         assert kids == [os.path.join('ddd', 'd1'),
                         os.path.join('ddd', 'f1'),
                         os.path.join('ddd', 'f2'),
@@ -1768,14 +1767,12 @@ class DirTestCase(_tempdirTestCase):
 
         fs.File(os.path.join('ddd', 'f1'))
         dir.scan()
-        kids = [x.path for x in dir.children()]
-        kids.sort()
+        kids = sorted([x.path for x in dir.children()])
         assert kids == [os.path.join('ddd', 'f1')], kids
 
         fs.File(os.path.join('ddd', 'f2'))
         dir.scan()
-        kids = [x.path for x in dir.children()]
-        kids.sort()
+        kids = sorted([x.path for x in dir.children()])
         assert kids == [os.path.join('ddd', 'f1'),
                         os.path.join('ddd', 'f2')], kids
 
@@ -2240,8 +2237,7 @@ class GlobTestCase(_tempdirTestCase):
         strings_kwargs = copy.copy(kwargs)
         strings_kwargs['strings'] = True
         for input, string_expect, node_expect in cases:
-            r = self.fs.Glob(input, **strings_kwargs)
-            r.sort()
+            r = sorted(self.fs.Glob(input, **strings_kwargs))
             assert r == string_expect, "Glob(%s, strings=True) expected %s, got %s" % (input, string_expect, r)
 
         # Now execute all of the cases without string=True and look for
@@ -2256,13 +2252,12 @@ class GlobTestCase(_tempdirTestCase):
                 r.sort(lambda a,b: cmp(a.path, b.path))
                 result = []
                 for n in node_expect:
-                    if type(n) == type(''):
+                    if isinstance(n, str):
                         n = self.fs.Entry(n)
                     result.append(n)
                 fmt = lambda n: "%s %s" % (repr(n), repr(str(n)))
             else:
-                r = list(map(str, r))
-                r.sort()
+                r = sorted(map(str, r))
                 result = string_expect
                 fmt = lambda n: n
             if r != result:

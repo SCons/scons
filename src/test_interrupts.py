@@ -90,7 +90,7 @@ for f in files:
     contents = open(os.path.join(scons_lib_dir, f)).read()
     try_except_lines = {}
     lastend = 0
-    while 1:
+    while True:
         match = tryexc_pat.search( contents, lastend )
         if match is None:
             break

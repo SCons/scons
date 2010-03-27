@@ -46,9 +46,7 @@ def concatenate(target, source, env):
 
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
 
-f_in = Glob('subdir/*.in')
-f_in.sort(lambda a,b: cmp(a.name, b.name))
-env.Concatenate('f.out', f_in)
+env.Concatenate('f.out', sorted(Glob('subdir/*.in'), key=lambda t: t.name))
 """)
 
 test.write(['subdir', 'file.in'], "subdir/file.in\n")

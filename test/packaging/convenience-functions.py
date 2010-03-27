@@ -43,10 +43,8 @@ env  = Environment(tools=['default', 'packaging'])
 prog = env.Install( 'bin/', ["f1", "f2"] )
 env.File( "f3" )
 
-src_files = list(map(str, env.FindSourceFiles()))
-oth_files = list(map(str, env.FindInstalledFiles()))
-src_files.sort()
-oth_files.sort()
+src_files = sorted(map(str, env.FindSourceFiles()))
+oth_files = sorted(map(str, env.FindInstalledFiles()))
 
 print src_files
 print oth_files

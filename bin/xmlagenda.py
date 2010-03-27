@@ -17,8 +17,7 @@
 
 # The team members
 # FIXME: These names really should be external to this script
-team = 'Bill Greg Steven Gary Ken Brandon Sohail Jim David'.split()
-team.sort()
+team = sorted('Steven Gary Greg Ken Jim David Bill Sergey Jason'.split())
 
 # The elements to be picked out of the issue
 PickList = [

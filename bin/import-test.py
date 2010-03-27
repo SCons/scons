@@ -40,11 +40,8 @@ class Dir:
         self.path = path
         self.entries = {}
     def call_for_each_entry(self, func):
-        entries = self.entries
-        names = entries.keys()
-        names.sort()
-        for name in names:
-            func(name, entries[name])
+        for name in sorted(self.entries.keys()):
+            func(name, self.entries[name])
 
 def lookup(dirname):
     global Top, TopPath

@@ -27,7 +27,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import re
 import sys
-import types
 import unittest
 import UserList
 
@@ -50,7 +49,7 @@ def _actionAppend(a1, a2):
             all.append(curr_a)
         elif isinstance(curr_a, MyListAction):
             all.extend(curr_a.list)
-        elif type(curr_a) == type([1,2]):
+        elif isinstance(curr_a, list):
             all.extend(curr_a)
         else:
             raise 'Cannot Combine Actions'

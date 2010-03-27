@@ -54,9 +54,7 @@ def concatenate(target, source, env):
 
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
 
-f_in = Glob('f*.in')
-f_in.sort(lambda a,b: cmp(a.name, b.name))
-env.Concatenate('f.out', f_in)
+env.Concatenate('f.out', sorted(Glob('f*.in'), key=lambda t: t.name))
 """)
 
 test.write(['src', 'f1.in'], "src/f1.in\n")

@@ -59,16 +59,14 @@ SConscript('var2/SConscript')
 test.write(['var1', 'SConscript'], """\
 Import("env")
 
-f_in = Glob('f[45].in', source=True)
-f_in.sort(lambda a,b: cmp(a.name, b.name))
-env.Concatenate('f.out', f_in)
+env.Concatenate('f.out', sorted(Glob('f[45].in', source=True),
+                                key=lambda t: t.name))
 """)
 
 test.write(['var2', 'SConscript'], """\
 Import("env")
 
-f_in = Glob('f[67].in')
-f_in.sort(lambda a,b: cmp(a.name, b.name))
+f_in = sorted(Glob('f[67].in'), cmp=lambda a,b: cmp(a.name, b.name))
 env.Concatenate('f.out', f_in)
 """)
 

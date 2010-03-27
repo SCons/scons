@@ -86,7 +86,7 @@ class DummyEnvironment(UserDict.UserDict):
         return strSubst
 
     def subst_path(self, path, target=None, source=None, conv=None):
-        if type(path) != type([]):
+        if not isinstance(path, list):
             path = [path]
         return list(map(self.subst, path))
 
@@ -112,10 +112,8 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
     my_normpath = os.path.normcase
 
 def deps_match(self, deps, headers):
-    scanned = list(map(my_normpath, list(map(str, deps))))
-    expect = list(map(my_normpath, headers))
-    scanned.sort()
-    expect.sort()
+    scanned = sorted(map(my_normpath, list(map(str, deps))))
+    expect = sorted(map(my_normpath, headers))
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:

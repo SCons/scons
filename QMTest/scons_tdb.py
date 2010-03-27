@@ -397,9 +397,7 @@ class AegisBatchStream(FileResultStream):
         self._outcomes[test_id] = exit_status
     def Summarize(self):
         self.file.write('test_result = [\n')
-        file_names = self._outcomes.keys()
-        file_names.sort()
-        for file_name in file_names:
+        for file_name in sorted(self._outcomes.keys()):
             exit_status = self._outcomes[file_name]
             file_name = file_name.replace('\\', '/')
             self.file.write('    { file_name = "%s";\n' % file_name)

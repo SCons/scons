@@ -27,7 +27,6 @@ import os
 import os.path
 import StringIO
 import sys
-import types
 import unittest
 
 from UserDict import UserDict

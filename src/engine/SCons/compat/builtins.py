@@ -152,25 +152,19 @@ except NameError:
     # we must implement the functionality of those keyword arguments
     # by hand instead of passing them to list.sort().
     def sorted(iterable, cmp=None, key=None, reverse=False):
-        if key:
-            decorated = [ (key(x), x) for x in iterable ]
-            if cmp is None:
-                # Pre-2.3 Python does not support list.sort(None).
-                decorated.sort()
-            else:
-                decorated.sort(cmp)
-            if reverse:
-                decorated.reverse()
-            result = [ t[1] for t in decorated ]
+        if key is not None:
+            result = [(key(x), x) for x in iterable]
         else:
             result = iterable[:]
-            if cmp is None:
-                # Pre-2.3 Python does not support list.sort(None).
-                result.sort()
-            else:
-                result.sort(cmp)
-            if reverse:
-                result.reverse()
+        if cmp is None:
+            # Pre-2.3 Python does not support list.sort(None).
+            result.sort()
+        else:
+            result.sort(cmp)
+        if key is not None:
+            result = [t1 for t0,t1 in result]
+        if reverse:
+            result.reverse()
         return result
     __builtin__.sorted = sorted
 

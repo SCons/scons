@@ -27,7 +27,6 @@ import os
 import os.path
 import StringIO
 import sys
-import types
 import unittest
 
 from UserDict import UserDict
@@ -37,6 +36,10 @@ import TestCmd
 import SCons.Errors
 
 from SCons.Util import *
+
+try: unicode
+except NameError: HasUnicode = False
+else:             HasUnicode = True
 
 class OutBuffer:
     def __init__(self):
@@ -214,7 +217,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Dict([])
         assert not is_Dict(())
         assert not is_Dict("")
-        if hasattr(types, 'UnicodeType'):
+        if HasUnicode:
             exec "assert not is_Dict(u'')"
 
     def test_is_List(self):
@@ -231,12 +234,12 @@ class UtilTestCase(unittest.TestCase):
         assert not is_List(())
         assert not is_List({})
         assert not is_List("")
-        if hasattr(types, 'UnicodeType'):
+        if HasUnicode:
             exec "assert not is_List(u'')"
 
     def test_is_String(self):
         assert is_String("")
-        if hasattr(types, 'UnicodeType'):
+        if HasUnicode:
             exec "assert is_String(u'')"
         try:
             import UserString
@@ -267,7 +270,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Tuple([])
         assert not is_Tuple({})
         assert not is_Tuple("")
-        if hasattr(types, 'UnicodeType'):
+        if HasUnicode:
             exec "assert not is_Tuple(u'')"
 
     def test_to_String(self):
@@ -289,19 +292,19 @@ class UtilTestCase(unittest.TestCase):
             assert to_String(s2) == s2, s2
             assert to_String(s2) == 'foo', s2
 
-            if hasattr(types, 'UnicodeType'):
+            if HasUnicode:
                 s3=UserString.UserString(unicode('bar'))
                 assert to_String(s3) == s3, s3
                 assert to_String(s3) == unicode('bar'), s3
-                assert type(to_String(s3)) is types.UnicodeType, \
+                assert isinstance(to_String(s3), unicode), \
                        type(to_String(s3))
         except ImportError:
             pass
 
-        if hasattr(types, 'UnicodeType'):
+        if HasUnicode:
             s4 = unicode('baz')
             assert to_String(s4) == unicode('baz'), to_String(s4)
-            assert type(to_String(s4)) is types.UnicodeType, \
+            assert isinstance(to_String(s4), unicode), \
                    type(to_String(s4))
 
     def test_WhereIs(self):

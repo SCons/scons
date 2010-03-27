@@ -15,7 +15,7 @@ except ImportError:
     # and modified slightly for use with SCons.
     class UserString:
         def __init__(self, seq):
-            if type(seq) == type(''):
+            if isinstance(seq, str):
                 self.data = seq
             elif isinstance(seq, UserString):
                 self.data = seq.data[:]
@@ -60,11 +60,14 @@ except ImportError:
         __rmul__ = __mul__
 
 InstanceType = types.InstanceType
-DictType = types.DictType
-ListType = types.ListType
-StringType = types.StringType
-if hasattr(types, 'UnicodeType'):
-    UnicodeType = types.UnicodeType
+DictType = dict
+ListType = list
+StringType = str
+try: unicode
+except NameError:
+    UnicodeType = None
+else:
+    UnicodeType = unicode
 
 
 # The original implementations, pretty straightforward checks for the
@@ -72,19 +75,19 @@ if hasattr(types, 'UnicodeType'):
 # User* type.
 
 def original_is_Dict(e):
-    return type(e) is types.DictType or isinstance(e, UserDict)
+    return isinstance(e, dict) or isinstance(e, UserDict)
 
 def original_is_List(e):
-    return type(e) is types.ListType or isinstance(e, UserList)
+    return isinstance(e, list) or isinstance(e, UserList)
 
-if hasattr(types, 'UnicodeType'):
+if UnicodeType is not None:
     def original_is_String(e):
-        return type(e) is types.StringType \
-            or type(e) is types.UnicodeType \
+        return isinstance(e, str) \
+            or isinstance(e, unicode) \
             or isinstance(e, UserString)
 else:
     def original_is_String(e):
-        return type(e) is types.StringType or isinstance(e, UserString)
+        return isinstance(e, str) or isinstance(e, UserString)
 
 
 
@@ -93,22 +96,22 @@ else:
 # type.
 
 def checkInstanceType_is_Dict(e):
-    return type(e) is types.DictType or \
-           (type(e) is types.InstanceType and isinstance(e, UserDict))
+    return isinstance(e, dict) or \
+           (isinstance(e, types.InstanceType) and isinstance(e, UserDict))
 
 def checkInstanceType_is_List(e):
-    return type(e) is types.ListType \
-        or (type(e) is types.InstanceType and isinstance(e, UserList))
+    return isinstance(e, list) \
+        or (isinstance(e, types.InstanceType) and isinstance(e, UserList))
 
-if hasattr(types, 'UnicodeType'):
+if UnicodeType is not None:
     def checkInstanceType_is_String(e):
-        return type(e) is types.StringType \
-            or type(e) is types.UnicodeType \
-            or (type(e) is types.InstanceType and isinstance(e, UserString))
+        return isinstance(e, str) \
+            or isinstance(e, unicode) \
+            or (isinstance(e, types.InstanceType) and isinstance(e, UserString))
 else:
     def checkInstanceType_is_String(e):
-        return type(e) is types.StringType \
-            or (type(e) is types.InstanceType and isinstance(e, UserString))
+        return isinstance(e, str) \
+            or (isinstance(e, types.InstanceType) and isinstance(e, UserString))
 
 
 
@@ -117,24 +120,24 @@ else:
 
 def cache_type_e_is_Dict(e):
     t = type(e)
-    return t is types.DictType or \
+    return t is dict or \
            (t is types.InstanceType and isinstance(e, UserDict))
 
 def cache_type_e_is_List(e):
     t = type(e)
-    return t is types.ListType \
+    return t is list \
         or (t is types.InstanceType and isinstance(e, UserList))
 
-if hasattr(types, 'UnicodeType'):
+if UnicodeType is not None:
     def cache_type_e_is_String(e):
         t = type(e)
-        return t is types.StringType \
-            or t is types.UnicodeType \
+        return t is str \
+            or t is unicode \
             or (t is types.InstanceType and isinstance(e, UserString))
 else:
     def cache_type_e_is_String(e):
         t = type(e)
-        return t is types.StringType \
+        return t is str \
             or (t is types.InstanceType and isinstance(e, UserString))
 
 
@@ -153,7 +156,7 @@ def global_cache_type_e_is_List(e):
     return t is ListType \
         or (t is InstanceType and isinstance(e, UserList))
 
-if hasattr(types, 'UnicodeType'):
+if UnicodeType is not None:
     def global_cache_type_e_is_String(e):
         t = type(e)
         return t is StringType \
@@ -171,18 +174,18 @@ else:
 # to their corresponding underlying types.
 
 instanceTypeMap = {
-    UserDict : types.DictType,
-    UserList : types.ListType,
-    UserString : types.StringType,
+    UserDict : dict,
+    UserList : list,
+    UserString : str,
 }
 
-if hasattr(types, 'UnicodeType'):
+if UnicodeType is not None:
     def myType(obj):
         t = type(obj)
         if t is types.InstanceType:
             t = instanceTypeMap.get(obj.__class__, t)
-        elif t is types.UnicodeType:
-            t = types.StringType
+        elif t is unicode:
+            t = str
         return t
 else:
     def myType(obj):
@@ -192,13 +195,13 @@ else:
         return t
 
 def myType_is_Dict(e):
-    return myType(e) is types.DictType
+    return myType(e) is dict
 
 def myType_is_List(e):
-    return myType(e) is types.ListType
+    return myType(e) is list
 
 def myType_is_String(e):
-    return myType(e) is types.StringType
+    return myType(e) is str
 
 
 

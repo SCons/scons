@@ -304,7 +304,9 @@ class ActionTestCase(unittest.TestCase):
         # a singleton list returns the contained action
         test_positional_args(cmd_action, ["string"])
 
-        if hasattr(types, 'UnicodeType'):
+        try: unicode
+        except NameError: pass
+        else:
             a2 = eval("SCons.Action.Action(u'string')")
             assert isinstance(a2, SCons.Action.CommandAction), a2
 
@@ -540,18 +542,18 @@ class _ActionActionTestCase(unittest.TestCase):
             env = Environment()
 
             def execfunc(target, source, env):
-                assert type(target) is type([]), type(target)
-                assert type(source) is type([]), type(source)
+                assert isinstance(target, list), type(target)
+                assert isinstance(source, list), type(source)
                 return 7
             a = SCons.Action.Action(execfunc)
 
             def firstfunc(target, source, env):
-                assert type(target) is type([]), type(target)
-                assert type(source) is type([]), type(source)
+                assert isinstance(target, list), type(target)
+                assert isinstance(source, list), type(source)
                 return 0
             def lastfunc(target, source, env):
-                assert type(target) is type([]), type(target)
-                assert type(source) is type([]), type(source)
+                assert isinstance(target, list), type(target)
+                assert isinstance(source, list), type(source)
                 return 9
             b = SCons.Action.Action([firstfunc, execfunc, lastfunc])
             

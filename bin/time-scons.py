@@ -81,11 +81,11 @@ class CommandRunner:
     def display(self, command, stdout=None, stderr=None):
         if not self.verbose:
             return
-        if type(command) == type(()):
+        if isinstance(command, tuple):
             func = command[0]
             args = command[1:]
             s = '%s(%s)' % (func.__name__, ', '.join(map(repr, args)))
-        if type(command) == type([]):
+        if isinstance(command, list):
             # TODO:    quote arguments containing spaces
             # TODO:    handle meta characters?
             s = ' '.join(command)
@@ -102,12 +102,12 @@ class CommandRunner:
         """
         if not self.active:
             return 0
-        if type(command) == type(''):
+        if isinstance(command, str):
             command = self.subst(command)
             cmdargs = shlex.split(command)
             if cmdargs[0] == 'cd':
                  command = (os.chdir,) + tuple(cmdargs[1:])
-        if type(command) == type(()):
+        if isinstance(command, tuple):
             func = command[0]
             args = command[1:]
             return func(*args)

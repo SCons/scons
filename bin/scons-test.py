@@ -82,7 +82,7 @@ if outdir is None:
 
 def outname(n, outdir=outdir):
     l = []
-    while 1:
+    while True:
         n, tail = os.path.split(n)
         if not n:
             break
@@ -204,10 +204,7 @@ if format == '--xml':
     ]
 
     print "  <environment>"
-    #keys = os.environ.keys()
-    keys = environ_keys
-    keys.sort()
-    for key in keys:
+    for key in sorted(environ_keys):
         value = os.environ.get(key)
         if value:
             print "    <variable>"

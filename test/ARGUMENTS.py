@@ -30,9 +30,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 foo = open('foo.out', 'wb')
-keys = ARGUMENTS.keys()
-keys.sort()
-for k in keys:
+for k in sorted(list(ARGUMENTS.keys())):
     foo.write(k + " = " + ARGUMENTS[k] + "\\n")
 foo.close()
 """)

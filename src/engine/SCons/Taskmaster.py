@@ -737,7 +737,7 @@ class Taskmaster:
         T = self.trace
         if T: T.write('\n' + self.trace_message('Looking for a node to evaluate'))
 
-        while 1:
+        while True:
             node = self.next_candidate()
             if node is None:
                 if T: T.write(self.trace_message('No candidate anymore.') + '\n')
@@ -952,7 +952,7 @@ class Taskmaster:
                 T.write(self.trace_message('       removing node %s from the pending children set\n' %
                         self.trace_node(n)))
         try:
-            while 1:
+            while True:
                 try:
                     node = to_visit.pop()
                 except AttributeError:

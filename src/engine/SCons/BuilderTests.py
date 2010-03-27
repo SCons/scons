@@ -35,7 +35,6 @@ def Func():
 import os.path
 import re
 import sys
-import types
 import StringIO
 import unittest
 import UserList
@@ -306,7 +305,8 @@ class BuilderTestCase(unittest.TestCase):
         #be = target.get_build_env()
         #assert be['VAR'] == 'foo', be['VAR']
 
-        if not hasattr(types, 'UnicodeType'):
+        try: unicode
+        except NameError:
             uni = str
         else:
             uni = unicode

@@ -527,8 +527,8 @@ if __name__ == "__main__":
     result = runner.run(suite())
     if (len(result.failures) == 0
         and len(result.errors) == 1
-        and type(result.errors[0][0]) == SerialTestCase
-        and type(result.errors[0][1][0]) == NoThreadsException):
+        and isinstance(result.errors[0][0], SerialTestCase)
+        and isinstance(result.errors[0][1][0], NoThreadsException)):
         sys.exit(2)
     elif not result.wasSuccessful():
         sys.exit(1)

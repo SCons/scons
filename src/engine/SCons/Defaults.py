@@ -42,7 +42,6 @@ import errno
 import shutil
 import stat
 import time
-import types
 import sys
 
 import SCons.Action
@@ -373,7 +372,7 @@ def processDefines(defs):
     if SCons.Util.is_List(defs):
         l = []
         for d in defs:
-            if SCons.Util.is_List(d) or type(d) is types.TupleType:
+            if SCons.Util.is_List(d) or isinstance(d, tuple):
                 l.append(str(d[0]) + '=' + str(d[1]))
             else:
                 l.append(str(d))
@@ -385,10 +384,7 @@ def processDefines(defs):
         # Consequently, we have to sort the keys to ensure a
         # consistent order...
         l = []
-        keys = defs.keys()
-        keys.sort()
-        for k in keys:
-            v = defs[k]
+        for k,v in sorted(defs.items()):
             if v is None:
                 l.append(str(k))
             else:

@@ -49,6 +49,8 @@ import os.path
 import sys
 def process(outfile, name):
     if os.path.isdir(name):
+        ## TODO 2.5: the next three lines can be replaced by
+        #for entry in sorted(os.listdir(name)):
         list = os.listdir(name)
         list.sort()
         for entry in list:
@@ -115,10 +117,9 @@ if zip:
     test.write('SConstruct', """\
 def marker(target, source, env):
     open(r'%s', 'wb').write("marker\\n")
-import types
 f1 = Environment()
 zipcom = f1.Dictionary('ZIPCOM')
-if not type(zipcom) is types.ListType:
+if not isinstance(zipcom, list):
     zipcom = [zipcom]
 f2 = Environment(ZIPCOM = [Action(marker)] + zipcom)
 f3 = Environment(ZIPSUFFIX = '.xyzzy')

@@ -301,10 +301,8 @@ import os
 Scanned = {}
 
 def write_out(file, dict):
-    keys = dict.keys()
-    keys.sort()
     f = open(file, 'wb')
-    for k in keys:
+    for k in sorted(dict.keys()):
         file = os.path.split(k)[1]
         f.write(file + ": " + str(dict[k]) + "\\n")
     f.close()

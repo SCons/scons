@@ -280,8 +280,7 @@ runtest.py -p option to run tests against what's been actually packaged:
 
 """)
 
-aliases = packaging_flavors + [('doc', 'The SCons documentation.')]
-aliases.sort()
+aliases = sorted(packaging_flavors + [('doc', 'The SCons documentation.')])
 
 for alias, help_text in aliases:
     tw = textwrap.TextWrapper(
