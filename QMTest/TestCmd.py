@@ -229,7 +229,6 @@ import sys
 import tempfile
 import time
 import traceback
-import types
 import UserList
 
 __all__ = [
@@ -250,7 +249,7 @@ except ImportError:
     __all__.append('simple_diff')
 
 def is_List(e):
-    return type(e) is types.ListType \
+    return isinstance(e, list) \
         or isinstance(e, UserList.UserList)
 
 try:
@@ -259,14 +258,15 @@ except ImportError:
     class UserString:
         pass
 
-if hasattr(types, 'UnicodeType'):
+try: unicode
+except NameError:
     def is_String(e):
-        return type(e) is types.StringType \
-            or type(e) is types.UnicodeType \
-            or isinstance(e, UserString)
+        return isinstance(e, str) or isinstance(e, UserString)
 else:
     def is_String(e):
-        return type(e) is types.StringType or isinstance(e, UserString)
+        return isinstance(e, str) \
+            or isinstance(e, unicode) \
+            or isinstance(e, UserString)
 
 tempfile.template = 'testcmd.'
 if os.name in ('posix', 'nt'):
@@ -440,9 +440,9 @@ def match_re(lines = None, res = None):
 def match_re_dotall(lines = None, res = None):
     """
     """
-    if not type(lines) is type(""):
+    if not isinstance(lines, str):
         lines = "\n".join(lines)
-    if not type(res) is type(""):
+    if not isinstance(res, str):
         res = "\n".join(res)
     s = "^" + res + "$"
     try:
@@ -997,21 +997,21 @@ class TestCmd(object):
                            interpreter = None,
                            arguments = None):
         if program:
-            if type(program) == type('') and not os.path.isabs(program):
+            if isinstance(program, str) and not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
         else:
             program = self.program
             if not interpreter:
                 interpreter = self.interpreter
-        if not type(program) in [type([]), type(())]:
+        if not type(program) in [list, tuple]:
             program = [program]
         cmd = list(program)
         if interpreter:
-            if not type(interpreter) in [type([]), type(())]:
+            if not type(interpreter) in [list, tuple]:
                 interpreter = [interpreter]
             cmd = list(interpreter) + cmd
         if arguments:
-            if type(arguments) == type(''):
+            if isinstance(arguments, str):
                 arguments = arguments.split()
             cmd.extend(arguments)
         return cmd

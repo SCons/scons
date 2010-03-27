@@ -672,11 +672,8 @@ environment, of directory names, suffixes, etc.
 
       <sconstruct>
          env = Environment()
-         dict = env.Dictionary()
-         keys = dict.keys()
-         keys.sort()
-         for key in keys:
-             print "construction variable = '%s', value = '%s'" % (key, dict[key])
+         for item in sorted(env.Dictionary().items()):
+             print "construction variable = '%s', value = '%s'" % item
       </sconstruct>
 
     </section>
@@ -1559,8 +1556,7 @@ environment, of directory names, suffixes, etc.
       if len(sys.argv) > 1:
           keys = sys.argv[1:]
       else:
-          keys = os.environ.keys()
-          keys.sort()
+          keys = sorted(os.environ.keys())
       for key in keys:
           print "    " + key + "=" + os.environ[key]
       </file>

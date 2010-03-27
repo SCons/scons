@@ -123,7 +123,7 @@ class Variables:
                     putting it in the environment.
         """
 
-        if SCons.Util.is_List(key) or type(key) == type(()):
+        if SCons.Util.is_List(key) or isinstance(key, tuple):
             self._do_add(*key)
             return
 
@@ -284,8 +284,7 @@ class Variables:
         """
 
         if sort:
-            options = self.options[:]
-            options.sort(lambda x,y: sort(x.key,y.key))
+            options = sorted(self.options, cmp=lambda x,y: sort(x.key,y.key))
         else:
             options = self.options
 

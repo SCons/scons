@@ -202,7 +202,7 @@ class DB(Base):
         else:
             try:
                 self.entries = cPickle.loads(rawentries)
-                if type(self.entries) is not type({}):
+                if not isinstance(self.entries, dict):
                     self.entries = {}
                     raise TypeError
             except KeyboardInterrupt:
@@ -261,7 +261,7 @@ class Dir(Base):
             return
 
         self.entries = cPickle.load(fp)
-        if type(self.entries) is not type({}):
+        if not isinstance(self.entries, dict):
             self.entries = {}
             raise TypeError
 

@@ -910,7 +910,7 @@ class TaskmasterTestCase(unittest.TestCase):
             assert e.errstr == "OtherError : ", e.errstr
             assert len(e.exc_info) == 3, e.exc_info
             exc_traceback = sys.exc_info()[2]
-            assert type(e.exc_info[2]) == type(exc_traceback), e.exc_info[2]
+            assert isinstance(e.exc_info[2], type(exc_traceback)), e.exc_info[2]
         else:
             raise TestFailed, "did not catch expected BuildError"
 

@@ -241,7 +241,7 @@ def Str(target, source, env, cmd=""):
 class ToolSurrogate:
     def __init__(self, tool, variable, func, varlist):
         self.tool = tool
-        if not type(variable) is type([]):
+        if not isinstance(variable, list):
             variable = [variable]
         self.variable = variable
         self.func = func
@@ -477,10 +477,7 @@ def command_edit(args, c, test, dict):
 
 def command_ls(args, c, test, dict):
     def ls(a):
-        files = os.listdir(a)
-        files = [x for x in files if x[0] != '.']
-        files.sort()
-        return ['  '.join(files)]
+        return ['  '.join(sorted([x for x in os.listdir(a) if x[0] != '.']))]
     if args:
         l = []
         for a in args:

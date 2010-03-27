@@ -354,15 +354,13 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
     def start_uses(self, attrs):
         self.begin_collecting([])
     def end_uses(self):
-        self.current_object.uses = ''.join(self.collect).split()
-        self.current_object.uses.sort()
+        self.current_object.uses = sorted(''.join(self.collect).split())
         self.end_collecting()
 
     def start_sets(self, attrs):
         self.begin_collecting([])
     def end_sets(self):
-        self.current_object.sets = ''.join(self.collect).split()
-        self.current_object.sets.sort()
+        self.current_object.sets = sorted(''.join(self.collect).split())
         self.end_collecting()
 
     # Stuff for the ErrorHandler portion.

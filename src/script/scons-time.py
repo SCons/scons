@@ -59,6 +59,32 @@ except NameError:
     import __builtin__
     __builtin__.True = not 0
 
+try:
+    sorted
+except NameError:
+    # Pre-2.4 Python has no sorted() function.
+    #
+    # The pre-2.4 Python list.sort() method does not support
+    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
+    # we must implement the functionality of those keyword arguments
+    # by hand instead of passing them to list.sort().
+    def sorted(iterable, cmp=None, key=None, reverse=False):
+        if key is not None:
+            result = [(key(x), x) for x in iterable]
+        else:
+            result = iterable[:]
+        if cmp is None:
+            # Pre-2.3 Python does not support list.sort(None).
+            result.sort()
+        else:
+            result.sort(cmp)
+        if key is not None:
+            result = [t1 for t0,t1 in result]
+        if reverse:
+            result.reverse()
+        return result
+    __builtin__.sorted = sorted
+
 def make_temp_file(**kw):
     try:
         result = tempfile.mktemp(**kw)
@@ -505,9 +531,7 @@ class SConsTimer:
         """
         files = []
         for a in args:
-            g = glob.glob(a)
-            g.sort()
-            files.extend(g)
+            files.extend(sorted(glob.glob(a)))
 
         if tail:
             files = files[-tail:]
@@ -589,10 +613,7 @@ class SConsTimer:
         """
         gp = Gnuplotter(self.title, self.key_location)
 
-        indices = results.keys()
-        indices.sort()
-
-        for i in indices:
+        for i in sorted(results.keys()):
             try:
                 t = self.run_titles[i]
             except IndexError:

@@ -37,13 +37,11 @@ def times(num=1000000, init='', title='Results:', **statements):
         t = Timing(n, num, init, s)
         t.timeit()
         timings.append(t)
-    
+
     print
     print title
-    l = []
-    for i in timings: l.append((i.getResult(),i.name))
-    l.sort()
-    for i in l: print "  %9.3f s   %s" % i
+    for i in sorted([(i.getResult(),i.name) for i in timings]):
+        print "  %9.3f s   %s" % i
 
 # Import the necessary local SCons.* modules used by some of our
 # alternative implementations below, first manipulating sys.path so

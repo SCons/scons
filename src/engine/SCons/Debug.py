@@ -55,9 +55,7 @@ tracked_classes = {}
 
 def string_to_classes(s):
     if s == '*':
-        c = tracked_classes.keys()
-        c.sort()
-        return c
+        return sorted(tracked_classes.keys())
     else:
         return s.split()
 
@@ -148,21 +146,15 @@ def caller_trace(back=0):
 
 # print a single caller and its callers, if any
 def _dump_one_caller(key, file, level=0):
-    l = []
-    for c,v in caller_dicts[key].items():
-        l.append((-v,c))
-    l.sort()
     leader = '      '*level
-    for v,c in l:
+    for v,c in sorted([(-v,c) for c,v in caller_dicts[key].items()]):
         file.write("%s  %6d %s:%d(%s)\n" % ((leader,-v) + func_shorten(c[-3:])))
         if c in caller_dicts:
             _dump_one_caller(c, file, level+1)
 
 # print each call tree
 def dump_caller_counts(file=sys.stdout):
-    keys = caller_bases.keys()
-    keys.sort()
-    for k in keys:
+    for k in sorted(caller_bases.keys()):
         file.write("Callers of %s:%d(%s), %d calls:\n"
                     % (func_shorten(k) + (caller_bases[k],)))
         _dump_one_caller(k, file)

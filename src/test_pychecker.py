@@ -90,10 +90,7 @@ for file in ignore:
         del u[file]
     except KeyError:
         pass
-
-files = u.keys()
-
-files.sort()
+files = sorted(u.keys())
 
 mismatches = []
 

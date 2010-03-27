@@ -316,11 +316,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                     display("Removed " + pathstr)
                 elif os.path.isdir(path) and not os.path.islink(path):
                     # delete everything in the dir
-                    entries = os.listdir(path)
-                    # Sort for deterministic output (os.listdir() Can
-                    # return entries in a random order).
-                    entries.sort()
-                    for e in entries:
+                    for e in sorted(os.listdir(path)):
                         p = os.path.join(path, e)
                         s = os.path.join(pathstr, e)
                         if os.path.isfile(p):
@@ -508,8 +504,6 @@ class CountStats(Stats):
             for n, c in s:
                 stats_table[n][i] = c
             i = i + 1
-        keys = stats_table.keys()
-        keys.sort()
         self.outfp.write("Object counts:\n")
         pre = ["   "]
         post = ["   %s\n"]
@@ -520,7 +514,7 @@ class CountStats(Stats):
         labels.append(("", "Class"))
         self.outfp.write(fmt1 % tuple([x[0] for x in labels]))
         self.outfp.write(fmt1 % tuple([x[1] for x in labels]))
-        for k in keys:
+        for k in sorted(stats_table.keys()):
             r = stats_table[k][:l] + [k]
             self.outfp.write(fmt2 % tuple(r))
 
@@ -1228,7 +1222,7 @@ def _exec_main(parser, values):
 
     options, args = parser.parse_args(all_args, values)
 
-    if type(options.debug) == type([]) and "pdb" in options.debug:
+    if isinstance(options.debug, list) and "pdb" in options.debug:
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:

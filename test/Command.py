@@ -58,9 +58,7 @@ def sub(env, target, source):
     target = str(target[0])
     source = str(source[0])
     t = open(target, 'wb')
-    files = os.listdir(source)
-    files.sort()
-    for f in files:
+    for f in sorted(os.listdir(source)):
         t.write(open(os.path.join(source, f), 'rb').read())
     t.close()
     return 0

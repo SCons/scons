@@ -33,17 +33,13 @@ In particular, it does not necessarily contain all of the methods found
 in later versions.
 """
 
-import types
-
-StringType = types.StringType
-
-if hasattr(types, 'UnicodeType'):
-    UnicodeType = types.UnicodeType
+try: unicode
+except NameError:
     def is_String(obj):
-        return type(obj) in (StringType, UnicodeType)
+        return type(obj) is str
 else:
     def is_String(obj):
-        return type(obj) is StringType
+        return type(obj) in (str, unicode)
 
 class UserString:
     def __init__(self, seq):

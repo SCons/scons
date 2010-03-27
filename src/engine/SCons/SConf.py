@@ -33,7 +33,6 @@ import re
 import StringIO
 import sys
 import traceback
-import types
 
 import SCons.Action
 import SCons.Builder
@@ -154,9 +153,8 @@ def _stringSource( target, source, env ):
     return (str(target[0]) + ' <-\n  |' +
             source[0].get_contents().replace( '\n', "\n  |" ) )
 
-# python 2.2 introduces types.BooleanType
-BooleanTypes = [types.IntType]
-if hasattr(types, 'BooleanType'): BooleanTypes.append(types.BooleanType)
+# python 2.2 introduces bool
+BooleanTypes = [int, bool]
 
 class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     """
@@ -790,7 +788,7 @@ class CheckContext:
                 text = "yes"
             else:
                 text = "no"
-        elif type(res) == types.StringType:
+        elif isinstance(res, str):
             text = res
         else:
             raise TypeError, "Expected string, int or bool, got " + str(type(res))

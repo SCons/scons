@@ -44,9 +44,7 @@ def copy(target, source, env):
 
 env['BUILDERS']['Copy'] = Builder(action=copy)
 
-f_in = env.Glob('$PATTERN')
-f_in.sort(lambda a,b: cmp(a.name, b.name))
-env.Copy('f.out', f_in)
+env.Copy('f.out', sorted(env.Glob('$PATTERN'), key=lambda t: t.name))
 """)
 
 test.write('f1.in', "f1.in\n")

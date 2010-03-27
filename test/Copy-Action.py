@@ -153,9 +153,9 @@ errors = 0
 
 def must_be_same(f1, f2):
     global errors
-    if type(f1) is type([]):
+    if isinstance(f1, list):
         f1 = os.path.join(*f1)
-    if type(f2) is type([]):
+    if isinstance(f2, list):
         f2 = os.path.join(*f2)
     s1 = os.stat(f1)
     s2 = os.stat(f2)

@@ -136,8 +136,7 @@ class NodeInfoBase:
             try:
                 field_list = self.field_list
             except AttributeError:
-                field_list = self.__dict__.keys()
-                field_list.sort()
+                field_list = sorted(self.__dict__.keys())
         fields = []
         for field in field_list:
             try:

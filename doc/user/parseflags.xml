@@ -60,9 +60,7 @@
  <programlisting>
     env = Environment()
     d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
-    l = d.items()
-    l.sort()
-    for k,v in l:
+    for k,v in sorted(d.items()):
         if v:
             print k, v
     env.MergeFlags(d)
@@ -106,9 +104,7 @@
  <programlisting>
     env = Environment()
     d = env.ParseFlags("-whatever")
-    l = d.items()
-    l.sort()
-    for k,v in l:
+    for k,v in sorted(d.items()):
         if v:
             print k, v
     env.MergeFlags(d)
@@ -132,9 +128,7 @@
  <programlisting>
     env = Environment()
     d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
-    l = d.items()
-    l.sort()
-    for k,v in l:
+    for k,v in sorted(d.items()):
         if v:
             print k, v
     env.MergeFlags(d)
@@ -161,8 +155,6 @@
  <programlisting>
     env = Environment()
     d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
-    l = d.items()
-    l.sort()
     for k,v in l:
         if v:
             print k, v

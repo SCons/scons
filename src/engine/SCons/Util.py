@@ -42,11 +42,14 @@ from UserString import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-DictType        = types.DictType
+DictType        = dict
 InstanceType    = types.InstanceType
-ListType        = types.ListType
-StringType      = types.StringType
-TupleType       = types.TupleType
+ListType        = list
+StringType      = str
+TupleType       = tuple
+try: unicode
+except NameError: UnicodeType = None
+else:             UnicodeType = unicode
 
 def dictify(keys, values, result={}):
     for k, v in zip(keys, values):
@@ -343,7 +346,7 @@ except TypeError:
         t = type(obj)
         return t is TupleType
 
-    if hasattr(types, 'UnicodeType'):
+    if UnicodeType is not None:
         def is_String(obj):
             t = type(obj)
             return t is StringType \
@@ -398,8 +401,7 @@ except TypeError:
     # to_String_for_signature() will use a for_signature() method if the
     # specified object has one.
     #
-    if hasattr(types, 'UnicodeType'):
-        UnicodeType = types.UnicodeType
+    if UnicodeType is not None:
         def to_String(s):
             if isinstance(s, UserString):
                 t = type(s.data)
@@ -595,15 +597,15 @@ def _semi_deepcopy_dict(x):
         # Doesn't seem like we need to, but we'll comment it just in case.
         copy[key] = semi_deepcopy(val)
     return copy
-d[types.DictionaryType] = _semi_deepcopy_dict
+d[dict] = _semi_deepcopy_dict
 
 def _semi_deepcopy_list(x):
     return list(map(semi_deepcopy, x))
-d[types.ListType] = _semi_deepcopy_list
+d[list] = _semi_deepcopy_list
 
 def _semi_deepcopy_tuple(x):
     return tuple(map(semi_deepcopy, x))
-d[types.TupleType] = _semi_deepcopy_tuple
+d[tuple] = _semi_deepcopy_tuple
 
 def _semi_deepcopy_inst(x):
     if hasattr(x, '__semi_deepcopy__'):
@@ -1220,8 +1222,7 @@ def unique(s):
     # sort functions in all languages or libraries, so this approach
     # is more effective in Python than it may be elsewhere.
     try:
-        t = list(s)
-        t.sort()
+        t = sorted(s)
     except TypeError:
         pass    # move on to the next method
     else:
@@ -1291,7 +1292,7 @@ class LogicalLines:
 
     def readline(self):
         result = []
-        while 1:
+        while True:
             line = self.fileobj.readline()
             if not line:
                 break
@@ -1304,7 +1305,7 @@ class LogicalLines:
 
     def readlines(self):
         result = []
-        while 1:
+        while True:
             line = self.readline()
             if not line:
                 break
@@ -1545,7 +1546,7 @@ else:
         def MD5filesignature(fname, chunksize=65536):
             m = hashlib.md5()
             f = open(fname, "rb")
-            while 1:
+            while True:
                 blck = f.read(chunksize)
                 if not blck:
                     break

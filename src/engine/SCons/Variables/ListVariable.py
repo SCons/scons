@@ -63,8 +63,7 @@ import SCons.Util
 class _ListVariable(UserList.UserList):
     def __init__(self, initlist=[], allowedElems=[]):
         UserList.UserList.__init__(self, [_f for _f in initlist if _f])
-        self.allowedElems = allowedElems[:]
-        self.allowedElems.sort()
+        self.allowedElems = sorted(allowedElems)
 
     def __cmp__(self, other):
         raise NotImplementedError

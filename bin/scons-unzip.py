@@ -45,7 +45,7 @@ if outdir is None:
 
 def outname(n, outdir=outdir):
     l = []
-    while 1:
+    while True:
         n, tail = os.path.split(n)
         if not n:
             break

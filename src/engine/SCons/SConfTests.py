@@ -61,7 +61,7 @@ class SConfTestCase(unittest.TestCase):
         for n in sys.modules.keys():
             if n.split('.')[0] == 'SCons' and n[:12] != 'SCons.compat':
                 m = sys.modules[n]
-                if type(m) is ModuleType:
+                if isinstance(m, ModuleType):
                     # if this is really a scons module, clear its namespace
                     del sys.modules[n]
                     m.__dict__.clear()

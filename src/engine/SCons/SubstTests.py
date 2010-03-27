@@ -29,7 +29,6 @@ import os
 import os.path
 import StringIO
 import sys
-import types
 import unittest
 
 from UserDict import UserDict
@@ -150,7 +149,7 @@ class SubstTestCase(unittest.TestCase):
     def _defines(defs):
         l = []
         for d in defs:
-            if SCons.Util.is_List(d) or type(d) is types.TupleType:
+            if SCons.Util.is_List(d) or isinstance(d, tuple):
                 l.append(str(d[0]) + '=' + str(d[1]))
             else:
                 l.append(str(d))

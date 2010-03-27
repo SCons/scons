@@ -243,9 +243,7 @@ def get_all_compiler_versions():
             m = re.search(r'([0-9.]+)$', d)
             if m:
                 versions.append(m.group(1))
-    versions = uniquify(versions)       # remove dups
-    versions.sort(vercmp)
-    return versions
+    return sorted(uniquify(versions))       # remove dups
 
 def get_intel_compiler_top(version, abi):
     """

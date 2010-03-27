@@ -729,7 +729,7 @@ def _Have(context, key, have, comment = None):
         line = "#define %s 1\n" % key_up
     elif have == 0:
         line = "/* #undef %s */\n" % key_up
-    elif type(have) == IntType:
+    elif isinstance(have, IntType):
         line = "#define %s %d\n" % (key_up, have)
     else:
         line = "#define %s %s\n" % (key_up, str(have))

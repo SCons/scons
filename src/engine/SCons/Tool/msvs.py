@@ -291,8 +291,6 @@ class _DSPGenerator:
                         self.sources[t[0]].append(self.env[t[1]])
 
         for n in sourcenames:
-            # TODO(1.5):
-            #self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
             self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
 
         def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, dspfile=dspfile):
@@ -352,8 +350,7 @@ class _GenerateV6DSP(_DSPGenerator):
 
     def PrintHeader(self):
         # pick a default config
-        confkeys = self.configs.keys()
-        confkeys.sort()
+        confkeys = sorted(self.configs.keys())
 
         name = self.name
         confkey = confkeys[0]
@@ -373,8 +370,7 @@ class _GenerateV6DSP(_DSPGenerator):
                         '# PROP Scc_LocalPath ""\n\n')
 
         first = 1
-        confkeys = self.configs.keys()
-        confkeys.sort()
+        confkeys = sorted(self.configs.keys())
         for kind in confkeys:
             outdir = self.configs[kind].outdir
             buildtarget = self.configs[kind].buildtarget
@@ -445,8 +441,6 @@ class _GenerateV6DSP(_DSPGenerator):
                       'Other Files': ''}
 
         cats = categories.keys()
-        # TODO(1.5):
-        #cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
         cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
         for kind in cats:
             if not self.sources[kind]:
@@ -649,8 +643,7 @@ class _GenerateV7DSP(_DSPGenerator):
     def PrintProject(self):
         self.file.write('\t<Configurations>\n')
 
-        confkeys = self.configs.keys()
-        confkeys.sort()
+        confkeys = sorted(self.configs.keys())
         for kind in confkeys:
             variant = self.configs[kind].variant
             platform = self.configs[kind].platform
@@ -704,8 +697,6 @@ class _GenerateV7DSP(_DSPGenerator):
 
     def printSources(self, hierarchy, commonprefix):
         sorteditems = hierarchy.items()
-        # TODO(1.5):
-        #sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
         sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
 
         # First folders, then files
@@ -737,8 +728,6 @@ class _GenerateV7DSP(_DSPGenerator):
         self.file.write('\t<Files>\n')
 
         cats = categories.keys()
-        # TODO(1.5)
-        #cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
         cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
         cats = [k for k in cats if self.sources[k]]
         for kind in cats:
@@ -1007,8 +996,7 @@ class _GenerateV7DSW(_DSWGenerator):
         else:
             self.file.write('\tGlobalSection(SolutionConfiguration) = preSolution\n')
 
-        confkeys = self.configs.keys()
-        confkeys.sort()
+        confkeys = sorted(self.configs.keys())
         cnt = 0
         for name in confkeys:
             variant = self.configs[name].variant

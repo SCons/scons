@@ -123,9 +123,7 @@ class F90Scanner(SCons.Scanner.Classic):
                 sortkey = self.sort_key(dep)
                 nodes.append((sortkey, n))
 
-        nodes.sort()
-        nodes = [pair[1] for pair in nodes]
-        return nodes
+        return [pair[1] for pair in sorted(nodes)]
 
 def FortranScan(path_variable="FORTRANPATH"):
     """Return a prototype Scanner instance for scanning source files

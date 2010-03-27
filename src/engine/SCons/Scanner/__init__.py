@@ -378,12 +378,9 @@ class Classic(Current):
                 SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
                                     "No dependency generated for file: %s (included from: %s) -- file not found" % (i, node))
             else:
-                sortkey = self.sort_key(include)
-                nodes.append((sortkey, n))
+                nodes.append((self.sort_key(include), n))
 
-        nodes.sort()
-        nodes = [pair[1] for pair in nodes]
-        return nodes
+        return [pair[1] for pair in sorted(nodes)]
 
 class ClassicCPP(Classic):
     """

@@ -44,7 +44,7 @@ class CommandRunner:
         return string
 
     def do_display(self, string):
-        if type(string) == type(()):
+        if isinstance(string, tuple):
             func = string[0]
             args = string[1:]
             s = '%s(%s)' % (func.__name__, ', '.join(map(repr, args)))
@@ -59,14 +59,14 @@ class CommandRunner:
         pass
 
     def do_execute(self, command):
-        if type(command) == type(''):
+        if isinstance(command, str):
             command = self.subst(command)
             cmdargs = shlex.split(command)
             if cmdargs[0] == 'cd':
                  command = (os.chdir,) + tuple(cmdargs[1:])
             elif cmdargs[0] == 'mkdir':
                  command = (os.mkdir,) + tuple(cmdargs[1:])
-        if type(command) == type(()):
+        if isinstance(command, tuple):
             func = command[0]
             args = command[1:]
             return func(*args)

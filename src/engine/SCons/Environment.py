@@ -99,7 +99,7 @@ def apply_tools(env, tools, toolpath):
         return
     # Filter out null tools from the list.
     for tool in [_f for _f in tools if _f]:
-        if SCons.Util.is_List(tool) or type(tool)==type(()):
+        if SCons.Util.is_List(tool) or isinstance(tool, tuple):
             toolname = tool[0]
             toolargs = tool[1] # should be a dict of kw args
             tool = env.Tool(toolname, **toolargs)

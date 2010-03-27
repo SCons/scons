@@ -365,10 +365,7 @@ class LaTeX(SCons.Scanner.Base):
                 # recurse down 
                 queue.extend( self.scan(n) )
 
-        #
-        nodes.sort()
-        nodes = [pair[1] for pair in nodes]
-        return nodes
+        return [pair[1] for pair in sorted(nodes)]
 
 # Local Variables:
 # tab-width:4

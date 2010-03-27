@@ -128,7 +128,7 @@ class Scanner:
 
 class CLVar(UserList.UserList):
     def __init__(self, seq):
-        if type(seq) == type(''):
+        if isinstance(seq, str):
             seq = seq.split()
         UserList.UserList.__init__(self, seq)
     def __add__(self, other):
@@ -271,8 +271,9 @@ class SubstitutionTestCase(unittest.TestCase):
         assert isinstance(nodes[0], X)
         assert nodes[0].name == "Util.py UtilTests.py"
 
-        import types
-        if hasattr(types, 'UnicodeType'):
+        try: unicode
+        except NameError: pass
+        else:
             code = """if 1:
                 nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
                 assert len(nodes) == 1, nodes

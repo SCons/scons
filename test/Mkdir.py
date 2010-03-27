@@ -129,9 +129,7 @@ def catdir(env, source, target):
     outfp = open(target, "wb")
     for src in source:
         s = str(src)
-        l = os.listdir(s)
-        l.sort()
-        for f in l:
+        for f in sorted(os.listdir(s)):
             f = os.path.join(s, f)
             if os.path.isfile(f):
                 outfp.write(open(f, "rb").read())

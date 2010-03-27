@@ -48,9 +48,7 @@ MakeDirectory = Builder(action=mkdir, target_factory=Dir)
 def collect(env, source, target):
     out = open(str(target[0]), 'wb')
     dir = str(source[0])
-    files = os.listdir(dir)
-    files.sort()
-    for f in files:
+    for f in sorted(os.listdir(dir)):
         f = os.path.join(dir, f)
         out.write(open(f, 'r').read())
     out.close()

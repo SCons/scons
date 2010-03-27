@@ -42,8 +42,7 @@ class Bars(dict):
         if color is None:
             color = self.color
         if revs is None:
-            revs = self.keys()
-            revs.sort()
+            revs = sorted(self.keys())
         if labels:
             result = [ (r, color, None, self[r]) for r in revs ]
         else:

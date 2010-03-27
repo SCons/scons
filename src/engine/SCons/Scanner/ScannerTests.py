@@ -48,7 +48,7 @@ class DummyEnvironment(UserDict.UserDict):
             return [self.data[strSubst[1:]]]
         return [[strSubst]]
     def subst_path(self, path, target=None, source=None, conv=None):
-        if type(path) != type([]):
+        if not isinstance(path, list):
             path = [path]
         return list(map(self.subst, path))
     def get_factory(self, factory):
@@ -134,7 +134,7 @@ class BaseTestCase(unittest.TestCase):
         self.failUnless(self.env == env, "the environment was passed incorrectly")
         self.failUnless(scanned_strs == deps, "the dependencies were returned incorrectly")
         for d in scanned:
-            self.failUnless(type(d) != type(""), "got a string in the dependencies")
+            self.failUnless(not isinstance(d, str), "got a string in the dependencies")
 
         if len(args) > 0:
             self.failUnless(self.arg == args[0], "the argument was passed incorrectly")

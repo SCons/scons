@@ -515,9 +515,7 @@ class TestSCons(TestCommon):
         import glob
         result = []
         for p in patterns:
-            paths = glob.glob(p)
-            paths.sort()
-            result.extend(paths)
+            result.extend(sorted(glob.glob(p)))
         return result
 
 
@@ -770,7 +768,7 @@ else:
         self.QT_LIB_DIR = self.workpath(dir, 'lib')
 
     def Qt_create_SConstruct(self, place):
-        if type(place) is type([]):
+        if isinstance(place, list):
             place = test.workpath(*place)
         self.write(place, """\
 if ARGUMENTS.get('noqtdir', 0): QTDIR=None

@@ -75,9 +75,7 @@ test.write(['repository', 'src', 'SConscript'], """
 Import("env")
 env.Build('xxx.out', Glob('x*.in'))
 env.Build('yyy.out', Glob('yy?.in'))
-zzz_in = Glob('*/zzz.in')
-zzz_in.sort(lambda a,b: cmp(a.abspath, b.abspath))
-env.Build('zzz.out', zzz_in)
+env.Build('zzz.out', sorted(Glob('*/zzz.in'), key=lambda t: t.abspath))
 """)
 
 test.write(['repository', 'src', 'xxx.in'], "repository/src/xxx.in\n")
