@@ -76,7 +76,7 @@ else:
 
 all = []
 
-for i in xrange(40):
+for i in range(40):
     all.extend(Object('toto%5d' % i, 'toto.c'))
 
 all.extend(Command( 'broken', 'toto.c', explode))

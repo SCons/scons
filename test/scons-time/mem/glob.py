@@ -38,7 +38,7 @@ lines = [
 
 line_fmt = '        1000         2000         3000         4000    %s\n'
 
-for i in xrange(9):
+for i in range(9):
     logfile_name = 'foo-%s.log' % i
     test.fake_logfile(logfile_name)
     lines.append(line_fmt % logfile_name)

@@ -249,7 +249,7 @@ def map_bkids(entry, name):
     except AttributeError:
         return None
     result = []
-    for i in xrange(len(bkids)):
+    for i in range(len(bkids)):
         result.append(nodeinfo_string(bkids[i], bkidsigs[i], "        "))
     if result == []:
         return None

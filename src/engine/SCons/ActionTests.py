@@ -191,7 +191,6 @@ _null = SCons.Action._null
 
 def test_varlist(pos_call, str_call, cmd, cmdstrfunc, **kw):
     def call_action(a, pos_call=pos_call, str_call=str_call, kw=kw):
-        #FUTURE a = SCons.Action.Action(*a, **kw)
         a = SCons.Action.Action(*a, **kw)
         # returned object must provide these entry points
         assert hasattr(a, '__call__')

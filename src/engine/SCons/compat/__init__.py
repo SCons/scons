@@ -92,19 +92,8 @@ try:
     set
 except NameError:
     # Pre-2.4 Python has no native set type
-    try:
-        # Python 2.2 and 2.3 can use the copy of the 2.[45] sets module
-        # that we grabbed.
-        import_as('_scons_sets', 'sets')
-    except (ImportError, SyntaxError):
-        # Python 1.5 (ImportError, no __future_ module) and 2.1
-        # (SyntaxError, no generators in __future__) will blow up
-        # trying to import the 2.[45] sets module, so back off to a
-        # custom sets module that can be discarded easily when we
-        # stop supporting those versions.
-        import_as('_scons_sets15', 'sets')
-    import __builtin__
-    import sets
+    import_as('_scons_sets', 'sets')
+    import __builtin__, sets
     __builtin__.set = sets.Set
 
 import fnmatch
@@ -312,7 +301,22 @@ except AttributeError:
     tempfile.mkstemp = mkstemp
     del mkstemp
 
-
+try:
+    # pre-2.7 doesn't have the memoryview() built-in
+    memoryview
+except NameError:
+    class memoryview:
+        from types import SliceType
+        def __init__(self, obj):
+            # wrapping buffer in () keeps the fixer from changing it
+            self.obj = (buffer)(obj)
+        def __getitem__(self, indx):
+            if isinstance(indx, self.SliceType):
+                return self.obj[indx.start:indx.stop]
+            else:
+                return self.obj[indx]
+    import __builtin__
+    __builtin__.memoryview = memoryview
 
 
 # Local Variables:

@@ -231,6 +231,21 @@ import time
 import traceback
 import UserList
 
+try:
+    # pre-2.7 doesn't have the memoryview() built-in
+    memoryview
+except NameError:
+    class memoryview:
+        from types import SliceType
+        def __init__(self, obj):
+            # wrapping buffer in () keeps the fixer from changing it
+            self.obj = (buffer)(obj)
+        def __getitem__(self, indx):
+            if isinstance(indx, self.SliceType):
+                return self.obj[indx.start:indx.stop]
+            else:
+                return self.obj[indx]
+
 __all__ = [
     'diff_re',
     'fail_test',
@@ -809,13 +824,12 @@ def recv_some(p, t=.1, e=1, tr=5, stderr=0):
             time.sleep(max((x-time.time())/tr, 0))
     return ''.join(y)
 
-# TODO(3.0:  rewrite to use memoryview()
 def send_all(p, data):
     while len(data):
         sent = p.send(data)
         if sent is None:
             raise Exception(disconnect_message)
-        data = buffer(data, sent)
+        data = memoryview(data)[sent:]
 
 
 

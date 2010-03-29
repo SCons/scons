@@ -43,7 +43,7 @@ import sys
 sep = sys.argv.index('--')
 targets = sys.argv[1:sep]
 sources = sys.argv[sep+1:]
-for i in xrange(len(targets)):
+for i in range(len(targets)):
     t = targets[i]
     s = sources[i]
     fp = open(t, 'wb')

@@ -458,13 +458,10 @@ try:
 except AttributeError:
     try:
         types.StringTypes = (str, unicode)
-    except AttributeError:
+    except NameError:
         types.StringTypes = (str,)
-    def is_string(obj):
-        return type(obj) in types.StringTypes
-else:
-    def is_string(obj):
-        return isinstance(obj, types.StringTypes)
+def is_string(obj):
+    return isinstance(obj, types.StringTypes)
 
 _active = []
 
@@ -1002,7 +999,7 @@ class Popen(object):
 
 
         def _close_fds(self, but):
-            for i in xrange(3, MAXFD):
+            for i in range(3, MAXFD):
                 if i == but:
                     continue
                 try:
@@ -1186,7 +1183,8 @@ class Popen(object):
                     # When select has indicated that the file is writable,
                     # we can write up to PIPE_BUF bytes without risk
                     # blocking.  POSIX defines PIPE_BUF >= 512
-                    bytes_written = os.write(self.stdin.fileno(), buffer(input, input_offset, 512))
+                    m = memoryview(input)[input_offset:input_offset+512]
+                    bytes_written = os.write(self.stdin.fileno(), m)
                     input_offset = input_offset + bytes_written
                     if input_offset >= len(input):
                         self.stdin.close()

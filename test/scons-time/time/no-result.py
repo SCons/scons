@@ -49,7 +49,7 @@ line_fmt = "%s 11.123456\n"
 
 lines = []
 
-for i in xrange(9):
+for i in range(9):
     logfile_name = 'foo-%s-0.log' % i
     if i == 5:
         test.write(test.workpath(logfile_name), "NO RESULTS HERE!\n")
