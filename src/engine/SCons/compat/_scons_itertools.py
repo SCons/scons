@@ -90,13 +90,13 @@ def ifilterfalse(predicate, iterable):
     return result
 
 def imap(function, *iterables):
-    return apply(map, (function,) + tuple(iterables))
+    return iter(map(function, *tuple(iterables)))
 
 def islice(*args, **kw):
     raise NotImplementedError
 
 def izip(*iterables):
-    return apply(zip, iterables)
+    return iter(zip(*iterables))
 
 def repeat(*args, **kw):
     # returns infinite length, should not be supported

@@ -26,7 +26,7 @@ try:
 except NameError:
     import types
     def is_basestring(s):
-        return type(s) is types.StringType
+        return isinstance(s, str)
 else:
     def is_basestring(s):
         return isinstance(s, basestring)
@@ -285,7 +285,7 @@ class shlex:
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         token = self.get_token()
         if token == self.eof:
             raise StopIteration
@@ -311,7 +311,7 @@ if __name__ == '__main__':
     else:
         file = sys.argv[1]
         lexer = shlex(open(file), file)
-    while 1:
+    while True:
         tt = lexer.get_token()
         if tt:
             print "Token: " + repr(tt)

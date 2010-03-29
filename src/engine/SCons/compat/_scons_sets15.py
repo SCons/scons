@@ -14,8 +14,6 @@
 # Python 1.5 and 2.1, which don't support __iter__() and iterator types.
 #
 
-import string
-
 class Set:
     """The set class. It can contain mutable objects."""
 
@@ -30,7 +28,7 @@ class Set:
                     self.elems.append(elem)
 
     def __str__(self):
-        return "set([%s])" % string.join(map(str, self.elems), ", ")
+        return "set([%s])" % ", ".join(map(str, self.elems))
 
 
     def copy(self):
@@ -123,7 +121,7 @@ class Set:
         """Cartesian product of two sets."""
         ret = Set()
         for elemself in self.elems:
-            x = map(lambda other, s=elemself: (s, other), other.elems)
+            x = list(map(lambda other, s=elemself: (s, other), other.elems))
             ret.elems.extend(x)
         return ret
 

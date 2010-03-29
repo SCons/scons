@@ -1568,22 +1568,14 @@ def MD5collect(signatures):
 
 
 
-# Wrap the intern() function so it doesn't throw exceptions if ineligible
-# arguments are passed. The intern() function was moved into the sys module in
-# Python 3.
-try:
-    intern
-except NameError:
-    from sys import intern
-
 def silent_intern(x):
     """
-    Perform intern() on the passed argument and return the result.
+    Perform sys.intern() on the passed argument and return the result.
     If the input is ineligible (e.g. a unicode string) the original argument is
     returned and no exception is thrown.
     """
     try:
-        return intern(x)
+        return sys.intern(x)
     except TypeError:
         return x
 

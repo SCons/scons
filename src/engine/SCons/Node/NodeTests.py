@@ -1101,22 +1101,22 @@ class NodeTestCase(unittest.TestCase):
 
         nw = SCons.Node.Walker(n1)
         assert not nw.is_done()
-        assert nw.next().name ==  "n1"
+        assert nw.get_next().name ==  "n1"
         assert nw.is_done()
-        assert nw.next() is None
+        assert nw.get_next() is None
 
         n2 = MyNode("n2")
         n3 = MyNode("n3")
         n1.add_source([n2, n3])
 
         nw = SCons.Node.Walker(n1)
-        n = nw.next()
+        n = nw.get_next()
         assert n.name ==  "n2", n.name
-        n = nw.next()
+        n = nw.get_next()
         assert n.name ==  "n3", n.name
-        n = nw.next()
+        n = nw.get_next()
         assert n.name ==  "n1", n.name
-        n = nw.next()
+        n = nw.get_next()
         assert n is None, n
 
         n4 = MyNode("n4")
@@ -1127,17 +1127,17 @@ class NodeTestCase(unittest.TestCase):
         n3.add_dependency([n6, n7])
 
         nw = SCons.Node.Walker(n1)
-        assert nw.next().name ==  "n4"
-        assert nw.next().name ==  "n5"
+        assert nw.get_next().name ==  "n4"
+        assert nw.get_next().name ==  "n5"
         assert n2 in nw.history
-        assert nw.next().name ==  "n2"
-        assert nw.next().name ==  "n6"
-        assert nw.next().name ==  "n7"
+        assert nw.get_next().name ==  "n2"
+        assert nw.get_next().name ==  "n6"
+        assert nw.get_next().name ==  "n7"
         assert n3 in nw.history
-        assert nw.next().name ==  "n3"
+        assert nw.get_next().name ==  "n3"
         assert n1 in nw.history
-        assert nw.next().name ==  "n1"
-        assert nw.next() is None
+        assert nw.get_next().name ==  "n1"
+        assert nw.get_next() is None
 
         n8 = MyNode("n8")
         n8.add_dependency([n3])
@@ -1150,16 +1150,16 @@ class NodeTestCase(unittest.TestCase):
         global cycle_detected
 
         nw = SCons.Node.Walker(n3, cycle_func = cycle)
-        n = nw.next()
+        n = nw.get_next()
         assert n.name == "n6", n.name
-        n = nw.next()
+        n = nw.get_next()
         assert n.name == "n8", n.name
         assert cycle_detected
         cycle_detected = None
-        n = nw.next()
+        n = nw.get_next()
         assert n.name == "n7", n.name
-        n = nw.next()
-        assert nw.next() is None
+        n = nw.get_next()
+        assert nw.get_next() is None
 
     def test_abspath(self):
         """Test the get_abspath() method."""

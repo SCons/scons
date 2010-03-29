@@ -225,19 +225,19 @@ class SCons_XML_to_man(SCons_XML):
         body = body.replace('<para>', '\n')
         body = body.replace('</para>\n', '')
 
-        body = string.replace(body, '<variablelist>\n', '.RS 10\n')
+        body = body.replace('<variablelist>\n', '.RS 10\n')
         # Handling <varlistentry> needs to be rationalized and made
         # consistent.  Right now, the <term> values map to arbitrary,
         # ad-hoc idioms in the current man page.
         body = re.compile(r'<varlistentry>\n<term><literal>([^<]*)</literal></term>\n<listitem>\n').sub(r'.TP 6\n.B \1\n', body)
         body = re.compile(r'<varlistentry>\n<term><parameter>([^<]*)</parameter></term>\n<listitem>\n').sub(r'.IP \1\n', body)
         body = re.compile(r'<varlistentry>\n<term>([^<]*)</term>\n<listitem>\n').sub(r'.HP 6\n.B \1\n', body)
-        body = string.replace(body, '</listitem>\n', '')
-        body = string.replace(body, '</varlistentry>\n', '')
-        body = string.replace(body, '</variablelist>\n', '.RE\n')
+        body = body.replace('</listitem>\n', '')
+        body = body.replace('</varlistentry>\n', '')
+        body = body.replace('</variablelist>\n', '.RE\n')
 
         body = re.sub(r'\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
-        body = string.replace(body, '\n.IP\n\'\\"', '\n\n\'\\"')
+        body = body.replace('\n.IP\n\'\\"', '\n\n\'\\"')
         body = re.sub('&(scons|SConstruct|SConscript|jar|Make|lambda);', r'\\fB\1\\fP', body)
         body = re.sub('&(TARGET|TARGETS|SOURCE|SOURCES);', r'\\fB$\1\\fP', body)
         body = body.replace('&Dir;', r'\fBDir\fP')
@@ -335,7 +335,7 @@ class Tool(Proxy):
     prefix = 't-'
     tag = 'literal'
     def idfunc(self):
-        return string.replace(self.name, '+', 'X')
+        return self.name.replace('+', 'X')
     def termfunc(self):
         return [self.name]
     def entityfunc(self):

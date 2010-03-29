@@ -247,9 +247,9 @@ class SConsInteractiveCmd(cmd.Cmd):
             walker = SCons.Node.Walker(node,
                                         kids_func=get_unseen_children,
                                         eval_func=add_to_seen_nodes)
-            n = walker.next()
+            n = walker.get_next()
             while n:
-                n = walker.next()
+                n = walker.get_next()
 
         for node in seen_nodes.keys():
             # Call node.clear() to clear most of the state

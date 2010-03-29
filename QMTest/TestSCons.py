@@ -23,17 +23,6 @@ import shutil
 import sys
 import time
 
-import __builtin__
-try:
-    __builtin__.zip
-except AttributeError:
-    def zip(*lists):
-        result = []
-        for i in xrange(len(lists[0])):
-            result.append(tuple([l[i] for l in lists]))
-        return result
-    __builtin__.zip = zip
-
 try:
     x = True
 except NameError:

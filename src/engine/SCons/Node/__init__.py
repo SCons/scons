@@ -1276,7 +1276,7 @@ class Walker:
 
     This is depth-first, children are visited before the parent.
     The Walker object can be initialized with any node, and
-    returns the next node on the descent with each next() call.
+    returns the next node on the descent with each get_next() call.
     'kids_func' is an optional function that will be called to
     get the children of a node instead of calling 'children'.
     'cycle_func' is an optional function that will be called
@@ -1296,7 +1296,7 @@ class Walker:
         self.history = {} # used to efficiently detect and avoid cycles
         self.history[node] = None
 
-    def next(self):
+    def get_next(self):
         """Return the next node for this walk of the tree.
 
         This function is intentionally iterative, not recursive,

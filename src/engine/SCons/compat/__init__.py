@@ -117,7 +117,7 @@ except AttributeError:
         import os,posixpath
         result=[]
         pat = os.path.normcase(pat)
-        if not fnmatch._cache.has_key(pat):
+        if pat not in fnmatch._cache:
             import re
             res = fnmatch.translate(pat)
             fnmatch._cache[pat] = re.compile(res)
@@ -269,15 +269,8 @@ try:
     sys.maxsize
 except AttributeError:
     # Pre-2.6 Python has no sys.maxsize attribute
-    sys.maxsize = sys.maxint
-try:
-    sys.version_info
-except AttributeError:
-    # Pre-1.6 Python has no sys.version_info
-    import string
-    version_string = string.split(sys.version)[0]
-    version_ints = map(int, string.split(version_string, '.'))
-    sys.version_info = tuple(version_ints + ['final', 0])
+    # Wrapping sys in () is silly, but protects it from 2to3 renames fixer
+    sys.maxsize = (sys).maxint
 
 try:
     import UserString
@@ -308,7 +301,7 @@ except AttributeError:
             flags = flags | os.O_BINARY
         while True:
             try :
-                name = apply(tempfile.mktemp, args, kw)
+                name = tempfile.mktemp(*args, **kw)
                 fd = os.open( name, flags, 0600 )
                 return (fd, os.path.abspath(name))
             except OSError, e:
