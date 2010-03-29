@@ -184,8 +184,8 @@ except NameError:
         argument sequence.
         """
         result = []
-        for i in xrange(min(map(len, lists))):
-            result.append(tuple(map(lambda l: l[i], lists)))
+        for i in xrange(min(list(map(len, lists)))):
+            result.append(tuple([l[i] for l in lists]))
         return result
     __builtin__.zip = zip
 

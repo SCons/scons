@@ -302,15 +302,6 @@ except ImportError:
 else:
     atexit.register(_clean)
 
-try:
-    zip
-except NameError:
-    def zip(*lists):
-        result = []
-        for i in xrange(min(list(map(len, lists)))):
-            result.append(tuple([l[i] for l in lists]))
-        return result
-
 class Collector:
     def __init__(self, top):
         self.entries = [top]

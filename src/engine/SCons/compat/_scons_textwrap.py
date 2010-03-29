@@ -7,7 +7,8 @@
 
 __revision__ = "$Id: textwrap.py,v 1.32.8.2 2004/05/13 01:48:15 gward Exp $"
 
-import string, re
+import re
+from string import lowercase, maketrans
 
 try:
    unicode
@@ -71,7 +72,7 @@ class TextWrapper:
         be broken, and some lines might be longer than 'width'.
     """
 
-    whitespace_trans = string.maketrans(_whitespace, ' ' * len(_whitespace))
+    whitespace_trans = maketrans(_whitespace, ' ' * len(_whitespace))
 
     unicode_whitespace_trans = {}
     try:
@@ -101,12 +102,10 @@ class TextWrapper:
         wordsep_re = re.compile(r'(\s+|'                    # any whitespace
                                 r'-*\w{2,}-(?=\w{2,}))')    # hyphenated words
 
-    # XXX will there be a locale-or-charset-aware version of
-    # string.lowercase in 2.3?
     sentence_end_re = re.compile(r'[%s]'              # lowercase letter
                                  r'[\.\!\?]'          # sentence-ending punct.
                                  r'[\"\']?'           # optional end-of-quote
-                                 % string.lowercase)
+                                 % lowercase)
 
 
     def __init__(self,
@@ -137,12 +136,12 @@ class TextWrapper:
         becomes " foo    bar  baz".
         """
         if self.expand_tabs:
-            text = string.expandtabs(text)
+            text = text.expandtabs()
         if self.replace_whitespace:
-            if type(text) == type(''):
-                text = string.translate(text, self.whitespace_trans)
+            if isinstance(text, str):
+                text = text.translate(self.whitespace_trans)
             elif isinstance(text, unicode):
-                text = string.translate(text, self.unicode_whitespace_trans)
+                text = text.translate(self.unicode_whitespace_trans)
         return text
 
 
@@ -158,7 +157,7 @@ class TextWrapper:
           'use', ' ', 'the', ' ', '-b', ' ', 'option!'
         """
         chunks = self.wordsep_re.split(text)
-        chunks = filter(None, chunks)
+        chunks = [_f for _f in chunks if _f]
         return chunks
 
     def _fix_sentence_endings(self, chunks):
@@ -242,7 +241,7 @@ class TextWrapper:
 
             # First chunk on line is whitespace -- drop it, unless this
             # is the very beginning of the text (ie. no lines started yet).
-            if string.strip(chunks[0]) == '' and lines:
+            if chunks[0].strip() == '' and lines:
                 del chunks[0]
 
             while chunks:
@@ -263,13 +262,13 @@ class TextWrapper:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
 
             # If the last chunk on this line is all whitespace, drop it.
-            if cur_line and string.strip(cur_line[-1]) == '':
+            if cur_line and cur_line[-1].strip() == '':
                 del cur_line[-1]
 
             # Convert current line back to a string and store it in list
             # of all lines (return value).
             if cur_line:
-                lines.append(indent + string.join(cur_line, ''))
+                lines.append(indent + ''.join(cur_line))
 
         return lines
 
@@ -299,7 +298,7 @@ class TextWrapper:
         more than 'self.width' columns, and return a new string
         containing the entire wrapped paragraph.
         """
-        return string.join(self.wrap(text), "\n")
+        return "\n".join(self.wrap(text))
 
 
 # -- Convenience interface ---------------------------------------------
@@ -316,7 +315,7 @@ def wrap(text, width=70, **kwargs):
     """
     kw = kwargs.copy()
     kw['width'] = width
-    w = apply(TextWrapper, (), kw)
+    w = TextWrapper(**kw)
     return w.wrap(text)
 
 def fill(text, width=70, **kwargs):
@@ -330,7 +329,7 @@ def fill(text, width=70, **kwargs):
     """
     kw = kwargs.copy()
     kw['width'] = width
-    w = apply(TextWrapper, (), kw)
+    w = TextWrapper(**kw)
     return w.fill(text)
 
 
@@ -373,7 +372,7 @@ def dedent(text):
         for i in range(len(lines)):
             lines[i] = lines[i][margin:]
 
-    return string.join(lines, '\n')
+    return '\n'.join(lines)
 
 # Local Variables:
 # tab-width:4

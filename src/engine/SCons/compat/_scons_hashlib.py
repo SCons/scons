@@ -34,7 +34,7 @@ the underlying md5 module isn't available.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import md5
-import string
+from string import hexdigits
 
 class md5obj:
 
@@ -72,7 +72,7 @@ class md5obj:
         # hexdigest() method (*cough* 1.5.2 *cough*), so provide an
         # equivalent lifted from elsewhere.
         def hexdigest(self):
-            h = string.hexdigits
+            h = hexdigits
             r = ''
             for c in self.digest():
                 i = ord(c)

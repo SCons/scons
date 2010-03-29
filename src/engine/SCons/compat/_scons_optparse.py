@@ -66,7 +66,6 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import string
 import sys, os
 import types
 import textwrap
@@ -161,7 +160,7 @@ class AmbiguousOptionError (BadOptionError):
 
     def __str__(self):
         return (_("ambiguous option: %s (%s?)")
-                % (self.opt_str, string.join(self.possibilities, ", ")))
+                % (self.opt_str, ", ".join(self.possibilities)))
 
 
 class HelpFormatter:
@@ -296,7 +295,7 @@ class HelpFormatter:
         if default_value is NO_DEFAULT or default_value is None:
             default_value = self.NO_DEFAULT_VALUE
 
-        return string.replace(option.help, self.default_tag, str(default_value))
+        return option.help.replace(self.default_tag, str(default_value))
 
     def format_option(self, option):
         # The help for each option consists of two parts:
@@ -331,7 +330,7 @@ class HelpFormatter:
                 result.append("%*s%s\n" % (self.help_position, "", line))
         elif opts[-1] != "\n":
             result.append("\n")
-        return string.join(result, "")
+        return "".join(result)
 
     def store_option_strings(self, parser):
         self.indent()
@@ -354,7 +353,7 @@ class HelpFormatter:
     def format_option_strings(self, option):
         """Return a comma-separated list of option strings & metavariables."""
         if option.takes_value():
-            metavar = option.metavar or string.upper(option.dest)
+            metavar = option.metavar or option.dest.upper()
             short_opts = []
             for sopt in option._short_opts:
                 short_opts.append(self._short_opt_fmt % (sopt, metavar))
@@ -370,7 +369,7 @@ class HelpFormatter:
         else:
             opts = long_opts + short_opts
 
-        return string.join(opts, ", ")
+        return ", ".join(opts)
 
 class IndentedHelpFormatter (HelpFormatter):
     """Format help with indented section bodies.
@@ -411,9 +410,9 @@ class TitledHelpFormatter (HelpFormatter):
 
 
 def _parse_num(val, type):
-    if string.lower(val[:2]) == "0x":         # hexadecimal
+    if val[:2].lower() == "0x":         # hexadecimal
         radix = 16
-    elif string.lower(val[:2]) == "0b":       # binary
+    elif val[:2].lower() == "0b":       # binary
         radix = 2
         val = val[2:] or "0"            # have to remove "0b" prefix
     elif val[:1] == "0":                # octal
@@ -458,7 +457,7 @@ def check_choice(option, opt, value):
     if value in option.choices:
         return value
     else:
-        choices = string.join(map(repr, option.choices), ", ")
+        choices = ", ".join(map(repr, option.choices))
         raise OptionValueError(
             _("option %s: invalid choice: %r (choose from %s)")
             % (opt, value, choices))
@@ -606,7 +605,7 @@ class Option:
         # Filter out None because early versions of Optik had exactly
         # one short option and one long option, either of which
         # could be None.
-        opts = filter(None, opts)
+        opts = [_f for _f in opts if _f]
         if not opts:
             raise TypeError("at least one option string must be supplied")
         return opts
@@ -634,7 +633,7 @@ class Option:
 
     def _set_attrs(self, attrs):
         for attr in self.ATTRS:
-            if attrs.has_key(attr):
+            if attr in attrs:
                 setattr(self, attr, attrs[attr])
                 del attrs[attr]
             else:
@@ -645,7 +644,7 @@ class Option:
         if attrs:
             attrs = sorted(attrs.keys())
             raise OptionError(
-                "invalid keyword arguments: %s" % string.join(attrs, ", "),
+                "invalid keyword arguments: %s" % ", ".join(attrs),
                 self)
 
 
@@ -673,7 +672,7 @@ class Option:
             # Python 2.1 and earlier, and is short-circuited by the
             # first check on modern Pythons.)
             import __builtin__
-            if ( type(self.type) is types.TypeType or
+            if ( isinstance(self.type, type) or
                  (hasattr(self.type, "__name__") and
                   getattr(__builtin__, self.type.__name__, None) is self.type) ):
                 self.type = self.type.__name__
@@ -695,7 +694,7 @@ class Option:
             elif type(self.choices) not in (tuple, list):
                 raise OptionError(
                     "choices must be a list of strings ('%s' supplied)"
-                    % string.split(str(type(self.choices)), "'")[1], self)
+                    % str(type(self.choices)).split("'")[1], self)
         elif self.choices is not None:
             raise OptionError(
                 "must not supply choices for type %r" % self.type, self)
@@ -711,7 +710,7 @@ class Option:
             # or from the first short option string if no long options.
             if self._long_opts:
                 # eg. "--foo-bar" -> "foo_bar"
-                self.dest = string.replace(self._long_opts[0][2:], '-', '_')
+                self.dest = self._long_opts[0][2:].replace('-', '_')
             else:
                 self.dest = self._short_opts[0][1]
 
@@ -736,12 +735,12 @@ class Option:
                 raise OptionError(
                     "callback not callable: %r" % self.callback, self)
             if (self.callback_args is not None and
-                type(self.callback_args) is not tuple):
+                not isinstance(self.callback_args, tuple)):
                 raise OptionError(
                     "callback_args, if supplied, must be a tuple: not %r"
                     % self.callback_args, self)
             if (self.callback_kwargs is not None and
-                type(self.callback_kwargs) is not dict):
+                not isinstance(self.callback_kwargs, dict)):
                 raise OptionError(
                     "callback_kwargs, if supplied, must be a dict: not %r"
                     % self.callback_kwargs, self)
@@ -770,7 +769,7 @@ class Option:
     # -- Miscellaneous methods -----------------------------------------
 
     def __str__(self):
-        return string.join(self._short_opts + self._long_opts, "/")
+        return "/".join(self._short_opts + self._long_opts)
 
     __repr__ = _repr
 
@@ -798,7 +797,7 @@ class Option:
             if self.nargs == 1:
                 return self.check_value(opt, value)
             else:
-                return tuple(map(lambda v: self.check_value(opt, v), value))
+                return tuple([self.check_value(opt, v) for v in value])
 
     def process(self, opt, value, values, parser):
 
@@ -830,7 +829,7 @@ class Option:
         elif action == "callback":
             args = self.callback_args or ()
             kwargs = self.callback_kwargs or {}
-            apply(self.callback, (self, opt, value, parser,) + args, kwargs)
+            self.callback(self, opt, value, parser, *args, **kwargs)
         elif action == "help":
             parser.print_help()
             parser.exit()
@@ -890,7 +889,7 @@ class Values:
         are silently ignored.
         """
         for attr in dir(self):
-            if dict.has_key(attr):
+            if attr in dict:
                 dval = dict[attr]
                 if dval is not None:
                     setattr(self, attr, dval)
@@ -1010,10 +1009,10 @@ class OptionContainer:
     def _check_conflict(self, option):
         conflict_opts = []
         for opt in option._short_opts:
-            if self._short_opt.has_key(opt):
+            if opt in self._short_opt:
                 conflict_opts.append((opt, self._short_opt[opt]))
         for opt in option._long_opts:
-            if self._long_opt.has_key(opt):
+            if opt in self._long_opt:
                 conflict_opts.append((opt, self._long_opt[opt]))
 
         if conflict_opts:
@@ -1021,7 +1020,7 @@ class OptionContainer:
             if handler == "error":
                 raise OptionConflictError(
                     "conflicting option string(s): %s"
-                    % string.join(map(lambda co: co[0], conflict_opts), ", "),
+                    % ", ".join([co[0] for co in conflict_opts]),
                     option)
             elif handler == "resolve":
                 for (opt, c_option) in conflict_opts:
@@ -1038,8 +1037,8 @@ class OptionContainer:
         """add_option(Option)
            add_option(opt_str, ..., kwarg=val, ...)
         """
-        if type(args[0]) is str:
-            option = apply(self.option_class, args, kwargs)
+        if isinstance(args[0], str):
+            option = self.option_class(*args, **kwargs)
         elif len(args) == 1 and not kwargs:
             option = args[0]
             if not isinstance(option, Option):
@@ -1059,7 +1058,7 @@ class OptionContainer:
         if option.dest is not None:     # option has a dest, we need a default
             if option.default is not NO_DEFAULT:
                 self.defaults[option.dest] = option.default
-            elif not self.defaults.has_key(option.dest):
+            elif option.dest not in self.defaults:
                 self.defaults[option.dest] = None
 
         return option
@@ -1075,8 +1074,8 @@ class OptionContainer:
                 self._long_opt.get(opt_str))
 
     def has_option(self, opt_str):
-        return (self._short_opt.has_key(opt_str) or
-                self._long_opt.has_key(opt_str))
+        return (opt_str in self._short_opt or
+                opt_str in self._long_opt)
 
     def remove_option(self, opt_str):
         option = self._short_opt.get(opt_str)
@@ -1101,7 +1100,7 @@ class OptionContainer:
         for option in self.option_list:
             if not option.help is SUPPRESS_HELP:
                 result.append(formatter.format_option(option))
-        return string.join(result, "")
+        return "".join(result)
 
     def format_description(self, formatter):
         return formatter.format_description(self.get_description())
@@ -1112,7 +1111,7 @@ class OptionContainer:
             result.append(self.format_description(formatter))
         if self.option_list:
             result.append(self.format_option_help(formatter))
-        return string.join(result, "\n")
+        return "\n".join(result)
 
 
 class OptionGroup (OptionContainer):
@@ -1304,7 +1303,7 @@ class OptionParser (OptionContainer):
         elif usage is SUPPRESS_USAGE:
             self.usage = None
         # For backwards compatibility with Optik 1.3 and earlier.
-        elif string.lower(usage)[:7] == "usage: ":
+        elif usage.lower()[:7] == "usage: ":
             self.usage = usage[7:]
         else:
             self.usage = usage
@@ -1349,8 +1348,8 @@ class OptionParser (OptionContainer):
 
     def add_option_group(self, *args, **kwargs):
         # XXX lots of overlap with OptionContainer.add_option()
-        if type(args[0]) is str:
-            group = apply(OptionGroup, (self,) + args, kwargs)
+        if isinstance(args[0], str):
+            group = OptionGroup(self, *args, **kwargs)
         elif len(args) == 1 and not kwargs:
             group = args[0]
             if not isinstance(group, OptionGroup):
@@ -1497,7 +1496,7 @@ class OptionParser (OptionContainer):
         # Value explicitly attached to arg?  Pretend it's the next
         # argument.
         if "=" in arg:
-            (opt, next_arg) = string.split(arg, "=", 1)
+            (opt, next_arg) = arg.split("=", 1)
             rargs.insert(0, next_arg)
             had_explicit_value = True
         else:
@@ -1577,7 +1576,7 @@ class OptionParser (OptionContainer):
             return self.prog
 
     def expand_prog_name(self, s):
-        return string.replace(s, "%prog", self.get_prog_name())
+        return s.replace("%prog", self.get_prog_name())
 
     def get_description(self):
         return self.expand_prog_name(self.description)
@@ -1648,7 +1647,7 @@ class OptionParser (OptionContainer):
             result.append("\n")
         formatter.dedent()
         # Drop the last "\n", or the header if no options or option groups:
-        return string.join(result[:-1], "")
+        return "".join(result[:-1])
 
     def format_epilog(self, formatter):
         return formatter.format_epilog(self.epilog)
@@ -1663,7 +1662,7 @@ class OptionParser (OptionContainer):
             result.append(self.format_description(formatter) + "\n")
         result.append(self.format_option_help(formatter))
         result.append(self.format_epilog(formatter))
-        return string.join(result, "")
+        return "".join(result)
 
     # used by test suite
     def _get_encoding(self, file):
@@ -1694,11 +1693,11 @@ def _match_abbrev(s, wordmap):
     'words', raise BadOptionError.
     """
     # Is there an exact match?
-    if wordmap.has_key(s):
+    if s in wordmap:
         return s
     else:
         # Isolate all words with s as a prefix.
-        possibilities = filter(lambda w: w[:len(s)] == s, wordmap.keys())
+        possibilities = [w for w in wordmap.keys() if w[:len(s)] == s]
         # No exact match, so there had better be just one possibility.
         if len(possibilities) == 1:
             return possibilities[0]

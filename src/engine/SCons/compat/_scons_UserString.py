@@ -36,7 +36,7 @@ in later versions.
 try: unicode
 except NameError:
     def is_String(obj):
-        return type(obj) is str
+        return isinstance(obj, str)
 else:
     def is_String(obj):
         return type(obj) in (str, unicode)
@@ -57,9 +57,9 @@ class UserString:
     def __complex__(self): return complex(self.data)
     def __hash__(self): return hash(self.data)
 
-    def __cmp__(self, string):
+    def __cmp__(self, str):
         if isinstance(string, UserString):
-            return cmp(self.data, string.data)
+            return cmp(self.data, str.data)
         else:
             return cmp(self.data, string)
     def __contains__(self, char):
