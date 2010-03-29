@@ -41,7 +41,7 @@ lines = []
 line_fmt    = '   11.123456    22.234567    33.345678    44.456789    %s\n'
 empty_fmt   = '                                                       %s\n'
 
-for i in xrange(9):
+for i in range(9):
     logfile_name = 'foo-%s-0.log' % i
     if i == 5:
         test.write(test.workpath(logfile_name), "")

@@ -46,7 +46,7 @@ import TestSCons
 
 test = TestSCons.TimeSCons(variables={'TARGET_COUNT':139})
 
-for t in xrange(test.variables['TARGET_COUNT']):
+for t in range(test.variables['TARGET_COUNT']):
     open('source_%04d' % t, 'wb' ).write('contents\n')
 
 test.main()

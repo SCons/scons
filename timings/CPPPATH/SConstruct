@@ -23,7 +23,7 @@
 
 dir_count = int(ARGUMENTS['DIR_COUNT'])
 
-inc_list = [ Dir('inc_%04d' % t) for t in xrange(dir_count) ]
+inc_list = [ Dir('inc_%04d' % t) for t in range(dir_count) ]
 inc_list.append(Dir('include'))
 
 env = Environment(CPPPATH = inc_list)

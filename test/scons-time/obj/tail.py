@@ -40,7 +40,7 @@ lines = []
 
 line_fmt = '       1501%(i)s        1502%(i)s        1503%(i)s        1504%(i)s    %(logfile_name)s\n'
 
-for i in xrange(9):
+for i in range(9):
     logfile_name = 'foo-%s.log' % i
     test.fake_logfile(logfile_name, i)
     lines.append(line_fmt % locals())

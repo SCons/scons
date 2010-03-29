@@ -184,12 +184,10 @@ except NameError:
         argument sequence.
         """
         result = []
-        for i in xrange(min(list(map(len, lists)))):
+        for i in range(min(list(map(len, lists)))):
             result.append(tuple([l[i] for l in lists]))
         return result
     __builtin__.zip = zip
-
-
 
 #if sys.version_info[:3] in ((2, 2, 0), (2, 2, 1)):
 #    def lstrip(s, c=string.whitespace):

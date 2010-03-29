@@ -1148,7 +1148,7 @@ def _build_targets(fs, options, targets, target_top):
             # This is cribbed from the implementation of
             # random.shuffle() in Python 2.X.
             d = dependencies
-            for i in xrange(len(d)-1, 0, -1):
+            for i in range(len(d)-1, 0, -1):
                 j = int(random.random() * (i+1))
                 d[i], d[j] = d[j], d[i]
             return d

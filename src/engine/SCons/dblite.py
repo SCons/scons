@@ -157,7 +157,8 @@ class dblite:
     return key in self._dict
 
   def iterkeys(self):
-    return self._dict.iterkeys()
+    # Wrapping name in () prevents fixer from "fixing" this
+    return (self._dict.iterkeys)()
 
   __iter__ = iterkeys
 

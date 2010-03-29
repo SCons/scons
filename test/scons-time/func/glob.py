@@ -43,7 +43,7 @@ def _main():
 """
 
 expect = []
-for i in xrange(9):
+for i in range(9):
     test.subdir(str(i))
     test.profile_data('foo-%s.prof' % i, '%s/prof.py' % i, '_main', input)
     expect.append((r'\d.\d\d\d %s/prof\.py:1\(_main\)' + '\n') % i)

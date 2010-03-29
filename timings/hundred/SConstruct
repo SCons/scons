@@ -27,8 +27,8 @@ def copy_files( env, target, source ):
     for t, s in zip(target, source):
         open(str(t),  'wb').write(open(str(s), 'rb').read())
 
-source_list = ['source_%04d' % t for t in xrange(target_count)]
-target_list = ['target_%04d' % t for t in xrange(target_count)]
+source_list = ['source_%04d' % t for t in range(target_count)]
+target_list = ['target_%04d' % t for t in range(target_count)]
 
 env = Environment()
 

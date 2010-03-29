@@ -47,11 +47,11 @@ def _main():
 foo_lines = []
 bar_lines = []
 
-for i in xrange(2):
+for i in range(2):
     test.profile_data('foo-%s.prof' % i, 'prof.py', '_main', input)
     foo_lines.append(r'\d.\d\d\d prof\.py:1\(_main\)' + '\n')
 
-for i in xrange(4):
+for i in range(4):
     test.profile_data('bar-%s.prof' % i, 'prof.py', '_main', input)
     bar_lines.append(r'\d.\d\d\d prof\.py:1\(_main\)' + '\n')
 

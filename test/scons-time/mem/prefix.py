@@ -43,7 +43,7 @@ line_fmt = '        1000         2000         3000         4000    %s\n'
 foo_lines = [ header ]
 bar_lines = [ header ]
 
-for i in xrange(3):
+for i in range(3):
     logfile_name = os.path.join('foo-%s.log' % i)
     test.fake_logfile(logfile_name)
     foo_lines.append(line_fmt % logfile_name)
