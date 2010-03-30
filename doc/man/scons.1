@@ -8004,7 +8004,7 @@ may be indicated by a dictionary entry with a key value of None.
 .P
 
 .ES
-b = Builder("build_it < $SOURCE > $TARGET"
+b = Builder("build_it < $SOURCE > $TARGET",
             prefix = "file-")
 
 def gen_prefix(env, sources):
