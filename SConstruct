@@ -767,7 +767,7 @@ for p in [ scons ]:
             MANIFEST_in_list.append(MANIFEST_in)
             files = [x[:-1] for x in open(MANIFEST_in).readlines()]
             raw_files.extend(files)
-            src_files.extend([os.path.join(subdir, x) for x in files])
+            src_files.extend([os.path.join(ssubdir, x) for x in files])
             for f in files:
                 r = os.path.join(sp['rpm_dir'], f)
                 rpm_files.append(r)
