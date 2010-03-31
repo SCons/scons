@@ -49,15 +49,13 @@ try:
     False
 except NameError:
     # Pre-2.2 Python has no False keyword.
-    import __builtin__
-    __builtin__.False = not 1
+    False = not 1
 
 try:
     True
 except NameError:
     # Pre-2.2 Python has no True keyword.
-    import __builtin__
-    __builtin__.True = not 0
+    True = not 0
 
 try:
     sorted
@@ -83,7 +81,6 @@ except NameError:
         if reverse:
             result.reverse()
         return result
-    __builtin__.sorted = sorted
 
 def make_temp_file(**kw):
     try:
