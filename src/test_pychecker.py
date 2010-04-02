@@ -75,7 +75,6 @@ ignore = [
     'SCons/compat/_scons_itertools.py',
     'SCons/compat/_scons_optparse.py',
     'SCons/compat/_scons_sets.py',
-    'SCons/compat/_scons_sets15.py',
     'SCons/compat/_scons_shlex.py',
     'SCons/compat/_scons_subprocess.py',
     'SCons/compat/_scons_textwrap.py',
