@@ -131,7 +131,6 @@ check_list = [
         remove_list = [
             'engine/SCons/compat/_scons_optparse.py',
             'engine/SCons/compat/_scons_sets.py',
-            'engine/SCons/compat/_scons_sets15.py',
             'engine/SCons/compat/_scons_shlex.py',
             'engine/SCons/compat/_scons_subprocess.py',
             'engine/SCons/compat/_scons_textwrap.py',
@@ -164,7 +163,6 @@ check_list = [
             'gentoo',
             'engine/SCons/compat/_scons_optparse.py',
             'engine/SCons/compat/_scons_sets.py',
-            'engine/SCons/compat/_scons_sets15.py',
             'engine/SCons/compat/_scons_shlex.py',
             'engine/SCons/compat/_scons_subprocess.py',
             'engine/SCons/compat/_scons_textwrap.py',
@@ -185,7 +183,6 @@ check_list = [
         remove_list = [
             'SCons/compat/_scons_optparse.py',
             'SCons/compat/_scons_sets.py',
-            'SCons/compat/_scons_sets15.py',
             'SCons/compat/_scons_shlex.py',
             'SCons/compat/_scons_subprocess.py',
             'SCons/compat/_scons_textwrap.py',
@@ -230,7 +227,6 @@ check_list = [
             'src/engine/setup.cfg',
             'src/engine/SCons/compat/_scons_optparse.py',
             'src/engine/SCons/compat/_scons_sets.py',
-            'src/engine/SCons/compat/_scons_sets15.py',
             'src/engine/SCons/compat/_scons_shlex.py',
             'src/engine/SCons/compat/_scons_subprocess.py',
             'src/engine/SCons/compat/_scons_textwrap.py',
