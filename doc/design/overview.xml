@@ -409,7 +409,7 @@ This is where it will go, anyway...
   <para>
 
    An alternate &SCons; interface would provide backwards
-   compatibility with the classic &Make utility.
+   compatibility with the classic &Make; utility.
    This would be done by embedding the &SCons; Build Engine
    in a Python script that can translate existing
    &Makefile;s into the underlying calls to the

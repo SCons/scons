@@ -7,6 +7,13 @@
                             Change Log
 
 
+RELEASE X.X.X - 
+
+  From Dirk Baechle:
+
+    - Fix XML in documentation.
+
+
 RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400
 
   From Steven Knight:

@@ -1208,7 +1208,7 @@
         choices to a specific set of allowed colors.
         This can be set up quite easily
         using the &EnumVariable;,
-        which takes a list of &allowed_values
+        which takes a list of &allowed_values;
         in addition to the variable name,
         default value,
         and help text arguments:
@@ -2064,7 +2064,7 @@
 
         &SCons; supports a &DEFAULT_TARGETS; variable
         that lets you get at the current list of default targets.
-        The &DEFAULT_TARGETS variable has
+        The &DEFAULT_TARGETS; variable has
         two important differences from the &COMMAND_LINE_TARGETS; variable.
         First, the &DEFAULT_TARGETS; variable is a list of
         internal &SCons; nodes,

@@ -85,7 +85,7 @@
 
 
 <section id="sect-envs">
- <title>&ConsEnvs</title>
+ <title>&ConsEnvs;</title>
 
  <para>
 
@@ -129,7 +129,7 @@
    <footnote>
     <para>
      It would be nice if we could avoid re-inventing the wheel here by
-     using some other Python-based tool &Autoconf replacement--like what
+     using some other Python-based tool &Autoconf; replacement--like what
      was supposed to come out of the Software Carpentry configuration
      tool contest.  It will probably be most efficient to roll our own
      logic initially and convert if something better does come along.
@@ -283,7 +283,7 @@
 	MyBuilder = Builder(command = "$XX $XXFLAGS -c $_INPUTS -o $target")
 
 	env.Command(targets = 'bar.out', sources = 'bar.in',
-	            command = "sed '1d' < $source > $target")
+	            command = "sed '1d' &lt; $source > $target")
 	</programlisting>
 
   <para>
@@ -317,7 +317,7 @@
 	<programlisting>
 	env = Environment(FUNC = myfunc)
 	env.Command(target = 'foo.out', source = 'foo.in',
-	            command = "${FUNC($<)}")
+	            command = "${FUNC($&lt;)}")
 	</programlisting>
 
   <para>
@@ -1678,8 +1678,8 @@ I dunno, maybe this is fine as it is...
      <literal>target</literal> (that is, one passed to the
      &Build; or &Clean; method).  Objects which a top-level
      <literal>target</literal> is directly dependent upon have a
-     <literal>level</literal> of <1>, their direct dependencies have a
-     <literal>level</literal> of <2>, etc.  Typically used to indent
+     <literal>level</literal> of &lt;1>, their direct dependencies have a
+     <literal>level</literal> of &lt;2>, etc.  Typically used to indent
      output to reflect the recursive levels.
 
     </para>

@@ -6,14 +6,14 @@
 
 <mediaobject>
   <imageobject>
-    <imagedata fileref="arch" format="eps" align="center">
+    <imagedata fileref="arch" format="eps" align="center"/>
   </imageobject>
   <imageobject>
-    <imagedata fileref="arch.jpg" format="jpg" align="center">
+    <imagedata fileref="arch.jpg" format="jpg" align="center"/>
   </imageobject>
   <!--  PDF files?
   <imageobject>
-    <imagedata fileref="arch.pdf" align="center">
+    <imagedata fileref="arch.pdf" align="center"/>
   </imageobject>
   -->
 </mediaobject>
@@ -166,14 +166,14 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="node" format="eps" align="center">
+        <imagedata fileref="node" format="eps" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="node.jpg" format="jpg" align="center">
+        <imagedata fileref="node.jpg" format="jpg" align="center"/>
       </imageobject>
       <!--  PDF files?
       <imageobject>
-        <imagedata fileref="node.pdf" align="center">
+        <imagedata fileref="node.pdf" align="center"/>
       </imageobject>
       -->
     </mediaobject>
@@ -230,14 +230,14 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="scanner" format="eps" align="center">
+        <imagedata fileref="scanner" format="eps" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="scanner.jpg" format="jpg" align="center">
+        <imagedata fileref="scanner.jpg" format="jpg" align="center"/>
       </imageobject>
       <!--  PDF files?
       <imageobject>
-        <imagedata fileref="scanner.pdf" align="center">
+        <imagedata fileref="scanner.pdf" align="center"/>
       </imageobject>
       -->
     </mediaobject>
@@ -264,7 +264,7 @@
       signature information for &Node; objects.
       The signature subsystem in &SCons;
       supports multiple ways to
-      determine whether a &Node is up-to-date
+      determine whether a &Node; is up-to-date
       by using an abstract &Sig; class
       as a strategy wrapper:
 
@@ -272,14 +272,14 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="sig" format="eps" align="center">
+        <imagedata fileref="sig" format="eps" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="sig.jpg" format="jpg" align="center">
+        <imagedata fileref="sig.jpg" format="jpg" align="center"/>
       </imageobject>
       <!--  PDF files?
       <imageobject>
-        <imagedata fileref="sig.pdf" align="center">
+        <imagedata fileref="sig.pdf" align="center"/>
       </imageobject>
       -->
     </mediaobject>
@@ -328,14 +328,14 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="builder" format="eps" align="center">
+        <imagedata fileref="builder" format="eps" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="builder.jpg" format="jpg" align="center">
+        <imagedata fileref="builder.jpg" format="jpg" align="center"/>
       </imageobject>
       <!--  PDF files?
       <imageobject>
-        <imagedata fileref="builder.pdf" align="center">
+        <imagedata fileref="builder.pdf" align="center"/>
       </imageobject>
       -->
     </mediaobject>
@@ -391,14 +391,14 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="job-task" format="eps" align="center">
+        <imagedata fileref="job-task" format="eps" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="job-task.jpg" format="jpg" align="center">
+        <imagedata fileref="job-task.jpg" format="jpg" align="center"/>
       </imageobject>
       <!--  PDF files?
       <imageobject>
-        <imagedata fileref="job-task.pdf" align="center">
+        <imagedata fileref="job-task.pdf" align="center"/>
       </imageobject>
       -->
     </mediaobject>
@@ -435,7 +435,7 @@
 
     <para>
 
-      The &Taskmaster uses the node subsystem's
+      The &Taskmaster; uses the node subsystem's
       &Walker; class to walk the dependency tree,
       and the &Sig; class to use the
       appropriate method
@@ -629,8 +629,8 @@
     <para>
 
       &Builder; objects are associated with a &consenv; through a
-      &consvar; named &BUILDERS;, a list of the &Builder objects that
-      will be available for execution through the &consenv:
+      &consvar; named &BUILDERS;, a list of the &Builder; objects that
+      will be available for execution through the &consenv;:
 
     </para>
 
@@ -679,7 +679,7 @@
 
       &Scanner; objects are associated with a &consenv; through a
       &consvar; named &SCANNERS;, a list of the &Scanner; objects that
-      will be available through the &consenv:
+      will be available through the &consenv;:
 
     </para>
 
@@ -818,10 +818,10 @@
     The most noticeable difference between &scons; and &Make;, or most
     other build tools, is that the configuration files are actually
     Python scripts, generically called "SConscripts" (although the
-    top-level "Makefile" is named &SConstruct). Users do not have to
+    top-level "Makefile" is named &SConstruct;). Users do not have to
     learn a new language syntax, but instead configure dependency
     information by making direct calls to the Python API of the
-    &SCons; Build Engine. Here is an example &SConstruct file which
+    &SCons; Build Engine. Here is an example &SConstruct; file which
     builds a program in side-by-side normal and debug versions:
 
   </para>

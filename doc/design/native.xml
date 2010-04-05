@@ -52,7 +52,7 @@
  <para>
 
   By default, the &SCons; utility searches for a file named
-  &SConstruct;, &Sconstruct; or &sconstruct (in that order) in the
+  &SConstruct;, &Sconstruct; or &sconstruct; (in that order) in the
   current directory, and reads its configuration from the first file
   found.  A <option>-f</option> command-line option exists to read a
   different file name.
@@ -175,7 +175,7 @@
 
   Any variables (not just &SCons; objects) that are to be shared between configuration files must be
   explicitly passed in the &SConscript; call
-  using the &Export method:
+  using the &Export; method:
 
  </para>
 
@@ -261,7 +261,7 @@ Equivalent to the above example:
 
  <para>
 
-  &SCons; will allow users to share &consenvs, as well as other &SCons;
+  &SCons; will allow users to share &consenvs;, as well as other &SCons;
   objects and Python variables, by importing them from a central, shared
   repository using normal Python syntax:
 

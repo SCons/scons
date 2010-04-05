@@ -155,7 +155,7 @@
  <programlisting>
     env = Environment()
     d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
-    for k,v in l:
+    for k,v in sorted(d.items()):
         if v:
             print k, v
     env.MergeFlags(d)

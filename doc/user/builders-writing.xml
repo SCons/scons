@@ -166,7 +166,7 @@ This functionality could be invoked as in the following example:
     
 
     <programlisting>
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
     </programlisting>
 
@@ -251,7 +251,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        env = Environment()
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env.Append(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -266,7 +266,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        env = Environment()
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env['BUILDERS']['Foo'] = bld
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -313,7 +313,7 @@ This functionality could be invoked as in the following example:
     
 
     <programlisting>
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET',
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET',
                      suffix = '.foo',
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
@@ -586,7 +586,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        def generate_actions(source, target, env, for_signature):
-           return 'foobuild < %s > %s' % (source[0], target[0])
+           return 'foobuild &lt; %s &gt; %s' % (source[0], target[0])
        bld = Builder(generator = generate_actions,
                      suffix = '.foo',
                      src_suffix = '.input')
@@ -708,7 +708,7 @@ This functionality could be invoked as in the following example:
     </programlisting>
 
     <programlisting>
-      bld = Builder(action = 'my_command $SOURCES > $TARGET',
+      bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
                     suffix = '.foo',
                     src_suffix = '.input',
                     emitter = '$MY_EMITTER')

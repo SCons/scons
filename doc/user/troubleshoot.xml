@@ -1118,7 +1118,7 @@
       % <userinput>scons -Q --debug=stacktrace</userinput>
       scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
       scons: internal stack trace:
-        File "bootstrap/src/engine/SCons/Job.py", line 197, in start
+        File "bootstrap/src/engine/SCons/Job.py", line 199, in start
           task.prepare()
         File "bootstrap/src/engine/SCons/Script/Main.py", line 167, in prepare
           return SCons.Taskmaster.OutOfDateTask.prepare(self)
