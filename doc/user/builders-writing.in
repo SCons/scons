@@ -129,7 +129,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <programlisting>
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
     </programlisting>
 
     <para>
@@ -165,7 +165,7 @@ This functionality could be invoked as in the following example:
 
     <scons_example name="ex1">
        <file name="SConstruct">
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
        import os
        env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
@@ -180,7 +180,7 @@ This functionality could be invoked as in the following example:
     </scons_example>
 
     <sconstruct>
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
     </sconstruct>
 
@@ -276,7 +276,7 @@ This functionality could be invoked as in the following example:
        env = Environment()
        import os
        env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env.Append(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -294,7 +294,7 @@ This functionality could be invoked as in the following example:
 
     <sconstruct>
        env = Environment()
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env.Append(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -309,7 +309,7 @@ This functionality could be invoked as in the following example:
 
     <sconstruct>
        env = Environment()
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env['BUILDERS']['Foo'] = bld
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -352,7 +352,7 @@ This functionality could be invoked as in the following example:
 
     <scons_example name="ex4">
        <file name="SConstruct">
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET',
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET',
                      suffix = '.foo',
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
@@ -373,7 +373,7 @@ This functionality could be invoked as in the following example:
     </scons_example>
 
     <sconstruct>
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET',
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET',
                      suffix = '.foo',
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
@@ -544,7 +544,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        def generate_actions(source, target, env, for_signature):
-           return 'foobuild < %s > %s' % (target[0], source[0])
+           return 'foobuild &lt; %s &gt; %s' % (target[0], source[0])
     </programlisting>
 
     <para>
@@ -647,7 +647,7 @@ This functionality could be invoked as in the following example:
     <scons_example name="ex6">
        <file name="SConstruct">
        def generate_actions(source, target, env, for_signature):
-           return 'foobuild < %s > %s' % (source[0], target[0])
+           return 'foobuild &lt; %s &gt; %s' % (source[0], target[0])
        bld = Builder(generator = generate_actions,
                      suffix = '.foo',
                      src_suffix = '.input')
@@ -666,7 +666,7 @@ This functionality could be invoked as in the following example:
 
     <sconstruct>
        def generate_actions(source, target, env, for_signature):
-           return 'foobuild < %s > %s' % (source[0], target[0])
+           return 'foobuild &lt; %s &gt; %s' % (source[0], target[0])
        bld = Builder(generator = generate_actions,
                      suffix = '.foo',
                      src_suffix = '.input')
@@ -790,7 +790,7 @@ This functionality could be invoked as in the following example:
     <scons_example name="MY_EMITTER">
 
       <file name="SConstruct" printme="1">
-        bld = Builder(action = 'my_command $SOURCES > $TARGET',
+        bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
                       suffix = '.foo',
                       src_suffix = '.input',
                       emitter = '$MY_EMITTER')
@@ -828,7 +828,7 @@ This functionality could be invoked as in the following example:
     </scons_example>
 
     <sconstruct>
-      bld = Builder(action = 'my_command $SOURCES > $TARGET',
+      bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
                     suffix = '.foo',
                     src_suffix = '.input',
                     emitter = '$MY_EMITTER')
@@ -934,8 +934,8 @@ This functionality could be invoked as in the following example:
       <file name="site_scons/site_init.py" printme=1>
         def TOOL_ADD_HEADER(env):
            """A Tool to add a header from $HEADER to the source file"""
-           add_header = Builder(action=['echo "$HEADER" > $TARGET',
-                                        'cat $SOURCE >> $TARGET'])
+           add_header = Builder(action=['echo "$HEADER" &gt; $TARGET',
+                                        'cat $SOURCE &gt;&gt; $TARGET'])
            env.Append(BUILDERS = {'AddHeader' : add_header})
            env['HEADER'] = '' # set default value
       </file>

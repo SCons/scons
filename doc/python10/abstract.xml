@@ -3,7 +3,7 @@
   &SCons; is a software construction tool (build tool, or make tool)
   implemented in Python, which uses Python scripts as "configuration
   files" for software builds. Based on the design which won the
-  Software Carpentry build tool competition, &SCons solves a number of
+  Software Carpentry build tool competition, &SCons; solves a number of
   problems associated with other build tools, especially including the
   classic and ubiquitous &Make; itself.
 
