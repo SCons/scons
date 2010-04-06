@@ -44,7 +44,7 @@ PDFLaTeXAction = None
 def PDFLaTeXAuxFunction(target = None, source= None, env=None):
     result = SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
     if result != 0:
-        print env['PDFLATEX']," returned an error, check the log file"
+        SCons.Tool.tex.check_file_error_message(env['PDFLATEX'])
     return result
 
 PDFLaTeXAuxAction = None

@@ -59,11 +59,11 @@ def PDFTeXLaTeXFunction(target = None, source= None, env=None):
     if SCons.Tool.tex.is_LaTeX(source,env,abspath):
         result = PDFLaTeXAuxAction(target,source,env)
         if result != 0:
-            print env['PDFLATEX']," returned an error, check the log file"
+            SCons.Tool.tex.check_file_error_message(env['PDFLATEX'])
     else:
         result = PDFTeXAction(target,source,env)
         if result != 0:
-            print env['PDFTEX']," returned an error, check the log file"
+            SCons.Tool.tex.check_file_error_message(env['PDFTEX'])
     return result
 
 PDFTeXLaTeXAction = None
