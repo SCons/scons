@@ -35,10 +35,10 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import base64
+import cPickle
 import hashlib
 import ntpath
 import os
-import pickle
 import re
 import sys
 
@@ -426,10 +426,10 @@ class _GenerateV6DSP(_DSPGenerator):
 
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
-            pdata = pickle.dumps(self.configs,1)
+            pdata = cPickle.dumps(self.configs,1)
             pdata = base64.encodestring(pdata)
             self.file.write(pdata + '\n')
-            pdata = pickle.dumps(self.sources,1)
+            pdata = cPickle.dumps(self.sources,1)
             pdata = base64.encodestring(pdata)
             self.file.write(pdata + '\n')
 
@@ -487,7 +487,7 @@ class _GenerateV6DSP(_DSPGenerator):
         # OK, we've found our little pickled cache of data.
         try:
             datas = base64.decodestring(datas)
-            data = pickle.loads(datas)
+            data = cPickle.loads(datas)
         except KeyboardInterrupt:
             raise
         except:
@@ -506,7 +506,7 @@ class _GenerateV6DSP(_DSPGenerator):
         # it has a "# " in front of it, so we strip that.
         try:
             datas = base64.decodestring(datas)
-            data = pickle.loads(datas)
+            data = cPickle.loads(datas)
         except KeyboardInterrupt:
             raise
         except:
@@ -688,10 +688,10 @@ class _GenerateV7DSP(_DSPGenerator):
 
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
-            pdata = pickle.dumps(self.configs,1)
+            pdata = cPickle.dumps(self.configs,1)
             pdata = base64.encodestring(pdata)
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
-            pdata = pickle.dumps(self.sources,1)
+            pdata = cPickle.dumps(self.sources,1)
             pdata = base64.encodestring(pdata)
             self.file.write(pdata + '-->\n')
 
@@ -792,7 +792,7 @@ class _GenerateV7DSP(_DSPGenerator):
         # OK, we've found our little pickled cache of data.
         try:
             datas = base64.decodestring(datas)
-            data = pickle.loads(datas)
+            data = cPickle.loads(datas)
         except KeyboardInterrupt:
             raise
         except:
@@ -810,7 +810,7 @@ class _GenerateV7DSP(_DSPGenerator):
         # OK, we've found our little pickled cache of data.
         try:
             datas = base64.decodestring(datas)
-            data = pickle.loads(datas)
+            data = cPickle.loads(datas)
         except KeyboardInterrupt:
             raise
         except:
@@ -937,7 +937,7 @@ class _GenerateV7DSW(_DSWGenerator):
         # OK, we've found our little pickled cache of data.
         try:
             datas = base64.decodestring(datas)
-            data = pickle.loads(datas)
+            data = cPickle.loads(datas)
         except KeyboardInterrupt:
             raise
         except:
@@ -1042,7 +1042,7 @@ class _GenerateV7DSW(_DSWGenerator):
                             '\tEndGlobalSection\n')
         self.file.write('EndGlobal\n')
         if self.nokeep == 0:
-            pdata = pickle.dumps(self.configs,1)
+            pdata = cPickle.dumps(self.configs,1)
             pdata = base64.encodestring(pdata)
             self.file.write(pdata + '\n')
 
