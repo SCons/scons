@@ -31,14 +31,13 @@ Test the ability to configure the $PCHCOM construction variable.
 import TestSCons
 import sys
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
-
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
+
+if sys.platform != 'win32':
+    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 test.write('SConstruct', """
 env_64 = Environment(tools=['default', 'msvc'],
