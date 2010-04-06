@@ -44,7 +44,7 @@ import SCons.Tool.tex
 def LaTeXAuxFunction(target = None, source= None, env=None):
     result = SCons.Tool.tex.InternalLaTeXAuxAction( SCons.Tool.tex.LaTeXAction, target, source, env )
     if result != 0:
-        print env['LATEX']," returned an error, check the log file"
+        SCons.Tool.tex.check_file_error_message(env['LATEX'])
     return result
 
 LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction,

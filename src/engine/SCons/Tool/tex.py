@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import re
 import shutil
+import sys
 
 import SCons.Action
 import SCons.Node
@@ -131,6 +132,10 @@ MakeAcronymsAction = None
 _null = SCons.Scanner.LaTeX._null
 
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
+
+def check_file_error_message(utility, filename='log'):
+    msg = '%s returned an error, check the %s file\n' % (utility, filename)
+    sys.stdout.write(msg)
 
 def FindFile(name,suffixes,paths,env,requireExt=False):
     if requireExt:
@@ -297,7 +302,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                         bibfile = env.fs.File(targetbase)
                         result = BibTeXAction(bibfile, bibfile, env)
                         if result != 0:
-                            print env['BIBTEX']," returned an error, check the blg file"
+                            check_file_error_message(env['BIBTEX'], 'blg')
                             return result
                         must_rerun_latex = check_MD5(suffix_nodes['.bbl'],'.bbl')
                         break
@@ -310,7 +315,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             idxfile = suffix_nodes['.idx']
             result = MakeIndexAction(idxfile, idxfile, env)
             if result != 0:
-                print env['MAKEINDEX']," returned an error, check the ilg file"
+                check_file_error_message(env['MAKEINDEX'], 'ilg')
                 return result
 
         # TO-DO: need to add a way for the user to extend this list for whatever
@@ -328,7 +333,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             nclfile = suffix_nodes['.nlo']
             result = MakeNclAction(nclfile, nclfile, env)
             if result != 0:
-                print env['MAKENCL']," (nomenclature) returned an error, check the nlg file"
+                check_file_error_message('%s (nomenclature)' % env['MAKENCL'],
+                                         'nlg')
                 #return result
 
         # Now decide if latex will need to be run again due to glossary.
@@ -339,7 +345,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             glofile = suffix_nodes['.glo']
             result = MakeGlossaryAction(glofile, glofile, env)
             if result != 0:
-                print env['MAKEGLOSSARY']," (glossary) returned an error, check the glg file"
+                check_file_error_message('%s (glossary)' % env['MAKEGLOSSARY'],
+                                         'glg')
                 #return result
 
         # Now decide if latex will need to be run again due to acronyms.
@@ -350,7 +357,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             acrfile = suffix_nodes['.acn']
             result = MakeAcronymsAction(acrfile, acrfile, env)
             if result != 0:
-                print env['MAKEACRONYMS']," (acronymns) returned an error, check the alg file"
+                check_file_error_message('%s (acronyms)' % env['MAKEACRONYMS'],
+                                         'alg')
                 return result
 
         # Now decide if latex needs to be run yet again to resolve warnings.
@@ -487,11 +495,11 @@ def TeXLaTeXFunction(target = None, source= None, env=None):
     if is_LaTeX(source,env,abspath):
         result = LaTeXAuxAction(target,source,env)
         if result != 0:
-            print env['LATEX']," returned an error, check the log file"
+            check_file_error_message(env['LATEX'])
     else:
         result = TeXAction(target,source,env)
         if result != 0:
-            print env['TEX']," returned an error, check the log file"
+            check_file_error_message(env['TEX'])
     return result
 
 def TeXLaTeXStrFunction(target = None, source= None, env=None):
