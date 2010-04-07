@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import os
 import os.path
 import sys
@@ -2891,11 +2893,11 @@ class find_fileTestCase(unittest.TestCase):
         # 'bar/baz' as a Dir.
         SCons.Node.FS.find_file('baz/no_file_here', paths)
 
-        import StringIO
+        import io
         save_sys_stdout = sys.stdout
 
         try:
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             SCons.Node.FS.find_file('foo2', paths, verbose="xyz")
             expect = "  xyz: looking for 'foo2' in '.' ...\n" + \
@@ -2903,7 +2905,7 @@ class find_fileTestCase(unittest.TestCase):
             c = sio.getvalue()
             assert c == expect, c
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             SCons.Node.FS.find_file('baz2', paths, verbose=1)
             expect = "  find_file: looking for 'baz2' in '.' ...\n" + \
@@ -2912,7 +2914,7 @@ class find_fileTestCase(unittest.TestCase):
             c = sio.getvalue()
             assert c == expect, c
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             SCons.Node.FS.find_file('on_disk', paths, verbose=1)
             expect = "  find_file: looking for 'on_disk' in '.' ...\n" + \

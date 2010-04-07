@@ -23,16 +23,18 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
+import io
 import os
 import re
-import StringIO
 import sys
 from types import *
 import unittest
 
 import TestCmd
 
-sys.stdout = StringIO.StringIO()
+sys.stdout = io.StringIO()
 
 if sys.platform == 'win32':
     existing_lib = "msvcrt"

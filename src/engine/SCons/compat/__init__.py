@@ -125,6 +125,12 @@ except AttributeError:
     del filter
 
 try:
+    import io
+except ImportError:
+    # Pre-2.6 Python has no io module.
+    import_as('_scons_io', 'io')
+
+try:
     import itertools
 except ImportError:
     # Pre-2.3 Python has no itertools module.

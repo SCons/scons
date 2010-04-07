@@ -165,7 +165,7 @@ class Task:
         the Action is actually called to build the targets.
         """
         T = self.tm.trace
-        if T: T.write(self.trace_message('Task.prepare()', self.node))
+        if T: T.write(self.trace_message(u'Task.prepare()', self.node))
 
         # Now that it's the appropriate time, give the TaskMaster a
         # chance to raise any exceptions it encountered while preparing
@@ -218,7 +218,7 @@ class Task:
         prepare(), executed() or failed().
         """
         T = self.tm.trace
-        if T: T.write(self.trace_message('Task.execute()', self.node))
+        if T: T.write(self.trace_message(u'Task.execute()', self.node))
 
         try:
             everything_was_cached = 1
@@ -370,7 +370,7 @@ class Task:
         This is the default behavior for building only what's necessary.
         """
         T = self.tm.trace
-        if T: T.write(self.trace_message('Task.make_ready_current()',
+        if T: T.write(self.trace_message(u'Task.make_ready_current()',
                                          self.node))
 
         self.out_of_date = []
@@ -415,7 +415,7 @@ class Task:
         that can be put back on the candidates list.
         """
         T = self.tm.trace
-        if T: T.write(self.trace_message('Task.postprocess()', self.node))
+        if T: T.write(self.trace_message(u'Task.postprocess()', self.node))
 
         # We may have built multiple targets, some of which may have
         # common parents waiting for this build.  Count up how many
@@ -432,7 +432,7 @@ class Task:
             # A node can only be in the pending_children set if it has
             # some waiting_parents.
             if t.waiting_parents:
-                if T: T.write(self.trace_message('Task.postprocess()',
+                if T: T.write(self.trace_message(u'Task.postprocess()',
                                                  t,
                                                  'removing'))
                 pending_children.discard(t)
@@ -451,7 +451,7 @@ class Task:
 
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract
-            if T: T.write(self.trace_message('Task.postprocess()',
+            if T: T.write(self.trace_message(u'Task.postprocess()',
                                              p,
                                              'adjusted parent ref count'))
             if p.ref_count == 0:
@@ -735,12 +735,12 @@ class Taskmaster:
         self.ready_exc = None
 
         T = self.trace
-        if T: T.write('\n' + self.trace_message('Looking for a node to evaluate'))
+        if T: T.write(u'\n' + self.trace_message('Looking for a node to evaluate'))
 
         while True:
             node = self.next_candidate()
             if node is None:
-                if T: T.write(self.trace_message('No candidate anymore.') + '\n')
+                if T: T.write(self.trace_message('No candidate anymore.') + u'\n')
                 return None
 
             node = node.disambiguate()
@@ -763,7 +763,7 @@ class Taskmaster:
             else:
                 S = None
 
-            if T: T.write(self.trace_message('    Considering node %s and its children:' % self.trace_node(node)))
+            if T: T.write(self.trace_message(u'    Considering node %s and its children:' % self.trace_node(node)))
 
             if state == NODE_NO_STATE:
                 # Mark this node as being on the execution stack:
@@ -771,7 +771,7 @@ class Taskmaster:
             elif state > NODE_PENDING:
                 # Skip this node if it has already been evaluated:
                 if S: S.already_handled = S.already_handled + 1
-                if T: T.write(self.trace_message('       already handled (executed)'))
+                if T: T.write(self.trace_message(u'       already handled (executed)'))
                 continue
 
             executor = node.get_executor()
@@ -802,7 +802,7 @@ class Taskmaster:
             for child in chain(executor.get_all_prerequisites(), children):
                 childstate = child.get_state()
 
-                if T: T.write(self.trace_message('       ' + self.trace_node(child)))
+                if T: T.write(self.trace_message(u'       ' + self.trace_node(child)))
 
                 if childstate == NODE_NO_STATE:
                     children_not_visited.append(child)
@@ -861,7 +861,7 @@ class Taskmaster:
                     # count so we can be put back on the list for
                     # re-evaluation when they've all finished.
                     node.ref_count =  node.ref_count + child.add_to_waiting_parents(node)
-                    if T: T.write(self.trace_message('     adjusted ref count: %s, child %s' %
+                    if T: T.write(self.trace_message(u'     adjusted ref count: %s, child %s' %
                                   (self.trace_node(node), repr(str(child)))))
 
                 if T:
@@ -887,7 +887,7 @@ class Taskmaster:
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
             if S: S.build = S.build + 1
-            if T: T.write(self.trace_message('Evaluating %s\n' %
+            if T: T.write(self.trace_message(u'Evaluating %s\n' %
                                              self.trace_node(node)))
 
             # For debugging only:

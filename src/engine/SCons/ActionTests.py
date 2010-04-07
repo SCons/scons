@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 # Define a null function and a null class for use as builder actions.
 # Where these are defined in the file seems to affect their byte-code
 # contents, so try to minimize changes by defining them here, before we
@@ -34,9 +36,9 @@ class GlobalActFunc:
     def __call__(self):
         pass
 
+import io
 import os
 import re
-import StringIO
 import sys
 import types
 import unittest
@@ -97,7 +99,7 @@ scons_env = SCons.Environment.Environment()
 
 # Capture all the stuff the Actions will print,
 # so it doesn't clutter the output.
-sys.stdout = StringIO.StringIO()
+sys.stdout = io.StringIO()
 
 class CmdStringHolder:
     def __init__(self, cmd, literal=None):
@@ -514,7 +516,7 @@ class _ActionActionTestCase(unittest.TestCase):
                 pass
             a = SCons.Action.Action(execfunc)
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             a.print_cmd_line("foo bar", None, None, None)
             s = sio.getvalue()
@@ -556,7 +558,7 @@ class _ActionActionTestCase(unittest.TestCase):
                 return 9
             b = SCons.Action.Action([firstfunc, execfunc, lastfunc])
             
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
             assert result.status == 7, result
@@ -566,14 +568,14 @@ class _ActionActionTestCase(unittest.TestCase):
             a.chdir = 'xyz'
             expect = "os.chdir(%s)\nexecfunc(['out'], ['in'])\nos.chdir(%s)\n"
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
             assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == expect % (repr('xyz'), repr(test.workpath())), s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, chdir='sub')
             assert result.status == 7, result.status
@@ -582,7 +584,7 @@ class _ActionActionTestCase(unittest.TestCase):
 
             a.chdir = None
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = b("out", "in", env)
             assert result.status == 7, result.status
@@ -591,14 +593,14 @@ class _ActionActionTestCase(unittest.TestCase):
 
             SCons.Action.execute_actions = 0
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
             assert s == "execfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = b("out", "in", env)
             assert result == 0, result
@@ -608,35 +610,35 @@ class _ActionActionTestCase(unittest.TestCase):
             SCons.Action.print_actions_presub = 1
             SCons.Action.execute_actions = 1
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
             assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == "Building out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=0)
             assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == "execfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=1)
             assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == "Building out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = b(["out"], "in", env, presub=1)
             assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == "Building out with action:\n  firstfunc(target, source, env)\nfirstfunc(['out'], ['in'])\nBuilding out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = b(["out", "list"], "in", env, presub=1)
             assert result.status == 7, result.status
@@ -645,14 +647,14 @@ class _ActionActionTestCase(unittest.TestCase):
 
             a2 = SCons.Action.Action(execfunc)
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env)
             assert result.status == 7, result.status
             s = sio.getvalue()
             assert s == "Building out with action:\n  execfunc(target, source, env)\nexecfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env, presub=0)
             assert result.status == 7, result.status
@@ -661,14 +663,14 @@ class _ActionActionTestCase(unittest.TestCase):
 
             SCons.Action.execute_actions = 0
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env, presub=0)
             assert result == 0, result
             s = sio.getvalue()
             assert s == "execfunc(['out'], ['in'])\n", s
 
-            sio = StringIO.StringIO()
+            sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=0, execute=1, show=0)
             assert result.status == 7, result.status

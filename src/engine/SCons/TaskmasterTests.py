@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import copy
 import sys
 import unittest
@@ -1054,9 +1056,9 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_trace(self):
         """Test Taskmaster tracing
         """
-        import StringIO
+        import io
 
-        trace = StringIO.StringIO()
+        trace = io.StringIO()
         n1 = Node("n1")
         n2 = Node("n2")
         n3 = Node("n3", [n1, n2])

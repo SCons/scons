@@ -3,6 +3,7 @@ SCons/Action.py
 SCons/Builder.py
 SCons/compat/__init__.py
 SCons/compat/_scons_hashlib.py
+SCons/compat/_scons_io.py
 SCons/compat/_scons_itertools.py
 SCons/compat/_scons_optparse.py
 SCons/compat/_scons_sets.py

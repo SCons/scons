@@ -26,8 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import copy
+import io
 import os
-import StringIO
 import sys
 import TestCmd
 import unittest
@@ -645,21 +645,21 @@ sys.exit(0)
         python = '"' + sys.executable + '"'
 
         try:
-            sys.stderr = StringIO.StringIO()
+            sys.stderr = io.StringIO()
             cmd = '%s %s' % (python, test.workpath('stdout.py'))
             output = env.backtick(cmd)
             errout = sys.stderr.getvalue()
             assert output == 'this came from stdout.py\n', output
             assert errout == '', errout
 
-            sys.stderr = StringIO.StringIO()
+            sys.stderr = io.StringIO()
             cmd = '%s %s' % (python, test.workpath('stderr.py'))
             output = env.backtick(cmd)
             errout = sys.stderr.getvalue()
             assert output == '', output
             assert errout == 'this came from stderr.py\n', errout
 
-            sys.stderr = StringIO.StringIO()
+            sys.stderr = io.StringIO()
             cmd = '%s %s' % (python, test.workpath('fail.py'))
             try:
                 env.backtick(cmd)
@@ -668,7 +668,7 @@ sys.exit(0)
             else:
                 self.fail("did not catch expected OSError")
 
-            sys.stderr = StringIO.StringIO()
+            sys.stderr = io.StringIO()
             cmd = '%s %s' % (python, test.workpath('echo.py'))
             env['ENV'] = os.environ.copy()
             env['ENV']['ECHO'] = 'this came from ECHO'

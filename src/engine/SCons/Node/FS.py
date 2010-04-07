@@ -37,7 +37,6 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 from itertools import izip
-import cStringIO
 import fnmatch
 import os
 import os.path
@@ -3111,7 +3110,7 @@ class FileFinder:
         if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            _verbose = '  %s: ' % verbose
+            _verbose = u'  %s: ' % verbose
             verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)

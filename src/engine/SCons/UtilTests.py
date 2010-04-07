@@ -23,9 +23,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
+import io
 import os
 import os.path
-import StringIO
 import sys
 import unittest
 
@@ -171,24 +173,24 @@ class UtilTestCase(unittest.TestCase):
         try:
             node, expect, withtags = self.tree_case_1()
 
-            sys.stdout = StringIO.StringIO()
+            sys.stdout = io.StringIO()
             print_tree(node, get_children)
             actual = sys.stdout.getvalue()
             assert expect == actual, (expect, actual)
 
-            sys.stdout = StringIO.StringIO()
+            sys.stdout = io.StringIO()
             print_tree(node, get_children, showtags=1)
             actual = sys.stdout.getvalue()
             assert withtags == actual, (withtags, actual)
 
             node, expect, withtags = self.tree_case_2(prune=0)
 
-            sys.stdout = StringIO.StringIO()
+            sys.stdout = io.StringIO()
             print_tree(node, get_children, 1)
             actual = sys.stdout.getvalue()
             assert expect == actual, (expect, actual)
 
-            sys.stdout = StringIO.StringIO()
+            sys.stdout = io.StringIO()
             # The following call should work here:
             #    print_tree(node, get_children, 1, showtags=1)
             # For some reason I don't understand, though, *this*
@@ -678,7 +680,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        fobj = StringIO.StringIO(r"""
+        fobj = io.StringIO(r"""
 foo \
 bar \
 baz
