@@ -96,6 +96,28 @@ except NameError:
     import __builtin__, sets
     __builtin__.set = sets.Set
 
+
+import collections
+try:
+    collections.UserDict
+except AttributeError:
+    import UserDict
+    collections.UserDict = UserDict.UserDict
+    del UserDict
+try:
+    collections.UserList
+except AttributeError:
+    import UserList
+    collections.UserList = UserList.UserList
+    del UserList
+try:
+    collections.UserString
+except AttributeError:
+    import UserString
+    collections.UserString = UserString.UserString
+    del UserString
+
+
 import fnmatch
 try:
     fnmatch.filter
@@ -267,11 +289,6 @@ except AttributeError:
     # Wrapping sys in () is silly, but protects it from 2to3 renames fixer
     sys.maxsize = (sys).maxint
 
-try:
-    import UserString
-except ImportError:
-    # Pre-1.6 Python has no UserString module.
-    import_as('_scons_UserString', 'UserString')
 
 import tempfile
 try:

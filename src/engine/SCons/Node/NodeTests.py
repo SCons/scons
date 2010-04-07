@@ -24,11 +24,11 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import collections
 import os
 import re
 import sys
 import unittest
-import UserList
 
 import SCons.Errors
 import SCons.Node
@@ -1274,7 +1274,7 @@ class NodeListTestCase(unittest.TestCase):
         nl = SCons.Node.NodeList([n3, n2, n1])
 
         l = [1]
-        ul = UserList.UserList([2])
+        ul = collections.UserList([2])
         try:
             l.extend(ul)
         except TypeError:

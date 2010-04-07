@@ -25,13 +25,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import collections
 import io
 import os
-import os.path
 import sys
 import unittest
 
-from UserDict import UserDict
 
 import TestCmd
 
@@ -208,7 +207,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_Dict(self):
         assert is_Dict({})
-        assert is_Dict(UserDict())
+        assert is_Dict(collections.UserDict())
         try:
             class mydict(dict):
                 pass
@@ -225,7 +224,7 @@ class UtilTestCase(unittest.TestCase):
     def test_is_List(self):
         assert is_List([])
         import UserList
-        assert is_List(UserList.UserList())
+        assert is_List(collections.UserList())
         try:
             class mylist(list):
                 pass
@@ -248,7 +247,7 @@ class UtilTestCase(unittest.TestCase):
         except:
             pass
         else:
-            assert is_String(UserString.UserString(''))
+            assert is_String(collections.UserString(''))
         try:
             class mystr(str):
                 pass
@@ -284,18 +283,18 @@ class UtilTestCase(unittest.TestCase):
         try:
             import UserString
 
-            s1=UserString.UserString('blah')
+            s1=collections.UserString('blah')
             assert to_String(s1) == s1, s1
             assert to_String(s1) == 'blah', s1
 
-            class Derived(UserString.UserString):
+            class Derived(collections.UserString):
                 pass
             s2 = Derived('foo')
             assert to_String(s2) == s2, s2
             assert to_String(s2) == 'foo', s2
 
             if HasUnicode:
-                s3=UserString.UserString(unicode('bar'))
+                s3=collections.UserString(unicode('bar'))
                 assert to_String(s3) == s3, s3
                 assert to_String(s3) == unicode('bar'), s3
                 assert isinstance(to_String(s3), unicode), \
@@ -619,7 +618,7 @@ class UtilTestCase(unittest.TestCase):
         s['c'] = 'CCC'
         assert s['c'] == 'CCC', s['c']
 
-        class DummyEnv(UserDict):
+        class DummyEnv(collections.UserDict):
             def subst(self, key):
                 if key[0] == '$':
                     return self[key[1:]]

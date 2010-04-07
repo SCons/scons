@@ -32,12 +32,12 @@ import SCons.compat
 def Func():
     pass
 
+import collections
 import io
 import os.path
 import re
 import sys
 import unittest
-import UserList
 
 import TestCmd
 
@@ -253,7 +253,7 @@ class BuilderTestCase(unittest.TestCase):
         assert not hasattr(n2, 'env')
 
         l = [1]
-        ul = UserList.UserList([2])
+        ul = collections.UserList([2])
         try:
             l.extend(ul)
         except TypeError:
@@ -707,7 +707,7 @@ class BuilderTestCase(unittest.TestCase):
         assert env['CNT'][0] == 2
         tgts = builder(env, None, infiles[2:4])
         try:
-            [].extend(UserList.UserList())
+            [].extend(collections.UserList())
         except TypeError:
             # Old Python version (1.5.2) that can't handle extending
             # a list with list-like objects.  That means the return

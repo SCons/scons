@@ -24,9 +24,9 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import collections
 import sys
 import unittest
-import UserDict
 
 import SCons.Scanner
 
@@ -34,9 +34,9 @@ class DummyFS:
     def File(self, name):
         return DummyNode(name)
 
-class DummyEnvironment(UserDict.UserDict):
+class DummyEnvironment(collections.UserDict):
     def __init__(self, dict=None, **kw):
-        UserDict.UserDict.__init__(self, dict)
+        collections.UserDict.__init__(self, dict)
         self.data.update(kw)
         self.fs = DummyFS()
     def subst(self, strSubst, target=None, source=None, conv=None):

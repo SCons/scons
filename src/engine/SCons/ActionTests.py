@@ -36,13 +36,13 @@ class GlobalActFunc:
     def __call__(self):
         pass
 
+import collections
 import io
 import os
 import re
 import sys
 import types
 import unittest
-import UserDict
 
 import SCons.Action
 import SCons.Environment

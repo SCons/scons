@@ -46,12 +46,12 @@ import SCons.Script.Main
 import SCons.Tool
 import SCons.Util
 
+import collections
 import os
 import os.path
 import re
 import sys
 import traceback
-import UserList
 
 # The following variables used to live in this module.  Some
 # SConscript files out there may have referred to them directly as

@@ -101,8 +101,7 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import UserDict
-import UserList
+import collections
 
 import SCons.Action
 from SCons.Debug import logInstanceCreation
@@ -200,7 +199,7 @@ class DictEmitter(SCons.Util.Selector):
             target, source = emitter(target, source, env)
         return (target, source)
 
-class ListEmitter(UserList.UserList):
+class ListEmitter(collections.UserList):
     """A callable list of emitters that calls each in sequence,
     returning the result.
     """
@@ -218,7 +217,7 @@ misleading_keywords = {
     'sources'   : 'source',
 }
 
-class OverrideWarner(UserDict.UserDict):
+class OverrideWarner(collections.UserDict):
     """A class for warning about keyword arguments that we use as
     overrides in a Builder call.
 
@@ -227,7 +226,7 @@ class OverrideWarner(UserDict.UserDict):
     warnings once, no matter how many Builders are invoked.
     """
     def __init__(self, dict):
-        UserDict.UserDict.__init__(self, dict)
+        collections.UserDict.__init__(self, dict)
         if __debug__: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
     def warn(self):

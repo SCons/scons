@@ -45,9 +45,9 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import collections
 import copy
 from itertools import chain, izip
-import UserList
 
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
@@ -1255,7 +1255,7 @@ class Node:
             return ( ' '*11).join(lines)
 
 try:
-    [].extend(UserList.UserList([]))
+    [].extend(collections.UserList([]))
 except TypeError:
     # Python 1.5.2 doesn't allow a list to be extended by list-like
     # objects (such as UserList instances), so just punt and use
@@ -1263,7 +1263,7 @@ except TypeError:
     def NodeList(l):
         return l
 else:
-    class NodeList(UserList.UserList):
+    class NodeList(collections.UserList):
         def __str__(self):
             return str(list(map(str, self.data)))
 

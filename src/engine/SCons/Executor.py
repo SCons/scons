@@ -31,7 +31,7 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import UserList
+import collections
 
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
@@ -47,15 +47,15 @@ class Batch:
 
 
 
-class TSList(UserList.UserList):
+class TSList(collections.UserList):
     """A class that implements $TARGETS or $SOURCES expansions by wrapping
     an executor Method.  This class is used in the Executor.lvars()
     to delay creation of NodeList objects until they're needed.
 
-    Note that we subclass UserList.UserList purely so that the
+    Note that we subclass collections.UserList purely so that the
     is_Sequence() function will identify an object of this class as
     a list during variable expansion.  We're not really using any
-    UserList.UserList methods in practice.
+    collections.UserList methods in practice.
     """
     def __init__(self, func):
         self.func = func

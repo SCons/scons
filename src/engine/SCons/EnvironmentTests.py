@@ -25,13 +25,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import collections
 import copy
 import io
 import os
 import sys
 import TestCmd
 import unittest
-import UserList
 
 from SCons.Environment import *
 import SCons.Warnings
@@ -126,15 +126,15 @@ class Scanner:
 
 
 
-class CLVar(UserList.UserList):
+class CLVar(collections.UserList):
     def __init__(self, seq):
         if isinstance(seq, str):
             seq = seq.split()
-        UserList.UserList.__init__(self, seq)
+        collections.UserList.__init__(self, seq)
     def __add__(self, other):
-        return UserList.UserList.__add__(self, CLVar(other))
+        return collections.UserList.__add__(self, CLVar(other))
     def __radd__(self, other):
-        return UserList.UserList.__radd__(self, CLVar(other))
+        return collections.UserList.__radd__(self, CLVar(other))
     def __coerce__(self, other):
         return (self, CLVar(other))
 
@@ -1480,9 +1480,9 @@ def exists(env):
         assert b1 == b2, diff_dict(b1, b2)
 
         import UserDict
-        UD = UserDict.UserDict
+        UD = collections.UserDict
         import UserList
-        UL = UserList.UserList
+        UL = collections.UserList
 
         cases = [
             'a1',       'A1',           'a1A1',
@@ -2152,9 +2152,9 @@ f5: \
         """Test prepending to construction variables in an Environment
         """
         import UserDict
-        UD = UserDict.UserDict
+        UD = collections.UserDict
         import UserList
-        UL = UserList.UserList
+        UL = collections.UserList
 
         cases = [
             'a1',       'A1',           'A1a1',

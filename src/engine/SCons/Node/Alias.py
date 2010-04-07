@@ -32,13 +32,13 @@ This creates a hash of global Aliases (dummy targets).
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import UserDict
+import collections
 
 import SCons.Errors
 import SCons.Node
 import SCons.Util
 
-class AliasNameSpace(UserDict.UserDict):
+class AliasNameSpace(collections.UserDict):
     def Alias(self, name, **kw):
         if isinstance(name, SCons.Node.Alias.Alias):
             return name
