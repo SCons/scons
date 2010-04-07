@@ -2820,8 +2820,8 @@ class RepositoryTestCase(_tempdirTestCase):
         try:
             eval('test_string = u"Con\x1aTents\n"')
         except SyntaxError:
-            import UserString
-            class FakeUnicodeString(UserString.UserString):
+            import collections
+            class FakeUnicodeString(collections.UserString):
                 def encode(self, encoding):
                     return str(self)
             test_string = FakeUnicodeString("Con\x1aTents\n")

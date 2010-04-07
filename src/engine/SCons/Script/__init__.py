@@ -39,9 +39,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import time
 start_time = time.time()
 
+import collections
 import os
 import sys
-import UserList
 
 # Special chicken-and-egg handling of the "--debug=memoizer" flag:
 #
@@ -183,7 +183,7 @@ CScan                   = SCons.Defaults.CScan
 DefaultEnvironment      = SCons.Defaults.DefaultEnvironment
 
 # Other variables we provide.
-class TargetList(UserList.UserList):
+class TargetList(collections.UserList):
     def _do_nothing(self, *args, **kw):
         pass
     def _add_Default(self, list):

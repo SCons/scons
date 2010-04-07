@@ -23,13 +23,15 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import os
 import os.path
 import StringIO
 import sys
 import unittest
 
-from UserDict import UserDict
+from collections import UserDict
 
 import TestCmd
 

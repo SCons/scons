@@ -71,10 +71,13 @@ assert foo == "subdir/SConscript foo"
 
 SConscript('SConscript5')
 
-import UserList
+try:
+    from io import UserList
+except ImportError:
+    from UserList import UserList
 x7 = "SConstruct x7"
 x8 = "SConstruct x8"
-x9 = SConscript('SConscript6', UserList.UserList(["x7", "x8"]))
+x9 = SConscript('SConscript6', UserList(["x7", "x8"]))
 assert x9 == "SConscript6 x9", x9
 
 SConscript('SConscript7')

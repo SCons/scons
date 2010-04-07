@@ -31,7 +31,7 @@ import StringIO
 import sys
 import unittest
 
-from UserDict import UserDict
+from collections import UserDict
 
 import SCons.Errors
 
@@ -208,7 +208,7 @@ class SubstTestCase(unittest.TestCase):
         'T'         : ('x', 'y'),
         'CS'        : cs,
         'CL'        : cl,
-        'US'        : UserString.UserString('us'),
+        'US'        : collections.UserString('us'),
 
         # Test function calls within ${}.
         'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
@@ -366,9 +366,9 @@ class scons_subst_TestCase(SubstTestCase):
         '$CL',                  'cl',
 
         # Various uses of UserString.
-        UserString.UserString('x'),         'x',
-        UserString.UserString('$X'),        'x',
-        UserString.UserString('$US'),       'us',
+        collections.UserString('x'),         'x',
+        collections.UserString('$X'),        'x',
+        collections.UserString('$US'),       'us',
         '$US',                              'us',
 
         # Test function calls within ${}.
@@ -758,12 +758,12 @@ class scons_subst_list_TestCase(SubstTestCase):
         ['$CL'],                [['cl']],
 
         # Various uses of UserString.
-        UserString.UserString('x'),         [['x']],
-        [UserString.UserString('x')],       [['x']],
-        UserString.UserString('$X'),        [['x']],
-        [UserString.UserString('$X')],      [['x']],
-        UserString.UserString('$US'),       [['us']],
-        [UserString.UserString('$US')],     [['us']],
+        collections.UserString('x'),         [['x']],
+        [collections.UserString('x')],       [['x']],
+        collections.UserString('$X'),        [['x']],
+        [collections.UserString('$X')],      [['x']],
+        collections.UserString('$US'),       [['us']],
+        [collections.UserString('$US')],     [['us']],
         '$US',                              [['us']],
         ['$US'],                            [['us']],
 

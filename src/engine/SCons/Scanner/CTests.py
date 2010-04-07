@@ -23,12 +23,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import collections
 import os
-import os.path
 import sys
 import TestCmd
 import unittest
-import UserDict
 
 import SCons.Node.FS
 import SCons.Warnings
@@ -170,9 +169,9 @@ test.write("f5b.h", "\n")
 
 # define some helpers:
 
-class DummyEnvironment(UserDict.UserDict):
+class DummyEnvironment(collections.UserDict):
     def __init__(self, **kw):
-        UserDict.UserDict.__init__(self)
+        collections.UserDict.__init__(self)
         self.data.update(kw)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
 

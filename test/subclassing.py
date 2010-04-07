@@ -51,7 +51,10 @@ class my_Environment(Environment):
 env = my_Environment()
 env.Command('f0.out', 'f0.in', copy_action)
 
-from UserString import UserString
+try:
+    from io import UserString
+except ImportError:
+    from UserString import UserString
 try:
     class mystr(str):
         pass

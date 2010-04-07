@@ -27,11 +27,10 @@ import TestCmd
 import SCons.Scanner.RC
 import unittest
 import sys
+import collections
 import os
-import os.path
 import SCons.Node.FS
 import SCons.Warnings
-import UserDict
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -71,9 +70,9 @@ for h in headers:
 
 # define some helpers:
 
-class DummyEnvironment(UserDict.UserDict):
+class DummyEnvironment(collections.UserDict):
     def __init__(self,**kw):
-        UserDict.UserDict.__init__(self)
+        collections.UserDict.__init__(self)
         self.data.update(kw)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
         

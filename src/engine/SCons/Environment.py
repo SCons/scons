@@ -41,7 +41,7 @@ import os
 import sys
 import re
 import shlex
-from UserDict import UserDict
+from collections import UserDict
 
 import SCons.Action
 import SCons.Builder
