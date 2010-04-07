@@ -28,9 +28,11 @@ Autoconf-like configuration support.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
+import io
 import os
 import re
-import StringIO
 import sys
 import traceback
 
@@ -176,7 +178,7 @@ class Streamer:
     """
     def __init__(self, orig):
         self.orig = orig
-        self.s = StringIO.StringIO()
+        self.s = io.StringIO()
 
     def write(self, str):
         if self.orig:

@@ -161,7 +161,7 @@ class DisplayEngine:
     def print_it(self, text, append_newline=1):
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(text)
+            sys.stdout.write(unicode(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -242,17 +242,18 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     if showtags:
 
         if showtags == 2:
-            print ' E         = exists'
-            print '  R        = exists in repository only'
-            print '   b       = implicit builder'
-            print '   B       = explicit builder'
-            print '    S      = side effect'
-            print '     P     = precious'
-            print '      A    = always build'
-            print '       C   = current'
-            print '        N  = no clean'
-            print '         H = no cache'
-            print ''
+            legend = (' E         = exists\n' +
+                      '  R        = exists in repository only\n' +
+                      '   b       = implicit builder\n' +
+                      '   B       = explicit builder\n' +
+                      '    S      = side effect\n' +
+                      '     P     = precious\n' +
+                      '      A    = always build\n' +
+                      '       C   = current\n' +
+                      '        N  = no clean\n' +
+                      '         H = no cache\n' +
+                      '\n')
+            sys.stdout.write(unicode(legend))
 
         tags = ['[']
         tags.append(' E'[IDX(root.exists())])
@@ -277,10 +278,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     children = child_func(root)
 
     if prune and rname in visited and children:
-        print ''.join(tags + margins + ['+-[', rname, ']'])
+        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + u'\n')
         return
 
-    print ''.join(tags + margins + ['+-', rname])
+    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + u'\n')
 
     visited[rname] = 1
 

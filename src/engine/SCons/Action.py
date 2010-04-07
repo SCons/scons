@@ -497,7 +497,7 @@ class _ActionAction(ActionBase):
             SCons.Util.AddMethod(self, batch_key, 'batch_key')
 
     def print_cmd_line(self, s, target, source, env):
-        sys.stdout.write(s + "\n")
+        sys.stdout.write(s + u"\n")
 
     def __call__(self, target, source, env,
                                exitstatfunc=_null,
@@ -536,7 +536,7 @@ class _ActionAction(ActionBase):
                 source = executor.get_all_sources()
             t = ' and '.join(map(str, target))
             l = '\n  '.join(self.presub_lines(env))
-            out = "Building %s with action:\n  %s\n" % (t, l)
+            out = u"Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         cmd = None
         if show and self.strfunction:

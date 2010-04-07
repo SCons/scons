@@ -591,7 +591,7 @@ class SubstitutionEnvironment:
         out,err = p.communicate()
         status = p.wait()
         if err:
-            sys.stderr.write(err)
+            sys.stderr.write(unicode(err))
         if status:
             raise OSError("'%s' exited %d" % (command, status))
         return out

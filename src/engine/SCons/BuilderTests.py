@@ -32,10 +32,10 @@ import SCons.compat
 def Func():
     pass
 
+import io
 import os.path
 import re
 import sys
-import StringIO
 import unittest
 import UserList
 
@@ -48,7 +48,7 @@ import SCons.Errors
 import SCons.Subst
 import SCons.Util
 
-sys.stdout = StringIO.StringIO()
+sys.stdout = io.StringIO()
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
