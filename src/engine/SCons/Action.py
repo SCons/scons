@@ -100,9 +100,12 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import cPickle
+import SCons.compat
+
 import dis
 import os
+# compat layer imports "cPickle" for us if it's available.
+import pickle
 import re
 import sys
 import subprocess
@@ -208,8 +211,8 @@ def _object_contents(obj):
                 except AttributeError:
                     # Should be a pickable Python object.
                     try:
-                        return cPickle.dumps(obj)
-                    except (cPickle.PicklingError, TypeError):
+                        return pickle.dumps(obj)
+                    except (pickle.PicklingError, TypeError):
                         # This is weird, but it seems that nested classes
                         # are unpickable. The Python docs say it should
                         # always be a PicklingError, but some Python

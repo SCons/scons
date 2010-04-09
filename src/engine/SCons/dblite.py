@@ -1,10 +1,13 @@
 # dblite.py module contributed by Ralf W. Grosse-Kunstleve.
 # Extended for Unicode by Steven Knight.
 
-import cPickle
-import time
-import shutil
+import SCons.compat
+
 import os
+# compat layer imports "cPickle" for us if it's available.
+import pickle
+import shutil
+import time
 import __builtin__
 
 keep_all_files = 00000
@@ -42,7 +45,7 @@ class dblite:
   #   http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
 
   _open = __builtin__.open
-  _cPickle_dump = cPickle.dump
+  _pickle_dump = pickle.dump
   _os_chmod = os.chmod
   try:
       _os_chown = os.chown
@@ -95,8 +98,8 @@ class dblite:
         p = f.read()
         if (len(p) > 0):
           try:
-            self._dict = cPickle.loads(p)
-          except (cPickle.UnpicklingError, EOFError):
+            self._dict = pickle.loads(p)
+          except (pickle.UnpicklingError, EOFError):
             if (ignore_corrupt_dbfiles == 0): raise
             if (ignore_corrupt_dbfiles == 1):
               corruption_warning(self._file_name)
@@ -108,7 +111,7 @@ class dblite:
   def sync(self):
     self._check_writable()
     f = self._open(self._tmp_name, "wb", self._mode)
-    self._cPickle_dump(self._dict, f, 1)
+    self._pickle_dump(self._dict, f, 1)
     f.close()
     # Windows doesn't allow renaming if the file exists, so unlink
     # it first, chmod'ing it to make sure we can do so.  On UNIX, we
@@ -216,15 +219,15 @@ def _exercise():
   assert len(db) == 5
   db = open("tmp", "n")
   assert len(db) == 0
-  _open("tmp.dblite", "w")
+  dblite._open("tmp.dblite", "w")
   db = open("tmp", "r")
-  _open("tmp.dblite", "w").write("x")
+  dblite._open("tmp.dblite", "w").write("x")
   try:
     db = open("tmp", "r")
-  except cPickle.UnpicklingError:
+  except pickle.UnpicklingError:
     pass
   else:
-    raise RuntimeError, "cPickle exception expected."
+    raise RuntimeError, "pickle exception expected."
   global ignore_corrupt_dbfiles
   ignore_corrupt_dbfiles = 2
   db = open("tmp", "r")

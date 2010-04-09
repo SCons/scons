@@ -29,9 +29,11 @@ Writing and reading information to the .sconsign file or files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import cPickle
+import SCons.compat
+
 import os
-import os.path
+# compat layer imports "cPickle" for us if it's available.
+import pickle
 
 import SCons.dblite
 import SCons.Warnings
@@ -201,7 +203,7 @@ class DB(Base):
             pass
         else:
             try:
-                self.entries = cPickle.loads(rawentries)
+                self.entries = pickle.loads(rawentries)
                 if not isinstance(self.entries, dict):
                     self.entries = {}
                     raise TypeError
@@ -239,7 +241,7 @@ class DB(Base):
         path = normcase(self.dir.path)
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
-        db[path] = cPickle.dumps(self.entries, 1)
+        db[path] = pickle.dumps(self.entries, 1)
 
         if sync:
             try:
@@ -260,7 +262,7 @@ class Dir(Base):
         if not fp:
             return
 
-        self.entries = cPickle.load(fp)
+        self.entries = pickle.load(fp)
         if not isinstance(self.entries, dict):
             self.entries = {}
             raise TypeError
@@ -327,7 +329,7 @@ class DirFile(Dir):
                 return
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
-        cPickle.dump(self.entries, file, 1)
+        pickle.dump(self.entries, file, 1)
         file.close()
         if fname != self.sconsign:
             try:
