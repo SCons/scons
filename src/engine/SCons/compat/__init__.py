@@ -196,6 +196,20 @@ except AttributeError:
 try:
     # Use the "imp" module to protect the import from fixers.
     import imp
+    cPickle = imp.load_module('cPickle', *imp.find_module('cPickle'))
+except ImportError, e:
+    # The "cPickle" module has already been eliminated in favor of
+    # having "import pickle" import the fast version when available.
+    pass
+else:
+    import sys
+    sys.modules['pickle'] = cPickle
+    del cPickle
+
+
+try:
+    # Use the "imp" module to protect the import from fixers.
+    import imp
     cProfile = imp.load_module('cProfile', *imp.find_module('cProfile'))
 except ImportError:
     # The "cProfile" module has already been eliminated in favor of
