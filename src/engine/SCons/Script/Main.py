@@ -37,6 +37,8 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import os
 import os.path
 import sys
@@ -1226,10 +1228,8 @@ def _exec_main(parser, values):
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
-        try:
-            from cProfile import Profile
-        except ImportError, e:
-            from profile import Profile
+        # compat layer imports "cProfile" for us if it's available.
+        from profile import Profile
 
         # Some versions of Python 2.4 shipped a profiler that had the
         # wrong 'c_exception' entry in its dispatch table.  Make sure
