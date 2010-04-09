@@ -194,6 +194,20 @@ except AttributeError:
 
 
 try:
+    # Use the "imp" module to protect the import from fixers.
+    import imp
+    cProfile = imp.load_module('cProfile', *imp.find_module('cProfile'))
+except ImportError:
+    # The "cProfile" module has already been eliminated in favor of
+    # having "import profile" import the fast version when available.
+    pass
+else:
+    import sys
+    sys.modules['profile'] = cProfile
+    del cProfile
+
+
+try:
     import platform
 except ImportError:
     # Pre-2.3 Python has no platform module.
