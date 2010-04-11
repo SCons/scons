@@ -97,25 +97,30 @@ except NameError:
     __builtin__.set = sets.Set
 
 
-import collections
 try:
-    collections.UserDict
-except AttributeError:
-    import UserDict
-    collections.UserDict = UserDict.UserDict
-    del UserDict
-try:
-    collections.UserList
-except AttributeError:
-    import UserList
-    collections.UserList = UserList.UserList
-    del UserList
-try:
-    collections.UserString
-except AttributeError:
-    import UserString
-    collections.UserString = UserString.UserString
-    del UserString
+    import collections
+except ImportError:
+    # Pre-2.4 Python has no collections module.
+    import_as('_scons_collections', 'collections')
+else:
+    try:
+        collections.UserDict
+    except AttributeError:
+        import UserDict
+        collections.UserDict = UserDict.UserDict
+        del UserDict
+    try:
+        collections.UserList
+    except AttributeError:
+        import UserList
+        collections.UserList = UserList.UserList
+        del UserList
+    try:
+        collections.UserString
+    except AttributeError:
+        import UserString
+        collections.UserString = UserString.UserString
+        del UserString
 
 
 import fnmatch
