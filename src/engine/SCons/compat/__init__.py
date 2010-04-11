@@ -73,7 +73,7 @@ def import_as(module, name):
     file, filename, suffix_mode_type = imp.find_module(module, [dir])
     imp.load_module(name, file, filename, suffix_mode_type)
 
-import builtins
+import _scons_builtins
 
 try:
     import hashlib
