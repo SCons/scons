@@ -29,6 +29,8 @@ Various utility functions go here.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.compat
+
 import copy
 import os
 import os.path
@@ -738,8 +740,8 @@ else:
         # OSError subclass on Windows.)
         class WindowsError(OSError):
             pass
-        import __builtin__
-        __builtin__.WindowsError = WindowsError
+        import builtins
+        builtins.WindowsError = WindowsError
     else:
         del e
         

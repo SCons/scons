@@ -3,12 +3,12 @@
 
 import SCons.compat
 
+import builtins
 import os
 # compat layer imports "cPickle" for us if it's available.
 import pickle
 import shutil
 import time
-import __builtin__
 
 keep_all_files = 00000
 ignore_corrupt_dbfiles = 0
@@ -44,7 +44,7 @@ class dblite:
   # See the discussion at:
   #   http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
 
-  _open = __builtin__.open
+  _open = builtins.open
   _pickle_dump = pickle.dump
   _os_chmod = os.chmod
   try:

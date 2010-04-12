@@ -60,10 +60,10 @@ except AttributeError:
 else:
     parallel_msg = None
 
-    import __builtin__
+    import builtins
 
-    _builtin_file = __builtin__.file
-    _builtin_open = __builtin__.open
+    _builtin_file = builtins.file
+    _builtin_open = builtins.open
     
     def _scons_file(*args, **kw):
         fp = _builtin_file(*args, **kw)
@@ -79,8 +79,8 @@ else:
                                       0)
         return fp
 
-    __builtin__.file = _scons_file
-    __builtin__.open = _scons_open
+    builtins.file = _scons_file
+    builtins.open = _scons_open
 
 
 
