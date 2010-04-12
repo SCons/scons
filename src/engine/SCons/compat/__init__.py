@@ -31,12 +31,12 @@ we still support.
 
 Other code will not generally reference things in this package through
 the SCons.compat namespace.  The modules included here add things to
-the __builtin__ namespace or the global module list so that the rest
+the builtins namespace or the global module list so that the rest
 of our code can use the objects and names imported here regardless of
 Python version.
 
-Simply enough, things that go in the __builtin__ name space come from
-our builtins module.
+Simply enough, things that go in the builtins name space come from
+our _scons_builtins module.
 
 The rest of the things here will be in individual compatibility modules
 that are either: 1) suitably modified copies of the future modules that
@@ -73,7 +73,20 @@ def import_as(module, name):
     file, filename, suffix_mode_type = imp.find_module(module, [dir])
     imp.load_module(name, file, filename, suffix_mode_type)
 
+
+try:
+    import builtins
+except ImportError:
+    # Use the "imp" module to protect the import from fixers.
+    import imp
+    import sys
+    __builtin__ = imp.load_module('__builtin__',
+                                  *imp.find_module('__builtin__'))
+    sys.modules['builtins'] = __builtin__
+    del __builtin__
+
 import _scons_builtins
+
 
 try:
     import hashlib
@@ -93,8 +106,8 @@ try:
 except NameError:
     # Pre-2.4 Python has no native set type
     import_as('_scons_sets', 'sets')
-    import __builtin__, sets
-    __builtin__.set = sets.Set
+    import builtins, sets
+    builtins.set = sets.Set
 
 
 try:
@@ -306,9 +319,9 @@ try:
     sys.intern
 except AttributeError:
     # Pre-2.6 Python has no sys.intern() function.
-    import __builtin__
+    import builtins
     try:
-        sys.intern = __builtin__.intern
+        sys.intern = builtins.intern
     except AttributeError:
         # Pre-2.x Python has no builtin intern() function.
         def intern(x):
@@ -356,23 +369,6 @@ except AttributeError:
 
     tempfile.mkstemp = mkstemp
     del mkstemp
-
-try:
-    # pre-2.7 doesn't have the memoryview() built-in
-    memoryview
-except NameError:
-    class memoryview:
-        from types import SliceType
-        def __init__(self, obj):
-            # wrapping buffer in () keeps the fixer from changing it
-            self.obj = (buffer)(obj)
-        def __getitem__(self, indx):
-            if isinstance(indx, self.SliceType):
-                return self.obj[indx.start:indx.stop]
-            else:
-                return self.obj[indx]
-    import __builtin__
-    __builtin__.memoryview = memoryview
 
 
 # Local Variables:
