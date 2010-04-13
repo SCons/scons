@@ -31,7 +31,12 @@ by SCons, in an interface that looks enough like io for our purposes.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from cStringIO import StringIO
+# Use the "imp" module to protect the imports below from fixers.
+import imp
+
+_cStringIO = imp.load_module('cStringIO', *imp.find_module('cStringIO'))
+StringIO = _cStringIO.StringIO
+del _cStringIO
 
 # Local Variables:
 # tab-width:4

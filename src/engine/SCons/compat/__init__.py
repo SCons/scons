@@ -80,10 +80,10 @@ except ImportError:
     # Use the "imp" module to protect the import from fixers.
     import imp
     import sys
-    __builtin__ = imp.load_module('__builtin__',
-                                  *imp.find_module('__builtin__'))
-    sys.modules['builtins'] = __builtin__
-    del __builtin__
+    _builtin = imp.load_module('__builtin__',
+                               *imp.find_module('__builtin__'))
+    sys.modules['builtins'] = _builtin
+    del _builtin
 
 import _scons_builtins
 
@@ -116,24 +116,27 @@ except ImportError:
     # Pre-2.4 Python has no collections module.
     import_as('_scons_collections', 'collections')
 else:
+    # Use the "imp" module to protect the imports below from fixers.
+    import imp
     try:
         collections.UserDict
     except AttributeError:
-        import UserDict
-        collections.UserDict = UserDict.UserDict
-        del UserDict
+        _UserDict = imp.load_module('UserDict', *imp.find_module('UserDict'))
+        collections.UserDict = _UserDict.UserDict
+        del _UserDict
     try:
         collections.UserList
     except AttributeError:
-        import UserList
-        collections.UserList = UserList.UserList
-        del UserList
+        _UserList = imp.load_module('UserList', *imp.find_module('UserList'))
+        collections.UserList = _UserList.UserList
+        del _UserList
     try:
         collections.UserString
     except AttributeError:
-        import UserString
-        collections.UserString = UserString.UserString
-        del UserString
+        _UserString = imp.load_module('UserString',
+                                      *imp.find_module('UserString'))
+        collections.UserString = _UserString.UserString
+        del _UserString
 
 
 import fnmatch
@@ -214,29 +217,29 @@ except AttributeError:
 try:
     # Use the "imp" module to protect the import from fixers.
     import imp
-    cPickle = imp.load_module('cPickle', *imp.find_module('cPickle'))
+    _cPickle = imp.load_module('cPickle', *imp.find_module('cPickle'))
 except ImportError, e:
     # The "cPickle" module has already been eliminated in favor of
     # having "import pickle" import the fast version when available.
     pass
 else:
     import sys
-    sys.modules['pickle'] = cPickle
-    del cPickle
+    sys.modules['pickle'] = _cPickle
+    del _cPickle
 
 
 try:
     # Use the "imp" module to protect the import from fixers.
     import imp
-    cProfile = imp.load_module('cProfile', *imp.find_module('cProfile'))
+    _cProfile = imp.load_module('cProfile', *imp.find_module('cProfile'))
 except ImportError:
     # The "cProfile" module has already been eliminated in favor of
     # having "import profile" import the fast version when available.
     pass
 else:
     import sys
-    sys.modules['profile'] = cProfile
-    del cProfile
+    sys.modules['profile'] = _cProfile
+    del _cProfile
 
 
 try:

@@ -7,6 +7,7 @@
 # Posix compliance, split(), string arguments, and
 # iterator interface by Gustavo Niemeyer, April 2003.
 
+import imp
 import os.path
 import sys
 #from collections import deque
@@ -31,10 +32,16 @@ else:
     def is_basestring(s):
         return isinstance(s, basestring)
 
+# Use the "imp" module to protect the imports below from fixers.
 try:
-    from cStringIO import StringIO
+    _cStringIO = imp.load_module('cStringIO', *imp.find_module('cStringIO'))
 except ImportError:
-    from StringIO import StringIO
+    _StringIO = imp.load_module('StringIO', *imp.find_module('StringIO'))
+    StringIO = _StringIO.StringIO
+    del _StringIO
+else:
+    StringIO = _cStringIO.StringIO
+    del _cStringIO
 
 __all__ = ["shlex", "split"]
 

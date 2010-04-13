@@ -32,9 +32,20 @@ our purposes.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from UserDict import UserDict
-from UserList import UserList
-from UserString import UserString
+# Use the "imp" module to protect the imports below from fixers.
+import imp
+
+_UserDict = imp.load_module('UserDict', *imp.find_module('UserDict'))
+_UserList = imp.load_module('UserList', *imp.find_module('UserList'))
+_UserString = imp.load_module('UserString', *imp.find_module('UserString'))
+
+UserDict = _UserDict.UserDict
+UserList = _UserList.UserList
+UserString = _UserString.UserString
+
+del _UserDict
+del _UserList
+del _UserString
 
 # Local Variables:
 # tab-width:4
