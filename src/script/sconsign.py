@@ -172,12 +172,16 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import cPickle
+import SCons.compat
+
+import dbm
 import imp
-import whichdb
+import pickle
 
 import SCons.SConsign
 
+# Monkey-patch in a whichdb()-like function so any use of dbm.whichdb()
+# can detect our internal .dblite format,
 def my_whichdb(filename):
     if filename[-7:] == ".dblite":
         return "SCons.dblite"
@@ -189,8 +193,8 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
-_orig_whichdb = whichdb.whichdb
-whichdb.whichdb = my_whichdb
+_orig_whichdb = dbm.whichdb
+dbm.whichdb = my_whichdb
 
 def my_import(mname):
     if '.' in mname:
@@ -383,7 +387,7 @@ class Do_SConsignDB:
                 return
         except KeyboardInterrupt:
             raise
-        except cPickle.UnpicklingError:
+        except pickle.UnpicklingError:
             sys.stderr.write("sconsign: ignoring invalid `%s' file `%s'\n" % (self.dbm_name, fname))
             return
         except Exception, e:
@@ -404,7 +408,7 @@ class Do_SConsignDB:
 
     def printentries(self, dir, val):
         print '=== ' + dir + ':'
-        printentries(cPickle.loads(val), dir)
+        printentries(pickle.loads(val), dir)
 
 def Do_SConsignDir(name):
     try:
@@ -416,7 +420,7 @@ def Do_SConsignDir(name):
         sconsign = SCons.SConsign.Dir(fp)
     except KeyboardInterrupt:
         raise
-    except cPickle.UnpicklingError:
+    except pickle.UnpicklingError:
         sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" % (name))
         return
     except Exception, e:
@@ -497,7 +501,7 @@ if Do_Call:
         Do_Call(a)
 else:
     for a in args:
-        dbm_name = whichdb.whichdb(a)
+        dbm_name = dbm.whichdb(a)
         if dbm_name:
             Map_Module = {'SCons.dblite' : 'dblite'}
             dbm = my_import(dbm_name)
