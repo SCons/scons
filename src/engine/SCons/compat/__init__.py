@@ -65,13 +65,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 def import_as(module, name):
     """
     Imports the specified module (from our local directory) as the
-    specified name.
+    specified name, returning the loaded module object.
     """
     import imp
     import os.path
     dir = os.path.split(__file__)[0]
     file, filename, suffix_mode_type = imp.find_module(module, [dir])
-    imp.load_module(name, file, filename, suffix_mode_type)
+    return imp.load_module(name, file, filename, suffix_mode_type)
 
 
 try:
@@ -137,6 +137,19 @@ else:
                                       *imp.find_module('UserString'))
         collections.UserString = _UserString.UserString
         del _UserString
+
+
+try:
+    import dbm
+except ImportError:
+    dbm = import_as('_scons_dbm', 'dbm')
+try:
+    dbm.whichdb
+except AttributeError:
+    # Pre-3.0 Python has no dbm.whichdb function.
+    import whichdb
+    dbm.whichdb = whichdb.whichdb
+    del whichdb
 
 
 import fnmatch
