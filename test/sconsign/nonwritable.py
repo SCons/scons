@@ -31,7 +31,7 @@ Test that things still work when a .sconsign* file is not writable.
 import os
 import TestSCons
 import TestCmd
-import cPickle
+import pickle
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
@@ -92,8 +92,8 @@ test.write(['work2', 'SConstruct'], SConstruct_contents)
 
 test.write(['work2', 'foo.in'], "work2/foo.in\n")
 
-cPickle.dump({}, open(work2_sub1__sconsign, 'wb'), 1)
-cPickle.dump({}, open(work2_sub2__sconsign, 'wb'), 1)
+pickle.dump({}, open(work2_sub1__sconsign, 'wb'), 1)
+pickle.dump({}, open(work2_sub2__sconsign, 'wb'), 1)
 
 os.chmod(work2_sub1__sconsign, 0444)
 
