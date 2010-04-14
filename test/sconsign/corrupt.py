@@ -30,7 +30,6 @@ Test that we get proper warnings when .sconsign* files are corrupt.
 
 import TestSCons
 import TestCmd
-import cPickle
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
