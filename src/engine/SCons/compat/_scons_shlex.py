@@ -23,14 +23,13 @@ class deque:
         return self.data.pop(0)
 
 try:
-    basestring
+    # exec() the assignment to avoid the basestring fixer.
+    exec('_basestring = basestring')
 except NameError:
     import types
-    def is_basestring(s):
-        return isinstance(s, str)
-else:
-    def is_basestring(s):
-        return isinstance(s, basestring)
+    _basestring = str
+def is_basestring(s):
+    return isinstance(s, _basestring)
 
 # Use the "imp" module to protect the imports below from fixers.
 try:
