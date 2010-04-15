@@ -284,7 +284,7 @@ class Variables:
         """
 
         if sort:
-            options = sorted(self.options, cmp=lambda x,y: sort(x.key,y.key))
+            options = sorted(self.options, key=lambda x: x.key)
         else:
             options = self.options
 

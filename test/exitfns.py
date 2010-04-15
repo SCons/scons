@@ -34,9 +34,9 @@ from SCons.exitfuncs import *
 def x1():
     print "running x1"
 def x2(n):
-    print "running x2(%s)" % `n`
+    print "running x2(%s)" % repr(n)
 def x3(n, kwd=None):
-    print "running x3(%s, kwd=%s)" % (`n`, `kwd`)
+    print "running x3(%s, kwd=%s)" % (repr(n), repr(kwd))
 
 register(x3, "no kwd args")
 register(x1)

@@ -133,7 +133,7 @@ CPP_to_Python_Ops_Sub = lambda m: CPP_to_Python_Ops_Dict[m.group(0)]
 # re module, as late as version 2.2.2, empirically matches the
 # "!" in "!=" first, instead of finding the longest match.
 # What's up with that?
-l = sorted(CPP_to_Python_Ops_Dict.keys(), cmp=lambda a, b: cmp(len(b), len(a)))
+l = sorted(CPP_to_Python_Ops_Dict.keys(), key=lambda a: len(a), reverse=True)
 
 # Turn the list of keys into one regular expression that will allow us
 # to substitute all of the operators at once.

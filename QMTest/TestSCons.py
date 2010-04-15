@@ -1259,12 +1259,8 @@ class TimeSCons(TestSCons):
         for root, dirs, files in os.walk(source_dir):
             if '.svn' in dirs:
                 dirs.remove('.svn')
-            # TODO(1.5)
-            #dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
-            #files = [ f for f in files if not f.startswith('TimeSCons-') ]
-            not_timescons_entries = lambda s: not s.startswith('TimeSCons-')
-            dirs = list(filter(not_timescons_entries, dirs))
-            files = list(filter(not_timescons_entries, files))
+            dirs = [ d for d in dirs if not d.startswith('TimeSCons-') ]
+            files = [ f for f in files if not f.startswith('TimeSCons-') ]
             for dirname in dirs:
                 source = os.path.join(root, dirname)
                 destination = source.replace(source_dir, dest_dir)

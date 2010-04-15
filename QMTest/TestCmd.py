@@ -581,9 +581,8 @@ except ImportError:
     # The subprocess module doesn't exist in this version of Python,
     # so we're going to cobble up something that looks just enough
     # like its API for our purposes below.
-    import new
-
-    subprocess = new.module('subprocess')
+    from types import ModuleType
+    class subprocess(ModuleType): pass
 
     subprocess.PIPE = 'PIPE'
     subprocess.STDOUT = 'STDOUT'

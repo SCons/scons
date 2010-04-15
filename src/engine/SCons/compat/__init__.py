@@ -227,18 +227,23 @@ except AttributeError:
     os.path.lexists = lexists
 
 
-try:
-    # Use the "imp" module to protect the import from fixers.
-    import imp
-    _cPickle = imp.load_module('cPickle', *imp.find_module('cPickle'))
-except ImportError, e:
-    # The "cPickle" module has already been eliminated in favor of
-    # having "import pickle" import the fast version when available.
-    pass
-else:
-    import sys
-    sys.modules['pickle'] = _cPickle
-    del _cPickle
+# When we're using the '-3' option during regression tests, importing
+# cPickle gives a warning no matter how it's done, so always use the
+# real profile module, whether it's fast or not.
+if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is None:
+    # Not a regression test with '-3', so try to use faster version.
+    try:
+        # Use the "imp" module to protect the import from fixers.
+        import imp
+        _cPickle = imp.load_module('cPickle', *imp.find_module('cPickle'))
+    except ImportError, e:
+        # The "cPickle" module has already been eliminated in favor of
+        # having "import pickle" import the fast version when available.
+        pass
+    else:
+        import sys
+        sys.modules['pickle'] = _cPickle
+        del _cPickle
 
 
 try:
@@ -385,6 +390,24 @@ except AttributeError:
 
     tempfile.mkstemp = mkstemp
     del mkstemp
+
+
+if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is not None:
+    # We can't apply the 'callable' fixer until the floor is 2.6, but the
+    # '-3' option to Python 2.6 and 2.7 generates almost ten thousand
+    # warnings.  This hack allows us to run regression tests with the '-3'
+    # option by replacing the callable() built-in function with a hack
+    # that performs the same function but doesn't generate the warning.
+    # Note that this hack is ONLY intended to be used for regression
+    # testing, and should NEVER be used for real runs.
+    from types import ClassType
+    def callable(obj):
+        if hasattr(obj, '__call__'): return True
+        if isinstance(obj, (ClassType, type)): return True
+        return False
+    import builtins
+    builtins.callable = callable
+    del callable
 
 
 # Local Variables:

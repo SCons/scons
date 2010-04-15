@@ -2251,7 +2251,7 @@ class GlobTestCase(_tempdirTestCase):
         for input, string_expect, node_expect in cases:
             r = self.fs.Glob(input, **kwargs)
             if node_expect:
-                r.sort(lambda a,b: cmp(a.path, b.path))
+                r = sorted(r, key=lambda a: a.path)
                 result = []
                 for n in node_expect:
                     if isinstance(n, str):

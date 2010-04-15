@@ -1960,8 +1960,7 @@ class Dir(Base):
             if strings:
                 r = [os.path.join(str(dir), x) for x in r]
             result.extend(r)
-        result.sort(lambda a, b: cmp(str(a), str(b)))
-        return result
+        return sorted(result, key=lambda a: str(a))
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
         """
