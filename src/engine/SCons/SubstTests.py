@@ -524,7 +524,7 @@ class scons_subst_TestCase(SubstTestCase):
             ]
             assert str(e) in expect, e
         else:
-            raise AssertionError, "did not catch expected UserError"
+            raise AssertionError("did not catch expected UserError")
 
     def test_subst_syntax_errors(self):
         """Test scons_subst():  handling syntax errors"""
@@ -542,7 +542,7 @@ class scons_subst_TestCase(SubstTestCase):
             ]
             assert str(e) in expect, e
         else:
-            raise AssertionError, "did not catch expected UserError"
+            raise AssertionError("did not catch expected UserError")
 
     def test_subst_type_errors(self):
         """Test scons_subst():  handling type errors"""
@@ -558,7 +558,7 @@ class scons_subst_TestCase(SubstTestCase):
             ]
             assert str(e) in expect, e
         else:
-            raise AssertionError, "did not catch expected UserError"
+            raise AssertionError("did not catch expected UserError")
 
         try:
             def func(a, b, c):
@@ -573,7 +573,7 @@ class scons_subst_TestCase(SubstTestCase):
             ]
             assert str(e) in expect, repr(str(e))
         else:
-            raise AssertionError, "did not catch expected UserError"
+            raise AssertionError("did not catch expected UserError")
 
     def test_subst_raw_function(self):
         """Test scons_subst():  fetch function with SUBST_RAW plus conv"""
@@ -978,7 +978,7 @@ class scons_subst_list_TestCase(SubstTestCase):
             ]
             assert str(e) in expect, e
         else:
-            raise AssertionError, "did not catch expected UserError"
+            raise AssertionError("did not catch expected UserError")
 
     def test_subst_syntax_errors(self):
         """Test scons_subst_list():  handling syntax errors"""
@@ -993,7 +993,7 @@ class scons_subst_list_TestCase(SubstTestCase):
             ]
             assert str(e) in expect, e
         else:
-            raise AssertionError, "did not catch expected SyntaxError"
+            raise AssertionError("did not catch expected SyntaxError")
 
     def test_subst_raw_function(self):
         """Test scons_subst_list():  fetch function with SUBST_RAW plus conv"""

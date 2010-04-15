@@ -257,7 +257,7 @@ if not use_metaclass:
     def EnableMemoization():
         import SCons.Warnings
         msg = 'memoization is not supported in this version of Python (%s)'
-        raise SCons.Warnings.NoMetaclassSupportWarning, msg % reason
+        raise SCons.Warnings.NoMetaclassSupportWarning(msg % reason)
 
 else:
 

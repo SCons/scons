@@ -143,14 +143,14 @@ class BaseTestCase(SConsignTestCase):
         except KeyError:
             pass
         else:
-            raise "unexpected entry %s" % e
+            raise Exception("unexpected entry %s" % e)
 
         try:
             e = f.get_entry('bbb')
         except KeyError:
             pass
         else:
-            raise "unexpected entry %s" % e
+            raise Exception("unexpected entry %s" % e)
 
         f.merge()
 

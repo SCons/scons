@@ -54,9 +54,9 @@ def raise_exception(exception, target, s):
     name = exception.__class__.__name__
     msg = "%s `%s' trying to evaluate `%s'" % (name, exception, s)
     if target:
-        raise SCons.Errors.BuildError, (target[0], msg)
+        raise SCons.Errors.BuildError(target[0], msg)
     else:
-        raise SCons.Errors.UserError, msg
+        raise SCons.Errors.UserError(msg)
 
 
 
@@ -238,7 +238,7 @@ class Target_or_Source:
         except IndexError:
             # If there is nothing in the list, then we have no attributes to
             # pass through, so raise AttributeError for everything.
-            raise AttributeError, "NodeList has no attribute: %s" % attr
+            raise AttributeError("NodeList has no attribute: %s" % attr)
         return getattr(nl0, attr)
     def __str__(self):
         nl = self.nl._create_nodelist()

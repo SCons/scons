@@ -86,7 +86,7 @@ for var in old_SCons_Script_variables:
     except AttributeError:
         pass
     else:
-        raise Exception, "unexpected variable SCons.Script.%s" % var
+        raise Exception("unexpected variable SCons.Script.%s" % var)
 """)
 
 test.write("m4.py", """\

@@ -36,7 +36,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 test.write('SConstruct', """
 assert "UserError" not in globals()
 import SCons.Errors
-raise SCons.Errors.UserError, 'Depends() requires both sources and targets.'
+raise SCons.Errors.UserError('Depends() requires both sources and targets.')
 """)
 
 expect = """

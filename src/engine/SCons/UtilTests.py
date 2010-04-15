@@ -774,7 +774,7 @@ class NodeListTestCase(unittest.TestCase):
         r = str(nl)
         assert r == '', r
         for node in nl:
-            raise Exception, "should not enter this loop"
+            raise Exception("should not enter this loop")
 
 
 class flattenTestCase(unittest.TestCase):

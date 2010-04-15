@@ -34,7 +34,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 def kfile_scan(node, env, target):
-    raise Exception, "kfile_scan error"
+    raise Exception("kfile_scan error")
 
 kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
@@ -57,7 +57,7 @@ test.run(arguments = "--debug=stacktrace",
 lines = [
     "scons: *** [foo] Exception : kfile_scan error",
     "scons: internal stack trace:",
-    'raise Exception, "kfile_scan error"',
+    'raise Exception("kfile_scan error")',
 ]
 
 test.must_contain_all_lines(test.stderr(), lines)
@@ -69,7 +69,7 @@ test.must_contain_all_lines(test.stderr(), lines)
 
 test.write('SConstruct', """\
 import SCons.Errors
-raise SCons.Errors.UserError, "explicit UserError!"
+raise SCons.Errors.UserError("explicit UserError!")
 """)
 
 test.run(arguments = '--debug=stacktrace',

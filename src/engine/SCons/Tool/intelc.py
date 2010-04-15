@@ -117,9 +117,8 @@ def check_abi(abi):
     try:
         abi = valid_abis[abi]
     except KeyError:
-        raise SCons.Errors.UserError, \
-              "Intel compiler: Invalid ABI %s, valid values are %s"% \
-              (abi, valid_abis.keys())
+        raise SCons.Errors.UserError("Intel compiler: Invalid ABI %s, valid values are %s"% \
+              (abi, valid_abis.keys()))
     return abi
 
 def vercmp(a, b):
@@ -156,16 +155,14 @@ def get_intel_registry_value(valuename, version=None, abi=None):
     try:
         k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
     except SCons.Util.RegError:
-        raise MissingRegistryError, \
-              "%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi)
+        raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
 
     # Get the value:
     try:
         v = SCons.Util.RegQueryValueEx(k, valuename)[0]
         return v  # or v.encode('iso-8859-1', 'replace') to remove unicode?
     except SCons.Util.RegError:
-        raise MissingRegistryError, \
-              "%s\\%s was not found in the registry."%(K, valuename)
+        raise MissingRegistryError("%s\\%s was not found in the registry."%(K, valuename))
 
 
 def get_all_compiler_versions():
@@ -255,13 +252,12 @@ def get_intel_compiler_top(version, abi):
 
     if is_windows:
         if not SCons.Util.can_read_reg:
-            raise NoRegistryModuleError, "No Windows registry module was found"
+            raise NoRegistryModuleError("No Windows registry module was found")
         top = get_intel_registry_value('ProductDir', version, abi)
         # pre-11, icl was in Bin.  11 and later, it's in Bin/<abi> apparently.
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")):
-            raise MissingDirError, \
-                  "Can't find Intel compiler in %s"%(top)
+            raise MissingDirError("Can't find Intel compiler in %s"%(top))
     elif is_mac or is_linux:
         # first dir is new (>=9.0) style, second is old (8.0) style.
         dirs=('/opt/intel/cc/%s', '/opt/intel_cc_%s')
@@ -273,8 +269,7 @@ def get_intel_compiler_top(version, abi):
                 top = d%version
                 break
         if not top:
-            raise MissingDirError, \
-                  "Can't find version %s Intel compiler in %s (abi='%s')"%(version,top, abi)
+            raise MissingDirError("Can't find version %s Intel compiler in %s (abi='%s')"%(version,top, abi))
     return top
 
 
@@ -310,9 +305,8 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         # get_version_from_list does that mapping.
         v = get_version_from_list(version, vlist)
         if not v:
-            raise SCons.Errors.UserError, \
-                  "Invalid Intel compiler version %s: "%version + \
-                  "installed versions are %s"%(', '.join(vlist))
+            raise SCons.Errors.UserError("Invalid Intel compiler version %s: "%version + \
+                  "installed versions are %s"%(', '.join(vlist)))
         version = v
 
     # if abi is unspecified, use ia32

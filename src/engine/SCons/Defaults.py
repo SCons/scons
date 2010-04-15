@@ -118,7 +118,7 @@ def SharedFlagChecker(source, target, env):
             except AttributeError:
                 shared = None
             if not shared:
-                raise SCons.Errors.UserError, "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0])
+                raise SCons.Errors.UserError("Source file: %s is static and is not compatible with shared target: %s" % (src, target[0]))
 
 SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 

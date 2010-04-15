@@ -398,7 +398,7 @@ class badnode (goodnode):
         goodnode.__init__(self)
         self.expect_to_be = SCons.Node.failed
     def build(self, **kw):
-        raise Exception, 'badnode exception'
+        raise Exception('badnode exception')
 
 class slowbadnode (badnode):
     def build(self, **kw):
@@ -407,11 +407,11 @@ class slowbadnode (badnode):
         # it is faster than slowgoodnode then these could complete
         # while the scheduler is sleeping.
         time.sleep(0.05)
-        raise Exception, 'slowbadnode exception'
+        raise Exception('slowbadnode exception')
 
 class badpreparenode (badnode):
     def prepare(self):
-        raise Exception, 'badpreparenode exception'
+        raise Exception('badpreparenode exception')
 
 class _SConsTaskTest(unittest.TestCase):
 

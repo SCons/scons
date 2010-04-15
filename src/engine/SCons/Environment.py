@@ -271,7 +271,7 @@ class BuilderWrapper(MethodWrapper):
         elif name == 'builder':
             return self.method
         else:
-            raise AttributeError, name
+            raise AttributeError(name)
 
     def __setattr__(self, name, value):
         if name == 'env':
@@ -432,7 +432,7 @@ class SubstitutionEnvironment:
             # efficient than calling another function or a method.
             if key not in self._dict \
                and not _is_valid_var.match(key):
-                    raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
+                    raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
 
     def get(self, key, default=None):
@@ -1382,7 +1382,7 @@ class Base(SubstitutionEnvironment):
         copy_function = self._copy2_from_cache
         if function in ('MD5', 'content'):
             if not SCons.Util.md5:
-                raise UserError, "MD5 signatures are not available in this version of Python."
+                raise UserError("MD5 signatures are not available in this version of Python.")
             function = self._changed_content
         elif function == 'MD5-timestamp':
             function = self._changed_timestamp_then_content
@@ -1392,7 +1392,7 @@ class Base(SubstitutionEnvironment):
         elif function == 'timestamp-match':
             function = self._changed_timestamp_match
         elif not callable(function):
-            raise UserError, "Unknown Decider value %s" % repr(function)
+            raise UserError("Unknown Decider value %s" % repr(function))
 
         # We don't use AddMethod because we don't want to turn the
         # function, which only expects three arguments, into a bound
@@ -2049,7 +2049,7 @@ class Base(SubstitutionEnvironment):
 
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
-                raise SCons.Errors.UserError, "Multiple ways to build the same target were specified for: %s" % str(side_effect)
+                raise SCons.Errors.UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             self.Precious(side_effect)
@@ -2075,12 +2075,12 @@ class Base(SubstitutionEnvironment):
         self.src_sig_type = type
         if type == 'MD5':
             if not SCons.Util.md5:
-                raise UserError, "MD5 signatures are not available in this version of Python."
+                raise UserError("MD5 signatures are not available in this version of Python.")
             self.decide_source = self._changed_content
         elif type == 'timestamp':
             self.decide_source = self._changed_timestamp_match
         else:
-            raise UserError, "Unknown source signature type '%s'" % type
+            raise UserError("Unknown source signature type '%s'" % type)
 
     def Split(self, arg):
         """This function converts a string or list into a list of strings
@@ -2111,7 +2111,7 @@ class Base(SubstitutionEnvironment):
         self.tgt_sig_type = type
         if type in ('MD5', 'content'):
             if not SCons.Util.md5:
-                raise UserError, "MD5 signatures are not available in this version of Python."
+                raise UserError("MD5 signatures are not available in this version of Python.")
             self.decide_target = self._changed_content
         elif type == 'timestamp':
             self.decide_target = self._changed_timestamp_match
@@ -2120,7 +2120,7 @@ class Base(SubstitutionEnvironment):
         elif type == 'source':
             self.decide_target = self._changed_source
         else:
-            raise UserError, "Unknown target signature type '%s'"%type
+            raise UserError("Unknown target signature type '%s'"%type)
 
     def Value(self, value, built_value=None):
         """
@@ -2209,7 +2209,7 @@ class OverrideEnvironment(Base):
             return self.__dict__['__subject'].__getitem__(key)
     def __setitem__(self, key, value):
         if not is_valid_construction_var(key):
-            raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
+            raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
         self.__dict__['overrides'][key] = value
     def __delitem__(self, key):
         try:

@@ -197,7 +197,7 @@ class DummyEnvironment:
         elif len(args) == 1 and args[0] == 'CPPPATH':
             return self.path
         else:
-            raise KeyError, "Dummy environment only has CPPPATH attribute."
+            raise KeyError("Dummy environment only has CPPPATH attribute.")
 
     def subst(self, arg, target=None, source=None, conv=None):
         return arg

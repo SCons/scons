@@ -68,7 +68,7 @@ class PathVariableTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert str(e) == 'Path for option X does not exist: %s' % dne, e
         except:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
     def test_PathIsDir(self):
         """Test the PathIsDir validator"""
@@ -92,7 +92,7 @@ class PathVariableTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert str(e) == 'Directory path for option X is a file: %s' % f, e
         except:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
         dne = test.workpath('does_not_exist')
         try:
@@ -100,7 +100,7 @@ class PathVariableTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert str(e) == 'Directory path for option X does not exist: %s' % dne, e
         except:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
     def test_PathIsDirCreate(self):
         """Test the PathIsDirCreate validator"""
@@ -125,7 +125,7 @@ class PathVariableTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert str(e) == 'Path for option X is a file, not a directory: %s' % f, e
         except:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
     def test_PathIsFile(self):
         """Test the PathIsFile validator"""
@@ -149,7 +149,7 @@ class PathVariableTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert str(e) == 'File path for option X does not exist: %s' % d, e
         except:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
         dne = test.workpath('does_not_exist')
         try:
@@ -157,7 +157,7 @@ class PathVariableTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert str(e) == 'File path for option X does not exist: %s' % dne, e
         except:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
     def test_PathAccept(self):
         """Test the PathAccept validator"""
@@ -202,10 +202,10 @@ class PathVariableTestCase(unittest.TestCase):
             expect = 'Path for option X does not exist: %s' % dne
             assert str(e) == expect, e
         else:
-            raise "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
         def my_validator(key, val, env):
-            raise Exception, "my_validator() got called for %s, %s!" % (key, val)
+            raise Exception("my_validator() got called for %s, %s!" % (key, val))
 
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test2',
@@ -220,7 +220,7 @@ class PathVariableTestCase(unittest.TestCase):
         except Exception, e:
             assert str(e) == 'my_validator() got called for Y, value!', e
         else:
-            raise "did not catch expected exception from my_validator()"
+            raise Exception("did not catch expected exception from my_validator()")
 
 
 

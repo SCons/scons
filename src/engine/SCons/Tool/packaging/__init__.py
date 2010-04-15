@@ -59,7 +59,7 @@ def Tag(env, target, source, *more_tags, **kw_tags):
         kw_tags[first_tag[0]] = ''
 
     if len(kw_tags) == 0 and len(more_tags) == 0:
-        raise UserError, "No tags given."
+        raise UserError("No tags given.")
 
     # XXX: sanity checks
     for x in more_tags:
@@ -92,7 +92,7 @@ def Package(env, target=None, source=None, **kw):
         source = env.FindInstalledFiles()
 
     if len(source)==0:
-        raise UserError, "No source for Package() given"
+        raise UserError("No source for Package() given")
 
     # decide which types of packages shall be built. Can be defined through
     # four mechanisms: command line argument, keyword argument,
@@ -111,7 +111,7 @@ def Package(env, target=None, source=None, **kw):
         elif 'Zip' in env['BUILDERS']:
             kw['PACKAGETYPE']='zip'
         else:
-            raise UserError, "No type for Package() given"
+            raise UserError("No type for Package() given")
 
     PACKAGETYPE=kw['PACKAGETYPE']
     if not is_List(PACKAGETYPE):

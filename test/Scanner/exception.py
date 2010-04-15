@@ -47,7 +47,7 @@ def kfile_scan(node, env, target, arg):
     contents = node.get_text_contents()
     exceptions = exception_re.findall(contents)
     if exceptions:
-        raise Exception, "kfile_scan error:  %s" % exceptions[0]
+        raise Exception("kfile_scan error:  %s" % exceptions[0])
     includes = include_re.findall(contents)
     return includes
 

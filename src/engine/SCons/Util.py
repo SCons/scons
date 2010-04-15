@@ -1136,7 +1136,7 @@ class Selector(OrderedDict):
                         # to the same suffix.  If one suffix is literal
                         # and a variable suffix contains this literal,
                         # the literal wins and we don't raise an error.
-                        raise KeyError, (s_dict[s_k][0], k, s_k)
+                        raise KeyError(s_dict[s_k][0], k, s_k)
                     s_dict[s_k] = (k,v)
             try:
                 return s_dict[ext][1]

@@ -144,9 +144,9 @@ class dblite:
   def __setitem__(self, key, value):
     self._check_writable()
     if (not is_string(key)):
-      raise TypeError, "key `%s' must be a string but is %s" % (key, type(key))
+      raise TypeError("key `%s' must be a string but is %s" % (key, type(key)))
     if (not is_string(value)):
-      raise TypeError, "value `%s' must be a string but is %s" % (value, type(value))
+      raise TypeError("value `%s' must be a string but is %s" % (value, type(value)))
     self._dict[key] = value
     self._needs_sync = 0001
 
@@ -198,7 +198,7 @@ def _exercise():
   except IOError, e:
     assert str(e) == "Read-only database: tmp.dblite"
   else:
-    raise RuntimeError, "IOError expected."
+    raise RuntimeError("IOError expected.")
   db = open("tmp", "w")
   assert len(db) == 4
   db["ping"] = "pong"
@@ -208,13 +208,13 @@ def _exercise():
   except TypeError, e:
     assert str(e) == "key `(1, 2)' must be a string but is <type 'tuple'>", str(e)
   else:
-    raise RuntimeError, "TypeError exception expected"
+    raise RuntimeError("TypeError exception expected")
   try:
     db["list"] = [1,2]
   except TypeError, e:
     assert str(e) == "value `[1, 2]' must be a string but is <type 'list'>", str(e)
   else:
-    raise RuntimeError, "TypeError exception expected"
+    raise RuntimeError("TypeError exception expected")
   db = open("tmp", "r")
   assert len(db) == 5
   db = open("tmp", "n")
@@ -227,7 +227,7 @@ def _exercise():
   except pickle.UnpicklingError:
     pass
   else:
-    raise RuntimeError, "pickle exception expected."
+    raise RuntimeError("pickle exception expected.")
   global ignore_corrupt_dbfiles
   ignore_corrupt_dbfiles = 2
   db = open("tmp", "r")
@@ -238,7 +238,7 @@ def _exercise():
   except IOError, e:
     assert str(e) == "[Errno 2] No such file or directory: 'tmp.dblite'", str(e)
   else:
-    raise RuntimeError, "IOError expected."
+    raise RuntimeError("IOError expected.")
   print "OK"
 
 if (__name__ == "__main__"):

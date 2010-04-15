@@ -56,9 +56,9 @@ def validate_vars(env):
     """Validate the PCH and PCHSTOP construction variables."""
     if 'PCH' in env and env['PCH']:
         if 'PCHSTOP' not in env:
-            raise SCons.Errors.UserError, "The PCHSTOP construction must be defined if PCH is defined."
+            raise SCons.Errors.UserError("The PCHSTOP construction must be defined if PCH is defined.")
         if not SCons.Util.is_String(env['PCHSTOP']):
-            raise SCons.Errors.UserError, "The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP']
+            raise SCons.Errors.UserError("The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP'])
 
 def pch_emitter(target, source, env):
     """Adds the object file target."""

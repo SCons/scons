@@ -387,7 +387,7 @@ def get_vs_by_version(msvs):
     debug('vs.py:get_vs_by_version()')
     if msvs not in SupportedVSMap:
         msg = "Visual Studio version %s is not supported" % repr(msvs)
-        raise SCons.Errors.UserError, msg
+        raise SCons.Errors.UserError(msg)
     get_installed_visual_studios()
     vs = InstalledVSMap.get(msvs)
     debug('InstalledVSMap:%s'%InstalledVSMap)
@@ -451,7 +451,7 @@ def get_default_arch(env):
         arch = 'x86'
     elif not arch in msvs.get_supported_arch():
         fmt = "Visual Studio version %s does not support architecture %s"
-        raise SCons.Errors.UserError, fmt % (env['MSVS_VERSION'], arch)
+        raise SCons.Errors.UserError(fmt % (env['MSVS_VERSION'], arch))
 
     return arch
 

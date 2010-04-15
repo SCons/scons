@@ -79,21 +79,21 @@ class ErrorsTestCase(unittest.TestCase):
     def test_InternalError(self):
         """Test the InternalError exception."""
         try:
-            raise SCons.Errors.InternalError, "test internal error"
+            raise SCons.Errors.InternalError("test internal error")
         except SCons.Errors.InternalError, e:
             assert e.args == ("test internal error",)
 
     def test_UserError(self):
         """Test the UserError exception."""
         try:
-            raise SCons.Errors.UserError, "test user error"
+            raise SCons.Errors.UserError("test user error")
         except SCons.Errors.UserError, e:
             assert e.args == ("test user error",)
 
     def test_ExplicitExit(self):
         """Test the ExplicitExit exception."""
         try:
-            raise SCons.Errors.ExplicitExit, "node"
+            raise SCons.Errors.ExplicitExit("node")
         except SCons.Errors.ExplicitExit, e:
             assert e.node == "node"
 

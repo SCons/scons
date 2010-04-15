@@ -813,7 +813,7 @@ SConscript( sconscript )
         def matchPart(log, logfile, lastEnd, NoMatch=NoMatch):
             m = re.match(log, logfile[lastEnd:])
             if not m:
-                raise NoMatch, lastEnd
+                raise NoMatch(lastEnd)
             return m.end() + lastEnd
         try:
             #print len(os.linesep)
@@ -888,7 +888,7 @@ SConscript( sconscript )
                 log = ""
             if doCheckLog: lastEnd = matchPart(ls, logfile, lastEnd)
             if doCheckLog and lastEnd != len(logfile):
-                raise NoMatch, lastEnd
+                raise NoMatch(lastEnd)
             
         except NoMatch, m:
             print "Cannot match log file against log regexp."

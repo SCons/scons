@@ -226,7 +226,7 @@ class Executor:
         if not SCons.Util.is_List(action):
             if not action:
                 import SCons.Errors
-                raise SCons.Errors.UserError, "Executor must have an action."
+                raise SCons.Errors.UserError("Executor must have an action.")
             action = [action]
         self.action_list = action
 
@@ -394,7 +394,7 @@ class Executor:
         for s in self.get_all_sources():
             if s.missing():
                 msg = "Source `%s' not found, needed by target `%s'."
-                raise SCons.Errors.StopError, msg % (s, self.batches[0].targets[0])
+                raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
 
     def add_pre_action(self, action):
         self.pre_actions.append(action)

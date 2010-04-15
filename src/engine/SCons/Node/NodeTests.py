@@ -54,7 +54,7 @@ def _actionAppend(a1, a2):
         elif isinstance(curr_a, list):
             all.extend(curr_a)
         else:
-            raise 'Cannot Combine Actions'
+            raise Exception('Cannot Combine Actions')
     return MyListAction(all)
 
 class MyActionBase:
@@ -178,7 +178,7 @@ class ExceptBuilder:
 
 class ExceptBuilder2:
     def execute(self, target, source, env):
-        raise "foo"
+        raise Exception("foo")
 
 class Scanner:
     called = None
@@ -787,7 +787,7 @@ class NodeTestCase(unittest.TestCase):
         except:
             pass
         else:
-            raise "did not catch expected exception"
+            raise Exception("did not catch expected exception")
         assert node.depends == [zero, one, two, three, four]
 
 
@@ -819,7 +819,7 @@ class NodeTestCase(unittest.TestCase):
         except:
             pass
         else:
-            raise "did not catch expected exception"
+            raise Exception("did not catch expected exception")
         assert node.sources == [zero, one, two, three, four], node.sources
 
     def test_add_ignore(self):
@@ -850,7 +850,7 @@ class NodeTestCase(unittest.TestCase):
         except:
             pass
         else:
-            raise "did not catch expected exception"
+            raise Exception("did not catch expected exception")
         assert node.ignore == [zero, one, two, three, four]
 
     def test_get_found_includes(self):

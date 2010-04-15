@@ -124,8 +124,8 @@ class TestCase:
         try:
             self.__testMethod = getattr(self,methodName)
         except AttributeError:
-            raise ValueError, "no such test method in %s: %s" % \
-                  (self.__class__, methodName)
+            raise ValueError("no such test method in %s: %s" % \
+                  (self.__class__, methodName))
 
     def setUp(self):
         "Hook method for setting up the test fixture before exercising it."
@@ -199,7 +199,7 @@ class TestCase:
            __debug__ is false.
         """
         if not expr:
-            raise AssertionError, msg
+            raise AssertionError(msg)
 
     failUnless = assert_
 
@@ -222,11 +222,11 @@ class TestCase:
         else:
             if hasattr(excClass,'__name__'): excName = excClass.__name__
             else: excName = str(excClass)
-            raise AssertionError, excName
+            raise AssertionError(excName)
 
     def fail(self, msg=None):
         """Fail immediately, with the given message."""
-        raise AssertionError, msg
+        raise AssertionError(msg)
                                    
     def __exc_info(self):
         """Return a version of sys.exc_info() with the traceback frame
@@ -376,7 +376,7 @@ def createTestInstance(name, module=None):
     """
           
     spec = name.split(':')
-    if len(spec) > 2: raise ValueError, "illegal test name: %s" % name
+    if len(spec) > 2: raise ValueError("illegal test name: %s" % name)
     if len(spec) == 1:
         testName = spec[0]
         caseName = None
@@ -385,7 +385,7 @@ def createTestInstance(name, module=None):
     parts = testName.split('.')
     if module is None:
         if len(parts) < 2:
-            raise ValueError, "incomplete test name: %s" % name
+            raise ValueError("incomplete test name: %s" % name)
         constructor = __import__('.'.join(parts[:-1]))
         parts = parts[1:]
     else:
@@ -393,20 +393,19 @@ def createTestInstance(name, module=None):
     for part in parts:
         constructor = getattr(constructor, part)
     if not callable(constructor):
-        raise ValueError, "%s is not a callable object" % constructor
+        raise ValueError("%s is not a callable object" % constructor)
     if caseName:
         if caseName[-1] == '-':
             prefix = caseName[:-1]
             if not prefix:
-                raise ValueError, "prefix too short: %s" % name
+                raise ValueError("prefix too short: %s" % name)
             test = makeSuite(constructor, prefix=prefix)
         else:
             test = constructor(caseName)
     else:
         test = constructor()
     if not hasattr(test,"countTestCases"):
-        raise TypeError, \
-              "object %s found with spec %s is not a test" % (test, name)
+        raise TypeError("object %s found with spec %s is not a test" % (test, name))
     return test
 
 
@@ -662,7 +661,7 @@ Examples:
                 if opt in ('-h','-H','--help'):
                     self.usageExit()
             if len(args) == 0 and self.defaultTest is None:
-                raise getopt.error, "No default test is defined."
+                raise getopt.error("No default test is defined.")
             if len(args) > 0:
                 self.testNames = args
             else:

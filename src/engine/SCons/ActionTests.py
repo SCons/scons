@@ -275,7 +275,7 @@ def test_positional_args(pos_callback, cmd, **kw):
             m = 'Invalid command display variable'
             assert s.find(m) != -1, 'Unexpected string:  %s' % s
         else:
-            raise Exception, "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
     return act
 
@@ -494,7 +494,7 @@ class _ActionActionTestCase(unittest.TestCase):
             m = 'Cannot have both strfunction and cmdstr args to Action()'
             assert s.find(m) != -1, 'Unexpected string:  %s' % s
         else:
-            raise Exception, "did not catch expected UserError"
+            raise Exception("did not catch expected UserError")
 
     def test___cmp__(self):
         """Test Action comparison

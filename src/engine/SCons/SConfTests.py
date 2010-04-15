@@ -85,7 +85,7 @@ class SConfTestCase(unittest.TestCase):
         if (not self.scons_env.Detect( self.scons_env.subst('$CXX') ) or
             not self.scons_env.Detect( self.scons_env.subst('$CC') ) or
             not self.scons_env.Detect( self.scons_env.subst('$LINK') )):
-            raise Exception, "This test needs an installed compiler!"
+            raise Exception("This test needs an installed compiler!")
         if self.scons_env['CXX'] == 'g++':
             global existing_lib
             existing_lib = 'm'

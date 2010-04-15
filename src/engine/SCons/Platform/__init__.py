@@ -111,7 +111,7 @@ def platform_module(name = platform_default()):
                     importer = zipimport.zipimporter( sys.modules['SCons.Platform'].__path__[0] )
                     mod = importer.load_module(full_name)
                 except ImportError:
-                    raise SCons.Errors.UserError, "No platform named '%s'" % name
+                    raise SCons.Errors.UserError("No platform named '%s'" % name)
             setattr(SCons.Platform, name, mod)
     return sys.modules[full_name]
 

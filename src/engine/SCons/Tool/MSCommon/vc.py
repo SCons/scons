@@ -138,9 +138,7 @@ _VCVER_TO_PRODUCT_DIR = {
 }
 
 def msvc_version_to_maj_min(msvc_version):
-    msvc_version_numeric = string.join(filter(lambda x: x in string.digits + ".", msvc_version), '')
-    
-    t = msvc_version_numeric.split(".")
+    t = msvc_version.split(".")
     if not len(t) == 2:
         raise ValueError("Unrecognized version %s" % msvc_version)
     try:

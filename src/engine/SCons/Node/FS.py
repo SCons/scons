@@ -255,7 +255,7 @@ def set_duplicate(duplicate):
     }
 
     if not duplicate in Valid_Duplicates:
-        raise SCons.Errors.InternalError, ("The argument of set_duplicate "
+        raise SCons.Errors.InternalError("The argument of set_duplicate "
                                            "should be in Valid_Duplicates")
     global Link_Funcs
     Link_Funcs = []
@@ -406,7 +406,7 @@ def do_diskcheck_match(node, predicate, errorfmt):
     except (AttributeError, KeyError):
         pass
     if result:
-        raise TypeError, errorfmt % node.abspath
+        raise TypeError(errorfmt % node.abspath)
 
 def ignore_diskcheck_match(node, predicate, errorfmt):
     pass
@@ -619,8 +619,8 @@ class Base(SCons.Node.Node):
         """
         if isinstance(self, klass) or klass is Entry:
             return
-        raise TypeError, "Tried to lookup %s '%s' as a %s." %\
-              (self.__class__.__name__, self.path, klass.__name__)
+        raise TypeError("Tried to lookup %s '%s' as a %s." %\
+              (self.__class__.__name__, self.path, klass.__name__))
 
     def get_dir(self):
         return self.dir
@@ -910,7 +910,7 @@ class Entry(Base):
                 self._morph()
             elif must_exist:
                 msg = "No such file or directory: '%s'" % self.abspath
-                raise SCons.Errors.UserError, msg
+                raise SCons.Errors.UserError(msg)
             else:
                 self.__class__ = File
                 self._morph()
@@ -989,7 +989,7 @@ class Entry(Base):
     def rel_path(self, other):
         d = self.disambiguate()
         if d.__class__ is Entry:
-            raise "rel_path() could not disambiguate File/Dir"
+            raise Exception("rel_path() could not disambiguate File/Dir")
         return d.rel_path(other)
 
     def new_ninfo(self):
@@ -1293,11 +1293,11 @@ class FS(LocalFS):
         if not isinstance(variant_dir, SCons.Node.Node):
             variant_dir = self.Dir(variant_dir)
         if src_dir.is_under(variant_dir):
-            raise SCons.Errors.UserError, "Source directory cannot be under variant directory."
+            raise SCons.Errors.UserError("Source directory cannot be under variant directory.")
         if variant_dir.srcdir:
             if variant_dir.srcdir == src_dir:
                 return # We already did this.
-            raise SCons.Errors.UserError, "'%s' already has a source directory: '%s'."%(variant_dir, variant_dir.srcdir)
+            raise SCons.Errors.UserError("'%s' already has a source directory: '%s'."%(variant_dir, variant_dir.srcdir))
         variant_dir.link(src_dir, duplicate)
 
     def Repository(self, *dirs):
@@ -1640,7 +1640,7 @@ class Dir(Base):
             if p is None:
                 # Don't use while: - else: for this condition because
                 # if so, then parent is None and has no .path attribute.
-                raise SCons.Errors.StopError, parent.path
+                raise SCons.Errors.StopError(parent.path)
             parent = p
         listDirs.reverse()
         for dirnode in listDirs:
@@ -2104,7 +2104,7 @@ class RootDir(Dir):
         except KeyError:
             if not create:
                 msg = "No such file or directory: '%s' in '%s' (and create is False)" % (p, str(self))
-                raise SCons.Errors.UserError, msg
+                raise SCons.Errors.UserError(msg)
             # There is no Node for this path name, and we're allowed
             # to create it.
             dir_name, file_name = os.path.split(p)
@@ -2734,7 +2734,7 @@ class File(Base):
                     self._createDir()
                 except SCons.Errors.StopError, drive:
                     desc = "No drive `%s' for target `%s'." % (drive, self)
-                    raise SCons.Errors.StopError, desc
+                    raise SCons.Errors.StopError(desc)
 
     #
     #
@@ -2753,7 +2753,7 @@ class File(Base):
         e = Link(self, src, None)
         if isinstance(e, SCons.Errors.BuildError):
             desc = "Cannot duplicate `%s' in `%s': %s." % (src.path, self.dir.path, e.errstr)
-            raise SCons.Errors.StopError, desc
+            raise SCons.Errors.StopError(desc)
         self.linked = 1
         # The Link() action may or may not have actually
         # created the file, depending on whether the -n
