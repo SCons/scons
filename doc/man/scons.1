@@ -7393,7 +7393,7 @@ vars.Add('CC', 'The C compiler')
 
 def validate_color(key, val, env):
     if not val in ['red', 'blue', 'yellow']:
-        raise "Invalid color value '%s'" % val
+        raise Exception("Invalid color value '%s'" % val)
 vars.Add('COLOR', validator=valid_color)
 .EE
 

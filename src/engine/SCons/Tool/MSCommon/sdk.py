@@ -312,7 +312,7 @@ def get_cur_sdk_dir_from_reg():
 def get_sdk_by_version(mssdk):
     if mssdk not in SupportedSDKMap:
         msg = "SDK version %s is not supported" % repr(mssdk)
-        raise SCons.Errors.UserError, msg
+        raise SCons.Errors.UserError(msg)
     get_installed_sdks()
     return InstalledSDKMap.get(mssdk)
 
@@ -338,7 +338,7 @@ def mssdk_setup_env(env):
         sdk_version = env['MSSDK_VERSION']
         if sdk_version is None:
             msg = "SDK version %s is not installed" % repr(mssdk)
-            raise SCons.Errors.UserError, msg
+            raise SCons.Errors.UserError(msg)
         sdk_version = env.subst(sdk_version)
         mssdk = get_sdk_by_version(sdk_version)
         sdk_dir = mssdk.get_sdk_dir()

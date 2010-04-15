@@ -54,7 +54,7 @@ def copyFunc(dest, source, env):
     if os.path.isdir(source):
         if os.path.exists(dest):
             if not os.path.isdir(dest):
-                raise SCons.Errors.UserError, "cannot overwrite non-directory `%s' with a directory `%s'" % (str(dest), str(source))
+                raise SCons.Errors.UserError("cannot overwrite non-directory `%s' with a directory `%s'" % (str(dest), str(source)))
         else:
             parent = os.path.split(dest)[0]
             if not os.path.exists(parent):
@@ -135,7 +135,7 @@ BaseInstallBuilder               = None
 def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
     if target and dir:
         import SCons.Errors
-        raise SCons.Errors.UserError, "Both target and dir defined for Install(), only one may be defined."
+        raise SCons.Errors.UserError("Both target and dir defined for Install(), only one may be defined.")
     if not dir:
         dir=target
 
@@ -149,7 +149,7 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
     try:
         dnodes = env.arg2nodes(dir, target_factory.Dir)
     except TypeError:
-        raise SCons.Errors.UserError, "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir)
+        raise SCons.Errors.UserError("Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir))
     sources = env.arg2nodes(source, env.fs.Entry)
     tgt = []
     for dnode in dnodes:

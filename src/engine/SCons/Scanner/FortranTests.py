@@ -218,7 +218,7 @@ class DummyEnvironment:
         elif len(args) == 1 and args[0] == 'FORTRANPATH':
             return self.path
         else:
-            raise KeyError, "Dummy environment only has FORTRANPATH attribute."
+            raise KeyError("Dummy environment only has FORTRANPATH attribute.")
 
     def has_key(self, key):
         return key in self.Dictionary()

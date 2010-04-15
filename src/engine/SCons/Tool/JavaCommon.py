@@ -67,7 +67,7 @@ if java_parsing:
             if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6',
                                '5', '6'):
                 msg = "Java version %s not supported" % version
-                raise NotImplementedError, msg
+                raise NotImplementedError(msg)
 
             self.version = version
             self.listClasses = []

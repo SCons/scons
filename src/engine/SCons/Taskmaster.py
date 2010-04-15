@@ -1023,7 +1023,7 @@ class Taskmaster:
                     "  Internal Error: no cycle found for node %s (%s) in state %s\n" %  \
                     (node, repr(node), StateString[node.get_state()])
 
-        raise SCons.Errors.UserError, desc
+        raise SCons.Errors.UserError(desc)
 
 # Local Variables:
 # tab-width:4

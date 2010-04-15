@@ -344,7 +344,7 @@ class BuilderTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             pass
         else:
-            raise "Did not catch expected UserError."
+            raise Exception("Did not catch expected UserError.")
 
         builder = SCons.Builder.Builder(action="foo")
         target = builder(env, None, source='n22', srcdir='src_dir')[0]

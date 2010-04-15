@@ -45,7 +45,7 @@ def getPharLapPath():
     be found."""
 
     if not SCons.Util.can_read_reg:
-        raise SCons.Errors.InternalError, "No Windows registry module was found"
+        raise SCons.Errors.InternalError("No Windows registry module was found")
     try:
         k=SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                   'SOFTWARE\\Pharlap\\ETS')
@@ -61,7 +61,7 @@ def getPharLapPath():
                     
         return os.path.normpath(val)
     except SCons.Util.RegError:
-        raise SCons.Errors.UserError, "Cannot find Phar Lap ETS path in the registry.  Is it installed properly?"
+        raise SCons.Errors.UserError("Cannot find Phar Lap ETS path in the registry.  Is it installed properly?")
 
 REGEX_ETS_VER = re.compile(r'#define\s+ETS_VER\s+([0-9]+)')
 
@@ -78,7 +78,7 @@ def getPharLapVersion():
 
     include_path = os.path.join(getPharLapPath(), os.path.normpath("include/embkern.h"))
     if not os.path.exists(include_path):
-        raise SCons.Errors.UserError, "Cannot find embkern.h in ETS include directory.\nIs Phar Lap ETS installed properly?"
+        raise SCons.Errors.UserError("Cannot find embkern.h in ETS include directory.\nIs Phar Lap ETS installed properly?")
     mo = REGEX_ETS_VER.search(open(include_path, 'r').read())
     if mo:
         return int(mo.group(1))

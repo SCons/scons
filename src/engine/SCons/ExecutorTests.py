@@ -119,7 +119,7 @@ class ExecutorTestCase(unittest.TestCase):
         except SCons.Errors.UserError:
             pass
         else:
-            raise "Did not catch expected UserError"
+            raise Exception("Did not catch expected UserError")
 
     def test__action_list(self):
         """Test the {get,set}_action_list() methods"""
@@ -242,7 +242,7 @@ class ExecutorTestCase(unittest.TestCase):
         except SCons.Errors.BuildError:
             pass
         else:
-            raise Exception, "Did not catch expected BuildError"
+            raise Exception("Did not catch expected BuildError")
         assert result == ['pre_err'], result
         del result[:]
 
@@ -310,7 +310,7 @@ class ExecutorTestCase(unittest.TestCase):
         except SCons.Errors.StopError, e:
             assert str(e) == "Source `s2' not found, needed by target `t1'.", e
         else:
-            raise AssertionError, "did not catch expected StopError: %s" % r
+            raise AssertionError("did not catch expected StopError: %s" % r)
 
     def test_add_pre_action(self):
         """Test adding pre-actions to an Executor"""

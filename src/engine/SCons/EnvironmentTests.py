@@ -1610,7 +1610,7 @@ def exists(env):
             def __str__(self):
                 return self.name
             def __cmp__(self, other):
-                raise "should not compare"
+                raise Exception("should not compare")
 
         ccc = C('ccc')
 

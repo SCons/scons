@@ -129,7 +129,7 @@ class Variables:
 
         if not SCons.Util.is_String(key) or \
            not SCons.Environment.is_valid_construction_var(key):
-            raise SCons.Errors.UserError, "Illegal Variables.Add() key `%s'" % str(key)
+            raise SCons.Errors.UserError("Illegal Variables.Add() key `%s'" % str(key))
 
         self._do_add(key, help, default, validator, converter)
 
@@ -211,7 +211,7 @@ class Variables:
                     except TypeError:
                         env[option.key] = option.converter(value, env)
                 except ValueError, x:
-                    raise SCons.Errors.UserError, 'Error converting option: %s\n%s'%(option.key, x)
+                    raise SCons.Errors.UserError('Error converting option: %s\n%s'%(option.key, x))
 
 
         # Finally validate the values:
@@ -273,7 +273,7 @@ class Variables:
                 fh.close()
 
         except IOError, x:
-            raise SCons.Errors.UserError, 'Error writing options to file: %s\n%s' % (filename, x)
+            raise SCons.Errors.UserError('Error writing options to file: %s\n%s' % (filename, x))
 
     def GenerateHelpText(self, env, sort=None):
         """

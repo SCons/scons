@@ -358,7 +358,7 @@ class VariantDirTestCase(unittest.TestCase):
 
         save_Link = SCons.Node.FS.Link
         def Link_IOError(target, source, env):
-            raise IOError, (17, "Link_IOError")
+            raise IOError(17, "Link_IOError")
         SCons.Node.FS.Link = SCons.Action.Action(Link_IOError, None)
 
         test.write(['work', 'src', 'IOError'], "work/src/IOError\n")
@@ -892,7 +892,7 @@ class FSTestCase(_tempdirTestCase):
         except TypeError:
             pass
         else:
-            raise Exception, "did not catch expected TypeError"
+            raise Exception("did not catch expected TypeError")
 
         assert x1.Entry(x4) == x4
         try:
@@ -900,7 +900,7 @@ class FSTestCase(_tempdirTestCase):
         except TypeError:
             pass
         else:
-            raise Exception, "did not catch expected TypeError"
+            raise Exception("did not catch expected TypeError")
 
         x6 = x1.File(x6)
         assert isinstance(x6, SCons.Node.FS.File)
@@ -1207,7 +1207,7 @@ class FSTestCase(_tempdirTestCase):
             except SCons.Errors.UserError:
                 pass
             else:
-                raise Exception, "did not catch expected UserError"
+                raise Exception("did not catch expected UserError")
 
         nonexistent(fs.Entry, 'nonexistent')
         nonexistent(fs.Entry, 'nonexistent/foo')

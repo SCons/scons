@@ -100,7 +100,7 @@ def CachePushFunc(target, source, env):
             # has beaten us creating the directory.
             if not fs.isdir(cachedir):
                 msg = errfmt % (str(target), cachefile)
-                raise SCons.Errors.EnvironmentError, msg
+                raise SCons.Errors.EnvironmentError(msg)
 
     try:
         if fs.islink(t.path):

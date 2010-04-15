@@ -683,7 +683,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     site_dir = os.path.join(topdir.path, site_dir_name)
     if not os.path.exists(site_dir):
         if err_if_not_found:
-            raise SCons.Errors.UserError, "site dir %s not found."%site_dir
+            raise SCons.Errors.UserError("site dir %s not found."%site_dir)
         return
 
     site_init_filename = "site_init.py"
@@ -710,7 +710,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                     m = sys.modules['SCons.Script']
                 except Exception, e:
                     fmt = 'cannot import site_init.py: missing SCons.Script module %s'
-                    raise SCons.Errors.InternalError, fmt % repr(e)
+                    raise SCons.Errors.InternalError(fmt % repr(e))
                 try:
                     # This is the magic.
                     exec fp in m.__dict__
@@ -851,7 +851,7 @@ def _main(parser):
             # Give them the options usage now, before we fail
             # trying to read a non-existent SConstruct file.
             raise SConsPrintHelpException
-        raise SCons.Errors.UserError, "No SConstruct file found."
+        raise SCons.Errors.UserError("No SConstruct file found.")
 
     if scripts[0] == "-":
         d = fs.getcwd()

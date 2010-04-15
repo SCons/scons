@@ -302,7 +302,7 @@ def _actionAppend(act1, act2):
     a1 = Action(act1)
     a2 = Action(act2)
     if a1 is None or a2 is None:
-        raise TypeError, "Cannot append %s to %s" % (type(act1), type(act2))
+        raise TypeError("Cannot append %s to %s" % (type(act1), type(act2)))
     if isinstance(a1, ListAction):
         if isinstance(a2, ListAction):
             return ListAction(a1.list + a2.list)
@@ -691,8 +691,8 @@ class CommandAction(_ActionAction):
         _ActionAction.__init__(self, **kw)
         if is_List(cmd):
             if list(filter(is_List, cmd)):
-                raise TypeError, "CommandAction should be given only " \
-                      "a single command"
+                raise TypeError("CommandAction should be given only " \
+                      "a single command")
         self.cmd_list = cmd
 
     def __str__(self):
