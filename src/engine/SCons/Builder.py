@@ -122,7 +122,7 @@ def match_splitext(path, suffixes = []):
     if suffixes:
         matchsuf = [S for S in suffixes if path[-len(S):] == S]
         if matchsuf:
-            suf = max(list(map(None, list(map(len, matchsuf)), matchsuf)))[1]
+            suf = max([(len(_f),_f) for _f in matchsuf])[1]
             return [path[:-len(suf)], path[-len(suf):]]
     return SCons.Util.splitext(path)
 

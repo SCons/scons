@@ -344,7 +344,10 @@ def getTestCaseNames(testCaseClass, prefix, sortUsing=cmp):
         testFnNames = testFnNames + \
                       getTestCaseNames(baseclass, prefix, sortUsing=None)
     if sortUsing:
-        testFnNames.sort(sortUsing)
+        # sortUsing is only either 'None' or 'cmp' so don't bother with arg
+        # which is not supported in Py3k.
+        #testFnNames.sort(sortUsing)
+        testFnNames.sort()
     return testFnNames
 
 

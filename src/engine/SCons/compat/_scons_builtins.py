@@ -127,7 +127,7 @@ except NameError:
     # Pre-2.2 Python has no False keyword.
     builtins.False = not 1
     # Assign to False in this module namespace so it shows up in pydoc output.
-    False = False
+    #False = False
 
 try:
     True
@@ -135,7 +135,7 @@ except NameError:
     # Pre-2.2 Python has no True keyword.
     builtins.True = not 0
     # Assign to True in this module namespace so it shows up in pydoc output.
-    True = True
+    #True = True
 
 try:
     file

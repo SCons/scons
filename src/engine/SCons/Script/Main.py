@@ -528,7 +528,7 @@ class MemStats(Stats):
         self.stats.append(SCons.Debug.memory())
     def do_print(self):
         fmt = 'Memory %-32s %12d\n'
-        for label, stats in map(None, self.labels, self.stats):
+        for label, stats in zip(self.labels, self.stats):
             self.outfp.write(fmt % (label, stats))
 
 memory_stats = MemStats()

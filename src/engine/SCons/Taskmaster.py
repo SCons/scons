@@ -107,8 +107,7 @@ fmt = "%(considered)3d "\
       "%(build)3d "
 
 def dump_stats():
-    StatsNodes.sort(lambda a, b: cmp(str(a), str(b)))
-    for n in StatsNodes:
+    for n in sorted(StatsNodes, key=lambda a: str(a)):
         print (fmt % n.stats.__dict__) + str(n)
 
 
