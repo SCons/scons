@@ -43,8 +43,12 @@ class Collection(object):
     return self.pred(fname)
   def __len__(self):
     return len(self.files)
-  def extend(self, files):
-    self.files.extend(files)
+  def collect(self, directory):
+    for dirpath, dirnames, filenames in os.walk(directory):
+      try: dirnames.remove('.svn')
+      except ValueError: pass
+      self.files.extend([ os.path.join(dirpath, f)
+                          for f in filenames if self.pred(f) ])
   def lines(self):
     try:
       return self._lines
@@ -82,17 +86,11 @@ src_test_tests = Collection('src/ test_*.py', pred=is_test_)
 test_tests = Collection('test/ tests', pred=is_python)
 sources = Collection('sources', pred=is_source)
 
-def t(arg, dirname, names):
-    try: names.remove('.svn')
-    except ValueError: pass
-    names = list(filter(arg, names))
-    arg.extend([os.path.join(dirname, n) for n in names])
-
-os.path.walk('src', t, src_Tests_py_tests)
-os.path.walk('src', t, src_test_tests)
-os.path.walk('test', t, test_tests)
-os.path.walk('src/engine', t, sources)
-os.path.walk('src/script', t, sources)
+src_Tests_py_tests.collect('src')
+src_test_tests.collect('src')
+test_tests.collect('test')
+sources.collect('src/engine')
+sources.collect('src/script')
 
 src_tests = Collection('src/ tests', src_Tests_py_tests.files
                                      + src_test_tests.files)

@@ -57,11 +57,6 @@ def lookup(dirname):
     node = t.entries[dirs[-1]] = Dir(dirs)
     return node
 
-def make_nodes(arg, dirname, fnames):
-    dir = lookup(dirname)
-    for f in fnames:
-        dir.entries[f] = None
-
 def collect_dirs(l, dir):
     if dir.path:
         l.append(dir.path)
@@ -85,7 +80,10 @@ def print_files(dir):
             print_files(d)
     dir.call_for_each_entry(recurse)
 
-os.path.walk(directory, make_nodes, None)
+for dirpath, dirnames, filenames in os.walk(directory):
+    dir = lookup(dirpath)
+    for f in fnames:
+        dir.entries[f] = None
 
 subdir_list = []
 collect_dirs(subdir_list, Top)
