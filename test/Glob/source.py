@@ -66,7 +66,7 @@ env.Concatenate('f.out', sorted(Glob('f[45].in', source=True),
 test.write(['var2', 'SConscript'], """\
 Import("env")
 
-f_in = sorted(Glob('f[67].in'), cmp=lambda a,b: cmp(a.name, b.name))
+f_in = sorted(Glob('f[67].in'), key=lambda a: a.name)
 env.Concatenate('f.out', f_in)
 """)
 

@@ -290,7 +290,9 @@ class _DSPGenerator:
                         self.sources[t[0]].append(self.env[t[1]])
 
         for n in sourcenames:
-            self.sources[n].sort(lambda a, b: cmp(a.lower(), b.lower()))
+            #TODO 2.4: compat layer supports sorted(key=) but not sort(key=)
+            #TODO 2.4: self.sources[n].sort(key=lambda a: a.lower())
+            self.sources[n] = sorted(self.sources[n], key=lambda a: a.lower())
 
         def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, dspfile=dspfile):
             config = Config()
@@ -439,9 +441,7 @@ class _GenerateV6DSP(_DSPGenerator):
                       'Resource Files': 'r|rc|ico|cur|bmp|dlg|rc2|rct|bin|cnt|rtf|gif|jpg|jpeg|jpe',
                       'Other Files': ''}
 
-        cats = categories.keys()
-        cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
-        for kind in cats:
+        for kind in sorted(categories.keys(), key=lambda a: a.lower()):
             if not self.sources[kind]:
                 continue # skip empty groups
 
@@ -695,8 +695,7 @@ class _GenerateV7DSP(_DSPGenerator):
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
-        sorteditems = hierarchy.items()
-        sorteditems.sort(lambda a, b: cmp(a[0].lower(), b[0].lower()))
+        sorteditems = sorted(hierarchy.items(), key=lambda a: a[0].lower())
 
         # First folders, then files
         for key, value in sorteditems:
@@ -726,9 +725,8 @@ class _GenerateV7DSP(_DSPGenerator):
 
         self.file.write('\t<Files>\n')
 
-        cats = categories.keys()
-        cats.sort(lambda a, b: cmp(a.lower(), b.lower()))
-        cats = [k for k in cats if self.sources[k]]
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
+                      key=lambda a: a.lower())
         for kind in cats:
             if len(cats) > 1:
                 self.file.write('\t\t<Filter\n'
