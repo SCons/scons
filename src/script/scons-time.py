@@ -38,7 +38,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import getopt
 import glob
 import os
-import os.path
 import re
 import shutil
 import sys
@@ -81,6 +80,20 @@ except NameError:
         if reverse:
             result.reverse()
         return result
+
+if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is not None:
+    # We can't apply the 'callable' fixer until the floor is 2.6, but the
+    # '-3' option to Python 2.6 and 2.7 generates almost ten thousand
+    # warnings.  This hack allows us to run regression tests with the '-3'
+    # option by replacing the callable() built-in function with a hack
+    # that performs the same function but doesn't generate the warning.
+    # Note that this hack is ONLY intended to be used for regression
+    # testing, and should NEVER be used for real runs.
+    from types import ClassType
+    def callable(obj):
+        if hasattr(obj, '__call__'): return True
+        if isinstance(obj, (ClassType, type)): return True
+        return False
 
 def make_temp_file(**kw):
     try:
