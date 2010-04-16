@@ -322,16 +322,13 @@ def JavaHCom(target, source, env):
     for t, s in zip(tlist, slist):
         open(t, "wb").write(open(s, "rb").read())
 
-def find_class_files(arg, dirname, names):
-    class_files = filter(lambda n: n[-6:] == '.class', names)
-    paths = map(lambda n: os.path.join(dirname, n), class_files)
-    arg.extend(paths)
-
 def JarCom(target, source, env):
     target = str(target[0])
     class_files = []
     for src in map(str, source):
-        os.path.walk(src, find_class_files, class_files)
+        for dirpath, dirnames, filenames in os.walk(src):
+            class_files.extend([ os.path.join(dirpath, f)
+                                 for f in filenames if f.endswith('.class') ])
     f = open(target, "wb")
     for cf in class_files:
         f.write(open(cf, "rb").read())
