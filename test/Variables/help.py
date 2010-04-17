@@ -33,8 +33,8 @@ import os.path
 try:
     True, False
 except NameError:
-    True = (0 == 0)
-    False = (0 != 0)
+    exec('True = (0 == 0)')
+    exec('False = (0 != 0)')
 
 str_True = str(True)
 str_False = str(False)

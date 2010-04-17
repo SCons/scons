@@ -29,7 +29,7 @@ import SCons.Warnings
 
 class TestOutput:
     def __call__(self, x):
-        args = x[0]
+        args = x.args[0]
         if len(args) == 1:
             args = args[0]
         self.out = str(args)

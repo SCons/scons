@@ -223,7 +223,8 @@ def mkdir_func(dest):
             os.makedirs(str(entry))
         except os.error, e:
             p = str(entry)
-            if (e[0] == errno.EEXIST or (sys.platform=='win32' and e[0]==183)) \
+            if (e.args[0] == errno.EEXIST or
+                    (sys.platform=='win32' and e.args[0]==183)) \
                     and os.path.isdir(str(entry)):
                 pass            # not an error if already exists
             else:

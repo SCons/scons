@@ -24,12 +24,10 @@ import sys
 import time
 
 try:
-    x = True
+    True
 except NameError:
-    True = not 0
-    False = not 1
-else:
-    del x
+    exec('True = not 0')
+    exec('False = not 1')
 
 from TestCommon import *
 from TestCommon import __all__

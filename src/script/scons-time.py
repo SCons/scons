@@ -45,16 +45,11 @@ import tempfile
 import time
 
 try:
-    False
+    True, False
 except NameError:
-    # Pre-2.2 Python has no False keyword.
-    False = not 1
-
-try:
-    True
-except NameError:
-    # Pre-2.2 Python has no True keyword.
-    True = not 0
+    # Pre-2.2 Python has no True or False keyword.
+    exec('True = not 0')
+    exec('False = not 1')
 
 try:
     sorted
