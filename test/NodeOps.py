@@ -121,13 +121,6 @@ sconscript = r"""
 import os
 Import('*')
 
-import __builtin__
-try:
-    __builtin__.True
-except AttributeError:
-    __builtin__.True = 1
-    __builtin__.False = 0
-
 def mycopy(env, source, target):
     open(str(target[0]),'w').write(open(str(source[0]),'r').read())
 

@@ -62,6 +62,22 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import builtins
 
 try:
+    False
+except NameError:
+    # Pre-2.2 Python has no False keyword.
+    exec('builtins.False = not 1')
+    # Assign to False in this module namespace so it shows up in pydoc output.
+    #False = False
+
+try:
+    True
+except NameError:
+    # Pre-2.2 Python has no True keyword.
+    exec('builtins.True = not 0')
+    # Assign to True in this module namespace so it shows up in pydoc output.
+    #True = True
+
+try:
     all
 except NameError:
     # Pre-2.5 Python has no all() function.
@@ -120,22 +136,6 @@ except NameError:
         d.update(kwargs)
         return d
     builtins.dict = dict
-
-try:
-    False
-except NameError:
-    # Pre-2.2 Python has no False keyword.
-    builtins.False = not 1
-    # Assign to False in this module namespace so it shows up in pydoc output.
-    #False = False
-
-try:
-    True
-except NameError:
-    # Pre-2.2 Python has no True keyword.
-    builtins.True = not 0
-    # Assign to True in this module namespace so it shows up in pydoc output.
-    #True = True
 
 try:
     file

@@ -31,8 +31,8 @@ Test the BoolOption canned Option type.
 try:
     True, False
 except NameError:
-    True = (0 == 0)
-    False = (0 != 0)
+    exec('True = (0 == 0)')
+    exec('False = (0 != 0)')
 
 import TestSCons
 
