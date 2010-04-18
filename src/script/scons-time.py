@@ -303,12 +303,11 @@ def unzip(fname):
         open(name, 'w').write(zf.read(name))
 
 def read_tree(dir):
-    def read_files(arg, dirname, fnames):
-        for fn in fnames:
-            fn = os.path.join(dirname, fn)
+    for dirpath, dirnames, filenames in os.walk(dir):
+        for fn in filenames:
+            fn = os.path.join(dirpath, fn)
             if os.path.isfile(fn):
                 open(fn, 'rb').read()
-    os.path.walk('.', read_files, None)
 
 def redirect_to_file(command, log):
     return '%s > %s 2>&1' % (command, log)

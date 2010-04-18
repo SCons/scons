@@ -221,7 +221,6 @@ __version__ = "0.37"
 
 import errno
 import os
-import os.path
 import re
 import shutil
 import stat
@@ -316,13 +315,6 @@ except ImportError:
     sys.exitfunc = _clean
 else:
     atexit.register(_clean)
-
-class Collector:
-    def __init__(self, top):
-        self.entries = [top]
-    def __call__(self, arg, dirname, names):
-        pathjoin = lambda n: os.path.join(dirname, n)
-        self.entries.extend(list(map(pathjoin, names)))
 
 def _caller(tblist, skip):
     string = ""
@@ -1461,29 +1453,21 @@ class TestCmd(object):
             # It's a directory and we're trying to turn on read
             # permission, so it's also pretty easy, just chmod the
             # directory and then chmod every entry on our walk down the
-            # tree.  Because os.path.walk() is top-down, we'll enable
-            # read permission on any directories that have it disabled
-            # before os.path.walk() tries to list their contents.
-            do_chmod(top)
-
-            def chmod_entries(arg, dirname, names, do_chmod=do_chmod):
-                for n in names:
-                    do_chmod(os.path.join(dirname, n))
-
-            os.path.walk(top, chmod_entries, None)
+            # tree.
+            for dirpath, dirnames, filenames in os.walk(top):
+                do_chmod(dirpath)
+                for fn in filenames:
+                    do_chmod(os.path.join(dirpath, fn))
         else:
             # It's a directory and we're trying to turn off read
-            # permission, which means we have to chmod the directoreis
+            # permission, which means we have to chmod the directories
             # in the tree bottom-up, lest disabling read permission from
             # the top down get in the way of being able to get at lower
-            # parts of the tree.  But os.path.walk() visits things top
-            # down, so we just use an object to collect a list of all
-            # of the entries in the tree, reverse the list, and then
-            # chmod the reversed (bottom-up) list.
-            col = Collector(top)
-            os.path.walk(top, col, None)
-            col.entries.reverse()
-            for d in col.entries: do_chmod(d)
+            # parts of the tree.
+            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+                for fn in filenames:
+                    do_chmod(os.path.join(dirpath, fn))
+                do_chmod(dirpath)
 
     def writable(self, top, write=1):
         """Make the specified directory tree writable (write == 1)
@@ -1517,9 +1501,10 @@ class TestCmd(object):
         if os.path.isfile(top):
             do_chmod(top)
         else:
-            col = Collector(top)
-            os.path.walk(top, col, None)
-            for d in col.entries: do_chmod(d)
+            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+                for fn in filenames:
+                    do_chmod(os.path.join(dirpath, fn))
+                do_chmod(dirpath)
 
     def executable(self, top, execute=1):
         """Make the specified directory tree executable (execute == 1)
@@ -1550,29 +1535,21 @@ class TestCmd(object):
             # It's a directory and we're trying to turn on execute
             # permission, so it's also pretty easy, just chmod the
             # directory and then chmod every entry on our walk down the
-            # tree.  Because os.path.walk() is top-down, we'll enable
-            # execute permission on any directories that have it disabled
-            # before os.path.walk() tries to list their contents.
-            do_chmod(top)
-
-            def chmod_entries(arg, dirname, names, do_chmod=do_chmod):
-                for n in names:
-                    do_chmod(os.path.join(dirname, n))
-
-            os.path.walk(top, chmod_entries, None)
+            # tree.
+            for dirpath, dirnames, filenames in os.walk(top):
+                do_chmod(dirpath)
+                for fn in filenames:
+                    do_chmod(os.path.join(dirpath, fn))
         else:
             # It's a directory and we're trying to turn off execute
             # permission, which means we have to chmod the directories
             # in the tree bottom-up, lest disabling execute permission from
             # the top down get in the way of being able to get at lower
-            # parts of the tree.  But os.path.walk() visits things top
-            # down, so we just use an object to collect a list of all
-            # of the entries in the tree, reverse the list, and then
-            # chmod the reversed (bottom-up) list.
-            col = Collector(top)
-            os.path.walk(top, col, None)
-            col.entries.reverse()
-            for d in col.entries: do_chmod(d)
+            # parts of the tree.
+            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+                for fn in filenames:
+                    do_chmod(os.path.join(dirpath, fn))
+                do_chmod(dirpath)
 
     def write(self, file, content, mode = 'wb'):
         """Writes the specified content text (second argument) to the

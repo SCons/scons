@@ -73,15 +73,17 @@ def emit_java_classes(target, source, env):
             slist.append(entry)
         elif isinstance(entry, SCons.Node.FS.Dir):
             result = SCons.Util.OrderedDict()
-            def visit(arg, dirname, names, dirnode=entry.rdir()):
-                java_files = sorted([n for n in names if _my_normcase(n[-len(js):]) == js])
-                mydir = dirnode.Dir(dirname)
+            dirnode = entry.rdir()
+            def find_java_files(arg, dirpath, filenames):
+                java_files = sorted([n for n in filenames
+                                       if _my_normcase(n).endswith(js)])
+                mydir = dirnode.Dir(dirpath)
                 java_paths = [mydir.File(f) for f in java_files]
                 for jp in java_paths:
                      arg[jp] = True
-
-            os.path.walk(entry.rdir().get_abspath(), visit, result)
-            entry.walk(visit, result)
+            for dirpath, dirnames, filenames in os.walk(dirnode.get_abspath()):
+               find_java_files(result, dirpath, filenames)
+            entry.walk(find_java_files, result)
 
             slist.extend(result.keys())
         else:
