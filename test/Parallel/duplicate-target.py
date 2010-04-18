@@ -56,16 +56,20 @@ test.write(['work', 'mytar.py'], """\
 import sys
 import os.path
 
-def visit(arg, dirname, fnames):
-    fnames.sort()
-    for fn in fnames:
-        p = os.path.join(dirname, fn)
-        if os.path.isfile(p):
-            arg.write(open(p, 'rb').read())
-
 fp = open(sys.argv[1], 'wb')
+
+def visit(dirname):
+    names = os.listdir(dirname)
+    names.sort()
+    for n in names:
+        p = os.path.join(dirname, n)
+        if os.path.isdir(p):
+            visit(p)
+        elif os.path.isfile(p):
+            fp.write(open(p, 'rb').read())
+
 for s in sys.argv[2:]:
-    os.path.walk(s, visit, fp)
+    visit(s)
 """)
 
 test.write(['work', 'SConstruct'], """\

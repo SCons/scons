@@ -650,6 +650,15 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
         return where_rmic
 
+    def java_get_class_files(self, dir):
+        result = []
+        for dirpath, dirnames, filenames in os.walk(dir):
+            for fname in filenames:
+                if fname.endswith('.class'):
+                    result.append(os.path.join(dirpath, fname))
+        return sorted(result)
+
+
     def Qt_dummy_installation(self, dir='qt'):
         # create a dummy qt installation
 

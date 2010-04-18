@@ -94,6 +94,14 @@ import stat
 import sys
 import time
 
+try:
+    x = True
+except NameError:
+    True = not 0
+    False = not 1
+else:
+    del x
+
 if not hasattr(os, 'WEXITSTATUS'):
     os.WEXITSTATUS = lambda x: x
 
@@ -604,24 +612,28 @@ if old_pythonpath:
 
 tests = []
 
-def find_Tests_py(tdict, dirname, names):
-    for n in [n for n in names if n[-8:] == "Tests.py"]:
-        tdict[os.path.join(dirname, n)] = 1
+def find_Tests_py(directory):
+    result = []
+    for dirpath, dirnames, filenames in os.walk(directory):
+        for fname in filenames:
+            if fname.endswith("Tests.py"):
+                result.append(os.path.join(dirpath, fname))
+    return sorted(result)
 
-def find_py(tdict, dirname, names):
-    tests = [n for n in names if n[-3:] == ".py"]
-    try:
-        excludes = open(os.path.join(dirname,".exclude_tests")).readlines()
-    except (OSError, IOError):
-        pass
-    else:
-        for exclude in excludes:
-            exclude = exclude.split('#' , 1)[0]
-            exclude = exclude.strip()
-            if not exclude: continue
-            tests = [n for n in tests if n != exclude]
-    for n in tests:
-        tdict[os.path.join(dirname, n)] = 1
+def find_py(directory):
+    result = []
+    for dirpath, dirnames, filenames in os.walk(directory):
+        try:
+            exclude_fp = open(os.path.join(dirpath, ".exclude_tests"))
+        except EnvironmentError:
+            excludes = []
+        else:
+            excludes = [ e.split('#', 1)[0].strip()
+                         for e in exclude_fp.readlines() ]
+        for fname in filenames:
+            if fname.endswith(".py") and fname not in excludes:
+                result.append(os.path.join(dirpath, fname))
+    return sorted(result)
 
 if args:
     if spe:
@@ -639,12 +651,11 @@ if args:
         for a in args:
             for path in glob.glob(a):
                 if os.path.isdir(path):
-                    tdict = {}
                     if path[:3] == 'src':
-                        os.path.walk(path, find_Tests_py, tdict)
+                        tests.extend(find_Tests_py(path))
+
                     elif path[:4] == 'test':
-                        os.path.walk(path, find_py, tdict)
-                    tests.extend(sorted(tdict.keys()))
+                        tests.extend(find_py(path))
                 else:
                     tests.append(path)
 elif testlistfile:
@@ -663,25 +674,23 @@ elif all and not qmtest:
     # still be executed by hand, though, and are routinely executed
     # by the Aegis packaging build to make sure that we're building
     # things correctly.)
-    tdict = {}
-    os.path.walk('src', find_Tests_py, tdict)
-    os.path.walk('test', find_py, tdict)
+    tests.extend(find_Tests_py('src'))
+    tests.extend(find_py('test'))
     if format == '--aegis' and aegis:
         cmd = "aegis -list -unf pf 2>/dev/null"
         for line in os.popen(cmd, "r").readlines():
             a = line.split()
-            if a[0] == "test" and a[-1] not in tdict:
-                tdict[a[-1]] = Test(a[-1], spe)
+            if a[0] == "test" and a[-1] not in tests:
+                tests.append(Test(a[-1], spe))
         cmd = "aegis -list -unf cf 2>/dev/null"
         for line in os.popen(cmd, "r").readlines():
             a = line.split()
             if a[0] == "test":
                 if a[1] == "remove":
-                    del tdict[a[-1]]
-                elif a[-1] not in tdict:
-                    tdict[a[-1]] = Test(a[-1], spe)
-
-    tests = sorted(tdict.keys())
+                    tests.remove(a[-1])
+                elif a[-1] not in tests:
+                    tests.append(Test(a[-1], spe))
+    tests.sort()
 
 if qmtest:
     if baseline:

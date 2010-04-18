@@ -85,20 +85,19 @@ class Checker:
         else:
             return os.path.isfile(path)
 
-    def visit(self, result, dirname, names):
-        for name, path in [(n, os.path.join(dirname, n)) for n in names]:
-            if self.remove_this(name, path):
-                names.remove(name)
-            elif self.search_this(path):
-                body = open(path, 'r').read()
-                for expr in self.expressions:
-                    if not expr.search(body):
-                        msg = '%s: missing %s' % (path, repr(expr.pattern))
-                        result.append(msg)
-
     def find_missing(self):
         result = []
-        os.path.walk(self.directory, self.visit, result)
+        for dirpath, dirnames, filenames in os.walk(self.directory):
+            for fname in filenames:
+                fpath = os.path.join(dirpath, fname)
+                if self.remove_this(fname, fpath):
+                    result.remove(fname)
+                elif self.search_this(fpath):
+                    body = open(path, 'r').read()
+                    for expr in self.expressions:
+                        if not expr.search(body):
+                            msg = '%s: missing %s' % (path, repr(expr.pattern))
+                            result.append(msg)
         return result
 
 class CheckUnexpandedStrings(Checker):

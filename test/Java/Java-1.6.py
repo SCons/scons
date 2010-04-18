@@ -334,19 +334,9 @@ expect_6 = [
 
 failed = None
 
-def get_class_files(dir):
-    def find_class_files(arg, dirname, fnames):
-        for fname in fnames:
-            if fname[-6:] == '.class':
-                arg.append(os.path.join(dirname, fname))
-    result = []
-    os.path.walk(dir, find_class_files, result)
-    result.sort()
-    return result
-
 def classes_must_match(dir, expect):
     global failed
-    got = get_class_files(test.workpath(dir))
+    got = test.java_get_class_files(test.workpath(dir))
     if expect != got:
         sys.stderr.write("Expected the following class files in '%s':\n" % dir)
         for c in expect:

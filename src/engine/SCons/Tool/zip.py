@@ -49,16 +49,15 @@ except ImportError:
 if internal_zip:
     zipcompression = zipfile.ZIP_DEFLATED
     def zip(target, source, env):
-        def visit(arg, dirname, names):
-            for name in names:
-                path = os.path.join(dirname, name)
-                if os.path.isfile(path):
-                    arg.write(path)
         compression = env.get('ZIPCOMPRESSION', 0)
         zf = zipfile.ZipFile(str(target[0]), 'w', compression)
         for s in source:
             if s.isdir():
-                os.path.walk(str(s), visit, zf)
+                for dirpath, dirnames, filenames in os.walk(str(s)):
+                    for fname in filenames:
+                        path = os.path.join(dirpath, fname)
+                        if os.path.isfile(path):
+                            zf.write(path)
             else:
                 zf.write(str(s))
         zf.close()
