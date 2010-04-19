@@ -28,23 +28,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the Options help messages.
 """
 
-import os.path
+import os
 import re
 
-try:
-    True, False
-except NameError:
-    exec('True = (0 == 0)')
-    exec('False = (0 != 0)')
+import TestSCons
 
 str_True = str(True)
 str_False = str(False)
 
-import TestSCons
-
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
-
-
 
 workpath = test.workpath()
 qtpath  = os.path.join(workpath, 'qt')
