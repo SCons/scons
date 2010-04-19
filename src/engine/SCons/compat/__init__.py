@@ -257,41 +257,6 @@ except AttributeError:
     sys.maxsize = (sys).maxint
 
 
-import tempfile
-try:
-    tempfile.mkstemp
-except AttributeError:
-    # Pre-2.3 Python has no tempfile.mkstemp function, so try to simulate it.
-    # adapted from the mkstemp implementation in python 3.
-    import os
-    import errno
-    def mkstemp(*args, **kw):
-        text = False
-        # TODO (1.5)
-        #if 'text' in kw :
-        if 'text' in kw.keys() :
-            text = kw['text']
-            del kw['text']
-        elif len( args ) == 4 :
-            text = args[3]
-            args = args[:3]
-        flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
-        if not text and hasattr( os, 'O_BINARY' ) :
-            flags = flags | os.O_BINARY
-        while True:
-            try :
-                name = tempfile.mktemp(*args, **kw)
-                fd = os.open( name, flags, 0600 )
-                return (fd, os.path.abspath(name))
-            except OSError, e:
-                if e.errno == errno.EEXIST:
-                    continue
-                raise
-
-    tempfile.mkstemp = mkstemp
-    del mkstemp
-
-
 if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is not None:
     # We can't apply the 'callable' fixer until the floor is 2.6, but the
     # '-3' option to Python 2.6 and 2.7 generates almost ten thousand
