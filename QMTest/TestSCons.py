@@ -23,12 +23,6 @@ import shutil
 import sys
 import time
 
-try:
-    True
-except NameError:
-    exec('True = not 0')
-    exec('False = not 1')
-
 from TestCommon import *
 from TestCommon import __all__
 

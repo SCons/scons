@@ -97,17 +97,6 @@ import sys
 import time
 
 try:
-    x = True
-except NameError:
-    True = not 0
-    False = not 1
-else:
-    del x
-
-if not hasattr(os, 'WEXITSTATUS'):
-    os.WEXITSTATUS = lambda x: x
-
-try:
     sorted
 except NameError:
     # Pre-2.4 Python has no sorted() function.

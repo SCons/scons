@@ -37,13 +37,8 @@ This module checks for the following builtins names:
 
         all()
         any()
-        bool()
-        dict()
         sorted()
         memoryview()
-        True
-        False
-        zip()
 
 Implementations of functions are *NOT* guaranteed to be fully compliant
 with these functions in later versions of Python.  We are only concerned
@@ -60,22 +55,6 @@ to this version of Python and we don't need to add them from this module.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import builtins
-
-try:
-    False
-except NameError:
-    # Pre-2.2 Python has no False keyword.
-    exec('builtins.False = not 1')
-    # Assign to False in this module namespace so it shows up in pydoc output.
-    #False = False
-
-try:
-    True
-except NameError:
-    # Pre-2.2 Python has no True keyword.
-    exec('builtins.True = not 0')
-    # Assign to True in this module namespace so it shows up in pydoc output.
-    #True = True
 
 try:
     all
@@ -106,42 +85,6 @@ except NameError:
         return False
     builtins.any = any
     any = any
-
-try:
-    bool
-except NameError:
-    # Pre-2.2 Python has no bool() function.
-    def bool(value):
-        """Demote a value to 0 or 1, depending on its truth value.
-
-        This is not to be confused with types.BooleanType, which is
-        way too hard to duplicate in early Python versions to be
-        worth the trouble.
-        """
-        return not not value
-    builtins.bool = bool
-    bool = bool
-
-try:
-    dict
-except NameError:
-    # Pre-2.2 Python has no dict() keyword.
-    def dict(seq=[], **kwargs):
-        """
-        New dictionary initialization.
-        """
-        d = {}
-        for k, v in seq:
-            d[k] = v
-        d.update(kwargs)
-        return d
-    builtins.dict = dict
-
-try:
-    file
-except NameError:
-    # Pre-2.2 Python has no file() function.
-    builtins.file = open
 
 try:
     memoryview
@@ -184,27 +127,6 @@ except NameError:
             result.reverse()
         return result
     builtins.sorted = sorted
-
-#
-try:
-    zip
-except NameError:
-    # Pre-2.2 Python has no zip() function.
-    def zip(*lists):
-        """
-        Emulates the behavior we need from the built-in zip() function
-        added in Python 2.2.
-
-        Returns a list of tuples, where each tuple contains the i-th
-        element rom each of the argument sequences.  The returned
-        list is truncated in length to the length of the shortest
-        argument sequence.
-        """
-        result = []
-        for i in range(min(list(map(len, lists)))):
-            result.append(tuple([l[i] for l in lists]))
-        return result
-    builtins.zip = zip
 
 #if sys.version_info[:3] in ((2, 2, 0), (2, 2, 1)):
 #    def lstrip(s, c=string.whitespace):

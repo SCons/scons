@@ -28,12 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the BoolOption canned Option type.
 """
 
-try:
-    True, False
-except NameError:
-    exec('True = (0 == 0)')
-    exec('False = (0 != 0)')
-
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)

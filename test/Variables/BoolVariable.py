@@ -28,13 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the BoolVariable canned Variable type.
 """
 
-import os.path
-
-try:
-    True, False
-except NameError:
-    exec('True = (0 == 0)')
-    exec('False = (0 != 0)')
+import os
 
 import TestSCons
 
