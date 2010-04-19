@@ -29,32 +29,10 @@ Test calling the --debug=memoizer option.
 """
 
 import os
-import new
+
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
-
-# Find out if we support metaclasses (Python 2.2 and later).
-
-class M:
-    def __init__(cls, name, bases, cls_dict):
-        cls.use_metaclass = 1
-        def fake_method(self):
-            pass
-        new.instancemethod(fake_method, None, cls)
-
-try:
-    class A:
-        __metaclass__ = M
-
-    use_metaclass = A.use_metaclass
-except AttributeError:
-    use_metaclass = None
-    reason = 'no metaclasses'
-except TypeError:
-    use_metaclass = None
-    reason = 'new.instancemethod\\(\\) bug'
-
 
 
 test.write('SConstruct', """
@@ -79,27 +57,9 @@ expect = [
 ]
 
 
-if use_metaclass:
-
-    def run_and_check(test, args, desc):
-        test.run(arguments = args)
-        test.must_contain_any_line(test.stdout(), expect)
-
-else:
-
-    expect_no_metaclasses = """
-scons: warning: memoization is not supported in this version of Python \\(%s\\)
-""" % reason
-
-    expect_no_metaclasses = expect_no_metaclasses + TestSCons.file_expr
-
-    def run_and_check(test, args, desc):
-        test.run(arguments = args, stderr = expect_no_metaclasses)
-        test.must_not_contain_any_line(test.stdout(), expect)
-
-
 for args in ['-h --debug=memoizer', '--debug=memoizer']:
-    run_and_check(test, args, "command line '%s'" % args)
+    test.run(arguments = args)
+    test.must_contain_any_line(test.stdout(), expect)
 
 test.must_match('file.out', "file.in\n")
 
@@ -111,7 +71,9 @@ test.unlink("file.out")
 
 os.environ['SCONSFLAGS'] = '--debug=memoizer'
 
-run_and_check(test, '', 'SCONSFLAGS=--debug=memoizer')
+test.run(arguments = '')
+
+test.must_contain_any_line(test.stdout(), expect)
 
 test.must_match('file.out', "file.in\n")
 
