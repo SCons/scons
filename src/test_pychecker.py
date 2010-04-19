@@ -73,7 +73,6 @@ ignore = [
     'SCons/compat/_scons_UserString.py',
     'SCons/compat/_scons_hashlib.py',
     'SCons/compat/_scons_sets.py',
-    'SCons/compat/_scons_shlex.py',
     'SCons/compat/_scons_subprocess.py',
     'SCons/compat/builtins.py',
 ]
