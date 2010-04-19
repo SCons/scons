@@ -24,6 +24,8 @@
 #
 # Options:
 #
+#       -3              Run with the python -3 option,
+#
 #       -a              Run all tests; does a virtual 'find' for
 #                       all SCons tests under the current directory.
 #
@@ -142,6 +144,7 @@ list_only = None
 printcommand = 1
 package = None
 print_passed_summary = None
+python3incompatibilities = None
 scons = None
 scons_exec = None
 outputfile = None
@@ -155,6 +158,7 @@ spe = None
 helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
+  -3                          Warn about Python 3.x incompatibilities.
   -a, --all                   Run all tests.
   --aegis                     Print results in Aegis format.
   -b BASE, --baseline BASE    Run test scripts against baseline BASE.
@@ -192,7 +196,7 @@ Options:
   --xml                       Print results in SCons XML format.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "ab:df:hlno:P:p:qv:Xx:t",
+opts, args = getopt.getopt(sys.argv[1:], "3ab:df:hlno:P:p:qv:Xx:t",
                             ['all', 'aegis', 'baseline=', 'builddir=',
                              'debug', 'file=', 'help',
                              'list', 'no-exec', 'noqmtest', 'output=',
@@ -202,7 +206,9 @@ opts, args = getopt.getopt(sys.argv[1:], "ab:df:hlno:P:p:qv:Xx:t",
                              'verbose=', 'xml'])
 
 for o, a in opts:
-    if o in ['-a', '--all']:
+    if o in ['-3']:
+        python3incompatibilities = 1
+    elif o in ['-a', '--all']:
         all = 1
     elif o in ['-b', '--baseline']:
         baseline = a
@@ -610,6 +616,9 @@ if old_pythonpath:
                                os.pathsep + \
                                old_pythonpath
 
+if python3incompatibilities:
+    os.environ['SCONS_HORRIBLE_REGRESSION_TEST_HACK'] = '1'
+
 tests = []
 
 def find_Tests_py(directory):
@@ -792,6 +801,8 @@ else:
 total_start_time = time_func()
 for t in tests:
     command_args = ['-tt']
+    if python3incompatibilities:
+        command_args.append('-3')
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
