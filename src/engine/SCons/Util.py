@@ -1486,8 +1486,6 @@ def AddMethod(object, function, name = None):
       AddMethod(lambda self, i: self.l[i], a, "listIndex")
       print a.listIndex(5)
     """
-    import new
-
     if name is None:
         name = function.func_name
     else:
@@ -1497,18 +1495,16 @@ def AddMethod(object, function, name = None):
         klass = object.__class__
     except AttributeError:
         # "object" is really a class, so it gets an unbound method.
-        object.__dict__[name] = new.instancemethod(function, None, object)
+        object.__dict__[name] = types.MethodType(function, None, object)
     else:
         # "object" is really an instance, so it gets a bound method.
-        object.__dict__[name] = new.instancemethod(function, object, klass)
+        object.__dict__[name] = types.MethodType(function, object, klass)
 
 def RenameFunction(function, name):
     """
     Returns a function identical to the specified function, but with
     the specified name.
     """
-    import new
-
     # Compatibility for Python 1.5 and 2.1.  Can be removed in favor of
     # passing function.func_defaults directly to new.function() once
     # we base on Python 2.2 or later.
@@ -1516,10 +1512,10 @@ def RenameFunction(function, name):
     if func_defaults is None:
         func_defaults = ()
 
-    return new.function(function.func_code,
-                        function.func_globals,
-                        name,
-                        func_defaults)
+    return types.FunctionType(function.func_code,
+                              function.func_globals,
+                              name,
+                              func_defaults)
 
 
 md5 = False
