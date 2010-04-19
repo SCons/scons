@@ -159,14 +159,6 @@ except ImportError:
     import_as('_scons_io', 'io')
 
 
-# If we need the compatibility version of textwrap, it  must be imported
-# before optparse, which uses it.
-try:
-    import textwrap
-except ImportError:
-    # Pre-2.3 Python has no textwrap module.
-    import_as('_scons_textwrap', 'textwrap')
-
 import os
 try:
     os.devnull

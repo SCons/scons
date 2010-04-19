@@ -72,11 +72,9 @@ ignore = [
     'SCons/compat/__init__.py',
     'SCons/compat/_scons_UserString.py',
     'SCons/compat/_scons_hashlib.py',
-    'SCons/compat/_scons_optparse.py',
     'SCons/compat/_scons_sets.py',
     'SCons/compat/_scons_shlex.py',
     'SCons/compat/_scons_subprocess.py',
-    'SCons/compat/_scons_textwrap.py',
     'SCons/compat/builtins.py',
 ]
 
