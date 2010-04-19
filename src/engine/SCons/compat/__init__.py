@@ -167,12 +167,6 @@ except ImportError:
     # Pre-2.3 Python has no textwrap module.
     import_as('_scons_textwrap', 'textwrap')
 
-try:
-    import optparse
-except ImportError:
-    # Pre-2.3 Python has no optparse module.
-    import_as('_scons_optparse', 'optparse')
-
 import os
 try:
     os.devnull
