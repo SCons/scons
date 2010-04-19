@@ -229,20 +229,6 @@ except ImportError:
     imp.load_module('queue', file, filename, suffix_mode_type)
 
 
-import shlex
-try:
-    shlex.split
-except AttributeError:
-    # Pre-2.3 Python has no shlex.split() function.
-    #
-    # The full white-space splitting semantics of shlex.split() are
-    # complicated to reproduce by hand, so just use a compatibility
-    # version of the shlex module cribbed from Python 2.5 with some
-    # minor modifications for older Python versions.
-    del shlex
-    import_as('_scons_shlex', 'shlex')
-
-
 import shutil
 try:
     shutil.move

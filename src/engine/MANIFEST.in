@@ -8,7 +8,6 @@ SCons/compat/_scons_dbm.py
 SCons/compat/_scons_hashlib.py
 SCons/compat/_scons_io.py
 SCons/compat/_scons_sets.py
-SCons/compat/_scons_shlex.py
 SCons/compat/_scons_subprocess.py
 SCons/CacheDir.py
 SCons/Conftest.py

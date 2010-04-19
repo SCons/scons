@@ -129,7 +129,6 @@ check_list = [
         search_list = [ '*.py' ],
         remove_list = [
             'engine/SCons/compat/_scons_sets.py',
-            'engine/SCons/compat/_scons_shlex.py',
             'engine/SCons/compat/_scons_subprocess.py',
             'engine/SCons/Conftest.py',
             'engine/SCons/dblite.py',
@@ -159,7 +158,6 @@ check_list = [
             'dist',
             'gentoo',
             'engine/SCons/compat/_scons_sets.py',
-            'engine/SCons/compat/_scons_shlex.py',
             'engine/SCons/compat/_scons_subprocess.py',
             'engine/SCons/Conftest.py',
             'engine/SCons/dblite.py',
@@ -177,7 +175,6 @@ check_list = [
         build_local,
         remove_list = [
             'SCons/compat/_scons_sets.py',
-            'SCons/compat/_scons_shlex.py',
             'SCons/compat/_scons_subprocess.py',
             'SCons/Conftest.py',
             'SCons/dblite.py',
@@ -219,7 +216,6 @@ check_list = [
             'src/engine/MANIFEST-xml.in',
             'src/engine/setup.cfg',
             'src/engine/SCons/compat/_scons_sets.py',
-            'src/engine/SCons/compat/_scons_shlex.py',
             'src/engine/SCons/compat/_scons_subprocess.py',
             'src/engine/SCons/Conftest.py',
             'src/engine/SCons/dblite.py',
