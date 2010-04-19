@@ -128,7 +128,6 @@ check_list = [
         'src',
         search_list = [ '*.py' ],
         remove_list = [
-            'engine/SCons/compat/_scons_optparse.py',
             'engine/SCons/compat/_scons_sets.py',
             'engine/SCons/compat/_scons_shlex.py',
             'engine/SCons/compat/_scons_subprocess.py',
@@ -160,7 +159,6 @@ check_list = [
             'debian',
             'dist',
             'gentoo',
-            'engine/SCons/compat/_scons_optparse.py',
             'engine/SCons/compat/_scons_sets.py',
             'engine/SCons/compat/_scons_shlex.py',
             'engine/SCons/compat/_scons_subprocess.py',
@@ -180,7 +178,6 @@ check_list = [
     CheckExpandedCopyright(
         build_local,
         remove_list = [
-            'SCons/compat/_scons_optparse.py',
             'SCons/compat/_scons_sets.py',
             'SCons/compat/_scons_shlex.py',
             'SCons/compat/_scons_subprocess.py',
@@ -224,7 +221,6 @@ check_list = [
             'src/engine/MANIFEST.in',
             'src/engine/MANIFEST-xml.in',
             'src/engine/setup.cfg',
-            'src/engine/SCons/compat/_scons_optparse.py',
             'src/engine/SCons/compat/_scons_sets.py',
             'src/engine/SCons/compat/_scons_shlex.py',
             'src/engine/SCons/compat/_scons_subprocess.py',
