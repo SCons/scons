@@ -119,7 +119,7 @@ This collected caching logic nicely, but had two drawbacks:
     to figure out how to optimize the underlying methods.
 """
 
-import new
+import types
 
 # A flag controlling whether or not we actually use memoization.
 use_memoizer = None
@@ -213,77 +213,29 @@ class Memoizer:
     def __init__(self):
         pass
 
-# Find out if we support metaclasses (Python 2.2 and later).
+def Dump(title=None):
+    if title:
+        print title
+    CounterList.sort()
+    for counter in CounterList:
+        counter.display()
 
-class M:
+class Memoized_Metaclass(type):
     def __init__(cls, name, bases, cls_dict):
-        cls.use_metaclass = 1
-        def fake_method(self):
-            pass
-        new.instancemethod(fake_method, None, cls)
+        super(Memoized_Metaclass, cls).__init__(name, bases, cls_dict)
 
-try:
-    class A:
-        __metaclass__ = M
+        for counter in cls_dict.get('memoizer_counters', []):
+            method_name = counter.method_name
 
-    use_metaclass = A.use_metaclass
-except AttributeError:
-    use_metaclass = None
-    reason = 'no metaclasses'
-except TypeError:
-    use_metaclass = None
-    reason = 'new.instancemethod() bug'
-else:
-    del A
+            counter.name = cls.__name__ + '.' + method_name
+            counter.underlying_method = cls_dict[method_name]
 
-del M
+            replacement_method = types.MethodType(counter, None, cls)
+            setattr(cls, method_name, replacement_method)
 
-if not use_metaclass:
-
-    def Dump(title):
-        pass
-
-    try:
-        class Memoized_Metaclass(type):
-            # Just a place-holder so pre-metaclass Python versions don't
-            # have to have special code for the Memoized classes.
-            pass
-    except TypeError:
-        class Memoized_Metaclass:
-            # A place-holder so pre-metaclass Python versions don't
-            # have to have special code for the Memoized classes.
-            pass
-
-    def EnableMemoization():
-        import SCons.Warnings
-        msg = 'memoization is not supported in this version of Python (%s)'
-        raise SCons.Warnings.NoMetaclassSupportWarning(msg % reason)
-
-else:
-
-    def Dump(title=None):
-        if title:
-            print title
-        CounterList.sort()
-        for counter in CounterList:
-            counter.display()
-
-    class Memoized_Metaclass(type):
-        def __init__(cls, name, bases, cls_dict):
-            super(Memoized_Metaclass, cls).__init__(name, bases, cls_dict)
-
-            for counter in cls_dict.get('memoizer_counters', []):
-                method_name = counter.method_name
-
-                counter.name = cls.__name__ + '.' + method_name
-                counter.underlying_method = cls_dict[method_name]
-
-                replacement_method = new.instancemethod(counter, None, cls)
-                setattr(cls, method_name, replacement_method)
-
-    def EnableMemoization():
-        global use_memoizer
-        use_memoizer = 1
+def EnableMemoization():
+    global use_memoizer
+    use_memoizer = 1
 
 # Local Variables:
 # tab-width:4

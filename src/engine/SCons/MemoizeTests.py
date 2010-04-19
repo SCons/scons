@@ -132,12 +132,8 @@ class CountDictTestCase(unittest.TestCase):
 
         c = obj.get_memoizer_counter('dict')
 
-        if SCons.Memoize.use_metaclass:
-            assert c.hit == 3, c.hit
-            assert c.miss == 2, c.miss
-        else:
-            assert c.hit == 0, c.hit
-            assert c.miss == 0, c.miss
+        assert c.hit == 3, c.hit
+        assert c.miss == 2, c.miss
 
 
 class CountValueTestCase(unittest.TestCase):
@@ -171,12 +167,8 @@ class CountValueTestCase(unittest.TestCase):
 
         c = obj.get_memoizer_counter('value')
 
-        if SCons.Memoize.use_metaclass:
-            assert c.hit == 3, c.hit
-            assert c.miss == 1, c.miss
-        else:
-            assert c.hit == 0, c.hit
-            assert c.miss == 0, c.miss
+        assert c.hit == 3, c.hit
+        assert c.miss == 1, c.miss
 
 
 if __name__ == "__main__":
