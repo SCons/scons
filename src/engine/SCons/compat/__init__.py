@@ -158,11 +158,6 @@ except ImportError:
     # Pre-2.6 Python has no io module.
     import_as('_scons_io', 'io')
 
-try:
-    import itertools
-except ImportError:
-    # Pre-2.3 Python has no itertools module.
-    import_as('_scons_itertools', 'itertools')
 
 # If we need the compatibility version of textwrap, it  must be imported
 # before optparse, which uses it.
