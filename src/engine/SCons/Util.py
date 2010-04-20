@@ -1406,7 +1406,6 @@ class UniqueList(UserList):
         self.unique = False
 
 
-
 class Unbuffered:
     """
     A proxy class that wraps a file object, flushing after every write,
@@ -1414,6 +1413,7 @@ class Unbuffered:
     """
     def __init__(self, file):
         self.file = file
+        self.softspace = 0  ## backward compatibility; not supported in Py3k
     def write(self, arg):
         try:
             self.file.write(arg)

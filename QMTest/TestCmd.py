@@ -574,7 +574,7 @@ except ImportError:
     # so we're going to cobble up something that looks just enough
     # like its API for our purposes below.
     from types import ModuleType
-    class subprocess(ModuleType): pass
+    subprocess = ModuleType('subprocess')
 
     subprocess.PIPE = 'PIPE'
     subprocess.STDOUT = 'STDOUT'
