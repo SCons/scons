@@ -752,6 +752,7 @@ tests = list(map(Test, tests))
 class Unbuffered:
     def __init__(self, file):
         self.file = file
+        self.softspace = 0  ## backward compatibility; not supported in Py3k
     def write(self, arg):
         self.file.write(arg)
         self.file.flush()

@@ -45,7 +45,7 @@ class dblite:
   #   http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
 
   _open = builtins.open
-  _pickle_dump = pickle.dump
+  _pickle_dump = staticmethod(pickle.dump)
   _os_chmod = os.chmod
   try:
       _os_chown = os.chown

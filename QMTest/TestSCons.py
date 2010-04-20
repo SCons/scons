@@ -807,7 +807,7 @@ SConscript( sconscript )
                           logfile, sconf_dir, sconstruct,
                           doCheckLog=1, doCheckStdout=1):
 
-        class NoMatch:
+        class NoMatch(Exception):
             def __init__(self, p):
                 self.pos = p
 
