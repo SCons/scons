@@ -110,7 +110,9 @@ def timer(func, *args, **kw):
     return results
 
 def display(label, results):
-    total = reduce(lambda x, y: x+y, results, 0.0)
+    total = 0.0
+    for r in results:
+        total += r
     print "    %8.3f" % ((total * 1e6) / len(results)), ':', label
 
 for func in FunctionList:

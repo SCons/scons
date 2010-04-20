@@ -215,7 +215,10 @@ class Calculator:
             def signature(self, args):
                 return self.val
             def collect(self, args):
-                return reduce(lambda x, y: x+y, args, self.val)
+                result = self.val
+                for a in args:
+                    result += a
+                return result
         self.module = M(val)
 
 

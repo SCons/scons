@@ -2093,7 +2093,10 @@ class EntryTestCase(_tempdirTestCase):
                     def __init__(self, val):
                         self.val = val
                     def collect(self, args):
-                        return reduce(lambda x, y: x+y, args)
+                        result = 0
+                        for a in args:
+                            result += a
+                        return result
                     def signature(self, executor):
                         return self.val + 222
                 self.module = M(val)
