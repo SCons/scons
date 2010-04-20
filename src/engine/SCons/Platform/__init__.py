@@ -166,7 +166,10 @@ class TempFileMunge:
         except ValueError:
             maxline = 2048
 
-        if (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= maxline:
+        length = 0
+        for c in cmd:
+            length += len(c)
+        if length <= maxline:
             return self.cmd
 
         # We do a normpath because mktemp() has what appears to be

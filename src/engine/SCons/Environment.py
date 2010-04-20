@@ -1507,7 +1507,9 @@ class Base(SubstitutionEnvironment):
             else:
                 tdlist.append((target.split(), depends.split()))
         if only_one:
-            targets = reduce(lambda x, y: x+y, [p[0] for p in tdlist])
+            targets = []
+            for td in tdlist:
+                targets.extend(td[0])
             if len(targets) > 1:
                 raise SCons.Errors.UserError(
                             "More than one dependency target found in `%s':  %s"
