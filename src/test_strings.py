@@ -88,15 +88,19 @@ class Checker:
     def find_missing(self):
         result = []
         for dirpath, dirnames, filenames in os.walk(self.directory):
+            if '.svn' in dirnames:
+                dirnames.remove('.svn')
+            for dname in dirnames[:]:
+                dpath = os.path.join(dirpath, dname)
+                if self.remove_this(dname, dpath):
+                    dirnames.remove(dname)
             for fname in filenames:
                 fpath = os.path.join(dirpath, fname)
-                if self.remove_this(fname, fpath):
-                    result.remove(fname)
-                elif self.search_this(fpath):
-                    body = open(path, 'r').read()
+                if self.search_this(fpath) and not self.remove_this(fname, fpath):
+                    body = open(fpath, 'r').read()
                     for expr in self.expressions:
                         if not expr.search(body):
-                            msg = '%s: missing %s' % (path, repr(expr.pattern))
+                            msg = '%s: missing %s' % (fpath, repr(expr.pattern))
                             result.append(msg)
         return result
 
