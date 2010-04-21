@@ -47,7 +47,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import collections
 import copy
-from itertools import chain, izip
+from itertools import chain
 
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
@@ -1051,7 +1051,7 @@ class Node:
             if t: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
-        for child, prev_ni in izip(children, then):
+        for child, prev_ni in zip(children, then):
             if child.changed_since_last_build(self, prev_ni):
                 if t: Trace(': %s changed' % child)
                 result = True
@@ -1197,8 +1197,8 @@ class Node:
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(izip(old_bkids, old_bkidsigs))
-        nsig = dict(izip(new_bkids, new_bkidsigs))
+        osig = dict(zip(old_bkids, old_bkidsigs))
+        nsig = dict(zip(new_bkids, new_bkidsigs))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to

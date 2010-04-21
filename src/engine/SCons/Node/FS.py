@@ -36,10 +36,8 @@ from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from itertools import izip
 import fnmatch
 import os
-import os.path
 import re
 import shutil
 import stat
@@ -2230,7 +2228,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
             except AttributeError:
                 continue
             nodes = []
-            for s, ni in izip(strings, nodeinfos):
+            for s, ni in zip(strings, nodeinfos):
                 if not isinstance(s, SCons.Node.Node):
                     s = ni.str_to_node(s)
                 nodes.append(s)
@@ -2239,7 +2237,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         result = []
         bkids = self.bsources + self.bdepends + self.bimplicit
         bkidsigs = self.bsourcesigs + self.bdependsigs + self.bimplicitsigs
-        for bkid, bkidsig in izip(bkids, bkidsigs):
+        for bkid, bkidsig in zip(bkids, bkidsigs):
             result.append(str(bkid) + ': ' +
                           ' '.join(bkidsig.format(names=names)))
         result.append('%s [%s]' % (self.bactsig, self.bact))
