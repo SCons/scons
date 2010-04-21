@@ -253,7 +253,8 @@ __all__ = [
     'match_exact',
     'match_re',
     'match_re_dotall',
-    'python_executable',
+    'python',
+    '_python_',
     'TestCmd'
 ]
 
@@ -512,13 +513,31 @@ def diff_re(a, b, fromfile='', tofile='',
         i = i+1
     return result
 
-if os.name == 'java':
-
-    python_executable = os.path.join(sys.prefix, 'jython')
-
+if os.name == 'posix':
+    def escape(arg):
+        "escape shell special characters"
+        slash = '\\'
+        special = '"$'
+        arg = arg.replace(slash, slash+slash)
+        for c in special:
+            arg = arg.replace(c, slash+c)
+        if re_space.search(arg):
+            arg = '"' + arg + '"'
+        return arg
 else:
+    # Windows does not allow special characters in file names
+    # anyway, so no need for an escape function, we will just quote
+    # the arg.
+    def escape(arg):
+        if re_space.search(arg):
+            arg = '"' + arg + '"'
+        return arg
 
-    python_executable = sys.executable
+if os.name == 'java':
+    python = os.path.join(sys.prefix, 'jython')
+else:
+    python = os.environ.get("python_executable", sys.executable)
+_python_ = escape(python)
 
 if sys.platform == 'win32':
 
@@ -913,30 +932,7 @@ class TestCmd(object):
             width = self.banner_width
         return s + self.banner_char * (width - len(s))
 
-    if os.name == 'posix':
-
-        def escape(self, arg):
-            "escape shell special characters"
-            slash = '\\'
-            special = '"$'
-
-            arg = arg.replace(slash, slash+slash)
-            for c in special:
-                arg = arg.replace(c, slash+c)
-
-            if re_space.search(arg):
-                arg = '"' + arg + '"'
-            return arg
-
-    else:
-
-        # Windows does not allow special characters in file names
-        # anyway, so no need for an escape function, we will just quote
-        # the arg.
-        def escape(self, arg):
-            if re_space.search(arg):
-                arg = '"' + arg + '"'
-            return arg
+    escape = staticmethod(escape)
 
     def canonicalize(self, path):
         if is_List(path):

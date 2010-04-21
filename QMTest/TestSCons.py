@@ -73,8 +73,6 @@ else:
     machine = uname()[4]
     machine = machine_map.get(machine, machine)
 
-python = python_executable
-_python_ = '"' + python_executable + '"'
 _exe = exe_suffix
 _obj = obj_suffix
 _shobj = shobj_suffix

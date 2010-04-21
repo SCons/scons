@@ -474,7 +474,7 @@ else:
         # Profiling shows that there is an impressive speed-up of 2x
         # when explicitely checking for strings instead of just not
         # sequence when the argument (i.e. obj) is already a string.
-        # But, if obj is a not string than it is twice as fast to
+        # But, if obj is a not string then it is twice as fast to
         # check only for 'not sequence'. The following code therefore
         # assumes that the obj argument is a string must of the time.
         return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)

@@ -26,13 +26,8 @@ from TestCommon import *
 from TestCommon import __all__
 
 __all__.extend([ 'TestRuntest',
-                 'python',
                  'pythonstring',
-                 '_python_',
                ])
-
-python = python_executable
-_python_ = '"' + python_executable + '"'
 
 if re.search('\s', python):
     pythonstring = _python_

@@ -22,19 +22,8 @@ import sys
 from TestCommon import *
 from TestCommon import __all__
 
-__all__.extend([ 'TestSCons',
-                 'python',
-                 '_exe',
-                 '_obj',
-                 '_shobj',
-                 'lib_',
-                 '_lib',
-                 'dll_',
-                 '_dll'
+__all__.extend([ 'TestSCons_time',
                ])
-
-python = python_executable
-_python_ = '"' + python_executable + '"'
 
 SConstruct = """\
 import os

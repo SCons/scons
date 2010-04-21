@@ -54,8 +54,8 @@ env.B(target = 'file4.out', source = 'file4b.in', foo=3)
 test.write('file4a.in', 'file4a.in\n')
 test.write('file4b.in', 'file4b.in\n')
 
-python_expr = TestSCons.python.replace('\\', '\\\\')
-act = TestSCons.re_escape('"%s" build.py \$foo \$TARGET \$SOURCES' % python_expr)
+python_expr = _python_.replace('\\', '\\\\')
+act = TestSCons.re_escape('%s build.py \$foo \$TARGET \$SOURCES' % python_expr)
 
 expect = ("""
 scons: warning: Two different environments were specified for target file4.out,
