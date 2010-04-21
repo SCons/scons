@@ -28,11 +28,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the run -v and --verbose options display command output.
 """
 
+import sys
 import re
 
 import TestSCons_time
 
-_python_ = re.escape(TestSCons_time._python_)
+_python_ = re.escape('"' + sys.executable + '"')
 
 
 test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re,

@@ -60,7 +60,8 @@ provided by the TestCommon class:
 
 The TestCommon module also provides the following variables
 
-    TestCommon.python_executable
+    TestCommon.python
+    TestCommon._python_
     TestCommon.exe_suffix
     TestCommon.obj_suffix
     TestCommon.shobj_prefix

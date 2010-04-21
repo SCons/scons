@@ -773,6 +773,7 @@ if not python:
         python = os.path.join(sys.prefix, 'jython')
     else:
         python = sys.executable
+os.environ["python_executable"] = python
 
 # time.clock() is the suggested interface for doing benchmarking timings,
 # but time.time() does a better job on Linux systems, so let that be
