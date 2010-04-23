@@ -124,7 +124,7 @@ class Environment:
     def has_key(self, item):
         return item in self.d
     def keys(self):
-        return self.d.keys()
+        return list(self.d.keys())
     def get(self, key, value=None):
         return self.d.get(key, value)
     def Override(self, overrides):
@@ -135,7 +135,7 @@ class Environment:
     def _update(self, dict):
         self.d.update(dict)
     def items(self):
-        return self.d.items()
+        return list(self.d.items())
     def sig_dict(self):
         d = {}
         for k,v in self.items(): d[k] = v

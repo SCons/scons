@@ -218,7 +218,7 @@ class SConsDocHandler(xml.sax.handler.ContentHandler,
     def __init__(self):
         self._start_dispatch = {}
         self._end_dispatch = {}
-        keys = self.__class__.__dict__.keys()
+        keys = list(self.__class__.__dict__.keys())
         start_tag_method_names = [k for k in keys if k[:6] == 'start_']
         end_tag_method_names = [k for k in keys if k[:4] == 'end_']
         for method_name in start_tag_method_names:

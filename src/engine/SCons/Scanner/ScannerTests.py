@@ -244,7 +244,7 @@ class BaseTestCase(unittest.TestCase):
         dict = {}
         dict[s] = 777
         i = hash(id(s))
-        h = hash(dict.keys()[0])
+        h = hash(list(dict.keys())[0])
         self.failUnless(h == i,
                         "hash Scanner base class expected %s, got %s" % (i, h))
 

@@ -151,7 +151,7 @@ class dblite:
     self._needs_sync = 0001
 
   def keys(self):
-    return self._dict.keys()
+    return list(self._dict.keys())
 
   def has_key(self, key):
     return key in self._dict

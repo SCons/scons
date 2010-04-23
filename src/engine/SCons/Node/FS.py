@@ -1905,7 +1905,7 @@ class Dir(Base):
         in any way (or ignored, passing None is common).
         """
         entries = self.entries
-        names = entries.keys()
+        names = list(entries.keys())
         names.remove('.')
         names.remove('..')
         func(arg, self, names)

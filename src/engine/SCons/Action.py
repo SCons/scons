@@ -1150,7 +1150,7 @@ class ListAction(ActionBase):
         for act in self.list:
             for var in act.get_varlist(target, source, env, executor):
                 result[var] = True
-        return result.keys()
+        return list(result.keys())
 
 class ActionCaller:
     """A class for delaying calling an Action function with specific

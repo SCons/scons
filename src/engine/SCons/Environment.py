@@ -395,7 +395,7 @@ class SubstitutionEnvironment:
         # Freeze the keys of self._special_set in a list for use by
         # methods that need to check.  (Empirically, list scanning has
         # gotten better than dict.has_key() in Python 2.5.)
-        self._special_set_keys = self._special_set.keys()
+        self._special_set_keys = list(self._special_set.keys())
 
     def __cmp__(self, other):
         return cmp(self._dict, other._dict)
@@ -446,7 +446,7 @@ class SubstitutionEnvironment:
         return self._dict.__contains__(key)
 
     def items(self):
-        return self._dict.items()
+        return list(self._dict.items())
 
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
         if node_factory is _null:
@@ -984,9 +984,9 @@ class Base(SubstitutionEnvironment):
             variables = kw['options']
             del kw['options']
         self.Replace(**kw)
-        keys = kw.keys()
+        keys = list(kw.keys())
         if variables:
-            keys = keys + variables.keys()
+            keys = keys + list(variables.keys())
             variables.Update(self)
 
         save = {}
@@ -2250,7 +2250,7 @@ class OverrideEnvironment(Base):
         return d
     def items(self):
         """Emulates the items() method of dictionaries."""
-        return self.Dictionary().items()
+        return list(self.Dictionary().items())
 
     # Overridden private construction environment methods.
     def _update(self, dict):

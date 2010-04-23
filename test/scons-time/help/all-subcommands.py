@@ -45,7 +45,7 @@ try: eval(c, globals)
 except: pass
 
 # Extract all subcommands from the the do_*() functions.
-functions = globals['SConsTimer'].__dict__.keys()
+functions = list(globals['SConsTimer'].__dict__.keys())
 do_funcs = [x for x in functions if x[:3] == 'do_']
 
 subcommands = [x[3:] for x in do_funcs]

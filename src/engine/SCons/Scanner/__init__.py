@@ -170,7 +170,7 @@ class Base:
 
         if skeys is _null:
             if SCons.Util.is_Dict(function):
-                skeys = function.keys()
+                skeys = list(function.keys())
             else:
                 skeys = []
         self.skeys = skeys
@@ -281,7 +281,7 @@ class Selector(Base):
     def __init__(self, dict, *args, **kw):
         Base.__init__(self, None, *args, **kw)
         self.dict = dict
-        self.skeys = dict.keys()
+        self.skeys = list(dict.keys())
 
     def __call__(self, node, env, path = ()):
         return self.select(node)(node, env, path)

@@ -494,7 +494,7 @@ class Database(database.Database):
             dirs = [d for d in dircache.listdir(path)
                     if os.path.isdir(os.path.join(path, d))]
         else:
-            dirs = self.is_a_test.keys()
+            dirs = list(self.is_a_test.keys())
 
         dirs.sort()
         return dirs
@@ -524,7 +524,7 @@ class Database(database.Database):
                        for d in dircache.listdir(path)
                        if os.path.isdir(os.path.join(path, d))]
             else:
-                ids = self.is_a_test.keys()
+                ids = list(self.is_a_test.keys())
 
         if scan_subdirs:
             for d in dircache.listdir(path):

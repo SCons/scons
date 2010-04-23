@@ -44,7 +44,7 @@ assert y == 'zoom'
 test.write("SConstruct", """
 x = 'x'
 y = 'zoom'
-Export(globals().keys())                         
+Export(list(globals().keys()))                         
 SConscript('SConscript')
 """)
 
@@ -54,7 +54,7 @@ test.run(arguments = ".")
 test.write("SConstruct", """
 x = 'x'
 y = 'zoom'
-SConscript('SConscript', globals().keys())
+SConscript('SConscript', list(globals().keys()))
 """)
 
 test.run(arguments = ".")

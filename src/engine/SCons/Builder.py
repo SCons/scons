@@ -138,7 +138,7 @@ class DictCmdGenerator(SCons.Util.Selector):
         self.source_ext_match = source_ext_match
 
     def src_suffixes(self):
-        return self.keys()
+        return list(self.keys())
 
     def add_action(self, suffix, action):
         """Add a suffix-action pair to the mapping.
@@ -173,7 +173,7 @@ class DictCmdGenerator(SCons.Util.Selector):
             raise UserError("Ambiguous suffixes after environment substitution: %s == %s == %s" % (e.args[0], e.args[1], e.args[2]))
         if ret is None:
             raise UserError("While building `%s' from `%s': Don't know how to build from a source file with suffix `%s'.  Expected a suffix in this list: %s." % \
-                            (repr(list(map(str, target))), repr(list(map(str, source))), ext, repr(self.keys())))
+                            (repr(list(map(str, target))), repr(list(map(str, source))), ext, repr(list(self.keys()))))
         return ret
 
 class CallableSelector(SCons.Util.Selector):
@@ -440,8 +440,8 @@ class BuilderBase:
         name (if there is one) or the name of the class (by default)."""
 
         try:
-            index = env['BUILDERS'].values().index(self)
-            return env['BUILDERS'].keys()[index]
+            index = list(env['BUILDERS'].values()).index(self)
+            return list(env['BUILDERS'].keys())[index]
         except (AttributeError, KeyError, TypeError, ValueError):
             try:
                 return self.name

@@ -152,7 +152,7 @@ class Environment:
     def get(self, key, value=None):
         return self.d.get(key, value)
     def items(self):
-        return self.d.items()
+        return list(self.d.items())
     def Dictionary(self):
         return self.d
     def Clone(self, **kw):

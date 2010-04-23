@@ -45,7 +45,7 @@ dlopen_line = {
     'freebsd4' : no_dl_lib,
     'linux2' : use_dl_lib,
 }
-platforms_with_dlopen = dlopen_line.keys()
+platforms_with_dlopen = list(dlopen_line.keys())
 
 test.write('SConstruct', """
 env = Environment()

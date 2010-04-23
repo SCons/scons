@@ -101,7 +101,7 @@ def scan_in_memory(node, env, path=()):
         # mixed Node types (Dirs and Files, for example) has a Dir as
         # the first entry.
         return []
-    entry_list = sorted(filter(do_not_scan, entries.keys()))
+    entry_list = sorted(filter(do_not_scan, list(entries.keys())))
     return [entries[n] for n in entry_list]
 
 # Local Variables:

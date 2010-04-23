@@ -89,7 +89,7 @@ def _action(target, source, env):
     else:
         d = env['SUBST_DICT']
         if is_Dict(d):
-            d = d.items()
+            d = list(d.items())
         elif is_Sequence(d):
             pass
         else:

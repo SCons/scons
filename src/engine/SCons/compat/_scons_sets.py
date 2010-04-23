@@ -90,7 +90,7 @@ class BaseSet(object):
     __str__ = __repr__
 
     def _repr(self, sort_them=False):
-        elements = self._data.keys()
+        elements = list(self._data.keys())
         if sort_them:
             elements.sort()
         return '%s(%r)' % (self.__class__.__name__, elements)

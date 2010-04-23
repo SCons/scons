@@ -85,7 +85,7 @@ def emit_java_classes(target, source, env):
                find_java_files(result, dirpath, filenames)
             entry.walk(find_java_files, result)
 
-            slist.extend(result.keys())
+            slist.extend(list(result.keys()))
         else:
             raise SCons.Errors.UserError("Java source must be File or Dir, not '%s'" % entry.__class__)
 
