@@ -70,7 +70,7 @@ class VariablesTestCase(unittest.TestCase):
                  "42",
                  check,
                  lambda x: int(x) + 12)
-        keys = opts.keys()
+        keys = list(opts.keys())
         assert keys == ['VAR1', 'VAR2'], keys
 
     def test_Add(self):

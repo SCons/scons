@@ -69,7 +69,7 @@ def uniquify(s):
     u = {}
     for x in s:
         u[x] = 1
-    return u.keys()
+    return list(u.keys())
 
 def linux_ver_normalize(vstr):
     """Normalize a Linux compiler version number.
@@ -118,7 +118,7 @@ def check_abi(abi):
         abi = valid_abis[abi]
     except KeyError:
         raise SCons.Errors.UserError("Intel compiler: Invalid ABI %s, valid values are %s"% \
-              (abi, valid_abis.keys()))
+              (abi, list(valid_abis.keys())))
     return abi
 
 def vercmp(a, b):

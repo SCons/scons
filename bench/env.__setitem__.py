@@ -102,7 +102,7 @@ class Environment:
         'SOURCE'   : None,
         'SOURCES'  : None,
     }
-    _special_set_keys = _special_set.keys()
+    _special_set_keys = list(_special_set.keys())
     _valid_var = re.compile(r'[_a-zA-Z]\w*$')
     def __init__(self, **kw):
         self._dict = kw

@@ -333,7 +333,7 @@ class SimpleTagCompiler:
         def strip_country_code(tag):
             return tag[:-2]
 
-        replacements = self.tagset.items()
+        replacements = list(self.tagset.items())
 
         str = ""
         #domestic = [ (k,v) for k,v in replacements if not is_international(k) ]

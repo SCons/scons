@@ -40,7 +40,7 @@ def diff_env(env1, env2):
     s1 = "env1 = {\n"
     s2 = "env2 = {\n"
     d = {}
-    for k in env1._dict.keys() + env2._dict.keys():
+    for k in list(env1._dict.keys()) + list(env2._dict.keys()):
         d[k] = None
     for k in sorted(d.keys()):
         if k in env1:
@@ -60,7 +60,7 @@ def diff_dict(d1, d2):
     s1 = "d1 = {\n"
     s2 = "d2 = {\n"
     d = {}
-    for k in d1.keys() + d2.keys():
+    for k in list(d1.keys()) + list(d2.keys()):
         d[k] = None
     for k in sorted(d.keys()):
         if k in d1:
@@ -250,7 +250,7 @@ class SubstitutionTestCase(unittest.TestCase):
         """Test the SubstitutionEnvironment items() method
         """
         env = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
-        items = env.items()
+        items = list(env.items())
         assert items == [('XXX','x'), ('YYY','y')], items
 
     def test_arg2nodes(self):

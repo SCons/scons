@@ -1085,7 +1085,7 @@ class OrderedDict(UserDict):
         return dict
 
     def items(self):
-        return list(zip(self._keys, self.values()))
+        return list(zip(self._keys, list(self.values())))
 
     def keys(self):
         return self._keys[:]
@@ -1212,7 +1212,7 @@ def unique(s):
     except TypeError:
         pass    # move on to the next method
     else:
-        return u.keys()
+        return list(u.keys())
     del u
 
     # We can't hash all the elements.  Second fastest is to sort,

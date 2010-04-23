@@ -164,7 +164,7 @@ class LaTeX(SCons.Scanner.Base):
                      'bibliographystyle': 'BSTINPUTS',
                      'usepackage': 'TEXINPUTS',
                      'lstinputlisting': 'TEXINPUTS'}
-    env_variables = SCons.Util.unique(keyword_paths.values())
+    env_variables = SCons.Util.unique(list(keyword_paths.values()))
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
 
