@@ -79,11 +79,7 @@ executing it for the full build of all the packages, as specified in our
 local SConstruct file.
 """
 
-try:
-    script_dir = os.path.abspath(os.path.dirname(__file__))
-except NameError:
-    # Pre-2.3 versions of Python don't have __file__.
-    script_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+script_dir = os.path.abspath(os.path.dirname(__file__))
 
 bootstrap_dir = os.path.join(script_dir, 'bootstrap')
 

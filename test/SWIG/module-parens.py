@@ -52,11 +52,6 @@ env = Environment(SWIGFLAGS = '-python -c++',
                   LIBS='%(python_lib)s',
                   )
 
-import sys
-if sys.version[0] == '1':
-    # SWIG requires the -classic flag on pre-2.0 Python versions.
-    env.Append(SWIGFLAGS = ' -classic')
-
 env.LoadableModule('test1.so', ['test1.i', 'test1.cc'])
 env.LoadableModule('test2.so', ['test2.i', 'test2.cc'])
 """ % locals())

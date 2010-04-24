@@ -52,9 +52,6 @@ def generate(env):
 
     env['IPKG']       = 'ipkg-build'
     env['IPKGCOM']    = '$IPKG $IPKGFLAGS ${SOURCE}'
-    # TODO(1.5)
-    #env['IPKGUSER']   = os.popen('id -un').read().strip()
-    #env['IPKGGROUP']  = os.popen('id -gn').read().strip()
     env['IPKGUSER']   = os.popen('id -un').read().strip()
     env['IPKGGROUP']  = os.popen('id -gn').read().strip()
     env['IPKGFLAGS']  = SCons.Util.CLVar('-o $IPKGUSER -g $IPKGGROUP')

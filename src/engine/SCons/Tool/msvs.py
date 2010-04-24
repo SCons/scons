@@ -29,8 +29,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -389,8 +387,6 @@ class _GenerateV6DSP(_DSPGenerator):
             for base in ("BASE ",""):
                 self.file.write('# PROP %sUse_MFC 0\n'
                                 '# PROP %sUse_Debug_Libraries ' % (base, base))
-                # TODO(1.5):
-                #if kind.lower().find('debug') < 0:
                 if kind.lower().find('debug') < 0:
                     self.file.write('0\n')
                 else:
@@ -446,8 +442,6 @@ class _GenerateV6DSP(_DSPGenerator):
                 continue # skip empty groups
 
             self.file.write('# Begin Group "' + kind + '"\n\n')
-            # TODO(1.5)
-            #typelist = categories[kind].replace('|', ';')
             typelist = categories[kind].replace('|', ';')
             self.file.write('# PROP Default_Filter "' + typelist + '"\n')
 
@@ -471,8 +465,6 @@ class _GenerateV6DSP(_DSPGenerator):
 
         line = dspfile.readline()
         while line:
-            # TODO(1.5):
-            #if line.find("# End Project") > -1:
             if line.find("# End Project") > -1:
                 break
             line = dspfile.readline()
@@ -664,9 +656,6 @@ class _GenerateV7DSP(_DSPGenerator):
             rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1) + cmdargs)
             cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1) + cmdargs)
 
-            # TODO(1.5)
-            #preprocdefs = xmlify(';'.join(self.env.get('CPPDEFINES', [])))
-            #includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
             preprocdefs = xmlify(';'.join(processDefines(self.env.get('CPPDEFINES', []))))
             includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
 
@@ -774,8 +763,6 @@ class _GenerateV7DSP(_DSPGenerator):
 
         line = dspfile.readline()
         while line:
-            # TODO(1.5)
-            #if line.find('<!-- SCons Data:') > -1:
             if line.find('<!-- SCons Data:') > -1:
                 break
             line = dspfile.readline()

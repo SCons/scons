@@ -295,9 +295,7 @@ else:
                 worker = Worker(self.requestQueue, self.resultsQueue, interrupted)
                 self.workers.append(worker)
 
-            # Once we drop Python 1.5 we can change the following to:
-            #if 'prev_size' in locals():
-            if 'prev_size' in locals().keys():
+            if 'prev_size' in locals():
                 threading.stack_size(prev_size)
 
         def put(self, task):

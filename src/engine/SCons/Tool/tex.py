@@ -236,8 +236,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     #
     # routine to update MD5 hash and compare
     #
-    # TODO(1.5):  nested scopes
-    def check_MD5(filenode, suffix, saved_hashes=saved_hashes, targetbase=targetbase):
+    def check_MD5(filenode, suffix):
         global must_rerun_latex
         # two calls to clear old csig
         filenode.clear_memoized_values()
@@ -427,8 +426,6 @@ def is_LaTeX(flist,env,abspath):
         pass
     else:
         # Split at os.pathsep to convert into absolute path
-        # TODO(1.5)
-        #paths = paths.split(os.pathsep)
         paths = paths.split(os.pathsep)
 
     # now that we have the path list restore the env
@@ -653,8 +650,6 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         pass
     else:
         # Split at os.pathsep to convert into absolute path
-        # TODO(1.5)
-        #paths = paths.split(os.pathsep)
         paths = paths.split(os.pathsep)
 
     # now that we have the path list restore the env

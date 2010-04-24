@@ -13,7 +13,6 @@ attributes defined in this subclass.
 """
 
 # __COPYRIGHT__
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -407,8 +406,6 @@ class TestSCons(TestCommon):
                 kw['arguments'] = option + arguments
             else:
                 kw['arguments'] = option + ' ' + arguments
-        # TODO(1.5)
-        #return self.run(**kw)
         return self.run(**kw)
 
     def diff_substr(self, expect, actual, prelen=20, postlen=40):
@@ -1045,8 +1042,6 @@ class TimeSCons(TestSCons):
         if 'verbose' not in kw and not self.calibrate:
             kw['verbose'] = True
 
-        # TODO(1.5)
-        #TestSCons.__init__(self, *args, **kw)
         TestSCons.__init__(self, *args, **kw)
 
         # TODO(sgk):    better way to get the script dir than sys.argv[0]
@@ -1080,15 +1075,9 @@ class TimeSCons(TestSCons):
                 options.append('%s=%s' % (variable, value))
             kw['options'] = ' '.join(options)
         if self.calibrate:
-            # TODO(1.5)
-            #self.calibration(*args, **kw)
             self.calibration(*args, **kw)
         else:
             self.uptime()
-            # TODO(1.5)
-            #self.startup(*args, **kw)
-            #self.full(*args, **kw)
-            #self.null(*args, **kw)
             self.startup(*args, **kw)
             self.full(*args, **kw)
             self.null(*args, **kw)
@@ -1109,8 +1098,6 @@ class TimeSCons(TestSCons):
                    "seconds",
                    sort=0)
         for name, args in stats.items():
-            # TODO(1.5)
-            #self.trace(name, trace, *args)
             self.trace(name, trace, **args)
 
     def uptime(self):
@@ -1150,8 +1137,6 @@ class TimeSCons(TestSCons):
         # won't report any statistics for it, but we can still execute
         # the full and null builds.
         kw['status'] = None
-        # TODO(1.5)
-        #self.run(*args, **kw)
         self.run(*args, **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
@@ -1164,16 +1149,10 @@ class TimeSCons(TestSCons):
         """
         Runs a full build of SCons.
         """
-        # TODO(1.5)
-        #self.run(*args, **kw)
         self.run(*args, **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
         self.report_traces('full', stats)
-        # TODO(1.5)
-        #self.trace('full-memory', 'initial', **stats['memory-initial'])
-        #self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
-        #self.trace('full-memory', 'final', **stats['memory-final'])
         self.trace('full-memory', 'initial', **stats['memory-initial'])
         self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
         self.trace('full-memory', 'final', **stats['memory-final'])
@@ -1184,8 +1163,6 @@ class TimeSCons(TestSCons):
         information (the variable(s) that were set for this configuration,
         and the elapsed time to run.
         """
-        # TODO(1.5)
-        #self.run(*args, **kw)
         self.run(*args, **kw)
         if self.variables:
             for variable, value in self.variables.items():
@@ -1198,11 +1175,7 @@ class TimeSCons(TestSCons):
         """
         # TODO(sgk):  allow the caller to specify the target (argument)
         # that must be up-to-date.
-        # TODO(1.5)
-        #self.up_to_date(arguments='.', **kw)
-        kw = kw.copy()
-        kw['arguments'] = '.'
-        self.up_to_date(**kw)
+        self.up_to_date(arguments='.', **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
         # time-commands should always be 0.0 on a null build, because
@@ -1213,10 +1186,6 @@ class TimeSCons(TestSCons):
         if float(stats['time-commands']['value']) == 0.0:
             del stats['time-commands']
         self.report_traces('null', stats)
-        # TODO(1.5)
-        #self.trace('null-memory', 'initial', **stats['memory-initial'])
-        #self.trace('null-memory', 'prebuild', **stats['memory-prebuild'])
-        #self.trace('null-memory', 'final', **stats['memory-final'])
         self.trace('null-memory', 'initial', **stats['memory-initial'])
         self.trace('null-memory', 'prebuild', **stats['memory-prebuild'])
         self.trace('null-memory', 'final', **stats['memory-final'])
@@ -1239,8 +1208,6 @@ class TimeSCons(TestSCons):
         kw['options'] = kw.get('options', '') + ' --debug=memory --debug=time'
         self.startTime = time.time()
         try:
-            # TODO(1.5)
-            #result = TestSCons.run(self, *args, **kw)
             result = TestSCons.run(self, *args, **kw)
         finally:
             self.endTime = time.time()

@@ -71,11 +71,6 @@ foo = Environment(SWIGFLAGS='-python',
                   LIBS='%(python_lib)s',
                   )
 
-import sys
-if sys.version[0] == '1':
-    # SWIG requires the -classic flag on pre-2.0 Python versions.
-    foo.Append(SWIGFLAGS = ' -classic')
-
 foo.LoadableModule(target = 'modulename', source = ['module.i'])
 """ % locals())
 

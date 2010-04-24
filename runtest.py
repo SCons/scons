@@ -85,8 +85,6 @@
 # library directory.  If we ever resurrect that as the default, then
 # you can find the appropriate code in the 0.04 version of this script,
 # rather than reinventing that wheel.)
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 import getopt
 import glob

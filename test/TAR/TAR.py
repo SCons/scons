@@ -44,7 +44,7 @@ for opt, arg in opts:
     if opt == '-f': out = arg
 def process(outfile, name):
     if os.path.isdir(name):
-        ## TODO 2.5: the next three lines can be replaced by
+        ## TODO 2.4: the next three lines can be replaced by
         #for entry in sorted(os.listdir(name)):
         list = os.listdir(name)
         list.sort()

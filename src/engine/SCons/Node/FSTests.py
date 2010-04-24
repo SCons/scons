@@ -1189,17 +1189,12 @@ class FSTestCase(_tempdirTestCase):
         f1 = fs.File(test.workpath("binary_file"))
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
-        try:
-            # TODO(1.5)
-            eval('test_string = u"Foo\x1aBar"')
-        except SyntaxError:
-            pass
-        else:
-            # This tests to make sure we can decode UTF-8 text files.
-            test.write("utf8_file", test_string.encode('utf-8'))
-            f1 = fs.File(test.workpath("utf8_file"))
-            assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
-                   f1.get_text_contents()
+        # This tests to make sure we can decode UTF-8 text files.
+        test_string = u"Foo\x1aBar"
+        test.write("utf8_file", test_string.encode('utf-8'))
+        f1 = fs.File(test.workpath("utf8_file"))
+        assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
+               f1.get_text_contents()
 
         def nonexistent(method, s):
             try:
@@ -1749,7 +1744,6 @@ class DirTestCase(_tempdirTestCase):
         e = self.fs.Dir(os.path.join('d', 'empty'))
         s = self.fs.Dir(os.path.join('d', 'sub'))
 
-        #TODO(1.5) files = d.get_contents().split('\n')
         files = d.get_contents().split('\n')
 
         assert e.get_contents() == '', e.get_contents()

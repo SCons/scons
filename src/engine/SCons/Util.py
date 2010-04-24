@@ -304,272 +304,137 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
 # exception, but handling the exception when it's not the right type is
 # often too slow.
 
-try:
-    class mystr(str):
-        pass
-except TypeError:
-    # An older Python version without new-style classes.
-    #
-    # The actual implementations here have been selected after timings
-    # coded up in in bench/is_types.py (from the SCons source tree,
-    # see the scons-src distribution), mostly against Python 1.5.2.
-    # Key results from those timings:
-    #
-    #   --  Storing the type of the object in a variable (t = type(obj))
-    #       slows down the case where it's a native type and the first
-    #       comparison will match, but nicely speeds up the case where
-    #       it's a different native type.  Since that's going to be
-    #       common, it's a good tradeoff.
-    #
-    #   --  The data show that calling isinstance() on an object that's
-    #       a native type (dict, list or string) is expensive enough
-    #       that checking up front for whether the object is of type
-    #       InstanceType is a pretty big win, even though it does slow
-    #       down the case where it really *is* an object instance a
-    #       little bit.
-    def is_Dict(obj):
-        t = type(obj)
-        return t is DictType or \
-               (t is InstanceType and isinstance(obj, UserDict))
+# We are using the following trick to speed up these
+# functions. Default arguments are used to take a snapshot of the
+# the global functions and constants used by these functions. This
+# transforms accesses to global variable into local variables
+# accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
 
-    def is_List(obj):
-        t = type(obj)
-        return t is ListType \
-            or (t is InstanceType and isinstance(obj, UserList))
+DictTypes = (dict, UserDict)
+ListTypes = (list, UserList)
+SequenceTypes = (list, tuple, UserList)
 
-    def is_Sequence(obj):
-        t = type(obj)
-        return t is ListType \
-            or t is TupleType \
-            or (t is InstanceType and isinstance(obj, UserList))
+# Note that profiling data shows a speed-up when comparing
+# explicitely with str and unicode instead of simply comparing
+# with basestring. (at least on Python 2.5.1)
+StringTypes = (str, unicode, UserString)
 
-    def is_Tuple(obj):
-        t = type(obj)
-        return t is TupleType
+# Empirically, it is faster to check explicitely for str and
+# unicode than for basestring.
+BaseStringTypes = (str, unicode)
 
-    if UnicodeType is not None:
-        def is_String(obj):
-            t = type(obj)
-            return t is StringType \
-                or t is UnicodeType \
-                or (t is InstanceType and isinstance(obj, UserString))
+def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
+    return isinstance(obj, DictTypes)
+
+def is_List(obj, isinstance=isinstance, ListTypes=ListTypes):
+    return isinstance(obj, ListTypes)
+
+def is_Sequence(obj, isinstance=isinstance, SequenceTypes=SequenceTypes):
+    return isinstance(obj, SequenceTypes)
+
+def is_Tuple(obj, isinstance=isinstance, tuple=tuple):
+    return isinstance(obj, tuple)
+
+def is_String(obj, isinstance=isinstance, StringTypes=StringTypes):
+    return isinstance(obj, StringTypes)
+
+def is_Scalar(obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes):
+    # Profiling shows that there is an impressive speed-up of 2x
+    # when explicitely checking for strings instead of just not
+    # sequence when the argument (i.e. obj) is already a string.
+    # But, if obj is a not string then it is twice as fast to
+    # check only for 'not sequence'. The following code therefore
+    # assumes that the obj argument is a string must of the time.
+    return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
+
+def do_flatten(sequence, result, isinstance=isinstance, 
+               StringTypes=StringTypes, SequenceTypes=SequenceTypes):
+    for item in sequence:
+        if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
+            result.append(item)
+        else:
+            do_flatten(item, result)
+
+def flatten(obj, isinstance=isinstance, StringTypes=StringTypes, 
+            SequenceTypes=SequenceTypes, do_flatten=do_flatten):
+    """Flatten a sequence to a non-nested list.
+
+    Flatten() converts either a single scalar or a nested sequence
+    to a non-nested list. Note that flatten() considers strings
+    to be scalars instead of sequences like Python would.
+    """
+    if isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes):
+        return [obj]
+    result = []
+    for item in obj:
+        if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
+            result.append(item)
+        else:
+            do_flatten(item, result)
+    return result
+
+def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes, 
+                     SequenceTypes=SequenceTypes, do_flatten=do_flatten):
+    """Flatten a sequence to a non-nested list.
+
+    Same as flatten(), but it does not handle the single scalar
+    case. This is slightly more efficient when one knows that
+    the sequence to flatten can not be a scalar.
+    """
+    result = []
+    for item in sequence:
+        if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
+            result.append(item)
+        else:
+            do_flatten(item, result)
+    return result
+
+# Generic convert-to-string functions that abstract away whether or
+# not the Python we're executing has Unicode support.  The wrapper
+# to_String_for_signature() will use a for_signature() method if the
+# specified object has one.
+#
+def to_String(s, 
+              isinstance=isinstance, str=str,
+              UserString=UserString, BaseStringTypes=BaseStringTypes):
+    if isinstance(s,BaseStringTypes):
+        # Early out when already a string!
+        return s
+    elif isinstance(s, UserString):
+        # s.data can only be either a unicode or a regular
+        # string. Please see the UserString initializer.
+        return s.data
     else:
-        def is_String(obj):
-            t = type(obj)
-            return t is StringType \
-                or (t is InstanceType and isinstance(obj, UserString))
+        return str(s)
 
-    def is_Scalar(obj):
-        return is_String(obj) or not is_Sequence(obj)
-
-    def flatten(obj, result=None):
-        """Flatten a sequence to a non-nested list.
-
-        Flatten() converts either a single scalar or a nested sequence
-        to a non-nested list. Note that flatten() considers strings
-        to be scalars instead of sequences like Python would.
-        """
-        if is_Scalar(obj):
-            return [obj]
-        if result is None:
-            result = []
-        for item in obj:
-            if is_Scalar(item):
-                result.append(item)
-            else:
-                flatten_sequence(item, result)
-        return result
-
-    def flatten_sequence(sequence, result=None):
-        """Flatten a sequence to a non-nested list.
-
-        Same as flatten(), but it does not handle the single scalar
-        case. This is slightly more efficient when one knows that
-        the sequence to flatten can not be a scalar.
-        """
-        if result is None:
-            result = []
-        for item in sequence:
-            if is_Scalar(item):
-                result.append(item)
-            else:
-                flatten_sequence(item, result)
-        return result
-
-    #
-    # Generic convert-to-string functions that abstract away whether or
-    # not the Python we're executing has Unicode support.  The wrapper
-    # to_String_for_signature() will use a for_signature() method if the
-    # specified object has one.
-    #
-    if UnicodeType is not None:
-        def to_String(s):
-            if isinstance(s, UserString):
-                t = type(s.data)
-            else:
-                t = type(s)
-            if t is UnicodeType:
-                return unicode(s)
-            else:
-                return str(s)
+def to_String_for_subst(s, 
+                        isinstance=isinstance, str=str, to_String=to_String,
+                        BaseStringTypes=BaseStringTypes, SequenceTypes=SequenceTypes,
+                        UserString=UserString):
+                        
+    # Note that the test cases are sorted by order of probability.
+    if isinstance(s, BaseStringTypes):
+        return s
+    elif isinstance(s, SequenceTypes):
+        l = []
+        for e in s:
+            l.append(to_String_for_subst(e))
+        return ' '.join( s )
+    elif isinstance(s, UserString):
+        # s.data can only be either a unicode or a regular
+        # string. Please see the UserString initializer.
+        return s.data
     else:
-        to_String = str
+        return str(s)
 
-    def to_String_for_signature(obj):
-        try:
-            f = obj.for_signature
-        except AttributeError:
-            return to_String_for_subst(obj)
-        else:
-            return f()
-
-    def to_String_for_subst(s):
-        if is_Sequence( s ):
-            return ' '.join( map(to_String_for_subst, s) )
-
-        return to_String( s )
-
-else:
-    # A modern Python version with new-style classes, so we can just use
-    # isinstance().
-    #
-    # We are using the following trick to speed-up these
-    # functions. Default arguments are used to take a snapshot of the
-    # the global functions and constants used by these functions. This
-    # transforms accesses to global variable into local variables
-    # accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
-
-    DictTypes = (dict, UserDict)
-    ListTypes = (list, UserList)
-    SequenceTypes = (list, tuple, UserList)
-
-    # Empirically, Python versions with new-style classes all have
-    # unicode.
-    #
-    # Note that profiling data shows a speed-up when comparing
-    # explicitely with str and unicode instead of simply comparing
-    # with basestring. (at least on Python 2.5.1)
-    StringTypes = (str, unicode, UserString)
-
-    # Empirically, it is faster to check explicitely for str and
-    # unicode than for basestring.
-    BaseStringTypes = (str, unicode)
-
-    def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
-        return isinstance(obj, DictTypes)
-
-    def is_List(obj, isinstance=isinstance, ListTypes=ListTypes):
-        return isinstance(obj, ListTypes)
-
-    def is_Sequence(obj, isinstance=isinstance, SequenceTypes=SequenceTypes):
-        return isinstance(obj, SequenceTypes)
-
-    def is_Tuple(obj, isinstance=isinstance, tuple=tuple):
-        return isinstance(obj, tuple)
-
-    def is_String(obj, isinstance=isinstance, StringTypes=StringTypes):
-        return isinstance(obj, StringTypes)
-
-    def is_Scalar(obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes):
-        # Profiling shows that there is an impressive speed-up of 2x
-        # when explicitely checking for strings instead of just not
-        # sequence when the argument (i.e. obj) is already a string.
-        # But, if obj is a not string then it is twice as fast to
-        # check only for 'not sequence'. The following code therefore
-        # assumes that the obj argument is a string must of the time.
-        return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
-
-    def do_flatten(sequence, result, isinstance=isinstance, 
-                   StringTypes=StringTypes, SequenceTypes=SequenceTypes):
-        for item in sequence:
-            if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
-                result.append(item)
-            else:
-                do_flatten(item, result)
-
-    def flatten(obj, isinstance=isinstance, StringTypes=StringTypes, 
-                SequenceTypes=SequenceTypes, do_flatten=do_flatten):
-        """Flatten a sequence to a non-nested list.
-
-        Flatten() converts either a single scalar or a nested sequence
-        to a non-nested list. Note that flatten() considers strings
-        to be scalars instead of sequences like Python would.
-        """
-        if isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes):
-            return [obj]
-        result = []
-        for item in obj:
-            if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
-                result.append(item)
-            else:
-                do_flatten(item, result)
-        return result
-
-    def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes, 
-                         SequenceTypes=SequenceTypes, do_flatten=do_flatten):
-        """Flatten a sequence to a non-nested list.
-
-        Same as flatten(), but it does not handle the single scalar
-        case. This is slightly more efficient when one knows that
-        the sequence to flatten can not be a scalar.
-        """
-        result = []
-        for item in sequence:
-            if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
-                result.append(item)
-            else:
-                do_flatten(item, result)
-        return result
-
-
-    #
-    # Generic convert-to-string functions that abstract away whether or
-    # not the Python we're executing has Unicode support.  The wrapper
-    # to_String_for_signature() will use a for_signature() method if the
-    # specified object has one.
-    #
-    def to_String(s, 
-                  isinstance=isinstance, str=str,
-                  UserString=UserString, BaseStringTypes=BaseStringTypes):
-        if isinstance(s,BaseStringTypes):
-            # Early out when already a string!
-            return s
-        elif isinstance(s, UserString):
-            # s.data can only be either a unicode or a regular
-            # string. Please see the UserString initializer.
-            return s.data
-        else:
-            return str(s)
-
-    def to_String_for_subst(s, 
-                            isinstance=isinstance, str=str, to_String=to_String,
-                            BaseStringTypes=BaseStringTypes, SequenceTypes=SequenceTypes,
-                            UserString=UserString):
-                            
-        # Note that the test cases are sorted by order of probability.
-        if isinstance(s, BaseStringTypes):
-            return s
-        elif isinstance(s, SequenceTypes):
-            l = []
-            for e in s:
-                l.append(to_String_for_subst(e))
-            return ' '.join( s )
-        elif isinstance(s, UserString):
-            # s.data can only be either a unicode or a regular
-            # string. Please see the UserString initializer.
-            return s.data
-        else:
-            return str(s)
-
-    def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst, 
-                                AttributeError=AttributeError):
-        try:
-            f = obj.for_signature
-        except AttributeError:
-            return to_String_for_subst(obj)
-        else:
-            return f()
-
+def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst, 
+                            AttributeError=AttributeError):
+    try:
+        f = obj.for_signature
+    except AttributeError:
+        return to_String_for_subst(obj)
+    else:
+        return f()
 
 
 # The SCons "semi-deep" copy.
@@ -1505,17 +1370,10 @@ def RenameFunction(function, name):
     Returns a function identical to the specified function, but with
     the specified name.
     """
-    # Compatibility for Python 1.5 and 2.1.  Can be removed in favor of
-    # passing function.func_defaults directly to new.function() once
-    # we base on Python 2.2 or later.
-    func_defaults = function.func_defaults
-    if func_defaults is None:
-        func_defaults = ()
-
     return types.FunctionType(function.func_code,
                               function.func_globals,
                               name,
-                              func_defaults)
+                              function.func_defaults)
 
 
 md5 = False
@@ -1584,8 +1442,7 @@ def silent_intern(x):
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
 
-# TODO(1.5):
-#class Null(object):
+#TODO??? class Null(object):
 class Null:
     """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):

@@ -2,7 +2,6 @@
 #
 # Module for handling SCons documentation processing.
 #
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __doc__ = """
 This module parses home-brew XML files that document various things

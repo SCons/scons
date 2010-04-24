@@ -111,17 +111,6 @@
 
     <para>
 
-    (Note that the <option>-V</option> option
-    was added to Python version 2.0,
-    so if your system only has an earlier version available
-    you may see an
-    <literal>"Unknown option: -V"</literal>
-    error message.)
-
-    </para>
-
-    <para>
-
     The standard location for information
     about downloading and installing Python is
     <ulink url="http://www.python.org/download/">http://www.python.org/download/</ulink>.
@@ -132,10 +121,10 @@
 
     <para>
 
-    &SCons; will work with any version of Python from 1.5.2 or later.
+    &SCons; will work with any version of Python from 2.4 or later.
     If you need to install Python and have a choice,
-    we recommend using the most recent Python 2.5 version available.
-    Python 2.5 has significant improvements
+    we recommend using the most recent Python version available.
+    Newer Pythons have significant improvements
     that help speed up the performance of &SCons;.
 
     </para>

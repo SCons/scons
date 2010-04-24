@@ -380,7 +380,7 @@ try to access a list member that
 does not exist.
 
 .B scons
-requires Python version 1.5.2 or later.
+requires Python version 2.4 or later.
 There should be no other dependencies or requirements to run
 .B scons.
 
@@ -591,10 +591,9 @@ Print how many objects are created
 of the various classes used internally by SCons
 before and after reading the SConscript files
 and before and after building targets.
-This is not supported when run under Python versions earlier than 2.1,
-when SCons is executed with the Python
+This is not supported when SCons is executed with the Python
 .B -O
-(optimized) option,
+(optimized) option
 or when the SCons modules
 have been compiled with optimization
 (that is, when executing from
@@ -642,7 +641,6 @@ Prints a summary of hits and misses using the Memoizer,
 an internal subsystem that counts
 how often SCons uses cached values in memory
 instead of recomputing them each time they're needed.
-Only available when using Python 2.2 or later.
 
 .TP
 --debug=memory
@@ -658,7 +656,6 @@ A deprecated option preserved for backwards compatibility.
 --debug=objects
 Prints a list of the various objects
 of the various classes used internally by SCons.
-This only works when run under Python 2.1 or later.
 
 .TP
 --debug=pdb
@@ -2446,13 +2443,6 @@ method (with a few additional capabilities noted below);
 see the documentation for
 .B optparse
 for a thorough discussion of its option-processing capabities.
-(Note that although the
-.B optparse
-module was not a standard module until Python 2.3,
-.B scons
-contains a compatible version of the module
-that is used to provide identical functionality
-when run by earlier Python versions.)
 
 In addition to the arguments and values supported by the
 .B optparse.add_option ()
@@ -5500,7 +5490,7 @@ The default is to use a custom
 .B SCons.dblite
 module that uses pickled
 Python data structures,
-and which works on all Python versions from 1.5.2 on.
+and which works on all Python versions.
 
 Examples:
 

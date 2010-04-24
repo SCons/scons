@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -70,11 +69,6 @@ env = Environment(CPPPATH = [".", r'%(python_include)s'],
                   LIBPATH=[r'%(python_libpath)s'],
                   LIBS='%(python_lib)s',
                   )
-
-import sys
-if sys.version[0] == '1':
-    # SWIG requires the -classic flag on pre-2.0 Python versions.
-    env.Append(SWIGFLAGS = '-classic')
 
 Export("env")
 

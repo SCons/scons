@@ -158,25 +158,16 @@ scons: `.' is up to date.
 scons: done building targets.
 """
 
-import sys
-if sys.version[:3] == '2.1':
-    expectedStderr = """\
-%s:79: SyntaxWarning: local name 'x' in 'a' shadows use of 'x' as global in nested scope 'b'
-  def a():
-""" % test.workpath('SConstruct')
-else:
-    expectedStderr = ""
-
-def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=expectedStderr):
+def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=""):
     test.run(arguments=arguments,
              stdout=expectedRebuild and rebuildstr or nobuildstr,
-             stderr=expectedStderr)
+             stderr="")
     test.must_match('Out.gen.h', expectedOutFile)
 
-    # Should not be rebuild when ran a second time with the same
+    # Should not be rebuild when run a second time with the same
     # arguments.
 
-    test.run(arguments = arguments, stdout=nobuildstr, stderr=expectedStderr)
+    test.run(arguments = arguments, stdout=nobuildstr, stderr="")
     test.must_match('Out.gen.h', expectedOutFile)
 
 

@@ -147,8 +147,6 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and pat_list the associated list of paths
 
-    # TODO(1.5):  replace with the following list comprehension:
-    #dkeep = dict([(i, []) for i in keep])
     dkeep = dict([(i, []) for i in keep])
 
     # rdk will  keep the regex to match the .bat file output line starts

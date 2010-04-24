@@ -90,10 +90,9 @@ is compressed or not.
 The default value is
 <literal>zipfile.ZIP_DEFLATED</literal>,
 which creates a compressed zip archive.
-This value has no effect when using Python 1.5.2
-or if the
+This value has no effect if the
 <literal>zipfile</literal>
-module is otherwise unavailable.
+module is unavailable.
 </summary>
 </cvar>
 

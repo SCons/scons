@@ -13,7 +13,7 @@
   <listitem>
     <para>
 
-      &SCons; will be written to Python version 1.5.2 (to ensure
+      &SCons; will be written to Python version 2.4 (to ensure
       usability by a wide install base).
 
     </para>

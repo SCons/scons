@@ -44,7 +44,7 @@ scons-local package, or any SCons package, at the SCons download page:
 EXECUTION REQUIREMENTS
 ======================
 
-Running SCons requires Python version 1.5.2 or later.  There should be
+Running SCons requires Python version 2.4 or later.  There should be
 no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++

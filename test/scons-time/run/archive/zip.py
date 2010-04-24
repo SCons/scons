@@ -39,28 +39,6 @@ test.write_fake_scons_py()
 
 test.write_sample_project('foo.zip')
 
-try:
-    import zipfile
-    # There's a bug in the Python 2.1 zipfile library that makes it blow
-    # up on 64-bit architectures, when trying to read normal 32-bit zip
-    # files.  Check for it by trying to read the archive we just created,
-    # and skipping the test gracefully if there's a problem.
-    zf = zipfile.ZipFile('foo.zip', 'r')
-    for name in zf.namelist():
-        zf.read(name)
-except ImportError:
-    # This "shouldn't happen" because the early Python versions that
-    # have no zipfile module don't support the scons-time script,
-    # so the initialization above should short-circuit this test.
-    # But just in case...
-    fmt = "Python %s has no zipfile module.  Skipping test.\n"
-    test.skip_test(fmt % sys.version[:3])
-except zipfile.BadZipfile, e:
-    if str(e)[:11] == 'Bad CRC-32 ':
-        fmt = "Python %s zipfile module doesn't work on 64-bit architectures.  Skipping test.\n"
-        test.skip_test(fmt % sys.version[:3])
-    raise
-
 test.run(arguments = 'run foo.zip')
 
 test.must_exist('foo-000-0.log',

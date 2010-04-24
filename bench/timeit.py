@@ -43,12 +43,8 @@ cases.  On Unix, you can use clock() to measure CPU time.
 Note: there is a certain baseline overhead associated with executing a
 pass statement.  The code here doesn't try to hide it, but you should
 be aware of it.  The baseline overhead can be measured by invoking the
-program without arguments.
-
-The baseline overhead differs between Python versions!  Also, to
-fairly compare older Python versions to Python 2.3, you may want to
-use python -O for the older versions to avoid timing SET_LINENO
-instructions.
+program without arguments.  The baseline overhead differs between
+Python versions!
 """
 
 try:

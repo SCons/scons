@@ -88,7 +88,6 @@
 # Error output gets passed through to your error output so you
 # can see if there are any problems executing the command.
 #
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 import optparse
 import os
@@ -501,14 +500,11 @@ def ExecuteCommand(args, c, t, dict):
     return func(args[1:], c, t, dict)
 
 class MySGML(sgmllib.SGMLParser):
-    """A subclass of the standard Python 2.2 sgmllib SGML parser.
+    """A subclass of the standard Python sgmllib SGML parser.
 
     This extends the standard sgmllib parser to recognize, and do cool
     stuff with, the added tags that describe our SCons examples,
     commands, and other stuff.
-
-    Note that this doesn't work with the 1.5.2 sgmllib module, because
-    that didn't have the ability to work with ENTITY declarations.
     """
     def __init__(self, outfp):
         sgmllib.SGMLParser.__init__(self)
