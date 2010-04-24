@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- Python -*-
+from __future__ import division
 
 import sys
 from math import log, ceil
@@ -52,7 +53,7 @@ msg = "****** max %d revisions to test (bug bracketed by [%d,%d])"
 while upper-lower > 1:
     print msg % (ceil(log(upper-lower,2)), lower, upper)
 
-    mid = int((lower + upper)/2)
+    mid = (lower + upper)//2
     midfails = testfail(mid)
     if midfails == lowerfails:
         lower = mid

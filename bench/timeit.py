@@ -46,6 +46,7 @@ be aware of it.  The baseline overhead can be measured by invoking the
 program without arguments.  The baseline overhead differs between
 Python versions!
 """
+from __future__ import division
 
 try:
     import gc

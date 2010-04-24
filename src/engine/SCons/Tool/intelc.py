@@ -30,7 +30,7 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+from __future__ import division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -81,7 +81,7 @@ def linux_ver_normalize(vstr):
     m = re.match(r'([0-9]+)\.([0-9]+)\.([0-9]+)', vstr)
     if m:
         vmaj,vmin,build = m.groups()
-        return float(vmaj) * 10 + float(vmin) + float(build) / 1000.;
+        return float(vmaj) * 10. + float(vmin) + float(build) / 1000.;
     else:
         f = float(vstr)
         if is_windows:

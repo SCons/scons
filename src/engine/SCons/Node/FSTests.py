@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -1307,7 +1308,7 @@ class FSTestCase(_tempdirTestCase):
             # We round down the current time to the nearest even integer
             # value, subtract two to make sure the timestamp is not "now,"
             # and then convert it back to a float.
-            tstamp = float(int(time.time() / 2) * 2) - 2
+            tstamp = float(int(time.time() // 2) * 2) - 2.0
             os.utime(test.workpath("tstamp"), (tstamp - 2.0, tstamp))
             f = fs.File("tstamp")
             t = f.get_timestamp()
@@ -1325,7 +1326,7 @@ class FSTestCase(_tempdirTestCase):
         f2 = test.workpath('tdir2', 'file2')
         test.write(f1, 'file1\n')
         test.write(f2, 'file2\n')
-        current_time = float(int(time.time() / 2) * 2)
+        current_time = float(int(time.time() // 2) * 2)
         t1 = current_time - 4.0
         t2 = current_time - 2.0
         os.utime(f1, (t1 - 2.0, t1))
@@ -2786,7 +2787,7 @@ class RepositoryTestCase(_tempdirTestCase):
             # We round down the current time to the nearest even integer
             # value, subtract two to make sure the timestamp is not "now,"
             # and then convert it back to a float.
-            tstamp = float(int(time.time() / 2) * 2) - 2
+            tstamp = float(int(time.time() // 2) * 2) - 2.0
             os.utime(test.workpath("rep2", "tstamp"), (tstamp - 2.0, tstamp))
             f = fs.File("tstamp")
             t = f.get_timestamp()
