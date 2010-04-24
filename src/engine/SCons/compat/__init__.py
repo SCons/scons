@@ -214,13 +214,6 @@ else:
 
 
 try:
-    import platform
-except ImportError:
-    # Pre-2.3 Python has no platform module.
-    import_as('_scons_platform', 'platform')
-
-
-try:
     import queue
 except ImportError:
     # Before Python 3.0, the 'queue' module was named 'Queue'.
