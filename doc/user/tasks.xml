@@ -54,30 +54,12 @@ import os.path
 filenames = [os.path.join(prefix, x) for x in filenames]
 </programlisting>
 
-<simpara>or in Python 1.5.2:</simpara>
-
-<programlisting>
-import os.path
-new_filenames = [] 
-for x in filenames:
-    new_filenames.append(os.path.join(prefix, x))
-</programlisting>
-</example>
-
 <example>
 <title>Substituting a path prefix with another one</title>
 <programlisting>
 if filename.find(old_prefix) == 0:
     filename = filename.replace(old_prefix, new_prefix)
 </programlisting>
-
-<simpara>or in Python 1.5.2:</simpara>
-
-<programlisting>
-if filename.find(old_prefix) == 0:
-    filename = filename.replace(old_prefix, new_prefix)      
-</programlisting>
-</example>
 
 <example>
 <title>Filtering a filename list to exclude/retain only a specific set
@@ -86,17 +68,6 @@ of extensions</title>
 import os.path
 filenames = [x for x in filenames if os.path.splitext(x)[1] in extensions]
 </programlisting>
-
-<simpara>or in Python 1.5.2:</simpara>
-
-<programlisting>
-import os.path
-new_filenames = []
-for x in filenames:
-    if os.path.splitext(x)[1] in extensions:
-        new_filenames.append(x)
-</programlisting>
-</example>
 
 <example>
 <title>The "backtick function": run a shell command and capture the

@@ -37,10 +37,8 @@ test.write('SConstruct', """
 a ! x
 """)
 
-# It looks like vanilla Python 2.2 is the only version that
-# puts "<string>" here in place of the file name.
 test.run(stdout = "scons: Reading SConscript files ...\n",
-         stderr = """  File "(.+SConstruct|<string>)", line 2
+         stderr = """  File ".+SConstruct", line 2
 
     a ! x
 

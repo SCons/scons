@@ -40,8 +40,6 @@ be able to depend on any other type of "thing."
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -1254,18 +1252,9 @@ class Node:
             lines = ["%s:\n" % preamble] + lines
             return ( ' '*11).join(lines)
 
-try:
-    [].extend(collections.UserList([]))
-except TypeError:
-    # Python 1.5.2 doesn't allow a list to be extended by list-like
-    # objects (such as UserList instances), so just punt and use
-    # real lists.
-    def NodeList(l):
-        return l
-else:
-    class NodeList(collections.UserList):
-        def __str__(self):
-            return str(list(map(str, self.data)))
+class NodeList(collections.UserList):
+    def __str__(self):
+        return str(list(map(str, self.data)))
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

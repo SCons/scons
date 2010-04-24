@@ -12,7 +12,7 @@ SLOT="0"
 LICENSE="as-is"
 KEYWORDS="~x86 ~sparc"
 
-DEPEND=">=dev-lang/python-2.0"
+DEPEND=">=dev-lang/python-2.4"
 
 src_compile() {
         python setup.py build

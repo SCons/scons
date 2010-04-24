@@ -19,8 +19,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -571,14 +569,7 @@ class ClassicCPPTestCase(unittest.TestCase):
             assert n == 'path/bbb', n
             assert i == 'bbb', i
 
-            # TODO(1.5):  remove when 2.2 is minimal; replace ccc
-            # variable in find_include() call below with in-line u'ccc'.
-            try:
-                ccc = eval("u'ccc'")
-            except SyntaxError:
-                ccc = 'ccc'
-
-            n, i = s.find_include(('<', ccc), 'foo', ('path',))
+            n, i = s.find_include(('<', u'ccc'), 'foo', ('path',))
             assert n == 'path/ccc', n
             assert i == 'ccc', i
 

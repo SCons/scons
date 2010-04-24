@@ -19,8 +19,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __doc__ = """
 Generic Taskmaster module for the SCons build engine.
@@ -952,16 +950,7 @@ class Taskmaster:
                         self.trace_node(n)))
         try:
             while True:
-                try:
-                    node = to_visit.pop()
-                except AttributeError:
-                    # Python 1.5.2
-                    if len(to_visit):
-                        node = to_visit[0]
-                        to_visit.remove(node)
-                    else:
-                        break
-
+                node = to_visit.pop()
                 node_func(node)
 
                 # Prune recursion by flushing the waiting children
@@ -981,7 +970,7 @@ class Taskmaster:
             pass
 
         # We have the stick back the pending_children list into the
-        # task master because the python 1.5.2 compatibility does not
+        # taskmaster because the python 1.5.2 compatibility does not
         # allow us to use in-place updates
         self.pending_children = pending_children
 
@@ -998,16 +987,12 @@ class Taskmaster:
         if not self.pending_children:
             return
 
-        # TODO(1.5)
-        #nclist = [ (n, find_cycle([n], set())) for n in self.pending_children ]
         nclist = [(n, find_cycle([n], set())) for n in self.pending_children]
 
-        # TODO(1.5)
-        #genuine_cycles = [
-        #    node for node, cycle in nclist
-        #             if cycle or node.get_state() != NODE_EXECUTED
-        #]
-        genuine_cycles = [t for t in nclist if t[1] or t[0].get_state() != NODE_EXECUTED]
+        genuine_cycles = [
+            node for node,cycle in nclist
+                     if cycle or node.get_state() != NODE_EXECUTED
+        ]
         if not genuine_cycles:
             # All of the "cycles" found were single nodes in EXECUTED state,
             # which is to say, they really weren't cycles.  Just return.

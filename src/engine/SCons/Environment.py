@@ -30,8 +30,6 @@ Environment
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -419,7 +417,7 @@ class SubstitutionEnvironment:
         # list works a little better in Python 2.5, but that has the
         # disadvantage of maybe getting out of sync if we ever add more
         # variable names.  Using self._special_set.has_key() works a
-        # little better in Python 2.4, but is worse then this test.
+        # little better in Python 2.4, but is worse than this test.
         # So right now it seems like a good trade-off, but feel free to
         # revisit this with bench/env.__setitem__.py as needed (and
         # as newer versions of Python come out).
@@ -586,7 +584,6 @@ class SubstitutionEnvironment:
         # othewise force a shell
         if not SCons.Util.is_List(command): kw['shell'] = True
         # run constructed command
-        #TODO(1.5) p = SCons.Action._subproc(self, command, **kw)
         p = SCons.Action._subproc(self, command, **kw)
         out,err = p.communicate()
         status = p.wait()
@@ -663,15 +660,13 @@ class SubstitutionEnvironment:
             'RPATH'         : [],
         }
 
-        # The use of the "me" parameter to provide our own name for
-        # recursion is an egregious hack to support Python 2.1 and before.
-        def do_parse(arg, me, self = self, dict = dict):
+        def do_parse(arg):
             # if arg is a sequence, recurse with each element
             if not arg:
                 return
 
             if not SCons.Util.is_String(arg):
-                for t in arg: me(t, me)
+                for t in arg: do_parse(t)
                 return
 
             # if arg is a command, execute it
@@ -790,7 +785,7 @@ class SubstitutionEnvironment:
                     dict['CCFLAGS'].append(arg)
     
         for arg in flags:
-            do_parse(arg, do_parse)
+            do_parse(arg)
         return dict
 
     def MergeFlags(self, args, unique=1, dict=None):
@@ -869,17 +864,6 @@ class SubstitutionEnvironment:
 #             else:
 #                 self.AppendENVPath(pathname, pathval)
 
-
-# Used by the FindSourceFiles() method, below.
-# Stuck here for support of pre-2.2 Python versions.
-def build_source(ss, result):
-    for s in ss:
-        if isinstance(s, SCons.Node.FS.Dir):
-            build_source(s.all_children(), result)
-        elif s.has_builder():
-            build_source(s.sources, result)
-        elif isinstance(s.disambiguate(), SCons.Node.FS.File):
-            result.append(s)
 
 def default_decide_source(dependency, target, prev_ni):
     f = SCons.Defaults.DefaultEnvironment().decide_source
@@ -1498,11 +1482,9 @@ class Base(SubstitutionEnvironment):
         for line in lines:
             try:
                 target, depends = line.split(':', 1)
-            except (AttributeError, TypeError, ValueError):
-                # Python 1.5.2 throws TypeError if line isn't a string,
-                # Python 2.x throws AttributeError because it tries
-                # to call line.split().  Either can throw ValueError
-                # if the line doesn't split into two or more elements.
+            except (AttributeError, ValueError):
+                # Throws AttributeError if line isn't a string.  Can throw
+                # ValueError if line doesn't split into two or more elements.
                 pass
             else:
                 tdlist.append((target.split(), depends.split()))
@@ -2140,17 +2122,15 @@ class Base(SubstitutionEnvironment):
         node = self.arg2nodes(node, self.fs.Entry)[0]
 
         sources = []
-        # Uncomment this and get rid of the global definition when we
-        # drop support for pre-2.2 Python versions.
-        #def build_source(ss, result):
-        #    for s in ss:
-        #        if isinstance(s, SCons.Node.FS.Dir):
-        #            build_source(s.all_children(), result)
-        #        elif s.has_builder():
-        #            build_source(s.sources, result)
-        #        elif isinstance(s.disambiguate(), SCons.Node.FS.File):
-        #            result.append(s)
-        build_source(node.all_children(), sources)
+        def build_source(ss):
+            for s in ss:
+                if isinstance(s, SCons.Node.FS.Dir):
+                    build_source(s.all_children())
+                elif s.has_builder():
+                    build_source(s.sources)
+                elif isinstance(s.disambiguate(), SCons.Node.FS.File):
+                    sources.append(s)
+        build_source(node.all_children())
 
     # THIS CODE APPEARS TO HAVE NO EFFECT
     #    # get the final srcnode for all nodes, this means stripping any

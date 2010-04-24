@@ -416,8 +416,6 @@ def get_default_version(env):
         the default version.
     """
     if 'MSVS' not in env or not SCons.Util.is_Dict(env['MSVS']):
-        # TODO(1.5):
-        #versions = [vs.version for vs in get_installed_visual_studios()]
         versions = [vs.version for vs in get_installed_visual_studios()]
         env['MSVS'] = {'VERSIONS' : versions}
     else:
@@ -473,8 +471,6 @@ def msvs_setup_env(env):
         vars = ('LIB', 'LIBPATH', 'PATH', 'INCLUDE')
 
         msvs_list = get_installed_visual_studios()
-        # TODO(1.5):
-        #vscommonvarnames = [ vs.common_tools_var for vs in msvs_list ]
         vscommonvarnames = [vs.common_tools_var for vs in msvs_list]
         nenv = normalize_env(env['ENV'], vscommonvarnames + ['COMSPEC'])
         output = get_output(batfilename, arch, env=nenv)
@@ -487,8 +483,6 @@ def query_versions():
     """Query the system to get available versions of VS. A version is
     considered when a batfile is found."""
     msvs_list = get_installed_visual_studios()
-    # TODO(1.5)
-    #versions = [ msvs.version for msvs in msvs_list ]
     versions = [msvs.version for msvs in msvs_list]
     return versions
 

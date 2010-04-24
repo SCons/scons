@@ -19,8 +19,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -1280,15 +1278,8 @@ class NodeListTestCase(unittest.TestCase):
 
         l = [1]
         ul = collections.UserList([2])
-        try:
-            l.extend(ul)
-        except TypeError:
-            # An older version of Python (*cough* 1.5.2 *cough*)
-            # that doesn't allow UserList objects to extend lists.
-            pass
-        else:
-            s = str(nl)
-            assert s == "['n3', 'n2', 'n1']", s
+        s = str(nl)
+        assert s == "['n3', 'n2', 'n1']", s
 
         r = repr(nl)
         r = re.sub('at (0[xX])?[0-9a-fA-F]+', 'at 0x', r)

@@ -26,11 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 __doc__ = """
 SCons C Pre-Processor module
 """
-
-# TODO(1.5):  remove this import
-# This module doesn't use anything from SCons by name, but we import SCons
-# here to pull in zip() from the SCons.compat layer for early Pythons.
-import SCons
+#TODO 2.3 and before has no sorted()
+import SCons.compat
 
 import os
 import re
@@ -191,9 +188,7 @@ class FunctionEvaluator:
         self.args = function_arg_separator.split(args)
         try:
             expansion = expansion.split('##')
-        except (AttributeError, TypeError):
-            # Python 1.5 throws TypeError if "expansion" isn't a string,
-            # later versions throw AttributeError.
+        except AttributeError:
             pass
         self.expansion = expansion
     def __call__(self, *values):

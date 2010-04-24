@@ -1,7 +1,6 @@
 """SCons.Debug
 
-Code for debugging SCons internal things.  Not everything here is
-guaranteed to work all the way back to Python 1.5.2, and shouldn't be
+Code for debugging SCons internal things.  Shouldn't be
 needed by most users.
 
 """
@@ -34,24 +33,16 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import sys
 import time
-
-# Recipe 14.10 from the Python Cookbook.
-try:
-    import weakref
-except ImportError:
-    def logInstanceCreation(instance, name=None):
-        pass
-else:
-    def logInstanceCreation(instance, name=None):
-        if name is None:
-            name = instance.__class__.__name__
-        if name not in tracked_classes:
-            tracked_classes[name] = []
-        tracked_classes[name].append(weakref.ref(instance))
-
-
+import weakref
 
 tracked_classes = {}
+
+def logInstanceCreation(instance, name=None):
+    if name is None:
+        name = instance.__class__.__name__
+    if name not in tracked_classes:
+        tracked_classes[name] = []
+    tracked_classes[name].append(weakref.ref(instance))
 
 def string_to_classes(s):
     if s == '*':
@@ -93,6 +84,10 @@ if sys.platform[:5] == "linux":
         mstr = open('/proc/self/stat').read()
         mstr = mstr.split()[22]
         return int(mstr)
+elif sys.platform[:6] == 'darwin':
+    #TODO really get memory stats for OS X
+    def memory():
+        return 0
 else:
     try:
         import resource

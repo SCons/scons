@@ -61,23 +61,8 @@ class md5obj:
     def update(self, arg):
         return self.m.update(arg)
 
-    if hasattr(md5.md5(), 'hexdigest'):
-
-        def hexdigest(self):
-            return self.m.hexdigest()
-
-    else:
-
-        # Objects created by the underlying md5 module have no native
-        # hexdigest() method (*cough* 1.5.2 *cough*), so provide an
-        # equivalent lifted from elsewhere.
-        def hexdigest(self):
-            h = hexdigits
-            r = ''
-            for c in self.digest():
-                i = ord(c)
-                r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
-            return r
+    def hexdigest(self):
+        return self.m.hexdigest()
 
 new = md5obj
 

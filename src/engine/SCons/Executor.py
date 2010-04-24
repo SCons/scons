@@ -26,8 +26,6 @@ Nodes.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -237,16 +235,14 @@ class Executor:
         """Returns all targets for all batches of this Executor."""
         result = []
         for batch in self.batches:
-            # TODO(1.5):  remove the list() cast
-            result.extend(list(batch.targets))
+            result.extend(batch.targets)
         return result
 
     def get_all_sources(self):
         """Returns all sources for all batches of this Executor."""
         result = []
         for batch in self.batches:
-            # TODO(1.5):  remove the list() cast
-            result.extend(list(batch.sources))
+            result.extend(batch.sources)
         return result
 
     def get_all_children(self):
@@ -271,8 +267,7 @@ class Executor:
         """
         result = SCons.Util.UniqueList([])
         for target in self.get_all_targets():
-            # TODO(1.5):  remove the list() cast
-            result.extend(list(target.prerequisites))
+            result.extend(target.prerequisites)
         return result
 
     def get_action_side_effects(self):

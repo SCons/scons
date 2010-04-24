@@ -25,8 +25,6 @@ SCons string substitution.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -254,9 +252,6 @@ class Target_or_Source:
 class NullNodeList(SCons.Util.NullSeq):
   def __call__(self, *args, **kwargs): return ''
   def __str__(self): return ''
-  # TODO(1.5):  unneeded after new-style classes introduce iterators
-  def __getitem__(self, i):
-      raise IndexError
 
 NullNodesList = NullNodeList()
 
@@ -505,8 +500,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
             if is_String(args) and not isinstance(args, CmdStringHolder):
                 args = str(args)        # In case it's a UserString.
                 try:
-                    def sub_match(match, conv=self.conv, expand=self.expand, lvars=lvars):
-                        return conv(expand(match.group(1), lvars))
+                    def sub_match(match):
+                        return self.conv(self.expand(match.group(1), lvars))
                     result = _dollar_exps.sub(sub_match, args)
                 except TypeError:
                     # If the internal conversion routine doesn't return

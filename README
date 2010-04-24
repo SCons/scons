@@ -48,7 +48,7 @@ latest version at the SCons download page:
 EXECUTION REQUIREMENTS
 ======================
 
-Running SCons requires Python version 1.5.2 or later.  There should be
+Running SCons requires Python version 2.4 or later.  There should be
 no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
@@ -67,36 +67,7 @@ configuration of Environment construction variables.
 INSTALLATION REQUIREMENTS
 =========================
 
-Building and installing SCons from this package requires the Python
-distutils package.  The distutils package was not shipped as a standard
-part of Python until Python version 1.6, so if your system is running
-Python 1.5.2, you may not have distutils installed.  If you are running
-Python version 1.6 or later, you should be fine.
-
-NOTE TO RED HAT USERS:  Red Hat shipped Python 1.5.2 as the default all
-the way up to Red Hat Linux 7.3, so you probably do *not* have distutils
-installed, unless you have already done so manually or are running Red
-Hat 8.0 or later.
-
-In this case, your options are:
-
-    --  (Optional.)  Install from a pre-packaged SCons package that
-        does not require distutils:
-
-            Red Hat Linux       scons-1.3.0.noarch.rpm
-
-            Debian GNU/Linux    use apt-get to get the official package
-
-            Windows             scons-1.3.0.win32.exe
-
-    --  (Recommended.)  Download the latest distutils package from the
-        following URL:
-
-            http://www.python.org/sigs/distutils-sig/download.html
-
-        Install the distutils according to the instructions on the page.
-        You can then proceed to the next section to install SCons from
-        this package.
+Nothing special.
 
 
 INSTALLATION

@@ -838,19 +838,6 @@
         <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
-      <para>
-
-      If you're using Python version 1.5.2 to run &SCons;,
-      then &SCons; will try to use an external
-      &zip; program as follows:
-
-      </para>
-
-      <screen>
-        % <userinput>scons -Q .</userinput>
-        zip /home/my/project/zip.out file1 file2
-      </screen>
-
     </section>
 
   </section>

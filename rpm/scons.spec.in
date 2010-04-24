@@ -16,7 +16,7 @@ Prefix: %{_prefix}
 BuildArchitectures: noarch
 Vendor: Steven Knight <knight@scons.org>
 Packager: Steven Knight <knight@scons.org>
-Requires: python >= 1.5
+Requires: python >= 2.4
 Url: http://www.scons.org/
 
 %description

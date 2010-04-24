@@ -700,7 +700,7 @@ bling
 
     def test_intern(self):
         s1 = silent_intern("spam")
-        # Python 1.5 and 3.x do not have a unicode() built-in
+        # Python 3.x does not have a unicode() global function
         if sys.version[0] == '2': 
             s2 = silent_intern(unicode("unicode spam"))
         s3 = silent_intern(42)

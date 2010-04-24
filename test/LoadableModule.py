@@ -41,7 +41,6 @@ use_dl_lib = "env.Program(target = 'dlopenprog', source = 'dlopenprog.c', LIBS=[
 
 dlopen_line = {
     'darwin' : no_dl_lib,
-    'darwin8' : no_dl_lib,   # ONLY NEEDED FOR 1.5.2
     'freebsd4' : no_dl_lib,
     'linux2' : use_dl_lib,
 }

@@ -706,21 +706,10 @@ class BuilderTestCase(unittest.TestCase):
         tgt.build()
         assert env['CNT'][0] == 2
         tgts = builder(env, None, infiles[2:4])
-        try:
-            [].extend(collections.UserList())
-        except TypeError:
-            # Old Python version (1.5.2) that can't handle extending
-            # a list with list-like objects.  That means the return
-            # value from the builder call is a real list with Nodes,
-            # and doesn't have a __str__() method that stringifies
-            # the individual elements.  Since we're gong to drop 1.5.2
-            # support anyway, don't bother trying to test for it.
-            pass
-        else:
-            s = list(map(str, tgts))
-            expect = [test.workpath('2.out'), test.workpath('3.out')]
-            expect = list(map(os.path.normcase, expect))
-            assert list(map(os.path.normcase, s)) == expect, s
+        s = list(map(str, tgts))
+        expect = [test.workpath('2.out'), test.workpath('3.out')]
+        expect = list(map(os.path.normcase, expect))
+        assert list(map(os.path.normcase, s)) == expect, s
         for t in tgts: t.prepare()
         tgts[0].build()
         tgts[1].build()

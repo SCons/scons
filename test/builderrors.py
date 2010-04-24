@@ -133,9 +133,8 @@ test.run(status=2, stderr=None)
 
 test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 
-# Python 1.5.2 on a FC3 system doesn't even get to the exitvalmap
-# because it fails with "No such file or directory."  Just comment
-# this out for now, there are plenty of other good tests below.
+#TODO: This was originally commented out because of a problem with 1.5.2,
+# but it doesn't work on later Pythons, either.
 #expected = [
 #    "too long", # posix
 #    "nvalid argument", # win32

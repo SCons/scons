@@ -155,9 +155,6 @@ def _stringSource( target, source, env ):
     return (str(target[0]) + ' <-\n  |' +
             source[0].get_contents().replace( '\n', "\n  |" ) )
 
-# python 2.2 introduces bool
-BooleanTypes = [int, bool]
-
 class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     """
     Special build info for targets of configure tests. Additional members
@@ -783,7 +780,7 @@ class CheckContext:
         string. In case of an integer, the written text will be 'yes' or 'no'.
         The result is only displayed when self.did_show_result is not set.
         """
-        if type(res) in BooleanTypes:
+        if isinstance(res, (int, bool)):
             if res:
                 text = "yes"
             else:

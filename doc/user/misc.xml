@@ -36,10 +36,10 @@
     <para>
 
     Although the &SCons; code itself will run 
-    on any Python version 1.5.2 or later,
+    on any Python version 2.4 or later,
     you are perfectly free to make use of
     Python syntax and modules from more modern versions
-    (for example, Python 2.4 or 2.5)
+    (for example, Python 2.5 or 2.6)
     when writing your &SConscript; files
     or your own local modules.
     If you do this, it's usually helpful to

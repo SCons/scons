@@ -533,9 +533,7 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst('$foo.bar.3.0', env)
         except SCons.Errors.UserError, e:
             expect = [
-                # Python 1.5
-                "SyntaxError `invalid syntax' trying to evaluate `$foo.bar.3.0'",
-                # Python 2.2, 2.3, 2.4
+                # Python 2.3, 2.4
                 "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
                 # Python 2.5
                 "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
@@ -551,7 +549,7 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst("${NONE[2]}", env, gvars={'NONE':None})
         except SCons.Errors.UserError, e:
             expect = [
-                # Python 1.5, 2.2, 2.3, 2.4
+                # Python 2.3, 2.4
                 "TypeError `unsubscriptable object' trying to evaluate `${NONE[2]}'",
                 # Python 2.5 and later
                 "TypeError `'NoneType' object is unsubscriptable' trying to evaluate `${NONE[2]}'",
@@ -566,9 +564,7 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst("${func(1)}", env, gvars={'func':func})
         except SCons.Errors.UserError, e:
             expect = [
-                # Python 1.5
-                "TypeError `not enough arguments; expected 3, got 1' trying to evaluate `${func(1)}'",
-                # Python 2.2, 2.3, 2.4, 2.5
+                # Python 2.3, 2.4, 2.5
                 "TypeError `func() takes exactly 3 arguments (1 given)' trying to evaluate `${func(1)}'"
             ]
             assert str(e) in expect, repr(str(e))

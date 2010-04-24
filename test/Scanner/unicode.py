@@ -48,56 +48,14 @@ test.write('build.py', r"""
 import codecs
 import sys
 
-# TODO(2.2):  Remove when 2.3 becomes the minimal supported version.
-try:
-    codecs.BOM_UTF8
-except AttributeError:
-    codecs.BOM_UTF8 = '\xef\xbb\xbf'
-try:
-    codecs.BOM_UTF16_LE
-    codecs.BOM_UTF16_BE
-except AttributeError:
-    codecs.BOM_UTF16_LE = '\xff\xfe'
-    codecs.BOM_UTF16_BE = '\xfe\xff'
-
-try:
-    ''.decode
-except AttributeError:
-    # 2.0 through 2.2:  strings have no .decode() method
-    try:
-        codecs.lookup('ascii').decode
-    except AttributeError:
-        # 2.0 and 2.1:  encodings are a tuple of functions, and the
-        # decode() function returns a (result, length) tuple.
-        def my_decode(contents, encoding):
-            return codecs.lookup(encoding)[1](contents)[0]
-    else:
-        # 2.2:  encodings are an object with methods, and the .decode()
-        # and .decode() returns just the decoded bytes.
-        def my_decode(contents, encoding):
-            return codecs.lookup(encoding).decode(contents)
-else:
-    # 2.3 or later:  use the .decode() string method
-    def my_decode(contents, encoding):
-        return contents.decode(encoding)
-
 def process(outfp, infile):
     contents = open(infile, 'rb').read()
     if contents.startswith(codecs.BOM_UTF8):
-        contents = contents[len(codecs.BOM_UTF8):]
-        # TODO(2.2):  Remove when 2.3 becomes the minimal supported version.
-        #contents = contents.decode('utf-8')
-        contents = my_decode(contents, 'utf-8')
+        contents = contents[len(codecs.BOM_UTF8):].decode('utf-8')
     elif contents.startswith(codecs.BOM_UTF16_LE):
-        contents = contents[len(codecs.BOM_UTF16_LE):]
-        # TODO(2.2):  Remove when 2.3 becomes the minimal supported version.
-        #contents = contents.decode('utf-16-le')
-        contents = my_decode(contents, 'utf-16-le')
+        contents = contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
     elif contents.startswith(codecs.BOM_UTF16_BE):
-        contents = contents[len(codecs.BOM_UTF16_BE):]
-        # TODO(2.2):  Remove when 2.3 becomes the minimal supported version.
-        #contents = contents.decode('utf-16-be')
-        contents = my_decode(contents, 'utf-16-be')
+        contents = contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
     for line in contents.split('\n')[:-1]:
         if line[:8] == 'include ':
             process(outfp, line[8:])

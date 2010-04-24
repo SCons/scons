@@ -66,8 +66,6 @@
 # output from SCons, and insert it into the text as appropriate.
 # Error output gets passed through to your error output so you
 # can see if there are any problems executing the command.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 import os
 import os.path
@@ -222,10 +220,7 @@ SConscript('SConstruct')
 """
 
 class MySGML(sgmllib.SGMLParser):
-    """A subclass of the standard Python 2.2 sgmllib SGML parser.
-
-    Note that this doesn't work with the 1.5.2 sgmllib module, because
-    that didn't have the ability to work with ENTITY declarations.
+    """A subclass of the standard Python sgmllib SGML parser.
     """
     def __init__(self):
         sgmllib.SGMLParser.__init__(self)

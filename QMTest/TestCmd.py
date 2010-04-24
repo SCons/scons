@@ -213,7 +213,6 @@ version.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 0.37.D001 2010/01/11 16:55:50 knight"
@@ -293,8 +292,6 @@ re_space = re.compile('\s')
 
 _Cleanup = []
 
-_chain_to_exitfunc = None
-
 def _clean():
     global _Cleanup
     cleanlist = [_f for _f in _Cleanup if _f]
@@ -302,20 +299,8 @@ def _clean():
     cleanlist.reverse()
     for test in cleanlist:
         test.cleanup()
-    if _chain_to_exitfunc:
-        _chain_to_exitfunc()
-
-try:
-    import atexit
-except ImportError:
-    # TODO(1.5): atexit requires python 2.0, so chain sys.exitfunc
-    try:
-        _chain_to_exitfunc = sys.exitfunc
-    except AttributeError:
-        pass
-    sys.exitfunc = _clean
-else:
-    atexit.register(_clean)
+import atexit
+atexit.register(_clean)
 
 def _caller(tblist, skip):
     string = ""

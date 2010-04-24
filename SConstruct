@@ -2,8 +2,6 @@
 # SConstruct file to build scons packages during development.
 #
 # See the README file for an overview of how SCons is built and tested.
-#
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 # When this gets changed, you must also change the copyright_years string
 # in QMTest/TestSCons.py so the test scripts look for the right string.

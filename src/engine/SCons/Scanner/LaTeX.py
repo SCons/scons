@@ -57,12 +57,9 @@ def modify_env_var(env, var, abspath):
     env.PrependENVPath(var, abspath)
     try:
         if SCons.Util.is_List(env[var]):
-            #TODO(1.5)
-            #env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
             env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
         else:
             # Split at os.pathsep to convert into absolute path
-            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
             env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
     except KeyError:
         pass
@@ -72,8 +69,6 @@ def modify_env_var(env, var, abspath):
     # does not work, refuses to append ":" (os.pathsep).
 
     if SCons.Util.is_List(env['ENV'][var]):
-        # TODO(1.5)
-        #env['ENV'][var] = os.pathsep.join(env['ENV'][var])
         env['ENV'][var] = os.pathsep.join(env['ENV'][var])
     # Append the trailing os.pathsep character here to catch the case with no env[var]
     env['ENV'][var] = env['ENV'][var] + os.pathsep
@@ -251,10 +246,11 @@ class LaTeX(SCons.Scanner.Base):
         if include[0] == 'includegraphics':
             base, ext = os.path.splitext( filename )
             if ext == "":
-                #TODO(1.5) return [filename + e for e in self.graphics_extensions]
-                #return map(lambda e: filename+e, self.graphics_extensions + TexGraphics)
-                # use the line above to find dependency for PDF builder when only .eps figure is present
-                # Since it will be found if the user tell scons how to make the pdf figure leave it out for now.
+                #return [filename+e for e in self.graphics_extensions + TexGraphics]
+                # use the line above to find dependencies for the PDF builder
+                # when only an .eps figure is present.  Since it will be found
+                # if the user tells scons how to make the pdf figure, leave
+                # it out for now.
                 return [filename+e for e in self.graphics_extensions]
         return [filename]
 
@@ -335,19 +331,11 @@ class LaTeX(SCons.Scanner.Base):
         while queue:
             
             include = queue.pop()
-            # TODO(1.5):  more compact:
-            #try:
-            #    if seen[include[1]] == 1:
-            #        continue
-            #except KeyError:
-            #    seen[include[1]] = 1
             try:
-                already_seen = seen[include[1]]
+                if seen[include[1]] == 1:
+                    continue
             except KeyError:
                 seen[include[1]] = 1
-                already_seen = False
-            if already_seen:
-                continue
 
             #
             # Handle multiple filenames in include[1]

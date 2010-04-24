@@ -15,10 +15,6 @@ import sys
 from Command import CommandRunner, Usage
 
 all_versions = [
-    #'1.5.2',   # no longer available at python.org
-    '2.0.1',
-    '2.1.3',
-    '2.2',
     '2.3.7',
     '2.4.5',
     #'2.5.2',
@@ -89,16 +85,6 @@ Usage:  install_python.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
         tar_gz = os.path.join(downloads_dir, python + '.tgz')
         tar_gz_url = os.path.join(downloads_url, version, python + '.tgz')
 
-        if (version.startswith('1.5') or
-            version.startswith('1.6') or
-            version.startswith('2.0')):
-
-            configureflags = '--with-threads'
-
-        else:
-
-            configureflags = ''
-
         cmd.subst_dictionary(locals())
 
         if not os.path.exists(tar_gz):
@@ -109,17 +95,6 @@ Usage:  install_python.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
         cmd.run('tar zxf %(tar_gz)s')
 
         cmd.run('cd %(python)s')
-
-        if (version.startswith('1.6') or
-            version.startswith('2.0')):
-
-            def edit_modules_setup_in():
-                content = open('Modules/Setup.in', 'r').read()
-                content = content.replace('\n#zlib', '\nzlib')
-                open('Modules/Setup.in', 'w').write(content)
-
-            display = 'ed Modules/Setup.in <<EOF\ns/^#zlib/zlib/\nw\nq\nEOF\n'
-            cmd.run((edit_modules_setup_in,), display)
 
         cmd.run('./configure --prefix=%(prefix)s %(configureflags)s 2>&1 | tee configure.out')
         cmd.run('make 2>&1 | tee make.out')

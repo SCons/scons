@@ -27,7 +27,6 @@ QMTest classes to support SCons' testing and Aegis-inspired workflow.
 
 Thanks to Stefan Seefeld for the initial code.
 """
-from __future__ import generators  ### KEEP FOR COMPATIBILITY FIXERS
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
