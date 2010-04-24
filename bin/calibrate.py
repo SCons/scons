@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import division
 
 import optparse
 import os
@@ -71,7 +72,7 @@ def main(argv=None):
                 good = 0
                 for v in vm.groups():
                     var, value = v.split('=', 1)
-                    value = int((int(value) * opts.max) / elapsed)
+                    value = int((int(value) * opts.max) // elapsed)
                     os.environ[var] = str(value)
             run += 1
 

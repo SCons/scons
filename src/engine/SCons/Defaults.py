@@ -31,13 +31,12 @@ from distutils.msvccompiler.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
-
 import os
-import os.path
 import errno
 import shutil
 import stat
@@ -435,7 +434,7 @@ class Variable_Method_Caller:
         self.variable = variable
         self.method = method
     def __call__(self, *args, **kw):
-        try: 1/0
+        try: 1//0
         except ZeroDivisionError: 
             # Don't start iterating with the current stack-frame to
             # prevent creating reference cycles (f_back is safe).

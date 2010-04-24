@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -969,7 +970,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.exception_set(3)
         assert t.exception == 3
 
-        try: 1/0
+        try: 1//0
         except: pass
         t.exception_set(None)
         exc_type, exc_value, exc_tb = t.exception
@@ -1010,7 +1011,7 @@ class TaskmasterTestCase(unittest.TestCase):
             pass
 
         try:
-            1/0
+            1//0
         except:
             tb = sys.exc_info()[2]
         t.exception_set((Exception3, "arg", tb))

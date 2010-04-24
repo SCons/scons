@@ -13,6 +13,7 @@ attributes defined in this subclass.
 """
 
 # __COPYRIGHT__
+from __future__ import division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -994,13 +995,13 @@ class Stat:
 StatList = [
     Stat('memory-initial', 'kbytes',
          r'Memory before reading SConscript files:\s+(\d+)',
-         convert=lambda s: int(s) / 1024),
+         convert=lambda s: int(s) // 1024),
     Stat('memory-prebuild', 'kbytes',
          r'Memory before building targets:\s+(\d+)',
-         convert=lambda s: int(s) / 1024),
+         convert=lambda s: int(s) // 1024),
     Stat('memory-final', 'kbytes',
          r'Memory after building targets:\s+(\d+)',
-         convert=lambda s: int(s) / 1024),
+         convert=lambda s: int(s) // 1024),
 
     Stat('time-sconscript', 'seconds',
          r'Total SConscript file execution time:\s+([\d.]+) seconds'),

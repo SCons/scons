@@ -29,7 +29,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+from __future__ import division
 from __future__ import nested_scopes
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -120,12 +120,12 @@ class Plotter:
         between 5 and 9 horizontal lines on the graph, on some set of
         boundaries that are multiples of 10/100/1000/etc.
         """
-        i = largest / 5
+        i = largest // 5
         if not i:
             return largest
         multiplier = 1
         while i >= 10:
-            i = i / 10
+            i = i // 10
             multiplier = multiplier * 10
         return i * multiplier
 
@@ -133,7 +133,7 @@ class Plotter:
         # Round up to next integer.
         largest = int(largest) + 1
         increment = self.increment_size(largest)
-        return ((largest + increment - 1) / increment) * increment
+        return ((largest + increment - 1) // increment) * increment
 
 class Line:
     def __init__(self, points, type, title, label, comment, fmt="%s %s"):

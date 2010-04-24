@@ -23,6 +23,7 @@
 #
 # This will allow (as much as possible) us to time just the code itself,
 # not Python function call overhead.
+from __future__ import division
 
 import getopt
 import sys
