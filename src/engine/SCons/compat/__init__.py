@@ -62,29 +62,31 @@ rest of our code will find our pre-loaded compatibility module.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import sys
+import imp   # Use the "imp" module to protect imports from fixers.
+
 def import_as(module, name):
     """
     Imports the specified module (from our local directory) as the
     specified name, returning the loaded module object.
     """
-    import imp
-    import os.path
     dir = os.path.split(__file__)[0]
-    file, filename, suffix_mode_type = imp.find_module(module, [dir])
-    return imp.load_module(name, file, filename, suffix_mode_type)
+    return imp.load_module(name, *imp.find_module(module, [dir]))
+
+def rename_module(new, old):
+    """
+    Attempts to import the old module and load it under the new name.
+    Used for purely cosmetic name changes in Python 3.x.
+    """
+    try:
+        sys.modules[new] = imp.load_module(new, *imp.find_module(old))
+        return True
+    except ImportError:
+        return False
 
 
-try:
-    import builtins
-except ImportError:
-    # Use the "imp" module to protect the import from fixers.
-    import imp
-    import sys
-    _builtin = imp.load_module('__builtin__',
-                               *imp.find_module('__builtin__'))
-    sys.modules['builtins'] = _builtin
-    del _builtin
-
+rename_module('builtins', '__builtin__')
 import _scons_builtins
 
 
@@ -116,8 +118,6 @@ except ImportError:
     # Pre-2.4 Python has no collections module.
     import_as('_scons_collections', 'collections')
 else:
-    # Use the "imp" module to protect the imports below from fixers.
-    import imp
     try:
         collections.UserDict
     except AttributeError:
@@ -159,12 +159,10 @@ except ImportError:
     import_as('_scons_io', 'io')
 
 
-import os
 try:
     os.devnull
 except AttributeError:
     # Pre-2.4 Python has no os.devnull attribute
-    import sys
     _names = sys.builtin_module_names
     if 'posix' in _names:
         os.devnull = '/dev/null'
@@ -185,41 +183,20 @@ except AttributeError:
 # real profile module, whether it's fast or not.
 if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is None:
     # Not a regression test with '-3', so try to use faster version.
-    try:
-        # Use the "imp" module to protect the import from fixers.
-        import imp
-        _cPickle = imp.load_module('cPickle', *imp.find_module('cPickle'))
-    except ImportError, e:
-        # The "cPickle" module has already been eliminated in favor of
-        # having "import pickle" import the fast version when available.
-        pass
-    else:
-        import sys
-        sys.modules['pickle'] = _cPickle
-        del _cPickle
+    # In 3.x, 'pickle' automatically loads the fast version if available.
+    rename_module('pickle', 'cPickle')
 
 
-try:
-    # Use the "imp" module to protect the import from fixers.
-    import imp
-    _cProfile = imp.load_module('cProfile', *imp.find_module('cProfile'))
-except ImportError:
-    # The "cProfile" module has already been eliminated in favor of
-    # having "import profile" import the fast version when available.
-    pass
-else:
-    import sys
-    sys.modules['profile'] = _cProfile
-    del _cProfile
+# In 3.x, 'profile' automatically loads the fast version if available.
+rename_module('profile', 'cProfile')
 
 
-try:
-    import queue
-except ImportError:
-    # Before Python 3.0, the 'queue' module was named 'Queue'.
-    import imp
-    file, filename, suffix_mode_type = imp.find_module('Queue')
-    imp.load_module('queue', file, filename, suffix_mode_type)
+# Before Python 3.0, the 'queue' module was named 'Queue'.
+rename_module('queue', 'Queue')
+
+
+# Before Python 3.0, the 'winreg' module was named '_winreg'
+rename_module('winreg', '_winreg')
 
 
 try:
@@ -228,7 +205,6 @@ except ImportError:
     # Pre-2.4 Python has no subprocess module.
     import_as('_scons_subprocess', 'subprocess')
 
-import sys
 try:
     sys.intern
 except AttributeError:
