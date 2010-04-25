@@ -534,16 +534,16 @@ class Proxy:
 # attempt to load the windows registry module:
 can_read_reg = 0
 try:
-    import _winreg
+    import winreg
 
     can_read_reg = 1
-    hkey_mod = _winreg
+    hkey_mod = winreg
 
-    RegOpenKeyEx    = _winreg.OpenKeyEx
-    RegEnumKey      = _winreg.EnumKey
-    RegEnumValue    = _winreg.EnumValue
-    RegQueryValueEx = _winreg.QueryValueEx
-    RegError        = _winreg.error
+    RegOpenKeyEx    = winreg.OpenKeyEx
+    RegEnumKey      = winreg.EnumKey
+    RegEnumValue    = winreg.EnumValue
+    RegQueryValueEx = winreg.QueryValueEx
+    RegError        = winreg.error
 
 except ImportError:
     try:

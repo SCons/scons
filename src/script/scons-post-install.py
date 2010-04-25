@@ -33,8 +33,17 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
+import os
 import sys
+import imp
+
+try:
+    # Before Python 3.0, the 'winreg' module was named '_winreg'
+    sys.modules['winreg'] = \
+                imp.load_module('winreg', *imp.find_module('_winreg'))
+except ImportError:
+    # No '_winreg' module: either 3.x or not Windows
+    pass
 
 scons_bat_path = os.path.join(sys.prefix, 'Scripts', 'scons.bat')
 
@@ -43,15 +52,15 @@ app_paths_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SCons.bat'
 def install():
     if sys.platform == 'win32':
         try:
-            import _winreg
+            import winreg
         except ImportError:
             pass
         else:
             print 'Writing "App Paths" registry entry for %s' % scons_bat_path
-            _winreg.SetValue(
-                _winreg.HKEY_LOCAL_MACHINE, 
+            winreg.SetValue(
+                winreg.HKEY_LOCAL_MACHINE, 
                 app_paths_key,
-                _winreg.REG_SZ,
+                winreg.REG_SZ,
                 scons_bat_path)
             print 'Done.'
 
@@ -59,12 +68,12 @@ def install():
 def remove():
     if sys.platform == 'win32':
         try:
-            import _winreg
+            import winreg
         except ImportError:
             pass
         else:
             # print 'Remove "App Paths" registry entry'
-            _winreg.DeleteKey(_winreg.HKEY_LOCAL_MACHINE, app_paths_key)
+            winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, app_paths_key)
 
 
 if len(sys.argv) > 1:
