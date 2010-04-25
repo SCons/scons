@@ -80,7 +80,7 @@ def rename_module(new, old):
     Used for purely cosmetic name changes in Python 3.x.
     """
     try:
-        sys.modules[new] = imp.load_module(new, *imp.find_module(old))
+        sys.modules[new] = imp.load_module(old, *imp.find_module(old))
         return True
     except ImportError:
         return False
@@ -137,19 +137,6 @@ else:
                                       *imp.find_module('UserString'))
         collections.UserString = _UserString.UserString
         del _UserString
-
-
-try:
-    import dbm
-except ImportError:
-    dbm = import_as('_scons_dbm', 'dbm')
-try:
-    dbm.whichdb
-except AttributeError:
-    # Pre-3.0 Python has no dbm.whichdb function.
-    import whichdb
-    dbm.whichdb = whichdb.whichdb
-    del whichdb
 
 
 try:

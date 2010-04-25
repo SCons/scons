@@ -72,9 +72,9 @@ assert foo == "subdir/SConscript foo"
 SConscript('SConscript5')
 
 try:
-    from io import UserList
+    from collections import UserList
 except ImportError:
-    from UserList import UserList
+    exec('from UserList import UserList')
 x7 = "SConstruct x7"
 x8 = "SConstruct x8"
 x9 = SConscript('SConscript6', UserList(["x7", "x8"]))

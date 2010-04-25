@@ -36,7 +36,6 @@ __date__ = "__DATE__"
 __developer__ = "__DEVELOPER__"
 
 import os
-import os.path
 import sys
 import time
 
@@ -170,16 +169,14 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import SCons.compat
+import SCons.compat   # so pickle will import cPickle instead
 
-import dbm
-import imp
+import whichdb
 import pickle
+import imp
 
 import SCons.SConsign
 
-# Monkey-patch in a whichdb()-like function so any use of dbm.whichdb()
-# can detect our internal .dblite format,
 def my_whichdb(filename):
     if filename[-7:] == ".dblite":
         return "SCons.dblite"
@@ -191,8 +188,8 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
-_orig_whichdb = dbm.whichdb
-dbm.whichdb = my_whichdb
+_orig_whichdb = whichdb.whichdb
+whichdb.whichdb = my_whichdb
 
 def my_import(mname):
     if '.' in mname:
@@ -499,7 +496,7 @@ if Do_Call:
         Do_Call(a)
 else:
     for a in args:
-        dbm_name = dbm.whichdb(a)
+        dbm_name = whichdb.whichdb(a)
         if dbm_name:
             Map_Module = {'SCons.dblite' : 'dblite'}
             dbm = my_import(dbm_name)

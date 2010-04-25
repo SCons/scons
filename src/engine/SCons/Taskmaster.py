@@ -949,7 +949,7 @@ class Taskmaster:
                 T.write(self.trace_message('       removing node %s from the pending children set\n' %
                         self.trace_node(n)))
         try:
-            while True:
+            while len(to_visit):
                 node = to_visit.pop()
                 node_func(node)
 
