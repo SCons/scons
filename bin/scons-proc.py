@@ -10,12 +10,16 @@
 # and/or .mod files contining the ENTITY definitions for each item,
 # or in man-page-formatted output.
 #
-import getopt
-import os.path
-import re
-import StringIO
+import os
 import sys
+import getopt
+import re
 import xml.sax
+try:
+    from io import StringIO
+except ImportError:
+    # No 'io' module or no StringIO in io
+    exec('from cStringIO import StringIO')
 
 import SConsDoc
 
@@ -100,7 +104,7 @@ for f in args:
         content = content.replace('-->\n', '-->')
         input = xml_preamble + content + xml_postamble
         try:
-            saxparser.parse(StringIO.StringIO(input))
+            saxparser.parse(StringIO(input))
         except:
             sys.stderr.write("error in %s\n" % f)
             raise

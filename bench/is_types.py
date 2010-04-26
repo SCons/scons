@@ -5,9 +5,13 @@
 # src/engine/SCons/Util.py.
 
 import types
-from UserDict import UserDict
-from UserList import UserList
-from UserString import UserString
+try:
+    from collections import UserDict, UserList, UserString
+except ImportError:
+    # No 'collections' module or no UserFoo in collections
+    exec('from UserDict import UserDict')
+    exec('from UserList import UserList')
+    exec('from UserString import UserString')
 
 InstanceType = types.InstanceType
 DictType = dict
@@ -25,19 +29,17 @@ else:
 # User* type.
 
 def original_is_Dict(e):
-    return isinstance(e, dict) or isinstance(e, UserDict)
+    return isinstance(e, (dict,UserDict))
 
 def original_is_List(e):
-    return isinstance(e, list) or isinstance(e, UserList)
+    return isinstance(e, (list,UserList))
 
 if UnicodeType is not None:
     def original_is_String(e):
-        return isinstance(e, str) \
-            or isinstance(e, unicode) \
-            or isinstance(e, UserString)
+        return isinstance(e, (str,unicode,UserString))
 else:
     def original_is_String(e):
-        return isinstance(e, str) or isinstance(e, UserString)
+        return isinstance(e, (str,UserString))
 
 
 
