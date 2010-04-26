@@ -95,10 +95,13 @@ __version__ = "0.37"
 
 import copy
 import os
-import os.path
 import stat
 import sys
-import UserList
+try:
+    from collections import UserList
+except ImportError:
+    # no 'collections' module or no UserList in collections
+    exec('from UserList import UserList')
 
 from TestCmd import *
 from TestCmd import __all__
@@ -171,8 +174,7 @@ else:
     dll_suffix   = '.so'
 
 def is_List(e):
-    return isinstance(e, list) \
-        or isinstance(e, UserList.UserList)
+    return isinstance(e, (list,UserList))
 
 def is_writable(f):
     mode = os.stat(f)[stat.ST_MODE]

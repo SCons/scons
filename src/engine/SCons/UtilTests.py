@@ -25,12 +25,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
-import collections
 import io
 import os
 import sys
 import unittest
-
+from collections import UserDict, UserList, UserString
 
 import TestCmd
 
@@ -38,7 +37,7 @@ import SCons.Errors
 
 from SCons.Util import *
 
-try: unicode
+try: eval('unicode')
 except NameError: HasUnicode = False
 else:             HasUnicode = True
 
@@ -207,7 +206,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_Dict(self):
         assert is_Dict({})
-        assert is_Dict(collections.UserDict())
+        assert is_Dict(UserDict())
         try:
             class mydict(dict):
                 pass
@@ -223,8 +222,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_List(self):
         assert is_List([])
-        import UserList
-        assert is_List(collections.UserList())
+        assert is_List(UserList())
         try:
             class mylist(list):
                 pass
@@ -242,12 +240,7 @@ class UtilTestCase(unittest.TestCase):
         assert is_String("")
         if HasUnicode:
             exec "assert is_String(u'')"
-        try:
-            import UserString
-        except:
-            pass
-        else:
-            assert is_String(collections.UserString(''))
+        assert is_String(UserString(''))
         try:
             class mystr(str):
                 pass
@@ -280,27 +273,22 @@ class UtilTestCase(unittest.TestCase):
         assert to_String([ 1, 2, 3]) == str([1, 2, 3]), to_String([1,2,3])
         assert to_String("foo") == "foo", to_String("foo")
 
-        try:
-            import UserString
+        s1=UserString('blah')
+        assert to_String(s1) == s1, s1
+        assert to_String(s1) == 'blah', s1
 
-            s1=collections.UserString('blah')
-            assert to_String(s1) == s1, s1
-            assert to_String(s1) == 'blah', s1
-
-            class Derived(collections.UserString):
-                pass
-            s2 = Derived('foo')
-            assert to_String(s2) == s2, s2
-            assert to_String(s2) == 'foo', s2
-
-            if HasUnicode:
-                s3=collections.UserString(unicode('bar'))
-                assert to_String(s3) == s3, s3
-                assert to_String(s3) == unicode('bar'), s3
-                assert isinstance(to_String(s3), unicode), \
-                       type(to_String(s3))
-        except ImportError:
+        class Derived(UserString):
             pass
+        s2 = Derived('foo')
+        assert to_String(s2) == s2, s2
+        assert to_String(s2) == 'foo', s2
+
+        if HasUnicode:
+            s3=UserString(unicode('bar'))
+            assert to_String(s3) == s3, s3
+            assert to_String(s3) == unicode('bar'), s3
+            assert isinstance(to_String(s3), unicode), \
+                   type(to_String(s3))
 
         if HasUnicode:
             s4 = unicode('baz')
@@ -618,7 +606,7 @@ class UtilTestCase(unittest.TestCase):
         s['c'] = 'CCC'
         assert s['c'] == 'CCC', s['c']
 
-        class DummyEnv(collections.UserDict):
+        class DummyEnv(UserDict):
             def subst(self, key):
                 if key[0] == '$':
                     return self[key[1:]]

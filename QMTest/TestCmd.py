@@ -228,7 +228,12 @@ import sys
 import tempfile
 import time
 import traceback
-import UserList
+try:
+    from collections import UserList, UserString
+except ImportError:
+    # no 'collections' module or no UserFoo in collections
+    exec('from UserList import UserList')
+    exec('from UserString import UserString')
 
 try:
     # pre-2.7 doesn't have the memoryview() built-in
@@ -264,24 +269,15 @@ except ImportError:
     __all__.append('simple_diff')
 
 def is_List(e):
-    return isinstance(e, list) \
-        or isinstance(e, UserList.UserList)
+    return isinstance(e, (list,UserList))
 
-try:
-    from UserString import UserString
-except ImportError:
-    class UserString:
-        pass
-
-try: unicode
+try: eval('unicode')
 except NameError:
     def is_String(e):
-        return isinstance(e, str) or isinstance(e, UserString)
+        return isinstance(e, (str,UserString))
 else:
     def is_String(e):
-        return isinstance(e, str) \
-            or isinstance(e, unicode) \
-            or isinstance(e, UserString)
+        return isinstance(e, (str,unicode,UserString))
 
 tempfile.template = 'testcmd.'
 if os.name in ('posix', 'nt'):
