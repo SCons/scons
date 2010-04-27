@@ -39,6 +39,19 @@ except ImportError:
     # No 'cStringIO' assume new 3.x structure
     from io import StringIO
 
+try:
+    import io
+except (ImportError, AttributeError):
+    # Pre-2.6 Python has no "io" module.
+    import StringIO
+    StringIOClass = StringIO.StringIO
+else:
+    # TODO(2.6):  The 2.6 io.StringIO.write() method requires unicode strings.
+    # This subclass can be removed when we drop support for Python 2.6.
+    class StringIOClass(io.StringIO):
+        def write(self, s):
+            super(io.StringIO, self).write(unicode(s))
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -61,7 +74,7 @@ test.must_contain_all_lines(test.stdout(), ['usage: scons [OPTION]'])
 
 try:
     save_stdout = sys.stdout
-    sys.stdout = StringIO()
+    sys.stdout = StringIOClass()
 
     stats = pstats.Stats(scons_prof)
     stats.sort_stats('time')
@@ -82,7 +95,7 @@ test.run(arguments = "--profile %s" % scons_prof)
 
 try:
     save_stdout = sys.stdout
-    sys.stdout = StringIO()
+    sys.stdout = StringIOClass()
 
     stats = pstats.Stats(scons_prof)
     stats.sort_stats('time')
