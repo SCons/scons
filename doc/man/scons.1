@@ -2268,11 +2268,13 @@ and
 Builders by adding them
 to the
 .B SourceFileScanner
-object as follows:
-
+object.
 See the section "Scanner Objects,"
-below, for a more information about
-defining your own Scanner objects.
+below, for more information about
+defining your own Scanner objects
+and using the
+.B SourceFileScanner
+object.
 
 .SS Methods and Functions to Do Things
 In addition to Builder methods,
@@ -9370,7 +9372,9 @@ You can use the
 function to define
 objects to scan
 new file types for implicit dependencies.
-Scanner accepts the following arguments:
+The
+.B Scanner
+function accepts the following arguments:
 
 .IP function
 This can be either:
@@ -9521,6 +9525,7 @@ that should be scanned recursively;
 this can be used to select a specific subset of
 Nodes for additional scanning.
 
+.RE
 Note that
 .B scons
 has a global
