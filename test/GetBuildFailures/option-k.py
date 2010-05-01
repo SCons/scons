@@ -23,7 +23,7 @@
 #
 
 """
-Verify that a failed build action with -j works as expected.
+Verify that a failed build action with -k works as expected.
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -90,16 +90,14 @@ scons: *** [f4] Error 1
 scons: *** [f5] Error 1
 """
 
-test.run(arguments = '-k .',
-         status = 2,
-         stdout = expect_stdout,
-         stderr = expect_stderr)
+test.run(arguments = '-k .', status = 2, stdout=None, stderr=None)
+test.exactly_contain_all_lines(test.stdout(), expect_stdout, title='stdout')
+test.exactly_contain_all_lines(test.stderr(), expect_stderr, title='stderr')
 
 test.must_match(test.workpath('f3'), 'f3.in\n')
 test.must_not_exist(test.workpath('f4'))
 test.must_not_exist(test.workpath('f5'))
 test.must_match(test.workpath('f6'), 'f6.in\n') 
-
 
 
 test.pass_test()
