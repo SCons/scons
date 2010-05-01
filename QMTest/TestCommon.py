@@ -40,6 +40,8 @@ provided by the TestCommon class:
 
     test.must_contain_any_line(output, lines, ['title', find])
 
+    test.exactly_contain_all_lines(output, lines, ['title', find])
+
     test.must_exist('file1', ['file2', ...])
 
     test.must_match('file', "expected contents\n")
@@ -302,6 +304,56 @@ class TestCommon(TestCmd):
             sys.stdout.write('    ' + repr(line) + '\n')
         sys.stdout.write(self.banner(title + ' '))
         sys.stdout.write(output)
+        self.fail_test()
+
+    def exactly_contain_all_lines(self, output, expect, title=None, find=None):
+        """Ensures that the specified output string (first argument)
+        contains all of the lines in the expected string (second argument)
+        with none left over.
+
+        An optional third argument can be used to describe the type
+        of output being searched, and only shows up in failure output.
+
+        An optional fourth argument can be used to supply a different
+        function, of the form "find(line, output), to use when searching
+        for lines in the output.
+        """
+        out = output.splitlines()
+        exp = expect.splitlines()
+        if sorted(out) == sorted(exp):
+            # early out for exact match
+            return
+        if find is None:
+            def find(o, l):
+                try:
+                    return o.index(l)
+                except:
+                    return None
+        missing = []
+        for line in exp:
+            found = find(out, line)
+            if found is None:
+                missing.append(line)
+            else:
+                out.pop(found)
+
+        if not missing and not out:
+            # all lines were matched
+            return
+
+        if title is None:
+            title = 'output'
+        if missing:
+            sys.stdout.write("Missing expected lines from %s:\n" % title)
+            for line in missing:
+                sys.stdout.write('    ' + repr(line) + '\n')
+            sys.stdout.write(self.banner('missing %s ' % title))
+        if out:
+            sys.stdout.write("Extra unexpected lines from %s:\n" % title)
+            for line in out:
+                sys.stdout.write('    ' + repr(line) + '\n')
+            sys.stdout.write(self.banner('extra %s ' % title))
+        sys.stdout.flush()
         self.fail_test()
 
     def must_contain_lines(self, lines, output, title=None):
