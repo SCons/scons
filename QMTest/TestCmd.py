@@ -240,12 +240,11 @@ try:
     memoryview
 except NameError:
     class memoryview:
-        from types import SliceType
         def __init__(self, obj):
             # wrapping buffer in () keeps the fixer from changing it
             self.obj = (buffer)(obj)
         def __getitem__(self, indx):
-            if isinstance(indx, self.SliceType):
+            if isinstance(indx, slice):
                 return self.obj[indx.start:indx.stop]
             else:
                 return self.obj[indx]
