@@ -7,11 +7,63 @@
                             Change Log
 
 
-RELEASE X.X.X - 
+RELEASE X.X.X -
 
   From Dirk Baechle:
 
     - Fix XML in documentation.
+
+  From Steven Knight:
+
+    - Provide forward compatibility for the 'profile' module.
+
+    - Provide forward compatibility for the 'pickle' module.
+
+    - Provide forward compatibility for the 'io' module.
+
+    - Provide forward compatibility for the 'queue' module.
+
+    - Provide forward compatibility for the 'collections' module.
+
+    - Provide forward compatibility for the 'builtins' module.
+
+    - Provide forward compatibility for 'sys.intern()'.
+
+    - Convert to os.walk() from of os.path.walk().
+
+    - Remove compatibility logic no longer needed.
+
+    - Add a '-3' option to runtest to print 3.x incompatibility warnings.
+
+  From Greg Noel:
+
+    - Apply numerous Python fixers to update code to more modern idioms.
+      Find where fixers should be applied to code in test strings and
+      apply the fixers there, too.
+
+    - Write a fixer to convert string functions to string methods.
+
+    - Modify the 'dict' fixer to be less conservative.
+
+    - Modify the 'apply' fixer to handle more cases.
+
+    - Create a modified 'types' fixer that converts types to 2.x
+      equivalents rather than 3.x equivalents.
+
+    - Write a 'division' fixer to highlight uses of the old-style
+      division operator.  Correct usage where needed.
+
+    - Add forward compatibility for the new 'memoryview' function
+      (which replaces the 'buffer' function).
+
+    - Add forward compatibility for the 'winreg' module.
+
+    - Remove no-longer-needed 'platform' module.
+
+    - Run tests with the '-3' option to Python 2.6 and clear up
+      various reported incompatibilities.
+
+    - Comb out code paths specialized to Pythons older than 2.4.
 
 
 RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400
@@ -48,9 +100,9 @@ RELEASE 1.2.0.d20100306 - Sat, 06 Mar 2010 16:18:33 -0800
       file foo.tex. The builder now ignores a directory and continues
       searching to find the correct file. Thanks to Lennart Sauerbeck
       for the test case and initial patch
-      
+
       Also allow the \include of files in subdirectories when variantDir
-      is used with duplicate=0. Previously latex would crash since 
+      is used with duplicate=0. Previously latex would crash since
       the directory in which the .aux file is written was not created.
       Thanks to Stefan Hepp for finding this and part of the solution.
 
@@ -62,7 +114,7 @@ RELEASE 1.2.0.d20100306 - Sat, 06 Mar 2010 16:18:33 -0800
       installations, as well as having only the SDK installed.
 
 
-RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800  
+RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
 
   From Jim Randall:
     - Fixed temp filename race condition on Windows with long cmd lines.
