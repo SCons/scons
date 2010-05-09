@@ -8,7 +8,7 @@
 copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'January 2010'
+month_year = 'May 2010'
 
 #
 # __COPYRIGHT__
@@ -43,7 +43,7 @@ import sys
 import tempfile
 
 project = 'scons'
-default_version = '1.3.0'
+default_version = '2.0.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
@@ -154,10 +154,10 @@ checkpoint = ARGUMENTS.get('CHECKPOINT', '')
 if checkpoint:
     if checkpoint == 'd':
         import time
-        checkpoint = time.strftime('d%Y%m%d', time.localtime(time.time()))
+        checkpoint = time.strftime('%Y%m%d', time.localtime(time.time()))
     elif checkpoint == 'r':
         checkpoint = 'r' + revision
-    version = version + '.' + checkpoint
+    version = version + '.alpha.' + checkpoint
 
 build_id = ARGUMENTS.get('BUILD_ID')
 if build_id is None:

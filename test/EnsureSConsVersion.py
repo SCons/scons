@@ -50,7 +50,7 @@ Exit(0)
 
     test.write('SConstruct', """\
 env = Environment()
-env.EnsureSConsVersion(2,0)
+env.EnsureSConsVersion(3,0)
 Exit(0)
 """)
 
