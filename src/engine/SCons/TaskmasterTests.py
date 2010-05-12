@@ -40,7 +40,7 @@ visited_nodes = []
 executed = None
 scan_called = 0
 
-class Node:
+class Node(object):
     def __init__(self, name, kids = [], scans = []):
         self.name = name
         self.kids = kids
@@ -50,7 +50,7 @@ class Node:
         self.scanner = None
         self.targets = [self]
         self.prerequisites = []
-        class Builder:
+        class Builder(object):
             def targets(self, node):
                 return node.targets
         self.builder = Builder()
@@ -170,7 +170,7 @@ class Node:
 
     def get_executor(self):
         if not hasattr(self, 'executor'):
-            class Executor:
+            class Executor(object):
                 def prepare(self):
                     pass
                 def get_action_targets(self):
@@ -832,7 +832,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n10.prepared
 
         # Make sure we call an Executor's prepare() method.
-        class ExceptionExecutor:
+        class ExceptionExecutor(object):
             def prepare(self):
                 raise Exception("Executor.prepare() exception")
             def get_all_targets(self):

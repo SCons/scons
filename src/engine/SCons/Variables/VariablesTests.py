@@ -32,7 +32,7 @@ import SCons.Subst
 import SCons.Warnings
 
 
-class Environment:
+class Environment(object):
     def __init__(self):
         self.dict = {}
     def subst(self, x):
@@ -380,7 +380,7 @@ class VariablesTestCase(unittest.TestCase):
                                 'OPT_BOOL_2' : 2})
 
         # Test against some old bugs
-        class Foo:
+        class Foo(object):
             def __init__(self, x):
                 self.x = x
             def __str__(self):

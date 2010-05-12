@@ -32,11 +32,11 @@ import SCons.dblite
 
 import SCons.SConsign
 
-class BuildInfo:
+class BuildInfo(object):
     def merge(self, object):
         pass
 
-class DummySConsignEntry:
+class DummySConsignEntry(object):
     def __init__(self, name):
         self.name = name
         self.binfo = BuildInfo()
@@ -45,12 +45,12 @@ class DummySConsignEntry:
     def convert_from_sconsign(self, dir, name):
         self.c_from_s = 1
 
-class FS:
+class FS(object):
     def __init__(self, top):
         self.Top = top
         self.Top.repositories = []
 
-class DummyNode:
+class DummyNode(object):
     def __init__(self, path='not_a_valid_path', binfo=None):
         self.path = path
         self.tpath = path
@@ -309,7 +309,7 @@ class SConsignFileTestCase(SConsignTestCase):
         assert SCons.SConsign.DB_Name is file, SCons.SConsign.DB_Name
         assert SCons.SConsign.DB_Module is None, SCons.SConsign.DB_Module
 
-        class Fake_DBM:
+        class Fake_DBM(object):
             def open(self, name, mode):
                 self.name = name
                 self.mode = mode
@@ -343,7 +343,7 @@ class writeTestCase(SConsignTestCase):
         test = self.test
         file = test.workpath('sconsign_file')
 
-        class Fake_DBM:
+        class Fake_DBM(object):
             def __getitem__(self, key):
                 return None
             def __setitem__(self, key, value):

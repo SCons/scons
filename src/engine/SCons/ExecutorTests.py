@@ -29,7 +29,7 @@ import unittest
 import SCons.Executor
 
 
-class MyEnvironment:
+class MyEnvironment(object):
     def __init__(self, **kw):
         self._dict = {}
         self._dict.update(kw)
@@ -42,7 +42,7 @@ class MyEnvironment:
     def _update(self, dict):
         self._dict.update(dict)
 
-class MyAction:
+class MyAction(object):
     def __init__(self, actions=['action1', 'action2']):
         self.actions = actions
     def __call__(self, target, source, env, **kw):
@@ -55,13 +55,13 @@ class MyAction:
     def get_implicit_deps(self, target, source, env):
         return []
 
-class MyBuilder:
+class MyBuilder(object):
     def __init__(self, env, overrides):
         self.env = env
         self.overrides = overrides
         self.action = MyAction()
 
-class MyNode:
+class MyNode(object):
     def __init__(self, name=None, pre=[], post=[]):
         self.name = name
         self.implicit = []
@@ -92,7 +92,7 @@ class MyNode:
     def disambiguate(self):
         return self
 
-class MyScanner:
+class MyScanner(object):
     def __init__(self, prefix):
         self.prefix = prefix
     def path(self, env, cwd, target, source):
@@ -181,7 +181,7 @@ class ExecutorTestCase(unittest.TestCase):
                                     [t],
                                     ['s1', 's2'])
 
-        class LocalScanner:
+        class LocalScanner(object):
             def path(self, env, dir, target, source):
                 target = list(map(str, target))
                 source = list(map(str, source))

@@ -207,7 +207,7 @@ test.write(['modules', 'use.mod'], "\n")
 
 # define some helpers:
 
-class DummyEnvironment:
+class DummyEnvironment(object):
     def __init__(self, listCppPath):
         self.path = listCppPath
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -390,7 +390,7 @@ class FortranScannerTestCase10(unittest.TestCase):
 class FortranScannerTestCase11(unittest.TestCase):
     def runTest(self):
         SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
-        class TestOut:
+        class TestOut(object):
             def __call__(self, x):
                 self.out = x
 

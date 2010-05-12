@@ -175,7 +175,7 @@ class SConfTestCase(unittest.TestCase):
                 self.prefix = ''
                 self.suffix = ''
             def __call__(self, env, target, source):
-                class MyNode:
+                class MyNode(object):
                     def __init__(self, name):
                         self.name = name
                         self.state = None
@@ -222,7 +222,7 @@ class SConfTestCase(unittest.TestCase):
                     def do_not_store_info(self):
                         pass
                     def get_executor(self):
-                        class Executor:
+                        class Executor(object):
                             def __init__(self, targets):
                                 self.targets = targets
                             def get_all_targets(self):

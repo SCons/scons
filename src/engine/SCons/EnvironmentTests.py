@@ -100,7 +100,7 @@ class Builder(SCons.Builder.BuilderBase):
 
 scanned_it = {}
 
-class Scanner:
+class Scanner(object):
     """A dummy Scanner class for testing purposes.  "Scanning"
     a target is simply setting a value in the dictionary.
     """
@@ -140,7 +140,7 @@ class CLVar(UL):
 
 
 
-class DummyNode:
+class DummyNode(object):
     def __init__(self, name):
         self.name = name
     def __str__(self):
@@ -153,7 +153,7 @@ class DummyNode:
 def test_tool( env ):
     env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
 
-class TestEnvironmentFixture:
+class TestEnvironmentFixture(object):
     def TestEnvironment(self, *args, **kw):
         if not kw or 'tools' not in kw:
             kw['tools'] = [test_tool]
@@ -295,7 +295,7 @@ class SubstitutionTestCase(unittest.TestCase):
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], SConsNode), node
 
-        class OtherNode:
+        class OtherNode(object):
             pass
         nodes = env.arg2nodes(OtherNode())
         assert len(nodes) == 1, nodes
@@ -537,13 +537,13 @@ class SubstitutionTestCase(unittest.TestCase):
     def test_subst_path(self):
         """Test substituting a path list
         """
-        class MyProxy:
+        class MyProxy(object):
             def __init__(self, val):
                 self.val = val
             def get(self):
                 return self.val + '-proxy'
 
-        class MyNode:
+        class MyNode(object):
             def __init__(self, val):
                 self.val = val
             def get_subst_proxy(self):
@@ -551,7 +551,7 @@ class SubstitutionTestCase(unittest.TestCase):
             def __str__(self):
                 return self.val
 
-        class MyObj:
+        class MyObj(object):
             def get(self):
                 return self
 
@@ -583,7 +583,7 @@ class SubstitutionTestCase(unittest.TestCase):
         r = env.subst_path(['$PROXY', MyProxy('my2'), n])
         assert r == ['my1-proxy', 'my2-proxy', n], r
 
-        class StringableObj:
+        class StringableObj(object):
             def __init__(self, s):
                 self.s = s
             def __str__(self):
@@ -904,7 +904,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
     def test_variables(self):
         """Test that variables only get applied once."""
-        class FakeOptions:
+        class FakeOptions(object):
             def __init__(self, key, val):
                 self.calls = 0
                 self.key = key
@@ -1305,7 +1305,7 @@ env4.builder1.env, env3)
 
     def test_platform(self):
         """Test specifying a platform callable when instantiating."""
-        class platform:
+        class platform(object):
             def __str__(self):        return "TestPlatform"
             def __call__(self, env):  env['XYZZY'] = 777
 
@@ -1320,7 +1320,7 @@ env4.builder1.env, env3)
 
     def test_Default_PLATFORM(self):
         """Test overriding the default PLATFORM variable"""
-        class platform:
+        class platform(object):
             def __str__(self):        return "DefaultTestPlatform"
             def __call__(self, env):  env['XYZZY'] = 888
 
@@ -1591,7 +1591,7 @@ def exists(env):
         assert isinstance(result, CLVar), repr(result)
         assert result == ['foo', 'bar'], result
 
-        class C:
+        class C(object):
             def __init__(self, name):
                 self.name = name
             def __str__(self):
@@ -1742,7 +1742,7 @@ def exists(env):
 
         # Ensure that lists and dictionaries are
         # deep copied, but not instances.
-        class TestA:
+        class TestA(object):
             pass
         env1 = self.TestEnvironment(XXX=TestA(), YYY = [ 1, 2, 3 ],
                            ZZZ = { 1:2, 3:4 })
@@ -1978,7 +1978,7 @@ def generate(env):
                           RPATH=[])
 
         orig_backtick = env.backtick
-        class my_backtick:
+        class my_backtick(object):
             def __init__(self, save_command, output):
                 self.save_command = save_command
                 self.output = output
@@ -2671,7 +2671,7 @@ def generate(env):
 
     def test_VariantDir(self):
         """Test the VariantDir() method"""
-        class MyFS:
+        class MyFS(object):
              def Dir(self, name):
                  return name
              def VariantDir(self, variant_dir, src_dir, duplicate):
@@ -2859,7 +2859,7 @@ def generate(env):
 
     def test_Dir(self):
         """Test the Dir() method"""
-        class MyFS:
+        class MyFS(object):
             def Dir(self, name):
                 return 'Dir(%s)' % name
 
@@ -2922,7 +2922,7 @@ def generate(env):
     def test_Execute(self):
         """Test the Execute() method"""
 
-        class MyAction:
+        class MyAction(object):
             def __init__(self, *args, **kw):
                 self.args = args
             def __call__(self, target, source, env):
@@ -2936,7 +2936,7 @@ def generate(env):
 
     def test_Entry(self):
         """Test the Entry() method"""
-        class MyFS:
+        class MyFS(object):
             def Entry(self, name):
                 return 'Entry(%s)' % name
 
@@ -2960,7 +2960,7 @@ def generate(env):
 
     def test_File(self):
         """Test the File() method"""
-        class MyFS:
+        class MyFS(object):
             def File(self, name):
                 return 'File(%s)' % name
 
@@ -3085,7 +3085,7 @@ def generate(env):
 
     def test_Repository(self):
         """Test the Repository() method."""
-        class MyFS:
+        class MyFS(object):
             def __init__(self):
                 self.list = []
             def Repository(self, *dirs):
@@ -3123,7 +3123,7 @@ def generate(env):
         """Test the SConsignFile() method"""
         import SCons.SConsign
 
-        class MyFS:
+        class MyFS(object):
             SConstruct_dir = os.sep + 'dir'
 
         env = self.TestEnvironment(FOO = 'SConsign',
