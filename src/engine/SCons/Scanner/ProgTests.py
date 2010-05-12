@@ -43,7 +43,7 @@ for h in libs:
 
 # define some helpers:
 
-class DummyEnvironment:
+class DummyEnvironment(object):
     def __init__(self, **kw):
         self._dict = {'LIBSUFFIXES' : '.lib'}
         self._dict.update(kw)
@@ -91,7 +91,7 @@ class DummyEnvironment:
     def File(self, filename):
         return self.fs.File(test.workpath(filename))
 
-class DummyNode:
+class DummyNode(object):
     def __init__(self, name):
         self.name = name
     def rexists(self):

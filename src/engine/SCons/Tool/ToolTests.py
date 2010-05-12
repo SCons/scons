@@ -32,7 +32,7 @@ import SCons.Tool
 class ToolTestCase(unittest.TestCase):
     def test_Tool(self):
         """Test the Tool() function"""
-        class Environment:
+        class Environment(object):
             def __init__(self):
                 self.dict = {}
             def Detect(self, progs):

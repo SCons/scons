@@ -41,7 +41,7 @@ try: eval('unicode')
 except NameError: HasUnicode = False
 else:             HasUnicode = True
 
-class OutBuffer:
+class OutBuffer(object):
     def __init__(self):
         self.buffer = ""
 
@@ -66,7 +66,7 @@ class UtilTestCase(unittest.TestCase):
         assert splitext('foo.bar') == ('foo','.bar')
         assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'),'')
 
-    class Node:
+    class Node(object):
         def __init__(self, name, children=[]):
             self.children = children
             self.name = name
@@ -390,7 +390,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_Proxy(self):
         """Test generic Proxy class."""
-        class Subject:
+        class Subject(object):
             def foo(self):
                 return 1
             def bar(self):
@@ -586,7 +586,7 @@ class UtilTestCase(unittest.TestCase):
     def test_Selector(self):
         """Test the Selector class"""
 
-        class MyNode:
+        class MyNode(object):
             def __init__(self, name):
                 self.name = name
                 self.suffix = os.path.splitext(name)[1]
@@ -718,7 +718,7 @@ class MD5TestCase(unittest.TestCase):
 class NodeListTestCase(unittest.TestCase):
     def test_simple_attributes(self):
         """Test simple attributes of a NodeList class"""
-        class TestClass:
+        class TestClass(object):
             def __init__(self, name, child=None):
                 self.child = child
                 self.bar = name
@@ -734,7 +734,7 @@ class NodeListTestCase(unittest.TestCase):
 
     def test_callable_attributes(self):
         """Test callable attributes of a NodeList class"""
-        class TestClass:
+        class TestClass(object):
             def __init__(self, name, child=None):
                 self.child = child
                 self.bar = name

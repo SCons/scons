@@ -51,7 +51,7 @@ class ValueTestCase(unittest.TestCase):
     def test_build(self):
         """Test "building" a Value Node
         """
-        class fake_executor:
+        class fake_executor(object):
             def __call__(self, node):
                 node.write('faked')
 

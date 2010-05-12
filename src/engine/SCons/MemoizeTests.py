@@ -30,7 +30,7 @@ import SCons.Memoize
 
 
 
-class FakeObject:
+class FakeObject(object):
 
     __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
@@ -85,7 +85,7 @@ class FakeObject:
                 return mc
         return  None
 
-class Returner:
+class Returner(object):
     def __init__(self, result):
         self.result = result
         self.calls = 0

@@ -356,7 +356,7 @@ regdata_cv = r'''[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion]
 
 regdata_none = []
 
-class DummyEnv:
+class DummyEnv(object):
     def __init__(self, dict=None):
         if dict:
             self.dict = dict
@@ -377,14 +377,14 @@ class DummyEnv:
     def has_key(self,name):
         return name in self.dict
 
-class RegKey:
+class RegKey(object):
     """key class for storing an 'open' registry key"""
     def __init__(self,key):
         self.key = key
 
 # Warning: this is NOT case-insensitive, unlike the Windows registry.
 # So e.g. HKLM\Software is NOT the same key as HKLM\SOFTWARE.
-class RegNode:
+class RegNode(object):
     """node in the dummy registry"""
     def __init__(self,name):
         self.valdict = {}
@@ -459,7 +459,7 @@ class RegNode:
             rv = rv + indent + '}\n'
         return rv
 
-class DummyRegistry:
+class DummyRegistry(object):
     """registry class for storing fake registry attributes"""
     def __init__(self,data):
         """parse input data into the fake registry"""
