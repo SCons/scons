@@ -44,7 +44,7 @@ built_it = None
 
 scanner_count = 0
 
-class Scanner:
+class Scanner(object):
     def __init__(self, node=None):
         global scanner_count
         scanner_count = scanner_count + 1
@@ -61,7 +61,7 @@ class Scanner:
     def recurse_nodes(self, nodes):
         return nodes
 
-class Environment:
+class Environment(object):
     def __init__(self):
         self.scanner = Scanner()
     def Dictionary(self, *args):
@@ -75,7 +75,7 @@ class Environment:
     def _update(self, dict):
         pass
 
-class Action:
+class Action(object):
     def __call__(self, targets, sources, env, **kw):
         global built_it
         if kw.get('execute', 1):
@@ -92,7 +92,7 @@ class Action:
     def get_implicit_deps(self, target, source, env):
         return []
 
-class Builder:
+class Builder(object):
     def __init__(self, factory, action=Action()):
         self.factory = factory
         self.env = Environment()
@@ -429,7 +429,7 @@ class VariantDirTestCase(unittest.TestCase):
         assert r == d1, "%s != %s" % (r, d1)
 
         # verify the link creation attempts in file_link()
-        class LinkSimulator :
+        class LinkSimulator (object):
             """A class to intercept os.[sym]link() calls and track them."""
 
             def __init__( self, duplicate, link, symlink, copy ) :
@@ -1147,7 +1147,7 @@ class FSTestCase(_tempdirTestCase):
 
         # Make sure we can scan this file even if the target isn't
         # a file that has a scanner (it might be an Alias, e.g.).
-        class DummyNode:
+        class DummyNode(object):
             pass
 
         deps = f12.get_found_includes(env, s, DummyNode())
@@ -2081,10 +2081,10 @@ class EntryTestCase(_tempdirTestCase):
         assert e4n.__class__ is SCons.Node.FS.File, e4n.__class__
         assert not exists, "e4n exists?"
 
-        class MyCalc:
+        class MyCalc(object):
             def __init__(self, val):
                 self.max_drift = 0
-                class M:
+                class M(object):
                     def __init__(self, val):
                         self.val = val
                     def collect(self, args):
@@ -2952,8 +2952,8 @@ class stored_infoTestCase(unittest.TestCase):
         bi = f.get_stored_info()
         assert hasattr(bi, 'ninfo')
 
-        class MySConsign:
-            class Null:
+        class MySConsign(object):
+            class Null(object):
                 def __init__(self):
                     self.xyzzy = 7
             def get_entry(self, name):

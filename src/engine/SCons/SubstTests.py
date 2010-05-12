@@ -35,7 +35,7 @@ import SCons.Errors
 
 from SCons.Subst import *
 
-class DummyNode:
+class DummyNode(object):
     """Simple node work-alike."""
     def __init__(self, name):
         self.name = os.path.normpath(name)
@@ -48,7 +48,7 @@ class DummyNode:
     def get_subst_proxy(self):
         return self
 
-class DummyEnv:
+class DummyEnv(object):
     def __init__(self, dict={}):
         self.dict = dict
 
@@ -83,7 +83,7 @@ def CmdGen1(target, source, env, for_signature):
     assert str(source) == 's', source
     return "${CMDGEN2('foo', %d)}" % for_signature
 
-class CmdGen2:
+class CmdGen2(object):
     def __init__(self, mystr, forsig):
         self.mystr = mystr
         self.expect_for_signature = forsig
@@ -106,7 +106,7 @@ class SubstTestCase(unittest.TestCase):
         """Simple node work-alike with some extra stuff for testing."""
         def __init__(self, name):
             DummyNode.__init__(self, name)
-            class Attribute:
+            class Attribute(object):
                 pass
             self.attribute = Attribute()
             self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
@@ -115,7 +115,7 @@ class SubstTestCase(unittest.TestCase):
             return self.name + extra
         foo = 1
 
-    class TestLiteral:
+    class TestLiteral(object):
         def __init__(self, literal):
             self.literal = literal
         def __str__(self):
@@ -123,7 +123,7 @@ class SubstTestCase(unittest.TestCase):
         def is_literal(self):
             return 1
 
-    class TestCallable:
+    class TestCallable(object):
         def __init__(self, value):
             self.value = value
         def __call__(self):
@@ -511,7 +511,7 @@ class scons_subst_TestCase(SubstTestCase):
         """Test scons_subst():  handling attribute errors"""
         env = DummyEnv(self.loc)
         try:
-            class Foo:
+            class Foo(object):
                 pass
             scons_subst('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError, e:
@@ -519,6 +519,7 @@ class scons_subst_TestCase(SubstTestCase):
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
                 "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
                 "AttributeError `'Foo' instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
+                "AttributeError `'Foo' object has no attribute 'bar'' trying to evaluate `${foo.bar}'",
             ]
             assert str(e) in expect, e
         else:
@@ -961,7 +962,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         """Test scons_subst_list():  handling attribute errors"""
         env = DummyEnv()
         try:
-            class Foo:
+            class Foo(object):
                 pass
             scons_subst_list('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError, e:
@@ -969,6 +970,7 @@ class scons_subst_list_TestCase(SubstTestCase):
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
                 "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
                 "AttributeError `'Foo' instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
+                "AttributeError `'Foo' object has no attribute 'bar'' trying to evaluate `${foo.bar}'",
             ]
             assert str(e) in expect, e
         else:
@@ -1105,7 +1107,7 @@ class quote_spaces_TestCase(unittest.TestCase):
         q = quote_spaces('x\tx')
         assert q == '"x\tx"', q
 
-    class Node:
+    class Node(object):
         def __init__(self, name, children=[]):
             self.children = children
             self.name = name
@@ -1182,7 +1184,7 @@ class subst_dict_TestCase(unittest.TestCase):
         assert SOURCES == ['s1', 's2'], d['SOURCES']
         assert str(d['SOURCE']) == 's1', d['SOURCE']
 
-        class V:
+        class V(object):
             # Fake Value node with no rfile() method.
             def __init__(self, name):
                 self.name = name
