@@ -400,7 +400,7 @@ def _defines(prefix, defs, suffix, env, c=_concat_ixes):
 
     return c(prefix, env.subst_path(processDefines(defs)), suffix, env)
     
-class NullCmdGenerator:
+class NullCmdGenerator(object):
     """This is a callable class that can be used in place of other
     command generators if you don't want them to do anything.
 
@@ -418,7 +418,7 @@ class NullCmdGenerator:
     def __call__(self, target, source, env, for_signature=None):
         return self.cmd
 
-class Variable_Method_Caller:
+class Variable_Method_Caller(object):
     """A class for finding a construction variable on the stack and
     calling one of its methods.
 
