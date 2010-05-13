@@ -1,0 +1,7 @@
+build
+bootstrap
+
+syntax:glob
+*.py[co]
+.sconsign*
+.svn
