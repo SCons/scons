@@ -119,7 +119,7 @@ import SCons.Subst
 is_String = SCons.Util.is_String
 is_List = SCons.Util.is_List
 
-class _null:
+class _null(object):
     pass
 
 print_actions = 1
@@ -409,7 +409,7 @@ def Action(act, *args, **kw):
         return _do_create_list_action(act, kw)
     return _do_create_action(act, kw)
 
-class ActionBase:
+class ActionBase(object):
     """Base class for all types of action objects that can be held by
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
@@ -659,12 +659,12 @@ def _subproc(env, cmd, error = 'ignore', **kw):
     except EnvironmentError, e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
-        class dummyPopen:
+        class dummyPopen(object):
             def __init__(self, e): self.exception = e
             def communicate(self): return ('','')
             def wait(self): return -self.exception.errno
             stdin = None
-            class f:
+            class f(object):
                 def read(self): return ''
                 def readline(self): return ''
             stdout = stderr = f()
@@ -1145,7 +1145,7 @@ class ListAction(ActionBase):
                 result[var] = True
         return list(result.keys())
 
-class ActionCaller:
+class ActionCaller(object):
     """A class for delaying calling an Action function with specific
     (positional and keyword) arguments until the Action is actually
     executed.
@@ -1215,7 +1215,7 @@ class ActionCaller:
     def __str__(self):
         return self.parent.strfunc(*self.args, **self.kw)
 
-class ActionFactory:
+class ActionFactory(object):
     """A factory class that will wrap up an arbitrary function
     as an SCons-executable Action object.
 
