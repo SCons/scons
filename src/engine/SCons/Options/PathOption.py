@@ -35,7 +35,7 @@ import SCons.Warnings
 
 warned = False
 
-class _PathOptionClass:
+class _PathOptionClass(object):
     def warn(self):
         global warned
         if not warned:
