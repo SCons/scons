@@ -126,7 +126,7 @@ use_memoizer = None
 
 CounterList = []
 
-class Counter:
+class Counter(object):
     """
     Base class for counting memoization hits and misses.
 
@@ -206,7 +206,7 @@ class CountDict(Counter):
                 self.miss = self.miss + 1
         return self.underlying_method(*args, **kw)
 
-class Memoizer:
+class Memoizer(object):
     """Object which performs caching of method calls for its 'primary'
     instance."""
 
