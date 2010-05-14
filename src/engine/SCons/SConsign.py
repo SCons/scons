@@ -108,7 +108,7 @@ def write():
         else:
             syncmethod()
 
-class SConsignEntry:
+class SConsignEntry(object):
     """
     Wrapper class for the generic entry in a .sconsign file.
     The Node subclass populates it with attributes as it pleases.
@@ -126,7 +126,7 @@ class SConsignEntry:
     def convert_from_sconsign(self, dir, name):
         self.binfo.convert_from_sconsign(dir, name)
 
-class Base:
+class Base(object):
     """
     This is the controlling class for the signatures for the collection of
     entries associated with a specific directory.  The actual directory
