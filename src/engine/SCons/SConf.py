@@ -169,7 +169,7 @@ class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
         self.string = string
 
 
-class Streamer:
+class Streamer(object):
     """
     'Sniffer' for a file-like writable object. Similar to the unix tool tee.
     """
@@ -368,7 +368,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                     sconsign.set_entry(t.name, sconsign_entry)
                     sconsign.merge()
 
-class SConfBase:
+class SConfBase(object):
     """This is simply a class to represent a configure context. After
     creating a SConf object, you can call any tests. After finished with your
     tests, be sure to call the Finish() method, which returns the modified
@@ -628,7 +628,7 @@ class SConfBase:
                 return( 1, outputStr)
         return (0, "")
 
-    class TestWrapper:
+    class TestWrapper(object):
         """A wrapper around Tests (to ensure sanity)"""
         def __init__(self, test, sconf):
             self.test = test
@@ -731,7 +731,7 @@ class SConfBase:
             _ac_config_hs[self.config_h] = self.config_h_text
         self.env.fs = self.lastEnvFs
 
-class CheckContext:
+class CheckContext(object):
     """Provides a context for configure tests. Defines how a test writes to the
     screen and log file.
 
