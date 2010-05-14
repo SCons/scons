@@ -52,7 +52,7 @@ default_stack_size = 256
 interrupt_msg = 'Build interrupted.'
 
 
-class InterruptState:
+class InterruptState(object):
    def __init__(self):
        self.interrupted = False
 
@@ -63,7 +63,7 @@ class InterruptState:
        return self.interrupted
 
 
-class Jobs:
+class Jobs(object):
     """An instance of this class initializes N jobs, and provides
     methods for starting, stopping, and waiting on all N jobs.
     """
@@ -163,7 +163,7 @@ class Jobs:
         except AttributeError:
             pass
 
-class Serial:
+class Serial(object):
     """This class is used to execute tasks in series, and is more efficient
     than Parallel, but is only appropriate for non-parallel builds. Only
     one instance of this class should be in existence at a time.
@@ -264,7 +264,7 @@ else:
 
                 self.resultsQueue.put((task, ok))
 
-    class ThreadPool:
+    class ThreadPool(object):
         """This class is responsible for spawning and managing worker threads."""
 
         def __init__(self, num, stack_size, interrupted):
@@ -338,7 +338,7 @@ else:
                 worker.join(1.0)
             self.workers = []
 
-    class Parallel:
+    class Parallel(object):
         """This class is used to execute tasks in parallel, and is somewhat 
         less efficient than Serial, but is appropriate for parallel builds.
 
