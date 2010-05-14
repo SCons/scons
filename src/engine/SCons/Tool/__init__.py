@@ -84,7 +84,7 @@ for suffix in LaTeXSuffixes:
     SourceFileScanner.add_scanner(suffix, LaTeXScanner)
     SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
-class Tool:
+class Tool(object):
     def __init__(self, name, toolpath=[], **kw):
         self.name = name
         self.toolpath = toolpath + DefaultToolpath
@@ -427,7 +427,7 @@ def CreateJavaFileBuilder(env):
         env['JAVASUFFIX'] = '.java'
     return java_file
 
-class ToolInitializerMethod:
+class ToolInitializerMethod(object):
     """
     This is added to a construction environment in place of a
     method(s) normally called for a Builder (env.Object, env.StaticObject,
@@ -475,7 +475,7 @@ class ToolInitializerMethod:
             return [], []
         return builder(*args, **kw)
 
-class ToolInitializer:
+class ToolInitializer(object):
     """
     A class for delayed initialization of Tools modules.
 
