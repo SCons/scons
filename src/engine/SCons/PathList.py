@@ -66,7 +66,7 @@ def node_conv(obj):
         result = get()
     return result
 
-class _PathList:
+class _PathList(object):
     """
     An actual PathList object.
     """
@@ -141,7 +141,7 @@ class _PathList:
         return tuple(result)
 
 
-class PathListCache:
+class PathListCache(object):
     """
     A class to handle caching of PathList lookups.
 
