@@ -174,7 +174,7 @@ del override
 
 
 
-class FunctionEvaluator:
+class FunctionEvaluator(object):
     """
     Handles delayed evaluation of a #define function call.
     """
@@ -231,7 +231,7 @@ function_arg_separator = re.compile(',\s*')
 
 
 
-class PreProcessor:
+class PreProcessor(object):
     """
     The main workhorse class for handling C pre-processing.
     """
