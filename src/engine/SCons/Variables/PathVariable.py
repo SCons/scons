@@ -77,7 +77,7 @@ import os.path
 
 import SCons.Errors
 
-class _PathVariableClass:
+class _PathVariableClass(object):
 
     def PathAccept(self, key, val, env):
         """Accepts any path, no checking done."""
