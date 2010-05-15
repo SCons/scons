@@ -73,7 +73,7 @@ NODE_FAILED = SCons.Node.failed
 
 CollectStats = None
 
-class Stats:
+class Stats(object):
     """
     A simple class for holding statistics about the disposition of a
     Node by the Taskmaster.  If we're collecting statistics, each Node
@@ -110,7 +110,7 @@ def dump_stats():
 
 
 
-class Task:
+class Task(object):
     """
     Default SCons build engine task.
 
@@ -549,7 +549,7 @@ def find_cycle(stack, visited):
     return None
 
 
-class Taskmaster:
+class Taskmaster(object):
     """
     The Taskmaster for walking the dependency DAG.
     """
