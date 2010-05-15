@@ -108,7 +108,7 @@ def add_targets_to_INSTALLED_FILES(target, source, env):
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 
-class DESTDIR_factory:
+class DESTDIR_factory(object):
     """ a node factory, where all files will be relative to the dir supplied
     in the constructor.
     """
