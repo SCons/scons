@@ -32,7 +32,7 @@ except NameError:
 dblite_suffix = '.dblite'
 tmp_suffix = '.tmp'
 
-class dblite:
+class dblite(object):
 
   # Squirrel away references to the functions in various modules
   # that we'll use when our __del__() method calls our sync() method
