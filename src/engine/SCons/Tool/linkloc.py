@@ -61,7 +61,7 @@ def repl_linker_command(m):
         # to find it with recursive substitution
         return m.group(1) + '#' + m.group(2)
 
-class LinklocGenerator:
+class LinklocGenerator(object):
     def __init__(self, cmdline):
         self.cmdline = cmdline
 

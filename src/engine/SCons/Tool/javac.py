@@ -135,7 +135,7 @@ JavaBuilder = SCons.Builder.Builder(action = JavaAction,
                     target_factory = SCons.Node.FS.Entry,
                     source_factory = SCons.Node.FS.Entry)
 
-class pathopt:
+class pathopt(object):
     """
     Callable object for generating javac-style path options from
     a construction variable (e.g. -classpath, -sourcepath).
