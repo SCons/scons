@@ -59,7 +59,7 @@ if java_parsing:
                           r'\d*\.\d*|[A-Za-z_][\w\$\.]*|<[A-Za-z_]\w+>|' +
                           r'/\*|\*/|\[\])')
 
-    class OuterState:
+    class OuterState(object):
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
         def __init__(self, version=default_java_version):
@@ -186,7 +186,7 @@ if java_parsing:
         def setPackage(self, package):
             self.package = package
 
-    class AnonClassState:
+    class AnonClassState(object):
         """A state that looks for anonymous inner classes."""
         def __init__(self, old_state):
             # outer_state is always an instance of OuterState
@@ -221,7 +221,7 @@ if java_parsing:
                 self.outer_state.addAnonClass()
             return self.old_state.parseToken(token)
 
-    class SkipState:
+    class SkipState(object):
         """A state that will skip a specified number of tokens before
         reverting to the previous state."""
         def __init__(self, tokens_to_skip, old_state):
@@ -233,7 +233,7 @@ if java_parsing:
                 return self.old_state
             return self
 
-    class ClassState:
+    class ClassState(object):
         """A state we go into when we hit a class or interface keyword."""
         def __init__(self, outer_state):
             # outer_state is always an instance of OuterState
@@ -260,7 +260,7 @@ if java_parsing:
             self.outer_state.anonStacksStack.append([0])
             return self.outer_state
 
-    class IgnoreState:
+    class IgnoreState(object):
         """A state that will ignore all tokens until it gets to a
         specified token."""
         def __init__(self, ignore_until, old_state):
@@ -271,7 +271,7 @@ if java_parsing:
                 return self.old_state
             return self
 
-    class PackageState:
+    class PackageState(object):
         """The state we enter when we encounter the package keyword.
         We assume the next token will be the package name."""
         def __init__(self, outer_state):
