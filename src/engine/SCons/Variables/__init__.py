@@ -43,7 +43,7 @@ from PackageVariable import PackageVariable # naja
 from PathVariable import PathVariable # okay
 
 
-class Variables:
+class Variables(object):
     instance=None
 
     """
@@ -74,7 +74,7 @@ class Variables:
                 Variables.instance=self
 
     def _do_add(self, key, help="", default=None, validator=None, converter=None):
-        class Variable:
+        class Variable(object):
             pass
 
         option = Variable()
