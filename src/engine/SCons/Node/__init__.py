@@ -97,7 +97,7 @@ Annotate = do_nothing
 
 # Classes for signature info for Nodes.
 
-class NodeInfoBase:
+class NodeInfoBase(object):
     """
     The generic base class for signature information for a Node.
 
@@ -147,7 +147,7 @@ class NodeInfoBase:
             fields.append(f)
         return fields
 
-class BuildInfoBase:
+class BuildInfoBase(object):
     """
     The generic base class for build information for a Node.
 
@@ -169,7 +169,7 @@ class BuildInfoBase:
     def merge(self, other):
         self.__dict__.update(other.__dict__)
 
-class Node:
+class Node(object):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
@@ -179,7 +179,7 @@ class Node:
 
     memoizer_counters = []
 
-    class Attrs:
+    class Attrs(object):
         pass
 
     def __init__(self):
@@ -1260,7 +1260,7 @@ def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass
 
-class Walker:
+class Walker(object):
     """An iterator for walking a Node tree.
 
     This is depth-first, children are visited before the parent.
