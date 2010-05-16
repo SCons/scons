@@ -307,22 +307,37 @@ def write_out(file, dict):
         f.write(file + ": " + str(dict[k]) + "\\n")
     f.close()
 
-orig_function = CScan.__call__
+# A hand-coded new-style class proxy to wrap the underlying C Scanner
+# with a method that counts the calls.
+#
+# This is more complicated than it used to be with old-style classes
+# because the .__*__() methods in new-style classes are not looked
+# up on the instance, but resolve to the actual wrapped class methods,
+# so we have to handle those directly.
+class CScannerCounter(object):
+    def __init__(self, original_CScanner, *args, **kw):
+        self.original_CScanner = original_CScanner
+    def __cmp__(self, *args, **kw):
+        return self.original_CScanner.__cmp__(*args, **kw)
+    def __hash__(self, *args, **kw):
+        return self.original_CScanner.__hash__(*args, **kw)
+    def __str__(self, *args, **kw):
+        return self.original_CScanner.__str__(*args, **kw)
+    def __getattr__(self, *args, **kw):
+        return self.original_CScanner.__getattribute__(*args, **kw)
+    def __call__(self, node, *args, **kw):
+        global Scanned
+        n = str(node)
+        try:
+            Scanned[n] = Scanned[n] + 1
+        except KeyError:
+            Scanned[n] = 1
+        write_out(r'%s', Scanned)
+        return self.original_CScanner(node, *args, **kw)
 
-def MyCScan(node, paths, cwd, orig_function=orig_function):
-    deps = orig_function(node, paths, cwd)
-
-    global Scanned
-    n = str(node)
-    try:
-        Scanned[n] = Scanned[n] + 1
-    except KeyError:
-        Scanned[n] = 1
-    write_out(r'%s', Scanned)
-
-    return deps
-
-CScan.__call__ = MyCScan
+import SCons.Tool
+MyCScanner = CScannerCounter(SCons.Script.CScanner)
+SCons.Tool.SourceFileScanner.add_scanner('.c', MyCScanner)
 
 env = Environment(CPPPATH = ".")
 l = env.StaticLibrary("g", Split("libg_1.c libg_2.c libg_3.c"))
