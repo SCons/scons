@@ -36,7 +36,7 @@ import SCons.Errors
 import SCons.Memoize
 
 
-class Batch:
+class Batch(object):
     """Remembers exact association between targets
     and sources of executor."""
     def __init__(self, targets=[], sources=[]):
@@ -74,7 +74,7 @@ class TSList(collections.UserList):
         nl = self.func()
         return repr(nl)
 
-class TSObject:
+class TSObject(object):
     """A class that implements $TARGET or $SOURCE expansions by wrapping
     an Executor method.
     """
@@ -108,7 +108,7 @@ def rfile(node):
         return rfile()
 
 
-class Executor:
+class Executor(object):
     """A class for controlling instances of executing an action.
 
     This largely exists to hold a single association of an action,
@@ -566,7 +566,7 @@ def get_NullEnvironment():
         nullenv = NullEnvironment()
     return nullenv
 
-class Null:
+class Null(object):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 
