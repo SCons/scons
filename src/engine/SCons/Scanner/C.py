@@ -81,7 +81,7 @@ def dictify_CPPDEFINES(env):
         return {cppdefines : None}
     return cppdefines
 
-class SConsCPPScannerWrapper:
+class SConsCPPScannerWrapper(object):
     """
     The SCons wrapper around a cpp.py scanner.
 
