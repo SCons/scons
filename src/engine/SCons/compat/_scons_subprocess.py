@@ -383,13 +383,13 @@ if mswindows:
     try:
         # Try to get _subprocess
         from _subprocess import *
-        class STARTUPINFO:
+        class STARTUPINFO(object):
             dwFlags = 0
             hStdInput = None
             hStdOutput = None
             hStdError = None
             wShowWindow = 0
-        class pywintypes:
+        class pywintypes(object):
             error = IOError
     except ImportError:
         # If not there, then drop back to requiring pywin32
@@ -568,13 +568,6 @@ def list2cmdline(seq):
             result.append('"')
 
     return ''.join(result)
-
-
-try:
-    object
-except NameError:
-    class object:
-        pass
 
 class Popen(object):
     def __init__(self, args, bufsize=0, executable=None,
