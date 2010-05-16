@@ -90,7 +90,7 @@ try:
     memoryview
 except NameError:
     # Pre-2.7 doesn't have the memoryview() built-in.
-    class memoryview:
+    class memoryview(object):
         def __init__(self, obj):
             # wrapping buffer in () keeps the fixer from changing it
             self.obj = (buffer)(obj)

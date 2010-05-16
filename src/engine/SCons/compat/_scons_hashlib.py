@@ -36,7 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import md5
 from string import hexdigits
 
-class md5obj:
+class md5obj(object):
 
     md5_module = md5
 
