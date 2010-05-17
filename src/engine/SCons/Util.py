@@ -154,11 +154,11 @@ def get_environment_var(varstr):
     else:
         return None
 
-class DisplayEngine:
-    def __init__(self):
-        self.__call__ = self.print_it
-
-    def print_it(self, text, append_newline=1):
+class DisplayEngine(object):
+    print_it = True
+    def __call__(self, text, append_newline=1):
+        if not self.print_it:
+            return
         if append_newline: text = text + '\n'
         try:
             sys.stdout.write(unicode(text))
@@ -172,14 +172,8 @@ class DisplayEngine:
             # before SCons exits.
             pass
 
-    def dont_print(self, text, append_newline=1):
-        pass
-
     def set_mode(self, mode):
-        if mode:
-            self.__call__ = self.print_it
-        else:
-            self.__call__ = self.dont_print
+        self.print_it = mode
 
 def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """
@@ -1151,7 +1145,7 @@ def uniquer_hashables(seq):
 
 # Much of the logic here was originally based on recipe 4.9 from the
 # Python CookBook, but we had to dumb it way down for Python 1.5.2.
-class LogicalLines:
+class LogicalLines(object):
 
     def __init__(self, fileobj):
         self.fileobj = fileobj
@@ -1271,7 +1265,7 @@ class UniqueList(UserList):
         self.unique = False
 
 
-class Unbuffered:
+class Unbuffered(object):
     """
     A proxy class that wraps a file object, flushing after every write,
     and delegating everything else to the wrapped object.
@@ -1443,12 +1437,12 @@ def silent_intern(x):
 # ASPN: Python Cookbook: Null Object Design Pattern
 
 #TODO??? class Null(object):
-class Null:
+class Null(object):
     """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):
-        if not '_inst' in vars(cls):
-            cls._inst = type.__new__(cls, *args, **kwargs)
-        return cls._inst
+        if not '_instance' in vars(cls):
+            cls._instance = super(Null, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
     def __init__(self, *args, **kwargs):
         pass
     def __call__(self, *args, **kwargs):
