@@ -59,7 +59,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 
-class _Null:
+class _Null(object):
     pass
 
 _null = _Null
