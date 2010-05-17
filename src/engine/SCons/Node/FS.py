@@ -278,7 +278,7 @@ def get_MkdirBuilder():
                                              name = "MkdirBuilder")
     return MkdirBuilder
 
-class _Null:
+class _Null(object):
     pass
 
 _null = _Null()
@@ -321,21 +321,19 @@ else:
 
 
 
-class DiskChecker:
+class DiskChecker(object):
     def __init__(self, type, do, ignore):
         self.type = type
         self.do = do
         self.ignore = ignore
-        self.set_do()
-    def set_do(self):
-        self.__call__ = self.do
-    def set_ignore(self):
-        self.__call__ = self.ignore
+        self.func = do
+    def __call__(self, *args, **kw):
+        return self.func(*args, **kw)
     def set(self, list):
         if self.type in list:
-            self.set_do()
+            self.func = self.do
         else:
-            self.set_ignore()
+            self.func = self.ignore
 
 def do_diskcheck_match(node, predicate, errorfmt):
     result = predicate()
@@ -954,7 +952,7 @@ class Entry(Base):
 _classEntry = Entry
 
 
-class LocalFS:
+class LocalFS(object):
 
     if SCons.Memoize.use_memoizer:
         __metaclass__ = SCons.Memoize.Memoized_Metaclass
@@ -2955,7 +2953,7 @@ def get_default_fs():
         default_fs = FS()
     return default_fs
 
-class FileFinder:
+class FileFinder(object):
     """
     """
     if SCons.Memoize.use_memoizer:
