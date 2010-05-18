@@ -125,7 +125,7 @@ else:
     python_executable = os.path.join('$$(PYTHON_ROOT)',
                                      os.path.split(sys.executable)[1])
 
-class Config:
+class Config(object):
     pass
 
 def splitFully(path):
@@ -155,7 +155,7 @@ def makeHierarchy(sources):
         #    print 'Warning: failed to decompose path for '+str(file)
     return hierarchy
 
-class _DSPGenerator:
+class _DSPGenerator(object):
     """ Base class for DSP generators """
 
     srcargs = [
@@ -812,7 +812,7 @@ class _GenerateV7DSP(_DSPGenerator):
             self.PrintProject()
             self.file.close()
 
-class _DSWGenerator:
+class _DSWGenerator(object):
     """ Base class for DSW generators """
     def __init__(self, dswfile, source, env):
         self.dswfile = os.path.normpath(str(dswfile))

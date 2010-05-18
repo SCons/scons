@@ -28,7 +28,7 @@ __doc__ = """Module to define supported Windows chip architectures.
 
 import os
 
-class ArchDefinition:
+class ArchDefinition(object):
     """
     A class for defining architecture-specific settings and logic.
     """

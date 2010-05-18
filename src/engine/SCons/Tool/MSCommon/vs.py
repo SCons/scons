@@ -40,7 +40,7 @@ from common import debug, \
 
 import SCons.Tool.MSCommon.vc
 
-class VisualStudio:
+class VisualStudio(object):
     """
     An abstract base class for trying to find installed versions of
     Visual Studio.
