@@ -119,7 +119,7 @@ def find_versions():
     return versions
 
 
-class MWVersion:
+class MWVersion(object):
     def __init__(self, version, path, platform):
         self.version = version
         self.path = path
