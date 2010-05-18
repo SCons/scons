@@ -239,7 +239,7 @@ def get_program_files_dir():
 
 
 # Determine which windows CPU were running on.
-class ArchDefinition:
+class ArchDefinition(object):
     """
     A class for defining architecture-specific settings and logic.
     """
