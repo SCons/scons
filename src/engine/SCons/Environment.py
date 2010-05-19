@@ -335,7 +335,7 @@ def is_valid_construction_var(varstr):
 
 
 
-class SubstitutionEnvironment:
+class SubstitutionEnvironment(object):
     """Base class for different flavors of construction environments.
 
     This class contains a minimal set of methods that handle contruction
