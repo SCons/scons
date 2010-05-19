@@ -1356,7 +1356,7 @@ def make_path_relative(path):
 #	ASPN: Python Cookbook : Dynamically added methods to a class
 #	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
 
-def AddMethod(object, function, name = None):
+def AddMethod(obj, function, name=None):
     """
     Adds either a bound method to an instance or an unbound method to
     a class. If name is ommited the name of the specified function
@@ -1376,14 +1376,12 @@ def AddMethod(object, function, name = None):
     else:
         function = RenameFunction(function, name)
 
-    try:
-        klass = object.__class__
-    except AttributeError:
-        # "object" is really a class, so it gets an unbound method.
-        object.__dict__[name] = types.MethodType(function, None, object)
+    if hasattr(obj, '__class__') and obj.__class__ != types.TypeType:
+        # "obj" is an instance, so it gets a bound method.
+        setattr(obj, name, types.MethodType(function, obj, cls))
     else:
-        # "object" is really an instance, so it gets a bound method.
-        object.__dict__[name] = types.MethodType(function, object, klass)
+        # "obj" is a class, so it gets an unbound method.
+        setattr(obj, name, types.MethodType(function, None, obj))
 
 def RenameFunction(function, name):
     """
