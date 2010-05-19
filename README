@@ -70,6 +70,43 @@ INSTALLATION REQUIREMENTS
 Nothing special.
 
 
+EXECUTING SCONS WITHOUT INSTALLING
+==================================
+
+You can execute the local SCons directly from the src/ subdirectory by
+first setting the SCONS_LIB_DIR environment variable to the local
+src/engine subdirectory, and then executing the local src/script/scons.py
+script to populate the build/scons/ subdirectory.  You would do this as
+follows on a Linux or UNIX system (using sh or a derivative like bash or
+ksh):
+
+        $ setenv MYSCONS=`pwd`/src
+        $ setenv SCONS_LIB_DIR=$MYSCONS/engine
+        $ python $MYSCONS/script/scons.py [arguments]
+
+Or on Windows:
+
+        C:\scons>set MYSCONS=%cd%\src
+        C:\scons>set SCONS_LIB_DIR=%MYSCONS%\engine
+        C:\scons>python %MYSCONS%\script\scons.py [arguments]
+
+An alternative approach is to skip the above and use:
+
+        $ python bootstrap.py [arguments]
+
+bootstrap.py keeps the src/ subdirectory free of compiled Python (*.pyc or
+*.pyo) files by copying the necessary SCons files to a local bootstrap/
+subdirectory and executing it from there.
+
+You can use the -C option to have SCons change directory to another
+location where you already have a build configuration set up.
+
+    $ python bootstrap.py -C /some/other/location [arguments]
+
+For simplicity in the following examples, we will only show the
+bootstrap.py approach.
+
+
 INSTALLATION
 ============
 
@@ -87,34 +124,25 @@ the build/scons/ subdirectory.  (For an easier way to install SCons,
 without having to populate this directory, use the scons-{version}.tar.gz
 or scons-{version}.zip package.)
 
+Populate build/scons/ using a pre-installed SCons
+-------------------------------------------------
+
 If you already have an appropriate version of SCons installed on your
 system, populate the build/scons/ directory by running:
 
         $ scons build/scons
 
+Populate build/scons/ using the SCons source
+--------------------------------------------
+
 You can also use this version of SCons to populate its own build directory
-by using a supplied bootstrap.py script:
+by using a supplied bootstrap.py script (see the section above about
+EXECUTING SCONS WITHOUT INSTALLING):
 
         $ python bootstrap.py build/scons
 
-The bootstrap.py keeps the src/ subdirectory free of compiled Python
-(*.pyc or *.pyo) files by copying the necessary SCons files to a local
-bootstrap/ subdirectory and executing it from there.
-
-You can also execute the local SCons directly from the src/ subdirectory
-by first setting the SCONS_LIB_DIR environment variable to the local
-src/engine subdirectory, and then executing the local src/script/scons.py
-script to populate the build/scons/ subdirectory.  You would do this as
-follows on a Linux or UNIX system (using sh or a derivative like bash
-or ksh):
-
-        $ export SCONS_LIB_DIR=`pwd`/src/engine
-        $ python src/script/scons.py build/scons
-
-Or as follows on Windows:
-        
-        C:\scons\>set SCONS_LIB_DIR=%cd%\src\engine
-        C:\scons\>python src\script\scons.py build/scons
+Install the built SCons files
+-----------------------------
 
 Any of the above commands will populate the build/scons/ directory with
 the necessary files and directory structure to use the Python-standard
@@ -123,7 +151,7 @@ setup script as follows on Linux or UNIX:
         # cd build/scons
         # python setup.py install
 
-And on Windows:
+Or on Windows:
 
         C:\scons\>cd build\scons
         C:\scons\build\scons>python setup.py install
@@ -218,36 +246,15 @@ modules that make up SCons.  The src/script/scons.py wrapper script exists
 mainly to find the appropriate build engine library and then execute it.
 
 In order to make your own changes locally and test them by hand, simply
-edit modules in the local src/engine/SCons subdirectory tree and either
-use the local bootstrap.py script:
+edit modules in the local src/engine/SCons subdirectory tree and use the
+local bootstrap.py script (see the section above about EXECUTING SCONS
+WITHOUT INSTALLING):
 
     $ python bootstrap.py [arguments]
 
-Or set the SCONS_LIB_DIR to point to the src/engine/SCons directory and
-then execute the src/script/scons.py script.  Here is one way you can
-set up environment variables to do this on a UNIX or Linux system:
-
-    $ setenv MYSCONS=`pwd`/src
-    $ setenv SCONS_LIB_DIR=$MYSCONS/engine
-    $ python $MYSCONS/script/scons.py [arguments]
-
-Or on Windows:
-
-    C:\scons>set MYSCONS=%cd%\src
-    C:\scons>set SCONS_LIB_DIR=%MYSCONS%\engine
-    C:\scons>python %MYSCONS%\script\scons.py [arguments]
-
-You can use the -C option to have SCons change directory to another
-location where you already have a build configuration set up (for example,
-if the SCons configuration for your project seems to be blocked by
-an SCons bug, and you want to see if a patch you make actually fixes
-that bug):
-
-    $ python bootstrap.py -C /some/other/location [arguments]
-
-Lastly, if you want to be able to just execute your modified version
-of SCons from the command line, you can make it executable and add its
-directory to your $PATH like so:
+If you want to be able to just execute your modified version of SCons from
+the command line, you can make it executable and add its directory to your
+$PATH like so:
 
     $ chmod 755 src/script/scons.py
     $ export PATH=$PATH:`pwd`/src/script
@@ -394,36 +401,37 @@ an SCons bug, and you decide you want to fix it and submit the patch.
 Here's one possible way to go about doing that (using UNIX/Linux as the
 development platform, Windows users can translate as appropriate)):
 
-    --  Change to the top of your checked-out SCons tree and set
-        $SCONS_LIB_DIR to point to its build engine:
-
-            $ setenv SCONS_LIB_DIR=`pwd`/src
+    --  Change to the top of your checked-out SCons tree.
 
     --  Confirm that the bug still exists in this version of SCons
         by using the -C option to run the broken build:
 
-            $ python script/scons.py -C /home/me/broken_project .
+            $ python bootstrap.py -C /home/me/broken_project .
 
     --  Fix the bug in SCons by editing appropriate module files
         underneath src/engine/SCons.
 
     --  Confirm that you've fixed the bug affecting your project:
 
-            $ python script/scons.py -C /home/me/broken_project .
+            $ python bootstrap.py -C /home/me/broken_project .
 
     --  Test to see if your fix had any unintended side effects
         that break existing functionality:
 
-            $ python runtest.py -a
+            $ python runtest.py -a -o test.log
 
         Be patient, there are more than 700 test scripts in the
-        whole suite.
+        whole suite.  If you are on UNIX/Linux, you can use:
+
+            $ python runtest.py -a | tee test.log
+
+        instead so you can monitor progress from your terminal.
 
         If any test scripts fail, they will be listed in a summary at
-        the end of the run.  Some test scripts may also report NO RESULT
-        because (for example) your local system is the wrong type or
-        doesn't have some installed utilities necessary to run the
-        script.  In general, you can ignore the NO RESULT list.
+        the end of the log file.  Some test scripts may also report
+        NO RESULT because (for example) your local system is the wrong
+        type or doesn't have some installed utilities necessary to run
+        the script.  In general, you can ignore the NO RESULT list.
 
     --  Cut-and-paste the list of failed tests into a file:
 
@@ -453,8 +461,8 @@ development platform, Windows users can translate as appropriate)):
         you originally put in, and didn't introduce any *additional*
         unintended side effects that broke other tests:
 
-            $ python script/scons.py -C /home/me/broken_project .
-            $ python runtest.py -a
+            $ python bootstrap.py -C /home/me/broken_project .
+            $ python runtest.py -a -o test.log
 
         If you find any newly-broken tests, add them to your "failed.txt"
         file and go back to the previous step.
@@ -476,24 +484,10 @@ you can build everything by simply running it:
         $ scons
 
 If you don't have SCons version 0.96.93 later already installed on your
-system, you can use the supplied bootstrap.py script:
+system, you can use the supplied bootstrap.py script (see the section
+above about EXECUTING SCONS WITHOUT INSTALLING):
 
         $ python bootstrap.py build/scons
-
-The bootstrap.py keeps the src/ subdirectory free of compiled Python
-(*.pyc or *.pyo) files by copying the necessary SCons files to a local
-bootstrap/ subdirectory and executing it from there.
-
-You can also build this version of SCons by hand with a little more
-typing.  On UNIX or Linux (using sh or a derivative like bash or ksh):
-
-        $ export SCONS_LIB_DIR=`pwd`/src/engine
-        $ python src/script/scons.py
-
-On Windows:
-        
-        C:\scons\>set SCONS_LIB_DIR=%cd%\src\engine
-        C:\scons\>python src/script/scons.py
 
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
@@ -788,4 +782,3 @@ With plenty of help from the SCons Development team:
         Anthony Roach
         Greg Spencer
         Christoph Wiedemann
-
