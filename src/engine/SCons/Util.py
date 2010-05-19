@@ -487,7 +487,7 @@ def semi_deepcopy(x):
 
 
 
-class Proxy:
+class Proxy(object):
     """A simple generic Proxy class, forwarding all calls to
     subject.  So, for the benefit of the python newbie, what does
     this really mean?  Well, it means that you can take an object, let's
@@ -505,25 +505,51 @@ class Proxy:
 
                  x = objA.var1
 
-    Inherit from this class to create a Proxy."""
+    Inherit from this class to create a Proxy.
+
+    Note that, with new-style classes, this does *not* work transparently
+    for Proxy subclasses that use special .__*__() method names, because
+    those names are now bound to the class, not the individual instances.
+    You now need to know in advance which .__*__() method names you want
+    to pass on to the underlying Proxy object, and specifically delegate
+    their calls like this:
+
+        class Foo(Proxy):
+            __str__ = Delegate('__str__')
+    """
 
     def __init__(self, subject):
         """Wrap an object as a Proxy object"""
-        self.__subject = subject
+        self._subject = subject
 
     def __getattr__(self, name):
         """Retrieve an attribute from the wrapped object.  If the named
            attribute doesn't exist, AttributeError is raised"""
-        return getattr(self.__subject, name)
+        return getattr(self._subject, name)
 
     def get(self):
         """Retrieve the entire wrapped object"""
-        return self.__subject
+        return self._subject
 
     def __cmp__(self, other):
-        if issubclass(other.__class__, self.__subject.__class__):
-            return cmp(self.__subject, other)
+        if issubclass(other.__class__, self._subject.__class__):
+            return cmp(self._subject, other)
         return cmp(self.__dict__, other.__dict__)
+
+class Delegate(object):
+    """A Python Descriptor class that delegates attribute fetches
+    to an underlying wrapped subject of a Proxy.  Typical use:
+
+        class Foo(Proxy):
+            __str__ = Delegate('__str__')
+    """
+    def __init__(self, attribute):
+        self.attribute = attribute
+    def __get__(self, obj, cls):
+        if isinstance(obj, cls):
+            return getattr(obj._subject, self.attribute)
+        else:
+            return self
 
 # attempt to load the windows registry module:
 can_read_reg = 0
