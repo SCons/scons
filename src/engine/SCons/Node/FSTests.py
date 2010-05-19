@@ -1657,9 +1657,11 @@ class FSTestCase(_tempdirTestCase):
     def test_proxy(self):
         """Test a Node.FS object wrapped in a proxy instance"""
         f1 = self.fs.File('fff')
-        p = SCons.Util.Proxy(f1)
+        class MyProxy(SCons.Util.Proxy):
+            __str__ = SCons.Util.Delegate('__str__')
+        p = MyProxy(f1)
         f2 = self.fs.Entry(p)
-        assert f1 is f2, (f1, f2)
+        assert f1 is f2, (f1, str(f1), f2, str(f2))
 
 
 
