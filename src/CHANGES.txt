@@ -13,6 +13,10 @@ RELEASE 2.0.0.alpha.20100508 - Sat, 08 May 2010 14:29:17 -0700
 
     - Fix XML in documentation.
 
+  From W. Trevor King:
+
+    - Revisions to README.
+
   From Steven Knight:
 
     - Provide forward compatibility for the 'profile' module.
@@ -34,6 +38,10 @@ RELEASE 2.0.0.alpha.20100508 - Sat, 08 May 2010 14:29:17 -0700
     - Remove compatibility logic no longer needed.
 
     - Add a '-3' option to runtest to print 3.x incompatibility warnings.
+
+    - Convert most old-style classes into new-style classes.
+
+    - Update deprecation warnings; most now become errors.
 
   From Greg Noel:
 
@@ -129,7 +137,7 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
   From William Deegan:
     - Final merge from vs_revamp branch to main
 
-    - Added definition and usage of HOST_OS, HOST_ARCH, TARGET_OS, 
+    - Added definition and usage of HOST_OS, HOST_ARCH, TARGET_OS,
       TARGET_ARCH, currently only defined/used by Visual Studio
       Compilers. This will be rolled out to other platforms/tools
       in the future.
@@ -160,7 +168,7 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
 
     - Avoid adding -gphobos to a command line multiple times
       when initializing use of the DMD compiler.
-  
+
   From Jason Kenney:
 
     - Sugguested HOST/TARGET OS/ARCH separation.
@@ -212,7 +220,7 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
       use the output to find files TeX creates. This allows the MiKTeX
       installations to find the created files
 
-    - Notify user of Latex errors that would get buried in the 
+    - Notify user of Latex errors that would get buried in the
       Latex output
 
     - Remove LATEXSUFFIXES from environments that don't initialize Tex.
@@ -220,8 +228,8 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
     - Add support for the glosaaries package for glossaries and acronyms
 
     - Fix problem that pdftex, latex, and pdflatex tools by themselves did
-      not create the actions for bibtex, makeindex,... by creating them 
-      and other environment settings in one routine called by all four 
+      not create the actions for bibtex, makeindex,... by creating them
+      and other environment settings in one routine called by all four
       tex tools.
 
     - Fix problem with filenames of sideeffects when the user changes
@@ -524,7 +532,7 @@ RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
     - Add CheckCC, CheckCXX, CheckSHCC and CheckSHCXX tests to
       configuration contexts.
 
-    - Have the --profile= argument use the much faster cProfile module 
+    - Have the --profile= argument use the much faster cProfile module
       (if it's available in the running Python version).
 
     - Reorder MSVC compilation arguments so the /Fo is first.
@@ -689,7 +697,7 @@ RELEASE 1.0.0 - XXX
 
     - In RPCGEN tests, ignore stderr messages from older versions of
       rpcgen on some versions of Mac OS X.
-   
+
     - Fix typos in man page descriptions of Tag() and Package(), and in
       the scons-time man page.
 
@@ -735,7 +743,7 @@ RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
           object, its UnknownOptions() method, and its associated
           BoolVariable(), EnumVariable(), ListVariable(), PackageVariable()
           and PathVariable() functions.
-          
+
        -  Document the Progress() function.
 
        -  Reorganize the chapter and sections describing the different
@@ -1420,7 +1428,7 @@ RELEASE 0.97.0d20070809 - Fri, 10 Aug 2007 10:51:27 -0500
 
   - Fix expansion of $TARGET, $TARGETS, $SOURCE and $SOURCES keywords in
     Visual C/C++ PDB file names.
-    
+
   - Fix locating Visual C/C++ PDB files in build directories.
 
   - Support an env.AddMethod() method and an AddMethod() global function
@@ -1719,7 +1727,7 @@ RELEASE 0.96.94 - Sun, 07 Jan 2007 18:36:20 -0600
 
   From Paul:
 
-  - When compiling resources under MinGW, make sure there's a space 
+  - When compiling resources under MinGW, make sure there's a space
     between the --include-dir option and its argument.
 
   From Jay Kint:
@@ -1995,7 +2003,7 @@ RELEASE 0.96.93 - Mon, 06 Nov 2006 00:44:11 -0600
 
   - Add an env.ParseFlags() method that provides separate logic for
     parsing GNU tool chain flags into a dictionary.
-    
+
   - Add an env.MergeFlags() method to apply an arbitrary dictionary
     of flags to a construction environment's variables.
 
@@ -2040,7 +2048,7 @@ RELEASE 0.96.93 - Mon, 06 Nov 2006 00:44:11 -0600
 
   From Dobes Vandermeer:
 
-  - Let the src_dir option to the SConscript() function affect all the 
+  - Let the src_dir option to the SConscript() function affect all the
     the source file paths, instead of treating all source files paths
     as relative to the SConscript directory itself.
 
@@ -4252,7 +4260,7 @@ RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
 
   - Change the documentation to correctly describe that the -f option
     doesn't change to the directory in which the specified file lives.
-    
+
   - Support changing directories locally with SConscript directory
     path names relative to any SConstruct file specified with -f.
     This allows you to build in another directory by simply changing
@@ -4628,7 +4636,7 @@ RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
 
   - Removed the "shared" keyword argument from the Object and
     Library builders.
-    
+
   - Added separated StaticObject, SharedObject, StaticLibrary and
     SharedLibrary builders.  Made Object and Library synonyms for
     StaticObject and StaticLibrary, respectively.
@@ -4903,7 +4911,7 @@ RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
   - Fix so that Nodes can be passed to SConscript files.
 
   From Moshe Zadka:
-  
+
   - Changes for official Debian packaging.
 
 
@@ -4970,7 +4978,7 @@ RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
   From Anthony Roach:
 
   - Fix:  Construction variables with values of 0 were incorrectly
-    interpolated as ''. 
+    interpolated as ''.
 
   - Support env['VAR'] to fetch construction variable values.
 
@@ -5189,15 +5197,15 @@ RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
 
   - Fetch the location of the Microsoft Visual C++ compiler(s) from
     the Registry, instead of hard-coding the location.
-    
+
   - Made Scanner objects take Nodes, not path names.
-    
+
   - Have the C Scanner cache the #include file names instead of
     (re-)scanning the file each time it's called.
 
   - Created a separate class for parent "nodes" of file system roots,
     eliminating the need for separate is-parent-null checks everywhere.
-    
+
   - Removed defined __hash__() and __cmp() methods from FS.Entry, in
     favor of Python's more efficient built-in identity comparisons.
 
@@ -5243,7 +5251,7 @@ RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600
   - Made Default() accept Nodes as arguments.
 
   - Changed Export() to make it easier to use.
-  
+
   - Added the Import() and Return() methods.
 
 
