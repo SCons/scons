@@ -406,6 +406,9 @@ def diskcheck_types():
 
 
 class EntryProxy(SCons.Util.Proxy):
+
+    __str__ = SCons.Util.Delegate('__str__')
+
     def __get_abspath(self):
         entry = self.get()
         return SCons.Subst.SpecialAttrWrapper(entry.get_abspath(),

@@ -854,6 +854,8 @@ class CompositeBuilder(SCons.Util.Proxy):
         self.cmdgen = cmdgen
         self.builder = builder
 
+    __call__ = SCons.Util.Delegate('__call__')
+
     def add_action(self, suffix, action):
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
