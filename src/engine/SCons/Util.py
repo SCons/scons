@@ -1378,7 +1378,7 @@ def AddMethod(obj, function, name=None):
 
     if hasattr(obj, '__class__') and obj.__class__ != types.TypeType:
         # "obj" is an instance, so it gets a bound method.
-        setattr(obj, name, types.MethodType(function, obj, cls))
+        setattr(obj, name, types.MethodType(function, obj, obj.__class__))
     else:
         # "obj" is a class, so it gets an unbound method.
         setattr(obj, name, types.MethodType(function, None, obj))
