@@ -51,7 +51,7 @@ from __future__ import division
 try:
     import gc
 except ImportError:
-    class _fake_gc:
+    class _fake_gc(object):
         def isenabled(self):
             return None
         def enable(self):
@@ -97,7 +97,7 @@ def reindent(src, indent):
     """Helper to reindent a multi-line statement."""
     return src.replace("\n", "\n" + " "*indent)
 
-class Timer:
+class Timer(object):
     """Class for timing execution speed of small code snippets.
 
     The constructor takes a statement to be timed, an additional
