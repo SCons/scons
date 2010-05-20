@@ -201,7 +201,7 @@ def my_import(mname):
         fp, pathname, description = imp.find_module(mname)
     return imp.load_module(mname, fp, pathname, description)
 
-class Flagger:
+class Flagger(object):
     default_value = 1
     def __setitem__(self, item, value):
         self.__dict__[item] = value
@@ -344,7 +344,7 @@ def printentries(entries, location):
                 print nodeinfo_string(name, entry.ninfo)
             printfield(name, entry.binfo)
 
-class Do_SConsignDB:
+class Do_SConsignDB(object):
     def __init__(self, dbm_name, dbm):
         self.dbm_name = dbm_name
         self.dbm = dbm

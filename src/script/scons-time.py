@@ -112,7 +112,7 @@ def HACK_for_exec(cmd, *args):
     elif len(args) == 1:  exec cmd in args[0]
     else:                 exec cmd in args[0], args[1]
 
-class Plotter:
+class Plotter(object):
     def increment_size(self, largest):
         """
         Return the size of each horizontal increment line for a specified
@@ -135,7 +135,7 @@ class Plotter:
         increment = self.increment_size(largest)
         return ((largest + increment - 1) // increment) * increment
 
-class Line:
+class Line(object):
     def __init__(self, points, type, title, label, comment, fmt="%s %s"):
         self.points = points
         self.type = type
@@ -309,7 +309,7 @@ def tee_to_file(command, log):
 
 
     
-class SConsTimer:
+class SConsTimer(object):
     """
     Usage: scons-time SUBCOMMAND [ARGUMENTS]
     Type "scons-time help SUBCOMMAND" for help on a specific subcommand.
