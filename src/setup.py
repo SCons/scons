@@ -75,7 +75,7 @@ _install_lib = distutils.command.install_lib.install_lib
 _install_scripts = distutils.command.install_scripts.install_scripts
 _build_scripts = distutils.command.build_scripts.build_scripts
 
-class _options:
+class _options(object):
     pass
 
 Options = _options()
