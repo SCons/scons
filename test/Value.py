@@ -38,7 +38,7 @@ python = TestSCons.python
 SConstruct_content = """
 Decider(r'%(source_signature)s')
 
-class Custom:
+class Custom(object):
     def __init__(self, value):  self.value = value
     def __str__(self):          return "C=" + str(self.value)
 
@@ -93,10 +93,11 @@ for source_signature in ['MD5', 'timestamp-newer']:
 
     out1 = """create(["f1.out"], ['/usr/local'])"""
     out2 = """create(["f2.out"], [10])"""
-    out3 = """create\\(\\["f3.out"\\], \\[<.*.Custom instance at """
+    out3 = """create\\(\\["f3.out"\\], \\[<.*.Custom (instance|object) at """
     #" <- unconfuses emacs syntax highlighting
 
     test.must_contain_all_lines(test.stdout(), [out1, out2, out7, out8])
+    print test.stdout()
     test.fail_test(re.search(out3, test.stdout()) == None)
 
     test.must_match('f1.out', "/usr/local")
@@ -110,7 +111,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
     test.run(arguments='prefix=/usr')
     out4 = """create(["f1.out"], ['/usr'])"""
     out5 = """create(["f2.out"], [4])"""
-    out6 = """create\\(\\["f3.out"\\], \\[<.*.Custom instance at """
+    out6 = """create\\(\\["f3.out"\\], \\[<.*.Custom (instance|object) at """
     #" <- unconfuses emacs syntax highlighting
     test.must_contain_all_lines(test.stdout(), [out4, out5])
     test.fail_test(re.search(out6, test.stdout()) == None)

@@ -86,7 +86,7 @@ test.up_to_date(arguments = '.')
 test.write('SConstruct', """
 import os
 assert 'string' not in globals()
-class bld:
+class bld(object):
     def __init__(self):
         self.cmd = r'%(_python_)s build.py %%s 4 %%s'
     def __call__(self, env, target, source):

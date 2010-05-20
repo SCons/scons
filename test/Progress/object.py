@@ -36,7 +36,7 @@ test.write('SConstruct', """\
 import sys
 env = Environment()
 env['BUILDERS']['C'] = Builder(action=Copy('$TARGET', '$SOURCE'))
-class my_progress:
+class my_progress(object):
     count = 0
     def __call__(self, node, *args, **kw):
         self.count = self.count + 1
