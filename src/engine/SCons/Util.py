@@ -33,7 +33,6 @@ import SCons.compat
 
 import copy
 import os
-import os.path
 import re
 import sys
 import types
@@ -476,7 +475,7 @@ def _semi_deepcopy_inst(x):
         return x.__class__(_semi_deepcopy_list(x))
     else:
         return x
-d[types.InstanceType] = _semi_deepcopy_inst
+d[InstanceType] = _semi_deepcopy_inst
 
 def semi_deepcopy(x):
     copier = _semi_deepcopy_dispatch.get(type(x))
@@ -1376,7 +1375,7 @@ def AddMethod(obj, function, name=None):
     else:
         function = RenameFunction(function, name)
 
-    if hasattr(obj, '__class__') and obj.__class__ != types.TypeType:
+    if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
         setattr(obj, name, types.MethodType(function, obj, obj.__class__))
     else:
