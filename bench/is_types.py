@@ -244,7 +244,7 @@ def Func12(obj):
 #       {'keyword' : 'arguments'},
 #   ),
 
-class A:
+class A(object):
     pass
 
 Data = [
