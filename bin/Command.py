@@ -14,7 +14,7 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-class CommandRunner:
+class CommandRunner(object):
     """
     Representation of a command to be executed.
     """
