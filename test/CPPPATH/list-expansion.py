@@ -42,7 +42,7 @@ test = TestSCons.TestSCons()
 test.subdir('sub1', 'sub2', 'sub3', 'sub4')
 
 test.write('SConstruct', """\
-class _inc_test:
+class _inc_test(object):
     def __init__(self, name):
         self.name = name
 

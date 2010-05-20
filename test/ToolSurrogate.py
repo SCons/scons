@@ -34,7 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-class Curry:
+class Curry(object):
     def __init__(self, fun, *args, **kwargs):
         self.fun = fun
         self.pending = args[:]
@@ -55,7 +55,7 @@ def Str(target, source, env, cmd=""):
         result.append(" ".join(map(str, cmd)))
     return '\\n'.join(result)
 
-class ToolSurrogate:
+class ToolSurrogate(object):
     def __init__(self, tool, variable, func):
         self.tool = tool
         self.variable = variable
