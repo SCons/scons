@@ -117,7 +117,7 @@ import TestCmd
 sgmllib.entityref = re.compile('&([a-zA-Z][-_.a-zA-Z0-9]*)[^-_a-zA-Z0-9]')
 
 # Classes for collecting different types of data we're interested in.
-class DataCollector:
+class DataCollector(object):
     """Generic class for collecting data between a start tag and end
     tag.  We subclass for various types of tags we care about."""
     def __init__(self):
@@ -215,7 +215,7 @@ def my_RDirs(self, pathlist, orig_RDirs=orig_RDirs):
     return [str(x).replace(os.sep, Sep) for x in orig_RDirs(self, pathlist)]
 SCons.Node.FS.File.RDirs = my_RDirs
 
-class Curry:
+class Curry(object):
     def __init__(self, fun, *args, **kwargs):
         self.fun = fun
         self.pending = args[:]
@@ -236,7 +236,7 @@ def Str(target, source, env, cmd=""):
         result.append(' '.join(map(str, cmd)))
     return '\\n'.join(result)
 
-class ToolSurrogate:
+class ToolSurrogate(object):
     def __init__(self, tool, variable, func, varlist):
         self.tool = tool
         if not isinstance(variable, list):

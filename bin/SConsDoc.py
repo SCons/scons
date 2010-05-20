@@ -146,7 +146,7 @@ class Tool(Item):
 class ConstructionVariable(Item):
     pass
 
-class Chunk:
+class Chunk(object):
     def __init__(self, tag, body=None):
         self.tag = tag
         if not body:
@@ -158,7 +158,7 @@ class Chunk:
     def append(self, data):
         self.body.append(data)
 
-class Arguments:
+class Arguments(object):
     def __init__(self, signature, body=None):
         if not body:
             body = []
@@ -175,7 +175,7 @@ class Arguments:
     def append(self, data):
         self.body.append(data)
 
-class Summary:
+class Summary(object):
     def __init__(self):
         self.body = []
         self.collect = []

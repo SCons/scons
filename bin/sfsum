@@ -41,7 +41,7 @@ SFName = {
     'Christoph Wiedemann'       : 'wiedeman',
 }
 
-class Artifact:
+class Artifact(object):
     """Just a place to hold attributes that we find in the XML."""
     pass
 

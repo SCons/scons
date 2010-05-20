@@ -131,7 +131,7 @@ Link_Entities_Header = """\
 -->
 """
 
-class SCons_XML:
+class SCons_XML(object):
     def __init__(self, entries, **kw):
         self.values = entries
         for k, v in kw.items():
@@ -271,7 +271,7 @@ class SCons_XML_to_man(SCons_XML):
         body = re.compile(r'\\f([BI])-', re.M).sub(r'\\f\1\-', body)
         f.write(body)
 
-class Proxy:
+class Proxy(object):
     def __init__(self, subject):
         """Wrap an object as a Proxy object"""
         self.__subject = subject

@@ -35,7 +35,7 @@ directory = sys.argv[1]
 Top = None
 TopPath = None
 
-class Dir:
+class Dir(object):
     def __init__(self, path):
         self.path = path
         self.entries = {}

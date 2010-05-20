@@ -46,7 +46,7 @@ TimeSCons_revision = 4569
 TimeSCons_pieces = ['QMTest', 'timings', 'runtest.py']
 
 
-class CommandRunner:
+class CommandRunner(object):
     """
     Executor class for commands, including "commands" implemented by
     Python functions.
