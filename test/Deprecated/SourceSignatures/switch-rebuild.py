@@ -34,9 +34,14 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
+expect = TestSCons.re_escape("""
+scons: warning: The env.SourceSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+
 
 base_sconstruct_contents = """\
-SetOption('warn', 'no-deprecated-source-signatures')
+SetOption('warn', 'deprecated-source-signatures')
 SourceSignatures('%s')
 
 def build(env, target, source):
@@ -59,10 +64,9 @@ switch_out_switch_in = re.escape(test.wrap_stdout('build(["switch.out"], ["switc
 
 test.run(arguments = 'switch.out',
          stdout = switch_out_switch_in,
-         stderr = TestSCons.deprecated_python_expr)
+         stderr = expect)
 
 test.up_to_date(arguments = 'switch.out', stderr = None)
-
 
 
 write_SConstruct(test, 'timestamp')
@@ -70,19 +74,16 @@ write_SConstruct(test, 'timestamp')
 test.up_to_date(arguments = 'switch.out', stderr = None)
 
 
-
 write_SConstruct(test, 'MD5')
 
 test.not_up_to_date(arguments = 'switch.out', stderr = None)
-
 
 
 test.write('switch.in', "switch.in 2\n")
 
 test.run(arguments = 'switch.out',
          stdout = switch_out_switch_in,
-         stderr = TestSCons.deprecated_python_expr)
-
+         stderr = expect)
 
 
 test.pass_test()

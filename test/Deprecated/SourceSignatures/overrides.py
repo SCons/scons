@@ -36,8 +36,13 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
+expect = TestSCons.re_escape("""
+scons: warning: The env.SourceSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+
 test.write('SConstruct', """\
-SetOption('warn', 'no-deprecated-source-signatures')
+SetOption('warn', 'deprecated-source-signatures')
 DefaultEnvironment().SourceSignatures('MD5')
 env = Environment()
 env.SourceSignatures('timestamp')
@@ -46,15 +51,13 @@ env.Command('foo.out', 'foo.in', Copy('$TARGET', '$SOURCE'), FOO=1)
 
 test.write('foo.in', "foo.in 1\n")
 
-test.run(arguments = 'foo.out',
-         stderr = TestSCons.deprecated_python_expr)
+test.run(arguments = 'foo.out', stderr = expect)
 
 test.sleep()
 
 test.write('foo.in', "foo.in 1\n")
 
-test.not_up_to_date(arguments = 'foo.out',
-                    stderr = TestSCons.deprecated_python_expr)
+test.not_up_to_date(arguments = 'foo.out', stderr = expect)
 
 test.pass_test()
 
