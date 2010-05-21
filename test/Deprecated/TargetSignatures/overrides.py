@@ -36,7 +36,7 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
-SetOption('warn', 'no-deprecated-target-signatures')
+SetOption('warn', 'deprecated-target-signatures')
 env = Environment()
 env.TargetSignatures('content')
 env.Command('foo.out', 'foo.mid', Copy('$TARGET', '$SOURCE'), FOO=1)
@@ -45,8 +45,12 @@ env.Command('foo.mid', 'foo.in', Copy('$TARGET', '$SOURCE'), FOO=2)
 
 test.write('foo.in', "foo.in\n")
 
-test.run(arguments = '.',
-         stderr = TestSCons.deprecated_python_expr)
+expect = TestSCons.re_escape("""
+scons: warning: The env.TargetSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+
+test.run(arguments = '.', stderr = expect)
 
 test.must_match('foo.mid', "foo.in\n")
 test.must_match('foo.out', "foo.in\n")

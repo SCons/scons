@@ -36,10 +36,14 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
+expect = TestSCons.re_escape("""
+scons: warning: The env.TargetSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
 
 
 sconstruct_contents = """\
-SetOption('warn', 'no-deprecated-target-signatures')
+SetOption('warn', 'deprecated-target-signatures')
 env = Environment()
 
 def copy1(env, source, target):
@@ -81,7 +85,7 @@ copy1(["bar.out"], ["bar.mid"])
 copy2(["foo.mid"], ["foo.in"])
 copy1(["foo.out"], ["foo.mid"])
 """)),
-         stderr = TestSCons.deprecated_python_expr)
+         stderr = expect)
 
 test.up_to_date(arguments='bar.out foo.out', stderr=None)
 
@@ -99,7 +103,7 @@ copy1(["bar.out"], ["bar.mid"])
 copy2(["foo.mid"], ["foo.in"])
 scons: `foo.out' is up to date.
 """)),
-         stderr = TestSCons.deprecated_python_expr)
+         stderr = expect)
 
 
 
@@ -124,7 +128,7 @@ scons: `bar.out' is up to date.
 copy2(["foo.mid"], ["foo.in"])
 copy1(["foo.out"], ["foo.mid"])
 """)),
-         stderr = TestSCons.deprecated_python_expr)
+         stderr = expect)
 
 
 

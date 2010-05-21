@@ -613,7 +613,7 @@ def Parser(version):
                     parser.values.delayed_warnings = []
                 msg = deprecated_debug_options[value]
                 w = "The --debug=%s option is deprecated%s." % (value, msg)
-                t = (SCons.Warnings.DeprecatedWarning, w)
+                t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
                 parser.values.delayed_warnings.append(t)
         else:
             raise OptionValueError("Warning:  %s is not a valid debug type" % value)

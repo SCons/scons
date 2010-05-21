@@ -201,8 +201,9 @@ class Task(object):
         # Deprecation Cycle) so the desired behavior is explicitly
         # determined by which concrete subclass is used.
         #raise NotImplementedError
-        msg = ('Direct use of the Taskmaster.Task class will be deprecated\n'
-               + '\tin a future release.')
+        msg = ('Taskmaster.Task is an abstract base class; instead of\n'
+              '\tusing it directly, '
+              'derive from it and override the abstract methods.')
         SCons.Warnings.warn(SCons.Warnings.TaskmasterNeedsExecuteWarning, msg)
         return True
 

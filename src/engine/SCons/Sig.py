@@ -40,7 +40,7 @@ import SCons.Warnings
 msg = 'The SCons.Sig module no longer exists.\n' \
       '    Remove the following "import SCons.Sig" line to eliminate this warning:'
 
-SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning, msg)
+SCons.Warnings.warn(SCons.Warnings.DeprecatedSigModuleWarning, msg)
 
 default_calc = None
 default_module = None

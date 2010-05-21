@@ -40,20 +40,9 @@ task = SCons.Taskmaster.Task(tm, [], True, None)
 task.needs_execute()
 """)
 
-expect = """
-scons: warning: Direct use of the Taskmaster.Task class will be deprecated
-\tin a future release.
-"""
-
-test.run(arguments = '.')
-
-test.run(arguments = '--warn=taskmaster-needs-execute .',
-         stderr = TestSCons.re_escape(expect) + TestSCons.file_expr)
-
-test.run(arguments = '--warn=no-taskmaster-needs-execute .')
-
-test.run(arguments = '--warn=future-deprecated .',
-         stderr = TestSCons.re_escape(expect) + TestSCons.file_expr)
+msg ="""Taskmaster.Task is an abstract base class; instead of
+\tusing it directly, derive from it and override the abstract methods."""
+test.deprecated_warning('taskmaster-needs-execute', msg)
 
 test.pass_test()
 

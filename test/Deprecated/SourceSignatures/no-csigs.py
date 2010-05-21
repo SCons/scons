@@ -34,7 +34,7 @@ test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 
 test.write('SConstruct', """\
-SetOption('warn', 'no-deprecated-source-signatures')
+SetOption('warn', 'deprecated-source-signatures')
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 B = Builder(action = build)
@@ -47,9 +47,12 @@ SourceSignatures('timestamp')
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
 
-test.run(arguments = '.',
-         stderr = TestSCons.deprecated_python_expr)
+expect = TestSCons.re_escape("""
+scons: warning: The env.SourceSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
 
+test.run(arguments = '.', stderr = expect)
 
 
 expect = r"""=== .:
@@ -66,7 +69,6 @@ f2.out: \S+ \d+ \d+
 
 test.run_sconsign(arguments = test.workpath('.sconsign'),
                   stdout = expect)
-
 
 
 test.pass_test()

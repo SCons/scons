@@ -33,11 +33,18 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
+expect = TestSCons.re_escape("""
+scons: warning: The env.SourceSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.re_escape("""
+scons: warning: The env.TargetSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
 
 
 test.write('SConstruct', """\
-SetOption('warn', 'no-deprecated-source-signatures')
-SetOption('warn', 'no-deprecated-target-signatures')
+SetOption('warn', 'deprecated-source-signatures')
+SetOption('warn', 'deprecated-target-signatures')
 env = Environment()
 
 def copy(env, source, target):
@@ -67,17 +74,16 @@ test.write('foo.in', "foo.in\n")
 test.write('bar.in', "bar.in\n")
 test.write('extra.in', "extra.in 1\n")
 
-test.run(stderr = TestSCons.deprecated_python_expr)
+test.run(stderr = expect)
 
 test.must_match('final', "foo.in\nbar.in\nextra.in 1\n")
 
 test.sleep()
 test.write('extra.in', "extra.in 2\n")
 
-test.run(stderr = TestSCons.deprecated_python_expr)
+test.run(stderr = expect)
 
 test.must_match('final', "foo.in\nbar.in\nextra.in 1\n")
-
 
 
 test.pass_test()

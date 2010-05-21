@@ -409,6 +409,26 @@ class TestSCons(TestCommon):
                 kw['arguments'] = option + ' ' + arguments
         return self.run(**kw)
 
+    def deprecated_warning(self, warn, msg):
+        """
+        Verifies the expected behavior occurs for deprecation warnings.
+        TODO: Need something else for deprecation errors.
+        """
+        # all warnings off, should get no output
+        self.run(arguments = '--warn=no-deprecated .', stderr='')
+
+        # warning enabled, should get expected output
+        stderr = '\nscons: warning: ' + re_escape(msg) + '\n' + file_expr
+        self.run(arguments = '--warn=%s .' % warn, stderr=stderr)
+
+        # no --warn option, should get either nothing or expected output
+        expect = """()|(%s)""" % (stderr)
+        self.run(arguments = '--warn=no-%s .' % warn, stderr=expect)
+
+        # warning disabled, should get either nothing or mandatory message
+        expect = """()|(Can not disable mandataory warning: 'no-%s'\n\n%s)""" % (warn, stderr)
+        self.run(arguments = '--warn=no-%s .' % warn, stderr=expect)
+
     def diff_substr(self, expect, actual, prelen=20, postlen=40):
         i = 0
         for x, y in zip(expect, actual):

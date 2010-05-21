@@ -36,7 +36,7 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
-SetOption('warn', 'no-deprecated-source-signatures')
+SetOption('warn', 'deprecated-source-signatures')
 SetOption('implicit_cache', 1)
 SourceSignatures('timestamp')
 
@@ -47,16 +47,20 @@ env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'both.out', source = 'both.in')
 """)
 
+
+expect = TestSCons.re_escape("""
+scons: warning: The env.SourceSignatures() method is deprecated;
+\tconvert your build to use the env.Decider() method instead.
+""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+
+
 both_out_both_in = re.escape(test.wrap_stdout('build(["both.out"], ["both.in"])\n'))
-
-
 
 test.write('both.in', "both.in 1\n")
 
 test.run(arguments = 'both.out',
          stdout = both_out_both_in,
-         stderr = TestSCons.deprecated_python_expr)
-
+         stderr = expect)
 
 
 test.sleep(2)
@@ -65,8 +69,7 @@ test.write('both.in', "both.in 2\n")
 
 test.run(arguments = 'both.out',
          stdout = both_out_both_in,
-         stderr = TestSCons.deprecated_python_expr)
-
+         stderr = expect)
 
 
 test.sleep(2)
@@ -75,8 +78,7 @@ test.write('both.in', "both.in 3\n")
 
 test.run(arguments = 'both.out',
          stdout = both_out_both_in,
-         stderr = TestSCons.deprecated_python_expr)
-
+         stderr = expect)
 
 
 test.sleep(2)
@@ -85,14 +87,12 @@ test.write('both.in', "both.in 4\n")
 
 test.run(arguments = 'both.out',
          stdout = both_out_both_in,
-         stderr = TestSCons.deprecated_python_expr)
-
+         stderr = expect)
 
 
 test.sleep(2)
 
 test.up_to_date(arguments = 'both.out', stderr = None)
-
 
 
 test.pass_test()
