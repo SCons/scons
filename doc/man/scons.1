@@ -4834,7 +4834,7 @@ will overwrite itself on a display:
 
 .ES
 import sys
-class ProgressCounter:
+class ProgressCounter(object):
     count = 0
     def __call__(self, node, *args, **kw):
         self.count += 100
@@ -9249,7 +9249,7 @@ be associated with the
 instantiation of the class:
 
 .ES
-class foo:
+class foo(object):
     def __init__(self, arg):
         self.arg = arg
 
