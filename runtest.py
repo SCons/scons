@@ -362,7 +362,7 @@ else:
         command_args = list(map(escape, command_args))
         return os.spawnv(os.P_WAIT, command, command_args)
 
-class Base:
+class Base(object):
     def __init__(self, path, spe=None):
         self.path = path
         self.abspath = os.path.abspath(path)
@@ -747,7 +747,7 @@ if qmtest:
 
 tests = list(map(Test, tests))
 
-class Unbuffered:
+class Unbuffered(object):
     def __init__(self, file):
         self.file = file
         self.softspace = 0  ## backward compatibility; not supported in Py3k
