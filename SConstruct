@@ -879,8 +879,8 @@ for p in [ scons ]:
         # Run setup.py in the unpacked subdirectory to "install" everything
         # into our build/test subdirectory.  The runtest.py script will set
         # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under etc (for the testing modules TestCmd.py, TestSCons.py,
-        # and unittest.py).  This makes sure that our tests pass with what
+        # and under QMTest (for the testing modules TestCmd.py, TestSCons.py,
+        # etc.).  This makes sure that our tests pass with what
         # we really packaged, not because of something hanging around in
         # the development directory.
         #
@@ -946,8 +946,8 @@ for p in [ scons ]:
         # Run setup.py in the unpacked subdirectory to "install" everything
         # into our build/test subdirectory.  The runtest.py script will set
         # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under etc (for the testing modules TestCmd.py, TestSCons.py,
-        # and unittest.py).  This makes sure that our tests pass with what
+        # and under QMTest (for the testing modules TestCmd.py, TestSCons.py,
+        # etc.).  This makes sure that our tests pass with what
         # we really packaged, not because of something hanging around in
         # the development directory.
         #
@@ -1261,10 +1261,10 @@ if sfiles:
             # Run setup.py in the unpacked subdirectory to "install" everything
             # into our build/test subdirectory.  The runtest.py script will set
             # PYTHONPATH so that the tests only look under build/test-{package},
-            # and under etc (for the testing modules TestCmd.py, TestSCons.py,
-            # and unittest.py).  This makes sure that our tests pass with what
-            # we really packaged, not because of something hanging around in
-            # the development directory.
+            # and under QMTest (for the testing modules TestCmd.py,
+            # TestSCons.py, etc.).  This makes sure that our tests pass with
+            # what we really packaged, not because of something hanging around
+            # in the development directory.
             #
             # We can get away with calling setup.py using a directory path
             # like this because we put a preamble in it that will chdir()
@@ -1315,10 +1315,10 @@ if sfiles:
             # Run setup.py in the unpacked subdirectory to "install" everything
             # into our build/test subdirectory.  The runtest.py script will set
             # PYTHONPATH so that the tests only look under build/test-{package},
-            # and under etc (for the testing modules TestCmd.py, TestSCons.py,
-            # and unittest.py).  This makes sure that our tests pass with what
-            # we really packaged, not because of something hanging around in
-            # the development directory.
+            # and under QMTest (for the testing modules TestCmd.py,
+            # TestSCons.py, etc.).  This makes sure that our tests pass with
+            # what we really packaged, not because of something hanging
+            # around in the development directory.
             #
             # We can get away with calling setup.py using a directory path
             # like this because we put a preamble in it that will chdir()
