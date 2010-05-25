@@ -212,7 +212,6 @@ check_list = [
             'QMTest/configuration',
             'QMTest/TestCmd.py',
             'QMTest/TestCommon.py',
-            'QMTest/unittest.py',
             'src/os_spawnv_fix.diff',
             'src/MANIFEST.in',
             'src/setup.cfg',
