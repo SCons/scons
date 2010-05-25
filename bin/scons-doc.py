@@ -203,7 +203,7 @@ Sep = {
 orig = SCons.Node.FS.EntryProxy
 class MyEntryProxy(orig):
     def __str__(self):
-        return str(self._Proxy__subject).replace(os.sep, Sep)
+        return str(self._subject).replace(os.sep, Sep)
 SCons.Node.FS.EntryProxy = MyEntryProxy
 
 # Slip our own RDirs() method into the Node.FS.File class so that the
