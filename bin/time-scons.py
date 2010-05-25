@@ -260,13 +260,15 @@ def do_revisions(cr, opts, branch, revisions, scripts):
                 lf = os.path.join(opts.origin, opts.logsdir, subdir, log_name)
                 out = open(lf, 'w')
                 err = None
+                close_out = True
             else:
                 out = stdout
                 err = stderr
+                close_out = False
             s = cr.run(script_command(script), stdout=out, stderr=err)
             if s and status == 0:
                 status = s
-            if out not in (sys.stdout, None):
+            if close_out:
                 out.close()
                 out = None
 
