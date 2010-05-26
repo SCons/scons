@@ -36,6 +36,8 @@ import SCons.Errors
 class Warning(SCons.Errors.UserError):
     pass
 
+class WarningOnByDefault(Warning):
+    pass
 
 
 # NOTE:  If you add a new warning class, add it to the man page, too!
@@ -43,51 +45,51 @@ class Warning(SCons.Errors.UserError):
 class CacheWriteErrorWarning(Warning):
     pass
 
-class CorruptSConsignWarning(Warning):
+class CorruptSConsignWarning(WarningOnByDefault):
     pass
 
 class DependencyWarning(Warning):
     pass
 
-class DuplicateEnvironmentWarning(Warning):
+class DuplicateEnvironmentWarning(WarningOnByDefault):
     pass
 
-class FutureReservedVariableWarning(Warning):
+class FutureReservedVariableWarning(WarningOnByDefault):
     pass
 
-class LinkWarning(Warning):
+class LinkWarning(WarningOnByDefault):
     pass
 
-class MisleadingKeywordsWarning(Warning):
+class MisleadingKeywordsWarning(WarningOnByDefault):
     pass
 
-class MissingSConscriptWarning(Warning):
+class MissingSConscriptWarning(WarningOnByDefault):
     pass
 
-class NoMD5ModuleWarning(Warning):
+class NoMD5ModuleWarning(WarningOnByDefault):
     pass
 
-class NoMetaclassSupportWarning(Warning):
+class NoMetaclassSupportWarning(WarningOnByDefault):
     pass
 
-class NoObjectCountWarning(Warning):
+class NoObjectCountWarning(WarningOnByDefault):
     pass
 
-class NoParallelSupportWarning(Warning):
+class NoParallelSupportWarning(WarningOnByDefault):
     pass
 
-class ReservedVariableWarning(Warning):
+class ReservedVariableWarning(WarningOnByDefault):
     pass
 
-class StackSizeWarning(Warning):
+class StackSizeWarning(WarningOnByDefault):
     pass
 
-class VisualCMissingWarning(Warning):
+class VisualCMissingWarning(WarningOnByDefault):
     pass
 
 # Used when MSVC_VERSION and MSVS_VERSION do not point to the
 # same version (MSVS_VERSION is deprecated)
-class VisualVersionMismatch(Warning):
+class VisualVersionMismatch(WarningOnByDefault):
     pass
 
 class VisualStudioMissingWarning(Warning):
@@ -109,7 +111,17 @@ class MandatoryDeprecatedWarning(DeprecatedWarning):
     pass
 
 
+# Special case; base always stays DeprecatedWarning
 class PythonVersionWarning(DeprecatedWarning):
+    pass
+
+class DeprecatedSourceCodeWarning(FutureDeprecatedWarning):
+    pass
+
+class DeprecatedBuildDirWarning(DeprecatedWarning):
+    pass
+
+class TaskmasterNeedsExecuteWarning(DeprecatedWarning):
     pass
 
 class DeprecatedCopyWarning(MandatoryDeprecatedWarning):
@@ -122,9 +134,6 @@ class DeprecatedSourceSignaturesWarning(MandatoryDeprecatedWarning):
     pass
 
 class DeprecatedTargetSignaturesWarning(MandatoryDeprecatedWarning):
-    pass
-
-class TaskmasterNeedsExecuteWarning(DeprecatedWarning):
     pass
 
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
@@ -153,7 +162,7 @@ def suppressWarningClass(clazz):
     _enabled.insert(0, (clazz, 0))
 
 def enableWarningClass(clazz):
-    """Enable all warnings that are of type clazz or
+    """Enables all warnings that are of type clazz or
     derived from clazz."""
     _enabled.insert(0, (clazz, 1))
 

@@ -33,7 +33,6 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
-
 test.write('SConstruct', """
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
@@ -55,25 +54,21 @@ test.write('file3b.out', 'file3b.out\n')
 
 expect = r"""
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
-"""
+""" + TestSCons.file_expr
 
 test.run(arguments='.', 
-         stderr=expect + TestSCons.file_expr + expect + TestSCons.file_expr)
+         stderr=expect + expect)
 
 test.must_match(['file3a'], 'file3a.in\n')
 test.must_match(['file3b'], 'file3b.out\n')
 
-test.run(arguments='--warn=misleading-keywords .', 
-         stderr=expect + TestSCons.file_expr + expect + TestSCons.file_expr)
+test.run(arguments='--warn=misleading-keywords .', stderr=expect + expect)
 
 test.run(arguments='--warn=no-misleading-keywords .')
 
-test.run(arguments='WARN=misleading-keywords .', 
-         stderr=expect + TestSCons.file_expr + expect + TestSCons.file_expr)
+test.run(arguments='WARN=misleading-keywords .', stderr=expect + expect)
 
-test.run(arguments='WARN=no-misleading-keywords .',
-         stderr = TestSCons.deprecated_python_expr)
-
+test.run(arguments='WARN=no-misleading-keywords .')
 
 
 test.pass_test()

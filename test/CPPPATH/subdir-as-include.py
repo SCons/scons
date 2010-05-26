@@ -46,7 +46,7 @@ env = Environment(CPPPATH = [Dir('inc1')])
 env.Program('prog.cpp')
 
 Export('env')
-SConscript('inc1/SConscript', build_dir='inc1/build', duplicate=0)
+SConscript('inc1/SConscript', variant_dir='inc1/build', duplicate=0)
 """)
 
 test.write('prog.cpp', """\

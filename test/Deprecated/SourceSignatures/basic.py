@@ -54,7 +54,7 @@ def write_SConstruct(test, sigtype):
 expect = TestSCons.re_escape("""
 scons: warning: The env.SourceSignatures() method is deprecated;
 \tconvert your build to use the env.Decider() method instead.
-""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+""") + TestSCons.file_expr
 
 write_SConstruct(test, 'timestamp')
 

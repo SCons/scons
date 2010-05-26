@@ -33,7 +33,6 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
-
 test.write("SConstruct", """\
 import SCons.Defaults
 
@@ -51,23 +50,21 @@ test.write("foo.c","""
 """)
 
 
-
 expect = r"""
 scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
-"""
+""" + TestSCons.file_expr
 
 test.run(arguments='--warn=dependency .',
-         stderr=expect + TestSCons.file_expr)
+         stderr=expect)
 
 test.run(arguments='--warn=dependency .',
-         stderr=expect + TestSCons.file_expr)
+         stderr=expect)
 
 test.run(arguments='--warn=all --warn=no-dependency .',
          stderr=TestSCons.deprecated_python_expr)
 
 test.run(arguments='--warn=no-dependency --warn=all .',
-         stderr=TestSCons.deprecated_python_expr + expect + TestSCons.file_expr)
-
+         stderr=TestSCons.deprecated_python_expr + expect)
 
 
 test.pass_test()

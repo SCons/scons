@@ -752,21 +752,8 @@ def _main(parser):
     # suppress) appropriate warnings about anything that might happen,
     # as configured by the user.
 
-    default_warnings = [ SCons.Warnings.CorruptSConsignWarning,
+    default_warnings = [ SCons.Warnings.WarningOnByDefault,
                          SCons.Warnings.DeprecatedWarning,
-                         SCons.Warnings.DuplicateEnvironmentWarning,
-                         SCons.Warnings.FutureReservedVariableWarning,
-                         SCons.Warnings.LinkWarning,
-                         SCons.Warnings.MissingSConscriptWarning,
-                         SCons.Warnings.NoMD5ModuleWarning,
-                         SCons.Warnings.NoMetaclassSupportWarning,
-                         SCons.Warnings.NoObjectCountWarning,
-                         SCons.Warnings.NoParallelSupportWarning,
-                         SCons.Warnings.MisleadingKeywordsWarning,
-                         SCons.Warnings.ReservedVariableWarning,
-                         SCons.Warnings.StackSizeWarning,
-                         SCons.Warnings.VisualVersionMismatch,
-                         SCons.Warnings.VisualCMissingWarning,
                        ]
 
     for warning in default_warnings:
@@ -944,7 +931,7 @@ def _main(parser):
     # $SCONSFLAGS, or in the SConscript file, then the search through
     # the list of deprecated warning classes will find that disabling
     # first and not issue the warning.
-    SCons.Warnings.enableWarningClass(SCons.Warnings.PythonVersionWarning)
+    #SCons.Warnings.enableWarningClass(SCons.Warnings.PythonVersionWarning)
     SCons.Warnings.process_warn_strings(options.warn)
 
     # Now that we've read the SConscript files, we can check for the

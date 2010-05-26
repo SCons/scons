@@ -206,6 +206,22 @@ elif os.name == 'nt':
     def _status(self):
         return self.status
 
+def _options_arguments(options, arguments):
+    """
+    This handles the "options" keyword argument and merges it
+    with the arguments.
+    """
+    if options:
+        if arguments is None:
+            arguments = options
+        else:
+            if isinstance(options, str):
+                options = [options]
+            if isinstance(arguments, str):
+                arguments = [arguments]
+            arguments = ' '.join(options + arguments)
+    return arguments
+
 class TestCommon(TestCmd):
 
     # Additional methods from the Perl Test::Cmd::Common module
@@ -477,13 +493,15 @@ class TestCommon(TestCmd):
             print self.banner('STDERR ')
             print actual_stderr
             self.fail_test()
-        if not expected_stdout is None and not match(actual_stdout, expected_stdout):
+        if expected_stdout is not None \
+                and not match(actual_stdout, expected_stdout):
             self.diff(expected_stdout, actual_stdout, 'STDOUT ')
             if actual_stderr:
                 print self.banner('STDERR ')
                 print actual_stderr
             self.fail_test()
-        if not expected_stderr is None and not match(actual_stderr, expected_stderr):
+        if expected_stderr is not None \
+                and not match(actual_stderr, expected_stderr):
             print self.banner('STDOUT ')
             print actual_stdout
             self.diff(expected_stderr, actual_stderr, 'STDERR ')
@@ -491,28 +509,18 @@ class TestCommon(TestCmd):
 
     def start(self, program = None,
                     interpreter = None,
+                    options = None,
                     arguments = None,
                     universal_newlines = None,
                     **kw):
         """
-        Starts a program or script for the test environment.
-
-        This handles the "options" keyword argument and exceptions.
+        Starts a program or script for the test environment, handling
+        any exceptions.
         """
+        arguments = _options_arguments(options, arguments)
         try:
-            options = kw['options']
-            del kw['options']
-        except KeyError:
-            pass
-        else:
-            if options:
-                if arguments is None:
-                    arguments = options
-                else:
-                    arguments = options + " " + arguments
-        try:
-            return TestCmd.start(self, program, interpreter, arguments, universal_newlines,
-                         **kw)
+            return TestCmd.start(self, program, interpreter, arguments,
+                                       universal_newlines, **kw)
         except KeyboardInterrupt:
             raise
         except Exception, e:
@@ -557,7 +565,7 @@ class TestCommon(TestCmd):
                   stdout = None, stderr = '', status = 0, **kw):
         """Runs the program under test, checking that the test succeeded.
 
-        The arguments are the same as the base TestCmd.run() method,
+        The parameters are the same as the base TestCmd.run() method,
         with the addition of:
 
                 options Extra options that get appended to the beginning
@@ -579,12 +587,7 @@ class TestCommon(TestCmd):
         not test standard output (stdout = None), and expects that error
         output is empty (stderr = "").
         """
-        if options:
-            if arguments is None:
-                arguments = options
-            else:
-                arguments = options + " " + arguments
-        kw['arguments'] = arguments
+        kw['arguments'] = _options_arguments(options, arguments)
         try:
             match = kw['match']
             del kw['match']

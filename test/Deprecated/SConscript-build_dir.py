@@ -26,13 +26,24 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that specifying a build_dir argument to SConscript still works.
-
-Note that the build_dir argument does not yet print a deprecation warning.
 """
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConstruct', """
+SConscript('SConscript', build_dir = 'build')
+""")
+
+test.write('SConscript', """
+""")
+
+msg = """The build_dir keyword has been deprecated; use the variant_dir keyword instead."""
+test.deprecated_warning('deprecated-build-dir', msg)
+
+warning = '\nscons: warning: ' + TestSCons.re_escape(msg) \
+                               + '\n' + TestSCons.file_expr
 
 all1 = test.workpath('test', 'build', 'var1', 'all')
 all2 = test.workpath('test', 'build', 'var2', 'all')
@@ -47,6 +58,7 @@ all9 = test.workpath('test', 'build', 'var9', 'src', 'all')
 test.subdir('test')
 
 test.write(['test', 'SConstruct'], """
+SetOption('warn', 'deprecated-build-dir')
 src = Dir('src')
 alt = Dir('alt')
 var1 = Dir('build/var1')
@@ -116,7 +128,7 @@ test.write('test/alt/aaa.in', "test/alt/aaa.in\n")
 test.write('test/alt/bbb.in', "test/alt/bbb.in\n")
 test.write('test/alt/ccc.in', "test/alt/ccc.in\n")
 
-test.run(chdir='test', arguments = '. ../build')
+test.run(chdir='test', arguments = '. ../build', stderr = 7*warning)
 
 all_src = "test/src/aaa.in\ntest/src/bbb.in\ntest/src/ccc.in\n"
 all_alt = "test/alt/aaa.in\ntest/alt/bbb.in\ntest/alt/ccc.in\n"
@@ -236,7 +248,7 @@ main(int argc, char *argv[]) {
 }
 """)
 
-test.run(chdir="test2")
+test.run(chdir="test2", stderr = warning)
 
 _obj = TestSCons._obj
 
@@ -267,7 +279,7 @@ test.write(['test3', 'src', 'file.in'], "file.in\n")
 
 test.write(['test3', 'src', '_glscry', 'file.in'], "file.in\n")
 
-test.run(chdir='test3')
+test.run(chdir='test3', stderr = warning)
 
 
 test.pass_test()
