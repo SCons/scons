@@ -105,7 +105,7 @@ class NodeInfoBase(object):
     logic for dealing with their own Node-specific signature information.
     """
     current_version_id = 1
-    def __init__(self, node):
+    def __init__(self, node=None):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         self._version_id = self.current_version_id
@@ -158,7 +158,7 @@ class BuildInfoBase(object):
     implicit dependencies, and action information.
     """
     current_version_id = 1
-    def __init__(self, node):
+    def __init__(self, node=None):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         self._version_id = self.current_version_id
