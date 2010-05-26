@@ -42,7 +42,21 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-  - None.
+  - Any Command() or env.Command() calls that use the following Action
+    factory functions will have their targets rebuilt when upgrading
+    from any pre-2.0 release:
+
+        Chmod()
+        Copy()
+        Delete()
+        Mkdir()
+        Move()
+        Touch()
+
+    (The rebuild occurs because the underlying Python class that
+    implements these functions has been changed to a new-style Python
+    class, and that changes the Python byte code and therefore the
+    build signature of the functions.)
 
   FIXES
 
