@@ -33,7 +33,6 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
-
 test.write('SConstruct', """
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
@@ -57,24 +56,19 @@ test.write('file1b.in', 'file1b.in\n')
 expect = r"""
 scons: warning: Two different environments were specified for target file1.out,
 \tbut they appear to have the same action: build\(target, source, env\)
-"""
+""" + TestSCons.file_expr
 
-test.run(arguments='file1.out', 
-         stderr=expect + TestSCons.file_expr)
+test.run(arguments='file1.out', stderr=expect)
 
 test.must_match('file1.out', "file1a.in\nfile1b.in\n")
 
-test.run(arguments='--warn=duplicate-environment file1.out', 
-         stderr=expect + TestSCons.file_expr)
+test.run(arguments='--warn=duplicate-environment file1.out', stderr=expect)
 
 test.run(arguments='--warn=no-duplicate-environment file1.out')
 
-test.run(arguments='WARN=duplicate-environment file1.out', 
-         stderr=expect + TestSCons.file_expr)
+test.run(arguments='WARN=duplicate-environment file1.out', stderr=expect)
 
-test.run(arguments='WARN=no-duplicate-environment file1.out',
-         stderr = TestSCons.deprecated_python_expr)
-
+test.run(arguments='WARN=no-duplicate-environment file1.out')
 
 
 test.pass_test()

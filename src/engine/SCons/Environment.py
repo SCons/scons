@@ -1812,6 +1812,8 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def BuildDir(self, *args, **kw):
+        msg = """BuildDir() and the build_dir keyword have been deprecated;\n\tuse VariantDir() and the variant_dir keyword instead."""
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
         if 'build_dir' in kw:
             kw['variant_dir'] = kw['build_dir']
             del kw['build_dir']
@@ -2043,6 +2045,9 @@ class Base(SubstitutionEnvironment):
 
     def SourceCode(self, entry, builder):
         """Arrange for a source code builder for (part of) a tree."""
+        #msg = """SourceCode() has been deprecated and there is no replacement.
+#\tIf you need this function, please contact dev@scons.tigris.org."""
+        #SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
         entries = self.arg2nodes(entry, self.fs.Entry)
         for entry in entries:
             entry.set_src_builder(builder)

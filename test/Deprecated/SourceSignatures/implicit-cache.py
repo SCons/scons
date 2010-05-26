@@ -51,7 +51,7 @@ env.B(target = 'both.out', source = 'both.in')
 expect = TestSCons.re_escape("""
 scons: warning: The env.SourceSignatures() method is deprecated;
 \tconvert your build to use the env.Decider() method instead.
-""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+""") + TestSCons.file_expr
 
 
 both_out_both_in = re.escape(test.wrap_stdout('build(["both.out"], ["both.in"])\n'))

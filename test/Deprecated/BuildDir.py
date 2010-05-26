@@ -27,8 +27,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the deprecated BuildDir() function and method still
 work to create a variant directory tree (by calling VariantDir()
 under the covers).
-
-Note that using BuildDir() does not yet print a deprecation warning.
 """
 
 import TestSCons
@@ -36,6 +34,17 @@ import TestSCons
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
+
+test.write('SConstruct', """
+BuildDir('build', 'src')
+""")
+
+msg = """BuildDir() and the build_dir keyword have been deprecated;
+\tuse VariantDir() and the variant_dir keyword instead."""
+test.deprecated_warning('deprecated-build-dir', msg)
+
+warning = '\nscons: warning: ' + TestSCons.re_escape(msg) \
+                               + '\n' + TestSCons.file_expr
 
 foo11 = test.workpath('work1', 'build', 'var1', 'foo1' + _exe)
 foo12 = test.workpath('work1', 'build', 'var1', 'foo2' + _exe)
@@ -51,6 +60,7 @@ foo52 = test.workpath('build', 'var5', 'foo2' + _exe)
 test.subdir('work1')
 
 test.write(['work1', 'SConstruct'], """
+SetOption('warn', 'deprecated-build-dir')
 src = Dir('src')
 var2 = Dir('build/var2')
 var3 = Dir('build/var3')
@@ -60,12 +70,12 @@ var6 = Dir('../build/var6')
 
 env = Environment(BUILD = 'build', SRC = 'src')
 
-VariantDir('build/var1', src)
-VariantDir(var2, src)
-VariantDir(var3, src, duplicate=0)
-env.VariantDir("$BUILD/var4", "$SRC", duplicate=0)
-VariantDir(var5, src, duplicate=0)
-VariantDir(var6, src)
+BuildDir('build/var1', src)
+BuildDir(var2, src)
+BuildDir(var3, src, duplicate=0)
+env.BuildDir("$BUILD/var4", "$SRC", duplicate=0)
+BuildDir(var5, src, duplicate=0)
+BuildDir(var6, src)
 
 env = Environment(CPPPATH='#src', FORTRANPATH='#src')
 SConscript('build/var1/SConscript', "env")
@@ -185,27 +195,32 @@ test.write(['work1', 'src', 'f4h.in'], r"""
 # Some releases of freeBSD seem to have library complaints about
 # tempnam().  Filter out these annoying messages before checking for
 # error output.
-def blank_output(err):
+def filter_tempnam(err):
     if not err:
-        return 1
-    stderrlines = [l for l in err.split('\n') if l]
+        return ''
     msg = "warning: tempnam() possibly used unsafely"
-    stderrlines = [l for l in stderrlines if l.find(msg) == -1]
-    return len(stderrlines) == 0
+    return '\n'.join([l for l in err.splitlines() if l.find(msg) == -1])
 
 test.run(chdir='work1', arguments = '. ../build', stderr=None)
 
-test.fail_test(not blank_output(test.stderr()))
+stderr = filter_tempnam(test.stderr())
+test.fail_test(TestSCons.match_re_dotall(stderr, 6*warning))
 
 test.run(program = foo11, stdout = "f1.c\n")
 test.run(program = foo12, stdout = "f2.c\n")
 test.run(program = foo41, stdout = "f1.c\n")
 test.run(program = foo42, stdout = "f2.c\n")
 
-test.run(chdir='work1', arguments='. ../build', stdout=test.wrap_stdout("""\
+test.run(chdir='work1',
+         arguments='. ../build',
+         stderr = None,
+         stdout=test.wrap_stdout("""\
 scons: `.' is up to date.
 scons: `%s' is up to date.
 """ % test.workpath('build')))
+
+stderr = filter_tempnam(test.stderr())
+test.fail_test(TestSCons.match_re_dotall(stderr, 6*warning))
 
 import os
 import stat
@@ -255,7 +270,8 @@ test.write(['work1', 'src', 'f4h.in'], r"""
 
 test.run(chdir='work1', arguments = '../build/var5', stderr=None)
 
-test.fail_test(not blank_output(test.stderr()))
+stderr = filter_tempnam(test.stderr())
+test.fail_test(TestSCons.match_re_dotall(stderr, 6*warning))
 
 test.run(program = foo51, stdout = "f1.c 2\n")
 test.run(program = test.workpath('build', 'var5', 'foo3' + _exe),
@@ -263,9 +279,15 @@ test.run(program = test.workpath('build', 'var5', 'foo3' + _exe),
 test.run(program = test.workpath('build', 'var5', 'foo4' + _exe),
                                  stdout = "f4.c 2\n")
 
-test.run(chdir='work1', arguments='../build/var5', stdout=test.wrap_stdout("""\
+test.run(chdir='work1',
+         arguments='../build/var5',
+         stderr=None,
+         stdout=test.wrap_stdout("""\
 scons: `%s' is up to date.
 """ % test.workpath('build', 'var5')))
+
+stderr = filter_tempnam(test.stderr())
+test.fail_test(TestSCons.match_re_dotall(stderr, 6*warning))
 
 test.pass_test()
 

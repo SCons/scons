@@ -159,7 +159,7 @@ test.write(['work3', 'SConstruct'], """\
 #/SConstruct ------------------------------------------
 import os
 env = Environment(ENV = os.environ)
-BuildDir('build', 'sub1', duplicate=0)
+VariantDir('build', 'sub1', duplicate=0)
 base = '#build/sub1'
 Export('env base')
 SConscript('sub1/SConscript', exports='env')

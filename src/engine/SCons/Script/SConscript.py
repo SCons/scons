@@ -378,7 +378,7 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def _get_SConscript_filenames(self, ls, kw):
         """
-        Convert the parameters passed to # SConscript() calls into a list
+        Convert the parameters passed to SConscript() calls into a list
         of files and export variables.  If the parameters are invalid,
         throws SCons.Errors.UserError. Returns a tuple (l, e) where l
         is a list of SConscript filenames and e is a list of exports.
@@ -523,6 +523,9 @@ class SConsEnvironment(SCons.Environment.Base):
             raise SCons.Errors.UserError("Import of non-existent variable '%s'"%x)
 
     def SConscript(self, *ls, **kw):
+        if 'build_dir' in kw:
+            msg = """The build_dir keyword has been deprecated; use the variant_dir keyword instead."""
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
         def subst_element(x, subst=self.subst):
             if SCons.Util.is_List(x):
                 x = list(map(subst, x))

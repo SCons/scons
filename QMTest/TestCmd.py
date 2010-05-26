@@ -426,12 +426,13 @@ def match_re_dotall(lines = None, res = None):
         res = "\n".join(res)
     s = "^" + res + "$"
     try:
+        #print 'DEBUG: lines', lines
+        #print 'DEBUG: dotall', s
         expr = re.compile(s, re.DOTALL)
     except re.error, e:
         msg = "Regular expression error in %s: %s"
         raise re.error(msg % (repr(s), e[0]))
-    if expr.match(lines):
-        return 1
+    return expr.match(lines)
 
 try:
     import difflib
@@ -1122,8 +1123,10 @@ class TestCmd(object):
         prepended unless it is enclosed in a [list].
         """
         cmd = self.command_args(program, interpreter, arguments)
-        cmd_string = ' '.join(map(self.escape, cmd))
+        #print 'DEBUG: SCONSFLAGS:', os.environ.get('SCONSFLAGS')
+        #print 'DEBUG: command line:', ' '.join(map(self.escape, cmd))
         if self.verbose:
+            cmd_string = ' '.join(map(self.escape, cmd))
             sys.stderr.write(cmd_string + "\n")
         if universal_newlines is None:
             universal_newlines = self.universal_newlines

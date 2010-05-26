@@ -39,9 +39,7 @@ RELEASE 2.0.0.alpha.20100508 - Sat, 08 May 2010 14:29:17 -0700
 
     - Add a '-3' option to runtest to print 3.x incompatibility warnings.
 
-    - Convert most old-style classes into new-style classes.
-
-    - Update deprecation warnings; most now become errors.
+    - Convert old-style classes into new-style classes.
 
   From Greg Noel:
 
@@ -72,6 +70,10 @@ RELEASE 2.0.0.alpha.20100508 - Sat, 08 May 2010 14:29:17 -0700
       various reported incompatibilities.
 
     - Comb out code paths specialized to Pythons older than 2.4.
+
+    - Update deprecation warnings; most now become mandatory.
+
+    - Start deprecation cycle for BuildDir() and build_dir.
 
 
 RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400

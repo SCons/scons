@@ -35,7 +35,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-SConscript('SConscript', build_dir='build', src='.')
+SConscript('SConscript', variant_dir='build', src='.')
 """)
 
 test.write('SConscript', """\

@@ -48,7 +48,7 @@ test.write('foo.in', "foo.in\n")
 expect = TestSCons.re_escape("""
 scons: warning: The env.TargetSignatures() method is deprecated;
 \tconvert your build to use the env.Decider() method instead.
-""") + TestSCons.file_expr + TestSCons.deprecated_python_expr
+""") + TestSCons.file_expr
 
 test.run(arguments = '.', stderr = expect)
 

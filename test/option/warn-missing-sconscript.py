@@ -33,7 +33,6 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
-
 test.write("SConstruct", """\
 def build(target, source, env):
     pass
@@ -51,19 +50,17 @@ test.write("foo.c","""
 #include "not_there.h"
 """)
 
-test.run(arguments = '--warn=missing-sconscript .', stderr = r"""
+expect = r"""
 scons: warning: Ignoring missing SConscript 'no_such_file'
-""" + TestSCons.file_expr)
+""" + TestSCons.file_expr
+
+test.run(arguments = '--warn=missing-sconscript .', stderr = expect)
 
 test.run(arguments = '--warn=no-missing-sconscript .', stderr = "")
 
-test.run(arguments = 'WARN=missing-sconscript .', stderr = r"""
-scons: warning: Ignoring missing SConscript 'no_such_file'
-""" + TestSCons.file_expr)
+test.run(arguments = 'WARN=missing-sconscript .', stderr = expect)
 
-test.run(arguments = 'WARN=no-missing-sconscript .',
-         stderr = TestSCons.deprecated_python_expr)
-
+test.run(arguments = 'WARN=no-missing-sconscript .')
 
 
 test.pass_test()

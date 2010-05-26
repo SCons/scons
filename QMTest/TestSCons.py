@@ -133,8 +133,7 @@ else:
     fortran_lib = gccFortranLibs()
 
 
-
-file_expr = r"""File "[^"]*", line \d+, in .+
+file_expr = r"""File "[^"]*", line \d+, in [^\n]+
 """
 
 # re.escape escapes too much.
@@ -144,15 +143,6 @@ def re_escape(str):
     return str
 
 
-
-try:
-    sys.version_info
-except AttributeError:
-    # Pre-1.6 Python has no sys.version_info
-    version_string = sys.version.split()[0]
-    version_ints = list(map(int, version_string.split('.')))
-    sys.version_info = tuple(version_ints + ['final', 0])
-
 def python_version_string():
     return sys.version.split()[0]
 
@@ -160,7 +150,7 @@ def python_minor_version_string():
     return sys.version[:3]
 
 def unsupported_python_version(version=sys.version_info):
-    return version < (1, 5, 2)
+    return version < (2, 3, 0)
 
 def deprecated_python_version(version=sys.version_info):
     return version < (2, 4, 0)
@@ -176,6 +166,38 @@ scons: warning: Support for pre-2.4 Python (%s) is deprecated.
 else:
     deprecated_python_expr = ""
 
+
+def initialize_sconsflags(ignore_python_version):
+    """
+    Add the --warn=no-python-version option to SCONSFLAGS for every
+    command so test scripts don't have to filter out Python version
+    deprecation warnings.
+    Same for --warn=no-visual-c-missing.
+    """
+    save_sconsflags = os.environ.get('SCONSFLAGS')
+    if save_sconsflags:
+        sconsflags = [save_sconsflags]
+    else:
+        sconsflags = []
+    if ignore_python_version and deprecated_python_version():
+        sconsflags.append('--warn=no-python-version')
+    # Provide a way to suppress or provide alternate flags for
+    # TestSCons purposes by setting TESTSCONS_SCONSFLAGS.
+    # (The intended use case is to set it to null when running
+    # timing tests of earlier versions of SCons which don't
+    # support the --warn=no-visual-c-missing warning.)
+    visual_c = os.environ.get('TESTSCONS_SCONSFLAGS',
+                              '--warn=no-visual-c-missing')
+    if visual_c:
+        sconsflags.append(visual_c)
+    os.environ['SCONSFLAGS'] = ' '.join(sconsflags)
+    return save_sconsflags
+
+def restore_sconsflags(sconsflags):
+    if sconsflags is None:
+        del os.environ['SCONSFLAGS']
+    else:
+        os.environ['SCONSFLAGS'] = sconsflags
 
 
 class TestSCons(TestCommon):
@@ -234,18 +256,9 @@ class TestSCons(TestCommon):
         # TERM can cause test failures due to control chars in prompts etc.
         os.environ['TERM'] = 'dumb'
         
-        self.ignore_python_version=kw.get('ignore_python_version',1)
-        if kw.get('ignore_python_version',-1) != -1:
+        self.ignore_python_version = kw.get('ignore_python_version',1)
+        if kw.get('ignore_python_version', -1) != -1:
             del kw['ignore_python_version']
-
-        if self.ignore_python_version and deprecated_python_version():
-            sconsflags = os.environ.get('SCONSFLAGS')
-            if sconsflags:
-                sconsflags = [sconsflags]
-            else:
-                sconsflags = []
-            sconsflags = sconsflags + ['--warn=no-python-version']
-            os.environ['SCONSFLAGS'] = ' '.join(sconsflags)
 
         TestCommon.__init__(self, **kw)
 
@@ -336,38 +349,42 @@ class TestSCons(TestCommon):
 
     def run(self, *args, **kw):
         """
-        Add the --warn=no-python-version option to SCONSFLAGS every
-        command so test scripts don't have to filter out Python version
-        deprecation warnings.
-        Same for --warn=no-visual-c-missing.
+        Set up SCONSFLAGS for every command so test scripts don't need
+        to worry about unexpected warnings in their output.
         """
-        save_sconsflags = os.environ.get('SCONSFLAGS')
-        if save_sconsflags:
-            sconsflags = [save_sconsflags]
-        else:
-            sconsflags = []
-        if self.ignore_python_version and deprecated_python_version():
-            sconsflags = sconsflags + ['--warn=no-python-version']
-        # Provide a way to suppress or provide alternate flags for
-        # TestSCons purposes by setting TESTSCONS_SCONSFLAGS.
-        # (The intended use case is to set it to null when running
-        # timing tests of earlier versions of SCons which don't
-        # support the --warn=no-visual-c-missing warning.)
-        sconsflags = sconsflags + [os.environ.get('TESTSCONS_SCONSFLAGS',
-                                                  '--warn=no-visual-c-missing')]
-        os.environ['SCONSFLAGS'] = ' '.join(sconsflags)
+        sconsflags = initialize_sconsflags(self.ignore_python_version)
         try:
-            result = TestCommon.run(self, *args, **kw)
+            TestCommon.run(self, *args, **kw)
         finally:
-            sconsflags = save_sconsflags
-        return result
+            restore_sconsflags(sconsflags)
 
-    def up_to_date(self, options = None, arguments = None, read_str = "", **kw):
+# Modifying the options should work and ought to be simpler, but this
+# class is used for more than just running 'scons' itself.  If there's
+# an automated  way of determining whether it's running 'scons' or
+# something else, this code should be resurected.
+#        options = kw.get('options')
+#        if options:
+#            options = [options]
+#        else:
+#            options = []
+#        if self.ignore_python_version and deprecated_python_version():
+#            options.append('--warn=no-python-version')
+#        # Provide a way to suppress or provide alternate flags for
+#        # TestSCons purposes by setting TESTSCONS_SCONSFLAGS.
+#        # (The intended use case is to set it to null when running
+#        # timing tests of earlier versions of SCons which don't
+#        # support the --warn=no-visual-c-missing warning.)
+#        visual_c = os.environ.get('TESTSCONS_SCONSFLAGS',
+#                                      '--warn=no-visual-c-missing')
+#        if visual_c:
+#            options.append(visual_c)
+#        kw['options'] = ' '.join(options)
+#        TestCommon.run(self, *args, **kw)
+
+    def up_to_date(self, arguments = '.', read_str = "", **kw):
         s = ""
         for arg in arguments.split():
             s = s + "scons: `%s' is up to date.\n" % arg
-            if options:
-                arguments = options + " " + arguments
         kw['arguments'] = arguments
         stdout = self.wrap_stdout(read_str = read_str, build_str = s)
         # Append '.*' so that timing output that comes after the
@@ -376,7 +393,7 @@ class TestSCons(TestCommon):
         kw['match'] = self.match_re_dotall
         self.run(**kw)
 
-    def not_up_to_date(self, options = None, arguments = None, **kw):
+    def not_up_to_date(self, arguments = '.', **kw):
         """Asserts that none of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
@@ -384,8 +401,6 @@ class TestSCons(TestCommon):
         s = ""
         for arg in arguments.split():
             s = s + "(?!scons: `%s' is up to date.)" % re.escape(arg)
-            if options:
-                arguments = options + " " + arguments
         s = '('+s+'[^\n]*\n)*'
         kw['arguments'] = arguments
         stdout = re.escape(self.wrap_stdout(build_str='ARGUMENTSGOHERE'))
@@ -419,15 +434,21 @@ class TestSCons(TestCommon):
 
         # warning enabled, should get expected output
         stderr = '\nscons: warning: ' + re_escape(msg) + '\n' + file_expr
-        self.run(arguments = '--warn=%s .' % warn, stderr=stderr)
+        self.run(arguments = '--warn=%s .' % warn,
+                 stderr=stderr,
+                 match = match_re_dotall)
 
         # no --warn option, should get either nothing or expected output
         expect = """()|(%s)""" % (stderr)
-        self.run(arguments = '--warn=no-%s .' % warn, stderr=expect)
+        self.run(arguments = '--warn=no-%s .' % warn,
+                 stderr=expect,
+                 match = match_re_dotall)
 
         # warning disabled, should get either nothing or mandatory message
         expect = """()|(Can not disable mandataory warning: 'no-%s'\n\n%s)""" % (warn, stderr)
-        self.run(arguments = '--warn=no-%s .' % warn, stderr=expect)
+        self.run(arguments = '--warn=no-%s .' % warn,
+                 stderr=expect,
+                 match = match_re_dotall)
 
     def diff_substr(self, expect, actual, prelen=20, postlen=40):
         i = 0
@@ -472,7 +493,6 @@ class TestSCons(TestCommon):
                    r'/\1 /XXXXXX', s)
         s = re.sub(r'/Length \d+ *\n/Filter /FlateDecode\n',
                    r'/Length XXXX\n/Filter /FlateDecode\n', s)
-
 
         try:
             import zlib
@@ -971,7 +991,12 @@ print py_ver
         """
         if 'stdin' not in kw:
             kw['stdin'] = True
-        return TestCommon.start(self, *args, **kw)
+        sconsflags = initialize_sconsflags(self.ignore_python_version)
+        try:
+            p = TestCommon.start(self, *args, **kw)
+        finally:
+            restore_sconsflags(sconsflags)
+        return p
 
     def wait_for(self, fname, timeout=10.0, popen=None):
         """

@@ -39,8 +39,8 @@ def check(expect):
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 
-
 test.write(SConstruct_path, """\
+SetOption('warn', 'deprecated-options')
 from SCons.Options.BoolOption import BoolOption
 BO = BoolOption
 
@@ -81,7 +81,6 @@ Invalid value for boolean option: irgendwas
 """ + TestSCons.file_expr)
 
 test.run(arguments='warnings=irgendwas', stderr=expect_stderr, status=2)
-
 
 
 test.pass_test()
