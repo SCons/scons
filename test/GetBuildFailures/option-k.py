@@ -91,8 +91,8 @@ scons: *** [f5] Error 1
 """
 
 test.run(arguments = '-k .', status = 2, stdout=None, stderr=None)
-test.exactly_contain_all_lines(test.stdout(), expect_stdout, title='stdout')
-test.exactly_contain_all_lines(test.stderr(), expect_stderr, title='stderr')
+test.must_contain_exactly_lines(test.stdout(), expect_stdout, title='stdout')
+test.must_contain_exactly_lines(test.stderr(), expect_stderr, title='stderr')
 
 test.must_match(test.workpath('f3'), 'f3.in\n')
 test.must_not_exist(test.workpath('f4'))

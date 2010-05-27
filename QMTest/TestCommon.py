@@ -40,7 +40,7 @@ provided by the TestCommon class:
 
     test.must_contain_any_line(output, lines, ['title', find])
 
-    test.exactly_contain_all_lines(output, lines, ['title', find])
+    test.must_contain_exactly_lines(output, lines, ['title', find])
 
     test.must_exist('file1', ['file2', ...])
 
@@ -92,13 +92,14 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.37.D001 2010/01/11 16:55:50 knight"
-__version__ = "0.37"
+__revision__ = "TestCommon.py 1.1.D001 2010/05/27 14:16:37 knight"
+__version__ = "1.1"
 
 import copy
 import os
 import stat
 import sys
+
 try:
     from collections import UserList
 except ImportError:
@@ -118,6 +119,31 @@ __all__.extend([ 'TestCommon',
                  'dll_prefix',
                  'dll_suffix',
                ])
+
+try:
+    sorted
+except NameError:
+    # Pre-2.4 Python has no sorted() function.
+    #
+    # The pre-2.4 Python list.sort() method does not support
+    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
+    # we must implement the functionality of those keyword arguments
+    # by hand instead of passing them to list.sort().
+    def sorted(iterable, cmp=None, key=None, reverse=False):
+        if key is not None:
+            result = [(key(x), x) for x in iterable]
+        else:
+            result = iterable[:]
+        if cmp is None:
+            # Pre-2.3 Python does not support list.sort(None).
+            result.sort()
+        else:
+            result.sort(cmp)
+        if key is not None:
+            result = [t1 for t0,t1 in result]
+        if reverse:
+            result.reverse()
+        return result
 
 # Variables that describe the prefixes and suffixes on this system.
 if sys.platform == 'win32':
@@ -176,7 +202,7 @@ else:
     dll_suffix   = '.so'
 
 def is_List(e):
-    return isinstance(e, (list,UserList))
+    return isinstance(e, (list, UserList))
 
 def is_writable(f):
     mode = os.stat(f)[stat.ST_MODE]
@@ -206,22 +232,6 @@ elif os.name == 'nt':
     def _status(self):
         return self.status
 
-def _options_arguments(options, arguments):
-    """
-    This handles the "options" keyword argument and merges it
-    with the arguments.
-    """
-    if options:
-        if arguments is None:
-            arguments = options
-        else:
-            if isinstance(options, str):
-                options = [options]
-            if isinstance(arguments, str):
-                arguments = [arguments]
-            arguments = ' '.join(options + arguments)
-    return arguments
-
 class TestCommon(TestCmd):
 
     # Additional methods from the Perl Test::Cmd::Common module
@@ -238,6 +248,18 @@ class TestCommon(TestCmd):
         """
         TestCmd.__init__(self, **kw)
         os.chdir(self.workdir)
+
+    def options_arguments(self, options, arguments):
+        """Merges the "options" keyword argument with the arguments."""
+        if options:
+            if arguments is None:
+                return options
+            if isinstance(options, str):
+                options = [options]
+            if isinstance(arguments, str):
+                arguments = [arguments]
+            arguments = ' '.join(options + arguments)
+        return arguments
 
     def must_be_writable(self, *files):
         """Ensures that the specified file(s) exist and are writable.
@@ -280,10 +302,14 @@ class TestCommon(TestCmd):
         for lines in the output.
         """
         if find is None:
-            find = lambda o, l: o.find(l) != -1
+            def find(o, l):
+                try:
+                    return o.index(l)
+                except ValueError:
+                    return None
         missing = []
         for line in lines:
-            if not find(output, line):
+            if find(output, line) is None:
                 missing.append(line)
 
         if missing:
@@ -292,7 +318,7 @@ class TestCommon(TestCmd):
             sys.stdout.write("Missing expected lines from %s:\n" % title)
             for line in missing:
                 sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner(title + ' '))
+            sys.stdout.write(self.banner(title + ' ') + '\n')
             sys.stdout.write(output)
             self.fail_test()
 
@@ -308,9 +334,13 @@ class TestCommon(TestCmd):
         for lines in the output.
         """
         if find is None:
-            find = lambda o, l: o.find(l) != -1
+            def find(o, l):
+                try:
+                    return o.index(l)
+                except ValueError:
+                    return None
         for line in lines:
-            if find(output, line):
+            if find(output, line) is not None:
                 return
 
         if title is None:
@@ -318,11 +348,11 @@ class TestCommon(TestCmd):
         sys.stdout.write("Missing any expected line from %s:\n" % title)
         for line in lines:
             sys.stdout.write('    ' + repr(line) + '\n')
-        sys.stdout.write(self.banner(title + ' '))
+        sys.stdout.write(self.banner(title + ' ') + '\n')
         sys.stdout.write(output)
         self.fail_test()
 
-    def exactly_contain_all_lines(self, output, expect, title=None, find=None):
+    def must_contain_exactly_lines(self, output, expect, title=None, find=None):
         """Ensures that the specified output string (first argument)
         contains all of the lines in the expected string (second argument)
         with none left over.
@@ -332,10 +362,14 @@ class TestCommon(TestCmd):
 
         An optional fourth argument can be used to supply a different
         function, of the form "find(line, output), to use when searching
-        for lines in the output.
+        for lines in the output.  The function must return the index
+        of the found line in the output, or None if the line is not found.
         """
         out = output.splitlines()
-        exp = expect.splitlines()
+        if is_List(expect):
+            exp = [ e.rstrip('\n') for e in expect ]
+        else:
+            exp = expect.splitlines()
         if sorted(out) == sorted(exp):
             # early out for exact match
             return
@@ -343,7 +377,7 @@ class TestCommon(TestCmd):
             def find(o, l):
                 try:
                     return o.index(l)
-                except:
+                except ValueError:
                     return None
         missing = []
         for line in exp:
@@ -363,12 +397,12 @@ class TestCommon(TestCmd):
             sys.stdout.write("Missing expected lines from %s:\n" % title)
             for line in missing:
                 sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner('missing %s ' % title))
+            sys.stdout.write(self.banner('Missing %s ' % title) + '\n')
         if out:
             sys.stdout.write("Extra unexpected lines from %s:\n" % title)
             for line in out:
                 sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner('extra %s ' % title))
+            sys.stdout.write(self.banner('Extra %s ' % title) + '\n')
         sys.stdout.flush()
         self.fail_test()
 
@@ -429,10 +463,14 @@ class TestCommon(TestCmd):
         for lines in the output.
         """
         if find is None:
-            find = lambda o, l: o.find(l) != -1
+            def find(o, l):
+                try:
+                    return o.index(l)
+                except ValueError:
+                    return None
         unexpected = []
         for line in lines:
-            if find(output, line):
+            if find(output, line) is not None:
                 unexpected.append(line)
 
         if unexpected:
@@ -441,7 +479,7 @@ class TestCommon(TestCmd):
             sys.stdout.write("Unexpected lines in %s:\n" % title)
             for line in unexpected:
                 sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner(title + ' '))
+            sys.stdout.write(self.banner(title + ' ') + '\n')
             sys.stdout.write(output)
             self.fail_test()
 
@@ -487,21 +525,21 @@ class TestCommon(TestCmd):
             expect = ''
             if status != 0:
                 expect = " (expected %s)" % str(status)
-            print "%s returned %s%s" % (self.program, str(_status(self)), expect)
+            print "%s returned %s%s" % (self.program, _status(self), expect)
             print self.banner('STDOUT ')
             print actual_stdout
             print self.banner('STDERR ')
             print actual_stderr
             self.fail_test()
-        if expected_stdout is not None \
-                and not match(actual_stdout, expected_stdout):
+        if (expected_stdout is not None
+                and not match(actual_stdout, expected_stdout)):
             self.diff(expected_stdout, actual_stdout, 'STDOUT ')
             if actual_stderr:
                 print self.banner('STDERR ')
                 print actual_stderr
             self.fail_test()
-        if expected_stderr is not None \
-                and not match(actual_stderr, expected_stderr):
+        if (expected_stderr is not None
+                and not match(actual_stderr, expected_stderr)):
             print self.banner('STDOUT ')
             print actual_stdout
             self.diff(expected_stderr, actual_stderr, 'STDERR ')
@@ -517,10 +555,10 @@ class TestCommon(TestCmd):
         Starts a program or script for the test environment, handling
         any exceptions.
         """
-        arguments = _options_arguments(options, arguments)
+        arguments = self.options_arguments(options, arguments)
         try:
             return TestCmd.start(self, program, interpreter, arguments,
-                                       universal_newlines, **kw)
+                                 universal_newlines, **kw)
         except KeyboardInterrupt:
             raise
         except Exception, e:
@@ -587,7 +625,7 @@ class TestCommon(TestCmd):
         not test standard output (stdout = None), and expects that error
         output is empty (stderr = "").
         """
-        kw['arguments'] = _options_arguments(options, arguments)
+        kw['arguments'] = self.options_arguments(options, arguments)
         try:
             match = kw['match']
             del kw['match']
