@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -34,7 +33,17 @@ import TestSCons
 
 _python_ = TestSCons._python_
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConscript', """
+Environment(tools = ['CVS']).CVS('')
+""")
+
+msg_cvs = """The CVS() factory is deprecated and there is no replacement."""
+warn_cvs = test.deprecated_fatal('deprecated-build-dir', msg_cvs)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
 
 test.subdir('CVS', ['CVS', 'sub'], 'sub')
 
@@ -56,6 +65,7 @@ for f in sys.argv[1:]:
 """)
 
 test.write('SConstruct', """
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -90,11 +100,11 @@ test.write(['CVS', 'sub', 'ddd.in'], "CVS/sub/ddd.in\n")
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 test.write(['CVS', 'sub', 'fff.in'], "CVS/sub/fff.in\n")
 
-test.run(arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 Checking out %(sub_SConscript)s from our fake CVS
-""" % locals(),
-                                   build_str = """\
+""" % locals()
+
+build_str = """\
 Checking out aaa.in from our fake CVS
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -107,7 +117,13 @@ cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
 Checking out %(sub_fff_in)s from our fake CVS
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
-""" % locals()))
+""" % locals()
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+test.run(arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = warn_cvs + warn_sc)
 
 test.must_match('all',
                 "CVS/aaa.in\nchecked-out bbb.in\nCVS/ccc.in\n")
@@ -116,8 +132,6 @@ test.must_match(['sub', 'all'],
                 "CVS/sub/ddd.in\nchecked-out sub/eee.in\nCVS/sub/fff.in\n")
 
 
-
-#
 test.pass_test()
 
 # Local Variables:

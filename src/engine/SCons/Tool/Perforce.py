@@ -8,7 +8,6 @@ selection method.
 
 """
 
-#
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -29,7 +28,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -44,7 +42,6 @@ import SCons.Util
 from SCons.Tool.PharLapCommon import addPathIfNotExists
 
 
-
 # Variables that we want to import from the base OS environment.
 _import_env = [ 'P4PORT', 'P4CLIENT', 'P4USER', 'USER', 'USERNAME', 'P4PASSWD',
                 'P4CHARSET', 'P4LANGUAGE', 'SystemRoot' ]
@@ -57,6 +54,8 @@ def generate(env):
 
     def PerforceFactory(env=env):
         """ """
+        import SCons.Warnings as W
+        W.warn(W.DeprecatedSourceCodeWarning, """The Perforce() factory is deprecated and there is no replacement.""")
         return SCons.Builder.Builder(action = PerforceAction, env = env)
 
     #setattr(env, 'Perforce', PerforceFactory)

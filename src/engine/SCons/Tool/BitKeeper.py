@@ -44,6 +44,8 @@ def generate(env):
 
     def BitKeeperFactory(env=env):
         """ """
+        import SCons.Warnings as W
+        W.warn(W.DeprecatedSourceCodeWarning, """The BitKeeper() factory is deprecated and there is no replacement.""")
         act = SCons.Action.Action("$BITKEEPERCOM", "$BITKEEPERCOMSTR")
         return SCons.Builder.Builder(action = act, env = env)
 

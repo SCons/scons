@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -34,6 +33,20 @@ on port 1666, as well as that of course a client must be present.
 import os
 
 import TestSCons
+
+test = TestSCons.TestSCons()
+
+test.write('SConscript', """
+Environment(tools = ['Perforce']).Perforce()
+""")
+
+msg_p4 = """The Perforce() factory is deprecated and there is no replacement."""
+warn_p4 = test.deprecated_fatal('deprecated-build-dir', msg_p4)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
+
+test.skip_test("Need Perforce to debug these tests.\n")
 
 class TestPerforce(TestSCons.TestSCons):
     def __init__(self, *args, **kw):
@@ -237,6 +250,7 @@ test.p4('-c testclient1 opened')
 test.p4('-c testclient1 submit -i', stdin=changespec)
 
 SConstruct_contents = test.substitute("""
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -263,7 +277,7 @@ test.write(['work', 'foo', 'bbb.in'], "work/foo/bbb.in\n")
 test.subdir(['work', 'foo', 'sub'])
 test.write(['work', 'foo', 'sub', 'eee.in'], "work/foo/sub/eee.in\n")
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work', arguments = '.', stderr = warn_p4 + warn_sc)
 
 test.fail_test(test.read(['work', 'all']) != "import/aaa.in\nwork/foo/bbb.in\nimport/ccc.in\n")
 test.fail_test(test.read(['work', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork/foo/sub/eee.in\nimport/sub/fff.in\n")

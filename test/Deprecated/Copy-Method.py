@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
-test.write('SConstruct', """
+test.write('SConscript', """
 env = Environment().Copy()
 env.Copy()
 """)

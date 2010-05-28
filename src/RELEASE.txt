@@ -43,6 +43,9 @@
 
   - The BuildDir() method and the build_dir option now get warnings.
 
+  - The SourceCode() function and its associated factory functions have
+    started their deprecation cycle and can have a warning enabled.
+
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
   - Any Command() or env.Command() calls that use the following Action
@@ -82,7 +85,8 @@
 
   DOCUMENTATION
 
-  - No changes.
+  - The entried for SourceCode() and its associated factory functions now
+    state that the functions are deprecated.
 
   DEVELOPMENT
 
@@ -90,5 +94,5 @@
     Although code is tested with Python 2.3 and is still believed to work,
     the official new floor is Python 2.4.
 
-  Thanks to Greg Noel and Steven Knight for their contributions to this
-  release.
+  Thanks to Greg Noel, Steven Knight, Dirk Baechle, and W. Trevor King for
+  their contributions to this release.

@@ -8,7 +8,6 @@ selection method.
 
 """
 
-#
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -29,7 +28,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -46,6 +44,8 @@ def generate(env):
     def SubversionFactory(repos, module='', env=env):
         """ """
         # fail if repos is not an absolute path name?
+        import SCons.Warnings as W
+        W.warn(W.DeprecatedSourceCodeWarning, """The Subversion() factory is deprecated and there is no replacement.""")
         if module != '':
             module = os.path.join(module, '')
         act = SCons.Action.Action('$SVNCOM', '$SVNCOMSTR')

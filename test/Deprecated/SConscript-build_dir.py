@@ -32,11 +32,11 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
-test.write('SConstruct', """
-SConscript('SConscript', build_dir = 'build')
+test.write('SConscript', """
+SConscript('DummyScript', build_dir = 'build')
 """)
 
-test.write('SConscript', """
+test.write('DummyScript', """
 """)
 
 msg = """The build_dir keyword has been deprecated; use the variant_dir keyword instead."""

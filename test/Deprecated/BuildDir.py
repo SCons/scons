@@ -35,7 +35,7 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.write('SConscript', """
 BuildDir('build', 'src')
 """)
 

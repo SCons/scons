@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -32,7 +31,17 @@ import os
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConscript', """
+Environment(tools = ['RCS']).RCS()
+""")
+
+msg_rcs = """The RCS() factory is deprecated and there is no replacement."""
+warn_rcs = test.deprecated_fatal('deprecated-build-dir', msg_rcs)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
 
 rcs = test.where_is('rcs')
 if not rcs:
@@ -41,7 +50,6 @@ if not rcs:
 ci = test.where_is('ci')
 if not ci:
     test.skip_test("Could not find `ci' command, skipping test(s).\n")
-
 
 
 test.subdir('sub')
@@ -87,6 +95,7 @@ test.no_result(os.path.exists(test.workpath('sub', 'eee.in')))
 test.no_result(os.path.exists(test.workpath('sub', 'fff.in')))
 
 test.write('SConstruct', """
+SetOption('warn', 'deprecated-source-code')
 import os
 for key in ['LOGNAME', 'USERNAME', 'USER']:
     logname = os.environ.get(key)
@@ -115,11 +124,11 @@ test.write('bbb.in', "checked-out bbb.in\n")
 
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
-test.run(arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 co -q %(sub_SConscript)s
-""" % locals(),
-                                   build_str = """\
+""" % locals()
+
+build_str = """\
 co -q aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -132,7 +141,13 @@ cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
 co -q %(sub_fff_in)s
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
-""" % locals()))
+""" % locals()
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+test.run(arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = warn_rcs + warn_sc)
 
 # Checking things back out of RCS apparently messes with the line
 # endings, so read the result files in non-binary mode.
@@ -152,8 +167,6 @@ test.must_not_be_writable(test.workpath('sub', 'ddd.in'))
 test.must_not_be_writable(test.workpath('sub', 'fff.in'))
 
 
-
-#
 test.pass_test()
 
 # Local Variables:
