@@ -32,6 +32,16 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.write('SConscript', """
+Environment(tools = ['Subversion']).Subversion('')
+""")
+
+msg_svn = """The Subversion() factory is deprecated and there is no replacement."""
+warn_svn = test.deprecated_fatal('deprecated-build-dir', msg_svn)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
+
 svn = test.where_is('svn')
 if not svn:
     test.skip_test("Could not find 'svn'; skipping test(s).\n")
@@ -73,6 +83,7 @@ test.run(chdir = 'import',
 
 # Test the most straightforward Subversion checkouts, using the module name.
 test.write(['work1', 'SConstruct'], """
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -120,6 +131,7 @@ test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\n
 
 # Test Subversion checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")

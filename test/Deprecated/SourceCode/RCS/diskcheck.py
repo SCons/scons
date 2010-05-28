@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -34,6 +33,13 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.write('SConscript', """
+Environment(tools = ['RCS']).RCS()
+""")
+
+msg_rcs = """The RCS() factory is deprecated and there is no replacement."""
+test.deprecated_fatal('deprecated-build-dir', msg_rcs)
+
 rcs = test.where_is('rcs')
 if not rcs:
     test.skip_test("Could not find 'rcs'; skipping test(s).\n")
@@ -41,7 +47,6 @@ if not rcs:
 ci = test.where_is('ci')
 if not ci:
     test.skip_test("Could not find 'ci'; skipping test(s).\n")
-
 
 
 sub_RCS = os.path.join('sub', 'RCS')
@@ -87,6 +92,7 @@ test.no_result(os.path.exists(test.workpath('sub', 'bbb.in')))
 test.no_result(os.path.exists(test.workpath('sub', 'ccc.in')))
 
 test.write('SConstruct', """
+SetOption('warn', 'deprecated-source-code')
 import os
 for key in ['LOGNAME', 'USERNAME', 'USER']:
     logname = os.environ.get(key)
@@ -115,7 +121,7 @@ test.write('bbb.in', "checked-out bbb.in\n")
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
 sub_SConscript = os.path.join('sub', 'SConscript')
-SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 22)[:-1]
+SConstruct_file_line = test.python_file_line(test.workpath('SConstruct'), 23)[:-1]
 
 expect = """\
 
@@ -128,11 +134,11 @@ test.run(status=2, stderr=expect)
 
 test.run(arguments = '--diskcheck=match,sccs', status=2, stderr=expect)
 
-test.run(arguments = '--diskcheck=rcs',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 co -l %(sub_SConscript)s
-""" % locals(),
-                                   build_str = """\
+""" % locals()
+
+build_str = """\
 co -l aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -145,8 +151,11 @@ cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
 co -l %(sub_fff_in)s
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
-""" % locals()),
-         stderr = """\
+""" % locals()
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+stderr = """\
 %(sub_RCS)s/SConscript,v  -->  %(sub_SConscript)s
 revision 1.1 (locked)
 done
@@ -162,7 +171,9 @@ done
 %(sub_RCS)s/fff.in,v  -->  %(sub_fff_in)s
 revision 1.1 (locked)
 done
-""" % locals())
+""" % locals()
+
+test.run(arguments = '--diskcheck=rcs', stdout = stdout, stderr = stderr)
 
 # Checking things back out of RCS apparently messes with the line
 # endings, so read the result files in non-binary mode.
@@ -182,8 +193,6 @@ test.must_be_writable(test.workpath('sub', 'ddd.in'))
 test.must_be_writable(test.workpath('sub', 'fff.in'))
 
 
-
-#
 test.pass_test()
 
 # Local Variables:

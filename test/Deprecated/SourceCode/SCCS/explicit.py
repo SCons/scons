@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -32,10 +31,16 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.write('SConscript', """
+Environment(tools = ['SCCS']).SCCS()
+""")
+
+msg_sccs = """The SCCS() factory is deprecated and there is no replacement."""
+test.deprecated_fatal('deprecated-build-dir', msg_sccs)
+
 sccs = test.where_is('sccs')
 if not sccs:
     test.skip_test("Could not find 'sccs'; skipping test(s).\n")
-
 
 
 test.subdir('SCCS', 'sub', ['sub', 'SCCS'])
@@ -67,6 +72,7 @@ for f in ['ddd.in', 'eee.in', 'fff.in']:
     test.unlink(['sub', ','+f])
 
 test.write('SConstruct', """
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -119,7 +125,6 @@ test.must_be_writable(test.workpath('aaa.in'))
 test.must_be_writable(test.workpath('ccc.in'))
 test.must_be_writable(test.workpath('sub', 'ddd.in'))
 test.must_be_writable(test.workpath('sub', 'fff.in'))
-
 
 
 test.pass_test()

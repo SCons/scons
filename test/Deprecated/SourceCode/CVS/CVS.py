@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -32,11 +31,21 @@ import os
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConscript', """
+Environment(tools = ['CVS']).CVS('')
+""")
+
+msg_cvs = """The CVS() factory is deprecated and there is no replacement."""
+warn_cvs = test.deprecated_fatal('deprecated-build-dir', msg_cvs)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
 
 cvs = test.where_is('cvs')
 if not cvs:
-    test.skip_test("Could not find 'cvs'; skipping test(s).\n")
+    test.skip_test("Could not find 'cvs'; skipping remaining tests.\n")
 
 test.subdir('CVS', 'import', ['import', 'sub'], 'work1', 'work2')
 
@@ -88,6 +97,7 @@ test.run(chdir = 'import',
 
 # Test the most straightforward CVS checkouts, using the module name.
 test.write(['work1', 'SConstruct'], """
+SetOption('warn', 'deprecated-source-code')
 import os
 def cat(env, source, target):
     target = str(target[0])
@@ -113,12 +123,11 @@ test.write(['work1', 'foo', 'bbb.in'], "work1/foo/bbb.in\n")
 test.subdir(['work1', 'foo', 'sub',])
 test.write(['work1', 'foo', 'sub', 'eee.in'], "work1/foo/sub/eee.in\n")
 
-test.run(chdir = 'work1',
-         arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 cvs -Q -d %(cvsroot)s co foo/sub/SConscript
-""" % locals(),
-                                   build_str = """\
+""" % locals()
+
+build_str = """\
 cvs -Q -d %(cvsroot)s co foo/aaa.in
 cat(["aaa.out"], ["%(foo_aaa_in)s"])
 cat(["bbb.out"], ["%(foo_bbb_in)s"])
@@ -131,7 +140,14 @@ cat(["%(foo_sub_eee_out)s"], ["%(foo_sub_eee_in)s"])
 cvs -Q -d %(cvsroot)s co foo/sub/fff.in
 cat(["%(foo_sub_fff_out)s"], ["%(foo_sub_fff_in)s"])
 cat(["%(foo_sub_all)s"], ["%(foo_sub_ddd_out)s", "%(foo_sub_eee_out)s", "%(foo_sub_fff_out)s"])
-""" % locals()))
+""" % locals()
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+test.run(chdir = 'work1',
+         arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = warn_cvs + warn_sc)
 
 # Checking things back out of CVS apparently messes with the line
 # endings, so read the result files in non-binary mode.
@@ -152,6 +168,7 @@ test.must_be_writable(test.workpath('work1', 'foo', 'sub', 'fff.in'))
 
 # Test CVS checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
+SetOption('warn', 'deprecated-source-code')
 import os
 def cat(env, source, target):
     target = str(target[0])
@@ -176,13 +193,12 @@ test.write(['work2', 'bbb.in'], "work2/bbb.in\n")
 test.subdir(['work2', 'sub'])
 test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
 
-test.run(chdir = 'work2',
-         arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 cvs -q -d %(cvsroot)s co -d sub foo/sub/SConscript
 U sub/SConscript
-""" % locals(),
-                                   build_str = """\
+""" % locals()
+
+build_str = """\
 cvs -q -d %(cvsroot)s co -d . foo/aaa.in
 U ./aaa.in
 cat(["aaa.out"], ["aaa.in"])
@@ -199,7 +215,14 @@ cvs -q -d %(cvsroot)s co -d sub foo/sub/fff.in
 U sub/fff.in
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
-""" % locals()))
+""" % locals()
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+test.run(chdir = 'work2',
+         arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = warn_cvs + warn_sc)
 
 # Checking things back out of CVS apparently messes with the line
 # endings, so read the result files in non-binary mode.
@@ -223,6 +246,7 @@ test.must_be_writable(test.workpath('work2', 'sub', 'fff.in'))
 test.subdir(['work3'])
 
 test.write(['work3', 'SConstruct'], """\
+SetOption('warn', 'deprecated-source-code')
 import os
 def cat(env, source, target):
     target = str(target[0])
@@ -240,15 +264,12 @@ env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 cvs = env.CVS('$CVSROOT', 'foo')
-#env.SourceCode('.', cvs)
 env.SourceCode('aaa.in', cvs)
 env.SourceCode('bbb.in', cvs)
 env.SourceCode('ccc.in', cvs)
 """ % cvsroot)
 
-test.run(chdir = 'work3',
-         arguments = '.',
-         stdout = test.wrap_stdout(build_str = """\
+build_str = """\
 cvs -q -d %(cvsroot)s co -d . foo/aaa.in
 U ./aaa.in
 cat(["aaa.out"], ["aaa.in"])
@@ -259,7 +280,14 @@ cvs -q -d %(cvsroot)s co -d . foo/ccc.in
 U ./ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-""" % locals()))
+""" % locals()
+
+stdout = test.wrap_stdout(build_str = build_str)
+
+test.run(chdir = 'work3',
+         arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = warn_cvs + 3*warn_sc)
 
 test.must_match(['work3', 'aaa.out'],
                 "import/aaa.in\n",
@@ -278,6 +306,7 @@ test.must_match(['work3', 'all'],
 #test.subdir(['work4'])
 #
 #test.write(['work4', 'SConstruct'], """\
+#SetOption('warn', 'deprecated-source-code')
 #import os
 #env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 ## We used to use the SourceForge server, but SourceForge has restrictions

@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
-test.write('SConstruct', """
+test.write('SConscript', """
 import SCons.Taskmaster
 tm = SCons.Taskmaster.Taskmaster()
 task = SCons.Taskmaster.Task(tm, [], True, None)

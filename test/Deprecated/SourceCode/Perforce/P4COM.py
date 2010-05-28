@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -34,7 +33,17 @@ import TestSCons
 
 _python_ = TestSCons._python_
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConscript', """
+Environment(tools = ['Perforce']).Perforce()
+""")
+
+msg_p4 = """The Perforce() factory is deprecated and there is no replacement."""
+warn_p4 = test.deprecated_fatal('deprecated-build-dir', msg_p4)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
 
 test.subdir('Perforce', ['Perforce', 'sub'], 'sub')
 
@@ -56,6 +65,7 @@ for f in sys.argv[1:]:
 """)
 
 test.write('SConstruct', """
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -89,11 +99,11 @@ test.write(['Perforce', 'sub', 'ddd.in'], "Perforce/sub/ddd.in\n")
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 test.write(['Perforce', 'sub', 'fff.in'], "Perforce/sub/fff.in\n")
 
-test.run(arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 %(_python_)s my-p4.py %(sub_SConscript)s
-""" % locals(),
-                                   build_str = """\
+""" % locals()
+
+build_str = """\
 %(_python_)s my-p4.py aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -106,7 +116,13 @@ cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
 %(_python_)s my-p4.py %(sub_fff_in)s
 cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
 cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
-""" % locals()))
+""" % locals()
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+test.run(arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = warn_p4 + warn_sc)
 
 test.must_match('all',
                 "Perforce/aaa.in\nchecked-out bbb.in\nPerforce/ccc.in\n")
@@ -115,8 +131,6 @@ test.must_match(['sub', 'all'],
                 "Perforce/sub/ddd.in\nchecked-out sub/eee.in\nPerforce/sub/fff.in\n")
 
 
-
-#
 test.pass_test()
 
 # Local Variables:

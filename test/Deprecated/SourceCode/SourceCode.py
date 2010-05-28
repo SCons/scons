@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -32,11 +31,20 @@ import os
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConscript', """
+SourceCode('.', None)
+""")
+
+msg = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warning = test.deprecated_warning('deprecated-source-code', msg)
 
 test.subdir('sub', 'sub2')
 
 test.write('SConstruct', """\
+SetOption('warn', 'deprecated-source-code')
 import os
 
 def cat(env, source, target):
@@ -74,11 +82,11 @@ test.write(['sub2', 'sc-ddd.in'], "sub2/sc-ddd.in\n")
 
 test.write(['sub', 'sc-SConscript'], "'sub/sc-SConscript'\n")
 
-test.run(arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 sc_cat(["%s"], [])
-""" % (os.path.join('sub', 'SConscript')),
-                                   build_str = """\
+""" % (os.path.join('sub', 'SConscript'))
+
+build_str = """\
 sc_cat(["%s"], [])
 cat(["aaa.out"], ["%s"])
 sc_cat(["%s"], [])
@@ -95,7 +103,12 @@ cat(["ddd.out"], ["%s"])
        os.path.join('sub', 'ccc.in'),
        os.path.join('sub', 'ccc.in'),
        os.path.join('sub2', 'ddd.in'),
-       os.path.join('sub2', 'ddd.in'))))
+       os.path.join('sub2', 'ddd.in'))
+
+stdout = TestSCons.re_escape(test.wrap_stdout(read_str = read_str,
+                                              build_str = build_str))
+
+test.run(arguments = '.', stdout = stdout, stderr = 2*warning)
 
 test.must_match(['sub', 'SConscript'], "'sub/sc-SConscript'\n")
 test.must_match('all', "sub/sc-aaa.in\nsub/sc-bbb.in\nsub/sc-ccc.in\n")

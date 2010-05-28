@@ -75,6 +75,8 @@ RELEASE 2.0.0.alpha.20100508 - Sat, 08 May 2010 14:29:17 -0700
 
     - Start deprecation cycle for BuildDir() and build_dir.
 
+    - Start deprecation cycle for SourceCode() and related factories
+
 
 RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400
 

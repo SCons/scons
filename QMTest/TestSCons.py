@@ -424,31 +424,92 @@ class TestSCons(TestCommon):
                 kw['arguments'] = option + ' ' + arguments
         return self.run(**kw)
 
+    def deprecated_wrap(self, msg):
+        """
+        Calculate the pattern that matches a deprecation warning.
+        """
+        return '\nscons: warning: ' + re_escape(msg) + '\n' + file_expr
+
+    def deprecated_fatal(self, warn, msg):
+        """
+        Determines if the warning has turned into a fatal error.  If so,
+        passes the test, as any remaining runs are now moot.
+
+        This method expects a SConscript to be present that will causes
+        the warning.  The method writes a SConstruct that calls the
+        SConsscript and looks to see what type of result occurs.
+
+        The pattern that matches the warning is returned.
+
+        TODO: Actually detect that it's now an error.  We don't have any
+        cases yet, so there's no way to test it.
+        """
+        self.write('SConstruct', """if True:
+            WARN = ARGUMENTS.get('WARN')
+            if WARN: SetOption('warn', WARN)
+            SConscript('SConscript')
+        """)
+
+        def err_out():
+            # TODO calculate stderr for fatal error
+            return re_escape('put something here')
+
+        # no option, should get one of nothing, warning, or error
+        warning = self.deprecated_wrap(msg)
+        self.run(arguments = '.', stderr = None)
+        stderr = self.stderr()
+        if stderr:
+            # most common case done first
+            if match_re_dotall(stderr, warning):
+               # expected output
+               pass
+            elif match_re_dotall(stderr, err_out()):
+               # now a fatal error; skip the rest of the tests
+               self.pass_test()
+            else:
+               # test failed; have to do this by hand...
+               print self.banner('STDOUT ')
+               print self.stdout()
+               print self.diff(warning, stderr, 'STDERR ')
+               self.fail_test()
+
+        return warning
+
     def deprecated_warning(self, warn, msg):
         """
         Verifies the expected behavior occurs for deprecation warnings.
-        TODO: Need something else for deprecation errors.
+        This method expects a SConscript to be present that will causes
+        the warning.  The method writes a SConstruct and exercises various
+        combinations of command-line options and SetOption parameters to
+        validate that it performs correctly.
+
+        The pattern that matches the warning is returned.
         """
+        warning = self.deprecated_fatal(warn, msg)
+
+        def RunPair(option, expected):
+            # run the same test with the option on the command line and
+            # then with the option passed via SetOption().
+            self.run(options = '--warn=' + option,
+                     arguments = '.',
+                     stderr = expected,
+                     match = match_re_dotall)
+            self.run(options = 'WARN=' + option,
+                     arguments = '.',
+                     stderr = expected,
+                     match = match_re_dotall)
+
         # all warnings off, should get no output
-        self.run(arguments = '--warn=no-deprecated .', stderr='')
+        RunPair('no-deprecated', '')
 
         # warning enabled, should get expected output
-        stderr = '\nscons: warning: ' + re_escape(msg) + '\n' + file_expr
-        self.run(arguments = '--warn=%s .' % warn,
-                 stderr=stderr,
-                 match = match_re_dotall)
-
-        # no --warn option, should get either nothing or expected output
-        expect = """()|(%s)""" % (stderr)
-        self.run(arguments = '--warn=no-%s .' % warn,
-                 stderr=expect,
-                 match = match_re_dotall)
+        RunPair(warn, warning)
 
         # warning disabled, should get either nothing or mandatory message
-        expect = """()|(Can not disable mandataory warning: 'no-%s'\n\n%s)""" % (warn, stderr)
-        self.run(arguments = '--warn=no-%s .' % warn,
-                 stderr=expect,
-                 match = match_re_dotall)
+        expect = """()|(Can not disable mandataory warning: 'no-%s'\n\n%s)""" % (warn, warning)
+        RunPair('no-' + warn, expect)
+
+        return warning
 
     def diff_substr(self, expect, actual, prelen=20, postlen=40):
         i = 0

@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -33,10 +32,23 @@ import os
 import TestSCons
 
 test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+
+test.write('SConscript', """
+Environment(tools = ['BitKeeper']).BitKeeper()
+""")
+
+msg_bk = """The BitKeeper() factory is deprecated and there is no replacement."""
+warn_bk = test.deprecated_fatal('deprecated-build-dir', msg_bk)
+msg_sc = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+warn_sc = test.deprecated_wrap(msg_sc)
+
+test.skip_test("Need BitKeeper to debug these tests.\n")
 
 bk = test.where_is('bk')
 if not bk:
-    test.skip_test("Could not find 'bk'; skipping test(s).\n")
+    test.skip_test("Could not find 'bk'; skipping remaining tests.\n")
 
 try:
     login = os.getlogin()
@@ -69,13 +81,13 @@ else:
         test.unlink(['work1', file])
         test.unlink(['work1', ','+file])
     
-    test.write(['work1', 'sub', 'SConscript'], """\
-Import("env")
-env.Cat('ddd.out', 'ddd.in')
-env.Cat('eee.out', 'eee.in')
-env.Cat('fff.out', 'fff.in')
-env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
-""")
+    test.write(['work1', 'sub', 'SConscript'], """if True:
+        Import("env")
+        env.Cat('ddd.out', 'ddd.in')
+        env.Cat('eee.out', 'eee.in')
+        env.Cat('fff.out', 'fff.in')
+        env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
+    """)
     args = "create SConscript"
     test.run(chdir = 'work1/sub', program = sccs, arguments = args, stderr = None)
     test.unlink(['work1', 'sub', 'SConscript'])
@@ -88,33 +100,33 @@ env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
         test.unlink(['work1', 'sub', file])
         test.unlink(['work1', 'sub', ','+file])
 
-    test.write(['work1', 'SConstruct'], """
-def cat(env, source, target):
-    target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  BITKEEPERGETFLAGS='-e')
-env.Cat('aaa.out', 'aaa.in')
-env.Cat('bbb.out', 'bbb.in')
-env.Cat('ccc.out', 'ccc.in')
-env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-env.SourceCode('.', env.BitKeeper())
-SConscript('sub/SConscript', "env")
-""")
+    test.write(['work1', 'SConstruct'], """if True:
+        SetOption('warn', 'deprecated-source-code')
+        def cat(env, source, target):
+            target = str(target[0])
+            f = open(target, "wb")
+            for src in source:
+                f.write(open(str(src), "rb").read())
+            f.close()
+        env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+                          BITKEEPERGETFLAGS='-e')
+        env.Cat('aaa.out', 'aaa.in')
+        env.Cat('bbb.out', 'bbb.in')
+        env.Cat('ccc.out', 'ccc.in')
+        env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
+        env.SourceCode('.', env.BitKeeper())
+        SConscript('sub/SConscript', "env")
+    """)
 
     test.write(['work1', 'bbb.in'], "checked-out work1/bbb.in\n")
 
     test.write(['work1', 'sub', 'eee.in'], "checked-out work1/sub/eee.in\n")
 
-    test.run(chdir = 'work1',
-             arguments = '.',
-             stdout = test.wrap_stdout(read_str = """\
+    read_str = """\
 bk get -e sub/SConscript
-""",
-                                       build_str = """\
+"""
+
+    build_str = """\
 bk get -e aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -127,14 +139,21 @@ cat(["sub/eee.out"], ["sub/eee.in"])
 bk get -e sub/fff.in
 cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""),
-             stderr = """\
+"""
+
+    stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+    stderr = """\
 sub/SConscript 1.1 -> 1.2: 5 lines
 aaa.in 1.1 -> 1.2: 1 lines
 ccc.in 1.1 -> 1.2: 1 lines
 sub/ddd.in 1.1 -> 1.2: 1 lines
 sub/fff.in 1.1 -> 1.2: 1 lines
-""")
+"""
+
+    test.run(arguments = '.',
+             stdout = TestSCons.re_escape(stdout),
+             stderr = warn_bk + warn_sc + TestSCons.re_escape(stderr))
 
     test.must_match(['work1', 'all'], "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
 
@@ -187,34 +206,34 @@ env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
     test.no_result(os.path.exists(test.workpath('work2', 'sub', 'eee.in')))
     test.no_result(os.path.exists(test.workpath('work2', 'sub', 'fff.in')))
 
-    test.write(['work2', 'SConstruct'], """\
-def cat(env, source, target):
-    target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  BITKEEPERGET='$BITKEEPER co',
-                  BITKEEPERGETFLAGS='-q')
-env.Cat('aaa.out', 'aaa.in')
-env.Cat('bbb.out', 'bbb.in')
-env.Cat('ccc.out', 'ccc.in')
-env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-env.SourceCode('.', env.BitKeeper())
-SConscript('sub/SConscript', "env")
-""")
+    test.write(['work2', 'SConstruct'], """if True:
+        SetOption('warn', 'deprecated-source-code')
+        def cat(env, source, target):
+            target = str(target[0])
+            f = open(target, "wb")
+            for src in source:
+                f.write(open(str(src), "rb").read())
+            f.close()
+        env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+                          BITKEEPERGET='$BITKEEPER co',
+                          BITKEEPERGETFLAGS='-q')
+        env.Cat('aaa.out', 'aaa.in')
+        env.Cat('bbb.out', 'bbb.in')
+        env.Cat('ccc.out', 'ccc.in')
+        env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
+        env.SourceCode('.', env.BitKeeper())
+        SConscript('sub/SConscript', "env")
+    """)
 
     test.write(['work2', 'bbb.in'], "checked-out work2/bbb.in\n")
 
     test.write(['work2', 'sub', 'eee.in'], "checked-out work2/sub/eee.in\n")
 
-    test.run(chdir = 'work2',
-             arguments = '.',
-             stdout = test.wrap_stdout(read_str = """\
+    read_str = """\
 bk co -q sub/SConscript
-""",
-                                       build_str = """\
+"""
+
+    build_str = """\
 bk co -q aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -227,7 +246,13 @@ cat(["sub/eee.out"], ["sub/eee.in"])
 bk co -q sub/fff.in
 cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""))
+"""
+
+    stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+    test.run(arguments = '.',
+             stdout = TestSCons.re_escape(stdout),
+             stderr = warn_bk + warn_sc)
 
     test.must_match(['work2', 'all'], "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
 
@@ -283,6 +308,7 @@ test.run(chdir = 'import',
          arguments = 'import -q -f -tplain . %s' % test.workpath('work3'))
 
 test.write(['work3', 'SConstruct'], """
+SetOption('warn', 'deprecated-source-code')
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -303,12 +329,11 @@ test.write(['work3', 'bbb.in'], "work3/bbb.in\n")
 test.subdir(['work3', 'sub'])
 test.write(['work3', 'sub', 'eee.in'], "work3/sub/eee.in\n")
 
-test.run(chdir = 'work3',
-         arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
+read_str = """\
 %s get sub/SConscript
-""" % bk,
-                                   build_str = """\
+""" % bk
+
+build_str = """\
 %s get aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
@@ -321,14 +346,22 @@ cat(["sub/eee.out"], ["sub/eee.in"])
 %s get sub/fff.in
 cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-""" % (bk, bk, bk, bk)),
-         stderr = """\
+""" % (bk, bk, bk, bk)
+
+stdout = test.wrap_stdout(read_str = read_str, build_str = build_str)
+
+stderr = """\
 sub/SConscript 1.1: 5 lines
 aaa.in 1.1: 1 lines
 ccc.in 1.1: 1 lines
 sub/ddd.in 1.1: 1 lines
 sub/fff.in 1.1: 1 lines
-""")
+"""
+
+test.run(chdir = 'work3',
+         arguments = '.',
+         stdout = TestSCons.re_escape(stdout),
+         stderr = TestSCons.re_escape(stderr))
 
 test.must_match(['work3', 'all'], "import/aaa.in\nwork3/bbb.in\nimport/ccc.in\n")
 

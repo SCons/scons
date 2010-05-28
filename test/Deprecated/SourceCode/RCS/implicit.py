@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -31,6 +30,13 @@ Test transparent RCS checkouts of implicit dependencies.
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+test.write('SConscript', """
+Environment(tools = ['RCS']).RCS()
+""")
+
+msg_rcs = """The RCS() factory is deprecated and there is no replacement."""
+test.deprecated_fatal('deprecated-build-dir', msg_rcs)
 
 rcs = test.where_is('rcs')
 if not rcs:
@@ -43,7 +49,6 @@ if not ci:
 co = test.where_is('co')
 if not co:
     test.skip_test("Could not find 'co'; skipping test(s).\n")
-
 
 
 test.subdir('RCS')
@@ -70,6 +75,7 @@ test.run(program = ci,
          stderr = None)
 
 test.write('SConstruct', """
+SetOption('warn', 'deprecated-source-code')
 DefaultEnvironment(RCS_CO = r'%s')
 env = Environment()
 env.Program('foo.c')
@@ -85,8 +91,6 @@ done
 """)
 
 
-
-#
 test.pass_test()
 
 # Local Variables:

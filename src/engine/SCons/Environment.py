@@ -2045,9 +2045,9 @@ class Base(SubstitutionEnvironment):
 
     def SourceCode(self, entry, builder):
         """Arrange for a source code builder for (part of) a tree."""
-        #msg = """SourceCode() has been deprecated and there is no replacement.
-#\tIf you need this function, please contact dev@scons.tigris.org."""
-        #SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
+        msg = """SourceCode() has been deprecated and there is no replacement.
+\tIf you need this function, please contact dev@scons.tigris.org."""
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedSourceCodeWarning, msg)
         entries = self.arg2nodes(entry, self.fs.Entry)
         for entry in entries:
             entry.set_src_builder(builder)

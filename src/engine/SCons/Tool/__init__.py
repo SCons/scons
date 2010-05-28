@@ -645,21 +645,28 @@ def tool_list(platform, env):
         fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
         ar = FindTool(ars, env) or ars[0]
 
-    other_tools = FindAllTools(['BitKeeper', 'CVS',
-                                'dmd',
-                                'filesystem',
-                                'dvipdf', 'dvips', 'gs',
-                                'jar', 'javac', 'javah',
-                                'latex', 'lex',
-                                'm4', #'midl', 'msvs',
-                                'pdflatex', 'pdftex', 'Perforce',
-                                'RCS', 'rmic', 'rpcgen',
-                                'SCCS',
-                                # 'Subversion',
-                                'swig',
-                                'tar', 'tex',
-                                'yacc', 'zip', 'rpm', 'wix']+other_plat_tools,
-                               env)
+    other_tools = FindAllTools(other_plat_tools + [
+                               'dmd',
+                               #TODO: merge 'install' into 'filesystem' and
+                               # make 'filesystem' the default
+                               'filesystem',
+                               'm4',
+                               'wix', #'midl', 'msvs',
+                               # Parser generators
+                               'lex', 'yacc',
+                               # Foreign function interface
+                               'rpcgen', 'swig',
+                               # Java
+                               'jar', 'javac', 'javah', 'rmic',
+                               # TeX
+                               'dvipdf', 'dvips', 'gs',
+                               'tex', 'latex', 'pdflatex', 'pdftex',
+                               # Archivers
+                               'tar', 'zip', 'rpm',
+                               # SourceCode factories
+                               'BitKeeper', 'CVS', 'Perforce',
+                               'RCS', 'SCCS', # 'Subversion',
+                               ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
               fortran_compiler, assembler, ar]

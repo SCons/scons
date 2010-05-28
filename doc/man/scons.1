@@ -2786,6 +2786,10 @@ is intended to be passed to the
 .B SourceCode
 function.
 
+This function is deprecated.  For details, see the entry for the
+.B SourceCode
+function.
+
 Example:
 
 .ES
@@ -3167,6 +3171,10 @@ so that you only have to
 replicate part of the repository
 directory hierarchy in your
 local build directory.
+
+This function is deprecated.  For details, see the entry for the
+.B SourceCode
+function.
 
 Examples:
 
@@ -3735,7 +3743,7 @@ in the path specified by
 .IR dirs .
 .I dirs
 may be a list of directory names or a single directory name.
-In addition to searching for files that exist in the filesytem,
+In addition to searching for files that exist in the filesystem,
 this function also searches for derived files
 that have not yet been built.
 
@@ -4719,6 +4727,10 @@ is intended to be passed to the
 .B SourceCode
 function.
 
+This function is deprecated.  For details, see the entry for the
+.B SourceCode
+function.
+
 Example:
 
 .ES
@@ -5012,6 +5024,10 @@ is intended to be passed to the
 .B SourceCode
 function:
 
+This function is deprecated.  For details, see the entry for the
+.B SourceCode
+function.
+
 Examples:
 
 .ES
@@ -5177,6 +5193,10 @@ to be used to fetch source files
 from SCCS.
 The returned Builder
 is intended to be passed to the
+.B SourceCode
+function.
+
+This function is deprecated.  For details, see the entry for the
 .B SourceCode
 function.
 
@@ -5638,6 +5658,13 @@ function.
 .RI SourceCode( entries ", " builder )
 .TP
 .RI env.SourceCode( entries ", " builder )
+This function and its associate factory functions are deprecated.
+There is no replacement.
+The intended use was to keep a local tree in sync with an archive,
+but in actuality the function only causes the archive
+to be fetched on the first run.
+Synchronizing with the archive is best done external to SCons.
+
 Arrange for non-existent source files to
 be fetched from a source code management system
 using the specified
@@ -5825,6 +5852,10 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 '\"replicate part of the repository
 '\"directory hierarchy in your
 '\"local build directory.
+'\"
+'\"This function is deprecated.  For details, see the entry for the
+'\".B SourceCode
+'\"function.
 '\"
 '\"Example:
 '\"

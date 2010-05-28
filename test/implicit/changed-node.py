@@ -34,7 +34,6 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 
-
 test.subdir('d',
             ['d', '1'],
             ['d', '2'],
@@ -43,7 +42,6 @@ test.subdir('d',
 test.write('SConstruct', """\
 SetOption('implicit_cache', 1)
 SetOption('max_drift', 1)
-SourceCode('.', None)
 
 def lister(target, source, env):
     import os
@@ -78,11 +76,9 @@ test.write(['d', '3', 'z'], "d/3/z\n")
 test.run('--debug=stacktrace')
 
 
-
 test.write('SConstruct', """\
 SetOption('implicit_cache', 1)
 SetOption('max_drift', 1)
-SourceCode('.', None)
 
 def lister(target, source, env):
     import os.path
@@ -106,8 +102,6 @@ env.builder('a', 'SConstruct')
 test.run('--debug=stacktrace')
 
 test.pass_test()
-
-
 
 
 #from os import system, rmdir, remove, mkdir, listdir
