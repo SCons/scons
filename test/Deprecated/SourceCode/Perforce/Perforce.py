@@ -46,8 +46,6 @@ msg_sc = """SourceCode() has been deprecated and there is no replacement.
 \tIf you need this function, please contact dev@scons.tigris.org."""
 warn_sc = test.deprecated_wrap(msg_sc)
 
-test.skip_test("Need Perforce to debug these tests.\n")
-
 class TestPerforce(TestSCons.TestSCons):
     def __init__(self, *args, **kw):
         TestSCons.TestSCons.__init__(self, *args, **kw)
@@ -277,7 +275,10 @@ test.write(['work', 'foo', 'bbb.in'], "work/foo/bbb.in\n")
 test.subdir(['work', 'foo', 'sub'])
 test.write(['work', 'foo', 'sub', 'eee.in'], "work/foo/sub/eee.in\n")
 
-test.run(chdir = 'work', arguments = '.', stderr = warn_p4 + warn_sc)
+test.run(chdir = 'work',
+         arguments = '.',
+         stderr = warn_p4 + warn_sc,
+         match = TestSCons.match_re_dotall)
 
 test.fail_test(test.read(['work', 'all']) != "import/aaa.in\nwork/foo/bbb.in\nimport/ccc.in\n")
 test.fail_test(test.read(['work', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork/foo/sub/eee.in\nimport/sub/fff.in\n")
