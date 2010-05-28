@@ -43,8 +43,6 @@ msg_sc = """SourceCode() has been deprecated and there is no replacement.
 \tIf you need this function, please contact dev@scons.tigris.org."""
 warn_sc = test.deprecated_wrap(msg_sc)
 
-test.skip_test("Need SCCS to debug these tests.\n")
-
 sccs = test.where_is('sccs')
 if not sccs:
     test.skip_test("Could not find 'sccs'; skipping test(s).\n")
