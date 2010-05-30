@@ -31,9 +31,12 @@ from TestCommon import __all__
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '1.3.0'
+default_version = '2.0.0'
 
 copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010'
+
+python_version_unsupported = (2, 3, 0)
+python_version_deprecated = (2, 4, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
@@ -150,10 +153,10 @@ def python_minor_version_string():
     return sys.version[:3]
 
 def unsupported_python_version(version=sys.version_info):
-    return version < (2, 3, 0)
+    return version < python_version_unsupported
 
 def deprecated_python_version(version=sys.version_info):
-    return version < (2, 4, 0)
+    return version < python_version_deprecated
 
 if deprecated_python_version():
     msg = r"""

@@ -8,10 +8,11 @@ should not be, or be considered, part of the build engine.  If it's
 something that we expect other software to want to use, it should go in
 some other module.  If it's specific to the "scons" script invocation,
 it goes here.
-
 """
 
-#
+unsupported_python_version = (2, 3, 0)
+deprecated_python_version = (2, 4, 0)
+
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -38,7 +39,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import os
-import os.path
 import sys
 import time
 import traceback
@@ -419,10 +419,10 @@ def python_version_string():
     return sys.version.split()[0]
 
 def python_version_unsupported(version=sys.version_info):
-    return version < (1, 5, 2)
+    return version < unsupported_python_version
 
 def python_version_deprecated(version=sys.version_info):
-    return version < (2, 4, 0)
+    return version < deprecated_python_version
 
 
 # Global variables
