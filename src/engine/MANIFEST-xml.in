@@ -22,7 +22,6 @@ SCons/Tool/ar.xml
 SCons/Tool/as.xml
 SCons/Tool/bcc32.xml
 SCons/Tool/c++.xml
-SCons/Tool/c++.xml
 SCons/Tool/cc.xml
 SCons/Tool/cvf.xml
 SCons/Tool/default.xml

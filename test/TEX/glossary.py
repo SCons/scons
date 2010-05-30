@@ -37,11 +37,11 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 latex = test.where_is('latex')
-gloss = os.system('kpsewhich glossary.sty')
 
 if not latex:
     test.skip_test("Could not find latex; skipping test(s).\n")
 
+gloss = os.system('kpsewhich glossary.sty')
 if not gloss==0:
     test.skip_test("glossary.sty not installed; skipping test(s).\n")
 
