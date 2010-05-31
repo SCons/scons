@@ -157,7 +157,7 @@ if checkpoint:
         checkpoint = time.strftime('%Y%m%d', time.localtime(time.time()))
     elif checkpoint == 'r':
         checkpoint = 'r' + revision
-    version = version + '.alpha.' + checkpoint
+    version = version + '.beta.' + checkpoint
 
 build_id = ARGUMENTS.get('BUILD_ID')
 if build_id is None:

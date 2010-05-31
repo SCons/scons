@@ -1,5 +1,9 @@
   A new SCons checkpoint release, 2.0.0.beta.20100531, is now available on
   the SCons download page:
+  The primary purpose of this release is to remove support for
+  Python versions prior to 2.4 and streamline the SCons code base
+  using more modern python idioms.
+  The checkpoint is available at the SCons download page:
 
           http://www.scons.org/download.php
 
