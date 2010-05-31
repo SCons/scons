@@ -41,6 +41,9 @@ RELEASE 2.0.0.beta.20100531 - Mon, 31 May 2010 22:15:00 -0700
 
     - Convert old-style classes into new-style classes.
 
+    - Fix "Ignoring corrupt sconsign entry" warnings when building
+      in a tree with a pre-2.0 .sconsign file.
+
   From Greg Noel:
 
     - Apply numerous Python fixers to update code to more modern idioms.
