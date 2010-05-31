@@ -16,7 +16,7 @@
   for adoption by other software distributions.
 
   Note that a checkpoint release is developed using the same test-driven
-  development methdology as all SCons releases.  Existing SCons
+  development methodology as all SCons releases.  Existing SCons
   functionality should all work as it does in previous releases (except
   for any changes identified in the release notes) and early adopters
   should be able to use a checkpoint release safely for production work
@@ -75,7 +75,7 @@
   IMPROVEMENTS
 
   - Support for Python versions prior to 2.4 has been removed.  As of
-    this writing, we belive that SCons will still work with Python 2.3,
+    this writing, we believe that SCons will still work with Python 2.3,
     but this is not guaranteed.
   - Code paths that included special cases for older Python versions have
     been streamlined.
@@ -89,7 +89,7 @@
 
   DOCUMENTATION
 
-  - The entried for SourceCode() and its associated factory functions now
+  - The entries for SourceCode() and its associated factory functions now
     state that the functions are deprecated.
 
   DEVELOPMENT
