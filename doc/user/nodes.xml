@@ -335,6 +335,51 @@
 
   </section>
 
+  <section>
+  <title>&GetBuildPath;: Getting the Path From a &Node; or String</title>
+
+    <para>
+
+    <function>env.GetBuildPath(file_or_list)</function>
+    returns the path of a &Node; or a string representing a
+    path.  It can also take a list of &Node;s and/or strings, and
+    returns the list of paths.  If passed a single &Node;, the result
+    is the same as calling <literal>str(node)</literal> (see above).
+    The string(s) can have embedded construction variables, which are
+    expanded as usual, using the calling environment's set of
+    variables.  The paths can be files or directories, and do not have
+    to exist.
+
+    </para>
+
+    <programlisting>
+      env=Environment(VAR="value")
+      n=File("foo.c")
+      print env.GetBuildPath([n, "sub/dir/$VAR"])
+    </programlisting>
+
+    <para>
+
+    Would print the following file names:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      ['foo.c', 'sub/dir/value']
+      scons: `.' is up to date.
+    </screen>
+
+    <para>
+
+    There is also a function version of &GetBuildPath; which can
+    be called without an &Environment;; that uses the default SCons
+    &Environment; to do substitution on any string arguments.
+
+    </para>
+
+  </section>
+
   <!--
 
   <section>

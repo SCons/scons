@@ -191,10 +191,12 @@
 <!ENTITY File "<function>File</function>">
 <!ENTITY FindFile "<function>FindFile</function>">
 <!ENTITY FindInstalledFiles "<function>FindInstalledFiles</function>">
+<!ENTITY FindPathDirs "<function>FindPathDirs</function>">
 <!ENTITY Finish "<function>Finish</function>">
 <!ENTITY Flatten "<function>Flatten</function>">
 <!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
 <!ENTITY GetBuildFailures "<function>GetBuildFailures</function>">
+<!ENTITY GetBuildPath "<function>GetBuildPath</function>">
 <!ENTITY GetLaunchDir "<function>GetLaunchDir</function>">
 <!ENTITY GetOption "<function>GetOption</function>">
 <!ENTITY Glob "<function>Glob</function>">
