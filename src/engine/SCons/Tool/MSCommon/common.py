@@ -120,18 +120,25 @@ def normalize_env(env, keys):
 
 def get_output(vcbat, args = None, env = None):
     """Parse the output of given bat file, with given args."""
+    
+    if env is None:
+        # Create a blank environment, for use in launching the tools
+        env= SCons.Environment.Environment(tools=[])
+        
     if args:
         debug("Calling '%s %s'" % (vcbat, args))
-        popen = subprocess.Popen('"%s" %s & set' % (vcbat, args),
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 env=env)
+        popen = SCons.Action._subproc(env,
+                                     '"%s" %s & set' % (vcbat, args),
+                                     stdin = 'devnull',
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
     else:
         debug("Calling '%s'" % vcbat)
-        popen = subprocess.Popen('"%s" & set' % vcbat,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 env=env)
+        popen = SCons.Action._subproc(env,
+                                     '"%s" & set' % vcbat,
+                                     stdin = 'devnull',
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
