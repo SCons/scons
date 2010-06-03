@@ -617,7 +617,7 @@ def get_default_ENV(env):
 # it in the long run as more and more places use subprocess, but I'm sure
 # it'll have to be tweaked to get the full desired functionality.
 # one special arg (so far?), 'error', to tell what to do with exceptions.
-def _subproc(env, cmd, error = 'ignore', **kw):
+def _subproc(scons_env, cmd, error = 'ignore', **kw):
     """Do common setup for a subprocess.Popen() call"""
     # allow std{in,out,err} to be "'devnull'"
     io = kw.get('stdin')
@@ -632,7 +632,7 @@ def _subproc(env, cmd, error = 'ignore', **kw):
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)
-    if ENV is None: ENV = get_default_ENV(env)
+    if ENV is None: ENV = get_default_ENV(scons_env)
 
     # Ensure that the ENV values are all strings:
     new_env = {}
