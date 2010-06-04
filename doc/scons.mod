@@ -157,6 +157,7 @@
 <!ENTITY AddVariables "<function>AddVariables</function>">
 <!ENTITY Alias "<function>Alias</function>">
 <!ENTITY Aliases "<function>Aliases</function>">
+<!ENTITY AllowSubstExceptions "<function>AllowSubstExceptions</function>">
 <!ENTITY AlwaysBuild "<function>AlwaysBuild</function>">
 <!ENTITY Append "<function>Append</function>">
 <!ENTITY AppendENVPath "<function>AppendENVPath</function>">
@@ -281,7 +282,9 @@
 <!ENTITY TryRun "<function>TryRun</function>">
 
 
-<!-- Python functions -->
+<!-- Python functions and classes -->
+<!ENTITY IndexError "<classname>IndexError</classname>">
+<!ENTITY NameError "<classname>NameError</classname>">
 <!ENTITY str "<function>str</function>">
 <!ENTITY zipfile "<function>zipfile</function>">
 

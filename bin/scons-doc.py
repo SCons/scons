@@ -818,7 +818,7 @@ def process(filename):
         try:
             f = open(filename, 'r')
         except EnvironmentError, e:
-            sys.stderr.write('%s: %s\n' % (filename, msg))
+            sys.stderr.write('%s: %s\n' % (filename, e))
             return 1
 
     data = f.read()
