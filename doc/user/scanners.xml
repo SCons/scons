@@ -315,3 +315,51 @@ over the file scanning rather than being called for each input line:
     -->
 
   </section>
+
+  <section>
+  <title>Adding a search path to a scanner: &FindPathDirs;</title>
+
+    <para>
+
+    Many scanners need to search for included files or dependencies
+    using a path variable; this is how &cv-link-CPPPATH; and
+    &cv-link-LIBPATH; work.  The path to search is passed to your
+    scanner as the <literal>path</literal> argument.  Path variables
+    may be lists of nodes, semicolon-separated strings, or even
+    contain SCons variables which need to be expanded.  Fortunately,
+    &SCons; provides the &FindPathDirs; function which itself returns
+    a function to expand a given path (given as a SCons construction
+    variable name) to a list of paths at the time the scanner is
+    called.  Deferring evaluation until that point allows, for
+    instance, the path to contain $TARGET references which differ for
+    each file scanned.
+
+    </para>
+
+    <para>
+
+    Using &FindPathDirs; is quite easy.  Continuing the above example,
+    using KPATH as the construction variable with the search path
+    (analogous to &cv-link-CPPPATH;), we just modify the &Scanner;
+    constructor call to include a path keyword arg:
+
+    </para>
+    
+    <programlisting>
+        kscan = Scanner(function = kfile_scan,
+                        skeys = ['.k'],
+                        path=FindPathDirs('KPATH'))
+    </programlisting>
+    
+    <para>
+    
+    FindPathDirs returns a callable object that, when called, will
+    essentially expand the elements in env['KPATH'] and tell the
+    scanner to search in those dirs.  It will also properly add
+    related repository and variant dirs to the search list.  As a side
+    note, the returned method stores the path in an efficient way so
+    lookups are fast even when variable substitutions may be needed.
+    This is important since many files get scanned in a typical build.
+    
+    </para>
+    </section>
