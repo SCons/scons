@@ -772,6 +772,82 @@ environment, of directory names, suffixes, etc.
     </section>
 
     <section>
+    <title>Handling Problems With Value Expansion</title>
+
+      <para>
+
+      If a problem occurs when expanding a construction variable,
+      by default it is expanded to <literal>''</literal>
+      (a null string), and will not cause scons to fail. 
+      
+       <scons_example name="missing1">
+         <file name="SConstruct" printme="1">
+          env = Environment()
+          print "value is:", env.subst( '->$MISSING<-' )
+        </file>
+      </scons_example>
+
+       <scons_output example="missing1">
+          <scons_output_command>scons -Q</scons_output_command>
+       </scons_output>
+      
+      This default behaviour can be changed using the &AllowSubstExceptions;
+      function.
+      When a problem occurs with a variable expansion it generates
+      an exception, and the &AllowSubstException; function controls
+      which of these exceptions are actually fatal and which are
+      allowed to occur safely.   By default, &NameError; and &IndexError;
+      are the two exceptions that are allowed to occur: so instead of
+      causing scons to fail, these are caught, the variable expanded to
+      <literal>''</literal>
+      and scons execution continues.
+      To require that all construction variable names exist, and that
+      indexes out of range are not allowed, call &AllowSubstExceptions;
+      with no extra arguments.
+      </para>
+
+       <scons_example name="missing2">
+         <file name="SConstruct" printme="1">
+          AllowSubstExceptions()
+          env = Environment()
+          print "value is:", env.subst( '->$MISSING<-' )
+        </file>
+      </scons_example>
+
+       <scons_output example="missing2">
+          <scons_output_command>scons -Q</scons_output_command>
+       </scons_output>
+
+      <para>
+      This can also be used to allow other exceptions that might occur,
+      most usefully with the <literal>${...}</literal> construction
+      variable syntax.  For example, this would allow zero-division to
+      occur in a variable expansion in addition to the default exceptions
+      allowed
+      </para>
+
+       <scons_example name="missing3">
+         <file name="SConstruct" printme="1">
+          AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
+          env = Environment()
+          print "value is:", env.subst( '->${1 / 0}<-' )
+        </file>
+      </scons_example>
+
+       <scons_output example="missing3">
+          <scons_output_command>scons -Q</scons_output_command>
+       </scons_output>
+      <sconstruct>
+      </sconstruct>
+
+      <para>
+      If &AllowSubstExceptions; is called multiple times, each call
+      completely overwrites the previous list of allowed exceptions.
+      </para>
+
+    </section>
+
+    <section>
     <title>Controlling the Default &ConsEnv;:  the &DefaultEnvironment; Function</title>
 
       <para>
