@@ -30,8 +30,14 @@ project (.vcproj) and solution (.sln) files.
 """
 
 import TestSConsMSVS
+import sys
+
 
 test = TestSConsMSVS.TestSConsMSVS()
+
+if sys.platform != 'win32':
+    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.0']
