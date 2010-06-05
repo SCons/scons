@@ -141,7 +141,7 @@ file_expr = r"""File "[^"]*", line \d+, in [^\n]+
 
 # re.escape escapes too much.
 def re_escape(str):
-    for c in '.[]()*+?\\':   # Not an exhaustive list.
+    for c in '\\.[]()*+?':   # Not an exhaustive list.
         str = str.replace(c, '\\' + c)
     return str
 
