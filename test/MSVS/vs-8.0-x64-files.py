@@ -36,10 +36,9 @@ import sys
 import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
+host_arch = test.get_vs_host_arch()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['8.0']
@@ -59,7 +58,7 @@ SConscript_contents = SConscript_contents.replace('\'Release\'', '\'Release|x64\
 
 
 
-test.write('SConstruct', SConscript_contents)
+test.write('SConstruct', SConscript_contents%{'HOST_ARCH': host_arch})
 
 test.run(arguments="Test.vcproj")
 

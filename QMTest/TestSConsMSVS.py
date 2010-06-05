@@ -19,6 +19,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
+import platform
 
 from TestSCons import *
 from TestSCons import __all__
@@ -164,7 +165,8 @@ Package=<3>
 '''
 
 SConscript_contents_6_0 = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='6.0')
+env=Environment(platform='win32', tools=['msvs'],
+                MSVS_VERSION='6.0',HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']
@@ -284,7 +286,8 @@ expected_vcprojfile_7_0 = """\
 """
 
 SConscript_contents_7_0 = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.0')
+env=Environment(platform='win32', tools=['msvs'],
+                MSVS_VERSION='7.0',HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -407,7 +410,8 @@ expected_vcprojfile_7_1 = """\
 """
 
 SConscript_contents_7_1 = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1')
+env=Environment(platform='win32', tools=['msvs'],
+                MSVS_VERSION='7.1',HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -539,7 +543,8 @@ expected_vcprojfile_8_0 = """\
 SConscript_contents_8_0 = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
-                CPPPATH=['inc1', 'inc2'])
+                CPPPATH=['inc1', 'inc2'],
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -660,6 +665,38 @@ print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
         finally:
             os.environ['SCONSFLAGS'] = save_sconsflags or ''
         return result
+    
+    def get_vs_host_arch(self):
+        """ Get an MSVS, SDK , and/or MSVS acceptable platform arch
+        """
+        
+        # Dict to 'canonalize' the arch
+        _ARCH_TO_CANONICAL = {
+            "x86": "x86",
+            "amd64": "amd64",
+            "i386": "x86",
+            "emt64": "amd64",
+            "x86_64": "amd64",
+            "itanium": "ia64",
+            "ia64": "ia64",
+        }
+
+        host_platform = platform.machine()
+        # TODO(2.5):  the native Python platform.machine() function returns
+        # '' on all Python versions before 2.6, after which it also uses
+        # PROCESSOR_ARCHITECTURE.
+        if not host_platform:
+            host_platform = os.environ.get('PROCESSOR_ARCHITECTURE', '')
+                
+            
+        try:
+            host = _ARCH_TO_CANONICAL[host_platform]
+        except KeyError, e:
+            # Default to x86 for all other platforms
+            host = 'x86'
+    
+   
+        return host
 
 # Local Variables:
 # tab-width:4

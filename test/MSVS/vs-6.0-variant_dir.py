@@ -35,14 +35,11 @@ import sys
 
 test = TestSConsMSVS.TestSConsMSVS()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+host_arch = test.get_vs_host_arch()
+
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['6.0']
-
-
 
 expected_dspfile = TestSConsMSVS.expected_dspfile_6_0
 expected_dswfile = TestSConsMSVS.expected_dswfile_6_0
@@ -55,7 +52,7 @@ test.write('SConstruct', """\
 SConscript('src/SConscript', variant_dir='build')
 """)
 
-test.write(['src', 'SConscript'], SConscript_contents)
+test.write(['src', 'SConscript'], SConscript_contents%{'HOST_ARCH': host_arch})
 
 test.run(arguments=".")
 

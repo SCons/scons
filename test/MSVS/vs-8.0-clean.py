@@ -34,10 +34,8 @@ import sys
 
 
 test = TestSConsMSVS.TestSConsMSVS()
+host_arch = test.get_vs_host_arch()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['8.0']
@@ -52,7 +50,8 @@ expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_8_0
 test.write('SConstruct', """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
-                CPPPATH=['inc1', 'inc2'])
+                CPPPATH=['inc1', 'inc2'],
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -74,7 +73,7 @@ env.MSVSSolution(target = 'Test.sln',
                  slnguid = '{SLNGUID}',
                  projects = [p],
                  variant = 'Release')
-""")
+"""%{'HOST_ARCH': host_arch})
 
 test.run(arguments=".")
 
