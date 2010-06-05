@@ -374,6 +374,9 @@ class DummyEnv(object):
     def __getitem__(self,key):
         return self.dict[key]
 
+    def __contains__(self,key):
+        return key in self.dict
+
     def has_key(self,name):
         return name in self.dict
 
