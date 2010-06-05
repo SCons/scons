@@ -794,7 +794,7 @@ environment, of directory names, suffixes, etc.
       This default behaviour can be changed using the &AllowSubstExceptions;
       function.
       When a problem occurs with a variable expansion it generates
-      an exception, and the &AllowSubstException; function controls
+      an exception, and the &AllowSubstExceptions; function controls
       which of these exceptions are actually fatal and which are
       allowed to occur safely.   By default, &NameError; and &IndexError;
       are the two exceptions that are allowed to occur: so instead of
