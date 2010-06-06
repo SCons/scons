@@ -99,21 +99,25 @@ def has_reg(value):
 
 # Functions for fetching environment variable settings from batch files.
 
-def normalize_env(env, keys):
+def normalize_env(env, keys, force=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
     controlled by the keys argument.
 
     It also makes sure the environment values are correctly encoded.
 
-    Note: the environment is copied"""
+    If force=True, then all of the key values that exist are copied
+    into the returned dictionary.  If force=false, values are only
+    copied if the key does not already exist in the copied dictionary.
+
+    Note: the environment is copied."""
     normenv = {}
     if env:
         for k in env.keys():
             normenv[k] = copy.deepcopy(env[k]).encode('mbcs')
 
         for k in keys:
-            if k in os.environ:
+            if k in os.environ and (force or not k in normenv):
                 normenv[k] = os.environ[k].encode('mbcs')
 
     return normenv
@@ -123,8 +127,23 @@ def get_output(vcbat, args = None, env = None):
     
     if env is None:
         # Create a blank environment, for use in launching the tools
-        env= SCons.Environment.Environment(tools=[])
-        
+        env = SCons.Environment.Environment(tools=[])
+
+    # TODO:  This is a hard-coded list of the variables that (may) need
+    # to be imported from os.environ[] for v[sc]*vars*.bat file
+    # execution to work.  This list should really be either directly
+    # controlled by vc.py, or else derived from the common_tools_var
+    # settings in vs.py.
+    vars = [
+        'COMSPEC',
+        'VS90COMNTOOLS',
+        'VS80COMNTOOLS',
+        'VS71COMNTOOLS',
+        'VS70COMNTOOLS',
+        'VS60COMNTOOLS',
+    ]
+    env['ENV'] = normalize_env(env['ENV'], vars, force=False)
+
     if args:
         debug("Calling '%s %s'" % (vcbat, args))
         popen = SCons.Action._subproc(env,
@@ -144,8 +163,14 @@ def get_output(vcbat, args = None, env = None):
     # .communicate() method uses the threading module on Windows
     # and won't work under Pythons not built with threading.
     stdout = popen.stdout.read()
+    stderr = popen.stderr.read()
+    if stderr:
+        # TODO: find something better to do with stderr;
+        # this at least prevents errors from getting swallowed.
+        import sys
+        sys.stderr.write(stderr)
     if popen.wait() != 0:
-        raise IOError(popen.stderr.read().decode("mbcs"))
+        raise IOError(stderr.decode("mbcs"))
 
     output = stdout.decode("mbcs")
     return output
