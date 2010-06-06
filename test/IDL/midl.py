@@ -41,7 +41,8 @@ if sys.platform != 'win32':
 test.write('SConstruct',"""
 import os
 
-env = Environment(CPPPATH = '${TARGET.dir}')
+env = Environment(CPPPATH = '${TARGET.dir}',
+                  tools = ['mssdk', 'msvc', 'mslink', 'midl'])
 Export('env')
 
 VariantDir('build', 'src')
