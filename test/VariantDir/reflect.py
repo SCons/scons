@@ -41,7 +41,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 _python_ = TestSCons._python_
-re_python = re.escape(TestSCons.python)
+re_python = re.escape(TestSCons._python_)
 
 test.write("mycc.py", """
 print 'Compile'

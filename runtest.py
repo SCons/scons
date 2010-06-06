@@ -737,7 +737,13 @@ if qmtest:
         sys.stdout.flush()
     status = 0
     if execute_tests:
-        status = os.WEXITSTATUS(os.system(cmd))
+        status = os.system(cmd)
+        try:
+            wexitstatus = os.WEXITSTATUS
+        except AttributeError:
+            pass
+        else:
+            status = wexitstatus(status)
     sys.exit(status)
 
 #try:

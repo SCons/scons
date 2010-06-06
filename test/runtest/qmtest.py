@@ -30,6 +30,12 @@ not directly via Python.
 """
 
 import os.path
+import sys
+
+if sys.platform == 'win32':
+    qmtest_py = 'qmtest.py'
+else:
+    qmtest_py = 'qmtest'
 
 import TestRuntest
 
@@ -52,38 +58,38 @@ test.write_passing_test(test_pass_py)
 # NOTE:  the FAIL and PASS lines below have trailing spaces.
 
 expect_stdout = """\
-qmtest run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" test/fail.py test/no_result.py test/pass.py
+%(qmtest_py)s run --output results.qmr --format none --result-stream="scons_tdb.AegisChangeStream" %(test_fail_py)s %(test_no_result_py)s %(test_pass_py)s
 --- TEST RESULTS -------------------------------------------------------------
 
-  test/fail.py                                  : FAIL    
+  %(test_fail_py)s                                  : FAIL    
 
     FAILING TEST STDOUT
 
     FAILING TEST STDERR
 
-  test/no_result.py                             : NO_RESULT
+  %(test_no_result_py)s                             : NO_RESULT
 
     NO RESULT TEST STDOUT
 
     NO RESULT TEST STDERR
 
-  test/pass.py                                  : PASS    
+  %(test_pass_py)s                                  : PASS    
 
 --- TESTS THAT DID NOT PASS --------------------------------------------------
 
-  test/fail.py                                  : FAIL    
+  %(test_fail_py)s                                  : FAIL    
 
-  test/no_result.py                             : NO_RESULT
+  %(test_no_result_py)s                             : NO_RESULT
 
 
 --- STATISTICS ---------------------------------------------------------------
 
        3        tests total
 
-       1 ( 33%) tests PASS
-       1 ( 33%) tests FAIL
-       1 ( 33%) tests NO_RESULT
-"""
+       1 ( 33%%) tests PASS
+       1 ( 33%%) tests FAIL
+       1 ( 33%%) tests NO_RESULT
+""" % locals()
 
 testlist = [
     test_fail_py,
