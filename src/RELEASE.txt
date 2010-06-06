@@ -1,3 +1,6 @@
+# __COPYRIGHT__
+# __FILE__ __REVISION__ __DATE__ __DEVELOPER__
+
   A new SCons checkpoint release, 2.0.0.beta.20100531, is now available on
   the SCons download page:
   The primary purpose of this release is to remove support for
