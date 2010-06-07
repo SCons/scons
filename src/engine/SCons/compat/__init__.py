@@ -121,21 +121,20 @@ else:
     try:
         collections.UserDict
     except AttributeError:
-        _UserDict = imp.load_module('UserDict', *imp.find_module('UserDict'))
-        collections.UserDict = _UserDict.UserDict
+        exec('from UserDict import UserDict as _UserDict')
+        collections.UserDict = _UserDict
         del _UserDict
     try:
         collections.UserList
     except AttributeError:
-        _UserList = imp.load_module('UserList', *imp.find_module('UserList'))
-        collections.UserList = _UserList.UserList
+        exec('from UserList import UserList as _UserList')
+        collections.UserList = _UserList
         del _UserList
     try:
         collections.UserString
     except AttributeError:
-        _UserString = imp.load_module('UserString',
-                                      *imp.find_module('UserString'))
-        collections.UserString = _UserString.UserString
+        exec('from UserString import UserString as _UserString')
+        collections.UserString = _UserString
         del _UserString
 
 

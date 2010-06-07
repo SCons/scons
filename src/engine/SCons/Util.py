@@ -1,9 +1,7 @@
 """SCons.Util
 
 Various utility functions go here.
-
 """
-
 #
 # __COPYRIGHT__
 #
@@ -25,27 +23,22 @@ Various utility functions go here.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.compat
-
-import copy
 import os
-import re
 import sys
+import copy
+import re
 import types
 
 from collections import UserDict, UserList, UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-DictType        = dict
 InstanceType    = types.InstanceType
-ListType        = list
-StringType      = str
-TupleType       = tuple
+MethodType      = types.MethodType
+FunctionType    = types.FunctionType
 try: unicode
 except NameError: UnicodeType = None
 else:             UnicodeType = unicode
@@ -1377,20 +1370,20 @@ def AddMethod(obj, function, name=None):
 
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
-        setattr(obj, name, types.MethodType(function, obj, obj.__class__))
+        setattr(obj, name, MethodType(function, obj, obj.__class__))
     else:
         # "obj" is a class, so it gets an unbound method.
-        setattr(obj, name, types.MethodType(function, None, obj))
+        setattr(obj, name, MethodType(function, None, obj))
 
 def RenameFunction(function, name):
     """
     Returns a function identical to the specified function, but with
     the specified name.
     """
-    return types.FunctionType(function.func_code,
-                              function.func_globals,
-                              name,
-                              function.func_defaults)
+    return FunctionType(function.func_code,
+                        function.func_globals,
+                        name,
+                        function.func_defaults)
 
 
 md5 = False
