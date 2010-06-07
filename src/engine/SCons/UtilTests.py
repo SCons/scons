@@ -207,6 +207,7 @@ class UtilTestCase(unittest.TestCase):
     def test_is_Dict(self):
         assert is_Dict({})
         assert is_Dict(UserDict())
+        assert is_Dict(os.environ)
         try:
             class mydict(dict):
                 pass
