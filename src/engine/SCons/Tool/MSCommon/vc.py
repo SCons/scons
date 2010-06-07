@@ -71,13 +71,16 @@ class BatchFileExecutionError(VisualCException):
 
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
-    "x86": "x86",
-    "amd64": "amd64",
-    "i386": "x86",
-    "emt64": "amd64",
-    "x86_64": "amd64",
-    "itanium": "ia64",
-    "ia64": "ia64",
+    "amd64"     : "amd64",
+    "emt64"     : "amd64",
+    "i386"      : "x86",
+    "i486"      : "x86",
+    "i586"      : "x86",
+    "i686"      : "x86",
+    "ia64"      : "ia64",
+    "itanium"   : "ia64",
+    "x86"       : "x86",
+    "x86_64"    : "amd64",
 }
 
 # Given a (host, target) tuple, return the argument for the bat file. Both host
@@ -113,13 +116,13 @@ def get_host_target(env):
         target_platform = host_platform
         
     try:
-        host = _ARCH_TO_CANONICAL[host_platform]
+        host = _ARCH_TO_CANONICAL[host_platform.lower()]
     except KeyError, e:
         msg = "Unrecognized host architecture %s"
         raise ValueError(msg % repr(host_platform))
 
     try:
-        target = _ARCH_TO_CANONICAL[target_platform]
+        target = _ARCH_TO_CANONICAL[target_platform.lower()]
     except KeyError, e:
         raise ValueError("Unrecognized target architecture %s" % target_platform)
 
