@@ -129,11 +129,6 @@ class TestRuntest(TestCommon):
 
         orig_cwd = os.getcwd()
         TestCommon.__init__(self, **kw)
-  
-        if not noqmtest:
-            qmtest = self.where_is('qmtest')
-            if not qmtest:
-                self.skip_test("Could not find 'qmtest'; skipping test(s).\n")
 
         dirs = [os.environ.get('SCONS_RUNTEST_DIR', orig_cwd)]
         

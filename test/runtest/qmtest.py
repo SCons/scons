@@ -41,15 +41,16 @@ import TestRuntest
 
 test = TestRuntest.TestRuntest()
 
+  
+qmtest = test.where_is('qmtest')
+if not qmtest:
+    test.skip_test("Could not find 'qmtest'; skipping test(s).\n")
+
 test.subdir('test')
 
 test_fail_py      = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
 test_pass_py      = os.path.join('test', 'pass.py')
-
-workpath_fail_py      = test.workpath(test_fail_py)
-workpath_no_result_py = test.workpath(test_no_result_py)
-workpath_pass_py      = test.workpath(test_pass_py)
 
 test.write_failing_test(test_fail_py)
 test.write_no_result_test(test_no_result_py)
