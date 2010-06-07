@@ -1,6 +1,39 @@
 #!/usr/bin/env python
 """
-Update files for release.  FIXME: make the doc string actually document.
+This program takes information about a release in the ReleaseConfig file
+and inserts the information in various files.  It helps to keep the files
+in sync because it never forgets which files need to be updated, nor what
+information should be inserted in each file.
+
+It takes one parameter that says what the mode of update should be, which
+may be one of 'develop', 'release', or 'post'.
+
+In 'develop' mode, which is what someone would use as part of their own
+development practices, the release type is forced to be 'alpha' and the
+patch level is the string 'yyyymmdd'.  Otherwise, it's the same as the
+'release' mode.
+
+In 'release' mode, the release type is taken from ReleaseConfig and the
+patch level is calculated from the release date for non-final runs and
+taken from the version tuple for final runs.  It then inserts information
+in various files:
+  - The RELEASE header line in src/CHANGES.txt and src/Announce.txt.
+  - The version string at the top of src/RELEASE.txt.
+  - The version string in the 'default_version' variable in SConstruct
+    and QMTest/TestSCons.py.
+  - The copyright years in SConstruct and QMTest/TestSCons.py.
+  - The month and year (used for documentation) in SConstruct.
+  - The unsupported and deprecated Python floors in QMTest/TestSCons.py
+    and src/engine/SCons/Script/Main.py
+  - The version string in the filenames in README.
+
+In 'post' mode, files are prepared for the next release cycle:
+  - In ReleaseConfig, the version tuple is updated for the next release
+    by incrementing the release number (either minor or micro, depending
+    on the branch) and resetting release type to 'alpha'.
+  - A blank template replaces src/RELEASE.txt.
+  - A new section to accumulate changes is added to src/CHANGES.txt and
+    src/Announce.txt.
 """
 #
 # __COPYRIGHT__
