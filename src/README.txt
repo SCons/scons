@@ -1,5 +1,3 @@
-# __COPYRIGHT__
-# __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 
 
                  SCons - a software construction tool
@@ -241,3 +239,5 @@ With plenty of help from the SCons Development team:
         Greg Spencer
         Christoph Wiedemann
 
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__

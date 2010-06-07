@@ -1,5 +1,3 @@
-# __COPYRIGHT__
-
                  SCons - a software construction tool
 
 Welcome to the SCons development tree.  The real purpose of this tree
@@ -782,3 +780,5 @@ With plenty of help from the SCons Development team:
         Anthony Roach
         Greg Spencer
         Christoph Wiedemann
+
+__COPYRIGHT__

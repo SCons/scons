@@ -1,5 +1,3 @@
-# __COPYRIGHT__
-# __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 
 
                  SCons - a software construction tool
@@ -5300,3 +5298,6 @@ A brief overview of important functionality available in release 0.01:
   - Linux packages available in RPM and Debian format.
 
   - Windows installer available.
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__
