@@ -21,7 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-XXX Put a description of the test here.
+Test bin/update-release-info.py.  Also verify that the original files
+have the appropriate triggers to cause the modifications.
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -162,15 +163,13 @@ unsupported_python_version = Not done with junk
 deprecated_python_version = It goes on forever
 """)
 
-combo_run(0, 7, stdout =
-"""Updating src%(sep)sCHANGES.txt...
-Updating src%(sep)sRELEASE.txt...
-Updating src%(sep)sAnnounce.txt...
-Updating SConstruct...
-Updating README...
-Updating QMTest%(sep)sTestSCons.py...
-Updating src%(sep)sengine%(sep)sSCons%(sep)sScript%(sep)sMain.py...
-""" % {'sep':os.sep})
+def updating_run(*args):
+    stdout = ''
+    for file in args:
+        stdout += 'Updating %s...\n' % os.path.join(*file)
+    combo_run(0, 7, stdout = stdout)
+
+updating_run(CHANGES, RELEASE, Announce, SConstruct, README, TestSCons, Main)
 
 test.must_match(CHANGES, """
 RELEASE 2.0.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
