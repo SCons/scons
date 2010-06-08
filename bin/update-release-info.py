@@ -94,6 +94,18 @@ if DEBUG: print 'version tuple', version_tuple
 if DEBUG: print 'unsupported Python version', unsupported_version
 if DEBUG: print 'deprecated Python version', deprecated_version
 
+try:
+    release_date = config['release_date']
+except KeyError:
+    release_date = time.localtime()[:6]
+else:
+    if len(release_date) == 3:
+        release_date = release_date + time.localtime()[3:6]
+    if len(release_date) != 6:
+        print '''ERROR: Invalid release date''', release_date
+        sys.exit(1)
+if DEBUG: print 'release date', release_date
+
 if mode == 'develop' and version_tuple[3] != 'alpha':
     version_tuple ==  version_tuple[:3] + ('alpha', 0)
 if version_tuple[3] != 'final':
@@ -110,18 +122,6 @@ if version_type not in ['alpha', 'beta', 'candidate', 'final']:
     print("""ERROR: `%s' is not a valid release type in version tuple;
 \tit must be one of alpha, beta, candidate, or final""" % version_type)
     sys.exit(1)
-
-try:
-    release_date = config['release_date']
-except KeyError:
-    release_date = time.localtime()[:6]
-else:
-    if len(release_date) == 3:
-        release_date = release_date + time.localtime()[3:6]
-    if len(release_date) != 6:
-        print '''ERROR: Invalid release date''', release_date
-        sys.exit(1)
-if DEBUG: print 'release date', release_date
 
 try:
     month_year = config['month_year']

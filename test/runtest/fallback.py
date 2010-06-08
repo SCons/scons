@@ -35,7 +35,7 @@ import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
 
-test = TestRuntest.TestRuntest(noqmtest=1)
+test = TestRuntest.TestRuntest()
 
 # qmtest may be in more than one location in your path
 while test.where_is('qmtest'):
