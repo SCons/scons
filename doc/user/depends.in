@@ -672,13 +672,14 @@
     &SCons; still supports two functions that used to be the
     primary methods for configuring the
     decision about whether or not an input file has changed.
-    Although they're not officially deprecated yet,
-    their use is discouraged,
+    These functions have been officially deprecated
+    as &SCons; version 2.0,
+    and their use is discouraged,
     mainly because they rely on a somewhat
     confusing distinction between how
     source files and target files are handled.
     These functions are documented here mainly in case you
-    encounter them in existing &SConscript; files.
+    encounter them in older &SConscript; files.
 
     </para>
   

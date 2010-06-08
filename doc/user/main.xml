@@ -96,14 +96,7 @@
 
   <!--
 
-  XXX FindFile()
-  XXX FindPathDirs()
-  XXX GetBuildPath()
-  XXX GetLaunchDir()
-
-  XXX ParseDepends()
   XXX Platform()
-  XXX SConsignFile()
   XXX Tools()
 
   XXX GetOption('duplicate')
