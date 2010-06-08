@@ -50,6 +50,7 @@ alt_cpp_suffix=test.get_alt_cpp_suffix()
 
 test.write('SConstruct', """
 env = Environment(SHCXXCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
+                  SHOBJPREFIX='',
                   SHOBJSUFFIX='.obj')
 env.SharedObject(target = 'test1', source = 'test1.cpp')
 env.SharedObject(target = 'test2', source = 'test2.cc')

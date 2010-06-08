@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 
 import TestSCons
 
@@ -54,17 +55,17 @@ scons: *** [%s] Error 1
 
 cannot_execute = """\
 %s: cannot execute
-scons *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 Permission_denied = """\
 %s: Permission denied
-scons: *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 permission_denied = """\
 %s: permission denied
-scons: *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 test.write('SConstruct', r"""
@@ -86,11 +87,16 @@ if os.name == 'nt':
         unspecified % 'f1'
     ]
     test.fail_test(not test.stderr() in errs)
+elif sys.platform.find('sunos') != -1:
+    errs = [
+        cannot_execute % ('sh: %s' % not_executable, 'f1', 1),
+    ]
+    test.fail_test(not test.stderr() in errs)
 else:
     errs = [
-        cannot_execute % (not_executable, 'f1'),
-        Permission_denied % (not_executable, 'f1'),
-        permission_denied % (not_executable, 'f1'),
+        cannot_execute % (not_executable, 'f1', 126),
+        Permission_denied % (not_executable, 'f1', 126),
+        permission_denied % (not_executable, 'f1', 126),
     ]
     test.must_contain_any_line(test.stderr(), errs)
 

@@ -28,6 +28,8 @@ Verify that a failed build action with -j works as expected.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -151,6 +153,10 @@ re_error = """\
 
 re_errors = "(" + re_error + ")+"
 
+# Make the script chatty so lack of output doesn't fool buildbot into
+# thinking it's hung.
+
+sys.stdout.write('Initial build.\n')
 test.run(arguments = 'all',
          status = 2,
          stderr = "scons: *** [failed19] Error 2\n")
@@ -173,7 +179,8 @@ test.must_exist(test.workpath('prereq19'))
 test.must_exist(test.workpath('igreq19'))
 
 
-for i in range(5):
+sys.stdout.write('-j8 all\n')
+for i in range(3):
     test.run(arguments = '-c all')
 
     test.run(arguments = '-j8 all',
@@ -182,7 +189,8 @@ for i in range(5):
              match=TestSCons.match_re_dotall)
 
 
-for i in range(5):
+sys.stdout.write('-j 8 -k all\n')
+for i in range(3):
     test.run(arguments = '-c all')
 
     test.run(arguments = '-j 8 -k all',
@@ -202,14 +210,16 @@ for i in range(5):
         test.must_exist(test.workpath('withSE%02dc' % i))
 
 
-for i in range(5):
+sys.stdout.write('all --random\n')
+for i in range(3):
     test.run(arguments = 'all --random',
              status = 2,
              stderr = re_errors,
              match=TestSCons.match_re_dotall)
 
 
-for i in range(5):
+sys.stdout.write('-j8 --random all\n')
+for i in range(3):
     test.run(arguments = '-c all')
 
     test.run(arguments = '-j8 --random all',
@@ -218,7 +228,8 @@ for i in range(5):
              match=TestSCons.match_re_dotall)
 
 
-for i in range(5):
+sys.stdout.write('-j8 -k --random all\n')
+for i in range(3):
     test.run(arguments = '-c all')
 
     test.run(arguments = '-j 8 -k --random all',
@@ -238,7 +249,8 @@ for i in range(5):
         test.must_exist(test.workpath('withSE%02dc' % i))
 
 
-for i in range(5):
+sys.stdout.write('-j8 -k --random all interupt=yes\n')
+for i in range(3):
     test.run(arguments = '-c all')
 
     test.run(arguments = '-j 8 -k --random interrupt=yes all',

@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 
 import TestSCons
 
@@ -61,24 +62,19 @@ internal or external command, operable program or batch file.
 scons: *** [%s] Error 1
 """
 
-not_found_1 = """
+not_found_1_space = """\
 sh: %s: not found
-scons: *** [%s] Error 1
+scons: *** [%s] Error %s
 """
 
-not_found_2 = """
+not_found_2_spaces = """\
 sh: %s:  not found
-scons: *** [%s] Error 1
-"""
-
-not_found_127 = """\
-sh: %s: not found
-scons: *** [%s] Error 127
+scons: *** [%s] Error %s
 """
 
 No_such = """\
 %s: No such file or directory
-scons: *** [%s] Error 127
+scons: *** [%s] Error %s
 """
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
@@ -89,12 +85,17 @@ if os.name == 'nt':
         unspecified % 'f1'
     ]
     test.fail_test(not test.stderr() in errs)
+elif sys.platform.find('sunos') != -1:
+    errs = [
+        not_found_1_space % (no_such_file, 'f1', 1),
+    ]
+    test.fail_test(not test.stderr() in errs)
 else:
     errs = [
-        not_found_1 % (no_such_file, 'f1'),
-        not_found_2 % (no_such_file, 'f1'),
-        not_found_127 % (no_such_file, 'f1'),
-        No_such % (no_such_file, 'f1'),
+        not_found_1_space % (no_such_file, 'f1', 1),
+        not_found_2_spaces % (no_such_file, 'f1', 1),
+        not_found_1_space % (no_such_file, 'f1', 127),
+        No_such % (no_such_file, 'f1', 127),
     ]
     test.must_contain_any_line(test.stderr(), errs)
 

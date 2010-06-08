@@ -217,6 +217,8 @@ goo(void)
 test.write('foo.c', r"""
 #include <stdio.h>
 
+void goo(void);
+
 #ifdef _WIN32
 #define EXPORT __declspec( dllexport )
 #else
@@ -235,6 +237,7 @@ test.write('prog.c', r"""
 #include <stdio.h>
 
 void foo(void);
+
 int
 main(int argc, char *argv[])
 {
