@@ -35,7 +35,7 @@ import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
 
-test = TestRuntest.TestRuntest(noqmtest=1)
+test = TestRuntest.TestRuntest()
 
 test.subdir('test')
 

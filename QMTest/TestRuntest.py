@@ -111,13 +111,6 @@ class TestRuntest(TestCommon):
             kw['workdir'] = ''
 
         try:
-            noqmtest = kw['noqmtest']
-        except KeyError:
-            noqmtest = 0
-        else:
-            del kw['noqmtest']
-
-        try:
             things_to_copy = kw['things_to_copy']
         except KeyError:
             things_to_copy = [
