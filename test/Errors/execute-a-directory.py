@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 
 import TestSCons
 
@@ -65,22 +66,22 @@ scons: *** [%s] Error 1
 
 cannot_execute = """\
 %s: cannot execute
-scons *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 Permission_denied = """\
 %s: Permission denied
-scons: *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 permission_denied = """\
 %s: permission denied
-scons: *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 is_a_directory = """\
 %s: is a directory
-scons: *** [%s] Error 126
+scons: *** [%s] Error %s
 """
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
@@ -91,12 +92,17 @@ if os.name == 'nt':
         unspecified % 'f3'
     ]
     test.fail_test(not test.stderr() in errs)
+elif sys.platform.find('sunos') != -1:
+    errs = [
+        cannot_execute % ('sh: %s' % test.workdir, 'f3', 1),
+    ]
+    test.fail_test(not test.stderr() in errs)
 else:
     errs = [
-        cannot_execute % (not_executable, 'f3'),
-        is_a_directory % (test.workdir, 'f3'),
-        Permission_denied % (test.workdir, 'f3'),
-        Permission_denied % (test.workdir, 'f3'),
+        cannot_execute % (not_executable, 'f3', 126),
+        is_a_directory % (test.workdir, 'f3', 126),
+        Permission_denied % (test.workdir, 'f3', 126),
+        Permission_denied % (test.workdir, 'f3', 126),
     ]
     test.must_contain_any_line(test.stderr(), errs)
 

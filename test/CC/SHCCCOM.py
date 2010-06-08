@@ -54,6 +54,7 @@ else:
 
 test.write('SConstruct', """
 env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
+                  SHOBJPREFIX='',
                   SHOBJSUFFIX='.obj')
 env.SharedObject(target = 'test1', source = 'test1.c')
 env.SharedObject(target = 'test2', source = 'test2%(alt_c_suffix)s')

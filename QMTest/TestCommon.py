@@ -185,12 +185,12 @@ elif sys.platform.find('darwin') != -1:
 elif sys.platform.find('sunos') != -1:
     exe_suffix   = ''
     obj_suffix   = '.o'
-    shobj_suffix = '.os'
+    shobj_suffix = '.o'
     shobj_prefix = 'so_'
     lib_prefix   = 'lib'
     lib_suffix   = '.a'
     dll_prefix   = 'lib'
-    dll_suffix   = '.dylib'
+    dll_suffix   = '.so'
 else:
     exe_suffix   = ''
     obj_suffix   = '.o'
