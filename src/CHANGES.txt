@@ -45,6 +45,9 @@ RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
     - Fix propagation from environment of VS*COMNTOOLS to resolve issues 
       initializing MSVC/MSVS/SDK issues.
 
+    - Handle detecting Visual C++ on Python verions with upper-case
+      platform architectures like 'AMD64'.
+
   From Greg Noel:
 
     - Apply numerous Python fixers to update code to more modern idioms.
