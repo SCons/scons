@@ -48,6 +48,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(ASPPCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
                   OBJSUFFIX = '.obj',
+                  SHOBJPREFIX = '',
                   SHOBJSUFFIX = '.shobj')
 env.Object(target = 'test1', source = 'test1.spp')
 env.Object(target = 'test2', source = 'test2.SPP')
