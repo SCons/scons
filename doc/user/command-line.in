@@ -943,8 +943,8 @@
       These older names still work,
       and you may encounter them in older
       &SConscript; fles,
-      but their use is discouraged
-      and will be officially deprecated some day.
+      but they have been officially deprecated
+      as of &SCons; version 2.0.
 
       </para>
 
