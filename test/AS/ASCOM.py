@@ -57,6 +57,7 @@ else:
 test.write('SConstruct', """
 env = Environment(ASCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
                   OBJSUFFIX = '.obj',
+                  SHOBJPREFIX = '',
                   SHOBJSUFFIX = '.shobj')
 env.Object(target = 'test1', source = 'test1.s')
 env.Object(target = 'test2', source = 'test2%(alt_s_suffix)s')

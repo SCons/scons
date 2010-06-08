@@ -1128,6 +1128,10 @@ class CommandActionTestCase(unittest.TestCase):
             # Newer cygwin seems to return 126 for following
             expect_nonexecutable_file = 126
             expect_nonexecutable_dir  = 127
+        elif sys.platform.find('sunos') != -1:
+            expect_nonexistent = 1
+            expect_nonexecutable_file = 1
+            expect_nonexecutable_dir = 1
         else:
             expect_nonexistent = 127
             expect_nonexecutable_file = 126

@@ -1280,7 +1280,7 @@ env4.builder1.env, env3)
 
         env.fs.Repository('/rep1')
         env.fs.Repository('/rep2')
-        env.Replace(CPPPATH = [ 'foo', '/a/b', '$FOO/bar', blat],
+        env.Replace(CPPPATH = [ 'foo', '/__a__/b', '$FOO/bar', blat],
                     INCPREFIX = '-I ',
                     INCSUFFIX = 'XXX',
                     FOO = 'baz')
@@ -1289,7 +1289,7 @@ env4.builder1.env, env3)
                    '-I', normalize_path('xx/fooXXX'),
                    '-I', normalize_path('/rep1/xx/fooXXX'),
                    '-I', normalize_path('/rep2/xx/fooXXX'),
-                   '-I', normalize_path('/a/bXXX'),
+                   '-I', normalize_path('/__a__/bXXX'),
                    '-I', normalize_path('xx/baz/barXXX'),
                    '-I', normalize_path('/rep1/xx/baz/barXXX'),
                    '-I', normalize_path('/rep2/xx/baz/barXXX'),

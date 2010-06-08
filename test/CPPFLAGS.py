@@ -29,9 +29,6 @@ import sys
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
-_obj   = TestSCons._obj
-_shobj = TestSCons._shobj
 
 test = TestSCons.TestSCons()
 
@@ -85,7 +82,7 @@ import os
 import sys
 compiler = sys.argv[1]
 clen = len(compiler) + 1
-opts, args = getopt.getopt(sys.argv[2:], 'co:xf:')
+opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
 for opt, arg in opts:
     if opt == '-o': out = arg
     elif opt == '-x': open('mygcc.out', 'ab').write(compiler + "\n")
@@ -104,7 +101,9 @@ env = Environment(CPPFLAGS = '-x',
                   CC = r'%(_python_)s mygcc.py cc',
                   CXX = r'%(_python_)s mygcc.py c++',
                   CXXFLAGS = [],
-                  FORTRAN = r'%(_python_)s mygcc.py g77')
+                  FORTRAN = r'%(_python_)s mygcc.py g77',
+                  OBJSUFFIX = '.obj',
+                  PROGSUFFIX = '.exe')
 env.Program(target = 'foo', source = Split('test1.c test2.cpp test3.F'))
 """ % locals())
 
@@ -125,10 +124,10 @@ test.write('test3.F', r"""test3.F
 
 test.run(arguments = '.', stderr=None)
 
-test.must_match('test1' + _obj, "test1.c\n#link\n")
-test.must_match('test2' + _obj, "test2.cpp\n#link\n")
-test.must_match('test3' + _obj, "test3.F\n#link\n")
-test.must_match('foo' + _exe,   "test1.c\ntest2.cpp\ntest3.F\n")
+test.must_match('test1.obj', "test1.c\n#link\n")
+test.must_match('test2.obj', "test2.cpp\n#link\n")
+test.must_match('test3.obj', "test3.F\n#link\n")
+test.must_match('foo.exe',   "test1.c\ntest2.cpp\ntest3.F\n")
 if TestSCons.case_sensitive_suffixes('.F', '.f'):
     test.must_match('mygcc.out', "cc\nc++\ng77\n")
 else:
@@ -141,7 +140,11 @@ env = Environment(CPPFLAGS = '-x',
                   CC = r'%(_python_)s mygcc.py cc',
                   CXX = r'%(_python_)s mygcc.py c++',
                   CXXFLAGS = [],
-                  FORTRAN = r'%(_python_)s mygcc.py g77')
+                  FORTRAN = r'%(_python_)s mygcc.py g77',
+                  OBJSUFFIX = '.obj',
+                  SHOBJPREFIX = '',
+                  SHOBJSUFFIX = '.shobj',
+                  PROGSUFFIX = '.exe')
 env.SharedLibrary(target = File('foo.bar'),
                   source = Split('test1.c test2.cpp test3.F'))
 """ % locals())
@@ -162,15 +165,15 @@ test.write('test3.F', r"""test3.F
 """)
 
 test.unlink('mygcc.out')
-test.unlink('test1' + _obj)
-test.unlink('test2' + _obj)
-test.unlink('test3' + _obj)
+test.unlink('test1.obj')
+test.unlink('test2.obj')
+test.unlink('test3.obj')
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1' + _shobj, "test1.c\n#link\n")
-test.must_match('test2' + _shobj, "test2.cpp\n#link\n")
-test.must_match('test3' + _shobj, "test3.F\n#link\n")
+test.must_match('test1.shobj', "test1.c\n#link\n")
+test.must_match('test2.shobj', "test2.cpp\n#link\n")
+test.must_match('test3.shobj', "test3.F\n#link\n")
 test.must_match('foo.bar',        "test1.c\ntest2.cpp\ntest3.F\n")
 if TestSCons.case_sensitive_suffixes('.F', '.f'):
     test.must_match('mygcc.out', "cc\nc++\ng77\n")

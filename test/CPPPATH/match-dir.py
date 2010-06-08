@@ -29,9 +29,16 @@ Verify that we don't blow up if there's a directory name within
 $CPPPATH that matches a #include file name.
 """
 
+import sys
+
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+# TODO(sgk):  get this to work everywhere by using fake compilers
+if sys.platform.find('sunos') != -1:
+    msg = 'SunOS C compiler does not handle this case; skipping test.\n'
+    test.skip_test(msg)
 
 test.subdir(['src'],
             ['src', 'inc'],
