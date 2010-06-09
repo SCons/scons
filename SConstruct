@@ -1191,7 +1191,7 @@ elif svn_status_lines:
     sentries = [l.split()[-1] for l in slines]
     sfiles = list(filter(os.path.isfile, sentries))
 else:
-   "Not building in a Mercurial or Subversion tree; skipping building src package."
+   print "Not building in a Mercurial or Subversion tree; skipping building src package."
 
 if sfiles:
     remove_patterns = [
