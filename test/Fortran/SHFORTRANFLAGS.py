@@ -37,11 +37,11 @@ test = TestSCons.TestSCons()
 test.write('myfortran.py', r"""
 import getopt
 import sys
-opts, args = getopt.getopt(sys.argv[1:], 'cf:o:x')
+opts, args = getopt.getopt(sys.argv[1:], 'cf:K:o:x')
 optstring = ''
 for opt, arg in opts:
     if opt == '-o': out = arg
-    elif opt != '-f': optstring = optstring + ' ' + opt
+    elif opt not in ('-f', '-K'): optstring = optstring + ' ' + opt
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
