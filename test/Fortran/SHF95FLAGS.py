@@ -39,11 +39,11 @@ test.write('myfortran.py', r"""
 import getopt
 import sys
 comment = '#' + sys.argv[1]
-opts, args = getopt.getopt(sys.argv[2:], 'cf:o:xy')
+opts, args = getopt.getopt(sys.argv[2:], 'cf:K:o:xy')
 optstring = ''
 for opt, arg in opts:
     if opt == '-o': out = arg
-    elif opt != '-f': optstring = optstring + ' ' + opt
+    elif opt not in ('-f', '-K'): optstring = optstring + ' ' + opt
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
