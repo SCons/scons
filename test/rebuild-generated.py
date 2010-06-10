@@ -71,9 +71,7 @@ test.write('SConstruct', """\
 
 env = Environment()
 
-kernelDefines = env.Command("header.hh",
-                            [],
-                            Touch("$TARGET"))
+kernelDefines = env.Command("header.hh", [], "echo > $TARGET")
 
 kernelImporterSource = env.Command(
   "generated.cc", ["%s"],

@@ -41,7 +41,7 @@ test.Qt_dummy_installation()
 aaa_dll = TestSCons.dll_ + 'aaa' + TestSCons._dll
 moc = 'moc_aaa.cc'
 cpp = 'uic_aaa.cc'
-obj = os.path.splitext(cpp)[0] + TestSCons._shobj
+obj = TestSCons.shobj_ + os.path.splitext(cpp)[0] + TestSCons._shobj
 h = 'aaa.h'
 
 test.Qt_create_SConstruct('SConstruct')
