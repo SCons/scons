@@ -328,6 +328,21 @@ if DEBUG: t.file = '/tmp/Main.py'
 t.replace_assign('unsupported_python_version', str(unsupported_version))
 t.replace_assign('deprecated_python_version', str(deprecated_version))
 
+# Update doc/user/main.{in,xml}
+
+docyears = ', '.join(map(str, iter(range(2004, release_date[0] + 1))))
+t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
+if DEBUG: t.file = '/tmp/main.in'
+## TODO debug these
+#t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
+#t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
+
+t = UpdateFile(os.path.join('doc', 'user', 'main.xml'))
+if DEBUG: t.file = '/tmp/main.xml'
+## TODO debug these
+#t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
+#t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
+
 # Write out the last update
 
 t = None

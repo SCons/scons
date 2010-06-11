@@ -39,11 +39,15 @@ Announce       = 'src/Announce.txt'                .split('/')
 CHANGES        = 'src/CHANGES.txt'                 .split('/')
 RELEASE        = 'src/RELEASE.txt'                 .split('/')
 Main           = 'src/engine/SCons/Script/Main.py' .split('/')
+main_in        = 'doc/user/main.in'                .split('/')
+main_xml       = 'doc/user/main.xml'               .split('/')
 
 test = TestRuntest.TestRuntest(
                     program = os.path.join('bin', 'update-release-info.py'),
                     things_to_copy = ['bin']
                     )
+if not os.path.exists(test.program):
+    test.skip_test("update-release-info.py is not distributed in this package\n")
 
 test.run(arguments = 'bad', status = 1)
 
@@ -163,6 +167,14 @@ unsupported_python_version = Not done with junk
 deprecated_python_version = It goes on forever
 """)
 
+pave_write(main_in, """
+TODO
+""")
+
+pave_write(main_xml, """
+TODO
+""")
+
 def updating_run(*args):
     stdout = ''
     for file in args:
@@ -183,7 +195,7 @@ test.must_match(Announce, """
 RELEASE 2.0.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 """, mode = 'r')
 
-years = ', '.join(map(str, iter(range(2001, time.localtime()[0] + 1))))
+years = ', '.join(map(str, range(2001, time.localtime()[0] + 1)))
 test.must_match(SConstruct, """
 month_year = 'MONTH YEAR'
 copyright_years = %s
