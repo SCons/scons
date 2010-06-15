@@ -1806,6 +1806,20 @@ def exists(env):
         env2.Append(FLAGS = 'flag3 flag4')
         x = env2.get('FLAGS')
         assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
+        x = env1.get('FLAGS')
+        assert x == ['flag1', 'flag2'], x
+
+        # Ensure that appending directly to a copied CLVar
+        # doesn't modify the original.
+        env1 = self.TestEnvironment(FLAGS = CLVar('flag1 flag2'))
+        x = env1.get('FLAGS')
+        assert x == ['flag1', 'flag2'], x
+        env2 = env1.Clone()
+        env2['FLAGS'] += ['flag3', 'flag4']
+        x = env2.get('FLAGS')
+        assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
+        x = env1.get('FLAGS')
+        assert x == ['flag1', 'flag2'], x
 
         # Test that the environment stores the toolpath and
         # re-uses it for copies.

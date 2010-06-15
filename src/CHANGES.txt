@@ -12,6 +12,12 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix explicit dependencies (Depends()) on Nodes that don't have
       attached Builders.
 
+  From Matt Hughes:
+
+    - Fix the ability to append to default $*FLAGS values (which are
+      implemented as CLVar instances) in a copied construction environment
+      without affecting the original construction environment's value.
+
 
 RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
 
