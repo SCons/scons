@@ -134,7 +134,7 @@ def check_exit_status(result, prefix, desc, status):
 
 
 
-class Null(object):
+class Null:
     pass
 
 _null = Null()
