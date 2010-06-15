@@ -24,6 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verifies basic execution of the Depends() function.
+"""
+
 import os.path
 
 import TestSCons
@@ -36,10 +40,11 @@ test.subdir('subdir', 'sub2')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read() + open(sys.argv[3], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write(contents)
-file.close()
+fp = open(sys.argv[1], 'wb')
+for fname in sys.argv[2:]:
+    fp.write(open(fname, 'rb').read())
+fp.close()
+sys.exit(0)
 """)
 
 SUBDIR_foo_dep = os.path.join('$SUBDIR', 'foo.dep')
@@ -136,18 +141,6 @@ test.must_match('f5.out', "f5.in\nsubdir/foo.dep 3\n")
 test.must_match(['sub2', 'f6.out'], "f6.in 3\nsubdir/bar.dep 3\n")
 
 #
-test.write('SConstruct', """\
-env = Environment()
-file1 = File('file1')
-file2 = File('file2')
-env.Depends(file1, [[file2, 'file3']])
-""")
-
-test.write('file2', "file2\n")
-test.write('file3', "file3\n")
-
-test.up_to_date(arguments = '.')
-
 test.pass_test()
 
 # Local Variables:
