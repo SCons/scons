@@ -15,19 +15,10 @@ import sys
 from Command import CommandRunner, Usage
 
 all_versions = [
-    #'1.5.2',   # no longer available at python.org
-    #'2.0.1',   # no longer supported by SCons
-    #'2.1.3',   # no longer supported by SCons
-    '2.2',
-    #'2.2.3',
-    '2.3',
-    #'2.3.7',
-    #'2.4',
-    '2.4.6',
-    '2.5.5',
-    '2.6.5',
-    '3.0.1',
-    '3.1.2',
+    '2.3.7',
+    '2.4.5',
+    #'2.5.2',
+    '2.6',
 ]
 
 def main(argv=None):

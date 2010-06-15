@@ -56,8 +56,6 @@ DOCUMENTATION_PACKAGES = [
     'sun-java6-doc',
     'swig-doc',
     'texlive-doc',
-    # Needed for aeguill.sty when generating API docs:
-    'texlive-lang-french',
 ]
 
 TESTING_PACKAGES = [
