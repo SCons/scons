@@ -168,8 +168,11 @@ class LaTeX(SCons.Scanner.Base):
         # Without the \n,  the ^ could match the beginning of a *previous*
         # line followed by one or more newline characters (i.e. blank
         # lines), interfering with a match on the next line.
-        regex = r'^[^%\n]*\\(include|includegraphics(?:\[[^\]]+\])?|lstinputlisting(?:\[[^\]]+\])?|input|bibliography|usepackage){([^}]*)}'
+        # add option for whitespace before the '[options]' or the '{filename}'
+        regex = r'^[^%\n]*\\(include|includegraphics(?:\s*\[[^\]]+\])?|lstinputlisting(?:\[[^\]]+\])?|input|bibliography|usepackage)\s*{([^}]*)}'
         self.cre = re.compile(regex, re.M)
+        self.comment_re = re.compile(r'^((?:(?:\\%)|[^%\n])*)(.*)$', re.M)
+
         self.graphics_extensions = graphics_extensions
 
         def _scan(node, env, path=(), self=self):
@@ -274,6 +277,23 @@ class LaTeX(SCons.Scanner.Base):
                 return i, include
         return i, include
 
+    def canonical_text(self, text):
+        """Standardize an input TeX-file contents.
+
+        Currently:
+          * removes comments, unwrapping comment-wrapped lines.
+        """
+        out = []
+        line_continues_a_comment = False
+        for line in text.splitlines():
+            line,comment = self.comment_re.findall(line)[0]
+            if line_continues_a_comment == True:
+                out[-1] = out[-1] + line.lstrip()
+            else:
+                out.append(line)
+            line_continues_a_comment = len(comment) > 0
+        return '\n'.join(out).rstrip()+'\n'
+
     def scan(self, node):
         # Modify the default scan function to allow for the regular
         # expression to return a comma separated list of file names
@@ -281,11 +301,13 @@ class LaTeX(SCons.Scanner.Base):
 
         # Cache the includes list in node so we only scan it once:
         # path_dict = dict(list(path))
-        noopt_cre = re.compile('\[.*$')
+        # add option for whitespace (\s) before the '['
+        noopt_cre = re.compile('\s*\[.*$')
         if node.includes != None:
             includes = node.includes
         else:
-            includes = self.cre.findall(node.get_text_contents())
+            text = self.canonical_text(node.get_text_contents())
+            includes = self.cre.findall(text)
             # 1. Split comma-separated lines, e.g.
             #      ('bibliography', 'phys,comp')
             #    should become two entries

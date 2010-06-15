@@ -24,48 +24,61 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+"""
+When an inclusion's optional argument (enclosed in square brackets:
+[]) spans multiple lines (via comment wrapping), ensure that the LaTeX
+Scanner doesn't throw an IndexError.
+
+An example of this in the wild is in Thomas Heim's epsdice LaTeX package:
+  \includegraphics[height=1.75ex,viewport= 3 4 38 39,%
+  clip=true]{\dicefile}%
+In epsdice 2007/02/15, v. 2.1.
+"""
+
 import TestSCons
+
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.run(arguments = ".",
-         status = 2,
-         stdout = "",
-         stderr = r"""
-scons: \*\*\* No SConstruct file found.
-""" + TestSCons.file_expr,
-         match = TestCmd.match_re)
+latex = test.where_is('latex')
 
-wpath = test.workpath()
+if not latex:
+    test.skip_test("Could not find latex; skipping test(s).\n")
 
-test.write('sconstruct', """
+test.write('SConstruct', """\
 import os
-print "sconstruct", os.getcwd()
+env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env.DVI('root.tex')
 """)
 
-test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = 'sconstruct %s\n' % wpath,
-                                   build_str = "scons: `.' is up to date.\n"))
-
-
-test.write('Sconstruct', """
-import os
-print "Sconstruct", os.getcwd()
+test.write('root.tex',
+r"""\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+  \includegraphics[height=1.75ex,%
+  clip=true]{square}
+\end{document}
 """)
 
-test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = 'Sconstruct %s\n' % wpath,
-                                   build_str = "scons: `.' is up to date.\n"))
-
-test.write('SConstruct', """
-import os
-print "SConstruct", os.getcwd()
+# Dummy EPS file drawing a square
+test.write('square.eps',
+r"""%!PS-Adobe-2.0 EPSF-1.2
+%%BoundingBox: 0 0 20 20
+ newpath
+  5 5 moveto
+ 15 5 lineto
+ 15 15 lineto
+ 5 15 lineto
+ 5  5 lineto
+ stroke
+%%EOF
 """)
 
-test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = 'SConstruct %s\n' % wpath,
-                                   build_str = "scons: `.' is up to date.\n"))
+test.run(arguments = '.')
+
+test.must_exist(test.workpath('root.dvi'))
+test.must_exist(test.workpath('root.log'))
 
 test.pass_test()
 
@@ -74,3 +87,4 @@ test.pass_test()
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
+
