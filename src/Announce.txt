@@ -19,7 +19,7 @@ effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
 
-RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
+RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   Please consult the RELEASE.txt file for a summary changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
@@ -39,6 +39,10 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
   release:
 
     --  FEATURE THAT WILL CHANGE
+
+  Please note the following important changes since release 2.0.0:
+
+    --  NEW FEATURE
 
   Please note the following important changes since release 1.3.0:
 

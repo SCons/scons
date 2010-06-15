@@ -1,20 +1,9 @@
-  A new SCons checkpoint release, 2.0.0.beta.20100605, is now available
+  A new SCons checkpoint release, 2.1.0.alpha.yyyymmdd, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  The primary purpose of this release is to remove support for Python
-  versions prior to 2.4 and streamline the SCons code base using more
-  modern python idioms.
-
-  IMPORTANT:  In 1.3.0 and 2.0.0, explicit dependencies (configured via
-  the Depends() call) are ignored for any nodes that do not have builders.
-  This known issue[1] will typically only happen if you explicitly
-  configure a builder call to create multiple output files, some of which
-  are "hidden" from SCons by not being listed in the targets list, and then
-  use Depends() to establish an explicit dependency on a "hidden" file.
-
-  [1] See http://scons.tigris.org/issues/show_bug.cgi?id=2647 for details.
+  XXX The primary purpose of this release ... XXX
 
   A SCons "checkpoint release" is intended to provide early access to
   new features so they can be tested in the field before being released
@@ -38,74 +27,47 @@
   etc.) package a checkpoint release, mainly to avoid confusing the
   "public" release numbering with the long checkpoint release names.
 
-  Here is a summary of the changes since 1.3:
+  Here is a summary of the changes since 1.3.0:
 
   NEW FUNCTIONALITY
 
-  - There should be no new functionality or bug fixes in this checkpoint.
-    Bug fixes will be found in the 1.3.1 series of checkpoints.
+    - List new features (presumably why a checkpoint is being released)
 
   DEPRECATED FUNCTIONALITY
 
-  - All features or usages deprecated in 1.3 should have been removed.
-    Uses of formerly-deprecated features should get an error.
-
-  - The BuildDir() method and the build_dir option now get warnings.
-
-  - The SourceCode() function and its associated factory functions have
-    started their deprecation cycle and can have a warning enabled.
+    - List anything that's been deprecated since the last release
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-  - Any Command() or env.Command() calls that use the following Action
-    factory functions will have their targets rebuilt when upgrading
-    from any pre-2.0 release:
-
-        Chmod()
-        Copy()
-        Delete()
-        Mkdir()
-        Move()
-        Touch()
-
-    (The rebuild occurs because the underlying Python class that
-    implements these functions has been changed to a new-style Python
-    class, and that changes the Python byte code and therefore the
-    build signature of the functions.)
+    - List modifications to existing features, where the previous behavior
+      wouldn't actually be considered a bug
 
   FIXES
 
-  - MSVC/MSVS/SDK support has been improved. A number of issues with
-    determining the correct version and architecture have been resolved.
+    - List fixes of outright bugs
 
   IMPROVEMENTS
 
-  - Support for Python versions prior to 2.4 has been removed.  As of
-    this writing, we believe that SCons will still work with Python 2.3,
-    but this is not guaranteed.
-  - Code paths that included special cases for older Python versions have
-    been streamlined.
-  - The code base has been converted to use more modern idioms.  Although
-    we don't have any direct measurements (yet), we believe that SCons
-    startup time should be decreased and the overall code should run faster.
+    - List improvements that wouldn't be visible to the user in the
+      documentation:  performance improvements (describe the circumstances
+      under which they would be observed), or major code cleanups
 
   PACKAGING
 
-  - No changes.
+    - List changes in the way SCons is packaged and/or released
 
   DOCUMENTATION
 
-  - The entries for SourceCode() and its associated factory functions now
-    state that the functions are deprecated.
+    - List any significant changes to the documentation (not individual
+      typo fixes, even if they're mentioned in src/CHANGES.txt to give
+      the contributor credit)
 
   DEVELOPMENT
 
-  - Code no longer has to be compatible with Python versions back to 1.5.2.
-    Although code is tested with Python 2.3 and is still believed to work,
-    the official new floor is Python 2.4.
+    - List visible changes in the way SCons is developed
 
-  Thanks to Greg Noel, Steven Knight, Dirk Baechle, William Deegan,and 
-  W. Trevor King for their contributions to this release.
+  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Contributors are listed alphabetically by their last name.
 
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__

@@ -5,6 +5,13 @@
                             Change Log
 
 
+RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
 
   From Dirk Baechle:
