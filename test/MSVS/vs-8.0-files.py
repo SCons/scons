@@ -30,8 +30,6 @@ solution (.sln) files that look correct.
 """
 
 import os
-import sys
-
 
 import TestSConsMSVS
 

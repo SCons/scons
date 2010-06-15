@@ -30,8 +30,6 @@ project (.vcproj) and solution (.sln) files.
 """
 
 import TestSConsMSVS
-import sys
-
 
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()

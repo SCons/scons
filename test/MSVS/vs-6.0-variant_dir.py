@@ -30,8 +30,6 @@ Test that we can generate Visual Studio 6 project (.dsp) and solution
 """
 
 import TestSConsMSVS
-import sys
-
 
 test = TestSConsMSVS.TestSConsMSVS()
 

@@ -30,8 +30,6 @@ solution (.sln) files that look correct when using a variant_dir.
 """
 
 import TestSConsMSVS
-import sys
-
 
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()
