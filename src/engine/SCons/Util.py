@@ -459,22 +459,18 @@ def _semi_deepcopy_tuple(x):
     return tuple(map(semi_deepcopy, x))
 d[tuple] = _semi_deepcopy_tuple
 
-def _semi_deepcopy_inst(x):
-    if hasattr(x, '__semi_deepcopy__'):
-        return x.__semi_deepcopy__()
-    elif isinstance(x, UserDict):
-        return x.__class__(_semi_deepcopy_dict(x))
-    elif isinstance(x, UserList):
-        return x.__class__(_semi_deepcopy_list(x))
-    else:
-        return x
-d[InstanceType] = _semi_deepcopy_inst
-
 def semi_deepcopy(x):
     copier = _semi_deepcopy_dispatch.get(type(x))
     if copier:
         return copier(x)
     else:
+        if hasattr(x, '__semi_deepcopy__'):
+            return x.__semi_deepcopy__()
+        elif isinstance(x, UserDict):
+            return x.__class__(_semi_deepcopy_dict(x))
+        elif isinstance(x, UserList):
+            return x.__class__(_semi_deepcopy_list(x))
+        
         return x
 
 
