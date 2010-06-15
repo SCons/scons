@@ -596,7 +596,7 @@ class Null(object):
     def get_all_sources(self):
         return self.batches[0].targets[0].sources
     def get_all_children(self):
-        return self.get_all_sources()
+        return self.batches[0].targets[0].children()
     def get_all_prerequisites(self):
         return []
     def get_action_side_effects(self):

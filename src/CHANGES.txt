@@ -7,9 +7,10 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
-  From John Doe:
+  From Steven Knight:
 
-    - Whatever John Doe did.
+    - Fix explicit dependencies (Depends()) on Nodes that don't have
+      attached Builders.
 
 
 RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
