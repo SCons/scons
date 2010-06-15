@@ -158,7 +158,9 @@ To get a hard copy of this report call me.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics{Fig1}
+\includegraphics 
+ [width=.5\textwidth] 
+ {Fig1}
 \caption{Zone and Node indexing}
 \label{fig1}
 \end{center}
@@ -170,7 +172,7 @@ All done now.
 """)
 
 # makeindex will write status messages to stderr (grrr...), so ignore it.
-test.run(arguments = '.', stderr=None)
+test.run(arguments = 'docs/test.pdf', stderr=None)
 
 
 # All (?) the files we expect will get created in the docs directory
