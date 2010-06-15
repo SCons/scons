@@ -22,6 +22,8 @@ import getopt
 import os
 import shutil
 import sys
+import tarfile
+import urllib
 
 from Command import CommandRunner, Usage
 
@@ -97,8 +99,12 @@ def main(argv=None):
     all = False
     downloads_dir = 'Downloads'
     downloads_url = 'http://downloads.sourceforge.net/scons'
-    sudo = 'sudo'
-    prefix = '/usr/local'
+    if sys.platform == 'win32':
+        sudo = ''
+        prefix = sys.prefix
+    else:
+        sudo = 'sudo'
+        prefix = '/usr/local'
     python = sys.executable
 
     short_options = 'ad:hnp:q'
@@ -153,16 +159,19 @@ Usage:  install_scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
     for version in args:
         scons = 'scons-' + version
         tar_gz = os.path.join(downloads_dir, scons + '.tar.gz')
-        tar_gz_url = os.path.join(downloads_url, scons + '.tar.gz')
+        tar_gz_url = "%s/%s.tar.gz" % (downloads_url, scons)
 
         cmd.subst_dictionary(locals())
 
         if not os.path.exists(tar_gz):
             if not os.path.exists(downloads_dir):
                 cmd.run('mkdir %(downloads_dir)s')
-            cmd.run('wget -O %(tar_gz)s %(tar_gz_url)s')
+            cmd.run((urllib.urlretrieve, tar_gz_url, tar_gz),
+                    'wget -O %(tar_gz)s %(tar_gz_url)s')
 
-        cmd.run('tar zxf %(tar_gz)s')
+        def extract(tar_gz):
+            tarfile.open(tar_gz, "r:gz").extractall()
+        cmd.run((extract, tar_gz), 'tar zxf %(tar_gz)s')
 
         cmd.run('cd %(scons)s')
 
