@@ -35,7 +35,11 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """\
 import SCons.Errors
 
-env = Environment(INDEX = [0, 1])
+# Avoid tools= initialization in both the default and local construction
+# environments, so we don't get substitution exceptions from platform-
+# specific Tool modules.
+DefaultEnvironment(tools = [])
+env = Environment(tools = [], INDEX = [0, 1])
 
 assert env.subst('$NAME') == ''
 assert env.subst('${NAME}') == ''
