@@ -53,3 +53,6 @@ the pieces here are local to SCons.
         Pieces for the use of QMTest to test SCons.  We're moving away
         from this infrastructure, in no small part because we're not
         really using it as originally envisioned.
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__
