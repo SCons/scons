@@ -29,7 +29,7 @@ on as they become more complex. Most build tools have special
 purpose constructs for performing these tasks, but since &SConscript;
 files are &Python; scripts, you can use more flexible built-in &Python;
 services to perform these tasks. This appendix lists a number of these
-tasks and how to implement them in &Python; and &Scons;.
+tasks and how to implement them in &Python; and &SCons;.
 </para>
 
 <example>
