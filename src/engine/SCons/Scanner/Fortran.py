@@ -89,11 +89,11 @@ class F90Scanner(SCons.Scanner.Classic):
             defmodules = self.cre_def.findall(node.get_text_contents())
 
             # Remove all USE'd module names that are defined in the same file
+            # (case-insensitively)
             d = {}
             for m in defmodules:
-                d[m] = 1
-            modules = [m for m in modules if m not in d]
-            #modules = self.undefinedModules(modules, defmodules)
+                d[m.lower()] = 1
+            modules = [m for m in modules if m.lower() not in d]
 
             # Convert module name to a .mod filename
             suffix = env.subst('$FORTRANMODSUFFIX')
