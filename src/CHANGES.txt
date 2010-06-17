@@ -26,6 +26,13 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       implemented as CLVar instances) in a copied construction environment
       without affecting the original construction environment's value.
 
+  From Rob Managan:
+
+    - Updated the TeX command strings to include a /D on Windows in
+      case the new directory is on a different drive letter.
+
+    - Fixed the LaTeX scanner so dependencies are found in commands that
+      are broken across lines with a comment or have embedded spaces.
 
 RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
 
