@@ -29,7 +29,7 @@ on as they become more complex. Most build tools have special
 purpose constructs for performing these tasks, but since &SConscript;
 files are &Python; scripts, you can use more flexible built-in &Python;
 services to perform these tasks. This appendix lists a number of these
-tasks and how to implement them in &Python;.
+tasks and how to implement them in &Python; and &Scons;.
 </para>
 
 <example>
@@ -78,4 +78,60 @@ output</title>
 <programlisting>import os
 output = os.popen(command).read()
 </programlisting>
+</example>
+
+<example>
+<title>Generating source code: how code can be generated and used by SCons</title>
+
+<para>
+
+The Copy builders here could be any arbitrary shell or python function
+that produces one or more files.  This example shows how to create
+those files and use them in &SCons;.
+
+</para>
+
+<programlisting>
+#### SConstruct
+env = Environment()
+env.Append(CPPPATH = "#")
+
+## Header example
+env.Append(BUILDERS =
+   {'Copy1' : Builder(action = 'cat &lt; $SOURCE &gt; $TARGET',
+                      suffix='.h', src_suffix='.bar')})
+env.Copy1('test.bar') # produces test.h from test.bar. 
+env.Program('app','main.cpp') # indirectly depends on test.bar
+
+## Source file example
+env.Append(BUILDERS =
+  {'Copy2' : Builder(action = 'cat &lt; $SOURCE &gt; $TARGET',
+                     suffix='.cpp', src_suffix='.bar2')})
+foo = env.Copy2('foo.bar2') # produces foo.cpp from foo.bar2. 
+env.Program('app2',['main2.cpp'] + foo) # compiles main2.cpp and foo.cpp into app2.
+</programlisting>
+
+<para>
+
+Where main.cpp looks like this:
+
+</para>
+
+ 
+ <programlisting>
+#include "test.h"
+</programlisting>
+
+<para>
+produces this:
+</para>
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    cc -o app main.cpp
+    cat &lt; foo.bar2 &gt; foo.cpp
+    cc -o app2 main2.cpp foo.cpp
+    cat &lt; test.bar &gt; test.h
+ </screen>
+    
 </example>
