@@ -44,6 +44,10 @@ BUILDING_PACKAGES = [
     #'docbook2x',
     #'tetex-bin',
     #'tetex-latex',
+
+    # for ubuntu 9.10 
+    # 'texlive-lang-french'
+
 ]
 
 DOCUMENTATION_PACKAGES = [
@@ -75,7 +79,7 @@ TESTING_PACKAGES = [
     'python-all-dev',
     'rcs',
     'rpm',
-    'sun-java5-jdk',
+#    'sun-java5-jdk',
     'sun-java6-jdk',
     'swig',
     'texlive-base-bin',
