@@ -104,7 +104,7 @@
     <para>
 
     There are a few overriding principles
-    we try to live up to in designing and implementing &SCons:
+    we try to live up to in designing and implementing &SCons;:
 
     </para>
 
@@ -418,7 +418,7 @@
 
     <para>
 
-    If you want to receive announcements about &SCons,
+    If you want to receive announcements about &SCons;,
     join the low-volume &scons-announce; mailing list.
 
     </para>

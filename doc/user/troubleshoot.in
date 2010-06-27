@@ -34,7 +34,7 @@
   &SCons; is no different.
   This appendix contains a number of
   different ways in which you can
-  get some additional insight into &SCons' behavior.
+  get some additional insight into &SCons;' behavior.
 
   </para>
 
@@ -410,12 +410,12 @@
 
     <para>
 
-    The <literaL>--tree</literal> option only prints
+    The <literal>--tree</literal> option only prints
     the dependency graph for the specified targets
     (or the default target(s) if none are specified on the command line).
     So if you specify a target like <filename>f2.o</filename>
     on the command line,
-    the <literaL>--tree</literal> option will only
+    the <literal>--tree</literal> option will only
     print the dependency graph for that file:
 
     </para>
@@ -722,7 +722,7 @@
 
     <para>
 
-    For example, the following &SConstruct file:
+    For example, the following &SConstruct; file:
 
     </para>
 

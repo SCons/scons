@@ -360,7 +360,7 @@
 
      One important way in which the &SConstruct;
      file is not exactly like a normal Python script,
-     and is more like a &Makefile,
+     and is more like a &Makefile;,
      is that the order in which
      the &SCons; functions are called in
      the &SConstruct; file
@@ -453,7 +453,7 @@
      <para>
 
      Notice also that &SCons; built the &goodbye; program first,
-     even though the "reading &SConscript" output
+     even though the "reading &SConscript;" output
      shows that we called <literal>Program('hello.c')</literal>
      first in the &SConstruct; file.
 

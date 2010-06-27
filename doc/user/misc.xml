@@ -263,7 +263,7 @@
        headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
        for hdr in headers:
            print '%-12s' % ('%s:' % hdr), FindFile(hdr, includes)
-</programlisting>
+    </programlisting>
 
     <screen>
        % <userinput>scons -Q</userinput>

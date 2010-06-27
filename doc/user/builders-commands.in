@@ -72,7 +72,7 @@
   <scons_example name="ex1">
      <file name="SConstruct" printme="1">
      env = Environment()
-     env.Command('foo.out', 'foo.in', "sed 's/x/y/' < $SOURCE > $TARGET")
+     env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE > $TARGET")
      </file>
      <file name="foo.in">
      foo.in

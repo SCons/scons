@@ -221,7 +221,7 @@
 
       </para>
 
-      <sconstruct)
+      <sconstruct>
         if not GetOption('help'):
             SConscript('src/SConscript', export='env')
       </sconstruct>
@@ -2195,7 +2195,7 @@
 
         Second,
         the contents of the &DEFAULT_TARGETS; list change
-        in response to calls to the &Default: function,
+        in response to calls to the &Default; function,
         as you can see from the following &SConstruct; file:
 
         </para>
