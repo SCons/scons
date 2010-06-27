@@ -86,33 +86,31 @@ _dll = dll_suffix
 dll_ = dll_prefix
 
 def gccFortranLibs():
-    """Test whether -lfrtbegin is required.  This can probably be done in
-    a more reliable way, but using popen3 is relatively efficient."""
+    """Test which gcc Fortran startup libraries are required.
+    This should probably move into SCons itself, but is kind of hacky.
+    """
 
     libs = ['g2c']
-    cmd = 'gcc -v'
+    cmd = ['gcc', '-v']
 
     try:
         import subprocess
     except ImportError:
         try:
             import popen2
-            stderr = popen2.popen3(cmd)[2]
+            stderr = popen2.popen3(cmd)[2].read()
         except OSError:
             return libs
     else:
-        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
-        stderr = p.stderr
+        stderr = subprocess.Popen(cmd, stderr=subprocess.PIPE).communicate()[1]
+    m = re.search('gcc version (\d\.\d)', stderr)
+    if m:
+        gcc_version = m.group(1)
+        if re.match('4.[^0]', gcc_version):
+            libs = ['gfortranbegin']
+        elif gcc_version in ('3.1', '4.0'):
+            libs = ['frtbegin'] + libs
 
-    for l in stderr.readlines():
-        list = l.split()
-        if len(list) > 3 and list[:2] == ['gcc', 'version']:
-            if list[2][:3] in ('4.1','4.2','4.3'):
-                libs = ['gfortranbegin']
-                break
-            if list[2][:2] in ('3.', '4.'):
-                libs = ['frtbegin'] + libs
-                break
     return libs
 
 
