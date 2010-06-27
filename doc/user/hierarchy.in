@@ -688,7 +688,7 @@ make no difference to the build.
 
       Sometimes, you would like to be able to
       use information from a subsidiary
-      &SConscript file in some way.
+      &SConscript; file in some way.
       For example,
       suppose that you want to create one
       library from source files

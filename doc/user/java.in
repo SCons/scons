@@ -390,7 +390,7 @@
     You can generate C header and source files
     for implementing native methods,
     by using the &b-link-JavaH; Builder.
-    There are several ways of using the &JavaH Builder.
+    There are several ways of using the &JavaH; Builder.
     One typical invocation might look like:
 
     </para>
@@ -636,7 +636,7 @@
     As it did with the &b-link-JavaH; Builder,
     &SCons; remembers the class directory
     and passes it as the <option>-classpath</option> option
-    to &rmic:
+    to &rmic;:
 
     </para>
 

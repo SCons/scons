@@ -193,9 +193,9 @@
     in the repository trees, though,
     it will be unable to find the <literal>#include</literal> files.
     If, for example, the &hello_c; file in
-    our previous example includes the &hello;.h;
+    our previous example includes the &hello_h;
     in its current directory,
-    and the &hello;.h; only exists in the repository:
+    and the &hello_h; only exists in the repository:
 
     </para>
 

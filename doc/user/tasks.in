@@ -99,14 +99,14 @@ env.Append(CPPPATH = "#")
 
 ## Header example
 env.Append(BUILDERS =
-   {'Copy1' : Builder(action = 'cat < $SOURCE > $TARGET',
+   {'Copy1' : Builder(action = 'cat &lt; $SOURCE > $TARGET',
                       suffix='.h', src_suffix='.bar')})
 env.Copy1('test.bar') # produces test.h from test.bar. 
 env.Program('app','main.cpp') # indirectly depends on test.bar
 
 ## Source file example
 env.Append(BUILDERS =
-  {'Copy2' : Builder(action = 'cat < $SOURCE > $TARGET',
+  {'Copy2' : Builder(action = 'cat &lt; $SOURCE > $TARGET',
                      suffix='.cpp', src_suffix='.bar2')})
 foo = env.Copy2('foo.bar2') # produces foo.cpp from foo.bar2. 
 env.Program('app2',['main2.cpp'] + foo) # compiles main2.cpp and foo.cpp into app2.

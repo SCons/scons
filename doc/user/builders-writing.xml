@@ -703,7 +703,6 @@ This functionality could be invoked as in the following example:
         import os
         env1['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
         env2['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
-      
 
     </programlisting>
 
@@ -722,7 +721,6 @@ This functionality could be invoked as in the following example:
                          MY_EMITTER = modify2)
       env1.Foo('file1')
       env2.Foo('file2')
-      
     </programlisting>
 
     <para>

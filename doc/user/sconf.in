@@ -31,7 +31,7 @@
   figuring out what libraries or header files
   are available on the local system.
   This section describes how to use
-  this &SCons feature.
+  this &SCons; feature.
 
   </para>
 
@@ -446,7 +446,7 @@
     when removing targets doesn't hurt anything,
     it's usually unnecessary.
     You can avoid this by using the
-    &GetOption(); method to
+    &GetOption; method to
     check whether the <option>-c</option> (clean)
     option has been invoked on the command line:
 

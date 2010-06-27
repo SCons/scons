@@ -386,7 +386,7 @@
 
       <para>
 
-      So configured, &SCons will still behave like
+      So configured, &SCons; will still behave like
       it does when using <literal>Decider('MD5')</literal>:
 
       </para>

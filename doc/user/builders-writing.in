@@ -823,7 +823,6 @@ This functionality could be invoked as in the following example:
         <file name="my_command" chmod="0755">
         cat
         </file>
-      </file>
 
     </scons_example>
 
@@ -842,7 +841,6 @@ This functionality could be invoked as in the following example:
                          MY_EMITTER = modify2)
       env1.Foo('file1')
       env2.Foo('file2')
-      </file>
     </sconstruct>
 
     <para>
@@ -931,7 +929,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <scons_example name="site1">
-      <file name="site_scons/site_init.py" printme=1>
+      <file name="site_scons/site_init.py" printme="1">
         def TOOL_ADD_HEADER(env):
            """A Tool to add a header from $HEADER to the source file"""
            add_header = Builder(action=['echo "$HEADER" &gt; $TARGET',
@@ -998,7 +996,7 @@ This functionality could be invoked as in the following example:
     </para>
       
     <scons_example name="site2">
-      <file name="site_scons/my_utils.py" printme=1>
+      <file name="site_scons/my_utils.py" printme="1">
         from SCons.Script import *   # for Execute and Mkdir
         def build_id():
            """Return a build ID (stub version)"""

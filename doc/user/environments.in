@@ -347,7 +347,7 @@ environment, of directory names, suffixes, etc.
 
     The <literal>external environment</literal>
     is the set of variables in the user's environment
-    at the time the user runs &SCons.
+    at the time the user runs &SCons;.
     These variables are available within the &SConscript; files
     through the Python <literal>os.environ</literal> dictionary.
     See <xref linkend="sect-external-environments"></xref>, below.
@@ -406,7 +406,7 @@ environment, of directory names, suffixes, etc.
 
   Unlike &Make;,  &SCons; does not automatically
   copy or import values between different environments
-  (with the exception of explicit clones of &consenvs,
+  (with the exception of explicit clones of &consenvs;,
   which inherit values from their parent).
   This is a deliberate design choice
   to make sure that builds are,
@@ -638,7 +638,7 @@ environment, of directory names, suffixes, etc.
          for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
              print "key = %s, value = %s" % (key, dict[key])
          </file>
-      </scons_Example>
+      </scons_example>
 
       <para>
 
@@ -779,18 +779,20 @@ environment, of directory names, suffixes, etc.
       If a problem occurs when expanding a construction variable,
       by default it is expanded to <literal>''</literal>
       (a null string), and will not cause scons to fail. 
-      
+      </para>
+
        <scons_example name="missing1">
          <file name="SConstruct" printme="1">
           env = Environment()
-          print "value is:", env.subst( '->$MISSING<-' )
+          print "value is:", env.subst( '->$MISSING&lt;-' )
         </file>
       </scons_example>
 
        <scons_output example="missing1">
           <scons_output_command>scons -Q</scons_output_command>
        </scons_output>
-      
+
+      <para>
       This default behaviour can be changed using the &AllowSubstExceptions;
       function.
       When a problem occurs with a variable expansion it generates
@@ -810,7 +812,7 @@ environment, of directory names, suffixes, etc.
          <file name="SConstruct" printme="1">
           AllowSubstExceptions()
           env = Environment()
-          print "value is:", env.subst( '->$MISSING<-' )
+          print "value is:", env.subst( '->$MISSING&lt;-' )
         </file>
       </scons_example>
 
@@ -830,7 +832,7 @@ environment, of directory names, suffixes, etc.
          <file name="SConstruct" printme="1">
           AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
           env = Environment()
-          print "value is:", env.subst( '->${1 / 0}<-' )
+          print "value is:", env.subst( '->${1 / 0}&lt;-' )
         </file>
       </scons_example>
 

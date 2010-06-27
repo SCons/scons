@@ -7,6 +7,10 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Dirk Baechle:
+
+    - XML fixes in User's Guide.
+
   From Joe Zuntz:
 
     - Fixed a case-sensitivity problem with Fortran modules.

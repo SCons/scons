@@ -490,7 +490,7 @@
     over how to print each evaluated node
     by passing a Python function
     (or other Python callable)
-    to the &Progress function.
+    to the &Progress; function.
     Your function will be called
     for each evaluated node,
     allowing you to

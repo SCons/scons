@@ -779,7 +779,8 @@ environment, of directory names, suffixes, etc.
       If a problem occurs when expanding a construction variable,
       by default it is expanded to <literal>''</literal>
       (a null string), and will not cause scons to fail. 
-      
+      </para>
+
        <programlisting>
           env = Environment()
           print "value is:", env.subst( '-&gt;$MISSING&lt;-' )
@@ -790,7 +791,8 @@ environment, of directory names, suffixes, etc.
           value is: -&gt;&lt;-
           scons: `.' is up to date.
        </screen>
-      
+
+      <para>
       This default behaviour can be changed using the &AllowSubstExceptions;
       function.
       When a problem occurs with a variable expansion it generates

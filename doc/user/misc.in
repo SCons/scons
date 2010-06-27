@@ -82,7 +82,7 @@
 
     <para>
 
-    And then &SCons will exit with the following error
+    And then &SCons; will exit with the following error
     message when a user runs it with an unsupported
     earlier version of Python:
 
@@ -151,7 +151,7 @@
 
     <para>
 
-    And then &SCons will exit with the following error
+    And then &SCons; will exit with the following error
     message when a user runs it with an unsupported
     earlier version of &SCons;:
 
@@ -274,13 +274,13 @@
       </file>
       <directory name="src"></directory>
       <directory name="src/include"></directory>
-      </file>
       <file name="src/include/private.h">
         exists
-      <directory name="include"></directory>
       </file>
+      <directory name="include"></directory>
       <file name="include/dist.h">
         exists
+      </file>
     </scons_example>
 
     <scons_output example="FindFile1b" os="posix">

@@ -209,7 +209,7 @@
     <para>
 
     Of course, like all of these &Action; factories,
-    the &Delete factory also expands
+    the &Delete; factory also expands
     &cv-link-TARGET; and &cv-link-SOURCE; variables appropriately.
     For example:
 
