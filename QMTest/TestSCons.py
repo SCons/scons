@@ -91,7 +91,7 @@ def gccFortranLibs():
     """
 
     libs = ['g2c']
-    cmd = ['gcc', '-v']
+    cmd = 'gcc -v'
 
     try:
         import subprocess
@@ -102,7 +102,8 @@ def gccFortranLibs():
         except OSError:
             return libs
     else:
-        stderr = subprocess.Popen(cmd, stderr=subprocess.PIPE).communicate()[1]
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+        stderr = p.stderr.read()
     m = re.search('gcc version (\d\.\d)', stderr)
     if m:
         gcc_version = m.group(1)
