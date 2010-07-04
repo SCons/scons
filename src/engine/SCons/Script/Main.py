@@ -60,6 +60,7 @@ import SCons.Errors
 import SCons.Job
 import SCons.Node
 import SCons.Node.FS
+import SCons.Platform
 import SCons.SConf
 import SCons.Script
 import SCons.Taskmaster
@@ -665,15 +666,15 @@ def _create_path(plist):
 
 def _load_site_scons_dir(topdir, site_dir_name=None):
     """Load the site_scons dir under topdir.
-    Adds site_scons to sys.path, imports site_scons/site_init.py,
-    and adds site_scons/site_tools to default toolpath."""
+    Prepends site_scons to sys.path, imports site_scons/site_init.py,
+    and prepends site_scons/site_tools to default toolpath."""
     if site_dir_name:
         err_if_not_found = True       # user specified: err if missing
     else:
         site_dir_name = "site_scons"
         err_if_not_found = False
         
-    site_dir = os.path.join(topdir.path, site_dir_name)
+    site_dir = os.path.join(topdir, site_dir_name)
     if not os.path.exists(site_dir):
         if err_if_not_found:
             raise SCons.Errors.UserError("site dir %s not found."%site_dir)
@@ -682,6 +683,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     site_init_filename = "site_init.py"
     site_init_modname = "site_init"
     site_tools_dirname = "site_tools"
+    # prepend to sys.path
     sys.path = [os.path.abspath(site_dir)] + sys.path
     site_init_file = os.path.join(site_dir, site_init_filename)
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
@@ -723,7 +725,55 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
             if fp:
                 fp.close()
     if os.path.exists(site_tools_dir):
-        SCons.Tool.DefaultToolpath.append(os.path.abspath(site_tools_dir))
+        # prepend to DefaultToolpath
+        SCons.Tool.DefaultToolpath.insert(0, os.path.abspath(site_tools_dir))
+
+def _load_all_site_scons_dirs(topdir, verbose=None):
+    """Load all of the predefined site_scons dir.
+    Order is significant; we load them in order from most generic
+    (machine-wide) to most specific (topdir).
+    The verbose argument is only for testing.
+    """
+    platform = SCons.Platform.platform_default()
+
+    def homedir(d):
+        return os.path.expanduser('~/'+d)
+
+    if platform == 'win32' or platform == 'cygwin':
+        # Note we use $ here instead of %...% because older
+        # pythons (prior to 2.6?) didn't expand %...% on Windows.
+        # This set of dirs should work on XP, Vista, 7 and later.
+        sysdirs=[
+            os.path.expandvars('$ALLUSERSPROFILE\\Application Data\\scons'),
+            os.path.expandvars('$USERPROFILE\\Local Settings\\Application Data\\scons')]
+        appdatadir = os.path.expandvars('$APPDATA\\scons')
+        if appdatadir not in sysdirs:
+            sysdirs.append(appdatadir)
+        sysdirs.append(homedir('.scons'))
+
+    elif platform == 'darwin':  # MacOS X
+        sysdirs=['/Library/Application Support/SCons',
+                 '/opt/local/share/scons', # (for MacPorts)
+                 '/sw/share/scons', # (for Fink)
+                  homedir('Library/Application Support/SCons'),
+                  homedir('.scons')]
+    elif platform == 'sunos':   # Solaris
+        sysdirs=['/opt/sfw/scons',
+                 '/usr/share/scons',
+                 homedir('.scons')]
+    else:                       # Linux, HPUX, etc.
+        # assume posix-like, i.e. platform == 'posix'
+        sysdirs=['/usr/share/scons',
+                 homedir('.scons')]
+
+    dirs=sysdirs + [topdir]
+    for d in dirs:
+        if verbose:    # this is used by unit tests.
+            print "Loading site dir ", d
+        _load_site_scons_dir(d)
+
+def test_load_all_site_scons_dirs(d):
+    _load_all_site_scons_dirs(d, True)
 
 def version_string(label, module):
     version = module.__version__
@@ -860,9 +910,9 @@ def _main(parser):
         progress_display.set_mode(0)
 
     if options.site_dir:
-        _load_site_scons_dir(d, options.site_dir)
+        _load_site_scons_dir(d.path, options.site_dir)
     elif not options.no_site_dir:
-        _load_site_scons_dir(d)
+        _load_all_site_scons_dirs(d.path)
         
     if options.include_dir:
         sys.path = options.include_dir + sys.path

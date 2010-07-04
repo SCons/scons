@@ -31,6 +31,11 @@
 
   NEW FUNCTIONALITY
 
+    - SCons now searches for site_scons dirs in several system-wide
+      and per-user locations, in addition to the SConstruct top dir.
+      This should enable much easier use of third-party (non-core)
+      Tools.
+
     - List new features (presumably why a checkpoint is being released)
 
   DEPRECATED FUNCTIONALITY
