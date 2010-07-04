@@ -688,7 +688,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     site_init_file = os.path.join(site_dir, site_init_filename)
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
     if os.path.exists(site_init_file):
-        import imp
+        import imp, re
         # TODO(2.4): turn this into try:-except:-finally:
         try:
             try:
@@ -707,14 +707,26 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                     fmt = 'cannot import site_init.py: missing SCons.Script module %s'
                     raise SCons.Errors.InternalError(fmt % repr(e))
                 try:
+                    sfx = description[0]
+                    modname = os.path.basename(pathname)[:-len(sfx)]
+                    site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
+                    re_special = re.compile("__[^_]+__")
+                    for k in m.__dict__.keys():
+                        if not re_special.match(k):
+                            site_m[k] = m.__dict__[k]
+
                     # This is the magic.
-                    exec fp in m.__dict__
+                    exec fp in site_m
                 except KeyboardInterrupt:
                     raise
                 except Exception, e:
                     fmt = '*** Error loading site_init file %s:\n'
                     sys.stderr.write(fmt % repr(site_init_file))
                     raise
+                else:
+                    for k in site_m:
+                        if not re_special.match(k):
+                            m.__dict__[k] = site_m[k]
             except KeyboardInterrupt:
                 raise
             except ImportError, e:

@@ -24,17 +24,63 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify various aspects of the handling of site_init.py.
+
+And more ..
+"""
+
 import TestSCons
 import sys
+import os.path
+
+test = TestSCons.TestSCons()
+
+test.subdir('site_scons')
+
+
+def _test_metadata():
+    """Test site_init's module metadata.
+    
+    The following special variables should be predefined: __doc__,
+    __file__ and __name__. No special variables should be transferred from
+    SCons.Script.
+    """
+    test.write(['site_scons', 'site_init.py'], """\
+import os.path
+import re
+
+special = []
+for x in globals().keys():
+    if re.match("__[^_]+__", x):
+        if x in ("__builtins__", "__package__",):
+            # Ignore certain keywords, as they are known to be added by Python
+            continue
+        special.append(x)
+
+print sorted(special)
+print __doc__
+print os.path.realpath(__file__)
+print __name__
+""")
+
+    test.write('SConstruct', "\n")
+    test.run(arguments = '-Q .',
+             stdout = """\
+['__doc__', '__file__', '__name__']
+None
+%s
+site_init
+scons: `.' is up to date.
+""" % (os.path.realpath(os.path.join('site_scons', 'site_init.py')),))
+
+_test_metadata()
+
 
 """
 Verify site_scons/site_init.py file can define a tool, and it shows up
 automatically in the SCons.Script namespace.
 """
-
-test = TestSCons.TestSCons()
-
-test.subdir('site_scons')
 
 if sys.platform == 'win32':
     cat_cmd='type'
