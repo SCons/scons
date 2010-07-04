@@ -7,6 +7,12 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Arve Knudsen:
+
+    - Set module metadata when loading site_scons/site_init.py
+      so it is treated as a proper module; __doc__, __file__ and
+      __name__ now refer to the site_init.py file.
+
   From Russel Winder:
 
     - Users Guide updates explaining that Tools can be packages as
