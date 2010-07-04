@@ -897,7 +897,7 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    The <filename>site_scons</filename> directory gives you a place to
+    The <filename>site_scons</filename> directories give you a place to
     put Python modules you can import into your &SConscript; files
     (<filename>site_scons</filename>),
     add-on tools that can integrate into &SCons;
@@ -910,8 +910,18 @@ This functionality could be invoked as in the following example:
 
     <para>
 
+    Each system type (Windows, Mac, Linux, etc.) searches a canonical
+    set of directories for site_scons; see the man page for details.
+    The top-level SConstruct's site_scons dir is always searched last,
+    and its dir is placed first in the tool path so it overrides all
+    others.
+
+    </para>
+
+    <para>
+
     If you get a tool from somewhere (the &SCons; wiki or a third party,
-    for instance) and you'd like to use it in your project, the
+    for instance) and you'd like to use it in your project, a
     <filename>site_scons</filename> dir is the simplest place to put it.
     Tools come in two flavors; either a Python function that operates on
     an &Environment; or a Python file containing two functions,
@@ -1045,13 +1055,15 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-      If you have a machine-wide site dir you'd like to use instead of
-      <filename>./site_scons</filename>, use the
-      <literal>--site-dir</literal> option to point to your dir.
+      You can use any of the user- or machine-wide site dirs such as
+      <filename>~/.scons/site_scons</filename> instead of
+      <filename>./site_scons</filename>, or use the
+      <literal>--site-dir</literal> option to point to your own dir.
       <filename>site_init.py</filename> and
       <filename>site_tools</filename> will be located under that dir.
-      To avoid using a <filename>site_scons</filename> dir at all, even
-      if it exists, use the <literal>--no-site-dir</literal> option.
+      To avoid using a <filename>site_scons</filename> dir at all,
+      even if it exists, use the <literal>--no-site-dir</literal>
+      option.
 
     </para>
 

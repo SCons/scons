@@ -100,17 +100,17 @@ file,
 .B scons
 looks for a directory named
 .I site_scons
-in the directory containing the
+in various system directories (see below) and the directory containing the
 .I SConstruct
-file; if it exists,
+file; for each of those dirs which exists,
 .I site_scons
-is added to sys.path,
+is prepended to sys.path,
 the file
 .IR site_scons/site_init.py ,
 is evaluated if it exists,
 and the directory
 .I site_scons/site_tools
-is added to the default toolpath if it exist.
+is prepended to the default toolpath if it exists.
 See the
 .I --no-site-dir
 and
@@ -1095,13 +1095,13 @@ any out-of-date target files, but do not execute the commands.
 .RI --no-site-dir
 Prevents the automatic addition of the standard
 .I site_scons
-dir to
+dirs to
 .IR sys.path .
 Also prevents loading the
 .I site_scons/site_init.py
-module if it exists, and prevents adding
+modules if they exist, and prevents adding their
 .I site_scons/site_tools
-to the toolpath.
+dirs to the toolpath.
 
 .\" .TP
 .\" .RI -o " file" ", --old-file=" file ", --assume-old=" file
@@ -1182,13 +1182,55 @@ Ignored for compatibility with GNU
 .RI --site-dir= dir
 Uses the named dir as the site dir rather than the default
 .I site_scons
-dir.  This dir will get prepended to
+dirs.  This dir will get prepended to
 .IR sys.path ,
 the module
 .IR dir /site_init.py
 will get loaded if it exists, and
 .IR dir /site_tools
 will get added to the default toolpath.
+
+The default set of
+.I site_scons
+dirs used when
+.I --site-dir
+is not specified depends on the system platform, as follows.  Note
+that the directories are examined in the order given, from most
+generic to most specific, so the last-executed site_init.py file is
+the most specific one (which gives it the chance to override
+everything else), and the dirs are prepended to the paths, again so
+the last dir examined comes first in the resulting path.
+
+.IP "Windows:"
+.nf
+    %ALLUSERSPROFILE/Application Data/scons/site_scons
+    %USERPROFILE%/Local Settings/Application Data/scons/site_scons
+    %APPDATA%/scons/site_scons
+    %HOME%/.scons/site_scons
+    ./site_scons
+.fi
+.IP "Mac OS X:"
+.nf
+    /Library/Application Support/SCons/site_scons
+    /opt/local/share/scons/site_scons (for MacPorts)
+    /sw/share/scons/site_scons (for Fink)
+    $HOME/Library/Application Support/SCons/site_scons
+    $HOME/.scons/site_scons
+    ./site_scons
+.fi
+.IP "Solaris:"
+.nf
+    /opt/sfw/scons/site_scons
+    /usr/share/scons/site_scons
+    $HOME/.scons/site_scons
+    ./site_scons
+.fi
+.IP "Linux, HPUX, and other Posix-like systems:"
+.nf
+    /usr/share/scons/site_scons
+    $HOME/.scons/site_scons
+    ./site_scons
+.fi
 
 .TP
 .RI --stack-size= KILOBYTES
