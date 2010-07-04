@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Russel Winder:
+
+    - Users Guide updates explaining that Tools can be packages as
+      well as python modules.
+
   From Gary Oberbrunner:
 
     - New systemwide and per-user site_scons dirs.

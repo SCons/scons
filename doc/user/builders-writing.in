@@ -898,7 +898,7 @@ This functionality could be invoked as in the following example:
     <para>
 
     The <filename>site_scons</filename> directories give you a place to
-    put Python modules you can import into your &SConscript; files
+    put Python modules and packages that you can import into your &SConscript; files
     (<filename>site_scons</filename>),
     add-on tools that can integrate into &SCons;
     (<filename>site_scons/site_tools</filename>),
@@ -924,7 +924,7 @@ This functionality could be invoked as in the following example:
     for instance) and you'd like to use it in your project, a
     <filename>site_scons</filename> dir is the simplest place to put it.
     Tools come in two flavors; either a Python function that operates on
-    an &Environment; or a Python file containing two functions,
+    an &Environment; or a Python module or package  containing two functions,
     <function>exists()</function> and <function>generate()</function>.
 
     </para>
@@ -983,16 +983,23 @@ This functionality could be invoked as in the following example:
     -->
 
     <para>
-      Similarly, a more full-fledged tool with
+      A more full-fledged tool with
       <function>exists()</function> and <function>generate()</function>
-      methods can be installed in
-      <filename>site_scons/site_tools/toolname.py</filename>.  Since
-      <filename>site_scons/site_tools</filename> is automatically added
-      to the head of the tool search path, any tool found there will be
-      available to all environments.  Furthermore, a tool found there
-      will override a built-in tool of the same name, so if you need to
-      change the behavior of a built-in tool, site_scons gives you the
-      hook you need.
+      methods can be installed either as a module in the file
+      <filename>site_scons/site_tools/toolname.py</filename> or as a
+      package in the
+      directory <filename>site_scons/site_tools/toolname</filename>.  In
+      the case of using a package, the <function>exists()</function>
+      and <function>generate()</function> are in the
+      file <filename>site_scons/site_tools/toolname/__init__.py</filename>.
+      (In all the above case <filename>toolname</filename> is replaced
+      by the name of the tool.)
+      Since <filename>site_scons/site_tools</filename> is automatically
+      added to the head of the tool search path, any tool found there
+      will be available to all environments.  Furthermore, a tool found
+      there will override a built-in tool of the same name, so if you
+      need to change the behavior of a built-in
+      tool, <filename>site_scons</filename> gives you the hook you need.
     </para>
 
     <para>
