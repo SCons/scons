@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Alexander Goomenyuk:
+
+    - Add .sx to assembly source scanner list so .sx files
+      get their header file dependencies detected.
+
   From Arve Knudsen:
 
     - Set module metadata when loading site_scons/site_init.py

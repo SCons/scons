@@ -62,7 +62,7 @@ CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
              ".h", ".H", ".hxx", ".hpp", ".hh",
              ".F", ".fpp", ".FPP",
              ".m", ".mm",
-             ".S", ".spp", ".SPP"]
+             ".S", ".spp", ".SPP", ".sx"]
 
 DSuffixes = ['.d']
 

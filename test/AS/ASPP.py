@@ -114,6 +114,7 @@ env = Environment(LINK = r'%(_python_)s mylink.py',
                   CC = r'%(_python_)s myas.py')
 env.Program(target = 'test1', source = 'test1.spp')
 env.Program(target = 'test2', source = 'test2.SPP')
+env.Program(target = 'test3', source = 'test3.sx')
 """ % locals())
 
 test.write('test1.spp', r"""This is a .spp file.
@@ -126,13 +127,25 @@ test.write('test2.SPP', r"""This is a .SPP file.
 #link
 """)
 
+test.write('foo.h', r"""// this is foo.h
+""")
+
+test.write('test3.sx', r"""This is a .sx file.
+#include "foo.h"
+#as
+#link
+""")
+
 test.run(arguments = '.', stderr = None)
 
 test.fail_test(test.read('test1' + _exe) != "This is a .spp file.\n")
 
 test.fail_test(test.read('test2' + _exe) != "This is a .SPP file.\n")
 
-
+# Ensure the source scanner was run on test3.sx by
+# checking for foo.h in the dependency tree output 
+test.run(arguments = '. --tree=prune')
+test.fail_test("foo.h" not in test.stdout())
 
 test.pass_test()
 
