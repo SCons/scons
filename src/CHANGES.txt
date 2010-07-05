@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Anatoly Techtonik:
+
+    - use subprocess in bootstrap.py instead of os.execve to avoid
+      losing output control on Windows (http://bugs.python.org/issue9148)
+
   From Alexander Goomenyuk:
 
     - Add .sx to assembly source scanner list so .sx files
