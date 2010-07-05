@@ -2285,6 +2285,12 @@ def NoSubstitutionProxy(subject):
             return getattr(self.__dict__['__subject'], name)
         def __setattr__(self, name, value):
             return setattr(self.__dict__['__subject'], name, value)
+        def executor_to_lvars(self, kwdict):
+            if kwdict.has_key('executor'):
+                kwdict['lvars'] = kwdict['executor'].get_lvars()
+                del kwdict['executor']
+            else:
+                kwdict['lvars'] = {}
         def raw_to_mode(self, dict):
             try:
                 raw = dict['raw']
@@ -2301,12 +2307,14 @@ def NoSubstitutionProxy(subject):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
             nkw['gvars'] = {}
+            self.executor_to_lvars(nkw)
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst_list(*nargs, **nkw)
         def subst_target_source(self, string, *args, **kwargs):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
             nkw['gvars'] = {}
+            self.executor_to_lvars(nkw)
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst(*nargs, **nkw)
     return _NoSubstitutionProxy(subject)

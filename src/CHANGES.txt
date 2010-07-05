@@ -44,6 +44,8 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix explicit dependencies (Depends()) on Nodes that don't have
       attached Builders.
 
+    - Fix use of the global Alias() function with command actions.
+
   From Matt Hughes:
 
     - Fix the ability to append to default $*FLAGS values (which are
