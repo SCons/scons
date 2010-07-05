@@ -1198,7 +1198,6 @@ if sfiles:
         '.hgt/*',
         '.svnt/*',
         '*.aeignore',
-        '*.cvsignore',
         '*.hgignore',
         'www/*',
     ]
