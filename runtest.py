@@ -344,24 +344,6 @@ def escape(s):
     s = s.replace('\\', '\\\\')
     return s
 
-# Set up lowest-common-denominator spawning of a process on both Windows
-# and non-Windows systems that works all the way back to Python 1.5.2.
-try:
-    os.spawnv
-except AttributeError:
-    def spawn_it(command_args):
-        pid = os.fork()
-        if pid == 0:
-            os.execv(command_args[0], command_args)
-        else:
-            pid, status = os.waitpid(pid, 0)
-            return status >> 8
-else:
-    def spawn_it(command_args):
-        command = command_args[0]
-        command_args = list(map(escape, command_args))
-        return os.spawnv(os.P_WAIT, command, command_args)
-
 class Base(object):
     def __init__(self, path, spe=None):
         self.path = path
@@ -376,8 +358,9 @@ class Base(object):
 
 class SystemExecutor(Base):
     def execute(self):
-        s = spawn_it(self.command_args)
-        self.status = s
+        command = self.command_args[0]
+        command_args = [escape(arg) for arg in self.command_args]
+        s = self.status = os.spawnv(os.P_WAIT, command, command_args)
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
