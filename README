@@ -40,7 +40,7 @@ LATEST VERSION
 Before going further, you can check that this package you have is the
 latest version at the SCons download page:
 
-        http://www.scons.org/download.html
+        http://www.scons.org/download.php
 
 
 EXECUTION REQUIREMENTS
@@ -682,23 +682,14 @@ section of small examples for getting started using SCons.
 
 Additional documentation for SCons is available at:
 
-        http://www.scons.org/doc.html
+        http://www.scons.org/documentation.php
 
 
 LICENSING
 =========
 
 SCons is distributed under the MIT license, a full copy of which is
-available in the LICENSE file. The MIT license is an approved Open
-Source license, which means:
-
-        This software is OSI Certified Open Source Software.  OSI
-        Certified is a certification mark of the Open Source Initiative.
-
-More information about OSI certifications and Open Source software is
-available at:
-
-        http://www.opensource.org/
+available in the LICENSE file.
 
 
 REPORTING BUGS
@@ -752,7 +743,7 @@ If you find SCons helpful, please consider making a donation (of cash,
 software, or hardware) to support continued work on the project.
 Information is available at:
 
-        http://www.scons.org/donate.html
+        http://www.scons.org/donate.php
 
 
 FOR MORE INFORMATION
