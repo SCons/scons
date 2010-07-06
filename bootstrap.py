@@ -69,12 +69,6 @@ the following SCons options:
         the SCons script itself doesn't need to, so this option gets
         "eaten" by the bootstrap.py script.
 
-    -Y, --repository
-
-        These options are used under Aegis to specify a search path
-        for the source files that may not have been copied in to the
-        Aegis change.
-
 This is essentially a minimal build of SCons to bootstrap ourselves into
 executing it for the full build of all the packages, as specified in our
 local SConstruct file.
@@ -141,22 +135,6 @@ while command_line_args:
         os.chdir(arg[2:])
     elif arg[:12] == '--directory=':
         os.chdir(arg[12:])
-
-    elif arg in ('-Y', '--repository'):
-        try:
-            dir = command_line_args.pop(0)
-        except IndexError:
-            sys.stderr.write(requires_an_argument % arg)
-            sys.exit(1)
-        else:
-            search.append(dir)
-        pass_through_args.extend([arg, dir])
-    elif arg[:2] == '-Y':
-        search.append(arg[2:])
-        pass_through_args.append(arg)
-    elif arg[:13] == '--repository=':
-        search.append(arg[13:])
-        pass_through_args.append(arg)
 
     else:
         pass_through_args.append(arg)
