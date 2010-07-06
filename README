@@ -579,10 +579,9 @@ bin/
                 man page format
 
 bootstrap.py
-        A build script for use with Aegis.  This collects a current copy
-        of SCons from the Aegis baseline directories in a bootstrap/
-        subdirectory, and then executes SCons with the supplied
-        command-line arguments.
+        Build script for running SCons from the current source code
+        checkout. This copies SCons files to bootstrap/ subdirectory,
+        and then executes SCons with the supplied command-line arguments.
 
 build/
         This doesn't exist yet if you're looking at a vanilla source
