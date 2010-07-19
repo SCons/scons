@@ -10,10 +10,10 @@
 # and/or .mod files contining the ENTITY definitions for each item,
 # or in man-page-formatted output.
 #
-import os
-import sys
 import getopt
+import os
 import re
+import sys
 import xml.sax
 try:
     from io import StringIO
@@ -212,6 +212,18 @@ class SCons_XML_to_XML(SCons_XML):
 
 class SCons_XML_to_man(SCons_XML):
     def write(self, filename):
+        """
+        Converts the contents of the specified filename from DocBook XML
+        to man page macros.
+
+        This does not do an intelligent job.  In particular, it doesn't
+        actually use the structured nature of XML to handle arbitrary
+        input.  Instead, we're using text replacement and regular
+        expression substitutions to convert observed patterns into the
+        macros we want.  To the extent that we're relatively consistent
+        with our input .xml, this works, but could easily break if handed
+        input that doesn't match these specific expectations.
+        """
         if not filename:
             return
         f = self.fopen(filename)
@@ -222,13 +234,19 @@ class SCons_XML_to_man(SCons_XML):
             chunks.extend(list(map(str, v.summary.body)))
 
         body = ''.join(chunks)
+
+        # Simple transformation of examples into our defined macros for those.
         body = body.replace('<programlisting>', '.ES')
         body = body.replace('</programlisting>', '.EE')
+
+        # Replace groupings of <para> tags and surrounding newlines
+        # with single blank lines.
         body = body.replace('\n</para>\n<para>\n', '\n\n')
         body = body.replace('<para>\n', '')
         body = body.replace('<para>', '\n')
         body = body.replace('</para>\n', '')
 
+        # Convert <variablelist> and its child tags.
         body = body.replace('<variablelist>\n', '.RS 10\n')
         # Handling <varlistentry> needs to be rationalized and made
         # consistent.  Right now, the <term> values map to arbitrary,
@@ -240,35 +258,54 @@ class SCons_XML_to_man(SCons_XML):
         body = body.replace('</varlistentry>\n', '')
         body = body.replace('</variablelist>\n', '.RE\n')
 
+        # Get rid of unnecessary .IP macros, and unnecessary blank lines
+        # in front of .IP macros.
         body = re.sub(r'\.EE\n\n+(?!\.IP)', '.EE\n.IP\n', body)
+        body = body.replace('\n.EE\n.IP\n.ES\n', '\n.EE\n\n.ES\n')
         body = body.replace('\n.IP\n\'\\"', '\n\n\'\\"')
-        body = re.sub('&(scons|SConstruct|SConscript|jar|Make|lambda);', r'\\fB\1\\fP', body)
+
+        # Convert various named entities and tagged names to nroff
+        # in-line font conversions (\fB, \fI, \fP).
+        body = re.sub('&(scons|SConstruct|SConscript|Dir|jar|Make|lambda);',
+                      r'\\fB\1\\fP', body)
         body = re.sub('&(TARGET|TARGETS|SOURCE|SOURCES);', r'\\fB$\1\\fP', body)
-        body = body.replace('&Dir;', r'\fBDir\fP')
-        body = body.replace('&target;', r'\fItarget\fP')
-        body = body.replace('&source;', r'\fIsource\fP')
+        body = re.sub('&(target|source);', r'\\fI\1\\fP', body)
         body = re.sub('&b(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
-        body = re.sub('&cv(-link)?-([^;]*);', r'$\2', body)
+        body = re.sub('&cv(-link)?-([^;]*);', r'\\fB$\2\\fP', body)
         body = re.sub('&f(-link)?-env-([^;]*);', r'\\fBenv.\2\\fP()', body)
         body = re.sub('&f(-link)?-([^;]*);', r'\\fB\2\\fP()', body)
         body = re.sub(r'<(application|command|envar|filename|function|literal|option)>([^<]*)</\1>',
                       r'\\fB\2\\fP', body)
         body = re.sub(r'<(classname|emphasis|varname)>([^<]*)</\1>',
                       r'\\fI\2\\fP', body)
+
+        # Convert groupings of font conversions (\fB, \fI, \fP) to
+        # man page .B, .BR, .I, .IR, .R, .RB and .RI macros.
         body = re.compile(r'^\\f([BI])([^\\]* [^\\]*)\\fP\s*$', re.M).sub(r'.\1 "\2"', body)
         body = re.compile(r'^\\f([BI])(.*)\\fP\s*$', re.M).sub(r'.\1 \2', body)
         body = re.compile(r'^\\f([BI])(.*)\\fP(\S+)$', re.M).sub(r'.\1R \2 \3', body)
+        body = re.compile(r'^(\.B)( .*)\\fP(.*)\\fB(.*)$', re.M).sub(r'\1R\2 \3 \4', body)
+        body = re.compile(r'^(\.B)R?( .*)\\fP(.*)\\fI(.*)$', re.M).sub(r'\1I\2\3 \4', body)
+        body = re.compile(r'^(\.I)( .*)\\fP\\fB(.*)\\fP\\fI(.*)$', re.M).sub(r'\1R\2 \3 \4', body)
         body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP$', re.M).sub(r'.R\2 \1 \3', body)
         body = re.compile(r'^(\S+)\\f([BI])(.*)\\fP([^\s\\]+)$', re.M).sub(r'.R\2 \1 \3 \4', body)
         body = re.compile(r'^(\.R[BI].*[\S])\s+$;', re.M).sub(r'\1', body)
+
+        # Convert &lt; and &gt; entities to literal < and > characters.
         body = body.replace('&lt;', '<')
         body = body.replace('&gt;', '>')
-        body = re.sub(r'\\([^f])', r'\\\\\1', body)
+
+        # Backslashes.  Oh joy.
+        body = re.sub(r'\\(?=[^f])', r'\\\\', body)
         body = re.compile("^'\\\\\\\\", re.M).sub("'\\\\", body)
+        body = re.compile(r'^\.([BI]R?) ([^"]\S*\\\\\S+[^"])$', re.M).sub(r'.\1 "\2"', body)
+
+        # Put backslashes in front of various hyphens that need
+        # to be long em-dashes.
         body = re.compile(r'^\.([BI]R?) --', re.M).sub(r'.\1 \-\-', body)
         body = re.compile(r'^\.([BI]R?) -', re.M).sub(r'.\1 \-', body)
-        body = re.compile(r'^\.([BI]R?) (\S+)\\\\(\S+)$', re.M).sub(r'.\1 "\2\\\\\\\\\2"', body)
         body = re.compile(r'\\f([BI])-', re.M).sub(r'\\f\1\-', body)
+
         f.write(body)
 
 class Proxy(object):
@@ -317,6 +354,32 @@ class Function(Proxy):
         return self.name
     def mansep(self):
         return ['\n', "'\\" + '"'*69 + '\n']
+    def args_to_man(self, arg):
+        """Converts the contents of an <arguments> tag, which
+        specifies a function's calling signature, into a series
+        of tokens that alternate between literal tokens
+        (to be displayed in roman or bold face) and variable
+        names (to be displayed in italics).
+
+        This is complicated by the presence of Python "keyword=var"
+        arguments, where "keyword=" should be displayed literally,
+        and "var" should be displayed in italics.  We do this by
+        detecting the keyword= var portion and appending it to the
+        previous string, if any.
+        """
+        s = ''.join(arg.body).strip()
+        result = []
+        for m in re.findall('([a-zA-Z/_]+=?|[^a-zA-Z/_]+)', s):
+            if m[-1] == '=' and result:
+                if result[-1][-1] == '"':
+                    result[-1] = result[-1][:-1] + m + '"'
+                else:
+                    result[-1] += m
+            else:
+                if ' ' in m:
+                    m = '"%s"' % m
+                result.append(m)
+        return ' '.join(result)
     def initial_chunks(self):
         try:
             arguments = self.arguments
@@ -328,10 +391,11 @@ class Function(Proxy):
                 signature = arg.signature
             except AttributeError:
                 signature = "both"
+            s = self.args_to_man(arg)
             if signature in ('both', 'global'):
-                result.append('.TP\n.RI %s%s\n' % (self.name, arg))
+                result.append('.TP\n.RI %s%s\n' % (self.name, s))
             if signature in ('both', 'env'):
-                result.append('.TP\n.IR env .%s%s\n' % (self.name, arg))
+                result.append('.TP\n.IR env .%s%s\n' % (self.name, s))
         return result
 
 class Tool(Proxy):
