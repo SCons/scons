@@ -2526,19 +2526,19 @@ the option value may be accessed using
 .BR GetOption ()
 or
 .BR env.GetOption ().
-\" NOTE: in SCons 1.x or 2.0, user options will be settable, but not yet.
-\" Uncomment this when that works.  See tigris issue 2105.
-\" The value may also be set, using
-\" .BR SetOption ()
-\" or
-\" .BR env.SetOption (),
-\" if conditions in a
-\" .B SConscript
-\" require overriding any default value.
-\" Note, however, that a
-\" value specified on the command line will
-\" .I always
-\" override a value set by any SConscript file.
+'\" NOTE: in SCons 1.x or 2.0, user options will be settable, but not yet.
+'\" Uncomment this when that works.  See tigris issue 2105.
+'\" The value may also be set, using
+'\" .BR SetOption ()
+'\" or
+'\" .BR env.SetOption (),
+'\" if conditions in a
+'\" .B SConscript
+'\" require overriding any default value.
+'\" Note, however, that a
+'\" value specified on the command line will
+'\" .I always
+'\" override a value set by any SConscript file.
 
 Any specified
 .B help=
@@ -3037,6 +3037,7 @@ Clean('dist', env.Program('hello', 'hello.c'))
 Clean(['foo', 'bar'], 'something_else_to_clean')
 .EE
 
+.IP
 In this example,
 installing the project creates a subdirectory for the documentation.
 This statement causes the subdirectory to be removed
@@ -4428,43 +4429,43 @@ exists in a repository.
 Returns a list of the target Node or Nodes.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-\" .TP
-\" .RI env.MergeShellPaths( arg ", [" prepend ])
-\" Merges the elements of the specified
-\" .IR arg ,
-\" which must be a dictionary, to the construction
-\" environment's copy of the shell environment
-\" in env['ENV'].
-\" (This is the environment which is passed
-\" to subshells spawned by SCons.)
-\" Note that
-\" .I arg
-\" must be a single value,
-\" so multiple strings must
-\" be passed in as a list,
-\" not as separate arguments to
-\" .BR env.MergeShellPaths ().
-
-\" New values are prepended to the environment variable by default,
-\" unless prepend=0 is specified.  
-\" Duplicate values are always eliminated, 
-\" since this function calls
-\" .B AppendENVPath
-\" or
-\" .B PrependENVPath
-\" depending on the
-\" .I prepend
-\" argument.  See those functions for more details.
-
-\" Examples:
-
-\" .ES
-\" # Prepend a path to the shell PATH.
-\" env.MergeShellPaths({'PATH':'/usr/local/bin'} )
-\" # Append two dirs to the shell INCLUDE.
-\" env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']}, prepend=0 )
-
-.EE
+'\" .TP
+'\" .RI env.MergeShellPaths( arg ", [" prepend ])
+'\" Merges the elements of the specified
+'\" .IR arg ,
+'\" which must be a dictionary, to the construction
+'\" environment's copy of the shell environment
+'\" in env['ENV'].
+'\" (This is the environment which is passed
+'\" to subshells spawned by SCons.)
+'\" Note that
+'\" .I arg
+'\" must be a single value,
+'\" so multiple strings must
+'\" be passed in as a list,
+'\" not as separate arguments to
+'\" .BR env.MergeShellPaths ().
+'\"
+'\" New values are prepended to the environment variable by default,
+'\" unless prepend=0 is specified.  
+'\" Duplicate values are always eliminated, 
+'\" since this function calls
+'\" .B AppendENVPath
+'\" or
+'\" .B PrependENVPath
+'\" depending on the
+'\" .I prepend
+'\" argument.  See those functions for more details.
+'\"
+'\" Examples:
+'\"
+'\" .ES
+'\" # Prepend a path to the shell PATH.
+'\" env.MergeShellPaths({'PATH':'/usr/local/bin'} )
+'\" # Append two dirs to the shell INCLUDE.
+'\" env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']}, prepend=0 )
+'\"
+'\".EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -5305,6 +5306,7 @@ SConscript(['src/SConscript', 'doc/SConscript'])
 config = SConscript('MyConfig.py')
 .EE
 
+.IP
 The second way you can call
 .BR SConscript ()
 is to specify a list of (sub)directory names
@@ -5331,6 +5333,7 @@ SConscript(dirs=['src', 'doc'])
 SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 .EE
 
+.IP
 The optional
 .I exports
 argument provides a list of variable names or a dictionary of
@@ -5355,6 +5358,7 @@ SConscript(dirs='subdir', exports='env variable')
 SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 .EE
 
+.IP
 If the optional
 .I variant_dir
 argument is present, it causes an effect equivalent to the
@@ -5379,6 +5383,7 @@ See the description of the
 .BR VariantDir ()
 function below for additional details and restrictions.
 
+.IP
 If
 .I variant_dir
 is present,
@@ -5434,6 +5439,7 @@ SConscript('build/SConscript')
 '\" and what about this alternative?
 '\"TODO??? SConscript('build/SConscript', src_dir='src')
 
+.IP
 Here are some composite examples:
 
 .ES
