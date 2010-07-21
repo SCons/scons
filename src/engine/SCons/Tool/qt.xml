@@ -88,7 +88,7 @@ variables &cv-link-CPPPATH;,
 &cv-link-LIBPATH; and
 &cv-link-LIBS; may be modified
 and the variables
-PROGEMITTER, SHLIBEMITTER and LIBEMITTER
+&cv-link-PROGEMITTER;, &cv-link-SHLIBEMITTER; and &cv-link-LIBEMITTER;
 are modified. Because the build-performance is affected when using this tool,
 you have to explicitly specify it at Environment creation:
 
@@ -104,8 +104,9 @@ However, there are a few preconditions to do so: Your header file must have
 the same filebase as your implementation file and must stay in the same
 directory. It must have one of the suffixes .h, .hpp, .H, .hxx, .hh. You
 can turn off automatic moc file generation by setting QT_AUTOSCAN to 0.
-See also the corresponding builder method
-.B Moc()
+See also the corresponding
+&b-Moc();
+builder method.
 
 <emphasis Role="strong">Automatic moc file generation from cxx files.</emphasis>
 As stated in the qt documentation, include the moc file at the end of

@@ -403,11 +403,11 @@ for m in man_page_list:
     x = orig_env.SCons_revision(os.path.join(build, 'man', m),
                             os.path.join('man', m))
 
-man_i_files = ['builders.man', 'tools.man', 'variables.man']
+man_i_files = ['builders.man', 'functions.man', 'tools.man', 'variables.man']
 
 man_intermediate_files = [os.path.join(build, 'man', x) for x in man_i_files]
 
-cmd = "$PYTHON $SCONS_PROC_PY --man -b ${TARGETS[0]} -t ${TARGETS[1]} -v ${TARGETS[2]} $( $SOURCES $)"
+cmd = "$PYTHON $SCONS_PROC_PY --man -b ${TARGETS[0]} -f ${TARGETS[1]} -t ${TARGETS[2]} -v ${TARGETS[3]} $( $SOURCES $)"
 man_intermediate_files = env.Command(man_intermediate_files,
                                      scons_doc_files,
                                      cmd)

@@ -45,3 +45,46 @@ If this is not set, then &cv-link-P4COM; (the command line) is displayed.
 General options that are passed to Perforce.
 </summary>
 </cvar>
+
+<scons_function name="Perforce">
+<arguments signature="env">
+()
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the Perforce source code management system.
+The returned Builder
+is intended to be passed to the
+&f-SourceCode;
+function.
+
+This function is deprecated.  For details, see the entry for the
+&f-SourceCode;
+function.
+
+Example:
+
+<example>
+env.SourceCode('.', env.Perforce())
+</example>
+
+Perforce uses a number of external
+environment variables for its operation.
+Consequently, this function adds the
+following variables from the user's external environment
+to the construction environment's
+ENV dictionary:
+P4CHARSET,
+P4CLIENT,
+P4LANGUAGE,
+P4PASSWD,
+P4PORT,
+P4USER,
+SystemRoot,
+USER,
+and
+USERNAME.
+</summary>
+</scons_function>

@@ -146,7 +146,7 @@ on the file name in compilation error messages
 displayed in the Visual Studio console output window.
 This can be remedied by adding the
 Visual C/C++
-.B /FC
+<literal>/FC</literal>
 compiler option to the &cv-link-CCFLAGS;  variable
 so that the compiler will print
 the full path name of any

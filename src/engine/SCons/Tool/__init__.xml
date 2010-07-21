@@ -365,3 +365,21 @@ SCons also treats
 as C++ files.
 </summary>
 </cvar>
+
+<cvar name="LIBEMITTER">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="SHLIBEMITTER">
+<summary>
+TODO
+</summary>
+</cvar>
+
+<cvar name="PROGEMITTER">
+<summary>
+TODO
+</summary>
+</cvar>
