@@ -45,3 +45,54 @@ General options that are passed to Subversion.
 </summary>
 </cvar>
 -->
+
+<!--
+<scons_function name="Subversion">
+<arguments signature="global">
+(repository, module)
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the specified Subversion
+<varname>repository</varname>.
+The returned Builder
+is intended to be passed to the
+&f-link-SourceCode;
+function.
+
+The optional specified
+<varname>module</varname>
+will be added to the beginning
+of all repository path names;
+this can be used, in essence,
+to strip initial directory names
+from the repository path names,
+so that you only have to
+replicate part of the repository
+directory hierarchy in your
+local build directory.
+
+This function is deprecated, see the entry for the
+&f-SourceCode;
+function.
+
+Example:
+
+<example>
+# Will fetch foo/bar/src.c
+# from /usr/local/Subversion/foo/bar/src.c.
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
+
+# Will fetch bar/src.c
+# from /usr/local/Subversion/foo/bar/src.c.
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo'))
+
+# Will fetch src.c
+# from /usr/local/Subversion/foo/bar/src.c.
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo/bar'))
+</example>
+</summary>
+</scons_function>
+-->

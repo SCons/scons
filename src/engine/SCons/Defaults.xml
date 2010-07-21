@@ -470,3 +470,16 @@ A function that converts a string into a list of Dir instances by
 searching the repositories.
 </summary>
 </cvar>
+
+<scons_function name="DefaultEnvironment">
+<arguments signature="global">
+([args])
+</arguments>
+<summary>
+Creates and returns a default construction environment object.
+This construction environment is used internally by SCons
+in order to execute many of the global functions in this list,
+and to fetch source files transparently
+from source code management systems.
+</summary>
+</scons_function>

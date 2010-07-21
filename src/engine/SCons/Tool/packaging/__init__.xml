@@ -502,7 +502,6 @@ field in the RPM
 </cvar>
 
 
-
 <!--
 
 THE FOLLOWING AREN'T CONSTRUCTION VARIABLES,
@@ -627,24 +626,32 @@ TODO
 -->
 
 
-<!--
-<builder name="Tag">
+<scons_function name="Tag">
+<arguments signature="global">
+(node, tags)
+</arguments>
 <summary>
-Leaves hints for the Package() Builder on how specific
-files or directories should be packaged.
+Annotates file or directory Nodes with
+information about how the
+&f-link-Package;
+Builder should package those files or directories.
 All tags are optional.
+
+Examples:
 
 <example>
 # makes sure the built library will be installed with 0644 file
 # access mode
-Tag( Library( 'lib.c' ), unix-attr="0644" )
+Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
 
 # marks file2.txt to be a documentation file
-Tag( 'file2.txt', doc )
+Tag( 'file2.txt', DOC )
 </example>
 </summary>
-</builder>
+</scons_function>
 
+
+<!--
 <function name="FindSourceFiles">
 <summary>
 A convenience function which returns all leaves of the build tree.

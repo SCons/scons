@@ -5,6 +5,10 @@ SCons/Platform/__init__.xml
 SCons/Platform/posix.xml
 SCons/Platform/sunos.xml
 SCons/Platform/win32.xml
+SCons/Scanner/__init__.xml
+SCons/Script/Main.xml
+SCons/Script/SConscript.xml
+SCons/Subst.xml
 SCons/Tool/386asm.xml
 SCons/Tool/BitKeeper.xml
 SCons/Tool/CVS.xml

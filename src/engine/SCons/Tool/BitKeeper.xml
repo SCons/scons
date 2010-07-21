@@ -56,3 +56,29 @@ Options that are passed to the BitKeeper
 subcommand.
 </summary>
 </cvar>
+
+<scons_function name="BitKeeper">
+<arguments signature="env">
+()
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+using BitKeeper.
+The returned Builder
+is intended to be passed to the
+&f-SourceCode;
+function.
+
+This function is deprecated.  For details, see the entry for the
+&f-SourceCode;
+function.
+
+Example:
+
+<example>
+env.SourceCode('.', env.BitKeeper())
+</example>
+</summary>
+</scons_function>

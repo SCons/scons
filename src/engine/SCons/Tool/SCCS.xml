@@ -56,3 +56,39 @@ This can be set, for example, to
 to check out editable files from SCCS.
 </summary>
 </cvar>
+
+<scons_function name="SCCS">
+<arguments signature="env">
+()
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from SCCS.
+The returned Builder
+is intended to be passed to the
+&f-link-SourceCode;
+function.
+
+Example:
+
+<example>
+env.SourceCode('.', env.SCCS())
+</example>
+
+Note that
+&scons;
+will fetch source files
+from SCCS subdirectories automatically,
+so configuring SCCS
+as demonstrated in the above example
+should only be necessary if
+you are fetching from
+<filename>s.SCCS</filename>
+files in the same
+directory as the source files,
+or if you need to explicitly specify SCCS
+for a specific subdirectory.
+</summary>
+</scons_function>
