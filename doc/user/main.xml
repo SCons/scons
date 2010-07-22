@@ -37,6 +37,9 @@
     <!ENTITY % builders-mod SYSTEM "builders.mod">
     %builders-mod;
 
+    <!ENTITY % functions-mod SYSTEM "functions.mod">
+    %functions-mod;
+
     <!ENTITY % tools-mod SYSTEM "tools.mod">
     %tools-mod;
 
@@ -61,6 +64,7 @@
     <!ENTITY example SYSTEM "example.xml">
     <!ENTITY factories SYSTEM "factories.xml">
     <!ENTITY file-removal SYSTEM "file-removal.xml">
+    <!ENTITY functions SYSTEM "functions.xml">
     <!ENTITY hierarchy SYSTEM "hierarchy.xml">
     <!ENTITY java SYSTEM "java.xml">
     <!ENTITY install SYSTEM "install.xml">
@@ -89,6 +93,7 @@
     <!ENTITY variants SYSTEM "variants.xml">
 
     <!ENTITY builders-gen SYSTEM "builders.gen">
+    <!ENTITY functions-gen SYSTEM "functions.gen">
     <!ENTITY tools-gen SYSTEM "tools.gen">
     <!ENTITY variables-gen SYSTEM "variables.gen">
 
@@ -356,6 +361,11 @@
   <appendix id="app-tools">
     <title>Tools</title>
     &tools;
+  </appendix>
+
+  <appendix id="app-functions">
+    <title>Functions and Environment Methods</title>
+    &functions;
   </appendix>
 
   <appendix id="app-tasks">

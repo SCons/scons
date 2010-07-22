@@ -229,183 +229,183 @@ The options supported are:
 <variablelist>
 <varlistentry>
 <term><literal>cache_debug</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --cache-debug;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>cache_disable</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --cache-disable;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>cache_force</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --cache-force;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>cache_show</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --cache-show;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>clean</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -c, --clean and --remove;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>config</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --config;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>directory</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -C and --directory;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>diskcheck</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --diskcheck
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>duplicate</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --duplicate;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>file</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -f, --file, --makefile and --sconstruct;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>help</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -h and --help;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>ignore_errors</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --ignore-errors;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>implicit_cache</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --implicit-cache;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>implicit_deps_changed</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --implicit-deps-changed;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>implicit_deps_unchanged</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --implicit-deps-unchanged;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>interactive</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --interact and --interactive;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>keep_going</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -k and --keep-going;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>max_drift</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --max-drift;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>no_exec</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>no_site_dir</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --no-site-dir;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>num_jobs</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -j and --jobs;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>profile_file</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --profile;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>question</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -q and --question;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>random</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --random;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>repository</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -Y, --repository and --srcdir;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>silent</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -s, --silent and --quiet;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>site_dir</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --site-dir;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>stack_size</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --stack-size;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>taskmastertrace_file</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --taskmastertrace; and
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>warn</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --warn and --warning.
-</listitem>
+</para></listitem>
 </varlistentry>
 </variablelist>
 
@@ -565,57 +565,57 @@ line options from a SConscript file. The options supported are:
 <variablelist>
 <varlistentry>
 <term><literal>clean</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -c, --clean and --remove;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>duplicate</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --duplicate;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>help</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -h and --help;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>implicit_cache</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --implicit-cache;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>max_drift</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --max-drift;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>no_exec</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>num_jobs</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to -j and --jobs;
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>random</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --random; and
-</listitem>
+</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><literal>stack_size</literal></term>
-<listitem>
+<listitem><para>
 which corresponds to --stack-size.
-</listitem>
+</para></listitem>
 </varlistentry>
 </variablelist>
 

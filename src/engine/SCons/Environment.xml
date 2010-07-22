@@ -897,7 +897,7 @@ to be performed:
 <variablelist>
 <varlistentry>
 <term>timestamp-newer</term>
-<listitem>
+<listitem><para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's timestamp is newer than the target file's timestamp.
 This is the behavior of the classic Make utility,
@@ -905,12 +905,11 @@ and
 <literal>make</literal>
 can be used a synonym for
 <literal>timestamp-newer</literal>.
-</listitem>
+</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term>timestamp-match</term>
-<listitem>
+<listitem><para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's timestamp is different than the
 timestamp recorded the last time the target was built.
@@ -921,12 +920,11 @@ except that the target will also be rebuilt if a
 dependency file has been restored to a version with an
 <emphasis>earlier</emphasis>
 timestamp, such as can happen when restoring files from backup archives.
-</listitem>
+</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term>MD5</term>
-<listitem>
+<listitem><para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's content has changed sine the last time
 the target was built,
@@ -937,12 +935,11 @@ last time the target was built.
 <literal>content</literal>
 can be used as a synonym for
 <literal>MD5</literal>.
-</listitem>
+</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term>MD5-timestamp</term>
-<listitem>
+<listitem><para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's content has changed sine the last time
 the target was built,
@@ -966,7 +963,7 @@ that runs a build,
 updates a file,
 and runs the build again,
 all within a single second.
-</listitem>
+</para></listitem>
 </varlistentry>
 </variablelist>
 
@@ -990,7 +987,7 @@ that takes the following three arguments:
 <variablelist>
 <varlistentry>
 <term><parameter>dependency</parameter></term>
-<listitem>
+<listitem><para>
 The Node (file) which
 should cause the
 <varname>target</varname>
@@ -998,24 +995,22 @@ to be rebuilt
 if it has "changed" since the last tme
 <varname>target</varname>
 was built.
-</listitem>
+</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term><parameter>target</parameter></term>
-<listitem>
+<listitem><para>
 The Node (file) being built.
 In the normal case,
 this is what should get rebuilt
 if the
 <varname>dependency</varname>
 has "changed."
-</listitem>
+</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term><parameter>prev_ni</parameter></term>
-<listitem>
+<listitem><para>
 Stored information about the state of the
 <varname>dependency</varname>
 the last time the
@@ -1025,7 +1020,7 @@ This can be consulted to match various
 file characteristics
 such as the timestamp,
 size, or content signature.
-</listitem>
+</para></listitem>
 </varlistentry>
 </variablelist>
 
@@ -2681,11 +2676,11 @@ keyword arguments
 must be set to lists of
 target and source nodes, respectively,
 if you want the
-&TARGET;,
-&TARGETS;,
-&SOURCE;
+&cv-TARGET;,
+&cv-TARGETS;,
+&cv-SOURCE;
 and
-&SOURCES;
+&cv-SOURCES;
 to be available for expansion.
 This is usually necessary if you are
 calling
