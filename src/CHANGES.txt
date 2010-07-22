@@ -7,9 +7,18 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Jean-François Colson:
+
+    - Improve Microsoft Visual Studio Solution generation, and fix
+      various errors in the generated solutions especially when using
+      MSVS_SCC_PROVIDER, and when generating multiple projects.  The
+      construction variable MSVS_SCC_PROJECT_BASE_PATH, which never
+      worked properly, is removed.  Users can use the new variable
+      MSVS_SCC_CONNECTION_ROOT instead if desired.
+
   From Anatoly Techtonik:
 
-    - use subprocess in bootstrap.py instead of os.execve to avoid
+    - Use subprocess in bootstrap.py instead of os.execve to avoid
       losing output control on Windows (http://bugs.python.org/issue9148)
 
   From Alexander Goomenyuk:

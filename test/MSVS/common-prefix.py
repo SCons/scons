@@ -48,8 +48,6 @@ vcproj_template = """\
 \tVersion="8.00"
 \tName="Test"
 \tProjectGUID="<PROJECT_GUID>"
-\tSccProjectName=""
-\tSccLocalPath=""
 \tRootNamespace="Test"
 \tKeyword="MakeFileProj">
 \t<Platforms>

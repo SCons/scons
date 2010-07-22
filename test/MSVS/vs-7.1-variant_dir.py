@@ -56,14 +56,17 @@ test.write(['src', 'SConscript'], SConscript_contents%{'HOST_ARCH': host_arch})
 
 test.run(arguments=".")
 
+project_guid = "{25F6CE89-8E22-2910-8B6E-FFE6DC1E2792}"
 vcproj = test.read(['src', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', None, 'SConstruct')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', None, 'SConstruct',
+                              project_guid=project_guid)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_exist(test.workpath('src', 'Test.sln'))
 sln = test.read(['src', 'Test.sln'], 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0', 'src')
+expect = test.msvs_substitute(expected_slnfile, '7.0', 'src',
+                              project_guid=project_guid)
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 

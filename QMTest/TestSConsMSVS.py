@@ -188,17 +188,18 @@ env.MSVSProject(target = 'Test.dsp',
 
 expected_slnfile_7_0 = """\
 Microsoft Visual Studio Solution File, Format Version 7.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "<PROJECT_GUID>"
 EndProject
 Global
+<SCC_SLN_INFO>
 \tGlobalSection(SolutionConfiguration) = preSolution
 \t\tConfigName.0 = Release
 \tEndGlobalSection
 \tGlobalSection(ProjectDependencies) = postSolution
 \tEndGlobalSection
 \tGlobalSection(ProjectConfiguration) = postSolution
-\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.ActiveCfg = Release|Win32
-\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.Build.0 = Release|Win32
+\t\t<PROJECT_GUID>.Release.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID>.Release.Build.0 = Release|Win32
 \tEndGlobalSection
 \tGlobalSection(ExtensibilityGlobals) = postSolution
 \tEndGlobalSection
@@ -208,14 +209,13 @@ EndGlobal
 """
 
 expected_vcprojfile_7_0 = """\
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 \tProjectType="Visual C++"
 \tVersion="7.00"
 \tName="Test"
-\tProjectGUID=""
-\tSccProjectName=""
-\tSccLocalPath=""
+\tProjectGUID="<PROJECT_GUID>"
+<SCC_VCPROJ_INFO>
 \tKeyword="MakeFileProj">
 \t<Platforms>
 \t\t<Platform
@@ -232,8 +232,8 @@ expected_vcprojfile_7_0 = """\
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
 \t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
 \t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
-\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
 \t\t\t\tOutput="Test.exe"/>
 \t\t</Configuration>
 \t</Configurations>
@@ -310,17 +310,20 @@ env.MSVSProject(target = 'Test.vcproj',
 
 expected_slnfile_7_1 = """\
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "<PROJECT_GUID>"
 \tProjectSection(ProjectDependencies) = postProject
 \tEndProjectSection
 EndProject
 Global
+<SCC_SLN_INFO>
 \tGlobalSection(SolutionConfiguration) = preSolution
 \t\tConfigName.0 = Release
 \tEndGlobalSection
+\tGlobalSection(ProjectDependencies) = postSolution
+\tEndGlobalSection
 \tGlobalSection(ProjectConfiguration) = postSolution
-\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.ActiveCfg = Release|Win32
-\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release.Build.0 = Release|Win32
+\t\t<PROJECT_GUID>.Release.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID>.Release.Build.0 = Release|Win32
 \tEndGlobalSection
 \tGlobalSection(ExtensibilityGlobals) = postSolution
 \tEndGlobalSection
@@ -330,14 +333,13 @@ EndGlobal
 """
 
 expected_vcprojfile_7_1 = """\
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 \tProjectType="Visual C++"
 \tVersion="7.10"
 \tName="Test"
-\tProjectGUID=""
-\tSccProjectName=""
-\tSccLocalPath=""
+\tProjectGUID="<PROJECT_GUID>"
+<SCC_VCPROJ_INFO>
 \tKeyword="MakeFileProj">
 \t<Platforms>
 \t\t<Platform
@@ -354,8 +356,8 @@ expected_vcprojfile_7_1 = """\
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
 \t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
 \t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
-\t\t\t\tRebuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
 \t\t\t\tOutput="Test.exe"/>
 \t\t</Configuration>
 \t</Configurations>
@@ -435,15 +437,16 @@ env.MSVSProject(target = 'Test.vcproj',
 expected_slnfile_8_0 = """\
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "<PROJECT_GUID>"
 EndProject
 Global
+<SCC_SLN_INFO>
 \tGlobalSection(SolutionConfigurationPlatforms) = preSolution
 \t\tRelease|Win32 = Release|Win32
 \tEndGlobalSection
 \tGlobalSection(ProjectConfigurationPlatforms) = postSolution
-\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release|Win32.ActiveCfg = Release|Win32
-\t\t{E5466E26-0003-F18B-8F8A-BCD76C86388D}.Release|Win32.Build.0 = Release|Win32
+\t\t<PROJECT_GUID>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID>.Release|Win32.Build.0 = Release|Win32
 \tEndGlobalSection
 \tGlobalSection(SolutionProperties) = preSolution
 \t\tHideSolutionNode = FALSE
@@ -458,9 +461,8 @@ expected_vcprojfile_8_0 = """\
 \tVersion="8.00"
 \tName="Test"
 \tProjectGUID="<PROJECT_GUID>"
-\tSccProjectName=""
-\tSccLocalPath=""
 \tRootNamespace="Test"
+<SCC_VCPROJ_INFO>
 \tKeyword="MakeFileProj">
 \t<Platforms>
 \t\t<Platform
@@ -606,7 +608,8 @@ print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
     def msvs_substitute(self, input, msvs_ver,
                         subdir=None, sconscript=None,
                         python=None,
-                        project_guid=None):
+                        project_guid=None,
+                        vcproj_sccinfo='', sln_sccinfo=''):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
 
@@ -636,6 +639,8 @@ print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
         result = result.replace(r'<SCONS_SCRIPT_MAIN>', exec_script_main)
         result = result.replace(r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
         result = result.replace(r'<PROJECT_GUID>', project_guid)
+        result = result.replace('<SCC_VCPROJ_INFO>\n', vcproj_sccinfo)
+        result = result.replace('<SCC_SLN_INFO>\n', sln_sccinfo)
         return result
 
     def get_msvs_executable(self, version):
