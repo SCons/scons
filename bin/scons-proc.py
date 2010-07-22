@@ -337,7 +337,7 @@ class Builder(SConsThing):
     prefix = 'b-'
     tag = 'function'
     def xml_term(self):
-        return ('<term><%s>%s()</%s></term>\n<term><%s>env.%s()</%s></term>' %
+        return ('<term><synopsis><%s>%s()</%s></synopsis>\n<synopsis><%s>env.%s()</%s></synopsis></term>' %
                 (self.tag, self.name, self.tag, self.tag, self.name, self.tag))
     def entityfunc(self):
         return self.name
@@ -367,7 +367,7 @@ class Function(SConsThing):
             arguments = self.arguments
         except AttributeError:
             arguments = ['()']
-        result = []
+        result = ['<term>']
         for arg in arguments:
             try:
                 signature = arg.signature
@@ -375,9 +375,10 @@ class Function(SConsThing):
                 signature = "both"
             s = self.args_to_xml(arg)
             if signature in ('both', 'global'):
-                result.append('<term>%s%s</term>\n' % (self.name, s)) #<br>
+                result.append('<synopsis>%s%s</synopsis>\n' % (self.name, s)) #<br>
             if signature in ('both', 'env'):
-                result.append('<term><varname>env</varname>.%s%s</term>\n' % (self.name, s))
+                result.append('<synopsis><varname>env</varname>.%s%s</synopsis>' % (self.name, s))
+        result.append('</term>')
         return ''.join(result)
     def entityfunc(self):
         return self.name
