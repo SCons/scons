@@ -287,21 +287,6 @@ will generate an error.
 </summary>
 </cvar>
 
-<cvar name="MSVS_PROJECT_BASE_PATH">
-<summary>
-The string
-placed in a generated Microsoft Visual Studio solution file
-as the value of the
-<literal>SccProjectFilePathRelativizedFromConnection0</literal>
-and
-<literal>SccProjectFilePathRelativizedFromConnection1</literal>
-attributes of the
-<literal>GlobalSection(SourceCodeControl)</literal>
-section.
-There is no default value.
-</summary>
-</cvar>
-
 <cvar name="MSVS_PROJECT_GUID">
 <summary>
 The string
@@ -309,12 +294,7 @@ placed in a generated Microsoft Visual Studio project file
 as the value of the
 <literal>ProjectGUID</literal>
 attribute.
-The string is also placed in the
-<literal>SolutionUniqueID</literal>
-attribute of the
-<literal>GlobalSection(SourceCodeControl)</literal>
-section of the Microsoft Visual Studio solution file.
-There is no default value.
+There is no default value. If not defined, a new GUID is generated.
 </summary>
 </cvar>
 
@@ -332,24 +312,33 @@ There is no default value.
 </summary>
 </cvar>
 
-<cvar name="MSVS_SCC_LOCAL_PATH">
+<cvar name="MSVS_SCC_CONNECTION_ROOT">
 <summary>
-The path name
-placed in a generated Microsoft Visual Studio project file
-as the value of the
+The root path of projects in your SCC workspace, i.e the path under which
+all project and solution files will be generated. It is used as a
+reference path from which the relative paths of the generated
+Microsoft Visual Studio project and solution files are computed.
+The relative project file path is placed as the value of the
 <literal>SccLocalPath</literal>
 attribute
-if the
-<envar>MSVS_SCC_PROVIDER</envar>
-construction variable is also set.
-The path name is also placed in the
-<literal>SccLocalPath0</literal>
-and
-<literal>SccLocalPath1</literal>
+of the project file
+and as the values of the
+<literal>SccProjectFilePathRelativizedFromConnection[i]</literal>
+(where [i] ranges from 0 to the number of projects in the solution)
 attributes of the
 <literal>GlobalSection(SourceCodeControl)</literal>
 section of the Microsoft Visual Studio solution file.
-There is no default value.
+Similarly the relative solution file path is placed as the values of the
+<literal>SccLocalPath[i]</literal>
+(where [i] ranges from 0 to the number of projects in the solution)
+attributes of the
+<literal>GlobalSection(SourceCodeControl)</literal>
+section of the Microsoft Visual Studio solution file.
+This is used only
+if the
+<envar>MSVS_SCC_PROVIDER</envar>
+construction variable is also set.
+The default value is the current working directory.
 </summary>
 </cvar>
 
@@ -359,7 +348,15 @@ The project name
 placed in a generated Microsoft Visual Studio project file
 as the value of the
 <literal>SccProjectName</literal>
-attribute.
+attribute
+if the
+<envar>MSVS_SCC_PROVIDER</envar>
+construction variable is also set.
+In this case the string is also placed in the
+<literal>SccProjectName0</literal>
+attribute of the
+<literal>GlobalSection(SourceCodeControl)</literal>
+section of the Microsoft Visual Studio solution file.
 There is no default value.
 </summary>
 </cvar>
@@ -372,7 +369,7 @@ as the value of the
 <literal>SccProvider</literal>
 attribute.
 The string is also placed in the
-<literal>SccProvider1</literal>
+<literal>SccProvider0</literal>
 attribute of the
 <literal>GlobalSection(SourceCodeControl)</literal>
 section of the Microsoft Visual Studio solution file.

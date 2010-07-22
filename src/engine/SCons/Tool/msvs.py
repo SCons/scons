@@ -92,6 +92,42 @@ def msvs_parse_version(s):
     num, suite = version_re.match(s).groups()
     return float(num), suite
 
+# os.path.relpath has been introduced in Python 2.6
+# We define it locally for earlier versions of Python
+def relpath(path, start=os.path.curdir):
+    """Return a relative version of a path"""
+    import sys
+    if not path:
+        raise ValueError("no path specified")
+    start_list = os.path.abspath(start).split(os.sep)
+    path_list = os.path.abspath(path).split(os.sep)
+    if 'posix' in sys.builtin_module_names:
+        # Work out how much of the filepath is shared by start and path.
+        i = len(os.path.commonprefix([start_list, path_list]))
+    else:
+        if start_list[0].lower() != path_list[0].lower():
+            unc_path, rest = os.path.splitunc(path)
+            unc_start, rest = os.path.splitunc(start)
+            if bool(unc_path) ^ bool(unc_start):
+                raise ValueError("Cannot mix UNC and non-UNC paths (%s and %s)"
+                                                                    % (path, start))
+            else:
+                raise ValueError("path is on drive %s, start on drive %s"
+                                                    % (path_list[0], start_list[0]))
+        # Work out how much of the filepath is shared by start and path.
+        for i in range(min(len(start_list), len(path_list))):
+            if start_list[i].lower() != path_list[i].lower():
+                break
+        else:
+            i += 1
+    rel_list = [os.pardir] * (len(start_list)-i) + path_list[i:]
+    if not rel_list:
+        return os.path.curdir
+    return os.path.join(*rel_list)
+
+if not "relpath" in os.path.__all__:
+    os.path.relpath = relpath
+
 # This is how we re-invoke SCons from inside MSVS Project files.
 # The problem is that we might have been invoked as either scons.bat
 # or scons.py.  If we were invoked directly as scons.py, then we could
@@ -516,11 +552,12 @@ class _GenerateV6DSP(_DSPGenerator):
             self.file.close()
 
 V7DSPHeader = """\
-<?xml version="1.0" encoding = "%(encoding)s"?>
+<?xml version="1.0" encoding="%(encoding)s"?>
 <VisualStudioProject
 \tProjectType="Visual C++"
 \tVersion="%(versionstr)s"
 \tName="%(name)s"
+\tProjectGUID="%(project_guid)s"
 %(scc_attrs)s
 \tKeyword="MakeFileProj">
 """
@@ -536,8 +573,8 @@ V7DSPConfiguration = """\
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
 \t\t\t\tBuildCommandLine="%(buildcmd)s"
+\t\t\t\tReBuildCommandLine="%(rebuildcmd)s"
 \t\t\t\tCleanCommandLine="%(cleancmd)s"
-\t\t\t\tRebuildCommandLine="%(rebuildcmd)s"
 \t\t\t\tOutput="%(runfile)s"/>
 \t\t</Configuration>
 """
@@ -548,8 +585,9 @@ V8DSPHeader = """\
 \tProjectType="Visual C++"
 \tVersion="%(versionstr)s"
 \tName="%(name)s"
-%(scc_attrs)s
+\tProjectGUID="%(project_guid)s"
 \tRootNamespace="%(name)s"
+%(scc_attrs)s
 \tKeyword="MakeFileProj">
 """
 
@@ -603,20 +641,27 @@ class _GenerateV7DSP(_DSPGenerator):
         scc_provider = env.get('MSVS_SCC_PROVIDER', '')
         scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '')
         scc_aux_path = env.get('MSVS_SCC_AUX_PATH', '')
-        scc_local_path = env.get('MSVS_SCC_LOCAL_PATH', '')
+        # MSVS_SCC_LOCAL_PATH is kept  for backwards compatibility purpose and should
+        # be deprecated as soon as possible.
+        scc_local_path_legacy = env.get('MSVS_SCC_LOCAL_PATH', '')
+        scc_connection_root = env.get('MSVS_SCC_CONNECTION_ROOT', os.curdir)
+        scc_local_path = os.path.relpath(scc_connection_root, os.path.dirname(self.dspabs))
         project_guid = env.get('MSVS_PROJECT_GUID', '')
-        if self.version_num >= 8.0 and not project_guid:
+        if not project_guid:
             project_guid = _generateGUID(self.dspfile, '')
         if scc_provider != '':
-            scc_attrs = ('\tProjectGUID="%s"\n'
-                         '\tSccProjectName="%s"\n'
-                         '\tSccAuxPath="%s"\n'
-                         '\tSccLocalPath="%s"\n'
-                         '\tSccProvider="%s"' % (project_guid, scc_project_name, scc_aux_path, scc_local_path, scc_provider))
+            scc_attrs = '\tSccProjectName="%s"\n' % scc_project_name
+            if scc_aux_path != '':
+                scc_attrs += '\tSccAuxPath="%s"\n' % scc_aux_path
+            scc_attrs += ('\tSccLocalPath="%s"\n'
+                          '\tSccProvider="%s"' % (scc_local_path, scc_provider))
+        elif scc_local_path_legacy != '':
+            # This case is kept for backwards compatibility purpose and should
+            # be deprecated as soon as possible.
+            scc_attrs = ('\tSccProjectName="%s"\n'
+                         '\tSccLocalPath="%s"' % (scc_project_name, scc_local_path_legacy))
         else:
-            scc_attrs = ('\tProjectGUID="%s"\n'
-                         '\tSccProjectName="%s"\n'
-                         '\tSccLocalPath="%s"' % (project_guid, scc_project_name, scc_local_path))
+            self.dspheader = self.dspheader.replace('%(scc_attrs)s\n', '')
 
         self.file.write(self.dspheader % locals())
 
@@ -816,6 +861,7 @@ class _DSWGenerator(object):
     """ Base class for DSW generators """
     def __init__(self, dswfile, source, env):
         self.dswfile = os.path.normpath(str(dswfile))
+        self.dsw_folder_path = os.path.dirname(os.path.abspath(self.dswfile))
         self.env = env
 
         if 'projects' not in env:
@@ -896,6 +942,26 @@ class _GenerateV7DSW(_DSWGenerator):
             if not platform in self.platforms:
                 self.platforms.append(platform)
 
+        def GenerateProjectFilesInfo(self):
+            for dspfile in self.dspfiles:
+                dsp_folder_path, name = os.path.split(dspfile)
+                dsp_folder_path = os.path.abspath(dsp_folder_path)
+                dsp_relative_folder_path = os.path.relpath(dsp_folder_path, self.dsw_folder_path)
+                if dsp_relative_folder_path == os.curdir:
+                    dsp_relative_file_path = name
+                else:
+                    dsp_relative_file_path = os.path.join(dsp_relative_folder_path, name)
+                dspfile_info = {'NAME': name,
+                                'GUID': _generateGUID(dspfile, ''),
+                                'FOLDER_PATH': dsp_folder_path,
+                                'FILE_PATH': dspfile,
+                                'SLN_RELATIVE_FOLDER_PATH': dsp_relative_folder_path,
+                                'SLN_RELATIVE_FILE_PATH': dsp_relative_file_path}
+                self.dspfiles_info.append(dspfile_info)
+                
+        self.dspfiles_info = []
+        GenerateProjectFilesInfo(self)
+
     def Parse(self):
         try:
             dswfile = open(self.dswfile,'r')
@@ -930,14 +996,13 @@ class _GenerateV7DSW(_DSWGenerator):
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr )
         if self.version_num >= 8.0:
             self.file.write('# Visual Studio 2005\n')
-        for p in self.dspfiles:
-            name = os.path.basename(p)
+        for dspinfo in self.dspfiles_info:
+            name = dspinfo['NAME']
             base, suffix = SCons.Util.splitext(name)
             if suffix == '.vcproj':
                 name = base
-            guid = _generateGUID(p, '')
             self.file.write('Project("%s") = "%s", "%s", "%s"\n'
-                            % ( external_makefile_guid, name, p, guid ) )
+                            % (external_makefile_guid, name, dspinfo['SLN_RELATIVE_FILE_PATH'], dspinfo['GUID']))
             if self.version_num >= 7.1 and self.version_num < 8.0:
                 self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
                                 '\tEndProjectSection\n')
@@ -947,30 +1012,36 @@ class _GenerateV7DSW(_DSWGenerator):
 
         env = self.env
         if 'MSVS_SCC_PROVIDER' in env:
-            dspfile_base = os.path.basename(self.dspfile)
+            scc_number_of_projects = len(self.dspfiles) + 1
             slnguid = self.slnguid
-            scc_provider = env.get('MSVS_SCC_PROVIDER', '')
-            scc_provider = scc_provider.replace(' ', r'\u0020')
-            scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '')
-            # scc_aux_path = env.get('MSVS_SCC_AUX_PATH', '')
-            scc_local_path = env.get('MSVS_SCC_LOCAL_PATH', '')
-            scc_project_base_path = env.get('MSVS_SCC_PROJECT_BASE_PATH', '')
-            # project_guid = env.get('MSVS_PROJECT_GUID', '')
-
+            scc_provider = env.get('MSVS_SCC_PROVIDER', '').replace(' ', r'\u0020')
+            scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '').replace(' ', r'\u0020')
+            scc_connection_root = env.get('MSVS_SCC_CONNECTION_ROOT', os.curdir)
+            scc_local_path = os.path.relpath(scc_connection_root, self.dsw_folder_path).replace('\\', '\\\\')
             self.file.write('\tGlobalSection(SourceCodeControl) = preSolution\n'
-                            '\t\tSccNumberOfProjects = 2\n'
-                            '\t\tSccProjectUniqueName0 = %(dspfile_base)s\n'
+                            '\t\tSccNumberOfProjects = %(scc_number_of_projects)d\n'
+                            '\t\tSccProjectName0 = %(scc_project_name)s\n'
                             '\t\tSccLocalPath0 = %(scc_local_path)s\n'
-                            '\t\tCanCheckoutShared = true\n'
-                            '\t\tSccProjectFilePathRelativizedFromConnection0 = %(scc_project_base_path)s\n'
-                            '\t\tSccProjectName1 = %(scc_project_name)s\n'
-                            '\t\tSccLocalPath1 = %(scc_local_path)s\n'
-                            '\t\tSccProvider1 = %(scc_provider)s\n'
-                            '\t\tCanCheckoutShared = true\n'
-                            '\t\tSccProjectFilePathRelativizedFromConnection1 = %(scc_project_base_path)s\n'
-                            '\t\tSolutionUniqueID = %(slnguid)s\n'
-                            '\tEndGlobalSection\n' % locals())
-
+                            '\t\tSccProvider0 = %(scc_provider)s\n'
+                            '\t\tCanCheckoutShared = true\n'  % locals())
+            sln_relative_path_from_scc = os.path.relpath(self.dsw_folder_path, scc_connection_root)
+            if sln_relative_path_from_scc != os.curdir:
+                self.file.write('\t\tSccProjectFilePathRelativizedFromConnection0 = %s\\\\\n'
+                                % sln_relative_path_from_scc.replace('\\', '\\\\'))
+            if self.version_num < 8.0:
+                # When present, SolutionUniqueID is automatically removed by VS 2005
+                # TODO: check for Visual Studio versions newer than 2005
+                self.file.write('\t\tSolutionUniqueID = %s\n' % slnguid)
+            for dspinfo in self.dspfiles_info:
+                i = self.dspfiles_info.index(dspinfo) + 1
+                dsp_relative_file_path = dspinfo['SLN_RELATIVE_FILE_PATH'].replace('\\', '\\\\')
+                dsp_scc_relative_folder_path = os.path.relpath(dspinfo['FOLDER_PATH'], scc_connection_root).replace('\\', '\\\\')
+                self.file.write('\t\tSccProjectUniqueName%(i)s = %(dsp_relative_file_path)s\n'
+                                '\t\tSccLocalPath%(i)d = %(scc_local_path)s\n'
+                                '\t\tCanCheckoutShared = true\n'
+                                '\t\tSccProjectFilePathRelativizedFromConnection%(i)s = %(dsp_scc_relative_folder_path)s\\\\\n'
+                                % locals())
+            self.file.write('\tEndGlobalSection\n')
         if self.version_num >= 8.0:
             self.file.write('\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\n')
         else:
@@ -987,7 +1058,7 @@ class _GenerateV7DSW(_DSWGenerator):
                 self.file.write('\t\tConfigName.%d = %s\n' % (cnt, variant))
             cnt = cnt + 1
         self.file.write('\tEndGlobalSection\n')
-        if self.version_num < 7.1:
+        if self.version_num <= 7.1:
             self.file.write('\tGlobalSection(ProjectDependencies) = postSolution\n'
                             '\tEndGlobalSection\n')
         if self.version_num >= 8.0:
@@ -999,13 +1070,13 @@ class _GenerateV7DSW(_DSWGenerator):
             variant = self.configs[name].variant
             platform = self.configs[name].platform
             if self.version_num >= 8.0:
-                for p in self.dspfiles:
-                    guid = _generateGUID(p, '')
+                for dspinfo in self.dspfiles_info:
+                    guid = dspinfo['GUID']
                     self.file.write('\t\t%s.%s|%s.ActiveCfg = %s|%s\n'
                                     '\t\t%s.%s|%s.Build.0 = %s|%s\n'  % (guid,variant,platform,variant,platform,guid,variant,platform,variant,platform))
             else:
-                for p in self.dspfiles:
-                    guid = _generateGUID(p, '')
+                for dspinfo in self.dspfiles_info:
+                    guid = dspinfo['GUID']
                     self.file.write('\t\t%s.%s.ActiveCfg = %s|%s\n'
                                     '\t\t%s.%s.Build.0 = %s|%s\n'  %(guid,variant,variant,platform,guid,variant,variant,platform))
 
@@ -1072,7 +1143,7 @@ class _GenerateV6DSW(_DSWGenerator):
     def PrintWorkspace(self):
         """ writes a DSW file """
         name = self.name
-        dspfile = self.dspfiles[0]
+        dspfile = os.path.relpath(self.dspfiles[0], self.dsw_folder_path)
         self.file.write(V6DSWHeader % locals())
 
     def Build(self):
@@ -1118,10 +1189,10 @@ def GenerateDSW(dswfile, source, env):
 ##############################################################################
 
 def GetMSVSProjectSuffix(target, source, env, for_signature):
-     return env['MSVS']['PROJECTSUFFIX']
+    return env['MSVS']['PROJECTSUFFIX']
 
 def GetMSVSSolutionSuffix(target, source, env, for_signature):
-     return env['MSVS']['SOLUTIONSUFFIX']
+    return env['MSVS']['SOLUTIONSUFFIX']
 
 def GenerateProject(target, source, env):
     # generate the dsp file, according to the version of MSVS.
@@ -1246,7 +1317,7 @@ def projectEmitter(target, source, env):
     sourcelist = source
 
     if env.get('auto_build_solution', 1):
-        env['projects'] = targetlist
+        env['projects'] = [env.File(t).srcnode() for t in targetlist]
         t, s = solutionEmitter(target, target, env)
         targetlist = targetlist + t
 
