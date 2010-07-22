@@ -633,7 +633,7 @@ TODO
 <summary>
 Annotates file or directory Nodes with
 information about how the
-&f-link-Package;
+&b-link-Package;
 Builder should package those files or directories.
 All tags are optional.
 

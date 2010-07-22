@@ -151,6 +151,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
     builders_gen = os.path.join(build, 'user', 'builders.gen')
     builders_mod = os.path.join(build, 'user', 'builders.mod')
+    functions_gen = os.path.join(build, 'user', 'functions.gen')
+    functions_mod = os.path.join(build, 'user', 'functions.mod')
     tools_gen = os.path.join(build, 'user', 'tools.gen')
     tools_mod = os.path.join(build, 'user', 'tools.mod')
     variables_gen = os.path.join(build, 'user', 'variables.gen')
@@ -163,11 +165,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     # vs. the other.  The *.gen and *.mod targets will still be dependent
     # on the list of the files themselves.
     doc_output_files = [builders_gen, builders_mod,
+                        functions_gen, functions_mod,
                         tools_gen, tools_mod,
                         variables_gen, variables_mod]
     b = env.Command(doc_output_files,
                     scons_doc_files,
-                    "$PYTHON $SCONS_PROC_PY --xml -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
+                    "$PYTHON $SCONS_PROC_PY --xml -b ${TARGETS[0]},${TARGETS[1]} -f ${TARGETS[2]},${TARGETS[3]} -t ${TARGETS[4]},${TARGETS[5]} -v ${TARGETS[6]},${TARGETS[7]} $( $SOURCES $)")
     env.Depends(b, "$SCONS_PROC_PY")
 
     env.Local(b)

@@ -13,6 +13,7 @@
 import getopt
 import os
 import re
+import string
 import sys
 import xml.sax
 try:
@@ -153,9 +154,7 @@ class SCons_XML_to_XML(SCons_XML):
         for v in self.values:
             f.write('\n<varlistentry id="%s%s">\n' %
                         (v.prefix, v.idfunc()))
-            for term in v.termfunc():
-                f.write('<term><%s>%s</%s></term>\n' %
-                        (v.tag, term, v.tag))
+            f.write('%s\n' % v.xml_term())
             f.write('<listitem>\n')
             for chunk in v.summary.body:
                 f.write(str(chunk))
@@ -229,8 +228,8 @@ class SCons_XML_to_man(SCons_XML):
         f = self.fopen(filename)
         chunks = []
         for v in self.values:
-            chunks.extend(v.mansep())
-            chunks.extend(v.initial_chunks())
+            chunks.extend(v.man_separator())
+            chunks.extend(v.initial_man_chunks())
             chunks.extend(list(map(str, v.summary.body)))
 
         body = ''.join(chunks)
@@ -327,32 +326,62 @@ class Proxy(object):
             return cmp(self.__subject, other)
         return cmp(self.__dict__, other.__dict__)
 
-class Builder(Proxy):
+class SConsThing(Proxy):
+    def idfunc(self):
+        return self.name
+    def xml_term(self):
+        return '<term>%s</term>' % self.name
+
+class Builder(SConsThing):
     description = 'builder'
     prefix = 'b-'
     tag = 'function'
-    def idfunc(self):
-        return self.name
-    def termfunc(self):
-        return ['%s()' % self.name, 'env.%s()' % self.name]
+    def xml_term(self):
+        return ('<term><%s>%s()</%s></term>\n<term><%s>env.%s()</%s></term>' %
+                (self.tag, self.name, self.tag, self.tag, self.name, self.tag))
     def entityfunc(self):
         return self.name
-    def mansep(self):
+    def man_separator(self):
         return ['\n', "'\\" + '"'*69 + '\n']
-    def initial_chunks(self):
-        return [ '.IP %s\n' % t for t in self.termfunc() ]
+    def initial_man_chunks(self):
+        return [ '.IP %s()\n.IP env.%s()\n' % (self.name, self.name) ]
 
-class Function(Proxy):
+class Function(SConsThing):
     description = 'function'
     prefix = 'f-'
     tag = 'function'
-    def idfunc(self):
-        return self.name
-    def termfunc(self):
-        return ['%s()' % self.name, 'env.%s()' % self.name]
+    def args_to_xml(self, arg):
+        s = ''.join(arg.body).strip()
+        result = []
+        for m in re.findall('([a-zA-Z/_]+=?|[^a-zA-Z/_]+)', s):
+            if m[0] in string.letters:
+                if m[-1] == '=':
+                    result.append('<literal>%s</literal>=' % m[:-1])
+                else:
+                    result.append('<varname>%s</varname>' % m)
+            else:
+                result.append(m)
+        return ''.join(result)
+    def xml_term(self):
+        try:
+            arguments = self.arguments
+        except AttributeError:
+            arguments = ['()']
+        result = []
+        for arg in arguments:
+            try:
+                signature = arg.signature
+            except AttributeError:
+                signature = "both"
+            s = self.args_to_xml(arg)
+            if signature in ('both', 'global'):
+                result.append('<term>%s%s</term>\n' % (self.name, s)) #<br>
+            if signature in ('both', 'env'):
+                result.append('<term><varname>env</varname>.%s%s</term>\n' % (self.name, s))
+        return ''.join(result)
     def entityfunc(self):
         return self.name
-    def mansep(self):
+    def man_separator(self):
         return ['\n', "'\\" + '"'*69 + '\n']
     def args_to_man(self, arg):
         """Converts the contents of an <arguments> tag, which
@@ -380,7 +409,7 @@ class Function(Proxy):
                     m = '"%s"' % m
                 result.append(m)
         return ' '.join(result)
-    def initial_chunks(self):
+    def initial_man_chunks(self):
         try:
             arguments = self.arguments
         except AttributeError:
@@ -398,34 +427,28 @@ class Function(Proxy):
                 result.append('.TP\n.IR env .%s%s\n' % (self.name, s))
         return result
 
-class Tool(Proxy):
+class Tool(SConsThing):
     description = 'tool'
     prefix = 't-'
     tag = 'literal'
     def idfunc(self):
         return self.name.replace('+', 'X')
-    def termfunc(self):
-        return [self.name]
     def entityfunc(self):
         return self.name
-    def mansep(self):
+    def man_separator(self):
         return ['\n']
-    def initial_chunks(self):
+    def initial_man_chunks(self):
         return ['.IP %s\n' % self.name]
 
-class Variable(Proxy):
+class Variable(SConsThing):
     description = 'construction variable'
     prefix = 'cv-'
     tag = 'envar'
-    def idfunc(self):
-        return self.name
-    def termfunc(self):
-        return [self.name]
     def entityfunc(self):
         return '$' + self.name
-    def mansep(self):
+    def man_separator(self):
         return ['\n']
-    def initial_chunks(self):
+    def initial_man_chunks(self):
         return ['.IP %s\n' % self.name]
 
 if output_type == '--man':
