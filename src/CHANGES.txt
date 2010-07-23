@@ -74,6 +74,10 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fixed the LaTeX scanner so dependencies are found in commands that
       are broken across lines with a comment or have embedded spaces.
 
+  From Russel Winder:
+
+    - Add support for DMD version 2 (the phobos2 library).
+
 RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
 
   From Dirk Baechle:

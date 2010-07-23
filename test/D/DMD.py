@@ -22,6 +22,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
@@ -41,6 +43,7 @@ env.Program('foo', 'foo.d')
 """)
 
 test.write('foo.d', """\
+import std.stdio;
 int main(char[][] args) {
     printf("Hello!\n");
     return 0;

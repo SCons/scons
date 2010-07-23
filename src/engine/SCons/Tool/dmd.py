@@ -6,6 +6,9 @@ Tool-specific initialization for the Digital Mars D compiler.
 Coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
 
+Amended by Russel Winder (russel@russel.org.uk)
+2010-02-07
+
 There are a number of problems with this script at this point in time.
 The one that irritates me the most is the Windows linker setup.  The D
 linker doesn't have a way to add lib paths on the commandline, as far
@@ -199,11 +202,25 @@ def generate(env):
                         libs = env['LIBS']
                     except KeyError:
                         libs = []
-                    if 'phobos' not in libs and 'gphobos' not in libs:
-                        if dc is 'dmd':
-                            env.Append(LIBS = ['phobos'])
-                        elif dc is 'gdmd':
-                            env.Append(LIBS = ['gphobos'])
+                    if dc == 'dmd':
+                        # TODO: This assumes that the dmd executable is in the
+                        # bin directory and that the libraries are in a peer
+                        # directory lib.  This true of the Digital Mars
+                        # distribution but . . .
+                        import glob
+                        dHome = env.WhereIs(dc).replace('/dmd' , '/..')
+                        if glob.glob(dHome + '/lib/*phobos2*'):
+                            if 'phobos2' not in libs:
+                                env.Append(LIBPATH = [dHome + '/lib'])
+                                env.Append(LIBS = ['phobos2'])
+                                # TODO: Find out when there will be a
+                                # 64-bit version of D.
+                                env.Append(LINKFLAGS = ['-m32'])
+                        else:
+                            if 'phobos' not in libs:
+                                env.Append(LIBS = ['phobos'])
+                    elif dc is 'gdmd':
+                        env.Append(LIBS = ['gphobos'])
                     if 'pthread' not in libs:
                         env.Append(LIBS = ['pthread'])
                     if 'm' not in libs:
