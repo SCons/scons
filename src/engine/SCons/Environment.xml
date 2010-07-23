@@ -760,6 +760,17 @@ wx_env = env.Clone(parse_flags = '!wx-config --cflags --cxxflags')
 </summary>
 </scons_function>
 
+<builder name="Command">
+<summary>
+The &b-Command; "Builder" is actually implemented
+as a function that looks like a Builder,
+but actually takes an additional argument of the action
+from which the Builder should be made.
+See the &f-link-Command; function description
+for the calling syntax and details.
+</summary>
+</builder>
+
 <scons_function name="Command">
 <arguments>
 (target, source, action, [key=val, ...])
