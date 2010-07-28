@@ -801,6 +801,10 @@ def version_string(label, module):
                   module.__developer__,
                   module.__buildsys__)
 
+def path_string(label, module):
+    path = module.__path__
+    return "\t%s path: %s\n"%(label,path)
+
 def _main(parser):
     global exit_status
     global this_build_status
@@ -1320,6 +1324,7 @@ def main():
         # __main__.__version__, hence there is no script version.
         pass 
     parts.append(version_string("engine", SCons))
+    parts.append(path_string("engine", SCons))
     parts.append("__COPYRIGHT__")
     version = ''.join(parts)
 
