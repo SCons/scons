@@ -63,12 +63,14 @@ test.run(arguments = '-Q --interactive',
 # depending on whether it's invoked through scons.py or scons.bat.
 expect1 = r"""scons>>> SCons by Steven Knight et al\.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
+\tengine path: \[.*\]
 %(copyright_line)sscons>>> 
 """ % locals()
 
 expect2 = r"""scons>>> SCons by Steven Knight et al\.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
+\tengine path: \[.*\]
 %(copyright_line)sscons>>> 
 """ % locals()
 
