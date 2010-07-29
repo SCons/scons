@@ -43,11 +43,13 @@ copyright_line = fmt % (copyright_marker, TestSCons.copyright_years)
 # depending on whether it's invoked through scons.py or scons.bat.
 expect1 = r"""SCons by Steven Knight et al.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
+\tengine path: \[.*\]
 """ + copyright_line
 
 expect2 = r"""SCons by Steven Knight et al.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
+\tengine path: \[.*\]
 """ + copyright_line
 
 test.run(arguments = '-v')
