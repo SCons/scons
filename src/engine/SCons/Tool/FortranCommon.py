@@ -231,6 +231,22 @@ def add_f95_to_env(env):
     DialectAddToEnv(env, "F95", F95Suffixes, F95PPSuffixes,
                     support_module = 1)
 
+def add_f03_to_env(env):
+    """Add Builders and construction variables for f03 to an Environment."""
+    try:
+        F03Suffixes = env['F03FILESUFFIXES']
+    except KeyError:
+        F03Suffixes = ['.f03']
+
+    #print "Adding %s to f95 suffixes" % F95Suffixes
+    try:
+        F03PPSuffixes = env['F03PPFILESUFFIXES']
+    except KeyError:
+        F03PPSuffixes = []
+
+    DialectAddToEnv(env, "F03", F03Suffixes, F03PPSuffixes,
+                    support_module = 1)
+
 def add_all_to_env(env):
     """Add builders and construction variables for all supported fortran
     dialects."""
@@ -238,6 +254,7 @@ def add_all_to_env(env):
     add_f77_to_env(env)
     add_f90_to_env(env)
     add_f95_to_env(env)
+    add_f03_to_env(env)
 
 # Local Variables:
 # tab-width:4

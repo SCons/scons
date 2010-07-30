@@ -1,7 +1,6 @@
-"""SCons.Tool.gfortran
+"""engine.SCons.Tool.f03
 
-Tool-specific initialization for gfortran, the GNU Fortran 95/Fortran
-2003 compiler.
+Tool-specific initialization for the generic Posix f03 Fortran compiler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -34,28 +33,28 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Defaults
+import SCons.Tool
 import SCons.Util
-
 import fortran
+from SCons.Tool.FortranCommon import add_all_to_env, add_f03_to_env
+
+compilers = ['f03']
 
 def generate(env):
-    """Add Builders and construction variables for gfortran to an
-    Environment."""
-    fortran.generate(env)
+    add_all_to_env(env)
+    add_f03_to_env(env)
 
-    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03']:
-        env['%s' % dialect] = 'gfortran'
-        env['SH%s' % dialect] = '$%s' % dialect
-        if env['PLATFORM'] in ['cygwin', 'win32']:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS' % dialect)
-        else:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+    fcomp = env.Detect(compilers) or 'f03'
+    env['F03']  = fcomp
+    env['SHF03']  = fcomp
 
-        env['INC%sPREFIX' % dialect] = "-I"
-        env['INC%sSUFFIX' % dialect] = ""
+    env['FORTRAN']  = fcomp
+    env['SHFORTRAN']  = fcomp
+
 
 def exists(env):
-    return env.Detect('gfortran')
+    return env.Detect(compilers)
 
 # Local Variables:
 # tab-width:4
