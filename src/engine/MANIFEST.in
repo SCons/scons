@@ -84,6 +84,7 @@ SCons/Tool/dvips.py
 SCons/Tool/f77.py
 SCons/Tool/f90.py
 SCons/Tool/f95.py
+SCons/Tool/f03.py
 SCons/Tool/filesystem.py
 SCons/Tool/fortran.py
 SCons/Tool/FortranCommon.py
