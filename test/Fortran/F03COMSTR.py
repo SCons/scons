@@ -1,14 +1,4 @@
-"""SCons.Tool.gfortran
-
-Tool-specific initialization for gfortran, the GNU Fortran 95/Fortran
-2003 compiler.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -34,28 +24,52 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
+import TestSCons
 
-import fortran
+_python_ = TestSCons._python_
 
-def generate(env):
-    """Add Builders and construction variables for gfortran to an
-    Environment."""
-    fortran.generate(env)
+test = TestSCons.TestSCons()
 
-    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03']:
-        env['%s' % dialect] = 'gfortran'
-        env['SH%s' % dialect] = '$%s' % dialect
-        if env['PLATFORM'] in ['cygwin', 'win32']:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS' % dialect)
-        else:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
 
-        env['INC%sPREFIX' % dialect] = "-I"
-        env['INC%sSUFFIX' % dialect] = ""
 
-def exists(env):
-    return env.Detect('gfortran')
+test.write('myfc.py', r"""
+import sys
+fline = '#'+sys.argv[1]+'\n'
+outfile = open(sys.argv[2], 'wb')
+infile = open(sys.argv[3], 'rb')
+for l in [l for l in infile.readlines() if l != fline]:
+    outfile.write(l)
+sys.exit(0)
+""")
+
+if not TestSCons.case_sensitive_suffixes('.f','.F'):
+    f03pp = 'f03'
+else:
+    f03pp = 'f03pp'
+
+
+test.write('SConstruct', """
+env = Environment(F03COM = r'%(_python_)s myfc.py f03 $TARGET $SOURCES',
+                  F03COMSTR = 'Building f03 $TARGET from $SOURCES',
+                  F03PPCOM = r'%(_python_)s myfc.py f03pp $TARGET $SOURCES',
+                  F03PPCOMSTR = 'Building f03pp $TARGET from $SOURCES',
+                  OBJSUFFIX='.obj')
+env.Object(source = 'test01.f03')
+env.Object(source = 'test02.F03')
+""" % locals())
+
+test.write('test01.f03',        "A .f03 file.\n#f03\n")
+test.write('test02.F03',        "A .F03 file.\n#%s\n" % f03pp)
+
+test.run(stdout = test.wrap_stdout("""\
+Building f03 test01.obj from test01.f03
+Building %(f03pp)s test02.obj from test02.F03
+""" % locals()))
+
+test.must_match('test01.obj', "A .f03 file.\n")
+test.must_match('test02.obj', "A .F03 file.\n")
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4
