@@ -7,6 +7,10 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Ken Deeter:
+
+    - Fix a problem when FS Entries which are actually Dirs have builders.
+
   From Luca Falavigna:
 
     - Support Fortran 03

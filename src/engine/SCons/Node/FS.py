@@ -1083,7 +1083,10 @@ class FS(LocalFS):
         self.max_drift = max_drift
 
     def getcwd(self):
-        return self._cwd
+        if hasattr(self, "_cwd"):
+           return self._cwd
+        else:
+           return "<no cwd>"
 
     def chdir(self, dir, change_os_dir=0):
         """Change the current working directory for lookups.
@@ -1353,8 +1356,20 @@ class Dir(Base):
         # Don't just reset the executor, replace its action list,
         # because it might have some pre-or post-actions that need to
         # be preserved.
-        self.builder = get_MkdirBuilder()
-        self.get_executor().set_action_list(self.builder.action)
+        #
+        # But don't reset the executor if there is a non-null executor
+        # attached already. The existing executor might have other
+        # targets, in which case replacing the action list with a
+        # Mkdir action is a big mistake.
+        if not hasattr(self, 'executor'):
+            self.builder = get_MkdirBuilder()
+            self.get_executor().set_action_list(self.builder.action)
+        else:
+            # Prepend MkdirBuilder action to existing action list
+            l = self.get_executor().action_list
+            a = get_MkdirBuilder().action
+            l.insert(0, a) 
+            self.get_executor().set_action_list(l)
 
     def diskcheck_match(self):
         diskcheck_match(self, self.isfile,
