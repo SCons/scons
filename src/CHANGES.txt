@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Evgeny Podjachev:
+
+    - Support generation of Microsoft Visual Studio 2008 (9.0) 
+      project and solution files.
+
   From Ken Deeter:
 
     - Fix a problem when FS Entries which are actually Dirs have builders.
