@@ -628,9 +628,10 @@ class Node(object):
                 if implicit_deps_unchanged or self.is_up_to_date():
                     return
                 # one of this node's sources has changed,
-                # so we must recalculate the implicit deps:
-                self.implicit = []
-                self.implicit_set = set()
+                # so we must recalculate the implicit deps for all targets
+                for tgt in executor.get_all_targets():
+                    tgt.implicit = []
+                    tgt.implicit_set = set()
 
         # Have the executor scan the sources.
         executor.scan_sources(self.builder.source_scanner)
