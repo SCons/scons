@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Allen Weeks:
+
+    - Fix for an issue with implicit-cache with multiple targets
+      when dependencies are removed on disk.
+
   From Evgeny Podjachev:
 
     - Support generation of Microsoft Visual Studio 2008 (9.0) 
