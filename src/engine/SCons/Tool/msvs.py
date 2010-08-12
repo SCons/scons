@@ -620,7 +620,11 @@ class _GenerateV7DSP(_DSPGenerator):
         _DSPGenerator.__init__(self, dspfile, source, env)
         self.version = env['MSVS_VERSION']
         self.version_num, self.suite = msvs_parse_version(self.version)
-        if self.version_num >= 8.0:
+        if self.version_num >= 9.0:
+            self.versionstr = '9.00'
+            self.dspheader = V8DSPHeader
+            self.dspconfiguration = V8DSPConfiguration
+        elif self.version_num >= 8.0:
             self.versionstr = '8.00'
             self.dspheader = V8DSPHeader
             self.dspconfiguration = V8DSPConfiguration
@@ -892,12 +896,12 @@ class _GenerateV7DSW(_DSWGenerator):
         self.version = self.env['MSVS_VERSION']
         self.version_num, self.suite = msvs_parse_version(self.version)
         self.versionstr = '7.00'
-        if self.version_num >= 8.0:
+        if self.version_num >= 9.0:
+            self.versionstr = '10.00'
+        elif self.version_num >= 8.0:
             self.versionstr = '9.00'
         elif self.version_num >= 7.1:
             self.versionstr = '8.00'
-        if self.version_num >= 8.0:
-            self.versionstr = '9.00'
 
         if 'slnguid' in env and env['slnguid']:
             self.slnguid = env['slnguid']
@@ -994,7 +998,9 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr )
-        if self.version_num >= 8.0:
+        if self.version_num >= 9.0:
+            self.file.write('# Visual Studio 2008\n')
+        elif self.version_num >= 8.0:
             self.file.write('# Visual Studio 2005\n')
         for dspinfo in self.dspfiles_info:
             name = dspinfo['NAME']

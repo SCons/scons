@@ -454,6 +454,26 @@ Global
 EndGlobal
 """
 
+expected_slnfile_9_0 = """\
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "<PROJECT_GUID>"
+EndProject
+Global
+<SCC_SLN_INFO>
+\tGlobalSection(SolutionConfigurationPlatforms) = preSolution
+\t\tRelease|Win32 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ProjectConfigurationPlatforms) = postSolution
+\t\t<PROJECT_GUID>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID>.Release|Win32.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(SolutionProperties) = preSolution
+\t\tHideSolutionNode = FALSE
+\tEndGlobalSection
+EndGlobal
+"""
+
 expected_vcprojfile_8_0 = """\
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
@@ -542,8 +562,119 @@ expected_vcprojfile_8_0 = """\
 </VisualStudioProject>
 """
 
+expected_vcprojfile_9_0 = """\
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+\tProjectType="Visual C++"
+\tVersion="9.00"
+\tName="Test"
+\tProjectGUID="<PROJECT_GUID>"
+\tRootNamespace="Test"
+<SCC_VCPROJ_INFO>
+\tKeyword="MakeFileProj">
+\t<Platforms>
+\t\t<Platform
+\t\t\tName="Win32"/>
+\t</Platforms>
+\t<ToolFiles>
+\t</ToolFiles>
+\t<Configurations>
+\t\t<Configuration
+\t\t\tName="Release|Win32"
+\t\t\tConfigurationType="0"
+\t\t\tUseOfMFC="0"
+\t\t\tATLMinimizesCRunTimeLibraryUsage="false"
+\t\t\t>
+\t\t\t<Tool
+\t\t\t\tName="VCNMakeTool"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
+\t\t\t\tOutput="Test.exe"
+\t\t\t\tPreprocessorDefinitions="DEF1;DEF2;DEF3=1234"
+\t\t\t\tIncludeSearchPath="inc1;inc2"
+\t\t\t\tForcedIncludes=""
+\t\t\t\tAssemblySearchPath=""
+\t\t\t\tForcedUsingAssemblies=""
+\t\t\t\tCompileAsManaged=""
+\t\t\t/>
+\t\t</Configuration>
+\t</Configurations>
+\t<References>
+\t</References>
+\t<Files>
+\t\t<Filter
+\t\t\tName="Header Files"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="sdk.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Local Headers"
+\t\t\tFilter="h;hpp;hxx;hm;inl">
+\t\t\t<File
+\t\t\t\tRelativePath="test.h">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Other Files"
+\t\t\tFilter="">
+\t\t\t<File
+\t\t\t\tRelativePath="readme.txt">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Resource Files"
+\t\t\tFilter="r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
+\t\t\t<File
+\t\t\t\tRelativePath="test.rc">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<Filter
+\t\t\tName="Source Files"
+\t\t\tFilter="cpp;c;cxx;l;y;def;odl;idl;hpj;bat">
+\t\t\t<File
+\t\t\t\tRelativePath="test1.cpp">
+\t\t\t</File>
+\t\t\t<File
+\t\t\t\tRelativePath="test2.cpp">
+\t\t\t</File>
+\t\t</Filter>
+\t\t<File
+\t\t\tRelativePath="<SCONSCRIPT>">
+\t\t</File>
+\t</Files>
+\t<Globals>
+\t</Globals>
+</VisualStudioProject>
+"""
+
 SConscript_contents_8_0 = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0',
+                CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
+                CPPPATH=['inc1', 'inc2'],
+                HOST_ARCH='%(HOST_ARCH)s')
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = ['sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+env.MSVSProject(target = 'Test.vcproj',
+                slnguid = '{SLNGUID}',
+                srcs = testsrc,
+                incs = testincs,
+                localincs = testlocalincs,
+                resources = testresources,
+                misc = testmisc,
+                buildtarget = 'Test.exe',
+                variant = 'Release')
+"""
+
+SConscript_contents_9_0 = """\
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='9.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 HOST_ARCH='%(HOST_ARCH)s')
