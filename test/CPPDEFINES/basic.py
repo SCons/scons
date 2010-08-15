@@ -39,11 +39,11 @@ test_list = [
     ['x', ['y', 123], 'z', ('int', '$INTEGER')],
     { 'c' : 3, 'b': None, 'a' : 1 },
 ]
-env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0)
 for i in test_list:
+    env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0)
     print env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS')
-env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1)
 for i in test_list:
+    env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1)
     print env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS')
 """)
 

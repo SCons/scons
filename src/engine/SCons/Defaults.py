@@ -373,9 +373,20 @@ def processDefines(defs):
         l = []
         for d in defs:
             if SCons.Util.is_List(d) or isinstance(d, tuple):
-                l.append(str(d[0]) + '=' + str(d[1]))
-            else:
+                if len(d) >= 2:
+                    l.append(str(d[0]) + '=' + str(d[1]))
+                else:
+                    l.append(str(d[0]))
+            elif SCons.Util.is_Dict(d):
+                for macro,value in d.iteritems():
+                    if value is not None:
+                        l.append(str(macro) + '=' + str(value))
+                    else:
+                        l.append(str(macro))
+            elif SCons.Util.is_String(d):
                 l.append(str(d))
+            else:
+                raise
     elif SCons.Util.is_Dict(defs):
         # The items in a dictionary are stored in random order, but
         # if the order of the command-line options changes from
