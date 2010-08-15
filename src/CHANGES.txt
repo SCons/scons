@@ -7,6 +7,12 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Jean-Baptiste Lab:
+
+    - Fix problems with appending CPPDEFINES that contain
+      dictionaries, and related issues with Parse/MergeFlags and
+      CPPDEFINES.
+
   From Allen Weeks:
 
     - Fix for an issue with implicit-cache with multiple targets

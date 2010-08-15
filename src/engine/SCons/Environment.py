@@ -1146,12 +1146,17 @@ class Base(SubstitutionEnvironment):
             # "continue" statements whenever we finish processing an item,
             # but Python 1.5.2 apparently doesn't let you use "continue"
             # within try:-except: blocks, so we have to nest our code.
-            try:
+            try:                
+                if key == 'CPPDEFINES' and SCons.Util.is_String(self._dict[key]):
+                    self._dict[key] = [self._dict[key]]
                 orig = self._dict[key]
             except KeyError:
                 # No existing variable in the environment, so just set
                 # it to the new value.
-                self._dict[key] = val
+                if key == 'CPPDEFINES' and SCons.Util.is_String(val):
+                    self._dict[key] = [val]
+                else:
+                    self._dict[key] = val
             else:
                 try:
                     # Check if the original looks like a dictionary.
@@ -1188,8 +1193,13 @@ class Base(SubstitutionEnvironment):
                     # The original looks like a dictionary, so update it
                     # based on what we think the value looks like.
                     if SCons.Util.is_List(val):
-                        for v in val:
-                            orig[v] = None
+                        if key == 'CPPDEFINES':
+                            orig = orig.items()
+                            orig += val
+                            self._dict[key] = orig
+                        else:    
+                            for v in val:
+                                orig[v] = None
                     else:
                         try:
                             update_dict(val)
@@ -1251,8 +1261,39 @@ class Base(SubstitutionEnvironment):
                 self._dict[key].update(val)
             elif SCons.Util.is_List(val):
                 dk = self._dict[key]
-                if not SCons.Util.is_List(dk):
-                    dk = [dk]
+                if key == 'CPPDEFINES':
+                    tmp = []
+                    for i in val:
+                        if SCons.Util.is_List(i):
+                            if len(i) >= 2:
+                                tmp.append((i[0], i[1]))
+                            else:
+                                tmp.append((i[0],))
+                        elif SCons.Util.is_Tuple(i):
+                            tmp.append(i)
+                        else:
+                            tmp.append((i,))
+                    val = tmp
+                    if SCons.Util.is_Dict(dk):
+                        dk = dk.items()
+                    elif SCons.Util.is_String(dk):
+                        dk = [(dk,)]
+                    else:                    
+                        tmp = []
+                        for i in dk:
+                            if SCons.Util.is_List(i):
+                                if len(i) >= 2:
+                                    tmp.append((i[0], i[1]))
+                                else:
+                                    tmp.append((i[0],))
+                            elif SCons.Util.is_Tuple(i):
+                                tmp.append(i)
+                            else:
+                                tmp.append((i,))
+                        dk = tmp
+                else:
+                    if not SCons.Util.is_List(dk):
+                        dk = [dk]
                 if delete_existing:
                     dk = [x for x in dk if x not in val]
                 else:
@@ -1261,15 +1302,57 @@ class Base(SubstitutionEnvironment):
             else:
                 dk = self._dict[key]
                 if SCons.Util.is_List(dk):
-                    # By elimination, val is not a list.  Since dk is a
-                    # list, wrap val in a list first.
-                    if delete_existing:
-                        dk = [x for x in dk if x not in val]
-                        self._dict[key] = dk + [val]
+                    if key == 'CPPDEFINES':
+                        tmp = []
+                        for i in dk:
+                            if SCons.Util.is_List(i):
+                                if len(i) >= 2:
+                                    tmp.append((i[0], i[1]))
+                                else:
+                                    tmp.append((i[0],))
+                            elif SCons.Util.is_Tuple(i):
+                                tmp.append(i)
+                            else:
+                                tmp.append((i,))
+                        dk = tmp
+                        if SCons.Util.is_Dict(val):
+                            val = val.items()
+                        elif SCons.Util.is_String(val):
+                            val = [(val,)]
+                        if delete_existing:
+                            dk = filter(lambda x, val=val: x not in val, dk)
+                            self._dict[key] = dk + val
+                        else:
+                            dk = [x for x in dk if x not in val]                
+                            self._dict[key] = dk + val
                     else:
-                        if not val in dk:
+                        # By elimination, val is not a list.  Since dk is a
+                        # list, wrap val in a list first.
+                        if delete_existing:
+                            dk = filter(lambda x, val=val: x not in val, dk)
                             self._dict[key] = dk + [val]
+                        else:
+                            if not val in dk:
+                                self._dict[key] = dk + [val]
                 else:
+                    if key == 'CPPDEFINES':
+                        if SCons.Util.is_String(dk):
+                            dk = [dk]
+                        elif SCons.Util.is_Dict(dk):
+                            dk = dk.items()
+                        if SCons.Util.is_String(val):
+                            if val in dk:
+                                val = []
+                            else:
+                                val = [val]
+                        elif SCons.Util.is_Dict(val):
+                            tmp = []
+                            for i,j in val.iteritems():
+                                if j is not None:
+                                    tmp.append((i,j))
+                                else:
+                                    tmp.append(i)
+                            val = tmp
                     if delete_existing:
                         dk = [x for x in dk if x not in val]
                     self._dict[key] = dk + val
