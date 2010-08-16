@@ -32,6 +32,9 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+if not test.where_is('pkg-config'):
+    test.skip_test("Could not find 'pkg-config' in system PATH, skipping test.\n")
+
 test.write('bug.pc', """\
 prefix=/usr
 exec_prefix=${prefix}
