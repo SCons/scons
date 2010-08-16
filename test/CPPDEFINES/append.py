@@ -33,20 +33,23 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+# Note: we explicitly set CPPDEFPREFIX here to simplify testing on
+# Windows.
+
 test.write('SConstruct', """\
-env_1738_2 = Environment()
+env_1738_2 = Environment(CPPDEFPREFIX='-D')
 env_1738_2['CPPDEFINES'] = ['FOO']
 env_1738_2.Append(CPPDEFINES={'value' : '1'})
 print env_1738_2.subst('$_CPPDEFFLAGS')
 #env_1738_2.Object('test_1738_2', 'main.c')
 
 # http://scons.tigris.org/issues/show_bug.cgi?id=2300
-env_2300_1 = DefaultEnvironment(CPPDEFINES = 'foo')
+env_2300_1 = Environment(CPPDEFINES = 'foo', CPPDEFPREFIX='-D')
 env_2300_1.Append(CPPDEFINES='bar')
 print env_2300_1.subst('$_CPPDEFFLAGS')
 #env_2300_1.Object('test_2300_1', 'main.c')
 
-env_2300_2 = DefaultEnvironment(CPPDEFINES = ['foo']) # note the list
+env_2300_2 = Environment(CPPDEFINES = ['foo'], CPPDEFPREFIX='-D') # note the list
 env_2300_2.Append(CPPDEFINES='bar')
 print env_2300_2.subst('$_CPPDEFFLAGS')
 #env_2300_2.Object('test_2300_2', 'main.c')
@@ -62,12 +65,12 @@ for (t1, c1) in cases:
     for (t2, c2) in cases:
         print "==== Testing CPPDEFINES, appending a %s to a %s"%(t2, t1)
         print "   orig = %s, append = %s"%(c1, c2)
-        env=Environment(CPPDEFINES = c1)
+        env=Environment(CPPDEFINES = c1, CPPDEFPREFIX='-D')
         env.Append(CPPDEFINES = c2)
         final=env.subst('$_CPPDEFFLAGS',source="src", target="tgt")
         print 'Append: \\n\\tresult=%s\\n\\tfinal=%s'%\\
               (env['CPPDEFINES'], final)
-        env=Environment(CPPDEFINES = c1)
+        env=Environment(CPPDEFINES = c1, CPPDEFPREFIX='-D')
         env.AppendUnique(CPPDEFINES = c2)
         final=env.subst('$_CPPDEFFLAGS',source="src", target="tgt")
         print 'AppendUnique:\\n\\tresult=%s\\n\\tfinal=%s'%\\
@@ -78,7 +81,7 @@ for (t1, c1) in cases:
 expect_print_output="""\
 -DFOO -Dvalue=1
 -Dfoo -Dbar
--Dfoo -Dbar -Dbar
+-Dfoo -Dbar
 ==== Testing CPPDEFINES, appending a string to a string
    orig = FOO, append = FOO
 Append: 
