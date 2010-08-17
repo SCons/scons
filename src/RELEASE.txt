@@ -27,7 +27,7 @@
   etc.) package a checkpoint release, mainly to avoid confusing the
   "public" release numbering with the long checkpoint release names.
 
-  Here is a summary of the changes since 1.3.0:
+  Here is a summary of the changes since 2.0:
 
   NEW FUNCTIONALITY
 
@@ -44,14 +44,38 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
+    - scons --version now prints the path to the SCons package in use
+
     - List modifications to existing features, where the previous behavior
       wouldn't actually be considered a bug
 
   FIXES
 
+    - CPPDEFINES containing dictionaries now work better.
+    - A problem with using implicit-cache and removing dependencies on
+      disk is corrected.
+    - A problem with FS Entries which are dirs and have builders
+      is corrected.
+    - Windows subprocess output should now be more reliable.
+    - The users guide and man page have various fixes.
+    - Appending to default $*FLAGS in a copied environment
+      now works properly.
+    - LaTeX scanner is improved for broken lines or embedded spaces.
+
     - List fixes of outright bugs
 
+
   IMPROVEMENTS
+
+    - SCons can now generate MSVS 9.0 Projects and Solutions.
+    - MSVS Solution generation is improved.
+    - Fortran 03 is supported (preliminary)
+    - .sx files are now treated as assembly sources.
+    - site_scons/site_init.py is now treated as a proper module
+      with __doc__, __file__ and __name__.
+    - TeX command strings now work on Windows when the new dir is
+      on a different drive letter.
+    - DMD version 2 is supported (using the phobos2 library)
 
     - List improvements that wouldn't be visible to the user in the
       documentation:  performance improvements (describe the circumstances
@@ -71,8 +95,25 @@
 
     - List visible changes in the way SCons is developed
 
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
-  Contributors are listed alphabetically by their last name.
+  Thanks to
+  Dirk Baechle,
+  Jean-François Colson,
+  Bauke Conijn,
+  Bill Deegan,
+  Ken Deeter,
+  Luca Falavigna,
+  Alexander Goomenyuk,
+  Steven Knight,
+  Arve Knudsen,
+  Jean-Baptiste Lab,
+  Rob Managan,
+  Gary Oberbrunner,
+  Evgeny Podjachev,
+  Anatoly Techtonik,
+  Allen Weeks,
+  Russel Winder,
+  Joe Zuntz
+  for their contributions to this release.
 
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__
