@@ -64,7 +64,11 @@ def main(argv=None):
             output = p.communicate()[0]
             vm = variable_re.search(output)
             em = elapsed_re.search(output)
-            elapsed = float(em.group(1))
+            try:
+                elapsed = float(em.group(1))
+            except AttributeError:
+                print output
+                raise
             print "run %3d: %7.3f:  %s" % (run, elapsed, ' '.join(vm.groups()))
             if opts.min < elapsed and elapsed < opts.max:
                 good += 1
