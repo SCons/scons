@@ -1142,6 +1142,7 @@ class TimeSCons(TestSCons):
         working directory.
         """
         self.variables = kw.get('variables')
+        default_calibrate_variables = []
         if self.variables is not None:
             for variable, value in self.variables.items():
                 value = os.environ.get(variable, value)
@@ -1152,8 +1153,18 @@ class TimeSCons(TestSCons):
                         value = float(value)
                     except ValueError:
                         pass
+                    else:
+                        default_calibrate_variables.append(variable)
+                else:
+                    default_calibrate_variables.append(variable)
                 self.variables[variable] = value
             del kw['variables']
+        calibrate_keyword_arg = kw.get('calibrate')
+        if calibrate_keyword_arg is None:
+            self.calibrate_variables = default_calibrate_variables
+        else:
+            self.calibrate_variables = calibrate_keyword_arg
+            del kw['calibrate']
 
         self.calibrate = os.environ.get('TIMESCONS_CALIBRATE', '0') != '0'
 
@@ -1163,12 +1174,12 @@ class TimeSCons(TestSCons):
         TestSCons.__init__(self, *args, **kw)
 
         # TODO(sgk):    better way to get the script dir than sys.argv[0]
-        test_dir = os.path.dirname(sys.argv[0])
-        test_name = os.path.basename(test_dir)
+        self.test_dir = os.path.dirname(sys.argv[0])
+        test_name = os.path.basename(self.test_dir)
 
-        if not os.path.isabs(test_dir):
-            test_dir = os.path.join(self.orig_cwd, test_dir)
-        self.copy_timing_configuration(test_dir, self.workpath())
+        if not os.path.isabs(self.test_dir):
+            self.test_dir = os.path.join(self.orig_cwd, self.test_dir)
+        self.copy_timing_configuration(self.test_dir, self.workpath())
 
     def main(self, *args, **kw):
         """
@@ -1242,6 +1253,15 @@ class TimeSCons(TestSCons):
                 result[stat.name] = {'value':value, 'units':stat.units}
         return result
 
+    def add_timing_options(self, kw, additional=None):
+        """
+        Add the necessary timings options to the kw['options'] value.
+        """
+        options = kw.get('options', '')
+        if additional is not None:
+            options += additional
+        kw['options'] = options + ' --debug=memory --debug=time'
+
     def startup(self, *args, **kw):
         """
         Runs scons with the --help option.
@@ -1250,7 +1270,7 @@ class TimeSCons(TestSCons):
         spent reading up the configuration, since --help exits before any
         "real work" is done.
         """
-        kw['options'] = kw.get('options', '') + ' --help'
+        self.add_timing_options(kw, ' --help')
         # Ignore the exit status.  If the --help run dies, we just
         # won't report any statistics for it, but we can still execute
         # the full and null builds.
@@ -1267,6 +1287,7 @@ class TimeSCons(TestSCons):
         """
         Runs a full build of SCons.
         """
+        self.add_timing_options(kw)
         self.run(*args, **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
@@ -1281,10 +1302,11 @@ class TimeSCons(TestSCons):
         information (the variable(s) that were set for this configuration,
         and the elapsed time to run.
         """
+        self.add_timing_options(kw)
         self.run(*args, **kw)
-        if self.variables:
-            for variable, value in self.variables.items():
-                sys.stdout.write('VARIABLE: %s=%s\n' % (variable, value))
+        for variable in self.calibrate_variables:
+            value = self.variables[variable]
+            sys.stdout.write('VARIABLE: %s=%s\n' % (variable, value))
         sys.stdout.write('ELAPSED: %s\n' % self.elapsed_time())
 
     def null(self, *args, **kw):
@@ -1293,6 +1315,7 @@ class TimeSCons(TestSCons):
         """
         # TODO(sgk):  allow the caller to specify the target (argument)
         # that must be up-to-date.
+        self.add_timing_options(kw)
         self.up_to_date(arguments='.', **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
@@ -1323,7 +1346,6 @@ class TimeSCons(TestSCons):
         --debug=memory and --debug=time options to have SCons report
         its own memory and timing statistics.
         """
-        kw['options'] = kw.get('options', '') + ' --debug=memory --debug=time'
         self.startTime = time.time()
         try:
             result = TestSCons.run(self, *args, **kw)
