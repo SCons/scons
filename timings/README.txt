@@ -5,7 +5,7 @@ This directory contains timing configurations for SCons.
 Each configuration exists in a subdirectory.  The controlling script
 is named TimeSCons-run.py for the configuration.  The TimeSCons-run.py
 scripts use TestSCons.TimeSCons, a subclass of TestSCons.TestSCons (both
-defined in ../QMTest/TestScons.py), to manage execution of the timing
+defined in ../QMTest/TestSCons.py), to manage execution of the timing
 runs.
 
 Unlike the TestSCons.TestSCons base class, the TestSCons.TimeSCons
@@ -81,6 +81,39 @@ at least the following three files:
 Note that it's perfectly acceptable to check in additional files that
 may be necessary for your configuration.  They'll get copied to the
 temporary directory used to run the timing.
+
+
+RUNNING YOUR TIMING CONFIGURATION
+=================================
+
+Because the TimeSCons.py module is a subclass of the whole TestSCons
+hierarchy, you use a normal runtest.py invocation to run the timings
+configuration:
+
+    $ python runtest.py timings/Configuration/TimeSCons-run.py
+                                 
+This runs the entire timing configuration, which actually runs SCons
+itself three times:
+
+    1)  First, with the --help option, to exit immediately after
+        reading the SConscript file(s).  This allows us to get a
+        rough independent measurement of how much startup cost is
+        involved in this configuration, so that the amount can be
+        discounted from the
+
+    2)  A full build.
+
+    3)  An rebuild of the full build, which is presumably up-to-date.
+
+When you execute runtest.py from the command line, the  output of
+each SCons run is printed on standard output.  (Note this means
+that the output can get pretty large if the timing configuration
+involves thousands of files.)
+
+The collected memory and time statistics for each run are printed
+on standard output, each with the prefix "TRACE:".  These are the
+lines that the buildbot grabs to collect the timing statistics for
+the graphs available on the web site.
 
 
 CALIBRATING YOUR TIMING CONFIGURATION
