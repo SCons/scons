@@ -668,7 +668,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     file_tests = ScanFiles(source[0], target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir, aux_files)
 
     for (theSearch,suffix_list) in file_tests:
-        if theSearch:
+        # add side effects if feature is present.If file is to be generated,add all side effects
+        if (theSearch != None) or (not source[0].exists() ):
             for suffix in suffix_list:
                 env.SideEffect(targetbase + suffix,target[0])
                 if Verbose:
