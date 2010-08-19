@@ -35,7 +35,7 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
     - Print the path to the SCons package in scons --version
 
-  From Jean-François Colson:
+  From Jean-Franï¿½ois Colson:
 
     - Improve Microsoft Visual Studio Solution generation, and fix
       various errors in the generated solutions especially when using
@@ -101,6 +101,10 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
     - Fixed the LaTeX scanner so dependencies are found in commands that
       are broken across lines with a comment or have embedded spaces.
+
+    - The TeX builders should now work with tex files that are generated
+      by another program. Thanks to Hans-Martin von Gaudecker for
+      isolating the cause of this bug.
 
   From Russel Winder:
 
@@ -548,7 +552,7 @@ RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
 
     - Issue 2401: Fix usage of comparisons with None.
 
-  From Ludwig Hähne:
+  From Ludwig Hï¿½hne:
 
     - Handle Java inner classes declared within a method.
 
@@ -677,7 +681,7 @@ RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
 
     - Fix VariantDir duplication of #included files in subdirectories.
 
-  From Ludwig Hähne:
+  From Ludwig Hï¿½hne:
 
     - Reduce memory usage when a directory is used as a dependency of
       another Node (such as an Alias) by returning a concatenation
@@ -792,7 +796,7 @@ RELEASE 1.0.0 - XXX
 
     - Clear the Node state when turning a generic Entry into a Dir.
 
-  From Ludwig Hähne:
+  From Ludwig Hï¿½hne:
 
     - Fix sporadic output-order failures in test/GetBuildFailures/parallel.py.
 
@@ -1026,7 +1030,7 @@ RELEASE 0.98.1 - Fri, 18 Apr 2008 19:11:58 -0700
 
   - Fix the --debug=stree option so it prints its tree once, not twice.
 
-  From Johan BoulÃ:
+  From Johan Boulï¿½:
 
   - Fix the ability to use LoadableModule() under MinGW.
 
