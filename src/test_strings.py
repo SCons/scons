@@ -228,6 +228,7 @@ check_list = [
             'src/script/setup.cfg',
             'test/Fortran/.exclude_tests',
             'timings/changelog.html',
+            'timings/ElectricCloud/genscons.pl',
             'timings/graph.html',
             'timings/index.html',
         ],
