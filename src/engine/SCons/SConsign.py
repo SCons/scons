@@ -104,9 +104,15 @@ def write():
         try:
             syncmethod = db.sync
         except AttributeError:
-            pass # Not all anydbm modules have sync() methods.
+            pass # Not all dbm modules have sync() methods.
         else:
             syncmethod()
+        try:
+            closemethod = db.close
+        except AttributeError:
+            pass # Not all dbm modules have close() methods.
+        else:
+            closemethod()
 
 class SConsignEntry(object):
     """
