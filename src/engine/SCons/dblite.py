@@ -104,9 +104,12 @@ class dblite(object):
             if (ignore_corrupt_dbfiles == 1):
               corruption_warning(self._file_name)
 
-  def __del__(self):
+  def close(self):
     if (self._needs_sync):
       self.sync()
+
+  def __del__(self):
+    self.close()
 
   def sync(self):
     self._check_writable()
