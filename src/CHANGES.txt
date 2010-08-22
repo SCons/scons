@@ -110,15 +110,45 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
     - Add support for DMD version 2 (the phobos2 library).
 
-RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
+RELEASE 2.0.1 - Mon, 15 Aug 2010 15:46:32 -0700
 
   From Dirk Baechle:
 
     - Fix XML in documentation.
 
-  From W. Trevor King:
+  From Joe Zuntz:
 
-    - Revisions to README.
+    - Fixed a case-sensitivity problem with Fortran modules.
+
+  From Bauke Conijn:
+
+    - Added Users Guide example for auto-generated source code
+
+  From Steven Knight:
+
+    - Fix explicit dependencies (Depends()) on Nodes that don't have
+      attached Builders.
+
+  From Matt Hughes:
+
+    - Fix the ability to append to default $*FLAGS values (which are
+      implemented as CLVar instances) in a copied construction environment
+      without affecting the original construction environment's value.
+
+  From Rob Managan:
+
+    - Updated the TeX command strings to include a /D on Windows in
+      case the new directory is on a different drive letter.
+
+    - Fixed the LaTeX scanner so dependencies are found in commands that
+      are broken across lines with a comment or have embedded spaces.
+
+
+RELEASE 2.0.0.final.0 - Mon, 14 Jun 2010 22:01:37 -0700
+
+  From Dirk Baechle:
+
+    - Fix XML in documentation.
 
   From Steven Knight:
 
@@ -152,6 +182,10 @@ RELEASE 2.0.0.beta.20100605 - Sat, 05 Jun 2010 21:02:48 -0700
 
     - Handle detecting Visual C++ on Python verions with upper-case
       platform architectures like 'AMD64'.
+
+  From W. Trevor King:
+
+    - Revisions to README.
 
   From Greg Noel:
 
