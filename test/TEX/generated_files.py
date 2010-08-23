@@ -49,42 +49,25 @@ import os
 
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 
+copy_latex = Builder(action='cp $SOURCE $TARGET',
+                     suffix='.tex',
+                     src_suffix='.src')
+env.Append( BUILDERS={'CopyLatex' : copy_latex} )
+
+Export(['env'])
+
 VariantDir('pdf', 'src')
 SConscript('pdf/SConscript')
 """)
 
-if os.sys.platform == "Windows":
-    test.write(['src','gen.bat'], """
-copy main.src main.tex
-""")
-    test.chmod(['src','gen.bat'],0755)
-
-    test.write(['src','SConscript'],"""
-import os
-env = Environment(ENV = os.environ)
-
-env.Depends('main.tex', 'gen.bat')
-env.Command('main.tex', 'main.src', 'cd pdf && ./gen.sh')
-
-# latexing
-pdf = env.PDF('main.tex')
-
-""")
-else:
-    test.write(['src','gen.sh'], """
-cp main.src main.tex
-""")
-    test.chmod(['src','gen.sh'],0755)
-
 test.write(['src','SConscript'],"""
 import os
-env = Environment(ENV = os.environ)
+Import('env')
 
-env.Depends('main.tex', 'gen.sh')
-env.Command('main.tex', 'main.src', 'cd pdf && ./gen.sh')
+latex_file = env.CopyLatex('main.src')
 
 # latexing
-pdf = env.PDF('main.tex')
+pdf = env.PDF(latex_file)
 
 """)
 
