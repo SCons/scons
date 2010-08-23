@@ -110,6 +110,11 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
     - Add support for DMD version 2 (the phobos2 library).
 
+  From William Deegan:
+
+    - Add initial support for VS/VC 2010 (express and non-express versions)
+
+
 RELEASE 2.0.1 - Mon, 15 Aug 2010 15:46:32 -0700
 
   From Dirk Baechle:

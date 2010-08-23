@@ -49,6 +49,8 @@
     - List modifications to existing features, where the previous behavior
       wouldn't actually be considered a bug
 
+    - Add initial support for VS/VC 2001
+
   FIXES
 
     - CPPDEFINES containing dictionaries now work better.
