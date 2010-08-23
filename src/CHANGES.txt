@@ -105,6 +105,9 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - The TeX builders should now work with tex files that are generated
       by another program. Thanks to Hans-Martin von Gaudecker for
       isolating the cause of this bug.
+      
+    - Added support for INDEXSTYLE environment variable so makeindex can
+      find style files.
 
   From Russel Winder:
 

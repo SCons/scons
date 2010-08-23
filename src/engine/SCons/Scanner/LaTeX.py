@@ -148,6 +148,8 @@ class LaTeX(SCons.Scanner.Base):
     env['TEXINPUTS'] for "lstinputlisting" keyword
     env['BIBINPUTS'] for "bibliography" keyword
     env['BSTINPUTS'] for "bibliographystyle" keyword
+    env['INDEXSTYLE'] for "makeindex" keyword, no scanning support needed
+                      just allows user to set it if needed.
 
     FIXME: also look for the class or style in document[class|style]{}
     FIXME: also look for the argument of bibliographystyle{}
@@ -157,6 +159,7 @@ class LaTeX(SCons.Scanner.Base):
                      'includegraphics': 'TEXINPUTS',
                      'bibliography': 'BIBINPUTS',
                      'bibliographystyle': 'BSTINPUTS',
+                     'makeindex': 'INDEXSTYLE',
                      'usepackage': 'TEXINPUTS',
                      'lstinputlisting': 'TEXINPUTS'}
     env_variables = SCons.Util.unique(list(keyword_paths.values()))
