@@ -49,7 +49,7 @@ import os
 
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 
-copy_latex = Builder(action='cp $SOURCE $TARGET',
+copy_latex = Builder(action=Copy('$TARGET', '$SOURCE'),
                      suffix='.tex',
                      src_suffix='.src')
 env.Append( BUILDERS={'CopyLatex' : copy_latex} )
