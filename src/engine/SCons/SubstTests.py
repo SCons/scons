@@ -550,8 +550,10 @@ class scons_subst_TestCase(SubstTestCase):
             expect = [
                 # Python 2.3, 2.4
                 "TypeError `unsubscriptable object' trying to evaluate `${NONE[2]}'",
-                # Python 2.5 and later
+                # Python 2.5, 2.6
                 "TypeError `'NoneType' object is unsubscriptable' trying to evaluate `${NONE[2]}'",
+                # Python 2.7 and later
+                "TypeError `'NoneType' object is not subscriptable' trying to evaluate `${NONE[2]}'",
             ]
             assert str(e) in expect, e
         else:

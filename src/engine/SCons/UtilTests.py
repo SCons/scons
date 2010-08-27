@@ -668,7 +668,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        fobj = io.StringIO(r"""
+        content = r"""
 foo \
 bar \
 baz
@@ -676,7 +676,12 @@ foo
 bling \
 bling \ bling
 bling
-""")
+"""
+        try:
+            fobj = io.StringIO(content)
+        except TypeError:
+            # Python 2.7 and beyond require unicode strings.
+            fobj = io.StringIO(unicode(content))
 
         lines = LogicalLines(fobj).readlines()
         assert lines == [
