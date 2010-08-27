@@ -35,7 +35,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 
-expect_build = r"""scons: \*\*\*%s TypeError `(unsubscriptable object|'NoneType' object is unsubscriptable)' trying to evaluate `%s'
+expect_build = r"""scons: \*\*\*%s TypeError `(unsubscriptable object|'NoneType' object is (not |un)subscriptable)' trying to evaluate `%s'
 """
 
 expect_read = "\n" + expect_build + TestSCons.file_expr
