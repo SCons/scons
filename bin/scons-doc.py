@@ -26,6 +26,23 @@
 #                   and inserting it into examples in our DocBook
 #                   documentation
 #
+# Synopsis:
+#
+#  scons-doc [OPTIONS] [.in files]
+#
+#   When no input files are given, the folder doc/user/* is searched for .in files.
+#
+# Available options:
+#
+#   -d, --diff            create examples for the .in file and output a unified
+#                         diff against the related .xml file
+#   -r, --run             create examples for the .in file, but do not change
+#                         any files
+#   -s, --simple_diff     use a simpler output for the diff mode (no unified
+#                         diff!)
+#   -u, --update          create examples for the .in file and update the
+#                         related .xml file
+#
 # This script looks for some SGML tags that describe SCons example
 # configurations and commands to execute in those configurations, and
 # uses TestCmd.py to execute the commands and insert the output from
@@ -95,6 +112,7 @@ import re
 import sgmllib
 import sys
 import time
+import glob
 
 sys.path.append(os.path.join(os.getcwd(), 'QMTest'))
 sys.path.append(os.path.join(os.getcwd(), 'build', 'QMTest'))
@@ -811,7 +829,7 @@ class MySGML(sgmllib.SGMLParser):
         delattr(self, 'f')
         self.afunclist = self.afunclist[:-1]
 
-def process(filename):
+def process(filename, fout=sys.stdout):
     if filename == '-':
         f = sys.stdin
     else:
@@ -829,7 +847,7 @@ def process(filename):
         first_line, data = data.split('\n', 1)
         sys.stdout.write(first_line + '\n')
 
-    x = MySGML(sys.stdout)
+    x = MySGML(fout)
     for c in data:
         x.feed(c)
     x.close()
@@ -841,13 +859,76 @@ def main(argv=None):
         argv = sys.argv
 
     parser = optparse.OptionParser()
+    parser.add_option('-d', '--diff',
+                  action='store_true', dest='diff', default=False,
+                  help='create examples for the .in file and output a unified diff against the related .xml file')
+    parser.add_option('-r', '--run',
+                  action='store_true', dest='run', default=False,
+                  help='create examples for the .in file, but do not change any files')
+    parser.add_option('-s', '--simple_diff',
+                  action='store_true', dest='simple', default=False,
+                  help='use a simpler output for the diff mode (no unified diff!)')
+    parser.add_option('-u', '--update',
+                  action='store_true', dest='update', default=False,
+                  help='create examples for the .in file and update the related .xml file')
+
     opts, args = parser.parse_args(argv[1:])
 
-    if not args:
-        args = ['-']
-
-    for arg in args:
-        process(arg)
+    if opts.diff:
+        import StringIO
+        import difflib
+        
+        if not args:
+            args = glob.glob('doc/user/*.in')
+        for arg in sorted(args):
+            diff = None
+            s = StringIO.StringIO()
+            process(arg,s)
+            filename = arg[:-2]+'xml'
+            try:
+                fxml = open(filename, 'r')
+                xmlcontent = fxml.read()
+                fxml.close()
+                if opts.simple:
+                    diff = list(difflib.context_diff(xmlcontent.splitlines(),
+                                                     s.getvalue().splitlines(),
+                                                     fromfile=arg, tofile=filename))
+                else:
+                    diff = list(difflib.unified_diff(xmlcontent.splitlines(),
+                                                     s.getvalue().splitlines(),
+                                                     fromfile=arg, tofile=filename, 
+                                                     lineterm=''))
+            except EnvironmentError, e:
+                sys.stderr.write('%s: %s\n' % (filename, e))
+                
+            s.close()
+            if diff:
+                print "%s:" % arg
+                print '\n'.join(diff)
+    elif opts.run:
+        if not args:
+            args = glob.glob('doc/user/*.in')
+        for arg in sorted(args):
+            print "%s:" % arg
+            process(arg)
+    elif opts.update:
+        if not args:
+            args = glob.glob('doc/user/*.in')
+        for arg in sorted(args):
+            print "%s:" % arg
+            filename = arg[:-2]+'xml'
+            try:
+                fxml = open(filename, 'w')
+                process(arg, fxml)
+                fxml.close()
+            except EnvironmentError, e:
+                sys.stderr.write('%s: %s\n' % (filename, e))
+    else:
+        if not args:
+            args = ['-']
+    
+        for arg in args:
+            process(arg)
 
 if __name__ == "__main__":
     sys.exit(main())
