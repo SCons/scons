@@ -39,6 +39,7 @@ import re
 import shutil
 import sys
 import platform
+import glob
 
 import SCons.Action
 import SCons.Node
@@ -84,6 +85,7 @@ auxfile_re = re.compile(r".", re.MULTILINE)
 tableofcontents_re = re.compile(r"^[^%\n]*\\tableofcontents", re.MULTILINE)
 makeindex_re = re.compile(r"^[^%\n]*\\makeindex", re.MULTILINE)
 bibliography_re = re.compile(r"^[^%\n]*\\bibliography", re.MULTILINE)
+bibunit_re = re.compile(r"^[^%\n]*\\begin\{bibunit\}", re.MULTILINE)
 listoffigures_re = re.compile(r"^[^%\n]*\\listoffigures", re.MULTILINE)
 listoftables_re = re.compile(r"^[^%\n]*\\listoftables", re.MULTILINE)
 hyperref_re = re.compile(r"^[^%\n]*\\usepackage.*\{hyperref\}", re.MULTILINE)
@@ -283,6 +285,12 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         if os.path.exists(flsfilename):
             flsContent = open(flsfilename, "rb").read()
             auxfiles = openout_aux_re.findall(flsContent)
+            # remove duplicates
+            dups = {}
+            for x in auxfiles:
+                dups[x] = 1
+            auxfiles = list(dups.keys())
+
         if Verbose:
             print "auxfiles ",auxfiles
 
@@ -299,13 +307,11 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                     if content.find("bibdata") != -1:
                         if Verbose:
                             print "Need to run bibtex"
-                        bibfile = env.fs.File(targetbase)
+                        bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0])
                         result = BibTeXAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBTEX'], 'blg')
-                            return result
-                        must_rerun_latex = check_MD5(suffix_nodes['.bbl'],'.bbl')
-                        break
+                        must_rerun_latex = must_rerun_latex or check_MD5(suffix_nodes['.bbl'],'.bbl')
 
         # Now decide if latex will need to be run again due to index.
         if check_MD5(suffix_nodes['.idx'],'.idx') or (count == 1 and run_makeindex):
@@ -583,7 +589,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     basedir = os.path.split(str(source[0]))[0]
     abspath = os.path.abspath(basedir)
     target[0].attributes.path = abspath
-    
+
     #
     # file names we will make use of in searching the sources and log file
     #
@@ -613,6 +619,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     file_tests_search = [auxfile_re,
                          makeindex_re,
                          bibliography_re,
+                         bibunit_re,
                          tableofcontents_re,
                          listoffigures_re,
                          listoftables_re,
@@ -624,18 +631,19 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          beamer_re ]
     # set up list with the file suffixes that need emitting
     # when a feature is found
-    file_tests_suff = [['.aux'],
-                  ['.idx', '.ind', '.ilg'],
-                  ['.bbl', '.blg'],
-                  ['.toc'],
-                  ['.lof'],
-                  ['.lot'],
-                  ['.out'],
-                  ['.nlo', '.nls', '.nlg'],
-                  ['.glo', '.gls', '.glg'],
-                  ['.glo', '.gls', '.glg'],
-                  ['.acn', '.acr', '.alg'],
-                  ['.nav', '.snm', '.out', '.toc'] ]
+    file_tests_suff = [['.aux','aux_file'],
+                  ['.idx', '.ind', '.ilg','makeindex'],
+                  ['.bbl', '.blg','bibliography'],
+                  ['.bbl', '.blg','bibunit'],
+                  ['.toc','contents'],
+                  ['.lof','figures'],
+                  ['.lot','tables'],
+                  ['.out','hyperref'],
+                  ['.nlo', '.nls', '.nlg','nomenclature'],
+                  ['.glo', '.gls', '.glg','glossary'],
+                  ['.glo', '.gls', '.glg','glossaries'],
+                  ['.acn', '.acr', '.alg','acronyms'],
+                  ['.nav', '.snm', '.out', '.toc','beamer'] ]
     # build the list of lists
     file_tests = []
     for i in range(len(file_tests_search)):
@@ -670,11 +678,21 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     for (theSearch,suffix_list) in file_tests:
         # add side effects if feature is present.If file is to be generated,add all side effects
         if (theSearch != None) or (not source[0].exists() ):
-            for suffix in suffix_list:
-                env.SideEffect(targetbase + suffix,target[0])
-                if Verbose:
-                    print "side effect :",targetbase + suffix
-                env.Clean(target[0],targetbase + suffix)
+            file_list = [targetbase,]
+            # for bibunit we need a list of files
+            if suffix_list[-1] == 'bibunit':
+                file_basename = os.path.join(targetdir, 'bu*.aux')
+                file_list = glob.glob(file_basename)
+                # remove the suffix '.aux'
+                for i in range(len(file_list)):
+                    file_list[i] = SCons.Util.splitext(file_list[i])[0]
+            # now define the side effects
+            for file_name in file_list:
+                for suffix in suffix_list[:-1]:
+                    env.SideEffect(file_name + suffix,target[0])
+                    if Verbose:
+                        print "side effect :",file_name + suffix
+                    env.Clean(target[0],file_name + suffix)
 
     for aFile in aux_files:
         aFile_base = SCons.Util.splitext(aFile)[0]
