@@ -109,6 +109,9 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Added support for INDEXSTYLE environment variable so makeindex can
       find style files.
 
+    - Added support for the bibunits package so we call bibtex on all
+      the bu*.aux files.
+
   From Russel Winder:
 
     - Add support for DMD version 2 (the phobos2 library).
