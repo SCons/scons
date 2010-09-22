@@ -867,7 +867,7 @@ def Parser(version):
         sys.stderr.write(msg)
 
     op.add_option('-l', '--load-average', '--max-load',
-                  nargs=1, type="int",
+                  nargs=1, type="float",
                   dest="load_average", default=0,
                   action="callback", callback=opt_not_yet,
                   # action="store",
