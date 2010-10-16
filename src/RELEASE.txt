@@ -69,7 +69,7 @@
 
   IMPROVEMENTS
 
-    - SCons can now generate MSVS 9.0 Projects and Solutions.
+    - SCons can now generate MSVS 9.0 and 10.0 Projects and Solutions.
     - MSVS Solution generation is improved.
     - Fortran 03 is supported (preliminary)
     - .sx files are now treated as assembly sources.
