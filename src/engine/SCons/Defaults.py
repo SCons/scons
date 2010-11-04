@@ -372,7 +372,9 @@ def processDefines(defs):
     if SCons.Util.is_List(defs):
         l = []
         for d in defs:
-            if SCons.Util.is_List(d) or isinstance(d, tuple):
+            if d is None:
+                continue
+            elif SCons.Util.is_List(d) or isinstance(d, tuple):
                 if len(d) >= 2:
                     l.append(str(d[0]) + '=' + str(d[1]))
                 else:
@@ -386,7 +388,7 @@ def processDefines(defs):
             elif SCons.Util.is_String(d):
                 l.append(str(d))
             else:
-                raise
+                raise SCons.Errors.UserError("DEFINE %s is not a list, dict, string or None."%repr(d))
     elif SCons.Util.is_Dict(defs):
         # The items in a dictionary are stored in random order, but
         # if the order of the command-line options changes from
