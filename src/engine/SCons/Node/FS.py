@@ -110,33 +110,85 @@ def save_strings(val):
 # 
 
 do_splitdrive = None
+_my_splitdrive =None
 
 def initialize_do_splitdrive():
     global do_splitdrive
+    global has_unc
     drive, path = os.path.splitdrive('X:/foo')
-    do_splitdrive = not not drive
+    has_unc = hasattr(os.path, 'splitunc')
+
+    do_splitdrive = not not drive or has_unc
+
+    global _my_splitdrive
+    if has_unc:
+        def splitdrive(p):
+            if p[1:2] == ':':
+                return p[:2], p[2:]
+            if p[0:2] == '//':
+                # Note that we leave a leading slash in the path
+                # because UNC paths are always absolute.
+                return '//', p[1:]
+            return '', p
+    else:
+        def splitdrive(p):
+            if p[1:2] == ':':
+                return p[:2], p[2:]
+            return '', p
+    _my_splitdrive = splitdrive
+
+    # Keep some commonly used values in global variables to skip to
+    # module look-up costs.
+    global OS_SEP
+    global UNC_PREFIX
+    global os_sep_is_slash
+    
+    OS_SEP = os.sep
+    UNC_PREFIX = OS_SEP + OS_SEP
+    os_sep_is_slash = OS_SEP == '/'
 
 initialize_do_splitdrive()
 
-#
+# Used to avoid invoking os.path.normpath if not necessary.
+needs_normpath_check = re.compile(
+    r'''
+      # We need to renormalize the path if it contains any consecutive
+      # '/' characters.
+      .*// |
 
-needs_normpath_check = None
+      # We need to renormalize the path if it contains a '..' directory.
+      # Note that we check for all the following cases:
+      #
+      #    a) The path is a single '..'
+      #    b) The path starts with '..'. E.g. '../' or '../moredirs'
+      #       but we not match '..abc/'.
+      #    c) The path ends with '..'. E.g. '/..' or 'dirs/..'
+      #    d) The path contains a '..' in the middle. 
+      #       E.g. dirs/../moredirs
 
-def initialize_normpath_check():
-    """
-    Initialize the normpath_check regular expression.
+      (.*/)?\.\.(?:/|$) |
 
-    This function is used by the unit tests to re-initialize the pattern
-    when testing for behavior with different values of os.sep.
-    """
-    global needs_normpath_check
-    if os.sep == '/':
-        pattern = r'.*/|\.$|\.\.$'
-    else:
-        pattern = r'.*[/%s]|\.$|\.\.$' % re.escape(os.sep)
-    needs_normpath_check = re.compile(pattern)
+      # We need to renormalize the path if it contains a '.'
+      # directory, but NOT if it is a single '.'  '/' characters. We
+      # do not want to match a single '.' because this case is checked
+      # for explicitely since this is common enough case.
+      #
+      # Note that we check for all the following cases:
+      #
+      #    a) We don't match a single '.'
+      #    b) We match if the path starts with '.'. E.g. './' or
+      #       './moredirs' but we not match '.abc/'.
+      #    c) We match if the path ends with '.'. E.g. '/.' or
+      #    'dirs/.'
+      #    d) We match if the path contains a '.' in the middle.
+      #       E.g. dirs/./moredirs
 
-initialize_normpath_check()
+      \./|.*/\.(?:/|$)
+
+    ''', 
+    re.VERBOSE
+    )
+needs_normpath_match = needs_normpath_check.match
 
 #
 # SCons.Action objects for interacting with the outside world.
@@ -438,21 +490,21 @@ class EntryProxy(SCons.Util.Proxy):
     def __get_posix_path(self):
         """Return the path with / as the path separator,
         regardless of platform."""
-        if os.sep == '/':
+        if os_sep_is_slash:
             return self
         else:
             entry = self.get()
-            r = entry.get_path().replace(os.sep, '/')
+            r = entry.get_path().replace(OS_SEP, '/')
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_posix")
 
     def __get_windows_path(self):
         """Return the path with \ as the path separator,
         regardless of platform."""
-        if os.sep == '\\':
+        if OS_SEP == '\\':
             return self
         else:
             entry = self.get()
-            r = entry.get_path().replace(os.sep, '\\')
+            r = entry.get_path().replace(OS_SEP, '\\')
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_windows")
 
     def __get_srcnode(self):
@@ -695,11 +747,15 @@ class Base(SCons.Node.Node):
         if self == dir:
             return '.'
         path_elems = self.path_elements
+        pathname = ''
         try: i = path_elems.index(dir)
-        except ValueError: pass
-        else: path_elems = path_elems[i+1:]
-        path_elems = [n.name for n in path_elems]
-        return os.sep.join(path_elems)
+        except ValueError: 
+            for p in path_elems[:-1]:
+                pathname += p.dirname
+        else:
+            for p in path_elems[i+1:-1]:
+                pathname += p.dirname
+        return pathname + path_elems[-1].name
 
     def set_src_builder(self, builder):
         """Set the source code builder for this node."""
@@ -1063,7 +1119,7 @@ class FS(LocalFS):
             self.pathTop = os.getcwd()
         else:
             self.pathTop = path
-        self.defaultDrive = _my_normcase(os.path.splitdrive(self.pathTop)[0])
+        self.defaultDrive = _my_normcase(_my_splitdrive(self.pathTop)[0])
 
         self.Top = self.Dir(self.pathTop)
         self.Top.path = '.'
@@ -1150,54 +1206,110 @@ class FS(LocalFS):
         # str(p) in case it's something like a proxy object
         p = str(p)
 
-        initial_hash = (p[0:1] == '#')
-        if initial_hash:
+        if not os_sep_is_slash:
+            p = p.replace(OS_SEP, '/')
+
+        if p[0:1] == '#':
             # There was an initial '#', so we strip it and override
             # whatever directory they may have specified with the
             # top-level SConstruct directory.
             p = p[1:]
             directory = self.Top
 
-        if directory and not isinstance(directory, Dir):
-            directory = self.Dir(directory)
-
-        if do_splitdrive:
-            drive, p = os.path.splitdrive(p)
-        else:
-            drive = ''
-        if drive and not p:
-            # This causes a naked drive letter to be treated as a synonym
-            # for the root directory on that drive.
-            p = os.sep
-        absolute = os.path.isabs(p)
-
-        needs_normpath = needs_normpath_check.match(p)
-
-        if initial_hash or not absolute:
-            # This is a relative lookup, either to the top-level
-            # SConstruct directory (because of the initial '#') or to
-            # the current directory (the path name is not absolute).
-            # Add the string to the appropriate directory lookup path,
-            # after which the whole thing gets normalized.
-            if not directory:
-                directory = self._cwd
-            if p:
-                p = directory.labspath + '/' + p
+            # There might be a drive letter following the
+            # '#'. Although it is not described in the SCons man page,
+            # the regression test suite explicitly tests for that
+            # syntax. It seems to mean the following thing:
+            #
+            #   Assuming the the SCons top dir is in C:/xxx/yyy,
+            #   '#X:/toto' means X:/xxx/yyy/toto.
+            #
+            # i.e. it assumes that the X: drive has a directory
+            # structure similar to the one found on drive C:.
+            if do_splitdrive:
+                drive, p = _my_splitdrive(p)
+                if drive:
+                    root = self.get_root(drive)
+                else:
+                    root = directory.root
             else:
+                root = directory.root
+
+            # We can only strip trailing after splitting the drive
+            # since the drive might the UNC '//' prefix.
+            p = p.strip('/')
+
+            needs_normpath = needs_normpath_match(p)
+            
+            # The path is relative to the top-level SCons directory.
+            if p in ('', '.'):
                 p = directory.labspath
-
-        if needs_normpath:
-            p = os.path.normpath(p)
-
-        if drive or absolute:
-            root = self.get_root(drive)
+            else:
+                p = directory.labspath + '/' + p
         else:
-            if not directory:
-                directory = self._cwd
-            root = directory.root
+            if do_splitdrive:
+                drive, p = _my_splitdrive(p)
+                if drive and not p:
+                    # This causes a naked drive letter to be treated
+                    # as a synonym for the root directory on that
+                    # drive.
+                    p = '/'
+            else:
+                drive = ''
 
-        if os.sep != '/':
-            p = p.replace(os.sep, '/')
+            # We can only strip trailing '/' since the drive might the
+            # UNC '//' prefix.
+            if p != '/':
+                p = p.rstrip('/')
+
+            needs_normpath = needs_normpath_match(p)
+
+            if p[0:1] == '/':
+                # Absolute path
+                root = self.get_root(drive)
+            else:
+                # This is a relative lookup or to the current directory
+                # (the path name is not absolute).  Add the string to the
+                # appropriate directory lookup path, after which the whole
+                # thing gets normalized.
+                if directory:
+                    if not isinstance(directory, Dir):
+                        directory = self.Dir(directory)
+                else:
+                    directory = self._cwd
+
+                if p in ('', '.'):
+                    p = directory.labspath
+                else:
+                    p = directory.labspath + '/' + p
+
+                if drive:
+                    root = self.get_root(drive)
+                else:
+                    root = directory.root
+
+        if needs_normpath is not None:
+            # Normalize a pathname. Will return the same result for
+            # equivalent paths.
+            #
+            # We take advantage of the fact that we have an absolute
+            # path here for sure. In addition, we know that the
+            # components of lookup path are separated by slashes at
+            # this point. Because of this, this code is about 2X
+            # faster than calling os.path.normpath() followed by
+            # replacing os.sep with '/' again.
+            ins = p.split('/')[1:]
+            outs = []
+            for d in ins:
+                if d == '..':
+                    try:
+                        outs.pop()
+                    except IndexError:
+                        pass
+                elif d not in ('', '.'):
+                    outs.append(d)
+            p = '/' + '/'.join(outs)
+
         return root._lookup_abs(p, fsclass, create)
 
     def Entry(self, name, directory = None, create = 1):
@@ -1303,7 +1415,7 @@ class DirNodeInfo(SCons.Node.NodeInfoBase):
         top = self.fs.Top
         root = top.root
         if do_splitdrive:
-            drive, s = os.path.splitdrive(s)
+            drive, s = _my_splitdrive(s)
             if drive:
                 root = self.fs.get_root(drive)
         if not os.path.isabs(s):
@@ -1352,6 +1464,17 @@ class Dir(Base):
         self._sconsign = None
         self.variant_dirs = []
         self.root = self.dir.root
+
+        # For directories, we make a difference between the directory
+        # 'name' and the directory 'dirname'. The 'name' attribute is
+        # used when we need to print the 'name' of the directory or
+        # when we it is used as the last part of a path. The 'dirname'
+        # is used when the directory is not the last element of the
+        # path. The main reason for making that distinction is that
+        # for RoorDir's the dirname can not be easily inferred from
+        # the name. For example, we have to add a '/' after a drive
+        # letter but not after a UNC path prefix ('//').
+        self.dirname = self.name + OS_SEP
 
         # Don't just reset the executor, replace its action list,
         # because it might have some pre-or post-actions that need to
@@ -1418,23 +1541,6 @@ class Dir(Base):
         """
         return self.fs.File(name, self)
 
-    def _lookup_rel(self, name, klass, create=1):
-        """
-        Looks up a *normalized* relative path name, relative to this
-        directory.
-
-        This method is intended for use by internal lookups with
-        already-normalized path data.  For general-purpose lookups,
-        use the Entry(), Dir() and File() methods above.
-
-        This method does *no* input checking and will die or give
-        incorrect results if it's passed a non-normalized path name (e.g.,
-        a path containing '..'), an absolute path name, a top-relative
-        ('#foo') path name, or any kind of object.
-        """
-        name = self.entry_labspath(name)
-        return self.root._lookup_abs(name, klass, create)
-
     def link(self, srcdir, duplicate):
         """Set this directory as the variant directory for the
         supplied source directory."""
@@ -1467,7 +1573,7 @@ class Dir(Base):
             if fname == '.':
                 fname = dir.name
             else:
-                fname = dir.name + os.sep + fname
+                fname = dir.name + OS_SEP + fname
             dir = dir.up()
 
         self._memo['get_all_rdirs'] = list(result)
@@ -1481,7 +1587,7 @@ class Dir(Base):
             self.__clearRepositoryCache()
 
     def up(self):
-        return self.entries['..']
+        return self.dir
 
     def _rel_path_key(self, other):
         return str(other)
@@ -1529,14 +1635,14 @@ class Dir(Base):
                     if dir_rel_path == '.':
                         result = other.name
                     else:
-                        result = dir_rel_path + os.sep + other.name
+                        result = dir_rel_path + OS_SEP + other.name
         else:
             i = self.path_elements.index(other) + 1
 
             path_elems = ['..'] * (len(self.path_elements) - i) \
                          + [n.name for n in other.path_elements[i:]]
              
-            result = os.sep.join(path_elems)
+            result = OS_SEP.join(path_elems)
 
         memo_dict[other] = result
 
@@ -1706,16 +1812,16 @@ class Dir(Base):
         return stamp
 
     def entry_abspath(self, name):
-        return self.abspath + os.sep + name
+        return self.abspath + OS_SEP + name
 
     def entry_labspath(self, name):
         return self.labspath + '/' + name
 
     def entry_path(self, name):
-        return self.path + os.sep + name
+        return self.path + OS_SEP + name
 
     def entry_tpath(self, name):
-        return self.tpath + os.sep + name
+        return self.tpath + OS_SEP + name
 
     def entry_exists_on_disk(self, name):
         try:
@@ -1736,7 +1842,7 @@ class Dir(Base):
             if result is None:
                 # Belt-and-suspenders for Windows:  check directly for
                 # 8.3 file names that don't show up in os.listdir().
-                result = os.path.exists(self.abspath + os.sep + name)
+                result = os.path.exists(self.abspath + OS_SEP + name)
                 d[name] = result
             return result
         else:
@@ -1757,7 +1863,7 @@ class Dir(Base):
         while dir:
             if dir.srcdir:
                 result.append(dir.srcdir.Dir(dirname))
-            dirname = dir.name + os.sep + dirname
+            dirname = dir.name + OS_SEP + dirname
             dir = dir.up()
 
         self._memo['srcdir_list'] = result
@@ -2001,7 +2107,7 @@ class RootDir(Dir):
     add a separator when creating the path names of entries within
     this directory.
     """
-    def __init__(self, name, fs):
+    def __init__(self, drive, fs):
         if __debug__: logInstanceCreation(self, 'Node.FS.RootDir')
         # We're going to be our own parent directory (".." entry and .dir
         # attribute) so we have to set up some values so Base.__init__()
@@ -2013,29 +2119,47 @@ class RootDir(Dir):
         self.path_elements = []
         self.duplicate = 0
         self.root = self
+
+        # Handle all the types of drives:
+        if drive == '':
+            # No drive, regular UNIX root or Windows default drive.
+            name = OS_SEP 
+            dirname = OS_SEP
+        elif drive == '//':
+            # UNC path
+            name = UNC_PREFIX
+            dirname = UNC_PREFIX
+        else:
+            # Windows drive letter
+            name = drive
+            dirname = drive + OS_SEP
+
         Base.__init__(self, name, self, fs)
 
-        # Now set our paths to what we really want them to be: the
-        # initial drive letter (the name) plus the directory separator,
-        # except for the "lookup abspath," which does not have the
-        # drive letter.
-        self.abspath = name + os.sep
+        # Now set our paths to what we really want them to be. The
+        # name should already contain any necessary separators, such
+        # as the initial drive letter (the name) plus the directory
+        # separator, except for the "lookup abspath," which does not
+        # have the drive letter.
+        self.abspath = dirname
         self.labspath = ''
-        self.path = name + os.sep
-        self.tpath = name + os.sep
+        self.path = dirname
+        self.tpath = dirname
         self._morph()
+
+        # Must be reset after Dir._morph() is invoked...
+        self.dirname = dirname
 
         self._lookupDict = {}
 
-        # The // and os.sep + os.sep entries are necessary because
-        # os.path.normpath() seems to preserve double slashes at the
-        # beginning of a path (presumably for UNC path names), but
-        # collapses triple slashes to a single slash.
         self._lookupDict[''] = self
         self._lookupDict['/'] = self
-        self._lookupDict['//'] = self
-        self._lookupDict[os.sep] = self
-        self._lookupDict[os.sep + os.sep] = self
+
+        # The // entry is necessary because os.path.normpath()
+        # preserves double slashes at the beginning of a path on Posix
+        # platforms.
+        if not has_unc:
+            self._lookupDict['//'] = self
 
     def must_be_same(self, klass):
         if klass is Dir:
@@ -2067,7 +2191,7 @@ class RootDir(Dir):
                 raise SCons.Errors.UserError(msg)
             # There is no Node for this path name, and we're allowed
             # to create it.
-            dir_name, file_name = os.path.split(p)
+            dir_name, file_name = p.rsplit('/',1)
             dir_node = self._lookup_abs(dir_name, Dir)
             result = klass(file_name, dir_node, self.fs)
 
@@ -2126,7 +2250,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
         top = self.fs.Top
         root = top.root
         if do_splitdrive:
-            drive, s = os.path.splitdrive(s)
+            drive, s = _my_splitdrive(s)
             if drive:
                 root = self.fs.get_root(drive)
         if not os.path.isabs(s):
@@ -2144,7 +2268,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         usual string representation: relative to the top-level SConstruct
         directory, or an absolute path if it's outside.
         """
-        if os.sep == '/':
+        if os_sep_is_slash:
             node_to_str = str
         else:
             def node_to_str(n):
@@ -2153,7 +2277,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 except AttributeError:
                     s = str(n)
                 else:
-                    s = s.replace(os.sep, '/')
+                    s = s.replace(OS_SEP, '/')
                 return s
         for attr in ['bsources', 'bdepends', 'bimplicit']:
             try:
@@ -2997,8 +3121,8 @@ class FileFinder(object):
         if fd is None:
             fd = self.default_filedir
         dir, name = os.path.split(fd)
-        drive, d = os.path.splitdrive(dir)
-        if not name and d[:1] in ('/', os.sep):
+        drive, d = _my_splitdrive(dir)
+        if not name and d[:1] in ('/', OS_SEP):
             #return p.fs.get_root(drive).dir_on_disk(name)
             return p.fs.get_root(drive)
         if dir:

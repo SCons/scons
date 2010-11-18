@@ -817,6 +817,107 @@ class FileBuildInfoTestCase(_tempdirTestCase):
         assert format == expect, (repr(expect), repr(format))
 
 class FSTestCase(_tempdirTestCase):
+    def test_needs_normpath(self):
+        """Test the needs_normpath Regular expression
+
+        This test case verifies that the regular expression used to
+        determine whether a path needs normalization works as
+        expected.
+        """
+        needs_normpath_match = SCons.Node.FS.needs_normpath_match
+
+        do_not_need_normpath = [
+            ".",
+            "/",
+            "/a",
+            "/aa",
+            "/a/",
+            "/aa/",
+            "/a/b",
+            "/aa/bb",
+            "/a/b/",
+            "/aa/bb/",
+
+            "",
+            "a",
+            "aa",
+            "a/",
+            "aa/",
+            "a/b",
+            "aa/bb",
+            "a/b/",
+            "aa/bb/",
+
+            "a.",
+            "a..",
+            "/a.",
+            "/a..",
+            "a./",
+            "a../",
+            "/a./",
+            "/a../",
+
+
+            ".a",
+            "..a",
+            "/.a",
+            "/..a",
+            ".a/",
+            "..a/",
+            "/.a/",
+            "/..a/",
+            ]
+        for p in do_not_need_normpath:
+            assert needs_normpath_match(p) is None, p
+
+        needs_normpath = [
+            "//",
+            "//a",
+            "//aa",
+            "//a/",
+            "//a/",
+            "/aa//",
+
+            "//a/b",
+            "//aa/bb",
+            "//a/b/",
+            "//aa/bb/",
+
+            "/a//b",
+            "/aa//bb",
+            "/a/b//",
+            "/aa/bb//",
+
+            "/a/b//",
+            "/aa/bb//",
+
+            "a//",
+            "aa//",
+            "a//b",
+            "aa//bb",
+            "a//b/",
+            "aa//bb/",
+            "a/b//",
+            "aa/bb//",
+
+            "..",
+            "/.",
+            "/..",
+            "./",
+            "../",
+            "/./",
+            "/../",
+
+            "a/.",
+            "a/..",
+            "./a",
+            "../a",
+            "a/./a",
+            "a/../a",
+            ]
+        for p in needs_normpath:
+            assert needs_normpath_match(p) is not None, p
+
     def test_runTest(self):
         """Test FS (file system) Node operations
 
@@ -932,7 +1033,19 @@ class FSTestCase(_tempdirTestCase):
             path = strip_slash(path_)
             abspath = strip_slash(abspath_)
             up_path = strip_slash(up_path_)
+
             name = abspath.split(os.sep)[-1]
+
+            if not name:
+                if drive:
+                    name = drive
+                else:
+                    name = os.sep
+
+            if dir.up() is None:
+                dir_up_path =  dir.path
+            else:
+                dir_up_path =  dir.up().path
 
             assert dir.name == name, \
                    "dir.name %s != expected name %s" % \
@@ -946,15 +1059,16 @@ class FSTestCase(_tempdirTestCase):
             assert dir.get_abspath() == abspath, \
                    "dir.abspath %s != expected absolute path %s" % \
                    (dir.get_abspath(), abspath)
-            assert dir.up().path == up_path, \
+            assert dir_up_path == up_path, \
                    "dir.up().path %s != expected parent path %s" % \
-                   (dir.up().path, up_path)
+                   (dir_up_path, up_path)
 
         for sep in seps:
 
             def Dir_test(lpath, path_, abspath_, up_path_, sep=sep, func=_do_Dir_test):
                 return func(lpath, path_, abspath_, up_path_, sep)
-
+            
+            Dir_test('/',           '/',           '/',               '/')
             Dir_test('',            './',          sub_dir,           sub)
             Dir_test('foo',         'foo/',        sub_dir_foo,       './')
             Dir_test('foo/bar',     'foo/bar/',    sub_dir_foo_bar,   'foo/')
@@ -1423,12 +1537,12 @@ class FSTestCase(_tempdirTestCase):
 
         test.subdir('sub', ['sub', 'dir'])
 
-        def drive_workpath(drive, dirs, test=test):
+        def drive_workpath(dirs, test=test):
             x = test.workpath(*dirs)
             drive, path = os.path.splitdrive(x)
             return 'X:' + path
 
-        wp              = drive_workpath('X:', [''])
+        wp              = drive_workpath([''])
 
         if wp[-1] in (os.sep, '/'):
             tmp         = os.path.split(wp[:-1])[0]
@@ -1441,13 +1555,13 @@ class FSTestCase(_tempdirTestCase):
 
         tmp_foo         = os.path.join(tmp, 'foo')
 
-        foo             = drive_workpath('X:', ['foo'])
-        foo_bar         = drive_workpath('X:', ['foo', 'bar'])
-        sub             = drive_workpath('X:', ['sub', ''])
-        sub_dir         = drive_workpath('X:', ['sub', 'dir', ''])
-        sub_dir_foo     = drive_workpath('X:', ['sub', 'dir', 'foo', ''])
-        sub_dir_foo_bar = drive_workpath('X:', ['sub', 'dir', 'foo', 'bar', ''])
-        sub_foo         = drive_workpath('X:', ['sub', 'foo', ''])
+        foo             = drive_workpath(['foo'])
+        foo_bar         = drive_workpath(['foo', 'bar'])
+        sub             = drive_workpath(['sub', ''])
+        sub_dir         = drive_workpath(['sub', 'dir', ''])
+        sub_dir_foo     = drive_workpath(['sub', 'dir', 'foo', ''])
+        sub_dir_foo_bar = drive_workpath(['sub', 'dir', 'foo', 'bar', ''])
+        sub_foo         = drive_workpath(['sub', 'foo', ''])
 
         fs = SCons.Node.FS.FS()
 
@@ -1490,7 +1604,6 @@ class FSTestCase(_tempdirTestCase):
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
-            SCons.Node.FS.initialize_normpath_check()
 
             for sep in seps:
 
@@ -1517,7 +1630,117 @@ class FSTestCase(_tempdirTestCase):
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
-            SCons.Node.FS.initialize_normpath_check()
+
+    def test_unc_path(self):
+        """Test UNC path look-ups"""
+
+        test = self.test
+
+        test.subdir('sub', ['sub', 'dir'])
+
+        def strip_slash(p):
+            if p[-1] == os.sep and len(p) > 3:
+                p = p[:-1]
+            return p
+
+        def unc_workpath(dirs, test=test):
+            import ntpath
+            x = apply(test.workpath, dirs)
+            drive, path = ntpath.splitdrive(x)
+            unc, path = ntpath.splitunc(path)
+            path = strip_slash(path)
+            return '//' + path[1:]
+
+        wp              = unc_workpath([''])
+
+        if wp[-1] in (os.sep, '/'):
+            tmp         = os.path.split(wp[:-1])[0]
+        else:
+            tmp         = os.path.split(wp)[0]
+
+        parent_tmp      = os.path.split(tmp)[0]
+
+        tmp_foo         = os.path.join(tmp, 'foo')
+
+        foo             = unc_workpath(['foo'])
+        foo_bar         = unc_workpath(['foo', 'bar'])
+        sub             = unc_workpath(['sub', ''])
+        sub_dir         = unc_workpath(['sub', 'dir', ''])
+        sub_dir_foo     = unc_workpath(['sub', 'dir', 'foo', ''])
+        sub_dir_foo_bar = unc_workpath(['sub', 'dir', 'foo', 'bar', ''])
+        sub_foo         = unc_workpath(['sub', 'foo', ''])
+
+        fs = SCons.Node.FS.FS()
+
+        seps = [os.sep]
+        if os.sep != '/':
+            seps = seps + ['/']
+
+        def _do_Dir_test(lpath, path, up_path, sep, fileSys=fs):
+            dir = fileSys.Dir(lpath.replace('/', sep))
+
+            if os.sep != '/':
+                path = path.replace('/', os.sep)
+                up_path = up_path.replace('/', os.sep)
+
+            if path == os.sep + os.sep:
+                name = os.sep + os.sep
+            else:
+                name = path.split(os.sep)[-1]
+
+            if dir.up() is None:
+                dir_up_path =  dir.path
+            else:
+                dir_up_path =  dir.up().path
+
+            assert dir.name == name, \
+                   "dir.name %s != expected name %s" % \
+                   (dir.name, name)
+            assert dir.path == path, \
+                   "dir.path %s != expected path %s" % \
+                   (dir.path, path)
+            assert str(dir) == path, \
+                   "str(dir) %s != expected path %s" % \
+                   (str(dir), path)
+            assert dir_up_path == up_path, \
+                   "dir.up().path %s != expected parent path %s" % \
+                   (dir.up().path, up_path)
+
+        save_os_path = os.path
+        save_os_sep = os.sep
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+
+            for sep in seps:
+
+                def Dir_test(lpath, path_, up_path_, sep=sep, func=_do_Dir_test):
+                    return func(lpath, path_, up_path_, sep)
+
+                Dir_test('//foo',           '//foo',       '//')
+                Dir_test('//foo/bar',       '//foo/bar',   '//foo')
+                Dir_test('//',              '//',          '//')
+                Dir_test('//..',            '//',          '//')
+                Dir_test('//foo/..',        '//',          '//')
+                Dir_test('//../foo',        '//foo',       '//')
+                Dir_test('//.',             '//',          '//')
+                Dir_test('//./.',           '//',          '//')
+                Dir_test('//foo/./bar',     '//foo/bar',   '//foo')
+                Dir_test('//foo/../bar',    '//bar',       '//')
+                Dir_test('//foo/../../bar', '//bar',       '//')
+                Dir_test('//foo/bar/../..', '//',          '//')
+                Dir_test('#//',         wp,            tmp)
+                Dir_test('#//../foo',   tmp_foo,       tmp)
+                Dir_test('#//../foo',   tmp_foo,       tmp)
+                Dir_test('#//foo/bar',  foo_bar,       foo)
+                Dir_test('#//foo/bar',  foo_bar,       foo)
+                Dir_test('#//',         wp,            tmp)
+        finally:
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
 
     def test_target_from_source(self):
         """Test the method for generating target nodes from sources"""
@@ -1570,6 +1793,26 @@ class FSTestCase(_tempdirTestCase):
         dirs = os.path.normpath(d2.abspath).split(os.sep)
         above_path = os.path.join(*['..']*len(dirs) + ['above'])
         above = d2.Dir(above_path)
+
+    def test_lookup_uncpath(self):
+        """Testing looking up a UNC path on Windows"""
+        if sys.platform not in ('win32',):
+            return
+        test = self.test
+        fs = self.fs
+        path='//servername/C$/foo'
+        f = self.fs._lookup('//servername/C$/foo', fs.Dir('#'), SCons.Node.FS.File)
+        # before the fix in this commit, this returned 'C:\servername\C$\foo'
+        # Should be a normalized Windows UNC path as below.
+        assert str(f) == r'\\servername\C$\foo', \
+        'UNC path %s got looked up as %s'%(path, f)
+ 
+    def test_unc_drive_letter(self):
+        """Test drive-letter lookup for windows UNC-style directories"""
+        if sys.platform not in ('win32',):
+            return
+        share = self.fs.Dir(r'\\SERVER\SHARE\Directory')
+        assert str(share) == r'\\SERVER\SHARE\Directory', str(share)
 
     def test_rel_path(self):
         """Test the rel_path() method"""
