@@ -44,6 +44,60 @@ from SCons.Util import make_path_relative
 _INSTALLED_FILES = []
 _UNIQUE_INSTALLED_FILES = None
 
+class CopytreeError(EnvironmentError):
+    pass
+                
+# This is a patched version of shutil.copytree from python 2.5.  It
+# doesn't fail if the dir exists, which regular copytree does
+# (annoyingly).  Note the XXX comment in the docstring.
+def scons_copytree(src, dst, symlinks=False):
+    """Recursively copy a directory tree using copy2().
+
+    The destination directory must not already exist.
+    If exception(s) occur, an CopytreeError is raised with a list of reasons.
+
+    If the optional symlinks flag is true, symbolic links in the
+    source tree result in symbolic links in the destination tree; if
+    it is false, the contents of the files pointed to by symbolic
+    links are copied.
+
+    XXX Consider this example code rather than the ultimate tool.
+
+    """
+    names = os.listdir(src)
+    # garyo@genarts.com fix: check for dir before making dirs.
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    errors = []
+    for name in names:
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+        try:
+            if symlinks and os.path.islink(srcname):
+                linkto = os.readlink(srcname)
+                os.symlink(linkto, dstname)
+            elif os.path.isdir(srcname):
+                scons_copytree(srcname, dstname, symlinks)
+            else:
+                shutil.copy2(srcname, dstname)
+            # XXX What about devices, sockets etc.?
+        except (IOError, os.error), why:
+            errors.append((srcname, dstname, str(why)))
+        # catch the CopytreeError from the recursive copytree so that we can
+        # continue with other files
+        except CopytreeError, err:
+            errors.extend(err.args[0])
+    try:
+        shutil.copystat(src, dst)
+    except WindowsError:
+        # can't copy file access times on Windows
+        pass
+    except OSError, why:
+        errors.extend((src, dst, str(why)))
+    if errors:
+        raise CopytreeError, errors
+
+
 #
 # Functions doing the actual work of the Install Builder.
 #
@@ -59,7 +113,7 @@ def copyFunc(dest, source, env):
             parent = os.path.split(dest)[0]
             if not os.path.exists(parent):
                 os.makedirs(parent)
-        shutil.copytree(source, dest)
+        scons_copytree(source, dest)
     else:
         shutil.copy2(source, dest)
         st = os.stat(source)
