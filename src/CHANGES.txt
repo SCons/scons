@@ -7,6 +7,10 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Benoit Belley:
+
+    - Much improved support for Windows UNC paths (\\SERVERNAME).
+
   From Gary Oberbrunner:
 
     - Fix Install() when the source and target are directories and the

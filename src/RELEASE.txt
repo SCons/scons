@@ -58,11 +58,14 @@
       disk is corrected.
     - A problem with FS Entries which are dirs and have builders
       is corrected.
+    - A problem with Install() of a dir when the dest dir exists
+      is corrected.
     - Windows subprocess output should now be more reliable.
     - The users guide and man page have various fixes.
     - Appending to default $*FLAGS in a copied environment
       now works properly.
     - LaTeX scanner is improved for broken lines or embedded spaces.
+    - Windows UNC paths (\\SERVER\SHARE\dir) now work much better.
 
     - List fixes of outright bugs
 
