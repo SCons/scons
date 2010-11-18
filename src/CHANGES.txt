@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Gary Oberbrunner:
+
+    - Fix Install() when the source and target are directories and the
+      target directory exists.
+
   From Jean-Baptiste Lab:
 
     - Fix problems with appending CPPDEFINES that contain
