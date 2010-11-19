@@ -1814,6 +1814,17 @@ class FSTestCase(_tempdirTestCase):
         share = self.fs.Dir(r'\\SERVER\SHARE\Directory')
         assert str(share) == r'\\SERVER\SHARE\Directory', str(share)
 
+    def test_UNC_dirs_2689(self):
+        """Test some UNC dirs that printed incorrectly and/or caused
+        infinite recursion errors prior to r5180 (SCons 2.1)."""
+        fs = self.fs
+        if sys.platform not in ('win32',):
+            return
+        p = fs.Dir(r"\\computername\sharename").abspath
+        assert p == r"\\computername\sharename", p
+        p = fs.Dir(r"\\\computername\sharename").abspath
+        assert p == r"\\computername\sharename", p
+
     def test_rel_path(self):
         """Test the rel_path() method"""
         test = self.test
