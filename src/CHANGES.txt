@@ -7,6 +7,9 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Dmitry R.:
+    - Handle Environment in case __semi_deepcopy is None
+
   From Benoit Belley:
 
     - Much improved support for Windows UNC paths (\\SERVERNAME).
