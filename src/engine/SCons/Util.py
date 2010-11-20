@@ -464,7 +464,7 @@ def semi_deepcopy(x):
     if copier:
         return copier(x)
     else:
-        if hasattr(x, '__semi_deepcopy__'):
+        if hasattr(x, '__semi_deepcopy__') and callable(x.__semi_deepcopy__):
             return x.__semi_deepcopy__()
         elif isinstance(x, UserDict):
             return x.__class__(_semi_deepcopy_dict(x))
