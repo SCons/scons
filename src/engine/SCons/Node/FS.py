@@ -2178,7 +2178,7 @@ class RootDir(Dir):
         normalized absolute path; we merely let Python's dictionary look
         up and return the One True Node.FS object for the path.
 
-        If no Node for the specified "p" doesn't already exist, and
+        If a Node for the specified "p" doesn't already exist, and
         "create" is specified, the Node may be created after recursive
         invocation to find or create the parent directory or directories.
         """
@@ -2191,7 +2191,17 @@ class RootDir(Dir):
                 raise SCons.Errors.UserError(msg)
             # There is no Node for this path name, and we're allowed
             # to create it.
-            dir_name, file_name = p.rsplit('/',1)
+            # (note: would like to use p.rsplit('/',1) here but
+            # that's not in python 2.3)
+            # e.g.: dir_name, file_name = p.rsplit('/',1)
+            last_slash = p.rindex('/')
+            if (last_slash >= 0):
+                dir_name  = p[:last_slash]
+                file_name = p[last_slash+1:]
+            else:
+                dir_name  = p         # shouldn't happen, just in case
+                file_name = ''
+
             dir_node = self._lookup_abs(dir_name, Dir)
             result = klass(file_name, dir_node, self.fs)
 
