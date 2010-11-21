@@ -1794,6 +1794,15 @@ class FSTestCase(_tempdirTestCase):
         above_path = os.path.join(*['..']*len(dirs) + ['above'])
         above = d2.Dir(above_path)
 
+    def test_lookup_abs(self):
+        """Exercise the _lookup_abs function"""
+        test = self.test
+        fs = self.fs
+
+        root = fs.Dir('/')
+        d = root._lookup_abs('/tmp/foo/nonexistent-dir', SCons.Node.FS.Dir)
+        assert d.__class__ == SCons.Node.FS.Dir, str(d.__class__)
+
     def test_lookup_uncpath(self):
         """Testing looking up a UNC path on Windows"""
         if sys.platform not in ('win32',):
