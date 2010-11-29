@@ -409,7 +409,7 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
 
     - Remove LATEXSUFFIXES from environments that don't initialize Tex.
 
-    - Add support for the glosaaries package for glossaries and acronyms
+    - Add support for the glossaries package for glossaries and acronyms
 
     - Fix problem that pdftex, latex, and pdflatex tools by themselves did
       not create the actions for bibtex, makeindex,... by creating them
