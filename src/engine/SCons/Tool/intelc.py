@@ -245,7 +245,11 @@ def get_all_compiler_versions():
             m = re.search(r'([0-9][0-9.]*)$', d)
             if m:
                 versions.append(m.group(1))
-    return sorted(uniquify(versions))       # remove dups
+    def keyfunc(str):
+        """Given a dot-separated version string, return a tuple of ints representing it."""
+        return [int(x) for x in str.split('.')]
+    # split into ints, sort, then remove dups
+    return sorted(uniquify(versions), key=keyfunc, reverse=True)
 
 def get_intel_compiler_top(version, abi):
     """
