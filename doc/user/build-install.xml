@@ -121,9 +121,10 @@
 
     <para>
 
-    &SCons; will work with any version of Python from 2.4 or later.
+    &SCons; will work with any 2.x version of Python from 2.4 no;
+    3.0 and later are not yet supported.
     If you need to install Python and have a choice,
-    we recommend using the most recent Python version available.
+    we recommend using the most recent 2.x Python version available.
     Newer Pythons have significant improvements
     that help speed up the performance of &SCons;.
 
