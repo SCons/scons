@@ -61,7 +61,8 @@ import sys
 # If so exit with error message
 try:
     if  sys.version_info >= (3,0,0):
-        msg = "scons: *** SCons version %s does not run under Python version %s.\n"
+        msg = "scons: *** SCons version %s does not run under Python version %s.\n\
+Python 3.0 and later are not yet supported.\n"
         sys.stderr.write(msg % (__version__, sys.version.split()[0]))
         sys.exit(1)
 except AttributeError:
