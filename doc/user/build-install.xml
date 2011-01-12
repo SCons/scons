@@ -121,7 +121,7 @@
 
     <para>
 
-    &SCons; will work with any 2.x version of Python from 2.4 no;
+    &SCons; will work with any 2.x version of Python from 2.4 on;
     3.0 and later are not yet supported.
     If you need to install Python and have a choice,
     we recommend using the most recent 2.x Python version available.
