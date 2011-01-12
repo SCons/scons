@@ -798,6 +798,7 @@ sys.exit(0)
             "-Ffwd2 " + \
             "-F fwd3 " + \
             "-pthread " + \
+            "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp +DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
@@ -807,7 +808,7 @@ sys.exit(0)
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
-                                  '-pthread', '-mno-cygwin',
+                                  '-pthread', '-fopenmp', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),
                                   '+DD64'], d['CCFLAGS']
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
@@ -822,7 +823,7 @@ sys.exit(0)
                                 'C:\\Program Files\\ASCEND'], d['LIBPATH']
         LIBS = list(map(str, d['LIBS']))
         assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
-        assert d['LINKFLAGS'] == ['-Wl,-link', '-pthread',
+        assert d['LINKFLAGS'] == ['-Wl,-link', '-pthread', '-fopenmp',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),

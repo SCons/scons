@@ -766,13 +766,13 @@ class SubstitutionEnvironment(object):
                         dict['FRAMEWORKPATH'].append(arg[2:])
                     else:
                         append_next_arg_to = 'FRAMEWORKPATH'
-                elif arg == '-mno-cygwin':
+                elif arg in ['-mno-cygwin',
+                             '-pthread',
+                             '-openmp',
+                             '-fopenmp']:
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
                 elif arg == '-mwindows':
-                    dict['LINKFLAGS'].append(arg)
-                elif arg == '-pthread':
-                    dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:5] == '-std=':
                     dict['CFLAGS'].append(arg) # C only
