@@ -83,19 +83,19 @@ test.run(arguments='debug=full guilib=KdE some=EiNs')
 check(['full', 'KdE', 'eins'])
 
 expect_stderr = """
-scons: *** Invalid value for option debug: FULL
+scons: *** Invalid value for option debug: FULL.  Valid values are: ('yes', 'no', 'full')
 """ + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for option guilib: irgendwas
+scons: *** Invalid value for option guilib: irgendwas.  Valid values are: ('motif', 'gtk', 'kde')
 """ + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for option some: irgendwas
+scons: *** Invalid value for option some: irgendwas.  Valid values are: ('xaver', 'eins')
 """ + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)

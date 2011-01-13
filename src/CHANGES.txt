@@ -8,6 +8,9 @@
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Gary Oberbrunner:
+    - Improve error message for EnumVariables to show legal values.
+
+  From Gary Oberbrunner:
     - Fix Intel compiler to sort versions >9 correctly (esp. on Linux)
 
   From Dmitry R.:
