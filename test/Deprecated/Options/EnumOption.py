@@ -90,19 +90,19 @@ test.run(arguments='debug=full guilib=KdE some=EiNs', stderr=warnings)
 check(['full', 'KdE', 'eins'])
 
 expect_stderr = warnings + """
-scons: \\*\\*\\* Invalid value for option debug: FULL
+scons: \\*\\*\\* Invalid value for option debug: FULL.  Valid values are: \\('yes', 'no', 'full'\\)
 """ + TestSCons.file_expr
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
 expect_stderr = warnings + """
-scons: \\*\\*\\* Invalid value for option guilib: irgendwas
+scons: \\*\\*\\* Invalid value for option guilib: irgendwas.  Valid values are: \\('motif', 'gtk', 'kde'\\)
 """ + TestSCons.file_expr
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = warnings + """
-scons: \\*\\*\\* Invalid value for option some: irgendwas
+scons: \\*\\*\\* Invalid value for option some: irgendwas.  Valid values are: \\('xaver', 'eins'\\)
 """ + TestSCons.file_expr
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
