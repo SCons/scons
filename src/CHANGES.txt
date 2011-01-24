@@ -7,6 +7,11 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Antoine Dechaume:
+    - Handle SWIG file where there is whitespace after the module name
+      properly. Previously the generated files would include 
+      the whitespace.
+
   From Gary Oberbrunner:
     - Improve error message for EnumVariables to show legal values.
 

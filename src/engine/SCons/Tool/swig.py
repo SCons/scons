@@ -53,7 +53,8 @@ def swigSuffixEmitter(env, source):
 
 # Match '%module test', as well as '%module(directors="1") test'
 # Also allow for test to be quoted (SWIG permits double quotes, but not single)
-_reModule = re.compile(r'%module(\s*\(.*\))?\s+("?)(.+)\2')
+# Also allow for the line to have spaces after test if not quoted
+_reModule = re.compile(r'%module(\s*\(.*\))?\s+("?)(\S+)\2')
 
 def _find_modules(src):
     """Find all modules referenced by %module lines in `src`, a SWIG .i file.
