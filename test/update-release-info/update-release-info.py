@@ -69,13 +69,13 @@ combo_strings = [
 """version_tuple = (2, 0, 0, 'final', 0)
 """,
 # Index 5: bad release date
-"""release_date = (2010, 12)
+"""release_date = (2011, 12)
 """,
 # Index 6: release date (hhhh, mm, dd)
-"""release_date = (2010, 12, 21)
+"""release_date = (2011, 12, 21)
 """,
 # Index 7: release date (hhhh, mm, dd, hh, mm, ss)
-"""release_date = (2010, 12, 21, 12, 21, 12)
+"""release_date = (2011, 12, 21, 12, 21, 12)
 """,
 ]
 
@@ -114,7 +114,7 @@ combo_fail(0, 1, 2, stdout =
 combo_strings[0] = combo_strings[1] + combo_strings[2] + combo_strings[3]
 
 combo_fail(0, 5, stdout =
-"""ERROR: Invalid release date (2010, 12)
+"""ERROR: Invalid release date (2011, 12)
 """)
 
 def pave(path):
@@ -213,7 +213,7 @@ These files are a part of 33.22.11:
 
 # should get Python floors from TestSCons module.
 test.must_match(TestSCons, """
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010'
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011'
 default_version = '2.0.0.alpha.yyyymmdd'
 python_version_unsupported = (2, 3)
 python_version_deprecated = (2, 4)

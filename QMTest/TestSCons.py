@@ -33,7 +33,7 @@ from TestCommon import __all__
 
 default_version = '2.1.0.alpha.yyyymmdd'
 
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010'
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011'
 
 python_version_unsupported = (2, 3, 0)
 python_version_deprecated = (2, 4, 0)
