@@ -61,6 +61,16 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
         base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
         target.append(base + env.subst("$YACCVCGFILESUFFIX"))
 
+    # If -v is specirfied yacc will create the output debug file
+    # which is not really source for any process, but should
+    # be noted and also be cleaned
+    # Bug #2558
+    if "-v" in flags:
+        env.SideEffect(targetBase+'.output',target[0])
+        env.Clean(target[0],targetBase+'.output')
+
+
+
     # With --defines and --graph, the name of the file is totally defined
     # in the options.
     fileGenOptions = ["--defines=", "--graph="]
