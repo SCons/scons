@@ -974,6 +974,23 @@ class must_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    def test_broken_link(self) :
+        """Test must_exist():  exists but it is a broken link"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.symlink('badtarget', "brokenlink")
+        tc.must_exist('brokenlink')
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
 
 
 class must_match_TestCase(TestCommonTestCase):
@@ -1498,6 +1515,22 @@ class must_not_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    def test_existing_broken_link(self):
+        """Test must_not_exist():  exists but it is a broken link"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.symlink('badtarget', 'brokenlink')
+        tc.must_not_exist('brokenlink')
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "Unexpected files exist: `brokenlink'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("FAILED") != -1, stderr
 
 
 class run_TestCase(TestCommonTestCase):

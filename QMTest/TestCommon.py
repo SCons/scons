@@ -417,7 +417,7 @@ class TestCommon(TestCmd):
         if any of the files does not exist.
         """
         files = [is_List(x) and os.path.join(*x) or x for x in files]
-        missing = [x for x in files if not os.path.exists(x)]
+        missing = [x for x in files if not os.path.exists(x) and not os.path.islink(x) ]
         if missing:
             print "Missing files: `%s'" % "', `".join(missing)
             self.fail_test(missing)
@@ -493,7 +493,7 @@ class TestCommon(TestCmd):
         Exits FAILED if any of the files exists.
         """
         files = [is_List(x) and os.path.join(*x) or x for x in files]
-        existing = list(filter(os.path.exists, files))
+        existing = [x for x in files if os.path.exists(x) or os.path.islink(x)]
         if existing:
             print "Unexpected files exist: `%s'" % "', `".join(existing)
             self.fail_test(existing)
