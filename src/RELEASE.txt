@@ -53,6 +53,7 @@
 
   FIXES
 
+    - Delete can now delete symlinks to directories and broken symlinks
     - CPPDEFINES containing dictionaries now work better.
     - A problem with using implicit-cache and removing dependencies on
       disk is corrected.
