@@ -199,14 +199,15 @@ def delete_func(dest, must_exist=0):
         dest = [dest]
     for entry in dest:
         entry = str(entry)
-        if not must_exist and not os.path.exists(entry):
+        # os.path.exists returns False with broken links that exist
+        entry_exists = os.path.exists(entry) or os.path.islink(entry)
+        if not entry_exists and not must_exist:
             continue
-        if not os.path.exists(entry) or os.path.isfile(entry):
-            os.unlink(entry)
-            continue
-        else:
+        # os.path.isdir returns True when entry is a link to a dir
+        if os.path.isdir(entry) and not os.path.islink(entry):
             shutil.rmtree(entry, 1)
             continue
+        os.unlink(entry)
 
 def delete_strfunc(dest, must_exist=0):
     return 'Delete(%s)' % get_paths_str(dest)

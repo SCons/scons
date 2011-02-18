@@ -37,6 +37,10 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 Execute(Delete('f1'))
 Execute(Delete('d2'))
+Execute(Delete('symlinks/filelink'))
+Execute(Delete('symlinks/brokenlink'))
+Execute(Delete('symlinks/dirlink'))
+
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -90,10 +94,20 @@ test.subdir('d13.in')
 test.write('f14', "f14\n")
 test.subdir('d15')
 test.write('f16.in', "f16.in\n")
+test.subdir('symlinks')
+test.subdir('symlinks/dirtarget')
+test.write('symlinks/dirtarget/dircontent', 'dircontent content\n')
+test.write('symlinks/filetarget', 'filetarget content\n')
+test.symlink('filetarget', 'symlinks/filelink')
+test.symlink('dirtarget', 'symlinks/dirlink')
+test.symlink('brokentarget', 'symlinks/brokenlink')
 
 expect = test.wrap_stdout(read_str = """\
 Delete("f1")
 Delete("d2")
+Delete("symlinks/filelink")
+Delete("symlinks/brokenlink")
+Delete("symlinks/dirlink")
 """,
                           build_str = """\
 Delete("d11-nonexistent.out")
@@ -135,6 +149,13 @@ test.must_exist('f9.out-Delete')
 test.must_exist('f14')
 test.must_exist('d15')
 test.must_not_exist('f16.out')
+test.must_exist('symlinks')
+test.must_exist('symlinks/dirtarget')
+test.must_exist('symlinks/dirtarget/dircontent')
+test.must_exist('symlinks/filetarget')
+test.must_exist('symlinks/filelink')
+test.must_exist('symlinks/brokenlink')
+test.must_exist('symlinks/dirlink')
 
 test.run()
 
@@ -159,6 +180,13 @@ test.must_exist('d13-nonexistent.out')
 test.must_not_exist('f14')
 test.must_not_exist('d15')
 test.must_match('f16.out', "f16.in\n")
+test.must_exist('symlinks')
+test.must_exist('symlinks/dirtarget')
+test.must_exist('symlinks/dirtarget/dircontent')
+test.must_exist('symlinks/filetarget')
+test.must_not_exist('symlinks/filelink')
+test.must_not_exist('symlinks/brokenlink')
+test.must_not_exist('symlinks/dirlink')
 
 test.write("SConstruct", """\
 def cat(env, source, target):
