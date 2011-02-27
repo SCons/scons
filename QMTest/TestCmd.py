@@ -1394,7 +1394,10 @@ class TestCmd(object):
         under the temporary working directory.
         """
         link = self.canonicalize(link)
-        os.symlink(target, link)
+        try:
+            os.symlink(target, link)
+        except AttributeError:
+            pass                # Windows has no symlink
 
     def tempdir(self, path=None):
         """Creates a temporary directory.

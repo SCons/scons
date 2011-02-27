@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the Delete() Action works.
 """
 
+import sys
 import os.path
 
 import TestSCons
@@ -149,13 +150,14 @@ test.must_exist('f9.out-Delete')
 test.must_exist('f14')
 test.must_exist('d15')
 test.must_not_exist('f16.out')
-test.must_exist('symlinks')
-test.must_exist('symlinks/dirtarget')
-test.must_exist('symlinks/dirtarget/dircontent')
-test.must_exist('symlinks/filetarget')
-test.must_exist('symlinks/filelink')
-test.must_exist('symlinks/brokenlink')
-test.must_exist('symlinks/dirlink')
+if sys.platform != 'win32':
+    test.must_exist('symlinks')
+    test.must_exist('symlinks/dirtarget')
+    test.must_exist('symlinks/dirtarget/dircontent')
+    test.must_exist('symlinks/filetarget')
+    test.must_exist('symlinks/filelink')
+    test.must_exist('symlinks/brokenlink')
+    test.must_exist('symlinks/dirlink')
 
 test.run()
 
@@ -180,13 +182,14 @@ test.must_exist('d13-nonexistent.out')
 test.must_not_exist('f14')
 test.must_not_exist('d15')
 test.must_match('f16.out', "f16.in\n")
-test.must_exist('symlinks')
-test.must_exist('symlinks/dirtarget')
-test.must_exist('symlinks/dirtarget/dircontent')
-test.must_exist('symlinks/filetarget')
-test.must_not_exist('symlinks/filelink')
-test.must_not_exist('symlinks/brokenlink')
-test.must_not_exist('symlinks/dirlink')
+if sys.platform != 'win32':
+    test.must_exist('symlinks')
+    test.must_exist('symlinks/dirtarget')
+    test.must_exist('symlinks/dirtarget/dircontent')
+    test.must_exist('symlinks/filetarget')
+    test.must_not_exist('symlinks/filelink')
+    test.must_not_exist('symlinks/brokenlink')
+    test.must_not_exist('symlinks/dirlink')
 
 test.write("SConstruct", """\
 def cat(env, source, target):
