@@ -7,6 +7,9 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Gary Oberbrunner:
+    - Adding None to an Action no longer fails (just returns original action)
+
   From David Garcia Garzon:
     - Fix Delete to be able to delete broken symlinks and dir
       symlinks.

@@ -300,8 +300,10 @@ def _actionAppend(act1, act2):
     # a single ListAction.
     a1 = Action(act1)
     a2 = Action(act2)
-    if a1 is None or a2 is None:
-        raise TypeError("Cannot append %s to %s" % (type(act1), type(act2)))
+    if a1 is None:
+        return a2
+    if a2 is None:
+        return a1
     if isinstance(a1, ListAction):
         if isinstance(a2, ListAction):
             return ListAction(a1.list + a2.list)
@@ -385,6 +387,10 @@ def _do_create_action(act, kw):
         # The list of string commands may include a LazyAction, so we
         # reprocess them via _do_create_list_action.
         return _do_create_list_action(commands, kw)
+    # Catch a common error case with a nice message:
+    if isinstance(act, int) or isinstance(act, float):
+        raise TypeError("Don't know how to create an Action from a number (%s)"%act)
+    # Else fail silently (???)
     return None
 
 def _do_create_list_action(act, kw):
