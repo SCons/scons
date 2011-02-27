@@ -1800,7 +1800,7 @@ class FSTestCase(_tempdirTestCase):
         fs = self.fs
 
         root = fs.Dir('/')
-        d = root._lookup_abs('/tmp/foo/nonexistent-dir', SCons.Node.FS.Dir)
+        d = root._lookup_abs('/tmp/foo-nonexistent/nonexistent-dir', SCons.Node.FS.Dir)
         assert d.__class__ == SCons.Node.FS.Dir, str(d.__class__)
 
     def test_lookup_uncpath(self):
