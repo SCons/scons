@@ -475,18 +475,28 @@ class DummyRegistry(object):
         self.parse(data)
 
     def parse(self, data):
-        parent = self.root
+        parents = [None, None]
+        parents[0] = self.root
         keymatch = re.compile('^\[(.*)\]$')
         valmatch = re.compile('^(?:"(.*)"|[@])="(.*)"$')
         for line in data:
             m1 = keymatch.match(line)
             if m1:
-                # add a key, set it to current parent
-                parent = self.root.addKey(m1.group(1))
+                # add a key, set it to current parent.
+                # Also create subkey for Wow6432Node of HKLM\Software;
+                # that's where it looks on a 64-bit machine (tests will fail w/o this)
+                parents[0] = self.root.addKey(m1.group(1))
+                if 'HKEY_LOCAL_MACHINE\\Software' in m1.group(1):
+                    p1 = m1.group(1).replace('HKEY_LOCAL_MACHINE\\Software', 'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node')
+                    parents[1] = self.root.addKey(p1)
+                else:
+                    parents[1] = None
             else:
                 m2 = valmatch.match(line)
                 if m2:
-                    parent.addValue(m2.group(1),m2.group(2))
+                    for p in parents:
+                        if p:
+                            p.addValue(m2.group(1),m2.group(2))
 
     def OpenKeyEx(self,root,key):
         if root == SCons.Util.HKEY_CLASSES_ROOT:
@@ -690,7 +700,7 @@ class msvs80TestCase(msvsTestCase):
 class msvsEmptyTestCase(msvsTestCase):
     """Test Empty Registry"""
     registry = DummyRegistry(regdata_none)
-    default_version = '9.0'
+    default_version = '10.0'
     highest_version = None
     number_of_versions = 0
     install_locs = {
