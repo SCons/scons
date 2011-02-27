@@ -397,8 +397,12 @@ class ActionTestCase(unittest.TestCase):
     def test_no_action(self):
         """Test when the Action() factory can't create an action object
         """
-        a5 = SCons.Action.Action(1)
-        assert a5 is None, a5
+        try:
+            a5 = SCons.Action.Action(1)
+        except TypeError:
+            pass
+        else:
+            assert 0, "Should have thrown a TypeError creating Action from an int."
 
     def test_reentrance(self):
         """Test the Action() factory when the action is already an Action object
@@ -801,6 +805,13 @@ class _ActionActionTestCase(unittest.TestCase):
         assert len(sum.list) == 4, len(sum.list)
         assert isinstance(sum.list[2], SCons.Action.CommandGeneratorAction)
         assert isinstance(sum.list[3], SCons.Action.FunctionAction)
+
+        # OK to add None on either side (should be ignored)
+        sum = act1 + None
+        assert sum == act1
+
+        sum = None + act1
+        assert sum == act1
 
         try:
             sum = act2 + 1
