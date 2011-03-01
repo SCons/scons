@@ -664,6 +664,18 @@ Re-run SCons under the control of the
 Python debugger.
 
 .TP
+--debug=prepare
+Print a line each time any target (internal or external)
+is prepared for building.
+.B scons
+prints this for each target it considers, even if that
+target is up to date (see also --debug=explain).
+This can help debug problems with targets that aren't being
+built; it shows whether
+.B scons
+is at least considering them or not.
+
+.TP
 --debug=presub
 Print the raw command line used to build each target
 before the construction environment variables are substituted.

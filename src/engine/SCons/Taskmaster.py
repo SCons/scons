@@ -66,6 +66,7 @@ NODE_UP_TO_DATE = SCons.Node.up_to_date
 NODE_EXECUTED = SCons.Node.executed
 NODE_FAILED = SCons.Node.failed
 
+print_prepare = 0               # set by option --debug=prepare
 
 # A subsystem for recording stats about how different Nodes are handled by
 # the main Taskmaster loop.  There's no external control here (no need for
@@ -161,6 +162,7 @@ class Task(object):
         unlink underlying files and make all necessary directories before
         the Action is actually called to build the targets.
         """
+        global print_prepare
         T = self.tm.trace
         if T: T.write(self.trace_message(u'Task.prepare()', self.node))
 
@@ -186,8 +188,14 @@ class Task(object):
         executor = self.targets[0].get_executor()
         executor.prepare()
         for t in executor.get_action_targets():
+            if print_prepare:
+                print "Preparing target %s..."%t
+                for s in t.side_effects:
+                    print "...with side-effect %s..."%s
             t.prepare()
             for s in t.side_effects:
+                if print_prepare:
+                    print "...Preparing side-effect %s..."%s
                 s.prepare()
 
     def get_target(self):

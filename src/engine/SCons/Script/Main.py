@@ -654,6 +654,8 @@ def _set_debug_values(options):
         print_time = 1
     if "tree" in debug_values:
         options.tree_printers.append(TreePrinter())
+    if "prepare" in debug_values:
+        SCons.Taskmaster.print_prepare = 1
 
 def _create_path(plist):
     path = '.'
