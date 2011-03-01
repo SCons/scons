@@ -601,6 +601,12 @@ have been compiled with optimization
 files).
 
 .TP
+--debug=duplicate
+Print a line for each unlink/relink (or copy) of a variant file from
+its source file.  Includes debugging info for unlinking stale variant
+files, as well as unlinking old targets before building them.
+
+.TP
 --debug=dtree
 A synonym for the newer
 .B --tree=derived

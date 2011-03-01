@@ -656,6 +656,8 @@ def _set_debug_values(options):
         options.tree_printers.append(TreePrinter())
     if "prepare" in debug_values:
         SCons.Taskmaster.print_prepare = 1
+    if "duplicate" in debug_values:
+        SCons.Node.FS.print_duplicate = 1
 
 def _create_path(plist):
     path = '.'
