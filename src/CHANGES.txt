@@ -10,6 +10,10 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Gary Oberbrunner:
     - Adding None to an Action no longer fails (just returns original action)
 
+  From Gary Oberbrunner:
+    - New --debug=prepare option to show each target as it's being
+      prepared, whether or not anything needs to be done for it.
+
   From David Garcia Garzon:
     - Fix Delete to be able to delete broken symlinks and dir
       symlinks.

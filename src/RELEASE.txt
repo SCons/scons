@@ -49,7 +49,7 @@
     - List modifications to existing features, where the previous behavior
       wouldn't actually be considered a bug
 
-    - Add initial support for VS/VC 2001
+    - Add initial support for VS/VC 2010
 
   FIXES
 
@@ -82,6 +82,9 @@
     - TeX command strings now work on Windows when the new dir is
       on a different drive letter.
     - DMD version 2 is supported (using the phobos2 library)
+    - New --debug=prepare option shows each target as it's prepared
+      for building; can help when you don't know why a target isn't
+      being built.
 
     - List improvements that wouldn't be visible to the user in the
       documentation:  performance improvements (describe the circumstances
