@@ -56,6 +56,7 @@ import SCons.Warnings
 from SCons.Debug import Trace
 
 do_store_info = True
+print_duplicate = 0
 
 
 class EntryProxyAttributeError(AttributeError):
@@ -2787,6 +2788,8 @@ class File(Base):
 
     def _rmv_existing(self):
         self.clear_memoized_values()
+        if print_duplicate:
+            print "dup: removing existing target %s"%self
         e = Unlink(self, [], None)
         if isinstance(e, SCons.Errors.BuildError):
             raise e
@@ -2827,6 +2830,8 @@ class File(Base):
 
     def do_duplicate(self, src):
         self._createDir()
+        if print_duplicate:
+            print "dup: relinking variant '%s' from '%s'"%(self, src)
         Unlink(self, None, None)
         e = Link(self, src, None)
         if isinstance(e, SCons.Errors.BuildError):
@@ -2860,6 +2865,8 @@ class File(Base):
                     else:
                         # The source file does not exist.  Make sure no old
                         # copy remains in the variant directory.
+                        if print_duplicate:
+                            print "dup: no src for %s, unlinking old variant copy"%self
                         if Base.exists(self) or self.islink():
                             self.fs.unlink(self.path)
                         # Return None explicitly because the Base.exists() call

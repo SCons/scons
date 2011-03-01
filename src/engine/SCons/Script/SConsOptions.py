@@ -596,7 +596,7 @@ def Parser(version):
         "tree"          : '; please use --tree=all instead',
     }
 
-    debug_options = ["count", "explain", "findlibs",
+    debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
                      "time"] + list(deprecated_debug_options.keys())

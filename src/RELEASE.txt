@@ -73,6 +73,8 @@
 
   IMPROVEMENTS
 
+    - New debugging options to print unlink/relinking of variant files
+      (--debug=duplicate) and preparation of targets (--debug=prepare).
     - SCons can now generate MSVS 9.0 and 10.0 Projects and Solutions.
     - MSVS Solution generation is improved.
     - Fortran 03 is supported (preliminary)

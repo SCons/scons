@@ -14,6 +14,10 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - New --debug=prepare option to show each target as it's being
       prepared, whether or not anything needs to be done for it.
 
+  From Gary Oberbrunner:
+    - New debug option --debug=duplicate to print a line for each
+      unlink/relink (or copy) of a variant file from its source file.
+    
   From David Garcia Garzon:
     - Fix Delete to be able to delete broken symlinks and dir
       symlinks.
