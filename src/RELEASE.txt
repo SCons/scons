@@ -31,6 +31,9 @@
 
   NEW FUNCTIONALITY
 
+    - SCons can now automatically embed manifests in Windows executables
+      and DLLs, by setting WINDOWS_EMBED_MANIFEST in the environment.
+
     - SCons now searches for site_scons dirs in several system-wide
       and per-user locations, in addition to the SConstruct top dir.
       This should enable much easier use of third-party (non-core)
@@ -120,6 +123,7 @@
   Rob Managan,
   Gary Oberbrunner,
   Evgeny Podjachev,
+  Sohail Somani,
   Anatoly Techtonik,
   Allen Weeks,
   Russel Winder,
