@@ -116,8 +116,9 @@ def _dllEmitter(target, source, env, paramtp):
                             "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"))
 
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
-    if version_num >= 8.0 and env.get('WINDOWS_INSERT_MANIFEST', 0):
-        # MSVC 8 automatically generates .manifest files that must be installed
+    if version_num >= 8.0 and \
+            (env.get('WINDOWS_INSERT_MANIFEST', 0) or env.get('WINDOWS_EMBED_MANIFEST', 0)):
+        # MSVC 8 and above automatically generate .manifest files that must be installed
         extratargets.append(
             env.ReplaceIxes(dll,
                             '%sPREFIX' % paramtp, '%sSUFFIX' % paramtp,
@@ -164,8 +165,9 @@ def prog_emitter(target, source, env):
         raise SCons.Errors.UserError("An executable should have exactly one target with the suffix: %s" % env.subst("$PROGSUFFIX"))
 
     version_num, suite = SCons.Tool.msvs.msvs_parse_version(env.get('MSVS_VERSION', '6.0'))
-    if version_num >= 8.0 and env.get('WINDOWS_INSERT_MANIFEST', 0):
-        # MSVC 8 automatically generates .manifest files that have to be installed
+    if version_num >= 8.0 and \
+            (env.get('WINDOWS_INSERT_MANIFEST', 0) or env.get('WINDOWS_EMBED_MANIFEST', 0)):
+        # MSVC 8 and above automatically generate .manifest files that have to be installed
         extratargets.append(
             env.ReplaceIxes(exe,
                             "PROGPREFIX", "PROGSUFFIX",
@@ -188,12 +190,50 @@ def RegServerFunc(target, source, env):
         return ret
     return 0
 
+# These are the actual actions run to embed the manifest.
+# They are only called from the Check versions below.
+embedManifestExeAction = SCons.Action.Action('$MTEXECOM')
+embedManifestDllAction = SCons.Action.Action('$MTSHLIBCOM')
+
+def embedManifestDllCheck(target, source, env):
+    """Function run by embedManifestDllCheckAction to check for existence of manifest
+    and other conditions, and embed the manifest by calling embedManifestDllAction if so."""
+    if env.get('WINDOWS_EMBED_MANIFEST', 0):
+        manifestSrc = target[0].abspath + '.manifest'
+        if os.path.exists(manifestSrc):
+            ret = (embedManifestDllAction) ([target[0]],None,env)        
+            if ret:
+                raise SCons.Errors.UserError, "Unable to embed manifest into %s" % (target[0])
+            return ret
+        else:
+            print '(embed: no %s.manifest found; not embedding.)'%str(target[0])
+    return 0
+
+def embedManifestExeCheck(target, source, env):
+    """Function run by embedManifestExeCheckAction to check for existence of manifest
+    and other conditions, and embed the manifest by calling embedManifestExeAction if so."""
+    if env.get('WINDOWS_EMBED_MANIFEST', 0):
+        manifestSrc = target[0].abspath + '.manifest'
+        if os.path.exists(manifestSrc):
+            ret = (embedManifestExeAction) ([target[0]],None,env)
+            if ret:
+                raise SCons.Errors.UserError, "Unable to embed manifest into %s" % (target[0])
+            return ret
+        else:
+            print '(embed: no %s.manifest found; not embedding.)'%str(target[0])
+    return 0
+
+embedManifestDllCheckAction = SCons.Action.Action(embedManifestDllCheck, None)
+embedManifestExeCheckAction = SCons.Action.Action(embedManifestExeCheck, None)
+
 regServerAction = SCons.Action.Action("$REGSVRCOM", "$REGSVRCOMSTR")
 regServerCheck = SCons.Action.Action(RegServerFunc, None)
 shlibLinkAction = SCons.Action.Action('${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES")}')
-compositeShLinkAction = shlibLinkAction + regServerCheck
+compositeShLinkAction = shlibLinkAction + regServerCheck + embedManifestDllCheckAction
 ldmodLinkAction = SCons.Action.Action('${TEMPFILE("$LDMODULE $LDMODULEFLAGS $_LDMODULE_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_LDMODULE_SOURCES")}')
-compositeLdmodAction = ldmodLinkAction + regServerCheck
+compositeLdmodAction = ldmodLinkAction + regServerCheck + embedManifestDllCheckAction
+exeLinkAction = SCons.Action.Action('${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows")}')
+compositeLinkAction = exeLinkAction + embedManifestExeCheckAction
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
@@ -209,7 +249,7 @@ def generate(env):
     env['LINK']        = 'link'
     env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
-    env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows")}'
+    env['LINKCOM'] = compositeLinkAction
     env.Append(PROGEMITTER = [prog_emitter])
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
@@ -237,6 +277,18 @@ def generate(env):
     env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')
     env['REGSVRFLAGS'] = '/s '
     env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS ${TARGET.windows}'
+
+    env['WINDOWS_EMBED_MANIFEST'] = 0
+    env['MT'] = 'mt'
+    #env['MTFLAGS'] = ['-hashupdate']
+    env['MTFLAGS'] = SCons.Util.CLVar('/nologo')
+    # Note: use - here to prevent build failure if no manifest produced.
+    # This seems much simpler than a fancy system using a function action to see
+    # if the manifest actually exists before trying to run mt with it.
+    env['MTEXECOM']   = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
+    env['MTSHLIBCOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
+    # Future work garyo 27-Feb-11
+    env['_MANIFEST_SOURCES'] = None # _windowsManifestSources
 
     # Set-up ms tools paths
     msvc_setup_env_once(env)

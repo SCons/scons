@@ -94,6 +94,43 @@ see the entry for that variable for specific examples.
 </summary>
 </cvar>
 
+<cvar name="WINDOWS_EMBED_MANIFEST">
+<summary>
+Set this variable to True or 1 to embed the compiler-generated manifest
+(normally <literal>${TARGET}.manifest</literal>)
+into all Windows exes and DLLs built with this environment,
+as a resource during their link step.
+This is done using &cv-link-MT; and &cv-link-MTEXECOM; and &cv-link-MTSHLIBCOM;.
+</summary>
+</cvar>
+
+<cvar name="MT">
+<summary>
+The program used on Windows systems to embed manifests into DLLs and EXEs.
+See also &cv-link-WINDOWS_EMBED_MANIFEST;.
+</summary>
+</cvar>
+
+<cvar name="MTFLAGS">
+<summary>
+Flags passed to the &cv-link-MT; manifest embedding program (Windows only).
+</summary>
+</cvar>
+
+<cvar name="MTEXECOM">
+<summary>
+The Windows command line used to embed manifests into executables.
+See also &cv-link-MTSHLIBCOM;.
+</summary>
+</cvar>
+
+<cvar name="MTSHLIBCOM">
+<summary>
+The Windows command line used to embed manifests into shared libraries (DLLs).
+See also &cv-link-MTEXECOM;.
+</summary>
+</cvar>
+
 <cvar name="REGSVR">
 <summary>
 The program used on Windows systems

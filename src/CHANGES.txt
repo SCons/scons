@@ -7,6 +7,10 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Gary Oberbrunner and Sohail Somani:
+    - new construction variable WINDOWS_EMBED_MANIFEST to automatically
+      embed manifests in Windows EXEs and DLLs.
+
   From Gary Oberbrunner:
     - Adding None to an Action no longer fails (just returns original action)
 
