@@ -797,6 +797,7 @@ sys.exit(0)
             "-frameworkdir=fwd1 " + \
             "-Ffwd2 " + \
             "-F fwd3 " + \
+            "-dylib_file foo-dylib " + \
             "-pthread " + \
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
@@ -810,7 +811,7 @@ sys.exit(0)
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
                                   '-pthread', '-fopenmp', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                  '+DD64'], d['CCFLAGS']
+                                  '+DD64'], repr(d['CCFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
         assert d['CPPPATH'] == ['/usr/include/fum',
@@ -823,11 +824,13 @@ sys.exit(0)
                                 'C:\\Program Files\\ASCEND'], d['LIBPATH']
         LIBS = list(map(str, d['LIBS']))
         assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
-        assert d['LINKFLAGS'] == ['-Wl,-link', '-pthread', '-fopenmp',
+        assert d['LINKFLAGS'] == ['-Wl,-link',
+                                  '-dylib_file', 'foo-dylib',
+                                  '-pthread', '-fopenmp',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),
-                                  '+DD64'], d['LINKFLAGS']
+                                  '+DD64'], repr(d['LINKFLAGS'])
         assert d['RPATH'] == ['rpath1', 'rpath2', 'rpath3'], d['RPATH']
 
 

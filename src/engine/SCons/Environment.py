@@ -723,6 +723,9 @@ class SubstitutionEnvironment(object):
                    append_next_arg_to = None
                 elif not arg[0] in ['-', '+']:
                     dict['LIBS'].append(self.fs.File(arg))
+                elif arg == '-dylib_file':
+                    dict['LINKFLAGS'].append(arg)
+                    append_next_arg_to = 'LINKFLAGS'
                 elif arg[:2] == '-L':
                     if arg[2:]:
                         dict['LIBPATH'].append(arg[2:])
