@@ -7,23 +7,23 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
-  From Gary Oberbrunner:
-    - Fix precompiled headers on Windows when variant dir name has spaces.
-
   From Gary Oberbrunner and Sohail Somani:
     - new construction variable WINDOWS_EMBED_MANIFEST to automatically
       embed manifests in Windows EXEs and DLLs.
 
   From Gary Oberbrunner:
+    - Put RPATH in LINKCOM rather than LINKFLAGS so resetting
+      LINKFLAGS doesn't kill RPATH
+    - Fix precompiled headers on Windows when variant dir name has spaces.
     - Adding None to an Action no longer fails (just returns original action)
-
-  From Gary Oberbrunner:
     - New --debug=prepare option to show each target as it's being
       prepared, whether or not anything needs to be done for it.
-
-  From Gary Oberbrunner:
     - New debug option --debug=duplicate to print a line for each
       unlink/relink (or copy) of a variant file from its source file.
+    - Improve error message for EnumVariables to show legal values.
+    - Fix Intel compiler to sort versions >9 correctly (esp. on Linux)
+    - Fix Install() when the source and target are directories and the
+      target directory exists.
     
   From David Garcia Garzon:
     - Fix Delete to be able to delete broken symlinks and dir
@@ -38,23 +38,12 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       properly. Previously the generated files would include 
       the whitespace.
 
-  From Gary Oberbrunner:
-    - Improve error message for EnumVariables to show legal values.
-
-  From Gary Oberbrunner:
-    - Fix Intel compiler to sort versions >9 correctly (esp. on Linux)
-
   From Dmitry R.:
     - Handle Environment in case __semi_deepcopy is None
 
   From Benoit Belley:
 
     - Much improved support for Windows UNC paths (\\SERVERNAME).
-
-  From Gary Oberbrunner:
-
-    - Fix Install() when the source and target are directories and the
-      target directory exists.
 
   From Jean-Baptiste Lab:
 

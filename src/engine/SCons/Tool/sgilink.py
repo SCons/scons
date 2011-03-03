@@ -48,7 +48,6 @@ def generate(env):
 
     # __RPATH is set to $_RPATH in the platform specification if that
     # platform supports it.
-    env.Append(LINKFLAGS=['$__RPATH'])
     env['RPATHPREFIX'] = '-rpath '
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'

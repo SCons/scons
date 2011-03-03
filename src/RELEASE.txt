@@ -56,6 +56,8 @@
 
   FIXES
 
+    - RPATH is now in LINKCOM rather than LINKFLAGS, so resetting
+      LINKFLAGS doesn't kill RPATH
     - Precompiled headers on Windows no longer break when used with
       variant dirs containing spaces.
     - Delete can now delete symlinks to directories and broken symlinks
