@@ -649,6 +649,7 @@ class SubstitutionEnvironment(object):
             'ASFLAGS'       : SCons.Util.CLVar(''),
             'CFLAGS'        : SCons.Util.CLVar(''),
             'CCFLAGS'       : SCons.Util.CLVar(''),
+            'CXXFLAGS'      : SCons.Util.CLVar(''),
             'CPPDEFINES'    : [],
             'CPPFLAGS'      : SCons.Util.CLVar(''),
             'CPPPATH'       : [],
@@ -778,7 +779,11 @@ class SubstitutionEnvironment(object):
                 elif arg == '-mwindows':
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:5] == '-std=':
-                    dict['CFLAGS'].append(arg) # C only
+                    if arg[5:].find('++')!=-1:
+                        key='CXXFLAGS'
+                    else:
+                        key='CFLAGS'
+                    dict[key].append(arg)
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)

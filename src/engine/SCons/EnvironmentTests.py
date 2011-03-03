@@ -763,6 +763,7 @@ sys.exit(0)
             'ASFLAGS'       : [],
             'CFLAGS'        : [],
             'CCFLAGS'       : [],
+            'CXXFLAGS'      : [],
             'CPPDEFINES'    : [],
             'CPPFLAGS'      : [],
             'CPPPATH'       : [],
@@ -793,6 +794,7 @@ sys.exit(0)
             "-Wl,-Rrpath3 " + \
             "-Wp,-cpp " + \
             "-std=c99 " + \
+            "-std=c++0x " + \
             "-framework Carbon " + \
             "-frameworkdir=fwd1 " + \
             "-Ffwd2 " + \
@@ -812,6 +814,7 @@ sys.exit(0)
                                   '-pthread', '-fopenmp', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),
                                   '+DD64'], repr(d['CCFLAGS'])
+        assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
         assert d['CPPPATH'] == ['/usr/include/fum',
