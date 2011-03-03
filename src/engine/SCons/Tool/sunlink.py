@@ -62,7 +62,6 @@ def generate(env):
     
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -G')
 
-    env.Append(LINKFLAGS=['$__RPATH'])
     env['RPATHPREFIX'] = '-R'
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
