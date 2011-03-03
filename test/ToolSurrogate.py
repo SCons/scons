@@ -99,6 +99,7 @@ test.write('foo.c', "foo.c win32\n")
 test.run(arguments = '. platform=win32', stdout = test.wrap_stdout("""\
 cl /Fofoo.obj /c foo.c /nologo
 link /nologo /OUT:foo.exe foo.obj
+embedManifestExeCheck(target, source, env)
 """))
 
 test.pass_test()
