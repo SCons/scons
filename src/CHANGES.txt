@@ -7,6 +7,9 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Justin Gullingsrud:
+    - support -std=c++0x and related CXXFLAGS in pkgconfig (ParseFlags)
+
   From Vincent Beffara:
     - Support -dylib_file in pkgconfig (ParseFlags)
 

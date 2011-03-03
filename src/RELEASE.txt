@@ -80,6 +80,7 @@
 
   IMPROVEMENTS
 
+    - ParseFlags now supports -std=c++0x and related CXXFLAGS
     - ParseFlags now supports -dylib_file from pkgconfig
     - New debugging options to print unlink/relinking of variant files
       (--debug=duplicate) and preparation of targets (--debug=prepare).
@@ -123,6 +124,7 @@
   Ken Deeter,
   Luca Falavigna,
   Alexander Goomenyuk,
+  Justin Gullingsrud,
   Steven Knight,
   Arve Knudsen,
   Jean-Baptiste Lab,
