@@ -503,7 +503,18 @@ class _ActionAction(ActionBase):
             SCons.Util.AddMethod(self, batch_key, 'batch_key')
 
     def print_cmd_line(self, s, target, source, env):
-        sys.stdout.write(s + u"\n")
+        # In python 3, and in some of our tests, sys.stdout is
+        # a String io object, and it takes unicode strings only
+        # In other cases it's a regular Python 2.x file object
+        # which takes strings (bytes), and if you pass those a
+        # unicode object they try to decode with 'ascii' codec
+        # which fails if the cmd line has any hi-bit-set chars.
+        # This code assumes s is a regular string, but should
+        # work if it's unicode too.
+        try:
+            sys.stdout.write(unicode(s + "\n"))
+        except UnicodeDecodeError:
+            sys.stdout.write(s + "\n")
 
     def __call__(self, target, source, env,
                                exitstatfunc=_null,
@@ -660,7 +671,6 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     kw['env'] = new_env
 
     try:
-        #FUTURE return subprocess.Popen(cmd, **kw)
         return subprocess.Popen(cmd, **kw)
     except EnvironmentError, e:
         if error == 'raise': raise
