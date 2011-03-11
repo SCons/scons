@@ -18,6 +18,7 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       embed manifests in Windows EXEs and DLLs.
 
   From Gary Oberbrunner:
+    - Fix unicode error when using non-ASCII filenames with Copy or Install
     - Put RPATH in LINKCOM rather than LINKFLAGS so resetting
       LINKFLAGS doesn't kill RPATH
     - Fix precompiled headers on Windows when variant dir name has spaces.
