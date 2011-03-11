@@ -967,7 +967,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print "Preserved directory", dir
+                print unicode("Preserved directory " + dir + "\n"),
         else:
             list = self._dirlist[:]
             list.reverse()
