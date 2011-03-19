@@ -114,10 +114,6 @@ def shlib_emitter(target, source, env):
         # Now add file nodes to target list
         target.append(env.fs.File(targetStrings))
 
-
-    print target
-    print source
-    
     return (target, source)
                          
 
