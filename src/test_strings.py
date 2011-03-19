@@ -231,6 +231,7 @@ check_list = [
             'timings/ElectricCloud/genscons.pl',
             'timings/graph.html',
             'timings/index.html',
+            'review.py',
         ],
         remove_patterns = [
             '*.js',
