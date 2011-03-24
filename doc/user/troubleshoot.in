@@ -854,6 +854,7 @@
     to see all the targets &SCons; is considering, whether
     they are already up-to-date or not. The message is
     printed before &SCons; decides whether to build the target.
+    </para>
 
   </section>
 
