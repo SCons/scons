@@ -91,6 +91,7 @@
     LIBS ['foo']
     cl /Fof1.obj /c f1.c /nologo /I\opt\include
     link /nologo /OUT:f1.exe /LIBPATH:\opt\lib foo.lib f1.obj
+    embedManifestExeCheck(target, source, env)
  </screen>
 
  <para>

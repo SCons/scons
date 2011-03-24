@@ -131,6 +131,7 @@
        cl /Fogoodbye.obj /c goodbye.c -DGOODBYE
        cl /Fohello.obj /c hello.c -DHELLO
        link /nologo /OUT:hello.exe hello.obj goodbye.obj
+       embedManifestExeCheck(target, source, env)
     </screen>
 
     <para>
@@ -275,6 +276,7 @@
       The program file is: hello.exe
       cl /Fohello.obj /c hello.c /nologo
       link /nologo /OUT:hello.exe hello.obj
+      embedManifestExeCheck(target, source, env)
     </screen>
 
     <para>

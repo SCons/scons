@@ -114,6 +114,7 @@ is pretty smart about rebuilding things when you change options.
     lib /nologo /OUT:build\windows\world\world.lib build\windows\world\world.obj
     Install file: "build/windows/world/world.lib" as "export/windows/lib/world.lib"
     link /nologo /OUT:build\windows\hello\hello.exe /LIBPATH:export\windows\lib world.lib build\windows\hello\hello.obj
+    embedManifestExeCheck(target, source, env)
     Install file: "build/windows/hello/hello.exe" as "export/windows/bin/hello.exe"
   </screen>
 
