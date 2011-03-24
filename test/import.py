@@ -81,6 +81,9 @@ ignore = ('__init__.py',
 tools = []
 for name in os.listdir(tooldir):
     if name in ignore: continue
+    if name[0] == '#': continue
+    if name[0:1] == '.': continue
+    if name[-1]  == '~' : continue
     if name[-3:] == '.py':
         if name[-8:] not in ('Tests.py', 'ommon.py'):
             tools.append(name[:-3])
