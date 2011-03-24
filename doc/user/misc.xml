@@ -253,7 +253,7 @@
     <screen>
        % <userinput>scons -Q</userinput>
        None
-       SCons.Node.FS.File exists
+       &lt;class 'SCons.Node.FS.File'&gt; exists
        scons: `.' is up to date.
     </screen>
 

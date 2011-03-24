@@ -989,6 +989,7 @@
        C:\><userinput>scons -Q hello.exe</userinput>
        cl /Fohello.obj /c hello.c /nologo /Iinclude /I\home\project\inc
        link /nologo /OUT:hello.exe hello.obj
+       embedManifestExeCheck(target, source, env)
     </screen>
 
   </section>

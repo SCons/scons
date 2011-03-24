@@ -206,6 +206,7 @@
         cl /Fof3.obj /c f3.c /nologo
         link /nologo /dll /out:foo.dll /implib:foo.lib f1.obj f2.obj f3.obj
         RegServerFunc(target, source, env)
+        embedManifestDllCheck(target, source, env)
       </screen>
 
       <para>
@@ -288,6 +289,7 @@
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
       cl /Foprog.obj /c prog.c /nologo
       link /nologo /OUT:prog.exe /LIBPATH:. foo.lib bar.lib prog.obj
+      embedManifestExeCheck(target, source, env)
     </screen>
 
     <para>
@@ -412,6 +414,7 @@
       C:\><userinput>scons -Q</userinput>
       cl /Foprog.obj /c prog.c /nologo
       link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
+      embedManifestExeCheck(target, source, env)
     </screen>
     <!-- The link command is too wide in the PDF version. 
          There are some other examples of this throughout the document. -->

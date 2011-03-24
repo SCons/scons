@@ -1255,7 +1255,7 @@
         <screen>
           % <userinput>scons -Q COLOR=magenta foo.o</userinput>
           
-          scons: *** Invalid value for option COLOR: magenta
+          scons: *** Invalid value for option COLOR: magenta.  Valid values are: ('red', 'green', 'blue')
           File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
         </screen>
 
@@ -1311,15 +1311,15 @@
         <screen>
           % <userinput>scons -Q COLOR=Red foo.o</userinput>
           
-          scons: *** Invalid value for option COLOR: Red
+          scons: *** Invalid value for option COLOR: Red.  Valid values are: ('red', 'green', 'blue')
           File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
           % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
           
-          scons: *** Invalid value for option COLOR: BLUE
+          scons: *** Invalid value for option COLOR: BLUE.  Valid values are: ('red', 'green', 'blue')
           File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
           % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
           
-          scons: *** Invalid value for option COLOR: nAvY
+          scons: *** Invalid value for option COLOR: nAvY.  Valid values are: ('red', 'green', 'blue')
           File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
         </screen>
 

@@ -102,6 +102,7 @@
        C:\><userinput>scons -Q</userinput>
        cl /Fohello.obj /c hello.c /nologo
        link /nologo /OUT:new_hello.exe hello.obj
+       embedManifestExeCheck(target, source, env)
     </screen>
 
   </section>
@@ -193,6 +194,7 @@
        cl /Fofile2.obj /c file2.c /nologo
        cl /Foprog.obj /c prog.c /nologo
        link /nologo /OUT:program.exe prog.obj file1.obj file2.obj
+       embedManifestExeCheck(target, source, env)
     </screen>
 
   </section>

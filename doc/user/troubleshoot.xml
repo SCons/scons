@@ -282,13 +282,14 @@
                          '.mm',
                          '.S',
                          '.spp',
-                         '.SPP'],
+                         '.SPP',
+                         '.sx'],
         'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
-        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
         'ENV': { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
         'ESCAPE': &lt;function escape at 0x700000&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
         'HOST_ARCH': None,
         'HOST_OS': None,
         'IDLSUFFIXES': ['.idl', '.IDL'],
@@ -304,7 +305,7 @@
         'PROGPREFIX': '',
         'PROGSUFFIX': '',
         'PSPAWN': &lt;function piped_env_spawn at 0x700000&gt;,
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
         'SCANNERS': [],
         'SHELL': 'sh',
         'SHLIBPREFIX': '$LIBPREFIX',
@@ -314,7 +315,7 @@
         'SPAWN': &lt;function spawnvpe_spawn at 0x700000&gt;,
         'TARGET_ARCH': None,
         'TARGET_OS': None,
-        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0x700000&gt;,
+        'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
         'TEMPFILEPREFIX': '@',
         'TOOLS': ['install', 'install'],
         '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
@@ -341,11 +342,11 @@
     <screen>
       C:\><userinput>scons</userinput>
       scons: Reading SConscript files ...
-      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase instance at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder instance at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
+      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
         'CC': 'cl',
-        'CCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
+        'CCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
         'CCFLAGS': ['/nologo'],
-        'CCPCHFLAGS': ['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'],
+        'CCPCHFLAGS': ['${(PCH and "/Yu%s \\"/Fp%s\\""%(PCHSTOP or "",File(PCH))) or ""}'],
         'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
         'CFILESUFFIX': '.c',
         'CFLAGS': [],
@@ -371,19 +372,20 @@
                          '.mm',
                          '.S',
                          '.spp',
-                         '.SPP'],
+                         '.SPP',
+                         '.sx'],
         'CXX': '$CC',
         'CXXCOM': '$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM',
         'CXXFILESUFFIX': '.cc',
         'CXXFLAGS': ['$(', '/TP', '$)'],
         'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
-        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
         'ENV': { 'PATH': 'C:\\WINDOWS\\System32',
                  'PATHEXT': '.COM;.EXE;.BAT;.CMD',
                  'SystemRoot': 'C:\\WINDOWS'},
         'ESCAPE': &lt;function escape at 0x700000&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
         'HOST_ARCH': '',
         'HOST_OS': 'win32',
         'IDLSUFFIXES': ['.idl', '.IDL'],
@@ -405,13 +407,13 @@
         'PROGSUFFIX': '.exe',
         'PSPAWN': &lt;function piped_spawn at 0x700000&gt;,
         'RC': 'rc',
-        'RCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
+        'RCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
         'RCFLAGS': [],
         'RCSUFFIXES': ['.rc', '.rc2'],
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller instance at 0x700000&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
         'SCANNERS': [],
         'SHCC': '$CC',
-        'SHCCCOM': &lt;SCons.Action.FunctionAction instance at 0x700000&gt;,
+        'SHCCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
         'SHCCFLAGS': ['$CCFLAGS'],
         'SHCFLAGS': ['$CFLAGS'],
         'SHCXX': '$CXX',
@@ -426,7 +428,7 @@
         'STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME': 1,
         'TARGET_ARCH': '',
         'TARGET_OS': 'win32',
-        'TEMPFILE': &lt;class SCons.Platform.TempFileMunge at 0x700000&gt;,
+        'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
         'TEMPFILEPREFIX': '@',
         'TOOLS': ['msvc', 'install', 'install'],
         '_CCCOMCOM': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS',
@@ -1120,9 +1122,9 @@
       scons: internal stack trace:
         File "bootstrap/src/engine/SCons/Job.py", line 199, in start
           task.prepare()
-        File "bootstrap/src/engine/SCons/Script/Main.py", line 167, in prepare
+        File "bootstrap/src/engine/SCons/Script/Main.py", line 168, in prepare
           return SCons.Taskmaster.OutOfDateTask.prepare(self)
-        File "bootstrap/src/engine/SCons/Taskmaster.py", line 187, in prepare
+        File "bootstrap/src/engine/SCons/Taskmaster.py", line 189, in prepare
           executor.prepare()
         File "bootstrap/src/engine/SCons/Executor.py", line 392, in prepare
           raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
@@ -1272,7 +1274,6 @@
     to see all the targets &SCons; is considering, whether
     they are already up-to-date or not. The message is
     printed before &SCons; decides whether to build the target.
-
     </para>
 
   </section>
@@ -1300,6 +1301,7 @@
   </section>
 
   <!--
+
 
   <section>
 
