@@ -100,6 +100,7 @@
 <!ENTITY debug-explain "<literal>--debug=explain</literal>">
 <!ENTITY debug-findlibs "<literal>--debug=findlibs</literal>">
 <!ENTITY debug-includes "<literal>--debug=includes</literal>">
+<!ENTITY debug-prepare "<literal>--debug=prepare</literal>">
 <!ENTITY debug-presub "<literal>--debug=presub</literal>">
 <!ENTITY debug-stacktrace "<literal>--debug=stacktrace</literal>">
 <!ENTITY implicit-cache "<literal>--implicit-cache</literal>">
@@ -180,6 +181,7 @@
 <!ENTITY Depends "<function>Depends</function>">
 <!ENTITY Dir "<function>Dir</function>">
 <!ENTITY Dump "<function>Dump</function>">
+<!ENTITY Duplicate "<function>Duplicate</function>">
 <!ENTITY Entry "<function>Entry</function>">
 <!ENTITY EnumOption "<function>EnumOption</function>">
 <!ENTITY EnumVariable "<function>EnumVariable</function>">
