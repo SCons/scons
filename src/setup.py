@@ -378,11 +378,6 @@ scripts = [
     'script/scons.bat',
 ]
 
-#if is_win32:
-#    scripts = scripts + [
-#        'script/scons-post-install.py'
-#    ]
-
 arguments = {
     'name'             : "scons",
     'version'          : Version,
