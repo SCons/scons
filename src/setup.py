@@ -125,7 +125,7 @@ class install(_install):
                        'version-lib'
                       ]
 
-    if hasattr(os, 'symlink'):
+    if hasattr(os, 'link'):
         user_options.append(
                     ('hardlink-scons', None,
                      "hard link 'scons' to the version-numbered script, don't make a separate 'scons' copy"),
