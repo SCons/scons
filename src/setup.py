@@ -51,23 +51,14 @@ if not sys.platform == 'win32':
 else:
     is_win32 = 1
 
-try:
-    import distutils
-    import distutils.core
-    import distutils.command.install
-    import distutils.command.install_data
-    import distutils.command.install_lib
-    import distutils.command.install_scripts
-    import distutils.command.build_scripts
-except ImportError:
-    sys.stderr.write("""Could not import distutils.
 
-Building or installing SCons from this package requires that the Python
-distutils be installed.  See the README or README.txt file from this
-package for instructions on where to find distutils for installation on
-your system, or on how to install SCons from a different package.
-""")
-    sys.exit(1)
+import distutils
+import distutils.core
+import distutils.command.install
+import distutils.command.install_data
+import distutils.command.install_lib
+import distutils.command.install_scripts
+import distutils.command.build_scripts
 
 _install = distutils.command.install.install
 _install_data = distutils.command.install_data.install_data
