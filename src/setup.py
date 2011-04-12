@@ -23,7 +23,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
 import stat
 import sys
 
@@ -35,8 +34,8 @@ man_pages = [
     'scons-time.1',
 ]
 
+# change to setup.py directory if it was executed from other dir
 (head, tail) = os.path.split(sys.argv[0])
-
 if head:
     os.chdir(head)
     sys.argv[0] = tail
