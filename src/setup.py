@@ -21,11 +21,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-NOTE: Installed SCons is not importable like usual Python packages and
-      is executed explicitly with command line scripts. Historically
-      this was made to allow multiple SCons versions to coexist within
-      single Python installation, explicit invokation was necessary to
-      avoid confusion over which version of SCons is active.
+NOTE: Installed SCons is not importable like usual Python packages. It is
+      executed explicitly with command line scripts. This allows multiple
+      SCons versions to coexist within single Python installation, which
+      is critical for enterprise build cases. Explicit invokation is
+      necessary to avoid confusion over which version of SCons is active.
 
       By default SCons is installed into versioned directory, e.g.
       site-packages/scons-2.1.0.alpha.20101125 and much of the stuff
@@ -271,15 +271,11 @@ class install_scripts(_install_scripts):
         self.copy_file(src, dst)
         self.outfiles.append(dst)
 
-    def report(self, msg, args):
-        # Wrapper around self.announce, used by older distutils versions.
-        self.announce(msg % args)
-
     def run(self):
-        # This "skip_build/build_scripts" block is cut-and-paste from
-        # distutils.
+        # --- distutils copy/paste ---
         if not self.skip_build:
             self.run_command('build_scripts')
+        # --- /distutils copy/paste ---
 
         # Custom SCons installation stuff.
         if Options.hardlink_scons:
@@ -322,20 +318,18 @@ class install_scripts(_install_scripts):
                 self.copy_scons(src, scons_bat)
                 self.copy_scons(src, scons_version_bat)
 
-        # This section is cut-and-paste from distutils, modulo being
-        # able 
+        # --- distutils copy/paste ---
         if os.name == 'posix':
-            try: report = distutils.log.info
-            except AttributeError: report = self.report
             # Set the executable bits (owner, group, and world) on
             # all the scripts we just installed.
             for file in self.get_outputs():
                 if self.dry_run:
-                    report("changing mode of %s", file)
+                    log.info("changing mode of %s", file)
                 else:
                     mode = ((os.stat(file)[stat.ST_MODE]) | 0555) & 07777
-                    report("changing mode of %s", file)
+                    log.info("changing mode of %s to %o", file, mode)
                     os.chmod(file, mode)
+        # --- /distutils copy/paste ---
 
 class build_scripts(_build_scripts):
     def finalize_options(self):
