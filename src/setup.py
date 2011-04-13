@@ -20,6 +20,18 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+NOTE: Installed SCons is not importable like usual Python packages and
+      is executed explicitly with command line scripts. Historically
+      this was made to allow multiple SCons versions to coexist within
+      single Python installation, explicit invokation was necessary to
+      avoid confusion over which version of SCons is active.
+
+      By default SCons is installed into versioned directory, e.g.
+      site-packages/scons-2.1.0.alpha.20101125 and much of the stuff
+      below is dedicated to make it happen on various platforms.
+"""
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
