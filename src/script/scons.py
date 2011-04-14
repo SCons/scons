@@ -22,7 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -37,7 +36,6 @@ __date__ = "__DATE__"
 __developer__ = "__DEVELOPER__"
 
 import os
-import os.path
 import sys
 
 ##############################################################################
@@ -90,7 +88,21 @@ libs.append(os.path.abspath(local))
 
 scons_version = 'scons-%s' % __version__
 
+# preferred order of scons lookup paths
 prefs = []
+
+try:
+    import pkg_resources
+except ImportError:
+    pass
+else:
+    # when running from an egg add the egg's directory 
+    try:
+        d = pkg_resources.get_distribution('scons')
+    except pkg_resources.DistributionNotFound:
+        pass
+    else:
+        prefs.append(d.location)
 
 if sys.platform == 'win32':
     # sys.prefix is (likely) C:\Python*;
@@ -159,19 +171,6 @@ else:
         libpath, tail = os.path.split(libpath)
         # Check /usr/libfoo/scons*.
         prefs.append(libpath)
-
-    try:
-        import pkg_resources
-    except ImportError:
-        pass
-    else:
-        # when running from an egg add the egg's directory 
-        try:
-            d = pkg_resources.get_distribution('scons')
-        except pkg_resources.DistributionNotFound:
-            pass
-        else:
-            prefs.append(d.location)
 
 # Look first for 'scons-__version__' in all of our preference libs,
 # then for 'scons'.

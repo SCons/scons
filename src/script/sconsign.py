@@ -37,7 +37,6 @@ __developer__ = "__DEVELOPER__"
 
 import os
 import sys
-import time
 
 ##############################################################################
 # BEGIN STANDARD SCons SCRIPT HEADER
@@ -75,7 +74,21 @@ libs.append(os.path.abspath(local))
 
 scons_version = 'scons-%s' % __version__
 
+# preferred order of scons lookup paths
 prefs = []
+
+try:
+    import pkg_resources
+except ImportError:
+    pass
+else:
+    # when running from an egg add the egg's directory 
+    try:
+        d = pkg_resources.get_distribution('scons')
+    except pkg_resources.DistributionNotFound:
+        pass
+    else:
+        prefs.append(d.location)
 
 if sys.platform == 'win32':
     # sys.prefix is (likely) C:\Python*;
@@ -145,19 +158,6 @@ else:
         # Check /usr/libfoo/scons*.
         prefs.append(libpath)
 
-    try:
-        import pkg_resources
-    except ImportError:
-        pass
-    else:
-        # when running from an egg add the egg's directory 
-        try:
-            d = pkg_resources.get_distribution('scons')
-        except pkg_resources.DistributionNotFound:
-            pass
-        else:
-            prefs.append(d.location)
-
 # Look first for 'scons-__version__' in all of our preference libs,
 # then for 'scons'.
 libs.extend([os.path.join(x, scons_version) for x in prefs])
@@ -172,6 +172,7 @@ sys.path = libs + sys.path
 import SCons.compat   # so pickle will import cPickle instead
 
 import whichdb
+import time
 import pickle
 import imp
 
