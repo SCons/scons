@@ -52,6 +52,9 @@ if head:
     os.chdir(head)
     sys.argv[0] = tail
 
+
+# flag if setup.py is run on win32 or _for_ win32 platform,
+# (when building windows installer on linux, for example)
 is_win32 = 0
 if not sys.platform == 'win32':
     try:
@@ -303,6 +306,9 @@ class install_scripts(_install_scripts):
             base = os.path.basename(src)
             scons = os.path.join(self.install_dir, base)
             scons_ver = scons + '-' + Version
+            if is_win32:
+                scons += '.py'
+                scons_ver += '.py'
             create_version_script(src, scons_ver)
             create_basename_script(src, scons, scons_ver)
 
