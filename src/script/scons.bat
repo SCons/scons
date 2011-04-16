@@ -17,7 +17,10 @@ goto endscons
 setlocal
 @REM ensure the script will be executed with the Python it was installed for
 set path=%~dp0;%~dp0..;%path%
-python -c "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'scons')] + sys.path; import SCons.Script; SCons.Script.main()" %*
+@REM try the script named as the .bat file in current dir, then in Scripts subdir
+set scriptname=%~dp0%~n0.py
+if not exist %scriptname% set scriptname=%~dp0Scripts\%~n0.py
+python "%scriptname%" %*
 endlocal & set SCONS_ERRORLEVEL=%ERRORLEVEL%
 
 if NOT "%COMSPEC%" == "%SystemRoot%\system32\cmd.exe" goto returncode
