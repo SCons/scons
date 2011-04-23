@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
-# Download the issues from Issuzilla as XML; this creates a file named
-# 'issues.xml'.  Run this script to translate 'issues.xml' into a CSV
-# file named 'editlist.csv'.  Upload the CSV into a Google spreadsheet.
+# Query the scons.tigris.org database for the issues of interest.
+# The typical triage query is found on http://www.scons.org/wiki/BugParty
 
-# In the spreadsheet, select the last column and pick "delete-->column" (it
-# was added by the upload to allow for expansion and we don't need it).
+# Download the issues from Issuezilla as XML; this creates a file
+# named 'issues.xml'.  Run this script in the dir containing
+# issues.xml (or pass full path as arg to this script) to translate
+# 'issues.xml' into a CSV file named 'editlist.csv'.  Upload the CSV
+# into a Google spreadsheet.
+
+# In the spreadsheet:
 # Select all the columns and pick "align-->top"
 # Select the ID and votes columns and pick "align-->right"
 # Select the priority column and pick "align-->center"
@@ -17,7 +21,7 @@
 
 # The team members
 # FIXME: These names really should be external to this script
-team = sorted('Steven Gary Greg Ken Jim David Bill Sergey Jason'.split())
+team = sorted('Steven Gary Greg Ken Jim Bill Jason Dirk Anatoly'.split())
 
 # The elements to be picked out of the issue
 PickList = [
@@ -84,6 +88,8 @@ for issue in issues:
     writer.writerow(['','','consensus','','','',''])
     writer.writerow(['','','','','','',''])
     for member in team: writer.writerow(['','',member,'','','',''])
+
+print "Exported %d issues to editlist.csv.  Ready to upload to Google."%len(issues)
 
 # Local Variables:
 # tab-width:4
