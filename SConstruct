@@ -1116,9 +1116,14 @@ for p in [ scons ]:
     Local(l)
 
     if gzip:
+        if platform == "win32":
+            # avoid problem with tar interpreting c:/ as a remote machine
+            tar_cargs = '-cz --force-local -f'
+        else:
+            tar_cargs = '-czf'
         env.Command(dist_local_tar_gz,
                     local_targets,
-                    "cd %s && tar czf $( ${TARGET.abspath} $) *" % build_dir_local)
+                    "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_dir_local, tar_cargs))
 
         unpack_targets = [os.path.join(test_local_tar_gz_dir, x) for x in rf]
         commands = [Delete(test_local_tar_gz_dir),
