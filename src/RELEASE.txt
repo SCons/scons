@@ -56,6 +56,7 @@
 
   FIXES
 
+    - Passing MSVC_BATCH=False works now (treated same as 0)
     - Long compile lines no longer break MSVC_BATCH mode
     - RPATH is now in LINKCOM rather than LINKFLAGS, so resetting
       LINKFLAGS doesn't kill RPATH

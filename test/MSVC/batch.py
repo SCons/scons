@@ -132,6 +132,19 @@ test.must_match('fake_cl.log', """\
 /Foprog.obj prog.c
 """)
 
+test.run(arguments = '-c .')
+test.unlink('fake_cl.log')
+
+
+test.run(arguments = '. MSVC_BATCH=False')
+
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('fake_cl.log', """\
+/Fof1.obj f1.c
+/Fof2.obj f2.c
+/Foprog.obj prog.c
+""")
+
 
 
 test.write('f1.c', "f1.c 3\n")

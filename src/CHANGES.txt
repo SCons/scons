@@ -9,6 +9,7 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Grzegorz Bizoń:
     - Fix long compile lines in batch mode by using TEMPFILE
+    - Fix MSVC_BATCH=False (was treating it as true)
 
   From Justin Gullingsrud:
     - support -std=c++0x and related CXXFLAGS in pkgconfig (ParseFlags)
