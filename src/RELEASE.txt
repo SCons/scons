@@ -56,6 +56,7 @@
 
   FIXES
 
+    - Long compile lines no longer break MSVC_BATCH mode
     - RPATH is now in LINKCOM rather than LINKFLAGS, so resetting
       LINKFLAGS doesn't kill RPATH
     - Precompiled headers on Windows no longer break when used with
@@ -118,7 +119,8 @@
   Thanks to
   Dirk Baechle,
   Vincent Beffara,
-  Jean-Fran�ois Colson,
+  Grzegorz Bizoń,
+  Jean-François Colson,
   Bauke Conijn,
   Bill Deegan,
   Ken Deeter,
