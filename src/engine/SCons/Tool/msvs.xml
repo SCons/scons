@@ -219,8 +219,6 @@ environment variable in form of files, but rather as strings.   This
 is because they represent file names to be added to the solution file,
 not the source files used to build the solution file.
 
-(NOTE: Currently only one project is supported per solution.)
-
 Example Usage:
 
 <example>

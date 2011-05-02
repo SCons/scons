@@ -7,6 +7,10 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Matthias:
+    - Update MSVS documents to remove note indicating that only one
+      project is currently supported per solution file.
+
   From Grzegorz Bizoń:
     - Fix long compile lines in batch mode by using TEMPFILE
     - Fix MSVC_BATCH=False (was treating it as true)
