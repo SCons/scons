@@ -330,10 +330,11 @@ class install_scripts(_install_scripts):
             # all the scripts we just installed.
             for file in self.get_outputs():
                 if self.dry_run:
-                    log.info("changing mode of %s", file)
+                    # log.info("changing mode of %s", file)
+                    pass
                 else:
                     mode = ((os.stat(file)[stat.ST_MODE]) | 0555) & 07777
-                    log.info("changing mode of %s to %o", file, mode)
+                    # log.info("changing mode of %s to %o", file, mode)
                     os.chmod(file, mode)
         # --- /distutils copy/paste ---
 
