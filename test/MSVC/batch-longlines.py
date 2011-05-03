@@ -30,9 +30,14 @@ Verify operation of Visual C/C++ batch builds with long lines.
 Only runs on Windows.
 """
 
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+if sys.platform != 'win32':
+    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
+    test.skip_test(msg)
 
 _python_ = TestSCons._python_
 
