@@ -151,6 +151,9 @@ if pdf_output_1 != pdf_output_2:
     sys.stdout.flush()
     test.fail_test()
 
+ps_output_1 = test.normalize_ps(ps_output_1)
+ps_output_2 = test.normalize_ps(ps_output_2)
+
 if ps_output_1 != ps_output_2:
     import sys
     sys.stdout.write("***** 1.ps and 2.ps are different!\n")
