@@ -547,6 +547,18 @@ class TestSCons(TestCommon):
         x = x.replace('line 1,', 'line %s,' % line)
         return x
 
+    def normalize_ps(self, s):
+        s = re.sub(r'(Creation|Mod)Date: .*',
+                   r'\1Date XXXX', s)
+        s = re.sub(r'%DVIPSSource:\s+TeX output\s.*',
+                   r'%DVIPSSource:   TeX output XXXX', s)
+        s = re.sub(r'/(BaseFont|FontName) /[A-Z0-9]{6}',
+                   r'/\1 /XXXXXX', s)
+        s = re.sub(r'BeginFont: [A-Z0-9]{6}',
+                   r'BeginFont: XXXXXX', s)
+
+        return s
+
     def normalize_pdf(self, s):
         s = re.sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
                    r'/\1Date (D:XXXX)', s)
