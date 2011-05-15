@@ -44,6 +44,8 @@ def escape_drive_case(s):
     if re.match(r'^(.)[\\]?:', s):
         drive=s[0]
         return '['+drive.lower()+drive.upper()+']'+s[1:]
+    else:
+        return s
 
 CC = escape_drive_case(re.escape(CC))
 LINK = escape_drive_case(re.escape(LINK))
