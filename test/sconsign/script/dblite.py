@@ -29,7 +29,7 @@ Verify that various ways of getting at a an sconsign file written with
 the default dblite module and default .dblite suffix work correctly.
 """
 
-import re
+import re,sys
 
 import TestSConsign
 
@@ -39,8 +39,14 @@ CC = test.detect('CC', norm=1)
 LINK = test.detect('LINK', norm=1)
 if LINK is None: LINK = CC
 
-CC = re.escape(CC)
-LINK = re.escape(LINK)
+def escape_drive_case(s):
+    """Turn c\: into [cC]\:"""
+    if re.match(r'^(.)[\\]?:', s):
+        drive=s[0]
+        return '['+drive.lower()+drive.upper()+']'+s[1:]
+
+CC = escape_drive_case(re.escape(CC))
+LINK = escape_drive_case(re.escape(LINK))
 
 test.subdir('sub1', 'sub2')
 
@@ -101,11 +107,17 @@ test.run(arguments = '. --max-drift=1')
 sig_re = r'[0-9a-fA-F]{32}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
+if sys.platform == 'win32':
+    manifest = r"""
+embedManifestExeCheck\(target, source, env\)"""
+else:
+    manifest = ''
+
 expect = r"""=== sub1:
 hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
         %(LINK)s: None \d+ \d+
-        %(sig_re)s \[.*\]
+        %(sig_re)s \[.*%(manifest)s\]
 hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: None \d+ \d+
         %(CC)s: None \d+ \d+
@@ -116,7 +128,7 @@ expect_r = """=== sub1:
 hello.exe: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
         %(LINK)s: None '%(date_re)s' \d+
-        %(sig_re)s \[.*\]
+        %(sig_re)s \[.*%(manifest)s\]
 hello.obj: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_c)s: None '%(date_re)s' \d+
         %(CC)s: None '%(date_re)s' \d+
