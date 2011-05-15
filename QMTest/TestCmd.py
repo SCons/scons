@@ -474,6 +474,7 @@ def match_re(lines = None, res = None):
     if not is_List(res):
         res = res.split("\n")
     if len(lines) != len(res):
+        print "match_re: expected %d lines, found %d"%(len(res), len(lines))
         return
     for i in range(len(lines)):
         s = "^" + res[i] + "$"
@@ -483,6 +484,7 @@ def match_re(lines = None, res = None):
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(lines[i]):
+            print "match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'"%(i,s,lines[i])
             return
     return 1
 
