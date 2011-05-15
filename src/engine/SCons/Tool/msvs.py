@@ -47,6 +47,7 @@ import SCons.Builder
 import SCons.Node.FS
 import SCons.Platform.win32
 import SCons.Script.SConscript
+import SCons.PathList
 import SCons.Util
 import SCons.Warnings
 
@@ -63,6 +64,12 @@ def xmlify(s):
     s = s.replace("'", "&apos;")
     s = s.replace('"', "&quot;")
     return s
+
+# Process a CPPPATH list in includes, given the env, target and source.
+# Returns a tuple of nodes.
+def processIncludes(includes, env, target, source):
+    return SCons.PathList.PathList(includes).subst_path(env, target, source)
+    
 
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
 
@@ -705,9 +712,13 @@ class _GenerateV7DSP(_DSPGenerator):
             rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1) + cmdargs)
             cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1) + cmdargs)
 
+            # This isn't perfect; CPPDEFINES and CPPPATH can contain $TARGET and $SOURCE,
+            # so they could vary depending on the command being generated.  This code
+            # assumes they don't.
             preprocdefs = xmlify(';'.join(processDefines(self.env.get('CPPDEFINES', []))))
-            includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
-
+            includepath_Dirs = processIncludes(self.env.get('CPPPATH', []), self.env, None, None)
+            includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+            
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
 
@@ -1567,6 +1578,12 @@ def projectEmitter(target, source, env):
         source = 'prj_inputs:'
         source = source + env.subst('$MSVSSCONSCOM', 1)
         source = source + env.subst('$MSVSENCODING', 1)
+
+        # Project file depends on CPPDEFINES and CPPPATH
+        preprocdefs = xmlify(';'.join(processDefines(env.get('CPPDEFINES', []))))
+        includepath_Dirs = processIncludes(env.get('CPPPATH', []), env, None, None)
+        includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+        source = source + "; ppdefs:%s incpath:%s"%(preprocdefs, includepath)
 
         if 'buildtarget' in env and env['buildtarget'] != None:
             if SCons.Util.is_String(env['buildtarget']):

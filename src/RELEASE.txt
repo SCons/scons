@@ -56,6 +56,9 @@
 
   FIXES
 
+    - Visual Studio project generation now works when CPPPATH contains Dir nodes
+    - Visual Studio projects are regenerated when CPPPATH or CPPDEFINES change
+      NOTE: this will cause all MSVS projects to be regenerated with this version.
     - Passing MSVC_BATCH=False works now (treated same as 0)
     - Long compile lines no longer break MSVC_BATCH mode
     - RPATH is now in LINKCOM rather than LINKFLAGS, so resetting

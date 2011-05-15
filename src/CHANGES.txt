@@ -26,6 +26,8 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       embed manifests in Windows EXEs and DLLs.
 
   From Gary Oberbrunner:
+    - Fix Visual Studio project generation when CPPPATH contains Dir nodes
+    - Ensure Visual Studio project is regenerated when CPPPATH or CPPDEFINES change
     - Fix unicode error when using non-ASCII filenames with Copy or Install
     - Put RPATH in LINKCOM rather than LINKFLAGS so resetting
       LINKFLAGS doesn't kill RPATH
