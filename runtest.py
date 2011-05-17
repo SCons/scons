@@ -181,6 +181,11 @@ Options:
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
   --xml                       Print results in SCons XML format.
+
+Environment Variables:
+
+  PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
 opts, args = getopt.getopt(sys.argv[1:], "3ab:df:hlno:P:p:qv:Xx:t",
