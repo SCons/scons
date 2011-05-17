@@ -1015,8 +1015,12 @@ class _GenerateV10DSP(_DSPGenerator):
             rebuildcmd  = xmlify(starting + self.env.subst('$MSVSREBUILDCOM', 1) + cmdargs)
             cleancmd    = xmlify(starting + self.env.subst('$MSVSCLEANCOM', 1) + cmdargs)
 
+            # This isn't perfect; CPPDEFINES and CPPPATH can contain $TARGET and $SOURCE,
+            # so they could vary depending on the command being generated.  This code
+            # assumes they don't.
             preprocdefs = xmlify(';'.join(processDefines(self.env.get('CPPDEFINES', []))))
-            includepath = xmlify(';'.join(self.env.get('CPPPATH', [])))
+            includepath_Dirs = processIncludes(self.env.get('CPPPATH', []), self.env, None, None)
+            includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
