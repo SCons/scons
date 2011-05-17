@@ -128,9 +128,11 @@ def get_host_target(env):
 
     return (host, target,req_target_platform)
 
-_VCVER = ["10.0", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
+_VCVER = ["10.0Exp","10.0", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
 _VCVER_TO_PRODUCT_DIR = {
+        '10.0Exp' : [
+            r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'],
         '10.0': [
             r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'],
         '9.0': [
@@ -324,9 +326,10 @@ def get_default_version(env):
         installed_vcs = cached_get_installed_vcs()
         debug('installed_vcs:%s' % installed_vcs)
         if not installed_vcs:
-            msg = 'No installed VCs'
-            debug('msv %s\n' % repr(msg))
-            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
+            #msg = 'No installed VCs'
+            #debug('msv %s\n' % repr(msg))
+            #SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
+            debug('msvc_setup_env: No installed VCs')
             return None
         msvc_version = installed_vcs[0]
         debug('msvc_setup_env: using default installed MSVC version %s\n' % repr(msvc_version))

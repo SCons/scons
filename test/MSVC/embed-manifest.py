@@ -67,7 +67,18 @@ main(int argc, char *argv)
 """)
 
 test.write('testdll.cpp', """\
+#include <stdio.h>
+#include <stdlib.h>
 int i;
+int
+testdll(int argc, char *argv)
+{
+    printf("testdll.cpp\\n");
+    if (0)
+        exit (0);
+    else
+        return 0;
+}
 """)
 
 test.run(arguments = '.')
