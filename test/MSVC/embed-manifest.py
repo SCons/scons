@@ -45,6 +45,8 @@ if sys.platform != 'win32':
 test.write('SConstruct', """\
 env=Environment(WINDOWS_EMBED_MANIFEST=True)
 env.Append(CCFLAGS = '/MD')
+env.Append(LINKFLAGS = '/MANIFEST')
+env.Append(SHLINKFLAGS = '/MANIFEST')
 exe=env.Program('test.cpp')
 dll=env.SharedLibrary('testdll.cpp')
 env.Command('exe-extracted.manifest', exe,
@@ -69,15 +71,12 @@ main(int argc, char *argv)
 test.write('testdll.cpp', """\
 #include <stdio.h>
 #include <stdlib.h>
-int i;
-int
+
+__declspec(dllexport) int
 testdll(int argc, char *argv)
 {
     printf("testdll.cpp\\n");
-    if (0)
-        exit (0);
-    else
-        return 0;
+    return 0;
 }
 """)
 
