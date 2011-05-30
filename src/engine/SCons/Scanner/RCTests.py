@@ -57,6 +57,7 @@ TEST_D3DFX   D3DFX DISCARDABLE "testEffect.fx"
 
 """)
 
+test.write('t3.rc','#include "t1.h"\r\n')
 
 # Create dummy include files
 headers = ['t1.h',
@@ -144,12 +145,22 @@ class RCScannerTestCase2(unittest.TestCase):
                    'testregis.rgs','testtypelib.tlb']
         deps_match(self, deps, headers)
 
+class RCScannerTestCase3(unittest.TestCase):
+    def runTest(self):
+        path = []
+        env = DummyEnvironment(RCSUFFIXES=['.rc','.rc2'],
+                               CPPPATH=path)
+        s = SCons.Scanner.RC.RCScan()
+        deps = s(env.File('t3.rc'), env, path)
+        headers = ['t1.h']
+        deps_match(self, deps, headers)
         
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(RCScannerTestCase1())
     suite.addTest(RCScannerTestCase2())
+    suite.addTest(RCScannerTestCase3())
     return suite
 
 if __name__ == "__main__":
