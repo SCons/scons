@@ -56,6 +56,7 @@
 
   FIXES
 
+    - Windows resource compiler (RC) scanner now handles DOS line endings
     - Visual Studio project generation now works when CPPPATH contains Dir nodes
     - Visual Studio projects are regenerated when CPPPATH or CPPDEFINES change
       NOTE: this will cause all MSVS projects to be regenerated with this version.

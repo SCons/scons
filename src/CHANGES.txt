@@ -7,6 +7,9 @@
 
 RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Anton Lazarev:
+    - Fix Windows resource compiler scanner to accept DOS line endings.
+
   From Matthias:
     - Update MSVS documents to remove note indicating that only one
       project is currently supported per solution file.
