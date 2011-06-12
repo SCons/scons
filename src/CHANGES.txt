@@ -107,6 +107,10 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Use subprocess in bootstrap.py instead of os.execve to avoid
       losing output control on Windows (http://bugs.python.org/issue9148)
 
+    - Revert patch for adding SCons to App Paths, because standard cmd
+      shell doesn't search there. This is confusing, because `scons` can
+      be executed from explorer, but fail to start from console.
+
   From Alexander Goomenyuk:
 
     - Add .sx to assembly source scanner list so .sx files
@@ -1863,7 +1867,7 @@ RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
 
 RELEASE 0.96.95 - Mon, 12 Feb 2007 20:25:16 -0600
 
-  From Anatoly:
+  From Anatoly Techtonik:
 
   - Add the scons.org URL and a package description to the setup.py
     arguments.
