@@ -111,6 +111,11 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       shell doesn't search there. This is confusing, because `scons` can
       be executed from explorer, but fail to start from console.
 
+    - Fix broken installation with easy_install on Windows (issue #2051)
+      SCons traditionally installed in a way that allowed to run multiple
+      versions side by side. This custom logic was incompatible with
+      easy_install way of doing things.
+
   From Alexander Goomenyuk:
 
     - Add .sx to assembly source scanner list so .sx files
