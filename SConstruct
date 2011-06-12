@@ -1093,7 +1093,9 @@ for p in [ scons ]:
     ]
 
     for script in scripts:
-        #commands.append("mv %s/%s %s/%s.py" % (local, script, local, script))
+        # add .py extension for scons-local scripts on non-windows platforms
+        if platform == "win32":
+            break
         local_script = os.path.join(build_dir_local, script)
         commands.append(Move(local_script + '.py', local_script))
 
