@@ -43,6 +43,7 @@ dlopen_line = {
     'darwin' : no_dl_lib,
     'freebsd4' : no_dl_lib,
     'linux2' : use_dl_lib,
+    'linux3' : use_dl_lib,
 }
 platforms_with_dlopen = list(dlopen_line.keys())
 
