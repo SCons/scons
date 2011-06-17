@@ -40,7 +40,7 @@ is_windows = sys.platform == 'win32'
 is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or 
                            ('PROCESSOR_ARCHITEW6432' in os.environ and
                             os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64'))
-is_linux = sys.platform == 'linux2'
+is_linux = sys.platform.startswith('linux')
 is_mac     = sys.platform == 'darwin'
 
 if is_windows:

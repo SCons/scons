@@ -669,7 +669,7 @@ class TestSCons(TestCommon):
 
         if sys.platform == 'win32':
             result.append(os.path.join(d,'win32'))
-        elif sys.platform == 'linux2':
+        elif sys.platform.startswith('linux'):
             result.append(os.path.join(d,'linux'))
         return result
 

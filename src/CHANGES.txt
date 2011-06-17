@@ -189,6 +189,7 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Remove warning for not finding MS VC/VS install.
       "scons: warning: No version of Visual Studio compiler found
         - C/C++ compilers most likely not set correctly"
+    - Add support for Linux 3.0
 
 
 RELEASE 2.0.1 - Mon, 15 Aug 2010 15:46:32 -0700
