@@ -43,7 +43,7 @@ dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
 # if lynx is available to do the dump.
 #
 fig2dev = whereis('fig2dev')
-epydoc = whereis('epydoc')
+epydoc_cli = whereis('epydoc')
 groff = whereis('groff')
 lynx = whereis('lynx')
 man2html = whereis('man2html')
@@ -121,7 +121,7 @@ scons_doc_files = list(map(chop, open(manifest_xml_in).readlines()))
 scons_doc_files = [File('#src/engine/'+x).rstr() for x in scons_doc_files]
 
 if not jw:
-    print "jw not found, skipping building User Guide."
+    print "doc: jw not found, skipping building User Guide."
 else:
     #
     # Always create a version.xml file containing the version information
@@ -461,8 +461,79 @@ for man_1 in man_page_list:
         tar_deps.append(html)
         tar_list.append(html)
 
-if not epydoc:
-    print "epydoc not found, skipping building API documentation."
+if not epydoc_cli:
+    try:
+        import epydoc
+    except ImportError:
+        epydoc = None
+    else:
+        # adding Epydoc builder using imported module
+        def epydoc_builder_action(target, source, env):
+            """
+            Take a list of `source` files and build docs for them in
+            `target` dir.
+
+            `target` and `source` are lists.
+
+            Uses OUTDIR and EPYDOCFLAGS environment variables.
+
+            http://www.scons.org/doc/2.0.1/HTML/scons-user/x3594.html
+            """
+
+            # the epydoc build process is the following:
+            # 1. build documentation index
+            # 2. feed doc index to writer for docs
+
+            from epydoc.docbuilder import build_doc_index
+            from epydoc.docwriter.html import HTMLWriter
+            from epydoc.docwriter.latex import LatexWriter
+
+            # first arg is a list where can be names of python package dirs,
+            # python files, object names or objects itself
+            docindex = build_doc_index([str(src) for src in source])
+            if docindex == None:
+                return -1
+
+            if env['EPYDOCFLAGS'] == '--html':
+                html_writer = HTMLWriter(docindex,
+                                         docformat='restructuredText',
+                                         prj_name='SCons',
+                                         prj_url='http://www.scons.org/')
+                try:
+                    html_writer.write(env['OUTDIR'])
+                except OSError: # If directory cannot be created or any file cannot
+                                # be created or written to.
+                    return -2
+
+            """
+            # PDF support requires external Linux utilites, so it's not crossplatform.
+            # Leaving for now.
+            # http://epydoc.svn.sourceforge.net/viewvc/epydoc/trunk/epydoc/src/epydoc/cli.py
+
+            elif env['EPYDOCFLAGS'] == '--pdf':
+                pdf_writer = LatexWriter(docindex, 
+                                         docformat='restructuredText',
+                                         prj_name='SCons',
+                                         prj_url='http://www.scons.org/')
+            """
+            return 0
+
+        epydoc_commands = [
+            Delete('$OUTDIR'),
+            epydoc_builder_action,
+            Touch('$TARGET'),
+        ]
+
+else: # epydoc_cli is found
+    epydoc_commands = [
+        Delete('$OUTDIR'),
+        '$EPYDOC $EPYDOCFLAGS --debug --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',
+        Touch('$TARGET'),
+    ]
+
+     
+if not epydoc_cli and not epydoc:
+    print "doc: epydoc not found, skipping building API documentation."
 else:
     # XXX Should be in common with reading the same thing in
     # the SConstruct file.
@@ -478,40 +549,37 @@ else:
     e = os.path.join(build, '..', 'scons', 'engine')
     sources = [os.path.join(e, x) for x in sources]
 
-    epydoc_commands = [
-        Delete('$OUTDIR'),
-        '$EPYDOC $EPYDOCFLAGS --debug --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',
-        Touch('$TARGET'),
-    ]
-
     htmldir = os.path.join(build, 'HTML', 'scons-api')
     env.Command('${OUTDIR}/index.html', sources, epydoc_commands,
-                EPYDOC=epydoc, EPYDOCFLAGS='--html', OUTDIR=htmldir)
+                EPYDOC=epydoc_cli, EPYDOCFLAGS='--html', OUTDIR=htmldir)
     tar_deps.append(htmldir)
     tar_list.append(htmldir)
 
-    # PDF and PostScript and TeX are built from the
-    # same invocation.
-    api_dir = os.path.join(build, 'scons-api')
-    api_pdf = os.path.join(api_dir, 'api.pdf')
-    api_ps = os.path.join(api_dir, 'api.ps')
-    api_tex = os.path.join(api_dir, 'api.tex')
-    api_targets = [api_pdf, api_ps, api_tex]
-    env.Command(api_targets, sources, epydoc_commands,
-                EPYDOC=epydoc, EPYDOCFLAGS='--pdf', OUTDIR=api_dir)
-    Local(api_targets)
+    if not epydoc_cli:
+        print "doc: command line epydoc is not found, skipping PDF/PS/Tex output"
+    else:
+        # PDF and PostScript and TeX are built from the
+        # same invocation.
+        api_dir = os.path.join(build, 'scons-api')
+        api_pdf = os.path.join(api_dir, 'api.pdf')
+        api_ps = os.path.join(api_dir, 'api.ps')
+        api_tex = os.path.join(api_dir, 'api.tex')
+        api_targets = [api_pdf, api_ps, api_tex]
+        env.Command(api_targets, sources, epydoc_commands,
+                    EPYDOC=epydoc_cli, EPYDOCFLAGS='--pdf', OUTDIR=api_dir)
+        Local(api_targets)
 
-    pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
-    env.InstallAs(pdf_install, api_pdf)
-    tar_deps.append(pdf_install)
-    tar_list.append(pdf_install)
-    Local(pdf_install)
+        pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
+        env.InstallAs(pdf_install, api_pdf)
+        tar_deps.append(pdf_install)
+        tar_list.append(pdf_install)
+        Local(pdf_install)
 
-    ps_install = os.path.join(build, 'PS', 'scons-api.ps')
-    env.InstallAs(ps_install, api_ps)
-    tar_deps.append(ps_install)
-    tar_list.append(ps_install)
-    Local(ps_install)
+        ps_install = os.path.join(build, 'PS', 'scons-api.ps')
+        env.InstallAs(ps_install, api_ps)
+        tar_deps.append(ps_install)
+        tar_list.append(ps_install)
+        Local(ps_install)
 
 #
 # Now actually create the tar file of the documentation,

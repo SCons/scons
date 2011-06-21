@@ -116,6 +116,9 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       versions side by side. This custom logic was incompatible with
       easy_install way of doing things.
 
+    - Use epydoc module for generating API docs in HTML if command line
+      utility is not found in PATH. Actual for Windows.
+
   From Alexander Goomenyuk:
 
     - Add .sx to assembly source scanner list so .sx files
