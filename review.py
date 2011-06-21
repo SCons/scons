@@ -16,7 +16,7 @@
 
 """Tool for uploading diffs from a version control system to the codereview app.
 
-Usage summary: upload.py [options] [-- diff_options]
+Usage summary: upload.py [options] [-- diff_options] [path...]
 
 Diff options are passed to the diff command of the underlying system.
 
@@ -162,6 +162,7 @@ class ClientLoginError(urllib2.HTTPError):
     urllib2.HTTPError.__init__(self, url, code, msg, headers, None)
     self.args = args
     self.reason = args["Error"]
+    self.info = args.get("Info", None)
 
 
 class AbstractRpcServer(object):
@@ -305,37 +306,42 @@ class AbstractRpcServer(object):
       try:
         auth_token = self._GetAuthToken(credentials[0], credentials[1])
       except ClientLoginError, e:
+        print >>sys.stderr, ''
         if e.reason == "BadAuthentication":
-          print >>sys.stderr, "Invalid username or password."
-          continue
-        if e.reason == "CaptchaRequired":
+          if e.info == "InvalidSecondFactor":
+            print >>sys.stderr, (
+                "Use an application-specific password instead "
+                "of your regular account password.\n"
+                "See http://www.google.com/"
+                "support/accounts/bin/answer.py?answer=185833")
+          else:
+            print >>sys.stderr, "Invalid username or password."
+        elif e.reason == "CaptchaRequired":
           print >>sys.stderr, (
               "Please go to\n"
               "https://www.google.com/accounts/DisplayUnlockCaptcha\n"
               "and verify you are a human.  Then try again.\n"
               "If you are using a Google Apps account the URL is:\n"
               "https://www.google.com/a/yourdomain.com/UnlockCaptcha")
-          break
-        if e.reason == "NotVerified":
+        elif e.reason == "NotVerified":
           print >>sys.stderr, "Account not verified."
-          break
-        if e.reason == "TermsNotAgreed":
+        elif e.reason == "TermsNotAgreed":
           print >>sys.stderr, "User has not agreed to TOS."
-          break
-        if e.reason == "AccountDeleted":
+        elif e.reason == "AccountDeleted":
           print >>sys.stderr, "The user account has been deleted."
-          break
-        if e.reason == "AccountDisabled":
+        elif e.reason == "AccountDisabled":
           print >>sys.stderr, "The user account has been disabled."
           break
-        if e.reason == "ServiceDisabled":
+        elif e.reason == "ServiceDisabled":
           print >>sys.stderr, ("The user's access to the service has been "
                                "disabled.")
-          break
-        if e.reason == "ServiceUnavailable":
+        elif e.reason == "ServiceUnavailable":
           print >>sys.stderr, "The service is not available; try again later."
-          break
-        raise
+        else:
+          # Unknown error.
+          raise
+        print >>sys.stderr, ''
+        continue
       self._GetAuthCookie(auth_token)
       return
 
@@ -393,6 +399,11 @@ class AbstractRpcServer(object):
 ##           elif e.code >= 500 and e.code < 600:
 ##             # Server Error - try again.
 ##             continue
+          elif e.code == 301:
+            # Handle permanent redirect manually.
+            url = e.info()["location"]
+            url_loc = urlparse.urlparse(url)
+            self.host = '%s://%s' % (url_loc[0], url_loc[1])
           else:
             raise
     finally:
@@ -447,7 +458,8 @@ class HttpRpcServer(AbstractRpcServer):
     return opener
 
 
-parser = optparse.OptionParser(usage="%prog [options] [-- diff_options]")
+parser = optparse.OptionParser(
+    usage="%prog [options] [-- diff_options] [path...]")
 parser.add_option("-y", "--assume_yes", action="store_true",
                   dest="assume_yes", default=False,
                   help="Assume that the answer to yes/no questions is 'yes'.")
@@ -457,7 +469,7 @@ group.add_option("-q", "--quiet", action="store_const", const=0,
                  dest="verbose", help="Print errors only.")
 group.add_option("-v", "--verbose", action="store_const", const=2,
                  dest="verbose", default=1,
-                 help="Print info level logs (default).")
+                 help="Print info level logs.")
 group.add_option("--noisy", action="store_const", const=3,
                  dest="verbose", help="Print all logs.")
 # Review server
@@ -555,7 +567,7 @@ def GetRpcServer(server, email=None, host_override=None, save_cookies=True,
 
   # If this is the dev_appserver, use fake authentication.
   host = (host_override or server).lower()
-  if host == "localhost" or host.startswith("localhost:"):
+  if re.match(r'(http://)?localhost([:/]|$)', host):
     if email is None:
       email = "test@example.com"
       logging.info("Using debug user %s.  Override with --email" % email)
@@ -644,10 +656,10 @@ def GetContentType(filename):
 # Use a shell for subcommands on Windows to get a PATH search.
 use_shell = sys.platform.startswith("win")
 
-def RunShellWithReturnCode(command, print_output=False,
+def RunShellWithReturnCodeAndStderr(command, print_output=False,
                            universal_newlines=True,
                            env=os.environ):
-  """Executes a command and returns the output from stdout and the return code.
+  """Executes a command and returns the output from stdout, stderr and the return code.
 
   Args:
     command: Command to execute.
@@ -656,9 +668,11 @@ def RunShellWithReturnCode(command, print_output=False,
     universal_newlines: Use universal_newlines flag (default: True).
 
   Returns:
-    Tuple (output, return code)
+    Tuple (stdout, stderr, return code)
   """
   logging.info("Running %s", command)
+  env = env.copy()
+  env['LC_MESSAGES'] = 'C'
   p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        shell=use_shell, universal_newlines=universal_newlines,
                        env=env)
@@ -679,8 +693,15 @@ def RunShellWithReturnCode(command, print_output=False,
     print >>sys.stderr, errout
   p.stdout.close()
   p.stderr.close()
-  return output, p.returncode
+  return output, errout, p.returncode
 
+def RunShellWithReturnCode(command, print_output=False,
+                           universal_newlines=True,
+                           env=os.environ):
+  """Executes a command and returns the output from stdout and the return code."""
+  out, err, retcode = RunShellWithReturnCodeAndStderr(command, print_output,
+                           universal_newlines, env)
+  return out, retcode
 
 def RunShell(command, silent_ok=False, universal_newlines=True,
              print_output=False, env=os.environ):
@@ -867,7 +888,7 @@ class SubversionVCS(VersionControlSystem):
     return self.svn_base
 
   def _GuessBase(self, required):
-    """Returns the SVN base URL.
+    """Returns base URL for current diff.
 
     Args:
       required: If true, exits if the url can't be guessed, otherwise None is
@@ -875,36 +896,21 @@ class SubversionVCS(VersionControlSystem):
     """
     info = RunShell(["svn", "info"])
     for line in info.splitlines():
-      words = line.split()
-      if len(words) == 2 and words[0] == "URL:":
-        url = words[1]
+      if line.startswith("URL: "):
+        url = line.split()[1]
         scheme, netloc, path, params, query, fragment = urlparse.urlparse(url)
-        username, netloc = urllib.splituser(netloc)
-        if username:
-          logging.info("Removed username from base URL")
-        if netloc.endswith("svn.python.org"):
-          if netloc == "svn.python.org":
-            if path.startswith("/projects/"):
-              path = path[9:]
-          elif netloc != "pythondev@svn.python.org":
-            ErrorExit("Unrecognized Python URL: %s" % url)
-          base = "http://svn.python.org/view/*checkout*%s/" % path
-          logging.info("Guessed Python base = %s", base)
-        elif netloc.endswith("svn.collab.net"):
-          if path.startswith("/repos/"):
-            path = path[6:]
-          base = "http://svn.collab.net/viewvc/*checkout*%s/" % path
-          logging.info("Guessed CollabNet base = %s", base)
+        guess = ""
+        if netloc == "svn.python.org" and scheme == "svn+ssh":
+          path = "projects" + path
+          scheme = "http"
+          guess = "Python "
         elif netloc.endswith(".googlecode.com"):
-          path = path + "/"
-          base = urlparse.urlunparse(("http", netloc, path, params,
-                                      query, fragment))
-          logging.info("Guessed Google Code base = %s", base)
-        else:
-          path = path + "/"
-          base = urlparse.urlunparse((scheme, netloc, path, params,
-                                      query, fragment))
-          logging.info("Guessed base = %s", base)
+          scheme = "http"
+          guess = "Google Code "
+        path = path + "/"
+        base = urlparse.urlunparse((scheme, netloc, path, params,
+                                    query, fragment))
+        logging.info("Guessed %sbase = %s", guess, base)
         return base
     if required:
       ErrorExit("Can't find URL in output from svn info")
@@ -997,10 +1003,16 @@ class SubversionVCS(VersionControlSystem):
       dirname, relfilename = os.path.split(filename)
       if dirname not in self.svnls_cache:
         cmd = ["svn", "list", "-r", self.rev_start, dirname or "."]
-        out, returncode = RunShellWithReturnCode(cmd)
+        out, err, returncode = RunShellWithReturnCodeAndStderr(cmd)
         if returncode:
-          ErrorExit("Failed to get status for %s." % filename)
-        old_files = out.splitlines()
+          # Directory might not yet exist at start revison
+          # svn: Unable to find repository location for 'abc' in revision nnn
+          if re.match('^svn: Unable to find repository location for .+ in revision \d+', err):
+            old_files = ()
+          else:
+            ErrorExit("Failed to get status for %s:\n%s" % (filename, err))
+        else:
+          old_files = out.splitlines()
         args = ["svn", "list"]
         if self.rev_end:
           args += ["-r", self.rev_end]
@@ -1052,8 +1064,12 @@ class SubversionVCS(VersionControlSystem):
         # File does not exist in the requested revision.
         # Reset mimetype, it contains an error message.
         mimetype = ""
+      else:
+        mimetype = mimetype.strip()
       get_base = False
-      is_binary = bool(mimetype) and not mimetype.startswith("text/")
+      is_binary = (bool(mimetype) and
+        not mimetype.startswith("text/") and
+        not mimetype in TEXT_MIMETYPES)
       if status[0] == " ":
         # Empty base content just to force an upload.
         base_content = ""
@@ -1270,8 +1286,6 @@ class MercurialVCS(VersionControlSystem):
     return filename[len(self.subdir):].lstrip(r"\/")
 
   def GenerateDiff(self, extra_args):
-    # If no file specified, restrict to the current subdir
-    extra_args = extra_args or ["."]
     cmd = ["hg", "diff", "--git", "-r", self.base_rev] + extra_args
     data = RunShell(cmd, silent_ok=True)
     svndiff = []
@@ -1322,13 +1336,12 @@ class MercurialVCS(VersionControlSystem):
     # the working copy
     if out[0].startswith('%s: ' % relpath):
       out = out[1:]
-    if len(out) > 1:
+    status, _ = out[0].split(' ', 1)
+    if len(out) > 1 and status == "A":
       # Moved/copied => considered as modified, use old filename to
       # retrieve base contents
       oldrelpath = out[1].strip()
       status = "M"
-    else:
-      status, _ = out[0].split(' ', 1)
     if ":" in self.base_rev:
       base_rev = self.base_rev.split(":", 1)[0]
     else:
@@ -1430,16 +1443,26 @@ def GuessVCSName():
     output is a string containing any interesting output from the vcs
     detection routine, or None if there is nothing interesting.
   """
+  def RunDetectCommand(vcs_type, command):
+    """Helper to detect VCS by executing command.
+    
+    Returns:
+       A pair (vcs, output) or None. Throws exception on error.
+    """
+    try:
+      out, returncode = RunShellWithReturnCode(command)
+      if returncode == 0:
+        return (vcs_type, out.strip())
+    except OSError, (errcode, message):
+      if errcode != errno.ENOENT:  # command not found code
+        raise
+  
   # Mercurial has a command to get the base directory of a repository
   # Try running it, but don't die if we don't have hg installed.
   # NOTE: we try Mercurial first as it can sit on top of an SVN working copy.
-  try:
-    out, returncode = RunShellWithReturnCode(["hg", "root"])
-    if returncode == 0:
-      return (VCS_MERCURIAL, out.strip())
-  except OSError, (errno, message):
-    if errno != 2:  # ENOENT -- they don't have hg installed.
-      raise
+  res = RunDetectCommand(VCS_MERCURIAL, ["hg", "root"])
+  if res != None:
+    return res
 
   # Subversion has a .svn in all working directories.
   if os.path.isdir('.svn'):
@@ -1448,14 +1471,10 @@ def GuessVCSName():
 
   # Git has a command to test if you're in a git tree.
   # Try running it, but don't die if we don't have git installed.
-  try:
-    out, returncode = RunShellWithReturnCode(["git", "rev-parse",
+  res = RunDetectCommand(VCS_GIT, ["git", "rev-parse",
                                               "--is-inside-work-tree"])
-    if returncode == 0:
-      return (VCS_GIT, None)
-  except OSError, (errno, message):
-    if errno != 2:  # ENOENT -- they don't have git installed.
-      raise
+  if res != None:
+    return res
 
   return (VCS_UNKNOWN, None)
 
@@ -1525,8 +1544,10 @@ def LoadSubversionAutoProperties():
       - config file doesn't exist, or
       - 'enable-auto-props' is not set to 'true-like-value' in [miscellany].
   """
-  # Todo(hayato): Windows users might use different path for configuration file.
-  subversion_config = os.path.expanduser("~/.subversion/config")
+  if os.name == 'nt':
+    subversion_config = os.environ.get("APPDATA") + "\\Subversion\\config"
+  else:
+    subversion_config = os.path.expanduser("~/.subversion/config")
   if not os.path.exists(subversion_config):
     return {}
   config = ConfigParser.ConfigParser()
@@ -1634,9 +1655,6 @@ def RealMain(argv, data=None):
     The patchset id is None if the base files are not uploaded by this
     script (applies only to SVN checkouts).
   """
-  logging.basicConfig(format=("%(asctime).19s %(levelname)s %(filename)s:"
-                              "%(lineno)s %(message)s "))
-  os.environ['LC_ALL'] = 'C'
   options, args = parser.parse_args(argv[1:])
   global verbosity
   verbosity = options.verbose
@@ -1684,6 +1702,12 @@ def RealMain(argv, data=None):
                             options.account_type)
   form_fields = [("subject", message)]
   if base:
+    b = urlparse.urlparse(base)
+    username, netloc = urllib.splituser(b.netloc)
+    if username:
+      logging.info("Removed username from base URL")
+      base = urlparse.urlunparse((b.scheme, netloc, b.path, b.params,
+                                  b.query, b.fragment))
     form_fields.append(("base", base))
   if options.issue:
     form_fields.append(("issue", str(options.issue)))
@@ -1766,6 +1790,9 @@ def RealMain(argv, data=None):
 
 def main():
   try:
+    logging.basicConfig(format=("%(asctime).19s %(levelname)s %(filename)s:"
+                                "%(lineno)s %(message)s "))
+    os.environ['LC_ALL'] = 'C'
     RealMain(sys.argv)
   except KeyboardInterrupt:
     print
