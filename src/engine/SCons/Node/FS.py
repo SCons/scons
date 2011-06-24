@@ -586,9 +586,13 @@ class Base(SCons.Node.Node):
 
         # Filenames and paths are probably reused and are intern'ed to
         # save some memory.
+
+        #: Filename with extension as it was specified when the object was
+        #: created; to obtain filesystem path, use Python str() function
         self.name = SCons.Util.silent_intern(name)
+        #: Cached filename extension
         self.suffix = SCons.Util.silent_intern(SCons.Util.splitext(name)[1])
-        self.fs = fs
+        self.fs = fs #: Reference to parent Node.FS object
 
         assert directory, "A directory must be provided"
 
@@ -659,7 +663,7 @@ class Base(SCons.Node.Node):
         else:
             result = srcnode.get_path()
         if not Save_Strings:
-            # We're not at the point where we're saving the string string
+            # We're not at the point where we're saving the string
             # representations of FS Nodes (because we haven't finished
             # reading the SConscript files and need to have str() return
             # things relative to them).  That also means we can't yet
