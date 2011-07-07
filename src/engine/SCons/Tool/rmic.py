@@ -111,7 +111,13 @@ def generate(env):
     env['JAVACLASSSUFFIX']  = '.class'
 
 def exists(env):
-    return env.Detect('rmic')
+    # As reported by Jan Nijtmans in issue #2730, the simple
+    #    return env.Detect('rmic')
+    # doesn't always work during initialization. For now, we
+    # stop trying to detect an executable (analogous to the
+    # javac Builder).
+    # TODO: Come up with a proper detect() routine...and enable it.
+    return 1
 
 # Local Variables:
 # tab-width:4

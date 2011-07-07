@@ -142,6 +142,8 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Dirk Baechle:
 
     - XML fixes in User's Guide.
+    - Fixed the detection of 'jar' and 'rmic' during
+      the initialization of the respective Tools (#2730).
 
   From Joe Zuntz:
 
