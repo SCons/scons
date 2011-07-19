@@ -488,7 +488,7 @@
       only its section of the input file.
       However, since the input file may contain a lot of data,
       we want to open the input file only if its timestamp has changed.
-      This could done with a custom
+      This could be done with a custom
       &Decider; function that might look something like this:
 
       </para>
@@ -586,6 +586,59 @@
       decide if the dependency file has changed.
 
       </para>
+
+      <para>
+
+      Another thing to look out for, is the fact that the three
+      attributes above may not be present at the time of the first run.
+      Without any prior build, no targets got created and no
+      <filename>.sconsign</filename> DB file exists yet.
+      So, it is recommended to always check whether the
+      <varname>prev_ni</varname> attribute in question is available.
+
+      </para>
+
+      <para>
+
+      We finally present a small example for a
+      <varname>csig</varname>-based decider function. Note how the
+      signature information for the <varname>dependency</varname> file
+      has to get initialized via <function>get_csig</function>
+      during each function call (this is mandatory!).
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        
+        def config_file_decider(dependency, target, prev_ni):
+            import os.path
+        
+            # We always have to init the .csig value...
+            dep_csig = dependency.get_csig()
+            # .csig may not exist, because no target was built yet...
+            if 'csig' not in dir(prev_ni):
+                return True
+            # Target file may not exist yet
+            if not os.path.exists(str(target.abspath)):
+                return True
+            if dep_csig != prev_ni.csig:
+                # Some change on source file =&gt; update installed one
+                return True
+            return False
+        
+        def update_file():
+            f = open("test.txt","a")
+            f.write("some line\n")
+            f.close()
+            
+        update_file()
+        
+        # Activate our own decider function
+        env.Decider(config_file_decider)
+        
+        env.Install("install","test.txt")
+      </programlisting>
 
     </section>
 
