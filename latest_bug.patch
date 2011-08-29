@@ -1,0 +1,96 @@
+Index: doc/man/scons.1
+===================================================================
+--- doc/man/scons.1	(revision 5349)
++++ doc/man/scons.1	(working copy)
+@@ -5456,9 +5456,9 @@
+ This can be either:
+ 1) a Python function that will process
+ the Node (file)
+-and return a list of strings (file names)
++and return a list of File Nodes
+ representing the implicit
+-dependencies found in the contents;
++dependencies (file names) found in the contents;
+ or:
+ 2) a dictionary that maps keys
+ (typically the file suffix, but see below for more discussion)
+@@ -5632,7 +5632,7 @@
+ 
+ XYZScanner = Scanner(xyz_scan)
+ 
+-SourceFileScanner.add_scanner('.xyx', XYZScanner)
++SourceFileScanner.add_scanner('.xyz', XYZScanner)
+ 
+ env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
+ .EE
+@@ -5937,7 +5937,7 @@
+         for dir in path:
+             file = dir + os.sep + inc
+             if os.path.exists(file):
+-                results.append(file)
++                results.append(env.FileToNode(file))
+                 break
+     return results
+ 
+Index: src/engine/SCons/Environment.py
+===================================================================
+--- src/engine/SCons/Environment.py	(revision 5349)
++++ src/engine/SCons/Environment.py	(working copy)
+@@ -853,6 +853,12 @@
+             self[key] = t
+         return self
+ 
++    def DirnameToNode(self, args):
++        return self.arg2nodes(args, self.fs.Dir)
++
++    def FilenameToNode(self, args):
++        return self.arg2nodes(args)
++
+ #     def MergeShellPaths(self, args, prepend=1):
+ #         """
+ #         Merge the dict in args into the shell environment in env['ENV'].  
+Index: src/engine/SCons/Script/Main.py
+===================================================================
+--- src/engine/SCons/Script/Main.py	(revision 5349)
++++ src/engine/SCons/Script/Main.py	(working copy)
+@@ -972,6 +972,8 @@
+ 
+     progress_display("scons: Reading SConscript files ...")
+ 
++    import objgraph
++    objgraph.show_growth(limit=3)
+     start_time = time.time()
+     try:
+         for script in scripts:
+@@ -990,6 +992,8 @@
+ 
+     progress_display("scons: done reading SConscript files.")
+ 
++    objgraph.show_growth()
++
+     memory_stats.append('after reading SConscript files:')
+     count_stats.append(('post-', 'read'))
+ 
+@@ -1071,6 +1075,12 @@
+         if not nodes:
+             exit_status = 2
+ 
++    objgraph.show_growth()
++
++    import pdb
++    pdb.set_trace()
++
++
+ def _build_targets(fs, options, targets, target_top):
+ 
+     global this_build_status
+@@ -1398,6 +1408,9 @@
+ 
+     sys.exit(exit_status)
+ 
++if __name__ == "__main__":
++    main()
++
+ # Local Variables:
+ # tab-width:4
+ # indent-tabs-mode:nil
