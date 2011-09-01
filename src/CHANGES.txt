@@ -144,6 +144,8 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - XML fixes in User's Guide.
     - Fixed the detection of 'jar' and 'rmic' during
       the initialization of the respective Tools (#2730).
+    - Improved docs for custom Decider functions and
+      custom Scanner objects (#2711, #2713).
 
   From Joe Zuntz:
 

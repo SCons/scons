@@ -171,8 +171,19 @@ over the file scanning rather than being called for each input line:
       
       def kfile_scan(node, env, path, arg):
           contents = node.get_text_contents()
-          return include_re.findall(contents)
+          return env.File(include_re.findall(contents))
     </programlisting>
+
+    <para>
+    
+      It is important to note that you
+      have to return a list of File nodes from the scanner function, simple
+      strings for the file names won't do. As in the examples we are showing here,
+      you can use the &File;
+      function of your current Environment in order to create nodes on the fly from
+      a sequence of file names with relative paths.
+      
+    </para>
 
     <para>
 
@@ -283,7 +294,7 @@ over the file scanning rather than being called for each input line:
         def kfile_scan(node, env, path):
             contents = node.get_text_contents()
             includes = include_re.findall(contents)
-            return includes
+            return env.File(includes)
 
         kscan = Scanner(function = kfile_scan,
                         skeys = ['.k'])
