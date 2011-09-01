@@ -2329,7 +2329,7 @@ Builders by adding them
 to the
 .B SourceFileScanner
 object.
-See the section "Scanner Objects,"
+See the section "Scanner Objects"
 below, for more information about
 defining your own Scanner objects
 and using the
@@ -4150,14 +4150,14 @@ implicit dependencies
 based only on the target file
 and the construction environment,
 .I not
-for implicit
-(See the section "Scanner Objects," below,
+for implicit dependencies based on source files.
+(See the section "Scanner Objects" below,
 for information about creating Scanner objects.)
 
 .IP source_scanner
 A Scanner object that
 will be invoked to
-find implicit dependences in
+find implicit dependencies in
 any source files
 used to build this target file.
 This is where you would
@@ -4174,7 +4174,7 @@ for on-disk changes to files
 that
 .B scons
 does not know about from other Builder or function calls.
-(See the section "Scanner Objects," below,
+(See the section "Scanner Objects" below,
 for information about creating your own Scanner objects.)
 
 .IP target_factory
@@ -5279,7 +5279,7 @@ to enclose arbitrary Python code to be evaluated.
 (In fact, this is how the above modifiers are substituted,
 they are simply attributes of the Python objects
 that represent TARGET, SOURCES, etc.)
-See the section "Python Code Substitution," below,
+See the section "Python Code Substitution" below,
 for more thorough examples of
 how this can be used.
 
@@ -5456,9 +5456,9 @@ function accepts the following arguments:
 This can be either:
 1) a Python function that will process
 the Node (file)
-and return a list of strings (file names)
+and return a list of File Nodes
 representing the implicit
-dependencies found in the contents;
+dependencies (file names) found in the contents;
 or:
 2) a dictionary that maps keys
 (typically the file suffix, but see below for more discussion)
@@ -5632,7 +5632,7 @@ def xyz_scan(node, env, path):
 
 XYZScanner = Scanner(xyz_scan)
 
-SourceFileScanner.add_scanner('.xyx', XYZScanner)
+SourceFileScanner.add_scanner('.xyz', XYZScanner)
 
 env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
 .EE
@@ -5901,7 +5901,7 @@ include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 def kfile_scan(node, env, path, arg):
     contents = node.get_text_contents()
     includes = include_re.findall(contents)
-    return includes
+    return env.File(includes)
 
 kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
@@ -5917,6 +5917,14 @@ env.Command('bar', bar_in, 'kprocess $SOURCES > $TARGET')
 bar_in.target_scanner = kscan
 .EE
 
+It is important to note that you
+have to return a list of File nodes from the scan function, simple
+strings for the file names won't do. As in the examples we are showing here,
+you can use the
+.BR File()
+function of your current Environment in order to create nodes on the fly from
+a sequence of file names with relative paths.
+
 Here is a similar but more complete example that searches
 a path of directories
 (specified as the
@@ -5925,30 +5933,35 @@ construction variable)
 for files that actually exist:
 
 .ES
+import re
+import os
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
 def my_scan(node, env, path, arg):
-   contents = node.get_text_contents()
-   includes = include_re.findall(contents)
-   if includes == []:
+    contents = node.get_text_contents()
+    includes = include_re.findall(contents)
+    if includes == []:
         return []
     results = []
     for inc in includes:
         for dir in path:
-            file = dir + os.sep + inc
+            file = str(dir) + os.sep + inc
             if os.path.exists(file):
                 results.append(file)
                 break
-    return results
+    return env.File(results)
 
 scanner = Scanner(name = 'myscanner',
                  function = my_scan,
                  argument = None,
                  skeys = ['.x'],
-                 path_function = FindPathDirs('MYPATH'),
+                 path_function = FindPathDirs('MYPATH')
                  )
 scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [scanner])
+env = Environment(SCANNERS = scanners + [scanner],
+                  MYPATH = ['incs'])
+
+env.Command('foo', 'foo.x', 'xprocess < $SOURCES > $TARGET')
 .EE
 
 The
@@ -5958,7 +5971,13 @@ function used in the previous example returns a function
 that will return a list of directories
 specified in the
 .B $MYPATH
-construction variable.
+construction variable. It lets SCons detect the file
+.B incs/foo.inc
+, even if 
+.B foo.x 
+contains the line
+.B include foo.inc 
+only.
 If you need to customize how the search path is derived,
 you would provide your own
 .B path_function
@@ -5979,7 +5998,7 @@ scanner = Scanner(name = 'myscanner',
                  function = my_scan,
                  argument = None,
                  skeys = ['.x'],
-                 path_function = pf,
+                 path_function = pf
                  )
 .EE
 

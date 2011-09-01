@@ -222,7 +222,7 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
         The GNU toolchain support in previous versions of SCons would
         add the -fPIC flag to the $SHCXXFLAGS construction variable.
-        The -fPIC flag has been now been removed from the default
+        The -fPIC flag has now been removed from the default
         $SHCXXFLAGS setting.  Instead, the $SHCXXCOM construction variable
         (the default SCons command line for compiling shared objects
         from C++ source files) has been changed to add the $SHCCFLAGS
