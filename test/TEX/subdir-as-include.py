@@ -49,10 +49,7 @@ test.subdir('inc')
 test.write('SConstruct', """\
 import os
 
-# I need PATH to allow TeX tools to be found on my desktop Mac
-# and HOME to let them work properly on my work mainframe
-env = Environment(ENV = {'PATH' : '/usr/texbin:/usr/local/bin:/opt/bin:/bin:/usr/bin:/sw/bin',
-                         'HOME' : os.environ['HOME']})
+env = Environment()
 env.DVI('root.tex')
 """)
 

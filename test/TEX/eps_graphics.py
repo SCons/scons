@@ -49,7 +49,7 @@ test.subdir(['docs'])
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env = Environment()
 
 test = env.DVI(source='docs/test.tex')
 """)

@@ -43,7 +43,7 @@ if not pdflatex:
 
 test.write(['SConstruct'], """\
 import os
-env = Environment(tools=['pdftex', 'tex'],ENV = {'PATH' : os.environ['PATH']})
+env = Environment(tools=['pdftex', 'tex'])
 env.PDF( 'bibtest.tex' )
 """)
 

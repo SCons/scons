@@ -43,7 +43,7 @@ if not latex:
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env = Environment()
 
 test = env.PDF(source='test.tex')
 """)

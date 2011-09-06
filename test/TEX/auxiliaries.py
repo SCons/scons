@@ -54,7 +54,6 @@ test.subdir(['docs'])
 test.write(['SConstruct'], """\
 import os
 env = Environment(tools = ['pdftex', 'dvipdf', 'dvips', 'tex', 'latex'],
-                  ENV = {'PATH' : os.environ['PATH']},
                   BUILD_DIR = '#build/docs')
 
 # Use 'duplicate=1' because LaTeX toolchain does not work properly for

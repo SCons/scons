@@ -74,6 +74,7 @@ def generate(env):
     SCons.Tool.tex.generate_common(env)
 
 def exists(env):
+    SCons.Tool.tex.generate_darwin(env)
     return env.Detect('pdflatex')
 
 # Local Variables:

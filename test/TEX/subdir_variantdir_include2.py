@@ -55,7 +55,7 @@ test.subdir(['docs','fig'])
 
 test.write('SConstruct', """\
 import os
-env = Environment(TOOLS = ['tex', 'pdftex'],ENV = {'PATH' : os.environ['PATH']})
+env = Environment(TOOLS = ['tex', 'pdftex'])
 
 env.VariantDir('build', 'docs', duplicate=0)
 pdf = env.PDF('build/main.tex')

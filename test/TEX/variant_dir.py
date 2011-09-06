@@ -45,8 +45,7 @@ test.subdir(['docs'])
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
-                  TOOLS = ['tex', 'latex', 'dvipdf'])
+env = Environment(TOOLS = ['tex', 'latex', 'dvipdf'])
 Export(['env'])
 
 SConscript(os.path.join('docs', 'SConscript'),

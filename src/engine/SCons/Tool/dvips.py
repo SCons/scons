@@ -85,6 +85,7 @@ def generate(env):
     env['PSSUFFIX'] = '.ps'
 
 def exists(env):
+    SCons.Tool.tex.generate_darwin(env)
     return env.Detect('dvips')
 
 # Local Variables:

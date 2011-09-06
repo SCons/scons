@@ -43,8 +43,7 @@ if not latex:
 
 test.write('SConstruct', """
 import os
-ENV = { 'PATH' : os.environ['PATH'] }
-foo = Environment(ENV = ENV)
+foo = Environment()
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 """ % locals())
 

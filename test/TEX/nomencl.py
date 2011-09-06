@@ -47,7 +47,7 @@ if not nomencl==0:
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools = ['pdftex'], ENV = {'PATH' : os.environ['PATH']})
+env = Environment(tools = ['pdftex'])
 env.PDF('nomencl', 'nomencl.tex')
 """)
 

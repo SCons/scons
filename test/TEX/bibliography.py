@@ -43,7 +43,7 @@ if not dvips or not bibtex:
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools = ['tex', 'latex', 'dvips'],ENV = {'PATH' : os.environ['PATH']})
+env = Environment(tools = ['tex', 'latex', 'dvips'])
 env.PostScript('simple', 'simple.tex')
 """)
 

@@ -41,10 +41,8 @@ if latex:
 
     test.write('SConstruct', """
 import os
-ENV = { 'PATH' : os.environ['PATH'],
-        'TEXINPUTS' : [ os.environ.get('TEXINPUTS', '') ] }
-foo = Environment(ENV = ENV)
-foo['TEXINPUTS'] = ['subdir',]
+foo = Environment()
+foo['TEXINPUTS'] = ['subdir',os.environ.get('TEXINPUTS', '')]
 foo.PDF(source = ['foo.ltx','bar.latex','makeindex.tex','latexi.tex'])
 """ % locals())
 

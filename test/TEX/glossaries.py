@@ -47,8 +47,7 @@ if not gloss==0:
 
 test.write('SConstruct', """\
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                         'HOME' : os.environ['HOME']})
+env = Environment()
 env.PDF('glossaries', 'glossaries.tex')
 """)
 
