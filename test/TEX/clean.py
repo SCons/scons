@@ -68,8 +68,7 @@ bibfile = r"""
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools = ['tex', 'latex'],
-                  ENV = {'PATH' : os.environ['PATH']})
+env = Environment(tools = ['tex', 'latex'])
 env.DVI( "foo.ltx" )
 """)
 

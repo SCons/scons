@@ -69,8 +69,7 @@ def CheckLModern(context):
     return is_ok
 
 import os
-ENV = { 'PATH' : os.environ['PATH'] }
-env = Environment(ENV = ENV)
+env = Environment()
 env['TEXINPUTS'] = '.'
 conf = Configure( env, custom_tests={'CheckLModern' : CheckLModern} )
 conf.CheckLModern()

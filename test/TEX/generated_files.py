@@ -47,7 +47,7 @@ test.subdir(['src'])
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env = Environment()
 
 copy_latex = Builder(action=Copy('$TARGET', '$SOURCE'),
                      suffix='.tex',

@@ -54,7 +54,7 @@ test.subdir(['src'])
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env = Environment()
 Export(['env'])
 
 env.SConscript(os.path.join('src', 'SConscript'),

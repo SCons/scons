@@ -739,8 +739,27 @@ def generate(env):
     bld.add_action('.tex', TeXLaTeXAction)
     bld.add_emitter('.tex', tex_eps_emitter)
 
+def generate_darwin(env):
+    try:
+        environ = env['ENV']
+    except KeyError:
+        environ = {}
+        env['ENV'] = environ
+    
+    if (platform.system() == 'Darwin'):
+        try:
+            ospath = env['ENV']['PATHOSX']
+        except:
+            ospath = None
+        if ospath:
+            env.AppendENVPath('PATH', ospath)
+
 def generate_common(env):
     """Add internal Builders and construction variables for LaTeX to an Environment."""
+
+    # Add OSX system paths so TeX tools can be found
+    # when a list of tools is given the exists() method is not called
+    generate_darwin(env)
 
     # A generic tex file Action, sufficient for all tex files.
     global TeXAction
@@ -777,6 +796,19 @@ def generate_common(env):
     global MakeAcronymsAction
     if MakeAcronymsAction is None:
         MakeAcronymsAction = SCons.Action.Action("$MAKEACRONYMSCOM", "$MAKEACRONYMSCOMSTR")
+
+    try:
+        environ = env['ENV']
+    except KeyError:
+        environ = {}
+        env['ENV'] = environ
+
+    # Some Linux platforms have pdflatex set up in a way
+    # that requires that the HOME environment variable be set.
+    # Add it here if defined.
+    v = os.environ.get('HOME')
+    if v:
+        environ['HOME'] = v
 
     CDCOM = 'cd '
     if platform.system() == 'Windows':
@@ -824,6 +856,7 @@ def generate_common(env):
     env['MAKENCLCOM']   = CDCOM + '${TARGET.dir} && $MAKENCL ${SOURCE.filebase}.nlo $MAKENCLFLAGS -o ${SOURCE.filebase}.nls'
 
 def exists(env):
+    generate_darwin(env)
     return env.Detect('tex')
 
 # Local Variables:

@@ -33,11 +33,35 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import posix
+import os
 
 def generate(env):
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
-    env['ENV']['PATH'] = env['ENV']['PATH'] + ':/sw/bin'
+    # put macports paths at front to override Apple's versions, fink path is after
+    # For now let people who want Macports or Fink tools specify it!
+    # env['ENV']['PATH'] = '/opt/local/bin:/opt/local/sbin:' + env['ENV']['PATH'] + ':/sw/bin'
+    
+    # Store extra system paths in env['ENV']['PATHOSX']
+    
+    filelist = ['/etc/paths',]
+    # make sure this works on Macs with Tiger or earlier
+    try:
+        dirlist = os.listdir('/etc/paths.d')
+    except:
+        dirlist = []
+
+    for file in dirlist:
+        filelist.append('/etc/paths.d/'+file)
+
+    for file in filelist:
+        if os.path.isfile(file):
+            f = open(file, 'r')
+            lines = f.readlines()
+            for line in lines:
+                if line:
+                    env.AppendENVPath('PATHOSX', line.strip('\n'))
+            f.close()
 
 # Local Variables:
 # tab-width:4

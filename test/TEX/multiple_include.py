@@ -49,7 +49,7 @@ test.subdir(['docs'])
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
+env = Environment()
 
 env.PDF('Fig1.ps')
 test = env.PDF(source='test.tex')

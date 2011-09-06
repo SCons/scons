@@ -115,6 +115,7 @@ def generate(env):
     env['PDFCOM']      = ['$DVIPDFCOM']
 
 def exists(env):
+    SCons.Tool.tex.generate_darwin(env)
     return env.Detect('dvipdf')
 
 # Local Variables:

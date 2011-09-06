@@ -135,8 +135,7 @@ if tex:
 
     test.write(['work1', 'SConstruct'], """\
 import os
-env = Environment(tools = ['pdftex', 'dvipdf', 'tex', 'latex'],
-                  ENV = {'PATH' : os.environ['PATH']})
+env = Environment(tools = ['pdftex', 'dvipdf', 'tex', 'latex'])
 env.DVI( "foo.tex" )
 env.PDF( "foo.tex" )
 """)
