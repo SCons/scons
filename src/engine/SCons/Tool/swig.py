@@ -66,9 +66,9 @@ def _find_modules(src):
     try:
         matches = _reModule.findall(open(src).read())
     except IOError:
-        # If the file's not yet generated, guess the module name from the filename
+        # If the file's not yet generated, guess the module name from the file stem
         matches = []
-        mnames.append(os.path.splitext(src)[0])
+        mnames.append(os.path.splitext(os.path.basename(src))[0])
 
     for m in matches:
         mnames.append(m[2])

@@ -146,6 +146,7 @@ RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       the initialization of the respective Tools (#2730).
     - Improved docs for custom Decider functions and
       custom Scanner objects (#2711, #2713).
+    - Corrected SWIG module names for generated *.i files (#2707).
 
   From Joe Zuntz:
 
