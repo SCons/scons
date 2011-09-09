@@ -1095,7 +1095,7 @@ environment, of directory names, suffixes, etc.
 
     </section>
 
-    <section>
+    <section id="sect-clone-environments">
     <title>Making Copies of &ConsEnvs;:  the &Clone; Method</title>
 
       <para>

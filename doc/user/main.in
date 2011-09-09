@@ -152,6 +152,11 @@
     &build-install;
   </chapter>
 
+   <chapter id="chap-start">
+     <title>Basic steps and advice</title>
+     &start;
+  </chapter>
+
   <chapter id="chap-simple">
     <title>Simple Builds</title>
     &simple;
