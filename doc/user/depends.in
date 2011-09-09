@@ -914,7 +914,7 @@
 
   </section>
 
-  <section>
+  <section id="sect-implicit-dependencies">
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
     <para>
