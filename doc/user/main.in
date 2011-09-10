@@ -85,6 +85,7 @@
     <!ENTITY sconf SYSTEM "sconf.xml">
     <!ENTITY separate SYSTEM "separate.xml">
     <!ENTITY simple SYSTEM "simple.xml">
+    <!ENTITY start SYSTEM "start.xml">
     <!ENTITY sourcecode SYSTEM "sourcecode.xml">
     <!ENTITY tasks SYSTEM "tasks.xml">
     <!ENTITY tools SYSTEM "tools.xml">
