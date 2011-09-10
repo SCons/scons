@@ -114,8 +114,18 @@ if version_tuple[3] != 'final':
     else:
         yyyy,mm,dd,_,_,_ = release_date
         version_tuple = version_tuple[:4] + ((yyyy*100 + mm)*100 + dd,)
-version_string = '.'.join(map(str, version_tuple))
+
+import pdb
+pdb.set_trace()
+
+if mode == 'final' or mode == 'release':
+    version_string = '.'.join(map(str, version_tuple[0:3]))
+else:
+    version_string = '.'.join(map(str, version_tuple))
+
 version_type = version_tuple[3]
+    
+
 if DEBUG: print 'version string', version_string
 
 if version_type not in ['alpha', 'beta', 'candidate', 'final']:
@@ -184,7 +194,9 @@ class UpdateFile(object):
         '''
         XXX
         '''
+        if DEBUG: print "content before:%s"%self.content
         self.content = self.match_rel.sub(replacement, self.content, count)
+        if DEBUG: print "content after :%s"%self.content
 
     # Determine the release date and the pattern to match a date
     # Mon, 05 Jun 2010 21:17:15 -0700
