@@ -85,7 +85,6 @@
     <!ENTITY sconf SYSTEM "sconf.xml">
     <!ENTITY separate SYSTEM "separate.xml">
     <!ENTITY simple SYSTEM "simple.xml">
-    <!ENTITY start SYSTEM "start.xml">
     <!ENTITY sourcecode SYSTEM "sourcecode.xml">
     <!ENTITY tasks SYSTEM "tasks.xml">
     <!ENTITY tools SYSTEM "tools.xml">
@@ -151,11 +150,6 @@
   <chapter id="chap-build-install">
     <title>Building and Installing &SCons;</title>
     &build-install;
-  </chapter>
-
-   <chapter id="chap-start">
-     <title>Basic steps and advice</title>
-     &start;
   </chapter>
 
   <chapter id="chap-simple">
