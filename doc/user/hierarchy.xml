@@ -442,7 +442,7 @@ make no difference to the build.
 
   </section>
 
-  <section id="sect-sharing-environments">
+  <section>
   <title>Sharing Environments (and Other Variables) Between &SConscript; Files</title>
 
     <para>
