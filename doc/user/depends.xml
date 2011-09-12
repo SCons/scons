@@ -903,7 +903,7 @@
 
   </section>
 
-  <section id="sect-implicit-dependencies">
+  <section>
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
     <para>

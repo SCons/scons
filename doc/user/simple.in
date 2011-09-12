@@ -297,7 +297,7 @@
 
  </section>
 
- <section id="sect-sconstruct-file">
+ <section>
  <title>The &SConstruct; File</title>
 
    <para>
@@ -353,7 +353,7 @@
 
    </section>
 
-   <section id="sect-order-independent">
+   <section>
    <title>&SCons; Functions Are Order-Independent</title>
 
      <para>
