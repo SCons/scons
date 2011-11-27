@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 2.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 2.1.0 - Mon, 09 Sep 2011 20:54:57 -0700
 
   From Anton Lazarev:
     - Fix Windows resource compiler scanner to accept DOS line endings.
