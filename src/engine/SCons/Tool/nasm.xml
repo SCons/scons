@@ -1,0 +1,23 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="nasm">
+<summary>
+Sets construction variables for the
+<application>nasm</application> Netwide Assembler.
+</summary>
+<sets>
+AS
+ASFLAGS
+ASPPFLAGS
+ASCOM
+ASPPCOM
+</sets>
+<uses>
+ASCOMSTR
+ASPPCOMSTR
+</uses>
+</tool>
