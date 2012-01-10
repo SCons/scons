@@ -885,7 +885,7 @@
 
       <scons_example name="Variables1">
         <file name="SConstruct" printme="1">
-           vars = Variables()
+           vars = Variables(None, ARGUMENTS)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
            env = Environment(variables = vars,
                              CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
@@ -902,8 +902,9 @@
       <para>
 
       This &SConstruct; file first creates a &Variables; object
-      (the <literal>vars = Variables()</literal> call),
-      and then uses the object's &Add;
+      which uses the values from the command-line options dictionary &ARGUMENTS;
+      (the <literal>vars = Variables(None, ARGUMENTS)</literal> call).
+      It then uses the object's &Add;
       method to indicate that the &RELEASE;
       variable can be set on the command line,
       and that its default value will be <literal>0</literal>
@@ -942,7 +943,7 @@
       &PathOption;, &PackageOption; and &AddOptions;.
       These older names still work,
       and you may encounter them in older
-      &SConscript; fles,
+      &SConscript; files,
       but they have been officially deprecated
       as of &SCons; version 2.0.
 
@@ -975,7 +976,7 @@
 
       <scons_example name="Variables_Help">
         <file name="SConstruct" printme="1">
-           vars = Variables('custom.py')
+           vars = Variables(None, ARGUMENTS)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
            env = Environment(variables = vars)
            Help(vars.GenerateHelpText(env))
@@ -1098,6 +1099,23 @@
         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
+      <para>
+
+      Finally, you can combine both methods with:
+
+      </para>
+
+      <screen>
+        vars = Variables('custom.py', ARGUMENTS)
+      </screen>
+
+      <para>
+      
+      where values in the option file &custom_py; get overwritten
+      by the ones specified on the command line.
+
+      </para>
+      
     </section>
 
     <section>
