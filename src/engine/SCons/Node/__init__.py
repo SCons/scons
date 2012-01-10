@@ -216,6 +216,7 @@ class Node(object):
         self.precious = None
         self.noclean = 0
         self.nocache = 0
+        self.cached = 0 # is this node pulled from cache?
         self.always_build = None
         self.includes = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.

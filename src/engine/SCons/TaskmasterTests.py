@@ -91,6 +91,9 @@ class Node(object):
         global built_text
         built_text = self.name + " built"
 
+    def remove(self):
+        pass
+
     def built(self):
         global built_text
         if not self.cached:
