@@ -845,7 +845,7 @@ def process(filename, fout=sys.stdout):
 
     if data.startswith('<?xml '):
         first_line, data = data.split('\n', 1)
-        sys.stdout.write(first_line + '\n')
+        fout.write(first_line + '\n')
 
     x = MySGML(fout)
     for c in data:
