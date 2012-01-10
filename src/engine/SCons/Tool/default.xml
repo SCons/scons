@@ -1,0 +1,12 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="default">
+<summary>
+Sets variables by calling a default list of Tool modules
+for the platform on which SCons is running.
+</summary>
+</tool>

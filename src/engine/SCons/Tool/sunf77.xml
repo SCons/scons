@@ -1,0 +1,19 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="sunf77">
+<summary>
+Set construction variables for the Sun &f77; Fortran compiler.
+</summary>
+<sets>
+FORTRAN
+F77
+SHFORTRAN
+SHF77
+SHFORTRANFLAGS
+SHF77FLAGS
+</sets>
+</tool>
