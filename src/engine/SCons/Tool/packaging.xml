@@ -1,0 +1,73 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="packaging">
+<summary>
+A framework for building binary and source packages.
+</summary>
+</tool>
+
+<builder name="Package">
+<summary>
+Builds a Binary Package of the given source files. 
+
+<example>
+env.Package(source = FindInstalledFiles())
+</example>
+</summary>
+</builder>
+
+<cvar name="JAR">
+<summary>
+The Java archive tool.
+</summary>
+</cvar>
+
+<cvar name="JARCHDIR">
+<summary>
+The directory to which the Java archive tool should change
+(using the
+<option>-C</option>
+option).
+</summary>
+</cvar>
+
+<cvar name="JARCOM">
+<summary>
+The command line used to call the Java archive tool.
+</summary>
+</cvar>
+
+<cvar name="JARCOMSTR">
+<summary>
+The string displayed when the Java archive tool
+is called
+If this is not set, then &cv-JARCOM; (the command line) is displayed.
+
+<example>
+env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="JARFLAGS">
+<summary>
+General options passed to the Java archive tool.
+By default this is set to
+<option>cf</option>
+to create the necessary
+<command>jar</command>
+file.
+</summary>
+</cvar>
+
+<cvar name="JARSUFFIX">
+<summary>
+The suffix for Java archives:
+<filename>.jar</filename>
+by default.
+</summary>
+</cvar>

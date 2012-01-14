@@ -1,0 +1,19 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="aixlink">
+<summary>
+Sets construction variables for the IBM Visual Age linker.
+</summary>
+<sets>
+<!--SMARTLINKFLAGS-->
+LINKFLAGS
+SHLINKFLAGS
+SHLIBSUFFIX
+</sets>
+<uses>
+</uses>
+</tool>
