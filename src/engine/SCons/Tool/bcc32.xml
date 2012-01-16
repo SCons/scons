@@ -1,0 +1,32 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="bcc32">
+<summary>
+Sets construction variables for the bcc32 compiler.
+</summary>
+<sets>
+CC
+CCFLAGS
+CFLAGS
+CCCOM
+SHCC
+SHCCFLAGS
+SHCFLAGS
+SHCCCOM
+CPPDEFPREFIX
+CPPDEFSUFFIX
+INCPREFIX
+INCSUFFIX
+SHOBJSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+CFILESUFFIX
+</sets>
+<uses>
+_CPPDEFFLAGS
+_CPPINCFLAGS
+</uses>
+</tool>

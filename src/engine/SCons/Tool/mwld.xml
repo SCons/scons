@@ -1,0 +1,27 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="mwld">
+<summary>
+Sets construction variables for the Metrowerks CodeWarrior linker.
+</summary>
+<sets>
+AR
+ARCOM
+LIBDIRPREFIX
+LIBDIRSUFFIX
+LIBLINKPREFIX
+LIBLINKSUFFIX
+LINK
+LINKCOM
+SHLINK
+SHLINKFLAGS
+SHLINKCOM
+<!--SHLIBEMITTER-->
+</sets>
+<uses>
+</uses>
+</tool>

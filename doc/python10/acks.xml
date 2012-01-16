@@ -1,0 +1,27 @@
+<para>
+
+  First, many thanks to the great group of developers who dove in right
+  from the beginning and have contributed the code and ideas to make
+  &SCons; a success: Chad Austin, Charles Crain, Steve Leblanc, and
+  Anthony Roach. Thanks also to those on the scons-devel mailing list
+  who have contributed greatly to the discussion, notably including
+  David Abrahams, Trent Mick, and Steven Shaw.
+
+</para>
+
+<para>
+
+  &SCons; would not exist today without the pioneering work of Bob
+  Sidebotham on the original &Cons; tool, and without Greg Wilson's
+  having started the Software Carpentry contest.
+
+</para>
+
+<para>
+
+  Thanks also to Peter Miller for: Aegis; the testing discipline that it
+  enforces, without which creating a stable but flexible tool would be
+  impossible; the "Recursive Make Considered Harmful" paper which led me
+  to experiment with &Cons; in the first place.
+
+</para>
