@@ -31,6 +31,9 @@ import os, sys, time
 
 import TestRuntest
 
+# Needed to ensure we're using the correct year
+this_year=time.localtime()[0]
+
 TestSCons      = 'QMTest/TestSCons.py'             .split('/')
 README         = 'README'                          .split('/')
 ReleaseConfig  = 'ReleaseConfig'                   .split('/')
@@ -69,14 +72,14 @@ combo_strings = [
 """version_tuple = (2, 0, 0, 'final', 0)
 """,
 # Index 5: bad release date
-"""release_date = (2011, 12)
-""",
+"""release_date = (%d, 12)
+"""%this_year,
 # Index 6: release date (hhhh, mm, dd)
-"""release_date = (2011, 12, 21)
-""",
+"""release_date = (%d, 12, 21)
+"""%this_year,
 # Index 7: release date (hhhh, mm, dd, hh, mm, ss)
-"""release_date = (2011, 12, 21, 12, 21, 12)
-""",
+"""release_date = (%d, 12, 21, 12, 21, 12)
+"""%this_year,
 ]
 
 combo_error = \
@@ -114,8 +117,8 @@ combo_fail(0, 1, 2, stdout =
 combo_strings[0] = combo_strings[1] + combo_strings[2] + combo_strings[3]
 
 combo_fail(0, 5, stdout =
-"""ERROR: Invalid release date (2011, 12)
-""")
+"""ERROR: Invalid release date (%d, 12)
+"""%this_year )
 
 def pave(path):
     path = path[:-1]
@@ -195,7 +198,8 @@ test.must_match(Announce, """
 RELEASE 2.0.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 """, mode = 'r')
 
-years = ', '.join(map(str, range(2001, time.localtime()[0] + 1)))
+
+years = ', '.join(map(str, range(2001, this_year + 1)))
 test.must_match(SConstruct, """
 month_year = 'MONTH YEAR'
 copyright_years = %s
@@ -213,11 +217,11 @@ These files are a part of 33.22.11:
 
 # should get Python floors from TestSCons module.
 test.must_match(TestSCons, """
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011'
+copyright_years = '%s'
 default_version = '2.0.0.alpha.yyyymmdd'
 python_version_unsupported = (2, 3)
 python_version_deprecated = (2, 4)
-""", mode = 'r')
+"""%years, mode = 'r')
 
 # should get Python floors from TestSCons module.
 test.must_match(Main, """
