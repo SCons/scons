@@ -899,7 +899,7 @@ class CommandGeneratorAction(ActionBase):
                  show=_null, execute=_null, chdir=_null, executor=None):
         act = self._generate(target, source, env, 0, executor)
         if act is None:
-            raise UserError("While building `%s': "
+            raise SCons.Errors.UserError("While building `%s': "
                             "Cannot deduce file extension from source files: %s"
                 % (repr(list(map(str, target))), repr(list(map(str, source)))))
         return act(target, source, env, exitstatfunc, presub,
