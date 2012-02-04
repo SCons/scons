@@ -17,7 +17,7 @@ import string
 import sys
 import xml.sax
 try:
-    from io import StringIO
+    from io import StringIO     # usable as of 2.6; takes unicode only
 except ImportError:
     # No 'io' module or no StringIO in io
     exec('from cStringIO import StringIO')
@@ -105,7 +105,7 @@ for f in args:
         content = content.replace('-->\n', '-->')
         input = xml_preamble + content + xml_postamble
         try:
-            saxparser.parse(StringIO(input))
+            saxparser.parse(StringIO(unicode(input)))
         except:
             sys.stderr.write("error in %s\n" % f)
             raise
