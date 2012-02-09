@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -28,15 +29,15 @@ import subprocess
 
 __doc__ = """bootstrap.py
 
-This script supports "bootstrap" execution of the current SCons in
-this local source tree by copying of all necessary Python scripts and
-modules from underneath the src/ subdirectory into a subdirectory (named
-"bootstrap/" by default), and then executing the copied SCons with the
-supplied command-line arguments.
+Execute SCons from this source tree. It copies Python scripts and modules
+from src/ subdirectory into a subdirectory named "bootstrap/" (by default),
+and executes SCons from there with the supplied command-line arguments.
 
-There are a handful of options that are specific to this bootstrap.py
-script and which are *not* passed on to the underlying SCons script.
-All of these begin with the string "bootstrap_":
+This is a minimal build of SCons to bootstrap the full build of all the
+packages, as specified in our local SConstruct file.
+
+Some options are specific to this bootstrap.py script and are *not* passed
+on to the SCons script. All of these begin with the string "bootstrap_":
 
     --bootstrap_dir=DIR
 
@@ -59,7 +60,7 @@ All of these begin with the string "bootstrap_":
 
         Only updates the bootstrap subdirectory, and then exits.
 
-In addition to the above options, the bootstrap.py script understands
+In addition to the above, the bootstrap.py script understands
 the following SCons options:
 
     -C, --directory
@@ -68,10 +69,6 @@ the following SCons options:
         Because we change directory right away to the specified directory,
         the SCons script itself doesn't need to, so this option gets
         "eaten" by the bootstrap.py script.
-
-This is essentially a minimal build of SCons to bootstrap ourselves into
-executing it for the full build of all the packages, as specified in our
-local SConstruct file.
 """
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
