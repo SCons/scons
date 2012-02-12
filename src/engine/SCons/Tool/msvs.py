@@ -786,19 +786,15 @@ class _GenerateV7DSP(_DSPGenerator):
 
             # First remove any common prefix
             commonprefix = None
-            if len(sources) > 1:
-                s = list(map(os.path.normpath, sources))
-                # take the dirname because the prefix may include parts
-                # of the filenames (e.g. if you have 'dir\abcd' and
-                # 'dir\acde' then the cp will be 'dir\a' )
-                cp = os.path.dirname( os.path.commonprefix(s) )
-                if cp and s[0][len(cp)] == os.sep:
-                    # +1 because the filename starts after the separator
-                    sources = [s[len(cp)+1:] for s in sources]
-                    commonprefix = cp
-            elif len(sources) == 1:
-                commonprefix = os.path.dirname( sources[0] )
-                sources[0] = os.path.basename( sources[0] )
+            s = list(map(os.path.normpath, sources))
+            # take the dirname because the prefix may include parts
+            # of the filenames (e.g. if you have 'dir\abcd' and
+            # 'dir\acde' then the cp will be 'dir\a' )
+            cp = os.path.dirname( os.path.commonprefix(s) )
+            if cp and s[0][len(cp)] == os.sep:
+                # +1 because the filename starts after the separator
+                sources = [s[len(cp)+1:] for s in sources]
+                commonprefix = cp
 
             hierarchy = makeHierarchy(sources)
             self.printSources(hierarchy, commonprefix=commonprefix)
@@ -1116,19 +1112,15 @@ class _GenerateV10DSP(_DSPGenerator):
             # First remove any common prefix
             sources = self.sources[kind]
             commonprefix = None
-            if len(sources) > 1:
-                s = list(map(os.path.normpath, sources))
-                # take the dirname because the prefix may include parts
-                # of the filenames (e.g. if you have 'dir\abcd' and
-                # 'dir\acde' then the cp will be 'dir\a' )
-                cp = os.path.dirname( os.path.commonprefix(s) )
-                if cp and s[0][len(cp)] == os.sep:
-                    # +1 because the filename starts after the separator
-                    sources = [s[len(cp)+1:] for s in sources]
-                    commonprefix = cp
-            elif len(sources) == 1:
-                commonprefix = os.path.dirname( sources[0] )
-                sources[0] = os.path.basename( sources[0] )
+            s = list(map(os.path.normpath, sources))
+            # take the dirname because the prefix may include parts
+            # of the filenames (e.g. if you have 'dir\abcd' and
+            # 'dir\acde' then the cp will be 'dir\a' )
+            cp = os.path.dirname( os.path.commonprefix(s) )
+            if cp and s[0][len(cp)] == os.sep:
+                # +1 because the filename starts after the separator
+                sources = [s[len(cp)+1:] for s in sources]
+                commonprefix = cp
             
             hierarchy = makeHierarchy(sources)
             self.printFilters(hierarchy, kind)
@@ -1143,19 +1135,15 @@ class _GenerateV10DSP(_DSPGenerator):
             # First remove any common prefix
             sources = self.sources[kind]
             commonprefix = None
-            if len(sources) > 1:
-                s = list(map(os.path.normpath, sources))
-                # take the dirname because the prefix may include parts
-                # of the filenames (e.g. if you have 'dir\abcd' and
-                # 'dir\acde' then the cp will be 'dir\a' )
-                cp = os.path.dirname( os.path.commonprefix(s) )
-                if cp and s[0][len(cp)] == os.sep:
-                    # +1 because the filename starts after the separator
-                    sources = [s[len(cp)+1:] for s in sources]
-                    commonprefix = cp
-            elif len(sources) == 1:
-                commonprefix = os.path.dirname( sources[0] )
-                sources[0] = os.path.basename( sources[0] )
+            s = list(map(os.path.normpath, sources))
+            # take the dirname because the prefix may include parts
+            # of the filenames (e.g. if you have 'dir\abcd' and
+            # 'dir\acde' then the cp will be 'dir\a' )
+            cp = os.path.dirname( os.path.commonprefix(s) )
+            if cp and s[0][len(cp)] == os.sep:
+                # +1 because the filename starts after the separator
+                sources = [s[len(cp)+1:] for s in sources]
+                commonprefix = cp
             
             hierarchy = makeHierarchy(sources)
             self.printSources(hierarchy, kind, commonprefix, kind)
