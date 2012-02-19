@@ -1,0 +1,11 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="hpc++">
+<summary>
+Set construction variables for the compilers aCC on HP/UX systems.
+</summary>
+</tool>

@@ -1,0 +1,18 @@
+#! /bin/sh
+
+# This script uses HappyDoc to create the HTML class documentation for
+# SCons. It must be run from the src/engine directory.
+
+base=`basename $PWD`
+if [ "$base" != "engine" ]; then
+   echo "You must run this script from the engine directory."
+   exit
+fi
+
+DEVDIR=../../doc/developer
+if [ ! -d $DEVDIR ]; then
+   mkdir $DEVDIR
+fi
+
+SRCFILE=../../bin/files
+happydoc -d $DEVDIR `cat $SRCFILE`
