@@ -1,0 +1,24 @@
+import os
+import sys
+
+python = os.environ.get('PYTHON', sys.executable)
+
+build = [
+    '"%(python)s" bootstrap.py %%s' % locals()
+]
+
+build_test_baseline = []
+
+cmd = '"%(python)s" runtest.py -q --noqmtest %%s' % locals()
+
+test_inputs = [
+    'src/*.py',
+    'QMTest/*.py',
+]
+
+tests = (
+    ('src/*Tests.py', cmd),
+    ('test/*.py', cmd),
+)
+
+valid_regression_results = [0, 2]
