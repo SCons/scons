@@ -157,10 +157,8 @@ class pathopt(object):
                 path = path + default
         if path:
             return [self.opt, os.pathsep.join(map(str, path))]
-            #return self.opt + " " + os.pathsep.join(path)
         else:
             return []
-            #return ""
 
 def Java(env, target, source, *args, **kw):
     """
