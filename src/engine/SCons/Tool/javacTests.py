@@ -26,6 +26,13 @@ import unittest
 
 import SCons.Tool.javac
 
+class DummyNode(object):
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return str(self.val)
+
 class pathoptTestCase(unittest.TestCase):
     def assert_pathopt(self, expect, path):
         popt = SCons.Tool.javac.pathopt('-foopath', 'FOOPATH')
@@ -53,6 +60,14 @@ class pathoptTestCase(unittest.TestCase):
                                 ['foo', 'bar'])
         finally:
             os.pathsep = save
+
+    def test_node(self):
+        self.assert_pathopt(['-foopath', '/foo'],
+                            DummyNode('/foo'))
+
+    def test_list_node(self):
+        self.assert_pathopt(['-foopath', '/foo:/bar'],
+                            ['/foo', DummyNode('/bar')])
 
     def test_default(self):
         popt = SCons.Tool.javac.pathopt('-foopath', 'FOOPATH', default='DPATH')

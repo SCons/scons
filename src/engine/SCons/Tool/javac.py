@@ -152,7 +152,7 @@ class pathopt(object):
         if self.default:
             path = path + [ env[self.default] ]
         if path:
-            return [self.opt, os.pathsep.join(path)]
+            return [self.opt, os.pathsep.join(map(str, path))]
             #return self.opt + " " + os.pathsep.join(path)
         else:
             return []
