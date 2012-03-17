@@ -1,0 +1,23 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="ilink">
+<summary>
+Sets construction variables for the
+<application>ilink</application> linker on OS/2 systems.
+</summary>
+<sets>
+LINK
+LINKFLAGS
+LINKCOM
+LIBDIRPREFIX
+LIBDIRSUFFIX
+LIBLINKPREFIX
+LIBLINKSUFFIX
+</sets>
+<uses>
+</uses>
+</tool>

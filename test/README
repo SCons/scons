@@ -1,0 +1,55 @@
+__COPYRIGHT__
+
+This directory contains our end-to-end SCons tests.
+
+They are all meant to be run essentially standalone, with the exception
+of the TestSCons.py module and the other modules imported by the various
+tests.  These modules are in the QMTest/ subdirectory, and PYTHONPATH
+needs to be set up correctly so that the test scripts can find them,
+and so that the SCons script itself can find the build engine modules.
+
+There is a wrapper script, runtest.py, that takes care of this for you,
+so the canonical invocation of a test is:
+
+	python runtest.py test/option-x.py
+
+There is also a "runtest.py -a" option that will search the tree for
+all tests, and execute them.
+
+Some of these tests have code for features that are not yet supported.
+
+	commented out with a "#XXX" at the beginning of the line;
+
+	short-circuited entirely by having the test pass via an
+	early call to test.pass_test(), which has a "#XXX" comment
+	at the end of the line
+
+If you're trying to implement one of these features, DO NOT BLINDLY
+ASSUME THAT THE NEW CODE IN THE TEST IS CORRECT.  It may have problems
+that have gone undiscovered due to the fact that the code testing the
+future feature couldn't be run yet!
+
+We're not going to be dogmatic about it, but so that there's some
+semblance of uniformity, here are the naming conventions for tests:
+
+    --	All tests end with a .py suffix.
+
+    --	General form:
+
+    		Feature.py	test of specified feature; try to
+				keep this description reasonably
+				short
+
+    		Feature-x.py	test of specified feature using
+				option x
+
+    --	Command line option tests take the form:
+
+    		option-x.py	lower-case single-letter option
+
+		option--X.py	upper-case single-letter option
+				(extra hyphen so the file names will
+				be unique on case-insensitive systems)
+
+		option--lo.py	long option; abbreviate the long
+				option name to a few characters
