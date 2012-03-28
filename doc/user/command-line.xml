@@ -62,7 +62,7 @@
 
     Any command-line argument containing an <literal>=</literal>
     (equal sign) is considered a variable setting with the form
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<varname>value</varname>.
     &SCons; provides direct access to
     all of the command-line variable settings,
     the ability to apply command-line variable settings
@@ -1086,7 +1086,7 @@
       by the ones specified on the command line.
 
       </para>
-
+      
     </section>
 
     <section>
