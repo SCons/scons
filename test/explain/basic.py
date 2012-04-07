@@ -305,7 +305,9 @@ scons: rebuilding `file3' because `zzz' is a new dependency
 %(_python_)s %(cat_py)s file3 xxx yyy zzz
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n")
 
