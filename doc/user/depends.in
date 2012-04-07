@@ -593,11 +593,11 @@
 
       <para>
 
-      Another thing to look out for, is the fact that the three
+      Another thing to look out for is the fact that the three
       attributes above may not be present at the time of the first run.
-      Without any prior build, no targets got created and no
+      Without any prior build, no targets have been created and no
       <filename>.sconsign</filename> DB file exists yet.
-      So, it is recommended to always check whether the
+      So, you should always check whether the
       <varname>prev_ni</varname> attribute in question is available.
 
       </para>

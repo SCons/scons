@@ -697,6 +697,8 @@ int main() {
             assert r, "__cplusplus not declared in C++ ??"
             r = sconf.CheckDeclaration('__cplusplus', language = 'C')
             assert not r, "__cplusplus declared  in C ??"
+            r = sconf.CheckDeclaration('unknown', language = 'Unknown')
+            assert not r, "unknown language was supported ??"
         finally:
             sconf.Finish()
 

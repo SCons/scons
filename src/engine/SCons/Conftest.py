@@ -554,7 +554,7 @@ def CheckDeclaration(context, symbol, includes = None, language = None):
 
     lang, suffix, msg = _lang2suffix(language)
     if msg:
-        context.Display("Cannot check for declaration %s: %s\n" % (type_name, msg))
+        context.Display("Cannot check for declaration %s: %s\n" % (symbol, msg))
         return msg
 
     src = includetext + includes 
