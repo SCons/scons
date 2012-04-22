@@ -307,7 +307,7 @@ class Node(object):
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
 
-        Returns true iff the node was successfully retrieved.
+        Returns true if the node was successfully retrieved.
         """
         return 0
 

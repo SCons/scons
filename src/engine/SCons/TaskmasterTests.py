@@ -86,6 +86,7 @@ class Node(object):
 
     def prepare(self):
         self.prepared = 1
+        self.get_binfo()        
 
     def build(self):
         global built_text
@@ -94,11 +95,52 @@ class Node(object):
     def remove(self):
         pass
 
+    # The following four methods new_binfo(), del_binfo(),
+    # get_binfo(), clear() as well as its calls have been added
+    # to support the cached_execute() test (issue #2720).
+    # They are full copies (or snippets) of their actual
+    # counterparts in the Node class...
+    def new_binfo(self):
+        binfo = "binfo"
+        return binfo
+
+    def del_binfo(self):
+        """Delete the build info from this node."""
+        try:
+            delattr(self, 'binfo')
+        except AttributeError:
+            pass
+
+    def get_binfo(self):
+        """Fetch a node's build information."""
+        try:
+            return self.binfo
+        except AttributeError:
+            pass
+
+        binfo = self.new_binfo()
+        self.binfo = binfo
+
+        return binfo
+    
+    def clear(self):
+        # The del_binfo() call here isn't necessary for normal execution,
+        # but is for interactive mode, where we might rebuild the same
+        # target and need to start from scratch.
+        self.del_binfo()
+
     def built(self):
         global built_text
         if not self.cached:
             built_text = built_text + " really"
+            
+        # Clear the implicit dependency caches of any Nodes
+        # waiting for this Node to be built.
+        for parent in self.waiting_parents:
+            parent.implicit = None
 
+        self.clear()
+        
     def has_builder(self):
         return not self.builder is None
 
@@ -956,6 +998,50 @@ class TaskmasterTestCase(unittest.TestCase):
         t.execute()
         assert built_text is None, built_text
         assert cache_text == ["n7 retrieved", "n8 retrieved"], cache_text
+
+    def test_cached_execute(self):
+        """Test executing a task with cached targets
+        """
+        # In issue #2720 Alexei Klimkin detected that the previous
+        # workflow for execute() led to problems in a multithreaded build.
+        # We have:
+        #    task.prepare()
+        #    task.execute()
+        #    task.executed()
+        #        -> node.visited()
+        # for the Serial flow, but
+        #    - Parallel -           - Worker -
+        #      task.prepare()
+        #      requestQueue.put(task)
+        #                           task = requestQueue.get()
+        #                           task.execute()
+        #                           resultQueue.put(task)
+        #      task = resultQueue.get()
+        #      task.executed()
+        #        ->node.visited()
+        # in parallel. Since execute() used to call built() when a target
+        # was cached, it could unblock dependent nodes before the binfo got
+        # restored again in visited(). This resulted in spurious
+        # "file not found" build errors, because files fetched from cache would
+        # be seen as not up to date and wouldn't be scanned for implicit
+        # dependencies.
+        #
+        # The following test ensures that execute() only marks targets as cached,
+        # but the actual call to built() happens in executed() only.
+        # Like this, the binfo should still be intact after calling execute()...
+        global cache_text
+
+        n1 = Node("n1")
+        # Mark the node as being cached
+        n1.cached = 1
+        tm = SCons.Taskmaster.Taskmaster([n1])
+        t = tm.next_task()
+        t.prepare()
+        t.execute()
+        assert cache_text == ["n1 retrieved"], cache_text
+        # If no binfo exists anymore, something has gone wrong...
+        has_binfo = hasattr(n1, 'binfo')
+        assert has_binfo == True, has_binfo
 
     def test_exception(self):
         """Test generic Taskmaster exception handling
