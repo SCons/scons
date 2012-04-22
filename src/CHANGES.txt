@@ -4,6 +4,18 @@
 
                             Change Log
 
+RELEASE 2.X.X - 
+
+  From Alexey Klimkin:
+  
+    - Fixed the Taskmaster, curing spurious build failures in
+      multi-threaded runs (#2720).
+    
+  From Dirk Baechle:
+  
+    - Improved documentation of command-line variables (#2809).
+    - Fixed scons-doc.py to properly convert main XML files (#2812).
+
 
 RELEASE 2.1.0 - Mon, 09 Sep 2011 20:54:57 -0700
 
