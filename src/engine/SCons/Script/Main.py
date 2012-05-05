@@ -869,7 +869,8 @@ def _main(parser):
                 script_dir = ''
 
     if script_dir and script_dir != os.getcwd():
-        display("scons: Entering directory `%s'" % script_dir)
+        if not options.silent:
+            display("scons: Entering directory `%s'" % script_dir)
         try:
             os.chdir(script_dir)
         except OSError:
