@@ -6,8 +6,15 @@
 
 RELEASE 2.X.X - 
 
-  From Rob Managan:
+  From Alexey Klimkin:
+    - Fixed the Taskmaster, curing spurious build failures in
+      multi-threaded runs (#2720).
+    
+  From Dirk Baechle:
+    - Improved documentation of command-line variables (#2809).
+    - Fixed scons-doc.py to properly convert main XML files (#2812).
 
+  From Rob Managan:
     - Updated the TeX builder to support LaTeX's multibib package.
 
 
