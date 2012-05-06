@@ -17,6 +17,9 @@ RELEASE 2.X.X -
   From Rob Managan:
     - Updated the TeX builder to support LaTeX's multibib package.
 
+  From Arve Knudsen:
+    - Test for FORTRANPPFILESUFFIXES (#2129).
+
 
 RELEASE 2.1.0 - Mon, 09 Sep 2011 20:54:57 -0700
 
