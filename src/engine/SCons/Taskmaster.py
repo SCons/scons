@@ -227,20 +227,26 @@ class Task(object):
         if T: T.write(self.trace_message(u'Task.execute()', self.node))
 
         try:
-            everything_was_cached = 1
+            cached_targets = []
             for t in self.targets:
-                if t.retrieve_from_cache():
-                    # Call the .built() method without calling the
-                    # .push_to_cache() method, since we just got the
-                    # target from the cache and don't need to push
-                    # it back there.
-                    t.set_state(NODE_EXECUTED)
-                    t.built()
-                else:
-                    everything_was_cached = 0
+                if not t.retrieve_from_cache():
                     break
-            if not everything_was_cached:
+                cached_targets.append(t)
+            if len(cached_targets) < len(self.targets):
+                # Remove targets before building. It's possible that we
+                # partially retrieved targets from the cache, leaving
+                # them in read-only mode. That might cause the command
+                # to fail.
+                #
+                for t in cached_targets:
+                    try:
+                        t.fs.unlink(t.path)
+                    except (IOError, OSError):
+                        pass
                 self.targets[0].build()
+            else:
+                for t in cached_targets:
+                    t.cached = 1
         except SystemExit:
             exc_value = sys.exc_info()[1]
             raise SCons.Errors.ExplicitExit(self.targets[0], exc_value.code)
@@ -292,7 +298,8 @@ class Task(object):
                 for side_effect in t.side_effects:
                     side_effect.set_state(NODE_NO_STATE)
                 t.set_state(NODE_EXECUTED)
-                t.push_to_cache()
+                if not t.cached:
+                    t.push_to_cache()
                 t.built()
             t.visited()
 
