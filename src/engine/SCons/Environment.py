@@ -72,6 +72,7 @@ CleanTargets = {}
 CalculatorArgs = {}
 
 semi_deepcopy = SCons.Util.semi_deepcopy
+semi_deepcopy_dict = SCons.Util.semi_deepcopy_dict
 
 # Pull UserError into the global name space for the benefit of
 # Environment().SourceSignatures(), which has some import statements
@@ -303,7 +304,9 @@ class BuilderDict(UserDict):
         UserDict.__init__(self, dict)
 
     def __semi_deepcopy__(self):
-        return self.__class__(self.data, self.env)
+        # These cannot be copied since they would both modify the same builder object, and indeed
+        # just copying would modify the original builder
+        raise TypeError( 'cannot semi_deepcopy a BuilderDict' )
 
     def __setitem__(self, item, val):
         try:
@@ -1374,15 +1377,15 @@ class Base(SubstitutionEnvironment):
         (like a function).  There are no references to any mutable
         objects in the original Environment.
         """
-        clone = copy.copy(self)
-        clone._dict = semi_deepcopy(self._dict)
-
         try:
-            cbd = clone._dict['BUILDERS']
+            builders = self._dict['BUILDERS']
         except KeyError:
             pass
-        else:
-            clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
+            
+        clone = copy.copy(self)
+        # BUILDERS is not safe to do a simple copy
+        clone._dict = semi_deepcopy_dict(self._dict, ['BUILDERS'])
+        clone._dict['BUILDERS'] = BuilderDict(builders, clone)
 
         # Check the methods added via AddMethod() and re-bind them to
         # the cloned environment.  Only do this if the attribute hasn't
@@ -1733,7 +1736,7 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             pass
         else:
-            kwbd = semi_deepcopy(kwbd)
+            kwbd = BuilderDict(kwbd,self)
             del kw['BUILDERS']
             self.__setitem__('BUILDERS', kwbd)
         kw = copy_non_reserved_keywords(kw)
