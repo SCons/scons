@@ -1,0 +1,50 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="mssdk">
+<summary>
+Sets variables for Microsoft Platform SDK and/or Windows SDK.
+Note that unlike most other Tool modules,
+mssdk does not set construction variables,
+but sets the <emphasis>environment variables</emphasis>
+in the environment &SCons; uses to execute
+the Microsoft toolchain:
+<literal>%INCLUDE%</literal>,
+<literal>%LIB%</literal>,
+<literal>%LIBPATH%</literal> and
+<literal>%PATH%</literal>.
+</summary>
+<sets>
+</sets>
+<uses>
+MSSDK_DIR
+MSSDK_VERSION
+MSVS_VERSION
+</uses>
+</tool>
+
+<cvar name="MSSDK_DIR">
+<summary>
+The directory containing the Microsoft SDK
+(either Platform SDK or Windows SDK)
+to be used for compilation.
+</summary>
+</cvar>
+
+<cvar name="MSSDK_VERSION">
+<summary>
+The version string of the Microsoft SDK
+(either Platform SDK or Windows SDK)
+to be used for compilation.
+Supported versions include
+<literal>6.1</literal>,
+<literal>6.0A</literal>,
+<literal>6.0</literal>,
+<literal>2003R2</literal>
+and 
+<literal>2003R1</literal>.
+</summary>
+</cvar>
