@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Check that all auxilary files created by LaTeX are properly cleaned by scons -c.
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -36,6 +37,10 @@ latex = test.where_is('latex')
 
 if not latex:
     test.skip_test("Could not find tex or latex; skipping test(s).\n")
+
+gloss = os.system('kpsewhich comment.sty')
+if not gloss==0:
+    test.skip_test("comment.sty not installed; skipping test(s).\n")
 
 # package hyperref generates foo.out
 # package comment generates comment.cut
