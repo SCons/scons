@@ -159,6 +159,7 @@ def prog_emitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
 
     extratargets = []
+    extrasources = []
 
     exe = env.FindIxes(target, "PROGPREFIX", "PROGSUFFIX")
     if not exe:
@@ -178,7 +179,15 @@ def prog_emitter(target, source, env):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    return (target+extratargets,source)
+    if version_num >= 11.0 and env.get('PCH', 0):
+        # MSVC 11 and above need the PCH object file to be added to the link line,
+        # otherwise you get link error LNK2011.
+        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
+        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
+        if pchobj not in extrasources:
+            extrasources.append(pchobj)
+
+    return (target+extratargets,source+extrasources)
 
 def RegServerFunc(target, source, env):
     if 'register' in env and env['register']:
