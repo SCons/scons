@@ -55,7 +55,7 @@ test.write('Precompiled.cpp', """\
 test.write('Precompiled.h', """\
 #pragma once
 
-int testf()
+static int testf()
 {
     return 0;
 }
