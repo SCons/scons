@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test the ability to configure the $PCHCOM construction variable.
+Test the ability to configure the $TARGET_ARCH construction variable.
 """
 
 import TestSCons
@@ -47,6 +47,17 @@ env_32 = Environment(tools=['default', 'msvc'],
 """ % locals())
 
 test.run(arguments = ".")
+
+# test.pass_test()
+
+test.write('SConstruct', """
+env_xx = Environment(tools=['default', 'msvc'],
+                  TARGET_ARCH = 'nosucharch')
+""" % locals())
+
+test.run(arguments = ".", status=2, stderr=None)
+test.must_contain_any_line(test.stderr(), "Unrecognized target architecture")
+test.must_contain_any_line(test.stderr(), "Valid architectures")
 
 test.pass_test()
 

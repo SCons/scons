@@ -6,6 +6,10 @@
 
 RELEASE 2.X.X - 
 
+  From Gary Oberbrunner:
+    - Show valid Visual Studio architectures in error message
+       when user passes invalid arch.
+
   From Alexey Petruchik:
     - Support for Microsoft Visual Studio 11 (both using it
       and generating MSVS11 solution files).

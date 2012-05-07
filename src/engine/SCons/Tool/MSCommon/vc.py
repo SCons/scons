@@ -124,7 +124,8 @@ def get_host_target(env):
     try:
         target = _ARCH_TO_CANONICAL[target_platform.lower()]
     except KeyError, e:
-        raise ValueError("Unrecognized target architecture %s" % target_platform)
+        all_archs = str(_ARCH_TO_CANONICAL.keys())
+        raise ValueError("Unrecognized target architecture %s\n\tValid architectures: %s" % (target_platform, all_archs))
 
     return (host, target,req_target_platform)
 
