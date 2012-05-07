@@ -1205,7 +1205,9 @@ class _GenerateV7DSW(_DSWGenerator):
         self.version = self.env['MSVS_VERSION']
         self.version_num, self.suite = msvs_parse_version(self.version)
         self.versionstr = '7.00'
-        if self.version_num >= 10.0:
+        if self.version_num >= 11.0:
+            self.versionstr = '12.0'
+        elif self.version_num >= 10.0:
             self.versionstr = '11.00'
         elif self.version_num >= 9.0:
             self.versionstr = '10.00'
@@ -1308,13 +1310,16 @@ class _GenerateV7DSW(_DSWGenerator):
 
     def PrintSolution(self):
         """Writes a solution file"""
-        self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr )
-        if self.version_num >= 10.0:
+        self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr)
+        if self.versionstr >= 11.0:
+            self.file.write('# Visual Studio 11\n')
+        elif self.version_num >= 10.0:
             self.file.write('# Visual Studio 2010\n')
         elif self.version_num >= 9.0:
             self.file.write('# Visual Studio 2008\n')
         elif self.version_num >= 8.0:
             self.file.write('# Visual Studio 2005\n')
+            
         for dspinfo in self.dspfiles_info:
             name = dspinfo['NAME']
             base, suffix = SCons.Util.splitext(name)

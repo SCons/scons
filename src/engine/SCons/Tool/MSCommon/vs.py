@@ -211,6 +211,33 @@ SupportedVSList = [
     #             default_dirname='TBD',
     #),
 
+    # Visual Studio 11
+    # The batch file we look for is in the VC directory,
+    # so the devenv.com executable is up in ..\..\Common7\IDE.
+    VisualStudio('11.0',
+                 sdk_version='6.1',
+                 hkeys=[r'Microsoft\VisualStudio\11.0\Setup\VS\ProductDir'],
+                 common_tools_var='VS110COMNTOOLS',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 default_dirname='Microsoft Visual Studio 11',
+                 supported_arch=['x86', 'amd64'],
+    ),
+
+    # Visual C++ 11 Express Edition
+    # The batch file we look for is in the VC directory,
+    # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
+    VisualStudio('11.0Exp',
+                 vc_version='11.0',
+                 sdk_version='6.1',
+                 hkeys=[r'Microsoft\VCExpress\11.0\Setup\VS\ProductDir'],
+                 common_tools_var='VS110COMNTOOLS',
+                 executable_path=r'Common7\IDE\VCExpress.exe',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 default_dirname='Microsoft Visual Studio 11',
+                 supported_arch=['x86'],
+    ),
+
     # Visual Studio 2010
     # The batch file we look for is in the VC directory,
     # so the devenv.com executable is up in ..\..\Common7\IDE.
