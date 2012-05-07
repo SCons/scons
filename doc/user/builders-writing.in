@@ -98,8 +98,8 @@ This functionality could be invoked as in the following example:
   <para>
 
   Although &SCons; provides many useful methods
-  for building common software products:
-  programs, libraries, documents.
+  for building common software products
+  (programs, libraries, documents, etc.),
   you frequently want to be
   able to build some other type of file
   not supported directly by &SCons;.
@@ -109,7 +109,7 @@ This functionality could be invoked as in the following example:
   (In fact, the &SCons; interfaces for creating
   &Builder; objects are flexible enough and easy enough to use
   that all of the the &SCons; built-in &Builder; objects
-  are created the mechanisms described in this section.)
+  are created using the mechanisms described in this section.)
 
   </para>
 

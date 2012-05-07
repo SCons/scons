@@ -684,7 +684,7 @@ environment, of directory names, suffixes, etc.
       <para>
 
       Another way to get information from
-      a construction environment.
+      a construction environment
       is to use the &subst; method
       on a string containing <literal>$</literal> expansions
       of construction variable names.
@@ -875,7 +875,7 @@ environment, of directory names, suffixes, etc.
       <para>
 
       You can, however, control the settings
-      in the default contstruction environment
+      in the default construction environment
       by using the &DefaultEnvironment; function
       to initialize various settings:
 

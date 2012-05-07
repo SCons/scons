@@ -86,6 +86,7 @@ tableofcontents_re = re.compile(r"^[^%\n]*\\tableofcontents", re.MULTILINE)
 makeindex_re = re.compile(r"^[^%\n]*\\makeindex", re.MULTILINE)
 bibliography_re = re.compile(r"^[^%\n]*\\bibliography", re.MULTILINE)
 bibunit_re = re.compile(r"^[^%\n]*\\begin\{bibunit\}", re.MULTILINE)
+multibib_re = re.compile(r"^[^%\n]*\\newcites\{([^\}]*)\}", re.MULTILINE)
 listoffigures_re = re.compile(r"^[^%\n]*\\listoffigures", re.MULTILINE)
 listoftables_re = re.compile(r"^[^%\n]*\\listoftables", re.MULTILINE)
 hyperref_re = re.compile(r"^[^%\n]*\\usepackage.*\{hyperref\}", re.MULTILINE)
@@ -236,6 +237,9 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     must_rerun_latex = True
 
+    # .aux files already processed by BibTex
+    already_bibtexed = []
+
     #
     # routine to update MD5 hash and compare
     #
@@ -298,21 +302,23 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         # The information that bibtex reads from the .aux file is
         # pass-independent. If we find (below) that the .bbl file is unchanged,
         # then the last latex saw a correct bibliography.
-        # Therefore only do this on the first pass
-        if count == 1:
-            for auxfilename in auxfiles:
+        # Therefore only do this once
+        # Go through all .aux files and remember the files already done.
+        for auxfilename in auxfiles:
+            if auxfilename not in already_bibtexed:
+                already_bibtexed.append(auxfilename)
                 target_aux = os.path.join(targetdir, auxfilename)
                 if os.path.isfile(target_aux):
                     content = open(target_aux, "rb").read()
                     if content.find("bibdata") != -1:
                         if Verbose:
-                            print "Need to run bibtex"
+                            print "Need to run bibtex on ",auxfilename
                         bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0])
                         result = BibTeXAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBTEX'], 'blg')
-                        must_rerun_latex = must_rerun_latex or check_MD5(suffix_nodes['.bbl'],'.bbl')
-
+                        #must_rerun_latex = must_rerun_latex or check_MD5(suffix_nodes['.bbl'],'.bbl')
+                        must_rerun_latex = True
         # Now decide if latex will need to be run again due to index.
         if check_MD5(suffix_nodes['.idx'],'.idx') or (count == 1 and run_makeindex):
             # We must run makeindex
@@ -553,6 +559,8 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
     for i in range(len(file_tests_search)):
         if file_tests[i][0] is None:
             file_tests[i][0] = file_tests_search[i].search(content)
+            if Verbose and file_tests[i][0]:
+                print "   found match for ",file_tests[i][-1][-1]
 
     incResult = includeOnly_re.search(content)
     if incResult:
@@ -621,6 +629,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          makeindex_re,
                          bibliography_re,
                          bibunit_re,
+                         multibib_re,
                          tableofcontents_re,
                          listoffigures_re,
                          listoftables_re,
@@ -636,6 +645,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.idx', '.ind', '.ilg','makeindex'],
                   ['.bbl', '.blg','bibliography'],
                   ['.bbl', '.blg','bibunit'],
+                  ['.bbl', '.blg','multibib'],
                   ['.toc','contents'],
                   ['.lof','figures'],
                   ['.lot','tables'],
@@ -678,6 +688,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
 
     for (theSearch,suffix_list) in file_tests:
         # add side effects if feature is present.If file is to be generated,add all side effects
+        if Verbose and theSearch:
+            print "check side effects for ",suffix_list[-1]
         if (theSearch != None) or (not source[0].exists() ):
             file_list = [targetbase,]
             # for bibunit we need a list of files
@@ -687,6 +699,18 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 # remove the suffix '.aux'
                 for i in range(len(file_list)):
                     file_list[i] = SCons.Util.splitext(file_list[i])[0]
+            # for multibib we need a list of files
+            if suffix_list[-1] == 'multibib':
+                file_list = []
+                for multibibmatch in multibib_re.finditer(content):
+                    if Verbose:
+                        print "multibib match ",multibibmatch.group(1)
+                    if multibibmatch != None:
+                        baselist = multibibmatch.group(1).split(',')
+                        if Verbose:
+                            print "multibib list ", baselist
+                        for i in range(len(baselist)):
+                            file_list.append(os.path.join(targetdir, baselist[i]))
             # now define the side effects
             for file_name in file_list:
                 for suffix in suffix_list[:-1]:
@@ -826,7 +850,7 @@ def generate_common(env):
     env['LATEX']        = 'latex'
     env['LATEXFLAGS']   = SCons.Util.CLVar('-interaction=nonstopmode -recorder')
     env['LATEXCOM']     = CDCOM + '${TARGET.dir} && $LATEX $LATEXFLAGS ${SOURCE.file}'
-    env['LATEXRETRIES'] = 3
+    env['LATEXRETRIES'] = 4
 
     env['PDFLATEX']      = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode -recorder')

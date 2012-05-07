@@ -128,6 +128,7 @@ There are a bunch of methods that let you do different things:
     test.match_exact("actual 1\nactual 2\n", "expected 1\nexpected 2\n")
     test.match_exact(["actual 1\n", "actual 2\n"],
                      ["expected 1\n", "expected 2\n"])
+    test.match_caseinsensitive("Actual 1\nACTUAL 2\n", "expected 1\nEXPECTED 2\n")
 
     test.match_re("actual 1\nactual 2\n", regex_string)
     test.match_re(["actual 1\n", "actual 2\n"], list_of_regexes)
@@ -180,6 +181,8 @@ matching in the same way as the match_*() methods described above.
 
     test = TestCmd.TestCmd(match = TestCmd.match_exact)
 
+    test = TestCmd.TestCmd(match = TestCmd.match_caseinsensitive)
+
     test = TestCmd.TestCmd(match = TestCmd.match_re)
 
     test = TestCmd.TestCmd(match = TestCmd.match_re_dotall)
@@ -190,6 +193,8 @@ These functions are also available as static methods:
 
     test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_exact)
 
+    test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_caseinsensitive)
+
     test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_re)
 
     test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_re_dotall)
@@ -199,6 +204,8 @@ These static methods can be accessed by a string naming the method:
     import TestCmd
 
     test = TestCmd.TestCmd(match = 'match_exact')
+
+    test = TestCmd.TestCmd(match = 'match_caseinsensitive')
 
     test = TestCmd.TestCmd(match = 'match_re')
 
@@ -328,6 +335,7 @@ __all__ = [
     'no_result',
     'pass_test',
     'match_exact',
+    'match_caseinsensitive',
     'match_re',
     'match_re_dotall',
     'python',
@@ -463,6 +471,20 @@ def match_exact(lines = None, matches = None):
         return
     for i in range(len(lines)):
         if lines[i] != matches[i]:
+            return
+    return 1
+
+def match_caseinsensitive(lines = None, matches = None):
+    """
+    """
+    if not is_List(lines):
+        lines = lines.split("\n")
+    if not is_List(matches):
+        matches = matches.split("\n")
+    if len(lines) != len(matches):
+        return
+    for i in range(len(lines)):
+        if lines[i].lower() != matches[i].lower():
             return
     return 1
 
@@ -1126,6 +1148,8 @@ class TestCmd(object):
         return match_stdout_function(lines, matches)
 
     match_exact = staticmethod(match_exact)
+
+    match_caseinsensitive = staticmethod(match_caseinsensitive)
 
     match_re = staticmethod(match_re)
 

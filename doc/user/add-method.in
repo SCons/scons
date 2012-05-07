@@ -65,7 +65,7 @@
 
   <para>
 
-  As mentioned, a psuedo-builder also provides more flexibility
+  As mentioned, a pseudo-builder also provides more flexibility
   in parsing arguments than you can get with a &Builder;.
   The next example shows a pseudo-builder with a
   named argument that modifies the filename, and a separate argument
