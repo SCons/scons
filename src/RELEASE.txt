@@ -31,6 +31,8 @@
 
   NEW FUNCTIONALITY
 
+    - SCons now supports Microsoft Visual Studio 11.
+
     - SCons can now automatically embed manifests in Windows executables
       and DLLs, by setting WINDOWS_EMBED_MANIFEST in the environment.
 
@@ -56,6 +58,7 @@
 
   FIXES
 
+    - Fixed occasional crashes with -jN on Windows.
     - Windows resource compiler (RC) scanner now handles DOS line endings
     - Visual Studio project generation now works when CPPPATH contains Dir nodes
     - Visual Studio projects are regenerated when CPPPATH or CPPDEFINES change
