@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From Mortoray:
+    - Make -s (silent mode) be silent about entering subdirs (#2976).
+
   From Gary Oberbrunner:
     - Show valid Visual Studio architectures in error message
        when user passes invalid arch.
