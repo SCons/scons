@@ -5,4 +5,4 @@ syntax:glob
 *.py[co]
 .sconsign*
 .svn
-.*~
+*~
