@@ -8,6 +8,7 @@ RELEASE 2.X.X -
 
   From Mortoray:
     - Make -s (silent mode) be silent about entering subdirs (#2976).
+    - Fix cloning of builders when cloning environment (#2821).
 
   From Gary Oberbrunner:
     - Show valid Visual Studio architectures in error message
