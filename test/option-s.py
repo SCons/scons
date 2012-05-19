@@ -67,6 +67,11 @@ test.run(arguments = '--quiet f1.out f2.out', stdout = "")
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
+# -C should also be quiet Issue#2796
+test.subdir( 'sub' )
+test.write(['sub','SConstruct'],"")
+test.run(arguments = '-s -C sub', stdout = "" )
+
 test.pass_test()
  
 
