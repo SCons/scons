@@ -140,7 +140,7 @@ env.Substfile('bar.in', SUBST_DICT = good_bar)
 
 # the SUBST_DICT may be in common (and not an override)
 substutions = {}
-subst = Environment(tools = ['textfile', SUBST_DICT = substitutions)
+subst = Environment(tools = ['textfile'], SUBST_DICT = substitutions)
 substitutions['@foo@'] = 'foo'
 subst['SUBST_DICT']['@bar@'] = 'bar'
 subst.Substfile('pgm1.c', [Value('#include "@foo@.h"'),
