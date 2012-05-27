@@ -24,53 +24,21 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
 import TestSCons
-
-_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('build.py', r"""
-import sys
-file = open(sys.argv[1], 'wb')
-file.write("build.py: %s\n" % sys.argv[1])
-file.close()
+test.write('SConstruct', """
+test = Environment()
+def blub():
+    pass
+
+test.Library.__call__ = blub
+test.Clone()
+assert test.Library.__call__ == blub
 """)
 
-test.write('SConstruct', """
-MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
-env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
-env.MyBuild(target = 'f1.out', source = 'f1.in')
-env.MyBuild(target = 'f2.out', source = 'f2.in')
-""" % locals())
-
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
-
-test.run(arguments = '-s f1.out f2.out', stdout = "")
-test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
-
-test.unlink('f1.out')
-test.unlink('f2.out')
-
-test.run(arguments = '--silent f1.out f2.out', stdout = "")
-test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
-
-test.unlink('f1.out')
-test.unlink('f2.out')
-
-test.run(arguments = '--quiet f1.out f2.out', stdout = "")
-test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
-
-# -C should also be quiet Issue#2796
-test.subdir( 'sub' )
-test.write(['sub','SConstruct'],"")
-test.run(arguments = '-s -C sub', stdout = "" )
+test.run()
 
 test.pass_test()
  
