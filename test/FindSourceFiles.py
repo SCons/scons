@@ -39,7 +39,6 @@ test = TestSCons.TestSCons()
 #    tarball. We expect 'src/foo.c.in' file within tarbal, and no content
 #    under 'var' directory.
 test.subdir('src')
-test.subdir('variant')
 
 test.write('SConstruct', """
 VariantDir(src_dir = 'src', variant_dir = 'var', duplicate = 0)
