@@ -36,9 +36,8 @@ perform particular activities related to software internationalization. You
 may be however interested in <emphasis>top-level</emphasis> builders
 &b-Translate; and &b-InstallMOFiles; described few paragraphs later.
 
-To use &t-gettext; tools, copy <filename>SConsToolGettext</filename>
-folder to your <filename>site_scons/</filename> and simply add
-<literal>'gettext'</literal> tool to your environment:
+To use &t-gettext; tools add <literal>'gettext'</literal> tool to your
+environment:
 <example>
   env = Environment( tools = ['default', 'gettext'] )
 </example>
@@ -207,7 +206,7 @@ not defined), the builders use <filename>messages.pot</filename> as default
 <cvar name="POAUTOINIT">
 <summary>
 The &cv-POAUTOINIT; variable, if set to <literal>True</literal> (on non-zero
-numeric value), let the SConsToolGettext to automatically initialize
+numeric value), let the &t-link-msginit; tool to automatically initialize
 <emphasis>missing</emphasis> <literal>PO</literal> files with
 <command>msginit(1)</command>.  This applies to both,
 &b-link-POInit; and &b-link-POUpdate; builders (and others that use any of

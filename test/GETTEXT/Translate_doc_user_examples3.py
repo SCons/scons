@@ -31,10 +31,6 @@ Make sure, that the examples given in user guide all work.
 import TestSCons
 import os
 
-# NOTE: When integrating into upstream SCons development tree, remove the next
-#       line, and the "toolpath = ..." line 
-site_scons =  os.environ['SCONS_TOOL_LIB_DIR'] 
-
 ###############################################################################
 # Trivial example. Just load the tool.
 test = TestSCons.TestSCons()
@@ -42,10 +38,7 @@ test = TestSCons.TestSCons()
 test.subdir('src', ['src', 'po'], 'build')
 test.write('SConstruct',
 """
-env = Environment(
-  toolpath = ['""" + site_scons + """/SConsToolGettext']
-, tools = ["default", "gettext"]
-)
+env = Environment( tools = ["default", "gettext"] )
 VariantDir('build', 'src', duplicate = 0)
 env['POAUTOINIT'] = 1
 SConscript('src/po/SConscript.i18n', exports = 'env')
