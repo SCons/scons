@@ -183,3 +183,9 @@ SCons/Variables/ListVariable.py
 SCons/Variables/PackageVariable.py
 SCons/Variables/PathVariable.py
 SCons/Warnings.py
+SCons/Tool/GettextCommon.py
+SCons/Tool/gettext.py
+SCons/Tool/msgfmt.py
+SCons/Tool/msginit.py
+SCons/Tool/msgmerge.py
+SCons/Tool/xgettext.py
