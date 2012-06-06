@@ -105,3 +105,8 @@ SCons/Tool/tlib.xml
 SCons/Tool/xgettext.xml
 SCons/Tool/yacc.xml
 SCons/Tool/zip.xml
+SCons/Tool/gettext.xml
+SCons/Tool/msgfmt.xml
+SCons/Tool/msginit.xml
+SCons/Tool/msgmerge.xml
+SCons/Tool/xgettext.xml
