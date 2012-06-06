@@ -95,7 +95,6 @@ SCons/Tool/g77.py
 SCons/Tool/gas.py
 SCons/Tool/gcc.py
 SCons/Tool/gettext.py
-SCons/Tool/gettext.xml
 SCons/Tool/gfortran.py
 SCons/Tool/gnulink.py
 SCons/Tool/gs.py
@@ -123,11 +122,8 @@ SCons/Tool/masm.py
 SCons/Tool/midl.py
 SCons/Tool/mingw.py
 SCons/Tool/msgfmt.py
-SCons/Tool/msgfmt.xml
 SCons/Tool/msginit.py
-SCons/Tool/msginit.xml
 SCons/Tool/msgmerge.py
-SCons/Tool/msgmerge.xml
 SCons/Tool/mslib.py
 SCons/Tool/mslink.py
 SCons/Tool/mssdk.py
@@ -171,7 +167,6 @@ SCons/Tool/textfile.py
 SCons/Tool/tlib.py
 SCons/Tool/wix.py
 SCons/Tool/xgettext.py
-SCons/Tool/xgettext.xml
 SCons/Tool/yacc.py
 SCons/Tool/zip.py
 SCons/Util.py
