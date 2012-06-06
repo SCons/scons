@@ -255,7 +255,7 @@
   </chapter>
 
   <chapter id="chap-gettext">
-    <title>Internaionalization and Localization with Gettext</title>
+    <title>Internationalization and localization with gettext</title>
     &gettext;
   </chapter>
 

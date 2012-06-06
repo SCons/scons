@@ -5,6 +5,9 @@
                             Change Log
 
 RELEASE 2.X.X - 
+  From Paweł Tomulik:
+    - Added gettext toolset
+    - Fixed FindSourceFiles to find final sources (leaf nodes).
 
   From Mortoray:
     - Make -s (silent mode) be silent about entering subdirs (#2976).
