@@ -1,0 +1,157 @@
+<!--
+__TOOL_COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="msgmerge">
+<summary>
+This scons tool is a part of scons &t-link-gettext; toolset. It provides
+scons interface to <command>msgmerge(1)</command> command, which merges two
+Uniform style <filename>.po</filename> files together. 
+</summary>
+<sets>
+MSGMERGE
+MSGMERGECOM 
+MSGMERGECOMSTR
+MSGMERGEFLAGS
+POSUFFIX 
+POUPDATE_ALIAS
+</sets>
+<uses>
+POTDOMAIN
+LINGUAS_FILE
+POAUTOINIT
+</uses>
+</tool>
+
+<builder name="POUpdate">
+<summary>
+The builder belongs to &t-link-msgmerge; tool. The builder updates
+<literal>PO</literal> files with <command>msgmerge(1)</command>, or initializes
+missing <literal>PO</literal> files as described in documentation of
+&t-link-msginit; tool and &b-link-POInit; builder (see also
+&cv-link-POAUTOINIT;). Note, that &b-POUpdate; <emphasis>does not add its
+targets to <literal>po-create</literal> alias</emphasis> as &b-link-POInit;
+does.
+
+Target nodes defined through &b-POUpdate; are not built by default
+(they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
+they are added automatically to special <literal>Alias</literal> 
+(<literal>'po-update'</literal> by default). The alias name may be changed
+through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easilly 
+update <literal>PO</literal> files in your project by <command>scons
+po-update</command>.
+
+<emphasis>Example 1.</emphasis>
+Update <filename>en.po</filename> and <filename>pl.po</filename> from
+<filename>messages.pot</filename> template (see also &cv-link-POTDOMAIN;),
+assuming that the later one exists or there is rule to build it (see
+&b-link-POTUpdate;):
+<example>
+  # ...
+  env.POUpdate(['en','pl']) # messages.pot --&gt; [en.po, pl.po]
+</example>
+
+<emphasis>Example 2.</emphasis>
+Update <filename>en.po</filename> and <filename>pl.po</filename> from
+<filename>foo.pot</filename> template:
+<example>
+  # ...
+  env.POUpdate(['en', 'pl'], ['foo']) # foo.pot --&gt;  [en.po, pl.pl]
+</example>
+
+<emphasis>Example 3.</emphasis>
+Update <filename>en.po</filename> and <filename>pl.po</filename> from
+<filename>foo.pot</filename> (another version):
+<example>
+  # ...
+  env.POUpdate(['en', 'pl'], POTDOMAIN='foo') # foo.pot -- &gt; [en.po, pl.pl]
+</example>
+
+<emphasis>Example 4.</emphasis>
+Update files for languages defined in <filename>LINGUAS</filename> file. The
+files are updated from <filename>messages.pot</filename> template:
+<example>
+  # ...
+  env.POUpdate(LINGUAS_FILE = 1) # needs 'LINGUAS' file
+</example>
+
+<emphasis>Example 5.</emphasis>
+Same as above, but update from <filename>foo.pot</filename> template:
+<example>
+  # ...
+  env.POUpdate(LINGUAS_FILE = 1, source = ['foo'])
+</example>
+
+<emphasis>Example 6.</emphasis>
+Update <filename>en.po</filename> and <filename>pl.po</filename> plus files for
+languages defined in <filename>LINGUAS</filename> file. The files are updated
+from <filename>messages.pot</filename> template:
+<example>
+  # produce 'en.po', 'pl.po' + files defined in 'LINGUAS':
+  env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1) 
+</example>
+
+<emphasis>Example 7.</emphasis>
+Use &cv-link-POAUTOINIT; to automatically initialize <literal>PO</literal> file
+if it doesn't exist:
+<example>
+  # ...
+  env.POUpdate(LINGUAS_FILE = 1, POAUTOINIT = 1)
+</example>
+
+<emphasis>Example 8.</emphasis>
+Update <literal>PO</literal> files for languages defined in
+<filename>LINGUAS</filename> file. The files are updated from
+<filename>foo.pot</filename> template. All necessary settings are
+pre-configured via environment.
+<example>
+  # ...
+  env['POAUTOINIT'] = 1
+  env['LINGUAS_FILE'] = 1
+  env['POTDOMAIN'] = 'foo'
+  env.POUpdate()
+</example>
+
+</summary>
+</builder>
+
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="POUPDATE_ALIAS">
+<summary>
+Common alias for all <literal>PO</literal> files being defined with
+&b-link-POUpdate; builder (default: <literal>'po-update'</literal>).
+See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGMERGE">
+<summary>
+Absolute path to <command>msgmerge(1)</command> binary as found by
+<function>Detect()</function>.
+See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGMERGECOM">
+<summary>
+Complete command line to run <command>msgmerge(1)</command> command.
+See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGMERGECOMSTR">
+<summary>
+String to be displayed when <command>msgmerge(1)</command> is invoked
+(default: <literal>''</literal>, which means ``print &cv-link-MSGMERGECOM;'').
+See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGMERGEFLAGS">
+<summary>
+Additional flags to <command>msgmerge(1)</command> command.
+See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
+</summary>
+</cvar>
