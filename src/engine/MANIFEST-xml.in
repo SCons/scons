@@ -41,6 +41,7 @@ SCons/Tool/g++.xml
 SCons/Tool/g77.xml
 SCons/Tool/gas.xml
 SCons/Tool/gcc.xml
+SCons/Tool/gettext.xml
 SCons/Tool/gfortran.xml
 SCons/Tool/gnulink.xml
 SCons/Tool/gs.xml
@@ -66,6 +67,9 @@ SCons/Tool/m4.xml
 SCons/Tool/masm.xml
 SCons/Tool/midl.xml
 SCons/Tool/mingw.xml
+SCons/Tool/msgfmt.xml
+SCons/Tool/msginit.xml
+SCons/Tool/msgmerge.xml
 SCons/Tool/mslib.xml
 SCons/Tool/mslink.xml
 SCons/Tool/mssdk.xml
@@ -98,5 +102,6 @@ SCons/Tool/tar.xml
 SCons/Tool/tex.xml
 SCons/Tool/textfile.xml
 SCons/Tool/tlib.xml
+SCons/Tool/xgettext.xml
 SCons/Tool/yacc.xml
 SCons/Tool/zip.xml
