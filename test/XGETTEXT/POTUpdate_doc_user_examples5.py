@@ -32,8 +32,6 @@ Make sure, that the examples given in user guide all work.
 import TestSCons
 import os
 
-site_scons =  os.environ['SCONS_TOOL_LIB_DIR'] 
-
 ###############################################################################
 test = TestSCons.TestSCons()
 
@@ -62,10 +60,7 @@ test.must_not_contain('0/1/po/messages.pot', 'Hello from ../../a.cpp')
 test.write('0/1/po/SConstruct',
 """
 # SConstruct file in '0/1/po/' subdirectory
-env = Environment(
-  toolpath = ['""" + site_scons + """/SConsToolGettext']
-, tools = ['default', 'xgettext']
-)
+env = Environment( tools = ['default', 'xgettext'] )
 env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
 """)
 test.run(arguments = 'pot-update', chdir = '0/1/po')

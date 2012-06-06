@@ -28,7 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 #############################################################################
 def generate(env,**kw):
   import SCons.Tool
-  from SConsToolGettext.GettextCommon \
+  from SCons.Tool.GettextCommon \
     import  _translate, _install_mo_files, tool_list
   for t in tool_list(env['PLATFORM'], env):
     env.Tool(t)
@@ -39,7 +39,7 @@ def generate(env,**kw):
 
 #############################################################################
 def exists(env):
-  from SConsToolGettext.GettextCommon \
+  from SCons.Tool.GettextCommon \
   import _xgettext_exists, _msginit_exists, \
          _msgmerge_exists, _msgfmt_exists
   return _xgettext_exists(env) and _msginit_exists(env) \

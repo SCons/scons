@@ -31,8 +31,6 @@ Make sure, that the examples given in user guide all work.
 import TestSCons
 import os
 
-site_scons =  os.environ['SCONS_TOOL_LIB_DIR'] 
-
 test = TestSCons.TestSCons()
 
 test.write('SConstruct',

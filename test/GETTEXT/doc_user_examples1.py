@@ -31,20 +31,13 @@ Make sure, that the examples given in user guide all work.
 import TestSCons
 import os
 
-# NOTE: When integrating into upstream SCons development tree, remove the next
-#       line, and the "toolpath = ..." line 
-site_scons =  os.environ['SCONS_TOOL_LIB_DIR'] 
-
 ###############################################################################
 # Trivial example. Just load the tool.
 test = TestSCons.TestSCons()
 
 test.write('SConstruct',
 """
-env = Environment(
-  toolpath = ['""" + site_scons + """/SConsToolGettext']
-, tools = ["default", "gettext"]
-)
+env = Environment( tools = ["default", "gettext"] )
 """)
 test.run(arguments = '.')
 

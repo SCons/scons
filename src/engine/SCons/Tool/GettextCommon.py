@@ -54,8 +54,8 @@ class _POTargetFactory(object):
   """ A factory of `PO` target files.
   
   Factory defaults differ from these of `SCons.Node.FS.FS`.  We set `precious`
-  (this is required by builders and actions in `SConsToolGettext`) and
-  `noclean` flags by default for all produced nodes.
+  (this is required by builders and actions gettext) and `noclean` flags by
+  default for all produced nodes.
   """
   def __init__( self, env, nodefault = True, alias = None, precious = True
               , noclean = True ):
@@ -239,17 +239,16 @@ class RPaths(object):
 
   It seems like `SCons.Node.FS.Base.get_path()` returns absolute paths
   for nodes that are outside of current working directory (`env.fs.getcwd()`).
-  In `SConsToolGettext` way we often have `SConscript`, `POT` and `PO` files
-  within `po/` directory and source files (e.g. `*.c`) outside of it. When
-  generating `POT` template file, references to source files are written to
-  `POT` template, so a translator may later quickly jump to appropriate source
-  file and line from its `PO` editor (e.g. `poedit`).  Relative paths in  
-  `PO` file are usually interpreted by `PO` editor as paths relative to the
-  place, where `PO` file lives. The absolute paths would make resultant `POT`
-  file nonportable, as the references would be correct only on the machine,
-  where `POT` file was recently re-created. For such reason, we need a
-  function, which always returns relative paths. This is the purpose of
-  `RPaths` callable object.
+  Here, we often have `SConscript`, `POT` and `PO` files within `po/`
+  directory and source files (e.g. `*.c`) outside of it. When generating `POT`
+  template file, references to source files are written to `POT` template, so
+  a translator may later quickly jump to appropriate source file and line from
+  its `PO` editor (e.g. `poedit`).  Relative paths in  `PO` file are usually
+  interpreted by `PO` editor as paths relative to the place, where `PO` file
+  lives. The absolute paths would make resultant `POT` file nonportable, as
+  the references would be correct only on the machine, where `POT` file was
+  recently re-created. For such reason, we need a function, which always
+  returns relative paths. This is the purpose of `RPaths` callable object.
 
   The `__call__` method returns paths relative to current woking directory, but
   we assume, that *xgettext(1)* is run from the directory, where target file is

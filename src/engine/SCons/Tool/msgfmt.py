@@ -29,9 +29,9 @@ class _MOFileBuilder(BuilderBase):
   """ The builder class for `MO` files.
   
   The reason for this builder to exists and its purpose is quite simillar 
-  as for `SConsToolGettext._POFileBuilder`. This time, we extend list of
-  sources, not targets, and call `BuilderBase._execute()` only once (as we
-  assume single-target here).
+  as for `_POFileBuilder`. This time, we extend list of sources, not targets,
+  and call `BuilderBase._execute()` only once (as we assume single-target
+  here).
   """
 
   def _execute(self, env, target, source, *args, **kw):
