@@ -25,18 +25,18 @@
 
   <para>
   The &t-link-gettext; toolset supports internationalization and localization
-  of SCons-based projects. The tools provided within &t-link-gettext; by
-  automatize generation and updates of translation files. You can manage
-  translations and translation templates simillary as it was done with
-  autotools.
+  of SCons-based projects. Builders provided by &t-link-gettext; automatize
+  generation and updates of translation files. You can manage translations and
+  translation templates similarly as it was done with autotools.
   </para>
 
   <section>
   <title>Prerequisites</title>
   <para>
-    Setup your operating system, so you can use several languages. In following
-    examples we use locales <literal>en_US</literal>, <literal>de_DE</literal>,
-    and <literal>pl_PL</literal>.
+    To follow examples provided in this chapter setup your operating system to
+    support two or more languages. In following examples we use locales
+    <literal>en_US</literal>, <literal>de_DE</literal>, and
+    <literal>pl_PL</literal>.
   </para>
 
   <para>
@@ -45,14 +45,14 @@
   </para>
 
   <para>
-    To edit translation files, you may install <ulink url="http://www.poedit.net/">poedit</ulink> editor.
+    To edit translation files you may wish to install <ulink url="http://www.poedit.net/">poedit</ulink> editor.
   </para>
   </section>
 
   <section>
   <title>Simple project</title>
     <para>
-    Let's start with some simple project, the "Hello world" program 
+    Let's start with very simple project, the "Hello world" program 
     for example
     <programlisting>
     /* hello.c */
@@ -64,8 +64,8 @@
     }
     </programlisting>
 
-    Prepare simple <filename>SConstruct</filename> script to compile the
-    program.
+    Prepare <filename>SConstruct</filename> script to compile the program
+    as usual.
     <programlisting>
     # SConstruct
     env = Environment()
@@ -76,10 +76,10 @@
     <para>
     Now we'll convert the project to multi-lingual one. I assume, that you
     already have <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
-    utilities</ulink> installed. If not, install it from repository, or
-    download from <ulink url="http://ftp.gnu.org/gnu/gettext/">
+    utilities</ulink> installed. If not, install them from your preffered
+    package repository, or download from <ulink url="http://ftp.gnu.org/gnu/gettext/">
     http://ftp.gnu.org/gnu/gettext/</ulink>. For the purpose of this example,
-    you should have following three locales installed on your system 
+    you should have following three locales installed on your system
     <literal>en_US</literal>, <literal>de_DE</literal> and
     <literal>pl_PL</literal>. On debian, for example, you may enable certain
     locales through <command>dpkg-reconfigure locales</command>.
@@ -106,7 +106,7 @@
     be found at <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html#Sources">
     http://www.gnu.org/software/gettext/manual/gettext.html#Sources</ulink>.
     The <function>gettext("...")</function> in above source has two purposes.
-    First is is recognized by the <command>xgettext(1)</command> program, which
+    First, it marks messages for <command>xgettext(1)</command> program, which
     we will use to extract from the sources the messages for localization.
     Second, it calls the <literal>gettext</literal> library internals to
     translate the message at runtime.
@@ -147,7 +147,7 @@
     Generate translation files with <command>scons po-update</command>.
     You should see the output from SCons simillar to this:
     <screen>
-    ptomulik@:$ scons po-update
+    user@host:$ scons po-update
     scons: Reading SConscript files ...
     scons: done reading SConscript files.
     scons: Building targets ...
@@ -168,7 +168,7 @@
     <para>
     If everything is right, you shall see following new files.
     <screen>
-    ptomulik@:$ ls *.po*
+    user@host:$ ls *.po*
     de.po  en.po  messages.pot  pl.po
     </screen>
     </para>
@@ -194,7 +194,7 @@
     Now compile the project by executing <command>scons</command> command. The
     output should be similar to this:
     <screen>
-    ptomulik@:$ scons
+    user@host:$ scons
     scons: Reading SConscript files ...
     scons: done reading SConscript files.
     scons: Building targets ...
@@ -215,15 +215,15 @@
     <para>
     Your program should be now ready. You may try it as follows (linux):
     <screen>
-    ptomulik@:$ LANG=en_US.UTF-8 ./hello
+    user@host:$ LANG=en_US.UTF-8 ./hello
     Welcome to beautiful world
     </screen>
     <screen>
-    ptomulik@:$ LANG=de_DE.UTF-8 ./hello
+    user@host:$ LANG=de_DE.UTF-8 ./hello
     Hallo Welt
     </screen>
     <screen>
-    ptomulik@:$ LANG=pl_PL.UTF-8 ./hello
+    user@host:$ LANG=pl_PL.UTF-8 ./hello
     Witaj swiecie
     </screen>
     </para>
@@ -233,7 +233,7 @@
     swiecie\n"</literal>. Run <command>scons</command> to see how scons
     reacts to this
     <screen>
-    ptomulik@:$scons
+    user@host:$scons
     scons: Reading SConscript files ...
     scons: done reading SConscript files.
     scons: Building targets ...
@@ -266,7 +266,7 @@
     <command>msgmerge(1)</command> program is used by SCons to update
     <literal>PO</literal> file. The output from compilation is like:
     <screen>
-    ptomulik@:$scons
+    user@host:$scons
     scons: Reading SConscript files ...
     scons: done reading SConscript files.
     scons: Building targets ...
@@ -292,7 +292,7 @@
     </screen>
     </para>
     <para>
-    The last example demonstrates what happens, if we change the source code
+    The next example demonstrates what happens, if we change the source code
     in such way, that the internationalized messages do not change. The answer
     is, that none of translation files (<literal>POT</literal>,
     <literal>PO</literal>) is touched (i.e. no content changes, no
@@ -316,7 +316,7 @@
     </programlisting>
     Compile project. You'll see on your screen
     <screen>
-    ptomulik@:$scons
+    user@host:$scons
     scons: Reading SConscript files ...
     scons: done reading SConscript files.
     scons: Building targets ...

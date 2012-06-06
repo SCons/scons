@@ -33,8 +33,8 @@ so you're encouraged to see their individual documentation.
 
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
-may be however interested in <emphasis>top-level</emphasis> builders
-&b-Translate; and &b-InstallMOFiles; described few paragraphs later.
+may be however interested in <emphasis>top-level</emphasis> builder
+&b-Translate; described few paragraphs later.
 
 To use &t-gettext; tools add <literal>'gettext'</literal> tool to your
 environment:

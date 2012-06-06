@@ -182,19 +182,20 @@ def _scan_xgettext_from_files(target, source, env, files = None, path = None):
   if not SCons.Util.is_List(path):
     path = [ path ]
 
+  path = SCons.Util.flatten(path)
+
   dirs = ()
   for p in path:
     if not isinstance(p, SCons.Node.FS.Base):
       if SCons.Util.is_String(p):
         p = env.subst(p, source = source, target = target)
       p = env.arg2nodes(p, env.fs.Dir)
-    if SCons.Util.is_List(p):
-      dirs = dirs + tuple(p)
-    else:
-      dirs += (p,)
+    dirs += tuple(p)
+  # cwd is the default search path (when no path is defined by user)
   if not dirs:
     dirs = (env.fs.getcwd(),)
 
+  # Parse 'POTFILE.in' files.
   re_comment = re.compile(r'^#[^\n\r]*$\r?\n?', re.M)
   re_emptyln = re.compile(r'^[ \t\r]*$\r?\n?', re.M)
   re_trailws = re.compile(r'[ \t\r]+$')
@@ -228,16 +229,17 @@ def _pot_update_emitter(target, source, env):
   if not SCons.Util.is_List(xfrom):
     xfrom = [ xfrom ]
 
+  xfrom = SCons.Util.flatten(xfrom)
+  
+  # Prepare list of 'POTFILE.in' files.
   files = []
   for xf in xfrom:
     if not isinstance(xf, SCons.Node.FS.Base):
       if SCons.Util.is_String(xf):
+        # Interpolate variables in strings 
         xf = env.subst(xf, source = source, target = target)
       xf = env.arg2nodes(xf)
-    if SCons.Util.is_List(xf):
-      files.extend(xf)
-    else:
-      files.append(xf)
+    files.extend(xf)
   if files:
     env.Depends(target, files)
     _scan_xgettext_from_files(target, source, env, files)

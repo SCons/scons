@@ -2238,7 +2238,20 @@ class Base(SubstitutionEnvironment):
     #        srcnode = file.srcnode()
     #        while srcnode != file.srcnode():
     #            srcnode = file.srcnode()
-
+    # ------------------------------------------------------------------
+    # Sure!, the above code is like:
+    #
+    #        a = b
+    #        while a != b:
+    #          a = b
+    #        return c
+    #
+    # Let's do the job as below:
+        def final_source(node):
+            while (node != node.srcnode()):
+              node = node.srcnode()
+            return node
+        sources = map( final_source, sources );
         # remove duplicates
         return list(set(sources))
 
