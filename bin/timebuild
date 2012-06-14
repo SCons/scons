@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# Profile running SCons to build itself from the current package.
+#
+# This runs "aegis -build" to build a current scons-src-*.tar.gz
+# package, unpacks it in the supplied directory name, and then
+# starts a profiled run of an SCons build, followed by another.
+# This results in two profiles:
+#
+#       NAME/NAME-0.prof
+#               profile of a build-everything run
+#
+#       NAME/NAME-1.prof
+#               profile of an all-up-to-date run
+#
+# This also copies the build scons-src-*.tar.gz file to the NAME
+# subdirectory, and tars up everything under src/ as NAME/src.tar.gz,
+# so that repeated runs with different in-progress changes can serve
+# as their own crude version control, so you don't lose that exact
+# combination of features which performed best.
+
+if test X$1 = X; then
+    echo "Must supply name!" >&2
+    exit 1
+fi
+
+VERSION=0.90
+
+DIR=$1
+
+SRC="scons-src-$VERSION"
+SRC_TAR_GZ="${SRC}.tar.gz"
+B_D_SRC_TAR_GZ="build/dist/${SRC_TAR_GZ}"
+
+echo "Building ${B_D_SRC_TAR_GZ}: " `date`
+aegis -build ${B_D_SRC_TAR_GZ}
+
+echo "mkdir ${DIR}: " `date`
+mkdir ${DIR}
+
+echo "cp ${B_D_SRC_TAR_GZ} ${DIR}: " `date`
+cp ${B_D_SRC_TAR_GZ} ${DIR}
+
+echo "tar cf ${DIR}/src.tar.gz: " `date`
+tar cf ${DIR}/src.tar.gz src
+
+cd ${DIR}
+
+echo "tar zxf ${SRC_TAR_GZ}: " `date`
+tar zxf ${SRC_TAR_GZ}
+
+cd ${SRC}
+
+SCRIPT="src/script/scons.py"
+ARGS="version=$VERSION"
+
+export SCONS_LIB_DIR=`pwd`/src/engine
+
+echo "Build run starting: " `date`
+python $SCRIPT --profile=../$DIR-0.prof $ARGS > ../$DIR-0.log 2>&1
+
+echo "Up-to-date run starting: " `date`
+python $SCRIPT --profile=../$DIR-1.prof $ARGS > ../$DIR-1.log 2>&1
+
+echo "Finished $DIR at: " `date`
