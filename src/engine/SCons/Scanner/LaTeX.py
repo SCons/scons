@@ -159,6 +159,9 @@ class LaTeX(SCons.Scanner.Base):
                      'includegraphics': 'TEXINPUTS',
                      'bibliography': 'BIBINPUTS',
                      'bibliographystyle': 'BSTINPUTS',
+                     'addbibresource': 'BIBINPUTS',
+                     'addglobalbib': 'BIBINPUTS',
+                     'addsectionbib': 'BIBINPUTS',
                      'makeindex': 'INDEXSTYLE',
                      'usepackage': 'TEXINPUTS',
                      'lstinputlisting': 'TEXINPUTS'}
@@ -172,7 +175,7 @@ class LaTeX(SCons.Scanner.Base):
         # line followed by one or more newline characters (i.e. blank
         # lines), interfering with a match on the next line.
         # add option for whitespace before the '[options]' or the '{filename}'
-        regex = r'^[^%\n]*\\(include|includegraphics(?:\s*\[[^\]]+\])?|lstinputlisting(?:\[[^\]]+\])?|input|bibliography|usepackage)\s*{([^}]*)}'
+        regex = r'^[^%\n]*\\(include|includegraphics(?:\s*\[[^\]]+\])?|lstinputlisting(?:\[[^\]]+\])?|input|bibliography|addbibresource|addglobalbib|addsectionbib|usepackage)\s*{([^}]*)}'
         self.cre = re.compile(regex, re.M)
         self.comment_re = re.compile(r'^((?:(?:\\%)|[^%\n])*)(.*)$', re.M)
 
