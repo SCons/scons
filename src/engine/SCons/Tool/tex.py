@@ -62,7 +62,7 @@ all_suffixes = check_suffixes + ['.bbl', '.idx', '.nlo', '.glo', '.acn']
 # or outputs that require rerunning latex
 #
 # search for all .aux files opened by latex (recorded in the .fls file)
-openout_aux_re = re.compile(r"INPUT *(.*\.aux)")
+openout_aux_re = re.compile(r"OUTPUT *(.*\.aux)")
 
 #printindex_re = re.compile(r"^[^%]*\\printindex", re.MULTILINE)
 #printnomenclature_re = re.compile(r"^[^%]*\\printnomenclature", re.MULTILINE)
@@ -87,6 +87,7 @@ makeindex_re = re.compile(r"^[^%\n]*\\makeindex", re.MULTILINE)
 bibliography_re = re.compile(r"^[^%\n]*\\bibliography", re.MULTILINE)
 bibunit_re = re.compile(r"^[^%\n]*\\begin\{bibunit\}", re.MULTILINE)
 multibib_re = re.compile(r"^[^%\n]*\\newcites\{([^\}]*)\}", re.MULTILINE)
+addbibresource_re = re.compile(r"^[^%\n]*\\(addbibresource|addglobalbib|addsectionbib)", re.MULTILINE)
 listoffigures_re = re.compile(r"^[^%\n]*\\listoffigures", re.MULTILINE)
 listoftables_re = re.compile(r"^[^%\n]*\\listoftables", re.MULTILINE)
 hyperref_re = re.compile(r"^[^%\n]*\\usepackage.*\{hyperref\}", re.MULTILINE)
@@ -317,8 +318,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                         result = BibTeXAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBTEX'], 'blg')
-                        #must_rerun_latex = must_rerun_latex or check_MD5(suffix_nodes['.bbl'],'.bbl')
                         must_rerun_latex = True
+
         # Now decide if latex will need to be run again due to index.
         if check_MD5(suffix_nodes['.idx'],'.idx') or (count == 1 and run_makeindex):
             # We must run makeindex
@@ -630,6 +631,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          bibliography_re,
                          bibunit_re,
                          multibib_re,
+                         addbibresource_re,
                          tableofcontents_re,
                          listoffigures_re,
                          listoftables_re,
@@ -646,6 +648,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.bbl', '.blg','bibliography'],
                   ['.bbl', '.blg','bibunit'],
                   ['.bbl', '.blg','multibib'],
+                  ['.bbl', '.blg','addbibresource'],
                   ['.toc','contents'],
                   ['.lof','figures'],
                   ['.lot','tables'],
@@ -698,10 +701,9 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 file_list = glob.glob(file_basename)
                 # remove the suffix '.aux'
                 for i in range(len(file_list)):
-                    file_list[i] = SCons.Util.splitext(file_list[i])[0]
+                    file_list.append(SCons.Util.splitext(file_list[i])[0])
             # for multibib we need a list of files
             if suffix_list[-1] == 'multibib':
-                file_list = []
                 for multibibmatch in multibib_re.finditer(content):
                     if Verbose:
                         print "multibib match ",multibibmatch.group(1)
@@ -716,14 +718,14 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 for suffix in suffix_list[:-1]:
                     env.SideEffect(file_name + suffix,target[0])
                     if Verbose:
-                        print "side effect :",file_name + suffix
+                        print "side effect tst :",file_name + suffix, " target is ",str(target[0])
                     env.Clean(target[0],file_name + suffix)
 
     for aFile in aux_files:
         aFile_base = SCons.Util.splitext(aFile)[0]
         env.SideEffect(aFile_base + '.aux',target[0])
         if Verbose:
-            print "side effect :",aFile_base + '.aux'
+            print "side effect aux :",aFile_base + '.aux'
         env.Clean(target[0],aFile_base + '.aux')
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
@@ -736,7 +738,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 out_files.remove(filename)
         env.SideEffect(out_files,target[0])
         if Verbose:
-            print "side effect :",out_files
+            print "side effect fls :",out_files
         env.Clean(target[0],out_files)
 
     return (target, source)

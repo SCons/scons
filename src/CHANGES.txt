@@ -28,6 +28,7 @@ RELEASE 2.X.X -
 
   From Rob Managan:
     - Updated the TeX builder to support LaTeX's multibib package.
+    - Updated the TeX build to support LeTeX's biblatex package.
 
   From Arve Knudsen:
     - Test for FORTRANPPFILESUFFIXES (#2129).
