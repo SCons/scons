@@ -82,7 +82,8 @@ def generate(env,**kw):
     MSGFMTFLAGS = [ SCons.Util.CLVar('-c') ],
     MSGFMTCOM = '$MSGFMT $MSGFMTFLAGS -o $TARGET $SOURCE',
     MSGFMTCOMSTR = '',
-    MOSUFFIX = '.mo'
+    MOSUFFIX = ['.mo'],
+    POSUFFIX = ['.po']
   )
   env.Append( BUILDERS = { 'MOFiles'  : _create_mo_file_builder(env) } )
 #############################################################################

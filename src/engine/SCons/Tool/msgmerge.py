@@ -72,7 +72,8 @@ def generate(env,**kw):
   from SCons.Tool.GettextCommon import _detect_msgmerge
   env['MSGMERGE'] = _detect_msgmerge(env)
   env.SetDefault(
-    POSUFFIX = '.po',
+    POTSUFFIX = ['.pot'],
+    POSUFFIX = ['.po'],
     MSGMERGECOM = '$MSGMERGE  $MSGMERGEFLAGS --update $TARGET $SOURCE',
     MSGMERGECOMSTR = '',
     MSGMERGEFLAGS = [ ],

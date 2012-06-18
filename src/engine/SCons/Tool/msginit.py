@@ -82,8 +82,11 @@ def generate(env,**kw):
   env['MSGINIT'] = _detect_msginit(env)
   msginitcom = '$MSGINIT ${_MSGNoTranslator(__env__)} -l ${_MSGINITLOCALE}' \
              + ' $MSGINITFLAGS -i $SOURCE -o $TARGET'
+  # NOTE: We set POTSUFFIX here, in case the 'xgettext' is not loaded
+  #       (sometimes we really don't need it)
   env.SetDefault(
-    POSUFFIX = '.po',
+    POSUFFIX = ['.po'],
+    POTSUFFIX = ['.pot'],
     _MSGINITLOCALE = '${TARGET.filebase}',
     _MSGNoTranslator = _optional_no_translator_flag,
     MSGINITCOM = msginitcom,

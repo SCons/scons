@@ -162,35 +162,6 @@ running <command>scons '.'</command>.</para></note>
 </summary>
 </builder>
 
-<!--
-<builder name="InstallMOFiles">
-<summary>
-This is not implemented yet.
-Install <literal>MO</literal> catalog files into system directories.
-
-The parameters are:
-- <literal>localedir</literal> - system locale base directory, e.g. <literal>/usr/share/locale</literal>
-- <literal>source</literal> - list of <literal>MO</literal> files to install
-- <literal>domain</literal> - domain, i.e. your package/program name
-- <literal>category</literal> - locale category, e.g. <literal>LC_MESSAGES</literal>
-
-The installation goes in standard way. For example, if
-<literal>localedir="/usr/share/locale"</literal>, <literal>domain="program1"</literal>,
-<literal>category="LC_MESSAGES"</literal>,  <literal>sources=['en.mo', 'fr.mo']</literal>, then the
-installation goes as follows:
-<example>
-en.mo ===&gt; /usr/share/locale/en/LC_MESSAGES/program1.mo
-fr.mo ===&gt; /usr/share/locale/fr/LC_MESSAGES/program1.mo
-</example>
-The <literal>InstallMOFiles</literal> builder uses internaly <literal>InstallAs</literal> builder, so all
-the features of <literal>InstallAs</literal> (e.g. <literal>xxinstall-sandbox</literal>) should work.
-<example>
-TODO: 
-</example>
-</summary>
-</builder>
--->
-
 <cvar name="POTDOMAIN">
 <summary>
 The &cv-POTDOMAIN; defines default domain, used to generate
@@ -227,12 +198,3 @@ default file named
 
 </summary>
 </cvar>
-
-<scons_function name="Dummy">
-<arguments>
-TODO: Try to remove me.
-</arguments>
-<summary>
-TODO: Try to remove me.
-</summary>
-</scons_function>
