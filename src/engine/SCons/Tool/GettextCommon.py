@@ -362,20 +362,6 @@ def _init_po_files(target, source, env):
 #############################################################################
 
 #############################################################################
-def _install_mo_files( env, localedir, source, domain, category="LC_MESSAGES"
-                     , *args, **kw):
-  """ Function for `InstallMOFiles` pseudo-builder """
-  import SCons.Util
-  import os
-  nodes = []
-  for src in source:
-    lang = SCons.Util.splitext(os.path.basename(str(src)))[0]
-    tgt = os.path.join(localedir, lang, category, domain + "$MOSUFFIX")
-    nodes.extend(env.InstallAs(tgt, src, *args, **kw))
-  return nodes
-#############################################################################
-
-#############################################################################
 def _detect_xgettext(env):
   """ Detects *xgettext(1)* binary """
   if env.has_key('XGETTEXT'):

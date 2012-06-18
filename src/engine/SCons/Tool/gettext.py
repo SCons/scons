@@ -29,12 +29,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 def generate(env,**kw):
   import SCons.Tool
   from SCons.Tool.GettextCommon \
-    import  _translate, _install_mo_files, tool_list
+    import  _translate, tool_list
   for t in tool_list(env['PLATFORM'], env):
     env.Tool(t)
   env.AddMethod(_translate, 'Translate')
-  # This is not ready yet
-  # env.AddMethod(_install_mo_files, 'InstallMOFiles')
 #############################################################################
 
 #############################################################################

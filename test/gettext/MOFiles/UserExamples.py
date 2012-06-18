@@ -32,22 +32,12 @@ Make sure, that the examples given in user guide all work.
 import TestSCons
 import os
 
-###############################################################################
-# Trivial example. Just load the tool.
 test = TestSCons.TestSCons()
 
-test.write('SConstruct',
-"""
-env = Environment( tools = ["default", "gettext"] )
-env.MOFiles(['en', 'pl'], LINGUAS_FILE = 1)
-""")
-test.write('LINGUAS',
-"""
-de
-fr
-""")
-#
-test.write('en.po',"""\
+if not test.where_is('msgfmt'):
+    test.skip_test("Could not find 'msgfmt'; skipping test(s)\n")
+
+en_po_contents = """\
 # English translations for PACKAGE package.
 # Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
@@ -70,9 +60,9 @@ msgstr ""
 #: a.cpp:1
 msgid "Old message from a.cpp"
 msgstr "Old message from a.cpp"
-""")
-#
-test.write('pl.po',"""\
+"""
+
+pl_po_contents = """\
 # Polish translations for PACKAGE package.
 # Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
@@ -96,9 +86,9 @@ msgstr ""
 #: a.cpp:1
 msgid "Old message from a.cpp"
 msgstr "Stara wiadomosc z a.cpp"
-""")
-#
-test.write('de.po',"""\
+"""
+
+de_po_contents = """\
 # German translations for PACKAGE package.
 # Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
@@ -121,9 +111,9 @@ msgstr ""
 #: a.cpp:1
 msgid "Old message from a.cpp"
 msgstr ""
-""")
-#
-test.write('fr.po',"""\
+"""
+
+fr_po_contents = """\
 # French translations for PACKAGE package.
 # Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
@@ -146,10 +136,99 @@ msgstr ""
 #: a.cpp:1
 msgid "Old message from a.cpp"
 msgstr ""
+"""
+
+#############################################################################
+# MOFiles: Example 1
+#############################################################################
+test.subdir(['ex1'])
+test.write( ['ex1', 'SConstruct'],
+"""
+env = Environment( tools = ["default", "msgfmt"] )
+env.MOFiles(['pl', 'en'])
+""")
+test.write(['ex1', 'en.po'], en_po_contents)
+test.write(['ex1', 'pl.po'], pl_po_contents)
+
+test.run(arguments = '.', chdir = 'ex1')
+test.must_exist(['ex1', 'en.mo'])
+test.must_exist(['ex1', 'pl.mo'])
+
+
+#############################################################################
+# MOFiles: Example 2
+#############################################################################
+test.subdir(['ex2'])
+test.write( ['ex2', 'SConstruct'],
+"""
+env = Environment( tools = ["default", "msgfmt"] )
+env.MOFiles(LINGUAS_FILE = 1)
+""")
+#
+test.write(['ex2', 'LINGUAS'],
+"""
+en
+pl
+""")
+#
+test.write(['ex2', 'en.po'], en_po_contents)
+test.write(['ex2', 'pl.po'], pl_po_contents)
+
+test.run(arguments = '.', chdir = 'ex2')
+test.must_exist(['ex2', 'en.mo'])
+test.must_exist(['ex2', 'pl.mo'])
+
+
+#############################################################################
+# MOFiles: Example 3
+#############################################################################
+test.subdir(['ex3'])
+test.write( ['ex3', 'SConstruct'],
+"""
+env = Environment( tools = ["default", "msgfmt"] )
+env.MOFiles(['en', 'pl'], LINGUAS_FILE = 1)
+""")
+test.write(['ex3', 'LINGUAS'],
+"""
+de
+fr
+""")
+#
+test.write(['ex3', 'en.po'], en_po_contents)
+test.write(['ex3', 'pl.po'], pl_po_contents)
+test.write(['ex3', 'de.po'], de_po_contents)
+test.write(['ex3', 'fr.po'], fr_po_contents)
+
+test.run(arguments = '.', chdir = 'ex3')
+test.must_exist(['ex3', 'en.mo'])
+test.must_exist(['ex3', 'pl.mo'])
+test.must_exist(['ex3', 'de.mo'])
+test.must_exist(['ex3', 'fr.mo'])
+
+
+#############################################################################
+# MOFiles: Example 4
+#############################################################################
+test.subdir(['ex4'])
+test.write( ['ex4', 'SConstruct'],
+"""
+env = Environment( tools = ["default", "msgfmt"] )
+env['LINGUAS_FILE'] = 1
+env.MOFiles()
 """)
 
-test.run(arguments = '.')
-test.must_exist('en.mo', 'pl.mo', 'de.mo', 'fr.mo')
+test.write(['ex4', 'LINGUAS'],
+"""
+en
+pl
+""")
+
+test.write(['ex4', 'en.po'], en_po_contents)
+test.write(['ex4', 'pl.po'], pl_po_contents)
+
+test.run(arguments = '.', chdir = 'ex4')
+test.must_exist(['ex4', 'en.mo'])
+test.must_exist(['ex4', 'pl.mo'])
 
 test.pass_test()
 
