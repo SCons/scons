@@ -28,7 +28,7 @@ RELEASE 2.X.X -
 
   From Rob Managan:
     - Updated the TeX builder to support LaTeX's multibib package.
-    - Updated the TeX builder to support LeTeX's biblatex package.
+    - Updated the TeX builder to support LaTeX's biblatex package.
     - Added support for using biber instead of bibtex by setting
       env['BIBTEX'] = 'biber'
 
