@@ -1,0 +1,46 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<scons_function name="AllowSubstExceptions">
+<arguments signature="global">
+([exception, ...])
+</arguments>
+<summary>
+Specifies the exceptions that will be allowed
+when expanding construction variables.
+By default,
+any construction variable expansions that generate a
+<literal>NameError</literal>
+or
+<literal>IndexError</literal>
+exception will expand to a
+<literal>''</literal>
+(a null string) and not cause scons to fail.
+All exceptions not in the specified list
+will generate an error message
+and terminate processing.
+
+If
+&f-AllowSubstExceptions;
+is called multiple times,
+each call completely overwrites the previous list
+of allowed exceptions.
+
+Example:
+
+<example>
+# Requires that all construction variable names exist.
+# (You may wish to do this if you want to enforce strictly
+# that all construction variables must be defined before use.)
+AllowSubstExceptions()
+
+# Also allow a string containing a zero-division expansion
+# like '${1 / 0}' to evalute to ''.
+AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
+</example>
+</summary>
+</scons_function>

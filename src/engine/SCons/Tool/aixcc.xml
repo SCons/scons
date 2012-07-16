@@ -1,0 +1,18 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="aixcc">
+<summary>
+Sets construction variables for the IBM xlc / Visual Age C compiler.
+</summary>
+<sets>
+CC
+SHCC
+CCVERSION
+</sets>
+<uses>
+</uses>
+</tool>
