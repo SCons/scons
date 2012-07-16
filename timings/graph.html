@@ -1,0 +1,413 @@
+<html>
+
+<!--
+  Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<!--
+  A brief note on terminology as used here: a "graph" is a plotted screenful
+  of data, showing the results of one type of test: for example, the
+  page-load-time graph.  A "trace" is a single line on a graph, showing one
+  one for the test: for example, the reference build trace on the
+  page-load-time graph.
+
+  This page plots arbitrary numerical data loaded from files in a specific
+  format.  It uses two or more data files, all JSON-encoded:
+
+    graphs.dat: a list of objects, each with these properties: name (the name
+        of a graph) and units (the units for the data to be read by humans).
+        Schematically:
+          [{"name": <graph_name>, "units": <units>}, ...]
+
+    <graphname>-summary.dat: for each of the graphs listed in graphs.dat, the
+        corresponding summary file holds rows of data. Each row of data is an
+        object with several properties:
+          "rev": the revision number for this row of data
+          "traces": an object with several properties of its own. The name of
+              the property corresponds to a trace name, used only as an
+              internal identifier, and the property's value is an array of
+              its measurement and that measurement's standard deviation (or
+              other measurement error).
+        Schematically:
+          {"rev": <rev>,
+           "traces": {<trace_name1>: [<value1>, <stddev1>],
+                      <trace_name2>: [<value2>, <stddev2>], ...}
+          }
+-->
+<head>
+<style>
+body {
+  font-family: sans-serif;
+}
+div#output {
+  cursor: pointer;
+}
+div#switcher {
+  cursor: pointer;
+}
+div#switcher a {
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+canvas.plot {
+  border: 1px solid black;
+}
+div.plot-coordinates {
+  font-family: monospace;
+}
+iframe {
+  display: none;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+div.selector {
+  border: solid 1px black;
+  cursor: pointer;
+  padding-left: 0.3em;
+  background-color: white;
+}
+div.selector:hover {
+  background-color: rgb(200,200,250);
+}
+div.selected {
+  border-left: none;
+}
+div#selectors {
+  width: 80px;
+  display: none;
+}
+#explain {
+  font-size: 0.75em;
+  font-style: italic;
+  color: rgb(100,100,100);
+}
+</style>
+
+<script src="js/common.js"></script>
+<script src="js/plotter.js"></script>
+<script src="js/coordinates.js"></script>
+<script src="config.js"></script>
+<script>
+Config.source = "http://scons.tigris.org/svn/scons/trunk";
+Config.changeLinkPrefix = "changelog.html?mode=html&range=";
+Config.builder = "TODO";
+Config.buildbotLink = "http://buildbot.scons.org:8010/";
+Config.detailTabs = {'view-change': 'CL'};
+document.title = Config.title + ' - ' + Config.buildslave;
+
+var did_position_details = false;
+var units = 'thing-a-ma-bobs';
+var graph_list = [];
+var first_trace = '';
+
+var params = ParseParams();
+
+function jsonToJs(data) {
+  return eval('(' + data + ')')
+}
+
+function report_error(error) {
+  document.getElementById("output").innerHTML = "<p>" + error + "</p>";
+}
+
+function received_graph_list(data, error) {
+  if (error) {
+    report_error(error);
+    return;
+  }
+  graph_list = jsonToJs(data);
+
+  if (!('graph' in params) || params.graph == '') {
+    if (graph_list.length > 0)
+      params.graph = graph_list[0].name
+  }
+
+  // Add a selection tab for each graph, and find the units for the selected
+  // one while we're at it.
+  tabs = [];
+  for (var index = 0; index < graph_list.length; ++index) {
+    var graph = graph_list[index];
+    tabs.push(graph.name);
+    if (graph.name == params.graph)
+      units = graph.units;
+  }
+  initPlotSwitcher(tabs);
+
+  // Fetch the data for the selected graph.
+  fetch_summary();
+}
+
+function go_to(graph) {
+  params.graph = graph;
+  if (params.graph == '')
+    delete params.graph;
+  window.location.href = MakeURL(params);
+}
+
+function get_url() {
+  new_url = window.location.href;
+  new_url = new_url.replace(/\?lookout/, "?");
+  new_url = new_url.replace(/\&thumbnail/, "");
+  return new_url;
+}
+
+function on_clicked_plot(prev_cl, cl) {
+  if ('lookout' in params) {
+    window.open(get_url());
+    return;
+  }
+
+  // Define sources for detail tabs
+  if ('view-change' in Config.detailTabs) {
+    document.getElementById('view-change').
+        // TODO:  The tigris.org source browser only lets us pull up
+        // one revision.  That's okay for our current behavior of
+        // timing each revision separately, but if we go back to merging
+        // build requests from multiple revisions, we'll need an
+        // intermediary CGI script.
+        //setAttribute('src', Config.changeLinkPrefix + prev_cl + ':' + cl);
+        setAttribute('src',
+          'http://scons.tigris.org/source/browse/scons?view=rev&revision=' + cl);
+  }
+  if ('view-pages' in Config.detailTabs) {
+    document.getElementById('view-pages').
+        setAttribute('src', 'details.html?cl=' + cl + '&trace=' + first_trace);
+  }
+  if ('view-coverage' in Config.detailTabs) {
+    document.getElementById('view-coverage').
+        setAttribute('src', Config.coverageLinkPrefix + cl);
+  }
+
+  if (!did_position_details) {
+    position_details();
+    did_position_details = true;
+  }
+}
+
+function received_summary(data, error) {
+  if (error) {
+    report_error(error);
+    return;
+  }
+  // Parse the summary data file.
+  var rows = data.split('\n');
+  var max_rows = rows.length;
+  if ('history' in params && max_rows > params.history) {
+      max_rows = params.history;
+  } else if ('lookout' in params && max_rows > 150) {
+    max_rows = 150;
+  }
+
+  var allTraces = {};
+
+  // graphData[rev] = {trace1:[value, stddev], trace2:[value, stddev], ...}
+  var graphData = {};
+  for (var i = 0; i < max_rows; ++i) {
+    if (!rows[i].length)
+      continue;
+    var row = jsonToJs(rows[i]);
+    var traces = row['traces'];
+    var revision = parseInt(row['rev']);
+    graphData[revision] = traces;
+
+    // Collect unique trace names.
+    for (var traceName in traces)
+      allTraces[traceName] = 1;
+  }
+
+  // Build a list of all the trace names we've seen, in the order in which
+  // they appear in the data file. Although JS objects are not required by
+  // the spec to iterate their properties in order, in practice they do,
+  // because it causes compatibility problems otherwise.
+  var traceNames = [];
+  for (var traceName in allTraces)
+    traceNames.push(traceName);
+
+  first_trace = traceNames[0];
+
+  // Build and numerically sort a list of revision numbers.
+  var revisionNumbers = [];
+  for (var rev in graphData)
+    revisionNumbers.push(rev);
+  revisionNumbers.sort(
+      function(a, b) { return parseInt(a, 10) - parseInt(b, 10) });
+
+  // Build separate ordered lists of trace data.
+  var traceData = {};
+  for (var revIndex = 0; revIndex < revisionNumbers.length; ++revIndex) {
+    var rev = revisionNumbers[revIndex];
+    var revisionData = graphData[rev];
+    for (var nameIndex = 0; nameIndex < traceNames.length; ++nameIndex) {
+      var traceName = traceNames[nameIndex];
+      if (!traceData[traceName])
+        traceData[traceName] = [];
+      if (!revisionData[traceName])
+        traceData[traceName].push([NaN, NaN]);
+      else
+        traceData[traceName].push(revisionData[traceName]);
+    }
+  }
+  var plotData = [];
+  for (var traceName in traceData)
+    plotData.push(traceData[traceName]);
+
+  var plotter = new Plotter(revisionNumbers, plotData, traceNames, units,
+    document.getElementById("output"), true);
+  plotter.onclick = on_clicked_plot;
+  plotter.plot();
+}
+
+function fetch_summary() {
+  if ('graph' in params)
+    file = escape(params.graph) + ".dat"
+  else
+    file = "summary.dat"
+  Fetch(file, received_summary);
+}
+
+function fetch_graph_list() {
+  Fetch("graphs.dat", received_graph_list);
+}
+
+function initPlotSwitcher(tabs) {
+  var switcher = document.getElementById("switcher");
+  for(var i = 0; i < tabs.length; i++) {
+    var anchor = document.createElement("a");
+    anchor.appendChild(document.createTextNode(tabs[i] + " "));
+    anchor.addEventListener("click", goToClosure(tabs[i]), false);
+    switcher.appendChild(anchor);
+  }
+}
+
+function goToClosure(graph) {
+  return function(){go_to(graph)};
+}
+
+function position_details() {
+  var output = document.getElementById("output");
+
+  var win_height = window.innerHeight;
+
+  var details = document.getElementById("views");
+
+  var views = document.getElementById("views");
+  var selectors = document.getElementById("selectors");
+  selectors.style.display = "block";
+
+  var views_width = output.offsetWidth - selectors.offsetWidth;
+
+  views.style.border = "1px solid black";
+  views.style.width = views_width + "px";
+  views.style.height = (win_height - output.offsetHeight - output.offsetTop -
+                        30) + "px";
+
+  selectors.style.position = "absolute";
+  selectors.style.left = (views.offsetLeft + views_width + 1) + "px";
+  selectors.style.top = views.offsetTop + "px";
+
+  // Change to the first detail tab
+  for (var tab in Config.detailTabs) {
+    change_view(tab);
+    break; 
+  }
+}
+
+function change_view(target) {
+  for (var tab in Config.detailTabs) {
+    document.getElementById(tab).style.display = 
+        (tab == target ? "block" : "none");
+  }
+}
+
+function init() {
+  // We need to fill the graph list before parsing the params or fetching the
+  // data, so we have a default graph in case none was specified.
+  fetch_graph_list();
+}
+
+window.addEventListener("load", init, false);
+</script>
+</head>
+
+
+<body>
+<div id="header_lookout" align="center">
+  <font style='color: #0066FF; font-family: Arial, serif;
+               font-size: 20pt; font-weight: bold;'>
+    <script>
+      document.write("<a target=\"_blank\" href=\"");
+      document.write(get_url());
+      document.write("\">");
+      if ('header' in params && params.header != '') {
+        document.write(escape(params.header));
+      } else {
+        document.write(Config.title);
+      }
+      document.write("</a>");
+    </script>
+  </font>
+</div>
+
+<div id="header_text">
+<script>
+document.write('<a href="' + Config.buildbotLink + '">SCons buildbot</a>' +
+               ' timings for the <b>' + Config.title + '</b> configuration.')
+if ('graph' in params)
+  document.write('  Displaying values for <b>' + params.graph + '</b>.');
+</script>
+</div>
+
+<div id="explain">
+The vertical axis is measured values, and the horizontal
+axis is the revision number being tested.
+</div>
+<p></p>
+<div id="switcher">
+
+</div>
+<div id="output"></div>
+<div id="details">
+  <div id="views">
+    <script>
+      for (var tab in Config.detailTabs) {
+        document.write("<iframe id=\"" + tab + "\"></iframe>");
+      }
+    </script>
+  </div>
+  <div id="selectors">
+    <script>
+      var firstTab = true;
+      for (var tab in Config.detailTabs) {
+        document.write("<div ");
+	if (firstTab) {
+	  firstTab = false;
+	} else {
+	  document.write("style=\"border-top: none\" ");
+	}
+	document.write("class=\"selector\" onclick=\"change_view('" 
+	    + tab + "')\">" + Config.detailTabs[tab] + "</div>");
+      }
+    </script>
+  </div>
+</div>
+<pre id="log"></pre>
+<script>
+if ('lookout' in params) {
+  document.getElementById("switcher").style.display = "none";
+  document.getElementById("details").style.display = "none";
+  document.getElementById("header_text").style.display = "none";
+  document.getElementById("explain").style.display = "none";
+  if ('thumbnail' in params) {
+    document.getElementById("header_lookout").style.display = "none";
+  }
+} else {
+  document.getElementById("header_lookout").style.display = "none";
+}
+</script>
+</body>
+</html>

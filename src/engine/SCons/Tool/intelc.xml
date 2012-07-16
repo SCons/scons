@@ -1,0 +1,33 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="intelc">
+<summary>
+Sets construction variables for the Intel C/C++ compiler
+(Linux and Windows, version 7 and later).
+Calls the &t-gcc; or &t-msvc;
+(on Linux and Windows, respectively)
+to set underlying variables.
+</summary>
+<sets>
+CC
+CXX
+LINK
+AR
+<!--LD-->
+INTEL_C_COMPILER_VERSION
+</sets>
+<uses>
+</uses>
+</tool>
+
+<cvar name="INTEL_C_COMPILER_VERSION">
+<summary>
+Set by the "intelc" Tool
+to the major version number of the Intel C compiler
+selected for use.
+</summary>
+</cvar>

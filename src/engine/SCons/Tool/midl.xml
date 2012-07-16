@@ -1,0 +1,68 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="midl">
+<summary>
+Sets construction variables for the Microsoft IDL compiler.
+</summary>
+<sets>
+MIDL
+MIDLFLAGS
+MIDLCOM
+</sets>
+<uses>
+MIDLCOMSTR
+</uses>
+</tool>
+
+<builder name="TypeLibrary">
+<summary>
+Builds a Windows type library (<filename>.tlb</filename>)
+file from an input IDL file (<filename>.idl</filename>).
+In addition, it will build the associated inteface stub and
+proxy source files,
+naming them according to the base name of the <filename>.idl</filename> file.
+For example,
+
+<example>
+env.TypeLibrary(source="foo.idl")
+</example>
+
+Will create <filename>foo.tlb</filename>,
+<filename>foo.h</filename>,
+<filename>foo_i.c</filename>,
+<filename>foo_p.c</filename>
+and
+<filename>foo_data.c</filename>
+files.
+</summary>
+</builder>
+
+<cvar name="MIDL">
+<summary>
+The Microsoft IDL compiler.
+</summary>
+</cvar>
+
+<cvar name="MIDLCOM">
+<summary>
+The command line used to pass files to the Microsoft IDL compiler.
+</summary>
+</cvar>
+
+<cvar name="MIDLCOMSTR">
+<summary>
+The string displayed when
+the Microsoft IDL copmiler is called.
+If this is not set, then &cv-link-MIDLCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="MIDLFLAGS">
+<summary>
+General options passed to the Microsoft IDL compiler.
+</summary>
+</cvar>

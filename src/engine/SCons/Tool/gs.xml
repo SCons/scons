@@ -1,0 +1,47 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="gs">
+<summary>
+Set construction variables for Ghostscript.
+</summary>
+<sets>
+GS
+GSFLAGS
+GSCOM
+</sets>
+<uses>
+GSCOMSTR
+</uses>
+</tool>
+
+<cvar name="GS">
+<summary>
+The Ghostscript program used to convert PostScript to PDF files.
+</summary>
+</cvar>
+
+<cvar name="GSCOM">
+<summary>
+The Ghostscript command line used to convert PostScript to PDF files.
+</summary>
+</cvar>
+
+<cvar name="GSCOMSTR">
+<summary>
+The string displayed when
+Ghostscript is used to convert
+a PostScript file to a PDF file.
+If this is not set, then &cv-link-GSCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="GSFLAGS">
+<summary>
+General options passed to the Ghostscript program
+when converting PostScript to PDF files.
+</summary>
+</cvar>

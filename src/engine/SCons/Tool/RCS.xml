@@ -1,0 +1,101 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="RCS">
+<summary>
+Sets construction variables for the interaction
+with the Revision Control System.
+</summary>
+<sets>
+RCS
+RCS_CO
+RCS_COFLAGS
+RCS_COCOM
+</sets>
+<uses>
+RCS_COCOMSTR
+</uses>
+</tool>
+
+<cvar name="RCS">
+<summary>
+The RCS executable.
+Note that this variable is not actually used
+for the command to fetch source files from RCS;
+see the
+&cv-link-RCS_CO;
+construction variable, below.
+</summary>
+</cvar>
+
+<cvar name="RCS_CO">
+<summary>
+The RCS "checkout" executable,
+used to fetch source files from RCS.
+</summary>
+</cvar>
+
+<cvar name="RCS_COCOM">
+<summary>
+The command line used to
+fetch (checkout) source files from RCS.
+</summary>
+</cvar>
+
+<cvar name="RCS_COCOMSTR">
+<summary>
+The string displayed when fetching
+a source file from RCS.
+If this is not set, then &cv-link-RCS_COCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="RCS_COFLAGS">
+<summary>
+Options that are passed to the &cv-link-RCS_CO; command.
+</summary>
+</cvar>
+
+<scons_function name="RCS">
+<arguments signature="env">
+()
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from RCS.
+The returned Builder
+is intended to be passed to the
+&f-SourceCode;
+function:
+
+This function is deprecated.  For details, see the entry for the
+&f-SourceCode;
+function.
+
+Examples:
+
+<example>
+env.SourceCode('.', env.RCS())
+</example>
+
+Note that
+&scons;
+will fetch source files
+from RCS subdirectories automatically,
+so configuring RCS
+as demonstrated in the above example
+should only be necessary if
+you are fetching from
+RCS,v
+files in the same
+directory as the source files,
+or if you need to explicitly specify RCS
+for a specific subdirectory.
+</summary>
+</scons_function>
