@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From smallbub on Bitbucket:
+    - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
+
   From Mortoray:
     - Make -s (silent mode) be silent about entering subdirs (#2976).
     - Fix cloning of builders when cloning environment (#2821).
