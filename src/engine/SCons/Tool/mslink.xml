@@ -201,7 +201,7 @@ A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
 <summary>
 When this is set to true,
 a library build of a Windows shared library
-(<filename>.dll</filename>file)
+(<filename>.dll</filename> file)
 will also build a corresponding <filename>.def</filename> file
 at the same time,
 if a <filename>.def</filename> file
