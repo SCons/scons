@@ -51,6 +51,7 @@ hello_dll = env.SharedLibrary(WINDOWS_INSERT_DEF = 0,
 test.run(arguments = ".")
 
 test.must_not_exist('hello.def')
+test.up_to_date(arguments = ".")
 
 test.pass_test()
 
