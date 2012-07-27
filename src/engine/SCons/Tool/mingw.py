@@ -100,12 +100,12 @@ def shlib_emitter(target, source, env):
         target.append(env.fs.File(targetStrings))
 
     # Append a def file target if there isn't already a def file target
-    # or a def file source. There is no option to disable def file
-    # target emitting, because I can't figure out why someone would ever
-    # want to turn it off.
+    # or a def file source or the user has explicitly asked for the target
+    # to be emitted.
     def_source = env.FindIxes(source, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
-    if not def_source and not def_target:
+    skip_def_insert = env.subst("$WINDOWS_INSERT_DEF") in ['', '0', 0]
+    if not def_source and not def_target and not skip_def_insert:
         # Create list of target libraries and def files as strings
         targetStrings=env.ReplaceIxes(dll,  
                                       'SHLIBPREFIX', 'SHLIBSUFFIX',

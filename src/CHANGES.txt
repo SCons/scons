@@ -6,6 +6,10 @@
 
 RELEASE 2.X.X - 
 
+  From Joshua Hughes:
+    - Make Windows not redefine builtin file as un-inheritable (#2857)
+    - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
+
   From smallbub on Bitbucket:
     - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
 
