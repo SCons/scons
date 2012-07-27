@@ -55,7 +55,7 @@ must_rerun_latex = True
 check_suffixes = ['.toc', '.lof', '.lot', '.out', '.nav', '.snm']
 
 # these are files that require bibtex or makeindex to be run when they change
-all_suffixes = check_suffixes + ['.bbl', '.idx', '.nlo', '.glo', '.acn']
+all_suffixes = check_suffixes + ['.bbl', '.idx', '.nlo', '.glo', '.acn', '.bcf']
 
 #
 # regular expressions used to search for Latex features
@@ -63,6 +63,10 @@ all_suffixes = check_suffixes + ['.bbl', '.idx', '.nlo', '.glo', '.acn']
 #
 # search for all .aux files opened by latex (recorded in the .fls file)
 openout_aux_re = re.compile(r"OUTPUT *(.*\.aux)")
+
+# search for all .bcf files opened by latex (recorded in the .fls file)
+# for use by biber
+openout_bcf_re = re.compile(r"OUTPUT *(.*\.bcf)")
 
 #printindex_re = re.compile(r"^[^%]*\\printindex", re.MULTILINE)
 #printnomenclature_re = re.compile(r"^[^%]*\\printnomenclature", re.MULTILINE)
@@ -296,8 +300,19 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 dups[x] = 1
             auxfiles = list(dups.keys())
 
+        bcffiles = []
+        if os.path.isfile(flsfilename):
+            flsContent = open(flsfilename, "rb").read()
+            bcffiles = openout_bcf_re.findall(flsContent)
+            # remove duplicates
+            dups = {}
+            for x in bcffiles:
+                dups[x] = 1
+            bcffiles = list(dups.keys())
+
         if Verbose:
             print "auxfiles ",auxfiles
+            print "bcffiles ",bcffiles
 
         # Now decide if bibtex will need to be run.
         # The information that bibtex reads from the .aux file is
@@ -315,6 +330,27 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                         if Verbose:
                             print "Need to run bibtex on ",auxfilename
                         bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0])
+                        result = BibTeXAction(bibfile, bibfile, env)
+                        if result != 0:
+                            check_file_error_message(env['BIBTEX'], 'blg')
+                        must_rerun_latex = True
+
+        # Now decide if biber will need to be run.
+        # The information that bibtex reads from the .bcf file is
+        # pass-independent. If we find (below) that the .bbl file is unchanged,
+        # then the last latex saw a correct bibliography.
+        # Therefore only do this once
+        # Go through all .bcf files and remember the files already done.
+        for bcffilename in bcffiles:
+            if bcffilename not in already_bibtexed:
+                already_bibtexed.append(bcffilename)
+                target_bcf = os.path.join(targetdir, bcffilename)
+                if os.path.isfile(target_bcf):
+                    content = open(target_bcf, "rb").read()
+                    if content.find("bibdata") != -1:
+                        if Verbose:
+                            print "Need to run bibtex on ",bcffilename
+                        bibfile = env.fs.File(SCons.Util.splitext(target_bcf)[0])
                         result = BibTeXAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBTEX'], 'blg')
@@ -648,7 +684,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.bbl', '.blg','bibliography'],
                   ['.bbl', '.blg','bibunit'],
                   ['.bbl', '.blg','multibib'],
-                  ['.bbl', '.blg','addbibresource'],
+                  ['.bbl', '.blg','.bcf','addbibresource'],
                   ['.toc','contents'],
                   ['.lof','figures'],
                   ['.lot','tables'],

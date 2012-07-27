@@ -91,6 +91,22 @@ Linking shared test3.dll from test1.obj test2.obj
 test.must_match('test3.dll', "test1.c\ntest2.c\n")
 
 
+# Now test an actual compile and link.  Since MS Windows
+# resets the link actions, this could fail even if the above
+# test passed.
+test.write('SConstruct', """
+env = Environment(CXXCOMSTR    = 'Compiling $TARGET ...',
+                  SHLINKCOMSTR   = 'Shared-Linking $TARGET ...')
+env.SharedLibrary('test', 'test.cpp')
+""")
+test.write('test.cpp', """
+int i;
+""")
+
+test.run()
+if ("Shared-Linking" not in test.stdout()):
+    test.fail_test()
+
 
 
 test.pass_test()
