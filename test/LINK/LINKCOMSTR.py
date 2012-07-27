@@ -72,7 +72,21 @@ Linking test1.exe from test1.obj test2.obj
 
 test.must_match('test1.exe', "test1.obj\ntest2.obj\n")
 
+# Now test an actual compile and link.  Since MS Windows
+# resets the link actions, this could fail even if the above
+# test passed.
+test.write('SConstruct', """
+env = Environment(CXXCOMSTR    = 'Compiling $TARGET ...',
+                  LINKCOMSTR   = 'Linking $TARGET ...')
+env.Program('test', 'test.cpp')
+""")
+test.write('test.cpp', """
+int main(int argc, char **argv) {}
+""")
 
+test.run()
+if ("Linking" not in test.stdout()):
+    test.fail_test()
 
 test.pass_test()
 
