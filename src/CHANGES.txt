@@ -5,6 +5,9 @@
                             Change Log
 
 RELEASE 2.X.X - 
+  From Paweł Tomulik:
+    - Added gettext toolset
+    - Fixed FindSourceFiles to find final sources (leaf nodes).
 
   From Greg Ward:
     - Allow Node objects in Java path (#2825)

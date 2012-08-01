@@ -18,6 +18,7 @@ example.xml
 factories.xml
 file-removal.xml
 functions.xml
+gettext.xml
 hierarchy.xml
 install.xml
 java.xml
