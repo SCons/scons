@@ -24,32 +24,47 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
+"""
+Test Environment's FindSourceFiles method.
+"""
 
-_python_ = TestSCons._python_
+import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-env=Environment()
-dest=env.Command('foo.out', 'SConstruct',
-   [Copy('$TARGET', '$SOURCE'),
-    Copy('${TARGET}.extra', '$SOURCE')])
-env.SideEffect('foo.out.extra', dest)
+# Quite complex, but real-life test.
+# 0. Setup VariantDir, "var", without duplication. The "src" is source dir.
+# 1. Generate souce file var/foo.c from src/foo.c.in. Define program foo.
+# 2. Gather all sources necessary to create '.' node and create source
+#    tarball. We expect 'src/foo.c.in' file within tarbal, and no content
+#    under 'var' directory.
+test.subdir('src')
+
+test.write('SConstruct', """
+VariantDir(src_dir = 'src', variant_dir = 'var', duplicate = 0)
+env = Environment(tools = ['default','textfile','packaging'])
+SConscript(['var/SConscript'], exports = 'env')
+sources = env.FindSourceFiles('.')
+pkg = env.Package( NAME = 'foo', VERSION = '1.0', PACKAGETYPE = 'src_tarbz2',
+                   source = sources )
+Ignore( '.', pkg )
 """)
 
-expect = """\
-Preparing target foo.out...
-...with side-effect foo.out.extra...
-...Preparing side-effect foo.out.extra...
-Copy("foo.out", "SConstruct")
-Copy("foo.out.extra", "SConstruct")
-Preparing target ....
-"""
+test.write('src/SConscript', """
+Import('env')
+foo_c = env.Substfile('foo.c.in', SUBST_DICT = {'__A__' : '0' })
+foo = env.Program(foo_c)
+""")
 
-test.run(arguments = "--debug=prepare", stdout=test.wrap_stdout(expect))
+test.write('src/foo.c.in', """ int main() { return __A__;}
+""")
 
-test.must_exist('foo.out')
+test.run(arguments = 'package')
+
+test.must_exist('foo-1.0/src/SConscript')
+test.must_exist('foo-1.0/src/foo.c.in')
+test.must_not_exist('foo-1.0/var/SConscript')
+test.must_not_exist('foo-1.0/var/foo.c.in')
 
 test.pass_test()
 

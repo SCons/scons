@@ -33,8 +33,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test = TestSCons.TestSCons()
-
 swig = test.where_is('swig')
 
 if not swig:
