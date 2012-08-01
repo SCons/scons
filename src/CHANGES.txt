@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From Greg Ward:
+    - Allow Node objects in Java path (#2825)
+
   From Joshua Hughes:
     - Make Windows not redefine builtin file as un-inheritable (#2857)
     - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
