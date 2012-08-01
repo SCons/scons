@@ -1066,7 +1066,7 @@ for p in [ scons ]:
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
                             ','.join(distutils_formats))
 
-    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst")
+    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name win32 --user-access-control auto")
 
     env.Command(distutils_targets, build_src_files, commands)
 
