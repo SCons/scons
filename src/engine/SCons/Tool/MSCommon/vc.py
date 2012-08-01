@@ -361,7 +361,7 @@ def msvc_find_valid_batch_script(env,version):
     # The TARGET_ARCH is amd64 then also try 32 bits if there are no viable
     # 64 bit tools installed
     try_target_archs = [target_platform]
-    if not req_target_platform and target_platform=='amd64':
+    if not req_target_platform and target_platform in ('amd64','x86_64')
         try_target_archs.append('x86')
 
     d = None
