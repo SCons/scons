@@ -150,13 +150,15 @@ class pathopt(object):
         if path and not SCons.Util.is_List(path):
             path = [path]
         if self.default:
-            path = path + [ env[self.default] ]
+            default = env[self.default]
+            if default:
+                if not SCons.Util.is_List(default):
+                    default = [default]
+                path = path + default
         if path:
-            return [self.opt, os.pathsep.join(path)]
-            #return self.opt + " " + os.pathsep.join(path)
+            return [self.opt, os.pathsep.join(map(str, path))]
         else:
             return []
-            #return ""
 
 def Java(env, target, source, *args, **kw):
     """
