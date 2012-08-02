@@ -27,6 +27,7 @@ RELEASE 2.X.X -
     - Fix cloning of builders when cloning environment (#2821).
 
   From Gary Oberbrunner:
+    - Support Intel C v12 compiler on Linux and Mac (not yet Windows)
     - Show valid Visual Studio architectures in error message
        when user passes invalid arch.
 
