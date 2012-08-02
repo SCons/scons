@@ -1,0 +1,17 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="aixf77">
+<summary>
+Sets construction variables for the IBM Visual Age f77 Fortran compiler.
+</summary>
+<sets>
+F77
+SHF77
+</sets>
+<uses>
+</uses>
+</tool>
