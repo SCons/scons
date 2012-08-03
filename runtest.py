@@ -28,6 +28,9 @@
 #
 #       -a              Run all tests; does a virtual 'find' for
 #                       all SCons tests under the current directory.
+#                       You can also specify a list of subdirectories
+#                       (not available with the "--qmtest" option!). Then,
+#                       only the given folders are searched for test files.
 #
 #       --aegis         Print test results to an output file (specified
 #                       by the -o option) in the format expected by
@@ -39,10 +42,16 @@
 #                       debugger (pdb.py) so you don't have to
 #                       muck with PYTHONPATH yourself.
 #
+#       -e              Starts the script in external mode, for
+#                       testing separate Tools and packages.
+#
 #       -f file         Only execute the tests listed in the specified
 #                       file.
 #
 #       -h              Print the help and exit.
+#
+#       -j              Suppress printing of count and percent progress for
+#                       the single tests.
 #
 #       -l              List available tests and exit.
 #
@@ -63,6 +72,12 @@
 #       -q              Quiet.  By default, runtest.py prints the
 #                       command line it will execute before
 #                       executing it.  This suppresses that print.
+#
+#       -s              Short progress.  Prints only the command line
+#                       and a percentage value, based on the total and
+#                       current number of tests.
+#                       All stdout and stderr messages get suppressed (this
+#                       does only work with subprocess though)!
 #
 #       --sp            The Aegis search path.
 #
@@ -124,6 +139,7 @@ cwd = os.getcwd()
 all = 0
 baseline = 0
 builddir = os.path.join(cwd, 'build')
+external = 0
 debug = ''
 execute_tests = 1
 format = None
@@ -141,6 +157,9 @@ print_times = None
 python = None
 sp = None
 spe = None
+print_progress = 1
+suppress_stdout = False
+suppress_stderr = False
 
 helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
@@ -151,8 +170,10 @@ Options:
   -b BASE, --baseline BASE    Run test scripts against baseline BASE.
   --builddir DIR              Directory in which packages were built.
   -d, --debug                 Run test scripts under the Python debugger.
+  -e, --external              Run the script in external mode (for testing separate Tools)
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
+  -j, --no-progress           Suppress count and percent progress messages.
   -l, --list                  List available tests and exit.
   -n, --no-exec               No execute, just print command lines.
   --noqmtest                  Execute tests directly, not using QMTest.
@@ -188,12 +209,12 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "3ab:df:hlno:P:p:qv:Xx:t",
+opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hjlno:P:p:qsv:Xx:t",
                             ['all', 'aegis', 'baseline=', 'builddir=',
-                             'debug', 'file=', 'help',
+                             'debug', 'external', 'file=', 'help', 'no-progress',
                              'list', 'no-exec', 'noqmtest', 'output=',
                              'package=', 'passed', 'python=', 'qmtest',
-                             'quiet', 'sp=', 'spe=', 'time',
+                             'quiet', 'short-progress', 'sp=', 'spe=', 'time',
                              'version=', 'exec=',
                              'verbose=', 'xml'])
 
@@ -214,6 +235,8 @@ for o, a in opts:
             if os.path.exists(pdb):
                 debug = pdb
                 break
+    elif o in ['-e', '--external']:
+        external = 1
     elif o in ['-f', '--file']:
         if not os.path.isabs(a):
             a = os.path.join(cwd, a)
@@ -221,6 +244,8 @@ for o, a in opts:
     elif o in ['-h', '--help']:
         print helpstr
         sys.exit(0)
+    elif o in ['-j', '--no-progress']:
+        print_progress = 0
     elif o in ['-l', '--list']:
         list_only = 1
     elif o in ['-n', '--no-exec']:
@@ -245,6 +270,12 @@ for o, a in opts:
             qmtest = 'qmtest'
     elif o in ['-q', '--quiet']:
         printcommand = 0
+        suppress_stdout = True
+        suppress_stderr = True        
+    elif o in ['-s', '--short-progress']:
+        print_progress = 1
+        suppress_stdout = True
+        suppress_stderr = True
     elif o in ['--sp']:
         sp = a.split(os.pathsep)
     elif o in ['--spe']:
@@ -349,6 +380,40 @@ def escape(s):
     s = s.replace('\\', '\\\\')
     return s
 
+# Try to use subprocess instead of the more low-level
+# spawn command...
+has_subprocess = True
+try:
+    import subprocess
+
+    def spawn_it(command_args):
+        p = subprocess.Popen(' '.join(command_args),
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             shell=True)
+        spawned_stdout = p.stdout.read()
+        spawned_stderr = p.stderr.read()
+        return (spawned_stderr, spawned_stdout, p.wait())
+except:
+    has_subprocess = False
+    # Set up lowest-common-denominator spawning of a process on both Windows
+    # and non-Windows systems that works all the way back to Python 1.5.2.
+    try:
+        os.spawnv
+    except AttributeError:
+        def spawn_it(command_args):
+            pid = os.fork()
+            if pid == 0:
+                os.execv(command_args[0], command_args)
+            else:
+                pid, status = os.waitpid(pid, 0)
+                return (None, None, status >> 8)
+    else:
+        def spawn_it(command_args):
+            command = command_args[0]
+            command_args = list(map(escape, command_args))
+            return (None, None, os.spawnv(os.P_WAIT, command, command_args))
+
 class Base(object):
     def __init__(self, path, spe=None):
         self.path = path
@@ -363,15 +428,12 @@ class Base(object):
 
 class SystemExecutor(Base):
     def execute(self):
-        command = self.command_args[0]
-        command_args = [escape(arg) for arg in self.command_args]
-        s = self.status = os.spawnv(os.P_WAIT, command, command_args)
+        self.stderr, self.stdout, s = spawn_it(self.command_args)
+        self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
-try:
-    import subprocess
-except ImportError:
+if not has_subprocess:
     import popen2
     try:
         popen2.Popen3
@@ -541,9 +603,12 @@ else:
 
     scons_runtest_dir = base
 
-    scons_script_dir = sd or os.path.join(base, 'src', 'script')
-
-    scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+    if not external:
+        scons_script_dir = sd or os.path.join(base, 'src', 'script')
+        scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+    else:
+        scons_script_dir = sd or ''
+        scons_lib_dir = ld or ''
 
     pythonpath_dir = scons_lib_dir
 
@@ -559,6 +624,9 @@ elif scons_lib_dir:
 
 if scons_exec:
     os.environ['SCONS_EXEC'] = '1'
+
+if external:
+    os.environ['SCONS_EXTERNAL_TEST'] = '1'
 
 os.environ['SCONS_RUNTEST_DIR'] = scons_runtest_dir
 os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
@@ -582,6 +650,10 @@ for dir in sp:
         q = os.path.join(dir, 'QMTest')
     pythonpaths.append(q)
 
+# Add path of the QMTest folder to PYTHONPATH
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
+
 os.environ['SCONS_SOURCE_PATH_EXECUTABLE'] = os.pathsep.join(spe)
 
 os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
@@ -599,6 +671,8 @@ tests = []
 def find_Tests_py(directory):
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
+        if 'sconstest.skip' in filenames:
+            continue
         for fname in filenames:
             if fname.endswith("Tests.py"):
                 result.append(os.path.join(dirpath, fname))
@@ -607,6 +681,8 @@ def find_Tests_py(directory):
 def find_py(directory):
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
+        if 'sconstest.skip' in filenames:
+            continue
         try:
             exclude_fp = open(os.path.join(dirpath, ".exclude_tests"))
         except EnvironmentError:
@@ -616,6 +692,24 @@ def find_py(directory):
                          for e in exclude_fp.readlines() ]
         for fname in filenames:
             if fname.endswith(".py") and fname not in excludes:
+                result.append(os.path.join(dirpath, fname))
+    return sorted(result)
+
+def find_sconstest_py(directory):
+    result = []
+    for dirpath, dirnames, filenames in os.walk(directory):
+        # Skip folders containing a sconstest.skip file
+        if 'sconstest.skip' in filenames:
+            continue
+        try:
+            exclude_fp = open(os.path.join(dirpath, ".exclude_tests"))
+        except EnvironmentError:
+            excludes = []
+        else:
+            excludes = [ e.split('#', 1)[0].strip()
+                         for e in exclude_fp.readlines() ]
+        for fname in filenames:
+            if fname.endswith(".py") and fname.startswith("sconstest-") and fname not in excludes:
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
 
@@ -640,6 +734,7 @@ if args:
 
                     elif path[:4] == 'test':
                         tests.extend(find_py(path))
+                    tests.extend(find_sconstest_py(path))
                 else:
                     tests.append(path)
 elif testlistfile:
@@ -661,6 +756,7 @@ elif all and not qmtest:
     # things correctly.)
     tests.extend(find_Tests_py('src'))
     tests.extend(find_py('test'))
+    tests.extend(find_sconstest_py('test'))
     if format == '--aegis' and aegis:
         cmd = "aegis -list -unf pf 2>/dev/null"
         for line in os.popen(cmd, "r").readlines():
@@ -783,7 +879,8 @@ else:
     print_time_func = lambda fmt, time: None
 
 total_start_time = time_func()
-for t in tests:
+total_num_tests = len(tests)
+for idx,t in enumerate(tests):
     command_args = ['-tt']
     if python3incompatibilities:
         command_args.append('-3')
@@ -793,10 +890,27 @@ for t in tests:
     t.command_args = [python] + command_args
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
-        sys.stdout.write(t.command_str + "\n")
+        if print_progress:
+            sys.stdout.write("%d/%d (%.2f%s) %s\n" % (idx+1, total_num_tests,
+                                                      float(idx+1)*100.0/float(total_num_tests),
+                                                      '%',
+                                                      t.command_str))
+        else:
+            sys.stdout.write(t.command_str + "\n")
+    if external:
+        head, tail = os.path.split(t.abspath)
+        if head:
+            os.environ['PYTHON_SCRIPT_DIR'] = head
+        else:
+            os.environ['PYTHON_SCRIPT_DIR'] = ''     
     test_start_time = time_func()
     if execute_tests:
         t.execute()
+        if not suppress_stdout and t.stdout:
+            print t.stdout
+        if not suppress_stderr and t.stderr:
+            print t.stderr
+
     t.test_time = time_func() - test_start_time
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
 if len(tests) > 0:
