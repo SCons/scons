@@ -47,7 +47,7 @@ expect_stderr = """\
 FAILING TEST STDERR
 """
 
-test.run(arguments='-b . test/fail.py',
+test.run(arguments='-j -b . test/fail.py',
          status=1,
          stdout=expect_stdout,
          stderr=expect_stderr)

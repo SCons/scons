@@ -50,7 +50,7 @@ expect_stderr = """\
 PASSING TEST STDERR
 """
 
-test.run(arguments='-b . test',
+test.run(arguments='-j -b . test',
          stdout=expect_stdout,
          stderr=expect_stderr)
 

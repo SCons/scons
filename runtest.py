@@ -382,10 +382,25 @@ def escape(s):
 
 # Try to use subprocess instead of the more low-level
 # spawn command...
-has_subprocess = True
+use_subprocess = True
 try:
     import subprocess
+except:
+    use_subprocess = False
+    
+if (use_subprocess and
+    not suppress_stdout and
+    not suppress_stderr):
+    # If no suppress mode is selected, we still use the
+    # old spawn routines instead of the modern subprocess module.
+    # This is important for the test/runtest scripts, where we
+    # call runtest.py within the single tests. With subprocess the
+    # stderr of the subprocess lands in stdout of the top test script,
+    # which lets the test fail. :(
+    # TODO: find a way to use subprocess with proper stream redirection...
+    use_subprocess = False
 
+if use_subprocess:
     def spawn_it(command_args):
         p = subprocess.Popen(' '.join(command_args),
                              stdout=subprocess.PIPE,
@@ -394,7 +409,7 @@ try:
         spawned_stdout = p.stdout.read()
         spawned_stderr = p.stderr.read()
         return (spawned_stderr, spawned_stdout, p.wait())
-except:
+else:
     has_subprocess = False
     # Set up lowest-common-denominator spawning of a process on both Windows
     # and non-Windows systems that works all the way back to Python 1.5.2.
@@ -433,7 +448,7 @@ class SystemExecutor(Base):
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
-if not has_subprocess:
+if not use_subprocess:
     import popen2
     try:
         popen2.Popen3
