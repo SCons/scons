@@ -82,7 +82,7 @@ testlist = [
     test_pass_py,
 ]
 
-test.run(arguments = ' '.join(testlist),
+test.run(arguments = '-j '+' '.join(testlist),
          status = 1,
          stdout = expect_stdout,
          stderr = expect_stderr)

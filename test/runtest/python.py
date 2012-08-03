@@ -66,7 +66,7 @@ expect_stderr = """\
 PASSING TEST STDERR
 """
 
-test.run(arguments=['-P', mypython, 'test'],
+test.run(arguments=['-j','-P', mypython, 'test'],
          stdout=expect_stdout,
          stderr=expect_stderr)
 
