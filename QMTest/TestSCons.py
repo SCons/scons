@@ -351,9 +351,9 @@ class TestSCons(TestCommon):
         """
         if path is None:
             path = os.environ['PATH']
-        if isinstance(prog, str):
-            prog = [prog]
         if self.external:
+            if isinstance(prog, str):
+                prog = [prog]
             import stat
             paths = path.split(os.pathsep)
             for p in prog:
