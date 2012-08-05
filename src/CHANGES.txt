@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE 2.X.X - 
+RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
   From dubcanada on Bitbucket:
     - Fix 32-bit Visual Express C++ on 64-bit Windows (generate 32-bit code)

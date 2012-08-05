@@ -1,4 +1,4 @@
-  A new SCons release, 2.1.0.alpha.yyyymmdd, is now available
+  A new SCons release, 2.2.0, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
