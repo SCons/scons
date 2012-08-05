@@ -44,8 +44,31 @@ $RSYNC $RSYNCOPTS \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
 
 
-# Doc doesn't go to SF, but to scons.org.
+#
+# scons.org stuff:
+# 
+# Doc: copy the doc tgz over; we'll unpack later
 $RSYNC $RSYNCOPTS \
   scons-doc-$VERSION.tar.gz \
   scons@scons.org:public_html/production/doc/$VERSION/
-
+# Copy the changelog
+$RSYNC $RSYNCOPTS \
+  CHANGES.txt \
+  scons@scons.org:public_html/production/
+# Note that Announce.txt gets copied over to RELEASE.txt.
+# This should be fixed at some point.
+$RSYNC $RSYNCOPTS \
+  Announce.txt \
+  scons@scons.org:public_html/production/RELEASE.txt
+# Unpack the doc and repoint doc symlinks:
+ssh scons@scons.org "
+  cd public_html/production/doc
+  cd $VERSION
+  tar xvf scons-doc-$VERSION.tar.gz
+  cd ..
+  rm latest; ln -s $VERSION latest
+  rm production; ln -s $VERSION production
+"
+echo '*****'
+echo '***** Now manually update index.php, includes/versions.php and news-raw.xhtml on scons.org.'
+echo '*****'
