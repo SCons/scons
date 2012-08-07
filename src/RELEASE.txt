@@ -1,148 +1,81 @@
-  A new SCons checkpoint release, 2.1.0.alpha.yyyymmdd, is now available
+  A new SCons release, 2.1.0.alpha.yyyymmdd, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  XXX The primary purpose of this release ... XXX
+  This release adds several new features and fixes many issues.
 
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
-
-  Note that a checkpoint release is developed using the same test-driven
-  development methodology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
-
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
-
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
-
-  Here is a summary of the changes since 2.0:
+  Here is a summary of the changes since 2.1:
 
   NEW FUNCTIONALITY
 
-    - SCons now supports Microsoft Visual Studio 11.
-
-    - SCons can now automatically embed manifests in Windows executables
-      and DLLs, by setting WINDOWS_EMBED_MANIFEST in the environment.
-
-    - SCons now searches for site_scons dirs in several system-wide
-      and per-user locations, in addition to the SConstruct top dir.
-      This should enable much easier use of third-party (non-core)
-      Tools.
-
-    - List new features (presumably why a checkpoint is being released)
+    - New gettext toolset for internationalization
+    - Support for Visual Studio 11 (both using it and generating solution files)
+    - Support for Intel C/C++ compiler v12 on Linux and Mac
+    - LaTeX support for multibib, biblatex and biber
 
   DEPRECATED FUNCTIONALITY
 
-    - List anything that's been deprecated since the last release
+    - None
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - scons --version now prints the path to the SCons package in use
-
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
-
-    - Add initial support for VS/VC 2010
+    - 32-bit Visual Express C++ on 64-bit Windows now generates 32-bit code instead of giving errors
 
   FIXES
 
-    - Fixed occasional crashes with -jN on Windows.
-    - Windows resource compiler (RC) scanner now handles DOS line endings
-    - Visual Studio project generation now works when CPPPATH contains Dir nodes
-    - Visual Studio projects are regenerated when CPPPATH or CPPDEFINES change
-      NOTE: this will cause all MSVS projects to be regenerated with this version.
-    - Passing MSVC_BATCH=False works now (treated same as 0)
-    - Long compile lines no longer break MSVC_BATCH mode
-    - RPATH is now in LINKCOM rather than LINKFLAGS, so resetting
-      LINKFLAGS doesn't kill RPATH
-    - Precompiled headers on Windows no longer break when used with
-      variant dirs containing spaces.
-    - Delete can now delete symlinks to directories and broken symlinks
-    - CPPDEFINES containing dictionaries now work better.
-    - A problem with using implicit-cache and removing dependencies on
-      disk is corrected.
-    - A problem with FS Entries which are dirs and have builders
-      is corrected.
-    - A problem with Install() of a dir when the dest dir exists
-      is corrected.
-    - Windows subprocess output should now be more reliable.
-    - The users guide and man page have various fixes.
-    - Appending to default $*FLAGS in a copied environment
-      now works properly.
-    - LaTeX scanner is improved for broken lines or embedded spaces.
-    - Windows UNC paths (\\SERVER\SHARE\dir) now work much better.
-
-    - List fixes of outright bugs
+    - Fixed FindSourceFiles to find final sources (leaf nodes).
+    - Make Windows not redefine builtin file as un-inheritable (#2857)
+    - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
+    - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
+    - Make -s (silent mode) be silent about entering subdirs (#2976).
+    - Fix cloning of builders when cloning environment (#2821).
+    - Fixed the Taskmaster, curing spurious build failures in
+      multi-threaded runs (#2720).
+    - Fixed scons-doc.py to properly convert main XML files (#2812).
 
 
   IMPROVEMENTS
 
-    - ParseFlags now supports -std=c++0x and related CXXFLAGS
-    - ParseFlags now supports -dylib_file from pkgconfig
-    - New debugging options to print unlink/relinking of variant files
-      (--debug=duplicate) and preparation of targets (--debug=prepare).
-    - SCons can now generate MSVS 9.0 and 10.0 Projects and Solutions.
-    - MSVS Solution generation is improved.
-    - Fortran 03 is supported (preliminary)
-    - .sx files are now treated as assembly sources.
-    - site_scons/site_init.py is now treated as a proper module
-      with __doc__, __file__ and __name__.
-    - TeX command strings now work on Windows when the new dir is
-      on a different drive letter.
-    - DMD version 2 is supported (using the phobos2 library)
-    - New --debug=prepare option shows each target as it's prepared
-      for building; can help when you don't know why a target isn't
-      being built.
-
-    - List improvements that wouldn't be visible to the user in the
-      documentation:  performance improvements (describe the circumstances
-      under which they would be observed), or major code cleanups
+    - Improved documentation of command-line variables (#2809).
+    - Show valid Visual Studio architectures in error message
+       when user passes invalid arch.
+    - Allow Node objects in Java path (#2825)
 
   PACKAGING
 
-    - List changes in the way SCons is packaged and/or released
-
-  DOCUMENTATION
-
-    - List any significant changes to the documentation (not individual
-      typo fixes, even if they're mentioned in src/CHANGES.txt to give
-      the contributor credit)
+    - No changes
 
   DEVELOPMENT
 
-    - List visible changes in the way SCons is developed
+    - No changes
 
-  Thanks to
+Thanks to:
   Dirk Baechle,
-  Vincent Beffara,
-  Grzegorz Bizoń,
+  Vincent Beffar,
   Jean-François Colson,
   Bauke Conijn,
   Bill Deegan,
   Ken Deeter,
+  dubcanada on Bitbucket,
   Luca Falavigna,
   Alexander Goomenyuk,
   Justin Gullingsrud,
+  Joshua Hughes,
+  Alexey Klimkin,
   Steven Knight,
   Arve Knudsen,
   Jean-Baptiste Lab,
   Rob Managan,
+  Mortoray,
   Gary Oberbrunner,
+  Alexey Petruchik,
   Evgeny Podjachev,
+  smallbub on Bitbucket,
   Sohail Somani,
   Anatoly Techtonik,
+  Paweł Tomulik,
+  Greg Ward,
   Allen Weeks,
   Russel Winder,
   Joe Zuntz

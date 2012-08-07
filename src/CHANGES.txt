@@ -5,6 +5,7 @@
                             Change Log
 
 RELEASE 2.X.X - 
+
   From dubcanada on Bitbucket:
     - Fix 32-bit Visual Express C++ on 64-bit Windows (generate 32-bit code)
 
