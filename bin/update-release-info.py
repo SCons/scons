@@ -108,14 +108,17 @@ if DEBUG: print 'release date', release_date
 
 if mode == 'develop' and version_tuple[3] != 'alpha':
     version_tuple ==  version_tuple[:3] + ('alpha', 0)
-if version_tuple[3] != 'final':
+if len(version_tuple) > 3 and version_tuple[3] != 'final':
     if mode == 'develop':
         version_tuple = version_tuple[:4] + ('yyyymmdd',)
     else:
         yyyy,mm,dd,_,_,_ = release_date
         version_tuple = version_tuple[:4] + ((yyyy*100 + mm)*100 + dd,)
 version_string = '.'.join(map(str, version_tuple))
-version_type = version_tuple[3]
+if len(version_tuple) > 3:
+    version_type = version_tuple[3]
+else:
+    version_type = 'final'
 if DEBUG: print 'version string', version_string
 
 if version_type not in ['alpha', 'beta', 'candidate', 'final']:
