@@ -70,7 +70,7 @@ NO RESULT TEST STDERR
 PASSING TEST STDERR
 """
 
-test.run(arguments='-j test',
+test.run(arguments='-k test',
          status=1,
          stdout=expect_stdout,
          stderr=expect_stderr)

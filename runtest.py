@@ -50,7 +50,7 @@
 #
 #       -h              Print the help and exit.
 #
-#       -j              Suppress printing of count and percent progress for
+#       -k              Suppress printing of count and percent progress for
 #                       the single tests.
 #
 #       -l              List available tests and exit.
@@ -160,6 +160,7 @@ spe = None
 print_progress = 1
 suppress_stdout = False
 suppress_stderr = False
+allow_pipe_files = True
 
 helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
@@ -173,10 +174,15 @@ Options:
   -e, --external              Run the script in external mode (for testing separate Tools)
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
-  -j, --no-progress           Suppress count and percent progress messages.
+  -k, --no-progress           Suppress count and percent progress messages.
   -l, --list                  List available tests and exit.
   -n, --no-exec               No execute, just print command lines.
   --noqmtest                  Execute tests directly, not using QMTest.
+  --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
+                              for starting tests. WARNING: Only use this when too much file
+                              traffic is giving you trouble AND you can be sure that none of
+                              your tests create output that exceed 65K chars! You might
+                              run into some deadlocks else.
   -o FILE, --output FILE      Print test results to FILE.
   -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
@@ -209,10 +215,10 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hjlno:P:p:qsv:Xx:t",
+opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hklno:P:p:qsv:Xx:t",
                             ['all', 'aegis', 'baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
-                             'list', 'no-exec', 'noqmtest', 'output=',
+                             'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
                              'package=', 'passed', 'python=', 'qmtest',
                              'quiet', 'short-progress', 'sp=', 'spe=', 'time',
                              'version=', 'exec=',
@@ -244,7 +250,7 @@ for o, a in opts:
     elif o in ['-h', '--help']:
         print helpstr
         sys.exit(0)
-    elif o in ['-j', '--no-progress']:
+    elif o in ['-k', '--no-progress']:
         print_progress = 0
     elif o in ['-l', '--list']:
         list_only = 1
@@ -252,6 +258,8 @@ for o, a in opts:
         execute_tests = None
     elif o in ['--noqmtest']:
         qmtest = None
+    elif o in ['--nopipefiles']:
+        allow_pipe_files = False
     elif o in ['-o', '--output']:
         if a != '-' and not os.path.isabs(a):
             a = os.path.join(cwd, a)
@@ -388,27 +396,77 @@ try:
 except:
     use_subprocess = False
     
-if (use_subprocess and
-    not suppress_stdout and
-    not suppress_stderr):
-    # If no suppress mode is selected, we still use the
-    # old spawn routines instead of the modern subprocess module.
-    # This is important for the test/runtest scripts, where we
-    # call runtest.py within the single tests. With subprocess the
-    # stderr of the subprocess lands in stdout of the top test script,
-    # which lets the test fail. :(
-    # TODO: find a way to use subprocess with proper stream redirection...
-    use_subprocess = False
-
 if use_subprocess:
-    def spawn_it(command_args):
-        p = subprocess.Popen(' '.join(command_args),
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             shell=True)
-        spawned_stdout = p.stdout.read()
-        spawned_stderr = p.stderr.read()
-        return (spawned_stderr, spawned_stdout, p.wait())
+    if not suppress_stdout and not suppress_stderr:
+        # Without any output suppressed, we let the subprocess
+        # write its stuff freely to stdout/stderr.
+        def spawn_it(command_args):
+            p = subprocess.Popen(' '.join(command_args),
+                                 shell=True)
+            return (None, None, p.wait())
+    else:
+        # Else, we catch the output of both pipes...
+        if allow_pipe_files:
+            # The subprocess.Popen() suffers from a well-known
+            # problem. Data for stdout/stderr is read into a 
+            # memory buffer of fixed size, 65K which is not very much.
+            # When it fills up, it simply stops letting the child process
+            # write to it. The child will then sit and patiently wait to
+            # be able to write the rest of its output. Hang! 
+            # In order to work around this, we follow a suggestion
+            # by Anders Pearson in
+            #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
+            # and pass temp file objects to Popen() instead of the ubiquitous
+            # subprocess.PIPE. 
+            def spawn_it(command_args):
+                # Create temporary files
+                import tempfile
+                tmp_stdout = tempfile.TemporaryFile(mode='w+t')
+                tmp_stderr = tempfile.TemporaryFile(mode='w+t')
+                # Start subprocess...
+                p = subprocess.Popen(' '.join(command_args),
+                                     stdout=tmp_stdout,
+                                     stderr=tmp_stderr,
+                                     shell=True)
+                # ... and wait for it to finish.
+                ret = p.wait()
+                
+                try:
+                    # Rewind to start of files
+                    tmp_stdout.seek(0)
+                    tmp_stderr.seek(0)
+                    # Read output
+                    spawned_stdout = tmp_stdout.read()
+                    spawned_stderr = tmp_stderr.read()
+                finally:
+                    # Remove temp files by closing them
+                    tmp_stdout.close()
+                    tmp_stderr.close()
+                    
+                # Return values
+                return (spawned_stderr, spawned_stdout, ret)
+            
+        else:
+            # We get here only if the user gave the '--nopipefiles'
+            # option, meaning the "temp file" approach for
+            # subprocess.communicate() above shouldn't be used.
+            # He hopefully knows what he's doing, but again we have a
+            # potential deadlock situation in the following code:
+            #   If the subprocess writes a lot of data to its stderr,
+            #   the pipe will fill up (nobody's reading it yet) and the
+            #   subprocess will wait for someone to read it. 
+            #   But the parent process is trying to read from stdin
+            #   (but the subprocess isn't writing anything there).  
+            #   Hence a deadlock.
+            # Be dragons here! Better don't use this!
+            def spawn_it(command_args):
+                p = subprocess.Popen(' '.join(command_args),
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     shell=True)
+                spawned_stdout = p.stdout.read()
+                spawned_stderr = p.stderr.read()
+                return (spawned_stderr, spawned_stdout, p.wait())
 else:
     has_subprocess = False
     # Set up lowest-common-denominator spawning of a process on both Windows
@@ -426,7 +484,7 @@ else:
     else:
         def spawn_it(command_args):
             command = command_args[0]
-            command_args = list(map(escape, command_args))
+            command_args = [escape(c) for c in command_args]
             return (None, None, os.spawnv(os.P_WAIT, command, command_args))
 
 class Base(object):
@@ -476,14 +534,43 @@ if not use_subprocess:
                 self.status = self.status >> 8
 else:
     class PopenExecutor(Base):
-        def execute(self):
-            p = subprocess.Popen(self.command_str,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 shell=True)
-            self.stdout = p.stdout.read()
-            self.stderr = p.stderr.read()
-            self.status = p.wait()
+        # For an explanation of the following 'if ... else'
+        # and the 'allow_pipe_files' option, please check out the
+        # use_subprocess path in the definition of spawn_it() above.
+        if allow_pipe_files:
+            def execute(self):
+                # Create temporary files
+                import tempfile
+                tmp_stdout = tempfile.TemporaryFile(mode='w+t')
+                tmp_stderr = tempfile.TemporaryFile(mode='w+t')
+                # Start subprocess...
+                p = subprocess.Popen(self.command_str,
+                                     stdout=tmp_stdout,
+                                     stderr=tmp_stderr,
+                                     shell=True)
+                # ... and wait for it to finish.
+                self.status = p.wait()
+                
+                try:
+                    # Rewind to start of files
+                    tmp_stdout.seek(0)
+                    tmp_stderr.seek(0)
+                    # Read output
+                    self.stdout = tmp_stdout.read()
+                    self.stderr = tmp_stderr.read()
+                finally:
+                    # Remove temp files by closing them
+                    tmp_stdout.close()
+                    tmp_stderr.close()
+        else:        
+            def execute(self):
+                p = subprocess.Popen(self.command_str,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     shell=True)
+                self.stdout = p.stdout.read()
+                self.stderr = p.stderr.read()
+                self.status = p.wait()
 
 class Aegis(SystemExecutor):
     def header(self, f):
@@ -851,7 +938,7 @@ if qmtest:
 #except OSError:
 #    pass
 
-tests = list(map(Test, tests))
+tests = [Test(t) for t in tests]
 
 class Unbuffered(object):
     def __init__(self, file):

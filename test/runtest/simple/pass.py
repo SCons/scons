@@ -47,7 +47,7 @@ expect_stderr = """\
 PASSING TEST STDERR
 """
 
-test.run(arguments='-j test/pass.py', stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k test/pass.py', stdout=expect_stdout, stderr=expect_stderr)
 
 test.pass_test()
 

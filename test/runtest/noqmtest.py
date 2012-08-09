@@ -74,7 +74,7 @@ testlist = [
     test_pass_py,
 ]
 
-test.run(arguments = '-j --noqmtest %s' % ' '.join(testlist),
+test.run(arguments = '-k --noqmtest %s' % ' '.join(testlist),
          status = 1,
          stdout = expect_stdout,
          stderr = expect_stderr)

@@ -47,7 +47,7 @@ expect_stderr = """\
 NO RESULT TEST STDERR
 """
 
-test.run(arguments='-j test/no_result.py',
+test.run(arguments='-k test/no_result.py',
          status=2,
          stdout=expect_stdout,
          stderr=expect_stderr)
