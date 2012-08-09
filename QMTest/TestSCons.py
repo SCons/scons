@@ -231,11 +231,7 @@ class TestSCons(TestCommon):
         is not necessary.
         """
         self.orig_cwd = os.getcwd()
-        self.external = 0
-        try:
-            self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
-        except KeyError:
-            pass
+        self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
 
         if not self.external:
             try:

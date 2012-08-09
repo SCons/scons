@@ -52,7 +52,7 @@ NO RESULT TEST STDERR
 PASSING TEST STDERR
 """
 
-test.run(arguments = '-j -o aegis.out --aegis test', stderr=expect_stderr)
+test.run(arguments = '-k -o aegis.out --aegis test', stderr=expect_stderr)
 
 expect = """\
 test_result = [

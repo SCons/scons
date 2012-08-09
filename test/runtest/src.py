@@ -62,7 +62,7 @@ PASSING TEST STDERR
 PASSING TEST STDERR
 """ % locals()
 
-test.run(arguments='-j src', stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k src', stdout=expect_stdout, stderr=expect_stderr)
 
 test.pass_test()
 

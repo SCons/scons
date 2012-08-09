@@ -897,11 +897,7 @@ class TestCmd(object):
                        combine = 0,
                        universal_newlines = 1,
                        timeout = None):
-        self.external = 0
-        try:
-            self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
-        except KeyError:
-            pass
+        self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
         self.description_set(description)
         self.program_set(program)
