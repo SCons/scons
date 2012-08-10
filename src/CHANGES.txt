@@ -4,6 +4,11 @@
 
                             Change Log
 
+  From Russel Winder:
+    - Changes made to the dmd tool to allow for various breaking changes
+      made in D 1.068 and 2.053 to do with the introduction of 64-bit
+      builds of DMD.   NB  D v.1 is now deprecated.
+
 RELEASE 2.X.X - 
 
   From dubcanada on Bitbucket:

@@ -7,7 +7,7 @@ Coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
 
 Amended by Russel Winder (russel@russel.org.uk)
-2010-02-07
+2010-02-07, 2010-11-17, 2011-02, 2011-05-14
 
 There are a number of problems with this script at this point in time.
 The one that irritates me the most is the Windows linker setup.  The D
@@ -60,6 +60,7 @@ Lib tool variables:
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import subprocess
 
 import SCons.Action
 import SCons.Builder
@@ -128,6 +129,27 @@ def generate(env):
     env['DFLAGPREFIX'] = '-'
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
+
+    if dc == 'dmd' :
+        #
+        #  We have to know exactly which version of DMD is in use so as to ensure correct behaviour.  DMD has
+        #  no option to return the version number.  The only place it is found is int he first line of the
+        #  help output.  So grab that first line and then scan it.
+        #
+        process = subprocess.Popen ('dmd', stdout=subprocess.PIPE)
+        versionLine = process.stdout.readline()
+        process.kill()
+        #
+        #  Up to and including DMD 1.067 and 2.052 the first line of the help starte "Digital Mars D Compiler
+        #  v" followed by the version number.  As of version 1.068 and 2.053, this string has changed to
+        #  "DMD## D Compiler v" where ## is either 32 or 64 depending on the build of the executable.  So
+        #  instead of a simple replacement, extra work is needed.
+        #
+        #env['DMDVERSIONNUMBER'] = tuple([int(i) for i in versionLine.replace('Digital Mars D Compiler v', '').strip().split('.')])
+        if 'DMD32' in versionLine : stringToReplace = 'DMD32 D Compiler v'
+        elif 'DMD64' in versionLine : stringToReplace = 'DMD64 D Compiler v'
+        else : stringToReplace = 'Digital Mars D Compiler v'
+        env['DMDVERSIONNUMBER'] = tuple([int(i) for i in versionLine.replace(stringToReplace, '').strip().split('.')])
 
     # Need to use the Digital Mars linker/lib on windows.
     # *nix can just use GNU link.
@@ -203,19 +225,40 @@ def generate(env):
                     except KeyError:
                         libs = []
                     if dc == 'dmd':
-                        # TODO: This assumes that the dmd executable is in the
-                        # bin directory and that the libraries are in a peer
-                        # directory lib.  This true of the Digital Mars
-                        # distribution but . . .
-                        import glob
+                        #
+                        #  TODO: This assumes that the dmd executable is in the bin (or as of 1.068 and 2.053
+                        #  possible bin32 or bin64 -- at least on Linux) directory and that the libraries
+                        #  are in a peer directory lib (for versions prior to 1.067 and 2.052) or lib32 and
+                        #  lib64 (for version 1.067 and 2.052 and later on Linux, Mac OS X remains with
+                        #  lib as there is no 64-bit backend or build for DMD on this platform).  This is
+                        #  true of the Digital Mars distribution but what about Debian, Ubuntu, Fedora,
+                        #  FreeBSD, etc. packagings?
+                        #
+                        platformName , _ , _ , _ , architectureName = os.uname ( )
+                        mode64bit = False
+                        if architectureName == 'x86_64' and '-m32' not in env['DFLAGS']:
+                            mode64bit = True
+                        if mode64bit and '-m64' not in env['DFLAGS']:
+                            env.Append(DFLAGS = ['-m64'])
                         dHome = env.WhereIs(dc).replace('/dmd' , '/..')
-                        if glob.glob(dHome + '/lib/*phobos2*'):
+                        if (env['DMDVERSIONNUMBER'][0] == 1 and env['DMDVERSIONNUMBER'][1] < 67 ) or \
+                               (env['DMDVERSIONNUMBER'][0] == 2 and env['DMDVERSIONNUMBER'][1] < 52 ):
+                            libComponent = 'lib'
+                        else:
+                            if platformName == 'Linux' :
+                                libComponent = 'lib64' if mode64bit else 'lib32'
+                            else :
+                                libComponent = 'lib'
+                        import glob
+                        if glob.glob(dHome + '/' + libComponent + '/*phobos2*'):
                             if 'phobos2' not in libs:
-                                env.Append(LIBPATH = [dHome + '/lib'])
+                                env.Append(LIBPATH = [dHome + '/' + libComponent])
                                 env.Append(LIBS = ['phobos2'])
-                                # TODO: Find out when there will be a
-                                # 64-bit version of D.
-                                env.Append(LINKFLAGS = ['-m32'])
+                                if (env['DMDVERSIONNUMBER'][0] == 1 and env['DMDVERSIONNUMBER'][1] < 67 ) or \
+                                       (env['DMDVERSIONNUMBER'][0] == 2 and env['DMDVERSIONNUMBER'][1] < 52 ) :
+                                    env.Append(LINKFLAGS = ['-m32'])
+                                else:
+                                    pass
                         else:
                             if 'phobos' not in libs:
                                 env.Append(LIBS = ['phobos'])
@@ -225,6 +268,10 @@ def generate(env):
                         env.Append(LIBS = ['pthread'])
                     if 'm' not in libs:
                         env.Append(LIBS = ['m'])
+                    if (env['DMDVERSIONNUMBER'][0] == 1 and env['DMDVERSIONNUMBER'][1] >= 67 ) or \
+                           (env['DMDVERSIONNUMBER'][0] == 2 and env['DMDVERSIONNUMBER'][1] >= 52 ):
+                        if platformName == 'Linux' and 'rt' not in libs :
+                            env.Append(LIBS = ['rt'])
                 return defaultLinker
             env['SMART_LINKCOM'] = smart_link[linkcom] = _smartLink
 
