@@ -1,0 +1,85 @@
+  A new SCons release, 2.1.0.alpha.yyyymmdd, is now available
+  on the SCons download page:
+
+          http://www.scons.org/download.php
+
+  This release adds several new features and fixes many issues.
+
+  Here is a summary of the changes since 2.1:
+
+  NEW FUNCTIONALITY
+
+    - New gettext toolset for internationalization
+    - Support for Visual Studio 11 (both using it and generating solution files)
+    - Support for Intel C/C++ compiler v12 on Linux and Mac
+    - LaTeX support for multibib, biblatex and biber
+
+  DEPRECATED FUNCTIONALITY
+
+    - None
+
+  CHANGED/ENHANCED EXISTING FUNCTIONALITY
+
+    - 32-bit Visual Express C++ on 64-bit Windows now generates 32-bit code instead of giving errors
+
+  FIXES
+
+    - Fixed FindSourceFiles to find final sources (leaf nodes).
+    - Make Windows not redefine builtin file as un-inheritable (#2857)
+    - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
+    - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
+    - Make -s (silent mode) be silent about entering subdirs (#2976).
+    - Fix cloning of builders when cloning environment (#2821).
+    - Fixed the Taskmaster, curing spurious build failures in
+      multi-threaded runs (#2720).
+    - Fixed scons-doc.py to properly convert main XML files (#2812).
+
+
+  IMPROVEMENTS
+
+    - Improved documentation of command-line variables (#2809).
+    - Show valid Visual Studio architectures in error message
+       when user passes invalid arch.
+    - Allow Node objects in Java path (#2825)
+
+  PACKAGING
+
+    - No changes
+
+  DEVELOPMENT
+
+    - No changes
+
+Thanks to:
+  Dirk Baechle,
+  Vincent Beffar,
+  Jean-François Colson,
+  Bauke Conijn,
+  Bill Deegan,
+  Ken Deeter,
+  dubcanada on Bitbucket,
+  Luca Falavigna,
+  Alexander Goomenyuk,
+  Justin Gullingsrud,
+  Joshua Hughes,
+  Alexey Klimkin,
+  Steven Knight,
+  Arve Knudsen,
+  Jean-Baptiste Lab,
+  Rob Managan,
+  Mortoray,
+  Gary Oberbrunner,
+  Alexey Petruchik,
+  Evgeny Podjachev,
+  smallbub on Bitbucket,
+  Sohail Somani,
+  Anatoly Techtonik,
+  Paweł Tomulik,
+  Greg Ward,
+  Allen Weeks,
+  Russel Winder,
+  Joe Zuntz
+  for their contributions to this release.
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__

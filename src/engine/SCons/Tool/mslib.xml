@@ -1,0 +1,23 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="mslib">
+<summary>
+Sets construction variables for the Microsoft
+<application>mslib</application>
+library archiver.
+</summary>
+<sets>
+AR
+ARFLAGS
+ARCOM
+LIBPREFIX
+LIBSUFFIX
+</sets>
+<uses>
+ARCOMSTR
+</uses>
+</tool>
