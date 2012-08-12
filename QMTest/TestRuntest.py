@@ -125,11 +125,6 @@ class TestRuntest(TestCommon):
 
         dirs = [os.environ.get('SCONS_RUNTEST_DIR', orig_cwd)]
         
-        spe = os.environ.get('SCONS_SOURCE_PATH_EXECUTABLE', orig_cwd)
-        for d in spe.split(os.pathsep):
-            dirs.append(os.path.join(d, 'build'))
-            dirs.append(d)
-
         for thing in things_to_copy:
             for dir in dirs:
                 t = os.path.join(dir, thing)
@@ -143,12 +138,7 @@ class TestRuntest(TestCommon):
 
         self.program_set(self.workpath(kw['program']))
 
-        for key in os.environ.keys():
-            if key[:5] == 'AEGIS':
-                os.environ[key] = ''
-
         os.environ['PYTHONPATH'] = ''
-        os.environ['SCONS_SOURCE_PATH_EXECUTABLE'] = ''
 
     def write_fake_scons_source_tree(self):
         os.mkdir('src')
