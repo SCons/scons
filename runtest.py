@@ -198,6 +198,9 @@ Options:
   --passed                    Summarize which tests passed.
   --qmtest                    Run using the QMTest harness.
   -q, --quiet                 Don't print the test being executed.
+  -s, --short-progress        Short progress, prints only the command line
+                              and a percentage value, based on the total and
+                              current number of tests.
   --sp PATH                   The Aegis search path.
   --spe PATH                  The Aegis executable search path.
   -t, --time                  Print test execution time.
@@ -773,6 +776,7 @@ tests = []
 def find_Tests_py(directory):
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
+        # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
             continue
         for fname in filenames:
@@ -781,23 +785,6 @@ def find_Tests_py(directory):
     return sorted(result)
 
 def find_py(directory):
-    result = []
-    for dirpath, dirnames, filenames in os.walk(directory):
-        if 'sconstest.skip' in filenames:
-            continue
-        try:
-            exclude_fp = open(os.path.join(dirpath, ".exclude_tests"))
-        except EnvironmentError:
-            excludes = []
-        else:
-            excludes = [ e.split('#', 1)[0].strip()
-                         for e in exclude_fp.readlines() ]
-        for fname in filenames:
-            if fname.endswith(".py") and fname not in excludes:
-                result.append(os.path.join(dirpath, fname))
-    return sorted(result)
-
-def find_sconstest_py(directory):
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -811,7 +798,7 @@ def find_sconstest_py(directory):
             excludes = [ e.split('#', 1)[0].strip()
                          for e in exclude_fp.readlines() ]
         for fname in filenames:
-            if fname.endswith(".py") and fname.startswith("sconstest-") and fname not in excludes:
+            if fname.endswith(".py") and fname not in excludes:
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
 
@@ -836,7 +823,6 @@ if args:
 
                     elif path[:4] == 'test':
                         tests.extend(find_py(path))
-                    tests.extend(find_sconstest_py(path))
                 else:
                     tests.append(path)
 elif testlistfile:
@@ -858,7 +844,6 @@ elif all and not qmtest:
     # things correctly.)
     tests.extend(find_Tests_py('src'))
     tests.extend(find_py('test'))
-    tests.extend(find_sconstest_py('test'))
     if format == '--aegis' and aegis:
         cmd = "aegis -list -unf pf 2>/dev/null"
         for line in os.popen(cmd, "r").readlines():
@@ -999,12 +984,11 @@ for idx,t in enumerate(tests):
                                                       t.command_str))
         else:
             sys.stdout.write(t.command_str + "\n")
-    if external:
-        head, tail = os.path.split(t.abspath)
-        if head:
-            os.environ['PYTHON_SCRIPT_DIR'] = head
-        else:
-            os.environ['PYTHON_SCRIPT_DIR'] = ''     
+    head, tail = os.path.split(t.abspath)
+    if head:
+        os.environ['PYTHON_SCRIPT_DIR'] = head
+    else:
+        os.environ['PYTHON_SCRIPT_DIR'] = ''     
     test_start_time = time_func()
     if execute_tests:
         t.execute()

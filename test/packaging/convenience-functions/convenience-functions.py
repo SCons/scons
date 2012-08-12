@@ -31,24 +31,9 @@ Test the FindInstalledFiles() and the FindSourceFiles() functions.
 import os.path
 import TestSCons
 
-python = TestSCons.python
 test = TestSCons.TestSCons()
 
-test.write( "f1", "" )
-test.write( "f2", "" )
-test.write( "f3", "" )
-
-test.write( 'SConstruct', r"""
-env  = Environment(tools=['default', 'packaging'])
-prog = env.Install( 'bin/', ["f1", "f2"] )
-env.File( "f3" )
-
-src_files = sorted(map(str, env.FindSourceFiles()))
-oth_files = sorted(map(str, env.FindInstalledFiles()))
-
-print src_files
-print oth_files
-""")
+test.dir_fixture( "image" )
 
 bin_f1 = os.path.join('bin', 'f1')
 bin_f2 = os.path.join('bin', 'f2')

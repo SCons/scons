@@ -240,11 +240,6 @@ class TestSCons(TestCommon):
                 pass
             else:
                 os.chdir(script_dir)
-        else:
-            try:
-                self.script_srcdir = os.environ['PYTHON_SCRIPT_DIR']
-            except KeyError:
-                pass
         if 'program' not in kw:
             kw['program'] = os.environ.get('SCONS')
             if not kw['program']:
@@ -280,6 +275,11 @@ class TestSCons(TestCommon):
             import SCons.Node.FS
             if SCons.Node.FS.default_fs is None:
                 SCons.Node.FS.default_fs = SCons.Node.FS.FS()
+
+        try:
+            self.script_srcdir = os.environ['PYTHON_SCRIPT_DIR']
+        except KeyError:
+            pass
 
     def Environment(self, ENV=None, *args, **kw):
         """
