@@ -939,6 +939,7 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
+        self.script_srcdir = None
 
     def __del__(self):
         self.cleanup()
