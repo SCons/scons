@@ -436,6 +436,8 @@ for man_1 in man_page_list:
 
         tar_deps.extend([ps, text])
         tar_list.extend([ps, text])
+    else:
+        print "doc: WARNING: no groff, skipping text and PostScript versions of man pages"
 
     if man2html:
         html = os.path.join(build, 'HTML' , '%s-man.html' % man)
@@ -460,6 +462,8 @@ for man_1 in man_page_list:
 
         tar_deps.append(html)
         tar_list.append(html)
+    else:
+        print "doc: WARNING: no man2html, skipping HTML versions of man pages"
 
 if not epydoc_cli:
     try:
