@@ -10,13 +10,6 @@
 # By default, it directly uses the modules in the local tree:
 # ./src/ (source files we ship) and ./QMTest/ (other modules we don't).
 #
-# HOWEVER, now that SCons has Repository support, we don't have
-# Aegis copy all of the files into the local tree.  So if you're
-# using Aegis and want to run tests by hand using this script, you
-# must "aecp ." the entire source tree into your local directory
-# structure.  When you're done with your change, you can then
-# "aecpu -unch ." to un-copy any files that you haven't changed.
-#
 # When any -p option is specified, this script assumes it's in a
 # directory in which a build has been performed, and sets PYTHONPATH
 # so that it *only* references the modules that have unpacked from
@@ -31,12 +24,6 @@
 #                       You can also specify a list of subdirectories
 #                       (not available with the "--qmtest" option!). Then,
 #                       only the given folders are searched for test files.
-#
-#       --aegis         Print test results to an output file (specified
-#                       by the -o option) in the format expected by
-#                       aetest(5).  This is intended for use in the
-#                       batch_test_command field in the Aegis project
-#                       config file.
 #
 #       -d              Debug.  Runs the script under the Python
 #                       debugger (pdb.py) so you don't have to
@@ -58,7 +45,7 @@
 #       -n              No execute, just print command lines.
 #
 #       -o file         Print test results to the specified file.
-#                       The --aegis and --xml options specify the
+#                       The --xml option specifies the
 #                       output format.
 #
 #       -P Python       Use the specified Python interpreter.
@@ -78,10 +65,6 @@
 #                       current number of tests.
 #                       All stdout and stderr messages get suppressed (this
 #                       does only work with subprocess though)!
-#
-#       --sp            The Aegis search path.
-#
-#       --spe           The Aegis executable search path.
 #
 #       -t              Print the execution time of each test.
 #
@@ -109,31 +92,6 @@ import stat
 import sys
 import time
 
-try:
-    sorted
-except NameError:
-    # Pre-2.4 Python has no sorted() function.
-    #
-    # The pre-2.4 Python list.sort() method does not support
-    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
-    # we must implement the functionality of those keyword arguments
-    # by hand instead of passing them to list.sort().
-    def sorted(iterable, cmp=None, key=None, reverse=0):
-        if key is not None:
-            result = [(key(x), x) for x in iterable]
-        else:
-            result = iterable[:]
-        if cmp is None:
-            # Pre-2.3 Python does not support list.sort(None).
-            result.sort()
-        else:
-            result.sort(cmp)
-        if key is not None:
-            result = [t1 for t0,t1 in result]
-        if reverse:
-            result.reverse()
-        return result
-
 cwd = os.getcwd()
 
 all = 0
@@ -155,8 +113,7 @@ testlistfile = None
 version = ''
 print_times = None
 python = None
-sp = None
-spe = None
+sp = []
 print_progress = 1
 suppress_stdout = False
 suppress_stderr = False
@@ -167,7 +124,6 @@ Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
   -3                          Warn about Python 3.x incompatibilities.
   -a, --all                   Run all tests.
-  --aegis                     Print results in Aegis format.
   -b BASE, --baseline BASE    Run test scripts against baseline BASE.
   --builddir DIR              Directory in which packages were built.
   -d, --debug                 Run test scripts under the Python debugger.
@@ -201,8 +157,6 @@ Options:
   -s, --short-progress        Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
-  --sp PATH                   The Aegis search path.
-  --spe PATH                  The Aegis executable search path.
   -t, --time                  Print test execution time.
   -v version                  Specify the SCons version.
   --verbose=LEVEL             Set verbose level: 1 = print executed commands,
@@ -219,11 +173,11 @@ Environment Variables:
 """
 
 opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hklno:P:p:qsv:Xx:t",
-                            ['all', 'aegis', 'baseline=', 'builddir=',
+                            ['all', 'baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
                              'package=', 'passed', 'python=', 'qmtest',
-                             'quiet', 'short-progress', 'sp=', 'spe=', 'time',
+                             'quiet', 'short-progress', 'time',
                              'version=', 'exec=',
                              'verbose=', 'xml'])
 
@@ -287,10 +241,6 @@ for o, a in opts:
         print_progress = 1
         suppress_stdout = True
         suppress_stderr = True
-    elif o in ['--sp']:
-        sp = a.split(os.pathsep)
-    elif o in ['--spe']:
-        spe = a.split(os.pathsep)
     elif o in ['-t', '--time']:
         print_times = 1
     elif o in ['--verbose']:
@@ -301,7 +251,7 @@ for o, a in opts:
         scons_exec = 1
     elif o in ['-x', '--exec']:
         scons = a
-    elif o in ['--aegis', '--xml']:
+    elif o in ['--xml']:
         format = o
 
 if not args and not all and not testlistfile:
@@ -345,39 +295,6 @@ try:
     qmtest
 except NameError:
     qmtest = None
-    # Old code for using QMTest by default if it's installed.
-    # We now default to not using QMTest unless explicitly asked for.
-    #for q in ['qmtest', 'qmtest.py']:
-    #    path = whereis(q)
-    #    if path:
-    #        # The name was found on $PATH; just execute the found name so
-    #        # we don't have to worry about paths containing white space.
-    #        qmtest = q
-    #        break
-    #if not qmtest:
-    #    msg = ('Warning:  found neither qmtest nor qmtest.py on $PATH;\n' +
-    #           '\tassuming --noqmtest option.\n')
-    #    sys.stderr.write(msg)
-    #    sys.stderr.flush()
-
-aegis = whereis('aegis')
-
-if format == '--aegis' and aegis:
-    change = os.popen("aesub '$c' 2>/dev/null", "r").read()
-    if change:
-        if sp is None:
-            paths = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
-            sp = paths.split(os.pathsep)
-        if spe is None:
-            spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
-            spe = spe.split(os.pathsep)
-    else:
-        aegis = None
-
-if sp is None:
-    sp = []
-if spe is None:
-    spe = []
 
 sp.append(builddir)
 sp.append(cwd)
@@ -575,15 +492,6 @@ else:
                 self.stderr = p.stderr.read()
                 self.status = p.wait()
 
-class Aegis(SystemExecutor):
-    def header(self, f):
-        f.write('test_result = [\n')
-    def write(self, f):
-        f.write('    { file_name = "%s";\n' % self.path)
-        f.write('      exit_status = %d; },\n' % self.status)
-    def footer(self, f):
-        f.write('];\n')
-
 class XML(PopenExecutor):
     def header(self, f):
         f.write('  <results>\n')
@@ -602,7 +510,6 @@ class XML(PopenExecutor):
 
 format_class = {
     None        : SystemExecutor,
-    '--aegis'   : Aegis,
     '--xml'     : XML,
 }
 
@@ -656,21 +563,6 @@ if package:
 else:
     sd = None
     ld = None
-
-    # XXX:  Logic like the following will be necessary once
-    # we fix runtest.py to run tests within an Aegis change
-    # without symlinks back to the baseline(s).
-    #
-    #if spe:
-    #    if not scons:
-    #        for dir in spe:
-    #            d = os.path.join(dir, 'src', 'script')
-    #            f = os.path.join(d, 'scons.py')
-    #            if os.path.isfile(f):
-    #                sd = d
-    #                scons = f
-    #    spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
-    #    ld = os.pathsep.join(spe)
 
     if not baseline or baseline == '.':
         base = cwd
@@ -749,17 +641,12 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 pythonpaths = [ pythonpath_dir ]
 
 for dir in sp:
-    if format == '--aegis':
-        q = os.path.join(dir, 'build', 'QMTest')
-    else:
-        q = os.path.join(dir, 'QMTest')
+    q = os.path.join(dir, 'QMTest')
     pythonpaths.append(q)
 
 # Add path of the QMTest folder to PYTHONPATH
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
-
-os.environ['SCONS_SOURCE_PATH_EXECUTABLE'] = os.pathsep.join(spe)
 
 os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
 
@@ -803,28 +690,16 @@ def find_py(directory):
     return sorted(result)
 
 if args:
-    if spe:
-        for a in args:
-            if os.path.isabs(a):
-                tests.extend(glob.glob(a))
-            else:
-                for dir in spe:
-                    x = os.path.join(dir, a)
-                    globs = glob.glob(x)
-                    if globs:
-                        tests.extend(globs)
-                        break
-    else:
-        for a in args:
-            for path in glob.glob(a):
-                if os.path.isdir(path):
-                    if path[:3] == 'src':
-                        tests.extend(find_Tests_py(path))
+    for a in args:
+        for path in glob.glob(a):
+            if os.path.isdir(path):
+                if path[:3] == 'src':
+                    tests.extend(find_Tests_py(path))
 
-                    elif path[:4] == 'test':
-                        tests.extend(find_py(path))
-                else:
-                    tests.append(path)
+                elif path[:4] == 'test':
+                    tests.extend(find_py(path))
+            else:
+                tests.append(path)
 elif testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
@@ -844,20 +719,6 @@ elif all and not qmtest:
     # things correctly.)
     tests.extend(find_Tests_py('src'))
     tests.extend(find_py('test'))
-    if format == '--aegis' and aegis:
-        cmd = "aegis -list -unf pf 2>/dev/null"
-        for line in os.popen(cmd, "r").readlines():
-            a = line.split()
-            if a[0] == "test" and a[-1] not in tests:
-                tests.append(Test(a[-1], spe))
-        cmd = "aegis -list -unf cf 2>/dev/null"
-        for line in os.popen(cmd, "r").readlines():
-            a = line.split()
-            if a[0] == "test":
-                if a[1] == "remove":
-                    tests.remove(a[-1])
-                elif a[-1] not in tests:
-                    tests.append(Test(a[-1], spe))
     tests.sort()
 
 if qmtest:
@@ -872,12 +733,6 @@ if qmtest:
         aegis_result_stream = aegis_result_stream + "(print_time='1')"
 
     qmtest_args = [ qmtest, ]
-
-    if format == '--aegis':
-        dir = builddir
-        if not os.path.isdir(dir):
-            dir = cwd
-        qmtest_args.extend(['-D', dir])
 
     qmtest_args.extend([
                 'run',
@@ -898,10 +753,7 @@ if qmtest:
         rs = '--result-stream="%s(filename=%s)"' % (rsclass, qof)
         qmtest_args.append(rs)
 
-    if format == '--aegis':
-        tests = [x.replace(cwd+os.sep, '') for x in tests]
-    else:
-        os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
+    os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
 
     cmd = ' '.join(qmtest_args + tests)
     if printcommand:
@@ -1044,9 +896,7 @@ if outputfile:
     if outputfile != '-':
         f.close()
 
-if format == '--aegis':
-    sys.exit(0)
-elif len(fail):
+if len(fail):
     sys.exit(1)
 elif len(no_result):
     sys.exit(2)
