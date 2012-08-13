@@ -7,7 +7,7 @@ if [ "$1" = "configure" ]; then
 fi
 
 NAME=scons
-PYTHON_VERSION=`python -V 2>&1| cut -d" " -f2 | cut -d"." -f0-2`
+PYTHON_VERSION=`python -V 2>&1| cut -d" " -f2 | cut -d"." -f1-2`
 PYTHON_EXE_NAME=`which python$PYTHON_VERSION`
 case "$1" in
         configure|abort-upgrade|abort-remove|abort-deconfigure)

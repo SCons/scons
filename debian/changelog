@@ -1,3 +1,10 @@
+scons (2.2.0) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 12 Aug 2012 09:00:00 -0500
+
+
 scons (0.97) unstable; urgency=low
 
   * Eighth beta release.
