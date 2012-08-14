@@ -51,7 +51,7 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='10.0',
                 MSVS_SCC_PROJECT_NAME='Perforce Project')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk.h']
+testincs = ['sdk_dir\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']
