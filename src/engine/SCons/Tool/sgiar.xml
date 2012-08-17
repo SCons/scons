@@ -1,0 +1,24 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="sgiar">
+<summary>
+Sets construction variables for the SGI library archiver.
+</summary>
+<sets>
+AR
+ARFLAGS
+ARCOMSTR
+SHLINK
+SHLINKFLAGS
+LIBPREFIX
+LIBSUFFIX
+</sets>
+<uses>
+ARCOMSTR
+SHLINKCOMSTR
+</uses>
+</tool>
