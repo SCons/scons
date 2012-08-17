@@ -6,6 +6,8 @@
 
 RELEASE 2.X.X - 
 
+  From Gary Oberbrunner:
+    - Fix MSVS solution generation for VS11, and fixed tests.
 
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
