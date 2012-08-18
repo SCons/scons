@@ -1026,7 +1026,7 @@ for p in [ scons ]:
     if dh_builddeb and fakeroot:
         # Our Debian packaging builds directly into build/dist,
         # so we don't need to Install() the .debs.
-        deb = os.path.join(build_dir, 'dist', "%s_%s-1_all.deb" % (pkg, version))
+        deb = os.path.join(build_dir, 'dist', "%s_%s_all.deb" % (pkg, version))
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)
