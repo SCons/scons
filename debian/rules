@@ -6,7 +6,7 @@
 # Overridable variables added to support building test .deb files
 # as part of routine SCons builds.  --SK
 BUILDDEB_OPTIONS=
-PYTHON_VERSION=`python -V 2>&1| cut -d" " -f2 | cut -d"." -f0-2`
+PYTHON_VERSION=`python -V 2>&1| cut -d" " -f2 | cut -d"." -f1-2`
 PYTHON_PATH=/usr/bin/python
 PYTHON=$(PYTHON_PATH)$(PYTHON_VERSION)
 #######
@@ -55,7 +55,7 @@ install: build
 	@########
 	mkdir -p debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/
 	rm -rf debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/SCons
-	cp -r build/lib/SCons debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/
+	cp -r build/lib*/SCons debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/
 
 	mkdir -p debian/scons/usr/bin/
 	rm -f debian/scons/usr/bin/scons

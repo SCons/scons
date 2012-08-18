@@ -11,6 +11,11 @@
 
 RELEASE 2.X.X - 
 
+  From Gary Oberbrunner:
+    - Fix MSVS solution generation for VS11, and fixed tests.
+
+RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
+
   From dubcanada on Bitbucket:
     - Fix 32-bit Visual Express C++ on 64-bit Windows (generate 32-bit code)
 
@@ -33,7 +38,6 @@ RELEASE 2.X.X -
     - Fix cloning of builders when cloning environment (#2821).
 
   From Gary Oberbrunner:
-    - Support Intel C v12 compiler on Linux and Mac (not yet Windows)
     - Show valid Visual Studio architectures in error message
        when user passes invalid arch.
 
