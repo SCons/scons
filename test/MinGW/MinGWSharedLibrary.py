@@ -32,12 +32,18 @@ when using MinGW.
 import sys
 import TestSCons
 
+import SCons.Tool.mingw
+import SCons.Defaults
+
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
 if sys.platform not in ('cygwin','win32',):
     test.skip_test("Skipping mingw test on non-Windows %s platform."%sys.platform)
+
+if not SCons.Tool.mingw.find(SCons.Defaults.DefaultEnvironment()):
+    test.skip_test("Skipping mingw test, no MinGW found.\n")
 
 
 test.write('foobar.cc', """
