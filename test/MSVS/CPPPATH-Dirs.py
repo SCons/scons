@@ -71,7 +71,9 @@ int main() {
 
 test.run()
 
-test.must_exist(test.workpath('Hello.vcproj'))
+if not os.path.exists(test.workpath('Hello.vcproj')) and \
+        not os.path.exists(test.workpath('Hello.vcxproj')):
+    test.fail_test("Failed to create Visual Studio project Hello.vcproj or Hello.vcxproj")
 test.must_exist(test.workpath('Hello.sln'))
 # vcproj = test.read('Test.vcproj', 'r')
 
