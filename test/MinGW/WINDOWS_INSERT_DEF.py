@@ -31,11 +31,17 @@ Make sure that WINDOWS_INSERT_DEF isn't ignored when using MinGW.
 import sys
 import TestSCons
 
+import SCons.Tool.mingw
+import SCons.Defaults
+
 test = TestSCons.TestSCons()
 
 if sys.platform not in ('cygwin', 'win32'):
     test.skip_test(
         "Skipping mingw test on non-Windows platform: %s" % sys.platform)
+
+if not SCons.Tool.mingw.find(SCons.Defaults.DefaultEnvironment()):
+    test.skip_test("Skipping mingw test, no MinGW found.\n")
 
 test.write('hello.c', r"""
 #include <stdio.h>
