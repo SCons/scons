@@ -61,6 +61,7 @@ local = env.Clone(WINDOWS_INSERT_DEF = 1)
 
 barsrc = [
     'BarObject.cpp',
+    'BarPCH.obj',
     'bar.cpp',
     local.RES('bar.rc', RCFLAGS= '/I${SOURCE.srcdir}'),
     ]
@@ -71,7 +72,7 @@ local.SharedLibrary(target = 'bar.dll',
                     source = barsrc,
                     PCH=local.PCH('BarPCH.cpp', CXXFLAGS='/nologo')[0],
                     PCHSTOP = 'BarPCH.h',
-                    register=1)
+                    register=0) # can't test registration, Win7 requires elevation for that.
 """)
 
 test.write('src/BarObject.cpp','''
@@ -143,12 +144,12 @@ HKCR
 test.write('src/BarPCH.cpp','''
 #include "BarPCH.h"
 
-#ifdef _ATL_STATIC_REGISTRY
-#include <statreg.h>
-#include <statreg.cpp>
-#endif
+// #ifdef _ATL_STATIC_REGISTRY
+// #include <statreg.h>
+// #include <statreg.cpp>
+// #endif
 
-#include <atlimpl.cpp>
+// #include <atlimpl.cpp>
 ''')
 
 test.write('src/BarPCH.h','''
@@ -161,7 +162,7 @@ test.write('src/BarPCH.h','''
 
 #define STRICT
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0400
+#define _WIN32_WINNT 0x0501
 #endif
 #define _ATL_APARTMENT_THREADED
 
@@ -228,10 +229,10 @@ test.write('src/bar.def','''
 LIBRARY      "bar.DLL"
 
 EXPORTS
-        DllCanUnloadNow     @1 PRIVATE
-        DllGetClassObject   @2 PRIVATE
-        DllRegisterServer   @3 PRIVATE
-        DllUnregisterServer     @4 PRIVATE
+        DllCanUnloadNow      PRIVATE
+        DllGetClassObject    PRIVATE
+        DllRegisterServer    PRIVATE
+        DllUnregisterServer  PRIVATE
 ''')
 
 test.write('src/bar.idl','''
