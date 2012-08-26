@@ -36,6 +36,7 @@ import os
 import os.path
 import sys
 import tempfile
+import threading
 
 from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
@@ -81,7 +82,21 @@ else:
     builtins.file = _scons_file
     builtins.open = _scons_open
 
+spawn_lock = threading.Lock()
 
+def spawnve(mode, file, args, env):
+    spawn_lock.acquire()
+    try:
+        if mode == os.P_WAIT:
+            ret = os.spawnve(os.P_NOWAIT, file, args, env)
+        else:
+            ret = os.spawnve(mode, file, args, env)
+    finally:
+        spawn_lock.release()
+    if mode == os.P_WAIT:
+        pid, status = os.waitpid(ret, 0)
+        ret = status >> 8
+    return ret
 
 # The upshot of all this is that, if you are using Python 1.5.2,
 # you had better have cmd or command.com in your PATH when you run
@@ -123,7 +138,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         # actually do the spawn
         try:
             args = [sh, '/C', escape(' '.join(args)) ]
-            ret = os.spawnve(os.P_WAIT, sh, args, env)
+            ret = spawnve(os.P_WAIT, sh, args, env)
         except OSError, e:
             # catch any error
             try:
@@ -151,7 +166,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 
 def exec_spawn(l, env):
     try:
-        result = os.spawnve(os.P_WAIT, l[0], l, env)
+        result = spawnve(os.P_WAIT, l[0], l, env)
     except OSError, e:
         try:
             result = exitvalmap[e[0]]
