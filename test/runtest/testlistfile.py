@@ -62,7 +62,7 @@ expect_stderr = """\
 PASSING TEST STDERR
 """
 
-test.run(arguments='-f t.txt', stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k -f t.txt', stdout=expect_stdout, stderr=expect_stderr)
 
 test.pass_test()
 
