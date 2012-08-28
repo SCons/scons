@@ -2231,14 +2231,11 @@ class Base(SubstitutionEnvironment):
                     sources.append(s)
         build_source(node.all_children())
 
-    # THIS CODE APPEARS TO HAVE NO EFFECT
-    #    # get the final srcnode for all nodes, this means stripping any
-    #    # attached build node by calling the srcnode function
-    #    for file in sources:
-    #        srcnode = file.srcnode()
-    #        while srcnode != file.srcnode():
-    #            srcnode = file.srcnode()
-
+        def final_source(node):
+            while (node != node.srcnode()):
+              node = node.srcnode()
+            return node
+        sources = map( final_source, sources );
         # remove duplicates
         return list(set(sources))
 

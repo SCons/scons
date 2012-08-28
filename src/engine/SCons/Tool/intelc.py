@@ -78,6 +78,7 @@ def linux_ver_normalize(vstr):
     Always returns an old-style float like 80 or 90 for compatibility with Windows.
     Shades of Y2K!"""
     # Check for version number like 9.1.026: return 91.026
+    # XXX needs to be updated for 2011+ versions (like 2011.11.344 which is compiler v12.1.5)
     m = re.match(r'([0-9]+)\.([0-9]+)\.([0-9]+)', vstr)
     if m:
         vmaj,vmin,build = m.groups()
@@ -221,7 +222,7 @@ def get_all_compiler_versions():
         except EnvironmentError:
             # no more subkeys
             pass
-    elif is_linux:
+    elif is_linux or is_mac:
         for d in glob.glob('/opt/intel_cc_*'):
             # Typical dir here is /opt/intel_cc_80.
             m = re.search(r'cc_(.*)$', d)
@@ -238,13 +239,17 @@ def get_all_compiler_versions():
             m = re.search(r'([0-9][0-9.]*)$', d)
             if m:
                 versions.append(m.group(1))
-    elif is_mac:
-        for d in glob.glob('/opt/intel/cc*/*'):
-            # Typical dir here is /opt/intel/cc/9.0 for IA32,
-            # /opt/intel/cce/9.0 for EMT64 (AMD64)
+        for d in glob.glob('/opt/intel/composerxe-*'):
+            # Typical dir here is /opt/intel/composerxe-2011.4.184
             m = re.search(r'([0-9][0-9.]*)$', d)
             if m:
                 versions.append(m.group(1))
+        for d in glob.glob('/opt/intel/composer_xe_*'):
+            # Typical dir here is /opt/intel/composer_xe_2011_sp1.11.344
+            # The _sp1 is useless, the installers are named 2011.9.x, 2011.10.x, 2011.11.x
+            m = re.search(r'([0-9]{0,4})(?:_sp\d*)?\.([0-9][0-9.]*)$', d)
+            if m:
+                versions.append("%s.%s"%(m.group(1), m.group(2)))
     def keyfunc(str):
         """Given a dot-separated version string, return a tuple of ints representing it."""
         return [int(x) for x in str.split('.')]
@@ -293,8 +298,33 @@ def get_intel_compiler_top(version, abi):
                     top = d
                     break
             return top
-        top = find_in_2010style_dir(version) or find_in_2008style_dir(version)
-        print "INTELC: top=",top
+        def find_in_2011style_dir(version):
+            # The 2011 (compiler v12) dirs are inconsistent, so just redo the search from
+            # get_all_compiler_versions and look for a match (search the newest form first)
+            top=None
+            for d in glob.glob('/opt/intel/composer_xe_*'):
+                # Typical dir here is /opt/intel/composer_xe_2011_sp1.11.344
+                # The _sp1 is useless, the installers are named 2011.9.x, 2011.10.x, 2011.11.x
+                m = re.search(r'([0-9]{0,4})(?:_sp\d*)?\.([0-9][0-9.]*)$', d)
+                if m:
+                    cur_ver = "%s.%s"%(m.group(1), m.group(2))
+                    if cur_ver == version and \
+                        (os.path.exists(os.path.join(d, "bin", "ia32", "icc")) or
+                        os.path.exists(os.path.join(d, "bin", "intel64", "icc"))):
+                        top = d
+                        break
+            if not top:
+                for d in glob.glob('/opt/intel/composerxe-*'):
+                    # Typical dir here is /opt/intel/composerxe-2011.4.184
+                    m = re.search(r'([0-9][0-9.]*)$', d)
+                    if m and m.group(1) == verison and \
+                        (os.path.exists(os.path.join(d, "bin", "ia32", "icc")) or
+                        os.path.exists(os.path.join(d, "bin", "intel64", "icc"))):
+                            top = d
+                            break
+            return top
+        top = find_in_2011style_dir(version) or find_in_2010style_dir(version) or find_in_2008style_dir(version)
+        # print "INTELC: top=",top
         if not top:
             raise MissingDirError("Can't find version %s Intel compiler in %s (abi='%s')"%(version,top, abi))
     return top
