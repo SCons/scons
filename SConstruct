@@ -367,7 +367,7 @@ def SCons_revision(target, source, env):
     contents = contents.replace('__COPYRIGHT' + '__', env['COPYRIGHT'])
     contents = contents.replace('__DATE'      + '__', env['DATE'])
     contents = contents.replace('__DEVELOPER' + '__', env['DEVELOPER'])
-    contents = contents.replace('__FILE'      + '__', str(source[0]))
+    contents = contents.replace('__FILE'      + '__', str(source[0]).replace('\\', '/'))
     contents = contents.replace('__MONTH_YEAR'+ '__', env['MONTH_YEAR'])
     contents = contents.replace('__REVISION'  + '__', env['REVISION'])
     contents = contents.replace('__VERSION'   + '__', env['VERSION'])
