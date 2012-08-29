@@ -84,6 +84,12 @@ else:
 
 spawn_lock = threading.Lock()
 
+# This locked version of spawnve works around a Windows
+# MSVCRT bug, because its spawnve is not thread-safe.
+# Without this, python can randomly crash while using -jN.
+# See the python bug at http://bugs.python.org/issue6476
+# and SCons issue at
+# http://scons.tigris.org/issues/show_bug.cgi?id=2449
 def spawnve(mode, file, args, env):
     spawn_lock.acquire()
     try:
