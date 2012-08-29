@@ -897,6 +897,7 @@ class TestCmd(object):
                        combine = 0,
                        universal_newlines = 1,
                        timeout = None):
+        self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
         self.description_set(description)
         self.program_set(program)
@@ -938,6 +939,7 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
+        self.script_srcdir = None
 
     def __del__(self):
         self.cleanup()
@@ -1009,13 +1011,19 @@ class TestCmd(object):
     def command_args(self, program = None,
                            interpreter = None,
                            arguments = None):
-        if program:
-            if isinstance(program, str) and not os.path.isabs(program):
-                program = os.path.join(self._cwd, program)
+        if not self.external:
+            if program:
+                if isinstance(program, str) and not os.path.isabs(program):
+                    program = os.path.join(self._cwd, program)
+            else:
+                program = self.program
+                if not interpreter:
+                    interpreter = self.interpreter
         else:
-            program = self.program
-            if not interpreter:
-                interpreter = self.interpreter
+            if not program:
+                program = self.program
+                if not interpreter:
+                    interpreter = self.interpreter
         if not isinstance(program, (list, tuple)):
             program = [program]
         cmd = list(program)
@@ -1189,8 +1197,9 @@ class TestCmd(object):
     def program_set(self, program):
         """Set the executable program or script to be tested.
         """
-        if program and not os.path.isabs(program):
-            program = os.path.join(self._cwd, program)
+        if not self.external:
+            if program and not os.path.isabs(program):
+                program = os.path.join(self._cwd, program)
         self.program = program
 
     def read(self, file, mode = 'rb'):
@@ -1226,6 +1235,96 @@ class TestCmd(object):
     def set_timeout(self, timeout):
         self.timeout = timeout
         self.timer = None
+
+    def parse_path(self, path, suppress_current=False):
+        """Return a list with the single path components of path.
+        """
+        head, tail = os.path.split(path)
+        result = []
+        if not tail:
+            if head == path:
+                return [head]
+        else:
+            result.append(tail)
+        head, tail = os.path.split(head)
+        while head and tail:
+            result.append(tail)
+            head, tail = os.path.split(head)
+        result.append(head or tail)
+        result.reverse()
+        
+        return result        
+
+    def dir_fixture(self, srcdir, dstdir=None):
+        """Copies the contents of the specified folder srcdir from
+        the directory of the called  script, to the current
+        working directory.
+        The srcdir name may be a list, in which case the elements are
+        concatenated with the os.path.join() method.  The dstdir is
+        assumed to be under the temporary working directory, it gets
+        created automatically, if it does not already exist.
+        """
+        if srcdir and self.script_srcdir and not os.path.isabs(srcdir):
+            spath = os.path.join(self.script_srcdir, srcdir)
+        else:
+            spath = srcdir
+        if dstdir:
+            dstdir = self.canonicalize(dstdir)
+        else:
+            dstdir = '.'            
+
+        if dstdir != '.' and not os.path.exists(dstdir):
+            dstlist = self.parse_path(dstdir)
+            if len(dstlist) > 0 and dstlist[0] == ".":
+                dstlist = dstlist[1:]
+            for idx in range(len(dstlist)):
+                self.subdir(dstlist[:idx+1])
+
+        if dstdir and self.workdir:
+            dstdir = os.path.join(self.workdir, dstdir)
+
+        for entry in os.listdir(spath):
+            epath = os.path.join(spath, entry)
+            dpath = os.path.join(dstdir, entry)
+            if os.path.isdir(epath):
+                # Copy the subfolder
+                shutil.copytree(epath, dpath)
+            else:
+                shutil.copy(epath, dpath)
+
+    def file_fixture(self, srcfile, dstfile=None):
+        """Copies the file srcfile from the directory of
+        the called script, to the current working directory.
+        The dstfile is assumed to be under the temporary working
+        directory unless it is an absolute path name.
+        If dstfile is specified its target directory gets created
+        automatically, if it does not already exist.
+        """
+        srcpath, srctail = os.path.split(srcfile)
+        if srcpath:
+            if self.script_srcdir and not os.path.isabs(srcpath):
+                spath = os.path.join(self.script_srcdir, srcfile)
+            else:
+                spath = srcfile
+        else:
+            spath = os.path.join(self.script_srcdir, srcfile)
+        if not dstfile:
+            if srctail:
+                dpath = os.path.join(self.workdir, srctail)
+            else:
+                return
+        else:
+            dstpath, dsttail = os.path.split(dstfile)
+            if dstpath:
+                if not os.path.exists(os.path.join(self.workdir, dstpath)):
+                    dstlist = self.parse_path(dstpath)
+                    if len(dstlist) > 0 and dstlist[0] == ".":
+                        dstlist = dstlist[1:]
+                    for idx in range(len(dstlist)):
+                        self.subdir(dstlist[:idx+1])
+                    
+            dpath = os.path.join(self.workdir, dstfile)
+        shutil.copy(spath, dpath)
 
     def start(self, program = None,
                     interpreter = None,
@@ -1304,6 +1403,12 @@ class TestCmd(object):
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
         """
+        if self.external:
+            if not program:
+                program = self.program
+            if not interpreter:
+                interpreter = self.interpreter
+        
         if chdir:
             oldcwd = os.getcwd()
             if not os.path.isabs(chdir):

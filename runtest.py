@@ -10,13 +10,6 @@
 # By default, it directly uses the modules in the local tree:
 # ./src/ (source files we ship) and ./QMTest/ (other modules we don't).
 #
-# HOWEVER, now that SCons has Repository support, we don't have
-# Aegis copy all of the files into the local tree.  So if you're
-# using Aegis and want to run tests by hand using this script, you
-# must "aecp ." the entire source tree into your local directory
-# structure.  When you're done with your change, you can then
-# "aecpu -unch ." to un-copy any files that you haven't changed.
-#
 # When any -p option is specified, this script assumes it's in a
 # directory in which a build has been performed, and sets PYTHONPATH
 # so that it *only* references the modules that have unpacked from
@@ -28,28 +21,31 @@
 #
 #       -a              Run all tests; does a virtual 'find' for
 #                       all SCons tests under the current directory.
-#
-#       --aegis         Print test results to an output file (specified
-#                       by the -o option) in the format expected by
-#                       aetest(5).  This is intended for use in the
-#                       batch_test_command field in the Aegis project
-#                       config file.
+#                       You can also specify a list of subdirectories
+#                       (not available with the "--qmtest" option!). Then,
+#                       only the given folders are searched for test files.
 #
 #       -d              Debug.  Runs the script under the Python
 #                       debugger (pdb.py) so you don't have to
 #                       muck with PYTHONPATH yourself.
+#
+#       -e              Starts the script in external mode, for
+#                       testing separate Tools and packages.
 #
 #       -f file         Only execute the tests listed in the specified
 #                       file.
 #
 #       -h              Print the help and exit.
 #
+#       -k              Suppress printing of count and percent progress for
+#                       the single tests.
+#
 #       -l              List available tests and exit.
 #
 #       -n              No execute, just print command lines.
 #
 #       -o file         Print test results to the specified file.
-#                       The --aegis and --xml options specify the
+#                       The --xml option specifies the
 #                       output format.
 #
 #       -P Python       Use the specified Python interpreter.
@@ -64,9 +60,11 @@
 #                       command line it will execute before
 #                       executing it.  This suppresses that print.
 #
-#       --sp            The Aegis search path.
-#
-#       --spe           The Aegis executable search path.
+#       -s              Short progress.  Prints only the command line
+#                       and a percentage value, based on the total and
+#                       current number of tests.
+#                       All stdout and stderr messages get suppressed (this
+#                       does only work with subprocess though)!
 #
 #       -t              Print the execution time of each test.
 #
@@ -94,36 +92,12 @@ import stat
 import sys
 import time
 
-try:
-    sorted
-except NameError:
-    # Pre-2.4 Python has no sorted() function.
-    #
-    # The pre-2.4 Python list.sort() method does not support
-    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
-    # we must implement the functionality of those keyword arguments
-    # by hand instead of passing them to list.sort().
-    def sorted(iterable, cmp=None, key=None, reverse=0):
-        if key is not None:
-            result = [(key(x), x) for x in iterable]
-        else:
-            result = iterable[:]
-        if cmp is None:
-            # Pre-2.3 Python does not support list.sort(None).
-            result.sort()
-        else:
-            result.sort(cmp)
-        if key is not None:
-            result = [t1 for t0,t1 in result]
-        if reverse:
-            result.reverse()
-        return result
-
 cwd = os.getcwd()
 
 all = 0
 baseline = 0
 builddir = os.path.join(cwd, 'build')
+external = 0
 debug = ''
 execute_tests = 1
 format = None
@@ -139,23 +113,32 @@ testlistfile = None
 version = ''
 print_times = None
 python = None
-sp = None
-spe = None
+sp = []
+print_progress = 1
+suppress_stdout = False
+suppress_stderr = False
+allow_pipe_files = True
 
 helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
   -3                          Warn about Python 3.x incompatibilities.
   -a, --all                   Run all tests.
-  --aegis                     Print results in Aegis format.
   -b BASE, --baseline BASE    Run test scripts against baseline BASE.
   --builddir DIR              Directory in which packages were built.
   -d, --debug                 Run test scripts under the Python debugger.
+  -e, --external              Run the script in external mode (for testing separate Tools)
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
+  -k, --no-progress           Suppress count and percent progress messages.
   -l, --list                  List available tests and exit.
   -n, --no-exec               No execute, just print command lines.
   --noqmtest                  Execute tests directly, not using QMTest.
+  --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
+                              for starting tests. WARNING: Only use this when too much file
+                              traffic is giving you trouble AND you can be sure that none of
+                              your tests create output that exceed 65K chars! You might
+                              run into some deadlocks else.
   -o FILE, --output FILE      Print test results to FILE.
   -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
@@ -171,8 +154,9 @@ Options:
   --passed                    Summarize which tests passed.
   --qmtest                    Run using the QMTest harness.
   -q, --quiet                 Don't print the test being executed.
-  --sp PATH                   The Aegis search path.
-  --spe PATH                  The Aegis executable search path.
+  -s, --short-progress        Short progress, prints only the command line
+                              and a percentage value, based on the total and
+                              current number of tests.
   -t, --time                  Print test execution time.
   -v version                  Specify the SCons version.
   --verbose=LEVEL             Set verbose level: 1 = print executed commands,
@@ -188,12 +172,12 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "3ab:df:hlno:P:p:qv:Xx:t",
-                            ['all', 'aegis', 'baseline=', 'builddir=',
-                             'debug', 'file=', 'help',
-                             'list', 'no-exec', 'noqmtest', 'output=',
+opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hklno:P:p:qsv:Xx:t",
+                            ['all', 'baseline=', 'builddir=',
+                             'debug', 'external', 'file=', 'help', 'no-progress',
+                             'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
                              'package=', 'passed', 'python=', 'qmtest',
-                             'quiet', 'sp=', 'spe=', 'time',
+                             'quiet', 'short-progress', 'time',
                              'version=', 'exec=',
                              'verbose=', 'xml'])
 
@@ -214,6 +198,8 @@ for o, a in opts:
             if os.path.exists(pdb):
                 debug = pdb
                 break
+    elif o in ['-e', '--external']:
+        external = 1
     elif o in ['-f', '--file']:
         if not os.path.isabs(a):
             a = os.path.join(cwd, a)
@@ -221,12 +207,16 @@ for o, a in opts:
     elif o in ['-h', '--help']:
         print helpstr
         sys.exit(0)
+    elif o in ['-k', '--no-progress']:
+        print_progress = 0
     elif o in ['-l', '--list']:
         list_only = 1
     elif o in ['-n', '--no-exec']:
         execute_tests = None
     elif o in ['--noqmtest']:
         qmtest = None
+    elif o in ['--nopipefiles']:
+        allow_pipe_files = False
     elif o in ['-o', '--output']:
         if a != '-' and not os.path.isabs(a):
             a = os.path.join(cwd, a)
@@ -245,10 +235,12 @@ for o, a in opts:
             qmtest = 'qmtest'
     elif o in ['-q', '--quiet']:
         printcommand = 0
-    elif o in ['--sp']:
-        sp = a.split(os.pathsep)
-    elif o in ['--spe']:
-        spe = a.split(os.pathsep)
+        suppress_stdout = True
+        suppress_stderr = True        
+    elif o in ['-s', '--short-progress']:
+        print_progress = 1
+        suppress_stdout = True
+        suppress_stderr = True
     elif o in ['-t', '--time']:
         print_times = 1
     elif o in ['--verbose']:
@@ -259,7 +251,7 @@ for o, a in opts:
         scons_exec = 1
     elif o in ['-x', '--exec']:
         scons = a
-    elif o in ['--aegis', '--xml']:
+    elif o in ['--xml']:
         format = o
 
 if not args and not all and not testlistfile:
@@ -303,39 +295,6 @@ try:
     qmtest
 except NameError:
     qmtest = None
-    # Old code for using QMTest by default if it's installed.
-    # We now default to not using QMTest unless explicitly asked for.
-    #for q in ['qmtest', 'qmtest.py']:
-    #    path = whereis(q)
-    #    if path:
-    #        # The name was found on $PATH; just execute the found name so
-    #        # we don't have to worry about paths containing white space.
-    #        qmtest = q
-    #        break
-    #if not qmtest:
-    #    msg = ('Warning:  found neither qmtest nor qmtest.py on $PATH;\n' +
-    #           '\tassuming --noqmtest option.\n')
-    #    sys.stderr.write(msg)
-    #    sys.stderr.flush()
-
-aegis = whereis('aegis')
-
-if format == '--aegis' and aegis:
-    change = os.popen("aesub '$c' 2>/dev/null", "r").read()
-    if change:
-        if sp is None:
-            paths = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
-            sp = paths.split(os.pathsep)
-        if spe is None:
-            spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
-            spe = spe.split(os.pathsep)
-    else:
-        aegis = None
-
-if sp is None:
-    sp = []
-if spe is None:
-    spe = []
 
 sp.append(builddir)
 sp.append(cwd)
@@ -348,6 +307,105 @@ def escape(s):
         s = '"' + s + '"'
     s = s.replace('\\', '\\\\')
     return s
+
+# Try to use subprocess instead of the more low-level
+# spawn command...
+use_subprocess = True
+try:
+    import subprocess
+except:
+    use_subprocess = False
+    
+if use_subprocess:
+    if not suppress_stdout and not suppress_stderr:
+        # Without any output suppressed, we let the subprocess
+        # write its stuff freely to stdout/stderr.
+        def spawn_it(command_args):
+            p = subprocess.Popen(' '.join(command_args),
+                                 shell=True)
+            return (None, None, p.wait())
+    else:
+        # Else, we catch the output of both pipes...
+        if allow_pipe_files:
+            # The subprocess.Popen() suffers from a well-known
+            # problem. Data for stdout/stderr is read into a 
+            # memory buffer of fixed size, 65K which is not very much.
+            # When it fills up, it simply stops letting the child process
+            # write to it. The child will then sit and patiently wait to
+            # be able to write the rest of its output. Hang! 
+            # In order to work around this, we follow a suggestion
+            # by Anders Pearson in
+            #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
+            # and pass temp file objects to Popen() instead of the ubiquitous
+            # subprocess.PIPE. 
+            def spawn_it(command_args):
+                # Create temporary files
+                import tempfile
+                tmp_stdout = tempfile.TemporaryFile(mode='w+t')
+                tmp_stderr = tempfile.TemporaryFile(mode='w+t')
+                # Start subprocess...
+                p = subprocess.Popen(' '.join(command_args),
+                                     stdout=tmp_stdout,
+                                     stderr=tmp_stderr,
+                                     shell=True)
+                # ... and wait for it to finish.
+                ret = p.wait()
+                
+                try:
+                    # Rewind to start of files
+                    tmp_stdout.seek(0)
+                    tmp_stderr.seek(0)
+                    # Read output
+                    spawned_stdout = tmp_stdout.read()
+                    spawned_stderr = tmp_stderr.read()
+                finally:
+                    # Remove temp files by closing them
+                    tmp_stdout.close()
+                    tmp_stderr.close()
+                    
+                # Return values
+                return (spawned_stderr, spawned_stdout, ret)
+            
+        else:
+            # We get here only if the user gave the '--nopipefiles'
+            # option, meaning the "temp file" approach for
+            # subprocess.communicate() above shouldn't be used.
+            # He hopefully knows what he's doing, but again we have a
+            # potential deadlock situation in the following code:
+            #   If the subprocess writes a lot of data to its stderr,
+            #   the pipe will fill up (nobody's reading it yet) and the
+            #   subprocess will wait for someone to read it. 
+            #   But the parent process is trying to read from stdin
+            #   (but the subprocess isn't writing anything there).  
+            #   Hence a deadlock.
+            # Be dragons here! Better don't use this!
+            def spawn_it(command_args):
+                p = subprocess.Popen(' '.join(command_args),
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     shell=True)
+                spawned_stdout = p.stdout.read()
+                spawned_stderr = p.stderr.read()
+                return (spawned_stderr, spawned_stdout, p.wait())
+else:
+    has_subprocess = False
+    # Set up lowest-common-denominator spawning of a process on both Windows
+    # and non-Windows systems that works all the way back to Python 1.5.2.
+    try:
+        os.spawnv
+    except AttributeError:
+        def spawn_it(command_args):
+            pid = os.fork()
+            if pid == 0:
+                os.execv(command_args[0], command_args)
+            else:
+                pid, status = os.waitpid(pid, 0)
+                return (None, None, status >> 8)
+    else:
+        def spawn_it(command_args):
+            command = command_args[0]
+            command_args = [escape(c) for c in command_args]
+            return (None, None, os.spawnv(os.P_WAIT, command, command_args))
 
 class Base(object):
     def __init__(self, path, spe=None):
@@ -363,15 +421,12 @@ class Base(object):
 
 class SystemExecutor(Base):
     def execute(self):
-        command = self.command_args[0]
-        command_args = [escape(arg) for arg in self.command_args]
-        s = self.status = os.spawnv(os.P_WAIT, command, command_args)
+        self.stderr, self.stdout, s = spawn_it(self.command_args)
+        self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
-try:
-    import subprocess
-except ImportError:
+if not use_subprocess:
     import popen2
     try:
         popen2.Popen3
@@ -399,23 +454,43 @@ except ImportError:
                 self.status = self.status >> 8
 else:
     class PopenExecutor(Base):
-        def execute(self):
-            p = subprocess.Popen(self.command_str,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 shell=True)
-            self.stdout = p.stdout.read()
-            self.stderr = p.stderr.read()
-            self.status = p.wait()
-
-class Aegis(SystemExecutor):
-    def header(self, f):
-        f.write('test_result = [\n')
-    def write(self, f):
-        f.write('    { file_name = "%s";\n' % self.path)
-        f.write('      exit_status = %d; },\n' % self.status)
-    def footer(self, f):
-        f.write('];\n')
+        # For an explanation of the following 'if ... else'
+        # and the 'allow_pipe_files' option, please check out the
+        # use_subprocess path in the definition of spawn_it() above.
+        if allow_pipe_files:
+            def execute(self):
+                # Create temporary files
+                import tempfile
+                tmp_stdout = tempfile.TemporaryFile(mode='w+t')
+                tmp_stderr = tempfile.TemporaryFile(mode='w+t')
+                # Start subprocess...
+                p = subprocess.Popen(self.command_str,
+                                     stdout=tmp_stdout,
+                                     stderr=tmp_stderr,
+                                     shell=True)
+                # ... and wait for it to finish.
+                self.status = p.wait()
+                
+                try:
+                    # Rewind to start of files
+                    tmp_stdout.seek(0)
+                    tmp_stderr.seek(0)
+                    # Read output
+                    self.stdout = tmp_stdout.read()
+                    self.stderr = tmp_stderr.read()
+                finally:
+                    # Remove temp files by closing them
+                    tmp_stdout.close()
+                    tmp_stderr.close()
+        else:        
+            def execute(self):
+                p = subprocess.Popen(self.command_str,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     shell=True)
+                self.stdout = p.stdout.read()
+                self.stderr = p.stderr.read()
+                self.status = p.wait()
 
 class XML(PopenExecutor):
     def header(self, f):
@@ -435,7 +510,6 @@ class XML(PopenExecutor):
 
 format_class = {
     None        : SystemExecutor,
-    '--aegis'   : Aegis,
     '--xml'     : XML,
 }
 
@@ -490,21 +564,6 @@ else:
     sd = None
     ld = None
 
-    # XXX:  Logic like the following will be necessary once
-    # we fix runtest.py to run tests within an Aegis change
-    # without symlinks back to the baseline(s).
-    #
-    #if spe:
-    #    if not scons:
-    #        for dir in spe:
-    #            d = os.path.join(dir, 'src', 'script')
-    #            f = os.path.join(d, 'scons.py')
-    #            if os.path.isfile(f):
-    #                sd = d
-    #                scons = f
-    #    spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
-    #    ld = os.pathsep.join(spe)
-
     if not baseline or baseline == '.':
         base = cwd
     elif baseline == '-':
@@ -541,9 +600,12 @@ else:
 
     scons_runtest_dir = base
 
-    scons_script_dir = sd or os.path.join(base, 'src', 'script')
-
-    scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+    if not external:
+        scons_script_dir = sd or os.path.join(base, 'src', 'script')
+        scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+    else:
+        scons_script_dir = sd or ''
+        scons_lib_dir = ld or ''
 
     pythonpath_dir = scons_lib_dir
 
@@ -559,6 +621,9 @@ elif scons_lib_dir:
 
 if scons_exec:
     os.environ['SCONS_EXEC'] = '1'
+
+if external:
+    os.environ['SCONS_EXTERNAL_TEST'] = '1'
 
 os.environ['SCONS_RUNTEST_DIR'] = scons_runtest_dir
 os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
@@ -576,13 +641,12 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 pythonpaths = [ pythonpath_dir ]
 
 for dir in sp:
-    if format == '--aegis':
-        q = os.path.join(dir, 'build', 'QMTest')
-    else:
-        q = os.path.join(dir, 'QMTest')
+    q = os.path.join(dir, 'QMTest')
     pythonpaths.append(q)
 
-os.environ['SCONS_SOURCE_PATH_EXECUTABLE'] = os.pathsep.join(spe)
+# Add path of the QMTest folder to PYTHONPATH
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
 
 os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
 
@@ -599,6 +663,9 @@ tests = []
 def find_Tests_py(directory):
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
+        # Skip folders containing a sconstest.skip file
+        if 'sconstest.skip' in filenames:
+            continue
         for fname in filenames:
             if fname.endswith("Tests.py"):
                 result.append(os.path.join(dirpath, fname))
@@ -607,6 +674,9 @@ def find_Tests_py(directory):
 def find_py(directory):
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
+        # Skip folders containing a sconstest.skip file
+        if 'sconstest.skip' in filenames:
+            continue
         try:
             exclude_fp = open(os.path.join(dirpath, ".exclude_tests"))
         except EnvironmentError:
@@ -620,28 +690,16 @@ def find_py(directory):
     return sorted(result)
 
 if args:
-    if spe:
-        for a in args:
-            if os.path.isabs(a):
-                tests.extend(glob.glob(a))
-            else:
-                for dir in spe:
-                    x = os.path.join(dir, a)
-                    globs = glob.glob(x)
-                    if globs:
-                        tests.extend(globs)
-                        break
-    else:
-        for a in args:
-            for path in glob.glob(a):
-                if os.path.isdir(path):
-                    if path[:3] == 'src':
-                        tests.extend(find_Tests_py(path))
+    for a in args:
+        for path in glob.glob(a):
+            if os.path.isdir(path):
+                if path[:3] == 'src':
+                    tests.extend(find_Tests_py(path))
 
-                    elif path[:4] == 'test':
-                        tests.extend(find_py(path))
-                else:
-                    tests.append(path)
+                elif path[:4] == 'test':
+                    tests.extend(find_py(path))
+            else:
+                tests.append(path)
 elif testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
@@ -661,20 +719,6 @@ elif all and not qmtest:
     # things correctly.)
     tests.extend(find_Tests_py('src'))
     tests.extend(find_py('test'))
-    if format == '--aegis' and aegis:
-        cmd = "aegis -list -unf pf 2>/dev/null"
-        for line in os.popen(cmd, "r").readlines():
-            a = line.split()
-            if a[0] == "test" and a[-1] not in tests:
-                tests.append(Test(a[-1], spe))
-        cmd = "aegis -list -unf cf 2>/dev/null"
-        for line in os.popen(cmd, "r").readlines():
-            a = line.split()
-            if a[0] == "test":
-                if a[1] == "remove":
-                    tests.remove(a[-1])
-                elif a[-1] not in tests:
-                    tests.append(Test(a[-1], spe))
     tests.sort()
 
 if qmtest:
@@ -689,12 +733,6 @@ if qmtest:
         aegis_result_stream = aegis_result_stream + "(print_time='1')"
 
     qmtest_args = [ qmtest, ]
-
-    if format == '--aegis':
-        dir = builddir
-        if not os.path.isdir(dir):
-            dir = cwd
-        qmtest_args.extend(['-D', dir])
 
     qmtest_args.extend([
                 'run',
@@ -715,10 +753,7 @@ if qmtest:
         rs = '--result-stream="%s(filename=%s)"' % (rsclass, qof)
         qmtest_args.append(rs)
 
-    if format == '--aegis':
-        tests = [x.replace(cwd+os.sep, '') for x in tests]
-    else:
-        os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
+    os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
 
     cmd = ' '.join(qmtest_args + tests)
     if printcommand:
@@ -740,7 +775,7 @@ if qmtest:
 #except OSError:
 #    pass
 
-tests = list(map(Test, tests))
+tests = [Test(t) for t in tests]
 
 class Unbuffered(object):
     def __init__(self, file):
@@ -783,7 +818,8 @@ else:
     print_time_func = lambda fmt, time: None
 
 total_start_time = time_func()
-for t in tests:
+total_num_tests = len(tests)
+for idx,t in enumerate(tests):
     command_args = ['-tt']
     if python3incompatibilities:
         command_args.append('-3')
@@ -793,10 +829,26 @@ for t in tests:
     t.command_args = [python] + command_args
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
-        sys.stdout.write(t.command_str + "\n")
+        if print_progress:
+            sys.stdout.write("%d/%d (%.2f%s) %s\n" % (idx+1, total_num_tests,
+                                                      float(idx+1)*100.0/float(total_num_tests),
+                                                      '%',
+                                                      t.command_str))
+        else:
+            sys.stdout.write(t.command_str + "\n")
+    head, tail = os.path.split(t.abspath)
+    if head:
+        os.environ['PYTHON_SCRIPT_DIR'] = head
+    else:
+        os.environ['PYTHON_SCRIPT_DIR'] = ''     
     test_start_time = time_func()
     if execute_tests:
         t.execute()
+        if not suppress_stdout and t.stdout:
+            print t.stdout
+        if not suppress_stderr and t.stderr:
+            print t.stderr
+
     t.test_time = time_func() - test_start_time
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
 if len(tests) > 0:
@@ -844,9 +896,7 @@ if outputfile:
     if outputfile != '-':
         f.close()
 
-if format == '--aegis':
-    sys.exit(0)
-elif len(fail):
+if len(fail):
     sys.exit(1)
 elif len(no_result):
     sys.exit(2)
