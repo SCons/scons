@@ -53,3 +53,7 @@ semblance of uniformity, here are the naming conventions for tests:
 
 		option--lo.py	long option; abbreviate the long
 				option name to a few characters
+
+For some more information about running the tests and writing them, please
+refer to the documentation for the testing framework. It can be found in
+the 'QMTest' folder, as file 'test-framework.rst'.

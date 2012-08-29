@@ -231,20 +231,27 @@ class TestSCons(TestCommon):
         is not necessary.
         """
         self.orig_cwd = os.getcwd()
-        try:
-            script_dir = os.environ['SCONS_SCRIPT_DIR']
-        except KeyError:
-            pass
-        else:
-            os.chdir(script_dir)
+        self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
+
+        if not self.external:
+            try:
+                script_dir = os.environ['SCONS_SCRIPT_DIR']
+            except KeyError:
+                pass
+            else:
+                os.chdir(script_dir)
         if 'program' not in kw:
             kw['program'] = os.environ.get('SCONS')
             if not kw['program']:
-                if os.path.exists('scons'):
-                    kw['program'] = 'scons'
+                if not self.external:
+                    if os.path.exists('scons'):
+                        kw['program'] = 'scons'
+                    else:
+                        kw['program'] = 'scons.py'
                 else:
-                    kw['program'] = 'scons.py'
-            elif not os.path.isabs(kw['program']):
+                    kw['program'] = 'scons'
+                    kw['interpreter'] = ''
+            elif not self.external and not os.path.isabs(kw['program']):
                 kw['program'] = os.path.join(self.orig_cwd, kw['program'])
         if 'interpreter' not in kw and not os.environ.get('SCONS_EXEC'):
             kw['interpreter'] = [python, '-tt']
@@ -264,23 +271,32 @@ class TestSCons(TestCommon):
 
         TestCommon.__init__(self, **kw)
 
-        import SCons.Node.FS
-        if SCons.Node.FS.default_fs is None:
-            SCons.Node.FS.default_fs = SCons.Node.FS.FS()
+        if not self.external:
+            import SCons.Node.FS
+            if SCons.Node.FS.default_fs is None:
+                SCons.Node.FS.default_fs = SCons.Node.FS.FS()
+
+        try:
+            self.script_srcdir = os.environ['PYTHON_SCRIPT_DIR']
+        except KeyError:
+            pass
 
     def Environment(self, ENV=None, *args, **kw):
         """
         Return a construction Environment that optionally overrides
         the default external environment with the specified ENV.
         """
-        import SCons.Environment
-        import SCons.Errors
-        if not ENV is None:
-            kw['ENV'] = ENV
-        try:
-            return SCons.Environment.Environment(*args, **kw)
-        except (SCons.Errors.UserError, SCons.Errors.InternalError):
-            return None
+        if not self.external:
+            import SCons.Environment
+            import SCons.Errors
+            if not ENV is None:
+                kw['ENV'] = ENV
+            try:
+                return SCons.Environment.Environment(*args, **kw)
+            except (SCons.Errors.UserError, SCons.Errors.InternalError):
+                return None
+
+        return None
 
     def detect(self, var, prog=None, ENV=None, norm=None):
         """
@@ -292,17 +308,20 @@ class TestSCons(TestCommon):
         used as prog.
         """
         env = self.Environment(ENV)
-        v = env.subst('$'+var)
-        if not v:
-            return None
-        if prog is None:
-            prog = v
-        if v != prog:
-            return None
-        result = env.WhereIs(prog)
-        if norm and os.sep != '/':
-            result = result.replace(os.sep, '/')
-        return result
+        if env:
+            v = env.subst('$'+var)
+            if not v:
+                return None
+            if prog is None:
+                prog = v
+            if v != prog:
+                return None
+            result = env.WhereIs(prog)
+            if norm and os.sep != '/':
+                result = result.replace(os.sep, '/')
+            return result
+        
+        return self.where_is(prog)
 
     def detect_tool(self, tool, prog=None, ENV=None):
         """
@@ -324,13 +343,35 @@ class TestSCons(TestCommon):
     def where_is(self, prog, path=None):
         """
         Given a program, search for it in the specified external PATH,
-        or in the actual external PATH is none is specified.
+        or in the actual external PATH if none is specified.
         """
-        import SCons.Environment
-        env = SCons.Environment.Environment()
         if path is None:
             path = os.environ['PATH']
-        return env.WhereIs(prog, path)
+        if self.external:
+            if isinstance(prog, str):
+                prog = [prog]
+            import stat
+            paths = path.split(os.pathsep)
+            for p in prog:
+                for d in paths:
+                    f = os.path.join(d, p)
+                    if os.path.isfile(f):
+                        try:
+                            st = os.stat(f)
+                        except OSError:
+                            # os.stat() raises OSError, not IOError if the file
+                            # doesn't exist, so in this case we let IOError get
+                            # raised so as to not mask possibly serious disk or
+                            # network issues.
+                            continue
+                        if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                            return os.path.normpath(f)
+        else:
+            import SCons.Environment
+            env = SCons.Environment.Environment()
+            return env.WhereIs(prog, path)
+
+        return None
 
     def wrap_stdout(self, build_str = "", read_str = "", error = 0, cleaning = 0):
         """Wraps standard output string(s) in the normal
@@ -616,36 +657,39 @@ class TestSCons(TestCommon):
         Initialize with a default external environment that uses a local
         Java SDK in preference to whatever's found in the default PATH.
         """
-        try:
-            return self._java_env[version]['ENV']
-        except AttributeError:
-            self._java_env = {}
-        except KeyError:
-            pass
+        if not self.external:
+            try:
+                return self._java_env[version]['ENV']
+            except AttributeError:
+                self._java_env = {}
+            except KeyError:
+                pass
+    
+            import SCons.Environment
+            env = SCons.Environment.Environment()
+            self._java_env[version] = env
+    
+    
+            if version:
+                patterns = [
+                    '/usr/java/jdk%s*/bin'    % version,
+                    '/usr/lib/jvm/*-%s*/bin' % version,
+                    '/usr/local/j2sdk%s*/bin' % version,
+                ]
+                java_path = self.paths(patterns) + [env['ENV']['PATH']]
+            else:
+                patterns = [
+                    '/usr/java/latest/bin',
+                    '/usr/lib/jvm/*/bin',
+                    '/usr/local/j2sdk*/bin',
+                ]
+                java_path = self.paths(patterns) + [env['ENV']['PATH']]
+    
+            env['ENV']['PATH'] = os.pathsep.join(java_path)
+            return env['ENV']
 
-        import SCons.Environment
-        env = SCons.Environment.Environment()
-        self._java_env[version] = env
-
-
-        if version:
-            patterns = [
-                '/usr/java/jdk%s*/bin'    % version,
-                '/usr/lib/jvm/*-%s*/bin' % version,
-                '/usr/local/j2sdk%s*/bin' % version,
-            ]
-            java_path = self.paths(patterns) + [env['ENV']['PATH']]
-        else:
-            patterns = [
-                '/usr/java/latest/bin',
-                '/usr/lib/jvm/*/bin',
-                '/usr/local/j2sdk*/bin',
-            ]
-            java_path = self.paths(patterns) + [env['ENV']['PATH']]
-
-        env['ENV']['PATH'] = os.pathsep.join(java_path)
-        return env['ENV']
-
+        return None
+        
     def java_where_includes(self,version=None):
         """
         Return java include paths compiling java jni code

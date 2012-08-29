@@ -39,31 +39,8 @@ tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-test.subdir('src')
-
-test.write([ 'src', 'foobar.h' ], '')
-test.write([ 'src', 'foobar.c' ], '')
-
-test.write('SConstruct', """
-from glob import glob
-
-src_files = glob( 'src/*.c' )
-include_files = glob( 'src/*.h' )
-
-SharedLibrary( 'foobar', src_files )
-
-env = Environment(tools=['default', 'packaging'])
-
-env.Package( NAME        = 'libfoobar',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'targz',
-             source      = src_files + include_files )
-
-env.Package( NAME        = 'libfoobar',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'zip',
-             source      = src_files + include_files )
-""")
+test.dir_fixture('src','src')
+test.file_fixture('SConstruct')
 
 test.run(stderr=None)
 
