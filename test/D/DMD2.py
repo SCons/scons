@@ -36,7 +36,7 @@ if not test.where_is('dmd') and not test.where_is('gdmd'):
 
 test.write('SConstruct', """\
 import os
-env = Environment(ENV=os.environ)
+env = Environment(tools=['link', 'dmd'], ENV=os.environ)
 if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
 env.Program('foo', 'foo.d')
 """)
