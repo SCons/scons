@@ -1,0 +1,109 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="zip">
+<summary>
+Sets construction variables for the &zip; archiver.
+</summary>
+<sets>
+ZIP
+ZIPFLAGS
+ZIPCOM
+ZIPCOMPRESSION
+ZIPSUFFIX
+</sets>
+<uses>
+ZIPCOMSTR
+</uses>
+</tool>
+
+<builder name="Zip">
+<summary>
+Builds a zip archive of the specified files
+and/or directories.
+Unlike most builder methods,
+the
+&b-Zip;
+builder method may be called multiple times
+for a given target;
+each additional call
+adds to the list of entries
+that will be built into the archive.
+Any source directories will
+be scanned for changes to
+any on-disk files,
+regardless of whether or not
+&scons;
+knows about them from other Builder or function calls.
+
+<example>
+env.Zip('src.zip', 'src')
+
+# Create the stuff.zip file.
+env.Zip('stuff', ['subdir1', 'subdir2'])
+# Also add "another" to the stuff.tar file.
+env.Zip('stuff', 'another')
+</example>
+</summary>
+</builder>
+
+<cvar name="ZIP">
+<summary>
+The zip compression and file packaging utility.
+</summary>
+</cvar>
+
+<cvar name="ZIPCOM">
+<summary>
+The command line used to call the zip utility,
+or the internal Python function used to create a
+zip archive.
+</summary>
+</cvar>
+
+<cvar name="ZIPCOMSTR">
+<summary>
+The string displayed when archiving files
+using the zip utility.
+If this is not set, then &cv-link-ZIPCOM;
+(the command line or internal Python function) is displayed.
+
+<example>
+env = Environment(ZIPCOMSTR = "Zipping $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="ZIPCOMPRESSION">
+<summary>
+The
+<varname>compression</varname>
+flag
+from the Python
+<filename>zipfile</filename>
+module used by the internal Python function
+to control whether the zip archive
+is compressed or not.
+The default value is
+<literal>zipfile.ZIP_DEFLATED</literal>,
+which creates a compressed zip archive.
+This value has no effect if the
+<literal>zipfile</literal>
+module is unavailable.
+</summary>
+</cvar>
+
+<cvar name="ZIPFLAGS">
+<summary>
+General options passed to the zip utility.
+</summary>
+</cvar>
+
+<cvar name="ZIPSUFFIX">
+<summary>
+The suffix used for zip file names.
+</summary>
+</cvar>

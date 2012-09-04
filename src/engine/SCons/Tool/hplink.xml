@@ -1,0 +1,16 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="hplink">
+<summary>
+Sets construction variables for the linker on HP/UX systems.
+</summary>
+<sets>
+LINKFLAGS
+SHLINKFLAGS
+SHLIBSUFFIX
+</sets>
+</tool>

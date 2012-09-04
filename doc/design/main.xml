@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+
+    <!--
+    We haven't updated the design document in ages.
+    Rather than fool people into thinking that it's
+    actually up-to-date and reflects the current design,
+    hard-code the version from back when we last updated it.
+    <!ENTITY % version SYSTEM "../version.xml">
+    %version;
+    -->
+    <!ENTITY builddate "2001/12/13 20:55:46">
+    <!ENTITY buildversion "0.91">
+    <!ENTITY buildrevision "0.01.D177">
+
+    <!--
+    Also freeze the scons.mod DTD extensions
+    to what they were way back when.
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    -->
+    <!ENTITY % scons SYSTEM "scons.mod">
+    %scons;
+
+    <!ENTITY acks SYSTEM "acks.xml">
+    <!ENTITY bground SYSTEM "bground.xml">
+    <!ENTITY copyright SYSTEM "copyright.xml">
+    <!ENTITY engine SYSTEM "engine.xml">
+    <!ENTITY goals SYSTEM "goals.xml">
+    <!ENTITY install SYSTEM "install.xml">
+    <!ENTITY intro SYSTEM "intro.xml">
+    <!ENTITY issues SYSTEM "issues.xml">
+    <!ENTITY native SYSTEM "native.xml">
+    <!ENTITY overview SYSTEM "overview.xml">
+
+]>
+
+<book>
+  <bookinfo>
+    <title>SCons Design version &buildversion;</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <edition>Revision &buildrevision; (&builddate;)</edition>
+
+    <pubdate>2001</pubdate>
+
+    <copyright>
+      <year>2001</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <legalnotice>
+      &copyright;
+    </legalnotice>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </bookinfo>
+
+  <chapter id="chap-intro">
+    <title>Introduction</title>
+    &intro;
+  </chapter>
+
+  <chapter id="chap-goals">
+    <title>Goals</title>
+    &goals;
+  </chapter>
+
+  <chapter id="chap-overview">
+    <title>Overview</title>
+    &overview;
+  </chapter>
+
+  <chapter id="chap-engine">
+    <title>Build Engine API</title>
+    &engine;
+  </chapter>
+
+  <chapter id="chap-native">
+    <title>Native Python Interface</title>
+    &native;
+  </chapter>
+
+  <!--
+
+  <chapter id="chap-install">
+    <title>Installation</title>
+    &install;
+  </chapter>
+
+  -->
+
+  <chapter id="chap-issues">
+    <title>Other Issues</title>
+    &issues;
+  </chapter>
+
+  <chapter id="chap-background">
+    <title>Background</title>
+    &bground;
+  </chapter>
+
+  <chapter id="chap-summary">
+    <title>Summary</title>
+    <para>
+
+      &SCons; offers a robust and feature-rich design for an SC-build
+      tool.  With a Build Engine based on the proven design of
+      the &Cons; utility, it offers increased simplification of the
+      user interface for unsophisticated users with the addition
+      of the "do-the-right-thing" <function>env.Make</function>
+      method, increased flexibility for sophisticated users with the
+      addition of &Builder; and &Scanner; objects, a mechanism to
+      allow tool-masters (and users) to share working construction
+      environments, and embeddability to provide reliable dependency
+      management in a variety of environments and interfaces.
+
+    </para>
+  </chapter>
+
+  <chapter id="chap-acks">
+    <title>Acknowledgements</title>
+    &acks;
+  </chapter>
+
+</book>
