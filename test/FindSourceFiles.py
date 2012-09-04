@@ -32,11 +32,17 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+package_format = "src_tarbz2"
+if not test.where_is('tar'):
+    if not test.where_is('zip'):
+        test.skip_test("neither 'tar' nor 'zip' found; skipping test\n")
+    package_format = "src_zip"
+
 # Quite complex, but real-life test.
 # 0. Setup VariantDir, "var", without duplication. The "src" is source dir.
 # 1. Generate souce file var/foo.c from src/foo.c.in. Define program foo.
 # 2. Gather all sources necessary to create '.' node and create source
-#    tarball. We expect 'src/foo.c.in' file within tarbal, and no content
+#    tarball. We expect 'src/foo.c.in' file within tarball, and no content
 #    under 'var' directory.
 test.subdir('src')
 
@@ -45,10 +51,10 @@ VariantDir(src_dir = 'src', variant_dir = 'var', duplicate = 0)
 env = Environment(tools = ['default','textfile','packaging'])
 SConscript(['var/SConscript'], exports = 'env')
 sources = env.FindSourceFiles('.')
-pkg = env.Package( NAME = 'foo', VERSION = '1.0', PACKAGETYPE = 'src_tarbz2',
+pkg = env.Package( NAME = 'foo', VERSION = '1.0', PACKAGETYPE = '%s',
                    source = sources )
 Ignore( '.', pkg )
-""")
+""" % package_format)
 
 test.write('src/SConscript', """
 Import('env')

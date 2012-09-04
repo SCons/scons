@@ -84,6 +84,11 @@ is_a_directory = """\
 scons: *** [%s] Error %s
 """
 
+Is_a_directory = """\
+%s: Is a directory
+scons: *** [%s] Error %s
+"""
+
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':
     errs = [
@@ -101,7 +106,7 @@ else:
     errs = [
         cannot_execute % (not_executable, 'f3', 126),
         is_a_directory % (test.workdir, 'f3', 126),
-        Permission_denied % (test.workdir, 'f3', 126),
+        Is_a_directory % (test.workdir, 'f3', 126),
         Permission_denied % (test.workdir, 'f3', 126),
     ]
     test.must_contain_any_line(test.stderr(), errs)
