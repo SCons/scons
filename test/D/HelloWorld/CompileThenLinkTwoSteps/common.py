@@ -32,7 +32,7 @@ import TestSCons
 from os.path import isfile
 
 def testForTool(tool):
-    
+
     test = TestSCons.TestSCons()
 
     toolPath = '../../../{}.py'.format(tool)
