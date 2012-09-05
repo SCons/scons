@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+"""
+Test compiling and executing a project with a C module.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -22,39 +25,16 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-_exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('dmd') and not test.where_is('gdmd'):
-    test.skip_test("Could not find 'dmd' or 'gdmd', skipping test.\n")
-
-test.write('SConstruct', """\
-import os
-env = Environment(tools=['link', 'dmd'], ENV=os.environ)
-if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
-env.Program('foo', 'foo.d')
-""")
-
-test.write('foo.d', """\
-import std.stdio;
-int main(string[] args) {
-    printf("Hello!");
-    return 0;
-}
-""")
+test.dir_fixture('Image')
 
 test.run()
-
-test.run(program=test.workpath('foo'+_exe))
-
-test.fail_test(not test.stdout() == 'Hello!')
-
+    
 test.pass_test()
 
 # Local Variables:

@@ -1,0 +1,5 @@
+# -*- mode:python; coding:utf-8; -*-
+
+environment = Environment(tools=['link', '{}'])
+environment.Program('test1.d')
+environment.Program('test2.d')

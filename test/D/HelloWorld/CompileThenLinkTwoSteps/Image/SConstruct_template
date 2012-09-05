@@ -1,0 +1,7 @@
+# -*- mode:python; coding:utf-8; -*-
+
+environment = Environment(tools=['link', '{}'])
+
+objects = environment.Object('helloWorld.d')
+
+environment.Program('helloWorld', objects)
