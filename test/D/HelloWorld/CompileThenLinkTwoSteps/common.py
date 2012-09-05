@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+"""
+Support functions for all the tests.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -22,40 +25,39 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-_exe = TestSCons._exe
-test = TestSCons.TestSCons()
+from os.path import isfile
 
-if not test.where_is('dmd') and not test.where_is('gdmd'):
-    test.skip_test("Could not find 'dmd' or 'gdmd', skipping test.\n")
+def testForTool(tool):
+    
+    test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-import os
-env = Environment(tools=['link', 'dmd'], ENV=os.environ)
-if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
-env.Program('foo', 'foo.d')
-""")
+    toolPath = '../../../{}.py'.format(tool)
+    if isfile(toolPath):
+        test.file_fixture(toolPath)
+    if not test.where_is(tool) :
+        test.skip_test("Could not find '{}'; skipping test.\n".format(tool))
 
-test.write('foo.d', """\
-import std.stdio;
-int main(string[] args) {
-    printf("Hello!");
-    return 0;
-}
-""")
+    test.dir_fixture('Image')
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
 
-test.run()
+    if tool == 'dmd':
+        # The gdmd executable in Debian Unstable as at 2012-05-12, version 4.6.3 puts out messages on stderr
+        # that cause inappropriate failure of the tests, so simply ignore them.
+        test.run(stderr=None)
+    else:
+        test.run()
 
-test.run(program=test.workpath('foo'+_exe))
+    test.must_exist(test.workpath('helloWorld.o'))
+    test.must_exist(test.workpath('helloWorld'))
 
-test.fail_test(not test.stdout() == 'Hello!')
+    test.run(program=test.workpath('helloWorld'+TestSCons._exe))
+    test.fail_test(test.stdout() != 'Hello World.\n')
 
-test.pass_test()
+    test.pass_test()
 
 # Local Variables:
 # tab-width:4

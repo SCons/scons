@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+"""
+These tests verify that SCons fails appropriately where the user has tried to supply multiple command line
+options via a single string rather than providing a list of strings, one string per option.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -22,40 +26,35 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-_exe = TestSCons._exe
-test = TestSCons.TestSCons()
+from os.path import isfile
 
-if not test.where_is('dmd') and not test.where_is('gdmd'):
-    test.skip_test("Could not find 'dmd' or 'gdmd', skipping test.\n")
+def testForTool(tool):
 
-test.write('SConstruct', """\
-import os
-env = Environment(tools=['link', 'dmd'], ENV=os.environ)
-if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
-env.Program('foo', 'foo.d')
-""")
+    test = TestSCons.TestSCons()
 
-test.write('foo.d', """\
-import std.stdio;
-int main(string[] args) {
-    printf("Hello!");
-    return 0;
-}
-""")
+    toolPath = '../../../{}.py'.format(tool)
+    if isfile(toolPath):
+        test.file_fixture(toolPath)
+    if not test.where_is(tool) :
+        test.skip_test("Could not find '{}', skipping test.\n".format(tool))
 
-test.run()
+    test.dir_fixture('SingleStringCannotBeMultipleOptions')
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
 
-test.run(program=test.workpath('foo'+_exe))
+    test.run(status=2, stdout=None, stderr=None)
 
-test.fail_test(not test.stdout() == 'Hello!')
+    if tool == 'gdc':
+        result = ".*unrecognized command line option '-m64 -O'.*"
+    else:
+        result = ".*unrecognized switch '-m64 -O'.*"
 
-test.pass_test()
+    test.fail_test(not test.match_re_dotall(test.stderr(), result))
+
+    test.pass_test()
 
 # Local Variables:
 # tab-width:4

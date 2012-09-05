@@ -31,12 +31,12 @@ import TestSCons
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('dmd') and not test.where_is('gdmd'):
-    test.skip_test("Could not find 'dmd' or 'gdmd', skipping test.\n")
+if not test.where_is('ldc'):
+    test.skip_test("Could not find 'ldc', skipping test.\n")
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools=['link', 'dmd'], ENV=os.environ)
+env = Environment(tools=['link', 'ldc'], ENV=os.environ)
 if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
 env.Program('foo', 'foo.d')
 """)
