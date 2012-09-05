@@ -1,5 +1,5 @@
 env = Environment(
-    DFLAGS=['-O'],
+    DFLAGS=['-m64', '-O'],
     )
 
 env.Program('proj', [
