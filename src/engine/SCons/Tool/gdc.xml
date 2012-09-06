@@ -4,9 +4,9 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
-<tool name="dmd">
+<tool name="gdc">
 <summary>
-Sets construction variables for the D language compiler DMD or GDMD.
+Sets construction variables for the D language compiler GDC.
 </summary>
 <sets>
 <!--

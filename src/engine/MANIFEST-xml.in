@@ -41,6 +41,7 @@ SCons/Tool/g++.xml
 SCons/Tool/g77.xml
 SCons/Tool/gas.xml
 SCons/Tool/gcc.xml
+SCons/Tool/gdc.xml
 SCons/Tool/gfortran.xml
 SCons/Tool/gnulink.xml
 SCons/Tool/gs.xml
@@ -59,6 +60,7 @@ SCons/Tool/jar.xml
 SCons/Tool/javac.xml
 SCons/Tool/javah.xml
 SCons/Tool/latex.xml
+SCons/Tool/ldc.xml
 SCons/Tool/lex.xml
 SCons/Tool/link.xml
 SCons/Tool/linkloc.xml

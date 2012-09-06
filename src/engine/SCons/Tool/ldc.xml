@@ -6,7 +6,7 @@ See its __doc__ string for a discussion of the format.
 -->
 <tool name="dmd">
 <summary>
-Sets construction variables for the D language compiler DMD or GDMD.
+Sets construction variables for the D language compiler LDC2.
 </summary>
 <sets>
 <!--
