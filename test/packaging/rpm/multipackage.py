@@ -30,16 +30,9 @@ from one SCons environment.
 """
 
 import os
+import glob
 import TestSCons
 
-machine = TestSCons.machine
-try:
-    # Try to get the actual machine type (like i586), since
-    # TestSCons maps all ix86 types to a i386 machine internally.
-    import os
-    machine = os.uname()[4]
-except AttributeError:
-    pass
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
@@ -105,18 +98,18 @@ env.Alias( 'install', prog )
 test.run(arguments='', stderr = None)
 
 src_rpm      = 'foo-1.2.3-0.src.rpm'
-machine_rpm  = 'foo-1.2.3-0.%s.rpm' % machine
+machine_rpm  = 'foo-1.2.3-0.*.rpm'
 src_rpm2     = 'foo2-1.2.3-0.src.rpm'
-machine_rpm2 = 'foo2-1.2.3-0.%s.rpm' % machine
+machine_rpm2 = 'foo2-1.2.3-0.*.rpm'
 
-test.must_exist( machine_rpm )
+test.must_exist_one_of( [machine_rpm] )
 test.must_exist( src_rpm )
 
-test.must_exist( machine_rpm2 )
+test.must_exist_one_of( [machine_rpm2] )
 test.must_exist( src_rpm2 )
 
 test.must_not_exist( 'bin/main' )
-test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
+test.fail_test( not os.popen('rpm -qpl %s' % glob.glob(machine_rpm)[0].lstrip('./')).read()=='/bin/main\n')
 test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 test.pass_test()
