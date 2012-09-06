@@ -30,16 +30,7 @@ Assert that files created by the RPM packager will be removed by 'scons -c'.
 
 import TestSCons
 
-machine = TestSCons.machine
-try:
-    # Try to get the actual machine type (like i586), since
-    # TestSCons maps all ix86 types to a i386 machine internally.
-    import os
-    machine = os.uname()[4]
-except AttributeError:
-    pass
 _python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
 scons = test.program
@@ -97,9 +88,9 @@ test.up_to_date( arguments='.' )
 test.run( arguments='-c .' )
 
 src_rpm     = 'foo-1.2.3-0.src.rpm'
-machine_rpm = 'foo-1.2.3-0.%s.rpm' % machine
+machine_rpm = 'foo-1.2.3-0.*.rpm'
 
-test.must_not_exist( machine_rpm )
+test.must_not_exist_any_of( [machine_rpm] )
 test.must_not_exist( src_rpm )
 test.must_not_exist( 'foo-1.2.3.tar.gz' )
 test.must_not_exist( 'foo-1.2.3.spec' )
