@@ -4,10 +4,10 @@ Tool-specific initialization for the LDC compiler.
 (http://www.dsource.org/projects/ldc)
 
 Coded by Russel Winder (russel@winder.org.uk)
-2012-05-09
+2012-05-09, 2012-09-06
 
 Compiler variables:
-    DC - The name of the D compiler to use.  Defaults to ldc.
+    DC - The name of the D compiler to use.  Defaults to ldc2.
     DPATH - List of paths to search for import modules.
     DVERSIONS - List of version tags to enable when compiling.
     DDEBUG - List of debug tags to enable when compiling.
@@ -57,20 +57,12 @@ import SCons.Defaults
 import SCons.Scanner.D
 import SCons.Tool
 
-# Adapted from c++.py
-def isD(source):
-    if not source:
-        return 0
+import DCommon
 
-    for s in source:
-        if s.sources:
-            ext = os.path.splitext(str(s.sources[0]))[1]
-            if ext == '.d':
-                return 1
-    return 0
+smart_link = {}
+smart_lib = {}
 
 def generate(env):
-
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     DAction = SCons.Action.Action('$DCOM', '$DCOMSTR')
@@ -80,7 +72,7 @@ def generate(env):
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
-    dc = env.Detect('ldc')
+    dc = env.Detect('ldc2')
     env['DC'] = dc
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of=$TARGET $SOURCES'
     env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}  $)'
@@ -94,14 +86,7 @@ def generate(env):
     env['DDEBUG'] = []
 
     if dc:
-        # Add the path to the standard library.
-        # This is merely for the convenience of the dependency scanner.
-        dmd_path = env.WhereIs(dc)
-        if dmd_path:
-            x = dmd_path.rindex(dc)
-            phobosDir = dmd_path[:x] + '/../src/phobos'
-            if os.path.isdir(phobosDir):
-                env.Append(DPATH = [phobosDir])
+        DCommon.addDPATHToEnv(env, dc)
 
     env['DINCPREFIX'] = '-I='
     env['DINCSUFFIX'] = ''
@@ -113,14 +98,38 @@ def generate(env):
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
 
-    try :
-        env['LIBS'].append ( [ '-lgphobos2' ] )
-    except KeyError :
-        env['LIBS'] = [ '-lgphobos2' , '-lpthread' , '-lrt' , '-lm' ]
+    env['DLINK'] = '$DC'
+    env['DLINKCOM'] = '$DLINK -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['DLIB'] = 'lib'
+    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS -c $TARGET $SOURCES $_DLINKLIBFLAGS'
+
+    env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
+    env['DLINKFLAGS'] = []
+    env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
+    env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
+    env['DLIBFLAGPREFIX'] = '-'
+    env['DLIBFLAGSUFFIX'] = ''
+    env['DLINKFLAGPREFIX'] = '-'
+    env['DLINKFLAGSUFFIX'] = ''
+
+    SCons.Tool.createStaticLibBuilder(env)
+
+    # Basically, we hijack the link and ar builders with our own.
+    # these builders check for the presence of D source, and swap out
+    # the system's defaults for the Digital Mars tools.  If there's no D
+    # source, then we silently return the previous settings.
+    DCommon.setSmartLink(env, smart_link, smart_lib)
+
+    # It is worth noting that the final space in these strings is
+    # absolutely pivotal.  SCons sees these as actions and not generators
+    # if it is not there. (very bad)
+    env['ARCOM'] = '$SMART_ARCOM '
+    env['LINKCOM'] = '$SMART_LINKCOM '
 
 
 def exists(env):
-    return env.Detect('ldc')
+    return env.Detect('ldc2')
 
 # Local Variables:
 # tab-width:4

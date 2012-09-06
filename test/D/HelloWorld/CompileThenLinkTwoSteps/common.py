@@ -29,17 +29,19 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-from os.path import isfile
+from os.path import abspath, dirname
+
+import sys
+sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
+
+from executablesSearch import isExecutableOfToolAvailable
 
 def testForTool(tool):
 
     test = TestSCons.TestSCons()
 
-    toolPath = '../../../{}.py'.format(tool)
-    if isfile(toolPath):
-        test.file_fixture(toolPath)
-    if not test.where_is(tool) :
-        test.skip_test("Could not find '{}'; skipping test.\n".format(tool))
+    if not isExecutableOfToolAvailable(test, tool) :
+        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('Image')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))

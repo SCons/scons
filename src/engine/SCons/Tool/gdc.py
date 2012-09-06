@@ -52,8 +52,12 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Tool
 
-def generate(env):
+import DCommon
 
+smart_link = {}
+smart_lib = {}
+
+def generate(env):
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     DAction = SCons.Action.Action('$DCOM', '$DCOMSTR')
@@ -63,7 +67,8 @@ def generate(env):
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
-    env['DC'] = env.Detect('gdc')
+    dc = env.Detect('gdc')
+    env['DC'] = dc
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -o $TARGET $SOURCES'
     env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}  $)'
     env['_DVERFLAGS'] = '$( ${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}  $)'
@@ -75,6 +80,9 @@ def generate(env):
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
 
+    if dc:
+        DCommon.addDPATHToEnv(env, dc)
+
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
     env['DVERPREFIX'] = '-version='
@@ -85,7 +93,34 @@ def generate(env):
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
 
-    env['LINK'] = '$DC'
+    env['DLINK'] = '$DC'
+    env['DLINKCOM'] = '$DLINK -o $TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['DLIB'] = 'lib'
+    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS -c $TARGET $SOURCES $_DLINKLIBFLAGS'
+
+    env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
+    env['DLINKFLAGS'] = []
+    env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-l'
+    env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
+    env['DLIBFLAGPREFIX'] = '-'
+    env['DLIBFLAGSUFFIX'] = ''
+    env['DLINKFLAGPREFIX'] = '-'
+    env['DLINKFLAGSUFFIX'] = ''
+
+    SCons.Tool.createStaticLibBuilder(env)
+
+    # Basically, we hijack the link and ar builders with our own.
+    # these builders check for the presence of D source, and swap out
+    # the system's defaults for the Digital Mars tools.  If there's no D
+    # source, then we silently return the previous settings.
+    DCommon.setSmartLink(env, smart_link, smart_lib)
+
+    # It is worth noting that the final space in these strings is
+    # absolutely pivotal.  SCons sees these as actions and not generators
+    # if it is not there. (very bad)
+    env['ARCOM'] = '$SMART_ARCOM '
+    env['LINKCOM'] = '$SMART_LINKCOM '
 
 def exists(env):
     return env.Detect('gdc')

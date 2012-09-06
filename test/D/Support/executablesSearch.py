@@ -1,5 +1,5 @@
 """
-Test compiling and executing using the ldc tool.
+Support functions for all the tests.
 """
 
 #
@@ -27,11 +27,11 @@ Test compiling and executing using the ldc tool.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from linkingProblem_common import testForTool
-testForTool('ldc')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+def isExecutableOfToolAvailable(test, tool):
+    for executable in {
+        'dmd': ['dmd', 'gdmd'],
+        'gdc': ['gdc'],
+        'ldc': ['ldc2', 'ldc']}[tool]:
+        if test.where_is(executable):
+            return True
+    return False
