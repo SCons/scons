@@ -68,7 +68,7 @@ import SCons.Defaults
 import SCons.Scanner.D
 import SCons.Tool
 
-import DCommon
+import SCons.Tool.DCommon
 
 smart_link = {}
 smart_lib = {}
@@ -97,7 +97,7 @@ def generate(env):
     env['DDEBUG'] = []
 
     if dc:
-        DCommon.addDPATHToEnv(env, dc)
+        SCons.Tool.DCommon.addDPATHToEnv(env, dc)
 
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
@@ -130,7 +130,7 @@ def generate(env):
     # these builders check for the presence of D source, and swap out
     # the system's defaults for the Digital Mars tools.  If there's no D
     # source, then we silently return the previous settings.
-    DCommon.setSmartLink(env, smart_link, smart_lib)
+    SCons.Tool.DCommon.setSmartLink(env, smart_link, smart_lib)
 
     # It is worth noting that the final space in these strings is
     # absolutely pivotal.  SCons sees these as actions and not generators
