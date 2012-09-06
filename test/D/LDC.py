@@ -28,10 +28,17 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
+from os.path import abspath, dirname
+
+import sys
+sys.path.insert(1, abspath(dirname(__file__) + '/Support'))
+
+from executablesSearch import isExecutableOfToolAvailable
+
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('ldc'):
+if not isExecutableOfToolAvailable(test, 'ldc'):
     test.skip_test("Could not find 'ldc', skipping test.\n")
 
 test.write('SConstruct', """\

@@ -30,27 +30,30 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-from os.path import isfile
+from os.path import abspath, dirname
+
+import sys
+sys.path.insert(1, abspath(dirname(__file__) + '/../Support'))
+
+from executablesSearch import isExecutableOfToolAvailable
 
 def testForTool(tool):
 
     test = TestSCons.TestSCons()
 
-    toolPath = '../../../{}.py'.format(tool)
-    if isfile(toolPath):
-        test.file_fixture(toolPath)
-    if not test.where_is(tool) :
-        test.skip_test("Could not find '{}', skipping test.\n".format(tool))
+    if not isExecutableOfToolAvailable(test, tool) :
+        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('SingleStringCannotBeMultipleOptions')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
 
     test.run(status=2, stdout=None, stderr=None)
 
-    if tool == 'gdc':
-        result = ".*unrecognized command line option '-m64 -O'.*"
-    else:
-        result = ".*unrecognized switch '-m64 -O'.*"
+    result = {
+        'dmd': ".*unrecognized switch '-m64 -O'.*",
+        'gdc': ".*unrecognized command line option.*",
+        'ldc': ".*Unknown command line argument '-m64 -O'.*",
+        }[tool]
 
     test.fail_test(not test.match_re_dotall(test.stderr(), result))
 

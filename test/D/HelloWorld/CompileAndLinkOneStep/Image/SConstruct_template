@@ -1,5 +1,9 @@
 # -*- mode:python; coding:utf-8; -*-
 
-environment = Environment(tools=['link', '{}'])
+import os
+
+environment = Environment(
+    ENV=os.environ,
+    tools=['link', '{}'])
 
 environment.Program('helloWorld.d')
