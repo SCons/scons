@@ -7,7 +7,7 @@ Originally coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
 
 Evolved by Russel Winder (russel@winder.org.uk)
-2010-02-07, 2010-11-17, 2011-02, 2011-05-14, 2012-05-08, 2012-09-02
+2010-02-07, 2010-11-17, 2011-02, 2011-05-14, 2012-05-08, 2012-09-02, 2012-09-06
 
 There are a number of problems with this script at this point in time.
 The one that irritates the most is the Windows linker setup.  The D

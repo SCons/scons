@@ -4,7 +4,7 @@ Tool-specific initialization for the GDC compiler.
 (https://github.com/D-Programming-GDC/GDC)
 
 Coded by Russel Winder (russel@winder.org.uk)
-2012-05-09
+2012-05-09, 2012-09-06
 
 Compiler variables:
     DC - The name of the D compiler to use.  Defaults to gdc.
