@@ -100,6 +100,10 @@ makeglossary_re = re.compile(r"^[^%\n]*\\makeglossary", re.MULTILINE)
 makeglossaries_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
 makeacronyms_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
 beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
+regex = r'^[^%\n]*\\newglossary\s*\[([^\]]+)\]?\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}'
+newglossary_re = re.compile(regex, re.MULTILINE)
+
+newglossary_suffix = []
 
 # search to find all files included by Latex
 include_re = re.compile(r'^[^%\n]*\\(?:include|input){([^}]*)}', re.MULTILINE)
@@ -136,6 +140,9 @@ MakeGlossaryAction = None
 
 # An action to run MakeIndex (for acronyms) on a file.
 MakeAcronymsAction = None
+
+# An action to run MakeIndex (for newglossary commands) on a file.
+MakeNewGlossaryAction = None
 
 # Used as a return value of modify_env_var if the variable is not set.
 _null = SCons.Scanner.LaTeX._null
@@ -232,7 +239,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     saved_hashes = {}
     suffix_nodes = {}
 
-    for suffix in all_suffixes:
+
+    for suffix in all_suffixes+sum(newglossary_suffix, []):
         theNode = env.fs.File(targetbase + suffix)
         suffix_nodes[suffix] = theNode
         saved_hashes[suffix] = theNode.get_csig()
@@ -409,6 +417,21 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 check_file_error_message('%s (acronyms)' % env['MAKEACRONYMS'],
                                          'alg')
                 return result
+
+        # Now decide if latex will need to be run again due to newglossary command.
+        for ig in range(len(newglossary_suffix)):
+            if check_MD5(suffix_nodes[newglossary_suffix[ig][2]],newglossary_suffix[ig][2]) or (count == 1):
+                # We must run makeindex
+                if Verbose:
+                    print "Need to run makeindex for newglossary"
+                newglfile = suffix_nodes[newglossary_suffix[ig][2]]
+                MakeNewGlossaryAction = SCons.Action.Action("$MAKENEWGLOSSARY ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s" % (newglossary_suffix[ig][2],newglossary_suffix[ig][0],newglossary_suffix[ig][1]), "$MAKENEWGLOSSARYCOMSTR")
+
+                result = MakeNewGlossaryAction(newglfile, newglfile, env)
+                if result != 0:
+                    check_file_error_message('%s (newglossary)' % env['MAKENEWGLOSSARY'],
+                                             newglossary_suffix[ig][0])
+                    return result
 
         # Now decide if latex needs to be run yet again to resolve warnings.
         if warning_rerun_re.search(logContent):
@@ -595,9 +618,27 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
 
     for i in range(len(file_tests_search)):
         if file_tests[i][0] is None:
+            if Verbose:
+                print "scan i ",i," files_tests[i] ",file_tests[i], file_tests[i][1]
             file_tests[i][0] = file_tests_search[i].search(content)
             if Verbose and file_tests[i][0]:
-                print "   found match for ",file_tests[i][-1][-1]
+                print "   found match for ",file_tests[i][1][-1]
+            # for newglossary insert the suffixes in file_tests[i]
+            if file_tests[i][0] and file_tests[i][1][-1] == 'newglossary':
+                findresult = file_tests_search[i].findall(content)
+                for l in range(len(findresult)) :
+                    (file_tests[i][1]).insert(0,'.'+findresult[l][3])
+                    (file_tests[i][1]).insert(0,'.'+findresult[l][2])
+                    (file_tests[i][1]).insert(0,'.'+findresult[l][0])
+                    suffix_list = ['.'+findresult[l][0],'.'+findresult[l][2],'.'+findresult[l][3] ]
+                    newglossary_suffix.append(suffix_list)
+                    #newglossary_suffix.append('.'+findresult[l][0])
+                    #newglossary_suffix.append('.'+findresult[l][2])
+                    #newglossary_suffix.append('.'+findresult[l][3])
+                    #run_newglossary_suffix.append('.'+findresult[l][3])
+                if Verbose:
+                    print " new suffixes for newglossary ",newglossary_suffix
+                
 
     incResult = includeOnly_re.search(content)
     if incResult:
@@ -676,7 +717,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          makeglossary_re,
                          makeglossaries_re,
                          makeacronyms_re,
-                         beamer_re ]
+                         beamer_re,
+                         newglossary_re ]
     # set up list with the file suffixes that need emitting
     # when a feature is found
     file_tests_suff = [['.aux','aux_file'],
@@ -693,7 +735,9 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.glo', '.gls', '.glg','glossary'],
                   ['.glo', '.gls', '.glg','glossaries'],
                   ['.acn', '.acr', '.alg','acronyms'],
-                  ['.nav', '.snm', '.out', '.toc','beamer'] ]
+                  ['.nav', '.snm', '.out', '.toc','beamer'],
+                  ['newglossary',] ]
+    # for newglossary the suffixes are added as we find the command
     # build the list of lists
     file_tests = []
     for i in range(len(file_tests_search)):
@@ -722,6 +766,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     if Verbose:
         print "search path ",paths
 
+    # scan all sources for side effect files
     aux_files = []
     file_tests = ScanFiles(source[0], target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir, aux_files)
 
@@ -916,6 +961,9 @@ def generate_common(env):
     env['MAKENCLSTYLE'] = 'nomencl.ist'
     env['MAKENCLFLAGS'] = '-s ${MAKENCLSTYLE} -t ${SOURCE.filebase}.nlg'
     env['MAKENCLCOM']   = CDCOM + '${TARGET.dir} && $MAKENCL ${SOURCE.filebase}.nlo $MAKENCLFLAGS -o ${SOURCE.filebase}.nls'
+
+    env['MAKENEWGLOSSARY']      = 'makeindex'
+    env['MAKENEWGLOSSARYCOM']   = CDCOM + '${TARGET.dir} && $MAKENEWGLOSSARY '
 
 def exists(env):
     generate_darwin(env)
