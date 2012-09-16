@@ -73,18 +73,18 @@ class pathoptTestCase(unittest.TestCase):
                             DummyNode('/foo'))
 
     def test_list_node(self):
-        self.assert_pathopt(['-foopath', '/foo:/bar'],
+        self.assert_pathopt(['-foopath', os.pathsep.join(['/foo','/bar'])],
                             ['/foo', DummyNode('/bar')])
 
     def test_default_str(self):
         self.assert_pathopt_default(
-            ['-foopath', '/foo:/bar:/baz'],
+            ['-foopath', os.pathsep.join(['/foo','/bar','/baz'])],
             ['/foo', '/bar'],
             '/baz')
 
     def test_default_list(self):
         self.assert_pathopt_default(
-            ['-foopath', '/foo:/bar:/baz'],
+            ['-foopath', os.pathsep.join(['/foo','/bar','/baz'])],
             ['/foo', '/bar'],
             ['/baz'])
 

@@ -991,7 +991,111 @@ class must_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+class must_exist_one_of_TestCase(TestCommonTestCase):
+    def test_success(self):
+        """Test must_exist_one_of():  success"""
+        run_env = self.run_env
 
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "file1\\n")
+        tc.must_exist_one_of(['file1'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_failure(self):
+        """Test must_exist_one_of():  failure"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.must_exist_one_of(['file1'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "Missing one of: `file1'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("FAILED") != -1, stderr
+
+    def test_files_specified_as_list(self):
+        """Test must_exist_one_of():  files specified as list"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "file1\\n")
+        tc.must_exist_one_of(['file2', 'file1'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_files_specified_with_wildcards(self):
+        """Test must_exist_one_of():  files specified with wildcards"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file7', "file7\\n")
+        tc.must_exist_one_of(['file?'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_file_given_as_list(self):
+        """Test must_exist_one_of():  file given as list"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.subdir('sub')
+        tc.write(['sub', 'file1'], "sub/file1\\n")
+        tc.must_exist_one_of(['file2',
+                              ['sub', 'file1']])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_file_given_as_sequence(self):
+        """Test must_exist_one_of():  file given as sequence"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.subdir('sub')
+        tc.write(['sub', 'file1'], "sub/file1\\n")
+        tc.must_exist_one_of(['file2',
+                              ('sub', 'file1')])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
 
 class must_match_TestCase(TestCommonTestCase):
     def test_success(self):
@@ -1532,6 +1636,110 @@ class must_not_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
 
+class must_not_exist_any_of_TestCase(TestCommonTestCase):
+    def test_success(self):
+        """Test must_not_exist_any_of():  success"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.must_not_exist_any_of(['file1'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_failure(self):
+        """Test must_not_exist_any_of():  failure"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "file1\\n")
+        tc.must_not_exist_any_of(['file1'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "Unexpected files exist: `file1'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("FAILED") != -1, stderr
+
+    def test_files_specified_as_list(self):
+        """Test must_not_exist_any_of():  files specified as list"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.must_not_exist_any_of(['file2', 'file1'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_files_specified_with_wildcards(self):
+        """Test must_not_exist_any_of():  files specified with wildcards"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file7', "file7\\n")
+        tc.must_not_exist_any_of(['files?'])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_file_given_as_list(self):
+        """Test must_not_exist_any_of():  file given as list"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.subdir('sub')
+        tc.write(['sub', 'file1'], "sub/file1\\n")
+        tc.must_not_exist_any_of(['file2',
+                              ['sub', 'files*']])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_file_given_as_sequence(self):
+        """Test must_not_exist_any_of():  file given as sequence"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.subdir('sub')
+        tc.write(['sub', 'file1'], "sub/file1\\n")
+        tc.must_not_exist_any_of(['file2',
+                              ('sub', 'files?')])
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
 
 class run_TestCase(TestCommonTestCase):
     def test_argument_handling(self):
@@ -2102,12 +2310,14 @@ if __name__ == "__main__":
         must_contain_exactly_lines_TestCase,
         must_contain_lines_TestCase,
         must_exist_TestCase,
+        must_exist_one_of_TestCase,
         must_match_TestCase,
         must_not_be_writable_TestCase,
         must_not_contain_TestCase,
         must_not_contain_any_line_TestCase,
         must_not_contain_lines_TestCase,
         must_not_exist_TestCase,
+        must_not_exist_any_of_TestCase,
         run_TestCase,
         start_TestCase,
         skip_test_TestCase,

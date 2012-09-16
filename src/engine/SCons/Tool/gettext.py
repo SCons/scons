@@ -40,6 +40,9 @@ def exists(env):
   from SCons.Tool.GettextCommon \
   import _xgettext_exists, _msginit_exists, \
          _msgmerge_exists, _msgfmt_exists
-  return _xgettext_exists(env) and _msginit_exists(env) \
-     and _msgmerge_exists(env) and _msgfmt_exists(env)
+  try:
+    return _xgettext_exists(env) and _msginit_exists(env) \
+       and _msgmerge_exists(env) and _msgfmt_exists(env)
+  except:
+    return False
 #############################################################################

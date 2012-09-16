@@ -23,6 +23,10 @@ RELEASE 2.X.X -
   From Gary Oberbrunner:
     - Fix MSVS solution generation for VS11, and fixed tests.
 
+  From Rob Managan:
+    - Updated the TeX builder to support the \newglossary command
+      in LaTeX's glossaries package and the files it creates.
+
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
   From dubcanada on Bitbucket:

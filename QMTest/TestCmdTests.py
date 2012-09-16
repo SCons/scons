@@ -551,8 +551,8 @@ result = TestCmd.TestCmd.context_diff(['a\\n', 'b\\n', 'c\\n', 'e\\n', 'f1\\n'],
                                       ['a\\n', 'c\\n', 'd\\n', 'e\\n', 'f2\\n'])
 result = list(result)
 expect = [
-    '***  \\n',
-    '---  \\n',
+    '*** \\n',
+    '--- \\n',
     '***************\\n',
     '*** 1,5 ****\\n',
     '  a\\n',
@@ -580,8 +580,8 @@ result = TestCmd.TestCmd.unified_diff(['a\\n', 'b\\n', 'c\\n', 'e\\n', 'f1\\n'],
                                       ['a\\n', 'c\\n', 'd\\n', 'e\\n', 'f2\\n'])
 result = list(result)
 expect = [
-    '---  \\n',
-    '+++  \\n',
+    '--- \\n',
+    '+++ \\n',
     '@@ -1,5 +1,5 @@\\n',
     ' a\\n',
     '-b\\n',
