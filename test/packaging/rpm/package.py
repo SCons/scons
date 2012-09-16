@@ -29,9 +29,9 @@ Test the ability to create a really simple rpm package.
 """
 
 import os
+import glob
 import TestSCons
 
-machine = TestSCons.machine
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
@@ -83,12 +83,12 @@ env.Alias( 'install', prog )
 test.run(arguments='', stderr = None)
 
 src_rpm = 'foo-1.2.3-0.src.rpm'
-machine_rpm = 'foo-1.2.3-0.%s.rpm' % machine
+machine_rpm = 'foo-1.2.3-0.*.rpm'
 
-test.must_exist( machine_rpm )
+test.must_exist_one_of( [machine_rpm] )
 test.must_exist( src_rpm )
 test.must_not_exist( 'bin/main' )
-test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
+test.fail_test( not os.popen('rpm -qpl %s' % glob.glob(machine_rpm)[0].lstrip('./')).read()=='/bin/main\n')
 test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 test.pass_test()

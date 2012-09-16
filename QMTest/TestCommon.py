@@ -99,6 +99,7 @@ import copy
 import os
 import stat
 import sys
+import glob
 
 try:
     from collections import UserList
@@ -203,6 +204,14 @@ else:
 
 def is_List(e):
     return isinstance(e, (list, UserList))
+
+def is_Tuple(e):
+    return isinstance(e, tuple)
+
+def is_Sequence(e):
+    return (not hasattr(e, "strip") and
+            hasattr(e, "__getitem__") or
+            hasattr(e, "__iter__"))
 
 def is_writable(f):
     mode = os.stat(f)[stat.ST_MODE]
@@ -422,6 +431,26 @@ class TestCommon(TestCmd):
             print "Missing files: `%s'" % "', `".join(missing)
             self.fail_test(missing)
 
+    def must_exist_one_of(self, files):
+        """Ensures that at least one of the specified file(s) exists.
+        The filenames can be given as a list, where each entry may be
+        a single path string, or a tuple of folder names and the final
+        filename that get concatenated.
+        Supports wildcard names like 'foo-1.2.3-*.rpm'.
+        Exits FAILED if none of the files exists.
+        """
+        missing = []
+        for x in files:
+            if is_List(x) or is_Tuple(x):
+                xpath = os.path.join(*x)
+            else:
+                xpath = is_Sequence(x) and os.path.join(x) or x
+            if glob.glob(xpath):
+                return
+            missing.append(xpath)
+        print "Missing one of: `%s'" % "', `".join(missing)
+        self.fail_test(missing)
+
     def must_match(self, file, expect, mode = 'rb'):
         """Matches the contents of the specified file (first argument)
         against the expected contents (second argument).  The expected
@@ -498,6 +527,25 @@ class TestCommon(TestCmd):
             print "Unexpected files exist: `%s'" % "', `".join(existing)
             self.fail_test(existing)
 
+    def must_not_exist_any_of(self, files):
+        """Ensures that none of the specified file(s) exists.
+        The filenames can be given as a list, where each entry may be
+        a single path string, or a tuple of folder names and the final
+        filename that get concatenated.
+        Supports wildcard names like 'foo-1.2.3-*.rpm'.
+        Exits FAILED if any of the files exists.
+        """
+        existing = []
+        for x in files:
+            if is_List(x) or is_Tuple(x):
+                xpath = os.path.join(*x)
+            else:
+                xpath = is_Sequence(x) and os.path.join(x) or x
+            if glob.glob(xpath):
+                existing.append(xpath)
+        if existing:
+            print "Unexpected files exist: `%s'" % "', `".join(existing)
+            self.fail_test(existing)
 
     def must_not_be_writable(self, *files):
         """Ensures that the specified file(s) exist and are not writable.
