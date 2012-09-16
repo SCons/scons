@@ -42,7 +42,11 @@ import sys
 args = sys.argv[1:]
 while args:
     a = args[0]
-    if a[0] != '/':
+    if a == '-o':
+        out = args[1]
+        args = args[2:]
+        continue
+    if not a[0] in '/-':
         break
     args = args[1:]
     if a[:5].lower() == '/out:': out = a[5:]
@@ -60,6 +64,10 @@ args = sys.argv[1:]
 inf = None
 while args:
     a = args[0]
+    if a == '-o':
+        out = args[1]
+        args = args[2:]
+        continue
     args = args[1:]
     if a[0] != '/':
         if not inf:

@@ -551,11 +551,12 @@ class msvsTestCase(unittest.TestCase):
         debug("Testing for default version %s"%self.default_version)
         env = DummyEnv()
         v1 = get_default_version(env)
-        assert env['MSVS_VERSION'] == self.default_version, \
-               ("env['MSVS_VERSION'] != self.default_version",self.default_version, env['MSVS_VERSION'])
-        assert env['MSVS']['VERSION'] == self.default_version, \
-               ("env['MSVS']['VERSION'] != self.default_version",self.default_version, env['MSVS']['VERSION'])
-        assert v1 == self.default_version, (self.default_version, v1)
+        if v1:
+            assert env['MSVS_VERSION'] == self.default_version, \
+                   ("env['MSVS_VERSION'] != self.default_version",self.default_version, env['MSVS_VERSION'])
+            assert env['MSVS']['VERSION'] == self.default_version, \
+                   ("env['MSVS']['VERSION'] != self.default_version",self.default_version, env['MSVS']['VERSION'])
+            assert v1 == self.default_version, (self.default_version, v1)
 
         env = DummyEnv({'MSVS_VERSION':'7.0'})
         v2 = get_default_version(env)

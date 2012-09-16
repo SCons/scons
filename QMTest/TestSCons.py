@@ -698,13 +698,13 @@ class TestSCons(TestCommon):
         import sys
         if not version:
             version=''
-            frame = '/System/Library/Frameworks/JavaVM.framework/Headers/jni.h'
+            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h',
+                        '/usr/lib/jvm/default-java/include/jni.h']
         else:
-            frame = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version
-        jni_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
-                    '/usr/java/jdk%s*/include/jni.h'%version,
-		    frame,
-                    ]
+            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
+        jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
+                         '/usr/lib/jvm/java-%s*-openjdk/include/jni.h'%version,
+                         '/usr/java/jdk%s*/include/jni.h'%version])
         dirs = self.paths(jni_dirs)
         if not dirs:
             return None

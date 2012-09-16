@@ -554,6 +554,8 @@ class scons_subst_TestCase(SubstTestCase):
                 "TypeError `'NoneType' object is unsubscriptable' trying to evaluate `${NONE[2]}'",
                 # Python 2.7 and later
                 "TypeError `'NoneType' object is not subscriptable' trying to evaluate `${NONE[2]}'",
+                # Python 2.7 and later under Fedora
+                "TypeError `'NoneType' object has no attribute '__getitem__'' trying to evaluate `${NONE[2]}'",
             ]
             assert str(e) in expect, e
         else:
