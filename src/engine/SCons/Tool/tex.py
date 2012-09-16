@@ -632,10 +632,6 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
                     (file_tests[i][1]).insert(0,'.'+findresult[l][0])
                     suffix_list = ['.'+findresult[l][0],'.'+findresult[l][2],'.'+findresult[l][3] ]
                     newglossary_suffix.append(suffix_list)
-                    #newglossary_suffix.append('.'+findresult[l][0])
-                    #newglossary_suffix.append('.'+findresult[l][2])
-                    #newglossary_suffix.append('.'+findresult[l][3])
-                    #run_newglossary_suffix.append('.'+findresult[l][3])
                 if Verbose:
                     print " new suffixes for newglossary ",newglossary_suffix
                 
