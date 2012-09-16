@@ -1,0 +1,138 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+ &SCons; construction environments have a &MergeFlags; method
+ that merges a dictionary of values into the construction environment.
+ &MergeFlags; treats each value in the dictionary
+ as a list of options such as one might pass to a command
+ (such as a compiler or linker).
+ &MergeFlags; will not duplicate an option
+ if it already exists in the construction environment variable.
+
+ </para>
+
+ <para>
+
+ &MergeFlags; tries to be intelligent about merging options.
+ When merging options to any variable
+ whose name ends in <varname>PATH</varname>,
+ &MergeFlags; keeps the leftmost occurrence of the option,
+ because in typical lists of directory paths,
+ the first occurrence "wins."
+ When merging options to any other variable name,
+ &MergeFlags; keeps the rightmost occurrence of the option,
+ because in a list of typical command-line options,
+ the last occurrence "wins."
+
+ </para>
+
+ <programlisting>
+    env = Environment()
+    env.Append(CCFLAGS = '-option -O3 -O1')
+    flags = { 'CCFLAGS' : '-whatever -O3' }
+    env.MergeFlags(flags)
+    print env['CCFLAGS']
+ </programlisting>
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    ['-option', '-O1', '-whatever', '-O3']
+    scons: `.' is up to date.
+ </screen>
+
+ <para>
+
+ Note that the default value for &cv-link-CCFLAGS;
+ <!--
+ [TODO: for when we make CLVar public]
+ is a <varname>CLVar</varname>,
+ -->
+ is an internal &SCons; object
+ which automatically converts
+ the options we specified as a string into a list.
+
+ </para>
+
+ <programlisting>
+    env = Environment()
+    env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
+    flags = { 'CPPPATH' : ['/usr/opt/include', '/usr/local/include'] }
+    env.MergeFlags(flags)
+    print env['CPPPATH']
+ </programlisting>
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    ['/include', '/usr/local/include', '/usr/include', '/usr/opt/include']
+    scons: `.' is up to date.
+ </screen>
+
+ <para>
+
+ Note that the default value for &cv-link-CPPPATH;
+ <!--
+ [TODO: for when we make CLVar public]
+ is a Python list, not a <varname>CLVar</varname>,
+ -->
+ is a normal Python list,
+ so we must specify its values as a list
+ in the dictionary we pass to the &MergeFlags; function.
+
+ </para>
+
+ <para>
+
+ If &MergeFlags; is passed anything other than a dictionary,
+ it calls the &ParseFlags; method to convert it into a dictionary.
+
+ </para>
+
+ <programlisting>
+    env = Environment()
+    env.Append(CCFLAGS = '-option -O3 -O1')
+    env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
+    env.MergeFlags('-whatever -I/usr/opt/include -O3 -I/usr/local/include')
+    print env['CCFLAGS']
+    print env['CPPPATH']
+ </programlisting>
+
+ <screen>
+    % <userinput>scons -Q</userinput>
+    ['-option', '-O1', '-whatever', '-O3']
+    ['/include', '/usr/local/include', '/usr/include', '/usr/opt/include']
+    scons: `.' is up to date.
+ </screen>
+
+ <para>
+
+ In the combined example above,
+ &ParseFlags; has sorted the options into their corresponding variables
+ and returned a dictionary for &MergeFlags; to apply
+ to the construction variables
+ in the specified construction environment.
+
+ </para>

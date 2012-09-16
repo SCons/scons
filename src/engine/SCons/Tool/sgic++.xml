@@ -1,0 +1,18 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="sgic++">
+<summary>
+Sets construction variables for the SGI C++ compiler.
+</summary>
+<sets>
+CXX
+CXXFLAGS
+SHCXX
+SHOBJSUFFIX
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+</sets>
+</tool>
