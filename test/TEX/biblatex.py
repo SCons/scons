@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test creation of a Tex document that uses the multibib oackage
+Test creation of a Tex document that uses the multibib package
 
 Test courtesy Rob Managan.
 """
@@ -88,7 +88,6 @@ files = [
     'biblatextest.aux',
     'biblatextest.bbl',
     'biblatextest.blg',
-    'biblatextest-blx.bib',
     'biblatextest.fls',
     'biblatextest.log',
     'biblatextest.pdf',
