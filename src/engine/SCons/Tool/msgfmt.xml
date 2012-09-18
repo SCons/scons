@@ -1,0 +1,102 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="msgfmt">
+<summary>
+This scons tool is a part of scons &t-link-gettext; toolset. It provides scons
+interface to <command>msgfmt(1)</command> command, which generates binary
+message catalog (<literal>MO</literal>) from a textual translation description
+(<literal>PO</literal>).
+</summary>
+<sets>
+MOSUFFIX
+MSGFMT
+MSGFMTCOM
+MSGFMTCOMSTR
+MSGFMTFLAGS
+POSUFFIX
+</sets>
+<uses>
+LINGUAS_FILE
+</uses>
+</tool>
+
+<builder name="MOFiles">
+<summary>
+This builder belongs to &t-link-msgfmt; tool. The builder compiles
+<literal>PO</literal> files to <literal>MO</literal> files.
+
+<emphasis>Example 1</emphasis>.
+Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
+<filename>pl.po</filename> and <filename>en.po</filename>:
+<example>
+  # ...
+  env.MOFiles(['pl', 'en'])
+</example>
+
+<emphasis>Example 2</emphasis>.
+Compile files for languages defined in <filename>LINGUAS</filename> file:
+<example>
+  # ...
+  env.MOFiles(LINGUAS_FILE = 1)
+</example>
+
+<emphasis>Example 3</emphasis>.
+Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
+<filename>pl.po</filename> and <filename>en.po</filename> plus files for
+languages defined in <filename>LINGUAS</filename> file:
+<example>
+  # ...
+  env.MOFiles(['pl', 'en'], LINGUAS_FILE = 1)
+</example>
+
+<emphasis>Example 4</emphasis>.
+Compile files for languages defined in <filename>LINGUAS</filename> file 
+(another version):
+<example>
+  # ...
+  env['LINGUAS_FILE'] = 1
+  env.MOFiles()
+</example>
+</summary>
+</builder>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MOSUFFIX">
+<summary>
+Suffix used for <literal>MO</literal> files (default: <literal>'.mo'</literal>).
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMT">
+<summary>
+Absolute path to <command>msgfmt(1)</command> binary, found by
+<function>Detect()</function>.
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMTCOM">
+<summary>
+Complete command line to run <command>msgfmt(1)</command> program.
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMTCOMSTR">
+<summary>
+String to display when <command>msgfmt(1)</command> is invoked 
+(default: <literal>''</literal>, which means ``print &cv-link-MSGFMTCOM;'').
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMTFLAGS">
+<summary>
+Additional flags to <command>msgfmt(1)</command>.
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</summary>
+</cvar>

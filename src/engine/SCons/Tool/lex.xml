@@ -1,0 +1,50 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="lex">
+<summary>
+Sets construction variables for the &lex; lexical analyser.
+</summary>
+<sets>
+LEX
+LEXFLAGS
+LEXCOM
+</sets>
+<uses>
+LEXCOMSTR
+</uses>
+</tool>
+
+<cvar name="LEX">
+<summary>
+The lexical analyzer generator.
+</summary>
+</cvar>
+
+<cvar name="LEXCOM">
+<summary>
+The command line used to call the lexical analyzer generator
+to generate a source file.
+</summary>
+</cvar>
+
+<cvar name="LEXCOMSTR">
+<summary>
+The string displayed when generating a source file
+using the lexical analyzer generator.
+If this is not set, then &cv-link-LEXCOM; (the command line) is displayed.
+
+<example>
+env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="LEXFLAGS">
+<summary>
+General options passed to the lexical analyzer generator.
+</summary>
+</cvar>
