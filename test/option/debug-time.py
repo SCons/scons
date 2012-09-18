@@ -60,7 +60,7 @@ test.write('f2.in', "f2.in\n")
 test.write('f3.in', "f3.in\n")
 test.write('f4.in', "f4.in\n")
 
-
+expected_targets = ['f1.out', 'f2.out', 'f3.out', 'f4.out', 'output', '.']
 
 # Before anything else, make sure we get valid --debug=time results
 # when just running the help option.
@@ -108,8 +108,12 @@ complete_time = time.time() - start_time
 
 expected_total_time = complete_time - overhead
 
-pattern = r'Command execution time: (\d+\.\d+) seconds'
-times = list(map(float, re.findall(pattern, test.stdout())))
+pattern = r'Command execution time:(.*):(\d+\.\d+) seconds'
+targets = []
+times = []
+for target,time in re.findall(pattern, test.stdout()):
+    targets.append(target)
+    times.append(float(time))
 expected_command_time = 0.0
 for t in times:
     expected_command_time += t
@@ -124,6 +128,12 @@ command_time    = get_command_time(stdout)
 
 failures = []
 warnings = []
+
+if  targets != expected_targets:
+    failures.append("""\
+Scons reported the targets of timing information as %(targets)s, 
+but the actual targets should have been %(expected_targets)s.
+""" %locals())
 
 if not within_tolerance(expected_command_time, command_time, 0.01):
     failures.append("""\
