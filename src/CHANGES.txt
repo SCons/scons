@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From eyan on Bitbucket:
+    - Print target name with command execution time with --debug=time
+
   From Thomas Berg and Evgeny Podjachev:
     - Fix subprocess spawning on Windows.  Work around a Windows
       bug that can crash python occasionally when using -jN. (#2449)
