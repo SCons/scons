@@ -187,7 +187,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             finish_time = time.time()
             last_command_end = finish_time
             cumulative_command_time = cumulative_command_time+finish_time-start_time
-            sys.stdout.write("Command execution time:%s:%f seconds\n"%(str(self.node), finish_time-start_time))
+            sys.stdout.write("Command execution time: %s: %f seconds\n"%(str(self.node), finish_time-start_time))
 
     def do_failed(self, status=2):
         _BuildFailures.append(self.exception[1])

@@ -108,7 +108,7 @@ complete_time = time.time() - start_time
 
 expected_total_time = complete_time - overhead
 
-pattern = r'Command execution time:(.*):(\d+\.\d+) seconds'
+pattern = r'Command execution time: (.*): (\d+\.\d+) seconds'
 targets = []
 times = []
 for target,time in re.findall(pattern, test.stdout()):
@@ -150,7 +150,7 @@ but the various execution times actually totalled %(added_times)s,
 outside of the 1%% tolerance.
 """ % locals())
 
-if not within_tolerance(total_time, expected_total_time, 0.15):
+if not within_tolerance(total_time, expected_total_time, 0.20):
     # This tolerance check seems empirically to work fine if there's
     # a light load on the system, but on a heavily loaded system the
     # timings get screwy and it can fail frequently.  Some obvious
