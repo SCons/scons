@@ -39,7 +39,7 @@ tooldir = os.path.join(os.getcwd(), 'src', 'engine', 'SCons', 'Tool')
 import TestSCons
 test = TestSCons.TestSCons()
 
-# Before executing the any of the platform or tool modules, add some
+# Before executing any of the platform or tool modules, add some
 # null entries to the environment $PATH variable to make sure there's
 # no code that tries to index elements from the list before making sure
 # they're non-null.
@@ -77,6 +77,8 @@ ignore = ('__init__.py',
         'MSCommon',
         # Sun pkgchk and pkginfo common stuff
         'sun_pkg.py',
+        # RPM utilities
+        'rpmutils.py',
         )
 tools = []
 for name in os.listdir(tooldir):

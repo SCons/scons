@@ -701,7 +701,7 @@ class msvs80TestCase(msvsTestCase):
 class msvsEmptyTestCase(msvsTestCase):
     """Test Empty Registry"""
     registry = DummyRegistry(regdata_none)
-    default_version = '10.0'
+    default_version = '11.0'
     highest_version = None
     number_of_versions = 0
     install_locs = {
