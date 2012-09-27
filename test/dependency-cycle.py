@@ -50,8 +50,8 @@ f1(void)
 
 test.run(arguments = ".", stderr=r"""
 scons: \*\*\* Found dependency cycle\(s\):
-  .*foo1.* -> .*foo3.* -> .*foo2.* -> .*foo1.*
-  .*foo3.* -> .*foo2.* -> .*foo1.* -> .*foo3.*
+  .*foo(1|3|2).* -> .*foo(3|2|1).* -> .*foo(2|1|3).* -> .*foo(1|3|2).*
+  .*foo(3|1|2).* -> .*foo(2|3|1).* -> .*foo(1|2|3).* -> .*foo(3|1|2).*
 
 .*
 """, status=2)

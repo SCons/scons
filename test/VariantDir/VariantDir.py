@@ -26,9 +26,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 
 _exe = TestSCons._exe
-fortran_runtime = TestSCons.fortran_lib
 
 test = TestSCons.TestSCons()
+fortran_runtime = test.gccFortranLibs()
 
 fortran = test.detect('FORTRAN')
 
