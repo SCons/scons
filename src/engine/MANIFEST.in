@@ -154,6 +154,7 @@ SCons/Tool/RCS.py
 SCons/Tool/rmic.py
 SCons/Tool/rpcgen.py
 SCons/Tool/rpm.py
+SCons/Tool/rpmutils.py
 SCons/Tool/SCCS.py
 SCons/Tool/sgiar.py
 SCons/Tool/sgic++.py
