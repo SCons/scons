@@ -36,7 +36,6 @@ import os
 import os.path
 import sys
 import tempfile
-import threading
 
 from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
@@ -82,28 +81,39 @@ else:
     builtins.file = _scons_file
     builtins.open = _scons_open
 
-spawn_lock = threading.Lock()
-
-# This locked version of spawnve works around a Windows
-# MSVCRT bug, because its spawnve is not thread-safe.
-# Without this, python can randomly crash while using -jN.
-# See the python bug at http://bugs.python.org/issue6476
-# and SCons issue at
-# http://scons.tigris.org/issues/show_bug.cgi?id=2449
-def spawnve(mode, file, args, env):
-    spawn_lock.acquire()
-    try:
+try:
+    import threading
+    spawn_lock = threading.Lock()
+    
+    # This locked version of spawnve works around a Windows
+    # MSVCRT bug, because its spawnve is not thread-safe.
+    # Without this, python can randomly crash while using -jN.
+    # See the python bug at http://bugs.python.org/issue6476
+    # and SCons issue at
+    # http://scons.tigris.org/issues/show_bug.cgi?id=2449
+    def spawnve(mode, file, args, env):
+        spawn_lock.acquire()
+        try:
+            if mode == os.P_WAIT:
+                ret = os.spawnve(os.P_NOWAIT, file, args, env)
+            else:
+                ret = os.spawnve(mode, file, args, env)
+        finally:
+            spawn_lock.release()
         if mode == os.P_WAIT:
-            ret = os.spawnve(os.P_NOWAIT, file, args, env)
-        else:
-            ret = os.spawnve(mode, file, args, env)
-    finally:
-        spawn_lock.release()
-    if mode == os.P_WAIT:
-        pid, status = os.waitpid(ret, 0)
-        ret = status >> 8
-    return ret
-
+            pid, status = os.waitpid(ret, 0)
+            ret = status >> 8
+        return ret
+except ImportError:
+    # Use the unsafe method of spawnve.
+    # Please, don't try to optimize this try-except block
+    # away by assuming that the threading module is always present.
+    # In the test test/option-j.py we intentionally call SCons with
+    # a fake threading.py that raises an import exception right away,
+    # simulating a non-existent package.
+    def spawnve(mode, file, args, env):
+        return os.spawnve(mode, file, args, env)
+    
 # The upshot of all this is that, if you are using Python 1.5.2,
 # you had better have cmd or command.com in your PATH when you run
 # scons.

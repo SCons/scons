@@ -169,9 +169,7 @@ test.write(['src', 'file6.in'], "file6.in 1\n")
 test.write(['src', 'subdir', 'file7.in'], "subdir/file7.in 1\n")
 
 
-
 args = '--debug=explain .'
-
 
 
 expect = test.wrap_stdout("""\
@@ -203,7 +201,9 @@ scons: building `%(subdir_file9)s' because it doesn't exist
 %(_python_)s %(cat_py)s %(subdir_file9)s %(subdir_file7_in)s
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file1'], "file1.in 1\n")
 test.must_match(['src', 'file2'], """\
@@ -259,7 +259,9 @@ scons: rebuilding `%(subdir_file8)s' because:
 %(_python_)s %(cat_py)s %(subdir_file8)s %(subdir_file7_in)s
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file1'], "file1.in 2\n")
 test.must_match(['src', 'file2'], """\
@@ -289,7 +291,9 @@ scons: rebuilding `file3' because `zzz' is no longer a dependency
 %(_python_)s %(cat_py)s file3 xxx yyy
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file3'], "xxx 1\nyyy 2\n")
 
@@ -327,7 +331,9 @@ scons: rebuilding `file3' because the dependency order changed:
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 
@@ -352,7 +358,9 @@ scons: rebuilding `file3' because the build action changed:
 %(_python_)s %(cat_py)s file3.yyy zzz yyy xxx yyy
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 test.must_match(['src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
@@ -381,7 +389,9 @@ scons: rebuilding `file3' because the build action changed:
 %(_python_)s %(cat_py)s file3.yyy zzz yyy xxx xxx
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 test.must_match(['src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
@@ -402,7 +412,9 @@ scons: rebuilding `file4' because the contents of the build action changed
 %(_python_)s %(cat_py)s file4 file4.in
 """ % locals())
 
+test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src',arguments=args, stdout=expect)
+test.set_match_function(TestSCons.match_exact)
 
 test.must_match(['src', 'file4'], "file4.in 1\n")
 

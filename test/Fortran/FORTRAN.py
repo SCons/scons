@@ -87,7 +87,7 @@ test.must_match('test08' + _exe, "This is a .FPP file.\n")
 
 fc = 'f77'
 f77 = test.detect_tool(fc)
-FTN_LIB = TestSCons.fortran_lib
+FTN_LIB = test.gccFortranLibs()
 
 if f77:
 
