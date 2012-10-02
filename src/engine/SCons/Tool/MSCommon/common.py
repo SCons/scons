@@ -136,6 +136,8 @@ def get_output(vcbat, args = None, env = None):
     # settings in vs.py.
     vars = [
         'COMSPEC',
+        'VS110COMNTOOLS',
+        'VS100COMNTOOLS',
         'VS90COMNTOOLS',
         'VS80COMNTOOLS',
         'VS71COMNTOOLS',
