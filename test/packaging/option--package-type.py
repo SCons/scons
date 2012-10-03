@@ -29,6 +29,7 @@ Test the --package-type option.
 """
 
 import TestSCons
+import SCons.Tool.rpmutils
 
 _python_ = TestSCons._python_
 
@@ -67,12 +68,12 @@ env.Package( NAME           = 'foo',
 """ % locals())
 
 src_rpm = 'foo-1.2.3-0.src.rpm'
-machine_rpm = 'foo-1.2.3-0.*.rpm'
+machine_rpm = 'foo-1.2.3-0.%s.rpm' % SCons.Tool.rpmutils.defaultMachine()
 
 test.run(arguments='package PACKAGETYPE=rpm', stderr = None)
 
 test.must_exist( src_rpm )
-test.must_exist_one_of( [machine_rpm] )
+test.must_exist( machine_rpm )
 test.must_not_exist( 'bin/main.c' )
 test.must_not_exist( '/bin/main.c' )
 
@@ -80,7 +81,7 @@ test.run(arguments='-c package PACKAGETYPE=rpm', stderr = None)
 
 test.run(arguments='package --package-type=rpm', stderr = None)
 test.must_exist( src_rpm )
-test.must_exist_one_of( [machine_rpm] )
+test.must_exist( machine_rpm )
 test.must_not_exist( 'bin/main.c' )
 test.must_not_exist( '/bin/main.c' )
 

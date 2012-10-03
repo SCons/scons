@@ -32,7 +32,7 @@ These are x-rpm-Group, description, summary and the lang_xx file tag.
 """
 
 import os
-import glob
+import SCons.Tool.rpmutils
 
 import TestSCons
 
@@ -95,30 +95,29 @@ env.Alias ( 'install', prog )
 test.run(arguments='', stderr = None)
 
 src_rpm = 'foo-1.2.3-0.src.rpm'
-machine_rpm = 'foo-1.2.3-0.*.rpm'
+machine_rpm = 'foo-1.2.3-0.%s.rpm' % SCons.Tool.rpmutils.defaultMachine()
 
 test.must_exist( src_rpm )
-test.must_exist_one_of( [machine_rpm] )
+test.must_exist( machine_rpm )
 
 test.must_not_exist( 'bin/main' )
 
-machine_rpm_path = glob.glob(machine_rpm)[0].lstrip('./')
 cmd = 'rpm -qp --queryformat \'%%{GROUP}-%%{SUMMARY}-%%{DESCRIPTION}\' %s'
 
 os.environ['LANGUAGE'] = 'de'
-out = os.popen( cmd % test.workpath(machine_rpm_path) ).read()
+out = os.popen( cmd % test.workpath(machine_rpm) ).read()
 test.fail_test( out != 'Applikation/büro-hallo-das sollte wirklich lang sein' )
 
 os.environ['LANGUAGE'] = 'fr'
-out = os.popen( cmd % test.workpath(machine_rpm_path) ).read()
+out = os.popen( cmd % test.workpath(machine_rpm) ).read()
 test.fail_test( out != 'Application/bureau-bonjour-ceci devrait être vraiment long' )
 
 os.environ['LANGUAGE'] = 'en'
-out = os.popen( cmd % test.workpath(machine_rpm_path) ).read()
+out = os.popen( cmd % test.workpath(machine_rpm) ).read()
 test.fail_test( out != 'Application/office-hello-this should be really long' )
 
 os.environ['LC_ALL'] = 'ae'
-out = os.popen( cmd % test.workpath(machine_rpm_path) ).read()
+out = os.popen( cmd % test.workpath(machine_rpm) ).read()
 test.fail_test( out != 'Application/office-hello-this should be really long' )
 
 #
@@ -177,7 +176,7 @@ env.Alias ( 'install', [ prog, man_pages ] )
 test.run(arguments='--install-sandbox=blubb install', stderr = None)
 
 test.must_exist( src_rpm )
-test.must_exist_one_of( [machine_rpm] )
+test.must_exist( machine_rpm )
 
 test.pass_test()
 
