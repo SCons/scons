@@ -1,0 +1,12 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="icl">
+<summary>
+Sets construction variables for the Intel C/C++ compiler.
+Calls the &t-intelc; Tool module to set its variables.
+</summary>
+</tool>

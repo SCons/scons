@@ -1,0 +1,19 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="sunf95">
+<summary>
+Set construction variables for the Sun &f95; Fortran compiler.
+</summary>
+<sets>
+FORTRAN
+F95
+SHFORTRAN
+SHF95
+SHFORTRANFLAGS
+SHF95FLAGS
+</sets>
+</tool>
