@@ -6,7 +6,7 @@ A TestSCons environment object is created via the usual invocation:
 
     test = TestSCons()
 
-TestScons is a subclass of TestCommon, which is in turn is a subclass
+TestScons is a subclass of TestCommon, which in turn is a subclass
 of TestCmd), and hence has available all of the methods and attributes
 from those classes, as well as any overridden or additional methods or
 attributes defined in this subclass.
@@ -25,6 +25,9 @@ import time
 
 from TestCommon import *
 from TestCommon import __all__
+
+from TestCmd import Popen
+from TestCmd import PIPE
 
 # Some tests which verify that SCons has been packaged properly need to
 # look for specific version file names.  Replicating the version number
@@ -85,35 +88,6 @@ lib_ = lib_prefix
 _dll = dll_suffix
 dll_ = dll_prefix
 
-def gccFortranLibs():
-    """Test which gcc Fortran startup libraries are required.
-    This should probably move into SCons itself, but is kind of hacky.
-    """
-
-    libs = ['g2c']
-    cmd = 'gcc -v'
-
-    try:
-        import subprocess
-    except ImportError:
-        try:
-            import popen2
-            stderr = popen2.popen3(cmd)[2].read()
-        except OSError:
-            return libs
-    else:
-        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
-        stderr = p.stderr.read()
-    m = re.search('gcc version (\d\.\d)', stderr)
-    if m:
-        gcc_version = m.group(1)
-        if re.match('4.[^0]', gcc_version):
-            libs = ['gfortranbegin']
-        elif gcc_version in ('3.1', '4.0'):
-            libs = ['frtbegin'] + libs
-
-    return libs
-
 
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
@@ -123,16 +97,6 @@ if sys.platform == 'cygwin':
 else:
     def case_sensitive_suffixes(s1, s2):
         return (os.path.normcase(s1) != os.path.normcase(s2))
-
-
-if sys.platform == 'win32':
-    fortran_lib = gccFortranLibs()
-elif sys.platform == 'cygwin':
-    fortran_lib = gccFortranLibs()
-elif sys.platform.find('irix') != -1:
-    fortran_lib = ['ftn']
-else:
-    fortran_lib = gccFortranLibs()
 
 
 file_expr = r"""File "[^"]*", line \d+, in [^\n]+
@@ -957,6 +921,33 @@ SConscript( sconscript )
 
     # to use cygwin compilers on cmd.exe -> uncomment following line
     #Configure_lib = 'm'
+
+    def gccFortranLibs(self):
+        """Test which gcc Fortran startup libraries are required.
+        This should probably move into SCons itself, but is kind of hacky.
+        """
+        if sys.platform.find('irix') != -1:
+            return ['ftn']
+
+        libs = ['g2c']
+        cmd = ['gcc','-v']
+    
+        try:
+            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate()
+        except:
+            return libs
+    
+        m = re.search('(gcc\s+version|gcc-Version)\s+(\d\.\d)', stderr)
+        if m:
+            gcc_version = m.group(2)
+            if re.match('4.[^0]', gcc_version):
+                libs = ['gfortranbegin']
+            elif gcc_version in ('3.1', '4.0'):
+                libs = ['frtbegin'] + libs
+    
+        return libs
+
 
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,

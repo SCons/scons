@@ -640,10 +640,6 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 #        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
-for dir in sp:
-    q = os.path.join(dir, 'QMTest')
-    pythonpaths.append(q)
-
 # Add path of the QMTest folder to PYTHONPATH
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
