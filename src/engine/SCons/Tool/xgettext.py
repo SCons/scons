@@ -323,7 +323,10 @@ def generate(env,**kw):
 def exists(env):
   """ Check, whether the tool exists """
   from SCons.Tool.GettextCommon import _xgettext_exists
-  return _xgettext_exists(env)
+  try:
+    return _xgettext_exists(env)
+  except:
+    return False
 #############################################################################
 
 # Local Variables:

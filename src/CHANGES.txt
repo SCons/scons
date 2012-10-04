@@ -11,16 +11,32 @@
 
 RELEASE 2.X.X - 
 
+  From eyan on Bitbucket:
+    - Print target name with command execution time with --debug=time
+
   From Thomas Berg and Evgeny Podjachev:
     - Fix subprocess spawning on Windows.  Work around a Windows
       bug that can crash python occasionally when using -jN. (#2449)
 
   From Dirk Baechle:
     - Updated test framework to support dir and file fixtures and
-      added ability to test external (out-of-tree) tools.
+      added ability to test external (out-of-tree) tools (#2862).
       See doc in QMTest/test-framework.rst.
+    - Fixed several errors in the test suite (Java paths, MSVS version
+      detection, Tool import), additionally
+      * provided MinGW command-line support for the CXX, AS and
+        Fortran tests,
+      * refactored the detection of the gcc version and the according
+        Fortran startup library,
+      * provided a new module rpmutils.py, wrapping the RPM naming rules
+        for target files and further hardware-dependent info (compatibility,
+        compiler flags, ...),
+      * added new test methods must_exist_one_of() and 
+        must_not_exist_any_of() and
+      * removed Aegis support from runtest.py. (#2872)
 
   From Gary Oberbrunner:
+    - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
     - Fix MSVS solution generation for VS11, and fixed tests.
 
   From Rob Managan:
