@@ -1,0 +1,204 @@
+<html>
+<head>
+<script src="js/common.js"></script>
+<style type="text/css">
+table {
+  border-collapse: collapse;
+}
+thead {
+  border-top: solid 1px gray;
+  border-left: solid 1px gray;
+}
+tbody {
+  border-top: solid 1px gray;
+  border-bottom: solid 1px gray;
+  border-left: solid 1px gray;
+}
+th {
+  text-align: center;
+  border-right: solid 1px gray;
+}
+td {
+  padding-left: 0.5em;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-right: 1.4em;
+  border-top: solid 1px gray;
+  vertical-align: top;
+  font-family: monospace;
+}
+form {
+  background-color: lightblue;
+  border: 1px solid gray;
+  padding: 2px;
+}
+iframe#content {
+  border: none;
+  width: 0px;
+  height: 0px;
+}
+/*
+form {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+}
+*/
+</style>
+</head>
+<body>
+<form name="ui">
+  SVN path: <input id="url" type="text" name="url" value="">
+  SVN revision range: <input id="range" type="text" name="range" value="">
+  <input id="mode_text" type="radio" name="mode" value="text">text
+  <input id="mode_html" type="radio" name="mode" value="html">html
+  <input type="submit" value="Show Changelog">
+</form>
+
+<script>
+params = ParseParams();
+
+function fix_text(str, n) {
+  if (str.length > n)
+    return str.substring(0, n);
+
+  for (var i = str.length; i < n; ++i)
+    str = str + ' ';
+  return str;
+}
+
+function get_entries() {
+  return content.contentDocument.getElementsByTagName("logentry");
+}
+
+function get_info(entry) {
+  var r = new Object;
+  r.rev = entry.getAttribute("revision");
+  r.author = entry.getElementsByTagName("author")[0].textContent;
+  r.msg = entry.getElementsByTagName("msg")[0].textContent;
+  r.paths = [];
+  var paths = entry.getElementsByTagName("path")
+  for (var i = 0; i < paths.length; ++i) {
+    r.paths.push({"action" : paths[i].getAttribute("action"),
+                  "value"  : paths[i].textContent});
+  }
+  return r;
+}
+
+function render_log_callback() {
+  if ("mode" in params && params.mode == "text") {
+    var out = document.createElement("PRE");
+    document.body.appendChild(out);
+
+    var entries = get_entries();
+    for (var i = 0; i < entries.length; ++i) {
+      var info = get_info(entries[i]);
+
+      var msg = info.msg;
+      msg = msg.replace(/\n/g, ' ' );
+      msg = msg.replace(/\t/g, ' ' );
+      while (msg.charAt(0) == ' ')
+        msg = msg.substring(1);
+      
+      var msg_clipped = msg.substring(0, 66);
+      if (msg_clipped.length < msg.length)
+        msg_clipped = msg_clipped + "...";
+
+      out.appendChild(document.createTextNode(
+          fix_text(info.rev, 6) + " " +
+          fix_text(info.author, 8) + " " +
+          msg_clipped + "\n"));
+    }
+  } else {
+    var table = document.createElement("TABLE");
+    table.setAttribute("class", "log");
+    document.body.appendChild(table);
+
+    var entries = get_entries();
+    for (var i = 0; i < entries.length; ++i) {
+      var info = get_info(entries[i]);
+
+      var tr = document.createElement("TR");
+      table.appendChild(tr);
+
+      var td, a;
+
+      // revision:
+      td = document.createElement("TD");
+      tr.appendChild(td);
+
+      a = document.createElement("A");
+      a.setAttribute("href", "http://scons.tigris.org/source/browse/scons?view=rev&revision=" + info.rev);
+      a.appendChild(document.createTextNode(info.rev));
+
+      td.appendChild(a);
+
+      // author:
+      td = document.createElement("TD");
+      tr.appendChild(td);
+
+      a = document.createElement("A");
+      a.setAttribute("href", "mailto:" + info.author);
+      a.appendChild(document.createTextNode(info.author));
+
+      td.appendChild(a);
+
+      // details:
+      td = document.createElement("TD");
+      tr.appendChild(td);
+
+      var p = document.createElement("PRE");
+      td.appendChild(p);
+
+      var s = info.msg;
+      p.appendChild(document.createTextNode(s));
+
+      for (var j = 0; j < info.paths.length; ++j) {
+        td.appendChild(document.createTextNode(info.paths[j]["action"] + " - "))
+        var a = document.createElement("A");
+        a.setAttribute("href", "http://scons.tigris.org/source/browse/scons" + info.paths[j]["value"] + "?r1=" + info.rev + "&r2=" + (info.rev - 1) + "&pathrev=" + info.rev);
+        a.appendChild(document.createTextNode(info.paths[j]["value"]));
+        td.appendChild(a);
+        td.appendChild(document.createElement("BR"));
+      }
+    }
+  }
+}
+
+function render_log() {
+  var svn_url = params["url"];
+  var svn_range = params["range"];
+  if (svn_url == undefined || svn_range == undefined)
+    return;
+
+  var url = "http://" + location.host + "/cgi-bin/svn-log?url=http://codf21.jail/svn/" +
+      unescape(svn_url) + "&range=" + unescape(svn_range);
+
+  // global 'content' variable: a hidden iframe used to fetch svn data.
+  content = document.createElement("IFRAME");
+  content.setAttribute("id", "content");
+  content.setAttribute("onload", "render_log_callback()");
+  content.setAttribute("src", url);
+  document.body.appendChild(content);
+
+  var el;
+  if ("mode" in params && params["mode"] == "text") {
+    el = document.getElementById("mode_text");
+  } else {
+    el = document.getElementById("mode_html");
+  }
+  el.setAttribute("checked", "1");
+
+  el = document.getElementById("url");
+  el.setAttribute("value", unescape(svn_url));
+
+  el = document.getElementById("range");
+  el.setAttribute("value", unescape(svn_range));
+}
+
+render_log()
+</script>
+</body>
+</html>
+
