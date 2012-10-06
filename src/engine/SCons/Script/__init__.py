@@ -361,6 +361,7 @@ GlobalDefaultBuilders = [
     'TypeLibrary',
     'Zip',
     'Package',
+    'VersionedSharedLibrary',
 ]
 
 for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
