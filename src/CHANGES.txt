@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From Alexey Klimkin:
+    - Fix nested LIBPATH expansion by flattening sequences in subst_path.
+
   From eyan on Bitbucket:
     - Print target name with command execution time with --debug=time
 
