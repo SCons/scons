@@ -645,7 +645,7 @@ def tool_list(platform, env):
         fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
         ar = FindTool(ars, env) or ars[0]
 
-    d_compilers = ['dmd', 'gdc', 'ldc2']
+    d_compilers = ['dmd', 'gdc', 'ldc']
     d_compiler = FindTool(d_compilers, env) or d_compilers[0]
 
     other_tools = FindAllTools(other_plat_tools + [
