@@ -70,7 +70,10 @@ def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
 def generate(env,**kw):
   """ Generate the `xgettext` tool """
   from SCons.Tool.GettextCommon import _detect_msgmerge
-  env['MSGMERGE'] = _detect_msgmerge(env)
+  try:
+    env['MSGMERGE'] = _detect_msgmerge(env)
+  except:
+    env['MSGMERGE'] = 'msgmerge'
   env.SetDefault(
     POTSUFFIX = ['.pot'],
     POSUFFIX = ['.po'],
@@ -88,7 +91,10 @@ def generate(env,**kw):
 def exists(env):
   """ Check if the tool exists """
   from SCons.Tool.GettextCommon import _msgmerge_exists
-  return  _msgmerge_exists(env)
+  try:
+    return  _msgmerge_exists(env)
+  except:
+    return False
 #############################################################################
 
 # Local Variables:
