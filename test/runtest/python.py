@@ -43,7 +43,9 @@ test_pass_py = os.path.join('test', 'pass.py')
 head, python = os.path.split(TestRuntest.python)
 head, dir = os.path.split(head)
 
-mypython = os.path.join(head, dir, os.path.pardir, dir, python)
+# We have to normalize the python path here, because some installations don't like
+# getting called with "/bin/../bin/python" as first argument, e.g. Fedora 17 Desktop.
+mypython = os.path.normpath(os.path.join(head, dir, os.path.pardir, dir, python))
 
 def escape(s):
     return s.replace('\\', '\\\\')
