@@ -40,7 +40,11 @@ _obj = TestSCons._obj
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re,
                                  diff = TestSConsign.diff_re)
 
-CC = test.detect('CC', norm=1)
+# Note: Here we pass the full search PATH of our current system to
+# the detect() method. This way we try to ensure that we find the same
+# compiler executable as the SConstruct below, which uses
+# os.environ['PATH'] too.
+CC = test.detect('CC', ENV={'PATH' : os.environ.get('PATH','')}, norm=1)
 CC_dir, CC_file = os.path.split(CC)
 
 CC = re.escape(CC)

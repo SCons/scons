@@ -271,7 +271,10 @@ def generate(env,**kw):
   import SCons.Util
   from SCons.Tool.GettextCommon import RPaths, _detect_xgettext
 
-  env['XGETTEXT'] = _detect_xgettext(env)
+  try:
+    env['XGETTEXT'] = _detect_xgettext(env)
+  except:
+    env['XGETTEXT'] = 'xgettext' 
   # NOTE: sources="$SOURCES" would work as well. However, we use following
   # construction to convert absolute paths provided by scons onto paths
   # relative to current working dir. Note, that scons expands $SOURCE(S) to
