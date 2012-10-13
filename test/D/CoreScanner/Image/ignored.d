@@ -1,3 +1,0 @@
-module  ignored;
-
-int something;

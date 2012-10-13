@@ -3,14 +3,14 @@
 Tool-specific initialization for the Digital Mars D compiler.
 (http://digitalmars.com/d)
 
-Originally coded by Andy Friesen (andy@ikagames.com)
+Coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
 
-Evolved by Russel Winder (russel@winder.org.uk)
-2010-02-07, 2010-11-17, 2011-02, 2011-05-14, 2012-05-08, 2012-09-02, 2012-09-06
+Amended by Russel Winder (russel@russel.org.uk)
+2010-02-07
 
 There are a number of problems with this script at this point in time.
-The one that irritates the most is the Windows linker setup.  The D
+The one that irritates me the most is the Windows linker setup.  The D
 linker doesn't have a way to add lib paths on the commandline, as far
 as I can see.  You have to specify paths relative to the SConscript or
 use absolute paths.  To hack around it, add '#/blah'.  This will link
@@ -60,7 +60,6 @@ Lib tool variables:
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import subprocess
 
 import SCons.Action
 import SCons.Builder
@@ -68,12 +67,26 @@ import SCons.Defaults
 import SCons.Scanner.D
 import SCons.Tool
 
-import SCons.Tool.DCommon
+# Adapted from c++.py
+def isD(source):
+    if not source:
+        return 0
+
+    for s in source:
+        if s.sources:
+            ext = os.path.splitext(str(s.sources[0]))[1]
+            if ext == '.d':
+                return 1
+    return 0
 
 smart_link = {}
+
 smart_lib = {}
 
 def generate(env):
+    global smart_link
+    global smart_lib
+
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     DAction = SCons.Action.Action('$DCOM', '$DCOMSTR')
@@ -97,7 +110,14 @@ def generate(env):
     env['DDEBUG'] = []
 
     if dc:
-        SCons.Tool.DCommon.addDPATHToEnv(env, dc)
+        # Add the path to the standard library.
+        # This is merely for the convenience of the dependency scanner.
+        dmd_path = env.WhereIs(dc)
+        if dmd_path:
+            x = dmd_path.rindex(dc)
+            phobosDir = dmd_path[:x] + '/../src/phobos'
+            if os.path.isdir(phobosDir):
+                env.Append(DPATH = [phobosDir])
 
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
@@ -109,34 +129,106 @@ def generate(env):
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
 
-    env['DLINK'] = '$DC'
-    env['DLINKCOM'] = '$DLINK -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
-    env['DLIB'] = 'lib'
-    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS -c $TARGET $SOURCES $_DLINKLIBFLAGS'
+    # Need to use the Digital Mars linker/lib on windows.
+    # *nix can just use GNU link.
+    if env['PLATFORM'] == 'win32':
+        env['DLINK'] = '$DC'
+        env['DLINKCOM'] = '$DLINK -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+        env['DLIB'] = 'lib'
+        env['DLIBCOM'] = '$DLIB $_DLIBFLAGS -c $TARGET $SOURCES $_DLINKLIBFLAGS'
 
-    env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
-    env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
-    env['DLINKFLAGS'] = []
-    env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
-    env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
-    env['DLIBFLAGPREFIX'] = '-'
-    env['DLIBFLAGSUFFIX'] = ''
-    env['DLINKFLAGPREFIX'] = '-'
-    env['DLINKFLAGSUFFIX'] = ''
+        env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+        env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
+        env['DLINKFLAGS'] = []
+        env['DLIBLINKPREFIX'] = ''
+        env['DLIBLINKSUFFIX'] = '.lib'
+        env['DLIBFLAGPREFIX'] = '-'
+        env['DLIBFLAGSUFFIX'] = ''
+        env['DLINKFLAGPREFIX'] = '-'
+        env['DLINKFLAGSUFFIX'] = ''
 
-    SCons.Tool.createStaticLibBuilder(env)
+        SCons.Tool.createStaticLibBuilder(env)
 
-    # Basically, we hijack the link and ar builders with our own.
-    # these builders check for the presence of D source, and swap out
-    # the system's defaults for the Digital Mars tools.  If there's no D
-    # source, then we silently return the previous settings.
-    SCons.Tool.DCommon.setSmartLink(env, smart_link, smart_lib)
+        # Basically, we hijack the link and ar builders with our own.
+        # these builders check for the presence of D source, and swap out
+        # the system's defaults for the Digital Mars tools.  If there's no D
+        # source, then we silently return the previous settings.
+        linkcom = env.get('LINKCOM')
+        try:
+            env['SMART_LINKCOM'] = smart_link[linkcom]
+        except KeyError:
+            def _smartLink(source, target, env, for_signature,
+                           defaultLinker=linkcom):
+                if isD(source):
+                    # XXX I'm not sure how to add a $DLINKCOMSTR variable
+                    # so that it works with this _smartLink() logic,
+                    # and I don't have a D compiler/linker to try it out,
+                    # so we'll leave it alone for now.
+                    return '$DLINKCOM'
+                else:
+                    return defaultLinker
+            env['SMART_LINKCOM'] = smart_link[linkcom] = _smartLink
 
-    # It is worth noting that the final space in these strings is
-    # absolutely pivotal.  SCons sees these as actions and not generators
-    # if it is not there. (very bad)
-    env['ARCOM'] = '$SMART_ARCOM '
-    env['LINKCOM'] = '$SMART_LINKCOM '
+        arcom = env.get('ARCOM')
+        try:
+            env['SMART_ARCOM'] = smart_lib[arcom]
+        except KeyError:
+            def _smartLib(source, target, env, for_signature,
+                         defaultLib=arcom):
+                if isD(source):
+                    # XXX I'm not sure how to add a $DLIBCOMSTR variable
+                    # so that it works with this _smartLib() logic, and
+                    # I don't have a D compiler/archiver to try it out,
+                    # so we'll leave it alone for now.
+                    return '$DLIBCOM'
+                else:
+                    return defaultLib
+            env['SMART_ARCOM'] = smart_lib[arcom] = _smartLib
+
+        # It is worth noting that the final space in these strings is
+        # absolutely pivotal.  SCons sees these as actions and not generators
+        # if it is not there. (very bad)
+        env['ARCOM'] = '$SMART_ARCOM '
+        env['LINKCOM'] = '$SMART_LINKCOM '
+    else: # assuming linux
+        linkcom = env.get('LINKCOM')
+        try:
+            env['SMART_LINKCOM'] = smart_link[linkcom]
+        except KeyError:
+            def _smartLink(source, target, env, for_signature,
+                           defaultLinker=linkcom, dc=dc):
+                if isD(source):
+                    try:
+                        libs = env['LIBS']
+                    except KeyError:
+                        libs = []
+                    if dc == 'dmd':
+                        # TODO: This assumes that the dmd executable is in the
+                        # bin directory and that the libraries are in a peer
+                        # directory lib.  This true of the Digital Mars
+                        # distribution but . . .
+                        import glob
+                        dHome = env.WhereIs(dc).replace('/dmd' , '/..')
+                        if glob.glob(dHome + '/lib/*phobos2*'):
+                            if 'phobos2' not in libs:
+                                env.Append(LIBPATH = [dHome + '/lib'])
+                                env.Append(LIBS = ['phobos2'])
+                                # TODO: Find out when there will be a
+                                # 64-bit version of D.
+                                env.Append(LINKFLAGS = ['-m32'])
+                        else:
+                            if 'phobos' not in libs:
+                                env.Append(LIBS = ['phobos'])
+                    elif dc is 'gdmd':
+                        env.Append(LIBS = ['gphobos'])
+                    if 'pthread' not in libs:
+                        env.Append(LIBS = ['pthread'])
+                    if 'm' not in libs:
+                        env.Append(LIBS = ['m'])
+                return defaultLinker
+            env['SMART_LINKCOM'] = smart_link[linkcom] = _smartLink
+
+        env['LINKCOM'] = '$SMART_LINKCOM '
 
 def exists(env):
     return env.Detect(['dmd', 'gdmd'])
