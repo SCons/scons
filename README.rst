@@ -47,8 +47,9 @@ version at the SCons download page:
 Execution Requirements
 ======================
 
-Running SCons requires Python version 2.4 or later.  There should be no other
-dependencies or requirements to run SCons.
+Running SCons requires Python version 2.4 or later (Python 3 is not
+yet supported).  There should be no other dependencies or requirements
+to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on WIN32 systems, and assumes a C compiler named 'cc', a C++
@@ -156,12 +157,12 @@ Or on Windows::
 By default, the above commands will do the following:
 
 - Install the version-numbered "scons-2.0.0" and "sconsign-2.0.0" scripts in
-  the default system script directory (/usr/bin or C:\Python*\Scripts, for
+  the default system script directory (/usr/bin or C:\\Python\*\\Scripts, for
   example).  This can be disabled by specifying the "--no-version-script"
   option on the command line.
 
 - Install scripts named "scons" and "sconsign" scripts in the default system
-  script directory (/usr/bin or C:\Python*\Scripts, for example).  This can be
+  script directory (/usr/bin or C:\\Python\*\\Scripts, for example).  This can be
   disabled by specifying the "--no-scons-script" option on the command line,
   which is useful if you want to install and experiment with a new version
   before making it the default on your system.
@@ -172,7 +173,7 @@ By default, the above commands will do the following:
   the command line.
 
 - Install "scons-2.0.0.bat" and "scons.bat" wrapper scripts in the Python
-  prefix directory on Windows (C:\Python*, for example).  This can be disabled
+  prefix directory on Windows (C:\\Python\*, for example).  This can be disabled
   by specifying the "--no-install-bat" option on the command line.
 
   On UNIX or Linux systems, the "--install-bat" option may be specified to
@@ -183,7 +184,7 @@ By default, the above commands will do the following:
 
 - Install the SCons build engine (a Python module) in an appropriate
   version-numbered SCons library directory (/usr/lib/scons-2.0.0 or
-  C:\Python*\scons-2.0.0, for example).  See below for more options related to
+  C:\\Python\*\\scons-2.0.0, for example).  See below for more options related to
   installing the build engine library.
 
 - Install the troff-format man pages in an appropriate directory on UNIX or
@@ -200,7 +201,7 @@ library modules (the build engine) in other Python scripts, specify the
         # python setup.py install --standard-lib
 
 This will install the build engine in the standard Python library directory
-(/usr/lib/python*/site-packages or C:\Python*\Lib\site-packages).
+(/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
 
 Alternatively, you can have SCons install its build engine library in a
 hard-coded standalone library directory, instead of the default
@@ -735,14 +736,18 @@ Steven Knight, knight at baldmt dot com, http://www.baldmt.com/~knight/
 With plenty of help from the SCons Development team:
 
 - Chad Austin
+- Dirk Baechle
 - Charles Crain
 - William Deegan
 - Steve Leblanc
+- Rob Managan
 - Greg Noel
 - Gary Oberbrunner
 - Anthony Roach
 - Greg Spencer
 - Christoph Wiedemann
+- Russel Winder
 
+\... and many others.
 
 __COPYRIGHT__
