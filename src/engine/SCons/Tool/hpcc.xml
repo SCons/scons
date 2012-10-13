@@ -1,0 +1,18 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="hpcc">
+<summary>
+Set construction variables for the
+<application>aCC</application> on HP/UX systems.
+Calls the &t-cXX; tool for additional variables.
+</summary>
+<sets>
+CXX
+SHCXXFLAGS
+CXXVERSION
+</sets>
+</tool>

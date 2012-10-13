@@ -1,0 +1,25 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="386asm">
+<summary>
+Sets construction variables for the 386ASM assembler
+for the Phar Lap ETS embedded operating system.
+</summary>
+<sets>
+AS
+ASFLAGS
+ASPPFLAGS
+ASCOM
+ASPPCOM
+</sets>
+<uses>
+CC
+CPPFLAGS
+_CPPDEFFLAGS
+_CPPINCFLAGS
+</uses>
+</tool>
