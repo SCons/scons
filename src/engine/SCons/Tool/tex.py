@@ -129,6 +129,9 @@ LaTeXAction = None
 # An action to run BibTeX on a file.
 BibTeXAction = None
 
+# An action to run Biber on a file.
+BiberAction = None
+
 # An action to run MakeIndex on a file.
 MakeIndexAction = None
 
@@ -344,7 +347,9 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                         must_rerun_latex = True
 
         # Now decide if biber will need to be run.
-        # The information that bibtex reads from the .bcf file is
+        # When the backend for biblatex is biber (by choice or default) the
+        # citation information is put in the .bcf file.
+        # The information that biber reads from the .bcf file is
         # pass-independent. If we find (below) that the .bbl file is unchanged,
         # then the last latex saw a correct bibliography.
         # Therefore only do this once
@@ -357,11 +362,11 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                     content = open(target_bcf, "rb").read()
                     if content.find("bibdata") != -1:
                         if Verbose:
-                            print "Need to run bibtex on ",bcffilename
+                            print "Need to run biber on ",bcffilename
                         bibfile = env.fs.File(SCons.Util.splitext(target_bcf)[0])
-                        result = BibTeXAction(bibfile, bibfile, env)
+                        result = BiberAction(bibfile, bibfile, env)
                         if result != 0:
-                            check_file_error_message(env['BIBTEX'], 'blg')
+                            check_file_error_message(env['BIBER'], 'blg')
                         must_rerun_latex = True
 
         # Now decide if latex will need to be run again due to index.
@@ -880,6 +885,11 @@ def generate_common(env):
     if BibTeXAction is None:
         BibTeXAction = SCons.Action.Action("$BIBTEXCOM", "$BIBTEXCOMSTR")
 
+    # Define an action to run Biber on a file.
+    global BiberAction
+    if BiberAction is None:
+        BiberAction = SCons.Action.Action("$BIBERCOM", "$BIBERCOMSTR")
+
     # Define an action to run MakeIndex on a file.
     global MakeIndexAction
     if MakeIndexAction is None:
@@ -938,6 +948,10 @@ def generate_common(env):
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
     env['BIBTEXCOM']   = CDCOM + '${TARGET.dir} && $BIBTEX $BIBTEXFLAGS ${SOURCE.filebase}'
+
+    env['BIBER']      = 'biber'
+    env['BIBERFLAGS'] = SCons.Util.CLVar('')
+    env['BIBERCOM']   = CDCOM + '${TARGET.dir} && $BIBER $BIBERFLAGS ${SOURCE.filebase}'
 
     env['MAKEINDEX']      = 'makeindex'
     env['MAKEINDEXFLAGS'] = SCons.Util.CLVar('')
