@@ -38,8 +38,8 @@ latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find tex or latex; skipping test(s).\n")
 
-gloss = os.system('kpsewhich comment.sty')
-if not gloss==0:
+comment = os.system('kpsewhich comment.sty')
+if not comment==0:
     test.skip_test("comment.sty not installed; skipping test(s).\n")
 
 # package hyperref generates foo.out
