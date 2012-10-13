@@ -40,7 +40,7 @@ if not latex:
     test.skip_test("Could not find 'pdflatex'; skipping test.\n")
 
 biber = test.where_is('biber')
-if not latex:
+if not biber:
     test.skip_test("Could not find 'biber'; skipping test.\n")
 
 gloss = os.system('kpsewhich biblatex.sty')
