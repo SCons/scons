@@ -1,7 +1,7 @@
 #
 # SConstruct file to build scons packages during development.
 #
-# See the README file for an overview of how SCons is built and tested.
+# See the README.rst file for an overview of how SCons is built and tested.
 
 # When this gets changed, you must also change the copyright_years string
 # in QMTest/TestSCons.py so the test scripts look for the right string.

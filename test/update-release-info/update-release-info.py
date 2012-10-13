@@ -35,7 +35,7 @@ import TestRuntest
 this_year=time.localtime()[0]
 
 TestSCons      = 'QMTest/TestSCons.py'             .split('/')
-README         = 'README'                          .split('/')
+README         = 'README.rst'                      .split('/')
 ReleaseConfig  = 'ReleaseConfig'                   .split('/')
 SConstruct     = 'SConstruct'                      .split('/')
 Announce       = 'src/Announce.txt'                .split('/')
@@ -154,6 +154,8 @@ These files are a part of 33.22.11:
         scons-33.22.11.tar.gz
         scons-33.22.11.win32.exe
         scons-33.22.11.zip
+        scons-33.22.11.rpm
+        scons-33.22.11.deb
 
         scons-33.22.11.beta.20012122112.suffix
 """)
@@ -211,6 +213,8 @@ These files are a part of 33.22.11:
         scons-2.0.0.alpha.yyyymmdd.tar.gz
         scons-2.0.0.alpha.yyyymmdd.win32.exe
         scons-2.0.0.alpha.yyyymmdd.zip
+        scons-2.0.0.alpha.yyyymmdd.rpm
+        scons-2.0.0.alpha.yyyymmdd.deb
 
         scons-2.0.0.alpha.yyyymmdd.suffix
 """, mode = 'r')
