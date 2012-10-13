@@ -26,6 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test creation of a Tex document that uses the biblatex package
+It uses the default backend, could be bibtex or biber. 
+Require both be installed
 
 Test courtesy Rob Managan.
 """
@@ -39,8 +41,16 @@ latex = test.where_is('pdflatex')
 if not latex:
     test.skip_test("Could not find 'pdflatex'; skipping test.\n")
 
-gloss = os.system('kpsewhich biblatex.sty')
-if not gloss==0:
+biber = test.where_is('biber')
+if not biber:
+    test.skip_test("Could not find 'biber'; skipping test.\n")
+
+bibtex = test.where_is('bibtex')
+if not bibtex:
+    test.skip_test("Could not find 'bibtex'; skipping test.\n")
+
+biblatex = os.system('kpsewhich biblatex.sty')
+if not biblatex==0:
     test.skip_test("biblatex.sty not installed; skipping test(s).\n")
 
 
@@ -49,7 +59,7 @@ test.write(['SConstruct'], """\
 
 import os
 env = Environment(ENV=os.environ)
-main_output = env.PDF(target='biblatextest.pdf', source='biblatextest.tex')
+main_output = env.PDF('bibertest.tex')
 """)
 
 
@@ -63,7 +73,7 @@ sources_bib_content = r"""
 """
 test.write(['ref.bib'],sources_bib_content % '2013' )
 
-test.write(['biblatextest.tex'],r"""
+test.write(['bibertest.tex'],r"""
 \documentclass{article}
 
 \usepackage{biblatex}
@@ -85,19 +95,20 @@ test.run()
 
 # All (?) the files we expect will get created in the docs directory
 files = [
-    'biblatextest.aux',
-    'biblatextest.bbl',
-    'biblatextest.blg',
-    'biblatextest.fls',
-    'biblatextest.log',
-    'biblatextest.pdf',
-    'biblatextest.run.xml',
+    'bibertest.aux',
+    'bibertest.bbl',
+    'bibertest.blg',
+    'bibertest.fls',
+    'bibertest.log',
+    'bibertest.pdf',
+    'bibertest.run.xml',
 ]
+
 
 for f in files:
     test.must_exist([ f])
 
-pdf_output_1 = test.read('biblatextest.pdf')
+pdf_output_1 = test.read('bibertest.pdf')
 
 
 
@@ -105,7 +116,7 @@ test.write(['ref.bib'],sources_bib_content % '1982')
 
 test.run()
 
-pdf_output_2 = test.read('biblatextest.pdf')
+pdf_output_2 = test.read('bibertest.pdf')
 
 pdf_output_1 = test.normalize_pdf(pdf_output_1)
 pdf_output_2 = test.normalize_pdf(pdf_output_2)
