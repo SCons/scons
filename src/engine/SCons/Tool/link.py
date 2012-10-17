@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import re
+
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
@@ -64,16 +66,23 @@ def smart_link(source, target, env, for_signature):
     return '$CC'
 
 def shlib_emitter(target, source, env):
+    platform = env.subst('$PLATFORM')
     for tgt in target:
         tgt.attributes.shared = 1
     try:
         # target[0] comes in as libtest.so. Add the version extensions
         version = env.subst('$SHLIBVERSION')
         if version:
-            versionparts = version.split('.')
-            name = str(target[0])
-            for ver in versionparts:
-                name = name + '.' + ver
+            if platform == 'posix':
+                versionparts = version.split('.')
+                name = str(target[0])
+                for ver in versionparts:
+                    name = name + '.' + ver
+                    target.insert(0, env.fs.File(name))
+            elif platform == 'darwin':
+                shlib_suffix = env.subst('$SHLIBSUFFIX')
+                name = str(target[0])
+                name = re.sub(shlib_suffix+"$",'.'+version+shlib_suffix,name)
                 target.insert(0, env.fs.File(name))
     except KeyError:
         version = None

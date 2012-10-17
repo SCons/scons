@@ -259,11 +259,9 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
             if Verbose:
                 print "ilib_suffix ",ilib_suffix,", soname ",soname,", shlink_flags ",shlink_flags
         elif platform == 'cygwin':
-            ilib_suffix = shlib_suffix
             shlink_flags += [ '-Wl,-Bsymbolic',
                               '-Wl,--out-implib,${TARGET.base}.a' ]
         elif platform == 'darwin':
-            ilib_suffix = '.' + version + shlib_suffix
             shlink_flags += [ '-current_version', '%s' % version,
                               '-compatibility_version', '%s' % version,
                               '-undefined', 'dynamic_lookup' ]
@@ -279,10 +277,11 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
             if version.count(".") != 2:
                 # We need a library name in libfoo.x.y.z.dylib form to proceed
                 raise ValueError
-            lib = libname + '.dylib'
-            lib_no_ver = libname + '.dylib'
-            suffix_re = '%s\\.[0-9\\.]*$' % re.escape(shlib_suffix)
-            lib_no_ver = re.sub(suffix_re, shlib_suffix, lib)
+            # regex to find version+.dylib in the target name
+            suffix_re = '[\\.0-9]*%s$' % re.escape(shlib_suffix)
+            # remove the version string from libname so we can make a symlink
+            lib_no_ver = re.sub(suffix_re, shlib_suffix, libname)
+            os.symlink(libname,lib_no_ver)
         elif platform == 'posix':
             if version.count(".") != 2:
                 # We need a library name in libfoo.so.x.y.z form to proceed
