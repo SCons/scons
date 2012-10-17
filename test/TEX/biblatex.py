@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test creation of a Tex document that uses the multibib package
+Test creation of a Tex document that uses the biblatex package
 
 Test courtesy Rob Managan.
 """
@@ -39,8 +39,8 @@ latex = test.where_is('pdflatex')
 if not latex:
     test.skip_test("Could not find 'pdflatex'; skipping test.\n")
 
-gloss = os.system('kpsewhich biblatex.sty')
-if not gloss==0:
+biblatex = os.system('kpsewhich biblatex.sty')
+if not biblatex==0:
     test.skip_test("biblatex.sty not installed; skipping test(s).\n")
 
 

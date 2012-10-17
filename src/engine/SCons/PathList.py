@@ -131,12 +131,14 @@ class _PathList(object):
                 value = env.subst(value, target=target, source=source,
                                   conv=node_conv)
                 if SCons.Util.is_Sequence(value):
-                    result.extend(value)
-                    continue
-                    
+                    result.extend(SCons.Util.flatten(value))
+                elif value:
+                    result.append(value)
             elif type == TYPE_OBJECT:
                 value = node_conv(value)
-            if value:
+                if value:
+                    result.append(value)
+            elif value:
                 result.append(value)
         return tuple(result)
 
