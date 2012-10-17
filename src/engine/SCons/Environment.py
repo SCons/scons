@@ -2257,7 +2257,6 @@ class Base(SubstitutionEnvironment):
             (major, age, revision) = version.split(".")
             soname = "lib" + libname + shlib_suffix + "." + major
             shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
-            print "ilib_suffix ",ilib_suffix,", soname ",soname,", shlink_flags ",shlink_flags
         elif platform == 'cygwin':
             ilib_suffix = shlib_suffix
             shlink_flags += [ '-Wl,-Bsymbolic',
