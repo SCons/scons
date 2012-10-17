@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From Alexey Klimkin:
+    - Fix nested LIBPATH expansion by flattening sequences in subst_path.
+
   From eyan on Bitbucket:
     - Print target name with command execution time with --debug=time
 
@@ -37,6 +40,8 @@ RELEASE 2.X.X -
   From Rob Managan:
     - Updated the TeX builder to support the \newglossary command
       in LaTeX's glossaries package and the files it creates.
+    - Improve support for new versions of biblatex in the TeX builder 
+      so biber is called automatically if biblatex requires it.
 
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 

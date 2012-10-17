@@ -48,6 +48,8 @@ class subst_pathTestCase(unittest.TestCase):
                 return s
 
         self.env = FakeEnvironment(AAA = 'aaa', NULL = '')
+        from SCons.Environment import Environment
+        self.env = Environment(AAA = 'aaa', NULL = '')
 
     def test_node(self):
         """Test the subst_path() method on a Node
@@ -120,6 +122,40 @@ class subst_pathTestCase(unittest.TestCase):
 
         assert result == ('aaa',), result
 
+    def test_list_of_lists(self):
+        """Test the subst_path() method on substitution of nested lists.
+        """
+        pl = SCons.PathList.PathList((['$AAA', '$AAA'], '$NULL'))
+        result = pl.subst_path(self.env, 'y', 'z')
+        assert result == ('aaa', 'aaa'), result
+
+    def test_subst_nested(self):
+        """Test the subst_path() method on nested substitution of strings.
+        """
+        self.env.Append(L1 = ['a', 'b'],
+                        L2 = ['c', 'd'],
+                        L3 = ['$L2'])
+        pl = SCons.PathList.PathList(['$L1'])
+        result = pl.subst_path(self.env, 'y', 'z')
+        assert result == ('a', 'b'), result
+        self.env.Append(L1 = ['$L2'])
+        pl = SCons.PathList.PathList(['$L1'])
+        result = pl.subst_path(self.env, 'y', 'z')
+        assert result == ('a', 'b', 'c', 'd'), result
+        self.env.Append(L1 = ['$L3'])
+        pl = SCons.PathList.PathList(['$L1'])
+        result = pl.subst_path(self.env, 'y', 'z')
+        assert result == ('a', 'b', 'c', 'd', 'c', 'd'), result
+
+    def test_another_env(self):
+        """Test the subst_path does lazy evaluation.
+        """
+        pl = SCons.PathList.PathList(('$AAA', '$NULL'))
+        result = pl.subst_path(self.env, 'y', 'z')
+        assert result == ('aaa',), result
+        e = self.env.Clone(AAA = 'bbb')
+        result = pl.subst_path(e, 'y', 'z')
+        assert result == ('bbb',), result
 
 class PathListCacheTestCase(unittest.TestCase):
 

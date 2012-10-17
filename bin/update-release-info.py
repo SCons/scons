@@ -305,11 +305,10 @@ t.replace_assign('default_version', repr(version_string))
 
 # Update README
 
-t = UpdateFile('README')
-if DEBUG: t.file = '/tmp/README'
+t = UpdateFile('README.rst')
+if DEBUG: t.file = '/tmp/README.rst'
 t.sub('-' + t.match_pat + '\.', '-' + version_string + '.', count = 0)
-# the loop below can be removed after all 1.x.y releases are dead
-for suf in ['tar', 'win32', 'zip']:
+for suf in ['tar', 'win32', 'zip', 'rpm', 'exe', 'deb']:
     t.sub('-(\d+\.\d+\.\d+)\.%s' % suf,
           '-%s.%s' % (version_string, suf),
           count = 0)

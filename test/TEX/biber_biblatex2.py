@@ -25,7 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test creation of a Tex document that uses the multibib oackage
+Test creation of a Tex document that uses the biblatex package
+It uses the default backend, could be bibtex or biber. 
+Require both be installed
 
 Test courtesy Rob Managan.
 """
@@ -43,8 +45,12 @@ biber = test.where_is('biber')
 if not biber:
     test.skip_test("Could not find 'biber'; skipping test.\n")
 
-gloss = os.system('kpsewhich biblatex.sty')
-if not gloss==0:
+bibtex = test.where_is('bibtex')
+if not bibtex:
+    test.skip_test("Could not find 'bibtex'; skipping test.\n")
+
+biblatex = os.system('kpsewhich biblatex.sty')
+if not biblatex==0:
     test.skip_test("biblatex.sty not installed; skipping test(s).\n")
 
 
@@ -53,7 +59,6 @@ test.write(['SConstruct'], """\
 
 import os
 env = Environment(ENV=os.environ)
-env['BIBTEX'] = 'biber'
 main_output = env.PDF('bibertest.tex')
 """)
 
@@ -71,7 +76,7 @@ test.write(['ref.bib'],sources_bib_content % '2013' )
 test.write(['bibertest.tex'],r"""
 \documentclass{article}
 
-\usepackage[backend=biber]{biblatex}
+\usepackage{biblatex}
 \addbibresource{ref.bib}
 
 \begin{document}
@@ -92,7 +97,6 @@ test.run()
 files = [
     'bibertest.aux',
     'bibertest.bbl',
-    'bibertest.bcf',
     'bibertest.blg',
     'bibertest.fls',
     'bibertest.log',

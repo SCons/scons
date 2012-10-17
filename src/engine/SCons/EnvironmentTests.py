@@ -1440,6 +1440,21 @@ def exists(env):
         x = s("${_concat(PRE, LIST, SUF, __env__)}")
         assert x == 'preasuf prebsuf', x
 
+    def test_concat_nested(self):
+        "Test _concat() on a nested substitution strings."
+        e = self.TestEnvironment(PRE='pre', SUF='suf',
+                                 L1=['a', 'b'],
+                                 L2=['c', 'd'],
+                                 L3=['$L2'])
+        x = e.subst('$( ${_concat(PRE, L1, SUF, __env__)} $)')
+        assert x == 'preasuf prebsuf', x
+        e.AppendUnique(L1 = ['$L2'])
+        x = e.subst('$( ${_concat(PRE, L1, SUF, __env__)} $)')
+        assert x == 'preasuf prebsuf precsuf predsuf', x
+        e.AppendUnique(L1 = ['$L3'])
+        x = e.subst('$( ${_concat(PRE, L1, SUF, __env__)} $)')
+        assert x == 'preasuf prebsuf precsuf predsuf precsuf predsuf', x
+
     def test_gvars(self):
         """Test the Environment gvars() method"""
         env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')
