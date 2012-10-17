@@ -39,6 +39,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import imp
 import sys
+import re
+import os
 
 import SCons.Builder
 import SCons.Errors
@@ -233,6 +235,71 @@ def createStaticLibBuilder(env):
 
     return static_lib
 
+def VersionedSharedLibrary(target = None, source= None, env=None):
+    Verbose = False
+    try:
+        version = env.subst('$SHLIBVERSION')
+    except KeyError:
+        version = None
+    libname = str(target[0])
+    if Verbose:
+        print "VersionShLib: libname = ",libname
+    platform = env.subst('$PLATFORM')
+    shlib_suffix = env.subst('$SHLIBSUFFIX')
+    shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
+
+    if version:
+        if platform == 'posix':
+            ilib_suffix = '.' + version
+            ilib_len = len(ilib_suffix)
+            (major, age, revision) = version.split(".")
+            index = libname.find('.'+major,-ilib_len,-1)
+            soname = libname[0:index] + "." + major
+            shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
+            if Verbose:
+                print "ilib_suffix ",ilib_suffix,", soname ",soname,", shlink_flags ",shlink_flags
+        elif platform == 'cygwin':
+            ilib_suffix = shlib_suffix
+            shlink_flags += [ '-Wl,-Bsymbolic',
+                              '-Wl,--out-implib,${TARGET.base}.a' ]
+        elif platform == 'darwin':
+            ilib_suffix = '.' + version + shlib_suffix
+            shlink_flags += [ '-current_version', '%s' % version,
+                              '-compatibility_version', '%s' % version,
+                              '-undefined', 'dynamic_lookup' ]
+        envlink = env.Clone()
+        envlink['SHLINKFLAGS'] = shlink_flags
+    else:
+        envlink = env
+
+    result = SCons.Defaults.ShLinkAction(target, source, envlink)
+
+    if version:
+        if platform == 'darwin':
+            if version.count(".") != 2:
+                # We need a library name in libfoo.x.y.z.dylib form to proceed
+                raise ValueError
+            lib = libname + '.dylib'
+            lib_no_ver = libname + '.dylib'
+            suffix_re = '%s\\.[0-9\\.]*$' % re.escape(shlib_suffix)
+            lib_no_ver = re.sub(suffix_re, shlib_suffix, lib)
+        elif platform == 'posix':
+            if version.count(".") != 2:
+                # We need a library name in libfoo.so.x.y.z form to proceed
+                raise ValueError
+            suffix_re = '%s\\.[0-9\\.]*$' % re.escape(shlib_suffix)
+            # For libfoo.so.x.y.z, links libfoo.so libfoo.so.x.y libfoo.so.x
+            major_name = shlib_suffix + "." + libname.split(".")[2]
+            minor_name = major_name + "." + libname.split(".")[3]
+            for linksuffix in [shlib_suffix, major_name, minor_name]:
+                linkname = re.sub(suffix_re, linksuffix, libname)
+                if Verbose:
+                    print "linksuffix ",linksuffix, ", linkname ",linkname, ", target ",str(target[0])
+                os.symlink(str(target[0]),linkname)
+    return False
+
+ShLibAction = SCons.Action.Action(VersionedSharedLibrary, "$SHLINKCOMSTR")
+
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
     Builder in an Environment if it is not there already.
@@ -245,7 +312,7 @@ def createSharedLibBuilder(env):
     except KeyError:
         import SCons.Defaults
         action_list = [ SCons.Defaults.SharedCheck,
-                        SCons.Defaults.ShLinkAction ]
+                        ShLibAction ]
         shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',
