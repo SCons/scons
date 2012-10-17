@@ -66,6 +66,17 @@ def smart_link(source, target, env, for_signature):
 def shlib_emitter(target, source, env):
     for tgt in target:
         tgt.attributes.shared = 1
+    try:
+        # target[0] comes in as libtest.so. Add the version extensions
+        version = env.subst('$SHLIBVERSION')
+        if version:
+            versionparts = version.split('.')
+            name = str(target[0])
+            for ver in versionparts:
+                name = name + '.' + ver
+                target.insert(0, env.fs.File(name))
+    except KeyError:
+        version = None
     return (target, source)
 
 def generate(env):

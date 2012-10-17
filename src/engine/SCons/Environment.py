@@ -2249,9 +2249,7 @@ class Base(SubstitutionEnvironment):
 
     def VersionedSharedLibrary(self, libname, version, lib_objs=[],parse_flags=[]):
         platform = self.subst('$PLATFORM')
-        shlib_pre_action = None
         shlib_suffix = self.subst('$SHLIBSUFFIX')
-        shlib_post_action = None
         shlink_flags = SCons.Util.CLVar(self.subst('$SHLINKFLAGS'))
 
         if platform == 'posix':
@@ -2259,6 +2257,7 @@ class Base(SubstitutionEnvironment):
             (major, age, revision) = version.split(".")
             soname = "lib" + libname + shlib_suffix + "." + major
             shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
+            print "ilib_suffix ",ilib_suffix,", soname ",soname,", shlink_flags ",shlink_flags
         elif platform == 'cygwin':
             ilib_suffix = shlib_suffix
             shlink_flags += [ '-Wl,-Bsymbolic',
