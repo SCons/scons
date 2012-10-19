@@ -39,8 +39,8 @@ latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find 'latex'; skipping test.\n")
 
-gloss = os.system('kpsewhich multibib.sty')
-if not gloss==0:
+multibib = os.system('kpsewhich multibib.sty')
+if not multibib==0:
     test.skip_test("multibib.sty not installed; skipping test(s).\n")
 
 test.subdir(['src'])
