@@ -1,0 +1,273 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="mslink">
+<summary>
+Sets construction variables for the Microsoft linker.
+</summary>
+<sets>
+SHLINK
+SHLINKFLAGS
+SHLINKCOM
+LINK
+LINKFLAGS
+LINKCOM
+LIBDIRPREFIX
+LIBDIRSUFFIX
+LIBLINKPREFIX
+LIBLINKSUFFIX
+WIN32DEFPREFIX
+WIN32DEFSUFFIX
+WINDOWSDEFPREFIX
+WINDOWSDEFSUFFIX
+WINDOWS_INSERT_DEF
+WIN32EXPPREFIX
+WIN32EXPSUFFIX
+WINDOWSEXPPREFIX
+WINDOWSEXPSUFFIX
+WINDOWSSHLIBMANIFESTPREFIX
+WINDOWSSHLIBMANIFESTSUFFIX
+WINDOWSPROGMANIFESTPREFIX
+WINDOWSPROGMANIFESTSUFFIX
+<!--REGSVRACTION-->
+REGSVR
+REGSVRFLAGS
+REGSVRCOM
+LDMODULE
+LDMODULEPREFIX
+LDMODULESUFFIX
+LDMODULEFLAGS
+LDMODULECOM
+</sets>
+<uses>
+SHLINKCOMSTR
+LINKCOMSTR
+REGSVRCOMSTR
+LDMODULECOMSTR
+</uses>
+</tool>
+
+<cvar name="no_import_lib">
+<summary>
+When set to non-zero,
+suppresses creation of a corresponding Windows static import lib by the
+<literal>SharedLibrary</literal>
+builder when used with
+MinGW, Microsoft Visual Studio or Metrowerks.
+This also suppresses creation
+of an export (.exp) file
+when using Microsoft Visual Studio.
+</summary>
+</cvar>
+
+<cvar name="PDB">
+<summary>
+The Microsoft Visual C++ PDB file that will store debugging information for
+object files, shared libraries, and programs. This variable is ignored by
+tools other than Microsoft Visual C++.
+When this variable is
+defined SCons will add options to the compiler and linker command line to
+cause them to generate external debugging information, and will also set up the
+dependencies for the PDB file.
+Example:
+
+<example>
+env['PDB'] = 'hello.pdb'
+</example>
+
+The Visual C++ compiler switch that SCons uses by default
+to generate PDB information is <option>/Z7</option>.
+This works correctly with parallel (<option>-j</option>) builds
+because it embeds the debug information in the intermediate object files,
+as opposed to sharing a single PDB file between multiple object files.
+This is also the only way to get debug information
+embedded into a static library.
+Using the <option>/Zi</option> instead may yield improved
+link-time performance,
+although parallel builds will no longer work.
+You can generate PDB files with the <option>/Zi</option>
+switch by overriding the default &cv-link-CCPDBFLAGS; variable;
+see the entry for that variable for specific examples.
+</summary>
+</cvar>
+
+<cvar name="WINDOWS_EMBED_MANIFEST">
+<summary>
+Set this variable to True or 1 to embed the compiler-generated manifest
+(normally <literal>${TARGET}.manifest</literal>)
+into all Windows exes and DLLs built with this environment,
+as a resource during their link step.
+This is done using &cv-link-MT; and &cv-link-MTEXECOM; and &cv-link-MTSHLIBCOM;.
+</summary>
+</cvar>
+
+<cvar name="MT">
+<summary>
+The program used on Windows systems to embed manifests into DLLs and EXEs.
+See also &cv-link-WINDOWS_EMBED_MANIFEST;.
+</summary>
+</cvar>
+
+<cvar name="MTFLAGS">
+<summary>
+Flags passed to the &cv-link-MT; manifest embedding program (Windows only).
+</summary>
+</cvar>
+
+<cvar name="MTEXECOM">
+<summary>
+The Windows command line used to embed manifests into executables.
+See also &cv-link-MTSHLIBCOM;.
+</summary>
+</cvar>
+
+<cvar name="MTSHLIBCOM">
+<summary>
+The Windows command line used to embed manifests into shared libraries (DLLs).
+See also &cv-link-MTEXECOM;.
+</summary>
+</cvar>
+
+<cvar name="REGSVR">
+<summary>
+The program used on Windows systems
+to register a newly-built DLL library
+whenever the &b-SharedLibrary; builder
+is passed a keyword argument of <literal>register=1</literal>.
+</summary>
+</cvar>
+
+<cvar name="REGSVRCOM">
+<summary>
+The command line used on Windows systems
+to register a newly-built DLL library
+whenever the &b-SharedLibrary; builder
+is passed a keyword argument of <literal>register=1</literal>.
+</summary>
+</cvar>
+
+<cvar name="REGSVRCOMSTR">
+<summary>
+The string displayed when registering a newly-built DLL file.
+If this is not set, then &cv-link-REGSVRCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="REGSVRFLAGS">
+<summary>
+Flags passed to the DLL registration program
+on Windows systems when a newly-built DLL library is registered.
+By default,
+this includes the <option>/s</option>
+that prevents dialog boxes from popping up
+and requiring user attention.
+</summary>
+</cvar>
+
+<cvar name="WIN32_INSERT_DEF">
+<summary>
+A deprecated synonym for &cv-link-WINDOWS_INSERT_DEF;.
+</summary>
+</cvar>
+
+<cvar name="WIN32DEFPREFIX">
+<summary>
+A deprecated synonym for &cv-link-WINDOWSDEFPREFIX;.
+</summary>
+</cvar>
+
+<cvar name="WIN32DEFSUFFIX">
+<summary>
+A deprecated synonym for &cv-link-WINDOWSDEFSUFFIX;.
+</summary>
+</cvar>
+
+<cvar name="WIN32EXPPREFIX">
+<summary>
+A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
+</summary>
+</cvar>
+
+<cvar name="WIN32EXPSUFFIX">
+<summary>
+A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
+</summary>
+</cvar>
+
+<cvar name="WINDOWS_INSERT_DEF">
+<summary>
+When this is set to true,
+a library build of a Windows shared library
+(<filename>.dll</filename> file)
+will also build a corresponding <filename>.def</filename> file
+at the same time,
+if a <filename>.def</filename> file
+is not already listed as a build target.
+The default is 0 (do not build a <filename>.def</filename> file).
+</summary>
+</cvar>
+
+<cvar name="WINDOWS_INSERT_MANIFEST">
+<summary>
+When this is set to true,
+&scons;
+will be aware of the
+<filename>.manifest</filename>
+files generated by Microsoft Visua C/C++ 8.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSDEFPREFIX">
+<summary>
+The prefix used for Windows <filename>.def</filename> file names.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSDEFSUFFIX">
+<summary>
+The suffix used for Windows <filename>.def</filename> file names.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSEXPPREFIX">
+<summary>
+The prefix used for Windows <filename>.exp</filename> file names.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSEXPSUFFIX">
+<summary>
+The suffix used for Windows <filename>.exp</filename> file names.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSPROGMANIFESTPREFIX">
+<summary>
+The prefix used for executable program <filename>.manifest</filename> files
+generated by Microsoft Visual C/C++.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSPROGMANIFESTSUFFIX">
+<summary>
+The suffix used for executable program <filename>.manifest</filename> files
+generated by Microsoft Visual C/C++.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSSHLIBMANIFESTPREFIX">
+<summary>
+The prefix used for shared library <filename>.manifest</filename> files
+generated by Microsoft Visual C/C++.
+</summary>
+</cvar>
+
+<cvar name="WINDOWSSHLIBMANIFESTSUFFIX">
+<summary>
+The suffix used for shared library <filename>.manifest</filename> files
+generated by Microsoft Visual C/C++.
+</summary>
+</cvar>
