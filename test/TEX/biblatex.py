@@ -39,8 +39,8 @@ latex = test.where_is('pdflatex')
 if not latex:
     test.skip_test("Could not find 'pdflatex'; skipping test.\n")
 
-gloss = os.system('kpsewhich biblatex.sty')
-if not gloss==0:
+biblatex = os.system('kpsewhich biblatex.sty')
+if not biblatex==0:
     test.skip_test("biblatex.sty not installed; skipping test(s).\n")
 
 
