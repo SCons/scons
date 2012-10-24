@@ -41,6 +41,7 @@ import imp
 import sys
 import re
 import os
+import shutil
 
 import SCons.Builder
 import SCons.Errors
@@ -241,23 +242,24 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
         version = env.subst('$SHLIBVERSION')
     except KeyError:
         version = None
-    libname = str(target[0])
-    if Verbose:
-        print "VersionShLib: libname = ",libname
+    libname = target[0].name
     platform = env.subst('$PLATFORM')
     shlib_suffix = env.subst('$SHLIBSUFFIX')
     shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
+    if Verbose:
+        print "VersionShLib: libname      = ",libname
+        print "VersionShLib: platform     = ",platform
+        print "VersionShLib: shlib_suffix = ",shlib_suffix
 
     if version:
+        # set the shared lib link flags
         if platform == 'posix':
-            ilib_suffix = '.' + version
-            ilib_len = len(ilib_suffix)
+            suffix_re = re.escape(shlib_suffix + '.' + version)
             (major, age, revision) = version.split(".")
-            index = libname.find('.'+major,-ilib_len,-1)
-            soname = libname[0:index] + "." + major
+            soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
             shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
             if Verbose:
-                print "ilib_suffix ",ilib_suffix,", soname ",soname,", shlink_flags ",shlink_flags
+                print " soname ",soname,", shlink_flags ",shlink_flags
         elif platform == 'cygwin':
             shlink_flags += [ '-Wl,-Bsymbolic',
                               '-Wl,--out-implib,${TARGET.base}.a' ]
@@ -265,6 +267,8 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
             shlink_flags += [ '-current_version', '%s' % version,
                               '-compatibility_version', '%s' % version,
                               '-undefined', 'dynamic_lookup' ]
+        if Verbose:
+            print "VersionShLib: shlink_flags = ",shlink_flags
         envlink = env.Clone()
         envlink['SHLINKFLAGS'] = shlink_flags
     else:
@@ -273,28 +277,36 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
     result = SCons.Defaults.ShLinkAction(target, source, envlink)
 
     if version:
+        # keep name with version in it
+        lib_ver = libname
         if platform == 'darwin':
             if version.count(".") != 2:
                 # We need a library name in libfoo.x.y.z.dylib form to proceed
                 raise ValueError
-            # regex to find version+.dylib in the target name
-            suffix_re = '[\\.0-9]*%s$' % re.escape(shlib_suffix)
-            # remove the version string from libname so we can make a symlink
-            lib_no_ver = re.sub(suffix_re, shlib_suffix, libname)
-            os.symlink(libname,lib_no_ver)
+            # create sym link of linkname -> lib_ver, linkname has no version number
+            suffix_re = re.escape('.' + version + shlib_suffix)
+            linkname = re.sub(suffix_re, shlib_suffix, libname)
+            if Verbose:
+                print "VersionShLib: linkname = ",linkname
+            os.symlink(lib_ver,linkname)
         elif platform == 'posix':
             if version.count(".") != 2:
                 # We need a library name in libfoo.so.x.y.z form to proceed
                 raise ValueError
-            suffix_re = '%s\\.[0-9\\.]*$' % re.escape(shlib_suffix)
+            suffix_re = re.escape(shlib_suffix + '.' + version)
+            # remove version number for linkname
+            linkname = re.sub(suffix_re, shlib_suffix, libname)
+            if Verbose:
+                print "VersionShLib: linkname = ",linkname
+            os.symlink(lib_ver, linkname)
             # For libfoo.so.x.y.z, links libfoo.so libfoo.so.x.y libfoo.so.x
-            major_name = shlib_suffix + "." + libname.split(".")[2]
-            minor_name = major_name + "." + libname.split(".")[3]
-            for linksuffix in [shlib_suffix, major_name, minor_name]:
-                linkname = re.sub(suffix_re, linksuffix, libname)
+            versionparts = version.split('.')
+            major_name = linkname + "." + versionparts[0]
+            minor_name = major_name + "." + versionparts[1]
+            for linkname in [major_name, minor_name]:
                 if Verbose:
-                    print "linksuffix ",linksuffix, ", linkname ",linkname, ", target ",str(target[0])
-                os.symlink(str(target[0]),linkname)
+                    print " linkname ",linkname, ", target ",libname
+                os.symlink(lib_ver,linkname)
     return False
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, "$SHLINKCOMSTR")
