@@ -1654,6 +1654,10 @@ def projectEmitter(target, source, env):
         t, s = solutionEmitter(target, target, env)
         targetlist = targetlist + t
 
+    # Beginning with Visual Studio 2010 for each project file (.vcxproj) we have additional file (.vcxproj.filters)
+    if env['MSVS_VERSION'] >= 10.0:
+        targetlist.append(targetlist[0] + '.filters')
+
     return (targetlist, sourcelist)
 
 def solutionEmitter(target, source, env):
