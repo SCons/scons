@@ -66,6 +66,7 @@ def smart_link(source, target, env, for_signature):
     return '$CC'
 
 def shlib_emitter(target, source, env):
+    Verbose = False
     platform = env.subst('$PLATFORM')
     for tgt in target:
         tgt.attributes.shared = 1
@@ -75,15 +76,40 @@ def shlib_emitter(target, source, env):
         if version:
             if platform == 'posix':
                 versionparts = version.split('.')
-                name = str(target[0])
-                for ver in versionparts:
+                name = target[0].name
+                # generate library name with the version number
+                version_name = target[0].name + '.' + version
+                # change the name of the target to version_name
+                target[0].name = version_name
+                if Verbose:
+                    print "shlib_emitter: target is ", version_name
+                    print "shlib_emitter: side effect: ", name
+                # make name w/o version number a side effect (will be a sym link)
+                env.SideEffect(version_name, target[0])
+                env.Clean(target[0], version_name)
+                if Verbose:
+                    print "shlib_emitter: versionparts ",versionparts
+                for ver in versionparts[0:-1]:
                     name = name + '.' + ver
-                    target.insert(0, env.fs.File(name))
+                    if Verbose:
+                        print "shlib_emitter: side effect: ", name
+                    # make side effects of sym links with partial version number
+                    env.SideEffect(name, target[0])
+                    env.Clean(target[0], name)
             elif platform == 'darwin':
                 shlib_suffix = env.subst('$SHLIBSUFFIX')
-                name = str(target[0])
-                name = re.sub(shlib_suffix+"$",'.'+version+shlib_suffix,name)
-                target.insert(0, env.fs.File(name))
+                name = target[0].name
+                # generate library name with the version number
+                suffix_re = re.escape(shlib_suffix)
+                version_name = re.sub(suffix_re, '.' + version + shlib_suffix, name)
+                # change the name of the target to version_name
+                target[0].name = version_name
+                if Verbose:
+                    print "shlib_emitter: target is ", version_name
+                    print "shlib_emitter: side effect: ", name
+                # make name w/o version number a side effect (will be a sym link)
+                env.SideEffect(version_name, target[0])
+                env.Clean(target[0], version_name)
     except KeyError:
         version = None
     return (target, source)
