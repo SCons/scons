@@ -236,12 +236,53 @@ def createStaticLibBuilder(env):
 
     return static_lib
 
+def VersionShLibLinkNames(version, libname, env):
+    """Generate names of symlinks to the versioned shared library"""
+    Verbose = False
+    platform = env.subst('$PLATFORM')
+    shlib_suffix = env.subst('$SHLIBSUFFIX')
+    shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
+
+    linknames = []
+    if version.count(".") != 2:
+        # We need a version string of the form x.y.z to proceed
+        raise ValueError
+
+    if platform == 'darwin':
+        # For libfoo.x.y.z.dylib, linknames libfoo.so
+        suffix_re = re.escape('.' + version + shlib_suffix)
+        linkname = re.sub(suffix_re, shlib_suffix, libname)
+        if Verbose:
+            print "VersionShLibLinkNames: linkname = ",linkname
+        linknames.append(linkname)
+    elif platform == 'posix':
+        # For libfoo.so.x.y.z, linknames libfoo.so libfoo.so.x.y libfoo.so.x
+        suffix_re = re.escape(shlib_suffix + '.' + version)
+        # First linkname has no version number
+        linkname = re.sub(suffix_re, shlib_suffix, libname)
+        if Verbose:
+            print "VersionShLibLinkNames: linkname = ",linkname
+        linknames.append(linkname)
+        versionparts = version.split('.')
+        major_name = linkname + "." + versionparts[0]
+        minor_name = major_name + "." + versionparts[1]
+        for linkname in [major_name, minor_name]:
+            if Verbose:
+                print "VersionShLibLinkNames: linkname ",linkname, ", target ",libname
+            linknames.append(linkname)
+    return linknames
+
 def VersionedSharedLibrary(target = None, source= None, env=None):
+    """Build a shared library. If the environment has SHLIBVERSION 
+defined make a versioned shared library and create the appropriate 
+symlinks for the platform we are on"""
     Verbose = False
     try:
         version = env.subst('$SHLIBVERSION')
     except KeyError:
         version = None
+
+    # libname includes the version number if one was given
     libname = target[0].name
     platform = env.subst('$PLATFORM')
     shlib_suffix = env.subst('$SHLIBSUFFIX')
@@ -252,10 +293,11 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
         print "VersionShLib: shlib_suffix = ",shlib_suffix
 
     if version:
-        # set the shared lib link flags
+        # set the shared library link flags
         if platform == 'posix':
             suffix_re = re.escape(shlib_suffix + '.' + version)
             (major, age, revision) = version.split(".")
+            # soname will have only the major version number in it
             soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
             shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
             if Verbose:
@@ -277,39 +319,14 @@ def VersionedSharedLibrary(target = None, source= None, env=None):
     result = SCons.Defaults.ShLinkAction(target, source, envlink)
 
     if version:
+        linknames = VersionShLibLinkNames(version, libname, env)
         # keep name with version in it
         lib_ver = libname
-        if platform == 'darwin':
-            if version.count(".") != 2:
-                # We need a library name in libfoo.x.y.z.dylib form to proceed
-                raise ValueError
-            # create sym link of linkname -> lib_ver, linkname has no version number
-            suffix_re = re.escape('.' + version + shlib_suffix)
-            linkname = re.sub(suffix_re, shlib_suffix, libname)
-            if Verbose:
-                print "VersionShLib: linkname = ",linkname
+        for linkname in linknames:
             os.symlink(lib_ver,linkname)
-        elif platform == 'posix':
-            if version.count(".") != 2:
-                # We need a library name in libfoo.so.x.y.z form to proceed
-                raise ValueError
-            suffix_re = re.escape(shlib_suffix + '.' + version)
-            # remove version number for linkname
-            linkname = re.sub(suffix_re, shlib_suffix, libname)
-            if Verbose:
-                print "VersionShLib: linkname = ",linkname
-            os.symlink(lib_ver, linkname)
-            # For libfoo.so.x.y.z, links libfoo.so libfoo.so.x.y libfoo.so.x
-            versionparts = version.split('.')
-            major_name = linkname + "." + versionparts[0]
-            minor_name = major_name + "." + versionparts[1]
-            for linkname in [major_name, minor_name]:
-                if Verbose:
-                    print " linkname ",linkname, ", target ",libname
-                os.symlink(lib_ver,linkname)
-    return False
+    return result
 
-ShLibAction = SCons.Action.Action(VersionedSharedLibrary, "$SHLINKCOMSTR")
+ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
 
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
@@ -757,3 +774,6 @@ def tool_list(platform, env):
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
+
+
+

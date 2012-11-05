@@ -33,6 +33,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import re
 import shutil
 import stat
 
@@ -118,8 +119,72 @@ def copyFunc(dest, source, env):
         shutil.copy2(source, dest)
         st = os.stat(source)
         os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        versionedLibLinks(dest, source, env)
 
     return 0
+
+def versionedLibVersion(dest, env):
+    """Check if dest is a version shared library name. Return version libname if it is."""
+    Verbose = False
+    platform = env.subst('$PLATFORM')
+    if not (platform == 'posix'  or platform == 'darwin'):
+        return (None, None, None)
+
+    libname = os.path.basename(dest)
+    install_dir = os.path.dirname(dest)
+    shlib_suffix = env.subst('$SHLIBSUFFIX')
+    # See if the source name is a versioned shared library, get the version number
+    result = False
+    
+    version_re = re.compile("[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
+    version_File = None
+    if platform == 'posix':
+        # handle unix names
+        versioned_re = re.compile(re.escape(shlib_suffix + '.') + "[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
+        result = versioned_re.findall(libname)
+        if result:
+            version_File = version_re.findall(versioned_re.findall(libname)[-1])[-1]
+    elif platform == 'darwin':
+        # handle OSX names
+        versioned_re = re.compile("\\.[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+" + re.escape(shlib_suffix) )
+        result = versioned_re.findall(libname)
+        if result:
+            version_File = version_re.findall(versioned_re.findall(libname)[-1])[-1]
+    
+    if Verbose:
+        print "install: version_File ", version_File
+    # result is False if we did not find a versioned shared library name, so return and empty list
+    if not result:
+        return (None, libname, install_dir)
+
+    version = None
+    # get version number from the environment
+    try:
+        version = env.subst('$SHLIBVERSION')
+    except KeyError:
+        version = None
+    
+    if version != version_File:
+        #raise SCons.Errors.UserError("SHLIBVERSION '%s' does not match the version # '%s' in the filename" % (version, version_File) )
+        print "SHLIBVERSION '%s' does not match the version # '%s' in the filename, proceeding based on file name" % (version, version_File)
+        version = version_File
+    return (version, libname, install_dir)
+
+def versionedLibLinks(dest, source, env):
+    """If we are installing a versioned shared library create the required links."""
+    Verbose = False
+    linknames = []
+    version, libname, install_dir = versionedLibVersion(dest, env)
+
+    if version != None:
+        # libname includes the version number if one was given
+        linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
+        for linkname in linknames:
+            if Verbose:
+                print "make link of %s to %s" %(libname, os.path.join(install_dir, linkname))
+            fulllinkname = os.path.join(install_dir, linkname)
+            os.symlink(libname,fulllinkname)
+    return
 
 def installFunc(target, source, env):
     """Install a source file into a target using the function specified
@@ -158,7 +223,21 @@ def add_targets_to_INSTALLED_FILES(target, source, env):
     scons call will be collected.
     """
     global _INSTALLED_FILES, _UNIQUE_INSTALLED_FILES
+    Verbose = False
     _INSTALLED_FILES.extend(target)
+
+    # see if we have a versioned shared library, if so generate side effects
+    version, libname, install_dir = versionedLibVersion(target[0].path, env)
+    if version != None:
+        # generate list of link names
+        linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
+        for linkname in linknames:
+            if Verbose:
+                print "make side effect of %s" % os.path.join(install_dir, linkname)
+            fulllinkname = os.path.join(install_dir, linkname)
+            env.SideEffect(fulllinkname,target[0])
+            env.Clean(target[0],fulllinkname)
+        
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 
