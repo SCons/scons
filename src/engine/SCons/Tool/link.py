@@ -80,6 +80,8 @@ def shlib_emitter(target, source, env):
             for name in version_names:
                 env.SideEffect(name, target[0])
                 env.Clean(target[0], name)
+                if Verbose:
+                    print "shlib_emitter: add side effect - ",name
     except KeyError:
         version = None
     return (target, source)
