@@ -291,6 +291,7 @@ symlinks for the platform we are on"""
         print "VersionShLib: libname      = ",libname
         print "VersionShLib: platform     = ",platform
         print "VersionShLib: shlib_suffix = ",shlib_suffix
+        print "VersionShLib: target = ",str(target[0])
 
     if version:
         # set the shared library link flags
@@ -319,11 +320,15 @@ symlinks for the platform we are on"""
     result = SCons.Defaults.ShLinkAction(target, source, envlink)
 
     if version:
+        # here we need the full pathname so the links end up in the right directory
+        libname = target[0].path
         linknames = VersionShLibLinkNames(version, libname, env)
-        # keep name with version in it
-        lib_ver = libname
+        # Here we just need the file name w/o path as the target of the link
+        lib_ver = target[0].name
         for linkname in linknames:
             os.symlink(lib_ver,linkname)
+            if Verbose:
+                print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
     return result
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
