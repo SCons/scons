@@ -146,6 +146,19 @@ On some platforms, there is a distinction between a shared library
 and a loadable module (explicitly loaded by user action).
 For maximum portability, use the &b-LoadableModule; builder for the latter.
 
+When the &cv-link-SHLIBVERSION; construction variable is defined a versioned
+shared library is created. This modifies the &cv-link-SHLINKFLAGS; as required.
+adds the version number to the library name, and creates the symlinks that 
+are needed. &cv-link-SHLIBVERSION; needs to be of the form X.Y.Z, where X 
+and Y are numbers, and Z is a number but can also contain letters to designate
+alpha, beta, or release candidate patch levels.
+
+This builder may create multiple links to the library. On a POSIX system, 
+for the shared library libbar.so.2.3.1, the links created would be 
+libbar.so, libbar.so.2, and libbar.so.2.3; on a Darwin (OSX) system 
+the library would be libbar.2.3.1.dylib and the link would be 
+libbar.dylib.
+
 On Windows systems, specifying
 <literal>register=1</literal>
 will cause the <filename>.dll</filename> to be
