@@ -124,7 +124,7 @@ def copyFunc(dest, source, env):
     return 0
 
 def versionedLibVersion(dest, env):
-    """Check if dest is a version shared library name. Return version libname if it is."""
+    """Check if dest is a version shared library name. Return version, libname, & install_dir if it is."""
     Verbose = False
     platform = env.subst('$PLATFORM')
     if not (platform == 'posix'  or platform == 'darwin'):

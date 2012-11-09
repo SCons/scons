@@ -42,6 +42,10 @@ RELEASE 2.X.X -
       in LaTeX's glossaries package and the files it creates.
     - Improve support for new versions of biblatex in the TeX builder 
       so biber is called automatically if biblatex requires it.
+    - Add SHLIBVERSION as an option that tells SharedLibrary to build
+      a versioned shared library and create the required symlinks.
+      Update Install to create the required symlinks when installing
+      a versioned shared library.
 
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 

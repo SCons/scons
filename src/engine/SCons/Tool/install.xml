@@ -22,7 +22,10 @@ Installs one or more source files or directories
 in the specified target,
 which must be a directory.
 The names of the specified source files or directories
-remain the same within the destination directory.
+remain the same within the destination directory. The
+sources may be given as a string or as a node returned by
+a builder. If the source is a versioned shared library
+the appropriate symlinks to it will be generated.
 
 <example>
 env.Install('/usr/local/bin', source = ['foo', 'bar'])
