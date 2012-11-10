@@ -53,10 +53,11 @@ test.write('SConstruct', SConscript_contents%{'HOST_ARCH': host_arch})
 test.run(arguments="Test.vcxproj")
 
 test.must_exist(test.workpath('Test.vcxproj'))
-vcproj = test.read('Test.vcxproj', 'r')
+test.must_exist(test.workpath('Test.vcxproj.filters'))
+vcxproj = test.read('Test.vcxproj', 'r')
 expect = test.msvs_substitute(expected_vcprojfile, '11.0', None, 'SConstruct')
 # don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
 
 test.must_exist(test.workpath('Test.sln'))
 sln = test.read('Test.sln', 'r')
@@ -67,16 +68,19 @@ assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 test.run(arguments='-c .')
 
 test.must_not_exist(test.workpath('Test.vcxproj'))
+test.must_not_exist(test.workpath('Test.vcxproj.filters'))
 test.must_not_exist(test.workpath('Test.sln'))
 
 test.run(arguments='Test.vcxproj')
 
 test.must_exist(test.workpath('Test.vcxproj'))
+test.must_exist(test.workpath('Test.vcxproj.filters'))
 test.must_exist(test.workpath('Test.sln'))
 
 test.run(arguments='-c Test.sln')
 
 test.must_not_exist(test.workpath('Test.vcxproj'))
+test.must_not_exist(test.workpath('Test.vcxproj.filters'))
 test.must_not_exist(test.workpath('Test.sln'))
 
 
@@ -89,11 +93,11 @@ python = os.path.join('$(PYTHON_ROOT)', os.path.split(TestSConsMSVS.python)[1])
 test.run(arguments='Test.vcxproj')
 
 test.must_exist(test.workpath('Test.vcxproj'))
-vcproj = test.read('Test.vcxproj', 'r')
+vcxproj = test.read('Test.vcxproj', 'r')
 expect = test.msvs_substitute(expected_vcprojfile, '11.0', None, 'SConstruct',
                               python=python)
 # don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
 
 
 
