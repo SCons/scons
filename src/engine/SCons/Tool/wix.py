@@ -50,12 +50,12 @@ def generate(env):
 
     object_builder = SCons.Builder.Builder(
         action      = '$WIXCANDLECOM',
-        suffix      = '.wxiobj',
+        suffix      = '.wixobj',
         src_suffix  = '.wxs')
 
     linker_builder = SCons.Builder.Builder(
         action      = '$WIXLIGHTCOM',
-        src_suffix  = '.wxiobj',
+        src_suffix  = '.wixobj',
         src_builder = object_builder)
 
     env['BUILDERS']['WiX'] = linker_builder
