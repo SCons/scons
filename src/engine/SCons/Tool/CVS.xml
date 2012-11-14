@@ -1,0 +1,116 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="CVS">
+<summary>
+Sets construction variables for the CVS source code
+management system.
+</summary>
+<sets>
+CVS
+CVSCOM
+CVSFLAGS
+CVSCOFLAGS
+</sets>
+<uses>
+CVSCOMSTR
+</uses>
+</tool>
+
+<cvar name="CVS">
+<summary>
+The CVS executable.
+</summary>
+</cvar>
+
+<cvar name="CVSCOFLAGS">
+<summary>
+Options that are passed to the CVS checkout subcommand.
+</summary>
+</cvar>
+
+<cvar name="CVSCOM">
+<summary>
+The command line used to
+fetch source files from a CVS repository.
+</summary>
+</cvar>
+
+<cvar name="CVSCOMSTR">
+<summary>
+The string displayed when fetching
+a source file from a CVS repository.
+If this is not set, then &cv-link-CVSCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="CVSFLAGS">
+<summary>
+General options that are passed to CVS.
+By default, this is set to
+<literal>-d $CVSREPOSITORY</literal>
+to specify from where the files must be fetched.
+</summary>
+</cvar>
+
+<cvar name="CVSREPOSITORY">
+<summary>
+The path to the CVS repository.
+This is referenced in the default
+&cv-link-CVSFLAGS; value.
+</summary>
+</cvar>
+
+<scons_function name="CVS">
+<arguments signature="env">
+(repository, module)
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the specified
+CVS
+<varname>repository</varname>.
+The returned Builder
+is intended to be passed to the
+&f-link-SourceCode;
+function.
+
+This function is deprecated.  For details, see the entry for the
+&f-SourceCode;
+function.
+
+The optional specified
+<varname>module</varname>
+will be added to the beginning
+of all repository path names;
+this can be used, in essence,
+to strip initial directory names
+from the repository path names,
+so that you only have to
+replicate part of the repository
+directory hierarchy in your
+local build directory.
+
+Examples:
+
+<example>
+# Will fetch foo/bar/src.c
+# from /usr/local/CVSROOT/foo/bar/src.c.
+env.SourceCode('.', env.CVS('/usr/local/CVSROOT'))
+
+# Will fetch bar/src.c
+# from /usr/local/CVSROOT/foo/bar/src.c.
+env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo'))
+
+# Will fetch src.c
+# from /usr/local/CVSROOT/foo/bar/src.c.
+env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
+</example>
+</summary>
+</scons_function>

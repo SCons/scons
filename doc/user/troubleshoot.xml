@@ -1,0 +1,1334 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  The experience of configuring any
+  software build tool to build a large code base
+  usually, at some point,
+  involves trying to figure out why
+  the tool is behaving a certain way,
+  and how to get it to behave the way you want.
+  &SCons; is no different.
+  This appendix contains a number of
+  different ways in which you can
+  get some additional insight into &SCons;' behavior.
+
+  </para>
+
+  <para>
+
+  Note that we're always interested in trying to
+  improve how you can troubleshoot configuration problems.
+  If you run into a problem that has
+  you scratching your head,
+  and which there just doesn't seem to be a good way to debug,
+  odds are pretty good that someone else will run into
+  the same problem, too.
+  If so, please let the SCons development team know
+  (preferably by filing a bug report
+  or feature request at our project pages at tigris.org)
+  so that we can use your feedback
+  to try to come up with a better way to help you,
+  and others, get the necessary insight into &SCons; behavior
+  to help identify and fix configuration issues.
+
+  </para>
+
+  <section>
+  <title>Why is That Target Being Rebuilt?  the &debug-explain; Option</title>
+
+    <para>
+
+    Let's look at a simple example of
+    a misconfigured build
+    that causes a target to be rebuilt
+    every time &SCons; is run:
+
+    </para>
+
+    <programlisting>
+      # Intentionally misspell the output file name in the
+      # command used to create the file:
+      Command('file.out', 'file.in', 'cp $SOURCE file.oout')
+    </programlisting>
+
+    <para>
+
+    (Note to Windows users:  The POSIX &cp; command
+    copies the first file named on the command line
+    to the second file.
+    In our example, it copies the &file_in; file
+    to the &file_out; file.)
+
+    </para>
+
+    <para>
+
+    Now if we run &SCons; multiple times on this example,
+    we see that it re-runs the &cp;
+    command every time:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cp file.in file.oout
+      % <userinput>scons -Q</userinput>
+      cp file.in file.oout
+      % <userinput>scons -Q</userinput>
+      cp file.in file.oout
+    </screen>
+
+    <para>
+
+    In this example,
+    the underlying cause is obvious:
+    we've intentionally misspelled the output file name
+    in the &cp; command,
+    so the command doesn't actually
+    build the &file_out; file that we've told &SCons; to expect.
+    But if the problem weren't obvious,
+    it would be helpful
+    to specify the &debug-explain; option
+    on the command line
+    to have &SCons; tell us very specifically
+    why it's decided to rebuild the target:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --debug=explain</userinput>
+      scons: building `file.out' because it doesn't exist
+      cp file.in file.oout
+    </screen>
+
+    <para>
+
+    If this had been a more complicated example
+    involving a lot of build output,
+    having &SCons; tell us that
+    it's trying to rebuild the target file
+    because it doesn't exist
+    would be an important clue
+    that something was wrong with
+    the command that we invoked to build it.
+
+    </para>
+
+    <para>
+
+    The &debug-explain; option also comes in handy
+    to help figure out what input file changed.
+    Given a simple configuration that builds
+    a program from three source files,
+    changing one of the source files
+    and rebuilding with the &debug-explain;
+    option shows very specifically
+    why &SCons; rebuilds the files that it does:
+
+    </para>
+
+    
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o file1.o -c file1.c
+      cc -o file2.o -c file2.c
+      cc -o file3.o -c file3.c
+      cc -o prog file1.o file2.o file3.o
+      % <userinput>edit file2.c</userinput>
+          [CHANGE THE CONTENTS OF file2.c]
+      % <userinput>scons -Q --debug=explain</userinput>
+      scons: rebuilding `file2.o' because `file2.c' changed
+      cc -o file2.o -c file2.c
+      scons: rebuilding `prog' because `file2.o' changed
+      cc -o prog file1.o file2.o file3.o
+    </screen>
+
+    <para>
+
+    This becomes even more helpful
+    in identifying when a file is rebuilt
+    due to a change in an implicit dependency,
+    such as an incuded <filename>.h</filename> file.
+    If the <filename>file1.c</filename>
+    and <filename>file3.c</filename> files
+    in our example
+    both included a &hello_h; file,
+    then changing that included file
+    and re-running &SCons; with the &debug-explain; option
+    will pinpoint that it's the change to the included file
+    that starts the chain of rebuilds:
+
+    </para>
+
+    
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -o file1.o -c -I. file1.c
+      cc -o file2.o -c -I. file2.c
+      cc -o file3.o -c -I. file3.c
+      cc -o prog file1.o file2.o file3.o
+      % <userinput>edit hello.h</userinput>
+          [CHANGE THE CONTENTS OF hello.h]
+      % <userinput>scons -Q --debug=explain</userinput>
+      scons: rebuilding `file1.o' because `hello.h' changed
+      cc -o file1.o -c -I. file1.c
+      scons: rebuilding `file3.o' because `hello.h' changed
+      cc -o file3.o -c -I. file3.c
+      scons: rebuilding `prog' because:
+                 `file1.o' changed
+                 `file3.o' changed
+      cc -o prog file1.o file2.o file3.o
+    </screen>
+
+    <para>
+
+    (Note that the &debug-explain; option will only tell you
+    why &SCons; decided to rebuild necessary targets.
+    It does not tell you what files it examined
+    when deciding <emphasis>not</emphasis>
+    to rebuild a target file,
+    which is often a more valuable question to answer.)
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>What's in That Construction Environment?  the &Dump; Method</title>
+
+    <para>
+
+    When you create a construction environment,
+    &SCons; populates it
+    with construction variables that are set up
+    for various compilers, linkers and utilities
+    that it finds on your system.
+    Although this is usually helpful and what you want,
+    it might be frustrating if &SCons;
+    doesn't set certain variables that you
+    expect to be set.
+    In situations like this,
+    it's sometimes helpful to use the
+    construction environment &Dump; method
+    to print all or some of
+    the construction variables.
+    Note that the &Dump; method
+    <emphasis>returns</emphasis>
+    the representation of the variables
+    in the environment
+    for you to print (or otherwise manipulate):
+
+    </para>
+
+    <programlisting>
+         env = Environment()
+         print env.Dump()
+    </programlisting>
+
+    <para>
+
+    On a POSIX system with gcc installed,
+    this might generate:
+
+    </para>
+
+    <screen>
+      % <userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
+        'CONFIGUREDIR': '#/.sconf_temp',
+        'CONFIGURELOG': '#/config.log',
+        'CPPSUFFIXES': [ '.c',
+                         '.C',
+                         '.cxx',
+                         '.cpp',
+                         '.c++',
+                         '.cc',
+                         '.h',
+                         '.H',
+                         '.hxx',
+                         '.hpp',
+                         '.hh',
+                         '.F',
+                         '.fpp',
+                         '.FPP',
+                         '.m',
+                         '.mm',
+                         '.S',
+                         '.spp',
+                         '.SPP',
+                         '.sx'],
+        'DSUFFIXES': ['.d'],
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'ENV': { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
+        'ESCAPE': &lt;function escape at 0x700000&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'HOST_ARCH': None,
+        'HOST_OS': None,
+        'IDLSUFFIXES': ['.idl', '.IDL'],
+        'INSTALL': &lt;function copyFunc at 0x700000&gt;,
+        'LIBPREFIX': 'lib',
+        'LIBPREFIXES': ['$LIBPREFIX'],
+        'LIBSUFFIX': '.a',
+        'LIBSUFFIXES': ['$LIBSUFFIX', '$SHLIBSUFFIX'],
+        'MAXLINELENGTH': 128072,
+        'OBJPREFIX': '',
+        'OBJSUFFIX': '.o',
+        'PLATFORM': 'posix',
+        'PROGPREFIX': '',
+        'PROGSUFFIX': '',
+        'PSPAWN': &lt;function piped_env_spawn at 0x700000&gt;,
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'SCANNERS': [],
+        'SHELL': 'sh',
+        'SHLIBPREFIX': '$LIBPREFIX',
+        'SHLIBSUFFIX': '.so',
+        'SHOBJPREFIX': '$OBJPREFIX',
+        'SHOBJSUFFIX': '$OBJSUFFIX',
+        'SPAWN': &lt;function spawnvpe_spawn at 0x700000&gt;,
+        'TARGET_ARCH': None,
+        'TARGET_OS': None,
+        'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
+        'TEMPFILEPREFIX': '@',
+        'TOOLS': ['install', 'install'],
+        '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+        '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
+        '__RPATH': '$_RPATH',
+        '_concat': &lt;function _concat at 0x700000&gt;,
+        '_defines': &lt;function _defines at 0x700000&gt;,
+        '_stripixes': &lt;function _stripixes at 0x700000&gt;}
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+    </screen>
+
+    <para>
+
+    On a Windows system with Visual C++
+    the output might look like:
+
+    </para>
+
+    <screen>
+      C:\><userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
+        'CC': 'cl',
+        'CCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
+        'CCFLAGS': ['/nologo'],
+        'CCPCHFLAGS': ['${(PCH and "/Yu%s \\"/Fp%s\\""%(PCHSTOP or "",File(PCH))) or ""}'],
+        'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
+        'CFILESUFFIX': '.c',
+        'CFLAGS': [],
+        'CONFIGUREDIR': '#/.sconf_temp',
+        'CONFIGURELOG': '#/config.log',
+        'CPPDEFPREFIX': '/D',
+        'CPPDEFSUFFIX': '',
+        'CPPSUFFIXES': [ '.c',
+                         '.C',
+                         '.cxx',
+                         '.cpp',
+                         '.c++',
+                         '.cc',
+                         '.h',
+                         '.H',
+                         '.hxx',
+                         '.hpp',
+                         '.hh',
+                         '.F',
+                         '.fpp',
+                         '.FPP',
+                         '.m',
+                         '.mm',
+                         '.S',
+                         '.spp',
+                         '.SPP',
+                         '.sx'],
+        'CXX': '$CC',
+        'CXXCOM': '${TEMPFILE("$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM")}',
+        'CXXFILESUFFIX': '.cc',
+        'CXXFLAGS': ['$(', '/TP', '$)'],
+        'DSUFFIXES': ['.d'],
+        'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'ENV': { 'PATH': 'C:\\WINDOWS\\System32',
+                 'PATHEXT': '.COM;.EXE;.BAT;.CMD',
+                 'SystemRoot': 'C:\\WINDOWS'},
+        'ESCAPE': &lt;function escape at 0x700000&gt;,
+        'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'HOST_ARCH': '',
+        'HOST_OS': 'win32',
+        'IDLSUFFIXES': ['.idl', '.IDL'],
+        'INCPREFIX': '/I',
+        'INCSUFFIX': '',
+        'INSTALL': &lt;function copyFunc at 0x700000&gt;,
+        'LIBPREFIX': '',
+        'LIBPREFIXES': ['$LIBPREFIX'],
+        'LIBSUFFIX': '.lib',
+        'LIBSUFFIXES': ['$LIBSUFFIX'],
+        'MAXLINELENGTH': 2048,
+        'MSVC_SETUP_RUN': True,
+        'OBJPREFIX': '',
+        'OBJSUFFIX': '.obj',
+        'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS',
+        'PCHPDBFLAGS': ['${(PDB and "/Yd") or ""}'],
+        'PLATFORM': 'win32',
+        'PROGPREFIX': '',
+        'PROGSUFFIX': '.exe',
+        'PSPAWN': &lt;function piped_spawn at 0x700000&gt;,
+        'RC': 'rc',
+        'RCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
+        'RCFLAGS': [],
+        'RCSUFFIXES': ['.rc', '.rc2'],
+        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+        'SCANNERS': [],
+        'SHCC': '$CC',
+        'SHCCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
+        'SHCCFLAGS': ['$CCFLAGS'],
+        'SHCFLAGS': ['$CFLAGS'],
+        'SHCXX': '$CXX',
+        'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM")}',
+        'SHCXXFLAGS': ['$CXXFLAGS'],
+        'SHELL': None,
+        'SHLIBPREFIX': '',
+        'SHLIBSUFFIX': '.dll',
+        'SHOBJPREFIX': '$OBJPREFIX',
+        'SHOBJSUFFIX': '$OBJSUFFIX',
+        'SPAWN': &lt;function spawn at 0x700000&gt;,
+        'STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME': 1,
+        'TARGET_ARCH': '',
+        'TARGET_OS': 'win32',
+        'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
+        'TEMPFILEPREFIX': '@',
+        'TOOLS': ['msvc', 'install', 'install'],
+        '_CCCOMCOM': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS',
+        '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+        '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
+        '_MSVC_OUTPUT_FLAG': &lt;function msvc_output_flag at 0x700000&gt;,
+        '_concat': &lt;function _concat at 0x700000&gt;,
+        '_defines': &lt;function _defines at 0x700000&gt;,
+        '_stripixes': &lt;function _stripixes at 0x700000&gt;}
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+    </screen>
+
+    <para>
+
+    The construction environments in these examples have
+    actually been restricted to just gcc and Visual C++,
+    respectively.
+    In a real-life situation,
+    the construction environments will
+    likely contain a great many more variables.
+    Also note that we've massaged the example output above
+    to make the memory address of all objects a constant 0x700000.
+    In reality, you would see a different hexadecimal
+    number for each object.
+
+    </para>
+
+    <para>
+
+    To make it easier to see just what you're
+    interested in,
+    the &Dump; method allows you to
+    specify a specific constrcution variable
+    that you want to disply.
+    For example,
+    it's not unusual to want to verify
+    the external environment used to execute build commands,
+    to make sure that the PATH and other
+    environment variables are set up the way they should be.
+    You can do this as follows:
+
+    </para>
+
+    <programlisting>
+         env = Environment()
+         print env.Dump('ENV')
+    </programlisting>
+
+    <para>
+
+    Which might display the following when executed on a POSIX system:
+
+    </para>
+
+    <screen>
+      % <userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'}
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+    </screen>
+
+    <para>
+
+    And the following when executed on a Windows system:
+
+    </para>
+
+    <screen>
+      C:\><userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      { 'PATH': 'C:\\WINDOWS\\System32',
+        'PATHEXT': '.COM;.EXE;.BAT;.CMD',
+        'SystemRoot': 'C:\\WINDOWS'}
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+    </screen>
+
+  </section>
+
+  <section>
+
+  <title>What Dependencies Does &SCons; Know About?  the &tree; Option</title>
+
+    <para>
+
+    Sometimes the best way to try to figure out what
+    &SCons; is doing is simply to take a look at the
+    dependency graph that it constructs
+    based on your &SConscript; files.
+    The <literal>--tree</literal> option
+    will display all or part of the
+    &SCons; dependency graph in an
+    "ASCII art" graphical format
+    that shows the dependency hierarchy.
+
+    </para>
+
+    <para>
+
+    For example, given the following input &SConstruct; file:
+
+    </para>
+
+    <programlisting>
+         env = Environment(CPPPATH = ['.'])
+         env.Program('prog', ['f1.c', 'f2.c', 'f3.c'])
+    </programlisting>
+
+    <para>
+
+    Running &SCons; with the <literal>--tree=all</literal>
+    option yields:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=all</userinput>
+      cc -o f1.o -c -I. f1.c
+      cc -o f2.o -c -I. f2.c
+      cc -o f3.o -c -I. f3.c
+      cc -o prog f1.o f2.o f3.o
+      +-.
+        +-SConstruct
+        +-f1.c
+        +-f1.o
+        | +-f1.c
+        | +-inc.h
+        +-f2.c
+        +-f2.o
+        | +-f2.c
+        | +-inc.h
+        +-f3.c
+        +-f3.o
+        | +-f3.c
+        | +-inc.h
+        +-inc.h
+        +-prog
+          +-f1.o
+          | +-f1.c
+          | +-inc.h
+          +-f2.o
+          | +-f2.c
+          | +-inc.h
+          +-f3.o
+            +-f3.c
+            +-inc.h
+    </screen>
+
+    <para>
+
+    The tree will also be printed when the
+    <literal>-n</literal> (no execute) option is used,
+    which allows you to examine the dependency graph
+    for a configuration without actually
+    rebuilding anything in the tree.
+
+    </para>
+
+    <para>
+
+    The <literal>--tree</literal> option only prints
+    the dependency graph for the specified targets
+    (or the default target(s) if none are specified on the command line).
+    So if you specify a target like <filename>f2.o</filename>
+    on the command line,
+    the <literal>--tree</literal> option will only
+    print the dependency graph for that file:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=all f2.o</userinput>
+      cc -o f2.o -c -I. f2.c
+      +-f2.o
+        +-f2.c
+        +-inc.h
+    </screen>
+
+    <para>
+
+    This is, of course, useful for
+    restricting the output from a very large
+    build configuration to just a
+    portion in which you're interested.
+    Multiple targets are fine,
+    in which case a tree will be printed
+    for each specified target:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=all f1.o f3.o</userinput>
+      cc -o f1.o -c -I. f1.c
+      +-f1.o
+        +-f1.c
+        +-inc.h
+      cc -o f3.o -c -I. f3.c
+      +-f3.o
+        +-f3.c
+        +-inc.h
+    </screen>
+
+    <para>
+
+    The <literal>status</literal> argument may be used
+    to tell &SCons; to print status information about
+    each file in the dependency graph:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=status</userinput>
+      cc -o f1.o -c -I. f1.c
+      cc -o f2.o -c -I. f2.c
+      cc -o f3.o -c -I. f3.c
+      cc -o prog f1.o f2.o f3.o
+       E         = exists
+        R        = exists in repository only
+         b       = implicit builder
+         B       = explicit builder
+          S      = side effect
+           P     = precious
+            A    = always build
+             C   = current
+              N  = no clean
+               H = no cache
+      
+      [E b      ]+-.
+      [E     C  ]  +-SConstruct
+      [E     C  ]  +-f1.c
+      [E B   C  ]  +-f1.o
+      [E     C  ]  | +-f1.c
+      [E     C  ]  | +-inc.h
+      [E     C  ]  +-f2.c
+      [E B   C  ]  +-f2.o
+      [E     C  ]  | +-f2.c
+      [E     C  ]  | +-inc.h
+      [E     C  ]  +-f3.c
+      [E B   C  ]  +-f3.o
+      [E     C  ]  | +-f3.c
+      [E     C  ]  | +-inc.h
+      [E     C  ]  +-inc.h
+      [E B   C  ]  +-prog
+      [E B   C  ]    +-f1.o
+      [E     C  ]    | +-f1.c
+      [E     C  ]    | +-inc.h
+      [E B   C  ]    +-f2.o
+      [E     C  ]    | +-f2.c
+      [E     C  ]    | +-inc.h
+      [E B   C  ]    +-f3.o
+      [E     C  ]      +-f3.c
+      [E     C  ]      +-inc.h
+    </screen>
+
+    <para>
+
+    Note that <literal>--tree=all,status</literal> is equivalent;
+    the <literal>all</literal>
+    is assumed if only <literal>status</literal> is present.
+    As an alternative to <literal>all</literal>,
+    you can specify <literal>--tree=derived</literal>
+    to have &SCons; only print derived targets
+    in the tree output,
+    skipping source files
+    (like <filename>.c</filename> and <filename>.h</filename> files):
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=derived</userinput>
+      cc -o f1.o -c -I. f1.c
+      cc -o f2.o -c -I. f2.c
+      cc -o f3.o -c -I. f3.c
+      cc -o prog f1.o f2.o f3.o
+      +-.
+        +-f1.o
+        +-f2.o
+        +-f3.o
+        +-prog
+          +-f1.o
+          +-f2.o
+          +-f3.o
+    </screen>
+
+    <para>
+
+    You can use the <literal>status</literal>
+    modifier with <literal>derived</literal> as well:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=derived,status</userinput>
+      cc -o f1.o -c -I. f1.c
+      cc -o f2.o -c -I. f2.c
+      cc -o f3.o -c -I. f3.c
+      cc -o prog f1.o f2.o f3.o
+       E         = exists
+        R        = exists in repository only
+         b       = implicit builder
+         B       = explicit builder
+          S      = side effect
+           P     = precious
+            A    = always build
+             C   = current
+              N  = no clean
+               H = no cache
+      
+      [E b      ]+-.
+      [E B   C  ]  +-f1.o
+      [E B   C  ]  +-f2.o
+      [E B   C  ]  +-f3.o
+      [E B   C  ]  +-prog
+      [E B   C  ]    +-f1.o
+      [E B   C  ]    +-f2.o
+      [E B   C  ]    +-f3.o
+    </screen>
+
+    <para>
+
+    Note that the order of the <literal>--tree=</literal>
+    arguments doesn't matter;
+    <literal>--tree=status,derived</literal> is
+    completely equivalent.
+
+    </para>
+
+    <para>
+
+    The default behavior of the <literal>--tree</literal> option
+    is to repeat all of the dependencies each time the library dependency
+    (or any other dependency file) is encountered in the tree.
+    If certain target files share other target files,
+    such as two programs that use the same library:
+
+    </para>
+
+    <programlisting>
+         env = Environment(CPPPATH = ['.'],
+                           LIBS = ['foo'],
+                           LIBPATH = ['.'])
+         env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+         env.Program('prog1.c')
+         env.Program('prog2.c')
+    </programlisting>
+
+    <para>
+
+    Then there can be a <emphasis>lot</emphasis> of repetition in the
+    <literal>--tree=</literal> output:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=all</userinput>
+      cc -o f1.o -c -I. f1.c
+      cc -o f2.o -c -I. f2.c
+      cc -o f3.o -c -I. f3.c
+      ar rc libfoo.a f1.o f2.o f3.o
+      ranlib libfoo.a
+      cc -o prog1.o -c -I. prog1.c
+      cc -o prog1 prog1.o -L. -lfoo
+      cc -o prog2.o -c -I. prog2.c
+      cc -o prog2 prog2.o -L. -lfoo
+      +-.
+        +-SConstruct
+        +-f1.c
+        +-f1.o
+        | +-f1.c
+        | +-inc.h
+        +-f2.c
+        +-f2.o
+        | +-f2.c
+        | +-inc.h
+        +-f3.c
+        +-f3.o
+        | +-f3.c
+        | +-inc.h
+        +-inc.h
+        +-libfoo.a
+        | +-f1.o
+        | | +-f1.c
+        | | +-inc.h
+        | +-f2.o
+        | | +-f2.c
+        | | +-inc.h
+        | +-f3.o
+        |   +-f3.c
+        |   +-inc.h
+        +-prog1
+        | +-prog1.o
+        | | +-prog1.c
+        | | +-inc.h
+        | +-libfoo.a
+        |   +-f1.o
+        |   | +-f1.c
+        |   | +-inc.h
+        |   +-f2.o
+        |   | +-f2.c
+        |   | +-inc.h
+        |   +-f3.o
+        |     +-f3.c
+        |     +-inc.h
+        +-prog1.c
+        +-prog1.o
+        | +-prog1.c
+        | +-inc.h
+        +-prog2
+        | +-prog2.o
+        | | +-prog2.c
+        | | +-inc.h
+        | +-libfoo.a
+        |   +-f1.o
+        |   | +-f1.c
+        |   | +-inc.h
+        |   +-f2.o
+        |   | +-f2.c
+        |   | +-inc.h
+        |   +-f3.o
+        |     +-f3.c
+        |     +-inc.h
+        +-prog2.c
+        +-prog2.o
+          +-prog2.c
+          +-inc.h
+    </screen>
+
+    <para>
+
+    In a large configuration with many internal libraries
+    and include files,
+    this can very quickly lead to huge output trees.
+    To help make this more manageable,
+    a <literal>prune</literal> modifier may
+    be added to the option list,
+    in which case &SCons;
+    will print the name of a target that has
+    already been visited during the tree-printing
+    in <literal>[square brackets]</literal>
+    as an indication that the dependencies
+    of the target file may be found
+    by looking farther up the tree:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --tree=prune</userinput>
+      cc -o f1.o -c -I. f1.c
+      cc -o f2.o -c -I. f2.c
+      cc -o f3.o -c -I. f3.c
+      ar rc libfoo.a f1.o f2.o f3.o
+      ranlib libfoo.a
+      cc -o prog1.o -c -I. prog1.c
+      cc -o prog1 prog1.o -L. -lfoo
+      cc -o prog2.o -c -I. prog2.c
+      cc -o prog2 prog2.o -L. -lfoo
+      +-.
+        +-SConstruct
+        +-f1.c
+        +-f1.o
+        | +-f1.c
+        | +-inc.h
+        +-f2.c
+        +-f2.o
+        | +-f2.c
+        | +-inc.h
+        +-f3.c
+        +-f3.o
+        | +-f3.c
+        | +-inc.h
+        +-inc.h
+        +-libfoo.a
+        | +-[f1.o]
+        | +-[f2.o]
+        | +-[f3.o]
+        +-prog1
+        | +-prog1.o
+        | | +-prog1.c
+        | | +-inc.h
+        | +-[libfoo.a]
+        +-prog1.c
+        +-[prog1.o]
+        +-prog2
+        | +-prog2.o
+        | | +-prog2.c
+        | | +-inc.h
+        | +-[libfoo.a]
+        +-prog2.c
+        +-[prog2.o]
+    </screen>
+
+    <para>
+
+    Like the <literal>status</literal> keyword,
+    the <literal>prune</literal> argument by itself
+    is equivalent to <literal>--tree=all,prune</literal>.
+
+    </para>
+
+  </section>
+
+  <section>
+
+  <title>How is &SCons; Constructing the Command Lines It Executes?  the &debug-presub; Option</title>
+
+    <para>
+
+    Sometimes it's useful to look at the
+    pre-substitution string
+    that &SCons; uses to generate
+    the command lines it executes.
+    This can be done with the &debug-presub; option:
+
+    </para>
+
+    
+
+    <!--
+
+    Have to capture output here, otherwise the - -debug=presub output
+    shows the Python functions from the sconsdoc.py execution wrapper
+    used to generate this manual, not the underlying command-line strings.
+
+    <scons_output example="presub">
+      <scons_output_command>scons -Q - -debug=presub</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+      % <userinput>scons -Q --debug=presub</userinput>
+      Building prog.o with action:
+        $CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCOMCOM $SOURCES
+      cc -o prog.o -c -I. prog.c
+      Building prog with action:
+        $SMART_LINKCOM
+      cc -o prog prog.o
+    </screen>
+
+  </section>
+
+  <section>
+
+  <title>Where is &SCons; Searching for Libraries?  the &debug-findlibs; Option</title>
+
+    <para>
+
+    To get some insight into what library names
+    &SCons; is searching for,
+    and in which directories it is searching,
+    Use the <literal>--debug=findlibs</literal> option.
+    Given the following input &SConstruct; file:
+
+    </para>
+
+    <programlisting>
+        env = Environment(LIBPATH = ['libs1', 'libs2'])
+        env.Program('prog.c', LIBS=['foo', 'bar'])
+    </programlisting>
+
+    <para>
+
+    And the libraries <filename>libfoo.a</filename>
+    and <filename>libbar.a</filename>
+    in <filename>libs1</filename> and <filename>libs2</filename>,
+    respectively,
+    use of the <literal>--debug=findlibs</literal> option yields:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --debug=findlibs</userinput>
+        findlibs: looking for 'libfoo.a' in 'libs1' ...
+        findlibs: ... FOUND 'libfoo.a' in 'libs1'
+        findlibs: looking for 'libfoo.so' in 'libs1' ...
+        findlibs: looking for 'libfoo.so' in 'libs2' ...
+        findlibs: looking for 'libbar.a' in 'libs1' ...
+        findlibs: looking for 'libbar.a' in 'libs2' ...
+        findlibs: ... FOUND 'libbar.a' in 'libs2'
+        findlibs: looking for 'libbar.so' in 'libs1' ...
+        findlibs: looking for 'libbar.so' in 'libs2' ...
+      cc -o prog.o -c prog.c
+      cc -o prog prog.o -Llibs1 -Llibs2 -lfoo -lbar
+    </screen>
+
+  </section>
+
+  <!--
+
+  <section>
+
+  <title>What Implicit Dependencies Did the &SCons; Scanner find?  the &debug-includes; Option</title>
+
+    <para>
+
+    XXX explain the - - debug=includes option
+
+    </para>
+
+    <scons_example name="includes">
+      <file name="SConstruct" printme="1">
+        env = Environment(CPPPATH = ['inc1', 'inc2'])
+        env.Program('prog.c')
+      </file>
+      <file name="prog.c">
+      #include "file1.h"
+      #include "file2.h"
+      prog.c
+      </file>
+      <file name="inc1/file1.h">
+      inc1/file1.h
+      </file>
+      <file name="inc2/file2.h">
+      inc2/file2.h
+      </file>
+    </scons_example>
+
+    <scons_output example="includes">
+      <scons_output_command>scons -Q - - debug=includes prog</scons_output_command>
+    </scons_output>
+
+  </section>
+
+  -->
+
+  <section>
+
+  <title>Where is &SCons; Blowing Up?  the &debug-stacktrace; Option</title>
+
+    <para>
+
+    In general, &SCons; tries to keep its error
+    messages short and informative.
+    That means we usually try to avoid showing
+    the stack traces that are familiar
+    to experienced Python programmers,
+    since they usually contain much more
+    information than is useful to most people.
+
+    </para>
+
+    <para>
+
+    For example, the following &SConstruct; file:
+
+    </para>
+
+    <programlisting>
+         Program('prog.c')
+    </programlisting>
+
+    <para>
+
+    Generates the following error if the
+    <filename>prog.c</filename> file
+    does not exist:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
+    </screen>
+
+    <para>
+
+    In this case,
+    the error is pretty obvious.
+    But if it weren't,
+    and you wanted to try to get more information
+    about the error,
+    the &debug-stacktrace; option
+    would show you exactly where in the &SCons; source code
+    the problem occurs:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --debug=stacktrace</userinput>
+      scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
+      scons: internal stack trace:
+        File "bootstrap/src/engine/SCons/Job.py", line 199, in start
+          task.prepare()
+        File "bootstrap/src/engine/SCons/Script/Main.py", line 168, in prepare
+          return SCons.Taskmaster.OutOfDateTask.prepare(self)
+        File "bootstrap/src/engine/SCons/Taskmaster.py", line 189, in prepare
+          executor.prepare()
+        File "bootstrap/src/engine/SCons/Executor.py", line 392, in prepare
+          raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
+    </screen>
+
+    <para>
+
+    Of course, if you do need to dive into the &SCons; source code,
+    we'd like to know if, or how,
+    the error messages or troubleshooting options
+    could have been improved to avoid that.
+    Not everyone has the necessary time or
+    Python skill to dive into the source code,
+    and we'd like to improve &SCons;
+    for those people as well...
+
+    </para>
+
+  </section>
+
+  <section>
+
+  <title>How is &SCons; Making Its Decisions?  the &taskmastertrace; Option</title>
+
+    <para>
+
+    The internal &SCons; subsystem that handles walking
+    the dependency graph
+    and controls the decision-making about what to rebuild
+    is the <literal>Taskmaster</literal>.
+    &SCons; supports a <literal>--taskmastertrace</literal>
+    option that tells the Taskmaster to print
+    information about the children (dependencies)
+    of the various Nodes on its walk down the graph,
+    which specific dependent Nodes are being evaluated,
+    and in what order.
+
+    </para>
+
+    <para>
+
+    The <literal>--taskmastertrace</literal> option
+    takes as an argument the name of a file in
+    which to put the trace output,
+    with <filename>-</filename> (a single hyphen)
+    indicating that the trace messages
+    should be printed to the standard output:
+
+    </para>
+
+    <programlisting>
+      env = Environment(CPPPATH = ['.'])
+      env.Program('prog.c')
+    </programlisting>
+
+    <screen>
+      % <userinput>scons -Q --taskmastertrace=- prog</userinput>
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;no_state   0   'prog'&gt; and its children:
+      Taskmaster:        &lt;no_state   0   'prog.o'&gt;
+      Taskmaster:      adjusted ref count: &lt;pending    1   'prog'&gt;, child 'prog.o'
+      Taskmaster:     Considering node &lt;no_state   0   'prog.o'&gt; and its children:
+      Taskmaster:        &lt;no_state   0   'prog.c'&gt;
+      Taskmaster:        &lt;no_state   0   'inc.h'&gt;
+      Taskmaster:      adjusted ref count: &lt;pending    1   'prog.o'&gt;, child 'prog.c'
+      Taskmaster:      adjusted ref count: &lt;pending    2   'prog.o'&gt;, child 'inc.h'
+      Taskmaster:     Considering node &lt;no_state   0   'prog.c'&gt; and its children:
+      Taskmaster: Evaluating &lt;pending    0   'prog.c'&gt;
+      
+      Task.make_ready_current(): node &lt;pending    0   'prog.c'&gt;
+      Task.prepare():      node &lt;up_to_date 0   'prog.c'&gt;
+      Task.executed_with_callbacks(): node &lt;up_to_date 0   'prog.c'&gt;
+      Task.postprocess():  node &lt;up_to_date 0   'prog.c'&gt;
+      Task.postprocess():  removing &lt;up_to_date 0   'prog.c'&gt;
+      Task.postprocess():  adjusted parent ref count &lt;pending    1   'prog.o'&gt;
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;no_state   0   'inc.h'&gt; and its children:
+      Taskmaster: Evaluating &lt;pending    0   'inc.h'&gt;
+      
+      Task.make_ready_current(): node &lt;pending    0   'inc.h'&gt;
+      Task.prepare():      node &lt;up_to_date 0   'inc.h'&gt;
+      Task.executed_with_callbacks(): node &lt;up_to_date 0   'inc.h'&gt;
+      Task.postprocess():  node &lt;up_to_date 0   'inc.h'&gt;
+      Task.postprocess():  removing &lt;up_to_date 0   'inc.h'&gt;
+      Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog.o'&gt;
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;pending    0   'prog.o'&gt; and its children:
+      Taskmaster:        &lt;up_to_date 0   'prog.c'&gt;
+      Taskmaster:        &lt;up_to_date 0   'inc.h'&gt;
+      Taskmaster: Evaluating &lt;pending    0   'prog.o'&gt;
+      
+      Task.make_ready_current(): node &lt;pending    0   'prog.o'&gt;
+      Task.prepare():      node &lt;executing  0   'prog.o'&gt;
+      Task.execute():      node &lt;executing  0   'prog.o'&gt;
+      cc -o prog.o -c -I. prog.c
+      Task.executed_with_callbacks(): node &lt;executing  0   'prog.o'&gt;
+      Task.postprocess():  node &lt;executed   0   'prog.o'&gt;
+      Task.postprocess():  removing &lt;executed   0   'prog.o'&gt;
+      Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog'&gt;
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster:     Considering node &lt;pending    0   'prog'&gt; and its children:
+      Taskmaster:        &lt;executed   0   'prog.o'&gt;
+      Taskmaster: Evaluating &lt;pending    0   'prog'&gt;
+      
+      Task.make_ready_current(): node &lt;pending    0   'prog'&gt;
+      Task.prepare():      node &lt;executing  0   'prog'&gt;
+      Task.execute():      node &lt;executing  0   'prog'&gt;
+      cc -o prog prog.o
+      Task.executed_with_callbacks(): node &lt;executing  0   'prog'&gt;
+      Task.postprocess():  node &lt;executed   0   'prog'&gt;
+      
+      Taskmaster: Looking for a node to evaluate
+      Taskmaster: No candidate anymore.
+    </screen>
+
+    <para>
+
+    The <literal>--taskmastertrace</literal> option
+    doesn't provide information about the actual
+    calculations involved in deciding if a file is up-to-date,
+    but it does show all of the dependencies
+    it knows about for each Node,
+    and the order in which those dependencies are evaluated.
+    This can be useful as an alternate way to determine
+    whether or not your &SCons; configuration,
+    or the implicit dependency scan,
+    has actually identified all the correct dependencies
+    you want it to.
+
+    </para>
+
+  </section>
+
+  <section>
+
+  <title>Watch &SCons; prepare targets for building: the &debug-prepare; Option</title>
+
+    <para>
+
+    Sometimes SCons doesn't build the target you want
+    and it's difficult to figure out why.  You can use
+    the <literal>--debug=prepare</literal> option
+    to see all the targets &SCons; is considering, whether
+    they are already up-to-date or not. The message is
+    printed before &SCons; decides whether to build the target.
+    </para>
+
+  </section>
+
+  <section>
+
+  <title>Why is a file disappearing?  the --debug=duplicate Option</title>
+
+    <para>
+
+    When using the &Duplicate; option to create variant dirs,
+    sometimes you may find files not getting copied to where you
+    expect (or not at all), or files mysteriously disappearing.  These
+    are usually because of a misconfiguration of some kind in the
+    SConstruct/SConscript, but they can be tricky to debug.  The
+    --debug=duplicate option shows each time a variant file is
+    unlinked and relinked from its source (or copied, depending on
+    settings), and also shows a message for removing "stale"
+    variant-dir files that no longer have a corresponding source file.
+    It also prints a line for each target that's removed just before
+    building, since that can also be mistaken for the same thing.
+
+    </para>
+
+  </section>
+
+  <!--
+
+
+  <section>
+
+  <title>Where Are My Build Bottlenecks?  the &profile; Option</title>
+
+    <para>
+
+    XXX explain the - - profile= option
+
+    </para>
+
+  </section>
+
+  -->
+
+  <!--
+
+  <section>
+  <title>Troubleshooting Shared Caching:  the &cache-debug; Option</title>
+
+    <para>
+
+    XXX describe the - - cache-debug option
+    XXX maybe point to the caching.in chapter?
+
+    </para>
+
+  </section>
+
+  -->
