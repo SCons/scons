@@ -6,6 +6,9 @@
 
 RELEASE 2.X.X - 
 
+  From Anatoly Techtonik:
+    - Added ability to run scripts/scons.py directly from source checkout
+
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
 
