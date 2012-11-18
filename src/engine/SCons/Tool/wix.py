@@ -47,15 +47,17 @@ def generate(env):
 
     env['WIXLIGHTFLAGS'].append( '-nologo' )
     env['WIXLIGHTCOM'] = "$WIXLIGHT $WIXLIGHTFLAGS -out ${TARGET} ${SOURCES}"
+    env['WIXSRCSUF'] = '.wxs'
+    env['WIXOBJSUF'] = '.wixobj'
 
     object_builder = SCons.Builder.Builder(
         action      = '$WIXCANDLECOM',
-        suffix      = '.wixobj',
-        src_suffix  = '.wxs')
+        suffix      = '$WIXOBJSUF',
+        src_suffix  = '$WIXSRCSUF')
 
     linker_builder = SCons.Builder.Builder(
         action      = '$WIXLIGHTCOM',
-        src_suffix  = '.wixobj',
+        src_suffix  = '$WIXOBJSUF',
         src_builder = object_builder)
 
     env['BUILDERS']['WiX'] = linker_builder
