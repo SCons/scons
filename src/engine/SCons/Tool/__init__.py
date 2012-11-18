@@ -266,7 +266,9 @@ def VersionShLibLinkNames(version, libname, env):
         versionparts = version.split('.')
         major_name = linkname + "." + versionparts[0]
         minor_name = major_name + "." + versionparts[1]
-        for linkname in [major_name, minor_name]:
+        #Only add link for major_name
+        #for linkname in [major_name, minor_name]:
+        for linkname in [major_name, ]:
             if Verbose:
                 print "VersionShLibLinkNames: linkname ",linkname, ", target ",libname
             linknames.append(linkname)
@@ -323,12 +325,22 @@ symlinks for the platform we are on"""
         # here we need the full pathname so the links end up in the right directory
         libname = target[0].path
         linknames = VersionShLibLinkNames(version, libname, env)
+        if Verbose:
+            print "VerShLib: linknames ",linknames
         # Here we just need the file name w/o path as the target of the link
         lib_ver = target[0].name
-        for linkname in linknames:
-            os.symlink(lib_ver,linkname)
-            if Verbose:
-                print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
+        # make symlink of adjacent names in linknames
+        for count in range(len(linknames)):
+            linkname = linknames[count]
+            if count > 0:
+                os.symlink(os.path.basename(linkname),lastname)
+                if Verbose:
+                    print "VerShLib: made sym link of %s -> %s" % (lastname,linkname)
+            lastname = linkname
+        # finish chain of sym links with link to the actual library
+        os.symlink(lib_ver,lastname)
+        if Verbose:
+            print "VerShLib: made sym link of %s -> %s" % (lib_ver,linkname)
     return result
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
