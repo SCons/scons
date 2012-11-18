@@ -102,7 +102,6 @@ if platform == 'posix':
     files = [
     'libtest.so',
     'libtest.so.2',
-    'libtest.so.2.5',
     'libtest.so.2.5.4',
     'test.os',
     ]
@@ -110,7 +109,6 @@ if platform == 'posix':
     instfiles = [
     'libtest.so',
     'libtest.so.2',
-    'libtest.so.2.5',
     'libtest.so.2.5.4',
     ]
 elif platform == 'darwin':
