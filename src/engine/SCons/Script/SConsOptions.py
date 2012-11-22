@@ -599,22 +599,23 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time"] + list(deprecated_debug_options.keys())
+                     "time"]
 
     def opt_debug(option, opt, value, parser,
                   debug_options=debug_options,
                   deprecated_debug_options=deprecated_debug_options):
         if value in debug_options:
             parser.values.debug.append(value)
-            if value in deprecated_debug_options.keys():
-                try:
-                    parser.values.delayed_warnings
-                except AttributeError:
-                    parser.values.delayed_warnings = []
-                msg = deprecated_debug_options[value]
-                w = "The --debug=%s option is deprecated%s." % (value, msg)
-                t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
-                parser.values.delayed_warnings.append(t)
+        elif value in deprecated_debug_options.keys():
+            parser.values.debug.append(value)
+            try:
+                parser.values.delayed_warnings
+            except AttributeError:
+                parser.values.delayed_warnings = []
+            msg = deprecated_debug_options[value]
+            w = "The --debug=%s option is deprecated%s." % (value, msg)
+            t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
+            parser.values.delayed_warnings.append(t)
         else:
             raise OptionValueError("Warning:  %s is not a valid debug type" % value)
     opt_debug_help = "Print various types of debugging information: %s." \

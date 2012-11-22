@@ -8,6 +8,7 @@ RELEASE 2.X.X -
 
   From Anatoly Techtonik:
     - Added ability to run scripts/scons.py directly from source checkout
+    - Hide deprecated --debug={dtree,stree,tree} from --help output
 
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
