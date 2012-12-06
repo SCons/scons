@@ -68,7 +68,6 @@ def exists(env):
 
     # try to find the candle.exe and light.exe tools and 
     # add the install directory to light libpath.
-    #for path in os.environ['PATH'].split(os.pathsep):
     for path in os.environ['PATH'].split(os.pathsep):
         if not path:
             continue
@@ -82,13 +81,17 @@ def exists(env):
 
         # search for the tools in the PATH environment variable
         try:
-            if env['WIXCANDLE'] in os.listdir(path) and\
-               env['WIXLIGHT']  in os.listdir(path):
-                   env.PrependENVPath('PATH', path)
-                   env['WIXLIGHTFLAGS'] = [ os.path.join( path, 'wixui.wixlib' ),
-                                            '-loc',
-                                            os.path.join( path, 'WixUI_en-us.wxl' ) ]
-                   return 1
+            files = os.listdir(path)
+            if env['WIXCANDLE'] in files and env['WIXLIGHT'] in files:
+                env.PrependENVPath('PATH', path)
+                # include appropriate flags if running WiX 2.0
+                if 'wixui.wixlib' in files and 'WixUI_en-us.wxl' in files:
+                    env['WIXLIGHTFLAGS'] = [ os.path.join( path, 'wixui.wixlib' ),
+                                             '-loc',
+                                             os.path.join( path, 'WixUI_en-us.wxl' ) ]
+                else:
+                    env['WIXLIGHTFLAGS'] = []
+                return 1
         except OSError:
             pass # ignore this, could be a stale PATH entry.
 

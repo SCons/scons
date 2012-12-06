@@ -11,6 +11,7 @@ RELEASE 2.X.X -
 
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
+    - Support building with WiX releases after 2.0
 
   From Alexey Klimkin:
     - Fix nested LIBPATH expansion by flattening sequences in subst_path.
