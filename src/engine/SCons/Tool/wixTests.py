@@ -46,7 +46,7 @@ class WixTestCase(unittest.TestCase):
         env = Environment(tools=['wix'])
         assert env['WIXCANDLE'] is not None
         assert env['WIXCANDLEFLAGS'] is not None
-        assert '-loc' in env['WIXLIGHTFLAGS']
+        assert env['WIXLIGHTFLAGS'] is not None
         assert env.subst('$WIXOBJSUF') == '.wixobj'
         assert env.subst('$WIXSRCSUF') == '.wxs'
 
