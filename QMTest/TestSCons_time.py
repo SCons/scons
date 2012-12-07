@@ -175,26 +175,6 @@ class TestSCons_time(TestCommon):
 
         TestCommon.__init__(self, **kw)
 
-        # Now that the testing object has been set up, check if we should
-        # skip the test due to the Python version.  We need to be able to
-        # import __future__ (which scons-time.py uses for nested scopes)
-        # and to handle list comprehensions (just because we're avoiding
-        # the old map() and filter() idioms).
-
-        try:
-            import __future__
-        except ImportError:
-            version = sys.version.split()[0]
-            msg = 'scons-time does not work on Python version %s\n' % version
-            self.skip_test(msg)
-
-        try:
-            eval('[x for x in [1, 2]]')
-        except SyntaxError:
-            version = sys.version.split()[0]
-            msg = 'scons-time does not work on Python version %s\n' % version
-            self.skip_test(msg)
-
     def archive_split(self, path):
         if path[-7:] == '.tar.gz':
             return path[:-7], path[-7:]

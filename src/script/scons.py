@@ -55,18 +55,12 @@ import sys
 # engine modules if they're in either directory.
 
 
-# Check to see if the python version is > 3.0 which is currently unsupported
-# If so exit with error message
-try:
-    if  sys.version_info >= (3,0,0):
-        msg = "scons: *** SCons version %s does not run under Python version %s.\n\
-Python 3.0 and later are not yet supported.\n"
-        sys.stderr.write(msg % (__version__, sys.version.split()[0]))
-        sys.exit(1)
-except AttributeError:
-    # Pre-1.6 Python has no sys.version_info
-    # No need to check version as we then know the version is < 3.0.0 and supported
-    pass
+if sys.version_info >= (3,0,0):
+    msg = "scons: *** SCons version %s does not run under Python version %s.\n\
+Python 3 is not yet supported.\n"
+    sys.stderr.write(msg % (__version__, sys.version.split()[0]))
+    sys.exit(1)
+
 
 script_dir = sys.path[0]
 
