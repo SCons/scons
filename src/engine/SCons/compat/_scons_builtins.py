@@ -37,7 +37,6 @@ This module checks for the following builtins names:
 
         all()
         any()
-        sorted()
         memoryview()
 
 Implementations of functions are *NOT* guaranteed to be fully compliant
@@ -100,48 +99,6 @@ except NameError:
             else:
                 return self.obj[indx]
     builtins.memoryview = memoryview
-
-try:
-    sorted
-except NameError:
-    # Pre-2.4 Python has no sorted() function.
-    #
-    # The pre-2.4 Python list.sort() method does not support
-    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
-    # we must implement the functionality of those keyword arguments
-    # by hand instead of passing them to list.sort().
-    def sorted(iterable, cmp=None, key=None, reverse=False):
-        if key is not None:
-            result = [(key(x), x) for x in iterable]
-        else:
-            result = iterable[:]
-        if cmp is None:
-            # Pre-2.3 Python does not support list.sort(None).
-            result.sort()
-        else:
-            result.sort(cmp)
-        if key is not None:
-            result = [t1 for t0,t1 in result]
-        if reverse:
-            result.reverse()
-        return result
-    builtins.sorted = sorted
-
-#if sys.version_info[:3] in ((2, 2, 0), (2, 2, 1)):
-#    def lstrip(s, c=string.whitespace):
-#        while s and s[0] in c:
-#            s = s[1:]
-#        return s
-#    def rstrip(s, c=string.whitespace):
-#        while s and s[-1] in c:
-#            s = s[:-1]
-#        return s
-#    def strip(s, c=string.whitespace, l=lstrip, r=rstrip):
-#        return l(r(s, c), c)
-#
-#    object.__setattr__(str, 'lstrip', lstrip)
-#    object.__setattr__(str, 'rstrip', rstrip)
-#    object.__setattr__(str, 'strip', strip)
 
 # Local Variables:
 # tab-width:4
