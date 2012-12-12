@@ -19,7 +19,7 @@ effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
 
-RELEASE 2.2.0 - Mon, 09 Sep 2011 20:54:57 -0700
+RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
