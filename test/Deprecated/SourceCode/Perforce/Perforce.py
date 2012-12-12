@@ -85,13 +85,8 @@ class TestPerforce(TestSCons.TestSCons):
             # We don't use self.run() because the TestCmd logic will hang
             # waiting for the daemon to exit, even when we pass it
             # the -d option.
-            try:
-                spawnv = os.spawnv
-            except AttributeError:
-                os.system(' '.join(args))
-            else:
-                spawnv(os.P_NOWAIT, self.p4d, args)
-                self.sleep(2)
+            os.spawnv(os.P_NOWAIT, self.p4d, args)
+            self.sleep(2)
         else:
             import socket
             s = socket.socket()

@@ -390,22 +390,11 @@ if use_subprocess:
 else:
     has_subprocess = False
     # Set up lowest-common-denominator spawning of a process on both Windows
-    # and non-Windows systems that works all the way back to Python 1.5.2.
-    try:
-        os.spawnv
-    except AttributeError:
-        def spawn_it(command_args):
-            pid = os.fork()
-            if pid == 0:
-                os.execv(command_args[0], command_args)
-            else:
-                pid, status = os.waitpid(pid, 0)
-                return (None, None, status >> 8)
-    else:
-        def spawn_it(command_args):
-            command = command_args[0]
-            command_args = [escape(c) for c in command_args]
-            return (None, None, os.spawnv(os.P_WAIT, command, command_args))
+    # and non-Windows systems that works all the way back to Python 1.6
+    def spawn_it(command_args):
+        command = command_args[0]
+        command_args = [escape(c) for c in command_args]
+        return (None, None, os.spawnv(os.P_WAIT, command, command_args))
 
 class Base(object):
     def __init__(self, path, spe=None):
