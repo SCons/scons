@@ -43,58 +43,6 @@ Exit(0)
 
 test.run(status=2)
 
-test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(1,3)
-Exit(0)
-""")
-
-test.run()
-
-test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3+ (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(2,2)
-Exit(0)
-""")
-
-test.run()
-
-test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(2,3)
-Exit(0)
-""")
-
-test.run()
-
-test.write('SConstruct', """\
-import sys
-try:
-    delattr(sys, 'version_info')
-except AttributeError:
-    pass
-sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
-EnsurePythonVersion(2,4)
-Exit(0)
-""")
-
-test.run(status=2)
-
 
 
 test.pass_test()
