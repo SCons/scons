@@ -1,0 +1,15 @@
+prog = Install( '/bin/', Program( 'main.c') )
+
+Package( projectname        = 'foo',
+         version            = '1.2.3',
+         architecture       = 'arm',
+         x_ipk_maintainer   = 'user <user@somehost.net>',
+         x_ipk_priority     = 'optional',
+         source_url         = 'http://ftp.gnu.org/foo-1.2.3.tar.gz',
+         x_ipk_depends      = 'libc6, grep',
+         type               = 'ipk',
+         summary            = 'bla bla bla',
+         x_ipk_section      = 'extras',
+         description        = 'this should be reallly really long',
+         source             = [ prog ],
+        )

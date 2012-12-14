@@ -1,0 +1,52 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<tool name="install">
+<summary>
+Sets construction variables for file
+and directory installation.
+</summary>
+<sets>
+INSTALL
+INSTALLSTR
+</sets>
+</tool>
+
+<builder name="Install">
+<summary>
+Installs one or more source files or directories
+in the specified target,
+which must be a directory.
+The names of the specified source files or directories
+remain the same within the destination directory.
+
+<example>
+env.Install('/usr/local/bin', source = ['foo', 'bar'])
+</example>
+</summary>
+</builder>
+
+<builder name="InstallAs">
+<summary>
+Installs one or more source files or directories
+to specific names,
+allowing changing a file or directory name
+as part of the installation.
+It is an error if the
+target
+and
+source
+arguments list different numbers of files or directories.
+
+<example>
+env.InstallAs(target = '/usr/local/bin/foo',
+              source = 'foo_debug')
+env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
+              source = ['libFOO.a', 'libBAR.a'])
+</example>
+</summary>
+</builder>
