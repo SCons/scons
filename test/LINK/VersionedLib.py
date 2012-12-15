@@ -28,36 +28,7 @@ import os
 import sys
 import TestSCons
 
-# copied from SCons/Platform/__init__.py
-def platform_default():
-    """Return the platform string for our execution environment.
-
-    The returned value should map to one of the SCons/Platform/*.py
-    files.  Since we're architecture independent, though, we don't
-    care about the machine architecture.
-    """
-    osname = os.name
-    if osname == 'java':
-        osname = os._osType
-    if osname == 'posix':
-        if sys.platform == 'cygwin':
-            return 'cygwin'
-        elif sys.platform.find('irix') != -1:
-            return 'irix'
-        elif sys.platform.find('sunos') != -1:
-            return 'sunos'
-        elif sys.platform.find('hp-ux') != -1:
-            return 'hpux'
-        elif sys.platform.find('aix') != -1:
-            return 'aix'
-        elif sys.platform.find('darwin') != -1:
-            return 'darwin'
-        else:
-            return 'posix'
-    elif os.name == 'os2':
-        return 'os2'
-    else:
-        return sys.platform
+import SCons.Platform
 
 _exe = TestSCons._exe
 
@@ -93,7 +64,8 @@ return 0 ;
 }
 """)
 
-platform = platform_default()
+platform = SCons.Platform.platform_default()
+
 
 test.run()
 
