@@ -30,19 +30,26 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-Z',
+test.run(arguments = '-Q --tree=prune',
+         stdout = """scons: `.' is up to date.
++-.
+  +-SConstruct
+""")
+
+test.run(arguments = '-Q --tree=foofoo',
          stderr = """usage: scons [OPTION] [TARGET] ...
 
-SCons Error: no such option: -Z
+SCons Error: `foofoo' is not a valid --tree option type, try:
+    all, derived, prune, status
 """,
          status = 2)
 
-test.run(arguments = '--ZizzerZazzerZuzz',
-         stderr = """usage: scons [OPTION] [TARGET] ...
-
-SCons Error: no such option: --ZizzerZazzerZuzz
+test.run(arguments = '--debug=tree',
+         stderr = """
+scons: warning: The --debug=tree option is deprecated; please use --tree=all instead.
+.*
 """,
-         status = 2)
+         status = 0, match=TestSCons.match_re_dotall)
 
 test.pass_test()
 

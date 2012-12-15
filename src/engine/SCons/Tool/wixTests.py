@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -24,27 +23,37 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
+import unittest
+import os.path
+import os
+import sys
 
-test = TestSCons.TestSCons()
+import SCons.Errors
+from SCons.Tool.wix import *
+from SCons.Environment import Environment
 
-test.write('SConstruct', "")
+import TestCmd
 
-test.run(arguments = '-Z',
-         stderr = """usage: scons [OPTION] [TARGET] ...
+# create fake candle and light, so the tool's exists() method will succeed
+test = TestCmd.TestCmd(workdir = '')
+test.write('candle.exe', 'rem this is candle')
+test.write('light.exe', 'rem this is light')
+os.environ['PATH'] += os.pathsep + test.workdir
 
-SCons Error: no such option: -Z
-""",
-         status = 2)
+class WixTestCase(unittest.TestCase):
+    def test_vars(self):
+        """Test that WiX tool adds vars"""
+        env = Environment(tools=['wix'])
+        assert env['WIXCANDLE'] is not None
+        assert env['WIXCANDLEFLAGS'] is not None
+        assert env['WIXLIGHTFLAGS'] is not None
+        assert env.subst('$WIXOBJSUF') == '.wixobj'
+        assert env.subst('$WIXSRCSUF') == '.wxs'
 
-test.run(arguments = '--ZizzerZazzerZuzz',
-         stderr = """usage: scons [OPTION] [TARGET] ...
-
-SCons Error: no such option: --ZizzerZazzerZuzz
-""",
-         status = 2)
-
-test.pass_test()
+if __name__ == "__main__":
+    suite = unittest.makeSuite(WixTestCase, 'test_')
+    if not unittest.TextTestRunner().run(suite).wasSuccessful():
+        sys.exit(1)
 
 # Local Variables:
 # tab-width:4

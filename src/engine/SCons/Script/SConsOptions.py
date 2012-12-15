@@ -268,8 +268,9 @@ class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
 
     def error(self, msg):
+        # overriden OptionValueError exception handler
         self.print_usage(sys.stderr)
-        sys.stderr.write("SCons error: %s\n" % msg)
+        sys.stderr.write("SCons Error: %s\n" % msg)
         sys.exit(2)
 
     def _process_long_opt(self, rargs, values):
@@ -568,11 +569,15 @@ def Parser(version):
                   action="store_true",
                   help="Print build actions for files from CacheDir.")
 
+    def opt_invalid(group, value, options):
+        errmsg  = "`%s' is not a valid %s option type, try:\n" % (value, group)
+        return errmsg + "    %s" % ", ".join(options)
+
     config_options = ["auto", "force" ,"cache"]
 
     def opt_config(option, opt, value, parser, c_options=config_options):
         if not value in c_options:
-            raise OptionValueError("Warning:  %s is not a valid config type" % value)
+            raise OptionValueError(opt_invalid('config', value, c_options))
         setattr(parser.values, option.dest, value)
     opt_config_help = "Controls Configure subsystem: %s." \
                       % ", ".join(config_options)
@@ -599,24 +604,25 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time"] + list(deprecated_debug_options.keys())
+                     "time"]
 
     def opt_debug(option, opt, value, parser,
                   debug_options=debug_options,
                   deprecated_debug_options=deprecated_debug_options):
         if value in debug_options:
             parser.values.debug.append(value)
-            if value in deprecated_debug_options.keys():
-                try:
-                    parser.values.delayed_warnings
-                except AttributeError:
-                    parser.values.delayed_warnings = []
-                msg = deprecated_debug_options[value]
-                w = "The --debug=%s option is deprecated%s." % (value, msg)
-                t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
-                parser.values.delayed_warnings.append(t)
+        elif value in deprecated_debug_options.keys():
+            parser.values.debug.append(value)
+            try:
+                parser.values.delayed_warnings
+            except AttributeError:
+                parser.values.delayed_warnings = []
+            msg = deprecated_debug_options[value]
+            w = "The --debug=%s option is deprecated%s." % (value, msg)
+            t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
+            parser.values.delayed_warnings.append(t)
         else:
-            raise OptionValueError("Warning:  %s is not a valid debug type" % value)
+            raise OptionValueError(opt_invalid('debug', value, debug_options))
     opt_debug_help = "Print various types of debugging information: %s." \
                      % ", ".join(debug_options)
     op.add_option('--debug',
@@ -630,7 +636,7 @@ def Parser(version):
         try:
             diskcheck_value = diskcheck_convert(value)
         except ValueError, e:
-            raise OptionValueError("Warning: `%s' is not a valid diskcheck type" % e)
+            raise OptionValueError("`%s' is not a valid diskcheck type" % e)
         setattr(parser.values, option.dest, diskcheck_value)
 
     op.add_option('--diskcheck',
@@ -642,7 +648,8 @@ def Parser(version):
 
     def opt_duplicate(option, opt, value, parser):
         if not value in SCons.Node.FS.Valid_Duplicates:
-            raise OptionValueError("`%s' is not a valid duplication style." % value)
+            raise OptionValueError(opt_invalid('duplication', value,
+                                              SCons.Node.FS.Valid_Duplicates))
         setattr(parser.values, option.dest, value)
         # Set the duplicate style right away so it can affect linking
         # of SConscript files.
@@ -807,7 +814,7 @@ def Parser(version):
             elif o == 'status':
                 tp.status = True
             else:
-                raise OptionValueError("Warning:  %s is not a valid --tree option" % o)
+                raise OptionValueError(opt_invalid('--tree', o, tree_options))
         parser.values.tree_printers.append(tp)
 
     opt_tree_help = "Print a dependency tree in various formats: %s." \

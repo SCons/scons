@@ -123,7 +123,8 @@ RunTest('copy', type, bss)
 test.run(arguments='--duplicate=nonsense', status=2, stderr="""\
 usage: scons [OPTION] [TARGET] ...
 
-SCons error: `nonsense' is not a valid duplication style.
+SCons Error: `nonsense' is not a valid duplication option type, try:
+    hard-soft-copy, soft-hard-copy, hard-copy, soft-copy, copy
 """)
 
 test.pass_test()
