@@ -473,13 +473,8 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def EnsurePythonVersion(self, major, minor):
         """Exit abnormally if the Python version is not late enough."""
-        try:
-            v_major, v_minor, v_micro, release, serial = sys.version_info
-            python_ver = (v_major, v_minor)
-        except AttributeError:
-            python_ver = self._get_major_minor_revision(sys.version)[:2]
-        if python_ver < (major, minor):
-            v = sys.version.split(" ", 1)[0]
+        if sys.version_info < (major, minor):
+            v = sys.version.split()[0]
             print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
             sys.exit(2)
 

@@ -6,6 +6,15 @@
 
 RELEASE 2.X.X - 
 
+  From Anatoly Techtonik:
+    - Added ability to run scripts/scons.py directly from source checkout
+    - Hide deprecated --debug={dtree,stree,tree} from --help output
+    - Error messages from option parser now include hints about valid choices
+
+  From Juan Lang:
+    - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
+    - Support building with WiX releases after 2.0
+
   From Alexey Klimkin:
     - Fix nested LIBPATH expansion by flattening sequences in subst_path.
 
@@ -1760,6 +1769,9 @@ RELEASE 0.97.0d20070809 - Fri, 10 Aug 2007 10:51:27 -0500
 
   - Add a new AddOption() function to support user-defined command-
     line flags (like --prefix=, --force, etc.).
+
+  - Replace modified Optik version with new optparse compatibility module
+    for command line processing in Scripts/SConsOptions.py
 
   - Push and retrieve built symlinks to/from a CacheDir() as actual
     symlinks, not by copying the file contents.
