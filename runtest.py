@@ -289,6 +289,23 @@ runtest.py:  No tests were specified.
 """)
     sys.exit(1)
 
+
+# --- setup stdout/stderr ---
+class Unbuffered(object):
+    def __init__(self, file):
+        self.file = file
+        self.softspace = 0  ## backward compatibility; not supported in Py3k
+    def write(self, arg):
+        self.file.write(arg)
+        self.file.flush()
+    def __getattr__(self, attr):
+        return getattr(self.file, attr)
+
+sys.stdout = Unbuffered(sys.stdout)
+sys.stderr = Unbuffered(sys.stderr)
+
+
+# --- define helpers ----
 if sys.platform in ('win32', 'cygwin'):
 
     def whereis(file):
@@ -488,6 +505,7 @@ format_class = {
 
 Test = format_class[format]
 
+# --- start processing ---
 if package:
 
     dir = {
@@ -745,19 +763,6 @@ if qmtest:
 #    pass
 
 tests = [Test(t) for t in tests]
-
-class Unbuffered(object):
-    def __init__(self, file):
-        self.file = file
-        self.softspace = 0  ## backward compatibility; not supported in Py3k
-    def write(self, arg):
-        self.file.write(arg)
-        self.file.flush()
-    def __getattr__(self, attr):
-        return getattr(self.file, attr)
-
-sys.stdout = Unbuffered(sys.stdout)
-sys.stderr = Unbuffered(sys.stderr)
 
 if list_only:
     for t in tests:
