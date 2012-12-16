@@ -53,63 +53,58 @@ Bad command or file name
 """
 
 unrecognized = """\
-'%s' is not recognized as an internal or external command,
+'.+' is not recognized as an internal or external command,
 operable program or batch file.
-scons: *** [%s] Error 1
+scons: \*\*\* \[%s\] Error 1
 """
 
 unspecified = """\
 The name specified is not recognized as an
 internal or external command, operable program or batch file.
-scons: *** [%s] Error 1
+scons: \*\*\* \[%s\] Error 1
 """
 
 cannot_execute = """\
-%s: cannot execute
-scons: *** [%s] Error %s
-"""
-
-Permission_denied = """\
-%s: Permission denied
-scons: *** [%s] Error %s
+(sh: )*.+: cannot execute
+scons: \*\*\* \[%s\] Error %s
 """
 
 permission_denied = """\
-%s: permission denied
-scons: *** [%s] Error %s
+.+: (p|P)ermission denied
+scons: \*\*\* \[%s\] Error %s
 """
 
 is_a_directory = """\
-%s: is a directory
-scons: *** [%s] Error %s
+.+: (i|I)s a directory
+scons: \*\*\* \[%s\] Error %s
 """
 
-Is_a_directory = """\
-%s: Is a directory
-scons: *** [%s] Error %s
+konnte_nicht_gefunden_werden = """\
+Der Befehl ".+" ist entweder falsch geschrieben oder
+konnte nicht gefunden werden.
+scons: \*\*\* \[%s\] Error %s
 """
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':
     errs = [
         bad_command,
-        unrecognized % (test.workdir, 'f3'),
+        unrecognized % 'f3',
+        konnte_nicht_gefunden_werden % ('f3', 1),
         unspecified % 'f3'
     ]
-    test.fail_test(not test.stderr() in errs)
 elif sys.platform.find('sunos') != -1:
     errs = [
-        cannot_execute % ('sh: %s' % test.workdir, 'f3', 1),
+        cannot_execute % ('f3', 1),
     ]
-    test.fail_test(not test.stderr() in errs)
 else:
     errs = [
-        cannot_execute % (not_executable, 'f3', 126),
-        is_a_directory % (test.workdir, 'f3', 126),
-        Is_a_directory % (test.workdir, 'f3', 126),
-        Permission_denied % (test.workdir, 'f3', 126),
+        cannot_execute % ('f3', 126),
+        is_a_directory % ('f3', 126),
+        permission_denied % ('f3', 126),
     ]
-    test.must_contain_any_line(test.stderr(), errs)
+
+test.must_contain_any_line(test.stderr(), errs, find=TestSCons.search_re)
 
 test.pass_test()
 

@@ -46,58 +46,33 @@ test.run(arguments='.',
          stderr = None,
          status = 2)
 
-bad_command = """\
-Bad command or file name
-"""
-
-unrecognized = """\
-'%s' is not recognized as an internal or external command,
-operable program or batch file.
-scons: *** [%s] Error 1
-"""
-
-unspecified = """\
-The name specified is not recognized as an
-internal or external command, operable program or batch file.
-scons: *** [%s] Error 1
-"""
-
-not_found_1_space = """\
-sh: %s: not found
-scons: *** [%s] Error %s
-"""
-
-not_found_2_spaces = """\
-sh: %s:  not found
-scons: *** [%s] Error %s
-"""
-
-No_such = """\
-%s: No such file or directory
-scons: *** [%s] Error %s
-"""
+bad_command = """Bad command or file name"""
+unrecognized = r"""'.+' is not recognized as an internal or external command,\s+operable program or batch file.\sscons: \*\*\* \[%s\] Error 1"""
+unspecified = r"""The name specified is not recognized as an\s+internal or external command, operable program or batch file.\s+scons: \*\*\* \[%s\] Error 1"""
+not_found_space = r"""sh: (\d: )*.+: \s*not found\s+scons: \*\*\* \[%s\] Error %s"""
+No_such = r""".+: No such file or directory\s+scons: \*\*\* \[%s\] Error %s"""
+konnte_nicht_gefunden_werden = r"""Der Befehl ".+" ist entweder falsch geschrieben oder\s+konnte nicht gefunden werden.\s+scons: \*\*\* \[%s\] Error %s"""
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':
     errs = [
         bad_command,
-        unrecognized % (no_such_file, 'f1'),
+        unrecognized % 'f1',
+        konnte_nicht_gefunden_werden % ('f1', 1),
         unspecified % 'f1'
     ]
-    test.fail_test(not test.stderr() in errs)
 elif sys.platform.find('sunos') != -1:
     errs = [
-        not_found_1_space % (no_such_file, 'f1', 1),
+        not_found_space % ('f1', 1),
     ]
-    test.fail_test(not test.stderr() in errs)
 else:
     errs = [
-        not_found_1_space % (no_such_file, 'f1', 1),
-        not_found_2_spaces % (no_such_file, 'f1', 1),
-        not_found_1_space % (no_such_file, 'f1', 127),
-        No_such % (no_such_file, 'f1', 127),
+        not_found_space % ('f1', 1),
+        not_found_space % ('f1', 127),
+        No_such % ('f1', 127),
     ]
-    test.must_contain_any_line(test.stderr(), errs)
+
+test.must_contain_any_line(test.stderr(), errs, find=TestSCons.search_re)
 
 test.pass_test()
 

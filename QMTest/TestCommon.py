@@ -286,11 +286,17 @@ class TestCommon(TestCmd):
             print "Unwritable files: `%s'" % "', `".join(unwritable)
         self.fail_test(missing + unwritable)
 
-    def must_contain(self, file, required, mode = 'rb'):
+    def must_contain(self, file, required, mode = 'rb', find = None):
         """Ensures that the specified file contains the required text.
         """
         file_contents = self.read(file, mode)
-        contains = (file_contents.find(required) != -1)
+        if find is None:
+            def find(o, l):
+                try:
+                    return o.index(l)
+                except ValueError:
+                    return None
+        contains = find(file_contents, required)
         if not contains:
             print "File `%s' does not contain required string." % file
             print self.banner('Required string ')
@@ -317,6 +323,9 @@ class TestCommon(TestCmd):
                 except ValueError:
                     return None
         missing = []
+        if is_List(output):
+            output = '\n'.join(output)
+
         for line in lines:
             if find(output, line) is None:
                 missing.append(line)
@@ -415,9 +424,9 @@ class TestCommon(TestCmd):
         sys.stdout.flush()
         self.fail_test()
 
-    def must_contain_lines(self, lines, output, title=None):
+    def must_contain_lines(self, lines, output, title=None, find = None):
         # Deprecated; retain for backwards compatibility.
-        return self.must_contain_all_lines(output, lines, title)
+        return self.must_contain_all_lines(output, lines, title, find)
 
     def must_exist(self, *files):
         """Ensures that the specified file(s) must exist.  An individual
@@ -467,11 +476,17 @@ class TestCommon(TestCmd):
             self.diff(expect, file_contents, 'contents ')
             raise
 
-    def must_not_contain(self, file, banned, mode = 'rb'):
+    def must_not_contain(self, file, banned, mode = 'rb', find = None):
         """Ensures that the specified file doesn't contain the banned text.
         """
         file_contents = self.read(file, mode)
-        contains = (file_contents.find(banned) != -1)
+        if find is None:
+            def find(o, l):
+                try:
+                    return o.index(l)
+                except ValueError:
+                    return None
+        contains = find(file_contents, banned)
         if contains:
             print "File `%s' contains banned string." % file
             print self.banner('Banned string ')
@@ -512,8 +527,8 @@ class TestCommon(TestCmd):
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_not_contain_lines(self, lines, output, title=None):
-        return self.must_not_contain_any_line(output, lines, title)
+    def must_not_contain_lines(self, lines, output, title=None, find=None):
+        return self.must_not_contain_any_line(output, lines, title, find)
 
     def must_not_exist(self, *files):
         """Ensures that the specified file(s) must not exist.
