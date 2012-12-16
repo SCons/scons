@@ -83,21 +83,21 @@ scons.send("build foo.out\n")
 scons.send("\n")
 
 if sys.platform == 'win32':
-    no_such_error = "'no_such_command' is not recognized as an internal or external command,\noperable program or batch file."
+    no_such_error = r"('no_such_command' is not recognized as an internal or external command,\s+operable program or batch file\.|Der Befehl \"no_such_command\" ist entweder falsch geschrieben oder\s+konnte nicht gefunden werden\.)"
 else:
     no_such_error = 'scons: no_such_command: No such file or directory'
 
 expect_stdout = """\
-scons>>> Copy("foo.out", "foo.in")
-Touch("1")
+scons>>> Copy\("foo.out", "foo.in"\)
+Touch\("1"\)
 scons>>> hello from shell_command.py
-scons>>> !%(_python_)s %(_shell_command_py_)s
+scons>>> ![^"]+ ".*"
 hello from shell_command.py
 scons>>> hello from shell_command.py
-scons>>> shell %(_python_)s %(_shell_command_py_)s
+scons>>> shell [^"]+ ".*"
 hello from shell_command.py
 scons>>> hello from shell_command.py
-scons>>> sh %(_python_)s %(_shell_command_py_)s
+scons>>> sh [^"]+ ".*"
 hello from shell_command.py
 scons>>> %(no_such_error)s
 scons>>> !no_such_command arg1 arg2
@@ -108,9 +108,9 @@ scons: `foo.out' is up to date.
 scons>>> 
 """ % locals()
 
-test.finish(scons, stdout = expect_stdout)
+test.finish(scons, stdout = None)
 
-
+test.must_contain_all_lines(test.stdout(), expect_stdout.splitlines(), find=TestSCons.search_re)
 
 test.pass_test()
 

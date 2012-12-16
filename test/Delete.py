@@ -212,6 +212,7 @@ fail_strings = [
     "No such file or directory",
     "The system cannot find the file specified",
     "The system cannot find the path specified",
+    "Das System kann die angegebene Datei nicht finden",
 ]
 
 test.must_contain_any_line(test.stderr(), fail_strings)
