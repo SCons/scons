@@ -97,7 +97,7 @@ e
 
 test.run(arguments = 'func --file st2.conf --fmt gnuplot')
 
-test.must_contain_exactly_lines(test.stdout(), expect2, find=TestSCons.search_re_in_list)
+test.must_contain_exactly_lines(test.stdout(), expect2, find=TestSCons_time.search_re_in_list)
 
 test.pass_test()
 
