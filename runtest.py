@@ -92,6 +92,14 @@ import stat
 import sys
 import time
 
+try:
+    import threading
+    import Queue                # 2to3: rename to queue
+    threading_ok = True
+except ImportError:
+    print "Can't import threading or queue"
+    threading_ok = False
+
 cwd = os.getcwd()
 
 all = 0
@@ -101,6 +109,7 @@ external = 0
 debug = ''
 execute_tests = 1
 format = None
+jobs = 1
 list_only = None
 printcommand = 1
 package = None
@@ -172,9 +181,10 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hklno:P:p:qsv:Xx:t",
+opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hj:klno:P:p:qsv:Xx:t",
                             ['all', 'baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
+                             'jobs=',
                              'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
                              'package=', 'passed', 'python=', 'qmtest',
                              'quiet', 'short-progress', 'time',
@@ -207,6 +217,8 @@ for o, a in opts:
     elif o in ['-h', '--help']:
         print helpstr
         sys.exit(0)
+    elif o in ['-j', '--jobs']:
+        jobs = int(a)
     elif o in ['-k', '--no-progress']:
         print_progress = 0
     elif o in ['-l', '--list']:
@@ -763,7 +775,11 @@ else:
 
 total_start_time = time_func()
 total_num_tests = len(tests)
-for idx,t in enumerate(tests):
+tests_completed = 0
+
+def run_test(t, io_lock, async=True):
+    global tests_completed
+    header = ""
     command_args = ['-tt']
     if python3incompatibilities:
         command_args.append('-3')
@@ -774,12 +790,16 @@ for idx,t in enumerate(tests):
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
         if print_progress:
-            sys.stdout.write("%d/%d (%.2f%s) %s\n" % (idx+1, total_num_tests,
-                                                      float(idx+1)*100.0/float(total_num_tests),
-                                                      '%',
-                                                      t.command_str))
+            tests_completed += 1
+            n = tests_completed # approx indicator of where we are
+            header += ("%d/%d (%.2f%s) %s\n" % (n, total_num_tests,
+                                                float(n)*100.0/float(total_num_tests),
+                                                '%',
+                                                t.command_str))
         else:
-            sys.stdout.write(t.command_str + "\n")
+            header += t.command_str + "\n"
+    if not suppress_stdout and not suppress_stderr:
+        sys.stdout.write(header)
     head, tail = os.path.split(t.abspath)
     if head:
         os.environ['PYTHON_SCRIPT_DIR'] = head
@@ -788,13 +808,54 @@ for idx,t in enumerate(tests):
     test_start_time = time_func()
     if execute_tests:
         t.execute()
-        if not suppress_stdout and t.stdout:
-            print t.stdout
-        if not suppress_stderr and t.stderr:
-            print t.stderr
 
     t.test_time = time_func() - test_start_time
+    if io_lock:
+        io_lock.acquire()
+    if suppress_stdout or suppress_stderr:
+        sys.stdout.write(header)
+    if not suppress_stdout and t.stdout:
+        print t.stdout
+    if not suppress_stderr and t.stderr:
+        print t.stderr
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
+    if io_lock:
+        io_lock.release()
+
+class RunTest(threading.Thread):
+    def __init__(self, queue, io_lock):
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.io_lock = io_lock
+
+    def run(self):
+        while True:
+            t = self.queue.get()
+            run_test(t, io_lock, True)
+            self.queue.task_done()
+
+if jobs > 1 and threading_ok:
+    print "Running tests using %d jobs"%jobs
+    # Start worker threads
+    queue = Queue.Queue()
+    io_lock = threading.Lock()
+    for i in range(1, jobs):
+        t = RunTest(queue, io_lock)
+        t.daemon = True
+        t.start()
+    # Give tasks to workers
+    for t in tests:
+        queue.put(t)
+    queue.join()
+else:
+    # Run tests serially
+    if jobs > 1:
+        print "Ignoring -j%d option; no python threading module available."%jobs
+    for t in tests:
+        run_test(t, None, False)
+
+# all tests are complete by the time we get here
+
 if len(tests) > 0:
     tests[0].total_time = time_func() - total_start_time
     print_time_func("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
