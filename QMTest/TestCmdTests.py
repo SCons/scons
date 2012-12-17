@@ -58,68 +58,20 @@ def _clear_dict(dict, *keys):
         except KeyError:
             pass
 
+import subprocess
+
 try:
-    import subprocess
-except ImportError:
-    # The subprocess module doesn't exist in this version of Python,
-    # so we're going to cobble up something that looks just enough
-    # like its API for our purposes below.
-    import popen2
-    subprocess = types.ModuleType('subprocess')
-
-    subprocess.PIPE = 'PIPE'
-    subprocess.STDOUT = 'STDOUT'
-    subprocess.mswindows = (sys.platform == 'win32')
-
-    class Popen(popen2.Popen3, popen2.Popen4):
-        universal_newlines = 1
-        def __init__(self, command, **kw):
-            if kw.get('stderr') == 'STDOUT':
-                popen2.Popen4.__init__(self, command, 1)
-            else:
-                popen2.Popen3.__init__(self, command, 1)
-            self.stdin = self.tochild
-            self.stdout = self.fromchild
-            self.stderr = self.childerr
-        def communicate(self, input=None):
-            if input:
-                self.stdin.write(input)
-            self.stdin.close()
-            out = self.stdout.read()
-            if self.stderr is None:
-                err = None
-            else:
-                err = self.stderr.read()
-            self.stdout.close()
-            if self.stderr is not None:
-                self.stderr.close()
-            self.returncode = self.wait()
-            return (out, err)
+    subprocess.Popen.terminate
+except AttributeError:
+    if sys.platform == 'win32':
+        import win32process
+        def terminate(self):
+            win32process.TerminateProcess(self._handle, 1)
+    else:
         def terminate(self):
             os.kill(self.pid, signal.SIGTERM)
-        def wait(self, *args, **kw):
-            resultcode = popen2.Popen3.wait(self, *args, **kw)
-            if os.WIFEXITED(resultcode):
-                return os.WEXITSTATUS(resultcode)
-            elif os.WIFSIGNALED(resultcode):
-                return os.WTERMSIG(resultcode)
-            else:
-                return None
-
-    subprocess.Popen = Popen
-else:
-    try:
-        subprocess.Popen.terminate
-    except AttributeError:
-        if sys.platform == 'win32':
-            import win32process
-            def terminate(self):
-                win32process.TerminateProcess(self._handle, 1)
-        else:
-            def terminate(self):
-                os.kill(self.pid, signal.SIGTERM)
-        method = types.MethodType(terminate, None, subprocess.Popen)
-        setattr(subprocess.Popen, 'terminate', method)
+    method = types.MethodType(terminate, None, subprocess.Popen)
+    setattr(subprocess.Popen, 'terminate', method)
 
 class ExitError(Exception):
     pass
