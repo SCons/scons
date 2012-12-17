@@ -43,6 +43,7 @@ RELEASE 2.X.X -
       * removed Aegis support from runtest.py. (#2872)
 
   From Gary Oberbrunner:
+    - Add -jN support to runtest.py to run tests in parallel
     - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
     - Fix MSVS solution generation for VS11, and fixed tests.
 
