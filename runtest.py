@@ -102,7 +102,6 @@ except ImportError:
 
 cwd = os.getcwd()
 
-all = 0
 baseline = 0
 builddir = os.path.join(cwd, 'build')
 external = 0
@@ -181,8 +180,36 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hj:klno:P:p:qsv:Xx:t",
-                            ['all', 'baseline=', 'builddir=',
+
+# "Pass-through" option parsing -- an OptionParser that ignores
+# unknown options and lets them pile up in the leftover argument
+# list.  Useful to gradually port getopt to optparse.
+
+from optparse import OptionParser, BadOptionError
+
+class PassThroughOptionParser(OptionParser):
+    def _process_long_opt(self, rargs, values):
+        try:
+            OptionParser._process_long_opt(self, rargs, values)
+        except BadOptionError, err:
+            self.largs.append(err.opt_str)
+    def _process_short_opts(self, rargs, values):
+        try:
+            OptionParser._process_short_opts(self, rargs, values)
+        except BadOptionError, err:
+            self.largs.append(err.opt_str)
+
+parser = PassThroughOptionParser(add_help_option=False)
+parser.add_option('-a', '--all', action='store_true',
+                      help="Run all tests.")
+(options, args) = parser.parse_args()
+
+#print "options:", options
+#print "args:", args
+
+
+opts, args = getopt.getopt(args, "3b:def:hj:klno:P:p:qsv:Xx:t",
+                            ['baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
                              'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
@@ -194,8 +221,6 @@ opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hj:klno:P:p:qsv:Xx:t",
 for o, a in opts:
     if o in ['-3']:
         python3incompatibilities = 1
-    elif o in ['-a', '--all']:
-        all = 1
     elif o in ['-b', '--baseline']:
         baseline = a
     elif o in ['--builddir']:
@@ -266,7 +291,7 @@ for o, a in opts:
     elif o in ['--xml']:
         format = o
 
-if not args and not all and not testlistfile:
+if not args and not options.all and not testlistfile:
     sys.stderr.write("""\
 runtest.py:  No tests were specified.
              List one or more tests on the command line, use the
@@ -276,6 +301,23 @@ runtest.py:  No tests were specified.
 """)
     sys.exit(1)
 
+
+# --- setup stdout/stderr ---
+class Unbuffered(object):
+    def __init__(self, file):
+        self.file = file
+        self.softspace = 0  ## backward compatibility; not supported in Py3k
+    def write(self, arg):
+        self.file.write(arg)
+        self.file.flush()
+    def __getattr__(self, attr):
+        return getattr(self.file, attr)
+
+sys.stdout = Unbuffered(sys.stdout)
+sys.stderr = Unbuffered(sys.stderr)
+
+
+# --- define helpers ----
 if sys.platform in ('win32', 'cygwin'):
 
     def whereis(file):
@@ -475,6 +517,7 @@ format_class = {
 
 Test = format_class[format]
 
+# --- start processing ---
 if package:
 
     dir = {
@@ -661,7 +704,7 @@ elif testlistfile:
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
-elif all and not qmtest:
+elif options.all and not qmtest:
     # Find all of the SCons functional tests in the local directory
     # tree.  This is anything under the 'src' subdirectory that ends
     # with 'Tests.py', or any Python script (*.py) under the 'test'
@@ -732,19 +775,6 @@ if qmtest:
 #    pass
 
 tests = [Test(t) for t in tests]
-
-class Unbuffered(object):
-    def __init__(self, file):
-        self.file = file
-        self.softspace = 0  ## backward compatibility; not supported in Py3k
-    def write(self, arg):
-        self.file.write(arg)
-        self.file.flush()
-    def __getattr__(self, attr):
-        return getattr(self.file, attr)
-
-sys.stdout = Unbuffered(sys.stdout)
-sys.stderr = Unbuffered(sys.stderr)
 
 if list_only:
     for t in tests:
