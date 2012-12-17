@@ -44,9 +44,7 @@
 #
 #       -n              No execute, just print command lines.
 #
-#       -o file         Print test results to the specified file.
-#                       The --xml option specifies the
-#                       output format.
+#       -o file         Save screen output to the specified log file.
 #
 #       -P Python       Use the specified Python interpreter.
 #
@@ -73,8 +71,8 @@
 #
 #       -x scons        The scons script to use for tests.
 #
-#       --xml           Print test results to an output file (specified
-#                       by the -o option) in an SCons-specific XML format.
+#       --xml file      Save test results to the specified file in an
+#                       SCons-specific XML format.
 #                       This is (will be) used for reporting results back
 #                       to a central SCons test monitoring infrastructure.
 #
@@ -107,7 +105,6 @@ builddir = os.path.join(cwd, 'build')
 external = 0
 debug = ''
 execute_tests = 1
-format = None
 jobs = 1
 list_only = None
 printcommand = 1
@@ -147,7 +144,7 @@ Options:
                               traffic is giving you trouble AND you can be sure that none of
                               your tests create output that exceed 65K chars! You might
                               run into some deadlocks else.
-  -o FILE, --output FILE      Print test results to FILE.
+  -o FILE, --output FILE      Save the output from a test run to the log file.
   -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
                               Test against the specified PACKAGE:
@@ -172,7 +169,7 @@ Options:
                                 3 = print commands and all output.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
-  --xml                       Print results in SCons XML format.
+  --xml file                  Save results to file in SCons XML format.
 
 Environment Variables:
 
@@ -202,6 +199,8 @@ class PassThroughOptionParser(OptionParser):
 parser = PassThroughOptionParser(add_help_option=False)
 parser.add_option('-a', '--all', action='store_true',
                       help="Run all tests.")
+parser.add_option('--xml',
+                      help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
 
 #print "options:", options
@@ -216,7 +215,7 @@ opts, args = getopt.getopt(args, "3b:def:hj:klno:P:p:qsv:Xx:t",
                              'package=', 'passed', 'python=', 'qmtest',
                              'quiet', 'short-progress', 'time',
                              'version=', 'exec=',
-                             'verbose=', 'xml'])
+                             'verbose='])
 
 for o, a in opts:
     if o in ['-3']:
@@ -286,8 +285,6 @@ for o, a in opts:
         scons_exec = 1
     elif o in ['-x', '--exec']:
         scons = a
-    elif o in ['--xml']:
-        format = o
 
 if not args and not options.all and not testlistfile:
     sys.stderr.write("""\
@@ -502,12 +499,10 @@ class XML(PopenExecutor):
         f.write('  <time>%.1f</time>\n' % self.total_time)
         f.write('  </results>\n')
 
-format_class = {
-    None        : SystemExecutor,
-    '--xml'     : XML,
-}
-
-Test = format_class[format]
+if options.xml:
+    Test = XML
+else:
+    Test = SystemExecutor
 
 # --- start processing ---
 if package:
@@ -741,12 +736,9 @@ if qmtest:
     if python:
         qmtest_args.append('--context python="%s"' % python)
 
-    if outputfile:
-        if format == '--xml':
-            rsclass = 'scons_tdb.SConsXMLResultStream'
-        else:
-            rsclass = 'scons_tdb.AegisBatchStream'
-        qof = "r'" + outputfile + "'"
+    if options.xml:
+        rsclass = 'scons_tdb.SConsXMLResultStream'
+        qof = "r'" + options.xml + "'"
         rs = '--result-stream="%s(filename=%s)"' % (rsclass, qof)
         qmtest_args.append(rs)
 
@@ -914,18 +906,18 @@ if len(tests) != 1 and execute_tests:
         paths = [x.path for x in no_result]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
 
-if outputfile:
-    if outputfile == '-':
+if options.xml:
+    if options.xml == '-':
         f = sys.stdout
     else:
-        f = open(outputfile, 'w')
+        f = open(options.xml, 'w')
     tests[0].header(f)
     #f.write("test_result = [\n")
     for t in tests:
         t.write(f)
     tests[0].footer(f)
     #f.write("];\n")
-    if outputfile != '-':
+    if options.xml != '-':
         f.close()
 
 if len(fail):
