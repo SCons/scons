@@ -712,6 +712,12 @@ elif options.all and not qmtest:
     tests.extend(find_py('test'))
     tests.sort()
 
+if not tests:
+    sys.stderr.write("""\
+runtest.py:  No tests were found.
+""")
+    sys.exit(1)
+
 if qmtest:
     if baseline:
         aegis_result_stream = 'scons_tdb.AegisBaselineStream'
@@ -876,8 +882,7 @@ else:
     for t in tests:
         run_test(t, None, False)
 
-# all tests are complete by the time we get here
-
+# --- all tests are complete by the time we get here ---
 if len(tests) > 0:
     tests[0].total_time = time_func() - total_start_time
     print_time_func("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
