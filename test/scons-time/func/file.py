@@ -76,13 +76,13 @@ r"""set title "ST2.CONF TITLE"
 set key bottom left
 set label 3 "label 1.5" at 0.5,0.5 right
 set label 4 "label 1.6" at 0.6,0.4 right
-plot '-' title "Startup" with lines lt 1, \
-     '-' notitle with lines lt 7, \
-     '-' title "label 1.5" with lines lt 7, \
+plot '-' title "Startup" with lines lt 1, \\
+     '-' notitle with lines lt 7, \\
+     '-' title "label 1.5" with lines lt 7, \\
      '-' title "label 1.6" with lines lt 7
 # Startup
 1 0.000
-2 0.000
+2 0.\d*
 e
 1.4 0
 1.4 1
@@ -95,8 +95,9 @@ e
 e
 """
 
-test.run(arguments = 'func --file st2.conf --fmt gnuplot', stdout = expect2)
+test.run(arguments = 'func --file st2.conf --fmt gnuplot')
 
+test.must_contain_exactly_lines(test.stdout(), expect2, find=TestSCons_time.search_re_in_list)
 
 test.pass_test()
 
