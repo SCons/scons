@@ -12,6 +12,7 @@ RELEASE 2.X.X -
     - Error messages from option parser now include hints about valid choices
     - Cleaned up some Python 1.5 and pre-2.3 code, so don't expect SCons
       to run on anything less than Python 2.4 anymore
+    - runtest.py: Removed --noqmtest option - this behavior is by default.
 
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output

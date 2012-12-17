@@ -117,6 +117,7 @@ python3incompatibilities = None
 scons = None
 scons_exec = None
 outputfile = None
+qmtest = None
 testlistfile = None
 version = ''
 print_times = None
@@ -141,7 +142,6 @@ Options:
   -k, --no-progress           Suppress count and percent progress messages.
   -l, --list                  List available tests and exit.
   -n, --no-exec               No execute, just print command lines.
-  --noqmtest                  Execute tests directly, not using QMTest.
   --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
                               for starting tests. WARNING: Only use this when too much file
                               traffic is giving you trouble AND you can be sure that none of
@@ -160,7 +160,7 @@ Options:
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
   --passed                    Summarize which tests passed.
-  --qmtest                    Run using the QMTest harness.
+  --qmtest                    Run using the QMTest harness (deprecated).
   -q, --quiet                 Don't print the test being executed.
   -s, --short-progress        Short progress, prints only the command line
                               and a percentage value, based on the total and
@@ -212,7 +212,7 @@ opts, args = getopt.getopt(args, "3b:def:hj:klno:P:p:qsv:Xx:t",
                             ['baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
-                             'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
+                             'list', 'no-exec', 'nopipefiles', 'output=',
                              'package=', 'passed', 'python=', 'qmtest',
                              'quiet', 'short-progress', 'time',
                              'version=', 'exec=',
@@ -250,8 +250,6 @@ for o, a in opts:
         list_only = 1
     elif o in ['-n', '--no-exec']:
         execute_tests = None
-    elif o in ['--noqmtest']:
-        qmtest = None
     elif o in ['--nopipefiles']:
         allow_pipe_files = False
     elif o in ['-o', '--output']:
@@ -343,12 +341,6 @@ else:
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                     return f
         return None
-
-# See if --qmtest or --noqmtest specified
-try:
-    qmtest
-except NameError:
-    qmtest = None
 
 sp.append(builddir)
 sp.append(cwd)
