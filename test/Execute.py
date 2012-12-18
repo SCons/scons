@@ -84,19 +84,17 @@ test.write('m.in', "m.in\n")
 
 import sys
 if sys.platform == 'win32':
-    expect = """\
-scons: *** Error 1
-scons: *** Error 2
-scons: *** nonexistent.in/*.*: The system cannot find the path specified
-"""
+    expect = r"""scons: \*\*\* Error 1
+scons: \*\*\* Error 2
+scons: \*\*\* nonexistent.in/\*\.\*: (The system cannot find the path specified|Das System kann den angegebenen Pfad nicht finden)"""
 else:
-    expect = """\
-scons: *** Error 1
-scons: *** Error 2
-scons: *** nonexistent.in: No such file or directory
-"""
+    expect = r"""scons: \*\*\* Error 1
+scons: \*\*\* Error 2
+scons: \*\*\* nonexistent\.in: No such file or directory"""
 
-test.run(arguments = '.', stderr=expect)
+test.run(arguments = '.', stdout = None, stderr = None)
+
+test.must_contain_all_lines(test.stderr(), expect.splitlines(), find=TestSCons.search_re)
 
 test.must_match('a.out', "a.in\n")
 test.must_match('b.out', "b.in\n")

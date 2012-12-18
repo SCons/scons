@@ -21,6 +21,8 @@ import sys
 
 from TestCommon import *
 from TestCommon import __all__
+# some of the scons_time tests may need regex-based matching:
+from TestSCons import search_re, search_re_in_list
 
 __all__.extend([ 'TestSCons_time',
                ])

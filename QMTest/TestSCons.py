@@ -108,7 +108,35 @@ def re_escape(str):
         str = str.replace(c, '\\' + c)
     return str
 
+#
+# Helper functions that we use as a replacement to the default re.match
+# when searching for special strings in stdout/stderr.
+#
+def search_re(out, l):
+    """ Search the regular expression 'l' in the output 'out'
+        and return the start index when successful.
+    """
+    m = re.search(l, out)
+    if m:
+        return m.start()
+    
+    return None
 
+def search_re_in_list(out, l):
+    """ Search the regular expression 'l' in each line of
+        the given string list 'out' and return the line's index
+        when successful.
+    """
+    for idx, o in enumerate(out):
+        m = re.search(l, o)
+        if m:
+            return idx
+    
+    return None
+
+#
+# Helpers for handling Python version numbers
+#
 def python_version_string():
     return sys.version.split()[0]
 

@@ -10,6 +10,14 @@ RELEASE 2.X.X -
     - Added ability to run scripts/scons.py directly from source checkout
     - Hide deprecated --debug={dtree,stree,tree} from --help output
     - Error messages from option parser now include hints about valid choices
+    - Cleaned up some Python 1.5 and pre-2.3 code, so don't expect SCons
+      to run on anything less than Python 2.4 anymore
+    - Several fixes for runtest.py:
+      * exit with an error if no tests were found
+      * removed --noqmtest option - this behavior is by default
+      * replaced `-o FILE --xml` combination with `--xml FILE`
+      * changed `-o, --output FILE` option to capture stdout/stderr output
+        from runtest.py
 
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
@@ -43,6 +51,7 @@ RELEASE 2.X.X -
       * removed Aegis support from runtest.py. (#2872)
 
   From Gary Oberbrunner:
+    - Add -jN support to runtest.py to run tests in parallel
     - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
     - Fix MSVS solution generation for VS11, and fixed tests.
 
