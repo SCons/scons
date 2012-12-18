@@ -113,7 +113,6 @@ print_passed_summary = None
 python3incompatibilities = None
 scons = None
 scons_exec = None
-outputfile = None
 qmtest = None
 testlistfile = None
 version = ''
@@ -199,6 +198,8 @@ class PassThroughOptionParser(OptionParser):
 parser = PassThroughOptionParser(add_help_option=False)
 parser.add_option('-a', '--all', action='store_true',
                       help="Run all tests.")
+parser.add_option('-o', '--output',
+                      help="Save the output from a test run to the log file.")
 parser.add_option('--xml',
                       help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
@@ -207,11 +208,11 @@ parser.add_option('--xml',
 #print "args:", args
 
 
-opts, args = getopt.getopt(args, "3b:def:hj:klno:P:p:qsv:Xx:t",
+opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
                             ['baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
-                             'list', 'no-exec', 'nopipefiles', 'output=',
+                             'list', 'no-exec', 'nopipefiles',
                              'package=', 'passed', 'python=', 'qmtest',
                              'quiet', 'short-progress', 'time',
                              'version=', 'exec=',
@@ -251,10 +252,6 @@ for o, a in opts:
         execute_tests = None
     elif o in ['--nopipefiles']:
         allow_pipe_files = False
-    elif o in ['-o', '--output']:
-        if a != '-' and not os.path.isabs(a):
-            a = os.path.join(cwd, a)
-        outputfile = a
     elif o in ['-p', '--package']:
         package = a
     elif o in ['--passed']:
@@ -311,6 +308,17 @@ class Unbuffered(object):
 sys.stdout = Unbuffered(sys.stdout)
 sys.stderr = Unbuffered(sys.stderr)
 
+if options.output:
+    logfile = open(options.output, 'w')
+    class Tee(object):
+        def __init__(self, openfile, stream):
+            self.file = openfile
+            self.stream = stream
+        def write(self, data):
+            self.file.write(data)
+            self.stream.write(data)
+    sys.stdout = Tee(logfile, sys.stdout)
+    sys.stderr = Tee(logfile, sys.stderr)
 
 # --- define helpers ----
 if sys.platform in ('win32', 'cygwin'):

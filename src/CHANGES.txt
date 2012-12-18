@@ -16,6 +16,8 @@ RELEASE 2.X.X -
       * exit with an error if no tests were found
       * removed --noqmtest option - this behavior is by default
       * replaced `-o FILE --xml` combination with `--xml FILE`
+      * changed `-o, --output FILE` option to capture stdout/stderr output
+        from runtest.py
 
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
