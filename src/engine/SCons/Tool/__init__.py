@@ -246,6 +246,7 @@ def VersionShLibLinkNames(version, libname, env):
     linknames = []
     if version.count(".") != 2:
         # We need a version string of the form x.y.z to proceed
+        # Several changes need to be made to support versions like x.y
         raise ValueError
 
     if platform == 'darwin':
@@ -639,13 +640,16 @@ class ToolInitializer(object):
 	# the ToolInitializer class.
 
 def Initializers(env):
-    ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs'])
+    ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs', '_InternalInstallVersionedLib'])
     def Install(self, *args, **kw):
         return self._InternalInstall(*args, **kw)
     def InstallAs(self, *args, **kw):
         return self._InternalInstallAs(*args, **kw)
+    def InstallVersionedLib(self, *args, **kw):
+        return self._InternalInstallVersionedLib(*args, **kw)
     env.AddMethod(Install)
     env.AddMethod(InstallAs)
+    env.AddMethod(InstallVersionedLib)
 
 def FindTool(tools, env):
     for tool in tools:
@@ -791,6 +795,4 @@ def tool_list(platform, env):
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
-
-
 
