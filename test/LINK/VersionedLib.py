@@ -41,7 +41,7 @@ objs = env.SharedObject('test.c')
 mylib = env.SharedLibrary('test', objs, SHLIBVERSION = '2.5.4')
 env.Program(source=['testapp.c',mylib])
 env.Program(target=['testapp2'],source=['testapp.c','libtest.dylib'])
-instnode = env.Install("#/installtest",mylib)
+instnode = env.InstallVersionedLib("#/installtest",mylib)
 env.Default(instnode)
 """)
 
