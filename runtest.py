@@ -44,9 +44,7 @@
 #
 #       -n              No execute, just print command lines.
 #
-#       -o file         Print test results to the specified file.
-#                       The --xml option specifies the
-#                       output format.
+#       -o file         Save screen output to the specified log file.
 #
 #       -P Python       Use the specified Python interpreter.
 #
@@ -73,8 +71,8 @@
 #
 #       -x scons        The scons script to use for tests.
 #
-#       --xml           Print test results to an output file (specified
-#                       by the -o option) in an SCons-specific XML format.
+#       --xml file      Save test results to the specified file in an
+#                       SCons-specific XML format.
 #                       This is (will be) used for reporting results back
 #                       to a central SCons test monitoring infrastructure.
 #
@@ -92,15 +90,22 @@ import stat
 import sys
 import time
 
+try:
+    import threading
+    import Queue                # 2to3: rename to queue
+    threading_ok = True
+except ImportError:
+    print "Can't import threading or queue"
+    threading_ok = False
+
 cwd = os.getcwd()
 
-all = 0
 baseline = 0
 builddir = os.path.join(cwd, 'build')
 external = 0
 debug = ''
 execute_tests = 1
-format = None
+jobs = 1
 list_only = None
 printcommand = 1
 package = None
@@ -108,7 +113,7 @@ print_passed_summary = None
 python3incompatibilities = None
 scons = None
 scons_exec = None
-outputfile = None
+qmtest = None
 testlistfile = None
 version = ''
 print_times = None
@@ -133,13 +138,12 @@ Options:
   -k, --no-progress           Suppress count and percent progress messages.
   -l, --list                  List available tests and exit.
   -n, --no-exec               No execute, just print command lines.
-  --noqmtest                  Execute tests directly, not using QMTest.
   --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
                               for starting tests. WARNING: Only use this when too much file
                               traffic is giving you trouble AND you can be sure that none of
                               your tests create output that exceed 65K chars! You might
                               run into some deadlocks else.
-  -o FILE, --output FILE      Print test results to FILE.
+  -o FILE, --output FILE      Save the output from a test run to the log file.
   -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
                               Test against the specified PACKAGE:
@@ -152,7 +156,7 @@ Options:
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
   --passed                    Summarize which tests passed.
-  --qmtest                    Run using the QMTest harness.
+  --qmtest                    Run using the QMTest harness (deprecated).
   -q, --quiet                 Don't print the test being executed.
   -s, --short-progress        Short progress, prints only the command line
                               and a percentage value, based on the total and
@@ -164,7 +168,7 @@ Options:
                                 3 = print commands and all output.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
-  --xml                       Print results in SCons XML format.
+  --xml file                  Save results to file in SCons XML format.
 
 Environment Variables:
 
@@ -172,20 +176,51 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "3ab:def:hklno:P:p:qsv:Xx:t",
-                            ['all', 'baseline=', 'builddir=',
+
+# "Pass-through" option parsing -- an OptionParser that ignores
+# unknown options and lets them pile up in the leftover argument
+# list.  Useful to gradually port getopt to optparse.
+
+from optparse import OptionParser, BadOptionError
+
+class PassThroughOptionParser(OptionParser):
+    def _process_long_opt(self, rargs, values):
+        try:
+            OptionParser._process_long_opt(self, rargs, values)
+        except BadOptionError, err:
+            self.largs.append(err.opt_str)
+    def _process_short_opts(self, rargs, values):
+        try:
+            OptionParser._process_short_opts(self, rargs, values)
+        except BadOptionError, err:
+            self.largs.append(err.opt_str)
+
+parser = PassThroughOptionParser(add_help_option=False)
+parser.add_option('-a', '--all', action='store_true',
+                      help="Run all tests.")
+parser.add_option('-o', '--output',
+                      help="Save the output from a test run to the log file.")
+parser.add_option('--xml',
+                      help="Save results to file in SCons XML format.")
+(options, args) = parser.parse_args()
+
+#print "options:", options
+#print "args:", args
+
+
+opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
+                            ['baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
-                             'list', 'no-exec', 'noqmtest', 'nopipefiles', 'output=',
+                             'jobs=',
+                             'list', 'no-exec', 'nopipefiles',
                              'package=', 'passed', 'python=', 'qmtest',
                              'quiet', 'short-progress', 'time',
                              'version=', 'exec=',
-                             'verbose=', 'xml'])
+                             'verbose='])
 
 for o, a in opts:
     if o in ['-3']:
         python3incompatibilities = 1
-    elif o in ['-a', '--all']:
-        all = 1
     elif o in ['-b', '--baseline']:
         baseline = a
     elif o in ['--builddir']:
@@ -207,20 +242,16 @@ for o, a in opts:
     elif o in ['-h', '--help']:
         print helpstr
         sys.exit(0)
+    elif o in ['-j', '--jobs']:
+        jobs = int(a)
     elif o in ['-k', '--no-progress']:
         print_progress = 0
     elif o in ['-l', '--list']:
         list_only = 1
     elif o in ['-n', '--no-exec']:
         execute_tests = None
-    elif o in ['--noqmtest']:
-        qmtest = None
     elif o in ['--nopipefiles']:
         allow_pipe_files = False
-    elif o in ['-o', '--output']:
-        if a != '-' and not os.path.isabs(a):
-            a = os.path.join(cwd, a)
-        outputfile = a
     elif o in ['-p', '--package']:
         package = a
     elif o in ['--passed']:
@@ -251,10 +282,8 @@ for o, a in opts:
         scons_exec = 1
     elif o in ['-x', '--exec']:
         scons = a
-    elif o in ['--xml']:
-        format = o
 
-if not args and not all and not testlistfile:
+if not args and not options.all and not testlistfile:
     sys.stderr.write("""\
 runtest.py:  No tests were specified.
              List one or more tests on the command line, use the
@@ -264,6 +293,34 @@ runtest.py:  No tests were specified.
 """)
     sys.exit(1)
 
+
+# --- setup stdout/stderr ---
+class Unbuffered(object):
+    def __init__(self, file):
+        self.file = file
+        self.softspace = 0  ## backward compatibility; not supported in Py3k
+    def write(self, arg):
+        self.file.write(arg)
+        self.file.flush()
+    def __getattr__(self, attr):
+        return getattr(self.file, attr)
+
+sys.stdout = Unbuffered(sys.stdout)
+sys.stderr = Unbuffered(sys.stderr)
+
+if options.output:
+    logfile = open(options.output, 'w')
+    class Tee(object):
+        def __init__(self, openfile, stream):
+            self.file = openfile
+            self.stream = stream
+        def write(self, data):
+            self.file.write(data)
+            self.stream.write(data)
+    sys.stdout = Tee(logfile, sys.stdout)
+    sys.stderr = Tee(logfile, sys.stderr)
+
+# --- define helpers ----
 if sys.platform in ('win32', 'cygwin'):
 
     def whereis(file):
@@ -290,12 +347,6 @@ else:
                     return f
         return None
 
-# See if --qmtest or --noqmtest specified
-try:
-    qmtest
-except NameError:
-    qmtest = None
-
 sp.append(builddir)
 sp.append(cwd)
 
@@ -308,93 +359,79 @@ def escape(s):
     s = s.replace('\\', '\\\\')
     return s
 
-# Try to use subprocess instead of the more low-level
-# spawn command...
-use_subprocess = True
-try:
-    import subprocess
-except:
-    use_subprocess = False
-    
-if use_subprocess:
-    if not suppress_stdout and not suppress_stderr:
-        # Without any output suppressed, we let the subprocess
-        # write its stuff freely to stdout/stderr.
+
+import subprocess
+
+if not suppress_stdout and not suppress_stderr:
+    # Without any output suppressed, we let the subprocess
+    # write its stuff freely to stdout/stderr.
+    def spawn_it(command_args):
+        p = subprocess.Popen(' '.join(command_args),
+                             shell=True)
+        return (None, None, p.wait())
+else:
+    # Else, we catch the output of both pipes...
+    if allow_pipe_files:
+        # The subprocess.Popen() suffers from a well-known
+        # problem. Data for stdout/stderr is read into a 
+        # memory buffer of fixed size, 65K which is not very much.
+        # When it fills up, it simply stops letting the child process
+        # write to it. The child will then sit and patiently wait to
+        # be able to write the rest of its output. Hang! 
+        # In order to work around this, we follow a suggestion
+        # by Anders Pearson in
+        #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
+        # and pass temp file objects to Popen() instead of the ubiquitous
+        # subprocess.PIPE. 
+        def spawn_it(command_args):
+            # Create temporary files
+            import tempfile
+            tmp_stdout = tempfile.TemporaryFile(mode='w+t')
+            tmp_stderr = tempfile.TemporaryFile(mode='w+t')
+            # Start subprocess...
+            p = subprocess.Popen(' '.join(command_args),
+                                 stdout=tmp_stdout,
+                                 stderr=tmp_stderr,
+                                 shell=True)
+            # ... and wait for it to finish.
+            ret = p.wait()
+            
+            try:
+                # Rewind to start of files
+                tmp_stdout.seek(0)
+                tmp_stderr.seek(0)
+                # Read output
+                spawned_stdout = tmp_stdout.read()
+                spawned_stderr = tmp_stderr.read()
+            finally:
+                # Remove temp files by closing them
+                tmp_stdout.close()
+                tmp_stderr.close()
+                
+            # Return values
+            return (spawned_stderr, spawned_stdout, ret)
+        
+    else:
+        # We get here only if the user gave the '--nopipefiles'
+        # option, meaning the "temp file" approach for
+        # subprocess.communicate() above shouldn't be used.
+        # He hopefully knows what he's doing, but again we have a
+        # potential deadlock situation in the following code:
+        #   If the subprocess writes a lot of data to its stderr,
+        #   the pipe will fill up (nobody's reading it yet) and the
+        #   subprocess will wait for someone to read it. 
+        #   But the parent process is trying to read from stdin
+        #   (but the subprocess isn't writing anything there).  
+        #   Hence a deadlock.
+        # Be dragons here! Better don't use this!
         def spawn_it(command_args):
             p = subprocess.Popen(' '.join(command_args),
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
                                  shell=True)
-            return (None, None, p.wait())
-    else:
-        # Else, we catch the output of both pipes...
-        if allow_pipe_files:
-            # The subprocess.Popen() suffers from a well-known
-            # problem. Data for stdout/stderr is read into a 
-            # memory buffer of fixed size, 65K which is not very much.
-            # When it fills up, it simply stops letting the child process
-            # write to it. The child will then sit and patiently wait to
-            # be able to write the rest of its output. Hang! 
-            # In order to work around this, we follow a suggestion
-            # by Anders Pearson in
-            #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
-            # and pass temp file objects to Popen() instead of the ubiquitous
-            # subprocess.PIPE. 
-            def spawn_it(command_args):
-                # Create temporary files
-                import tempfile
-                tmp_stdout = tempfile.TemporaryFile(mode='w+t')
-                tmp_stderr = tempfile.TemporaryFile(mode='w+t')
-                # Start subprocess...
-                p = subprocess.Popen(' '.join(command_args),
-                                     stdout=tmp_stdout,
-                                     stderr=tmp_stderr,
-                                     shell=True)
-                # ... and wait for it to finish.
-                ret = p.wait()
-                
-                try:
-                    # Rewind to start of files
-                    tmp_stdout.seek(0)
-                    tmp_stderr.seek(0)
-                    # Read output
-                    spawned_stdout = tmp_stdout.read()
-                    spawned_stderr = tmp_stderr.read()
-                finally:
-                    # Remove temp files by closing them
-                    tmp_stdout.close()
-                    tmp_stderr.close()
-                    
-                # Return values
-                return (spawned_stderr, spawned_stdout, ret)
-            
-        else:
-            # We get here only if the user gave the '--nopipefiles'
-            # option, meaning the "temp file" approach for
-            # subprocess.communicate() above shouldn't be used.
-            # He hopefully knows what he's doing, but again we have a
-            # potential deadlock situation in the following code:
-            #   If the subprocess writes a lot of data to its stderr,
-            #   the pipe will fill up (nobody's reading it yet) and the
-            #   subprocess will wait for someone to read it. 
-            #   But the parent process is trying to read from stdin
-            #   (but the subprocess isn't writing anything there).  
-            #   Hence a deadlock.
-            # Be dragons here! Better don't use this!
-            def spawn_it(command_args):
-                p = subprocess.Popen(' '.join(command_args),
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
-                                     shell=True)
-                spawned_stdout = p.stdout.read()
-                spawned_stderr = p.stderr.read()
-                return (spawned_stderr, spawned_stdout, p.wait())
-else:
-    has_subprocess = False
-    # Set up lowest-common-denominator spawning of a process on both Windows
-    # and non-Windows systems that works all the way back to Python 1.6
-    def spawn_it(command_args):
-        command = command_args[0]
-        command_args = [escape(c) for c in command_args]
-        return (None, None, os.spawnv(os.P_WAIT, command, command_args))
+            spawned_stdout = p.stdout.read()
+            spawned_stderr = p.stderr.read()
+            return (spawned_stderr, spawned_stdout, p.wait())
 
 class Base(object):
     def __init__(self, path, spe=None):
@@ -415,71 +452,44 @@ class SystemExecutor(Base):
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
-if not use_subprocess:
-    import popen2
-    try:
-        popen2.Popen3
-    except AttributeError:
-        class PopenExecutor(Base):
-            def execute(self):
-                (tochild, fromchild, childerr) = os.popen3(self.command_str)
-                tochild.close()
-                self.stderr = childerr.read()
-                self.stdout = fromchild.read()
-                fromchild.close()
-                self.status = childerr.close()
-                if not self.status:
-                    self.status = 0
-                else:
-                    self.status = self.status >> 8
-    else:
-        class PopenExecutor(Base):
-            def execute(self):
-                p = popen2.Popen3(self.command_str, 1)
-                p.tochild.close()
-                self.stdout = p.fromchild.read()
-                self.stderr = p.childerr.read()
-                self.status = p.wait()
-                self.status = self.status >> 8
-else:
-    class PopenExecutor(Base):
-        # For an explanation of the following 'if ... else'
-        # and the 'allow_pipe_files' option, please check out the
-        # use_subprocess path in the definition of spawn_it() above.
-        if allow_pipe_files:
-            def execute(self):
-                # Create temporary files
-                import tempfile
-                tmp_stdout = tempfile.TemporaryFile(mode='w+t')
-                tmp_stderr = tempfile.TemporaryFile(mode='w+t')
-                # Start subprocess...
-                p = subprocess.Popen(self.command_str,
-                                     stdout=tmp_stdout,
-                                     stderr=tmp_stderr,
-                                     shell=True)
-                # ... and wait for it to finish.
-                self.status = p.wait()
-                
-                try:
-                    # Rewind to start of files
-                    tmp_stdout.seek(0)
-                    tmp_stderr.seek(0)
-                    # Read output
-                    self.stdout = tmp_stdout.read()
-                    self.stderr = tmp_stderr.read()
-                finally:
-                    # Remove temp files by closing them
-                    tmp_stdout.close()
-                    tmp_stderr.close()
-        else:        
-            def execute(self):
-                p = subprocess.Popen(self.command_str,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
-                                     shell=True)
-                self.stdout = p.stdout.read()
-                self.stderr = p.stderr.read()
-                self.status = p.wait()
+class PopenExecutor(Base):
+    # For an explanation of the following 'if ... else'
+    # and the 'allow_pipe_files' option, please check out the
+    # definition of spawn_it() above.
+    if allow_pipe_files:
+        def execute(self):
+            # Create temporary files
+            import tempfile
+            tmp_stdout = tempfile.TemporaryFile(mode='w+t')
+            tmp_stderr = tempfile.TemporaryFile(mode='w+t')
+            # Start subprocess...
+            p = subprocess.Popen(self.command_str,
+                                 stdout=tmp_stdout,
+                                 stderr=tmp_stderr,
+                                 shell=True)
+            # ... and wait for it to finish.
+            self.status = p.wait()
+            
+            try:
+                # Rewind to start of files
+                tmp_stdout.seek(0)
+                tmp_stderr.seek(0)
+                # Read output
+                self.stdout = tmp_stdout.read()
+                self.stderr = tmp_stderr.read()
+            finally:
+                # Remove temp files by closing them
+                tmp_stdout.close()
+                tmp_stderr.close()
+    else:        
+        def execute(self):
+            p = subprocess.Popen(self.command_str,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 shell=True)
+            self.stdout = p.stdout.read()
+            self.stderr = p.stderr.read()
+            self.status = p.wait()
 
 class XML(PopenExecutor):
     def header(self, f):
@@ -497,13 +507,12 @@ class XML(PopenExecutor):
         f.write('  <time>%.1f</time>\n' % self.total_time)
         f.write('  </results>\n')
 
-format_class = {
-    None        : SystemExecutor,
-    '--xml'     : XML,
-}
+if options.xml:
+    Test = XML
+else:
+    Test = SystemExecutor
 
-Test = format_class[format]
-
+# --- start processing ---
 if package:
 
     dir = {
@@ -690,7 +699,7 @@ elif testlistfile:
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
-elif all and not qmtest:
+elif options.all and not qmtest:
     # Find all of the SCons functional tests in the local directory
     # tree.  This is anything under the 'src' subdirectory that ends
     # with 'Tests.py', or any Python script (*.py) under the 'test'
@@ -705,6 +714,12 @@ elif all and not qmtest:
     tests.extend(find_Tests_py('src'))
     tests.extend(find_py('test'))
     tests.sort()
+
+if not tests:
+    sys.stderr.write("""\
+runtest.py:  No tests were found.
+""")
+    sys.exit(1)
 
 if qmtest:
     if baseline:
@@ -729,12 +744,9 @@ if qmtest:
     if python:
         qmtest_args.append('--context python="%s"' % python)
 
-    if outputfile:
-        if format == '--xml':
-            rsclass = 'scons_tdb.SConsXMLResultStream'
-        else:
-            rsclass = 'scons_tdb.AegisBatchStream'
-        qof = "r'" + outputfile + "'"
+    if options.xml:
+        rsclass = 'scons_tdb.SConsXMLResultStream'
+        qof = "r'" + options.xml + "'"
         rs = '--result-stream="%s(filename=%s)"' % (rsclass, qof)
         qmtest_args.append(rs)
 
@@ -761,19 +773,6 @@ if qmtest:
 #    pass
 
 tests = [Test(t) for t in tests]
-
-class Unbuffered(object):
-    def __init__(self, file):
-        self.file = file
-        self.softspace = 0  ## backward compatibility; not supported in Py3k
-    def write(self, arg):
-        self.file.write(arg)
-        self.file.flush()
-    def __getattr__(self, attr):
-        return getattr(self.file, attr)
-
-sys.stdout = Unbuffered(sys.stdout)
-sys.stderr = Unbuffered(sys.stderr)
 
 if list_only:
     for t in tests:
@@ -804,7 +803,11 @@ else:
 
 total_start_time = time_func()
 total_num_tests = len(tests)
-for idx,t in enumerate(tests):
+tests_completed = 0
+
+def run_test(t, io_lock, async=True):
+    global tests_completed
+    header = ""
     command_args = ['-tt']
     if python3incompatibilities:
         command_args.append('-3')
@@ -815,12 +818,16 @@ for idx,t in enumerate(tests):
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
         if print_progress:
-            sys.stdout.write("%d/%d (%.2f%s) %s\n" % (idx+1, total_num_tests,
-                                                      float(idx+1)*100.0/float(total_num_tests),
-                                                      '%',
-                                                      t.command_str))
+            tests_completed += 1
+            n = tests_completed # approx indicator of where we are
+            header += ("%d/%d (%.2f%s) %s\n" % (n, total_num_tests,
+                                                float(n)*100.0/float(total_num_tests),
+                                                '%',
+                                                t.command_str))
         else:
-            sys.stdout.write(t.command_str + "\n")
+            header += t.command_str + "\n"
+    if not suppress_stdout and not suppress_stderr:
+        sys.stdout.write(header)
     head, tail = os.path.split(t.abspath)
     if head:
         os.environ['PYTHON_SCRIPT_DIR'] = head
@@ -829,13 +836,53 @@ for idx,t in enumerate(tests):
     test_start_time = time_func()
     if execute_tests:
         t.execute()
-        if not suppress_stdout and t.stdout:
-            print t.stdout
-        if not suppress_stderr and t.stderr:
-            print t.stderr
 
     t.test_time = time_func() - test_start_time
+    if io_lock:
+        io_lock.acquire()
+    if suppress_stdout or suppress_stderr:
+        sys.stdout.write(header)
+    if not suppress_stdout and t.stdout:
+        print t.stdout
+    if not suppress_stderr and t.stderr:
+        print t.stderr
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
+    if io_lock:
+        io_lock.release()
+
+class RunTest(threading.Thread):
+    def __init__(self, queue, io_lock):
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.io_lock = io_lock
+
+    def run(self):
+        while True:
+            t = self.queue.get()
+            run_test(t, io_lock, True)
+            self.queue.task_done()
+
+if jobs > 1 and threading_ok:
+    print "Running tests using %d jobs"%jobs
+    # Start worker threads
+    queue = Queue.Queue()
+    io_lock = threading.Lock()
+    for i in range(1, jobs):
+        t = RunTest(queue, io_lock)
+        t.daemon = True
+        t.start()
+    # Give tasks to workers
+    for t in tests:
+        queue.put(t)
+    queue.join()
+else:
+    # Run tests serially
+    if jobs > 1:
+        print "Ignoring -j%d option; no python threading module available."%jobs
+    for t in tests:
+        run_test(t, None, False)
+
+# --- all tests are complete by the time we get here ---
 if len(tests) > 0:
     tests[0].total_time = time_func() - total_start_time
     print_time_func("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
@@ -867,18 +914,18 @@ if len(tests) != 1 and execute_tests:
         paths = [x.path for x in no_result]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
 
-if outputfile:
-    if outputfile == '-':
+if options.xml:
+    if options.xml == '-':
         f = sys.stdout
     else:
-        f = open(outputfile, 'w')
+        f = open(options.xml, 'w')
     tests[0].header(f)
     #f.write("test_result = [\n")
     for t in tests:
         t.write(f)
     tests[0].footer(f)
     #f.write("];\n")
-    if outputfile != '-':
+    if options.xml != '-':
         f.close()
 
 if len(fail):

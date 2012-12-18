@@ -24,13 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
 import TestSCons
 
-if sys.platform == 'win32':
-    _obj = '.obj'
-else:
-    _obj = '.o'
+_obj = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
