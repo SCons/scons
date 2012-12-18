@@ -35,6 +35,11 @@ if sys.platform != 'win32':
     msg = "Skipping test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+import SCons.Tool.MSCommon as msc
+if not msc.msvc_exists():
+    msg = "No MSVC toolchain found...skipping test\n"
+    test.skip_test(msg)
+
 #####
 # Test the basics
 

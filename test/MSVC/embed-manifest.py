@@ -42,6 +42,11 @@ if sys.platform != 'win32':
     msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+import SCons.Tool.MSCommon as msc
+if not msc.msvc_exists():
+    msg = "No MSVC toolchain found...skipping test\n"
+    test.skip_test(msg)
+
 test.write('SConstruct', """\
 env=Environment(WINDOWS_EMBED_MANIFEST=True)
 env.Append(CCFLAGS = '/MD')

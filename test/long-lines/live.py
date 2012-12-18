@@ -42,6 +42,14 @@ if sys.platform == 'win32':
     arflag = ' /LIBPATH:' + test.workpath()
     linkflag_init = '/LIBPATH:' + test.workpath()
     linkflag = ' /LIBPATH:' + test.workpath()
+    import SCons.Tool.MSCommon as msc
+    if not msc.msvc_exists():
+        lib_shared_dll = 'shared.dll'
+        lib_static_lib = 'libstatic.a'
+        arflag_init = 'r'
+        arflag = 'o'
+        linkflag_init = '-L' + test.workpath()
+        linkflag = ' -L' + test.workpath()    
 elif sys.platform == 'cygwin':
     lib_static_lib = 'libstatic.a'
     lib_shared_dll ='shared.dll'

@@ -30,6 +30,9 @@ import TestSCons
 
 if sys.platform == 'win32':
     lib_ = ''
+    import SCons.Tool.MSCommon as msc
+    if not msc.msvc_exists():
+        lib_ = 'lib'
 else:
     lib_ = 'lib'
 
