@@ -37,6 +37,16 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 import sys
 isWindows = sys.platform == 'win32'
+isMingw = False
+if isWindows:
+    import SCons.Tool.MSCommon as msc
+    if not msc.msvc_exists():
+        # We can't seem to find any MSVC version, so we assume
+        # that MinGW is installed instead. Accordingly, we use the
+        # standard gcc/g++ conventions for lib prefixes and suffixes
+        # in the following...
+        isWindows = False
+        isMingw = True
 
 env = Environment()
 
@@ -69,8 +79,8 @@ foo_obj = env.SharedObject(source='foo.c')
 prog_obj = env.SharedObject(source='prog.c')
 
 #
-# The following functions define all the different way that one can
-# use link againt a shared library.
+# The following functions define all the different ways that one can
+# use to link against a shared library.
 #
 def nodeInSrc(source, lib, libname):
     return (source+lib, '')
@@ -91,17 +101,19 @@ def nameInLib(source, lib, libname):
     # provide the full name of the library since scons can not know
     # which of the non-standard extension to use.
     # 
-    # Note that this is not necessarally SHLIBPREFIX and
+    # Note that this is not necessarily SHLIBPREFIX and
     # SHLIBSUFFIX. These are the ixes of the target library, not the
-    # ixes of the library that we are linking againt.
+    # ixes of the library that we are linking against.
     return (source, libname)
 
-libmethods = [
-    nodeInSrc, pathInSrc, nodeInLib, pathInLib, 
-    nameInLib ]
+libmethods = [nodeInSrc, pathInSrc, nodeInLib, pathInLib]
+# We skip the nameInLib test for MinGW...it would fail, due to
+# the Tool's internal naming conventions
+if not isMingw:
+    libmethods.extend([nameInLib])
 
 def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
-    '''Build a target using a given builder while linking againt a given
+    '''Build a target using a given builder while linking against a given
     library using a specified method for linking against the library.'''
 
     # On Windows, we have to link against the .lib file.
@@ -110,6 +122,14 @@ def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
             if str(l)[-4:] == '.lib':
                 lib = [l]
                 break
+    # If we use MinGW and create a SharedLibrary, we get two targets: a DLL,
+    # and the import lib created by the "--out-implib" parameter. We always
+    # want to link against the second one, in order to prevent naming issues
+    # for the linker command line...
+    if isMingw and len(lib) > 1:
+        lib = lib[1:]
+        
+    # Apply the naming method to be tested and call the specified Builder.
     (source, LIBS) = method(source, lib, libname)
     #build = builder(target=target, source=source, LIBS=LIBS, **kw)
     kw = kw.copy()

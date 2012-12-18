@@ -41,14 +41,19 @@ test.run(arguments = '.')
 test.must_not_contain_any_line(test.stdout(), ["-xyz"])
 test.must_contain_all_lines(test.stdout(), ["-abc"])
 
+_obj = TestSCons._obj
 
 # Test passing CFLAGS to C compiler by actually compiling programs
 if sys.platform == 'win32':
-    _obj = '.obj'
-    fooflags = '/nologo -DFOO'
-    barflags = '/nologo -DBAR'
+    import SCons.Tool.MSCommon as msc
+    
+    if not msc.msvc_exists():
+        fooflags = '-DFOO'
+        barflags = '-DBAR'
+    else:
+        fooflags = '/nologo -DFOO'
+        barflags = '/nologo -DBAR'
 else:
-    _obj = '.o'
     fooflags = '-DFOO'
     barflags = '-DBAR'
 

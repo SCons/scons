@@ -41,6 +41,11 @@ if sys.platform != 'win32':
     msg = "Skipping Windows path tests on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+import SCons.Tool.MSCommon as msc
+if not msc.msvc_exists():
+    msg = "No MSVC toolchain found...skipping test'\n"
+    test.skip_test(msg)
+
 test.subdir('src', 'build', 'include', 'src2')
 
 test.write('src/SConstruct', """

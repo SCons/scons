@@ -30,6 +30,9 @@ import sys
 if sys.platform == 'win32':
     _exe = '.exe'
     bar_lib = 'bar.lib'
+    import SCons.Tool.MSCommon as msc
+    if not msc.msvc_exists():
+        bar_lib = 'libbar.a'
 else:
     _exe = ''
     bar_lib = 'libbar.a'
