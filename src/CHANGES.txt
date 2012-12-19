@@ -18,6 +18,8 @@ RELEASE 2.X.X -
       * replaced `-o FILE --xml` combination with `--xml FILE`
       * changed `-o, --output FILE` option to capture stdout/stderr output
         from runtest.py
+    - Remove os_spawnv_fix.diff patch required to enable parallel builds
+      support prior to Python 2.2
 
   From Juan Lang:
     - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output

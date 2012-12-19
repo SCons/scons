@@ -662,7 +662,6 @@ scons = {
                             'LICENSE.txt',
                             'README.txt',
                             'RELEASE.txt',
-                            'os_spawnv_fix.diff',
                             'scons.1',
                             'sconsign.1',
                             'scons-time.1',
