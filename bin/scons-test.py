@@ -15,6 +15,7 @@
 # so that problems on different platforms can be identified sooner.
 #
 
+import atexit
 import getopt
 import imp
 import os
@@ -74,7 +75,7 @@ if not os.path.exists(tempdir):
         import shutil
         os.chdir(startdir)
         shutil.rmtree(tempdir)
-    sys.exitfunc = cleanup
+    atexit.register(cleanup)
 
 # Fetch the input file if it happens to be across a network somewhere.
 # Ohmigod, does Python make this simple...

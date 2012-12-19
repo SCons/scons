@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import atexit
 import sys
 import unittest
 
@@ -608,7 +609,7 @@ def _clean():
         if os.path.exists(dir):
             shutil.rmtree(dir)
 
-sys.exitfunc = _clean
+atexit.register(_clean)
 
 class fileTestCase(unittest.TestCase):
     cpp_class = cpp.DumbPreProcessor

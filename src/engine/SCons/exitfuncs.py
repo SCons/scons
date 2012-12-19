@@ -30,6 +30,7 @@ Register functions which are executed when SCons exits for any reason.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
+import atexit
 
 _exithandlers = []
 def _run_exitfuncs():
@@ -52,23 +53,9 @@ def register(func, *targs, **kargs):
     """
     _exithandlers.append((func, targs, kargs))
 
-import sys
 
-try:
-    x = sys.exitfunc
-
-    # if x isn't our own exit func executive, assume it's another
-    # registered exit function - append it to our list...
-    if x != _run_exitfuncs:
-        register(x)
-
-except AttributeError:
-    pass
-
-# make our exit function get run by python when it exits:    
-sys.exitfunc = _run_exitfuncs
-
-del sys
+# make our exit function get run by python when it exits
+atexit.register(_run_exitfuncs)
 
 # Local Variables:
 # tab-width:4
