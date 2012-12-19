@@ -363,18 +363,6 @@ else:
 
 re_space = re.compile('\s')
 
-_Cleanup = []
-
-def _clean():
-    global _Cleanup
-    cleanlist = [ c for c in _Cleanup if c ]
-    del _Cleanup[:]
-    cleanlist.reverse()
-    for test in cleanlist:
-        test.cleanup()
-
-atexit.register(_clean)
-
 def _caller(tblist, skip):
     string = ""
     arr = []
@@ -828,6 +816,17 @@ def send_all(p, data):
             raise Exception(disconnect_message)
         data = memoryview(data)[sent:]
 
+_Cleanup = []
+
+def _clean():
+    global _Cleanup
+    cleanlist = [ c for c in _Cleanup if c ]
+    del _Cleanup[:]
+    cleanlist.reverse()
+    for test in cleanlist:
+        test.cleanup()
+
+atexit.register(_clean)
 
 
 class TestCmd(object):
@@ -954,11 +953,9 @@ class TestCmd(object):
                 shutil.rmtree(dir, ignore_errors = 1)
             self._dirlist = []
 
-        try:
             global _Cleanup
-            _Cleanup.remove(self)
-        except (AttributeError, ValueError):
-            pass
+            if self in _Cleanup:
+                _Cleanup.remove(self)
 
     def command_args(self, program = None,
                            interpreter = None,
@@ -1513,10 +1510,9 @@ class TestCmd(object):
 
         #
         self._dirlist.append(path)
+
         global _Cleanup
-        try:
-            _Cleanup.index(self)
-        except ValueError:
+        if self not in _Cleanup:
             _Cleanup.append(self)
 
         return path
