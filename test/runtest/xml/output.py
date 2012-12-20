@@ -52,7 +52,7 @@ test.write_no_result_test(['test', 'no_result.py'])
 
 test.write_passing_test(['test', 'pass.py'])
 
-test.run(arguments = '-o xml.out --xml test', status=1)
+test.run(arguments = '--xml xml.out test', status=1)
 
 expect = """\
   <results>
