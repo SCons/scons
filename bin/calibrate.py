@@ -50,7 +50,7 @@ def main(argv=None):
         if len(args) > 1:
             print arg + ':'
 
-        command = [sys.executable, 'runtest.py', '--noqmtest']
+        command = [sys.executable, 'runtest.py']
         if opts.package:
             command.extend(['-p', opts.package])
         command.append(arg)

@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that the --noqmtest option invokes tests directly via Python, not
+Test that by default tests are invoked directly via Python, not
 using qmtest.
 """
 
@@ -74,7 +74,7 @@ testlist = [
     test_pass_py,
 ]
 
-test.run(arguments = '-k --noqmtest %s' % ' '.join(testlist),
+test.run(arguments = '-k %s' % ' '.join(testlist),
          status = 1,
          stdout = expect_stdout,
          stderr = expect_stderr)
