@@ -82,13 +82,8 @@ def print_build_failures():
     for bf in sorted(GetBuildFailures(), key=lambda t: t.filename):
         print "%%s failed:  %%s" %% (bf.node, bf.errstr)
 
-try:
-    import atexit
-except ImportError:
-    import sys
-    sys.exitfunc = print_build_failures
-else:
-    atexit.register(print_build_failures)
+import atexit
+atexit.register(print_build_failures)
 """ % locals())
 
 test.write('f3.in', "f3.in\n")

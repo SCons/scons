@@ -166,7 +166,6 @@ check_list = [
             'engine/SCons/Conftest.py',
             'engine/SCons/dblite.py',
             'MANIFEST',
-            'os_spawnv_fix.diff',
             'setup.cfg',
         ],
         # We run epydoc on the *.py files, which generates *.pyc files.
@@ -214,7 +213,6 @@ check_list = [
             'QMTest/TestCmdTests.py',
             'QMTest/TestCommon.py',
             'QMTest/TestCommonTests.py',
-            'src/os_spawnv_fix.diff',
             'src/MANIFEST.in',
             'src/setup.cfg',
             'src/engine/MANIFEST.in',

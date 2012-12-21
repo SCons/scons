@@ -95,13 +95,8 @@ def print_build_failures():
         if bf.command:
             print "BF:    %%s" %% " ".join(Flatten(bf.command))
 
-try:
-    import atexit
-except ImportError:
-    import sys
-    sys.exitfunc = print_build_failures
-else:
-    atexit.register(print_build_failures)
+import atexit
+atexit.register(print_build_failures)
 """ % locals())
 
 test.write('f03.in', "f03.in\n")
