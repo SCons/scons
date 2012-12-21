@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import re
+
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
@@ -64,9 +66,70 @@ def smart_link(source, target, env, for_signature):
     return '$CC'
 
 def shlib_emitter(target, source, env):
+    Verbose = False
+    platform = env.subst('$PLATFORM')
     for tgt in target:
         tgt.attributes.shared = 1
+    try:
+        # target[0] comes in as libtest.so. Add the version extensions
+        version = env.subst('$SHLIBVERSION')
+        if version:
+            version_names = shlib_emitter_names(target, source, env)
+            # change the name of the target to include the version number
+            target[0].name = version_names[0]
+            for name in version_names:
+                env.SideEffect(name, target[0])
+                env.Clean(target[0], name)
+                if Verbose:
+                    print "shlib_emitter: add side effect - ",name
+    except KeyError:
+        version = None
     return (target, source)
+
+def shlib_emitter_names(target, source, env):
+    """Return list of file names that are side effects for a versioned library build. The first name in the list is the new name for the target"""
+    Verbose = False
+    platform = env.subst('$PLATFORM')
+    version_names = []
+    try:
+        # target[0] comes in as libtest.so. Add the version extensions
+        version = env.subst('$SHLIBVERSION')
+        if version.count(".") != 2:
+            # We need a version of the form x.y.z to proceed
+            raise ValueError
+        if version:
+            if platform == 'posix':
+                versionparts = version.split('.')
+                name = target[0].name
+                # generate library name with the version number
+                version_name = target[0].name + '.' + version
+                if Verbose:
+                    print "shlib_emitter_names: target is ", version_name
+                    print "shlib_emitter_names: side effect: ", name
+                # add version_name to list of names to be a Side effect
+                version_names.append(version_name)
+                if Verbose:
+                    print "shlib_emitter_names: versionparts ",versionparts
+                for ver in versionparts[0:-1]:
+                    name = name + '.' + ver
+                    if Verbose:
+                        print "shlib_emitter_names: side effect: ", name
+                    # add name to list of names to be a Side effect
+                    version_names.append(name)
+            elif platform == 'darwin':
+                shlib_suffix = env.subst('$SHLIBSUFFIX')
+                name = target[0].name
+                # generate library name with the version number
+                suffix_re = re.escape(shlib_suffix)
+                version_name = re.sub(suffix_re, '.' + version + shlib_suffix, name)
+                if Verbose:
+                    print "shlib_emitter_names: target is ", version_name
+                    print "shlib_emitter_names: side effect: ", name
+                # add version_name to list of names to be a Side effect
+                version_names.append(version_name)
+    except KeyError:
+        version = None
+    return version_names
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""

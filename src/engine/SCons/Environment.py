@@ -2247,6 +2247,7 @@ class Base(SubstitutionEnvironment):
             install._UNIQUE_INSTALLED_FILES = SCons.Util.uniquer_hashables(install._INSTALLED_FILES)
         return install._UNIQUE_INSTALLED_FILES
 
+
 class OverrideEnvironment(Base):
     """A proxy that overrides variables in a wrapped construction
     environment by returning values from an overrides dictionary in

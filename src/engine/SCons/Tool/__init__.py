@@ -39,6 +39,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import imp
 import sys
+import re
+import os
+import shutil
 
 import SCons.Builder
 import SCons.Errors
@@ -233,6 +236,116 @@ def createStaticLibBuilder(env):
 
     return static_lib
 
+def VersionShLibLinkNames(version, libname, env):
+    """Generate names of symlinks to the versioned shared library"""
+    Verbose = False
+    platform = env.subst('$PLATFORM')
+    shlib_suffix = env.subst('$SHLIBSUFFIX')
+    shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
+
+    linknames = []
+    if version.count(".") != 2:
+        # We need a version string of the form x.y.z to proceed
+        # Several changes need to be made to support versions like x.y
+        raise ValueError
+
+    if platform == 'darwin':
+        # For libfoo.x.y.z.dylib, linknames libfoo.so
+        suffix_re = re.escape('.' + version + shlib_suffix)
+        linkname = re.sub(suffix_re, shlib_suffix, libname)
+        if Verbose:
+            print "VersionShLibLinkNames: linkname = ",linkname
+        linknames.append(linkname)
+    elif platform == 'posix':
+        # For libfoo.so.x.y.z, linknames libfoo.so libfoo.so.x.y libfoo.so.x
+        suffix_re = re.escape(shlib_suffix + '.' + version)
+        # First linkname has no version number
+        linkname = re.sub(suffix_re, shlib_suffix, libname)
+        if Verbose:
+            print "VersionShLibLinkNames: linkname = ",linkname
+        linknames.append(linkname)
+        versionparts = version.split('.')
+        major_name = linkname + "." + versionparts[0]
+        minor_name = major_name + "." + versionparts[1]
+        #Only add link for major_name
+        #for linkname in [major_name, minor_name]:
+        for linkname in [major_name, ]:
+            if Verbose:
+                print "VersionShLibLinkNames: linkname ",linkname, ", target ",libname
+            linknames.append(linkname)
+    return linknames
+
+def VersionedSharedLibrary(target = None, source= None, env=None):
+    """Build a shared library. If the environment has SHLIBVERSION 
+defined make a versioned shared library and create the appropriate 
+symlinks for the platform we are on"""
+    Verbose = False
+    try:
+        version = env.subst('$SHLIBVERSION')
+    except KeyError:
+        version = None
+
+    # libname includes the version number if one was given
+    libname = target[0].name
+    platform = env.subst('$PLATFORM')
+    shlib_suffix = env.subst('$SHLIBSUFFIX')
+    shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
+    if Verbose:
+        print "VersionShLib: libname      = ",libname
+        print "VersionShLib: platform     = ",platform
+        print "VersionShLib: shlib_suffix = ",shlib_suffix
+        print "VersionShLib: target = ",str(target[0])
+
+    if version:
+        # set the shared library link flags
+        if platform == 'posix':
+            suffix_re = re.escape(shlib_suffix + '.' + version)
+            (major, age, revision) = version.split(".")
+            # soname will have only the major version number in it
+            soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
+            shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
+            if Verbose:
+                print " soname ",soname,", shlink_flags ",shlink_flags
+        elif platform == 'cygwin':
+            shlink_flags += [ '-Wl,-Bsymbolic',
+                              '-Wl,--out-implib,${TARGET.base}.a' ]
+        elif platform == 'darwin':
+            shlink_flags += [ '-current_version', '%s' % version,
+                              '-compatibility_version', '%s' % version,
+                              '-undefined', 'dynamic_lookup' ]
+        if Verbose:
+            print "VersionShLib: shlink_flags = ",shlink_flags
+        envlink = env.Clone()
+        envlink['SHLINKFLAGS'] = shlink_flags
+    else:
+        envlink = env
+
+    result = SCons.Defaults.ShLinkAction(target, source, envlink)
+
+    if version:
+        # here we need the full pathname so the links end up in the right directory
+        libname = target[0].path
+        linknames = VersionShLibLinkNames(version, libname, env)
+        if Verbose:
+            print "VerShLib: linknames ",linknames
+        # Here we just need the file name w/o path as the target of the link
+        lib_ver = target[0].name
+        # make symlink of adjacent names in linknames
+        for count in range(len(linknames)):
+            linkname = linknames[count]
+            if count > 0:
+                os.symlink(os.path.basename(linkname),lastname)
+                if Verbose:
+                    print "VerShLib: made sym link of %s -> %s" % (lastname,linkname)
+            lastname = linkname
+        # finish chain of sym links with link to the actual library
+        os.symlink(lib_ver,lastname)
+        if Verbose:
+            print "VerShLib: made sym link of %s -> %s" % (lib_ver,linkname)
+    return result
+
+ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
+
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
     Builder in an Environment if it is not there already.
@@ -245,7 +358,7 @@ def createSharedLibBuilder(env):
     except KeyError:
         import SCons.Defaults
         action_list = [ SCons.Defaults.SharedCheck,
-                        SCons.Defaults.ShLinkAction ]
+                        ShLibAction ]
         shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',
@@ -527,13 +640,16 @@ class ToolInitializer(object):
 	# the ToolInitializer class.
 
 def Initializers(env):
-    ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs'])
+    ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs', '_InternalInstallVersionedLib'])
     def Install(self, *args, **kw):
         return self._InternalInstall(*args, **kw)
     def InstallAs(self, *args, **kw):
         return self._InternalInstallAs(*args, **kw)
+    def InstallVersionedLib(self, *args, **kw):
+        return self._InternalInstallVersionedLib(*args, **kw)
     env.AddMethod(Install)
     env.AddMethod(InstallAs)
+    env.AddMethod(InstallVersionedLib)
 
 def FindTool(tools, env):
     for tool in tools:
@@ -679,3 +795,4 @@ def tool_list(platform, env):
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
+

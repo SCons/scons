@@ -33,6 +33,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import re
 import shutil
 import stat
 
@@ -121,6 +122,87 @@ def copyFunc(dest, source, env):
 
     return 0
 
+#
+# Functions doing the actual work of the InstallVersionedLib Builder.
+#
+def copyFuncVersionedLib(dest, source, env):
+    """Install a versioned library into a destination by copying,
+    (including copying permission/mode bits) and then creating
+    required symlinks."""
+
+    if os.path.isdir(source):
+        raise SCons.Errors.UserError("cannot install directory `%s' as a version library" % str(source) )
+    else:
+        shutil.copy2(source, dest)
+        st = os.stat(source)
+        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        versionedLibLinks(dest, source, env)
+
+    return 0
+
+def versionedLibVersion(dest, env):
+    """Check if dest is a version shared library name. Return version, libname, & install_dir if it is."""
+    Verbose = False
+    platform = env.subst('$PLATFORM')
+    if not (platform == 'posix'  or platform == 'darwin'):
+        return (None, None, None)
+
+    libname = os.path.basename(dest)
+    install_dir = os.path.dirname(dest)
+    shlib_suffix = env.subst('$SHLIBSUFFIX')
+    # See if the source name is a versioned shared library, get the version number
+    result = False
+    
+    version_re = re.compile("[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
+    version_File = None
+    if platform == 'posix':
+        # handle unix names
+        versioned_re = re.compile(re.escape(shlib_suffix + '.') + "[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
+        result = versioned_re.findall(libname)
+        if result:
+            version_File = version_re.findall(versioned_re.findall(libname)[-1])[-1]
+    elif platform == 'darwin':
+        # handle OSX names
+        versioned_re = re.compile("\\.[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+" + re.escape(shlib_suffix) )
+        result = versioned_re.findall(libname)
+        if result:
+            version_File = version_re.findall(versioned_re.findall(libname)[-1])[-1]
+    
+    if Verbose:
+        print "install: version_File ", version_File
+    # result is False if we did not find a versioned shared library name, so return and empty list
+    if not result:
+        return (None, libname, install_dir)
+
+    version = None
+    # get version number from the environment
+    try:
+        version = env.subst('$SHLIBVERSION')
+    except KeyError:
+        version = None
+    
+    if version != version_File:
+        #raise SCons.Errors.UserError("SHLIBVERSION '%s' does not match the version # '%s' in the filename" % (version, version_File) )
+        print "SHLIBVERSION '%s' does not match the version # '%s' in the filename, proceeding based on file name" % (version, version_File)
+        version = version_File
+    return (version, libname, install_dir)
+
+def versionedLibLinks(dest, source, env):
+    """If we are installing a versioned shared library create the required links."""
+    Verbose = False
+    linknames = []
+    version, libname, install_dir = versionedLibVersion(dest, env)
+
+    if version != None:
+        # libname includes the version number if one was given
+        linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
+        for linkname in linknames:
+            if Verbose:
+                print "make link of %s to %s" %(libname, os.path.join(install_dir, linkname))
+            fulllinkname = os.path.join(install_dir, linkname)
+            os.symlink(libname,fulllinkname)
+    return
+
 def installFunc(target, source, env):
     """Install a source file into a target using the function specified
     as the INSTALL construction variable."""
@@ -128,6 +210,22 @@ def installFunc(target, source, env):
         install = env['INSTALL']
     except KeyError:
         raise SCons.Errors.UserError('Missing INSTALL construction variable.')
+
+    assert len(target)==len(source), \
+           "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
+    for t,s in zip(target,source):
+        if install(t.get_path(),s.get_path(),env):
+            return 1
+
+    return 0
+
+def installFuncVersionedLib(target, source, env):
+    """Install a versioned library into a target using the function specified
+    as the INSTALLVERSIONEDLIB construction variable."""
+    try:
+        install = env['INSTALLVERSIONEDLIB']
+    except KeyError:
+        raise SCons.Errors.UserError('Missing INSTALLVERSIONEDLIB construction variable.')
 
     assert len(target)==len(source), \
            "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
@@ -159,6 +257,31 @@ def add_targets_to_INSTALLED_FILES(target, source, env):
     """
     global _INSTALLED_FILES, _UNIQUE_INSTALLED_FILES
     _INSTALLED_FILES.extend(target)
+
+    _UNIQUE_INSTALLED_FILES = None
+    return (target, source)
+
+def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
+    """ an emitter that adds all target files to the list stored in the
+    _INSTALLED_FILES global variable. This way all installed files of one
+    scons call will be collected.
+    """
+    global _INSTALLED_FILES, _UNIQUE_INSTALLED_FILES
+    Verbose = False
+    _INSTALLED_FILES.extend(target)
+
+    # see if we have a versioned shared library, if so generate side effects
+    version, libname, install_dir = versionedLibVersion(target[0].path, env)
+    if version != None:
+        # generate list of link names
+        linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
+        for linkname in linknames:
+            if Verbose:
+                print "make side effect of %s" % os.path.join(install_dir, linkname)
+            fulllinkname = os.path.join(install_dir, linkname)
+            env.SideEffect(fulllinkname,target[0])
+            env.Clean(target[0],fulllinkname)
+        
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 
@@ -181,8 +304,9 @@ class DESTDIR_factory(object):
 #
 # The Builder Definition
 #
-install_action   = SCons.Action.Action(installFunc, stringFunc)
-installas_action = SCons.Action.Action(installFunc, stringFunc)
+install_action       = SCons.Action.Action(installFunc, stringFunc)
+installas_action     = SCons.Action.Action(installFunc, stringFunc)
+installVerLib_action = SCons.Action.Action(installFuncVersionedLib, stringFunc)
 
 BaseInstallBuilder               = None
 
@@ -223,6 +347,37 @@ def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
         result.extend(BaseInstallBuilder(env, tgt, src, **kw))
     return result
 
+BaseVersionedInstallBuilder = None
+
+def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw):
+    if target and dir:
+        import SCons.Errors
+        raise SCons.Errors.UserError("Both target and dir defined for Install(), only one may be defined.")
+    if not dir:
+        dir=target
+
+    import SCons.Script
+    install_sandbox = SCons.Script.GetOption('install_sandbox')
+    if install_sandbox:
+        target_factory = DESTDIR_factory(env, install_sandbox)
+    else:
+        target_factory = env.fs
+
+    try:
+        dnodes = env.arg2nodes(dir, target_factory.Dir)
+    except TypeError:
+        raise SCons.Errors.UserError("Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir))
+    sources = env.arg2nodes(source, env.fs.Entry)
+    tgt = []
+    for dnode in dnodes:
+        for src in sources:
+            # Prepend './' so the lookup doesn't interpret an initial
+            # '#' on the file name portion as meaning the Node should
+            # be relative to the top-level SConstruct directory.
+            target = env.fs.Entry('.'+os.sep+src.name, dnode)
+            tgt.extend(BaseVersionedInstallBuilder(env, target, src, **kw))
+    return tgt
+
 added = None
 
 def generate(env):
@@ -253,8 +408,25 @@ def generate(env):
                               emitter        = [ add_targets_to_INSTALLED_FILES, ],
                               name           = 'InstallBuilder')
 
+    global BaseVersionedInstallBuilder
+    if BaseVersionedInstallBuilder is None:
+        install_sandbox = GetOption('install_sandbox')
+        if install_sandbox:
+            target_factory = DESTDIR_factory(env, install_sandbox)
+        else:
+            target_factory = env.fs
+
+        BaseVersionedInstallBuilder = SCons.Builder.Builder(
+                                       action         = installVerLib_action,
+                                       target_factory = target_factory.Entry,
+                                       source_factory = env.fs.Entry,
+                                       multi          = 1,
+                                       emitter        = [ add_versioned_targets_to_INSTALLED_FILES, ],
+                                       name           = 'InstallVersionedBuilder')
+
     env['BUILDERS']['_InternalInstall'] = InstallBuilderWrapper
     env['BUILDERS']['_InternalInstallAs'] = InstallAsBuilderWrapper
+    env['BUILDERS']['_InternalInstallVersionedLib'] = InstallVersionedBuilderWrapper
 
     # We'd like to initialize this doing something like the following,
     # but there isn't yet support for a ${SOURCE.type} expansion that
@@ -272,6 +444,11 @@ def generate(env):
         env['INSTALL']
     except KeyError:
         env['INSTALL']    = copyFunc
+
+    try:
+        env['INSTALLVERSIONEDLIB']
+    except KeyError:
+        env['INSTALLVERSIONEDLIB']    = copyFuncVersionedLib
 
 def exists(env):
     return 1
