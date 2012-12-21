@@ -67,11 +67,11 @@ os.environ['SCONSFLAGS'] = '-Z'
 
 expect = r"""usage: scons [OPTION] [TARGET] ...
 
-SCons error: no such option: -Z
+SCons Error: no such option: -Z
 """
 
 test.run(arguments = "-H", status = 2,
-         stderr = TestSCons.re_escape(expect))
+         stderr = expect, match=TestSCons.match_exact)
 
 test.pass_test()
 
