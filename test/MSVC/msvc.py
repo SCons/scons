@@ -29,21 +29,13 @@ Verify basic invocation of Microsoft Visual C/C++, including use
 of a precompiled header with the $CCFLAGS variable.
 """
 
-import sys
 import time
 
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re)
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
-import SCons.Tool.MSCommon as msc
-if not msc.msvc_exists():
-    msg = "No MSVC toolchain found...skipping test\n"
-    test.skip_test(msg)
+test.skip_if_not_msvc()
 
 #####
 # Test the basics

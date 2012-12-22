@@ -976,6 +976,28 @@ SConscript( sconscript )
     
         return libs
 
+    def skip_if_not_msvc(self, check_platform=True):
+        """ Check whether we are on a Windows platform and skip the
+            test if not. This check can be omitted by setting
+            check_platform to False.
+            Then, for a win32 platform, additionally check
+            whether we have a MSVC toolchain installed
+            in the system, and skip the test if none can be
+            found (=MinGW is the only compiler available).
+        """
+        if check_platform:
+            if sys.platform != 'win32':
+                msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
+                self.skip_test(msg)
+                return
+        
+        try:
+            import SCons.Tool.MSCommon as msc
+            if not msc.msvc_exists():
+                msg = "No MSVC toolchain found...skipping test\n"
+                self.skip_test(msg)
+        except:
+            pass
 
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,

@@ -29,20 +29,12 @@ Test the ability to configure the $TARGET_ARCH construction variable.
 """
 
 import TestSCons
-import sys
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
-import SCons.Tool.MSCommon as msc
-if not msc.msvc_exists():
-    msg = "No MSVC toolchain found...skipping test\n"
-    test.skip_test(msg)
+test.skip_if_not_msvc()
 
 test.write('SConstruct', """
 env_64 = Environment(tools=['default', 'msvc'],
