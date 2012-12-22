@@ -98,14 +98,14 @@ if sys.platform == "win32":
         # resets the link actions, this could fail even if the above
         # test passed.
         test.write('SConstruct', """
-        env = Environment(CXXCOMSTR    = 'Compiling $TARGET ...',
-                          SHLINKCOMSTR   = 'Shared-Linking $TARGET ...')
-        env.SharedLibrary('test', 'test.cpp')
-        """)
+env = Environment(CXXCOMSTR    = 'Compiling $TARGET ...',
+                 SHLINKCOMSTR   = 'Shared-Linking $TARGET ...')
+env.SharedLibrary('test', 'test.cpp')
+""")
         test.write('test.cpp', """
-        int i;
-        """)
-        
+int i;
+""")
+
         test.run()
         if ("Shared-Linking" not in test.stdout()):
             test.fail_test()
