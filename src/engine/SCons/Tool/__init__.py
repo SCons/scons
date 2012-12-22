@@ -273,11 +273,14 @@ def VersionShLibLinkNames(version, libname, env):
             if Verbose:
                 print "VersionShLibLinkNames: linkname ",linkname, ", target ",libname
             linknames.append(linkname)
+    # note: no Windows case here (win32 or cygwin);
+    # MSVC doesn't support this type of versioned shared libs.
+    # (could probably do something for MinGW though)
     return linknames
 
 def VersionedSharedLibrary(target = None, source= None, env=None):
-    """Build a shared library. If the environment has SHLIBVERSION 
-defined make a versioned shared library and create the appropriate 
+    """Build a shared library. If the environment has SHLIBVERSION
+defined make a versioned shared library and create the appropriate
 symlinks for the platform we are on"""
     Verbose = False
     try:
@@ -339,9 +342,10 @@ symlinks for the platform we are on"""
                     print "VerShLib: made sym link of %s -> %s" % (lastname,linkname)
             lastname = linkname
         # finish chain of sym links with link to the actual library
-        os.symlink(lib_ver,lastname)
-        if Verbose:
-            print "VerShLib: made sym link of %s -> %s" % (lib_ver,linkname)
+        if len(linknames)>0:
+            os.symlink(lib_ver,lastname)
+            if Verbose:
+                print "VerShLib: made sym link of %s -> %s" % (lib_ver,linkname)
     return result
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
