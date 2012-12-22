@@ -33,17 +33,13 @@ $TARGET variable (and implicitly $SOURCE), using the original specified
 list(s).
 """
 
-import sys
-
 import TestSCons
 
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+test.skip_if_not_msvc()
 
 test.write('SConstruct', """\
 env = Environment(PDB = '${TARGET.base}.pdb')

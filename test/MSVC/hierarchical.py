@@ -28,17 +28,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify use of Visual Studio with a hierarchical build.
 """
 
-import sys
-
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re)
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
-
+test.skip_if_not_msvc()
 
 test.subdir('src', 'build', 'out')
 

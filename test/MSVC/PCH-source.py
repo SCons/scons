@@ -31,16 +31,11 @@ up in both the env.PCH() and the env.Program() source list.
 Issue 2505:  http://scons.tigris.org/issues/show_bug.cgi?id=2505
 """
 
-import sys
-
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
+test.skip_if_not_msvc()
 
 test.write('SConstruct', """\
 env = Environment(tools=['msvc', 'mslink'])

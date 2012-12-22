@@ -27,12 +27,18 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 
+_obj = TestSCons._obj
+
 if sys.platform == 'win32':
-    _obj = '.obj'
-    fooflags = '/nologo -DFOO'
-    barflags = '/nologo -DBAR'
+    import SCons.Tool.MSCommon as msc
+    
+    if not msc.msvc_exists():
+        fooflags = '-DFOO'
+        barflags = '-DBAR'
+    else:
+        fooflags = '/nologo -DFOO'
+        barflags = '/nologo -DBAR'
 else:
-    _obj = '.o'
     fooflags = '-DFOO'
     barflags = '-DBAR'
 

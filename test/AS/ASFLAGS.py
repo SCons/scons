@@ -35,10 +35,12 @@ _exe = TestSCons._exe
 
 
 if sys.platform == 'win32':
-
+    import SCons.Tool.MSCommon as msc
+    
     o = ' -x'
-
     o_c = ' -x'
+    if not msc.msvc_exists():
+        o_c = ' -x -c'
 
     test.write('mylink.py', r"""
 import sys
@@ -95,7 +97,6 @@ sys.exit(0)
 else:
 
     o = ' -x'
-
     o_c = ' -x -c'
 
     test.write('mylink.py', r"""
