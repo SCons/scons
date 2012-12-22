@@ -46,6 +46,9 @@ env.Default(instnode)
 """)
 
 test.write('test.c', """\
+#if _WIN32
+__declspec(dllexport)
+#endif
 int testlib(int n)
 {
 return n+1 ;
@@ -94,6 +97,18 @@ elif platform == 'darwin':
     instfiles = [
     'libtest.dylib',
     'libtest.2.5.4.dylib',
+    ]
+elif platform == 'win32':
+    # All (?) the files we expect will get created in the current directory
+    files = [
+    'test.dll',
+    'test.lib',
+    'test.obj',
+    ]
+    # All (?) the files we expect will get created in the 'installtest' directory
+    instfiles = [
+    'test.dll',
+    'test.lib',
     ]
 else:
     # All (?) the files we expect will get created in the current directory
