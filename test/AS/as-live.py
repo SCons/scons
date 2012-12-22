@@ -47,8 +47,14 @@ x86 = (sys.platform == 'win32' or sys.platform.find('linux') != -1)
 if not x86:
     test.skip_test("skipping as test on non-x86 platform '%s'\n" % sys.platform)
 
-
-
+namelbl = "name"
+testccc = """ccc = aaa.Clone(CPPPATH=['.'])
+ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
+"""
+if sys.platform == "win32":
+    namelbl = "_name"
+    testccc = ""
+    
 test.write("wrapper.py", """\
 import os
 import sys
@@ -59,32 +65,31 @@ os.system(cmd)
 
 test.write('SConstruct', """\
 aaa = Environment()
-bbb = aaa.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('as'))
-ccc = aaa.Clone(CPPPATH=['.'])
 aaa.Program(target = 'aaa', source = ['aaa.s', 'aaa_main.c'])
+bbb = aaa.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('as'))
 bbb.Program(target = 'bbb', source = ['bbb.s', 'bbb_main.c'])
-ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
+%(testccc)s
 """ % locals())
 
 test.write('aaa.s', 
 """        .file   "aaa.s"
 .data
 .align 4
-.globl name
-name:
+.globl %(namelbl)s
+%(namelbl)s:
         .ascii	"aaa.s"
         .byte	0
-""")
+""" % locals())
 
 test.write('bbb.s', """\
 .file   "bbb.s"
 .data
 .align 4
-.globl name
-name:
+.globl %(namelbl)s
+%(namelbl)s:
         .ascii	"bbb.s"
         .byte	0
-""")
+""" % locals())
 
 test.write('ccc.h', """\
 #define STRING  "ccc.S"
@@ -162,20 +167,20 @@ test.run()
 
 test.run(program = test.workpath('aaa'), stdout =  "aaa_main.c aaa.s\n")
 test.run(program = test.workpath('bbb'), stdout =  "bbb_main.c bbb.s\n")
-test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S\n")
 
-test.must_match('wrapper.out', "wrapper.py: bbb.s\n")
-
-test.write("ccc.h", """\
-#define STRING  "ccc.S 2"
-""")
-
-test.run()
-test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S 2\n")
+if sys.platform != "win32":
+    test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S\n")
+    
+    test.must_match('wrapper.out', "wrapper.py: bbb.s\n")
+    
+    test.write("ccc.h", """\
+    #define STRING  "ccc.S 2"
+    """)
+    
+    test.run()
+    test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S 2\n")
 
 test.unlink('wrapper.out')
-
-
 
 test.pass_test()
 

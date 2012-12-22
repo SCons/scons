@@ -25,15 +25,12 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import sys
 
 import TestSCons
 
 test = TestSCons.TestSCons(match = TestSCons.match_re)
 
-if sys.platform != 'win32':
-    msg = "Skipping test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+test.skip_if_not_msvc()
 
 #####
 # Test the basics

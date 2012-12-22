@@ -69,7 +69,7 @@ while args:
         args = args[2:]
         continue
     args = args[1:]
-    if a[0] != '/':
+    if not a[0] in '-/':
         if not inf:
             inf = a
         continue

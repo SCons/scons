@@ -31,15 +31,12 @@ inconsistent about which case is used for the drive letter.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-import sys
 import TestCmd
 import os.path
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
-if sys.platform != 'win32':
-    msg = "Skipping Windows path tests on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
+test.skip_if_not_msvc()
 
 test.subdir('src', 'build', 'include', 'src2')
 

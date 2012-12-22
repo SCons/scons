@@ -41,6 +41,10 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+import SCons.Tool.MSCommon as msc
+if not msc.msvs_exists():
+    msg = "No MSVS toolchain found...skipping test\n"
+    test.skip_test(msg)
 
 SConscript_contents = """\
 env = Environment()
