@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-XXX Put a description of the test here.
+Ensure that examples given in user guide work.
 """
 
 import TestSCons
