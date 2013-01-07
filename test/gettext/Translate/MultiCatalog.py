@@ -53,8 +53,6 @@ if not test.where_is('msgmerge'):
 if not test.where_is('msginit'):
     test.skip_test("could not find 'msginit'; skipping test(s)\n")
 if not test.where_is('msgfmt'):
-    # We really don't use it until the Example 3, but we load "gettext" tool,
-    # which depends on msgfmt.
     test.skip_test("could not find 'msgfmt'; skipping test(s)\n")
 
 #############################################################################
