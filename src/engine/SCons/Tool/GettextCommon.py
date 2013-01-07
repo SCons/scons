@@ -225,8 +225,9 @@ class _POFileBuilder(BuilderBase):
 
 import SCons.Environment
 #############################################################################
-def _translate(env, target=[], source=SCons.Environment._null, *args, **kw):
+def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
   """ Function for `Translate()` pseudo-builder """
+  if target is None: target = []
   pot = env.POTUpdate(None, source, *args, **kw)
   po = env.POUpdate(target, pot, *args, **kw)
   return po
