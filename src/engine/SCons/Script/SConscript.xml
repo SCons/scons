@@ -1,0 +1,509 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<scons_function name="Default">
+<arguments>
+(targets)
+</arguments>
+<summary>
+This specifies a list of default targets,
+which will be built by
+&scons;
+if no explicit targets are given on the command line.
+Multiple calls to
+&f-Default;
+are legal,
+and add to the list of default targets.
+
+Multiple targets should be specified as
+separate arguments to the
+&f-Default;
+method, or as a list.
+&f-Default;
+will also accept the Node returned by any
+of a construction environment's
+builder methods.
+
+Examples:
+
+<example>
+Default('foo', 'bar', 'baz')
+env.Default(['a', 'b', 'c'])
+hello = env.Program('hello', 'hello.c')
+env.Default(hello)
+</example>
+
+An argument to
+&f-Default;
+of
+<literal>None</literal>
+will clear all default targets.
+Later calls to
+&f-Default;
+will add to the (now empty) default-target list
+like normal.
+
+The current list of targets added using the
+&f-Default;
+function or method is available in the
+<literal>DEFAULT_TARGETS</literal>
+list;
+see below.
+</summary>
+</scons_function>
+
+<scons_function name="EnsurePythonVersion">
+<arguments>
+(major, minor)
+</arguments>
+<summary>
+Ensure that the Python version is at least
+<varname>major</varname>.<varname>minor</varname>.
+This function will
+print out an error message and exit SCons with a non-zero exit code if the
+actual Python version is not late enough.
+
+Example:
+
+<example>
+EnsurePythonVersion(2,2)
+</example>
+</summary>
+</scons_function>
+
+<scons_function name="EnsureSConsVersion">
+<arguments>
+(major, minor, [revision])
+</arguments>
+<summary>
+Ensure that the SCons version is at least
+<varname>major.minor</varname>,
+or
+<varname>major.minor.revision</varname>.
+if
+<varname>revision</varname>
+is specified.
+This function will
+print out an error message and exit SCons with a non-zero exit code if the
+actual SCons version is not late enough.
+
+Examples:
+
+<example>
+EnsureSConsVersion(0,14)
+
+EnsureSConsVersion(0,96,90)
+</example>
+</summary>
+</scons_function>
+
+<scons_function name="Exit">
+<arguments>
+([value])
+</arguments>
+<summary>
+This tells
+&scons;
+to exit immediately
+with the specified
+<varname>value</varname>.
+A default exit value of
+<literal>0</literal>
+(zero)
+is used if no value is specified.
+</summary>
+</scons_function>
+
+<scons_function name="Export">
+<arguments>
+(vars)
+</arguments>
+<summary>
+This tells
+&scons;
+to export a list of variables from the current
+SConscript file to all other SConscript files.
+The exported variables are kept in a global collection,
+so subsequent calls to
+&f-Export;
+will over-write previous exports that have the same name.
+Multiple variable names can be passed to
+&f-Export;
+as separate arguments or as a list.
+Keyword arguments can be used to provide names and their values.
+A dictionary can be used to map variables to a different name when exported.
+Both local variables and global variables can be exported.
+
+Examples:
+
+<example>
+env = Environment()
+# Make env available for all SConscript files to Import().
+Export("env")
+
+package = 'my_name'
+# Make env and package available for all SConscript files:.
+Export("env", "package")
+
+# Make env and package available for all SConscript files:
+Export(["env", "package"])
+
+# Make env available using the name debug:
+Export(debug = env)
+
+# Make env available using the name debug:
+Export({"debug":env})
+</example>
+
+Note that the
+&f-SConscript;
+function supports an
+<varname>exports</varname>
+argument that makes it easier to to export a variable or
+set of variables to a single SConscript file.
+See the description of the
+&f-SConscript;
+function, below.
+</summary>
+</scons_function>
+
+<scons_function name="GetLaunchDir">
+<arguments>
+()
+</arguments>
+<summary>
+Returns the absolute path name of the directory from which
+&scons;
+was initially invoked.
+This can be useful when using the
+<option>-u</option>,
+<option>-U</option>
+or
+<option>-D</option>
+options, which internally
+change to the directory in which the
+&SConstruct;
+file is found.
+</summary>
+</scons_function>
+
+<scons_function name="Help">
+<arguments>
+(text)
+</arguments>
+<summary>
+This specifies help text to be printed if the
+<option>-h</option>
+argument is given to
+&scons;.
+If
+&f-Help;
+is called multiple times, the text is appended together in the order
+that
+&f-Help;
+is called.
+</summary>
+</scons_function>
+
+<scons_function name="Import">
+<arguments>
+(vars)
+</arguments>
+<summary>
+This tells
+&scons;
+to import a list of variables into the current SConscript file. This
+will import variables that were exported with
+&f-Export;
+or in the
+<varname>exports</varname>
+argument to
+&f-link-SConscript;.
+Variables exported by
+&f-SConscript;
+have precedence.
+Multiple variable names can be passed to
+&f-Import;
+as separate arguments or as a list. The variable "*" can be used
+to import all variables.
+
+Examples:
+
+<example>
+Import("env")
+Import("env", "variable")
+Import(["env", "variable"])
+Import("*")
+</example>
+</summary>
+</scons_function>
+
+<scons_function name="Return">
+<arguments signature="global">
+([vars..., stop=])
+</arguments>
+<summary>
+By default,
+this stops processing the current SConscript
+file and returns to the calling SConscript file
+the values of the variables named in the
+<varname>vars</varname>
+string arguments.
+Multiple strings contaning variable names may be passed to
+&f-Return;.
+Any strings that contain white space
+
+The optional
+<literal>stop=</literal>
+keyword argument may be set to a false value
+to continue processing the rest of the SConscript
+file after the
+&f-Return;
+call.
+This was the default behavior prior to SCons 0.98.
+However, the values returned
+are still the values of the variables in the named
+<varname>vars</varname>
+at the point
+&f-Return;
+is called.
+
+Examples:
+
+<example>
+# Returns without returning a value.
+Return()
+
+# Returns the value of the 'foo' Python variable.
+Return("foo")
+
+# Returns the values of the Python variables 'foo' and 'bar'.
+Return("foo", "bar")
+
+# Returns the values of Python variables 'val1' and 'val2'.
+Return('val1 val2')
+</example>
+</summary>
+</scons_function>
+
+<scons_function name="SConscript">
+<arguments>
+(scripts, [exports, variant_dir, duplicate])
+<!-- (scripts, [exports, variant_dir, src_dir, duplicate]) -->
+</arguments>
+<arguments>
+(dirs=subdirs, [name=script, exports, variant_dir, duplicate])
+<!-- (dirs=subdirs, [name=script, exports, variant_dir, src_dir, duplicate]) -->
+</arguments>
+<summary>
+This tells
+&scons;
+to execute
+one or more subsidiary SConscript (configuration) files.
+Any variables returned by a called script using
+&f-link-Return;
+will be returned by the call to
+&f-SConscript;.
+There are two ways to call the
+&f-SConscript;
+function.
+
+The first way you can call
+&f-SConscript;
+is to explicitly specify one or more
+<varname>scripts</varname>
+as the first argument.
+A single script may be specified as a string;
+multiple scripts must be specified as a list
+(either explicitly or as created by
+a function like
+&f-Split;).
+Examples:
+<example>
+SConscript('SConscript')      # run SConscript in the current directory
+SConscript('src/SConscript')  # run SConscript in the src directory
+SConscript(['src/SConscript', 'doc/SConscript'])
+config = SConscript('MyConfig.py')
+</example>
+
+The second way you can call
+&f-SConscript;
+is to specify a list of (sub)directory names
+as a
+<literal>dirs=</literal><varname>subdirs</varname>
+keyword argument.
+In this case,
+&scons;
+will, by default,
+execute a subsidiary configuration file named
+&SConscript;
+in each of the specified directories.
+You may specify a name other than
+&SConscript;
+by supplying an optional
+<literal>name=</literal><varname>script</varname>
+keyword argument.
+The first three examples below have the same effect
+as the first three examples above:
+<example>
+SConscript(dirs='.')      # run SConscript in the current directory
+SConscript(dirs='src')    # run SConscript in the src directory
+SConscript(dirs=['src', 'doc'])
+SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
+</example>
+
+The optional
+<varname>exports</varname>
+argument provides a list of variable names or a dictionary of
+named values to export to the
+<varname>script(s)</varname>.
+These variables are locally exported only to the specified
+<varname>script(s)</varname>,
+and do not affect the global pool of variables used by the
+&f-Export;
+function.
+<!-- If multiple dirs are provided, each script gets a fresh export. -->
+The subsidiary
+<varname>script(s)</varname>
+must use the
+&f-link-Import;
+function to import the variables.
+Examples:
+<example>
+foo = SConscript('sub/SConscript', exports='env')
+SConscript('dir/SConscript', exports=['env', 'variable'])
+SConscript(dirs='subdir', exports='env variable')
+SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
+</example>
+
+If the optional
+<varname>variant_dir</varname>
+argument is present, it causes an effect equivalent to the
+&f-link-VariantDir;
+method described below.
+(If
+<varname>variant_dir</varname>
+is not present, the
+<!-- <varname>src_dir</varname> and -->
+<varname>duplicate</varname>
+<!-- arguments are ignored.) -->
+argument is ignored.)
+The
+<varname>variant_dir</varname>
+<!--
+and
+<varname>src_dir</varname>
+arguments are interpreted relative to the directory of the calling
+-->
+argument is interpreted relative to the directory of the calling
+&SConscript;
+file.
+See the description of the
+&f-VariantDir;
+function below for additional details and restrictions.
+
+If
+<varname>variant_dir</varname>
+is present,
+<!--
+but
+<varname>src_dir</varname>
+is not,
+-->
+the source directory is the directory in which the
+&SConscript;
+file resides and the
+&SConscript;
+file is evaluated as if it were in the
+<varname>variant_dir</varname>
+directory:
+<example>
+SConscript('src/SConscript', variant_dir = 'build')
+</example>
+
+is equivalent to
+
+<example>
+VariantDir('build', 'src')
+SConscript('build/SConscript')
+</example>
+
+This later paradigm is often used when the sources are
+in the same directory as the
+&SConstruct;:
+
+<example>
+SConscript('SConscript', variant_dir = 'build')
+</example>
+
+is equivalent to
+
+<example>
+VariantDir('build', '.')
+SConscript('build/SConscript')
+</example>
+
+<!--
+If
+<varname>variant_dir</varname>
+and"
+<varname>src_dir</varname>
+are both present,
+xxxxx everything is in a state of confusion.
+<example>
+SConscript(dirs = 'src', variant_dir = 'build', src_dir = '.')
+runs src/SConscript in build/src, but
+SConscript(dirs = 'lib', variant_dir = 'build', src_dir = 'src')
+runs lib/SConscript (in lib!).  However,
+SConscript(dirs = 'src', variant_dir = 'build', src_dir = 'src')
+runs src/SConscript in build.  Moreover,
+SConscript(dirs = 'src/lib', variant_dir = 'build', src_dir = 'src')
+runs src/lib/SConscript in build/lib.  Moreover,
+SConscript(dirs = 'build/src/lib', variant_dir = 'build', src_dir = 'src')
+can't find build/src/lib/SConscript, even though it ought to exist.
+</example>
+is equivalent to
+<example>
+????????????????
+</example>
+and what about this alternative?
+TODO??? SConscript('build/SConscript', src_dir='src')
+-->
+
+Here are some composite examples:
+
+<example>
+# collect the configuration information and use it to build src and doc
+shared_info = SConscript('MyConfig.py')
+SConscript('src/SConscript', exports='shared_info')
+SConscript('doc/SConscript', exports='shared_info')
+</example>
+
+<example>
+# build debugging and production versions.  SConscript
+# can use Dir('.').path to determine variant.
+SConscript('SConscript', variant_dir='debug', duplicate=0)
+SConscript('SConscript', variant_dir='prod', duplicate=0)
+</example>
+
+<example>
+# build debugging and production versions.  SConscript
+# is passed flags to use.
+opts = { 'CPPDEFINES' : ['DEBUG'], 'CCFLAGS' : '-pgdb' }
+SConscript('SConscript', variant_dir='debug', duplicate=0, exports=opts)
+opts = { 'CPPDEFINES' : ['NODEBUG'], 'CCFLAGS' : '-O' }
+SConscript('SConscript', variant_dir='prod', duplicate=0, exports=opts)
+</example>
+
+<example>
+# build common documentation and compile for different architectures
+SConscript('doc/SConscript', variant_dir='build/doc', duplicate=0)
+SConscript('src/SConscript', variant_dir='build/x86', duplicate=0)
+SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
+</example>
+</summary>
+</scons_function>

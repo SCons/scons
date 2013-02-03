@@ -1,0 +1,16 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="gnulink">
+<summary>
+Set construction variables for GNU linker/loader.
+</summary>
+<sets>
+SHLINKFLAGS
+RPATHPREFIX
+RPATHSUFFIX
+</sets>
+</tool>
