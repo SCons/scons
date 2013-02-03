@@ -109,14 +109,15 @@ else:
             return res[4]
 
 # returns caller's stack
-def caller_stack(*backlist):
+def caller_stack():
     import traceback
-    if not backlist:
-        backlist = [0]
+    tb = traceback.extract_stack()
+    # strip itself and the caller from the output
+    tb = tb[:-2]
     result = []
-    for back in backlist:
-        tb = traceback.extract_stack(limit=3+back)
-        key = tb[0][:3]
+    for back in tb:
+        # (filename, line number, function name, text)
+        key = back[:3]
         result.append('%s:%d(%s)' % func_shorten(key))
     return result
 
