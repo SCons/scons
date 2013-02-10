@@ -1,46 +1,47 @@
-  A new SCons release, 2.1.0.alpha.yyyymmdd, is now available
+  A new SCons release, 2.3.0, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
   This release adds several new features and fixes many issues.
 
-  Here is a summary of the changes since 2.1:
+  Here is a summary of the changes since 2.2:
 
   NEW FUNCTIONALITY
 
-    - New gettext toolset for internationalization
-    - Support for Visual Studio 11 (both using it and generating solution files)
-    - Support for Intel C/C++ compiler v12 on Linux and Mac
-    - LaTeX support for multibib, biblatex and biber
+    - Versioned shared library support for Linux and Mac:
+      Add SHLIBVERSION as an option that tells SharedLibrary to build
+      a versioned shared library and create the required symlinks.
+      Add builder InstallVersionedLib to create the required symlinks
+      installing a versioned shared library.
 
   DEPRECATED FUNCTIONALITY
 
-    - None
+    - Removed a lot of Python 2.3 and older support code
+    - Hide deprecated --debug={dtree,stree,tree} from --help output
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - 32-bit Visual Express C++ on 64-bit Windows now generates 32-bit code instead of giving errors
+    - No changes
 
   FIXES
 
-    - Fixed FindSourceFiles to find final sources (leaf nodes).
-    - Make Windows not redefine builtin file as un-inheritable (#2857)
-    - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
-    - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
-    - Make -s (silent mode) be silent about entering subdirs (#2976).
-    - Fix cloning of builders when cloning environment (#2821).
-    - Fixed the Taskmaster, curing spurious build failures in
-      multi-threaded runs (#2720).
-    - Fixed scons-doc.py to properly convert main XML files (#2812).
-
+    - Fix subprocess spawning on Windows.  Work around a Windows
+      bug that can crash python occasionally when using -jN. (#2449)
+    - Fix nested LIBPATH expansion by flattening sequences in subst_path.
+    - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
+    - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
+    - Fix MSVS solution generation for VS11, and fixed tests.
 
   IMPROVEMENTS
 
-    - Improved documentation of command-line variables (#2809).
-    - Show valid Visual Studio architectures in error message
-       when user passes invalid arch.
-    - Allow Node objects in Java path (#2825)
+    - Error messages from option parser now include hints about valid choices
+    - Support building with WiX releases after 2.0
+    - Print target name with command execution time with --debug=time
+    - Updated the TeX builder to support the \newglossary command
+      in LaTeX's glossaries package and the files it creates.
+    - Improve support for new versions of biblatex in the TeX builder
+      so biber is called automatically if biblatex requires it.
 
   PACKAGING
 
@@ -48,11 +49,19 @@
 
   DEVELOPMENT
 
-    - No changes
+    - Updated test framework to support dir and file fixtures and
+      added ability to test external (out-of-tree) tools.
+      See doc in QMTest/test-framework.rst.
+    - Added ability to run scripts/scons.py directly from source checkout
+    - Several fixes for runtest.py
+    - Fixed several errors in the test suite.
+    - Add -jN support to runtest.py to run tests in parallel
+
 
 Thanks to:
   Dirk Baechle,
   Vincent Beffar,
+  Thomas Berg,
   Jean-François Colson,
   Bauke Conijn,
   Bill Deegan,
@@ -66,6 +75,7 @@ Thanks to:
   Steven Knight,
   Arve Knudsen,
   Jean-Baptiste Lab,
+  Juan Lang,
   Rob Managan,
   Mortoray,
   Gary Oberbrunner,
