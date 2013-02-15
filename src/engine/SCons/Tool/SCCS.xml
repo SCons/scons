@@ -1,0 +1,94 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="SCCS">
+<summary>
+Sets construction variables for interacting with the
+Source Code Control System.
+</summary>
+<sets>
+SCCS
+SCCSFLAGS
+SCCSGETFLAGS
+SCCSCOM
+</sets>
+<uses>
+SCCSCOMSTR
+</uses>
+</tool>
+
+<cvar name="SCCS">
+<summary>
+The SCCS executable.
+</summary>
+</cvar>
+
+<cvar name="SCCSCOM">
+<summary>
+The command line used to
+fetch source files from SCCS.
+</summary>
+</cvar>
+
+<cvar name="SCCSCOMSTR">
+<summary>
+The string displayed when fetching
+a source file from a CVS repository.
+If this is not set, then &cv-link-SCCSCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="SCCSFLAGS">
+<summary>
+General options that are passed to SCCS.
+</summary>
+</cvar>
+
+<cvar name="SCCSGETFLAGS">
+<summary>
+Options that are passed specifically to the SCCS "get" subcommand.
+This can be set, for example, to
+<option>-e</option>
+to check out editable files from SCCS.
+</summary>
+</cvar>
+
+<scons_function name="SCCS">
+<arguments signature="env">
+()
+</arguments>
+<summary>
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from SCCS.
+The returned Builder
+is intended to be passed to the
+&f-link-SourceCode;
+function.
+
+Example:
+
+<example>
+env.SourceCode('.', env.SCCS())
+</example>
+
+Note that
+&scons;
+will fetch source files
+from SCCS subdirectories automatically,
+so configuring SCCS
+as demonstrated in the above example
+should only be necessary if
+you are fetching from
+<filename>s.SCCS</filename>
+files in the same
+directory as the source files,
+or if you need to explicitly specify SCCS
+for a specific subdirectory.
+</summary>
+</scons_function>
