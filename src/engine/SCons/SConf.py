@@ -35,6 +35,7 @@ import os
 import re
 import sys
 import traceback
+import types
 
 import SCons.Action
 import SCons.Builder
@@ -776,11 +777,12 @@ class CheckContext(object):
         self.did_show_result = 0
 
     def Result(self, res):
-        """Inform about the result of the test. res may be an integer or a
-        string. In case of an integer, the written text will be 'yes' or 'no'.
-        The result is only displayed when self.did_show_result is not set.
+        """Inform about the result of the test. res may be an integer, a
+        string, or a boolean. In case of an integer, the written text will be
+        'yes' or 'no'. The result is only displayed when self.did_show_result
+        is not set.
         """
-        if isinstance(res, (int, bool)):
+        if isinstance(res, (int, bool, types.NoneType)):
             if res:
                 text = "yes"
             else:
