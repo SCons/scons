@@ -1,0 +1,18 @@
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+<tool name="g++">
+<summary>
+Set construction variables for the &gXX; C++ compiler.
+</summary>
+<sets>
+CXX
+SHCXXFLAGS
+<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
+SHOBJSUFFIX
+CXXVERSION
+</sets>
+</tool>
