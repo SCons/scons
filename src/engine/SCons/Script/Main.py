@@ -11,7 +11,7 @@ it goes here.
 """
 
 unsupported_python_version = (2, 3, 0)
-deprecated_python_version = (2, 4, 0)
+deprecated_python_version = (2, 7, 0)
 
 # __COPYRIGHT__
 #
