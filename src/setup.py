@@ -341,6 +341,7 @@ class install_scripts(_install_scripts):
                     # log.info("changing mode of %s", file)
                     pass
                 else:
+                    # Use symbolic versions of permissions so this script doesn't fail to parse under python3.x
                     exec_and_read_permission = stat.S_IXOTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IROTH | stat.S_IRUSR | stat.S_IRGRP
                     mode_mask = 4095 # Octal 07777 used because python3 has different octal syntax than python 2
                     mode = ((os.stat(file)[stat.ST_MODE]) | exec_and_read_permission) & mode_mask
