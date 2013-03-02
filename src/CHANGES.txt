@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE 2.3 -
+RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   From Anatoly Techtonik:
     - Added ability to run scripts/scons.py directly from source checkout

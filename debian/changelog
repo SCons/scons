@@ -1,3 +1,10 @@
+scons (2.3.0) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sat, 9 Feb 2013 21:00:00 -0500
+
+
 scons (2.2.0) unstable; urgency=low
 
   * Maintenance release.
@@ -112,7 +119,7 @@ scons (0.08-1) unstable; urgency=low
 scons (0.07-3) unstable; urgency=low
 
   * Removing /usr/doc links
-  * Python 2.1 -> Python 2.2 
+  * Python 2.1 -> Python 2.2
 
  -- Moshe Zadka <moshez@debian.org>  Tue, 27 Aug 2002 18:48:02 +0300
 
@@ -128,7 +135,7 @@ scons (0.07-1) unstable; urgency=low
 
   * New upstream version
   * Packaging properly, instead of as debian native
-  * Modifying copyright to include upstream location (Closes: #144491) 
+  * Modifying copyright to include upstream location (Closes: #144491)
   * Fixing my e-mail address (Closes: #144490)
     * Thanks for looking after my packages, tbm ;-)
 
@@ -136,7 +143,7 @@ scons (0.07-1) unstable; urgency=low
 
 scons (0.06-1) unstable; urgency=low
 
-  * New upstream version 
+  * New upstream version
 
  -- Moshe Zadka <moshez@debian.org>  Mon, 15 Apr 2002 19:22:09 +0300
 
