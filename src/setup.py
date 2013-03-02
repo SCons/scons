@@ -46,6 +46,14 @@ man_pages = [
     'scons-time.1',
 ]
 
+# Exit with error if trying to install with Python >= 3.0
+if sys.version_info >= (3,0,0):
+    msg = "scons: *** SCons does not run under Python version %s.\n\
+Python 3 and above are not yet supported.\n"
+    sys.stderr.write(msg % (sys.version.split()[0]))
+    sys.exit(1)
+
+
 # change to setup.py directory if it was executed from other dir
 (head, tail) = os.path.split(sys.argv[0])
 if head:
@@ -333,7 +341,10 @@ class install_scripts(_install_scripts):
                     # log.info("changing mode of %s", file)
                     pass
                 else:
-                    mode = ((os.stat(file)[stat.ST_MODE]) | 0555) & 07777
+                    # Use symbolic versions of permissions so this script doesn't fail to parse under python3.x
+                    exec_and_read_permission = stat.S_IXOTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IROTH | stat.S_IRUSR | stat.S_IRGRP
+                    mode_mask = 4095 # Octal 07777 used because python3 has different octal syntax than python 2
+                    mode = ((os.stat(file)[stat.ST_MODE]) | exec_and_read_permission) & mode_mask
                     # log.info("changing mode of %s to %o", file, mode)
                     os.chmod(file, mode)
         # --- /distutils copy/paste ---
@@ -414,7 +425,8 @@ arguments = {
 distutils.core.setup(**arguments)
 
 if Installed:
-    print '\n'.join(Installed)
+    for i in Installed:
+        print(i)
 
 # Local Variables:
 # tab-width:4
