@@ -203,7 +203,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             SCons.Taskmaster.OutOfDateTask.fail_stop(self)
             exit_status = status
             this_build_status = status
-            
+
     def executed(self):
         t = self.targets[0]
         if self.top and not t.has_builder() and not t.side_effect:
@@ -248,7 +248,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             except ValueError:
                 t, e = exc_info
                 tb = None
-                
+
         # Deprecated string exceptions will have their string stored
         # in the first entry of the tuple.
         if e is None:
@@ -266,9 +266,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         errfmt = "scons: *** [%s] %s\n"
         sys.stderr.write(errfmt % (nodename, buildError))
 
-        if (buildError.exc_info[2] and buildError.exc_info[1] and 
+        if (buildError.exc_info[2] and buildError.exc_info[1] and
            not isinstance(
-               buildError.exc_info[1], 
+               buildError.exc_info[1],
                (EnvironmentError, SCons.Errors.StopError,
                             SCons.Errors.UserError))):
             type, value, trace = buildError.exc_info
@@ -546,7 +546,7 @@ def find_deepest_user_frame(tb):
     Input is a "pre-processed" stack trace in the form
     returned by traceback.extract_tb() or traceback.extract_stack()
     """
-    
+
     tb.reverse()
 
     # find the deepest traceback frame that is not part
@@ -559,7 +559,7 @@ def find_deepest_user_frame(tb):
 
 def _scons_user_error(e):
     """Handle user errors. Print out a message and a description of the
-    error, along with the line number and routine where it occured. 
+    error, along with the line number and routine where it occured.
     The file and line number will be the deepest stack frame that is
     not part of SCons itself.
     """
@@ -677,7 +677,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     else:
         site_dir_name = "site_scons"
         err_if_not_found = False
-        
+
     site_dir = os.path.join(topdir, site_dir_name)
     if not os.path.exists(site_dir):
         if err_if_not_found:
@@ -934,7 +934,7 @@ def _main(parser):
         _load_site_scons_dir(d.path, options.site_dir)
     elif not options.no_site_dir:
         _load_all_site_scons_dirs(d.path)
-        
+
     if options.include_dir:
         sys.path = options.include_dir + sys.path
 
@@ -1009,10 +1009,11 @@ def _main(parser):
     # warning about deprecated Python versions--delayed until here
     # in case they disabled the warning in the SConscript files.
     if python_version_deprecated():
-        msg = "Support for pre-2.4 Python (%s) is deprecated.\n" + \
+        msg = "Support for pre-%s Python version (%s) is deprecated.\n" + \
               "    If this will cause hardship, contact dev@scons.tigris.org."
+        deprecated_version_string = ".".join(map(str, deprecated_python_version))
         SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning,
-                            msg % python_version_string())
+                            msg % (deprecated_version_string, python_version_string()))
 
     if not options.help:
         SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
@@ -1133,7 +1134,7 @@ def _build_targets(fs, options, targets, target_top):
                         # x doesn't have a cwd, so it's either not a target,
                         # or not a file, so go ahead and keep it as a default
                         # target and let the engine sort it out:
-                        return 1                
+                        return 1
                 d = list(filter(check_dir, SCons.Script.DEFAULT_TARGETS))
                 SCons.Script.DEFAULT_TARGETS[:] = d
                 target_top = None
@@ -1327,7 +1328,7 @@ def main():
     except (ImportError, AttributeError):
         # On Windows there is no scons.py, so there is no
         # __main__.__version__, hence there is no script version.
-        pass 
+        pass
     parts.append(version_string("engine", SCons))
     parts.append(path_string("engine", SCons))
     parts.append("__COPYRIGHT__")
@@ -1338,7 +1339,7 @@ def main():
     values = SConsOptions.SConsValues(parser.get_default_values())
 
     OptionsParser = parser
-    
+
     try:
         _exec_main(parser, values)
     except SystemExit, s:

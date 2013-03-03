@@ -28,6 +28,14 @@ RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   Please note the following important changes since release 2.2.0:
 
+    -- SUPPORT FOR PYTHON VERSIONS BEFORE 2.7 IS NOW DEPRECATED
+
+       ***IMPORTANT***: This release is the last version of SCons to support
+       Python versions older than 2.7.  This release will warn if you are
+       running on Python 2.6 or older; future releases will probably not
+       work at all, as we are moving toward supporting Python 3.
+       Use --warn=no-python-version to suppress the warning if needed.
+
     -- A lot of python pre-2.4 compatibility code was removed
        in this release.  2.4 is the official floor for SCons,
        but this release will likely enforce it more rigidly.
