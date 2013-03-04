@@ -34,12 +34,12 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '2.1.0.alpha.yyyymmdd'
+default_version = '2.3.0'
 
-copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012'
+copyright_years = '2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013'
 
 python_version_unsupported = (2, 3, 0)
-python_version_deprecated = (2, 4, 0)
+python_version_deprecated = (2, 7, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
@@ -119,7 +119,7 @@ def search_re(out, l):
     m = re.search(l, out)
     if m:
         return m.start()
-    
+
     return None
 
 def search_re_in_list(out, l):
@@ -131,7 +131,7 @@ def search_re_in_list(out, l):
         m = re.search(l, o)
         if m:
             return idx
-    
+
     return None
 
 #
@@ -256,7 +256,7 @@ class TestSCons(TestCommon):
         # control character output on FC8
         # TERM can cause test failures due to control chars in prompts etc.
         os.environ['TERM'] = 'dumb'
-        
+
         self.ignore_python_version = kw.get('ignore_python_version',1)
         if kw.get('ignore_python_version', -1) != -1:
             del kw['ignore_python_version']
@@ -312,7 +312,7 @@ class TestSCons(TestCommon):
             if norm and os.sep != '/':
                 result = result.replace(os.sep, '/')
             return result
-        
+
         return self.where_is(prog)
 
     def detect_tool(self, tool, prog=None, ENV=None):
@@ -656,12 +656,12 @@ class TestSCons(TestCommon):
                 self._java_env = {}
             except KeyError:
                 pass
-    
+
             import SCons.Environment
             env = SCons.Environment.Environment()
             self._java_env[version] = env
-    
-    
+
+
             if version:
                 patterns = [
                     '/usr/java/jdk%s*/bin'    % version,
@@ -676,12 +676,12 @@ class TestSCons(TestCommon):
                     '/usr/local/j2sdk*/bin',
                 ]
                 java_path = self.paths(patterns) + [env['ENV']['PATH']]
-    
+
             env['ENV']['PATH'] = os.pathsep.join(java_path)
             return env['ENV']
 
         return None
-        
+
     def java_where_includes(self,version=None):
         """
         Return java include paths compiling java jni code
@@ -959,13 +959,13 @@ SConscript( sconscript )
 
         libs = ['g2c']
         cmd = ['gcc','-v']
-    
+
         try:
             p = Popen(cmd, stdout=PIPE, stderr=PIPE)
             stdout, stderr = p.communicate()
         except:
             return libs
-    
+
         m = re.search('(gcc\s+version|gcc-Version)\s+(\d\.\d)', stderr)
         if m:
             gcc_version = m.group(2)
@@ -973,7 +973,7 @@ SConscript( sconscript )
                 libs = ['gfortranbegin']
             elif gcc_version in ('3.1', '4.0'):
                 libs = ['frtbegin'] + libs
-    
+
         return libs
 
     def skip_if_not_msvc(self, check_platform=True):
@@ -990,7 +990,7 @@ SConscript( sconscript )
                 msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
                 self.skip_test(msg)
                 return
-        
+
         try:
             import SCons.Tool.MSCommon as msc
             if not msc.msvc_exists():
@@ -1058,7 +1058,7 @@ SConscript( sconscript )
                         if flag == self.CR:
                             # up to date
                             log=log + \
-                                 re.escape("scons: Configure: \"%s\" is up to date." 
+                                 re.escape("scons: Configure: \"%s\" is up to date."
                                            % file) + ls
                             log=log+re.escape("scons: Configure: The original builder "
                                               "output was:") + ls
@@ -1086,7 +1086,7 @@ SConscript( sconscript )
             if doCheckLog: lastEnd = matchPart(ls, logfile, lastEnd)
             if doCheckLog and lastEnd != len(logfile):
                 raise NoMatch(lastEnd)
-            
+
         except NoMatch, m:
             print "Cannot match log file against log regexp."
             print "log file: "
@@ -1474,7 +1474,7 @@ class TimeSCons(TestSCons):
                 source = os.path.join(root, filename)
                 destination = source.replace(source_dir, dest_dir)
                 shutil.copy2(source, destination)
-    
+
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One
