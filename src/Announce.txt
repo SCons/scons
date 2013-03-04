@@ -19,7 +19,7 @@ effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
 
-RELEASE 2.3.0 - FEB XXX 2013
+RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
@@ -27,6 +27,14 @@ RELEASE 2.3.0 - FEB XXX 2013
   changes.
 
   Please note the following important changes since release 2.2.0:
+
+    -- SUPPORT FOR PYTHON VERSIONS BEFORE 2.7 IS NOW DEPRECATED
+
+       ***IMPORTANT***: This release is the last version of SCons to support
+       Python versions older than 2.7.  This release will warn if you are
+       running on Python 2.6 or older; future releases will probably not
+       work at all, as we are moving toward supporting Python 3.
+       Use --warn=no-python-version to suppress the warning if needed.
 
     -- A lot of python pre-2.4 compatibility code was removed
        in this release.  2.4 is the official floor for SCons,
