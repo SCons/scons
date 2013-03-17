@@ -69,13 +69,13 @@ def CheckCustom(test):
     resOK = resOK and retActOK and int(outputActOK)==0
     resFAIL = retCompileFAIL or retLinkFAIL or retRunFAIL or outputRunFAIL!=""
     resFAIL = resFAIL or retActFAIL or outputActFAIL!=""
-    test.Result( int(resOK and not resFAIL) )
+    test.Result( resOK and not resFAIL )
     return resOK and not resFAIL
 
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
-conf = Configure( env, custom_tests={'CheckCustom' : CheckCustom} )
+conf = Configure( env, custom_tests={'CheckCustom'    : CheckCustom} )
 conf.CheckCustom()
 env = conf.Finish()
 """ % locals())
@@ -83,7 +83,7 @@ env = conf.Finish()
 test.run()
 
 test.checkLogAndStdout(["Executing MyTest ... "],
-                      ["yes"],
+                       ["yes"],
                       [[(('.c', NCR), (_obj, NCR)),
                         (('.c', NCR), (_obj, NCF)),
                         (('.c', NCR), (_obj, NCR), (_exe, NCR)),
@@ -96,6 +96,7 @@ test.checkLogAndStdout(["Executing MyTest ... "],
 
 test.run()
 
+# Try again to check caching
 test.checkLogAndStdout(["Executing MyTest ... "],
                       ["yes"],
                       [[(('.c', CR), (_obj, CR)),
@@ -107,6 +108,89 @@ test.checkLogAndStdout(["Executing MyTest ... "],
                         (('', CR),),
                         (('', CF),)]],
                        "config.log", ".sconf_temp", "SConstruct")
+
+# Test other customs:
+test.write('SConstruct', """\
+def CheckList(test):
+    test.Message( 'Display of list ...' )
+    res = [1, 2, 3, 4]
+    test.Result( res )
+    return res
+
+def CheckEmptyList(test):
+    test.Message( 'Display of empty list ...' )
+    res = list()
+    test.Result( res )
+    return res
+
+def CheckRandomStr(test):
+    test.Message( 'Display of random string ...' )
+    res = "a random string"
+    test.Result( res )
+    return res
+
+def CheckEmptyStr(test):
+    test.Message( 'Display of empty string ...' )
+    res = ""
+    test.Result( res )
+    return res
+
+def CheckDict(test):
+    test.Message( 'Display of dictionary ...' )
+    res = {"key1" : 1, "key2" : "text"}
+    test.Result( res )
+    return res
+
+def CheckEmptyDict(test):
+    test.Message( 'Display of empty dictionary ...' )
+    res = dict
+    test.Result( res )
+    return res
+
+env = Environment()
+import os
+env.AppendENVPath('PATH', os.environ['PATH'])
+conf = Configure( env, custom_tests={'CheckList'      : CheckList,
+                                     'CheckEmptyList' : CheckEmptyList,
+                                     'CheckRandomStr' : CheckRandomStr,
+                                     'CheckEmptyStr'  : CheckEmptyStr,
+                                     'CheckDict'      : CheckDict,
+                                     'CheckEmptyDict' : CheckEmptyDict} )
+conf.CheckList()
+conf.CheckEmptyList()
+conf.CheckRandomStr()
+conf.CheckEmptyStr()
+conf.CheckDict()
+conf.CheckEmptyDict()
+env = conf.Finish()
+""" % locals())
+
+test.run()
+
+test.must_match('config.log',
+""".*
+.*
+scons: Configure: Display of list ...
+scons: Configure: \(cached\) yes
+
+scons: Configure: Display of empty list ...
+scons: Configure: \(cached\) no
+
+scons: Configure: Display of random string ...
+scons: Configure: \(cached\) a random string
+
+scons: Configure: Display of empty string ...
+scons: Configure: \(cached\).
+
+scons: Configure: Display of dictionary ...
+scons: Configure: \(cached\) yes
+
+scons: Configure: Display of empty dictionary ...
+scons: Configure: \(cached\) yes
+
+
+""",
+match=TestSCons.match_re)
 
 test.pass_test()
 
