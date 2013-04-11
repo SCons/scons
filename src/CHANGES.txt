@@ -4,6 +4,17 @@
 
                             Change Log
 
+RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
+  From William Deegan:
+    - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
+      in shell used to run batch files.
+    - MSVC Support fixed defaulting TARGET_ARCH to HOST_ARCH. It should be 
+      None if not explicitly set.
+    - MSVC Fixed issue where if more than one Architectures compilers are
+      detected, it would take the last one found, and not the first. 
+
+
 RELEASE 2.X.X - 
 
   From Anatoly Techtonik:
