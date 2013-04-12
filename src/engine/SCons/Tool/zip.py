@@ -57,9 +57,9 @@ if internal_zip:
                     for fname in filenames:
                         path = os.path.join(dirpath, fname)
                         if os.path.isfile(path):
-                            zf.write(path)
+                            zf.write(path, os.path.relpath(path, env.get('ZIPROOT', '')))
             else:
-                zf.write(str(s))
+                zf.write(str(s), os.path.relpath(str(s), env.get('ZIPROOT', '')))
         zf.close()
 else:
     zipcompression = 0
@@ -88,6 +88,7 @@ def generate(env):
     env['ZIPCOM']     = zipAction
     env['ZIPCOMPRESSION'] =  zipcompression
     env['ZIPSUFFIX']  = '.zip'
+    env['ZIPROOT']    = SCons.Util.CLVar('')
 
 def exists(env):
     return internal_zip or env.Detect('zip')
