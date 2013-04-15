@@ -107,3 +107,9 @@ General options passed to the zip utility.
 The suffix used for zip file names.
 </summary>
 </cvar>
+
+<cvar name="ZIPROOT">
+<summary>
+An optional zip root directory (default empty).
+</summary>
+</cvar>
