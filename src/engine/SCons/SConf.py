@@ -776,19 +776,16 @@ class CheckContext(object):
         self.did_show_result = 0
 
     def Result(self, res):
-        """Inform about the result of the test. res may be an integer or a
-        string. In case of an integer, the written text will be 'yes' or 'no'.
+        """Inform about the result of the test. If res is not a string, displays
+        'yes' or 'no' depending on whether res is evaluated as true or false.
         The result is only displayed when self.did_show_result is not set.
         """
-        if isinstance(res, (int, bool)):
-            if res:
-                text = "yes"
-            else:
-                text = "no"
-        elif isinstance(res, str):
+        if isinstance(res, str):
             text = res
+        elif res:
+            text = "yes"
         else:
-            raise TypeError("Expected string, int or bool, got " + str(type(res)))
+            text = "no"
 
         if self.did_show_result == 0:
             # Didn't show result yet, do it now.
