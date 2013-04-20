@@ -6,8 +6,11 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
-  From XXX:
-    - first change here
+  From Gary Oberbrunner:
+    - Test harness: fail_test() can now print a message to help debugging.
+
+  From Philipp Kraus:
+    - Added optional ZIPROOT to Zip tool.
 
 RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
