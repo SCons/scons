@@ -120,6 +120,13 @@ def normalize_env(env, keys, force=False):
             if k in os.environ and (force or not k in normenv):
                 normenv[k] = os.environ[k].encode('mbcs')
 
+    sys32_dir = os.path.join(os.environ.get("SystemRoot", os.environ.get("windir",r"C:\Windows\system32")),"System32")
+    
+    if sys32_dir not in normenv['PATH']:
+        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_dir
+        
+    debug("PATH: %s"%normenv['PATH'])
+        
     return normenv
 
 def get_output(vcbat, args = None, env = None):
@@ -136,8 +143,9 @@ def get_output(vcbat, args = None, env = None):
     # settings in vs.py.
     vars = [
         'COMSPEC',
-        'VS110COMNTOOLS',
-        'VS100COMNTOOLS',
+# Still set, but setup script will discard these if registry has values.
+#         'VS110COMNTOOLS',
+#         'VS100COMNTOOLS',
         'VS90COMNTOOLS',
         'VS80COMNTOOLS',
         'VS71COMNTOOLS',
@@ -166,6 +174,11 @@ def get_output(vcbat, args = None, env = None):
     # and won't work under Pythons not built with threading.
     stdout = popen.stdout.read()
     stderr = popen.stderr.read()
+    
+    # Extra debug logic, uncomment if necessar
+#     debug('get_output():stdout:%s'%stdout)
+#     debug('get_output():stderr:%s'%stderr)
+    
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
