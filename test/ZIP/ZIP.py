@@ -36,37 +36,31 @@ test = TestSCons.TestSCons()
 try:
     import zipfile
 except ImportError:
-    zip = test.where_is('zip')
-    if not zip:
-        x = "Python version has no 'ziplib' module nor 'zip' utility; skipping tests.\n"
-        test.skip_test(x)
+    x = "Python version has no 'ziplib' module; skipping tests.\n"
+    test.skip_test(x)
+
+def zipfile_contains(zipfilename, names):
+    """Returns True if zipfilename contains all the names, False otherwise."""
+    zf=zipfile.ZipFile(zipfilename, 'r')
+    if type(names)==type(''):
+        names=[names]
+    for name in names:
+        try:
+            info=zf.getinfo(name)
+        except KeyError, e:     # name not found
+            zf.close()
+            return False
+    return True
+
+def zipfile_files(fname):
+    """Returns all the filenames in zip file fname."""
+    zf = zipfile.ZipFile(fname, 'r')
+    return [x.filename for x in zf.infolist()]
 
 test.subdir('sub1')
 
-test.write('myzip.py', r"""\
-import os
-import os.path
-import sys
-def process(outfile, name):
-    if os.path.isdir(name):
-        ## TODO 2.4: the next three lines can be replaced by
-        #for entry in sorted(os.listdir(name)):
-        list = os.listdir(name)
-        list.sort()
-        for entry in list:
-            process(outfile, os.path.join(name, entry))
-    else:
-        outfile.write(open(name, 'rb').read())
-outfile = open(sys.argv[1], 'wb')
-for infile in sys.argv[2:]:
-    process(outfile, infile)
-outfile.close()
-sys.exit(0)
-""")
-
 test.write('SConstruct', """
-env = Environment(tools = ['zip'],
-                  ZIPCOM = r'%(_python_)s myzip.py $TARGET $SOURCES')
+env = Environment(tools = ['zip'])
 env.Zip(target = 'aaa.zip', source = ['file1', 'file2'])
 env.Zip(target = 'aaa.zip', source = 'file3')
 env.Zip(target = 'bbb', source = 'sub1')
@@ -83,38 +77,19 @@ test.write(['sub1', 'file6'], "sub1/file6\n")
 
 test.run(arguments = 'aaa.zip', stderr = None)
 
-test.fail_test(test.read('aaa.zip') != "file1\nfile2\nfile3\n")
+test.must_exist('aaa.zip')
+test.fail_test(not zipfile_contains('aaa.zip', ['file1', 'file2', 'file3']))
 
 test.run(arguments = 'bbb.zip', stderr = None)
 
-test.fail_test(test.read('bbb.zip') != "sub1/file5\nsub1/file6\nfile4\n")
+test.must_exist('bbb.zip')
+test.fail_test(not zipfile_contains('bbb.zip', ['sub1/file5', 'sub1/file6', 'file4']))
 
-try:
-    import zipfile
-    internal_zip = 1
-    zip = 1
+######
 
-    def files(fname):
-        zf = zipfile.ZipFile(fname, 'r')
-        return [x.filename for x in zf.infolist()]
+marker_out = test.workpath('marker.out').replace('\\', '\\\\')
 
-except ImportError:
-    internal_zip = 0
-    zip = test.detect('ZIP', 'zip')
-    unzip = test.where_is('unzip')
-
-    def files(fname, test=test, unzip=unzip):
-        test.run(program = unzip, arguments = "-l -qq %s" % fname)
-        lines = test.stdout().split("\n")[:-1]
-        def lastword(line):
-            return line.split()[-1]
-        return list(map(lastword, lines))
-
-if zip:
-
-    marker_out = test.workpath('marker.out').replace('\\', '\\\\')
-
-    test.write('SConstruct', """\
+test.write('SConstruct', """\
 def marker(target, source, env):
     open(r'%s', 'wb').write("marker\\n")
 f1 = Environment()
@@ -129,53 +104,50 @@ f2.Zip(target = 'f2.zip', source = ['file13', 'file14'])
 f2.Zip(target = 'f2.zip', source = 'file15')
 f3.Zip(target = 'f3', source = 'file16')
 f3.Zip(target = 'f3', source = ['file17', 'file18'])
-try:
-    import zipfile
-    sources = ['file10', 'file11', 'file12', 'file13', 'file14', 'file15']
-    f1.Zip(target = 'f4.zip', source = sources)
-    f1.Zip(target = 'f4stored.zip', source = sources,
-           ZIPCOMPRESSION = zipfile.ZIP_STORED)
-    f1.Zip(target = 'f4deflated.zip', source = sources,
-           ZIPCOMPRESSION = zipfile.ZIP_DEFLATED)
-except ImportError:
-    pass
+
+import zipfile
+sources = ['file10', 'file11', 'file12', 'file13', 'file14', 'file15']
+f1.Zip(target = 'f4.zip', source = sources)
+f1.Zip(target = 'f4stored.zip', source = sources,
+       ZIPCOMPRESSION = zipfile.ZIP_STORED)
+f1.Zip(target = 'f4deflated.zip', source = sources,
+       ZIPCOMPRESSION = zipfile.ZIP_DEFLATED)
 """ % marker_out)
 
-    for f in ['file10', 'file11', 'file12',
-              'file13', 'file14', 'file15',
-              'file16', 'file17', 'file18']:
-        test.write(f, f + "\n")
+for f in ['file10', 'file11', 'file12',
+          'file13', 'file14', 'file15',
+          'file16', 'file17', 'file18']:
+    test.write(f, f + "\n")
 
-    test.run(arguments = 'f1.zip', stderr = None)
+test.run(arguments = 'f1.zip', stderr = None)
 
-    test.fail_test(os.path.exists(test.workpath('marker.out')))
+test.fail_test(os.path.exists(test.workpath('marker.out')))
 
-    test.fail_test(not os.path.exists(test.workpath('f1.zip')))
+test.fail_test(not os.path.exists(test.workpath('f1.zip')))
 
-    test.run(arguments = 'f2.zip', stderr = None)
+test.run(arguments = 'f2.zip', stderr = None)
 
-    test.fail_test(test.read('marker.out') != 'marker\n')
+test.fail_test(test.read('marker.out') != 'marker\n')
 
-    test.fail_test(not os.path.exists(test.workpath('f2.zip')))
+test.fail_test(not os.path.exists(test.workpath('f2.zip')))
 
-    test.run(arguments = '.', stderr = None)
+test.run(arguments = '.', stderr = None)
 
-    test.fail_test(os.path.exists(test.workpath('f3.zip')))
-    test.fail_test(not os.path.exists(test.workpath('f3.xyzzy')))
+test.fail_test(os.path.exists(test.workpath('f3.zip')))
+test.fail_test(not os.path.exists(test.workpath('f3.xyzzy')))
 
-    test.fail_test(files("f1.zip") != ['file10', 'file11', 'file12'])
+test.fail_test(zipfile_files("f1.zip") != ['file10', 'file11', 'file12'])
 
-    test.fail_test(files("f2.zip") != ['file13', 'file14', 'file15'])
+test.fail_test(zipfile_files("f2.zip") != ['file13', 'file14', 'file15'])
 
-    test.fail_test(files("f3.xyzzy") != ['file16', 'file17', 'file18'])
+test.fail_test(zipfile_files("f3.xyzzy") != ['file16', 'file17', 'file18'])
 
-    if internal_zip:
-        f4_size = os.stat('f4.zip')[stat.ST_SIZE]
-        f4stored_size = os.stat('f4stored.zip')[stat.ST_SIZE]
-        f4deflated_size = os.stat('f4deflated.zip')[stat.ST_SIZE]
+f4_size = os.stat('f4.zip')[stat.ST_SIZE]
+f4stored_size = os.stat('f4stored.zip')[stat.ST_SIZE]
+f4deflated_size = os.stat('f4deflated.zip')[stat.ST_SIZE]
 
-        test.fail_test(f4_size != f4deflated_size)
-        test.fail_test(f4stored_size == f4deflated_size)
+test.fail_test(f4_size != f4deflated_size)
+test.fail_test(f4stored_size == f4deflated_size)
 
 test.pass_test()
 

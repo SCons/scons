@@ -57,9 +57,9 @@ if internal_zip:
                     for fname in filenames:
                         path = os.path.join(dirpath, fname)
                         if os.path.isfile(path):
-                            zf.write(path, os.path.relpath(path, env.get('ZIPROOT', '')))
+                            zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))))
             else:
-                zf.write(str(s), os.path.relpath(str(s), env.get('ZIPROOT', '')))
+                zf.write(str(s), os.path.relpath(str(s), str(env.get('ZIPROOT', ''))))
         zf.close()
 else:
     zipcompression = 0
