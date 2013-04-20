@@ -55,12 +55,12 @@ _is_win64 = None
 
 def is_win64():
     """Return true if running on windows 64 bits.
-    
+
     Works whether python itself runs in 64 bits or 32 bits."""
     # Unfortunately, python does not provide a useful way to determine
     # if the underlying Windows OS is 32-bit or 64-bit.  Worse, whether
     # the Python itself is 32-bit or 64-bit affects what it returns,
-    # so nothing in sys.* or os.* help.  
+    # so nothing in sys.* or os.* help.
 
     # Apparently the best solution is to use env vars that Windows
     # sets.  If PROCESSOR_ARCHITECTURE is not x86, then the python
@@ -120,18 +120,21 @@ def normalize_env(env, keys, force=False):
             if k in os.environ and (force or not k in normenv):
                 normenv[k] = os.environ[k].encode('mbcs')
 
+    # This shouldn't be necessary, since the default environment should include system32,
+    # but keep this here to be safe, since it's needed to find reg.exe which the MSVC
+    # bat scripts use.
     sys32_dir = os.path.join(os.environ.get("SystemRoot", os.environ.get("windir",r"C:\Windows\system32")),"System32")
-    
+
     if sys32_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_dir
-        
+
     debug("PATH: %s"%normenv['PATH'])
-        
+
     return normenv
 
 def get_output(vcbat, args = None, env = None):
     """Parse the output of given bat file, with given args."""
-    
+
     if env is None:
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
@@ -174,11 +177,11 @@ def get_output(vcbat, args = None, env = None):
     # and won't work under Pythons not built with threading.
     stdout = popen.stdout.read()
     stderr = popen.stderr.read()
-    
+
     # Extra debug logic, uncomment if necessar
 #     debug('get_output():stdout:%s'%stdout)
 #     debug('get_output():stderr:%s'%stderr)
-    
+
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
@@ -209,7 +212,7 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 p = p.encode('mbcs')
                 # XXX: For some reason, VC98 .bat file adds "" around the PATH
                 # values, and it screws up the environment later, so we strip
-                # it. 
+                # it.
                 p = p.strip('"')
                 dkeep[key].append(p)
 
