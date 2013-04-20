@@ -94,6 +94,7 @@ There are a bunch of methods that let you do different things:
     test.fail_test(condition)
     test.fail_test(condition, function)
     test.fail_test(condition, function, skip)
+    test.fail_test(condition, function, skip, message)
 
     test.no_result()
     test.no_result(condition)
@@ -168,6 +169,7 @@ or incorrect permissions).
     TestCmd.fail_test(condition)
     TestCmd.fail_test(condition, function)
     TestCmd.fail_test(condition, function, skip)
+    TestCmd.fail_test(condition, function, skip, message)
 
     TestCmd.no_result()
     TestCmd.no_result(condition)
@@ -380,7 +382,7 @@ def _caller(tblist, skip):
         atfrom = "\tfrom"
     return string
 
-def fail_test(self = None, condition = 1, function = None, skip = 0):
+def fail_test(self = None, condition = 1, function = None, skip = 0, message=None):
     """Cause the test to fail.
 
     By default, the fail_test() method reports that the test FAILED
@@ -403,7 +405,11 @@ def fail_test(self = None, condition = 1, function = None, skip = 0):
             sep = "\n\t"
 
     at = _caller(traceback.extract_stack(), skip)
-    sys.stderr.write("FAILED test" + of + desc + sep + at)
+    if message:
+        msg = "\t%s\n"%message
+    else:
+        msg = ""
+    sys.stderr.write("FAILED test" + of + desc + sep + at + msg)
 
     sys.exit(1)
 
@@ -1041,7 +1047,7 @@ class TestCmd(object):
 
     unified_diff = staticmethod(difflib.unified_diff)
 
-    def fail_test(self, condition = 1, function = None, skip = 0):
+    def fail_test(self, condition = 1, function = None, skip = 0, message = None):
         """Cause the test to fail.
         """
         if not condition:
@@ -1050,7 +1056,8 @@ class TestCmd(object):
         fail_test(self = self,
                   condition = condition,
                   function = function,
-                  skip = skip)
+                  skip = skip,
+                  message = message)
 
     def interpreter_set(self, interpreter):
         """Set the program to be used to interpret the program
@@ -1201,8 +1208,8 @@ class TestCmd(object):
             head, tail = os.path.split(head)
         result.append(head or tail)
         result.reverse()
-        
-        return result        
+
+        return result
 
     def dir_fixture(self, srcdir, dstdir=None):
         """Copies the contents of the specified folder srcdir from
@@ -1220,7 +1227,7 @@ class TestCmd(object):
         if dstdir:
             dstdir = self.canonicalize(dstdir)
         else:
-            dstdir = '.'            
+            dstdir = '.'
 
         if dstdir != '.' and not os.path.exists(dstdir):
             dstlist = self.parse_path(dstdir)
@@ -1271,7 +1278,7 @@ class TestCmd(object):
                         dstlist = dstlist[1:]
                     for idx in range(len(dstlist)):
                         self.subdir(dstlist[:idx+1])
-                    
+
             dpath = os.path.join(self.workdir, dstfile)
         shutil.copy(spath, dpath)
 
@@ -1294,7 +1301,7 @@ class TestCmd(object):
         if universal_newlines is None:
             universal_newlines = self.universal_newlines
 
-        # On Windows, if we make stdin a pipe when we plan to send 
+        # On Windows, if we make stdin a pipe when we plan to send
         # no input, and the test program exits before
         # Popen calls msvcrt.open_osfhandle, that call will fail.
         # So don't use a pipe for stdin if we don't need one.
@@ -1357,7 +1364,7 @@ class TestCmd(object):
                 program = self.program
             if not interpreter:
                 interpreter = self.interpreter
-        
+
         if chdir:
             oldcwd = os.getcwd()
             if not os.path.isabs(chdir):
