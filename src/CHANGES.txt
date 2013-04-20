@@ -9,6 +9,14 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.
 
+  From William Deegan:
+    - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
+      in shell used to run batch files.
+    - MSVC Support fixed defaulting TARGET_ARCH to HOST_ARCH. It should be
+      None if not explicitly set.
+    - MSVC Fixed issue where if more than one Architectures compilers are
+      detected, it would take the last one found, and not the first.
+
   From Philipp Kraus:
     - Added optional ZIPROOT to Zip tool.
 

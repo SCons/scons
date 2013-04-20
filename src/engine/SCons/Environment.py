@@ -966,8 +966,8 @@ class Base(SubstitutionEnvironment):
         self._dict['HOST_ARCH']    = self._dict.get('HOST_ARCH',None)
         
         # Now set defaults for TARGET_{OS|ARCH}
-        self._dict['TARGET_OS']      = self._dict.get('HOST_OS',None)
-        self._dict['TARGET_ARCH']    = self._dict.get('HOST_ARCH',None)
+        self._dict['TARGET_OS']      = self._dict.get('TARGET_OS',None)
+        self._dict['TARGET_ARCH']    = self._dict.get('TARGET_ARCH',None)
         
 
         # Apply the passed-in and customizable variables to the
