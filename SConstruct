@@ -80,7 +80,7 @@ def whereis(file):
 dh_builddeb = whereis('dh_builddeb')
 fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
-rpmbuild = whereis('rpmbuild') or whereis('rpm')
+rpmbuild = whereis('rpmbuild')
 hg = os.path.exists('.hg') and whereis('hg')
 svn = os.path.exists('.svn') and whereis('svn')
 unzip = whereis('unzip')
