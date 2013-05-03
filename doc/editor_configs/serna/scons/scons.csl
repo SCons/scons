@@ -1,0 +1,199 @@
+<?xml version='1.0'?>
+<csl:stylesheet xmlns:csl="http://www.syntext.com/Extensions/CSL-1.0">
+    
+    <csl:profile icon="ContentMap_small" inscription="ContentMap"/>
+    <csl:profile name="toc" inscription="TOC"/>
+
+    <csl:define name="any.title.template">
+        <csl:template match="%elem" 
+            font-style="italic" font-weight="bold">
+            <csl:number level="multiple" 
+                        count="section|sect1|sect2|sect3|
+                               sect4|sect5|simplesect" 
+                        from="chapter|article|book|part"
+                        format="1."/>
+            <csl:number level="any" count="%elem" format="1. "/>
+        </csl:template>
+    </csl:define>
+    
+    <csl:use ref="any.title.template" elem="figure"/>
+    <csl:use ref="any.title.template" elem="table"/>
+    <csl:use ref="any.title.template" elem="equation"/>
+    <csl:use ref="any.title.template" elem="example"/>
+
+    <csl:template match="synopfragment | paramdef">
+        <csl:number format="1"/>
+        <csl:when-closed>
+            <csl:number format="1"/>
+            <csl:text> </csl:text>
+            <csl:collect-text/>
+        </csl:when-closed>
+    </csl:template>
+
+    <!-- Ordered lists -->
+    <csl:define name="ordlist.template">
+        <csl:template match="orderedlist/listitem[
+                (count(ancestor-or-self::orderedlist) mod 5) = %depth]">
+            <csl:number level="single" count="listitem" format="%fmt"/> 
+            <csl:when-closed>
+                <csl:number level="single" count="listitem" format="%fmt"/> 
+                <csl:text> </csl:text>
+                <csl:collect-text/>
+            </csl:when-closed>
+        </csl:template>
+    </csl:define>
+    <csl:use ref="ordlist.template" depth="0" fmt="I."/>
+    <csl:use ref="ordlist.template" depth="1" fmt="1."/>
+    <csl:use ref="ordlist.template" depth="2" fmt="a."/>
+    <csl:use ref="ordlist.template" depth="3" fmt="i."/>
+    <csl:use ref="ordlist.template" depth="4" fmt="A."/>
+
+    <!-- Steps -->
+    <csl:template match="step[count(../step) = 1]">
+        <csl:text>&#x2022;</csl:text>
+    </csl:template>
+    
+    <csl:define name="step.template">
+        <csl:template 
+            match="step[(count(ancestor-or-self::step) mod 5) = %depth]">
+            <csl:number count="step" format="%fmt"/> 
+            <csl:when-closed>
+                <csl:number count="step" format="%fmt"/> 
+                <csl:text> </csl:text>
+                <csl:collect-text/>
+            </csl:when-closed>
+        </csl:template>
+    </csl:define>
+    <csl:use ref="step.template" depth="0" fmt="I."/>
+    <csl:use ref="step.template" depth="1" fmt="1."/>
+    <csl:use ref="step.template" depth="2" fmt="a."/>
+    <csl:use ref="step.template" depth="3" fmt="i."/>
+    <csl:use ref="step.template" depth="4" fmt="A."/>
+
+    <!-- Appendix Titles -->
+    <csl:template match="appendix//chapter | appendix//section | 
+                         appendix//sect1 | appendix//sect2 | 
+                         appendix//sect3 | appendix//sect4 | 
+                         appendix//sect5 | appendix//simplesect" 
+                  font-style="italic" font-weight="bold">
+        <csl:number level="multiple" 
+                    count="chapter|section|sect1|sect2|sect3|
+                           sect4|sect5|simplesect" 
+                    format="A."/>
+        <csl:when-closed>
+            <csl:number level="multiple" 
+                        count="chapter|section|sect1|sect2|sect3|
+                               sect4|sect5|simplesect" 
+                        format="A."/>
+            <csl:text> </csl:text>
+            <csl:collect-text select="title"/>
+        </csl:when-closed>
+    </csl:template>
+
+    <csl:template profiles="toc" 
+                  match="appendix//chapter | appendix//section | 
+                         appendix//sect1 | appendix//sect2 | 
+                         appendix//sect3 | appendix//sect4 | 
+                         appendix//sect5 | appendix//simplesect">
+        <csl:number level="multiple" 
+                    count="chapter|section|sect1|sect2|sect3|
+                           sect4|sect5|simplesect" 
+                    format="A."/>
+        <csl:text> </csl:text>
+        <csl:collect-text select="title|subtitle"/>
+    </csl:template>
+
+    <!-- Chapter, Section, etc numbering -->
+    <csl:template match="section | sect1 | sect2 | 
+                         sect3 | sect4 | sect5 | simplesect" 
+                  font-style="italic" font-weight="bold">
+        <csl:number level="multiple" 
+                    count="section|sect1|sect2|sect3|
+                           sect4|sect5|simplesect" 
+                    format="1."/>
+        <csl:when-closed>
+            <csl:number level="multiple" 
+                        count="section|sect1|sect2|sect3|
+                               sect4|sect5|simplesect" 
+                        format="1."/>
+            <csl:text> </csl:text>
+            <csl:collect-text select="title"/>
+        </csl:when-closed>
+    </csl:template>
+    
+    <csl:template match="chapter|preface"
+                  font-style="italic" font-weight="bold">
+        <csl:number level="any" 
+                    count="chapter|preface" format="1."/>
+        <csl:when-closed>
+            <csl:number level="any" 
+                        count="chapter|preface" format="1."/>
+            <csl:text> </csl:text>
+            <csl:collect-text select="title"/>
+        </csl:when-closed>
+    </csl:template>
+
+    <!-- Chapter, Section, etc titles -->
+    <csl:template match="chapter/title | section/title | sect1/title | 
+                         sect2/title | sect3/title | sect4/title | 
+                         sect5/title | simplesect/title" 
+                  font-style="italic" font-weight="bold">
+        <csl:collect-text/>
+    </csl:template>
+
+    <!-- Tables -->
+    <csl:template match="colspec" font-style="italic">
+        <csl:value-of select="concat(@colname, ' {', @colwidth, '}')"/>
+    </csl:template>
+
+    <!-- Defaults -->
+    <csl:template match="*" mixed-only="true">
+        <csl:collect-text/>
+    </csl:template>
+
+    <csl:template match="*">
+        <csl:when-closed>
+            <csl:collect-text/>
+        </csl:when-closed>
+    </csl:template>
+
+    <csl:template match="processing-instruction()|
+                         processing-instruction('se:choice')|comment()"/>
+
+    <!-- TOC Profile -->
+
+    <csl:template profiles="toc" match="figure|table|chapter|equation"
+                  font-style="italic">
+        <csl:number level="any" format="1. "/>
+        <csl:collect-text select="title"/>
+    </csl:template>
+
+    <csl:template profiles="toc" match="section | sect1 | sect2 | 
+                                        sect3 | sect4 | sect5 | simplesect">
+        <csl:number level="multiple" 
+                    count="section|sect1|sect2|sect3|
+                           sect4|sect5|simplesect" 
+                    format="1."/>
+        <csl:text> </csl:text>
+        <csl:collect-text select="title|subtitle"/>
+    </csl:template>
+
+
+    <csl:template profiles="toc"
+                  match="artheader|appendix|article|bookinfo|bibliography|
+                         bibliodiv|book|colophon|docinfo|dedication|equation|
+                         glossary|index|objectinfo|partintro|part|
+                         preface|procedure|reference|refentry|refsect1|
+                         refsect2|refsect3|refsect1info|refsect2info|
+                         refsect3info|set|setindex|setinfo|sect1info|sect2info|
+                         sect3info|sect4info|sect5info|qandaset">
+        <csl:collect-text select="title|subtitle"/>
+    </csl:template>
+
+    <csl:template match="/*" profiles="toc">
+        <csl:when-closed>
+            <csl:collect-text/>            
+        </csl:when-closed>
+    </csl:template>
+
+</csl:stylesheet>
