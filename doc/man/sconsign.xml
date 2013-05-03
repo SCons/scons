@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!-- lifted from troff+man by doclifter -->
+<refentry id='sconsign1'>
+<!--  __COPYRIGHT__ -->
+
+<!--  Permission is hereby granted, free of charge, to any person obtaining -->
+<!--  a copy of this software and associated documentation files (the -->
+<!--  "Software"), to deal in the Software without restriction, including -->
+<!--  without limitation the rights to use, copy, modify, merge, publish, -->
+<!--  distribute, sublicense, and/or sell copies of the Software, and to -->
+<!--  permit persons to whom the Software is furnished to do so, subject to -->
+<!--  the following conditions: -->
+
+<!--  The above copyright notice and this permission notice shall be included -->
+<!--  in all copies or substantial portions of the Software. -->
+
+<!--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY -->
+<!--  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE -->
+<!--  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND -->
+<!--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE -->
+<!--  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION -->
+<!--  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION -->
+<!--  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
+
+<!--  __FILE__ __REVISION__ __DATE__ __DEVELOPER__ -->
+
+<!--  ES \- Example Start \- indents and turns off line fill -->
+<!-- ES listing suppressed (not used) -->
+<!--  EE \- Example End \- ends indent and turns line fill back on -->
+<!-- EE listing suppressed (not used) -->
+<refmeta>
+<refentrytitle>SCONSIGN</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class='source'>__MONTH_YEAR__</refmiscinfo>
+</refmeta>
+<refnamediv id='name'>
+<refname>sconsign</refname>
+<refpurpose>print SCons .sconsign file information</refpurpose>
+</refnamediv>
+<!-- body begins here -->
+<refsynopsisdiv id='synopsis'>
+<cmdsynopsis>
+  <command>sconsign</command>    
+    <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
+    <arg choice='plain'><replaceable>file</replaceable></arg>
+    <arg choice='opt'><replaceable>...</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+
+<refsect1 id='description'><title>DESCRIPTION</title>
+<para>The 
+<command>sconsign</command>
+command
+displays the contents of one or more
+<markup>.sconsign</markup>
+files specified by the user.</para>
+
+<para>By default,
+<command>sconsign</command>
+dumps the entire contents of the
+specified file(s).
+Each entry is printed in the following format:</para>
+
+<para>    file: signature timestamp length
+            implicit_dependency_1: signature timestamp length
+            implicit_dependency_2: signature timestamp length
+            action_signature [action string]</para>
+
+<para><emphasis remap='B'>None</emphasis>
+is printed
+in place of any missing timestamp, bsig, or csig
+values for
+any entry
+or any of its dependencies.
+If the entry has no implicit dependencies,
+or no build action,
+the lines are simply omitted.</para>
+
+<para>By default,
+<command>sconsign</command>
+assumes that any
+<emphasis remap='I'>file</emphasis>
+arguments that end with a
+<markup>.dbm</markup>
+suffix contains
+signature entries for
+more than one directory
+(that is,
+was specified by the
+<emphasis remap='B'>SConsignFile ()</emphasis>
+function).
+Any
+<emphasis remap='I'>file</emphasis>
+argument that does not end in
+<markup>.dbm</markup>
+is assumed to be a traditional
+<markup>.sconsign</markup>
+file containing the signature entries
+for a single directory.
+An explicit format
+may be specified using the
+<option>-f</option>
+or
+<option>--file=</option>
+options.</para>
+
+</refsect1>
+
+<refsect1 id='options'><title>OPTIONS</title>
+<para>Various options control what information is printed
+and the format:</para>
+
+<variablelist remap='TP'>
+  <varlistentry>
+  <term>-a, --act, --action</term>
+  <listitem>
+<para>Prints the build action information
+for all entries or the specified entries.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-c, --csig</term>
+  <listitem>
+<para>Prints the content signature (csig) information
+for all entries or the specified entries.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-d DIRECTORY, --dir=DIRECTORY</term>
+  <listitem>
+<para>When the signatures are being
+read from a
+<markup>.dbm</markup>
+file, or the
+<option>-f dbm</option>
+or
+<option>--format=dbm</option>
+options are used,
+prints information about
+only the signatures
+for entries in the specified
+<emphasis remap='I'>DIRECTORY</emphasis>.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-e ENTRY, --entry=ENTRY</term>
+  <listitem>
+<para>Prints information about only the specified
+<emphasis remap='I'>ENTRY</emphasis>.
+Multiple -e options may be used,
+in which case information about each
+<emphasis remap='I'>ENTRY</emphasis>
+is printed in the order in which the
+options are specified on the command line.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-f FORMAT, --format=FORMAT</term>
+  <listitem>
+<para>The file(s) to be printed
+are in the specified
+<emphasis remap='I'>FORMAT</emphasis>.
+Legal values are
+<emphasis remap='B'>dbm</emphasis>
+(the DBM format used
+when the
+<emphasis remap='B'>SConsignFile</emphasis>()
+function is used)
+or
+<command>sconsign</command>
+(the default format
+used for an individual
+<markup>.sconsign</markup>
+file in each directory).</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-h, --help</term>
+  <listitem>
+<para>Prints a help message and exits.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-i, --implicit</term>
+  <listitem>
+<para>Prints the list of cached implicit dependencies
+for all entries or the the specified entries.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>--raw</term>
+  <listitem>
+<para>Prints a pretty-printed representation
+of the raw Python dictionary that holds
+build information about individual entry
+(both the entry itself or its implicit dependencies).
+An entry's build action is still printed in its usual format.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-r, --readable</term>
+  <listitem>
+<para>Prints timestamps in a human-readable string,
+enclosed in single quotes.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-t, --timestamp</term>
+  <listitem>
+<para>Prints the timestamp information
+for all entries or the specified entries.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>-v, --verbose</term>
+  <listitem>
+<para>Prints labels identifying each field being printed.</para>
+
+  </listitem>
+  </varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='environment'><title>ENVIRONMENT</title>
+<variablelist remap='IP'>
+  <varlistentry>
+  <term>SCONS_LIB_DIR</term>
+  <listitem>
+<para>Specifies the directory that contains the SCons Python module directory
+(e.g. /home/aroach/scons-src-0.01/src/engine).
+on the command line.</para>
+
+  </listitem>
+  </varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='see_also'><title>SEE ALSO</title>
+<para><emphasis remap='B'>scons</emphasis>,
+<emphasis remap='B'>scons</emphasis>
+User Manual,
+<emphasis remap='B'>scons</emphasis>
+Design Document,
+<emphasis remap='B'>scons</emphasis>
+source code.</para>
+
+</refsect1>
+
+<refsect1 id='authors'><title>AUTHORS</title>
+<para>Steven Knight &lt;knight at baldmt dot com&gt;</para>
+</refsect1>
+</refentry>
+
