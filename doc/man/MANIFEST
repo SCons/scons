@@ -1,2 +1,13 @@
 scons.xml
 sconsign.xml
+scons-time.xml
+html.xsl
+pdf.xsl
+scons_title.xsl
+scons.css
+SConstruct
+titlepage/bricks.jpg
+titlepage/mapnik_final_colors.svg
+titlepage/SCons_path.svg
+titlepage/SConsBuildBricks_path.svg
+

@@ -32,8 +32,7 @@ env = Environment(ENV={'PATH' : os.environ['PATH']},
 
 has_pdf = False
 if (env.WhereIs('fop') or 
-    env.WhereIs('xep') or
-    env.WhereIs('jw')):
+    env.WhereIs('xep')):
     has_pdf = True
 
 #

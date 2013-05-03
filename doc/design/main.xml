@@ -39,14 +39,14 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
   <bookinfo>
-    <title>SCons Design version &buildversion;</title>
-
+    <title>SCons &buildversion;</title>
+    <subtitle>Design</subtitle>
     <author>
       <firstname>Steven</firstname>
       <surname>Knight</surname>
     </author>
 
-    <edition>Revision &buildrevision; (&builddate;)</edition>
+    <corpauthor>Steven Knight</corpauthor>
 
     <pubdate>2001</pubdate>
 

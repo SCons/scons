@@ -168,6 +168,17 @@ if build_id is None:
 
 python_ver = sys.version[0:3]
 
+#
+# Adding some paths to sys.path, this is mainly needed
+# for the doc toolchain.
+#
+addpaths = [os.path.abspath(os.path.join(os.getcwd(), 'bin')),
+            os.path.abspath(os.path.join(os.getcwd(), 'QMTest'))]
+for a in addpaths:
+    if a not in sys.path:
+        sys.path.append(a)
+
+
 # Re-exporting LD_LIBRARY_PATH is necessary if the Python version was
 # built with the --enable-shared option.
 
@@ -375,6 +386,7 @@ def SCons_revision(target, source, env):
     open(t, 'wb').write(contents)
     os.chmod(t, os.stat(s)[0])
 
+revaction = SCons_revision
 revbuilder = Builder(action = Action(SCons_revision,
                                      varlist=['COPYRIGHT', 'VERSION']))
 
@@ -1179,7 +1191,7 @@ for file in files:
 #
 # Documentation.
 #
-Export('build_dir', 'env', 'whereis')
+Export('build_dir', 'env', 'whereis', 'revaction')
 
 SConscript('doc/SConscript')
 

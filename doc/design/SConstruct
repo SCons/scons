@@ -28,12 +28,14 @@ import os
 
 env = Environment(ENV={'PATH' : os.environ['PATH']},
                   tools=['docbook'], 
-                  toolpath=['../../src/engine/SCons/Tool'])
+                  toolpath=['../../src/engine/SCons/Tool'],
+                  DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
+                  DOCBOOK_DEFAULT_XSL_HTMLCHUNKED='chtml.xsl',
+                  DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
 
 has_pdf = False
 if (env.WhereIs('fop') or 
-    env.WhereIs('xep') or
-    env.WhereIs('jw')):
+    env.WhereIs('xep')):
     has_pdf = True
 
 #
@@ -42,6 +44,6 @@ if (env.WhereIs('fop') or
 env.DocbookXInclude('design_xi.xml', 'main.xml')
 env.DocbookXslt('design.xml', 'design_xi.xml', 
                 xsl='../xslt/to_docbook.xslt')
-env.DocbookHtml('design.html','design.xml')
+env.DocbookHtmlChunked('index.html','design.xml', base_dir='scons-design/')
 if has_pdf:
-    env.DocbookPdf('design.pdf','design.xml')
+    env.DocbookPdf('scons-design.pdf','design.xml')

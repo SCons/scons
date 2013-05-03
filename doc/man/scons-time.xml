@@ -824,7 +824,7 @@ with a hyphen
 (<emphasis role="bold">-</emphasis>).</para>
 
 <para>Example:</para>
-<literallayout>
+<literallayout class="monospaced">
 % scons-time run --svn=<ulink url='http://scons.tigris.org/svn/trunk'>http://scons.tigris.org/svn/trunk</ulink> --num=1247,1249-1252 .
 </literallayout> <!-- .fi -->
 <variablelist>
@@ -1216,7 +1216,7 @@ subset of the full build for the configuration.</para>
 configuration file
 for a hypothetical sample project:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 # The project doesn't use SCons natively (yet), so we're
 # timing a separate set of SConscript files that we lay
 # on top of the vanilla unpacked project tarball.

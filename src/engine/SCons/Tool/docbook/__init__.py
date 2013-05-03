@@ -163,7 +163,7 @@ xsltproc_com = {'xsltproc' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGE
                 'xalan' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -q -out $TARGET -xsl $DOCBOOK_XSL -in $SOURCE'}
 xmllint_com = {'xmllint' : '$DOCBOOK_XMLLINT $DOCBOOK_XMLLINTFLAGS --xinclude $SOURCE > $TARGET'}
 fop_com = {'fop' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -fo $SOURCE -pdf $TARGET',
-           'xep' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -o $TARGET $SOURCE',
+           'xep' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -valid -fo $SOURCE -pdf $TARGET',
            'jw' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -f docbook -b pdf $SOURCE -o $TARGET'}
 
 def __detect_cl_tool(env, chainkey, cdict):
@@ -292,15 +292,21 @@ def __build_lxml(target, source, env):
     
     xsl_style = env.subst('$DOCBOOK_XSL')
     xsl_tree = etree.parse(xsl_style)
+    transform = etree.XSLT(xsl_tree)
     doc = etree.parse(str(source[0]))
     # Support for additional parameters
     parampass = {}
     if parampass:
-        result = doc.xslt(xsl_tree, *parampass)
+        result = transform(doc, **parampass)
     else:
-        result = doc.xslt(xsl_tree)
+        result = transform(doc)
         
-    result.write(str(target[0]), pretty_print=True)
+    try:
+        of = open(str(target[0]), "w")
+        of.write(of.write(etree.tostring(result, pretty_print=True)))
+        of.close()
+    except:
+        pass
 
     return None
 
@@ -324,9 +330,8 @@ def __xinclude_lxml(target, source, env):
     doc = etree.parse(str(source[0]))
     doc.xinclude()
     try:
-        of = open(str(target[0]), 'w')
-        of.write(str(doc))
-        of.close()
+        doc.write(str(target[0]), xml_declaration=True, 
+                  encoding="UTF-8", pretty_print=True)
     except:
         pass
 

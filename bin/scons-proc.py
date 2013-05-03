@@ -267,29 +267,35 @@ class Function(SConsThing):
     prefix = 'f-'
     tag = 'function'
     
-    def xml_term(self):
+    def xml_terms(self):
         if self.arguments is None:
             a = stf.newNode("arguments")
             stf.setText(a, '()')
             arguments = [a]
         else:
-            arguments = self.arguments    
-        t = stf.newNode("term")
+            arguments = self.arguments
+        tlist = []
         for arg in arguments:
             signature = 'both'
             if stf.hasAttribute(arg, 'signature'):
                 signature = stf.getAttribute(arg, 'signature')
             s = stf.getText(arg).strip()
             if signature in ('both', 'global'):
-                syn = stf.newNode("synopsis")
+                t = stf.newNode("term")
+                syn = stf.newNode("literal")
                 stf.setText(syn, '%s%s' % (self.name, s))
                 stf.appendNode(t, syn)
+                tlist.append(t)
             if signature in ('both', 'env'):
-                syn = stf.newNode("synopsis")
+                t = stf.newNode("term")
+                syn = stf.newNode("literal")
                 stf.setText(syn, 'env.%s%s' % (self.name, s))
                 stf.appendNode(t, syn)
+                tlist.append(t)
 
-        return t
+        if not tlist:
+            tlist.append(stf.newNode("term"))
+        return tlist
     
     def entityfunc(self):
         return self.name

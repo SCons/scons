@@ -60,21 +60,17 @@
 
  </para>
 
-<!--
-Including this figure makes our PDF build blow up.
-The figure, however,
-is left over from the Software Carpentry contest
-and is therefore old, out-of-date, and needs to be redone anyway.
-This is where it will go, anyway...
--->
-
-   <!--
-   YARG!  THIS MAKES THE PDF BUILD BLOW UP.  HELP!
    <figure>
     <title>&SCons; Architecture</title>
-    <graphic fileref="engine.jpg">
+    <mediaobject>
+     <imageobject>
+      <imagedata fileref="engine.svg" align="center" scale="50"/>
+     </imageobject>
+     <imageobject>
+      <imagedata fileref="engine.jpg" align="center"/>
+     </imageobject>
+    </mediaobject>
    </figure>
-   -->
 
  <para>
 

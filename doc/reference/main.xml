@@ -40,15 +40,16 @@
 -->
       
   <bookinfo>
-    <title>SCons Reference Manual &buildversion;</title>
+    <title>SCons &buildversion;</title>
+    <subtitle>Reference Manual</subtitle>
 
     <author>
       <firstname>Steven</firstname>
       <surname>Knight</surname>
     </author>
 
-    <edition>Revision &buildrevision; (&builddate;)</edition>
-
+    <corpauthor>Steven Knight</corpauthor>
+  
     <pubdate>2003</pubdate>
 
     <copyright>

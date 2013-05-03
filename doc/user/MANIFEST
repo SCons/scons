@@ -50,3 +50,13 @@ SCons-win32-install-1.jpg
 SCons-win32-install-2.jpg
 SCons-win32-install-3.jpg
 SCons-win32-install-4.jpg
+chtml.xsl
+html.xsl
+pdf.xsl
+scons_title.xsl
+scons.css
+SConstruct
+titlepage/bricks.jpg
+titlepage/mapnik_final_colors.svg
+titlepage/SCons_path.svg
+titlepage/SConsBuildBricks_path.svg

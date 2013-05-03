@@ -25,19 +25,14 @@ PYTHON_PACKAGES = [
 ]
 
 BUILDING_PACKAGES = [
-    'docbook',
-    'docbook-dsssl',
-    'docbook-utils',
-    'docbook-xml',
-    'groff-base',
-    'jade',
-    'jadetex',
-    'man2html',
+    'python-libxml2',
+    'python-libxslt1',
+    'fop',
+    'python-dev',
     'python-epydoc',
     'rpm',
-    'sp',
     'tar',
-
+    
     # additional packages that Bill Deegan's web page suggests
     #'docbook-to-man',
     #'docbook-xsl',

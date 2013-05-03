@@ -28,12 +28,14 @@ import os
 
 env = Environment(ENV={'PATH' : os.environ['PATH']},
                   tools=['docbook'], 
-                  toolpath=['../../src/engine/SCons/Tool'])
+                  toolpath=['../../src/engine/SCons/Tool'],
+                  DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
+                  DOCBOOK_DEFAULT_XSL_HTMLCHUNKED='chtml.xsl',
+                  DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
 
 has_pdf = False
 if (env.WhereIs('fop') or 
-    env.WhereIs('xep') or
-    env.WhereIs('jw')):
+    env.WhereIs('xep')):
     has_pdf = True
 
 #
@@ -42,6 +44,7 @@ if (env.WhereIs('fop') or
 env.DocbookXInclude('reference_xi.xml', 'main.xml')
 env.DocbookXslt('reference.xml', 'reference_xi.xml', 
                 xsl='../xslt/to_docbook.xslt')
-env.DocbookHtml('reference.html','reference.xml')
+env.DocbookHtml('index.html','reference.xml')
+env.DocbookHtmlChunked('index.html', 'reference.xml', base_dir='scons-reference/')
 if has_pdf:
-    env.DocbookPdf('reference.pdf','reference.xml')
+    env.DocbookPdf('scons-reference.pdf','reference.xml')
