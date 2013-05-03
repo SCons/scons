@@ -30,12 +30,17 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex1">
+     <file name="SConstruct" printme="1">
      env = Environment()
      hello = env.Program('hello.c')
-     env.Install('/usr/bin', hello)
-     env.Alias('install', '/usr/bin')
-  </programlisting>
+     env.Install('__ROOT__/usr/bin', hello)
+     env.Alias('install', '__ROOT__/usr/bin')
+     </file>
+     <file name="hello.c">
+     int main() { printf("Hello, world!\n"); }
+     </file>
+  </scons_example>
 
   <para>
 
@@ -44,12 +49,9 @@
 
   </para>
 
-  <screen>
-     % <userinput>scons -Q install</userinput>
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-     Install file: "hello" as "/usr/bin/hello"
-  </screen>
+  <scons_output example="ex1" os="posix">
+     <scons_output_command>scons -Q install</scons_output_command>
+  </scons_output>
 
   <para>
 
@@ -64,16 +66,24 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex2">
+     <file name="SConstruct" printme="1">
      env = Environment()
      p = env.Program('foo.c')
      l = env.Library('bar.c')
-     env.Install('/usr/bin', p)
-     env.Install('/usr/lib', l)
-     ib = env.Alias('install-bin', '/usr/bin')
-     il = env.Alias('install-lib', '/usr/lib')
+     env.Install('__ROOT__/usr/bin', p)
+     env.Install('__ROOT__/usr/lib', l)
+     ib = env.Alias('install-bin', '__ROOT__/usr/bin')
+     il = env.Alias('install-lib', '__ROOT__/usr/lib')
      env.Alias('install', [ib, il])
-  </programlisting>
+     </file>
+     <file name="foo.c">
+     int main() { printf("foo.c\n"); }
+     </file>
+     <file name="bar.c">
+     void bar() { printf("bar.c\n"); }
+     </file>
+  </scons_example>
 
   <para>
 
@@ -84,29 +94,9 @@
 
   </para>
 
-  <screen>
-     % <userinput>scons -Q install-bin</userinput>
-     cc -o foo.o -c foo.c
-     cc -o foo foo.o
-     Install file: "foo" as "/usr/bin/foo"
-     % <userinput>scons -Q install-lib</userinput>
-     cc -o bar.o -c bar.c
-     ar rc libbar.a bar.o
-     ranlib libbar.a
-     Install file: "libbar.a" as "/usr/lib/libbar.a"
-     % <userinput>scons -Q -c /</userinput>
-     Removed foo.o
-     Removed foo
-     Removed /usr/bin/foo
-     Removed bar.o
-     Removed libbar.a
-     Removed /usr/lib/libbar.a
-     % <userinput>scons -Q install</userinput>
-     cc -o foo.o -c foo.c
-     cc -o foo foo.o
-     Install file: "foo" as "/usr/bin/foo"
-     cc -o bar.o -c bar.c
-     ar rc libbar.a bar.o
-     ranlib libbar.a
-     Install file: "libbar.a" as "/usr/lib/libbar.a"
-  </screen>
+  <scons_output example="ex2" os="posix">
+     <scons_output_command>scons -Q install-bin</scons_output_command>
+     <scons_output_command>scons -Q install-lib</scons_output_command>
+     <scons_output_command>scons -Q -c __ROOT__/</scons_output_command>
+     <scons_output_command>scons -Q install</scons_output_command>
+  </scons_output>

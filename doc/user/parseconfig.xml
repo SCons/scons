@@ -61,12 +61,14 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="ParseConfig1">
+   <file name="SConstruct" printme="1">
     env = Environment()
     env['CPPPATH'] = ['/lib/compat']
     env.ParseConfig("pkg-config x11 --cflags --libs")
     print env['CPPPATH']
- </programlisting>
+   </file>
+ </scons_example>
 
  <para>
 
@@ -111,12 +113,14 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="ParseConfig2">
+   <file name="SConstruct" printme="1">
     env = Environment()
     env.ParseConfig("pkg-config x11 --cflags --libs")
     env.ParseConfig("pkg-config x11 --cflags --libs")
     print env['CPPPATH']
- </programlisting>
+   </file>
+ </scons_example>
 
  <!--
  This is how we used to generate the screen output below, but

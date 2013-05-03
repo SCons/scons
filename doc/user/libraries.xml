@@ -42,9 +42,20 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1" printme="1">
+      <file name="SConstruct" printme="1">
       Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-    </programlisting>
+      </file>
+      <file name="f1.c">
+      void f1() { printf("f1.c\n"); }
+      </file>
+      <file name="f2.c">
+      void f2() { printf("f2.c\n"); }
+      </file>
+      <file name="f3.c">
+      void f3() { printf("f3.c\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -55,14 +66,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o f1.o -c f1.c
-      cc -o f2.o -c f2.c
-      cc -o f3.o -c f3.c
-      ar rc libfoo.a f1.o f2.o f3.o
-      ranlib libfoo.a
-    </screen>
+    <scons_output example="ex1" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -71,13 +77,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons -Q</userinput>
-      cl /Fof1.obj /c f1.c /nologo
-      cl /Fof2.obj /c f2.c /nologo
-      cl /Fof3.obj /c f3.c /nologo
-      lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
-    </screen>
+    <scons_output example="ex1" os="win32">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -106,9 +108,23 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="objects" printme="1">
+        <file name="SConstruct" printme="1">
         Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])
-      </programlisting>
+        </file>
+        <file name="f1.c">
+        void f1() { printf("f1.c\n"); }
+        </file>
+        <file name="f2.o">
+        object file
+        </file>
+        <file name="f3.c">
+        void f3() { printf("f3.c\n"); }
+        </file>
+        <file name="f4.o">
+        object file
+        </file>
+      </scons_example>
 
       <para>
 
@@ -118,13 +134,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o f1.o -c f1.c
-        cc -o f3.o -c f3.c
-        ar rc libfoo.a f1.o f2.o f3.o f4.o
-        ranlib libfoo.a
-      </screen>
+      <scons_output example="objects" os="posix">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -151,9 +163,11 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="StaticLibrary" printme="1">
+        <file name="SConstruct" printme="1">
         StaticLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -175,9 +189,20 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="SharedLibrary" printme="1">
+        <file name="SConstruct" printme="1">
         SharedLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
-      </programlisting>
+        </file>
+        <file name="f1.c">
+        void f1() { printf("f1.c\n"); }
+        </file>
+        <file name="f2.c">
+        void f2() { printf("f2.c\n"); }
+        </file>
+        <file name="f3.c">
+        void f3() { printf("f3.c\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -185,13 +210,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o f1.os -c f1.c
-        cc -o f2.os -c f2.c
-        cc -o f3.os -c f3.c
-        cc -o libfoo.so -shared f1.os f2.os f3.os
-      </screen>
+      <scons_output example="SharedLibrary" os="posix">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -199,15 +220,9 @@
 
       </para>
 
-      <screen>
-        C:\><userinput>scons -Q</userinput>
-        cl /Fof1.obj /c f1.c /nologo
-        cl /Fof2.obj /c f2.c /nologo
-        cl /Fof3.obj /c f3.c /nologo
-        link /nologo /dll /out:foo.dll /implib:foo.lib f1.obj f2.obj f3.obj
-        RegServerFunc(target, source, env)
-        embedManifestDllCheck(target, source, env)
-      </screen>
+      <scons_output example="SharedLibrary" os="win32">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -242,10 +257,24 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex2">
+      <file name="SConstruct" printme="1">
       Library('foo', ['f1.c', 'f2.c', 'f3.c'])
       Program('prog.c', LIBS=['foo', 'bar'], LIBPATH='.')
-    </programlisting>
+      </file>
+      <file name="f1.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="f2.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="f3.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="prog.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -263,16 +292,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o f1.o -c f1.c
-      cc -o f2.o -c f2.c
-      cc -o f3.o -c f3.c
-      ar rc libfoo.a f1.o f2.o f3.o
-      ranlib libfoo.a
-      cc -o prog.o -c prog.c
-      cc -o prog prog.o -L. -lfoo -lbar
-    </screen>
+    <scons_output example="ex2" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -281,16 +303,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons -Q</userinput>
-      cl /Fof1.obj /c f1.c /nologo
-      cl /Fof2.obj /c f2.c /nologo
-      cl /Fof3.obj /c f3.c /nologo
-      lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
-      cl /Foprog.obj /c prog.c /nologo
-      link /nologo /OUT:prog.exe /LIBPATH:. foo.lib bar.lib prog.obj
-      embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="ex2" os="win32">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -310,9 +325,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       Program('prog.c', LIBS='foo', LIBPATH='.')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -320,9 +335,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       Program('prog.c', LIBS=['foo'], LIBPATH='.')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -349,10 +364,15 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex3">
+      <file name="SConstruct" printme="1">
       Program('prog.c', LIBS = 'm',
                         LIBPATH = ['/usr/lib', '/usr/local/lib'])
-    </programlisting>
+      </file>
+      <file name="prog.c">
+      int main() { printf("prog.c\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -364,9 +384,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       LIBPATH = '/usr/lib:/usr/local/lib'
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -374,9 +394,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       LIBPATH = 'C:\\lib;D:\\lib'
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -397,11 +417,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o prog.o -c prog.c
-      cc -o prog prog.o -L/usr/lib -L/usr/local/lib -lm
-    </screen>
+    <scons_output example="ex3" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -410,12 +428,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons -Q</userinput>
-      cl /Foprog.obj /c prog.c /nologo
-      link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
-      embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="ex3" os="win32">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
     <!-- The link command is too wide in the PDF version. 
          There are some other examples of this throughout the document. -->
 

@@ -69,10 +69,15 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex1">
+     <file name="SConstruct" printme="1">
      env = Environment()
-     env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE &gt; $TARGET")
-  </programlisting>
+     env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE > $TARGET")
+     </file>
+     <file name="foo.in">
+     foo.in
+     </file>
+  </scons_example>
 
   <para>
 
@@ -83,10 +88,9 @@
 
   </para>
 
-  <screen>
-    % <userinput>scons -Q</userinput>
-    sed 's/x/y/' &lt; foo.in &gt; foo.out
-  </screen>
+  <scons_output example="ex1">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
 
   <para>
 
@@ -105,13 +109,18 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex2">
+     <file name="SConstruct" printme="1">
      env = Environment()
      def build(target, source, env):
          # Whatever it takes to build
          return None
      env.Command('foo.out', 'foo.in', build)
-  </programlisting>
+     </file>
+     <file name="foo.in">
+     foo.in
+     </file>
+  </scons_example>
 
   <para>
 
@@ -119,10 +128,9 @@
 
   </para>
 
-  <screen>
-    % <userinput>scons -Q</userinput>
-    build(["foo.out"], ["foo.in"])
-  </screen>
+  <scons_output example="ex2">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
 
   <para>
 
@@ -132,9 +140,11 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex3">
+     <file name="SConstruct" printme="1">
      env.Command('${SOURCE.basename}.out', 'foo.in', build)
-  </programlisting>
+     </file>
+  </scons_example>
 
 
   <para>

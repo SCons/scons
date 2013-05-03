@@ -134,14 +134,21 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="SideEffectShared">
+   <file name="SConstruct" printme="1">
    env = Environment()
    f1 = env.Command('file1.out', 'file1.in',
                     './build --log logfile.txt $SOURCE $TARGET')
    f2 = env.Command('file2.out', 'file2.in',
                     './build --log logfile.txt $SOURCE $TARGET')
    env.SideEffect('logfile.txt', f1 + f2)
- </programlisting>
+   </file>
+   <file name="file1.in">file1.in</file>
+   <file name="file2.in">file2.in</file>
+   <file name="build" chmod="0755">
+   cat
+   </file>
+ </scons_example>
 
  <para>
 
@@ -155,11 +162,9 @@
 
  </para>
 
- <screen>
-    % <userinput>scons -Q --jobs=2</userinput>
-    ./build --log logfile.txt file1.in file1.out
-    ./build --log logfile.txt file2.in file2.out
- </screen>
+ <scons_output example="SideEffectShared">
+    <scons_output_command>scons -Q --jobs=2</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -173,19 +178,19 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="SideEffectParallel">
+   <file name="SConstruct" printme="1">
     env = Environment()
-    f1 = env.Command('file1.out', [], 'echo &gt;$TARGET data1')
+    f1 = env.Command('file1.out', [], 'echo >$TARGET data1')
     env.SideEffect('not_really_updated', f1)
-    f2 = env.Command('file2.out', [], 'echo &gt;$TARGET data2')
+    f2 = env.Command('file2.out', [], 'echo >$TARGET data2')
     env.SideEffect('not_really_updated', f2)
- </programlisting>
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q --jobs=2</userinput>
-    echo &gt; file1.out data1
-    echo &gt; file2.out data2
- </screen>
+ <scons_output example="SideEffectParallel">
+    <scons_output_command>scons -Q --jobs=2</scons_output_command>
+ </scons_output>
 
  <para>
 

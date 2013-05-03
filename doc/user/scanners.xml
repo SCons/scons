@@ -285,7 +285,8 @@ over the file scanning rather than being called for each input line:
 
     </para>
 
-    <programlisting>
+    <scons_example name="scan">
+      <file name="SConstruct" printme="1">
         import re
 
         include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -298,11 +299,24 @@ over the file scanning rather than being called for each input line:
         kscan = Scanner(function = kfile_scan,
                         skeys = ['.k'])
 
-        env = Environment(ENV = {'PATH' : '/usr/local/bin'})
+        env = Environment(ENV = {'PATH' : '__ROOT__/usr/local/bin'})
         env.Append(SCANNERS = kscan)
 
         env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
-    </programlisting>
+      </file>
+      <file name="foo.k">
+      include other_file
+      </file>
+      <file name="other_file">
+      other_file
+      </file>
+      <directory name="__ROOT__/usr"></directory>
+      <directory name="__ROOT__/usr/local"></directory>
+      <directory name="__ROOT__/usr/local/bin"></directory>
+      <file name="__ROOT_/usr/local/bin/kprocess" chmod="755">
+      cat
+      </file>
+    </scons_example>
 
     <!--
 
@@ -356,11 +370,13 @@ over the file scanning rather than being called for each input line:
 
     </para>
     
-    <programlisting>
+    <scons_example name="findpathdirs">
+      <file name="SConstruct" printme="1">
         kscan = Scanner(function = kfile_scan,
                         skeys = ['.k'],
                         path=FindPathDirs('KPATH'))
-    </programlisting>
+      </file>
+    </scons_example>
     
     <para>
     

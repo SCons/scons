@@ -58,10 +58,10 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     Object('hello.c', CCFLAGS='-DHELLO')
     Object('goodbye.c', CCFLAGS='-DGOODBYE')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -73,11 +73,11 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     Object('hello.c', CCFLAGS='-DHELLO')
     Object('goodbye.c', CCFLAGS='-DGOODBYE')
     Program(['hello.o', 'goodbye.o'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -100,11 +100,19 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
       hello_list = Object('hello.c', CCFLAGS='-DHELLO')
       goodbye_list = Object('goodbye.c', CCFLAGS='-DGOODBYE')
       Program(hello_list + goodbye_list)
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="goodbye.c">
+      int main() { printf("Goodbye, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -113,12 +121,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o goodbye.o -c -DGOODBYE goodbye.c
-       cc -o hello.o -c -DHELLO hello.c
-       cc -o hello hello.o goodbye.o
-    </screen>
+    <scons_output example="ex1" os="posix">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -126,13 +131,9 @@
 
     </para>
 
-    <screen>
-       C:\><userinput>scons -Q</userinput>
-       cl /Fogoodbye.obj /c goodbye.c -DGOODBYE
-       cl /Fohello.obj /c hello.c -DHELLO
-       link /nologo /OUT:hello.exe hello.obj goodbye.obj
-       embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="ex1" os="win32">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -159,13 +160,15 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="print">
+      <file name="SConstruct" printme="1">
       hello_c = File('hello.c')
       Program(hello_c)
 
       classes = Dir('classes')
       Java(classes, 'src')
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -204,9 +207,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     xyzzy = Entry('xyzzy')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -237,18 +240,17 @@
 
     </para>
 
-    <programlisting>
-      hello_c = File('hello.c')
-      Program(hello_c)
-
-      classes = Dir('classes')
-      Java(classes, 'src')
-
+    <scons_example name="print">
+      <file name="SConstruct" printme="1">
       object_list = Object('hello.c')
       program_list = Program(object_list)
       print "The object file is:", object_list[0]
       print "The program file is:", program_list[0]
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -256,13 +258,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      The object file is: hello.o
-      The program file is: hello
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="print" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -270,14 +268,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons -Q</userinput>
-      The object file is: hello.obj
-      The program file is: hello.exe
-      cl /Fohello.obj /c hello.c /nologo
-      link /nologo /OUT:hello.exe hello.obj
-      embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="print" os="win32">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -314,13 +307,18 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="exists">
+      <file name="SConstruct" printme="1">
       import os.path
       program_list = Program('hello.c')
       program_name = str(program_list[0])
       if not os.path.exists(program_name):
           print program_name, "does not exist!"
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -328,12 +326,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      hello does not exist!
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="exists" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -354,11 +349,13 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="GetBuildPath">
+      <file name="SConstruct" printme="1">
       env=Environment(VAR="value")
       n=File("foo.c")
       print env.GetBuildPath([n, "sub/dir/$VAR"])
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -366,11 +363,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      ['foo.c', 'sub/dir/value']
-      scons: `.' is up to date.
-    </screen>
+    <scons_output example="GetBuildPath" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 

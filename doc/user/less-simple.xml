@@ -63,9 +63,14 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="target">
+       <file name="SConstruct" printme="1">
        Program('new_hello', 'hello.c')
-    </programlisting>
+       </file>
+       <file name="hello.c">
+       int main() { printf("Hello, world!\n"); }
+       </file>
+    </scons_example>
 
     <para>
 
@@ -85,11 +90,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o hello.o -c hello.c
-       cc -o new_hello hello.o
-    </screen>
+    <scons_output example="target" os="posix">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -98,12 +101,9 @@
 
     </para>
 
-    <screen>
-       C:\><userinput>scons -Q</userinput>
-       cl /Fohello.obj /c hello.c /nologo
-       link /nologo /OUT:new_hello.exe hello.obj
-       embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="target" os="win32">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -124,9 +124,20 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex2">
+       <file name="SConstruct" printme="1">
        Program(['prog.c', 'file1.c', 'file2.c'])
-    </programlisting>
+       </file>
+       <file name="prog.c">
+       int main() { printf("prog.c\n"); }
+       </file>
+       <file name="file1.c">
+       void file1() { printf("file1.c\n"); }
+       </file>
+       <file name="file2.c">
+       void file2() { printf("file2.c\n"); }
+       </file>
+    </scons_example>
 
     <para>
 
@@ -134,13 +145,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o file1.o -c file1.c
-       cc -o file2.o -c file2.c
-       cc -o prog.o -c prog.c
-       cc -o prog prog.o file1.o file2.o
-    </screen>
+    <scons_output example="ex2">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -164,9 +171,20 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex3">
+       <file name="SConstruct" printme="1">
        Program('program', ['prog.c', 'file1.c', 'file2.c'])
-    </programlisting>
+       </file>
+       <file name="prog.c">
+       int main() { printf("prog.c\n"); }
+       </file>
+       <file name="file1.c">
+       void file1() { printf("file1.c\n"); }
+       </file>
+       <file name="file2.c">
+       void file2() { printf("file2.c\n"); }
+       </file>
+    </scons_example>
 
     <para>
 
@@ -174,13 +192,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o file1.o -c file1.c
-       cc -o file2.o -c file2.c
-       cc -o prog.o -c prog.c
-       cc -o program prog.o file1.o file2.o
-    </screen>
+    <scons_output example="ex3" os="posix">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -188,14 +202,9 @@
 
     </para>
 
-    <screen>
-       C:\><userinput>scons -Q</userinput>
-       cl /Fofile1.obj /c file1.c /nologo
-       cl /Fofile2.obj /c file2.c /nologo
-       cl /Foprog.obj /c prog.c /nologo
-       link /nologo /OUT:program.exe prog.obj file1.obj file2.obj
-       embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="ex3" os="win32">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -216,9 +225,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        Program('program', Glob('*.c'))
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -244,9 +253,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        Program('hello', ['file1.c', 'file2.c'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -254,9 +263,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        Program('hello', 'hello.c')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -265,9 +274,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        Program('hello', ['hello.c'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -293,11 +302,11 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        # The following two calls both work correctly:
        Program('program1', 'program1.c')
        Program('program2', ['program2.c'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -306,7 +315,7 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        common_sources = ['file1.c', 'file2.c']
 
        # THE FOLLOWING IS INCORRECT AND GENERATES A PYTHON ERROR
@@ -316,7 +325,7 @@
        # The following works correctly, because it's adding two
        # lists together to make another list.
        Program('program2', common_sources + ['program2.c'])
-    </programlisting>
+    </sconstruct>
 
     </important>
 
@@ -482,10 +491,21 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex4">
+       <file name="SConstruct" printme="1">
        Program('foo.c')
        Program('bar', ['bar1.c', 'bar2.c'])
-    </programlisting>
+       </file>
+       <file name="foo.c">
+       int main() { printf("foo.c\n"); }
+       </file>
+       <file name="bar1.c">
+       int main() { printf("bar1.c\n"); }
+       </file>
+       <file name="bar2.c">
+       void bar2() { printf("bar2.c\n"); }
+       </file>
+    </scons_example>
 
     <para>
 
@@ -493,14 +513,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o bar1.o -c bar1.c
-       cc -o bar2.o -c bar2.c
-       cc -o bar bar1.o bar2.o
-       cc -o foo.o -c foo.c
-       cc -o foo foo.o
-    </screen>
+    <scons_output example="ex4">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -541,10 +556,27 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex5">
+       <file name="SConstruct" printme="1">
        Program(Split('foo.c common1.c common2.c'))
        Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
-    </programlisting>
+       </file>
+       <file name="foo.c">
+       int main() { printf("foo.c\n"); }
+       </file>
+       <file name="bar1.c">
+       int main() { printf("bar1.c\n"); }
+       </file>
+       <file name="bar2.c">
+       int bar2() { printf("bar2.c\n"); }
+       </file>
+       <file name="common1.c">
+       void common1() { printf("common1.c\n"); }
+       </file>
+       <file name="common2.c">
+       void common22() { printf("common2.c\n"); }
+       </file>
+    </scons_example>
 
     <para>
 
@@ -556,16 +588,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o bar1.o -c bar1.c
-       cc -o bar2.o -c bar2.c
-       cc -o common1.o -c common1.c
-       cc -o common2.o -c common2.c
-       cc -o bar bar1.o bar2.o common1.o common2.o
-       cc -o foo.o -c foo.c
-       cc -o foo foo.o common1.o common2.o
-    </screen>
+    <scons_output example="ex5">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 

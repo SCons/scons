@@ -58,12 +58,12 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     # Checks for libraries, header files, etc. go here!
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -109,7 +109,7 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckCHeader('math.h'):
@@ -118,7 +118,7 @@
     if conf.CheckCHeader('foo.h'):
         conf.env.Append('-DHAS_FOO_H')
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -137,14 +137,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckCXXHeader('vector.h'):
         print 'vector.h must be installed!'
         Exit(1)
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
   </section>
 
@@ -158,14 +158,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckFunc('strcpy'):
         print 'Did not find strcpy(), using local version'
         conf.env.Append(CPPDEFINES = '-Dstrcpy=my_local_strcpy')
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
   </section>
 
@@ -182,14 +182,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckLib('m'):
         print 'Did not find libm.a or m.lib, exiting!'
         Exit(1)
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -203,14 +203,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckLibWithHeader('m', 'math.h', 'c'):
         print 'Did not find libm.a or m.lib, exiting!'
         Exit(1)
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -232,14 +232,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckType('off_t'):
         print 'Did not find off_t typedef, assuming int'
         conf.env.Append(CCFLAGS = '-Doff_t=int')
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -251,14 +251,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
-    if not conf.CheckType('off_t', '#include &lt;sys/types.h&gt;\n'):
+    if not conf.CheckType('off_t', '#include &amp;lt;sys/types.h&amp;gt;\n'):
         print 'Did not find off_t typedef, assuming int'
         conf.env.Append(CCFLAGS = '-Doff_t=int')
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
   </section>
 
@@ -281,9 +281,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     mylib_test_source_file = """
-    #include &lt;mylib.h&gt;
+    #include &amp;lt;mylib.h&amp;gt;
     int main(int argc, char **argv)
     {
         MyLibrary mylib(argc, argv);
@@ -296,7 +296,7 @@
         result = context.TryLink(mylib_test_source_file, '.c')
         context.Result(result)
         return result
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -336,10 +336,10 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -358,9 +358,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     mylib_test_source_file = """
-    #include &lt;mylib.h&gt;
+    #include &amp;lt;mylib.h&amp;gt;
     int main(int argc, char **argv)
     {
         MyLibrary mylib(argc, argv);
@@ -383,7 +383,7 @@
 
     # We would then add actual calls like Program() to build
     # something using the "env" construction environment.
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -452,7 +452,7 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     if not env.GetOption('clean'):
         conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
@@ -460,7 +460,7 @@
             print 'MyLibrary is not installed!'
             Exit(1)
         env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
     <screen>
     % <userinput>scons -Q -c</userinput>

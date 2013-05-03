@@ -42,18 +42,20 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="ex_bitkeeper">
+      <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.BitKeeper())
       env.Program('hello.c')
-   </programlisting>
+      </file>
+      <file name="s.hello.c">
+      s.hello.c
+      </file>
+   </scons_example>
 
-   <screen>
-     % <userinput>scons -Q</userinput>
-     bk get hello.c
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-   </screen>
+   <scons_output example="ex_bitkeeper">
+     <scons_output_command>scons -Q</scons_output_command>
+   </scons_output>
 
  </section>
 
@@ -66,18 +68,17 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="ex_cvs">
+      <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.CVS('/usr/local/CVS'))
       env.Program('hello.c')
-   </programlisting>
+      </file>
+   </scons_example>
 
-   <screen>
-     % <userinput>scons -Q</userinput>
-     cvs -d /usr/local/CVS co hello.c
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-   </screen>
+   <scons_output example="ex_cvs">
+     <scons_output_command>scons -Q</scons_output_command>
+   </scons_output>
 
  </section>
 
@@ -90,18 +91,20 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="ex_rcs">
+      <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.RCS())
       env.Program('hello.c')
-   </programlisting>
+      </file>
+      <file name="hello.c,v">
+      hello.c,v
+      </file>
+   </scons_example>
 
-   <screen>
-     % <userinput>scons -Q</userinput>
-     co hello.c
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-   </screen>
+   <scons_output example="ex_rcs">
+     <scons_output_command>scons -Q</scons_output_command>
+   </scons_output>
 
  </section>
 
@@ -114,18 +117,20 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="ex_sccs">
+      <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.SCCS())
       env.Program('hello.c')
-   </programlisting>
+      </file>
+      <file name="s.hello.c">
+      s.hello.c
+      </file>
+   </scons_example>
 
-   <screen>
-     % <userinput>scons -Q</userinput>
-     sccs get hello.c
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-   </screen>
+   <scons_output example="ex_sccs">
+     <scons_output_command>scons -Q</scons_output_command>
+   </scons_output>
 
  </section>
 

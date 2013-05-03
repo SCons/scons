@@ -39,28 +39,29 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex1">
+     <file name="SConstruct" printme="1">
      def install_in_bin_dirs(env, source):
          """Install source in both bin dirs"""
          i1 = env.Install("$BIN", source)
          i2 = env.Install("$LOCALBIN", source)
          return [i1[0], i2[0]] # Return a list, like a normal builder
-     env = Environment(BIN='/usr/bin', LOCALBIN='#install/bin')
+     env = Environment(BIN='__ROOT__/usr/bin', LOCALBIN='#install/bin')
      env.AddMethod(install_in_bin_dirs, "InstallInBinDirs")
      env.InstallInBinDirs(Program('hello.c')) # installs hello in both bin dirs     
-  </programlisting>
+     </file>
+     <file name="hello.c">
+     int main() { printf("Hello, world!\n"); }
+     </file>
+  </scons_example>
 
   <para>
   This produces the following:
   </para>
 
-  <screen>
-    % <userinput>scons -Q /</userinput>
-    cc -o hello.o -c hello.c
-    cc -o hello hello.o
-    Install file: "hello" as "/usr/bin/hello"
-    Install file: "hello" as "install/bin/hello"
-  </screen>
+  <scons_output example="ex1">
+    <scons_output_command>scons -Q /</scons_output_command>
+  </scons_output>
 
   <para>
 
@@ -75,7 +76,8 @@
 
   </para>
 
-  <programlisting>
+  <scons_example name="ex2">
+     <file name="SConstruct" printme="1">
      def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
          """Build the test program;
          prepends "test_" to src and target,
@@ -92,29 +94,30 @@
 
      env = Environment()
      env.BuildTestProg('stuff', resourcefile='res.rc')
-  </programlisting>
+     </file>
+     <file name="test_stuff.c">
+     int main() { printf("Hello, world!\n"); }
+     </file>
+     <file name="res.rc">
+     res.rc
+     </file>
+  </scons_example>
 
   <para>
   This produces the following on Linux:
   </para>
 
-  <screen>
-    % <userinput>scons -Q</userinput>
-    cc -o test_stuff.o -c test_stuff.c
-    cc -o tests/test_stuff test_stuff.o
-  </screen>
+  <scons_output example="ex2">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
 
   <para>
   And the following on Windows:
   </para>
 
-  <screen>
-    C:\><userinput>scons -Q</userinput>
-    rc /fores.res res.rc
-    cl /Fotest_stuff.obj /c test_stuff.c /nologo
-    link /nologo /OUT:tests\test_stuff.exe test_stuff.obj res.res
-    embedManifestExeCheck(target, source, env)
-  </screen>
+  <scons_output example="ex2" os="win32">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
 
   <para>
   Using &AddMethod; is better than just adding an instance method

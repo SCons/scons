@@ -196,12 +196,12 @@ make no difference to the build.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       SConscript(['drivers/display/SConscript',
                   'drivers/mouse/SConscript',
                   'parser/SConscript',
                   'utilities/SConscript'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -218,11 +218,11 @@ make no difference to the build.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       SConscript(['drivers/SConscript',
                   'parser/SConscript',
                   'utilities/SConscript'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -232,10 +232,10 @@ make no difference to the build.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       SConscript(['display/SConscript',
                   'mouse/SConscript'])
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -279,10 +279,40 @@ make no difference to the build.
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
       SConscript(['prog1/SConscript',
                   'prog2/SConscript'])
-    </programlisting>
+      </file>
+      <file name="prog1/SConscript">
+      env = Environment()
+      env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
+      </file>
+      <file name="prog2/SConscript">
+      env = Environment()
+      env.Program('prog2', ['main.c', 'bar1.c', 'bar2.c'])
+      </file>
+      <directory name="prog1"></directory>
+      <file name="prog1/main.c">
+      x
+      </file>
+      <file name="prog1/foo1.c">
+      x
+      </file>
+      <file name="prog1/foo2.c">
+      x
+      </file>
+      <directory name="prog2"></directory>
+      <file name="prog2/main.c">
+      x
+      </file>
+      <file name="prog2/bar1.c">
+      x
+      </file>
+      <file name="prog2/bar2.c">
+      x
+      </file>
+    </scons_example>
 
     <para>
 
@@ -290,11 +320,8 @@ make no difference to the build.
 
     </para>
 
-    
-    <programlisting>
-      env = Environment()
-      env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
-      </programlisting>
+    <scons_example_file example="ex1" name="prog1/SConscript">
+    </scons_example_file>
 
     <para>
 
@@ -302,11 +329,8 @@ make no difference to the build.
 
     </para>
 
-    
-    <programlisting>
-      env = Environment()
-      env.Program('prog2', ['main.c', 'bar1.c', 'bar2.c'])
-      </programlisting>
+    <scons_example_file example="ex1" name="prog2/SConscript">
+    </scons_example_file>
 
     <para>
 
@@ -315,17 +339,9 @@ make no difference to the build.
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o prog1/foo1.o -c prog1/foo1.c
-       cc -o prog1/foo2.o -c prog1/foo2.c
-       cc -o prog1/main.o -c prog1/main.c
-       cc -o prog1/prog1 prog1/main.o prog1/foo1.o prog1/foo2.o
-       cc -o prog2/bar1.o -c prog2/bar1.c
-       cc -o prog2/bar2.o -c prog2/bar2.c
-       cc -o prog2/main.o -c prog2/main.c
-       cc -o prog2/prog2 prog2/main.o prog2/bar1.o prog2/bar2.o
-    </screen>
+    <scons_output example="ex1">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -364,10 +380,24 @@ make no difference to the build.
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex2">
+       <file name="SConstruct">
+       SConscript('src/prog/SConscript')
+       </file>
+       <file name="src/prog/SConscript" printme="1">
        env = Environment()
        env.Program('prog', ['main.c', '#lib/foo1.c', 'foo2.c'])
-    </programlisting>
+       </file>
+       <file name="src/prog/main.c">
+       x
+       </file>
+       <file name="lib/foo1.c">
+       x
+       </file>
+       <file name="src/prog/foo2.c">
+       x
+       </file>
+    </scons_example>
 
     <para>
 
@@ -380,13 +410,9 @@ make no difference to the build.
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o lib/foo1.o -c lib/foo1.c
-       cc -o src/prog/foo2.o -c src/prog/foo2.c
-       cc -o src/prog/main.o -c src/prog/main.c
-       cc -o src/prog/prog src/prog/main.o lib/foo1.o src/prog/foo2.o
-    </screen>
+    <scons_output example="ex2">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -410,10 +436,24 @@ make no difference to the build.
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex3">
+       <file name="SConstruct">
+       SConscript('src/prog/SConscript')
+       </file>
+       <file name="src/prog/SConscript" printme="1">
        env = Environment()
-       env.Program('prog', ['main.c', '/usr/joe/lib/foo1.c', 'foo2.c'])
-    </programlisting>
+       env.Program('prog', ['main.c', '__ROOT__/usr/joe/lib/foo1.c', 'foo2.c'])
+       </file>
+       <file name="src/prog/main.c">
+       x
+       </file>
+       <file name="__ROOT__/usr/joe/lib/foo1.c">
+       x
+       </file>
+       <file name="src/prog/foo2.c">
+       x
+       </file>
+    </scons_example>
 
     <para>
 
@@ -421,13 +461,9 @@ make no difference to the build.
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       cc -o src/prog/foo2.o -c src/prog/foo2.c
-       cc -o src/prog/main.o -c src/prog/main.c
-       cc -o /usr/joe/lib/foo1.o -c /usr/joe/lib/foo1.c
-       cc -o src/prog/prog src/prog/main.o /usr/joe/lib/foo1.o src/prog/foo2.o
-    </screen>
+    <scons_output example="ex3">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -490,10 +526,10 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment()
         Export('env')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -501,11 +537,11 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment()
         debug = ARGUMENTS['debug']
         Export('env', 'debug')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -515,9 +551,9 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Export('env debug')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -527,9 +563,9 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         SConscript('src/SConscript', 'env')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -537,9 +573,9 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         SConscript('src/SConscript', exports='env')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -550,10 +586,10 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         SConscript(['src1/SConscript',
                     'src2/SConscript'], exports='env')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -578,10 +614,10 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Import('env')
         env.Program('prog', ['prog.c'])
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -600,11 +636,11 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Import('env', 'debug')
         env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -614,11 +650,11 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Import('env debug')
         env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -629,11 +665,11 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Import('*')
         env = env.Clone(DEBUG = debug)
         env.Program('prog', ['prog.c'])
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -678,7 +714,8 @@ make no difference to the build.
 
       </para>
 
-      <programlisting>
+      <scons_example name="Return">
+        <file name="SConstruct" printme="1">
           env = Environment()
           Export('env')
           objs = []
@@ -686,7 +723,26 @@ make no difference to the build.
               o = SConscript('%s/SConscript' % subdir)
               objs.append(o)
           env.Library('prog', objs)
-      </programlisting>
+        </file>
+        <directory name="foo"></directory>
+        <directory name="bar"></directory>
+        <file name="foo/SConscript">
+          Import('env')
+          obj = env.Object('foo.c')
+          Return('obj')
+        </file>
+        <file name="bar/SConscript">
+          Import('env')
+          obj = env.Object('bar.c')
+          Return('obj')
+        </file>
+        <file name="foo/foo.c">
+          void foo(void) { printf("foo/foo.c\n"); }
+        </file>
+        <file name="bar/bar.c">
+          void bar(void) { printf("bar/bar.c\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -696,12 +752,8 @@ make no difference to the build.
 
       </para>
 
-      
-      <programlisting>
-          Import('env')
-          obj = env.Object('foo.c')
-          Return('obj')
-        </programlisting>
+      <scons_example_file example="Return" name="foo/SConscript">
+      </scons_example_file>
 
       <para>
 
@@ -714,13 +766,9 @@ make no difference to the build.
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o bar/bar.o -c bar/bar.c
-        cc -o foo/foo.o -c foo/foo.c
-        ar rc libprog.a foo/foo.o bar/bar.o
-        ranlib libprog.a
-      </screen>
+      <scons_output example="Return">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <!--
       XXX Return(stop=False)

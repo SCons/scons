@@ -130,11 +130,19 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="libs">
+      <file name="SConstruct" printme="1">
       env = Environment(LIBS = ['foo1', 'foo2'],
                         LIBPATH = ['/usr/dir1', 'dir2'])
       env.Program(['hello.c', 'goodbye.c'])
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int hello() { printf("Hello, world!\n"); }
+      </file>
+      <file name="goodbye.c">
+      int goodbye() { printf("Goodbye, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -142,12 +150,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o goodbye.o -c goodbye.c
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o goodbye.o -L/usr/dir1 -Ldir2 -lfoo1 -lfoo2
-    </screen>
+    <scons_output example="libs" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -155,13 +160,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons -Q</userinput>
-      cl /Fogoodbye.obj /c goodbye.c /nologo
-      cl /Fohello.obj /c hello.c /nologo
-      link /nologo /OUT:hello.exe /LIBPATH:\usr\dir1 /LIBPATH:dir2 foo1.lib foo2.lib hello.obj goodbye.obj
-      embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="libs" os="win32">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -720,17 +721,26 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex1">
+        <file name="SConstruct" printme="1">
         env = Environment()
         env.Tar('out1.tar', ['file1', 'file2'])
         env.Tar('out2', 'directory')
-      </programlisting>
+        </file>
+        <file name="file1">
+        file1
+        </file>
+        <file name="file2">
+        file2
+        </file>
+        <file name="directory/file3">
+        directory/file3
+        </file>
+      </scons_example>
 
-      <screen>
-        % <userinput>scons -Q .</userinput>
-        tar -c -f out1.tar file1 file2
-        tar -c -f out2.tar directory
-      </screen>
+      <scons_output example="ex1" os="posix">
+        <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -747,15 +757,19 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex2">
+        <file name="SConstruct" printme="1">
         env = Environment(TARFLAGS = '-c -z')
         env.Tar('out.tar.gz', 'directory')
-      </programlisting>
+        </file>
+        <file name="directory/file">
+        directory/file
+        </file>
+      </scons_example>
 
-      <screen>
-        % <userinput>scons -Q .</userinput>
-        tar -c -z -f out.tar.gz directory
-      </screen>
+      <scons_output example="ex2" os="posix">
+        <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -767,16 +781,20 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex3">
+        <file name="SConstruct" printme="1">
         env = Environment(TARFLAGS = '-c -z',
                           TARSUFFIX = '.tgz')
         env.Tar('out', 'directory')
-      </programlisting>
+        </file>
+        <file name="directory/file">
+        directory/file
+        </file>
+      </scons_example>
 
-      <screen>
-        % <userinput>scons -Q .</userinput>
-        tar -c -z -f out.tgz directory
-      </screen>
+      <scons_output example="ex3" os="posix">
+        <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -795,10 +813,18 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex4">
+        <file name="SConstruct" printme="1">
         env = Environment()
         env.Zip('out', ['file1', 'file2'])
-      </programlisting>
+        </file>
+        <file name="file1">
+        file1
+        </file>
+        <file name="file2">
+        file2
+        </file>
+      </scons_example>
 
       <para>
 
@@ -808,10 +834,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q .</userinput>
-        zip(["out.zip"], ["file1", "file2"])
-      </screen>
+      <scons_output example="ex4" os="posix">
+        <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
     </section>
 

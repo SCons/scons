@@ -57,7 +57,8 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="ParseFlags1">
+   <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
     for k,v in sorted(d.items()):
@@ -65,16 +66,15 @@
             print k, v
     env.MergeFlags(d)
     env.Program('f1.c')
- </programlisting>
+   </file>
+   <file name="f1.c">
+     int main() { return 0; }
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    CPPPATH ['/opt/include']
-    LIBPATH ['/opt/lib']
-    LIBS ['foo']
-    cc -o f1.o -c -I/opt/include f1.c
-    cc -o f1 f1.o -L/opt/lib -lfoo
- </screen>
+ <scons_output example="ParseFlags1" os="posix">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -84,15 +84,9 @@
 
  </para>
 
- <screen>
-    C:\><userinput>scons -Q</userinput>
-    CPPPATH ['/opt/include']
-    LIBPATH ['/opt/lib']
-    LIBS ['foo']
-    cl /Fof1.obj /c f1.c /nologo /I\opt\include
-    link /nologo /OUT:f1.exe /LIBPATH:\opt\lib foo.lib f1.obj
-    embedManifestExeCheck(target, source, env)
- </screen>
+ <scons_output example="ParseFlags1" os="win32">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -102,7 +96,8 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="ParseFlags2">
+   <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags("-whatever")
     for k,v in sorted(d.items()):
@@ -110,14 +105,15 @@
             print k, v
     env.MergeFlags(d)
     env.Program('f1.c')
- </programlisting>
+   </file>
+   <file name="f1.c">
+     int main() { return 0; }
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    CCFLAGS -whatever
-    cc -o f1.o -c -whatever f1.c
-    cc -o f1 f1.o
- </screen>
+ <scons_output example="ParseFlags2">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -126,7 +122,8 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="ParseFlags3">
+   <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
     for k,v in sorted(d.items()):
@@ -134,16 +131,15 @@
             print k, v
     env.MergeFlags(d)
     env.Program('f1.c')
- </programlisting>
+   </file>
+   <file name="f1.c">
+     int main() { return 0; }
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    CPPPATH ['/opt/include']
-    LIBPATH ['/opt/lib']
-    LIBS ['foo']
-    cc -o f1.o -c -I/opt/include f1.c
-    cc -o f1 f1.o -L/opt/lib -lfoo
- </screen>
+ <scons_output example="ParseFlags3">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -153,7 +149,8 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="ParseFlags4">
+   <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
     for k,v in sorted(d.items()):
@@ -161,16 +158,15 @@
             print k, v
     env.MergeFlags(d)
     env.Program('f1.c')
- </programlisting>
+   </file>
+   <file name="f1.c">
+     int main() { return 0; }
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    CPPPATH ['/opt/include']
-    LIBPATH ['/opt/lib']
-    LIBS ['foo']
-    cc -o f1.o -c -I/opt/include f1.c
-    cc -o f1 f1.o -L/opt/lib -lfoo
- </screen>
+ <scons_output example="ParseFlags4">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
