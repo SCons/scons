@@ -111,8 +111,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_target" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_target" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -122,8 +122,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_target" os="win32">
-       <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_target" os="win32" suffix="2">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -166,8 +166,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_ex2">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_ex2" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -213,8 +213,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_ex3" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_ex3" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -223,8 +223,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_ex3" os="win32">
-       <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_ex3" os="win32" suffix="2">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -534,8 +534,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_ex4">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_ex4" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -609,8 +609,8 @@
 
     </para>
 
-    <scons_output example="lesssimple_ex5">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="lesssimple_ex5" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>

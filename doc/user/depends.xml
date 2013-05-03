@@ -67,9 +67,9 @@
     </file>
   </scons_example>
 
-  <scons_output example="depends_ex1" os="posix">
-     <scons_output_command suffix="1">scons -Q</scons_output_command>
-     <scons_output_command suffix="2">scons -Q</scons_output_command>
+  <scons_output example="depends_ex1" os="posix" suffix="1">
+     <scons_output_command>scons -Q</scons_output_command>
+     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   <para>
@@ -83,9 +83,9 @@
 
   </para>
 
-  <scons_output example="depends_ex1" os="posix">
-     <scons_output_command suffix="3">scons -Q hello</scons_output_command>
-     <scons_output_command suffix="4">scons -Q hello</scons_output_command>
+  <scons_output example="depends_ex1" os="posix" suffix="2">
+     <scons_output_command>scons -Q hello</scons_output_command>
+     <scons_output_command>scons -Q hello</scons_output_command>
   </scons_output>
 
   <para>
@@ -135,10 +135,10 @@
 
       </para>
 
-      <scons_output example="depends_ex1" os="posix">
-         <scons_output_command suffix="5">scons -Q hello</scons_output_command>
-         <scons_output_command suffix="6">touch hello.c</scons_output_command>
-         <scons_output_command suffix="7">scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1" os="posix" suffix="3">
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -157,10 +157,10 @@
 
       </para>
 
-      <scons_output example="depends_ex1" os="posix">
-         <scons_output_command suffix="8">scons -Q hello</scons_output_command>
-         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]" suffix="9">edit hello.c</scons_output_command>
-         <scons_output_command suffix="10">scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1" os="posix" suffix="4">
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -216,10 +216,10 @@
 
         </para>
 
-        <scons_output example="depends_ex1" os="posix">
-           <scons_output_command suffix="11">scons -Q hello</scons_output_command>
-           <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line" suffix="12">edit hello.c</scons_output_command>
-           <scons_output_command suffix="13">scons -Q hello</scons_output_command>
+        <scons_output example="depends_ex1" os="posix" suffix="5">
+           <scons_output_command>scons -Q hello</scons_output_command>
+           <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</scons_output_command>
+           <scons_output_command>scons -Q hello</scons_output_command>
         </scons_output>
 
         <para>
@@ -286,10 +286,10 @@
 
       </para>
 
-      <scons_output example="depends_newer" os="posix">
-         <scons_output_command suffix="1">scons -Q hello.o</scons_output_command>
-         <scons_output_command suffix="2">touch hello.c</scons_output_command>
-         <scons_output_command suffix="3">scons -Q hello.o</scons_output_command>
+      <scons_output example="depends_newer" os="posix" suffix="1">
+         <scons_output_command>scons -Q hello.o</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -359,10 +359,10 @@
 
       </para>
 
-      <scons_output example="depends_match" os="posix">
-         <scons_output_command suffix="1">scons -Q hello.o</scons_output_command>
-         <scons_output_command suffix="2">touch -t 198901010000 hello.c</scons_output_command>
-         <scons_output_command suffix="3">scons -Q hello.o</scons_output_command>
+      <scons_output example="depends_match" os="posix" suffix="1">
+         <scons_output_command>scons -Q hello.o</scons_output_command>
+         <scons_output_command>touch -t 198901010000 hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -420,12 +420,12 @@
       output seems to get this wrong.
       Just in-line the output for now.
 
-      <scons_output example="depends_MD5-timestamp" os="posix">
-         <scons_output_command suffix="1">scons -Q hello</scons_output_command>
-         <scons_output_command suffix="2">touch hello.c</scons_output_command>
-         <scons_output_command suffix="3">scons -Q hello</scons_output_command>
-       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]" suffix="4">edit hello.c</scons_output_command>
-         <scons_output_command suffix="5">scons -Q hello</scons_output_command>
+      <scons_output example="depends_MD5-timestamp" os="posix" suffix="1">
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       -->
@@ -729,10 +729,10 @@
 
       </para>
 
-      <scons_output example="depends_mixing" os="posix">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
-         <scons_output_command suffix="2">touch inc.h</scons_output_command>
-         <scons_output_command suffix="3">scons -Q</scons_output_command>
+      <scons_output example="depends_mixing" os="posix" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>touch inc.h</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -997,11 +997,11 @@
 
     </para>
 
-    <scons_output example="depends_include" os="posix">
-       <scons_output_command suffix="1">scons -Q hello</scons_output_command>
-       <scons_output_command suffix="2">scons -Q hello</scons_output_command>
-       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]" suffix="3">edit hello.h</scons_output_command>
-       <scons_output_command suffix="4">scons -Q hello</scons_output_command>
+    <scons_output example="depends_include" os="posix" suffix="1">
+       <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1062,8 +1062,8 @@
 
     </para>
 
-    <scons_output example="depends_ex5" os="posix">
-       <scons_output_command suffix="1">scons -Q hello</scons_output_command>
+    <scons_output example="depends_ex5" os="posix" suffix="1">
+       <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1072,8 +1072,8 @@
 
     </para>
 
-    <scons_output example="depends_ex5" os="win32">
-       <scons_output_command suffix="2">scons -Q hello.exe</scons_output_command>
+    <scons_output example="depends_ex5" os="win32" suffix="2">
+       <scons_output_command>scons -Q hello.exe</scons_output_command>
     </scons_output>
 
   </section>
@@ -1126,9 +1126,9 @@
 
     </para>
 
-    <scons_output example="depends_ex1">
-       <scons_output_command suffix="14">scons -Q --implicit-cache hello</scons_output_command>
-       <scons_output_command suffix="15">scons -Q hello</scons_output_command>
+    <scons_output example="depends_ex1" suffix="6">
+       <scons_output_command>scons -Q --implicit-cache hello</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1206,9 +1206,9 @@
 
       </para>
 
-      <scons_output example="depends_ex1">
-         <scons_output_command suffix="16">scons -Q --implicit-deps-changed hello</scons_output_command>
-         <scons_output_command suffix="17">scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1" suffix="7">
+         <scons_output_command>scons -Q --implicit-deps-changed hello</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -1241,9 +1241,9 @@
 
       </para>
 
-      <scons_output example="depends_ex1">
-         <scons_output_command suffix="18">scons -Q --implicit-deps-unchanged hello</scons_output_command>
-         <scons_output_command suffix="19">scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1" suffix="8">
+         <scons_output_command>scons -Q --implicit-deps-unchanged hello</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -1379,11 +1379,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="depends_macroinc" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command output="   [CHANGE CONTENTS OF foo.h]"
-      suffix="2">edit foo.h</scons_output_command>
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
+    <scons_output example="depends_macroinc" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="   [CHANGE CONTENTS OF foo.h]">edit foo.h</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -1438,11 +1437,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="depends_parsedep" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command output="   [CHANGE CONTENTS OF foo.h]"
-      suffix="2">edit foo.h</scons_output_command>
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
+    <scons_output example="depends_parsedep" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="   [CHANGE CONTENTS OF foo.h]">edit foo.h</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -1474,10 +1472,10 @@
     </scons_example>
 
     <!--
-    <scons_output example="depends_parsedeprebuild" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
+    <scons_output example="depends_parsedeprebuild" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
     -->
 
@@ -1550,11 +1548,11 @@
     <!-- XXX mention that you can use lists for target and source? -->
 
     <!--
-    <scons_output example="depends_ignore">
-      <scons_output_command suffix="1">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="2">scons -Q hello</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]" suffix="3">edit hello.h</scons_output_command>
-      <scons_output_command suffix="4">scons -Q hello</scons_output_command>
+    <scons_output example="depends_ignore" suffix="1">
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
       XXX THIS EXAMPLE SHOULD BE UP-TO-DATE! XXX
     </scons_output>
     -->
@@ -1620,10 +1618,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="depends_ignore_explicit" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command suffix="2">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="3">scons -Q hello</scons_output_command>
+    <scons_output example="depends_ignore_explicit" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
   </section>
 
@@ -1699,12 +1697,12 @@
 
     </para>
 
-    <scons_output example="depends_no-Requires">
-      <scons_output_command suffix="1">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="2">sleep 1</scons_output_command>
-      <scons_output_command suffix="3">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="4">sleep 1</scons_output_command>
-      <scons_output_command suffix="5">scons -Q hello</scons_output_command>
+    <scons_output example="depends_no-Requires" suffix="1">
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1776,15 +1774,15 @@
 
     </para>
 
-    <scons_output example="depends_Requires">
-      <scons_output_command suffix="1">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="2">sleep 1</scons_output_command>
-      <scons_output_command suffix="3">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="4">sleep 1</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]" suffix="5">edit hello.c</scons_output_command>
-      <scons_output_command suffix="6">scons -Q hello</scons_output_command>
-      <scons_output_command suffix="7">sleep 1</scons_output_command>
-      <scons_output_command suffix="8">scons -Q hello</scons_output_command>
+    <scons_output example="depends_Requires" suffix="1">
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
   </section>
@@ -1820,9 +1818,9 @@
 
     </para>
 
-    <scons_output example="depends_AlwaysBuild">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="depends_AlwaysBuild" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -1842,9 +1840,9 @@
 
     </para>
 
-    <scons_output example="depends_AlwaysBuild">
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
-      <scons_output_command suffix="4">scons -Q hello.o</scons_output_command>
+    <scons_output example="depends_AlwaysBuild" suffix="2">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q hello.o</scons_output_command>
     </scons_output>
 
     <!--

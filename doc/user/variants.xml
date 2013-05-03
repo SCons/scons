@@ -141,8 +141,8 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <scons_output example="variants_ex" os="posix">
-    <scons_output_command suffix="1">scons -Q OS=linux</scons_output_command>
+  <scons_output example="variants_ex" os="posix" suffix="1">
+    <scons_output_command>scons -Q OS=linux</scons_output_command>
   </scons_output>
 
   <para>
@@ -151,8 +151,8 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <scons_output example="variants_ex" os="win32">
-    <scons_output_command suffix="2">scons -Q OS=windows</scons_output_command>
+  <scons_output example="variants_ex" os="win32" suffix="2">
+    <scons_output_command>scons -Q OS=windows</scons_output_command>
   </scons_output>
 
   <!--
@@ -165,8 +165,8 @@ is pretty smart about rebuilding things when you change options.
     </file>
   </scons_example>
 
-  <scons_output example="variants_ex2">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+  <scons_output example="variants_ex2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   -->

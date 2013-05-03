@@ -119,8 +119,8 @@
 
     </para>
 
-    <scons_output example="java_java">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_java" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -211,9 +211,9 @@
 
     </para>
 
-    <scons_output example="java_java-classes">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command suffix="2">scons -Q classes</scons_output_command>
+    <scons_output example="java_java-classes" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q classes</scons_output_command>
     </scons_output>
 
     <para>
@@ -235,9 +235,9 @@
 
     </para>
 
-    <scons_output example="java_java-classes">
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
-      <scons_output_command suffix="4">scons -Q -c classes</scons_output_command>
+    <scons_output example="java_java-classes" suffix="2">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c classes</scons_output_command>
     </scons_output>
 
     <para>
@@ -321,8 +321,8 @@
 
     </para>
 
-    <scons_output example="java_jar1">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_jar1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -397,8 +397,8 @@
 
     </para>
 
-    <scons_output example="java_jar2">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_jar2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -462,8 +462,8 @@
 
     </para>
 
-    <scons_output example="java_javah">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_javah" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -545,8 +545,8 @@
 
     </para>
 
-    <scons_output example="java_JAVACLASSDIR">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_JAVACLASSDIR" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -605,8 +605,8 @@
 
     </para>
 
-    <scons_output example="java_javah_file">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_javah_file" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -661,8 +661,8 @@
 
     </para>
 
-    <scons_output example="java_RMIC">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="java_RMIC" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>

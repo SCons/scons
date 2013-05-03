@@ -142,8 +142,8 @@
 
     </para>
 
-    <scons_output example="nodes_ex1" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="nodes_ex1" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -152,8 +152,8 @@
 
     </para>
 
-    <scons_output example="nodes_ex1" os="win32">
-       <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="nodes_ex1" os="win32" suffix="2">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -279,8 +279,8 @@
 
     </para>
 
-    <scons_output example="nodes_print" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="nodes_print" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -289,8 +289,8 @@
 
     </para>
 
-    <scons_output example="nodes_print" os="win32">
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="nodes_print" os="win32" suffix="2">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -347,8 +347,8 @@
 
     </para>
 
-    <scons_output example="nodes_exists" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="nodes_exists" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -384,8 +384,8 @@
 
     </para>
 
-    <scons_output example="nodes_GetBuildPath" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="nodes_GetBuildPath" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -428,8 +428,8 @@
 
     </para>
 
-    <scons_output example="nodes_read" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="nodes_read" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>

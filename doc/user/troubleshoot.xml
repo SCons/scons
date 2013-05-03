@@ -119,10 +119,10 @@
 
     </para>
 
-    <scons_output example="troubleshoot_explain1" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
+    <scons_output example="troubleshoot_explain1" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -142,8 +142,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_explain1" os="posix">
-      <scons_output_command suffix="4">scons -Q --debug=explain</scons_output_command>
+    <scons_output example="troubleshoot_explain1" os="posix" suffix="2">
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -187,10 +187,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="troubleshoot_explain2" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF file2.c]" suffix="2">edit file2.c</scons_output_command>
-      <scons_output_command suffix="3">scons -Q --debug=explain</scons_output_command>
+    <scons_output example="troubleshoot_explain2" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF file2.c]">edit file2.c</scons_output_command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -230,10 +230,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="troubleshoot_explain3" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]" suffix="2">edit hello.h</scons_output_command>
-      <scons_output_command suffix="3">scons -Q --debug=explain</scons_output_command>
+    <scons_output example="troubleshoot_explain3" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -290,8 +290,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_Dump" os="posix" tools="gcc">
-      <scons_output_command suffix="1">scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump" os="posix" tools="gcc" suffix="1">
+      <scons_output_command>scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -301,8 +301,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_Dump" os="win32" tools="msvc">
-      <scons_output_command suffix="2">scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump" os="win32" tools="msvc" suffix="2">
+      <scons_output_command>scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -349,8 +349,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_Dump_ENV" os="posix">
-      <scons_output_command suffix="1">scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump_ENV" os="posix" suffix="1">
+      <scons_output_command>scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -359,8 +359,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_Dump_ENV" os="win32">
-      <scons_output_command suffix="2">scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump_ENV" os="win32" suffix="2">
+      <scons_output_command>scons</scons_output_command>
     </scons_output>
 
   </section>
@@ -415,8 +415,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree1">
-      <scons_output_command suffix="1">scons -Q --tree=all</scons_output_command>
+    <scons_output example="troubleshoot_tree1" suffix="1">
+      <scons_output_command>scons -Q --tree=all</scons_output_command>
     </scons_output>
 
     <para>
@@ -441,8 +441,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree1">
-      <scons_output_command suffix="2">scons -Q --tree=all f2.o</scons_output_command>
+    <scons_output example="troubleshoot_tree1" suffix="2">
+      <scons_output_command>scons -Q --tree=all f2.o</scons_output_command>
     </scons_output>
 
     <para>
@@ -457,8 +457,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree1">
-      <scons_output_command suffix="3">scons -Q --tree=all f1.o f3.o</scons_output_command>
+    <scons_output example="troubleshoot_tree1" suffix="3">
+      <scons_output_command>scons -Q --tree=all f1.o f3.o</scons_output_command>
     </scons_output>
 
     <para>
@@ -469,8 +469,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree1">
-      <scons_output_command suffix="4">scons -Q --tree=status</scons_output_command>
+    <scons_output example="troubleshoot_tree1" suffix="4">
+      <scons_output_command>scons -Q --tree=status</scons_output_command>
     </scons_output>
 
     <para>
@@ -487,8 +487,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree1">
-      <scons_output_command suffix="5">scons -Q --tree=derived</scons_output_command>
+    <scons_output example="troubleshoot_tree1" suffix="5">
+      <scons_output_command>scons -Q --tree=derived</scons_output_command>
     </scons_output>
 
     <para>
@@ -498,8 +498,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree1">
-      <scons_output_command suffix="6">scons -Q --tree=derived,status</scons_output_command>
+    <scons_output example="troubleshoot_tree1" suffix="6">
+      <scons_output_command>scons -Q --tree=derived,status</scons_output_command>
     </scons_output>
 
     <para>
@@ -557,8 +557,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree2">
-      <scons_output_command suffix="1">scons -Q --tree=all</scons_output_command>
+    <scons_output example="troubleshoot_tree2" suffix="1">
+      <scons_output_command>scons -Q --tree=all</scons_output_command>
     </scons_output>
 
     <para>
@@ -579,8 +579,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_tree2">
-      <scons_output_command suffix="2">scons -Q --tree=prune</scons_output_command>
+    <scons_output example="troubleshoot_tree2" suffix="2">
+      <scons_output_command>scons -Q --tree=prune</scons_output_command>
     </scons_output>
 
     <para>
@@ -623,8 +623,8 @@
     shows the Python functions from the sconsdoc.py execution wrapper
     used to generate this manual, not the underlying command-line strings.
 
-    <scons_output example="troubleshoot_presub">
-      <scons_output_command suffix="1">scons -Q - -debug=presub</scons_output_command>
+    <scons_output example="troubleshoot_presub" suffix="1">
+      <scons_output_command>scons -Q - -debug=presub</scons_output_command>
     </scons_output>
 
     -->
@@ -681,8 +681,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_findlibs">
-      <scons_output_command suffix="1">scons -Q --debug=findlibs</scons_output_command>
+    <scons_output example="troubleshoot_findlibs" suffix="1">
+      <scons_output_command>scons -Q --debug=findlibs</scons_output_command>
     </scons_output>
 
   </section>
@@ -717,8 +717,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="troubleshoot_includes">
-      <scons_output_command suffix="1">scons -Q - - debug=includes prog</scons_output_command>
+    <scons_output example="troubleshoot_includes" suffix="1">
+      <scons_output_command>scons -Q - - debug=includes prog</scons_output_command>
     </scons_output>
 
   </section>
@@ -761,8 +761,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_stacktrace">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="troubleshoot_stacktrace" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -778,8 +778,8 @@
 
     </para>
 
-    <scons_output example="troubleshoot_stacktrace">
-      <scons_output_command suffix="2">scons -Q --debug=stacktrace</scons_output_command>
+    <scons_output example="troubleshoot_stacktrace" suffix="2">
+      <scons_output_command>scons -Q --debug=stacktrace</scons_output_command>
     </scons_output>
 
     <para>
@@ -841,8 +841,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="troubleshoot_taskmastertrace" os="posix">
-      <scons_output_command suffix="1">scons -Q --taskmastertrace=- prog</scons_output_command>
+    <scons_output example="troubleshoot_taskmastertrace" os="posix" suffix="1">
+      <scons_output_command>scons -Q --taskmastertrace=- prog</scons_output_command>
     </scons_output>
 
     <para>

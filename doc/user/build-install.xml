@@ -1,5 +1,9 @@
 <?xml version='1.0'?>
 <!DOCTYPE sconsdoc [
+
+    <!ENTITY % version SYSTEM "../version.xml">
+    %version;
+
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
     
@@ -221,7 +225,7 @@
       </para>
 
       <screen>
-        # <userinput>rpm -Uvh scons-__VERSION__-1.noarch.rpm</userinput>
+        # <userinput>rpm -Uvh scons-&buildversion;-1.noarch.rpm</userinput>
       </screen>
 
       <para>
@@ -283,7 +287,7 @@
 
       &SCons; provides a Windows installer
       that makes installation extremely easy.
-      Download the <filename>scons-__VERSION__.win32.exe</filename>
+      Download the <filename>scons-&buildversion;.win32.exe</filename>
       file from the &SCons; download page at
       <ulink url="http://www.scons.org/download.php">http://www.scons.org/download.php</ulink>.
       Then all you need to do is execute the file
@@ -393,8 +397,8 @@
     <para>
 
     The first step is to download either the
-    <filename>scons-__VERSION__.tar.gz</filename>
-    or <filename>scons-__VERSION__.zip</filename>,
+    <filename>scons-&buildversion;.tar.gz</filename>
+    or <filename>scons-&buildversion;.zip</filename>,
     which are available from the SCons download page at
     <ulink url="http://www.scons.org/download.html">http://www.scons.org/download.html</ulink>.
 
@@ -407,7 +411,7 @@
     on Linux or UNIX,
     or <application>WinZip</application> on Windows.
     This will create a directory called
-    <filename>scons-__VERSION__</filename>,
+    <filename>scons-&buildversion;</filename>,
     usually in your local directory.
     Then change your working directory to that directory
     and install &SCons; by executing the following commands:
@@ -415,7 +419,7 @@
     </para>
 
     <screen>
-      # <userinput>cd scons-__VERSION__</userinput>
+      # <userinput>cd scons-&buildversion;</userinput>
       # <userinput>python setup.py install</userinput>
     </screen>
 
@@ -483,9 +487,9 @@
 
       This will install the &SCons; build engine
       in the
-      <filename>/usr/lib/scons-__VERSION__</filename>
+      <filename>/usr/lib/scons-&buildversion;</filename>
       or
-      <filename>C:\Python25\scons-__VERSION__</filename>
+      <filename>C:\Python25\scons-&buildversion;</filename>
       directory, for example.
 
       </para>
@@ -542,7 +546,7 @@
       relative to the specified prefix.
       Adding <option>--version-lib</option> to the
       above example would install the build engine in
-      <filename>/opt/scons/lib/scons-__VERSION__</filename>.
+      <filename>/opt/scons/lib/scons-&buildversion;</filename>.
 
       </para>
 

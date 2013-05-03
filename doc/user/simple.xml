@@ -112,8 +112,8 @@
 
    </para>
 
-   <scons_output example="simple_ex1" os="posix">
-      <scons_output_command suffix="1">scons</scons_output_command>
+   <scons_output example="simple_ex1" os="posix" suffix="1">
+      <scons_output_command>scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -123,8 +123,8 @@
 
    </para>
 
-   <scons_output example="simple_ex1" os="win32">
-      <scons_output_command suffix="2">scons</scons_output_command>
+   <scons_output example="simple_ex1" os="win32" suffix="2">
+      <scons_output_command>scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -193,8 +193,8 @@
 
    </para>
 
-   <scons_output example="simple_Object" os="posix">
-      <scons_output_command suffix="1">scons</scons_output_command>
+   <scons_output example="simple_Object" os="posix" suffix="1">
+      <scons_output_command>scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -204,8 +204,8 @@
 
    </para>
 
-   <scons_output example="simple_Object" os="win32">
-      <scons_output_command suffix="2">scons</scons_output_command>
+   <scons_output example="simple_Object" os="win32" suffix="2">
+      <scons_output_command>scons</scons_output_command>
    </scons_output>
 
  </section>
@@ -251,8 +251,8 @@
 
    </para>
 
-   <scons_output example="simple_java" os="posix">
-      <scons_output_command suffix="1">scons</scons_output_command>
+   <scons_output example="simple_java" os="posix" suffix="1">
+      <scons_output_command>scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -292,9 +292,9 @@
       </file>
    </scons_example>
 
-   <scons_output example="simple_clean" os="posix">
-      <scons_output_command suffix="1">scons</scons_output_command>
-      <scons_output_command suffix="2">scons -c</scons_output_command>
+   <scons_output example="simple_clean" os="posix" suffix="1">
+      <scons_output_command>scons</scons_output_command>
+      <scons_output_command>scons -c</scons_output_command>
    </scons_output>
 
    <para>
@@ -303,9 +303,9 @@
 
    </para>
 
-   <scons_output example="simple_clean" os="win32">
-      <scons_output_command suffix="3">scons</scons_output_command>
-      <scons_output_command suffix="4">scons -c</scons_output_command>
+   <scons_output example="simple_clean" os="win32" suffix="2">
+      <scons_output_command>scons</scons_output_command>
+      <scons_output_command>scons -c</scons_output_command>
    </scons_output>
 
    <para>
@@ -467,8 +467,8 @@
 
      </para>
 
-     <scons_output example="simple_declarative" os="posix">
-       <scons_output_command suffix="1">scons</scons_output_command>
+     <scons_output example="simple_declarative" os="posix" suffix="1">
+       <scons_output_command>scons</scons_output_command>
      </scons_output>
 
      <para>
@@ -495,8 +495,8 @@
 
    </para>
 
-   <scons_output example="simple_ex1" os="win32">
-      <scons_output_command suffix="3">scons</scons_output_command>
+   <scons_output example="simple_ex1" os="win32" suffix="3">
+      <scons_output_command>scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -521,8 +521,8 @@
 
    </para>
 
-   <scons_output example="simple_ex1" os="win32">
-      <scons_output_command suffix="4">scons -Q</scons_output_command>
+   <scons_output example="simple_ex1" os="win32" suffix="4">
+      <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
    <para>

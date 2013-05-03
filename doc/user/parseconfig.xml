@@ -105,8 +105,8 @@
  no longer reports back an include directory.  Since this is just
  for example anyway, we're just hard-coding the output.
 
- <scons_output example="parseconfig_ex1">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+ <scons_output example="parseconfig_ex1" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
  -->
 
@@ -149,8 +149,8 @@
  no longer reports back an include directory.  Since this is just
  for example anyway, we're just hard-coding the output.
 
- <scons_output example="parseconfig_ex2">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+ <scons_output example="parseconfig_ex2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
  -->
 

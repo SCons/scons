@@ -192,10 +192,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="separate_ex1">
-      <scons_output_command suffix="1">ls src</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">ls build</scons_output_command>
+    <scons_output example="separate_ex1" suffix="1">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
     </scons_output>
 
     <para>
@@ -389,10 +389,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="separate_builddir">
-      <scons_output_command suffix="1">ls src</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">ls build</scons_output_command>
+    <scons_output example="separate_builddir" suffix="1">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
     </scons_output>
 
     <para>
@@ -420,10 +420,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="separate_duplicate0">
-      <scons_output_command suffix="1">ls src</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">ls build</scons_output_command>
+    <scons_output example="separate_duplicate0" suffix="1">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
     </scons_output>
 
   </section>
@@ -471,10 +471,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="separate_builddir_sconscript">
-      <scons_output_command suffix="1">ls src</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">ls build</scons_output_command>
+    <scons_output example="separate_builddir_sconscript" suffix="1">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
     </scons_output>
 
     <para>
@@ -530,10 +530,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="separate_glob_builddir_sconscript">
-      <scons_output_command suffix="1">ls src</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
-      <scons_output_command suffix="3">ls build</scons_output_command>
+    <scons_output example="separate_glob_builddir_sconscript" suffix="1">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
     </scons_output>
 
     <para>

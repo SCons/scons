@@ -103,8 +103,8 @@
 
     </para>
 
-    <scons_output example="fileremoval_precious-ex1">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="fileremoval_precious-ex1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -160,9 +160,9 @@
 
     </para>
 
-    <scons_output example="fileremoval_noclean-ex1">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
-        <scons_output_command suffix="2">scons -c</scons_output_command>
+    <scons_output example="fileremoval_noclean-ex1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -c</scons_output_command>
     </scons_output>
 
   </section>
@@ -237,9 +237,9 @@
 
     </para>
 
-    <scons_output example="fileremoval_clean-ex1">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
-        <scons_output_command suffix="2">scons -Q -c</scons_output_command>
+    <scons_output example="fileremoval_clean-ex1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -Q -c</scons_output_command>
     </scons_output>
 
   </section>

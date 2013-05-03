@@ -183,10 +183,10 @@
         </file>
       </scons_example>
 
-      <scons_output example="commandline_SCONSFLAGS">
-        <scons_output_command suffix="1">scons</scons_output_command>
-        <scons_output_command suffix="2">export SCONSFLAGS="-Q"</scons_output_command>
-        <scons_output_command environment="SCONSFLAGS=-Q" suffix="3">scons</scons_output_command>
+      <scons_output example="commandline_SCONSFLAGS" suffix="1">
+        <scons_output_command>scons</scons_output_command>
+        <scons_output_command>export SCONSFLAGS="-Q"</scons_output_command>
+        <scons_output_command environment="SCONSFLAGS=-Q">scons</scons_output_command>
       </scons_output>
 
       <para>
@@ -344,8 +344,8 @@
 
       </para>
 
-      <scons_output example="commandline_SetOption">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="commandline_SetOption" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -356,9 +356,9 @@
 
       </para>
 
-      <scons_output example="commandline_SetOption">
-        <scons_output_command suffix="2">export NUM_CPU="4"</scons_output_command>
-        <scons_output_command environment="NUM_CPU=4" suffix="3">scons -Q</scons_output_command>
+      <scons_output example="commandline_SetOption" suffix="2">
+        <scons_output_command>export NUM_CPU="4"</scons_output_command>
+        <scons_output_command environment="NUM_CPU=4">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -372,10 +372,10 @@
 
       </para>
 
-      <scons_output example="commandline_SetOption">
-        <scons_output_command suffix="4">scons -Q -j 7</scons_output_command>
-        <scons_output_command suffix="5">export NUM_CPU="4"</scons_output_command>
-        <scons_output_command environment="NUM_CPU=4" suffix="6">scons -Q -j 3</scons_output_command>
+      <scons_output example="commandline_SetOption" suffix="3">
+        <scons_output_command>scons -Q -j 7</scons_output_command>
+        <scons_output_command>export NUM_CPU="4"</scons_output_command>
+        <scons_output_command environment="NUM_CPU=4">scons -Q -j 3</scons_output_command>
       </scons_output>
 
     </section>
@@ -662,8 +662,8 @@
 
       </para>
 
-      <scons_output example="commandline_AddOption">
-        <scons_output_command suffix="1">scons -Q -n</scons_output_command>
+      <scons_output example="commandline_AddOption" suffix="1">
+        <scons_output_command>scons -Q -n</scons_output_command>
       </scons_output>
 
       <para>
@@ -674,8 +674,8 @@
 
       </para>
 
-      <scons_output example="commandline_AddOption">
-        <scons_output_command suffix="2">scons -Q -n --prefix=/tmp/install</scons_output_command>
+      <scons_output example="commandline_AddOption" suffix="2">
+        <scons_output_command>scons -Q -n --prefix=/tmp/install</scons_output_command>
       </scons_output>
 
     </section>
@@ -753,11 +753,11 @@
 
     </para>
 
-    <scons_output example="commandline_ARGUMENTS">
-       <scons_output_command suffix="1">scons -Q debug=0</scons_output_command>
-       <scons_output_command suffix="2">scons -Q debug=0</scons_output_command>
-       <scons_output_command suffix="3">scons -Q debug=1</scons_output_command>
-       <scons_output_command suffix="4">scons -Q debug=1</scons_output_command>
+    <scons_output example="commandline_ARGUMENTS" suffix="1">
+       <scons_output_command>scons -Q debug=0</scons_output_command>
+       <scons_output_command>scons -Q debug=0</scons_output_command>
+       <scons_output_command>scons -Q debug=1</scons_output_command>
+       <scons_output_command>scons -Q debug=1</scons_output_command>
     </scons_output>
 
     <para>
@@ -840,9 +840,9 @@
 
     </para>
 
-    <scons_output example="commandline_ARGLIST">
-       <scons_output_command suffix="1">scons -Q define=FOO</scons_output_command>
-       <scons_output_command suffix="2">scons -Q define=FOO define=BAR</scons_output_command>
+    <scons_output example="commandline_ARGLIST" suffix="1">
+       <scons_output_command>scons -Q define=FOO</scons_output_command>
+       <scons_output_command>scons -Q define=FOO define=BAR</scons_output_command>
     </scons_output>
 
     <para>
@@ -950,8 +950,8 @@
 
       </para>
 
-      <scons_output example="commandline_Variables1">
-        <scons_output_command suffix="1">scons -Q RELEASE=1</scons_output_command>
+      <scons_output example="commandline_Variables1" suffix="1">
+        <scons_output_command>scons -Q RELEASE=1</scons_output_command>
       </scons_output>
 
       <para>
@@ -1012,8 +1012,8 @@
 
       </para>
 
-      <scons_output example="commandline_Variables_Help">
-        <scons_output_command suffix="1">scons -Q -h</scons_output_command>
+      <scons_output example="commandline_Variables_Help" suffix="1">
+        <scons_output_command>scons -Q -h</scons_output_command>
       </scons_output>
 
       <para>
@@ -1080,8 +1080,8 @@
 
       </para>
 
-      <scons_output example="commandline_Variables_custom_py_1">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="commandline_Variables_custom_py_1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1117,8 +1117,8 @@
 
       </para>
 
-      <scons_output example="commandline_Variables_custom_py_2">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="commandline_Variables_custom_py_2" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1202,12 +1202,12 @@
 
         </para>
 
-        <scons_output example="commandline_BoolVariable">
-          <scons_output_command suffix="1">scons -Q RELEASE=yes foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable" suffix="1">
+          <scons_output_command>scons -Q RELEASE=yes foo.o</scons_output_command>
         </scons_output>
 
-        <scons_output example="commandline_BoolVariable">
-          <scons_output_command suffix="2">scons -Q RELEASE=t foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable" suffix="2">
+          <scons_output_command>scons -Q RELEASE=t foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1231,12 +1231,12 @@
 
         </para>
 
-        <scons_output example="commandline_BoolVariable">
-          <scons_output_command suffix="3">scons -Q RELEASE=no foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable" suffix="3">
+          <scons_output_command>scons -Q RELEASE=no foo.o</scons_output_command>
         </scons_output>
 
-        <scons_output example="commandline_BoolVariable">
-          <scons_output_command suffix="4">scons -Q RELEASE=f foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable" suffix="4">
+          <scons_output_command>scons -Q RELEASE=f foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1258,8 +1258,8 @@
 
         </para>
 
-        <scons_output example="commandline_BoolVariable">
-          <scons_output_command suffix="5">scons -Q RELEASE=bad_value foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable" suffix="5">
+          <scons_output_command>scons -Q RELEASE=bad_value foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1305,10 +1305,10 @@
 
         </para>
 
-        <scons_output example="commandline_EnumVariable">
-          <scons_output_command suffix="1">scons -Q COLOR=red foo.o</scons_output_command>
-          <scons_output_command suffix="2">scons -Q COLOR=blue foo.o</scons_output_command>
-          <scons_output_command suffix="3">scons -Q COLOR=green foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable" suffix="1">
+          <scons_output_command>scons -Q COLOR=red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=blue foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1320,8 +1320,8 @@
 
         </para>
 
-        <scons_output example="commandline_EnumVariable">
-          <scons_output_command suffix="4">scons -Q COLOR=magenta foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable" suffix="2">
+          <scons_output_command>scons -Q COLOR=magenta foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1363,8 +1363,8 @@
 
         </para>
 
-        <scons_output example="EnumVariable_map">
-          <scons_output_command suffix="1">scons -Q COLOR=navy foo.o</scons_output_command>
+        <scons_output example="EnumVariable_map" suffix="1">
+          <scons_output_command>scons -Q COLOR=navy foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1377,10 +1377,10 @@
 
         </para>
 
-        <scons_output example="commandline_EnumVariable">
-          <scons_output_command suffix="5">scons -Q COLOR=Red foo.o</scons_output_command>
-          <scons_output_command suffix="6">scons -Q COLOR=BLUE foo.o</scons_output_command>
-          <scons_output_command suffix="7">scons -Q COLOR=nAvY foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable" suffix="3">
+          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1415,11 +1415,11 @@
 
         </para>
 
-        <scons_output example="commandline_EnumVariable_ic1">
-          <scons_output_command suffix="1">scons -Q COLOR=Red foo.o</scons_output_command>
-          <scons_output_command suffix="2">scons -Q COLOR=BLUE foo.o</scons_output_command>
-          <scons_output_command suffix="3">scons -Q COLOR=nAvY foo.o</scons_output_command>
-          <scons_output_command suffix="4">scons -Q COLOR=green foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable_ic1" suffix="1">
+          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1460,10 +1460,10 @@
 
         </para>
 
-        <scons_output example="commandline_EnumVariable_ic2">
-          <scons_output_command suffix="1">scons -Q COLOR=Red foo.o</scons_output_command>
-          <scons_output_command suffix="2">scons -Q COLOR=nAvY foo.o</scons_output_command>
-          <scons_output_command suffix="3">scons -Q COLOR=GREEN foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable_ic2" suffix="1">
+          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=GREEN foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1505,9 +1505,9 @@
 
         </para>
 
-        <scons_output example="commandline_ListVariable">
-          <scons_output_command suffix="1">scons -Q COLORS=red,blue foo.o</scons_output_command>
-          <scons_output_command suffix="2">scons -Q COLORS=blue,green,red foo.o</scons_output_command>
+        <scons_output example="commandline_ListVariable" suffix="1">
+          <scons_output_command>scons -Q COLORS=red,blue foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLORS=blue,green,red foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1520,9 +1520,9 @@
 
         </para>
 
-        <scons_output example="commandline_ListVariable">
-          <scons_output_command suffix="3">scons -Q COLORS=all foo.o</scons_output_command>
-          <scons_output_command suffix="4">scons -Q COLORS=none foo.o</scons_output_command>
+        <scons_output example="commandline_ListVariable" suffix="2">
+          <scons_output_command>scons -Q COLORS=all foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLORS=none foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1532,8 +1532,8 @@
 
         </para>
 
-        <scons_output example="commandline_ListVariable">
-          <scons_output_command suffix="5">scons -Q COLORS=magenta foo.o</scons_output_command>
+        <scons_output example="commandline_ListVariable" suffix="3">
+          <scons_output_command>scons -Q COLORS=magenta foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1582,9 +1582,9 @@
 
         </para>
 
-        <scons_output example="commandline_PathVariable">
-          <scons_output_command suffix="1">scons -Q foo.o</scons_output_command>
-          <scons_output_command suffix="2">scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</scons_output_command>
+        <scons_output example="commandline_PathVariable" suffix="1">
+          <scons_output_command>scons -Q foo.o</scons_output_command>
+          <scons_output_command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1595,8 +1595,8 @@
 
         </para>
 
-        <scons_output example="commandline_PathVariable">
-          <scons_output_command suffix="3">scons -Q CONFIG=__ROOT__/does/not/exist foo.o</scons_output_command>
+        <scons_output example="commandline_PathVariable" suffix="2">
+          <scons_output_command>scons -Q CONFIG=__ROOT__/does/not/exist foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1762,11 +1762,11 @@
 
         </para>
 
-        <scons_output example="commandline_PackageVariable">
-          <scons_output_command suffix="1">scons -Q foo.o</scons_output_command>
-          <scons_output_command suffix="2">scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</scons_output_command>
-          <scons_output_command suffix="3">scons -Q PACKAGE=yes foo.o</scons_output_command>
-          <scons_output_command suffix="4">scons -Q PACKAGE=no foo.o</scons_output_command>
+        <scons_output example="commandline_PackageVariable" suffix="1">
+          <scons_output_command>scons -Q foo.o</scons_output_command>
+          <scons_output_command>scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</scons_output_command>
+          <scons_output_command>scons -Q PACKAGE=yes foo.o</scons_output_command>
+          <scons_output_command>scons -Q PACKAGE=no foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1891,8 +1891,8 @@
 
       </para>
 
-      <scons_output example="commandline_UnknownVariables">
-        <scons_output_command suffix="1">scons -Q NOT_KNOWN=foo</scons_output_command>
+      <scons_output example="commandline_UnknownVariables" suffix="1">
+        <scons_output_command>scons -Q NOT_KNOWN=foo</scons_output_command>
       </scons_output>
 
       <para>
@@ -1966,9 +1966,9 @@
 
       </para>
 
-      <scons_output example="commandline_COMMAND_LINE_TARGETS">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
-        <scons_output_command suffix="2">scons -Q bar</scons_output_command>
+      <scons_output example="commandline_COMMAND_LINE_TARGETS" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -Q bar</scons_output_command>
       </scons_output>
 
       <para>
@@ -2028,10 +2028,10 @@
 
       </para>
 
-      <scons_output example="commandline_Default1">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
-         <scons_output_command suffix="2">scons -Q</scons_output_command>
-         <scons_output_command suffix="3">scons -Q goodbye</scons_output_command>
+      <scons_output example="commandline_Default1" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q goodbye</scons_output_command>
       </scons_output>
 
       <para>
@@ -2045,8 +2045,8 @@
 
       </para>
 
-      <scons_output example="commandline_Default1">
-         <scons_output_command suffix="4">scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default1" suffix="2">
+         <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -2104,9 +2104,9 @@
 
       </para>
 
-      <scons_output example="commandline_Default2">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
-         <scons_output_command suffix="2">scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default2" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -2146,10 +2146,10 @@
 
       </para>
 
-      <scons_output example="commandline_Default3">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
-         <scons_output_command suffix="2">scons -Q</scons_output_command>
-         <scons_output_command suffix="3">scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default3" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -2182,9 +2182,9 @@
 
       </para>
 
-      <scons_output example="commandline_Default4">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
-         <scons_output_command suffix="2">scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default4" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <section>
@@ -2227,8 +2227,8 @@
 
         </para>
 
-        <scons_output example="commandline_DEFAULT_TARGETS_1">
-           <scons_output_command suffix="1">scons</scons_output_command>
+        <scons_output example="commandline_DEFAULT_TARGETS_1" suffix="1">
+           <scons_output_command>scons</scons_output_command>
         </scons_output>
 
         <para>
@@ -2263,8 +2263,8 @@
 
         </para>
 
-        <scons_output example="commandline_DEFAULT_TARGETS_2">
-           <scons_output_command suffix="1">scons</scons_output_command>
+        <scons_output example="commandline_DEFAULT_TARGETS_2" suffix="1">
+           <scons_output_command>scons</scons_output_command>
         </scons_output>
 
         <para>
@@ -2356,10 +2356,10 @@
 
       </para>
 
-      <scons_output example="commandline_BUILD_TARGETS_1">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
-        <scons_output_command suffix="2">scons -Q prog2</scons_output_command>
-        <scons_output_command suffix="3">scons -Q -c .</scons_output_command>
+      <scons_output example="commandline_BUILD_TARGETS_1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -Q prog2</scons_output_command>
+        <scons_output_command>scons -Q -c .</scons_output_command>
       </scons_output>
 
     </section>

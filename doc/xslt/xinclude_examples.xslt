@@ -19,11 +19,10 @@
     <xsl:copy/>
   </xsl:template>
 
-  <!-- Changing scons_output_command to xinclude -->
-  <xsl:template match="scons:scons_output_command">
+  <!-- Changing scons_output to xinclude -->
+  <xsl:template match="scons:scons_output">
     <xsl:element name="xsi:include">
-      <xsl:attribute name="href"><xsl:value-of select="concat('../generated/examples/',../@example,'_',@suffix,'.out')"></xsl:value-of></xsl:attribute>
-      <xsl:attribute name="parse">text</xsl:attribute>
+      <xsl:attribute name="href"><xsl:value-of select="concat('../generated/examples/',@example,'_',@suffix,'.xml')"></xsl:value-of></xsl:attribute>
     </xsl:element>
   </xsl:template>
 

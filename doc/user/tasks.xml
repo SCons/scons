@@ -160,8 +160,8 @@ Where main.cpp looks like this:
 produces this:
 </para>
 
- <scons_output example="tasks_ex1">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+ <scons_output example="tasks_ex1" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
     
 </example>

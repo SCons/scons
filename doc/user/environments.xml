@@ -607,8 +607,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex1">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex1" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -639,8 +639,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex6">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex6" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -670,8 +670,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex6b" os="posix">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex6b" os="posix" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -680,8 +680,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex6b" os="win32">
-         <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output example="environments_ex6b" os="win32" suffix="2">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -810,8 +810,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-       <scons_output example="environments_missing1">
-          <scons_output_command suffix="1">scons -Q</scons_output_command>
+       <scons_output example="environments_missing1" suffix="1">
+          <scons_output_command>scons -Q</scons_output_command>
        </scons_output>
 
       <para>
@@ -838,8 +838,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-       <scons_output example="environments_missing2">
-          <scons_output_command suffix="1">scons -Q</scons_output_command>
+       <scons_output example="environments_missing2" suffix="1">
+          <scons_output_command>scons -Q</scons_output_command>
        </scons_output>
 
       <para>
@@ -858,8 +858,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-       <scons_output example="environments_missing3">
-          <scons_output_command suffix="1">scons -Q</scons_output_command>
+       <scons_output example="environments_missing3" suffix="1">
+          <scons_output_command>scons -Q</scons_output_command>
        </scons_output>
       <sconstruct>
       </sconstruct>
@@ -1020,8 +1020,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-      <scons_output example="environments_ex2">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex2" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1054,8 +1054,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex3">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex3" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1111,8 +1111,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex4">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex4" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -1172,8 +1172,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex5">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex5" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -1208,8 +1208,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_Replace1">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_Replace1" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1236,8 +1236,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_Replace-nonexistent">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_Replace-nonexistent" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1285,8 +1285,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_Replace2">
-         <scons_output_command suffix="1">scons</scons_output_command>
+      <scons_output example="environments_Replace2" suffix="1">
+         <scons_output_command>scons</scons_output_command>
       </scons_output>
 
       <para>
@@ -1368,8 +1368,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex8">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex8" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1393,8 +1393,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_Append-nonexistent">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_Append-nonexistent" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1468,8 +1468,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_ex9">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_ex9" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1493,8 +1493,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="environments_Prepend-nonexistent">
-         <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="environments_Prepend-nonexistent" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1666,8 +1666,8 @@ environment, of directory names, suffixes, etc.
 
     </para>
 
-    <scons_output example="environments_ex1">
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="environments_ex1" suffix="2">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->

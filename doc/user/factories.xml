@@ -100,8 +100,8 @@
 
     </para>
 
-    <scons_output example="factories_Copy1">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Copy1" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -124,8 +124,8 @@
 
     </para>
 
-    <scons_output example="factories_Copy2">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Copy2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -172,8 +172,8 @@
 
     </para>
 
-    <scons_output example="factories_Copy3">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Copy3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -224,8 +224,8 @@
 
     </para>
 
-    <scons_output example="factories_Delete1">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Delete1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -254,8 +254,8 @@
 
     </para>
 
-    <scons_output example="factories_Delete2">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Delete2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -318,8 +318,8 @@
 
     </para>
 
-    <scons_output example="factories_Move">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Move" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -358,8 +358,8 @@
 
     </para>
 
-    <scons_output example="factories_Touch">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Touch" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -409,8 +409,8 @@
 
     </para>
 
-    <scons_output example="factories_Mkdir">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Mkdir" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -446,8 +446,8 @@
 
     </para>
 
-    <scons_output example="factories_Chmod">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="factories_Chmod" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -482,8 +482,8 @@
 
     </para>
 
-    <scons_output example="factories_Execute">
-      <scons_output_command suffix="1">scons</scons_output_command>
+    <scons_output example="factories_Execute" suffix="1">
+      <scons_output_command>scons</scons_output_command>
     </scons_output>
 
     <para>
