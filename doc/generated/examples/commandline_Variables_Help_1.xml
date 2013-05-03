@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q -h</userinput>
+
+RELEASE: Set to 1 to build for release
+    default: 0
+    actual: 0
+
+Use scons -H for help about command-line options.
+</screen>
