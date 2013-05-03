@@ -58,7 +58,7 @@
 
   </para>
 
-  <scons_example name="ex1">
+  <scons_example name="depends_ex1">
     <file name="SConstruct">
     Program('hello.c')
     </file>
@@ -67,9 +67,9 @@
     </file>
   </scons_example>
 
-  <scons_output example="ex1" os="posix">
-     <scons_output_command>scons -Q</scons_output_command>
-     <scons_output_command>scons -Q</scons_output_command>
+  <scons_output example="depends_ex1" os="posix">
+     <scons_output_command suffix="1">scons -Q</scons_output_command>
+     <scons_output_command suffix="2">scons -Q</scons_output_command>
   </scons_output>
 
   <para>
@@ -83,9 +83,9 @@
 
   </para>
 
-  <scons_output example="ex1" os="posix">
-     <scons_output_command>scons -Q hello</scons_output_command>
-     <scons_output_command>scons -Q hello</scons_output_command>
+  <scons_output example="depends_ex1" os="posix">
+     <scons_output_command suffix="3">scons -Q hello</scons_output_command>
+     <scons_output_command suffix="4">scons -Q hello</scons_output_command>
   </scons_output>
 
   <para>
@@ -135,10 +135,10 @@
 
       </para>
 
-      <scons_output example="ex1" os="posix">
-         <scons_output_command>scons -Q hello</scons_output_command>
-         <scons_output_command>touch hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1" os="posix">
+         <scons_output_command suffix="5">scons -Q hello</scons_output_command>
+         <scons_output_command suffix="6">touch hello.c</scons_output_command>
+         <scons_output_command suffix="7">scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -157,10 +157,10 @@
 
       </para>
 
-      <scons_output example="ex1" os="posix">
-         <scons_output_command>scons -Q hello</scons_output_command>
-         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1" os="posix">
+         <scons_output_command suffix="8">scons -Q hello</scons_output_command>
+         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]" suffix="9">edit hello.c</scons_output_command>
+         <scons_output_command suffix="10">scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -216,10 +216,10 @@
 
         </para>
 
-        <scons_output example="ex1" os="posix">
-           <scons_output_command>scons -Q hello</scons_output_command>
-           <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</scons_output_command>
-           <scons_output_command>scons -Q hello</scons_output_command>
+        <scons_output example="depends_ex1" os="posix">
+           <scons_output_command suffix="11">scons -Q hello</scons_output_command>
+           <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line" suffix="12">edit hello.c</scons_output_command>
+           <scons_output_command suffix="13">scons -Q hello</scons_output_command>
         </scons_output>
 
         <para>
@@ -268,7 +268,7 @@
 
       </para>
 
-      <scons_example name="newer">
+      <scons_example name="depends_newer">
         <file name="SConstruct" printme="1">
         Object('hello.c')
         Decider('timestamp-newer')
@@ -286,10 +286,10 @@
 
       </para>
 
-      <scons_output example="newer" os="posix">
-         <scons_output_command>scons -Q hello.o</scons_output_command>
-         <scons_output_command>touch hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello.o</scons_output_command>
+      <scons_output example="depends_newer" os="posix">
+         <scons_output_command suffix="1">scons -Q hello.o</scons_output_command>
+         <scons_output_command suffix="2">touch hello.c</scons_output_command>
+         <scons_output_command suffix="3">scons -Q hello.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -337,7 +337,7 @@
 
       </para>
 
-      <scons_example name="match">
+      <scons_example name="depends_match">
         <file name="SConstruct" printme="1">
         Object('hello.c')
         Decider('timestamp-match')
@@ -359,10 +359,10 @@
 
       </para>
 
-      <scons_output example="match" os="posix">
-         <scons_output_command>scons -Q hello.o</scons_output_command>
-         <scons_output_command>touch -t 198901010000 hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello.o</scons_output_command>
+      <scons_output example="depends_match" os="posix">
+         <scons_output_command suffix="1">scons -Q hello.o</scons_output_command>
+         <scons_output_command suffix="2">touch -t 198901010000 hello.c</scons_output_command>
+         <scons_output_command suffix="3">scons -Q hello.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -396,7 +396,7 @@
 
       </para>
 
-      <scons_example name="MD5-timestamp">
+      <scons_example name="depends_MD5-timestamp">
         <file name="SConstruct" printme="1">
         Program('hello.c')
         Decider('MD5-timestamp')
@@ -420,12 +420,12 @@
       output seems to get this wrong.
       Just in-line the output for now.
 
-      <scons_output example="MD5-timestamp" os="posix">
-         <scons_output_command>scons -Q hello</scons_output_command>
-         <scons_output_command>touch hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
-       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output example="depends_MD5-timestamp" os="posix">
+         <scons_output_command suffix="1">scons -Q hello</scons_output_command>
+         <scons_output_command suffix="2">touch hello.c</scons_output_command>
+         <scons_output_command suffix="3">scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]" suffix="4">edit hello.c</scons_output_command>
+         <scons_output_command suffix="5">scons -Q hello</scons_output_command>
       </scons_output>
 
       -->
@@ -514,7 +514,7 @@
 
       </para>
 
-      <scons_example name="function">
+      <scons_example name="depends_function">
         <file name="SConstruct" printme="1">
         Program('hello.c')
         def decide_if_changed(dependency, target, prev_ni):
@@ -696,7 +696,7 @@
 
       </para>
 
-      <scons_example name="mixing">
+      <scons_example name="depends_mixing">
         <file name="SConstruct" printme="1">
         env1 = Environment(CPPPATH = ['.'])
         env2 = env1.Clone()
@@ -729,10 +729,10 @@
 
       </para>
 
-      <scons_output example="mixing" os="posix">
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>touch inc.h</scons_output_command>
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="depends_mixing" os="posix">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
+         <scons_output_command suffix="2">touch inc.h</scons_output_command>
+         <scons_output_command suffix="3">scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -947,7 +947,7 @@
 
     </para>
 
-    <scons_example name="include">
+    <scons_example name="depends_include">
       <file name="SConstruct">
        Program('hello.c', CPPPATH = '.')
       </file>
@@ -970,7 +970,7 @@
 
     </para>
 
-    <scons_example_file example="include"  name="hello.h">
+    <scons_example_file example="depends_include"  name="hello.h">
     </scons_example_file>
 
     <para>
@@ -983,7 +983,7 @@
 
     </para>
 
-    <scons_example_file example="include"  name="SConstruct">
+    <scons_example_file example="depends_include"  name="SConstruct">
     </scons_example_file>
 
     <para>
@@ -997,11 +997,11 @@
 
     </para>
 
-    <scons_output example="include" os="posix">
-       <scons_output_command>scons -Q hello</scons_output_command>
-       <scons_output_command>scons -Q hello</scons_output_command>
-       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
-       <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_include" os="posix">
+       <scons_output_command suffix="1">scons -Q hello</scons_output_command>
+       <scons_output_command suffix="2">scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]" suffix="3">edit hello.h</scons_output_command>
+       <scons_output_command suffix="4">scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1047,7 +1047,7 @@
 
     </para>
 
-    <scons_example name="ex5">
+    <scons_example name="depends_ex5">
       <file name="SConstruct" printme="1">
        Program('hello.c', CPPPATH = ['include', '/home/project/inc'])
       </file>
@@ -1062,8 +1062,8 @@
 
     </para>
 
-    <scons_output example="ex5" os="posix">
-       <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_ex5" os="posix">
+       <scons_output_command suffix="1">scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1072,8 +1072,8 @@
 
     </para>
 
-    <scons_output example="ex5" os="win32">
-       <scons_output_command>scons -Q hello.exe</scons_output_command>
+    <scons_output example="depends_ex5" os="win32">
+       <scons_output_command suffix="2">scons -Q hello.exe</scons_output_command>
     </scons_output>
 
   </section>
@@ -1126,9 +1126,9 @@
 
     </para>
 
-    <scons_output example="ex1">
-       <scons_output_command>scons -Q --implicit-cache hello</scons_output_command>
-       <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_ex1">
+       <scons_output_command suffix="14">scons -Q --implicit-cache hello</scons_output_command>
+       <scons_output_command suffix="15">scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1206,9 +1206,9 @@
 
       </para>
 
-      <scons_output example="ex1">
-         <scons_output_command>scons -Q --implicit-deps-changed hello</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1">
+         <scons_output_command suffix="16">scons -Q --implicit-deps-changed hello</scons_output_command>
+         <scons_output_command suffix="17">scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -1241,9 +1241,9 @@
 
       </para>
 
-      <scons_output example="ex1">
-         <scons_output_command>scons -Q --implicit-deps-unchanged hello</scons_output_command>
-         <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output example="depends_ex1">
+         <scons_output_command suffix="18">scons -Q --implicit-deps-unchanged hello</scons_output_command>
+         <scons_output_command suffix="19">scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -1362,7 +1362,7 @@
 
     </para>
 
-    <scons_example name="macroinc">
+    <scons_example name="depends_macroinc">
       <file name="hello.c" printme="1">
       #define FOO_HEADER &lt;foo.h&gt;
       #include FOO_HEADER
@@ -1379,11 +1379,11 @@
       </file>
     </scons_example>
 
-    <scons_output example="macroinc" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="depends_macroinc" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
       <scons_output_command output="   [CHANGE CONTENTS OF foo.h]"
-      >edit foo.h</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+      suffix="2">edit foo.h</scons_output_command>
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -1415,7 +1415,7 @@
     priori specification of the dependency file. The produced hello.d
     file is not found (or used) for unknown reasons. -->
 
-    <scons_example name="parsedep">
+    <scons_example name="depends_parsedep">
       <file name="hello.c">
       #define FOO_HEADER &lt;foo.h&gt;
       #include FOO_HEADER
@@ -1438,11 +1438,11 @@
       </file>
     </scons_example>
 
-    <scons_output example="parsedep" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="depends_parsedep" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
       <scons_output_command output="   [CHANGE CONTENTS OF foo.h]"
-      >edit foo.h</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+      suffix="2">edit foo.h</scons_output_command>
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -1453,7 +1453,7 @@
 
     </para>
 
-    <scons_example name="parsedeprebuild">
+    <scons_example name="depends_parsedeprebuild">
       <file name="hello.c">
       #define FOO_HEADER &lt;foo.h&gt;
       #include FOO_HEADER
@@ -1474,10 +1474,10 @@
     </scons_example>
 
     <!--
-    <scons_output example="parsedeprebuild" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="depends_parsedeprebuild" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
     </scons_output>
     -->
 
@@ -1532,7 +1532,7 @@
 
     </para>
 
-    <scons_example name="ignore">
+    <scons_example name="depends_ignore">
       <file name="SConstruct" printme="1">
       hello_obj=Object('hello.c')
       hello = Program(hello_obj)
@@ -1550,11 +1550,11 @@
     <!-- XXX mention that you can use lists for target and source? -->
 
     <!--
-    <scons_output example="ignore">
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_ignore">
+      <scons_output_command suffix="1">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="2">scons -Q hello</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]" suffix="3">edit hello.h</scons_output_command>
+      <scons_output_command suffix="4">scons -Q hello</scons_output_command>
       XXX THIS EXAMPLE SHOULD BE UP-TO-DATE! XXX
     </scons_output>
     -->
@@ -1608,7 +1608,7 @@
     by default.
     </para>
 
-    <scons_example name="ignore_explicit">
+    <scons_example name="depends_ignore_explicit">
       <file name="SConstruct" printme="1">
       hello_obj=Object('hello.c')
       hello = Program(hello_obj)
@@ -1620,10 +1620,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="ignore_explicit" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_ignore_explicit" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command suffix="2">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="3">scons -Q hello</scons_output_command>
     </scons_output>
   </section>
 
@@ -1669,7 +1669,7 @@
 
     </para>
 
-    <scons_example name="no-Requires">
+    <scons_example name="depends_no-Requires">
       <file name="SConstruct" printme="1">
       import time
 
@@ -1699,12 +1699,12 @@
 
     </para>
 
-    <scons_output example="no-Requires">
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>sleep 1</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>sleep 1</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_no-Requires">
+      <scons_output_command suffix="1">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="2">sleep 1</scons_output_command>
+      <scons_output_command suffix="3">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="4">sleep 1</scons_output_command>
+      <scons_output_command suffix="5">scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -1728,7 +1728,7 @@
 
     </para>
 
-    <scons_example name="Requires">
+    <scons_example name="depends_Requires">
       <file name="SConstruct" printme="1">
       import time
 
@@ -1776,15 +1776,15 @@
 
     </para>
 
-    <scons_output example="Requires">
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>sleep 1</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>sleep 1</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
-      <scons_output_command>sleep 1</scons_output_command>
-      <scons_output_command>scons -Q hello</scons_output_command>
+    <scons_output example="depends_Requires">
+      <scons_output_command suffix="1">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="2">sleep 1</scons_output_command>
+      <scons_output_command suffix="3">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="4">sleep 1</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]" suffix="5">edit hello.c</scons_output_command>
+      <scons_output_command suffix="6">scons -Q hello</scons_output_command>
+      <scons_output_command suffix="7">sleep 1</scons_output_command>
+      <scons_output_command suffix="8">scons -Q hello</scons_output_command>
     </scons_output>
 
   </section>
@@ -1801,7 +1801,7 @@
 
     </para>
 
-    <scons_example name="AlwaysBuild">
+    <scons_example name="depends_AlwaysBuild">
       <file name="SConstruct" printme="1">
       hello = Program('hello.c')
       AlwaysBuild(hello)
@@ -1820,9 +1820,9 @@
 
     </para>
 
-    <scons_output example="AlwaysBuild">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="depends_AlwaysBuild">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -1842,9 +1842,9 @@
 
     </para>
 
-    <scons_output example="AlwaysBuild">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q hello.o</scons_output_command>
+    <scons_output example="depends_AlwaysBuild">
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
+      <scons_output_command suffix="4">scons -Q hello.o</scons_output_command>
     </scons_output>
 
     <!--

@@ -80,7 +80,7 @@
 
    </para>
 
-   <scons_example name="ex1">
+   <scons_example name="simple_ex1">
       <file name="SConstruct" printme="1">
       Program('hello.c')
       </file>
@@ -112,8 +112,8 @@
 
    </para>
 
-   <scons_output example="ex1" os="posix">
-      <scons_output_command>scons</scons_output_command>
+   <scons_output example="simple_ex1" os="posix">
+      <scons_output_command suffix="1">scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -123,8 +123,8 @@
 
    </para>
 
-   <scons_output example="ex1" os="win32">
-      <scons_output_command>scons</scons_output_command>
+   <scons_output example="simple_ex1" os="win32">
+      <scons_output_command suffix="2">scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -177,7 +177,7 @@
 
    </para>
 
-   <scons_example name="Object">
+   <scons_example name="simple_Object">
       <file name="SConstruct" printme="1">
       Object('hello.c')
       </file>
@@ -193,8 +193,8 @@
 
    </para>
 
-   <scons_output example="Object" os="posix">
-      <scons_output_command>scons</scons_output_command>
+   <scons_output example="simple_Object" os="posix">
+      <scons_output_command suffix="1">scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -204,8 +204,8 @@
 
    </para>
 
-   <scons_output example="Object" os="win32">
-      <scons_output_command>scons</scons_output_command>
+   <scons_output example="simple_Object" os="win32">
+      <scons_output_command suffix="2">scons</scons_output_command>
    </scons_output>
 
  </section>
@@ -226,7 +226,7 @@
 
    </para>
 
-   <scons_example name="java">
+   <scons_example name="simple_java">
      <file name="SConstruct" printme="1">
      Java('classes', 'src')
      </file>
@@ -251,8 +251,8 @@
 
    </para>
 
-   <scons_output example="java" os="posix">
-      <scons_output_command>scons</scons_output_command>
+   <scons_output example="simple_java" os="posix">
+      <scons_output_command suffix="1">scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -283,7 +283,7 @@
 
    </para>
 
-   <scons_example name="clean">
+   <scons_example name="simple_clean">
       <file name="SConstruct">
       Program('hello.c')
       </file>
@@ -292,9 +292,9 @@
       </file>
    </scons_example>
 
-   <scons_output example="clean" os="posix">
-      <scons_output_command>scons</scons_output_command>
-      <scons_output_command>scons -c</scons_output_command>
+   <scons_output example="simple_clean" os="posix">
+      <scons_output_command suffix="1">scons</scons_output_command>
+      <scons_output_command suffix="2">scons -c</scons_output_command>
    </scons_output>
 
    <para>
@@ -303,9 +303,9 @@
 
    </para>
 
-   <scons_output example="clean" os="win32">
-      <scons_output_command>scons</scons_output_command>
-      <scons_output_command>scons -c</scons_output_command>
+   <scons_output example="simple_clean" os="win32">
+      <scons_output_command suffix="3">scons</scons_output_command>
+      <scons_output_command suffix="4">scons -c</scons_output_command>
    </scons_output>
 
    <para>
@@ -440,7 +440,7 @@
 
      </para>
 
-     <scons_example name="declarative">
+     <scons_example name="simple_declarative">
        <file name="SConstruct" printme="1">
        print "Calling Program('hello.c')"
        Program('hello.c')
@@ -467,8 +467,8 @@
 
      </para>
 
-     <scons_output example="declarative" os="posix">
-       <scons_output_command>scons</scons_output_command>
+     <scons_output example="simple_declarative" os="posix">
+       <scons_output_command suffix="1">scons</scons_output_command>
      </scons_output>
 
      <para>
@@ -495,8 +495,8 @@
 
    </para>
 
-   <scons_output example="ex1" os="win32">
-      <scons_output_command>scons</scons_output_command>
+   <scons_output example="simple_ex1" os="win32">
+      <scons_output_command suffix="3">scons</scons_output_command>
    </scons_output>
 
    <para>
@@ -521,8 +521,8 @@
 
    </para>
 
-   <scons_output example="ex1" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
+   <scons_output example="simple_ex1" os="win32">
+      <scons_output_command suffix="4">scons -Q</scons_output_command>
    </scons_output>
 
    <para>

@@ -306,7 +306,7 @@ over the file scanning rather than being called for each input line:
 
     </para>
 
-    <scons_example name="scan">
+    <scons_example name="scanners_scan">
       <file name="SConstruct" printme="1">
         import re
 
@@ -351,11 +351,11 @@ over the file scanning rather than being called for each input line:
 
     </para>
 
-    <scons_output example="scan">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF other_file]">edit other_file</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="scanners_scan">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF other_file]" suffix="2">edit other_file</scons_output_command>
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
+      <scons_output_command suffix="4">scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -391,7 +391,7 @@ over the file scanning rather than being called for each input line:
 
     </para>
     
-    <scons_example name="findpathdirs">
+    <scons_example name="scanners_findpathdirs">
       <file name="SConstruct" printme="1">
         kscan = Scanner(function = kfile_scan,
                         skeys = ['.k'],

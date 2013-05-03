@@ -112,7 +112,7 @@ those files and use them in &SCons;.
 
 </para>
 
-<scons_example name="ex1">
+<scons_example name="tasks_ex1">
 <file name="SConstruct" printme="1">
 #### SConstruct
 env = Environment()
@@ -153,15 +153,15 @@ Where main.cpp looks like this:
 
 </para>
 
- <scons_example_file example="ex1" name="main.cpp">
+ <scons_example_file example="tasks_ex1" name="main.cpp">
  </scons_example_file>
 
 <para>
 produces this:
 </para>
 
- <scons_output example="ex1">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="tasks_ex1">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
     
 </example>

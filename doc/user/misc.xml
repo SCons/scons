@@ -89,7 +89,7 @@
     regardless of executing Python version by faking out
     the infrastructure in some way.
 
-    <scons_example name="EnsurePythonVersion">
+    <scons_example name="misc_EnsurePythonVersion">
       <file name="SConstruct" printme="1">
       EnsurePythonVersion(2, 5)
       </file>
@@ -115,8 +115,8 @@
     regardless of executing Python version by faking out
     the infrastructure in some way.
 
-    <scons_output example="EnsurePythonVersion">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_EnsurePythonVersion">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -158,7 +158,7 @@
     regardless of executing SCons version by faking out
     the infrastructure in some way.
 
-    <scons_example name="EnsureSConsVersion">
+    <scons_example name="misc_EnsureSConsVersion">
       <file name="SConstruct" printme="1">
       EnsureSConsVersion(1, 0)
       </file>
@@ -184,8 +184,8 @@
     regardless of executing SCons version by faking out
     the infrastructure in some way.
 
-    <scons_output example="EnsureSConsVersion">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_EnsureSConsVersion">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -210,7 +210,7 @@
 
     </para>
 
-    <scons_example name="Exit">
+    <scons_example name="misc_Exit">
       <file name="SConstruct" printme="1">
       if ARGUMENTS.get('FUTURE'):
           print "The FUTURE option is not supported yet!"
@@ -223,9 +223,9 @@
       </file>
     </scons_example>
 
-    <scons_output example="Exit">
-      <scons_output_command>scons -Q FUTURE=1</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_Exit">
+      <scons_output_command suffix="1">scons -Q FUTURE=1</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -266,7 +266,7 @@
 
     </para>
 
-    <scons_example name="FindFile1a">
+    <scons_example name="misc_FindFile1a">
       <file name="SConstruct" printme="1">
        # one directory
        print FindFile('missing', '.')
@@ -278,11 +278,11 @@
       </file>
     </scons_example>
 
-    <scons_output example="FindFile1a" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1a" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
-    <scons_example name="FindFile1b">
+    <scons_example name="misc_FindFile1b">
       <file name="SConstruct" printme="1">
        # several directories
        includes = [ '.', 'include', 'src/include']
@@ -304,8 +304,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="FindFile1b" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1b" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
    <!-- The man page says this should work, but it fails.
@@ -316,7 +316,7 @@
 
     </para>
 
-    <scons_example name="FindFile1c">
+    <scons_example name="misc_FindFile1c">
       <file name="SConstruct" printme="1">
        # several directories
        includes = [ '.', 'include', 'src/include']
@@ -337,8 +337,8 @@
         exists
     </scons_example>
 
-    <scons_output example="FindFile1c" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1c" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
    -->
 
@@ -349,7 +349,7 @@
 
     </para>
 
-    <scons_example name="FindFile1d">
+    <scons_example name="misc_FindFile1d">
       <file name="SConstruct" printme="1">
         print FindFile('multiple', ['sub1', 'sub2', 'sub3'])
         print FindFile('multiple', ['sub2', 'sub3', 'sub1'])
@@ -369,8 +369,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="FindFile1d" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1d" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
    <!-- file may be a list of file names or a single file name. -->
@@ -383,7 +383,7 @@
 
     </para>
 
-    <scons_example name="FindFile2">
+    <scons_example name="misc_FindFile2">
       <file name="SConstruct" printme="1">
        # Neither file exists, so build will fail
        Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
@@ -392,11 +392,11 @@
       </file>
     </scons_example>
 
-    <scons_output example="FindFile2" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile2" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
-    <scons_example name="FindFile2">
+    <scons_example name="misc_FindFile2">
       <file name="SConstruct" printme="1">
        # Only 'leaf' exists
        Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
@@ -408,8 +408,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="FindFile2" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile2" os="posix">
+       <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -419,7 +419,7 @@
 
     </para>
 
-    <scons_example name="FindFile3">
+    <scons_example name="misc_FindFile3">
       <file name="SConstruct" printme="1">
        # Only 'src/leaf' exists
        VariantDir('build', 'src')
@@ -431,8 +431,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="FindFile3" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile3" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -458,7 +458,7 @@
 
     </para>
 
-    <scons_example name="Flatten1">
+    <scons_example name="misc_Flatten1">
       <file name="SConstruct" printme="1">
       objects = [
           Object('prog1.c'),
@@ -482,8 +482,8 @@
 
     </para>
 
-    <scons_output example="Flatten1">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_Flatten1">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -499,7 +499,7 @@
 
     </para>
 
-    <scons_example name="Flatten2">
+    <scons_example name="misc_Flatten2">
       <file name="SConstruct" printme="1">
       objects = [
           Object('prog1.c'),
@@ -528,8 +528,8 @@
 
     </para>
 
-    <scons_output example="Flatten2">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_Flatten2">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -540,7 +540,7 @@
 
     </para>
 
-    <scons_example name="Flatten3">
+    <scons_example name="misc_Flatten3">
       <file name="SConstruct" printme="1">
       objects = [
           Object('prog1.c'),
@@ -563,8 +563,8 @@
 
     TODO:  can't use this now because it displays the temporary path name
 
-    <scons_output example="Flatten3">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="misc_Flatten3">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     -->

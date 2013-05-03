@@ -82,7 +82,7 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <scons_example name="ex_variants">
+  <scons_example name="variants_ex">
     <file name="SConstruct" printme="1">
     platform = ARGUMENTS.get('OS', Platform())
 
@@ -141,8 +141,8 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <scons_output example="ex_variants" os="posix">
-    <scons_output_command>scons -Q OS=linux</scons_output_command>
+  <scons_output example="variants_ex" os="posix">
+    <scons_output_command suffix="1">scons -Q OS=linux</scons_output_command>
   </scons_output>
 
   <para>
@@ -151,13 +151,13 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <scons_output example="ex_variants" os="win32">
-    <scons_output_command>scons -Q OS=windows</scons_output_command>
+  <scons_output example="variants_ex" os="win32">
+    <scons_output_command suffix="2">scons -Q OS=windows</scons_output_command>
   </scons_output>
 
   <!--
 
-  <scons_example name="ex_var2">
+  <scons_example name="variants_ex2">
     <file name="SConstruct" printme="1">
     env = Environment(OS = ARGUMENTS.get('OS'))
     for os in ['newell', 'post']:
@@ -165,8 +165,8 @@ is pretty smart about rebuilding things when you change options.
     </file>
   </scons_example>
 
-  <scons_output example="ex_var2">
-    <scons_output_command>scons -Q</scons_output_command>
+  <scons_output example="variants_ex2">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
   </scons_output>
 
   -->

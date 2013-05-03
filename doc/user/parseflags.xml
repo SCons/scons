@@ -78,7 +78,7 @@
 
  </para>
 
- <scons_example name="ParseFlags1">
+ <scons_example name="parseflags_ex1">
    <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
@@ -93,8 +93,8 @@
    </file>
  </scons_example>
 
- <scons_output example="ParseFlags1" os="posix">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="parseflags_ex1" os="posix">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -105,8 +105,8 @@
 
  </para>
 
- <scons_output example="ParseFlags1" os="win32">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="parseflags_ex1" os="win32">
+    <scons_output_command suffix="2">scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -117,7 +117,7 @@
 
  </para>
 
- <scons_example name="ParseFlags2">
+ <scons_example name="parseflags_ex2">
    <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags("-whatever")
@@ -132,8 +132,8 @@
    </file>
  </scons_example>
 
- <scons_output example="ParseFlags2">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="parseflags_ex2">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -143,7 +143,7 @@
 
  </para>
 
- <scons_example name="ParseFlags3">
+ <scons_example name="parseflags_ex3">
    <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
@@ -158,8 +158,8 @@
    </file>
  </scons_example>
 
- <scons_output example="ParseFlags3">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="parseflags_ex3">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -170,7 +170,7 @@
 
  </para>
 
- <scons_example name="ParseFlags4">
+ <scons_example name="parseflags_ex4">
    <file name="SConstruct" printme="1">
     env = Environment()
     d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
@@ -185,8 +185,8 @@
    </file>
  </scons_example>
 
- <scons_output example="ParseFlags4">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="parseflags_ex4">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>

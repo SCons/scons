@@ -301,7 +301,7 @@ make no difference to the build.
 
     </para>
 
-    <scons_example name="ex1">
+    <scons_example name="hierarchy_ex1">
       <file name="SConstruct" printme="1">
       SConscript(['prog1/SConscript',
                   'prog2/SConscript'])
@@ -342,7 +342,7 @@ make no difference to the build.
 
     </para>
 
-    <scons_example_file example="ex1" name="prog1/SConscript">
+    <scons_example_file example="hierarchy_ex1" name="prog1/SConscript">
     </scons_example_file>
 
     <para>
@@ -351,7 +351,7 @@ make no difference to the build.
 
     </para>
 
-    <scons_example_file example="ex1" name="prog2/SConscript">
+    <scons_example_file example="hierarchy_ex1" name="prog2/SConscript">
     </scons_example_file>
 
     <para>
@@ -361,8 +361,8 @@ make no difference to the build.
 
     </para>
 
-    <scons_output example="ex1">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="hierarchy_ex1">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -402,7 +402,7 @@ make no difference to the build.
 
     </para>
 
-    <scons_example name="ex2">
+    <scons_example name="hierarchy_ex2">
        <file name="SConstruct">
        SConscript('src/prog/SConscript')
        </file>
@@ -432,8 +432,8 @@ make no difference to the build.
 
     </para>
 
-    <scons_output example="ex2">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="hierarchy_ex2">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -458,7 +458,7 @@ make no difference to the build.
 
     </para>
 
-    <scons_example name="ex3">
+    <scons_example name="hierarchy_ex3">
        <file name="SConstruct">
        SConscript('src/prog/SConscript')
        </file>
@@ -483,8 +483,8 @@ make no difference to the build.
 
     </para>
 
-    <scons_output example="ex3">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="hierarchy_ex3">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -736,7 +736,7 @@ make no difference to the build.
 
       </para>
 
-      <scons_example name="Return">
+      <scons_example name="hierarchy_Return">
         <file name="SConstruct" printme="1">
           env = Environment()
           Export('env')
@@ -774,7 +774,7 @@ make no difference to the build.
 
       </para>
 
-      <scons_example_file example="Return" name="foo/SConscript">
+      <scons_example_file example="hierarchy_Return" name="foo/SConscript">
       </scons_example_file>
 
       <para>
@@ -788,8 +788,8 @@ make no difference to the build.
 
       </para>
 
-      <scons_output example="Return">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="hierarchy_Return">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <!--

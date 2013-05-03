@@ -152,7 +152,7 @@
 
     </para>
 
-    <scons_example name="libs">
+    <scons_example name="buildersbuiltin_libs">
       <file name="SConstruct" printme="1">
       env = Environment(LIBS = ['foo1', 'foo2'],
                         LIBPATH = ['/usr/dir1', 'dir2'])
@@ -172,8 +172,8 @@
 
     </para>
 
-    <scons_output example="libs" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="buildersbuiltin_libs" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -182,8 +182,8 @@
 
     </para>
 
-    <scons_output example="libs" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="buildersbuiltin_libs" os="win32">
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -743,7 +743,7 @@
 
       </para>
 
-      <scons_example name="ex1">
+      <scons_example name="buildersbuiltin_ex1">
         <file name="SConstruct" printme="1">
         env = Environment()
         env.Tar('out1.tar', ['file1', 'file2'])
@@ -760,8 +760,8 @@
         </file>
       </scons_example>
 
-      <scons_output example="ex1" os="posix">
-        <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex1" os="posix">
+        <scons_output_command suffix="1">scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -779,7 +779,7 @@
 
       </para>
 
-      <scons_example name="ex2">
+      <scons_example name="buildersbuiltin_ex2">
         <file name="SConstruct" printme="1">
         env = Environment(TARFLAGS = '-c -z')
         env.Tar('out.tar.gz', 'directory')
@@ -789,8 +789,8 @@
         </file>
       </scons_example>
 
-      <scons_output example="ex2" os="posix">
-        <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex2" os="posix">
+        <scons_output_command suffix="1">scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -803,7 +803,7 @@
 
       </para>
 
-      <scons_example name="ex3">
+      <scons_example name="buildersbuiltin_ex3">
         <file name="SConstruct" printme="1">
         env = Environment(TARFLAGS = '-c -z',
                           TARSUFFIX = '.tgz')
@@ -814,8 +814,8 @@
         </file>
       </scons_example>
 
-      <scons_output example="ex3" os="posix">
-        <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex3" os="posix">
+        <scons_output_command suffix="1">scons -Q .</scons_output_command>
       </scons_output>
 
     </section>
@@ -835,7 +835,7 @@
 
       </para>
 
-      <scons_example name="ex4">
+      <scons_example name="buildersbuiltin_ex4">
         <file name="SConstruct" printme="1">
         env = Environment()
         env.Zip('out', ['file1', 'file2'])
@@ -856,8 +856,8 @@
 
       </para>
 
-      <scons_output example="ex4" os="posix">
-        <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex4" os="posix">
+        <scons_output_command suffix="1">scons -Q .</scons_output_command>
       </scons_output>
 
     </section>

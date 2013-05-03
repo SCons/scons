@@ -488,7 +488,7 @@ environment, of directory names, suffixes, etc.
 
   </para>
 
-   <scons_example name="ex1">
+   <scons_example name="environments_ex1">
      <file name="SConstruct" printme="1">
      import os
      </file>
@@ -577,7 +577,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-       <scons_example name="ex1">
+       <scons_example name="environments_ex1">
          <file name="SConstruct" printme="1">
          env = Environment(CC = 'gcc',
                            CCFLAGS = '-O2')
@@ -607,8 +607,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex1">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex1">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -624,7 +624,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex6">
+      <scons_example name="environments_ex6">
         <file name="SConstruct" printme="1">
          env = Environment()
          print "CC is:", env['CC']
@@ -639,8 +639,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex6">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex6">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -653,7 +653,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex6b">
+      <scons_example name="environments_ex6b">
          <file name="SConstruct" printme="1">
          env = Environment(FOO = 'foo', BAR = 'bar')
          dict = env.Dictionary()
@@ -670,8 +670,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex6b" os="posix">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex6b" os="posix">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -680,8 +680,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex6b" os="win32">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex6b" os="win32">
+         <scons_output_command suffix="2">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -803,15 +803,15 @@ environment, of directory names, suffixes, etc.
       (a null string), and will not cause scons to fail. 
       </para>
 
-       <scons_example name="missing1">
+       <scons_example name="environments_missing1">
          <file name="SConstruct" printme="1">
           env = Environment()
           print "value is:", env.subst( '->$MISSING&lt;-' )
         </file>
       </scons_example>
 
-       <scons_output example="missing1">
-          <scons_output_command>scons -Q</scons_output_command>
+       <scons_output example="environments_missing1">
+          <scons_output_command suffix="1">scons -Q</scons_output_command>
        </scons_output>
 
       <para>
@@ -830,7 +830,7 @@ environment, of directory names, suffixes, etc.
       with no extra arguments.
       </para>
 
-       <scons_example name="missing2">
+       <scons_example name="environments_missing2">
          <file name="SConstruct" printme="1">
           AllowSubstExceptions()
           env = Environment()
@@ -838,8 +838,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-       <scons_output example="missing2">
-          <scons_output_command>scons -Q</scons_output_command>
+       <scons_output example="environments_missing2">
+          <scons_output_command suffix="1">scons -Q</scons_output_command>
        </scons_output>
 
       <para>
@@ -850,7 +850,7 @@ environment, of directory names, suffixes, etc.
       allowed
       </para>
 
-       <scons_example name="missing3">
+       <scons_example name="environments_missing3">
          <file name="SConstruct" printme="1">
           AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
           env = Environment()
@@ -858,8 +858,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-       <scons_output example="missing3">
-          <scons_output_command>scons -Q</scons_output_command>
+       <scons_output example="environments_missing3">
+          <scons_output_command suffix="1">scons -Q</scons_output_command>
        </scons_output>
       <sconstruct>
       </sconstruct>
@@ -1003,7 +1003,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex2">
+      <scons_example name="environments_ex2">
         <file name="SConstruct" printme="1">
          opt = Environment(CCFLAGS = '-O2')
          dbg = Environment(CCFLAGS = '-g')
@@ -1020,8 +1020,8 @@ environment, of directory names, suffixes, etc.
         </file>
       </scons_example>
 
-      <scons_output example="ex2">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex2">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1034,7 +1034,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex3">
+      <scons_example name="environments_ex3">
         <file name="SConstruct" printme="1">
          opt = Environment(CCFLAGS = '-O2')
          dbg = Environment(CCFLAGS = '-g')
@@ -1054,8 +1054,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex3">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex3">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1079,7 +1079,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex4">
+      <scons_example name="environments_ex4">
         <file name="SConstruct" printme="1">
          opt = Environment(CCFLAGS = '-O2')
          dbg = Environment(CCFLAGS = '-g')
@@ -1111,8 +1111,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex4">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex4">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -1147,7 +1147,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex5">
+      <scons_example name="environments_ex5">
         <file name="SConstruct" printme="1">
          env = Environment(CC = 'gcc')
          opt = env.Clone(CCFLAGS = '-O2')
@@ -1172,8 +1172,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex5">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex5">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
     </section>
@@ -1188,7 +1188,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="Replace1">
+      <scons_example name="environments_Replace1">
         <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = '-DDEFINE1')
          env.Replace(CCFLAGS = '-DDEFINE2')
@@ -1208,8 +1208,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="Replace1">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_Replace1">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1220,7 +1220,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="Replace-nonexistent">
+      <scons_example name="environments_Replace-nonexistent">
         <file name="SConstruct" printme="1">
          env = Environment()
          env.Replace(NEW_VARIABLE = 'xyzzy')
@@ -1236,8 +1236,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="Replace-nonexistent">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_Replace-nonexistent">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1256,7 +1256,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="Replace2">
+      <scons_example name="environments_Replace2">
         <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = '-DDEFINE1')
          print "CCFLAGS =", env['CCFLAGS']
@@ -1285,8 +1285,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="Replace2">
-         <scons_output_command>scons</scons_output_command>
+      <scons_output example="environments_Replace2">
+         <scons_output_command suffix="1">scons</scons_output_command>
       </scons_output>
 
       <para>
@@ -1350,7 +1350,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex8">
+      <scons_example name="environments_ex8">
         <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = ['-DMY_VALUE'])
          env.Append(CCFLAGS = ['-DLAST'])
@@ -1368,8 +1368,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex8">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex8">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1379,7 +1379,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="Append-nonexistent">
+      <scons_example name="environments_Append-nonexistent">
         <file name="SConstruct" printme="1">
          env = Environment()
          env.Append(NEW_VARIABLE = 'added')
@@ -1393,8 +1393,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="Append-nonexistent">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_Append-nonexistent">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1450,7 +1450,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="ex9">
+      <scons_example name="environments_ex9">
         <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = ['-DMY_VALUE'])
          env.Prepend(CCFLAGS = ['-DFIRST'])
@@ -1468,8 +1468,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="ex9">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_ex9">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1479,7 +1479,7 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_example name="Prepend-nonexistent">
+      <scons_example name="environments_Prepend-nonexistent">
         <file name="SConstruct" printme="1">
          env = Environment()
          env.Prepend(NEW_VARIABLE = 'added')
@@ -1493,8 +1493,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <scons_output example="Prepend-nonexistent">
-         <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="environments_Prepend-nonexistent">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1644,7 +1644,7 @@ environment, of directory names, suffixes, etc.
 
     <!--
 
-    <scons_example name="ex1">
+    <scons_example name="environments_ex1">
       <file name="SConstruct" printme="1">
       env = Environment()
       env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
@@ -1666,8 +1666,8 @@ environment, of directory names, suffixes, etc.
 
     </para>
 
-    <scons_output example="ex1">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="environments_ex1">
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     -->

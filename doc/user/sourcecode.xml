@@ -63,7 +63,7 @@
 
    </para>
 
-   <scons_example name="ex_bitkeeper">
+   <scons_example name="sourcecode_bitkeeper">
       <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.BitKeeper())
@@ -74,8 +74,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="ex_bitkeeper">
-     <scons_output_command>scons -Q</scons_output_command>
+   <scons_output example="sourcecode_bitkeeper">
+     <scons_output_command suffix="1">scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -89,7 +89,7 @@
 
    </para>
 
-   <scons_example name="ex_cvs">
+   <scons_example name="sourcecode_cvs">
       <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.CVS('/usr/local/CVS'))
@@ -97,8 +97,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="ex_cvs">
-     <scons_output_command>scons -Q</scons_output_command>
+   <scons_output example="sourcecode_cvs">
+     <scons_output_command suffix="1">scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -112,7 +112,7 @@
 
    </para>
 
-   <scons_example name="ex_rcs">
+   <scons_example name="sourcecode_rcs">
       <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.RCS())
@@ -123,8 +123,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="ex_rcs">
-     <scons_output_command>scons -Q</scons_output_command>
+   <scons_output example="sourcecode_rcs">
+     <scons_output_command suffix="1">scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -138,7 +138,7 @@
 
    </para>
 
-   <scons_example name="ex_sccs">
+   <scons_example name="sourcecode_sccs">
       <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.SCCS())
@@ -149,8 +149,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="ex_sccs">
-     <scons_output_command>scons -Q</scons_output_command>
+   <scons_output example="sourcecode_sccs">
+     <scons_output_command suffix="1">scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -166,7 +166,7 @@
 
    </para>
 
-   <scons_example name="ex_subversion">
+   <scons_example name="sourcecode_subversion">
       <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.Subversion('XXX'))
@@ -174,8 +174,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="ex_subversion">
-     <scons_output_command>scons -Q</scons_output_command>
+   <scons_output example="sourcecode_subversion">
+     <scons_output_command suffix="1">scons -Q</scons_output_command>
    </scons_output>
 
  </section>

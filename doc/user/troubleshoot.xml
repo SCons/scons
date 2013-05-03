@@ -90,7 +90,7 @@
 
     </para>
 
-    <scons_example name="explain1">
+    <scons_example name="troubleshoot_explain1">
       <file name="SConstruct" printme="1">
       # Intentionally misspell the output file name in the
       # command used to create the file:
@@ -119,10 +119,10 @@
 
     </para>
 
-    <scons_output example="explain1" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="troubleshoot_explain1" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -142,8 +142,8 @@
 
     </para>
 
-    <scons_output example="explain1" os="posix">
-      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    <scons_output example="troubleshoot_explain1" os="posix">
+      <scons_output_command suffix="4">scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -172,7 +172,7 @@
 
     </para>
 
-    <scons_example name="explain2">
+    <scons_example name="troubleshoot_explain2">
       <file name="SConstruct">
       Program('prog', ['file1.c', 'file2.c', 'file3.c'])
       </file>
@@ -187,10 +187,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="explain2" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF file2.c]">edit file2.c</scons_output_command>
-      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    <scons_output example="troubleshoot_explain2" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF file2.c]" suffix="2">edit file2.c</scons_output_command>
+      <scons_output_command suffix="3">scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -210,7 +210,7 @@
 
     </para>
 
-    <scons_example name="explain3">
+    <scons_example name="troubleshoot_explain3">
       <file name="SConstruct">
       Program('prog', ['file1.c', 'file2.c', 'file3.c'], CPPPATH='.')
       </file>
@@ -230,10 +230,10 @@
       </file>
     </scons_example>
 
-    <scons_output example="explain3" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
-      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    <scons_output example="troubleshoot_explain3" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]" suffix="2">edit hello.h</scons_output_command>
+      <scons_output_command suffix="3">scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -276,7 +276,7 @@
 
     </para>
 
-    <scons_example name="Dump">
+    <scons_example name="troubleshoot_Dump">
       <file name="SConstruct" printme="1">
          env = Environment()
          print env.Dump()
@@ -290,8 +290,8 @@
 
     </para>
 
-    <scons_output example="Dump" os="posix" tools="gcc">
-      <scons_output_command>scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump" os="posix" tools="gcc">
+      <scons_output_command suffix="1">scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -301,8 +301,8 @@
 
     </para>
 
-    <scons_output example="Dump" os="win32" tools="msvc">
-      <scons_output_command>scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump" os="win32" tools="msvc">
+      <scons_output_command suffix="2">scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -336,7 +336,7 @@
 
     </para>
 
-    <scons_example name="Dump_ENV">
+    <scons_example name="troubleshoot_Dump_ENV">
       <file name="SConstruct" printme="1">
          env = Environment()
          print env.Dump('ENV')
@@ -349,8 +349,8 @@
 
     </para>
 
-    <scons_output example="Dump_ENV" os="posix">
-      <scons_output_command>scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump_ENV" os="posix">
+      <scons_output_command suffix="1">scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -359,8 +359,8 @@
 
     </para>
 
-    <scons_output example="Dump_ENV" os="win32">
-      <scons_output_command>scons</scons_output_command>
+    <scons_output example="troubleshoot_Dump_ENV" os="win32">
+      <scons_output_command suffix="2">scons</scons_output_command>
     </scons_output>
 
   </section>
@@ -389,7 +389,7 @@
 
     </para>
 
-    <scons_example name="tree1">
+    <scons_example name="troubleshoot_tree1">
       <file name="SConstruct" printme="1">
          env = Environment(CPPPATH = ['.'])
          env.Program('prog', ['f1.c', 'f2.c', 'f3.c'])
@@ -415,8 +415,8 @@
 
     </para>
 
-    <scons_output example="tree1">
-      <scons_output_command>scons -Q --tree=all</scons_output_command>
+    <scons_output example="troubleshoot_tree1">
+      <scons_output_command suffix="1">scons -Q --tree=all</scons_output_command>
     </scons_output>
 
     <para>
@@ -441,8 +441,8 @@
 
     </para>
 
-    <scons_output example="tree1">
-      <scons_output_command>scons -Q --tree=all f2.o</scons_output_command>
+    <scons_output example="troubleshoot_tree1">
+      <scons_output_command suffix="2">scons -Q --tree=all f2.o</scons_output_command>
     </scons_output>
 
     <para>
@@ -457,8 +457,8 @@
 
     </para>
 
-    <scons_output example="tree1">
-      <scons_output_command>scons -Q --tree=all f1.o f3.o</scons_output_command>
+    <scons_output example="troubleshoot_tree1">
+      <scons_output_command suffix="3">scons -Q --tree=all f1.o f3.o</scons_output_command>
     </scons_output>
 
     <para>
@@ -469,8 +469,8 @@
 
     </para>
 
-    <scons_output example="tree1">
-      <scons_output_command>scons -Q --tree=status</scons_output_command>
+    <scons_output example="troubleshoot_tree1">
+      <scons_output_command suffix="4">scons -Q --tree=status</scons_output_command>
     </scons_output>
 
     <para>
@@ -487,8 +487,8 @@
 
     </para>
 
-    <scons_output example="tree1">
-      <scons_output_command>scons -Q --tree=derived</scons_output_command>
+    <scons_output example="troubleshoot_tree1">
+      <scons_output_command suffix="5">scons -Q --tree=derived</scons_output_command>
     </scons_output>
 
     <para>
@@ -498,8 +498,8 @@
 
     </para>
 
-    <scons_output example="tree1">
-      <scons_output_command>scons -Q --tree=derived,status</scons_output_command>
+    <scons_output example="troubleshoot_tree1">
+      <scons_output_command suffix="6">scons -Q --tree=derived,status</scons_output_command>
     </scons_output>
 
     <para>
@@ -521,7 +521,7 @@
 
     </para>
 
-    <scons_example name="tree2">
+    <scons_example name="troubleshoot_tree2">
       <file name="SConstruct" printme="1">
          env = Environment(CPPPATH = ['.'],
                            LIBS = ['foo'],
@@ -557,8 +557,8 @@
 
     </para>
 
-    <scons_output example="tree2">
-      <scons_output_command>scons -Q --tree=all</scons_output_command>
+    <scons_output example="troubleshoot_tree2">
+      <scons_output_command suffix="1">scons -Q --tree=all</scons_output_command>
     </scons_output>
 
     <para>
@@ -579,8 +579,8 @@
 
     </para>
 
-    <scons_output example="tree2">
-      <scons_output_command>scons -Q --tree=prune</scons_output_command>
+    <scons_output example="troubleshoot_tree2">
+      <scons_output_command suffix="2">scons -Q --tree=prune</scons_output_command>
     </scons_output>
 
     <para>
@@ -607,7 +607,7 @@
 
     </para>
 
-    <scons_example name="presub">
+    <scons_example name="troubleshoot_presub">
       <file name="SConstruct">
          env = Environment(CPPPATH = ['.'])
          env.Program('prog', 'prog.c')
@@ -623,8 +623,8 @@
     shows the Python functions from the sconsdoc.py execution wrapper
     used to generate this manual, not the underlying command-line strings.
 
-    <scons_output example="presub">
-      <scons_output_command>scons -Q - -debug=presub</scons_output_command>
+    <scons_output example="troubleshoot_presub">
+      <scons_output_command suffix="1">scons -Q - -debug=presub</scons_output_command>
     </scons_output>
 
     -->
@@ -655,7 +655,7 @@
 
     </para>
 
-    <scons_example name="findlibs">
+    <scons_example name="troubleshoot_findlibs">
       <file name="SConstruct" printme="1">
         env = Environment(LIBPATH = ['libs1', 'libs2'])
         env.Program('prog.c', LIBS=['foo', 'bar'])
@@ -681,8 +681,8 @@
 
     </para>
 
-    <scons_output example="findlibs">
-      <scons_output_command>scons -Q --debug=findlibs</scons_output_command>
+    <scons_output example="troubleshoot_findlibs">
+      <scons_output_command suffix="1">scons -Q --debug=findlibs</scons_output_command>
     </scons_output>
 
   </section>
@@ -699,7 +699,7 @@
 
     </para>
 
-    <scons_example name="includes">
+    <scons_example name="troubleshoot_includes">
       <file name="SConstruct" printme="1">
         env = Environment(CPPPATH = ['inc1', 'inc2'])
         env.Program('prog.c')
@@ -717,8 +717,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="includes">
-      <scons_output_command>scons -Q - - debug=includes prog</scons_output_command>
+    <scons_output example="troubleshoot_includes">
+      <scons_output_command suffix="1">scons -Q - - debug=includes prog</scons_output_command>
     </scons_output>
 
   </section>
@@ -747,7 +747,7 @@
 
     </para>
 
-    <scons_example name="stacktrace">
+    <scons_example name="troubleshoot_stacktrace">
       <file name="SConstruct" printme="1">
          Program('prog.c')
       </file>
@@ -761,8 +761,8 @@
 
     </para>
 
-    <scons_output example="stacktrace">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="troubleshoot_stacktrace">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -778,8 +778,8 @@
 
     </para>
 
-    <scons_output example="stacktrace">
-      <scons_output_command>scons -Q --debug=stacktrace</scons_output_command>
+    <scons_output example="troubleshoot_stacktrace">
+      <scons_output_command suffix="2">scons -Q --debug=stacktrace</scons_output_command>
     </scons_output>
 
     <para>
@@ -827,7 +827,7 @@
 
     </para>
 
-    <scons_example name="taskmastertrace">
+    <scons_example name="troubleshoot_taskmastertrace">
       <file name="SConstruct" printme="1">
       env = Environment(CPPPATH = ['.'])
       env.Program('prog.c')
@@ -841,8 +841,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="taskmastertrace" os="posix">
-      <scons_output_command>scons -Q --taskmastertrace=- prog</scons_output_command>
+    <scons_output example="troubleshoot_taskmastertrace" os="posix">
+      <scons_output_command suffix="1">scons -Q --taskmastertrace=- prog</scons_output_command>
     </scons_output>
 
     <para>

@@ -75,7 +75,7 @@
 
  </para>
 
- <scons_example name="SideEffectSimple">
+ <scons_example name="sideeffect_simple">
    <file name="SConstruct" printme="1">
     env = Environment()
     f2 = env.Command('file2', 'log', Copy('$TARGET', '$SOURCE'))
@@ -92,8 +92,8 @@
 
  </para>
 
- <scons_output example="SideEffectSimple">
-    <scons_output_command>scons -Q --jobs=2</scons_output_command>
+ <scons_output example="sideeffect_simple">
+    <scons_output_command suffix="1">scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
  <para>
@@ -153,7 +153,7 @@
 
  </para>
 
- <scons_example name="SideEffectShared">
+ <scons_example name="sideeffect_shared">
    <file name="SConstruct" printme="1">
    env = Environment()
    f1 = env.Command('file1.out', 'file1.in',
@@ -181,8 +181,8 @@
 
  </para>
 
- <scons_output example="SideEffectShared">
-    <scons_output_command>scons -Q --jobs=2</scons_output_command>
+ <scons_output example="sideeffect_shared">
+    <scons_output_command suffix="1">scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
  <para>
@@ -197,7 +197,7 @@
 
  </para>
 
- <scons_example name="SideEffectParallel">
+ <scons_example name="sideeffect_parallel">
    <file name="SConstruct" printme="1">
     env = Environment()
     f1 = env.Command('file1.out', [], 'echo >$TARGET data1')
@@ -207,8 +207,8 @@
    </file>
  </scons_example>
 
- <scons_output example="SideEffectParallel">
-    <scons_output_command>scons -Q --jobs=2</scons_output_command>
+ <scons_output example="sideeffect_parallel">
+    <scons_output_command suffix="1">scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
  <para>
