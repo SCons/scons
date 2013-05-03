@@ -69,7 +69,7 @@ Each entry is printed in the following format:</para>
             implicit_dependency_2: signature timestamp length
             action_signature [action string]</para>
 
-<para><emphasis remap='B'>None</emphasis>
+<para><emphasis role="bold">None</emphasis>
 is printed
 in place of any missing timestamp, bsig, or csig
 values for
@@ -82,7 +82,7 @@ the lines are simply omitted.</para>
 <para>By default,
 <command>sconsign</command>
 assumes that any
-<emphasis remap='I'>file</emphasis>
+<emphasis>file</emphasis>
 arguments that end with a
 <markup>.dbm</markup>
 suffix contains
@@ -90,10 +90,10 @@ signature entries for
 more than one directory
 (that is,
 was specified by the
-<emphasis remap='B'>SConsignFile ()</emphasis>
+<emphasis role="bold">SConsignFile ()</emphasis>
 function).
 Any
-<emphasis remap='I'>file</emphasis>
+<emphasis>file</emphasis>
 argument that does not end in
 <markup>.dbm</markup>
 is assumed to be a traditional
@@ -113,7 +113,7 @@ options.</para>
 <para>Various options control what information is printed
 and the format:</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
   <term>-a, --act, --action</term>
   <listitem>
@@ -144,7 +144,7 @@ options are used,
 prints information about
 only the signatures
 for entries in the specified
-<emphasis remap='I'>DIRECTORY</emphasis>.</para>
+<emphasis>DIRECTORY</emphasis>.</para>
 
   </listitem>
   </varlistentry>
@@ -152,10 +152,10 @@ for entries in the specified
   <term>-e ENTRY, --entry=ENTRY</term>
   <listitem>
 <para>Prints information about only the specified
-<emphasis remap='I'>ENTRY</emphasis>.
+<emphasis>ENTRY</emphasis>.
 Multiple -e options may be used,
 in which case information about each
-<emphasis remap='I'>ENTRY</emphasis>
+<emphasis>ENTRY</emphasis>
 is printed in the order in which the
 options are specified on the command line.</para>
 
@@ -166,12 +166,12 @@ options are specified on the command line.</para>
   <listitem>
 <para>The file(s) to be printed
 are in the specified
-<emphasis remap='I'>FORMAT</emphasis>.
+<emphasis>FORMAT</emphasis>.
 Legal values are
-<emphasis remap='B'>dbm</emphasis>
+<emphasis role="bold">dbm</emphasis>
 (the DBM format used
 when the
-<emphasis remap='B'>SConsignFile</emphasis>()
+<emphasis role="bold">SConsignFile</emphasis>()
 function is used)
 or
 <command>sconsign</command>
@@ -235,7 +235,7 @@ for all entries or the specified entries.</para>
 </refsect1>
 
 <refsect1 id='environment'><title>ENVIRONMENT</title>
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>SCONS_LIB_DIR</term>
   <listitem>
@@ -249,12 +249,12 @@ on the command line.</para>
 </refsect1>
 
 <refsect1 id='see_also'><title>SEE ALSO</title>
-<para><emphasis remap='B'>scons</emphasis>,
-<emphasis remap='B'>scons</emphasis>
+<para><emphasis role="bold">scons</emphasis>,
+<emphasis role="bold">scons</emphasis>
 User Manual,
-<emphasis remap='B'>scons</emphasis>
+<emphasis role="bold">scons</emphasis>
 Design Document,
-<emphasis remap='B'>scons</emphasis>
+<emphasis role="bold">scons</emphasis>
 source code.</para>
 
 </refsect1>
