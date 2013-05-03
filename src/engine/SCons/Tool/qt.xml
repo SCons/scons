@@ -98,17 +98,17 @@ Environment(tools=['default','qt'])
 
 The qt tool supports the following operations:
 
-<emphasis Role="strong">Automatic moc file generation from header files.</emphasis>
+<emphasis role="strong">Automatic moc file generation from header files.</emphasis>
 You do not have to specify moc files explicitly, the tool does it for you.
 However, there are a few preconditions to do so: Your header file must have
 the same filebase as your implementation file and must stay in the same
 directory. It must have one of the suffixes .h, .hpp, .H, .hxx, .hh. You
 can turn off automatic moc file generation by setting QT_AUTOSCAN to 0.
 See also the corresponding
-&b-Moc();
+&b-Moc;()
 builder method.
 
-<emphasis Role="strong">Automatic moc file generation from cxx files.</emphasis>
+<emphasis role="strong">Automatic moc file generation from cxx files.</emphasis>
 As stated in the qt documentation, include the moc file at the end of
 the cxx file. Note that you have to include the file, which is generated
 by the transformation ${QT_MOCCXXPREFIX}&lt;basename&gt;${QT_MOCCXXSUFFIX}, by default
@@ -119,7 +119,7 @@ by setting QT_AUTOSCAN to 0. See also the corresponding
 &b-Moc;
 builder method.
 
-<emphasis Role="strong">Automatic handling of .ui files.</emphasis>
+<emphasis role="strong">Automatic handling of .ui files.</emphasis>
 The implementation files generated from .ui files are handled much the same
 as yacc or lex files. Each .ui file given as a source of Program, Library or
 SharedLibrary will generate three files, the declaration file, the
