@@ -91,7 +91,7 @@
 
   </para>
 
-  <scons_example name="ex1">
+  <scons_example name="builderscommands_ex1">
      <file name="SConstruct" printme="1">
      env = Environment()
      env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE > $TARGET")
@@ -110,8 +110,8 @@
 
   </para>
 
-  <scons_output example="ex1">
-    <scons_output_command>scons -Q</scons_output_command>
+  <scons_output example="builderscommands_ex1">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
   </scons_output>
 
   <para>
@@ -131,7 +131,7 @@
 
   </para>
 
-  <scons_example name="ex2">
+  <scons_example name="builderscommands_ex2">
      <file name="SConstruct" printme="1">
      env = Environment()
      def build(target, source, env):
@@ -150,8 +150,8 @@
 
   </para>
 
-  <scons_output example="ex2">
-    <scons_output_command>scons -Q</scons_output_command>
+  <scons_output example="builderscommands_ex2">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
   </scons_output>
 
   <para>
@@ -162,7 +162,7 @@
 
   </para>
 
-  <scons_example name="ex3">
+  <scons_example name="builderscommands_ex3">
      <file name="SConstruct" printme="1">
      env.Command('${SOURCE.basename}.out', 'foo.in', build)
      </file>

@@ -71,7 +71,7 @@
 
  </para>
 
- <scons_example name="MergeFlags1">
+ <scons_example name="mergeflags_MergeFlags1">
    <file name="SConstruct" printme="1">
     env = Environment()
     env.Append(CCFLAGS = '-option -O3 -O1')
@@ -81,8 +81,8 @@
    </file>
  </scons_example>
 
- <scons_output example="MergeFlags1">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="mergeflags_MergeFlags1">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -98,7 +98,7 @@
 
  </para>
 
- <scons_example name="MergeFlags2">
+ <scons_example name="mergeflags_MergeFlags2">
    <file name="SConstruct" printme="1">
     env = Environment()
     env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
@@ -108,8 +108,8 @@
    </file>
  </scons_example>
 
- <scons_output example="MergeFlags2">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="mergeflags_MergeFlags2">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -132,7 +132,7 @@
 
  </para>
 
- <scons_example name="MergeFlags3">
+ <scons_example name="mergeflags_MergeFlags3">
    <file name="SConstruct" printme="1">
     env = Environment()
     env.Append(CCFLAGS = '-option -O3 -O1')
@@ -143,8 +143,8 @@
    </file>
  </scons_example>
 
- <scons_output example="MergeFlags3">
-    <scons_output_command>scons -Q</scons_output_command>
+ <scons_output example="mergeflags_MergeFlags3">
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
  </scons_output>
 
  <para>

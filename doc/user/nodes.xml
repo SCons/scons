@@ -121,7 +121,7 @@
 
     </para>
 
-    <scons_example name="ex1">
+    <scons_example name="nodes_ex1">
       <file name="SConstruct" printme="1">
       hello_list = Object('hello.c', CCFLAGS='-DHELLO')
       goodbye_list = Object('goodbye.c', CCFLAGS='-DGOODBYE')
@@ -142,8 +142,8 @@
 
     </para>
 
-    <scons_output example="ex1" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_ex1" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -152,8 +152,8 @@
 
     </para>
 
-    <scons_output example="ex1" os="win32">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_ex1" os="win32">
+       <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -181,7 +181,7 @@
 
     </para>
 
-    <scons_example name="print">
+    <scons_example name="nodes_print">
       <file name="SConstruct" printme="1">
       hello_c = File('hello.c')
       Program(hello_c)
@@ -261,7 +261,7 @@
 
     </para>
 
-    <scons_example name="print">
+    <scons_example name="nodes_print">
       <file name="SConstruct" printme="1">
       object_list = Object('hello.c')
       program_list = Program(object_list)
@@ -279,8 +279,8 @@
 
     </para>
 
-    <scons_output example="print" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_print" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -289,8 +289,8 @@
 
     </para>
 
-    <scons_output example="print" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_print" os="win32">
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -328,7 +328,7 @@
 
     </para>
 
-    <scons_example name="exists">
+    <scons_example name="nodes_exists">
       <file name="SConstruct" printme="1">
       import os.path
       program_list = Program('hello.c')
@@ -347,8 +347,8 @@
 
     </para>
 
-    <scons_output example="exists" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_exists" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -370,7 +370,7 @@
 
     </para>
 
-    <scons_example name="GetBuildPath">
+    <scons_example name="nodes_GetBuildPath">
       <file name="SConstruct" printme="1">
       env=Environment(VAR="value")
       n=File("foo.c")
@@ -384,8 +384,8 @@
 
     </para>
 
-    <scons_output example="GetBuildPath" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_GetBuildPath" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -410,7 +410,7 @@
 
     </para>
 
-    <scons_example name="read">
+    <scons_example name="nodes_read">
       <file name="SConstruct" printme="1">
       hello_c = File('hello.c')
       contents = hello_c.read()
@@ -428,8 +428,8 @@
 
     </para>
 
-    <scons_output example="read" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="nodes_read" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>

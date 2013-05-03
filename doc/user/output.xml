@@ -72,7 +72,7 @@
 
     </para>
 
-    <scons_example name="ex1">
+    <scons_example name="output_ex1">
        <file name="SConstruct" printme="1">
        Help("""
        Type: 'scons program' to build the production program,
@@ -98,8 +98,8 @@
 
     </para>
 
-    <scons_output example="ex1">
-       <scons_output_command>scons -h</scons_output_command>
+    <scons_output example="output_ex1">
+       <scons_output_command suffix="1">scons -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -130,7 +130,7 @@
 
     </para>
 
-    <scons_example name="ex2">
+    <scons_example name="output_ex2">
        <file name="SConstruct" printme="1">
        env = Environment()
 
@@ -147,8 +147,8 @@
 
     </para>
 
-    <scons_output example="ex2" os="win32">
-       <scons_output_command>scons -h</scons_output_command>
+    <scons_output example="output_ex2" os="win32">
+       <scons_output_command suffix="1">scons -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -157,8 +157,8 @@
 
     </para>
 
-    <scons_output example="ex2" os="posix">
-       <scons_output_command>scons -h</scons_output_command>
+    <scons_output example="output_ex2" os="posix">
+       <scons_output_command suffix="2">scons -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -212,7 +212,7 @@
 
     </para>
 
-    <scons_example name="COMSTR">
+    <scons_example name="output_COMSTR">
        <file name="SConstruct" printme="1">
        env = Environment(CCCOMSTR = "Compiling $TARGET",
                          LINKCOMSTR = "Linking $TARGET")
@@ -231,8 +231,8 @@
 
     <!--
 
-    <scons_output example="COMSTR" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="output_COMSTR" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -284,7 +284,7 @@
 
     </para>
 
-    <scons_example name="COMSTR-VERBOSE">
+    <scons_example name="output_COMSTR-VERBOSE">
        <file name="SConstruct" printme="1">
        env = Environment()
        if ARGUMENTS.get('VERBOSE') != "1':
@@ -313,10 +313,10 @@
 
     <!--
 
-    <scons_output example="COMSTR-VERBOSE" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
-       <scons_output_command>scons -Q -c</scons_output_command>
-       <scons_output_command>scons -Q VERBOSE=1</scons_output_command>
+    <scons_output example="output_COMSTR-VERBOSE" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
+       <scons_output_command suffix="2">scons -Q -c</scons_output_command>
+       <scons_output_command suffix="3">scons -Q VERBOSE=1</scons_output_command>
     </scons_output>
 
     -->
@@ -370,7 +370,7 @@
 
     </para>
 
-    <scons_example name="Progress-TARGET">
+    <scons_example name="output_Progress-TARGET">
       <file name="SConstruct" printme="1">
         Progress('Evaluating $TARGET\n')
         Program('f1.c')
@@ -401,8 +401,8 @@
 
     </para>
 
-    <scons_output example="Progress-TARGET" os="posix">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="output_Progress-TARGET" os="posix">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -520,7 +520,7 @@
 
     </para>
 
-    <scons_example name="Progress-callable">
+    <scons_example name="output_Progress-callable">
       <file name="SConstruct" printme="1">
         screen = open('/dev/tty', 'w')
         count = 0
@@ -593,7 +593,7 @@
 
     </para>
 
-    <scons_example name="gbf1">
+    <scons_example name="output_gbf1">
       <file name="SConstruct" printme="1">
         import atexit
 
@@ -637,7 +637,7 @@
 
     </para>
 
-    <scons_example name="gbf2">
+    <scons_example name="output_gbf2">
       <file name="SConstruct" printme="1">
         # Make the build fail if we pass fail=1 on the command line
         if ARGUMENTS.get('fail', 0):
@@ -694,9 +694,9 @@
 
     </para>
 
-    <scons_output example="gbf2">
-          <scons_output_command>scons -Q</scons_output_command>
-          <scons_output_command>scons -Q fail=1</scons_output_command>
+    <scons_output example="output_gbf2">
+          <scons_output_command suffix="1">scons -Q</scons_output_command>
+          <scons_output_command suffix="2">scons -Q fail=1</scons_output_command>
     </scons_output>
 
   </section>

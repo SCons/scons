@@ -78,7 +78,7 @@
     <para>
     Let's start with a very simple project, the "Hello world" program 
     for example
-    <scons_example name="ex1">
+    <scons_example name="gettext_ex1">
     <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
@@ -92,7 +92,7 @@
 
     Prepare a <filename>SConstruct</filename> to compile the program
     as usual.
-    <scons_example name="ex2">
+    <scons_example name="gettext_ex2">
     <file name="SConstruct" printme="1">
     # SConstruct
     env = Environment()
@@ -118,7 +118,7 @@
     <para>
     First prepare the <filename>hello.c</filename> program for
     internationalization. Change the previous code so it reads as follows:
-    <scons_example name="ex3">
+    <scons_example name="gettext_ex3">
     <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
@@ -160,7 +160,7 @@
 
     <para>  The completed 
     <filename>SConstruct</filename> is as follows:
-    <scons_example name="ex4">
+    <scons_example name="gettext_ex4">
     <file name="SConstruct" printme="1">
     # SConstruct
     env = Environment( tools = ['default', 'gettext'] )
@@ -279,7 +279,7 @@
     <para>
     Now, open <filename>hello.c</filename> and add another one
     <literal>printf</literal> line with new message.
-    <scons_example name="ex5">
+    <scons_example name="gettext_ex5">
     <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
@@ -334,7 +334,7 @@
     <literal>PO</literal>) are touched (i.e. no content changes, no
     creation/modification time changed and so on). Let's append another
     line to the program (after the last printf), so its code becomes:
-    <scons_example name="ex6">
+    <scons_example name="gettext_ex6">
     <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;

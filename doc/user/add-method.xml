@@ -61,7 +61,7 @@
 
   </para>
 
-  <scons_example name="ex1">
+  <scons_example name="addmethod_ex1">
      <file name="SConstruct" printme="1">
      def install_in_bin_dirs(env, source):
          """Install source in both bin dirs"""
@@ -81,8 +81,8 @@
   This produces the following:
   </para>
 
-  <scons_output example="ex1">
-    <scons_output_command>scons -Q /</scons_output_command>
+  <scons_output example="addmethod_ex1">
+    <scons_output_command suffix="1">scons -Q /</scons_output_command>
   </scons_output>
 
   <para>
@@ -130,7 +130,7 @@
   </para>
 
   <scons_output example="ex2">
-    <scons_output_command>scons -Q</scons_output_command>
+    <scons_output_command suffix="1">scons -Q</scons_output_command>
   </scons_output>
 
   <para>
@@ -138,7 +138,7 @@
   </para>
 
   <scons_output example="ex2" os="win32">
-    <scons_output_command>scons -Q</scons_output_command>
+    <scons_output_command suffix="2">scons -Q</scons_output_command>
   </scons_output>
 
   <para>

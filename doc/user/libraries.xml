@@ -63,7 +63,7 @@
 
     </para>
 
-    <scons_example name="ex1" printme="1">
+    <scons_example name="libraries_ex1" printme="1">
       <file name="SConstruct" printme="1">
       Library('foo', ['f1.c', 'f2.c', 'f3.c'])
       </file>
@@ -87,8 +87,8 @@
 
     </para>
 
-    <scons_output example="ex1" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="libraries_ex1" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -98,8 +98,8 @@
 
     </para>
 
-    <scons_output example="ex1" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="libraries_ex1" os="win32">
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -129,7 +129,7 @@
 
       </para>
 
-      <scons_example name="objects" printme="1">
+      <scons_example name="libraries_objects" printme="1">
         <file name="SConstruct" printme="1">
         Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])
         </file>
@@ -155,8 +155,8 @@
 
       </para>
 
-      <scons_output example="objects" os="posix">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="libraries_objects" os="posix">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -184,7 +184,7 @@
 
       </para>
 
-      <scons_example name="StaticLibrary" printme="1">
+      <scons_example name="libraries_StaticLibrary" printme="1">
         <file name="SConstruct" printme="1">
         StaticLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
         </file>
@@ -210,7 +210,7 @@
 
       </para>
 
-      <scons_example name="SharedLibrary" printme="1">
+      <scons_example name="libraries_SharedLibrary" printme="1">
         <file name="SConstruct" printme="1">
         SharedLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
         </file>
@@ -231,8 +231,8 @@
 
       </para>
 
-      <scons_output example="SharedLibrary" os="posix">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="libraries_SharedLibrary" os="posix">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -241,8 +241,8 @@
 
       </para>
 
-      <scons_output example="SharedLibrary" os="win32">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="libraries_SharedLibrary" os="win32">
+        <scons_output_command suffix="2">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -278,7 +278,7 @@
 
     </para>
 
-    <scons_example name="ex2">
+    <scons_example name="libraries_ex2">
       <file name="SConstruct" printme="1">
       Library('foo', ['f1.c', 'f2.c', 'f3.c'])
       Program('prog.c', LIBS=['foo', 'bar'], LIBPATH='.')
@@ -313,8 +313,8 @@
 
     </para>
 
-    <scons_output example="ex2" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="libraries_ex2" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -324,8 +324,8 @@
 
     </para>
 
-    <scons_output example="ex2" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="libraries_ex2" os="win32">
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -385,7 +385,7 @@
 
     </para>
 
-    <scons_example name="ex3">
+    <scons_example name="libraries_ex3">
       <file name="SConstruct" printme="1">
       Program('prog.c', LIBS = 'm',
                         LIBPATH = ['/usr/lib', '/usr/local/lib'])
@@ -438,8 +438,8 @@
 
     </para>
 
-    <scons_output example="ex3" os="posix">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="libraries_ex3" os="posix">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -449,8 +449,8 @@
 
     </para>
 
-    <scons_output example="ex3" os="win32">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="libraries_ex3" os="win32">
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
     </scons_output>
     <!-- The link command is too wide in the PDF version. 
          There are some other examples of this throughout the document. -->

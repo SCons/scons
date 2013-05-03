@@ -172,7 +172,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_example name="ex1">
+    <scons_example name="separate_ex1">
       <file name="SConstruct" printme="1">
       SConscript('src/SConscript', variant_dir='build')
       </file>
@@ -192,10 +192,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="ex1">
-      <scons_output_command>ls src</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>ls build</scons_output_command>
+    <scons_output example="separate_ex1">
+      <scons_output_command suffix="1">ls src</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">ls build</scons_output_command>
     </scons_output>
 
     <para>
@@ -358,7 +358,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_example name="ex_builddir">
+    <scons_example name="separate_builddir">
       <file name="SConstruct" printme="1">
       VariantDir('build', 'src')
       env = Environment()
@@ -389,10 +389,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="ex_builddir">
-      <scons_output_command>ls src</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>ls build</scons_output_command>
+    <scons_output example="separate_builddir">
+      <scons_output_command suffix="1">ls src</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">ls build</scons_output_command>
     </scons_output>
 
     <para>
@@ -402,7 +402,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_example name="ex_duplicate_0">
+    <scons_example name="separate_duplicate0">
       <file name="SConstruct" printme="1">
       VariantDir('build', 'src', duplicate=0)
       env = Environment()
@@ -420,10 +420,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="ex_duplicate_0">
-      <scons_output_command>ls src</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>ls build</scons_output_command>
+    <scons_output example="separate_duplicate0">
+      <scons_output_command suffix="1">ls src</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">ls build</scons_output_command>
     </scons_output>
 
   </section>
@@ -442,7 +442,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_example name="example_builddir_sconscript">
+    <scons_example name="separate_builddir_sconscript">
       <file name="SConstruct">
       VariantDir('build', 'src')
       SConscript('build/SConscript')
@@ -462,7 +462,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_example_file example="example_builddir_sconscript" name="SConstruct">
+    <scons_example_file example="separate_builddir_sconscript" name="SConstruct">
     </scons_example_file>
 
     <para>
@@ -471,10 +471,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="example_builddir_sconscript">
-      <scons_output_command>ls src</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>ls build</scons_output_command>
+    <scons_output example="separate_builddir_sconscript">
+      <scons_output_command suffix="1">ls src</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">ls build</scons_output_command>
     </scons_output>
 
     <para>
@@ -500,7 +500,7 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_example name="example_glob_builddir_sconscript">
+    <scons_example name="separate_glob_builddir_sconscript">
       <file name="SConstruct">
       VariantDir('build', 'src')
       SConscript('build/SConscript')
@@ -530,10 +530,10 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <scons_output example="example_glob_builddir_sconscript">
-      <scons_output_command>ls src</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>ls build</scons_output_command>
+    <scons_output example="separate_glob_builddir_sconscript">
+      <scons_output_command suffix="1">ls src</scons_output_command>
+      <scons_output_command suffix="2">scons -Q</scons_output_command>
+      <scons_output_command suffix="3">ls build</scons_output_command>
     </scons_output>
 
     <para>

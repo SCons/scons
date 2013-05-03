@@ -168,7 +168,7 @@
 
       </para>
 
-      <scons_example name="SCONSFLAGS">
+      <scons_example name="commandline_SCONSFLAGS">
         <file name="SConstruct">
         def b(target, source, env):
             pass
@@ -183,10 +183,10 @@
         </file>
       </scons_example>
 
-      <scons_output example="SCONSFLAGS">
-        <scons_output_command>scons</scons_output_command>
-        <scons_output_command>export SCONSFLAGS="-Q"</scons_output_command>
-        <scons_output_command environment="SCONSFLAGS=-Q">scons</scons_output_command>
+      <scons_output example="commandline_SCONSFLAGS">
+        <scons_output_command suffix="1">scons</scons_output_command>
+        <scons_output_command suffix="2">export SCONSFLAGS="-Q"</scons_output_command>
+        <scons_output_command environment="SCONSFLAGS=-Q" suffix="3">scons</scons_output_command>
       </scons_output>
 
       <para>
@@ -312,7 +312,7 @@
 
       </para>
 
-      <scons_example name="SetOption">
+      <scons_example name="commandline_SetOption">
         <file name="SConstruct" printme="1">
         import os
         num_cpu = int(os.environ.get('NUM_CPU', 2))
@@ -344,8 +344,8 @@
 
       </para>
 
-      <scons_output example="SetOption">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="commandline_SetOption">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -356,9 +356,9 @@
 
       </para>
 
-      <scons_output example="SetOption">
-        <scons_output_command>export NUM_CPU="4"</scons_output_command>
-        <scons_output_command environment="NUM_CPU=4">scons -Q</scons_output_command>
+      <scons_output example="commandline_SetOption">
+        <scons_output_command suffix="2">export NUM_CPU="4"</scons_output_command>
+        <scons_output_command environment="NUM_CPU=4" suffix="3">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -372,10 +372,10 @@
 
       </para>
 
-      <scons_output example="SetOption">
-        <scons_output_command>scons -Q -j 7</scons_output_command>
-        <scons_output_command>export NUM_CPU="4"</scons_output_command>
-        <scons_output_command environment="NUM_CPU=4">scons -Q -j 3</scons_output_command>
+      <scons_output example="commandline_SetOption">
+        <scons_output_command suffix="4">scons -Q -j 7</scons_output_command>
+        <scons_output_command suffix="5">export NUM_CPU="4"</scons_output_command>
+        <scons_output_command environment="NUM_CPU=4" suffix="6">scons -Q -j 3</scons_output_command>
       </scons_output>
 
     </section>
@@ -626,7 +626,7 @@
 
       </para>
 
-      <scons_example name="AddOption">
+      <scons_example name="commandline_AddOption">
         <file name="SConstruct" printme="1">
         AddOption('--prefix',
                   dest='prefix',
@@ -662,8 +662,8 @@
 
       </para>
 
-      <scons_output example="AddOption">
-        <scons_output_command>scons -Q -n</scons_output_command>
+      <scons_output example="commandline_AddOption">
+        <scons_output_command suffix="1">scons -Q -n</scons_output_command>
       </scons_output>
 
       <para>
@@ -674,8 +674,8 @@
 
       </para>
 
-      <scons_output example="AddOption">
-        <scons_output_command>scons -Q -n --prefix=/tmp/install</scons_output_command>
+      <scons_output example="commandline_AddOption">
+        <scons_output_command suffix="2">scons -Q -n --prefix=/tmp/install</scons_output_command>
       </scons_output>
 
     </section>
@@ -731,7 +731,7 @@
 
     </para>
 
-    <scons_example name="ARGUMENTS">
+    <scons_example name="commandline_ARGUMENTS">
        <file name="SConstruct" printme="1">
        env = Environment()
        debug = ARGUMENTS.get('debug', 0)
@@ -753,11 +753,11 @@
 
     </para>
 
-    <scons_output example="ARGUMENTS">
-       <scons_output_command>scons -Q debug=0</scons_output_command>
-       <scons_output_command>scons -Q debug=0</scons_output_command>
-       <scons_output_command>scons -Q debug=1</scons_output_command>
-       <scons_output_command>scons -Q debug=1</scons_output_command>
+    <scons_output example="commandline_ARGUMENTS">
+       <scons_output_command suffix="1">scons -Q debug=0</scons_output_command>
+       <scons_output_command suffix="2">scons -Q debug=0</scons_output_command>
+       <scons_output_command suffix="3">scons -Q debug=1</scons_output_command>
+       <scons_output_command suffix="4">scons -Q debug=1</scons_output_command>
     </scons_output>
 
     <para>
@@ -820,7 +820,7 @@
 
     </para>
 
-    <scons_example name="ARGLIST">
+    <scons_example name="commandline_ARGLIST">
        <file name="SConstruct" printme="1">
        cppdefines = []
        for key, value in ARGLIST:
@@ -840,9 +840,9 @@
 
     </para>
 
-    <scons_output example="ARGLIST">
-       <scons_output_command>scons -Q define=FOO</scons_output_command>
-       <scons_output_command>scons -Q define=FOO define=BAR</scons_output_command>
+    <scons_output example="commandline_ARGLIST">
+       <scons_output_command suffix="1">scons -Q define=FOO</scons_output_command>
+       <scons_output_command suffix="2">scons -Q define=FOO define=BAR</scons_output_command>
     </scons_output>
 
     <para>
@@ -905,7 +905,7 @@
 
       </para>
 
-      <scons_example name="Variables1">
+      <scons_example name="commandline_Variables1">
         <file name="SConstruct" printme="1">
            vars = Variables(None, ARGUMENTS)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
@@ -950,8 +950,8 @@
 
       </para>
 
-      <scons_output example="Variables1">
-        <scons_output_command>scons -Q RELEASE=1</scons_output_command>
+      <scons_output example="commandline_Variables1">
+        <scons_output_command suffix="1">scons -Q RELEASE=1</scons_output_command>
       </scons_output>
 
       <para>
@@ -996,7 +996,7 @@
 
       </para>
 
-      <scons_example name="Variables_Help">
+      <scons_example name="commandline_Variables_Help">
         <file name="SConstruct" printme="1">
            vars = Variables(None, ARGUMENTS)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
@@ -1012,8 +1012,8 @@
 
       </para>
 
-      <scons_output example="Variables_Help">
-        <scons_output_command>scons -Q -h</scons_output_command>
+      <scons_output example="commandline_Variables_Help">
+        <scons_output_command suffix="1">scons -Q -h</scons_output_command>
       </scons_output>
 
       <para>
@@ -1043,7 +1043,7 @@
 
       </para>
 
-      <scons_example name="Variables_custom_py_1">
+      <scons_example name="commandline_Variables_custom_py_1">
         <file name="SConstruct" printme="1">
            vars = Variables('custom.py')
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
@@ -1070,7 +1070,7 @@
 
       </para>
 
-      <scons_example_file example="Variables_custom_py_1" name="custom.py"></scons_example_file>
+      <scons_example_file example="commandline_Variables_custom_py_1" name="custom.py"></scons_example_file>
 
       <para>
 
@@ -1080,8 +1080,8 @@
 
       </para>
 
-      <scons_output example="Variables_custom_py_1">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="commandline_Variables_custom_py_1">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1090,7 +1090,7 @@
 
       </para>
 
-      <scons_example name="Variables_custom_py_2">
+      <scons_example name="commandline_Variables_custom_py_2">
         <file name="SConstruct">
            vars = Variables('custom.py')
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
@@ -1117,8 +1117,8 @@
 
       </para>
 
-      <scons_output example="Variables_custom_py_2">
-        <scons_output_command>scons -Q</scons_output_command>
+      <scons_output example="commandline_Variables_custom_py_2">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -1180,7 +1180,7 @@
 
         </para>
 
-        <scons_example name="BoolVariable">
+        <scons_example name="commandline_BoolVariable">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(BoolVariable('RELEASE', 'Set to build for release', 0))
@@ -1202,12 +1202,12 @@
 
         </para>
 
-        <scons_output example="BoolVariable">
-          <scons_output_command>scons -Q RELEASE=yes foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable">
+          <scons_output_command suffix="1">scons -Q RELEASE=yes foo.o</scons_output_command>
         </scons_output>
 
-        <scons_output example="BoolVariable">
-          <scons_output_command>scons -Q RELEASE=t foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable">
+          <scons_output_command suffix="2">scons -Q RELEASE=t foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1231,12 +1231,12 @@
 
         </para>
 
-        <scons_output example="BoolVariable">
-          <scons_output_command>scons -Q RELEASE=no foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable">
+          <scons_output_command suffix="3">scons -Q RELEASE=no foo.o</scons_output_command>
         </scons_output>
 
-        <scons_output example="BoolVariable">
-          <scons_output_command>scons -Q RELEASE=f foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable">
+          <scons_output_command suffix="4">scons -Q RELEASE=f foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1258,8 +1258,8 @@
 
         </para>
 
-        <scons_output example="BoolVariable">
-          <scons_output_command>scons -Q RELEASE=bad_value foo.o</scons_output_command>
+        <scons_output example="commandline_BoolVariable">
+          <scons_output_command suffix="5">scons -Q RELEASE=bad_value foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1284,7 +1284,7 @@
 
         </para>
 
-        <scons_example name="EnumVariable">
+        <scons_example name="commandline_EnumVariable">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
@@ -1305,10 +1305,10 @@
 
         </para>
 
-        <scons_output example="EnumVariable">
-          <scons_output_command>scons -Q COLOR=red foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=blue foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable">
+          <scons_output_command suffix="1">scons -Q COLOR=red foo.o</scons_output_command>
+          <scons_output_command suffix="2">scons -Q COLOR=blue foo.o</scons_output_command>
+          <scons_output_command suffix="3">scons -Q COLOR=green foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1320,8 +1320,8 @@
 
         </para>
 
-        <scons_output example="EnumVariable">
-          <scons_output_command>scons -Q COLOR=magenta foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable">
+          <scons_output_command suffix="4">scons -Q COLOR=magenta foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1364,7 +1364,7 @@
         </para>
 
         <scons_output example="EnumVariable_map">
-          <scons_output_command>scons -Q COLOR=navy foo.o</scons_output_command>
+          <scons_output_command suffix="1">scons -Q COLOR=navy foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1377,10 +1377,10 @@
 
         </para>
 
-        <scons_output example="EnumVariable">
-          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable">
+          <scons_output_command suffix="5">scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command suffix="6">scons -Q COLOR=BLUE foo.o</scons_output_command>
+          <scons_output_command suffix="7">scons -Q COLOR=nAvY foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1393,7 +1393,7 @@
 
         </para>
 
-        <scons_example name="EnumVariable_ic1">
+        <scons_example name="commandline_EnumVariable_ic1">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
@@ -1415,11 +1415,11 @@
 
         </para>
 
-        <scons_output example="EnumVariable_ic1">
-          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable_ic1">
+          <scons_output_command suffix="1">scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command suffix="2">scons -Q COLOR=BLUE foo.o</scons_output_command>
+          <scons_output_command suffix="3">scons -Q COLOR=nAvY foo.o</scons_output_command>
+          <scons_output_command suffix="4">scons -Q COLOR=green foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1433,7 +1433,7 @@
 
         </para>
 
-        <scons_example name="EnumVariable_ic2">
+        <scons_example name="commandline_EnumVariable_ic2">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
@@ -1460,10 +1460,10 @@
 
         </para>
 
-        <scons_output example="EnumVariable_ic2">
-          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLOR=GREEN foo.o</scons_output_command>
+        <scons_output example="commandline_EnumVariable_ic2">
+          <scons_output_command suffix="1">scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command suffix="2">scons -Q COLOR=nAvY foo.o</scons_output_command>
+          <scons_output_command suffix="3">scons -Q COLOR=GREEN foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1482,7 +1482,7 @@
 
         </para>
 
-        <scons_example name="ListVariable">
+        <scons_example name="commandline_ListVariable">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(ListVariable('COLORS', 'List of colors', 0,
@@ -1505,9 +1505,9 @@
 
         </para>
 
-        <scons_output example="ListVariable">
-          <scons_output_command>scons -Q COLORS=red,blue foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLORS=blue,green,red foo.o</scons_output_command>
+        <scons_output example="commandline_ListVariable">
+          <scons_output_command suffix="1">scons -Q COLORS=red,blue foo.o</scons_output_command>
+          <scons_output_command suffix="2">scons -Q COLORS=blue,green,red foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1520,9 +1520,9 @@
 
         </para>
 
-        <scons_output example="ListVariable">
-          <scons_output_command>scons -Q COLORS=all foo.o</scons_output_command>
-          <scons_output_command>scons -Q COLORS=none foo.o</scons_output_command>
+        <scons_output example="commandline_ListVariable">
+          <scons_output_command suffix="3">scons -Q COLORS=all foo.o</scons_output_command>
+          <scons_output_command suffix="4">scons -Q COLORS=none foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1532,8 +1532,8 @@
 
         </para>
 
-        <scons_output example="ListVariable">
-          <scons_output_command>scons -Q COLORS=magenta foo.o</scons_output_command>
+        <scons_output example="commandline_ListVariable">
+          <scons_output_command suffix="5">scons -Q COLORS=magenta foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1553,7 +1553,7 @@
 
         </para>
 
-        <scons_example name="PathVariable">
+        <scons_example name="commandline_PathVariable">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('CONFIG',
@@ -1582,9 +1582,9 @@
 
         </para>
 
-        <scons_output example="PathVariable">
-          <scons_output_command>scons -Q foo.o</scons_output_command>
-          <scons_output_command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</scons_output_command>
+        <scons_output example="commandline_PathVariable">
+          <scons_output_command suffix="1">scons -Q foo.o</scons_output_command>
+          <scons_output_command suffix="2">scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1595,8 +1595,8 @@
 
         </para>
 
-        <scons_output example="PathVariable">
-          <scons_output_command>scons -Q CONFIG=__ROOT__/does/not/exist foo.o</scons_output_command>
+        <scons_output example="commandline_PathVariable">
+          <scons_output_command suffix="3">scons -Q CONFIG=__ROOT__/does/not/exist foo.o</scons_output_command>
         </scons_output>
 
         <para>
@@ -1609,7 +1609,7 @@
 
         </para>
 
-        <scons_example name="PathIsFile">
+        <scons_example name="commandline_PathIsFile">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('CONFIG',
@@ -1636,7 +1636,7 @@
 
         </para>
 
-        <scons_example name="PathIsDir">
+        <scons_example name="commandline_PathIsDir">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('DBDIR',
@@ -1665,7 +1665,7 @@
 
         </para>
 
-        <scons_example name="PathIsDirCreate">
+        <scons_example name="commandline_PathIsDirCreate">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('DBDIR',
@@ -1693,7 +1693,7 @@
 
         </para>
 
-        <scons_example name="PathAccept">
+        <scons_example name="commandline_PathAccept">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('OUTPUT',
@@ -1728,7 +1728,7 @@
 
         </para>
 
-        <scons_example name="PackageVariable">
+        <scons_example name="commandline_PackageVariable">
           <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PackageVariable('PACKAGE',
@@ -1762,11 +1762,11 @@
 
         </para>
 
-        <scons_output example="PackageVariable">
-          <scons_output_command>scons -Q foo.o</scons_output_command>
-          <scons_output_command>scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</scons_output_command>
-          <scons_output_command>scons -Q PACKAGE=yes foo.o</scons_output_command>
-          <scons_output_command>scons -Q PACKAGE=no foo.o</scons_output_command>
+        <scons_output example="commandline_PackageVariable">
+          <scons_output_command suffix="1">scons -Q foo.o</scons_output_command>
+          <scons_output_command suffix="2">scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</scons_output_command>
+          <scons_output_command suffix="3">scons -Q PACKAGE=yes foo.o</scons_output_command>
+          <scons_output_command suffix="4">scons -Q PACKAGE=no foo.o</scons_output_command>
         </scons_output>
 
       </section>
@@ -1794,7 +1794,7 @@
 
       </para>
 
-      <scons_example name="AddVariables_1">
+      <scons_example name="commandline_AddVariables_1">
         <file name="SConstruct" printme="1">
           vars = Variables()
           vars.AddVariables(
@@ -1855,7 +1855,7 @@
 
       </para>
 
-      <scons_example name="UnknownVariables">
+      <scons_example name="commandline_UnknownVariables">
         <file name="SConstruct" printme="1">
            vars = Variables(None)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
@@ -1891,8 +1891,8 @@
 
       </para>
 
-      <scons_output example="UnknownVariables">
-        <scons_output_command>scons -Q NOT_KNOWN=foo</scons_output_command>
+      <scons_output example="commandline_UnknownVariables">
+        <scons_output_command suffix="1">scons -Q NOT_KNOWN=foo</scons_output_command>
       </scons_output>
 
       <para>
@@ -1942,7 +1942,7 @@
 
       </para>
 
-      <scons_example name="COMMAND_LINE_TARGETS">
+      <scons_example name="commandline_COMMAND_LINE_TARGETS">
         <file name="SConstruct" printme="1">
         if 'bar' in COMMAND_LINE_TARGETS:
             print "Don't forget to copy `bar' to the archive!"
@@ -1966,9 +1966,9 @@
 
       </para>
 
-      <scons_output example="COMMAND_LINE_TARGETS">
-        <scons_output_command>scons -Q</scons_output_command>
-        <scons_output_command>scons -Q bar</scons_output_command>
+      <scons_output example="commandline_COMMAND_LINE_TARGETS">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
+        <scons_output_command suffix="2">scons -Q bar</scons_output_command>
       </scons_output>
 
       <para>
@@ -2004,7 +2004,7 @@
 
       </para>
 
-      <scons_example name="Default1">
+      <scons_example name="commandline_Default1">
          <file name="SConstruct" printme="1">
          env = Environment()
          hello = env.Program('hello.c')
@@ -2028,10 +2028,10 @@
 
       </para>
 
-      <scons_output example="Default1">
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>scons -Q goodbye</scons_output_command>
+      <scons_output example="commandline_Default1">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
+         <scons_output_command suffix="2">scons -Q</scons_output_command>
+         <scons_output_command suffix="3">scons -Q goodbye</scons_output_command>
       </scons_output>
 
       <para>
@@ -2045,8 +2045,8 @@
 
       </para>
 
-      <scons_output example="Default1">
-         <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default1">
+         <scons_output_command suffix="4">scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -2058,7 +2058,7 @@
 
       </para>
 
-      <scons_example name="Default2">
+      <scons_example name="commandline_Default2">
          <file name="SConstruct" printme="1">
          env = Environment()
          prog1 = env.Program('prog1.c')
@@ -2104,9 +2104,9 @@
 
       </para>
 
-      <scons_output example="Default2">
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default2">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
+         <scons_output_command suffix="2">scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -2116,7 +2116,7 @@
 
       </para>
 
-      <scons_example name="Default3">
+      <scons_example name="commandline_Default3">
          <file name="SConstruct" printme="1">
          env = Environment()
          env.Program(['prog1/main.c', 'prog1/foo.c'])
@@ -2146,10 +2146,10 @@
 
       </para>
 
-      <scons_output example="Default3">
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default3">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
+         <scons_output_command suffix="2">scons -Q</scons_output_command>
+         <scons_output_command suffix="3">scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -2161,7 +2161,7 @@
 
       </para>
 
-      <scons_example name="Default4">
+      <scons_example name="commandline_Default4">
          <file name="SConstruct" printme="1">
          env = Environment()
          prog1 = env.Program('prog1.c')
@@ -2182,9 +2182,9 @@
 
       </para>
 
-      <scons_output example="Default4">
-         <scons_output_command>scons -Q</scons_output_command>
-         <scons_output_command>scons -Q .</scons_output_command>
+      <scons_output example="commandline_Default4">
+         <scons_output_command suffix="1">scons -Q</scons_output_command>
+         <scons_output_command suffix="2">scons -Q .</scons_output_command>
       </scons_output>
 
       <section>
@@ -2206,7 +2206,7 @@
 
         </para>
 
-        <scons_example name="DEFAULT_TARGETS_1">
+        <scons_example name="commandline_DEFAULT_TARGETS_1">
            <file name="SConstruct" printme="1">
            prog1 = Program('prog1.c')
            Default(prog1)
@@ -2227,8 +2227,8 @@
 
         </para>
 
-        <scons_output example="DEFAULT_TARGETS_1">
-           <scons_output_command>scons</scons_output_command>
+        <scons_output example="commandline_DEFAULT_TARGETS_1">
+           <scons_output_command suffix="1">scons</scons_output_command>
         </scons_output>
 
         <para>
@@ -2240,7 +2240,7 @@
 
         </para>
 
-        <scons_example name="DEFAULT_TARGETS_2">
+        <scons_example name="commandline_DEFAULT_TARGETS_2">
            <file name="SConstruct" printme="1">
            prog1 = Program('prog1.c')
            Default(prog1)
@@ -2263,8 +2263,8 @@
 
         </para>
 
-        <scons_output example="DEFAULT_TARGETS_2">
-           <scons_output_command>scons</scons_output_command>
+        <scons_output example="commandline_DEFAULT_TARGETS_2">
+           <scons_output_command suffix="1">scons</scons_output_command>
         </scons_output>
 
         <para>
@@ -2333,7 +2333,7 @@
 
       </para>
 
-      <scons_example name="BUILD_TARGETS_1">
+      <scons_example name="commandline_BUILD_TARGETS_1">
         <file name="SConstruct" printme="1">
         prog1 = Program('prog1.c')
         Program('prog2.c')
@@ -2356,10 +2356,10 @@
 
       </para>
 
-      <scons_output example="BUILD_TARGETS_1">
-        <scons_output_command>scons -Q</scons_output_command>
-        <scons_output_command>scons -Q prog2</scons_output_command>
-        <scons_output_command>scons -Q -c .</scons_output_command>
+      <scons_output example="commandline_BUILD_TARGETS_1">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
+        <scons_output_command suffix="2">scons -Q prog2</scons_output_command>
+        <scons_output_command suffix="3">scons -Q -c .</scons_output_command>
       </scons_output>
 
     </section>

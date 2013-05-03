@@ -82,7 +82,7 @@
 
     </para>
 
-    <scons_example name="Copy1">
+    <scons_example name="factories_Copy1">
       <file name="SConstruct" printme="1">
         Command("file.out", "file.in", Copy("$TARGET", "$SOURCE"))
       </file>
@@ -100,8 +100,8 @@
 
     </para>
 
-    <scons_output example="Copy1">
-       <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Copy1">
+       <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -111,7 +111,7 @@
 
     </para>
 
-    <scons_example name="Copy2">
+    <scons_example name="factories_Copy2">
       <file name="SConstruct" printme="1">
       Command("file.out", [], Copy("$TARGET", "file.in"))
       </file>
@@ -124,8 +124,8 @@
 
     </para>
 
-    <scons_output example="Copy2">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Copy2">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -145,7 +145,7 @@
 
     </para>
 
-    <scons_example name="Copy3">
+    <scons_example name="factories_Copy3">
       <file name="S" printme="1">
       Command("file.out", "file.in",
               [
@@ -172,8 +172,8 @@
 
     </para>
 
-    <scons_output example="Copy3">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Copy3">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -196,7 +196,7 @@
 
     </para>
 
-    <scons_example name="Delete1">
+    <scons_example name="factories_Delete1">
       <file name="S" printme="1">
       Command("file.out", "file.in",
               [
@@ -224,8 +224,8 @@
 
     </para>
 
-    <scons_output example="Delete1">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Delete1">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -237,7 +237,7 @@
 
     </para>
 
-    <scons_example name="Delete2">
+    <scons_example name="factories_Delete2">
       <file name="SConstruct" printme="1">
       Command("file.out", "file.in",
               [
@@ -254,8 +254,8 @@
 
     </para>
 
-    <scons_output example="Delete2">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Delete2">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -291,7 +291,7 @@
 
     </para>
 
-    <scons_example name="Move">
+    <scons_example name="factories_Move">
       <file name="S" printme="1">
       Command("file.out", "file.in",
               [
@@ -318,8 +318,8 @@
 
     </para>
 
-    <scons_output example="Move">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Move">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -335,7 +335,7 @@
 
     </para>
 
-    <scons_example name="Touch">
+    <scons_example name="factories_Touch">
       <file name="S" printme="1">
       Command("file.out", "file.in",
               [
@@ -358,8 +358,8 @@
 
     </para>
 
-    <scons_output example="Touch">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Touch">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -379,7 +379,7 @@
 
     </para>
 
-    <scons_example name="Mkdir">
+    <scons_example name="factories_Mkdir">
       <file name="S" printme="1">
       Command("file.out", "file.in",
               [
@@ -409,8 +409,8 @@
 
     </para>
 
-    <scons_output example="Mkdir">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Mkdir">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -429,7 +429,7 @@
 
     </para>
 
-    <scons_example name="Chmod">
+    <scons_example name="factories_Chmod">
       <file name="SConstruct" printme="1">
       Command("file.out", "file.in",
               [
@@ -446,8 +446,8 @@
 
     </para>
 
-    <scons_output example="Chmod">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="factories_Chmod">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -468,7 +468,7 @@
 
     </para>
 
-    <scons_example name="Execute">
+    <scons_example name="factories_Execute">
       <file name="SConstruct" printme="1">
       Execute(Mkdir('__ROOT__/tmp/my_temp_directory'))
       </file>
@@ -482,8 +482,8 @@
 
     </para>
 
-    <scons_output example="Execute">
-      <scons_output_command>scons</scons_output_command>
+    <scons_output example="factories_Execute">
+      <scons_output_command suffix="1">scons</scons_output_command>
     </scons_output>
 
     <para>

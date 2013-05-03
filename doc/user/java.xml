@@ -78,7 +78,7 @@
 
     </para>
 
-    <scons_example name="java">
+    <scons_example name="java_java">
       <file name="SConstruct" printme="1">
       Java('classes', 'src')
       </file>
@@ -119,8 +119,8 @@
 
     </para>
 
-    <scons_output example="java">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_java">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -153,7 +153,7 @@
 
     </para>
 
-    <scons_example name="java-classes">
+    <scons_example name="java_java-classes">
       <file name="SConstruct" printme="1">
       Java('classes', 'src')
       </file>
@@ -211,9 +211,9 @@
 
     </para>
 
-    <scons_output example="java-classes">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q classes</scons_output_command>
+    <scons_output example="java_java-classes">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output_command suffix="2">scons -Q classes</scons_output_command>
     </scons_output>
 
     <para>
@@ -235,9 +235,9 @@
 
     </para>
 
-    <scons_output example="java-classes">
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q -c classes</scons_output_command>
+    <scons_output example="java_java-classes">
+      <scons_output_command suffix="3">scons -Q</scons_output_command>
+      <scons_output_command suffix="4">scons -Q -c classes</scons_output_command>
     </scons_output>
 
     <para>
@@ -278,7 +278,7 @@
 
     </para>
 
-    <scons_example name="jar1">
+    <scons_example name="java_jar1">
       <file name="SConstruct" printme="1">
       Java(target = 'classes', source = 'src')
       Jar(target = 'test.jar', source = 'classes')
@@ -321,8 +321,8 @@
 
     </para>
 
-    <scons_output example="jar1">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_jar1">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -342,7 +342,7 @@
 
     </para>
 
-    <scons_example name="jar2">
+    <scons_example name="java_jar2">
       <file name="SConstruct" printme="1">
       prog1_class_files = Java(target = 'classes', source = 'prog1')
       prog2_class_files = Java(target = 'classes', source = 'prog2')
@@ -397,8 +397,8 @@
 
     </para>
 
-    <scons_output example="jar2">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_jar2">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -416,7 +416,7 @@
 
     </para>
 
-    <scons_example name="javah">
+    <scons_example name="java_javah">
       <file name="SConstruct" printme="1">
       classes = Java(target = 'classes', source = 'src/pkg/sub')
       JavaH(target = 'native', source = classes)
@@ -462,8 +462,8 @@
 
     </para>
 
-    <scons_output example="javah">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_javah">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -500,7 +500,7 @@
 
     </para>
 
-    <scons_example name="JAVACLASSDIR">
+    <scons_example name="java_JAVACLASSDIR">
       <file name="SConstruct" printme="1">
       Java(target = 'classes', source = 'src/pkg/sub')
       class_file_list = ['classes/pkg/sub/Example1.class',
@@ -545,8 +545,8 @@
 
     </para>
 
-    <scons_output example="JAVACLASSDIR">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_JAVACLASSDIR">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -558,7 +558,7 @@
 
     </para>
 
-    <scons_example name="javah_file">
+    <scons_example name="java_javah_file">
       <file name="SConstruct" printme="1">
       classes = Java(target = 'classes', source = 'src/pkg/sub')
       JavaH(target = File('native.h'), source = classes)
@@ -605,8 +605,8 @@
 
     </para>
 
-    <scons_output example="javah_file">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_javah_file">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -627,7 +627,7 @@
 
     </para>
 
-    <scons_example name="RMIC">
+    <scons_example name="java_RMIC">
       <file name="SConstruct" printme="1">
       classes = Java(target = 'classes', source = 'src/pkg/sub')
       RMIC(target = 'outdir', source = classes)
@@ -661,8 +661,8 @@
 
     </para>
 
-    <scons_output example="RMIC">
-      <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="java_RMIC">
+      <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>

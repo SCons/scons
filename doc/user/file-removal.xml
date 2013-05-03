@@ -78,7 +78,7 @@
 
     </para>
 
-    <scons_example name="precious-ex1">
+    <scons_example name="fileremoval_precious-ex1">
       <file name="SConstruct" printme="1">
         env = Environment(RANLIBCOM='')
         lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
@@ -103,8 +103,8 @@
 
     </para>
 
-    <scons_output example="precious-ex1">
-        <scons_output_command>scons -Q</scons_output_command>
+    <scons_output example="fileremoval_precious-ex1">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -136,7 +136,7 @@
 
     </para>
 
-    <scons_example name="noclean-ex1">
+    <scons_example name="fileremoval_noclean-ex1">
       <file name="SConstruct" printme="1">
         env = Environment(RANLIBCOM='')
         lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
@@ -160,9 +160,9 @@
 
     </para>
 
-    <scons_output example="noclean-ex1">
-        <scons_output_command>scons -Q</scons_output_command>
-        <scons_output_command>scons -c</scons_output_command>
+    <scons_output example="fileremoval_noclean-ex1">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
+        <scons_output_command suffix="2">scons -c</scons_output_command>
     </scons_output>
 
   </section>
@@ -197,7 +197,7 @@
 
     </para>
 
-    <scons_example name="clean-ex1">
+    <scons_example name="fileremoval_clean-ex1">
       <file name="S" printme="1">
         t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
         Clean(t, 'foo.log')
@@ -237,9 +237,9 @@
 
     </para>
 
-    <scons_output example="clean-ex1">
-        <scons_output_command>scons -Q</scons_output_command>
-        <scons_output_command>scons -Q -c</scons_output_command>
+    <scons_output example="fileremoval_clean-ex1">
+        <scons_output_command suffix="1">scons -Q</scons_output_command>
+        <scons_output_command suffix="2">scons -Q -c</scons_output_command>
     </scons_output>
 
   </section>
