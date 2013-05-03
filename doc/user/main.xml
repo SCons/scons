@@ -24,9 +24,7 @@
 
 -->
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
-[
+<!DOCTYPE sconsdoc [
 
     <!ENTITY % version SYSTEM "../version.xml">
     %version;
@@ -34,69 +32,14 @@
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
 
-    <!ENTITY % builders-mod SYSTEM "builders.mod">
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
-
-    <!ENTITY % functions-mod SYSTEM "functions.mod">
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
     %functions-mod;
-
-    <!ENTITY % tools-mod SYSTEM "tools.mod">
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
     %tools-mod;
-
-    <!ENTITY % variables-mod SYSTEM "variables.mod">
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
     %variables-mod;
-
-    <!ENTITY actions SYSTEM "actions.xml">
-    <!ENTITY alias SYSTEM "alias.xml">
-    <!ENTITY ant SYSTEM "ant.xml">
-    <!ENTITY build-install SYSTEM "build-install.xml">
-    <!ENTITY builders SYSTEM "builders.xml">
-    <!ENTITY builders-built-in SYSTEM "builders-built-in.xml">
-    <!ENTITY builders-commands SYSTEM "builders-commands.xml">
-    <!ENTITY builders-writing SYSTEM "builders-writing.xml">
-    <!ENTITY add-method SYSTEM "add-method.xml">
-    <!ENTITY caching SYSTEM "caching.xml">
-    <!ENTITY command-line SYSTEM "command-line.xml">
-    <!ENTITY copyright SYSTEM "copyright.xml">
-    <!ENTITY depends SYSTEM "depends.xml">
-    <!ENTITY environments SYSTEM "environments.xml">
-    <!ENTITY errors SYSTEM "errors.xml">
-    <!ENTITY example SYSTEM "example.xml">
-    <!ENTITY factories SYSTEM "factories.xml">
-    <!ENTITY file-removal SYSTEM "file-removal.xml">
-    <!ENTITY functions SYSTEM "functions.xml">
-    <!ENTITY gettext SYSTEM "gettext.xml">
-    <!ENTITY hierarchy SYSTEM "hierarchy.xml">
-    <!ENTITY java SYSTEM "java.xml">
-    <!ENTITY install SYSTEM "install.xml">
-    <!ENTITY less-simple SYSTEM "less-simple.xml">
-    <!ENTITY libraries SYSTEM "libraries.xml">
-    <!ENTITY make SYSTEM "make.xml">
-    <!ENTITY mergeflags SYSTEM "mergeflags.xml">
-    <!ENTITY misc SYSTEM "misc.xml">
-    <!ENTITY nodes SYSTEM "nodes.xml">
-    <!ENTITY output SYSTEM "output.xml">
-    <!ENTITY parseconfig SYSTEM "parseconfig.xml">
-    <!ENTITY parseflags SYSTEM "parseflags.xml">
-    <!ENTITY preface SYSTEM "preface.xml">
-    <!ENTITY python SYSTEM "python.xml">
-    <!ENTITY repositories SYSTEM "repositories.xml">
-    <!ENTITY run SYSTEM "run.xml">
-    <!ENTITY scanners SYSTEM "scanners.xml">
-    <!ENTITY sconf SYSTEM "sconf.xml">
-    <!ENTITY separate SYSTEM "separate.xml">
-    <!ENTITY simple SYSTEM "simple.xml">
-    <!ENTITY sourcecode SYSTEM "sourcecode.xml">
-    <!ENTITY tasks SYSTEM "tasks.xml">
-    <!ENTITY tools SYSTEM "tools.xml">
-    <!ENTITY troubleshoot SYSTEM "troubleshoot.xml">
-    <!ENTITY variables-xml SYSTEM "variables.xml">
-    <!ENTITY variants SYSTEM "variants.xml">
-
-    <!ENTITY builders-gen SYSTEM "builders.gen">
-    <!ENTITY functions-gen SYSTEM "functions.gen">
-    <!ENTITY tools-gen SYSTEM "tools.gen">
-    <!ENTITY variables-gen SYSTEM "variables.gen">
 
 ]>
 
@@ -117,7 +60,9 @@
 
   -->
 
-<book>
+<book xmlns="http://www.scons.org/dbxsd/v1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
   <bookinfo>
     <title>SCons User Guide &buildversion;</title>
 
@@ -135,54 +80,21 @@
       <holder>Steven Knight</holder>
     </copyright>
 
-    <legalnotice>
-      &copyright;
-    </legalnotice>
-
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
+    
     <releaseinfo>version &buildversion;</releaseinfo>
 
   </bookinfo>
 
-  <preface id="chap-preface">
-    <title>Preface</title>
-    &preface;
-  </preface>
-
-  <chapter id="chap-build-install">
-    <title>Building and Installing &SCons;</title>
-    &build-install;
-  </chapter>
-
-  <chapter id="chap-simple">
-    <title>Simple Builds</title>
-    &simple;
-  </chapter>
-
-  <chapter id="chap-less-simple">
-    <title>Less Simple Things to Do With Builds</title>
-    &less-simple;
-  </chapter>
-
-  <chapter id="chap-libraries">
-    <title>Building and Linking with Libraries</title>
-    &libraries;
-  </chapter>
-
-  <chapter id="chap-nodes">
-    <title>Node Objects</title>
-    &nodes;
-  </chapter>
-
-  <chapter id="chap-depends">
-    <title>Dependencies</title>
-    &depends;
-  </chapter>
-
-  <chapter id="chap-environments">
-    <title>Environments</title>
-    &environments;
-  </chapter>
-
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="preface.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="build-install.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="simple.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="less-simple.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="libraries.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="nodes.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="depends.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="environments.xml"/>
+  
   <chapter id="chap-manip-options">
     <title>Automatically Putting Command-line Options into their Construction Variables</title>
     <!-- TODO:  This intro paragraph should describe at a high-level
@@ -192,96 +104,33 @@
     <para>
     This chapter describes the &MergeFlags;, &ParseFlags;, and &ParseConfig; methods of a &consenv;.
     </para>
-    <section id="sect-mergeflags">
-      <title>Merging Options into the Environment: the &MergeFlags; Function</title>
-      &mergeflags;
-    </section>
-    <section id="sect-parseflags">
-      <title>Separating Compile Arguments into their Variables: the &ParseFlags; Function</title>
-      &parseflags;
-    </section>
-    <section id="sect-parseconfig">
-      <title>Finding Installed Library Information: the &ParseConfig; Function</title>
-      &parseconfig;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="mergeflags.xml"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="parseflags.xml"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="parseconfig.xml"/>
     <!--
     XXX parse_flags= option of Environment()
-
-    <section id="sect-env-parseflags">
-      <title>Adding Flags when Constructing Enviroment: the parse_flags Optional Argument</title>
-      &envparseflags;
-    </section>
     -->
   </chapter>
 
-  <chapter id="chap-output">
-    <title>Controlling Build Output</title>
-    &output;
-  </chapter>
-
-  <chapter id="chap-command-line">
-    <title>Controlling a Build From the Command Line</title>
-    &command-line;
-  </chapter>
-
-  <chapter id="chap-install">
-    <title>Installing Files in Other Directories:  the &Install; Builder</title>
-    &install;
-  </chapter>
-
-  <chapter id="chap-factories">
-    <title>Platform-Independent File System Manipulation</title>
-    &factories;
-  </chapter>
-
-  <chapter id="chap-file-removal">
-    <title>Controlling Removal of Targets</title>
-    &file-removal;
-  </chapter>
-
-  <chapter id="chap-hierarchical">
-    <title>Hierarchical Builds</title>
-    &hierarchy;
-  </chapter>
-
-  <chapter id="chap-separate">
-    <title>Separating Source and Build Directories</title>
-    &separate;
-  </chapter>
-
-  <chapter id="chap-variants">
-    <title>Variant Builds</title>
-    &variants;
-  </chapter>
-
-  <chapter id="chap-gettext">
-    <title>Internationalization and localization with gettext</title>
-    &gettext;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="output.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="command-line.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="install.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="factories.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="file-removal.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="hierarchy.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="separate.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variants.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="gettext.xml"/>
 
   <!--
 
-  <chapter id="chap-builders-built-in">
-    <title>Built-In Builders</title>
-    &builders-built-in;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-built-in.xml"/>
 
   -->
 
-  <chapter id="chap-builders-writing">
-    <title>Writing Your Own Builders</title>
-    &builders-writing;
-  </chapter>
-
-  <chapter id="chap-builders-commands">
-    <title>Not Writing a Builder:  the &Command; Builder</title>
-    &builders-commands;
-  </chapter>
-
-  <chapter id="chap-add-method">
-    <title>Pseudo-Builders:  the AddMethod function</title>
-    &add-method;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-writing.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-commands.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="add-method.xml"/>
 
   <!--
 
@@ -289,122 +138,44 @@
   XXX AddPostAction()
   XXX AddPreAction()
 
-  <chapter id="chap-actions">
-    <title>&SCons; Actions</title>
-    &actions;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="actions.xml"/>
 
   -->
 
-  <chapter id="chap-scanners">
-    <title>Writing Scanners</title>
-    &scanners;
-  </chapter>
-
-  <chapter id="chap-repositories">
-    <title>Building From Code Repositories</title>
-    &repositories;
-  </chapter>
-
-  <chapter id="chap-sconf">
-    <title>Multi-Platform Configuration (&Autoconf; Functionality)</title>
-    &sconf;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scanners.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="repositories.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sconf.xml"/>
 
   <!--
 
-  <chapter id="chap-sourcecode">
-    <title>Fetching Files From Source Code Management Systems</title>
-    &sourcecode;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sourcecode.xml"/>
 
   -->
 
-  <chapter id="chap-caching">
-    <title>Caching Built Files</title>
-    &caching;
-  </chapter>
-
-  <chapter id="chap-alias">
-    <title>Alias Targets</title>
-    &alias;
-  </chapter>
-
-  <chapter id="chap-java">
-    <title>Java Builds</title>
-    &java;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="caching.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="alias.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="java.xml"/>
 
   <!--
 
-  <chapter id="chap-run">
-    <title>How to Run &SCons;</title>
-    &run;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="run.xml"/>
 
   -->
 
-  <chapter id="chap-misc">
-    <title>Miscellaneous Functionality</title>
-    &misc;
-  </chapter>
-
-  <chapter id="chap-troubleshooting">
-    <title>Troubleshooting</title>
-    &troubleshoot;
-  </chapter>
-
-  <appendix id="app-variables">
-    <title>Construction Variables</title>
-    &variables-xml;
-  </appendix>
-
-  <appendix id="app-builders">
-    <title>Builders</title>
-    &builders;
-  </appendix>
-
-  <appendix id="app-tools">
-    <title>Tools</title>
-    &tools;
-  </appendix>
-
-  <appendix id="app-functions">
-    <title>Functions and Environment Methods</title>
-    &functions;
-  </appendix>
-
-  <appendix id="app-tasks">
-    <title>Handling Common Tasks</title>
-    &tasks;
-  </appendix>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="misc.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="troubleshoot.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variables.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tools.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="functions.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tasks.xml"/>
 
   <!--
 
-  <appendix id="app-python">
-    <title>Python Overview</title>
-    &example;
-  </appendix>
-
-  <appendix id="app-example">
-    <title>Complex &SCons; Example</title>
-    &example;
-  </appendix>
-
-  <appendix id="app-make">
-    <title>Converting From Make</title>
-    &make;
-  </appendix>
-
-  <appendix id="app-cons">
-    <title>Converting From Cons</title>
-    &cons;
-  </appendix>
-
-  <appendix id="app-ant">
-    <title>Converting From Ant</title>
-    &ant;
-  </appendix>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="python.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="example.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="make.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ant.xml"/>
 
   -->
 

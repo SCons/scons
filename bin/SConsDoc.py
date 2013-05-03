@@ -213,6 +213,39 @@ def validate_xml(fpath, xmlschema_context):
         
     return True
 
+def prettyprint_xml(fpath):
+    if not has_libxml2:
+        # At the moment we prefer libxml2 over lxml, the latter can lead
+        # to conflicts when installed together with libxml2.
+        if has_lxml:
+            # Use lxml
+            from lxml import etree
+            fin = open(fpath,'r')
+            tree = etree.parse(fin)
+            pretty_content = etree.tostring(tree, pretty_print=True)
+            fin.close()
+
+            fout = open(fpath,'w')
+            fout.write(pretty_content)
+            fout.close()
+        else:
+            # Use xmllint as a last fallback
+            try:
+                import subprocess
+                p = subprocess.Popen(['xmllint', '-o', fpath, '--format', fpath],
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                sout, serr = p.communicate()
+            except:
+                print "Can't prettyprint %s! Neither lxml/libxml2, nor xmllint found." % fpath
+                return False
+
+    # Read file and resolve entities
+    doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
+    err = xmlschema_context.schemaValidateDoc(doc)
+    # Cleanup
+    doc.freeDoc()
+    
+
 perc="%"
 
 def validate_all_xml(dpath='src', xsdfile=default_xsd):
@@ -302,7 +335,7 @@ class Builder(Item):
 class Function(Item):
     def __init__(self, name):
         super(Function, self).__init__(name)
-        self.arguments = []
+        self.arguments = ['()']
 
 class Tool(Item):
     def __init__(self, name):
