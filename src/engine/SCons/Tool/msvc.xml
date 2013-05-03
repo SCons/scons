@@ -1,62 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="msvc">
 <summary>
+<para>
 Sets construction variables for the Microsoft Visual C/C++ compiler.
+</para>
 </summary>
 <sets>
-CCPDBFLAGS
-CCPCHFLAGS
-<!--CCCOMFLAGS-->
-CC
-CCFLAGS
-CFLAGS
-CCCOM
-SHCC
-SHCCFLAGS
-SHCFLAGS
-SHCCCOM
-CXX
-CXXFLAGS
-CXXCOM
-SHCXX
-SHCXXFLAGS
-SHCXXCOM
-CPPDEFPREFIX
-CPPDEFSUFFIX
-INCPREFIX
-INCSUFFIX
-<!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME-->
-RC
-RCFLAGS
-RCCOM
-BUILDERS
-OBJPREFIX
-OBJSUFFIX
-SHOBJPREFIX
-SHOBJSUFFIX
-CFILESUFFIX
-CXXFILESUFFIX
-PCHPDBFLAGS
-PCHCOM
+<item>CCPDBFLAGS</item>
+<item>CCPCHFLAGS</item>
+<item><!--CCCOMFLAGS--></item>
+<item>CC</item>
+<item>CCFLAGS</item>
+<item>CFLAGS</item>
+<item>CCCOM</item>
+<item>SHCC</item>
+<item>SHCCFLAGS</item>
+<item>SHCFLAGS</item>
+<item>SHCCCOM</item>
+<item>CXX</item>
+<item>CXXFLAGS</item>
+<item>CXXCOM</item>
+<item>SHCXX</item>
+<item>SHCXXFLAGS</item>
+<item>SHCXXCOM</item>
+<item>CPPDEFPREFIX</item>
+<item>CPPDEFSUFFIX</item>
+<item>INCPREFIX</item>
+<item>INCSUFFIX</item>
+<item><!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME--></item>
+<item>RC</item>
+<item>RCFLAGS</item>
+<item>RCCOM</item>
+<item>BUILDERS</item>
+<item>OBJPREFIX</item>
+<item>OBJSUFFIX</item>
+<item>SHOBJPREFIX</item>
+<item>SHOBJSUFFIX</item>
+<item>CFILESUFFIX</item>
+<item>CXXFILESUFFIX</item>
+<item>PCHPDBFLAGS</item>
+<item>PCHCOM</item>
 </sets>
 <uses>
-CCCOMSTR
-SHCCCOMSTR
-CXXCOMSTR
-SHCXXCOMSTR
-PCH
-PCHSTOP
-PDB
+<item>CCCOMSTR</item>
+<item>SHCCCOMSTR</item>
+<item>CXXCOMSTR</item>
+<item>SHCXXCOMSTR</item>
+<item>PCH</item>
+<item>PCHSTOP</item>
+<item>PDB</item>
 </uses>
 </tool>
 
 <builder name="PCH">
 <summary>
+<para>
 Builds a Microsoft Visual C++ precompiled header.
 Calling this builder method
 returns a list of two targets: the PCH as the first element, and the object
@@ -66,15 +88,17 @@ provided when Microsoft Visual C++ is being used as the compiler.
 The PCH builder method is generally used in
 conjuction with the PCH construction variable to force object files to use
 the precompiled header:
+</para>
 
-<example>
+<example_commands>
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <builder name="RES">
 <summary>
+<para>
 Builds a Microsoft Visual C++ resource file.
 This builder method is only provided
 when Microsoft Visual C++ or MinGW is being used as the compiler. The
@@ -85,32 +109,38 @@ for MinGW) suffix is added to the target name if no other suffix is given.
 The source
 file is scanned for implicit dependencies as though it were a C file.
 Example:
+</para>
 
-<example>
+<example_commands>
 env.RES('resource.rc')
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <cvar name="CCPCHFLAGS">
 <summary>
+<para>
 Options added to the compiler command line
 to support building with precompiled headers.
 The default value expands expands to the appropriate
 Microsoft Visual C++ command-line options
 when the &cv-link-PCH; construction variable is set.
+</para>
 </summary>
 </cvar>
 
 <cvar name="CCPDBFLAGS">
 <summary>
+<para>
 Options added to the compiler command line
 to support storing debugging information in a
 Microsoft Visual C++ PDB file.
 The default value expands expands to appropriate
 Microsoft Visual C++ command-line options
 when the &cv-link-PDB; construction variable is set.
+</para>
 
+<para>
 The Visual C++ compiler option that SCons uses by default
 to generate PDB information is <option>/Z7</option>.
 This works correctly with parallel (<option>-j</option>) builds
@@ -121,27 +151,33 @@ embedded into a static library.
 Using the <option>/Zi</option> instead may yield improved
 link-time performance,
 although parallel builds will no longer work.
+</para>
 
+<para>
 You can generate PDB files with the <option>/Zi</option>
 switch by overriding the default &cv-link-CCPDBFLAGS; variable as follows:
+</para>
 
-<example>
+<example_commands>
 env['CCPDBFLAGS'] = ['${(PDB and "/Zi /Fd%s" % File(PDB)) or ""}']
-</example>
+</example_commands>
 
+<para>
 An alternative would be to use the <option>/Zi</option>
 to put the debugging information in a separate <filename>.pdb</filename>
 file for each object file by overriding
 the &cv-link-CCPDBFLAGS; variable as follows:
+</para>
 
-<example>
+<example_commands>
 env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
-</example>
+</example_commands>
 </summary>
 </cvar>
 
 <cvar name="MSVC_BATCH">
 <summary>
+<para>
 When set to any true value,
 specifies that SCons should batch
 compilation of object files
@@ -157,11 +193,13 @@ Any compilations where the object (target) file base name
 (minus the <filename>.obj</filename>)
 does not match the source file base name
 will be compiled separately.
+</para>
 </summary>
 </cvar>
 
 <cvar name="PCH">
 <summary>
+<para>
 The Microsoft Visual C++ precompiled header that will be used when compiling
 object files. This variable is ignored by tools other than Microsoft Visual C++.
 When this variable is
@@ -169,81 +207,99 @@ defined SCons will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
 dependencies for the PCH file.
 Example:
+</para>
 
-<example>
+<example_commands>
 env['PCH'] = 'StdAfx.pch'
-</example>
+</example_commands>
 </summary>
 </cvar>
 
 <cvar name="PCHCOM">
 <summary>
+<para>
 The command line used by the
 &b-PCH;
 builder to generated a precompiled header.
+</para>
 </summary>
 </cvar>
 
 <cvar name="PCHCOMSTR">
 <summary>
+<para>
 The string displayed when generating a precompiled header.
 If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
+</para>
 </summary>
 </cvar>
 
 <cvar name="PCHPDBFLAGS">
 <summary>
+<para>
 A construction variable that, when expanded,
 adds the <literal>/yD</literal> flag to the command line
 only if the &cv-PDB; construction variable is set.
+</para>
 </summary>
 </cvar>
 
 <cvar name="PCHSTOP">
 <summary>
+<para>
 This variable specifies how much of a source file is precompiled. This
 variable is ignored by tools other than Microsoft Visual C++, or when
 the PCH variable is not being used. When this variable is define it
 must be a string that is the name of the header that
 is included at the end of the precompiled portion of the source files, or
 the empty string if the "#pragma hrdstop" construct is being used:
+</para>
 
-<example>
+<example_commands>
 env['PCHSTOP'] = 'StdAfx.h'
-</example>
+</example_commands>
 </summary>
 </cvar>
 
 <cvar name="RC">
 <summary>
+<para>
 The resource compiler used to build
 a Microsoft Visual C++ resource file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCCOM">
 <summary>
+<para>
 The command line used to build
 a Microsoft Visual C++ resource file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCCOMSTR">
 <summary>
+<para>
 The string displayed when invoking the resource compiler
 to build a Microsoft Visual C++ resource file.
 If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCFLAGS">
 <summary>
+<para>
 The flags passed to the resource compiler by the RES builder.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCINCFLAGS">
 <summary>
+<para>
 An automatically-generated construction variable
 containing the command-line options
 for specifying directories to be searched
@@ -252,46 +308,58 @@ The value of &cv-RCINCFLAGS; is created
 by appending &cv-RCINCPREFIX; and &cv-RCINCSUFFIX;
 to the beginning and end
 of each directory in &cv-CPPPATH;.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCINCPREFIX">
 <summary>
+<para>
 The prefix (flag) used to specify an include directory
 on the resource compiler command line.
 This will be appended to the beginning of each directory
 in the &cv-CPPPATH; construction variable
 when the &cv-RCINCFLAGS; variable is expanded.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCINCSUFFIX">
 <summary>
+<para>
 The suffix used to specify an include directory
 on the resource compiler command line.
 This will be appended to the end of each directory
 in the &cv-CPPPATH; construction variable
 when the &cv-RCINCFLAGS; variable is expanded.
+</para>
 </summary>
 </cvar>
 
 <cvar name="MSVC_VERSION">
 <summary>
+<para>
 Sets the preferred  version of Microsoft Visual C/C++ to use.
+</para>
 
+<para>
 If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
 latest version of Visual C/C++ installed on your system.  If the
 specified version isn't installed, tool initialization will fail.
 This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect.  Set it to an unexpected
 value (e.g. "XXX") to see the valid values on your system.
+</para>
 </summary>
 </cvar>
 
 <cvar name="MSVC_USE_SCRIPT">
 <summary>
+<para>
 Use a batch script to set up Microsoft Visual Studio compiler
+</para>
 
+<para>
 &cv-MSVC_USE_SCRIPT; overrides &cv-MSVC_VERSION; and &cv-TARGET_ARCH;.
 If set to the name of a Visual Studio .bat file (e.g. vcvars.bat),
 SCons will run that bat file and extract the relevant variables from
@@ -299,25 +367,33 @@ the result (typically %INCLUDE%, %LIB%, and %PATH%).  Setting
 MSVC_USE_SCRIPT to None bypasses the Visual Studio autodetection
 entirely; use this if you are running SCons in a Visual Studio cmd
 window and importing the shell's environment variables.
+</para>
 </summary>
 </cvar>
 
 <cvar name="HOST_ARCH">
 <summary>
+<para>
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
 This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect. 
+</para>
 
+<para>
 Valid values are the same as for &cv-TARGET_ARCH;.
+</para>
 
+<para>
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
+</para>
 </summary>
 </cvar>
 <cvar name="TARGET_ARCH">
 <summary>
+<para>
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 &cv-HOST_ARCH;, or, if that is unset, to the architecture of the
@@ -327,7 +403,9 @@ This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect.  
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
+</para>
 
+<para>
 Valid values for Windows are
 <literal>x86</literal>,
 <literal>i386</literal>
@@ -339,5 +417,8 @@ Valid values for Windows are
 and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
+</para>
 </summary>
 </cvar>
+
+</sconsdoc>

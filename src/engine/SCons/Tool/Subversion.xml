@@ -1,21 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <!--
 <tool name="Subversion">
 <summary>
+<para>
 Sets construction variables for interacting with Subversion.
+</para>
 </summary>
 <sets>
-SVN
-SVNFLAGS
-SVNCOM
+<item>SVN</item>
+<item>SVNFLAGS</item>
+<item>SVNCOM</item>
 </sets>
 <uses>
-SVNCOMSTR
+<item>SVNCOMSTR</item>
 </uses>
 </tool>
 -->
@@ -23,8 +44,10 @@ SVNCOMSTR
 <!--
 <cvar name="SVN">
 <summary>
+<para>
 The Subversion executable (usually named
 <command>svn</command>).
+</para>
 </summary>
 </cvar>
 -->
@@ -32,8 +55,10 @@ The Subversion executable (usually named
 <!--
 <cvar name="SVNCOM">
 <summary>
+<para>
 The command line used to
 fetch source files from a Subversion repository.
+</para>
 </summary>
 </cvar>
 -->
@@ -41,7 +66,9 @@ fetch source files from a Subversion repository.
 <!--
 <cvar name="SVNFLAGS">
 <summary>
+<para>
 General options that are passed to Subversion.
+</para>
 </summary>
 </cvar>
 -->
@@ -52,6 +79,7 @@ General options that are passed to Subversion.
 (repository, module)
 </arguments>
 <summary>
+<para>
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -61,7 +89,9 @@ The returned Builder
 is intended to be passed to the
 &f-link-SourceCode;
 function.
+</para>
 
+<para>
 The optional specified
 <varname>module</varname>
 will be added to the beginning
@@ -73,14 +103,19 @@ so that you only have to
 replicate part of the repository
 directory hierarchy in your
 local build directory.
+</para>
 
+<para>
 This function is deprecated, see the entry for the
 &f-SourceCode;
 function.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 # Will fetch foo/bar/src.c
 # from /usr/local/Subversion/foo/bar/src.c.
 env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
@@ -92,7 +127,9 @@ env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo'))
 # Will fetch src.c
 # from /usr/local/Subversion/foo/bar/src.c.
 env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo/bar'))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 -->
+
+</sconsdoc>

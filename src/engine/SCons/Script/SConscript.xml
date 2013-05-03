@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
@@ -5,11 +6,30 @@ This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
 
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
+
 <scons_function name="Default">
 <arguments>
 (targets)
 </arguments>
 <summary>
+<para>
 This specifies a list of default targets,
 which will be built by
 &scons;
@@ -18,7 +38,9 @@ Multiple calls to
 &f-Default;
 are legal,
 and add to the list of default targets.
+</para>
 
+<para>
 Multiple targets should be specified as
 separate arguments to the
 &f-Default;
@@ -27,16 +49,20 @@ method, or as a list.
 will also accept the Node returned by any
 of a construction environment's
 builder methods.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 Default('foo', 'bar', 'baz')
 env.Default(['a', 'b', 'c'])
 hello = env.Program('hello', 'hello.c')
 env.Default(hello)
-</example>
+</example_commands>
 
+<para>
 An argument to
 &f-Default;
 of
@@ -46,13 +72,16 @@ Later calls to
 &f-Default;
 will add to the (now empty) default-target list
 like normal.
+</para>
 
+<para>
 The current list of targets added using the
 &f-Default;
 function or method is available in the
 <literal>DEFAULT_TARGETS</literal>
 list;
 see below.
+</para>
 </summary>
 </scons_function>
 
@@ -61,17 +90,21 @@ see below.
 (major, minor)
 </arguments>
 <summary>
+<para>
 Ensure that the Python version is at least
 <varname>major</varname>.<varname>minor</varname>.
 This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual Python version is not late enough.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 EnsurePythonVersion(2,2)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -80,6 +113,7 @@ EnsurePythonVersion(2,2)
 (major, minor, [revision])
 </arguments>
 <summary>
+<para>
 Ensure that the SCons version is at least
 <varname>major.minor</varname>,
 or
@@ -90,14 +124,17 @@ is specified.
 This function will
 print out an error message and exit SCons with a non-zero exit code if the
 actual SCons version is not late enough.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 EnsureSConsVersion(0,14)
 
 EnsureSConsVersion(0,96,90)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -106,6 +143,7 @@ EnsureSConsVersion(0,96,90)
 ([value])
 </arguments>
 <summary>
+<para>
 This tells
 &scons;
 to exit immediately
@@ -115,6 +153,7 @@ A default exit value of
 <literal>0</literal>
 (zero)
 is used if no value is specified.
+</para>
 </summary>
 </scons_function>
 
@@ -123,6 +162,7 @@ is used if no value is specified.
 (vars)
 </arguments>
 <summary>
+<para>
 This tells
 &scons;
 to export a list of variables from the current
@@ -137,10 +177,13 @@ as separate arguments or as a list.
 Keyword arguments can be used to provide names and their values.
 A dictionary can be used to map variables to a different name when exported.
 Both local variables and global variables can be exported.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env = Environment()
 # Make env available for all SConscript files to Import().
 Export("env")
@@ -157,8 +200,9 @@ Export(debug = env)
 
 # Make env available using the name debug:
 Export({"debug":env})
-</example>
+</example_commands>
 
+<para>
 Note that the
 &f-SConscript;
 function supports an
@@ -168,6 +212,7 @@ set of variables to a single SConscript file.
 See the description of the
 &f-SConscript;
 function, below.
+</para>
 </summary>
 </scons_function>
 
@@ -176,6 +221,7 @@ function, below.
 ()
 </arguments>
 <summary>
+<para>
 Returns the absolute path name of the directory from which
 &scons;
 was initially invoked.
@@ -188,6 +234,7 @@ options, which internally
 change to the directory in which the
 &SConstruct;
 file is found.
+</para>
 </summary>
 </scons_function>
 
@@ -196,6 +243,7 @@ file is found.
 (text)
 </arguments>
 <summary>
+<para>
 This specifies help text to be printed if the
 <option>-h</option>
 argument is given to
@@ -206,6 +254,7 @@ is called multiple times, the text is appended together in the order
 that
 &f-Help;
 is called.
+</para>
 </summary>
 </scons_function>
 
@@ -214,6 +263,7 @@ is called.
 (vars)
 </arguments>
 <summary>
+<para>
 This tells
 &scons;
 to import a list of variables into the current SConscript file. This
@@ -230,15 +280,18 @@ Multiple variable names can be passed to
 &f-Import;
 as separate arguments or as a list. The variable "*" can be used
 to import all variables.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 Import("env")
 Import("env", "variable")
 Import(["env", "variable"])
 Import("*")
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -247,6 +300,7 @@ Import("*")
 ([vars..., stop=])
 </arguments>
 <summary>
+<para>
 By default,
 this stops processing the current SConscript
 file and returns to the calling SConscript file
@@ -256,7 +310,9 @@ string arguments.
 Multiple strings contaning variable names may be passed to
 &f-Return;.
 Any strings that contain white space
+</para>
 
+<para>
 The optional
 <literal>stop=</literal>
 keyword argument may be set to a false value
@@ -271,10 +327,13 @@ are still the values of the variables in the named
 at the point
 &f-Return;
 is called.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # Returns without returning a value.
 Return()
 
@@ -286,7 +345,7 @@ Return("foo", "bar")
 
 # Returns the values of Python variables 'val1' and 'val2'.
 Return('val1 val2')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -300,6 +359,7 @@ Return('val1 val2')
 <!-- (dirs=subdirs, [name=script, exports, variant_dir, src_dir, duplicate]) -->
 </arguments>
 <summary>
+<para>
 This tells
 &scons;
 to execute
@@ -311,7 +371,9 @@ will be returned by the call to
 There are two ways to call the
 &f-SConscript;
 function.
+</para>
 
+<para>
 The first way you can call
 &f-SConscript;
 is to explicitly specify one or more
@@ -323,13 +385,15 @@ multiple scripts must be specified as a list
 a function like
 &f-Split;).
 Examples:
-<example>
+</para>
+<example_commands>
 SConscript('SConscript')      # run SConscript in the current directory
 SConscript('src/SConscript')  # run SConscript in the src directory
 SConscript(['src/SConscript', 'doc/SConscript'])
 config = SConscript('MyConfig.py')
-</example>
+</example_commands>
 
+<para>
 The second way you can call
 &f-SConscript;
 is to specify a list of (sub)directory names
@@ -349,13 +413,15 @@ by supplying an optional
 keyword argument.
 The first three examples below have the same effect
 as the first three examples above:
-<example>
+</para>
+<example_commands>
 SConscript(dirs='.')      # run SConscript in the current directory
 SConscript(dirs='src')    # run SConscript in the src directory
 SConscript(dirs=['src', 'doc'])
 SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
-</example>
+</example_commands>
 
+<para>
 The optional
 <varname>exports</varname>
 argument provides a list of variable names or a dictionary of
@@ -373,13 +439,15 @@ must use the
 &f-link-Import;
 function to import the variables.
 Examples:
-<example>
+</para>
+<example_commands>
 foo = SConscript('sub/SConscript', exports='env')
 SConscript('dir/SConscript', exports=['env', 'variable'])
 SConscript(dirs='subdir', exports='env variable')
 SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
-</example>
+</example_commands>
 
+<para>
 If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
@@ -405,7 +473,9 @@ file.
 See the description of the
 &f-VariantDir;
 function below for additional details and restrictions.
+</para>
 
+<para>
 If
 <varname>variant_dir</varname>
 is present,
@@ -421,32 +491,40 @@ file resides and the
 file is evaluated as if it were in the
 <varname>variant_dir</varname>
 directory:
-<example>
+</para>
+<example_commands>
 SConscript('src/SConscript', variant_dir = 'build')
-</example>
+</example_commands>
 
+<para>
 is equivalent to
+</para>
 
-<example>
+<example_commands>
 VariantDir('build', 'src')
 SConscript('build/SConscript')
-</example>
+</example_commands>
 
+<para>
 This later paradigm is often used when the sources are
 in the same directory as the
 &SConstruct;:
+</para>
 
-<example>
+<example_commands>
 SConscript('SConscript', variant_dir = 'build')
-</example>
+</example_commands>
 
+<para>
 is equivalent to
+</para>
 
-<example>
+<example_commands>
 VariantDir('build', '.')
 SConscript('build/SConscript')
-</example>
+</example_commands>
 
+<para>
 <!--
 If
 <varname>variant_dir</varname>
@@ -454,7 +532,8 @@ and"
 <varname>src_dir</varname>
 are both present,
 xxxxx everything is in a state of confusion.
-<example>
+</para>
+<example_commands>
 SConscript(dirs = 'src', variant_dir = 'build', src_dir = '.')
 runs src/SConscript in build/src, but
 SConscript(dirs = 'lib', variant_dir = 'build', src_dir = 'src')
@@ -465,45 +544,53 @@ SConscript(dirs = 'src/lib', variant_dir = 'build', src_dir = 'src')
 runs src/lib/SConscript in build/lib.  Moreover,
 SConscript(dirs = 'build/src/lib', variant_dir = 'build', src_dir = 'src')
 can't find build/src/lib/SConscript, even though it ought to exist.
-</example>
+</example_commands>
+<para>
 is equivalent to
-<example>
+</para>
+<example_commands>
 ????????????????
-</example>
+</example_commands>
+<para>
 and what about this alternative?
 TODO??? SConscript('build/SConscript', src_dir='src')
 -->
+</para>
 
+<para>
 Here are some composite examples:
+</para>
 
-<example>
+<example_commands>
 # collect the configuration information and use it to build src and doc
 shared_info = SConscript('MyConfig.py')
 SConscript('src/SConscript', exports='shared_info')
 SConscript('doc/SConscript', exports='shared_info')
-</example>
+</example_commands>
 
-<example>
+<example_commands>
 # build debugging and production versions.  SConscript
 # can use Dir('.').path to determine variant.
 SConscript('SConscript', variant_dir='debug', duplicate=0)
 SConscript('SConscript', variant_dir='prod', duplicate=0)
-</example>
+</example_commands>
 
-<example>
+<example_commands>
 # build debugging and production versions.  SConscript
 # is passed flags to use.
 opts = { 'CPPDEFINES' : ['DEBUG'], 'CCFLAGS' : '-pgdb' }
 SConscript('SConscript', variant_dir='debug', duplicate=0, exports=opts)
 opts = { 'CPPDEFINES' : ['NODEBUG'], 'CCFLAGS' : '-O' }
 SConscript('SConscript', variant_dir='prod', duplicate=0, exports=opts)
-</example>
+</example_commands>
 
-<example>
+<example_commands>
 # build common documentation and compile for different architectures
 SConscript('doc/SConscript', variant_dir='build/doc', duplicate=0)
 SConscript('src/SConscript', variant_dir='build/x86', duplicate=0)
 SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
-</example>
+</example_commands>
 </summary>
 </scons_function>
+
+</sconsdoc>

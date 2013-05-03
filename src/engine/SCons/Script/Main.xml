@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
@@ -5,11 +6,30 @@ This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
 
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
+
 <scons_function name="AddOption">
 <arguments signature="global">
 (arguments)
 </arguments>
 <summary>
+<para>
 This function adds a new command-line option to be recognized.
 The specified
 <varname>arguments</varname>
@@ -19,7 +39,9 @@ method (with a few additional capabilities noted below);
 see the documentation for
 <literal>optparse</literal>
 for a thorough discussion of its option-processing capabities.
+</para>
 
+<para>
 In addition to the arguments and values supported by the
 <function>optparse.add_option</function>()
 method,
@@ -44,14 +66,18 @@ may be used to supply the "default"
 value that should be used when the
 option is specified on the command line
 without an explicit argument.
+</para>
 
+<para>
 If no
 <literal>default=</literal>
 keyword argument is supplied when calling
 &f-AddOption;,
 the option will have a default value of
 <literal>None</literal>.
+</para>
 
+<para>
 Once a new command-line option has been added with
 &f-AddOption;,
 the option value may be accessed using
@@ -69,7 +95,9 @@ Note, however, that a
 value specified on the command line will
 <emphasis>always</emphasis>
 override a value set by any SConscript file.
+</para>
 
+<para>
 Any specified
 <literal>help=</literal>
 strings for the new option(s)
@@ -90,10 +118,13 @@ The options will appear in the help text
 in the order in which the
 &f-AddOption;
 calls occur.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 AddOption('--prefix',
           dest='prefix',
           nargs=1, type='string',
@@ -101,7 +132,7 @@ AddOption('--prefix',
           metavar='DIR',
           help='installation prefix')
 env = Environment(PREFIX = GetOption('prefix'))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -110,6 +141,7 @@ env = Environment(PREFIX = GetOption('prefix'))
 ()
 </arguments>
 <summary>
+<para>
 Returns a list of exceptions for the
 actions that failed while
 attempting to build targets.
@@ -119,17 +151,23 @@ object
 with the following attributes
 that record various aspects
 of the build failure:
+</para>
 
+<para>
 <literal>.node</literal>
 The node that was being built
 when the build failure occurred.
+</para>
 
+<para>
 <literal>.status</literal>
 The numeric exit status
 returned by the command or Python function
 that failed when trying to build the
 specified Node.
+</para>
 
+<para>
 <literal>.errstr</literal>
 The SCons error string
 describing the build failure.
@@ -137,7 +175,9 @@ describing the build failure.
 message like "Error 2"
 to indicate that an executed
 command exited with a status of 2.)
+</para>
 
+<para>
 <literal>.filename</literal>
 The name of the file or
 directory that actually caused the failure.
@@ -158,7 +198,9 @@ but the
 <literal>.filename</literal>
 attribute will be
 <filename>sub/dir</filename>.
+</para>
 
+<para>
 <literal>.executor</literal>
 The SCons Executor object
 for the target Node
@@ -166,21 +208,27 @@ being built.
 This can be used to retrieve
 the construction environment used
 for the failed action.
+</para>
 
+<para>
 <literal>.action</literal>
 The actual SCons Action object that failed.
 This will be one specific action
 out of the possible list of
 actions that would have been
 executed to build the target.
+</para>
 
+<para>
 <literal>.command</literal>
 The actual expanded command that was executed and failed,
 after expansion of
 &cv-link-TARGET;,
 &cv-link-SOURCE;,
 and other construction variables.
+</para>
 
+<para>
 Note that the
 &f-GetBuildFailures;
 function
@@ -200,8 +248,9 @@ standard Python
 <function>atexit.register</function>()
 function.
 Example:
+</para>
 
-<example>
+<example_commands>
 import atexit
 
 def print_build_failures():
@@ -210,7 +259,7 @@ def print_build_failures():
         print "%s failed: %s" % (bf.node, bf.errstr)
 
 atexit.register(print_build_failures)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -219,13 +268,16 @@ atexit.register(print_build_failures)
 (name)
 </arguments>
 <summary>
+<para>
 This function provides a way to query the value of
 SCons options set on scons command line
 (or set using the
 &f-link-SetOption;
 function).
 The options supported are:
+</para>
 
+<para>
 <variablelist>
 <varlistentry>
 <term><literal>cache_debug</literal></term>
@@ -468,10 +520,13 @@ which corresponds to --warn and --warning.
 </listitem>
 </varlistentry>
 </variablelist>
+</para>
 
+<para>
 See the documentation for the
 corresponding command line object for information about each specific
 option.
+</para>
 </summary>
 </scons_function>
 
@@ -486,10 +541,13 @@ option.
 (list_of_strings, [interval, file, overwrite])
 </arguments>
 <summary>
+<para>
 Allows SCons to show progress made during the build
 by displaying a string or calling a function while
 evaluating Nodes (e.g. files).
+</para>
 
+<para>
 If the first specified argument is a Python callable
 (a function or an object that has a
 <function>__call__</function>()
@@ -509,17 +567,21 @@ as arguments to your function or method.
 This will prevent the code from breaking
 if SCons ever changes the interface
 to call the function with additional arguments in the future.)
+</para>
 
+<para>
 An example of a simple custom progress function
 that prints a string containing the Node name
 every 10 Nodes:
+</para>
 
-<example>
+<example_commands>
 def my_progress_function(node, *args, **kw):
     print 'Evaluating node %s!' % node
 Progress(my_progress_function, interval=10)
-</example>
+</example_commands>
 
+<para>
 A more complicated example of a custom progress display object
 that prints a string containing a count
 every 100 evaluated Nodes.
@@ -528,8 +590,9 @@ Note the use of
 (a carriage return)
 at the end so that the string
 will overwrite itself on a display:
+</para>
 
-<example>
+<example_commands>
 import sys
 class ProgressCounter(object):
     count = 0
@@ -537,8 +600,9 @@ class ProgressCounter(object):
         self.count += 100
         sys.stderr.write('Evaluated %s nodes\r' % self.count)
 Progress(ProgressCounter(), interval=100)
-</example>
+</example_commands>
 
+<para>
 If the first argument
 &f-link-Progress;
 is a string,
@@ -554,12 +618,14 @@ argument.
 The following will print a series of dots
 on the error output,
 one dot for every 100 evaluated Nodes:
+</para>
 
-<example>
+<example_commands>
 import sys
 Progress('.', interval=100, file=sys.stderr)
-</example>
+</example_commands>
 
+<para>
 If the string contains the verbatim substring
 &cv-TARGET;,
 it will be replaced with the Node.
@@ -577,12 +643,14 @@ and the
 <literal>overwrite=</literal>
 keyword argument to make sure the previously-printed
 file name is overwritten with blank spaces:
+</para>
 
-<example>
+<example_commands>
 import sys
 Progress('$TARGET\r', overwrite=True)
-</example>
+</example_commands>
 
+<para>
 If the first argument to
 &f-Progress;
 is a list of strings,
@@ -592,10 +660,11 @@ in rotating fashion every
 evaluated Nodes.
 This can be used to implement a "spinner"
 on the user's screen as follows:
+</para>
 
-<example>
+<example_commands>
 Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -604,6 +673,7 @@ Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
 (target, ...)
 </arguments>
 <summary>
+<para>
 Marks each given
 <varname>target</varname>
 as precious so it is not deleted before it is rebuilt. Normally
@@ -611,6 +681,7 @@ as precious so it is not deleted before it is rebuilt. Normally
 deletes a target before building it.
 Multiple targets can be passed in to a single call to
 &f-Precious;.
+</para>
 </summary>
 </scons_function>
 
@@ -619,9 +690,12 @@ Multiple targets can be passed in to a single call to
 (name, value)
 </arguments>
 <summary>
+<para>
 This function provides a way to set a select subset of the scons command
 line options from a SConscript file. The options supported are:
+</para>
 
+<para>
 <variablelist>
 <varlistentry>
 <term><literal>clean</literal></term>
@@ -696,15 +770,22 @@ which corresponds to --stack-size.
 </listitem>
 </varlistentry>
 </variablelist>
+</para>
 
+<para>
 See the documentation for the
 corresponding command line object for information about each specific
 option.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 SetOption('max_drift', 1)
-</example>
+</example_commands>
 </summary>
 </scons_function>
+
+</sconsdoc>

@@ -1,62 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="RCS">
 <summary>
+<para>
 Sets construction variables for the interaction
 with the Revision Control System.
+</para>
 </summary>
 <sets>
-RCS
-RCS_CO
-RCS_COFLAGS
-RCS_COCOM
+<item>RCS</item>
+<item>RCS_CO</item>
+<item>RCS_COFLAGS</item>
+<item>RCS_COCOM</item>
 </sets>
 <uses>
-RCS_COCOMSTR
+<item>RCS_COCOMSTR</item>
 </uses>
 </tool>
 
 <cvar name="RCS">
 <summary>
+<para>
 The RCS executable.
 Note that this variable is not actually used
 for the command to fetch source files from RCS;
 see the
 &cv-link-RCS_CO;
 construction variable, below.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCS_CO">
 <summary>
+<para>
 The RCS "checkout" executable,
 used to fetch source files from RCS.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCS_COCOM">
 <summary>
+<para>
 The command line used to
 fetch (checkout) source files from RCS.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCS_COCOMSTR">
 <summary>
+<para>
 The string displayed when fetching
 a source file from RCS.
 If this is not set, then &cv-link-RCS_COCOM;
 (the command line) is displayed.
+</para>
 </summary>
 </cvar>
 
 <cvar name="RCS_COFLAGS">
 <summary>
+<para>
 Options that are passed to the &cv-link-RCS_CO; command.
+</para>
 </summary>
 </cvar>
 
@@ -65,6 +96,7 @@ Options that are passed to the &cv-link-RCS_CO; command.
 ()
 </arguments>
 <summary>
+<para>
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -73,17 +105,23 @@ The returned Builder
 is intended to be passed to the
 &f-SourceCode;
 function:
+</para>
 
+<para>
 This function is deprecated.  For details, see the entry for the
 &f-SourceCode;
 function.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env.SourceCode('.', env.RCS())
-</example>
+</example_commands>
 
+<para>
 Note that
 &scons;
 will fetch source files
@@ -97,5 +135,8 @@ files in the same
 directory as the source files,
 or if you need to explicitly specify RCS
 for a specific subdirectory.
+</para>
 </summary>
 </scons_function>
+
+</sconsdoc>
