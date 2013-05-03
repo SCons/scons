@@ -1,3 +1,24 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<appendix id="app-builders"
+          xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+<title>Builders</title>
+
 <!--
 
   __COPYRIGHT__
@@ -23,25 +44,6 @@
 
 -->
 
-<!--
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-
-<refentry id="Command">
-
-<refmeta>
-<refentrytitle>Command</refentrytitle>
-</refmeta>
-
-<methodsynopsis>
-  <methodname>env.Command</methodname>
-  <methodparam>foo</methodparam>
-  <methodparam>bar</methodparam>
-</methodsynopsis>
-
-</refentry>
--->
-
 <para>
 
 This appendix contains descriptions of all of the
@@ -50,8 +52,6 @@ available "out of the box" in this version of SCons.
 
 </para>
 
-<variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../generated/builders.gen"/>
 
-&builders-gen;
-
-</variablelist>
+</appendix>

@@ -1,3 +1,24 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<chapter id="chap-sideeffect"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+<title>Sideeffect files</title>
+
 <!--
 
   __COPYRIGHT__
@@ -23,8 +44,6 @@
 
 -->
 
- <!--
-
  <para>
 
  If &SCons; is unaware that a build step produces an extra file,
@@ -35,9 +54,11 @@
 
  </para>
 
+ <para>
  TODO: currently doesn't work due to issue #2154:
  http://scons.tigris.org/issues/show_bug.cgi?id=2154
-
+ </para>
+ 
  <para>
 
  If more than one build step creates or manipulates the same file,
@@ -75,8 +96,6 @@
     <scons_output_command>scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
- -->
-
  <para>
 
  Sometimes a program the you need to call
@@ -100,7 +119,7 @@
              './build --log logfile.txt $SOURCE $TARGET')
  env.Command('file2.out', 'file.in',
              './build --log logfile.txt $SOURCE $TARGET')
- <screen>
+ </screen>
 
  <para>
 
@@ -214,3 +233,6 @@
  may actually updated by more than one command invocation.
 
  </para>
+
+ </chapter>
+ 

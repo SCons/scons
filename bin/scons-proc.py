@@ -126,6 +126,16 @@ class SCons_XML(object):
             fl = filename.split(',')
             filename = fl[0]
         f = self.fopen(filename)
+        
+        # Write XML header
+        f.write("""<?xml version='1.0'?>
+<variablelist xmlns="%s"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="%s scons.xsd">
+
+""" % (SConsDoc.dbxsd, SConsDoc.dbxsd))
+        f.write(Warning)
+        
         for v in self.values:
             f.write('\n<varlistentry id="%s%s">\n' %
                         (v.prefix, v.idfunc()))
@@ -148,6 +158,9 @@ class SCons_XML(object):
                 f.write('</para>\n')
             f.write('</listitem>\n')
             f.write('</varlistentry>\n')
+            
+        # Write end tag
+        f.write('\n</variablelist>\n')
             
     def write_mod(self, filename):
         try:
@@ -262,7 +275,7 @@ class Function(SConsThing):
                 signature = arg.signature
             except AttributeError:
                 signature = "both"
-            s = self.args_to_xml(arg)
+            s = arg # TODO: self.args_to_xml(arg)
             if signature in ('both', 'global'):
                 result.append('<synopsis>%s%s</synopsis>\n' % (self.name, s)) #<br>
             if signature in ('both', 'env'):
