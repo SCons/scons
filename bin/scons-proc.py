@@ -14,6 +14,7 @@ import os
 import re
 import string
 import sys
+import copy
 try:
     from io import StringIO     # usable as of 2.6; takes unicode only
 except ImportError:
@@ -21,6 +22,28 @@ except ImportError:
     exec('from cStringIO import StringIO')
 
 import SConsDoc
+
+try:
+  from lxml import etree
+except ImportError:
+  try:
+    # Python 2.5
+    import xml.etree.cElementTree as etree
+  except ImportError:
+    try:
+      # Python 2.5
+      import xml.etree.ElementTree as etree
+    except ImportError:
+      try:
+        # normal cElementTree install
+        import cElementTree as etree
+      except ImportError:
+        try:
+          # normal ElementTree install
+          import elementtree.ElementTree as etree
+        except ImportError:
+          print("Failed to import ElementTree from any known place")
+          sys.exit(1)
 
 base_sys_path = [os.getcwd() + '/build/test-tar-gz/lib/scons'] + sys.path
 
@@ -125,42 +148,35 @@ class SCons_XML(object):
         if filename.count(','):
             fl = filename.split(',')
             filename = fl[0]
-        f = self.fopen(filename)
-        
-        # Write XML header
-        f.write("""<?xml version='1.0'?>
-<variablelist xmlns="%s"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="%s scons.xsd">
-
-""" % (SConsDoc.dbxsd, SConsDoc.dbxsd))
-        f.write(Warning)
+            
+        # Start new XML file
+        root = SConsDoc.xml_tree("variablelist")
         
         for v in self.values:
-            f.write('\n<varlistentry id="%s%s">\n' %
-                        (v.prefix, v.idfunc()))
-            f.write('%s\n' % v.xml_term())
-            f.write('<listitem>\n')
-            # TODO: write summary
-            f.write('<para>\n')
+            ve = etree.Element("varlistentry",
+                               attrib = {'id' : '%s%s' % (v.prefix, v.idfunc())})
+            ve.append(v.xml_term())
+            vl = etree.Element("listitem")
             if v.summary:
-                pass
-            f.write('</para>\n')
-            if v.sets:
-                s = ['&cv-link-%s;' % x for x in v.sets]
-                f.write('<para>\n')
-                f.write('Sets:  ' + ', '.join(s) + '.\n')
-                f.write('</para>\n')
-            if v.uses:
-                u = ['&cv-link-%s;' % x for x in v.uses]
-                f.write('<para>\n')
-                f.write('Uses:  ' + ', '.join(u) + '.\n')
-                f.write('</para>\n')
-            f.write('</listitem>\n')
-            f.write('</varlistentry>\n')
+                for s in v.summary:
+                    vl.append(copy.deepcopy(s))
             
-        # Write end tag
-        f.write('\n</variablelist>\n')
+            if v.sets:
+                vp = etree.Element("para")
+                s = ['&cv-link-%s;' % x for x in v.sets]
+                vp.text = 'Sets:  ' + ', '.join(s) + '.'
+                vl.append(vp)
+            if v.uses:
+                vp = etree.Element("para")
+                u = ['&cv-link-%s;' % x for x in v.uses]
+                vp.text = 'Uses:  ' + ', '.join(u) + '.'
+                vl.append(vp)
+            ve.append(vl)
+            root.append(ve)
+            
+        # Write file        
+        f = self.fopen(filename)
+        f.write(etree.tostring(root, xml_declaration=True, encoding="UTF-8", pretty_print=True))
             
     def write_mod(self, filename):
         try:
@@ -232,7 +248,9 @@ class SConsThing(Proxy):
         return self.name
     
     def xml_term(self):
-        return '<term>%s</term>' % self.name
+        e = etree.Element("term")
+        e.text = self.name
+        return e
 
 class Builder(SConsThing):
     description = 'builder'
@@ -240,9 +258,19 @@ class Builder(SConsThing):
     tag = 'function'
     
     def xml_term(self):
-        return ('<term><synopsis><%s>%s()</%s></synopsis>\n<synopsis><%s>env.%s()</%s></synopsis></term>' %
-                (self.tag, self.name, self.tag, self.tag, self.name, self.tag))
-        
+        t = etree.Element("term")
+        s = etree.Element("synopsis")
+        b = etree.Element(self.tag)
+        b.text = self.name+'()'
+        s.append(b)
+        t.append(s)
+        s = etree.Element("synopsis")
+        b = etree.Element(self.tag)
+        b.text = 'env.'+self.name+'()'
+        s.append(b)
+        t.append(s)
+        return t
+            
     def entityfunc(self):
         return self.name
 
@@ -251,37 +279,30 @@ class Function(SConsThing):
     prefix = 'f-'
     tag = 'function'
     
-    def args_to_xml(self, arg):
-        s = ''.join(arg.body).strip()
-        result = []
-        for m in re.findall('([a-zA-Z/_]+=?|[^a-zA-Z/_]+)', s):
-            if m[0] in string.letters:
-                if m[-1] == '=':
-                    result.append('<literal>%s</literal>=' % m[:-1])
-                else:
-                    result.append('<varname>%s</varname>' % m)
-            else:
-                result.append(m)
-        return ''.join(result)
-    
     def xml_term(self):
         try:
             arguments = self.arguments
         except AttributeError:
-            arguments = ['()']
-        result = ['<term>']
+            a = etree.Element("arguments")
+            a.text = '()'
+            arguments = [a]
+        t = etree.Element("term")
         for arg in arguments:
-            try:
-                signature = arg.signature
-            except AttributeError:
+            if 'signature' in arg.attrib:
+                signature = arg.attrib['signature']
+            else:
                 signature = "both"
-            s = arg # TODO: self.args_to_xml(arg)
+            s = arg.text.strip()
             if signature in ('both', 'global'):
-                result.append('<synopsis>%s%s</synopsis>\n' % (self.name, s)) #<br>
+                syn = etree.Element("synopsis")
+                syn.text = '%s%s' % (self.name, s)
+                t.append(syn)
             if signature in ('both', 'env'):
-                result.append('<synopsis><varname>env</varname>.%s%s</synopsis>' % (self.name, s))
-        result.append('</term>')
-        return ''.join(result)
+                syn = etree.Element("synopsis")
+                syn.text = 'env.%s%s' % (self.name, s)
+                t.append(syn)
+
+        return t
     
     def entityfunc(self):
         return self.name

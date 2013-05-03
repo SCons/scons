@@ -70,10 +70,10 @@ rebuild them.</para>
 <para>By default,
 <command>scons</command>
 searches for a file named
-<emphasis remap='I'>SConstruct</emphasis>,
-<emphasis remap='I'>Sconstruct</emphasis>,
+<emphasis>SConstruct</emphasis>,
+<emphasis>Sconstruct</emphasis>,
 or
-<emphasis remap='I'>sconstruct</emphasis>
+<emphasis>sconstruct</emphasis>
 (in that order) in the current directory and reads its
 configuration from the first file found.
 An alternate file name may be
@@ -82,14 +82,14 @@ specified via the
 option.</para>
 
 <para>The
-<emphasis remap='I'>SConstruct</emphasis>
+<emphasis>SConstruct</emphasis>
 file can specify subsidiary
 configuration files using the
-<emphasis remap='B'>SConscript</emphasis>()
+<emphasis role="bold">SConscript</emphasis>()
 function.
 By convention,
 these subsidiary files are named
-<emphasis remap='I'>SConscript</emphasis>,
+<emphasis>SConscript</emphasis>,
 although any name may be used.
 (Because of this naming convention,
 the term "SConscript files"
@@ -107,21 +107,21 @@ programs, object files, libraries), so that for most software
 projects, only the target and input files need be specified.</para>
 
 <para>Before reading the
-<emphasis remap='I'>SConstruct</emphasis>
+<emphasis>SConstruct</emphasis>
 file,
 <command>scons</command>
 looks for a directory named
-<emphasis remap='I'>site_scons</emphasis>
+<emphasis>site_scons</emphasis>
 in various system directories (see below) and the directory containing the
-<emphasis remap='I'>SConstruct</emphasis>
+<emphasis>SConstruct</emphasis>
 file; for each of those dirs which exists,
-<emphasis remap='I'>site_scons</emphasis>
+<emphasis>site_scons</emphasis>
 is prepended to sys.path,
 the file
-<emphasis remap='I'>site_scons/site_init.py</emphasis>,
+<emphasis>site_scons/site_init.py</emphasis>,
 is evaluated if it exists,
 and the directory
-<emphasis remap='I'>site_scons/site_tools</emphasis>
+<emphasis>site_scons/site_tools</emphasis>
 is prepended to the default toolpath if it exists.
 See the
 <option>--no-site-dir</option>
@@ -136,13 +136,13 @@ so you may use normal Python scripting capabilities
 to handle complicated build situations.
 <command>scons</command>,
 however, reads and executes all of the SConscript files
-<emphasis remap='I'>before</emphasis>
+<emphasis>before</emphasis>
 it begins building any targets.
 To make this obvious,
 <command>scons</command>
 prints the following messages about what it is doing:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 $ scons foo.out
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -181,7 +181,7 @@ construction environment,
 you can propagate the value of PATH
 from your external environment as follows:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </literallayout> <!-- .fi -->
@@ -190,7 +190,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
 these variables can also be explicitly propagated:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH'],
                          'HOME' : os.environ['HOME']})
@@ -199,7 +199,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH'],
 <para>Or you may explicitly propagate the invoking user's
 complete external environment:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 import os
 env = Environment(ENV = os.environ)
 </literallayout> <!-- .fi -->
@@ -224,14 +224,14 @@ using SCCS, RCS or BitKeeper.</para>
 
 <para><command>scons</command>
 is normally executed in a top-level directory containing a
-<emphasis remap='I'>SConstruct</emphasis>
+<emphasis>SConstruct</emphasis>
 file, optionally specifying
 as command-line arguments
 the target file or files to be built.</para>
 
 <para>By default, the command</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons
 </literallayout> <!-- .fi -->
 
@@ -240,18 +240,18 @@ Explicit default targets
 (to be built when no targets are specified on the command line)
 may be defined the SConscript file(s)
 using the
-<emphasis remap='B'>Default()</emphasis>
+<emphasis role="bold">Default()</emphasis>
 function, described below.</para>
 
 <para>Even when
-<emphasis remap='B'>Default()</emphasis>
+<emphasis role="bold">Default()</emphasis>
 targets are specified in the SConscript file(s),
 all target files in or below the current directory
 may be built by explicitly specifying
 the current directory (.)
 as a command-line target:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons .
 </literallayout> <!-- .fi -->
 
@@ -260,21 +260,21 @@ including any files outside of the current directory,
 may be specified by supplying a command-line target
 of the root directory (on POSIX systems):</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons /
 </literallayout> <!-- .fi -->
 
 <para>or the path name(s) of the volume(s) in which all the targets
 should be built (on Windows systems):</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons C:\ D:\
 </literallayout> <!-- .fi -->
 
 <para>To build only specific targets,
 supply them as command-line arguments:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons foo bar
 </literallayout> <!-- .fi -->
 
@@ -287,34 +287,34 @@ The
 flag removes all files
 necessary to build the specified target:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons -c .
 </literallayout> <!-- .fi -->
 
 <para>to remove all target files, or:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons -c build export
 </literallayout> <!-- .fi -->
 
 <para>to remove target files under build and export.
 Additional files or directories to remove can be specified using the
-<emphasis remap='B'>Clean()</emphasis>
+<emphasis role="bold">Clean()</emphasis>
 function.
 Conversely, targets that would normally be removed by the
 <option>-c</option>
 invocation
 can be prevented from being removed by using the
-<emphasis remap='B'>NoClean</emphasis>()
+<emphasis role="bold">NoClean</emphasis>()
 function.</para>
 
 <para>A subset of a hierarchical tree may be built by
 remaining at the top-level directory (where the
-<emphasis remap='I'>SConstruct</emphasis>
+<emphasis>SConstruct</emphasis>
 file lives) and specifying the subdirectory as the target to be
 built:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons src/subdir
 </literallayout> <!-- .fi -->
 
@@ -322,11 +322,11 @@ scons src/subdir
 <option>-u</option>
 option, which traverses up the directory
 hierarchy until it finds the
-<emphasis remap='I'>SConstruct</emphasis>
+<emphasis>SConstruct</emphasis>
 file, and then builds
 targets relatively to the current subdirectory:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 cd src/subdir
 scons -u .
 </literallayout> <!-- .fi -->
@@ -337,7 +337,7 @@ supports building multiple targets in parallel via a
 option that takes, as its argument, the number
 of simultaneous tasks that may be spawned:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons -j 4
 </literallayout> <!-- .fi -->
 
@@ -364,7 +364,7 @@ from trying to update the cache simultaneously.</para>
 <para>Values of variables to be passed to the SConscript file(s)
 may be specified on the command line:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons debug=1 .
 </literallayout> <!-- .fi -->
 
@@ -373,7 +373,7 @@ through the ARGUMENTS dictionary,
 and can be used in the SConscript file(s) to modify
 the build in any way:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 if ARGUMENTS.get('debug', 0):
     env = Environment(CCFLAGS = '-g')
 else:
@@ -394,7 +394,7 @@ does not exist.</para>
 <para><command>scons</command>
 requires Python version 2.4 or later.
 There should be no other dependencies or requirements to run
-<emphasis remap='B'>scons.</emphasis></para>
+<emphasis role="bold">scons.</emphasis></para>
 
 <!--  The following paragraph reflects the default tool search orders -->
 <!--  currently in SCons/Tool/__init__.py.  If any of those search orders -->
@@ -438,16 +438,16 @@ Environment construction variables.</para>
 <para>In general,
 <command>scons</command>
 supports the same command-line options as GNU
-<emphasis remap='B'>make</emphasis>,
+<emphasis role="bold">make</emphasis>,
 and many of those supported by
-<emphasis remap='B'>cons</emphasis>.</para>
+<emphasis role="bold">cons</emphasis>.</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
   <term>-b</term>
   <listitem>
 <para>Ignored for compatibility with non-GNU versions of
-<emphasis remap='B'>make.</emphasis></para>
+<emphasis role="bold">make.</emphasis></para>
 
   </listitem>
   </varlistentry>
@@ -458,31 +458,31 @@ and many of those supported by
 command is specified.
 Also remove any files or directories associated to the construction command
 using the
-<emphasis remap='B'>Clean</emphasis>()
+<emphasis role="bold">Clean</emphasis>()
 function.
 Will not remove any targets specified by the
-<emphasis remap='B'>NoClean</emphasis>()
+<emphasis role="bold">NoClean</emphasis>()
 function.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--cache-debug=<emphasis remap='I'>file</emphasis></term>
+  <term>--cache-debug=<emphasis>file</emphasis></term>
   <listitem>
 <para>Print debug information about the
-<emphasis remap='B'>CacheDir</emphasis>()
+<emphasis role="bold">CacheDir</emphasis>()
 derived-file caching
 to the specified
-<emphasis remap='I'>file</emphasis>.
+<emphasis>file</emphasis>.
 If
-<emphasis remap='I'>file</emphasis>
+<emphasis>file</emphasis>
 is
-<emphasis remap='B'>-</emphasis>
+<emphasis role="bold">-</emphasis>
 (a hyphen),
 the debug information are printed to the standard output.
 The printed messages describe what signature file names are
 being looked for in, retrieved from, or written to the
-<emphasis remap='B'>CacheDir</emphasis>()
+<emphasis role="bold">CacheDir</emphasis>()
 directory tree.</para>
 
   </listitem>
@@ -491,7 +491,7 @@ directory tree.</para>
   <term>--cache-disable, --no-cache</term>
   <listitem>
 <para>Disable the derived-file caching specified by
-<emphasis remap='B'>CacheDir</emphasis>().
+<emphasis role="bold">CacheDir</emphasis>().
 <command>scons</command>
 will neither retrieve files from the cache
 nor copy files to the cache.</para>
@@ -502,7 +502,7 @@ nor copy files to the cache.</para>
   <term>--cache-force, --cache-populate</term>
   <listitem>
 <para>When using
-<emphasis remap='B'>CacheDir</emphasis>(),
+<emphasis role="bold">CacheDir</emphasis>(),
 populate a cache by copying any already-existing, up-to-date
 derived files to the cache,
 in addition to files built by this invocation.
@@ -519,7 +519,7 @@ option.</para>
   <term>--cache-show</term>
   <listitem>
 <para>When using
-<emphasis remap='B'>CacheDir</emphasis>()
+<emphasis role="bold">CacheDir</emphasis>()
 and retrieving a derived file from the cache,
 show the command
 that would have been executed to build the file,
@@ -532,10 +532,10 @@ file was rebuilt or retrieved from the cache.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--config=<emphasis remap='I'>mode</emphasis></term>
+  <term>--config=<emphasis>mode</emphasis></term>
   <listitem>
 <para>This specifies how the
-<emphasis remap='B'>Configure</emphasis>
+<emphasis role="bold">Configure</emphasis>
 call should use or generate the
 results of configuration tests.
 The option should be specified from
@@ -585,15 +585,15 @@ yet have any results in the cache.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-C<emphasis remap='I'> directory</emphasis>, --directory=<emphasis remap='I'>directory</emphasis></term>
+  <term>-C<emphasis> directory</emphasis>, --directory=<emphasis>directory</emphasis></term>
   <listitem>
 <para>Change to the specified
-<emphasis remap='I'>directory</emphasis>
+<emphasis>directory</emphasis>
 before searching for the
-<emphasis remap='I'>SConstruct</emphasis>,
-<emphasis remap='I'>Sconstruct</emphasis>,
+<emphasis>SConstruct</emphasis>,
+<emphasis>Sconstruct</emphasis>,
 or
-<emphasis remap='I'>sconstruct</emphasis>
+<emphasis>sconstruct</emphasis>
 file, or doing anything
 else.  Multiple
 <option>-C</option>
@@ -604,10 +604,10 @@ option wins. (This option is nearly
 equivalent to
 <option>-f directory/SConstruct</option>,
 except that it will search for
-<emphasis remap='I'>SConstruct</emphasis>,
-<emphasis remap='I'>Sconstruct</emphasis>,
+<emphasis>SConstruct</emphasis>,
+<emphasis>Sconstruct</emphasis>,
 or
-<emphasis remap='I'>sconstruct</emphasis>
+<emphasis>sconstruct</emphasis>
 in the specified directory.)</para>
 
 <!--  .TP -->
@@ -631,10 +631,10 @@ directory.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--debug=<emphasis remap='I'>type</emphasis></term>
+  <term>--debug=<emphasis>type</emphasis></term>
   <listitem>
 <para>Debug the build process.
-<emphasis remap='I'>type</emphasis>
+<emphasis>type</emphasis>
 specifies what type of debugging:</para>
 
   </listitem>
@@ -652,7 +652,7 @@ This is not supported when SCons is executed with the Python
 or when the SCons modules
 have been compiled with optimization
 (that is, when executing from
-<emphasis remap='B'>*.pyo</emphasis>
+<emphasis role="bold">*.pyo</emphasis>
 files).</para>
 
   </listitem>
@@ -685,7 +685,7 @@ and ultimately removed.</para>
 is deciding to (re-)build any targets.
 (Note:  this does not print anything
 for targets that are
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 rebuilt.)</para>
 
   </listitem>
@@ -707,7 +707,7 @@ and about the actual libraries it finds.</para>
 This is generally used to find out what files are included by the sources
 of a given derived file:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 $ scons --debug=includes foo.o
 </literallayout> <!-- .fi -->
 
@@ -778,7 +778,7 @@ is at least considering them or not.</para>
 before the construction environment variables are substituted.
 Also shows which targets are being built by this command.
 Output looks something like this:</para>
-<literallayout remap='.nf'>
+<literallayout>
 $ scons --debug=presub
 Building myprog.o with action(s):
   $SHCC $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
@@ -830,7 +830,7 @@ in between executing each command.
 When
 <command>scons</command>
 is executed
-<emphasis remap='I'>with</emphasis>
+<emphasis>with</emphasis>
 the
 <option>-j</option>
 option,
@@ -856,7 +856,7 @@ and ultimately removed.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--diskcheck=<emphasis remap='I'>types</emphasis></term>
+  <term>--diskcheck=<emphasis>types</emphasis></term>
   <listitem>
 <para>Enable specific checks for
 whether or not there is a file on disk
@@ -865,20 +865,20 @@ where the SCons configuration expects a directory
 and whether or not RCS or SCCS sources exist
 when searching for source and include files.
 The
-<emphasis remap='I'>types</emphasis>
+<emphasis>types</emphasis>
 argument can be set to:
-<emphasis remap='B'>all</emphasis>,
+<emphasis role="bold">all</emphasis>,
 to enable all checks explicitly
 (the default behavior);
-<emphasis remap='B'>none</emphasis>,
+<emphasis role="bold">none</emphasis>,
 to disable all such checks;
-<emphasis remap='B'>match</emphasis>,
+<emphasis role="bold">match</emphasis>,
 to check that files and directories on disk
 match SCons' expected configuration;
-<emphasis remap='B'>rcs</emphasis>,
+<emphasis role="bold">rcs</emphasis>,
 to check for the existence of an RCS source
 for any missing source or include files;
-<emphasis remap='B'>sccs</emphasis>,
+<emphasis role="bold">sccs</emphasis>,
 to check for the existence of an SCCS source
 for any missing source or include files.
 Multiple checks can be specified separated by commas;
@@ -900,21 +900,21 @@ where the SCons configuration expects a directory).</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--duplicate=<emphasis remap='I'>ORDER</emphasis></term>
+  <term>--duplicate=<emphasis>ORDER</emphasis></term>
   <listitem>
 <para>There are three ways to duplicate files in a build tree: hard links,
 soft (symbolic) links and copies. The default behaviour of SCons is to
 prefer hard links to soft links to copies. You can specify different
 behaviours with this option.
-<emphasis remap='I'>ORDER</emphasis>
+<emphasis>ORDER</emphasis>
 must be one of
-<emphasis remap='I'>hard-soft-copy</emphasis>
+<emphasis>hard-soft-copy</emphasis>
 (the default),
-<emphasis remap='I'>soft-hard-copy</emphasis>,
-<emphasis remap='I'>hard-copy</emphasis>,
-<emphasis remap='I'>soft-copy</emphasis>
+<emphasis>soft-hard-copy</emphasis>,
+<emphasis>hard-copy</emphasis>,
+<emphasis>soft-copy</emphasis>
 or
-<emphasis remap='I'>copy</emphasis>.
+<emphasis>copy</emphasis>.
 SCons will attempt to duplicate files using
 the mechanisms in the specified order.</para>
 
@@ -926,10 +926,10 @@ the mechanisms in the specified order.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-f<emphasis remap='I'> file</emphasis>, --file=<emphasis remap='I'>file</emphasis>, --makefile=<emphasis remap='I'>file</emphasis>, --sconstruct=<emphasis remap='I'>file</emphasis></term>
+  <term>-f<emphasis> file</emphasis>, --file=<emphasis>file</emphasis>, --makefile=<emphasis>file</emphasis>, --sconstruct=<emphasis>file</emphasis></term>
   <listitem>
 <para>Use
-<emphasis remap='I'>file</emphasis>
+<emphasis>file</emphasis>
 as the initial SConscript file.
 Multiple
 <option>-f</option>
@@ -968,10 +968,10 @@ exit.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-I<emphasis remap='I'> directory</emphasis>, --include-dir=<emphasis remap='I'>directory</emphasis></term>
+  <term>-I<emphasis> directory</emphasis>, --include-dir=<emphasis>directory</emphasis></term>
   <listitem>
 <para>Specifies a
-<emphasis remap='I'>directory</emphasis>
+<emphasis>directory</emphasis>
 to search for
 imported Python modules.  If several
 <option>-I</option>
@@ -998,7 +998,7 @@ but with the following limitations:</para>
 <para><command>scons</command>
 will not detect changes to implicit dependency search paths
 (e.g.
-<emphasis remap='B'>CPPPATH</emphasis>, <emphasis remap='B'>LIBPATH</emphasis>)
+<emphasis role="bold">CPPPATH</emphasis>, <emphasis role="bold">LIBPATH</emphasis>)
 that would ordinarily
 cause different versions of same-named files to be used.</para>
 
@@ -1007,10 +1007,10 @@ will miss changes in the implicit dependencies
 in cases where a new implicit
 dependency is added earlier in the implicit dependency search path
 (e.g.
-<emphasis remap='B'>CPPPATH</emphasis>, <emphasis remap='B'>LIBPATH</emphasis>)
+<emphasis role="bold">CPPPATH</emphasis>, <emphasis role="bold">LIBPATH</emphasis>)
 than a current implicit dependency with the same name.</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
   <term>--implicit-deps-changed</term>
   <listitem>
@@ -1035,7 +1035,7 @@ This implies
   <listitem>
 <para>Starts SCons in interactive mode.
 The SConscript files are read once and a
-<emphasis remap='B'>scons&gt;&gt;&gt;</emphasis>
+<emphasis role="bold">scons&gt;&gt;&gt;</emphasis>
 prompt is printed.
 Targets may now be rebuilt by typing commands at interactive prompt
 without having to re-read the SConscript files
@@ -1043,27 +1043,27 @@ and re-initialize the dependency graph from scratch.</para>
 
 <para>SCons interactive mode supports the following commands:</para>
 
-  <blockquote remap='RS'>
-    <variablelist remap='TP'>
+  <blockquote>
+    <variablelist>
       <varlistentry>
-      <term><emphasis remap='B'>build</emphasis><emphasis remap='I'>[OPTIONS] [TARGETS] ...</emphasis></term>
+      <term><emphasis role="bold">build</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
       <listitem>
 <para>Builds the specified
-<emphasis remap='I'>TARGETS</emphasis>
+<emphasis>TARGETS</emphasis>
 (and their dependencies)
 with the specified
 SCons command-line
-<emphasis remap='I'>OPTIONS</emphasis>.
-<emphasis remap='B'>b</emphasis>
+<emphasis>OPTIONS</emphasis>.
+<emphasis role="bold">b</emphasis>
 and
 <command>scons</command>
 are synonyms.</para>
 
 <para>The following SCons command-line options affect the
-<emphasis remap='B'>build</emphasis>
+<emphasis role="bold">build</emphasis>
 command:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 --cache-debug=FILE
 --cache-disable, --no-cache
 --cache-force, --cache-populate
@@ -1086,20 +1086,20 @@ command:</para>
 <para>Any other SCons command-line options that are specified
 do not cause errors
 but have no effect on the
-<emphasis remap='B'>build</emphasis>
+<emphasis role="bold">build</emphasis>
 command
 (mainly because they affect how the SConscript files are read,
 which only happens once at the beginning of interactive mode).</para>
 
-    <variablelist remap='TP'>
+    <variablelist>
       <varlistentry>
-      <term><emphasis remap='B'>clean</emphasis><emphasis remap='I'>[OPTIONS] [TARGETS] ...</emphasis></term>
+      <term><emphasis role="bold">clean</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
       <listitem>
 <para>Cleans the specified
-<emphasis remap='I'>TARGETS</emphasis>
+<emphasis>TARGETS</emphasis>
 (and their dependencies)
 with the specified options.
-<emphasis remap='B'>c</emphasis>
+<emphasis role="bold">c</emphasis>
 is a synonym.
 This command is itself a synonym for
 <userinput>build --clean</userinput></para>
@@ -1107,7 +1107,7 @@ This command is itself a synonym for
       </listitem>
       </varlistentry>
       <varlistentry>
-      <term><emphasis remap='B'>exit</emphasis></term>
+      <term><emphasis role="bold">exit</emphasis></term>
       <listitem>
 <para>Exits SCons interactive mode.
 You can also exit by terminating input
@@ -1117,28 +1117,28 @@ CTRL+Z on Windows systems).</para>
       </listitem>
       </varlistentry>
       <varlistentry>
-      <term><emphasis remap='B'>help</emphasis><emphasis remap='I'>[COMMAND]</emphasis></term>
+      <term><emphasis role="bold">help</emphasis><emphasis>[COMMAND]</emphasis></term>
       <listitem>
 <para>Provides a help message about
 the commands available in SCons interactive mode.
 If
-<emphasis remap='I'>COMMAND</emphasis>
+<emphasis>COMMAND</emphasis>
 is specified,
-<emphasis remap='B'>h</emphasis>
+<emphasis role="bold">h</emphasis>
 and
-<emphasis remap='B'>?</emphasis>
+<emphasis role="bold">?</emphasis>
 are synonyms.</para>
 
       </listitem>
       </varlistentry>
       <varlistentry>
-      <term><emphasis remap='B'>shell</emphasis><emphasis remap='I'>[COMMANDLINE]</emphasis></term>
+      <term><emphasis role="bold">shell</emphasis><emphasis>[COMMANDLINE]</emphasis></term>
       <listitem>
 <para>Executes the specified
-<emphasis remap='I'>COMMANDLINE</emphasis>
+<emphasis>COMMANDLINE</emphasis>
 in a subshell.
 If no
-<emphasis remap='I'>COMMANDLINE</emphasis>
+<emphasis>COMMANDLINE</emphasis>
 is specified,
 executes the interactive command interpreter
 specified in the
@@ -1146,24 +1146,24 @@ specified in the
 environment variable
 (on UNIX and Linux systems)
 or the
-<emphasis remap='B'>COMSPEC</emphasis>
+<emphasis role="bold">COMSPEC</emphasis>
 environment variable
 (on Windows systems).
-<emphasis remap='B'>sh</emphasis>
+<emphasis role="bold">sh</emphasis>
 and
-<emphasis remap='B'>!</emphasis>
+<emphasis role="bold">!</emphasis>
 are synonyms.</para>
 
       </listitem>
       </varlistentry>
       <varlistentry>
-      <term><emphasis remap='B'>version</emphasis></term>
+      <term><emphasis role="bold">version</emphasis></term>
       <listitem>
 <para>Prints SCons version information.</para>
       </listitem>
       </varlistentry>
     </variablelist>
-    </blockquote> <!-- remap='RE' -->
+    </blockquote>
 
   </listitem>
   </varlistentry>
@@ -1171,10 +1171,10 @@ are synonyms.</para>
 
 <para>An empty line repeats the last typed command.
 Command-line editing can be used if the
-<emphasis remap='B'>readline</emphasis>
+<emphasis role="bold">readline</emphasis>
 module is available.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 $ scons --interactive
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -1182,9 +1182,9 @@ scons&gt;&gt;&gt; build -n prog
 scons&gt;&gt;&gt; exit
 </literallayout> <!-- .fi -->
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>-j<emphasis remap='I'> N</emphasis>, --jobs=<emphasis remap='I'>N</emphasis></term>
+  <term>-j<emphasis> N</emphasis>, --jobs=<emphasis>N</emphasis></term>
   <listitem>
 <para>Specifies the number of jobs (commands) to run simultaneously.
 If there is more than one
@@ -1243,15 +1243,15 @@ targets specified on the command line will still be processed.</para>
   <term>-m</term>
   <listitem>
 <para>Ignored for compatibility with non-GNU versions of
-<emphasis remap='B'>make</emphasis>.</para>
+<emphasis role="bold">make</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--max-drift=<emphasis remap='I'>SECONDS</emphasis></term>
+  <term>--max-drift=<emphasis>SECONDS</emphasis></term>
   <listitem>
 <para>Set the maximum expected drift in the modification time of files to
-<emphasis remap='I'>SECONDS</emphasis>.
+<emphasis>SECONDS</emphasis>.
 This value determines how long a file must be unmodified
 before its cached content signature
 will be used instead of
@@ -1268,10 +1268,10 @@ no matter how old the file is.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--md5-chunksize=<emphasis remap='I'>KILOBYTES</emphasis></term>
+  <term>--md5-chunksize=<emphasis>KILOBYTES</emphasis></term>
   <listitem>
 <para>Set the block size used to compute MD5 signatures to
-<emphasis remap='I'>KILOBYTES</emphasis>.
+<emphasis>KILOBYTES</emphasis>.
 This value determines the size of the chunks which are read in at once when
 computing MD5 signatures.  Files below that size are fully stored in memory
 before performing the signature computation while bigger files are read in
@@ -1295,13 +1295,13 @@ any out-of-date target files, but do not execute the commands.</para>
   <term>--no-site-dir</term>
   <listitem>
 <para>Prevents the automatic addition of the standard
-<emphasis remap='I'>site_scons</emphasis>
+<emphasis>site_scons</emphasis>
 dirs to
-<emphasis remap='I'>sys.path</emphasis>.
+<emphasis>sys.path</emphasis>.
 Also prevents loading the
-<emphasis remap='I'>site_scons/site_init.py</emphasis>
+<emphasis>site_scons/site_init.py</emphasis>
 modules if they exist, and prevents adding their
-<emphasis remap='I'>site_scons/site_tools</emphasis>
+<emphasis>site_scons/site_tools</emphasis>
 dirs to the toolpath.</para>
 
 <!--  .TP -->
@@ -1337,11 +1337,11 @@ dirs to the toolpath.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--profile=<emphasis remap='I'>file</emphasis></term>
+  <term>--profile=<emphasis>file</emphasis></term>
   <listitem>
 <para>Run SCons under the Python profiler
 and save the results in the specified
-<emphasis remap='I'>file</emphasis>.
+<emphasis>file</emphasis>.
 The results may be analyzed using the Python
 pstats module.</para>
 
@@ -1395,25 +1395,25 @@ Also suppresses SCons status messages.</para>
   <term>-S, --no-keep-going, --stop</term>
   <listitem>
 <para>Ignored for compatibility with GNU
-<emphasis remap='B'>make</emphasis>.</para>
+<emphasis role="bold">make</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--site-dir=<emphasis remap='I'>dir</emphasis></term>
+  <term>--site-dir=<emphasis>dir</emphasis></term>
   <listitem>
 <para>Uses the named dir as the site dir rather than the default
-<emphasis remap='I'>site_scons</emphasis>
+<emphasis>site_scons</emphasis>
 dirs.  This dir will get prepended to
-<emphasis remap='I'>sys.path</emphasis>,
+<emphasis>sys.path</emphasis>,
 the module
-<emphasis remap='I'>dir</emphasis>/site_init.py
+<emphasis>dir</emphasis>/site_init.py
 will get loaded if it exists, and
-<emphasis remap='I'>dir</emphasis>/site_tools
+<emphasis>dir</emphasis>/site_tools
 will get added to the default toolpath.</para>
 
 <para>The default set of
-<emphasis remap='I'>site_scons</emphasis>
+<emphasis>site_scons</emphasis>
 dirs used when
 <option>--site-dir</option>
 is not specified depends on the system platform, as follows.  Note
@@ -1426,11 +1426,11 @@ the last dir examined comes first in the resulting path.</para>
   </listitem>
   </varlistentry>
 </variablelist>
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>Windows:</term>
   <listitem>
-<literallayout remap='.nf'>
+<literallayout>
     %ALLUSERSPROFILE/Application Data/scons/site_scons
     %USERPROFILE%/Local Settings/Application Data/scons/site_scons
     %APPDATA%/scons/site_scons
@@ -1442,7 +1442,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Mac OS X:</term>
   <listitem>
-<literallayout remap='.nf'>
+<literallayout>
     /Library/Application Support/SCons/site_scons
     /opt/local/share/scons/site_scons (for MacPorts)
     /sw/share/scons/site_scons (for Fink)
@@ -1455,7 +1455,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Solaris:</term>
   <listitem>
-<literallayout remap='.nf'>
+<literallayout>
     /opt/sfw/scons/site_scons
     /usr/share/scons/site_scons
     $HOME/.scons/site_scons
@@ -1466,7 +1466,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Linux, HPUX, and other Posix-like systems:</term>
   <listitem>
-<literallayout remap='.nf'>
+<literallayout>
     /usr/share/scons/site_scons
     $HOME/.scons/site_scons
     ./site_scons
@@ -1475,17 +1475,17 @@ the last dir examined comes first in the resulting path.</para>
   </listitem>
   </varlistentry>
 </variablelist>
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>--stack-size=<emphasis remap='I'>KILOBYTES</emphasis></term>
+  <term>--stack-size=<emphasis>KILOBYTES</emphasis></term>
   <listitem>
 <para>Set the size stack used to run threads to
-<emphasis remap='I'>KILOBYTES</emphasis>.
+<emphasis>KILOBYTES</emphasis>.
 This value determines the stack size of the threads used to run jobs.
 These are the threads that execute the actions of the builders for the
 nodes that are out-of-date.
 Note that this option has no effect unless the
-<emphasis remap='B'>num_jobs</emphasis>
+<emphasis role="bold">num_jobs</emphasis>
 option, which corresponds to -j and --jobs, is larger than one.  Using
 a stack size that is too small may cause stack overflow errors.  This
 usually shows up as segmentation faults that cause scons to abort
@@ -1503,7 +1503,7 @@ unless you encounter stack overflow errors.</para>
   <term>-t, --touch</term>
   <listitem>
 <para>Ignored for compatibility with GNU
-<emphasis remap='B'>make</emphasis>.
+<emphasis role="bold">make</emphasis>.
 (Touching a file to make it
 appear up-to-date is unnecessary when using
 <command>scons</command>.)</para>
@@ -1511,27 +1511,27 @@ appear up-to-date is unnecessary when using
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--taskmastertrace=<emphasis remap='I'>file</emphasis></term>
+  <term>--taskmastertrace=<emphasis>file</emphasis></term>
   <listitem>
 <para>Prints trace information to the specified
-<emphasis remap='I'>file</emphasis>
+<emphasis>file</emphasis>
 about how the internal Taskmaster object
 evaluates and controls the order in which Nodes are built.
 A file name of
-<emphasis remap='B'>-</emphasis>
+<emphasis role="bold">-</emphasis>
 may be used to specify the standard output.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-tree=<emphasis remap='I'>options</emphasis></term>
+  <term>-tree=<emphasis>options</emphasis></term>
   <listitem>
 <para>Prints a tree of the dependencies
 after each top-level target is built.
 This prints out some or all of the tree,
 in various formats,
 depending on the
-<emphasis remap='I'>options</emphasis>
+<emphasis>options</emphasis>
 specified:</para>
 
   </listitem>
@@ -1568,7 +1568,7 @@ not source files.</para>
 for nodes that have already been displayed.
 Any node that has already been displayed
 will have its name printed in
-<emphasis remap='B'>[square brackets]</emphasis>,
+<emphasis role="bold">[square brackets]</emphasis>,
 as an indication that the dependencies
 for that node can be found by searching
 for the relevant output higher up in the tree.</para>
@@ -1580,7 +1580,7 @@ for the relevant output higher up in the tree.</para>
 <para>Multiple options may be specified,
 separated by commas:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 # Prints only derived files, with status information:
 scons --tree=derived,status
 
@@ -1589,15 +1589,15 @@ scons --tree=derived,status
 scons --tree=all,prune,status target
 </literallayout> <!-- .fi -->
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
   <term>-u, --up, --search-up</term>
   <listitem>
 <para>Walks up the directory structure until an
-<emphasis remap='I'>SConstruct ,</emphasis>
-<emphasis remap='I'>Sconstruct</emphasis>
+<emphasis>SConstruct ,</emphasis>
+<emphasis>Sconstruct</emphasis>
 or
-<emphasis remap='I'>sconstruct</emphasis>
+<emphasis>sconstruct</emphasis>
 file is found, and uses that
 as the top of the directory tree.
 If no targets are specified on the command line,
@@ -1646,10 +1646,10 @@ after other processing.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--warn=<emphasis remap='I'>type</emphasis>, --warn=no-<emphasis remap='I'>type</emphasis></term>
+  <term>--warn=<emphasis>type</emphasis>, --warn=no-<emphasis>type</emphasis></term>
   <listitem>
 <para>Enable or disable warnings.
-<emphasis remap='I'>type</emphasis>
+<emphasis>type</emphasis>
 specifies the type of warnings to be enabled or disabled:</para>
 
   </listitem>
@@ -1666,7 +1666,7 @@ specifies the type of warnings to be enabled or disabled:</para>
   <listitem>
 <para>Enables or disables warnings about errors trying to
 write a copy of a built file to a specified
-<emphasis remap='B'>CacheDir</emphasis>().
+<emphasis role="bold">CacheDir</emphasis>().
 These warnings are disabled by default.</para>
 
   </listitem>
@@ -1706,13 +1706,13 @@ Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.</para>
 
-  <blockquote remap='RS'>
-    <variablelist remap='TP'>
+  <blockquote>
+    <variablelist>
       <varlistentry>
       <term>--warn=deprecated-copy, --warn=no-deprecated-copy</term>
       <listitem>
 <para>Enables or disables warnings about use of the deprecated
-<emphasis remap='B'>env.Copy()</emphasis>
+<emphasis role="bold">env.Copy()</emphasis>
 method.</para>
 
       </listitem>
@@ -1721,9 +1721,9 @@ method.</para>
       <term>--warn=deprecated-source-signatures, --warn=no-deprecated-source-signatures</term>
       <listitem>
 <para>Enables or disables warnings about use of the deprecated
-<emphasis remap='B'>SourceSignatures()</emphasis>
+<emphasis role="bold">SourceSignatures()</emphasis>
 function or
-<emphasis remap='B'>env.SourceSignatures()</emphasis>
+<emphasis role="bold">env.SourceSignatures()</emphasis>
 method.</para>
 
       </listitem>
@@ -1732,14 +1732,14 @@ method.</para>
       <term>--warn=deprecated-target-signatures, --warn=no-deprecated-target-signatures</term>
       <listitem>
 <para>Enables or disables warnings about use of the deprecated
-<emphasis remap='B'>TargetSignatures()</emphasis>
+<emphasis role="bold">TargetSignatures()</emphasis>
 function or
-<emphasis remap='B'>env.TargetSignatures()</emphasis>
+<emphasis role="bold">env.TargetSignatures()</emphasis>
 method.</para>
       </listitem>
       </varlistentry>
     </variablelist>
-    </blockquote> <!-- remap='RE' -->
+    </blockquote>
 
   </listitem>
   </varlistentry>
@@ -1788,16 +1788,16 @@ that may require changes to the configuration.</para>
   <term>--warn=misleading-keywords, --warn=no-misleading-keywords</term>
   <listitem>
 <para>Enables or disables warnings about use of the misspelled keywords
-<emphasis remap='B'>targets</emphasis>
+<emphasis role="bold">targets</emphasis>
 and
-<emphasis remap='B'>sources</emphasis>
+<emphasis role="bold">sources</emphasis>
 when calling Builders.
 (Note the last
-<emphasis remap='B'>s</emphasis>
+<emphasis role="bold">s</emphasis>
 characters, the correct spellings are
-<emphasis remap='B'>target</emphasis>
+<emphasis role="bold">target</emphasis>
 and
-<emphasis remap='B'>source.)</emphasis>
+<emphasis role="bold">source.)</emphasis>
 These warnings are enabled by default.</para>
 
   </listitem>
@@ -1868,15 +1868,15 @@ These warnings are enabled by default.</para>
   <listitem>
 <para>Enables or disables warnings about attempts to set the
 reserved construction variable names
-<emphasis remap='B'>CHANGED_SOURCES</emphasis>,
-<emphasis remap='B'>CHANGED_TARGETS</emphasis>,
-<emphasis remap='B'>TARGET</emphasis>,
-<emphasis remap='B'>TARGETS</emphasis>,
-<emphasis remap='B'>SOURCE</emphasis>,
-<emphasis remap='B'>SOURCES</emphasis>,
-<emphasis remap='B'>UNCHANGED_SOURCES</emphasis>
+<emphasis role="bold">CHANGED_SOURCES</emphasis>,
+<emphasis role="bold">CHANGED_TARGETS</emphasis>,
+<emphasis role="bold">TARGET</emphasis>,
+<emphasis role="bold">TARGETS</emphasis>,
+<emphasis role="bold">SOURCE</emphasis>,
+<emphasis role="bold">SOURCES</emphasis>,
+<emphasis role="bold">UNCHANGED_SOURCES</emphasis>
 or
-<emphasis remap='B'>UNCHANGED_TARGETS</emphasis>.
+<emphasis role="bold">UNCHANGED_TARGETS</emphasis>.
 These warnings are disabled by default.</para>
 
   </listitem>
@@ -1913,7 +1913,7 @@ These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-Y<emphasis remap='I'> repository</emphasis>, --repository=<emphasis remap='I'>repository</emphasis>, --srcdir=<emphasis remap='I'>repository</emphasis></term>
+  <term>-Y<emphasis> repository</emphasis>, --repository=<emphasis>repository</emphasis>, --srcdir=<emphasis>repository</emphasis></term>
   <listitem>
 <para>Search the specified repository for any input and target
 files not found in the local directory hierarchy.  Multiple
@@ -1935,46 +1935,46 @@ repositories are searched in the order specified.</para>
 files communicate build information to
 <command>scons</command>.
 A new construction environment is created using the
-<emphasis remap='B'>Environment</emphasis>
+<emphasis role="bold">Environment</emphasis>
 function:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 </literallayout> <!-- .fi -->
 
 <para>Variables, called
-<emphasis remap='I'>construction</emphasis>
-<emphasis remap='I'>variables</emphasis>,
+<emphasis>construction</emphasis>
+<emphasis>variables</emphasis>,
 may be set in a construction environment
 either by specifying them as keywords when the object is created
 or by assigning them a value after the object is created:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(FOO = 'foo')
 env['BAR'] = 'bar'
 </literallayout> <!-- .fi -->
 
 <para>As a convenience,
 construction variables may also be set or modified by the
-<emphasis remap='I'>parse_flags</emphasis>
+<emphasis>parse_flags</emphasis>
 keyword argument, which applies the
-<emphasis remap='B'>ParseFlags</emphasis>
+<emphasis role="bold">ParseFlags</emphasis>
 method (described below) to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
 or if the flags are distributed to a number of construction variables.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(parse_flags = '-Iinclude -DEBUG -lm')
 </literallayout> <!-- .fi -->
 
 <para>This example adds 'include' to
-<emphasis remap='B'>CPPPATH</emphasis>,
+<emphasis role="bold">CPPPATH</emphasis>,
 'EBUG' to
-<emphasis remap='B'>CPPDEFINES</emphasis>,
+<emphasis role="bold">CPPDEFINES</emphasis>,
 and 'm' to
-<emphasis remap='B'>LIBS</emphasis>.</para>
+<emphasis role="bold">LIBS</emphasis>.</para>
 
 <para>By default, a new construction environment is
 initialized with a set of builder methods
@@ -1984,7 +1984,7 @@ An optional platform keyword argument may be
 used to specify that an environment should
 be initialized for a different platform:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(platform = 'cygwin')
 env = Environment(platform = 'os2')
 env = Environment(platform = 'posix')
@@ -1997,20 +1997,20 @@ to use and generate file names with prefixes
 and suffixes appropriate for the platform.</para>
 
 <para>Note that the
-<emphasis remap='B'>win32</emphasis>
+<emphasis role="bold">win32</emphasis>
 platform adds the
-<emphasis remap='B'>SystemDrive</emphasis>
+<emphasis role="bold">SystemDrive</emphasis>
 and
-<emphasis remap='B'>SystemRoot</emphasis>
+<emphasis role="bold">SystemRoot</emphasis>
 variables from the user's external environment
 to the construction environment's
-<emphasis remap='B'>ENV</emphasis>
+<emphasis role="bold">ENV</emphasis>
 dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
 (such as fetching source files from
 external CVS repository specifications like
-<emphasis remap='B'>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</emphasis>)
+<emphasis role="bold">:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</emphasis>)
 will work on Windows systems.</para>
 
 <para>The platform argument may be function or callable object,
@@ -2018,7 +2018,7 @@ in which case the Environment() method
 will call the specified argument to update
 the new construction environment:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def my_platform(env):
     env['VAR'] = 'xyzzy'
 
@@ -2029,13 +2029,13 @@ env = Environment(platform = my_platform)
 with which to initialize the environment
 may be specified as an optional keyword argument:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(tools = ['msvc', 'lex'])
 </literallayout> <!-- .fi -->
 
 <para>Non-built-in tools may be specified using the toolpath argument:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
 </literallayout> <!-- .fi -->
 
@@ -2061,12 +2061,12 @@ would override the built-in gcc tool.
 Also note that the toolpath is
 stored in the environment for use
 by later calls to
-<emphasis remap='B'>Clone</emphasis>()
+<emphasis role="bold">Clone</emphasis>()
 and
-<emphasis remap='B'>Tool</emphasis>()
+<emphasis role="bold">Tool</emphasis>()
 methods:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 base = Environment(toolpath=['custom_path'])
 derived = base.Clone(tools=['custom_tool'])
 derived.CustomBuilder()
@@ -2078,7 +2078,7 @@ in which case the Environment() method
 will call the specified elements
 to update the new construction environment:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def my_tool(env):
     env['XYZZY'] = 'xyzzy'
 
@@ -2087,22 +2087,22 @@ env = Environment(tools = [my_tool])
 
 <para>The individual elements of the tools list
 may also themselves be two-element lists of the form
-(<emphasis remap='I'>toolname</emphasis>, <emphasis remap='I'>kw_dict</emphasis>).
+(<emphasis>toolname</emphasis>, <emphasis>kw_dict</emphasis>).
 SCons searches for the
-<emphasis remap='I'>toolname</emphasis>
+<emphasis>toolname</emphasis>
 specification file as described above, and
 passes
-<emphasis remap='I'>kw_dict</emphasis>,
+<emphasis>kw_dict</emphasis>,
 which must be a dictionary, as keyword arguments to the tool's
-<emphasis remap='B'>generate</emphasis>
+<emphasis role="bold">generate</emphasis>
 function.
 The
-<emphasis remap='B'>generate</emphasis>
+<emphasis role="bold">generate</emphasis>
 function can use the arguments to modify the tool's behavior
 by setting up the environment in different ways
 or otherwise changing its initialization.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 # in tools/my_tool.py:
 def generate(env, **kw):
   # Sets MY_TOOL to the value of keyword argument 'arg1' or 1.
@@ -2126,88 +2126,38 @@ be redetected.</para>
 
 <para>SCons supports the following tool specifications out of the box:</para>
 
-<literallayout remap='.nf'>
-386asm
-aixc++
-aixcc
-aixf77
-aixlink
-ar
-as
-bcc32
-c++
-cc
-cvf
-dmd
-dvipdf
-dvips
-f77
-f90
-f95
-fortran
-g++
-g77
-gas
-gcc
-gfortran
-gnulink
-gs
-hpc++
-hpcc
-hplink
-icc
-icl
-ifl
-ifort
-ilink
-ilink32
-intelc
-jar
-javac
-javah
-latex
-lex
-link
-linkloc
-m4
-masm
-midl
-mingw
-mslib
-mslink
-mssdk
-msvc
-msvs
-mwcc
-mwld
-nasm
-pdflatex
-pdftex
-qt
-rmic
-rpcgen
-sgiar
-sgic++
-sgicc
-sgilink
-sunar
-sunc++
-suncc
-sunf77
-sunf90
-sunf95
-sunlink
-swig
-tar
-tex
-textfile
-tlib
-yacc
-zip
-</literallayout> <!-- .fi -->
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+<!-- '\" BEGIN GENERATED TOOL DESCRIPTIONS -->
+
+<!-- '\" The descriptions below of the various SCons Tools are generated -->
+<!-- '\" from the .xml files that live next to the various Python modules in -->
+<!-- '\" the build enginer library.  If you're reading this [gnt]roff file -->
+<!-- '\" with an eye towards patching this man page, you can still submit -->
+<!-- '\" a diff against this text, but it will have to be translated to a -->
+<!-- '\" diff against the underlying .xml file before the patch is actually -->
+<!-- '\" accepted.  If you do that yourself, it will make it easier to -->
+<!-- '\" integrate the patch. -->
+
+<!-- '\" BEGIN GENERATED TOOL DESCRIPTIONS -->
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../generated/tools.gen"/>
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+<!-- '\" END GENERATED TOOL DESCRIPTIONS -->
+
+<!-- '\" The descriptions above of the various SCons Tools are generated -->
+<!-- '\" from the .xml files that live next to the various Python modules in -->
+<!-- '\" the build enginer library.  If you're reading this [gnt]roff file -->
+<!-- '\" with an eye towards patching this man page, you can still submit -->
+<!-- '\" a diff against this text, but it will have to be translated to a -->
+<!-- '\" diff against the underlying .xml file before the patch is actually -->
+<!-- '\" accepted.  If you do that yourself, it will make it easier to -->
+<!-- '\" integrate the patch. -->
+
+<!-- '\" END GENERATED TOOL DESCRIPTIONS -->
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 
 <para>Additionally, there is a "tool" named
-<emphasis remap='B'>default</emphasis>
+<emphasis role="bold">default</emphasis>
 which configures the
 environment with a default set of tools for the current platform.</para>
 
@@ -2224,11 +2174,11 @@ and in OS/2 the IBM tools (e.g. icc) are preferred by SCons.</para>
 <para>Build rules are specified by calling a construction
 environment's builder methods.
 The arguments to the builder methods are
-<emphasis remap='B'>target</emphasis>
+<emphasis role="bold">target</emphasis>
 (a list of targets to be built,
 usually file names)
 and
-<emphasis remap='B'>source</emphasis>
+<emphasis role="bold">source</emphasis>
 (a list of sources to be built,
 usually file names).</para>
 
@@ -2236,7 +2186,7 @@ usually file names).</para>
 can lead to a lot of quoting,
 <command>scons</command>
 supplies a
-<emphasis remap='B'>Split()</emphasis>
+<emphasis role="bold">Split()</emphasis>
 global function
 and a same-named environment method
 that split a single string
@@ -2254,7 +2204,7 @@ the target is first,
 followed by the source.
 The following are equivalent examples of calling the Program builder method:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env.Program('bar', ['bar.c', 'foo.c'])
 env.Program('bar', Split('bar.c foo.c'))
 env.Program('bar', env.Split('bar.c foo.c'))
@@ -2267,10 +2217,10 @@ env.Program('bar', source = 'bar.c foo.c'.split())
 <para>Target and source file names
 that are not absolute path names
 (that is, do not begin with
-<emphasis remap='B'>/</emphasis>
+<emphasis role="bold">/</emphasis>
 on POSIX systems
 or
-<emphasis remap='B'>\fR
+<emphasis role="bold">\fR
 on Windows systems,
 with or without
 an optional drive letter)
@@ -2278,22 +2228,22 @@ are interpreted relative to the directory containing the
 SConscript</emphasis>
 file being read.
 An initial
-<emphasis remap='B'>#</emphasis>
+<emphasis role="bold">#</emphasis>
 (hash mark)
 on a path name means that the rest of the file name
 is interpreted relative to
 the directory containing
 the top-level
-<emphasis remap='B'>SConstruct</emphasis>
+<emphasis role="bold">SConstruct</emphasis>
 file,
 even if the
-<emphasis remap='B'>#</emphasis>
+<emphasis role="bold">#</emphasis>
 is followed by a directory separator character
 (slash or backslash).</para>
 
 <para>Examples:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 # The comments describing the targets that will be built
 # assume these calls are in a SConscript file in the
 # a subdirectory named "subdir".
@@ -2326,14 +2276,14 @@ will deduce the target file name from
 the source file name.
 The following examples all build the
 executable program
-<emphasis remap='B'>bar</emphasis>
+<emphasis role="bold">bar</emphasis>
 (on POSIX systems)
 or
-<emphasis remap='B'>bar.exe</emphasis>
+<emphasis role="bold">bar.exe</emphasis>
 (on Windows systems)
 from the bar.c source file:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env.Program(target = 'bar', source = 'bar.c')
 env.Program('bar', source = 'bar.c')
 env.Program(source = 'bar.c')
@@ -2341,24 +2291,24 @@ env.Program('bar.c')
 </literallayout> <!-- .fi -->
 
 <para>As a convenience, a
-<emphasis remap='B'>srcdir</emphasis>
+<emphasis role="bold">srcdir</emphasis>
 keyword argument may be specified
 when calling a Builder.
 When specified,
 all source file strings that are not absolute paths
 will be interpreted relative to the specified
-<emphasis remap='B'>srcdir</emphasis>.
+<emphasis role="bold">srcdir</emphasis>.
 The following example will build the
-<emphasis remap='B'>build/prog</emphasis>
+<emphasis role="bold">build/prog</emphasis>
 (or
-<emphasis remap='B'>build/prog.exe</emphasis>
+<emphasis role="bold">build/prog.exe</emphasis>
 on Windows)
 program from the files
-<emphasis remap='B'>src/f1.c</emphasis>
+<emphasis role="bold">src/f1.c</emphasis>
 and
-<emphasis remap='B'>src/f2.c</emphasis>:</para>
+<emphasis role="bold">src/f2.c</emphasis>:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </literallayout> <!-- .fi -->
 
@@ -2369,13 +2319,13 @@ variables will only be in effect when building the target, so they will not
 affect other parts of the build. For example, if you want to add additional
 libraries for just one program:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 </literallayout> <!-- .fi -->
 
 <para>or generate a shared library with a non-standard suffix:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env.SharedLibrary('word', 'word.cpp',
                   SHLIBSUFFIX='.ocx',
                   LIBSUFFIXES=['.ocx'])
@@ -2387,19 +2337,19 @@ for dependencies on the non-standard library names;
 see the descriptions of these variables, below, for more information.)</para>
 
 <para>It is also possible to use the
-<emphasis remap='I'>parse_flags</emphasis>
+<emphasis>parse_flags</emphasis>
 keyword argument in an override:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
 </literallayout> <!-- .fi -->
 
 <para>This example adds 'include' to
-<emphasis remap='B'>CPPPATH</emphasis>,
+<emphasis role="bold">CPPPATH</emphasis>,
 'EBUG' to
-<emphasis remap='B'>CPPDEFINES</emphasis>,
+<emphasis role="bold">CPPDEFINES</emphasis>,
 and 'm' to
-<emphasis remap='B'>LIBS</emphasis>.</para>
+<emphasis role="bold">LIBS</emphasis>.</para>
 
 <para>Although the builder methods defined by
 <command>scons</command>
@@ -2407,7 +2357,7 @@ are, in fact,
 methods of a construction environment object,
 they may also be called without an explicit environment:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Program('hello', 'hello.c')
 SharedLibrary('word', 'word.cpp')
 </literallayout> <!-- .fi -->
@@ -2423,7 +2373,7 @@ environment may be called from custom Python modules that you
 import into an SConscript file by adding the following
 to the Python module:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 from SCons.Script import *
 </literallayout> <!-- .fi -->
 
@@ -2431,7 +2381,7 @@ from SCons.Script import *
 containing Nodes that
 represent the target or targets that will be built.
 A
-<emphasis remap='I'>Node</emphasis>
+<emphasis>Node</emphasis>
 is an internal SCons object
 which represents
 build targets or sources.</para>
@@ -2445,7 +2395,7 @@ to add a specific
 <option>-D</option>
 flag when compiling one specific object file:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
 </literallayout> <!-- .fi -->
@@ -2465,7 +2415,7 @@ If you need to manipulate a list of lists returned by Builders
 directly using Python,
 you can either build the list by hand:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 foo = Object('foo.c')
 bar = Object('bar.c')
 objects = ['begin.o'] + foo + ['middle.o'] + bar + ['end.o']
@@ -2474,12 +2424,12 @@ for object in objects:
 </literallayout> <!-- .fi -->
 
 <para>Or you can use the
-<emphasis remap='B'>Flatten</emphasis>()
+<emphasis role="bold">Flatten</emphasis>()
 function supplied by scons
 to create a list containing just the Nodes,
 which may be more convenient:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 foo = Object('foo.c')
 bar = Object('bar.c')
 objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
@@ -2490,9 +2440,9 @@ for object in objects:
 <para>Note also that because Builder calls return
 a list-like object, not an actual Python list,
 you should
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 use the Python
-<emphasis remap='B'>+=</emphasis>
+<emphasis role="bold">+=</emphasis>
 operator to append Builder results to a Python list.
 Because the list and the object are different types,
 Python will not update the original list in place,
@@ -2507,7 +2457,7 @@ Instead, use the Python
 method to make sure the list is updated in-place.
 Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 object_files = []
 
 # Do NOT use += as follows:
@@ -2526,36 +2476,36 @@ by passing the Node to the Python-builtin
 <function>str()</function>
 function:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 print "The path to bar_obj is:", str(bar_obj_list[0])
 </literallayout> <!-- .fi -->
 
 <para>Note again that because the Builder call returns a list,
 we have to access the first element in the list
-<emphasis remap='B'>(bar_obj_list[0])</emphasis>
+<emphasis role="bold">(bar_obj_list[0])</emphasis>
 to get at the Node that actually represents
 the object file.</para>
 
 <para>Builder calls support a
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 keyword argument that
 specifies that the Builder's action(s)
 should be executed
 after changing directory.
 If the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 is not a string or Node
 and is non-zero,
 then scons will change to the
 target file's directory.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 # scons will change to the "sub" subdirectory
 # before executing the "cp" command.
 env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
@@ -2571,13 +2521,13 @@ env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
 </literallayout> <!-- .fi -->
 
 <para>Note that scons will
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 automatically modify
 its expansion of
 construction variables like
-<emphasis remap='B'>$TARGET</emphasis>
+<emphasis role="bold">$TARGET</emphasis>
 and
-<emphasis remap='B'>$SOURCE</emphasis>
+<emphasis role="bold">$SOURCE</emphasis>
 when using the chdir
 keyword argument--that is,
 the expanded file names
@@ -2589,9 +2539,9 @@ If you use the chdir keyword argument,
 you will typically need to supply a different
 command line using
 expansions like
-<emphasis remap='B'>${TARGET.file}</emphasis>
+<emphasis role="bold">${TARGET.file}</emphasis>
 and
-<emphasis remap='B'>${SOURCE.file}</emphasis>
+<emphasis role="bold">${SOURCE.file}</emphasis>
 to use just the filename portion of the
 targets and source.</para>
 
@@ -2633,7 +2583,7 @@ provides the following builder methods:</para>
 targets of builder methods automatically depend on their sources.
 An explicit dependency can
 be specified using the
-<emphasis remap='B'>Depends</emphasis>
+<emphasis role="bold">Depends</emphasis>
 method of a construction environment (see below).</para>
 
 <para>In addition,
@@ -2665,19 +2615,19 @@ You can also write your own Scanners
 to add support for additional source file types.
 These can be added to the default
 Scanner object used by the
-<emphasis remap='B'>Object</emphasis>(),
-<emphasis remap='B'>StaticObject</emphasis>(),
+<emphasis role="bold">Object</emphasis>(),
+<emphasis role="bold">StaticObject</emphasis>(),
 and
-<emphasis remap='B'>SharedObject</emphasis>()
+<emphasis role="bold">SharedObject</emphasis>()
 Builders by adding them
 to the
-<emphasis remap='B'>SourceFileScanner</emphasis>
+<emphasis role="bold">SourceFileScanner</emphasis>
 object.
 See the section "Scanner Objects"
 below, for more information about
 defining your own Scanner objects
 and using the
-<emphasis remap='B'>SourceFileScanner</emphasis>
+<emphasis role="bold">SourceFileScanner</emphasis>
 object.</para>
 
 </refsect2>
@@ -2697,13 +2647,13 @@ must be called with or without a construction environment.
 In the following list,
 if you call something as a global function
 it looks like:</para>
-<literallayout remap='.nf'>
-Function(<emphasis remap='I'>arguments</emphasis>)
+<literallayout>
+Function(<emphasis>arguments</emphasis>)
 </literallayout> <!-- .fi -->
 <para>and if you call something through a construction
 environment it looks like:</para>
-<literallayout remap='.nf'>
-env.Function(<emphasis remap='I'>arguments</emphasis>)
+<literallayout>
+env.Function(<emphasis>arguments</emphasis>)
 </literallayout> <!-- .fi -->
 <para>If you can call the functionality in both ways,
 then both forms are listed.</para>
@@ -2712,7 +2662,7 @@ then both forms are listed.</para>
 import into an SConscript file by adding the following
 to the Python module:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 from SCons.Script import *
 </literallayout> <!-- .fi -->
 
@@ -2728,7 +2678,7 @@ substitute construction variables into
 any supplied strings.
 For example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(FOO = 'foo')
 Default('$FOO')
 env.Default('$FOO')
@@ -2736,16 +2686,16 @@ env.Default('$FOO')
 
 <para>In the above example,
 the first call to the global
-<emphasis remap='B'>Default()</emphasis>
+<emphasis role="bold">Default()</emphasis>
 function will actually add a target named
-<emphasis remap='B'>$FOO</emphasis>
+<emphasis role="bold">$FOO</emphasis>
 to the list of default targets,
 while the second call to the
-<emphasis remap='B'>env.Default()</emphasis>
+<emphasis role="bold">env.Default()</emphasis>
 construction environment method
 will expand the value
 and add a target named
-<emphasis remap='B'>foo</emphasis>
+<emphasis role="bold">foo</emphasis>
 to the list of default targets.
 For more on construction variable expansion,
 see the next section on
@@ -2798,37 +2748,37 @@ These variables may be accessed from custom Python modules that you
 import into an SConscript file by adding the following
 to the Python module:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 from SCons.Script import *
 </literallayout> <!-- .fi -->
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
   <term>ARGLIST</term>
   <listitem>
 <para>A list
-<emphasis remap='I'>keyword</emphasis>=<emphasis remap='I'>value</emphasis>
+<emphasis>keyword</emphasis>=<emphasis>value</emphasis>
 arguments specified on the command line.
 Each element in the list is a tuple
 containing the
-(<emphasis remap='I'>keyword</emphasis>,<emphasis remap='I'>value</emphasis>)
+(<emphasis>keyword</emphasis>,<emphasis>value</emphasis>)
 of the argument.
 The separate
-<emphasis remap='I'>keyword</emphasis>
+<emphasis>keyword</emphasis>
 and
-<emphasis remap='I'>value</emphasis>
+<emphasis>value</emphasis>
 elements of the tuple
 can be accessed by
 subscripting for element
-<emphasis remap='B'>[0]</emphasis>
+<emphasis role="bold">[0]</emphasis>
 and
-<emphasis remap='B'>[1]</emphasis>
+<emphasis role="bold">[1]</emphasis>
 of the tuple, respectively.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 print "first keyword, value =", ARGLIST[0][0], ARGLIST[0][1]
 print "second keyword, value =", ARGLIST[1][0], ARGLIST[1][1]
 third_tuple = ARGLIST[2]
@@ -2844,7 +2794,7 @@ for key, value in ARGLIST:
   <term>ARGUMENTS</term>
   <listitem>
 <para>A dictionary of all the
-<emphasis remap='I'>keyword</emphasis>=<emphasis remap='I'>value</emphasis>
+<emphasis>keyword</emphasis>=<emphasis>value</emphasis>
 arguments specified on the command line.
 The dictionary is not in order,
 and if a given keyword has
@@ -2852,12 +2802,12 @@ more than one value assigned to it
 on the command line,
 the last (right-most) value is
 the one in the
-<emphasis remap='B'>ARGUMENTS</emphasis>
+<emphasis role="bold">ARGUMENTS</emphasis>
 dictionary.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 if ARGUMENTS.get('debug', 0):
     env = Environment(CCFLAGS = '-g')
 else:
@@ -2875,30 +2825,30 @@ else:
 will actually try to build,
 regardless of whether they were specified on
 the command line or via the
-<emphasis remap='B'>Default</emphasis>()
+<emphasis role="bold">Default</emphasis>()
 function or method.
 The elements of this list may be strings
-<emphasis remap='I'>or</emphasis>
+<emphasis>or</emphasis>
 nodes, so you should run the list through the Python
-<emphasis remap='B'>str</emphasis>
+<emphasis role="bold">str</emphasis>
 function to make sure any Node path names
 are converted to strings.</para>
 
 <para>Because this list may be taken from the
 list of targets specified using the
-<emphasis remap='B'>Default</emphasis>()
+<emphasis role="bold">Default</emphasis>()
 function or method,
 the contents of the list may change
 on each successive call to
-<emphasis remap='B'>Default</emphasis>().
+<emphasis role="bold">Default</emphasis>().
 See the
-<emphasis remap='B'>DEFAULT_TARGETS</emphasis>
+<emphasis role="bold">DEFAULT_TARGETS</emphasis>
 list, below,
 for additional information.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 if 'foo' in BUILD_TARGETS:
     print "Don't forget to test the `foo' program!"
 if 'special/program' in BUILD_TARGETS:
@@ -2909,19 +2859,19 @@ if 'special/program' in BUILD_TARGETS:
 </variablelist>
 
 <para>Note that the
-<emphasis remap='B'>BUILD_TARGETS</emphasis>
+<emphasis role="bold">BUILD_TARGETS</emphasis>
 list only contains targets expected listed
 on the command line or via calls to the
-<emphasis remap='B'>Default</emphasis>()
+<emphasis role="bold">Default</emphasis>()
 function or method.
 It does
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 contain all dependent targets that will be built as
 a result of making the sure the explicitly-specified
 targets are up to date.</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
   <term>COMMAND_LINE_TARGETS</term>
   <listitem>
@@ -2936,7 +2886,7 @@ is explicitly being built.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 if 'foo' in COMMAND_LINE_TARGETS:
     print "Don't forget to test the `foo' program!"
 if 'special/program' in COMMAND_LINE_TARGETS:
@@ -2950,18 +2900,18 @@ if 'special/program' in COMMAND_LINE_TARGETS:
   <term>DEFAULT_TARGETS</term>
   <listitem>
 <para>A list of the target
-<emphasis remap='I'>nodes</emphasis>
+<emphasis>nodes</emphasis>
 that have been specified using the
-<emphasis remap='B'>Default</emphasis>()
+<emphasis role="bold">Default</emphasis>()
 function or method.
 The elements of the list are nodes,
 so you need to run them through the Python
-<emphasis remap='B'>str</emphasis>
+<emphasis role="bold">str</emphasis>
 function to get at the path name for each Node.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 print str(DEFAULT_TARGETS[0])
 if 'foo' in map(str, DEFAULT_TARGETS):
     print "Don't forget to test the `foo' program!"
@@ -2971,12 +2921,12 @@ if 'foo' in map(str, DEFAULT_TARGETS):
 </variablelist>
 
 <para>The contents of the
-<emphasis remap='B'>DEFAULT_TARGETS</emphasis>
+<emphasis role="bold">DEFAULT_TARGETS</emphasis>
 list change on on each successive call to the
-<emphasis remap='B'>Default</emphasis>()
+<emphasis role="bold">Default</emphasis>()
 function:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 print map(str, DEFAULT_TARGETS)   # originally []
 Default('foo')
 print map(str, DEFAULT_TARGETS)   # now a node ['foo']
@@ -2987,9 +2937,9 @@ print map(str, DEFAULT_TARGETS)   # back to []
 </literallayout> <!-- .fi -->
 
 <para>Consequently, be sure to use
-<emphasis remap='B'>DEFAULT_TARGETS</emphasis>
+<emphasis role="bold">DEFAULT_TARGETS</emphasis>
 only after you've made all of your
-<emphasis remap='B'>Default</emphasis>()
+<emphasis role="bold">Default</emphasis>()
 calls,
 or else simply be careful of the order
 of these statements in your SConscript files
@@ -3016,7 +2966,7 @@ default target before it's actually been added to the list.</para>
 <!--     Default: -->
 <!--         (I dunno what this is ;\-) -->
 <para>A construction environment has an associated dictionary of
-<emphasis remap='I'>construction variables</emphasis>
+<emphasis>construction variables</emphasis>
 that are used by built-in or user-supplied build rules.
 Construction variables must follow the same rules for
 Python identifiers:
@@ -3060,32 +3010,32 @@ defined construction variables:</para>
 
 
 <para>Construction variables can be retrieved and set using the
-<emphasis remap='B'>Dictionary</emphasis>
+<emphasis role="bold">Dictionary</emphasis>
 method of the construction environment:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 dict = env.Dictionary()
 dict["CC"] = "cc"
 </literallayout> <!-- .fi -->
 
 <para>or using the [] operator:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env["CC"] = "cc"
 </literallayout> <!-- .fi -->
 
 <para>Construction variables can also be passed to the construction environment
 constructor:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(CC="cc")
 </literallayout> <!-- .fi -->
 
 <para>or when copying a construction environment using the
-<emphasis remap='B'>Clone</emphasis>
+<emphasis role="bold">Clone</emphasis>
 method:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env2 = env.Clone(CC="cl.exe")
 </literallayout> <!-- .fi -->
 
@@ -3095,7 +3045,7 @@ env2 = env.Clone(CC="cl.exe")
 
 <para><command>scons</command>
 supports
-<emphasis remap='I'>configure contexts,</emphasis>
+<emphasis>configure contexts,</emphasis>
 an integrated mechanism similar to the
 various AC_CHECK macros in GNU autoconf
 for testing for the existence of C header
@@ -3110,41 +3060,41 @@ command line option.</para>
 
 <para>The following methods can be used to perform checks:</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>Configure(<emphasis remap='I'>env</emphasis>, [<emphasis remap='I'>custom_tests</emphasis>, <emphasis remap='I'>conf_dir</emphasis>, <emphasis remap='I'>log_file</emphasis>, <emphasis remap='I'>config_h</emphasis>, <emphasis remap='I'>clean</emphasis>, <emphasis remap='I'>help])</emphasis></term>
-  <term>env.Configure([<emphasis remap='I'>custom_tests</emphasis>, <emphasis remap='I'>conf_dir</emphasis>, <emphasis remap='I'>log_file</emphasis>, <emphasis remap='I'>config_h</emphasis>, <emphasis remap='I'>clean</emphasis>, <emphasis remap='I'>help])</emphasis></term>
+  <term>Configure(<emphasis>env</emphasis>, [<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
+  <term>env.Configure([<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
   <listitem>
 <para>This creates a configure context, which can be used to perform checks.
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 specifies the environment for building the tests.
 This environment may be modified when performing checks.
-<emphasis remap='I'>custom_tests</emphasis>
+<emphasis>custom_tests</emphasis>
 is a dictionary containing custom tests.
 See also the section about custom tests below.
 By default, no custom tests are added to the configure context.
-<emphasis remap='I'>conf_dir</emphasis>
+<emphasis>conf_dir</emphasis>
 specifies a directory where the test cases are built.
 Note that this directory is not used for building
 normal targets.
 The default value is the directory
 #/.sconf_temp.
-<emphasis remap='I'>log_file</emphasis>
+<emphasis>log_file</emphasis>
 specifies a file which collects the output from commands
 that are executed to check for the existence of header files, libraries, etc.
 The default is the file #/config.log.
 If you are using the
-<emphasis remap='B'>VariantDir</emphasis>()
+<emphasis role="bold">VariantDir</emphasis>()
 method,
 you may want to specify a subdirectory under your variant directory.
-<emphasis remap='I'>config_h</emphasis>
+<emphasis>config_h</emphasis>
 specifies a C header file where the results of tests
 will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc.
 The default is to not write a
-<emphasis remap='B'>config.h</emphasis>
+<emphasis role="bold">config.h</emphasis>
 file.
 You can specify the same
-<emphasis remap='B'>config.h</emphasis>
+<emphasis role="bold">config.h</emphasis>
 file in multiple calls to Configure,
 in which case
 <command>scons</command>
@@ -3153,19 +3103,19 @@ Note that SCons
 uses its normal dependency checking
 to decide if it's necessary to rebuild
 the specified
-<emphasis remap='I'>config_h</emphasis>
+<emphasis>config_h</emphasis>
 file.
 This means that the file is not necessarily re-built each
 time scons is run,
 but is only rebuilt if its contents will have changed
 and some target that depends on the
-<emphasis remap='I'>config_h</emphasis>
+<emphasis>config_h</emphasis>
 file is being built.</para>
 
 <para>The optional
-<emphasis remap='B'>clean</emphasis>
+<emphasis role="bold">clean</emphasis>
 and
-<emphasis remap='B'>help</emphasis>
+<emphasis role="bold">help</emphasis>
 arguments can be used to suppress execution of the configuration
 tests when the
 <option>-c/--clean</option>
@@ -3179,9 +3129,9 @@ affect the list of targets to be cleaned
 or the help text.
 If the configure tests do not affect these,
 then you may add the
-<emphasis remap='B'>clean=False</emphasis>
+<emphasis role="bold">clean=False</emphasis>
 or
-<emphasis remap='B'>help=False</emphasis>
+<emphasis role="bold">help=False</emphasis>
 arguments
 (or both)
 to avoid unnecessary test execution.</para>
@@ -3190,13 +3140,13 @@ to avoid unnecessary test execution.</para>
   </varlistentry>
 </variablelist>
 <para>A created
-<emphasis remap='B'>Configure</emphasis>
+<emphasis role="bold">Configure</emphasis>
 instance has the following associated methods:</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>SConf.Finish(<emphasis remap='I'>context</emphasis>)</term>
-  <term><emphasis remap='I'>sconf</emphasis>.Finish()</term>
+  <term>SConf.Finish(<emphasis>context</emphasis>)</term>
+  <term><emphasis>sconf</emphasis>.Finish()</term>
   <listitem>
 <para>This method should be called after configuration is done.
 It returns the environment as modified
@@ -3215,58 +3165,58 @@ goes by and developers contribute new useful tests.)</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckHeader(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>header</emphasis>, [<emphasis remap='I'>include_quotes</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckHeader(<emphasis remap='I'>header</emphasis>, [<emphasis remap='I'>include_quotes</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
+  <term>SConf.CheckHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 is usable in the specified language.
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 may be a list,
 in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines should precede the
 header line being checked for.
 The optional argument
-<emphasis remap='I'>include_quotes</emphasis>
+<emphasis>include_quotes</emphasis>
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote.
 By default, both characters  are " (double quote).
 The optional argument
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 should be either
-<emphasis remap='B'>C</emphasis>
+<emphasis role="bold">C</emphasis>
 or
-<emphasis remap='B'>C++</emphasis>
+<emphasis role="bold">C++</emphasis>
 and selects the compiler to be used for the check.
 Returns 1 on success and 0 on failure.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckCHeader(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>header</emphasis>, [<emphasis remap='I'>include_quotes</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckCHeader(<emphasis remap='I'>header</emphasis>, [<emphasis remap='I'>include_quotes</emphasis>])</term>
+  <term>SConf.CheckCHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckCHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
   <listitem>
 <para>This is a wrapper around
-<emphasis remap='B'>SConf.CheckHeader</emphasis>
+<emphasis role="bold">SConf.CheckHeader</emphasis>
 which checks if
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 is usable in the C language.
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 may be a list,
 in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines should precede the
 header line being checked for.
 The optional argument
-<emphasis remap='I'>include_quotes</emphasis>
+<emphasis>include_quotes</emphasis>
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote (both default
@@ -3276,25 +3226,25 @@ Returns 1 on success and 0 on failure.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckCXXHeader(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>header</emphasis>, [<emphasis remap='I'>include_quotes</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckCXXHeader(<emphasis remap='I'>header</emphasis>, [<emphasis remap='I'>include_quotes</emphasis>])</term>
+  <term>SConf.CheckCXXHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckCXXHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
   <listitem>
 <para>This is a wrapper around
-<emphasis remap='B'>SConf.CheckHeader</emphasis>
+<emphasis role="bold">SConf.CheckHeader</emphasis>
 which checks if
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 is usable in the C++ language.
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 may be a list,
 in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines should precede the
 header line being checked for.
 The optional argument
-<emphasis remap='I'>include_quotes</emphasis>
+<emphasis>include_quotes</emphasis>
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote (both default
@@ -3304,15 +3254,15 @@ Returns 1 on success and 0 on failure.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckFunc(<emphasis remap='I'>context,</emphasis>, <emphasis remap='I'>function_name</emphasis>, [<emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckFunc(<emphasis remap='I'>function_name</emphasis>, [<emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
+  <term>SConf.CheckFunc(<emphasis>context,</emphasis>, <emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckFunc(<emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
 C or C++ function is available.
-<emphasis remap='I'>function_name</emphasis>
+<emphasis>function_name</emphasis>
 is the name of the function to check for.
 The optional
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 argument is a string
 that will be
 placed at the top
@@ -3320,137 +3270,137 @@ of the test file
 that will be compiled
 to check if the function exists;
 the default is:</para>
-<literallayout remap='.nf'>
+<literallayout>
 #ifdef __cplusplus
 extern "C"
 #endif
 char function_name();
 </literallayout> <!-- .fi -->
 <para>The optional
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 argument should be
-<emphasis remap='B'>C</emphasis>
+<emphasis role="bold">C</emphasis>
 or
-<emphasis remap='B'>C++</emphasis>
+<emphasis role="bold">C++</emphasis>
 and selects the compiler to be used for the check;
 the default is "C".</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckLib(<emphasis remap='I'>context</emphasis>, [<emphasis remap='I'>library</emphasis>, <emphasis remap='I'>symbol</emphasis>, <emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>, <emphasis remap='I'>autoadd=1</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckLib([<emphasis remap='I'>library</emphasis>, <emphasis remap='I'>symbol</emphasis>, <emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>, <emphasis remap='I'>autoadd=1</emphasis>])</term>
+  <term>SConf.CheckLib(<emphasis>context</emphasis>, [<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckLib([<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
   <listitem>
 <para>Checks if
-<emphasis remap='I'>library</emphasis>
+<emphasis>library</emphasis>
 provides
-<emphasis remap='I'>symbol</emphasis>.
+<emphasis>symbol</emphasis>.
 If the value of
-<emphasis remap='I'>autoadd</emphasis>
+<emphasis>autoadd</emphasis>
 is 1 and the library provides the specified
-<emphasis remap='I'>symbol</emphasis>,
+<emphasis>symbol</emphasis>,
 appends the library to the LIBS construction environment variable.
-<emphasis remap='I'>library</emphasis>
+<emphasis>library</emphasis>
 may also be None (the default),
 in which case
-<emphasis remap='I'>symbol</emphasis>
+<emphasis>symbol</emphasis>
 is checked with the current LIBS variable,
 or a list of library names,
 in which case each library in the list
 will be checked for
-<emphasis remap='I'>symbol</emphasis>.
+<emphasis>symbol</emphasis>.
 If
-<emphasis remap='I'>symbol</emphasis>
+<emphasis>symbol</emphasis>
 is not set or is
-<emphasis remap='B'>None</emphasis>,
+<emphasis role="bold">None</emphasis>,
 then
-<emphasis remap='B'>SConf.CheckLib</emphasis>()
+<emphasis role="bold">SConf.CheckLib</emphasis>()
 just checks if
 you can link against the specified
-<emphasis remap='I'>library</emphasis>.
+<emphasis>library</emphasis>.
 The optional
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 argument should be
-<emphasis remap='B'>C</emphasis>
+<emphasis role="bold">C</emphasis>
 or
-<emphasis remap='B'>C++</emphasis>
+<emphasis role="bold">C++</emphasis>
 and selects the compiler to be used for the check;
 the default is "C".
 The default value for
-<emphasis remap='I'>autoadd</emphasis>
+<emphasis>autoadd</emphasis>
 is 1.
 This method returns 1 on success and 0 on error.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckLibWithHeader(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>library</emphasis>, <emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>, [<emphasis remap='I'>call</emphasis>, <emphasis remap='I'>autoadd</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckLibWithHeader(<emphasis remap='I'>library</emphasis>, <emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>, [<emphasis remap='I'>call</emphasis>, <emphasis remap='I'>autoadd</emphasis>])</term>
+  <term>SConf.CheckLibWithHeader(<emphasis>context</emphasis>, <emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckLibWithHeader(<emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
   <listitem>
 
 <para>In contrast to the
 SConf.CheckLib
 call, this call provides a more sophisticated way to check against libraries.
 Again,
-<emphasis remap='I'>library</emphasis>
+<emphasis>library</emphasis>
 specifies the library or a list of libraries to check.
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 specifies a header to check for.
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 may be a list,
 in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines should precede the
 header line being checked for.
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 may be one of 'C','c','CXX','cxx','C++' and 'c++'.
-<emphasis remap='I'>call</emphasis>
+<emphasis>call</emphasis>
 can be any valid expression (with a trailing ';').
 If
-<emphasis remap='I'>call</emphasis>
+<emphasis>call</emphasis>
 is not set,
 the default simply checks that you
 can link against the specified
-<emphasis remap='I'>library</emphasis>.
-<emphasis remap='I'>autoadd</emphasis>
+<emphasis>library</emphasis>.
+<emphasis>autoadd</emphasis>
 specifies whether to add the library to the environment (only if the check
 succeeds). This method returns 1 on success and 0 on error.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckType(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>type_name</emphasis>, [<emphasis remap='I'>includes</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckType(<emphasis remap='I'>type_name</emphasis>, [<emphasis remap='I'>includes</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
+  <term>SConf.CheckType(<emphasis>context</emphasis>, <emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckType(<emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks for the existence of a type defined by
-<emphasis remap='B'>typedef</emphasis>.
-<emphasis remap='I'>type_name</emphasis>
+<emphasis role="bold">typedef</emphasis>.
+<emphasis>type_name</emphasis>
 specifies the typedef name to check for.
-<emphasis remap='I'>includes</emphasis>
+<emphasis>includes</emphasis>
 is a string containing one or more
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines that will be inserted into the program
 that will be run to test for the existence of the type.
 The optional
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 argument should be
-<emphasis remap='B'>C</emphasis>
+<emphasis role="bold">C</emphasis>
 or
-<emphasis remap='B'>C++</emphasis>
+<emphasis role="bold">C++</emphasis>
 and selects the compiler to be used for the check;
 the default is "C".
 Example:</para>
-<literallayout remap='.nf'>
+<literallayout>
 sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
 </literallayout> <!-- .fi -->
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Configure.CheckCC(<emphasis remap='I'>self</emphasis>)</term>
+  <term>Configure.CheckCC(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C compiler (as defined by the CC construction variable) works
 by trying to compile a small source file.</para>
@@ -3465,7 +3415,7 @@ not.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Configure.CheckCXX(<emphasis remap='I'>self</emphasis>)</term>
+  <term>Configure.CheckCXX(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C++ compiler (as defined by the CXX construction variable)
 works by trying to compile a small source file. By default, SCons only detects
@@ -3478,7 +3428,7 @@ works or not.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Configure.CheckSHCC(<emphasis remap='I'>self</emphasis>)</term>
+  <term>Configure.CheckSHCC(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C compiler (as defined by the SHCC construction variable) works
 by trying to compile a small source file. By default, SCons only detects if
@@ -3492,7 +3442,7 @@ library, only that the compilation (not link) succeeds.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Configure.CheckSHCXX(<emphasis remap='I'>self</emphasis>)</term>
+  <term>Configure.CheckSHCXX(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C++ compiler (as defined by the SHCXX construction variable)
 works by trying to compile a small source file. By default, SCons only detects
@@ -3508,7 +3458,7 @@ a shared library, only that the compilation (not link) succeeds.</para>
 </variablelist>
 <para>Example of a typical Configure usage:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 conf = Configure( env )
 if not conf.CheckCHeader( 'math.h' ):
@@ -3521,17 +3471,17 @@ if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++',
 env = conf.Finish()
 </literallayout> <!-- .fi -->
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>SConf.CheckTypeSize(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>type_name</emphasis>, [<emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>, <emphasis remap='I'>expect</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckTypeSize(<emphasis remap='I'>type_name</emphasis>, [<emphasis remap='I'>header</emphasis>, <emphasis remap='I'>language</emphasis>, <emphasis remap='I'>expect</emphasis>])</term>
+  <term>SConf.CheckTypeSize(<emphasis>context</emphasis>, <emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckTypeSize(<emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
   <listitem>
 <para>Checks for the size of a type defined by
-<emphasis remap='B'>typedef</emphasis>.
-<emphasis remap='I'>type_name</emphasis>
+<emphasis role="bold">typedef</emphasis>.
+<emphasis>type_name</emphasis>
 specifies the typedef name to check for.
 The optional
-<emphasis remap='I'>header</emphasis>
+<emphasis>header</emphasis>
 argument is a string
 that will be
 placed at the top
@@ -3540,64 +3490,64 @@ that will be compiled
 to check if the function exists;
 the default is empty.
 The optional
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 argument should be
-<emphasis remap='B'>C</emphasis>
+<emphasis role="bold">C</emphasis>
 or
-<emphasis remap='B'>C++</emphasis>
+<emphasis role="bold">C++</emphasis>
 and selects the compiler to be used for the check;
 the default is "C".
 The optional
-<emphasis remap='I'>expect</emphasis>
+<emphasis>expect</emphasis>
 argument should be an integer.
 If this argument is used,
 the function will only check whether the type
 given in type_name has the expected size (in bytes).
 For example,
-<emphasis remap='B'>CheckTypeSize('short', expect = 2)</emphasis>
+<emphasis role="bold">CheckTypeSize('short', expect = 2)</emphasis>
 will return success only if short is two bytes.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 </literallayout> <!-- .fi -->
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.CheckDeclaration(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>symbol</emphasis>, [<emphasis remap='I'>includes</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.CheckDeclaration(<emphasis remap='I'>symbol</emphasis>, [<emphasis remap='I'>includes</emphasis>, <emphasis remap='I'>language</emphasis>])</term>
+  <term>SConf.CheckDeclaration(<emphasis>context</emphasis>, <emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.CheckDeclaration(<emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
-<emphasis remap='I'>symbol</emphasis>
+<emphasis>symbol</emphasis>
 is declared.
-<emphasis remap='I'>includes</emphasis>
+<emphasis>includes</emphasis>
 is a string containing one or more
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines that will be inserted into the program
 that will be run to test for the existence of the type.
 The optional
-<emphasis remap='I'>language</emphasis>
+<emphasis>language</emphasis>
 argument should be
-<emphasis remap='B'>C</emphasis>
+<emphasis role="bold">C</emphasis>
 or
-<emphasis remap='B'>C++</emphasis>
+<emphasis role="bold">C++</emphasis>
 and selects the compiler to be used for the check;
 the default is "C".</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>SConf.Define(<emphasis remap='I'>context</emphasis>, <emphasis remap='I'>symbol</emphasis>, [<emphasis remap='I'>value</emphasis>, <emphasis remap='I'>comment</emphasis>])</term>
-  <term><emphasis remap='I'>sconf</emphasis>.Define(<emphasis remap='I'>symbol</emphasis>, [<emphasis remap='I'>value</emphasis>, <emphasis remap='I'>comment</emphasis>])</term>
+  <term>SConf.Define(<emphasis>context</emphasis>, <emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
+  <term><emphasis>sconf</emphasis>.Define(<emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
   <listitem>
 <para>This function does not check for anything, but defines a
 preprocessor symbol that will be added to the configuration header file.
 It is the equivalent of AC_DEFINE,
 and defines the symbol
-<emphasis remap='I'>name</emphasis>
+<emphasis>name</emphasis>
 with the optional
-<emphasis remap='B'>value</emphasis>
+<emphasis role="bold">value</emphasis>
 and the optional comment
-<emphasis remap='B'>comment</emphasis>.</para>
+<emphasis role="bold">comment</emphasis>.</para>
 
   </listitem>
   </varlistentry>
@@ -3605,7 +3555,7 @@ and the optional comment
 
 <para>Examples:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 env = Environment()
 conf = Configure( env )
 
@@ -3621,7 +3571,7 @@ conf.Define('A_SYMBOL', 1)
 
 <para>Be careful about quoting string values, though:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 env = Environment()
 conf = Configure( env )
 
@@ -3637,7 +3587,7 @@ conf.Define('A_SYMBOL', '"YA"')
 
 <para>For comment:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 env = Environment()
 conf = Configure( env )
 
@@ -3653,31 +3603,31 @@ These are passed in a dictionary to the Configure function.
 This dictionary maps the names of the checks
 to user defined Python callables
 (either Python functions or class instances implementing the
-<emphasis remap='I'>__call__</emphasis>
+<emphasis>__call__</emphasis>
 method).
 The first argument of the call is always a
-<emphasis remap='I'>CheckContext</emphasis>
+<emphasis>CheckContext</emphasis>
 instance followed by the arguments,
 which must be supplied by the user of the check.
 These CheckContext instances define the following methods:</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>CheckContext.Message(<emphasis remap='I'>self</emphasis>, <emphasis remap='I'>text</emphasis>)</term>
+  <term>CheckContext.Message(<emphasis>self</emphasis>, <emphasis>text</emphasis>)</term>
   <listitem>
 
 <para>Usually called before the check is started.
-<emphasis remap='I'>text</emphasis>
+<emphasis>text</emphasis>
 will be displayed to the user, e.g. 'Checking for library X...'</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>CheckContext.Result(<emphasis remap='I'>self,</emphasis>, <emphasis remap='I'>res</emphasis>)</term>
+  <term>CheckContext.Result(<emphasis>self,</emphasis>, <emphasis>res</emphasis>)</term>
   <listitem>
 
 <para>Usually called after the check is done.
-<emphasis remap='I'>res</emphasis>
+<emphasis>res</emphasis>
 can be either an integer or a string. In the former case, 'yes' (res != 0)
 or 'no' (res == 0) is displayed to the user, in the latter case the
 given string is displayed.</para>
@@ -3685,47 +3635,47 @@ given string is displayed.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>CheckContext.TryCompile(<emphasis remap='I'>self</emphasis>, <emphasis remap='I'>text</emphasis>, <emphasis remap='I'>extension</emphasis>)</term>
+  <term>CheckContext.TryCompile(<emphasis>self</emphasis>, <emphasis>text</emphasis>, <emphasis>extension</emphasis>)</term>
   <listitem>
 <para>Checks if a file with the specified
-<emphasis remap='I'>extension</emphasis>
+<emphasis>extension</emphasis>
 (e.g. '.c') containing
-<emphasis remap='I'>text</emphasis>
+<emphasis>text</emphasis>
 can be compiled using the environment's
-<emphasis remap='B'>Object</emphasis>
+<emphasis role="bold">Object</emphasis>
 builder. Returns 1 on success and 0 on failure.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>CheckContext.TryLink(<emphasis remap='I'>self</emphasis>, <emphasis remap='I'>text</emphasis>, <emphasis remap='I'>extension</emphasis>)</term>
+  <term>CheckContext.TryLink(<emphasis>self</emphasis>, <emphasis>text</emphasis>, <emphasis>extension</emphasis>)</term>
   <listitem>
 <para>Checks, if a file with the specified
-<emphasis remap='I'>extension</emphasis>
+<emphasis>extension</emphasis>
 (e.g. '.c') containing
-<emphasis remap='I'>text</emphasis>
+<emphasis>text</emphasis>
 can be compiled using the environment's
-<emphasis remap='B'>Program</emphasis>
+<emphasis role="bold">Program</emphasis>
 builder. Returns 1 on success and 0 on failure.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>CheckContext.TryRun(<emphasis remap='I'>self</emphasis>, <emphasis remap='I'>text</emphasis>, <emphasis remap='I'>extension</emphasis>)</term>
+  <term>CheckContext.TryRun(<emphasis>self</emphasis>, <emphasis>text</emphasis>, <emphasis>extension</emphasis>)</term>
   <listitem>
 <para>Checks, if a file with the specified
-<emphasis remap='I'>extension</emphasis>
+<emphasis>extension</emphasis>
 (e.g. '.c') containing
-<emphasis remap='I'>text</emphasis>
+<emphasis>text</emphasis>
 can be compiled using the environment's
-<emphasis remap='B'>Program</emphasis>
+<emphasis role="bold">Program</emphasis>
 builder. On success, the program is run. If the program
 executes successfully
 (that is, its return status is 0),
 a tuple
-<emphasis remap='I'>(1, outputStr)</emphasis>
+<emphasis>(1, outputStr)</emphasis>
 is returned, where
-<emphasis remap='I'>outputStr</emphasis>
+<emphasis>outputStr</emphasis>
 is the standard output of the
 program.
 If the program fails execution
@@ -3735,44 +3685,44 @@ then (0, '') is returned.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>CheckContext.TryAction(<emphasis remap='I'>self</emphasis>, <emphasis remap='I'>action</emphasis>, [<emphasis remap='I'>text</emphasis>, <emphasis remap='I'>extension</emphasis>])</term>
+  <term>CheckContext.TryAction(<emphasis>self</emphasis>, <emphasis>action</emphasis>, [<emphasis>text</emphasis>, <emphasis>extension</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
-<emphasis remap='I'>action</emphasis>
+<emphasis>action</emphasis>
 with an optional source file (contents
-<emphasis remap='I'>text</emphasis>
+<emphasis>text</emphasis>
 , extension
-<emphasis remap='I'>extension</emphasis>
+<emphasis>extension</emphasis>
 = ''
 ) can be executed.
-<emphasis remap='I'>action</emphasis>
+<emphasis>action</emphasis>
 may be anything which can be converted to a
 <command>scons</command>
 Action.
 On success,
-<emphasis remap='I'>(1, outputStr)</emphasis>
+<emphasis>(1, outputStr)</emphasis>
 is returned, where
-<emphasis remap='I'>outputStr</emphasis>
+<emphasis>outputStr</emphasis>
 is the content of the target file.
 On failure
-<emphasis remap='I'>(0, '')</emphasis>
+<emphasis>(0, '')</emphasis>
 is returned.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>CheckContext.TryBuild(<emphasis remap='I'>self</emphasis>, <emphasis remap='I'>builder</emphasis>, [<emphasis remap='I'>text</emphasis>, <emphasis remap='I'>extension</emphasis>])</term>
+  <term>CheckContext.TryBuild(<emphasis>self</emphasis>, <emphasis>builder</emphasis>, [<emphasis>text</emphasis>, <emphasis>extension</emphasis>])</term>
   <listitem>
 <para>Low level implementation for testing specific builds;
 the methods above are based on this method.
 Given the Builder instance
-<emphasis remap='I'>builder</emphasis>
+<emphasis>builder</emphasis>
 and the optional
-<emphasis remap='I'>text</emphasis>
+<emphasis>text</emphasis>
 of a source file with optional
-<emphasis remap='I'>extension</emphasis>,
+<emphasis>extension</emphasis>,
 this method returns 1 on success and 0 on failure. In addition,
-<emphasis remap='I'>self.lastTarget</emphasis>
+<emphasis>self.lastTarget</emphasis>
 is set to the build target node, if the build was successful.</para>
 
   </listitem>
@@ -3780,7 +3730,7 @@ is set to the build target node, if the build was successful.</para>
 </variablelist>
 <para>Example for implementing and using custom tests:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def CheckQt(context, qtdir):
     context.Message( 'Checking for qt ...' )
     lastLIBS = context.env['LIBS']
@@ -3818,39 +3768,39 @@ locations, or site-specific compiler options may need to be passed to the
 compiler.
 <command>scons</command>
 provides a
-<emphasis remap='B'>Variables</emphasis>
+<emphasis role="bold">Variables</emphasis>
 object to support overriding construction variables
 on the command line:</para>
-<literallayout remap='.nf'>
+<literallayout>
 $ scons VARIABLE=foo
 </literallayout> <!-- .fi -->
 <para>The variable values can also be specified in a text-based SConscript file.
 To create a Variables object, call the Variables() function:</para>
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>Variables([<emphasis remap='I'>files</emphasis>], [<emphasis remap='I'>args</emphasis>])</term>
+  <term>Variables([<emphasis>files</emphasis>], [<emphasis>args</emphasis>])</term>
   <listitem>
 <para>This creates a Variables object that will read construction variables from
 the file or list of filenames specified in
-<emphasis remap='I'>files</emphasis>.
+<emphasis>files</emphasis>.
 If no files are specified,
 or the
-<emphasis remap='I'>files</emphasis>
+<emphasis>files</emphasis>
 argument is
-<emphasis remap='B'>None</emphasis>,
+<emphasis role="bold">None</emphasis>,
 then no files will be read.
 The optional argument
-<emphasis remap='I'>args</emphasis>
+<emphasis>args</emphasis>
 is a dictionary of
 values that will override anything read from the specified files;
 it is primarily intended to be passed the
-<emphasis remap='B'>ARGUMENTS</emphasis>
+<emphasis role="bold">ARGUMENTS</emphasis>
 dictionary that holds variables
 specified on the command line.
 Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 vars = Variables('custom.py')
 vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
@@ -3861,41 +3811,41 @@ vars = Variables(None, {FOO:'expansion', BAR:7})
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Add(<emphasis remap='I'>key</emphasis>, [<emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>, <emphasis remap='I'>validator</emphasis>, <emphasis remap='I'>converter</emphasis>])</term>
+  <term>Add(<emphasis>key</emphasis>, [<emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>validator</emphasis>, <emphasis>converter</emphasis>])</term>
   <listitem>
 <para>This adds a customizable construction variable to the Variables object.
-<emphasis remap='I'>key</emphasis>
+<emphasis>key</emphasis>
 is the name of the variable.
-<emphasis remap='I'>help</emphasis>
+<emphasis>help</emphasis>
 is the help text for the variable.
-<emphasis remap='I'>default</emphasis>
+<emphasis>default</emphasis>
 is the default value of the variable;
 if the default value is
-<emphasis remap='B'>None</emphasis>
+<emphasis role="bold">None</emphasis>
 and there is no explicit value specified,
 the construction variable will
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 be added to the construction environment.
-<emphasis remap='I'>validator</emphasis>
+<emphasis>validator</emphasis>
 is called to validate the value of the variable, and should take three
 arguments: key, value, and environment.
 The recommended way to handle an invalid value is
 to raise an exception (see example below).
-<emphasis remap='I'>converter</emphasis>
+<emphasis>converter</emphasis>
 is called to convert the value before putting it in the environment, and
 should take either a value, or the value and environment, as parameters.
 The
-<emphasis remap='I'>converter</emphasis>
+<emphasis>converter</emphasis>
 must return a value,
 which will be converted into a string
 before being validated by the
-<emphasis remap='I'>validator</emphasis>
+<emphasis>validator</emphasis>
 (if any)
 and then added to the environment.</para>
 
 <para>Examples:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 vars.Add('CC', 'The C compiler')
 
 def validate_color(key, val, env):
@@ -3907,19 +3857,19 @@ vars.Add('COLOR', validator=valid_color)
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>AddVariables(<emphasis remap='I'>list</emphasis>)</term>
+  <term>AddVariables(<emphasis>list</emphasis>)</term>
   <listitem>
 <para>A wrapper script that adds
 multiple customizable construction variables
 to a Variables object.
-<emphasis remap='I'>list</emphasis>
+<emphasis>list</emphasis>
 is a list of tuple or list objects
 that contain the arguments
 for an individual call to the
-<emphasis remap='B'>Add</emphasis>
+<emphasis role="bold">Add</emphasis>
 method.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 opt.AddVariables(
        ('debug', '', 0),
        ('CC', 'The C compiler'),
@@ -3931,24 +3881,24 @@ opt.AddVariables(
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Update(<emphasis remap='I'>env</emphasis>, [<emphasis remap='I'>args</emphasis>])</term>
+  <term>Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
   <listitem>
 <para>This updates a construction environment
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 with the customized construction variables.
 Any specified variables that are
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 configured for the Variables object
 will be saved and may be
 retrieved with the
-<emphasis remap='B'>UnknownVariables</emphasis>()
+<emphasis role="bold">UnknownVariables</emphasis>()
 method, below.</para>
 
 <para>Normally this method is not called directly,
 but is called indirectly by passing the Variables object to
 the Environment() function:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(variables=vars)
 </literallayout> <!-- .fi -->
 
@@ -3964,13 +3914,13 @@ are added to the construction environment.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 CC = 'my_cc'
 </literallayout> <!-- .fi -->
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>UnknownVariables(<emphasis remap='I'>)</emphasis></term>
+  <term>UnknownVariables(<emphasis>)</emphasis></term>
   <listitem>
 <para>Returns a dictionary containing any
 variables that were specified
@@ -3979,7 +3929,7 @@ with which the Variables object was initialized,
 but for which the Variables object was
 not configured.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(variables=vars)
 for key, value in vars.UnknownVariables():
     print "unknown variable:  %s=%s" % (key, value)
@@ -3988,15 +3938,15 @@ for key, value in vars.UnknownVariables():
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Save(<emphasis remap='I'>filename</emphasis>, <emphasis remap='I'>env</emphasis>)</term>
+  <term>Save(<emphasis>filename</emphasis>, <emphasis>env</emphasis>)</term>
   <listitem>
 <para>This saves the currently set variables into a script file named
-<emphasis remap='I'>filename</emphasis>
+<emphasis>filename</emphasis>
 that can be used on the next invocation to automatically load the current
 settings.  This method combined with the Variables method can be used to
 support caching of variables between runs.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 vars = Variables(['variables.cache', 'custom.py'])
 vars.Add(...)
@@ -4007,29 +3957,29 @@ vars.Save('variables.cache', env)
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>GenerateHelpText(<emphasis remap='I'>env</emphasis>, [<emphasis remap='I'>sort</emphasis>])</term>
+  <term>GenerateHelpText(<emphasis>env</emphasis>, [<emphasis>sort</emphasis>])</term>
   <listitem>
 <para>This generates help text documenting the customizable construction
 variables suitable to passing in to the Help() function.
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 is the construction environment that will be used to get the actual values
 of customizable variables. Calling with
 an optional
-<emphasis remap='I'>sort</emphasis>
+<emphasis>sort</emphasis>
 function
 will cause the output to be sorted
 by the specified argument.
 The specific
-<emphasis remap='I'>sort</emphasis>
+<emphasis>sort</emphasis>
 function
 should take two arguments
 and return
 -1, 0 or 1
 (like the standard Python
-<emphasis remap='I'>cmp</emphasis>
+<emphasis>cmp</emphasis>
 function).</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Help(vars.GenerateHelpText(env))
 Help(vars.GenerateHelpText(env, sort=cmp))
 </literallayout> <!-- .fi -->
@@ -4037,26 +3987,26 @@ Help(vars.GenerateHelpText(env, sort=cmp))
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>FormatVariableHelpText(<emphasis remap='I'>env</emphasis>, <emphasis remap='I'>opt</emphasis>, <emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>, <emphasis remap='I'>actual</emphasis>)</term>
+  <term>FormatVariableHelpText(<emphasis>env</emphasis>, <emphasis>opt</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>actual</emphasis>)</term>
   <listitem>
 <para>This method returns a formatted string
 containing the printable help text
 for one option.
 It is normally not called directly,
 but is called by the
-<emphasis remap='I'>GenerateHelpText</emphasis>()
+<emphasis>GenerateHelpText</emphasis>()
 method to create the returned help text.
 It may be overridden with your own
 function that takes the arguments specified above
 and returns a string of help text formatted to your liking.
 Note that the
-<emphasis remap='I'>GenerateHelpText</emphasis>()
+<emphasis>GenerateHelpText</emphasis>()
 will not put any blank lines or extra
 characters in between the entries,
 so you must add those characters to the returned
 string if you want the entries separated.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def my_format(env, opt, help, default, actual):
     fmt = "\n%s: default=%s actual=%s (%s)\n"
     return fmt % (opt, default. actual, help)
@@ -4072,43 +4022,43 @@ various types of Variables:</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>BoolVariable(<emphasis remap='I'>key</emphasis>, <emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>)</term>
+  <term>BoolVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>)</term>
   <listitem>
 <para>Return a tuple of arguments
 to set up a Boolean option.
 The option will use
 the specified name
-<emphasis remap='I'>key</emphasis>,
+<emphasis>key</emphasis>,
 have a default value of
-<emphasis remap='I'>default</emphasis>,
+<emphasis>default</emphasis>,
 and display the specified
-<emphasis remap='I'>help</emphasis>
+<emphasis>help</emphasis>
 text.
 The option will interpret the values
-<emphasis remap='B'>y</emphasis>,
-<emphasis remap='B'>yes</emphasis>,
-<emphasis remap='B'>t</emphasis>,
-<emphasis remap='B'>true</emphasis>,
+<emphasis role="bold">y</emphasis>,
+<emphasis role="bold">yes</emphasis>,
+<emphasis role="bold">t</emphasis>,
+<emphasis role="bold">true</emphasis>,
 <literal>1</literal>,
-<emphasis remap='B'>on</emphasis>
+<emphasis role="bold">on</emphasis>
 and
-<emphasis remap='B'>all</emphasis>
+<emphasis role="bold">all</emphasis>
 as true,
 and the values
-<emphasis remap='B'>n</emphasis>,
-<emphasis remap='B'>no</emphasis>,
-<emphasis remap='B'>f</emphasis>,
-<emphasis remap='B'>false</emphasis>,
+<emphasis role="bold">n</emphasis>,
+<emphasis role="bold">no</emphasis>,
+<emphasis role="bold">f</emphasis>,
+<emphasis role="bold">false</emphasis>,
 <literal>0</literal>,
-<emphasis remap='B'>off</emphasis>
+<emphasis role="bold">off</emphasis>
 and
-<emphasis remap='B'>none</emphasis>
+<emphasis role="bold">none</emphasis>
 as false.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>EnumVariable(<emphasis remap='I'>key</emphasis>, <emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>, <emphasis remap='I'>allowed_values</emphasis>, [<emphasis remap='I'>map</emphasis>, <emphasis remap='I'>ignorecase</emphasis>])</term>
+  <term>EnumVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>allowed_values</emphasis>, [<emphasis>map</emphasis>, <emphasis>ignorecase</emphasis>])</term>
   <listitem>
 <para>Return a tuple of arguments
 to set up an option
@@ -4116,38 +4066,38 @@ whose value may be one
 of a specified list of legal enumerated values.
 The option will use
 the specified name
-<emphasis remap='I'>key</emphasis>,
+<emphasis>key</emphasis>,
 have a default value of
-<emphasis remap='I'>default</emphasis>,
+<emphasis>default</emphasis>,
 and display the specified
-<emphasis remap='I'>help</emphasis>
+<emphasis>help</emphasis>
 text.
 The option will only support those
 values in the
-<emphasis remap='I'>allowed_values</emphasis>
+<emphasis>allowed_values</emphasis>
 list.
 The optional
-<emphasis remap='I'>map</emphasis>
+<emphasis>map</emphasis>
 argument is a dictionary
 that can be used to convert
 input values into specific legal values
 in the
-<emphasis remap='I'>allowed_values</emphasis>
+<emphasis>allowed_values</emphasis>
 list.
 If the value of
-<emphasis remap='I'>ignore_case</emphasis>
+<emphasis>ignore_case</emphasis>
 is
 <literal>0</literal>
 (the default),
 then the values are case-sensitive.
 If the value of
-<emphasis remap='I'>ignore_case</emphasis>
+<emphasis>ignore_case</emphasis>
 is
 <literal>1</literal>,
 then values will be matched
 case-insensitive.
 If the value of
-<emphasis remap='I'>ignore_case</emphasis>
+<emphasis>ignore_case</emphasis>
 is
 <literal>1</literal>,
 then values will be matched
@@ -4158,7 +4108,7 @@ converted to lower case.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>ListVariable(<emphasis remap='I'>key</emphasis>, <emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>, <emphasis remap='I'>names</emphasis>, [<emphasis remap='I'>,</emphasis>map<emphasis remap='I'>])</emphasis></term>
+  <term>ListVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>names</emphasis>, [<emphasis>,</emphasis>map<emphasis>])</emphasis></term>
   <listitem>
 <para>Return a tuple of arguments
 to set up an option
@@ -4166,17 +4116,17 @@ whose value may be one or more
 of a specified list of legal enumerated values.
 The option will use
 the specified name
-<emphasis remap='I'>key</emphasis>,
+<emphasis>key</emphasis>,
 have a default value of
-<emphasis remap='I'>default</emphasis>,
+<emphasis>default</emphasis>,
 and display the specified
-<emphasis remap='I'>help</emphasis>
+<emphasis>help</emphasis>
 text.
 The option will only support the values
-<emphasis remap='B'>all</emphasis>,
-<emphasis remap='B'>none</emphasis>,
+<emphasis role="bold">all</emphasis>,
+<emphasis role="bold">none</emphasis>,
 or the values in the
-<emphasis remap='I'>names</emphasis>
+<emphasis>names</emphasis>
 list.
 More than one value may be specified,
 with all values separated by commas.
@@ -4184,18 +4134,18 @@ The default may be a string of
 comma-separated default values,
 or a list of the default values.
 The optional
-<emphasis remap='I'>map</emphasis>
+<emphasis>map</emphasis>
 argument is a dictionary
 that can be used to convert
 input values into specific legal values
 in the
-<emphasis remap='I'>names</emphasis>
+<emphasis>names</emphasis>
 list.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>PackageVariable(<emphasis remap='I'>key</emphasis>, <emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>)</term>
+  <term>PackageVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>)</term>
   <listitem>
 <para>Return a tuple of arguments
 to set up an option
@@ -4205,84 +4155,84 @@ enabled, disabled or
 given an explicit path name.
 The option will use
 the specified name
-<emphasis remap='I'>key</emphasis>,
+<emphasis>key</emphasis>,
 have a default value of
-<emphasis remap='I'>default</emphasis>,
+<emphasis>default</emphasis>,
 and display the specified
-<emphasis remap='I'>help</emphasis>
+<emphasis>help</emphasis>
 text.
 The option will support the values
-<emphasis remap='B'>yes</emphasis>,
-<emphasis remap='B'>true</emphasis>,
-<emphasis remap='B'>on</emphasis>,
-<emphasis remap='B'>enable</emphasis>
+<emphasis role="bold">yes</emphasis>,
+<emphasis role="bold">true</emphasis>,
+<emphasis role="bold">on</emphasis>,
+<emphasis role="bold">enable</emphasis>
 or
-<emphasis remap='B'>search</emphasis>,
+<emphasis role="bold">search</emphasis>,
 in which case the specified
-<emphasis remap='I'>default</emphasis>
+<emphasis>default</emphasis>
 will be used,
 or the option may be set to an
 arbitrary string
 (typically the path name to a package
 that is being enabled).
 The option will also support the values
-<emphasis remap='B'>no</emphasis>,
-<emphasis remap='B'>false</emphasis>,
-<emphasis remap='B'>off</emphasis>
+<emphasis role="bold">no</emphasis>,
+<emphasis role="bold">false</emphasis>,
+<emphasis role="bold">off</emphasis>
 or
-<emphasis remap='B'>disable</emphasis>
+<emphasis role="bold">disable</emphasis>
 to disable use of the specified option.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>PathVariable(<emphasis remap='I'>key</emphasis>, <emphasis remap='I'>help</emphasis>, <emphasis remap='I'>default</emphasis>, [<emphasis remap='I'>validator</emphasis>])</term>
+  <term>PathVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, [<emphasis>validator</emphasis>])</term>
   <listitem>
 <para>Return a tuple of arguments
 to set up an option
 whose value is expected to be a path name.
 The option will use
 the specified name
-<emphasis remap='I'>key</emphasis>,
+<emphasis>key</emphasis>,
 have a default value of
-<emphasis remap='I'>default</emphasis>,
+<emphasis>default</emphasis>,
 and display the specified
-<emphasis remap='I'>help</emphasis>
+<emphasis>help</emphasis>
 text.
 An additional
-<emphasis remap='I'>validator</emphasis>
+<emphasis>validator</emphasis>
 may be specified
 that will be called to
 verify that the specified path
 is acceptable.
 SCons supplies the
 following ready-made validators:
-<emphasis remap='B'>PathVariable.PathExists</emphasis>
+<emphasis role="bold">PathVariable.PathExists</emphasis>
 (the default),
 which verifies that the specified path exists;
-<emphasis remap='B'>PathVariable.PathIsFile</emphasis>,
+<emphasis role="bold">PathVariable.PathIsFile</emphasis>,
 which verifies that the specified path is an existing file;
-<emphasis remap='B'>PathVariable.PathIsDir</emphasis>,
+<emphasis role="bold">PathVariable.PathIsDir</emphasis>,
 which verifies that the specified path is an existing directory;
-<emphasis remap='B'>PathVariable.PathIsDirCreate</emphasis>,
+<emphasis role="bold">PathVariable.PathIsDirCreate</emphasis>,
 which verifies that the specified path is a directory
 and will create the specified directory if the path does not exist;
 and
-<emphasis remap='B'>PathVariable.PathAccept</emphasis>,
+<emphasis role="bold">PathVariable.PathAccept</emphasis>,
 which simply accepts the specific path name argument without validation,
 and which is suitable if you want your users
 to be able to specify a directory path that will be
 created as part of the build process, for example.
 You may supply your own
-<emphasis remap='I'>validator</emphasis>
+<emphasis>validator</emphasis>
 function,
 which must take three arguments
-(<emphasis remap='I'>key</emphasis>,
+(<emphasis>key</emphasis>,
 the name of the variable to be set;
-<emphasis remap='I'>val</emphasis>,
+<emphasis>val</emphasis>,
 the specified value being checked;
 and
-<emphasis remap='I'>env</emphasis>,
+<emphasis>env</emphasis>,
 the construction environment)
 and should raise an exception
 if the specified value is not acceptable.</para>
@@ -4294,10 +4244,10 @@ if the specified value is not acceptable.</para>
 convenient to create a number
 of variables with consistent behavior
 in a single call to the
-<emphasis remap='B'>AddVariables</emphasis>
+<emphasis role="bold">AddVariables</emphasis>
 method:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 vars.AddVariables(
     BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
     EnumVariable('debug', 'debug output and symbols', 'no'
@@ -4322,19 +4272,19 @@ vars.AddVariables(
 <refsect2 id='file_and_directory_nodes'><title>File and Directory Nodes</title>
 
 <para>The
-<emphasis remap='I'>File</emphasis>()
+<emphasis>File</emphasis>()
 and
-<emphasis remap='I'>Dir</emphasis>()
+<emphasis>Dir</emphasis>()
 functions return
-<emphasis remap='I'>File</emphasis>
+<emphasis>File</emphasis>
 and
-<emphasis remap='I'>Dir</emphasis>
+<emphasis>Dir</emphasis>
 Nodes, respectively.
 python objects, respectively.
 Those objects have several user-visible attributes
 and methods that are often useful:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>path</term>
   <listitem>
@@ -4343,10 +4293,10 @@ of the given
 file or directory.
 This path is relative to the top-level directory
 (where the
-<emphasis remap='B'>SConstruct</emphasis>
+<emphasis role="bold">SConstruct</emphasis>
 file is found).
 The build path is the same as the source path if
-<emphasis remap='I'>variant_dir</emphasis>
+<emphasis>variant_dir</emphasis>
 is not being used.</para>
 
   </listitem>
@@ -4362,21 +4312,21 @@ is not being used.</para>
   <term>srcnode()</term>
   <listitem>
 <para>The
-<emphasis remap='I'>srcnode</emphasis>()
+<emphasis>srcnode</emphasis>()
 method
 returns another
-<emphasis remap='I'>File</emphasis>
+<emphasis>File</emphasis>
 or
-<emphasis remap='I'>Dir</emphasis>
+<emphasis>Dir</emphasis>
 object representing the
-<emphasis remap='I'>source</emphasis>
+<emphasis>source</emphasis>
 path of the given
-<emphasis remap='I'>File</emphasis>
+<emphasis>File</emphasis>
 or
-<emphasis remap='I'>Dir</emphasis>.
+<emphasis>Dir</emphasis>.
 The</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 # Get the current build dir's path, relative to top.
 Dir('.').path
 # Current dir's absolute path
@@ -4391,97 +4341,97 @@ print "foo will be built in %s"%foo.path
 </literallayout> <!-- .fi -->
 
 <para>A
-<emphasis remap='I'>Dir</emphasis>
+<emphasis>Dir</emphasis>
 Node or
-<emphasis remap='I'>File</emphasis>
+<emphasis>File</emphasis>
 Node can also be used to create
 file and subdirectory Nodes relative to the generating Node.
 A
-<emphasis remap='I'>Dir</emphasis>
+<emphasis>Dir</emphasis>
 Node will place the new Nodes within the directory it represents.
 A
-<emphasis remap='I'>File</emphasis>
+<emphasis>File</emphasis>
 node will place the new Nodes within its parent directory
 (that is, "beside" the file in question).
 If
-<emphasis remap='I'>d</emphasis>
+<emphasis>d</emphasis>
 is a
-<emphasis remap='I'>Dir</emphasis>
+<emphasis>Dir</emphasis>
 (directory) Node and
-<emphasis remap='I'>f</emphasis>
+<emphasis>f</emphasis>
 is a
-<emphasis remap='I'>File</emphasis>
+<emphasis>File</emphasis>
 (file) Node,
 then these methods are available:</para>
 
   </listitem>
   </varlistentry>
 </variablelist>
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term><emphasis remap='I'>d</emphasis>.Dir(<emphasis remap='I'>name</emphasis>)</term>
+  <term><emphasis>d</emphasis>.Dir(<emphasis>name</emphasis>)</term>
   <listitem>
 <para>Returns a directory Node for a subdirectory of
-<emphasis remap='I'>d</emphasis>
+<emphasis>d</emphasis>
 named
-<emphasis remap='I'>name</emphasis>.</para>
+<emphasis>name</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><emphasis remap='I'>d</emphasis>.File(<emphasis remap='I'>name</emphasis>)</term>
+  <term><emphasis>d</emphasis>.File(<emphasis>name</emphasis>)</term>
   <listitem>
 <para>Returns a file Node for a file within
-<emphasis remap='I'>d</emphasis>
+<emphasis>d</emphasis>
 named
-<emphasis remap='I'>name</emphasis>.</para>
+<emphasis>name</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><emphasis remap='I'>d</emphasis>.Entry(<emphasis remap='I'>name</emphasis>)</term>
+  <term><emphasis>d</emphasis>.Entry(<emphasis>name</emphasis>)</term>
   <listitem>
 <para>Returns an unresolved Node within
-<emphasis remap='I'>d</emphasis>
+<emphasis>d</emphasis>
 named
-<emphasis remap='I'>name</emphasis>.</para>
+<emphasis>name</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><emphasis remap='I'>f</emphasis>.Dir(<emphasis remap='I'>name</emphasis>)</term>
+  <term><emphasis>f</emphasis>.Dir(<emphasis>name</emphasis>)</term>
   <listitem>
 <para>Returns a directory named
-<emphasis remap='I'>name</emphasis>
+<emphasis>name</emphasis>
 within the parent directory of
-<emphasis remap='I'>f</emphasis>.</para>
+<emphasis>f</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><emphasis remap='I'>f</emphasis>.File(<emphasis remap='I'>name</emphasis>)</term>
+  <term><emphasis>f</emphasis>.File(<emphasis>name</emphasis>)</term>
   <listitem>
 <para>Returns a file named
-<emphasis remap='I'>name</emphasis>
+<emphasis>name</emphasis>
 within the parent directory of
-<emphasis remap='I'>f</emphasis>.</para>
+<emphasis>f</emphasis>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><emphasis remap='I'>f</emphasis>.Entry(<emphasis remap='I'>name</emphasis>)</term>
+  <term><emphasis>f</emphasis>.Entry(<emphasis>name</emphasis>)</term>
   <listitem>
 <para>Returns an unresolved Node named
-<emphasis remap='I'>name</emphasis>
+<emphasis>name</emphasis>
 within the parent directory of
-<emphasis remap='I'>f</emphasis>.</para>
+<emphasis>f</emphasis>.</para>
 
   </listitem>
   </varlistentry>
 </variablelist>
 <para>For example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 # Get a Node for a file within a directory
 incl = Dir('include')
 f = incl.File('header.h')
@@ -4511,7 +4461,7 @@ css = index.File('app.css')
 can be extended to build different types of targets
 by adding new Builder objects
 to a construction environment.
-<emphasis remap='I'>In general</emphasis>,
+<emphasis>In general</emphasis>,
 you should only need to add a new Builder object
 when you want to build a new type of file or other external target.
 If you just want to invoke a different compiler or other tool
@@ -4527,18 +4477,18 @@ that sets the appropriate construction variables
 
 <para>Builder objects are created
 using the
-<emphasis remap='B'>Builder</emphasis>
+<emphasis role="bold">Builder</emphasis>
 function.
 The
-<emphasis remap='B'>Builder</emphasis>
+<emphasis role="bold">Builder</emphasis>
 function accepts the following arguments:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>action</term>
   <listitem>
 <para>The command line string used to build the target from the source.
-<emphasis remap='B'>action</emphasis>
+<emphasis role="bold">action</emphasis>
 can also be:
 a list of strings representing the command
 to be executed and its arguments
@@ -4554,11 +4504,11 @@ or a list of any of the above.</para>
 
 <para>An action function
 takes three arguments:
-<emphasis remap='I'>source</emphasis>
+<emphasis>source</emphasis>
 - a list of source nodes,
-<emphasis remap='I'>target</emphasis>
+<emphasis>target</emphasis>
 - a list of target nodes,
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 - the construction environment.</para>
 
   </listitem>
@@ -4569,34 +4519,34 @@ takes three arguments:
 <para>The prefix that will be prepended to the target file name.
 This may be specified as a:</para>
 
-  <blockquote remap='RS'>
+  <blockquote>
 
 <para>*
-<emphasis remap='I'>string</emphasis>,</para>
+<emphasis>string</emphasis>,</para>
 
 
 <para>*
-<emphasis remap='I'>callable object</emphasis>
+<emphasis>callable object</emphasis>
 - a function or other callable that takes
 two arguments (a construction environment and a list of sources)
 and returns a prefix,</para>
 
 
 <para>*
-<emphasis remap='I'>dictionary</emphasis>
+<emphasis>dictionary</emphasis>
 - specifies a mapping from a specific source suffix (of the first
 source specified) to a corresponding target prefix.  Both the source
 suffix and target prefix specifications may use environment variable
 substitution, and the target prefix (the 'value' entries in the
 dictionary) may also be a callable object.  The default target prefix
 may be indicated by a dictionary entry with a key value of None.
-    </para></blockquote> <!-- remap='RE' -->
+    </para></blockquote>
   </listitem>
   </varlistentry>
 </variablelist>
 
 
-<programlisting remap='.nf'>
+<programlisting>
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
             prefix = "file-")
 
@@ -4610,7 +4560,7 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
                        "$SRC_SFX_A": gen_prefix })
 </programlisting> <!-- .fi -->
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>suffix</term>
   <listitem>
@@ -4623,7 +4573,7 @@ there.  The string returned by callable object (or obtained from the
 dictionary) is untouched and must append its own '.'  to the beginning
 if one is desired.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET"
             suffix = "-file")
 
@@ -4645,13 +4595,13 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
 <para>When set to any true value, causes
 <command>scons</command>
 to add the target suffix specified by the
-<emphasis remap='I'>suffix</emphasis>
+<emphasis>suffix</emphasis>
 keyword to any target strings
 that have a different suffix.
 (The default behavior is to leave untouched
 any target file name that looks like it already has any suffix.)</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 b1 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
              suffix = ".out")
 b2 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
@@ -4689,7 +4639,7 @@ for Scanner objects that find
 implicit dependencies
 based only on the target file
 and the construction environment,
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 for implicit dependencies based on source files.
 (See the section "Scanner Objects" below,
 for information about creating Scanner objects.)</para>
@@ -4707,10 +4657,10 @@ used to build this target file.
 This is where you would
 specify a scanner to
 find things like
-<emphasis remap='B'>#include</emphasis>
+<emphasis role="bold">#include</emphasis>
 lines in source files.
 The pre-built
-<emphasis remap='B'>DirScanner</emphasis>
+<emphasis role="bold">DirScanner</emphasis>
 Scanner object may be used to
 indicate that this Builder
 should scan directory trees
@@ -4732,16 +4682,16 @@ By default,
 SCons assumes that all targets are files.
 Other useful target_factory
 values include
-<emphasis remap='B'>Dir</emphasis>,
+<emphasis role="bold">Dir</emphasis>,
 for when a Builder creates a directory target,
 and
-<emphasis remap='B'>Entry</emphasis>,
+<emphasis role="bold">Entry</emphasis>,
 for when a Builder can create either a file
 or directory target.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
 env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
@@ -4769,16 +4719,16 @@ By default,
 SCons assumes that all source are files.
 Other useful source_factory
 values include
-<emphasis remap='B'>Dir</emphasis>,
+<emphasis role="bold">Dir</emphasis>,
 for when a Builder uses a directory as a source,
 and
-<emphasis remap='B'>Entry</emphasis>,
+<emphasis role="bold">Entry</emphasis>,
 for when a Builder can use files
 or directories (or both) as sources.</para>
 
 <para>Example:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 CollectBuilder = Builder(action=my_mkdir, source_factory=Entry)
 env = Environment()
 env.Append(BUILDERS = {'Collect':CollectBuilder})
@@ -4793,7 +4743,7 @@ env.Collect('archive', ['directory_name', 'file_name'])
 <para>A function or list of functions to manipulate the target and source
 lists before dependencies are established
 and the target(s) are actually built.
-<emphasis remap='B'>emitter</emphasis>
+<emphasis role="bold">emitter</emphasis>
 can also be a string containing a construction variable to expand
 to an emitter function or list of functions,
 or a dictionary mapping source file suffixes
@@ -4804,11 +4754,11 @@ from an emitter dictionary.)</para>
 
 <para>An emitter function
 takes three arguments:
-<emphasis remap='I'>source</emphasis>
+<emphasis>source</emphasis>
 - a list of source nodes,
-<emphasis remap='I'>target</emphasis>
+<emphasis>target</emphasis>
 - a list of target nodes,
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 - the construction environment.
 An emitter must return a tuple containing two lists,
 the list of targets to be built by this builder,
@@ -4816,7 +4766,7 @@ and the list of sources for this builder.</para>
 
 <para>Example:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def e(target, source, env):
     return (target + ['foo.foo'], source + ['foo.src'])
 
@@ -4873,7 +4823,7 @@ builder with the target.</para>
 <para>A construction environment that can be used
 to fetch source code using this Builder.
 (Note that this environment is
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 used for normal builds of normal target files,
 which use the environment that was
 used to call the Builder for the target file.)</para>
@@ -4892,20 +4842,20 @@ can be converted into an Action object
 
 <para>The generator function
 takes four arguments:
-<emphasis remap='I'>source</emphasis>
+<emphasis>source</emphasis>
 - a list of source nodes,
-<emphasis remap='I'>target</emphasis>
+<emphasis>target</emphasis>
 - a list of target nodes,
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 - the construction environment,
-<emphasis remap='I'>for_signature</emphasis>
+<emphasis>for_signature</emphasis>
 - a Boolean value that specifies
 whether the generator is being called
 for generating a build signature
 (as opposed to actually executing the command).
 Example:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def g(source, target, env, for_signature):
     return [["gcc", "-c", "-o"] + target + source]
 
@@ -4914,9 +4864,9 @@ b = Builder(generator=g)
 
 
 <para>The
-<emphasis remap='I'>generator</emphasis>
+<emphasis>generator</emphasis>
 and
-<emphasis remap='I'>action</emphasis>
+<emphasis>action</emphasis>
 arguments must not both be used for the same Builder.</para>
 
   </listitem>
@@ -4943,17 +4893,17 @@ source files together with target files results in a UserError exception.</para>
 </variablelist>
 
 <para>The
-<emphasis remap='I'>generator</emphasis>
+<emphasis>generator</emphasis>
 and
-<emphasis remap='I'>action</emphasis>
+<emphasis>action</emphasis>
 arguments must not both be used for the same Builder.</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>source_ext_match</term>
   <listitem>
 <para>When the specified
-<emphasis remap='I'>action</emphasis>
+<emphasis>action</emphasis>
 argument is a dictionary,
 the default behavior when a builder is passed
 multiple source files is to make sure that the
@@ -4961,31 +4911,31 @@ extensions of all the source files match.
 If it is legal for this builder to be
 called with a list of source files with different extensions,
 this check can be suppressed by setting
-<emphasis remap='B'>source_ext_match</emphasis>
+<emphasis role="bold">source_ext_match</emphasis>
 to
-<emphasis remap='B'>None</emphasis>
+<emphasis role="bold">None</emphasis>
 or some other non-true value.
 When
-<emphasis remap='B'>source_ext_match</emphasis>
+<emphasis role="bold">source_ext_match</emphasis>
 is disable,
 <command>scons</command>
 will use the suffix of the first specified
 source file to select the appropriate action from the
-<emphasis remap='I'>action</emphasis>
+<emphasis>action</emphasis>
 dictionary.</para>
 
 <para>In the following example,
 the setting of
-<emphasis remap='B'>source_ext_match</emphasis>
+<emphasis role="bold">source_ext_match</emphasis>
 prevents
 <command>scons</command>
 from exiting with an error
 due to the mismatched suffixes of
-<emphasis remap='B'>foo.in</emphasis>
+<emphasis role="bold">foo.in</emphasis>
 and
-<emphasis remap='B'>foo.extra</emphasis>.</para>
+<emphasis role="bold">foo.extra</emphasis>.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
             source_ext_match = None)
 
@@ -5001,12 +4951,12 @@ env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
 <para>A construction environment that can be used
 to fetch source code using this Builder.
 (Note that this environment is
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 used for normal builds of normal target files,
 which use the environment that was
 used to call the Builder for the target file.)</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 b = Builder(action="build &lt; $SOURCE &gt; $TARGET")
 env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
@@ -5022,25 +4972,25 @@ will execute the
 action(s) specified
 for this Builder.
 If the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 is not a string or Node
 and is non-zero,
 then scons will change to the
 target file's directory.</para>
 
 <para>Note that scons will
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 automatically modify
 its expansion of
 construction variables like
-<emphasis remap='B'>$TARGET</emphasis>
+<emphasis role="bold">$TARGET</emphasis>
 and
-<emphasis remap='B'>$SOURCE</emphasis>
+<emphasis role="bold">$SOURCE</emphasis>
 when using the chdir
 keyword argument--that is,
 the expanded file names
@@ -5051,27 +5001,27 @@ relative to the chdir directory.
 Builders created using chdir keyword argument,
 will need to use construction variable
 expansions like
-<emphasis remap='B'>${TARGET.file}</emphasis>
+<emphasis role="bold">${TARGET.file}</emphasis>
 and
-<emphasis remap='B'>${SOURCE.file}</emphasis>
+<emphasis role="bold">${SOURCE.file}</emphasis>
 to use just the filename portion of the
 targets and source.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
             chdir=1)
 env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 </literallayout> <!-- .fi -->
 
-<para><emphasis remap='B'>WARNING:</emphasis>
+<para><emphasis role="bold">WARNING:</emphasis>
 Python only keeps one current directory
 location for all of the threads.
 This means that use of the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 argument
 will
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 work with the SCons
 <option>-j</option>
 option,
@@ -5093,7 +5043,7 @@ the repository of a source code system.</para>
 
 <para>Any additional keyword arguments supplied
 when a Builder
-<emphasis remap='I'>object</emphasis>
+<emphasis>object</emphasis>
 is called
 will only be associated with the target
 created by that particular Builder call
@@ -5111,17 +5061,17 @@ and emitter functions.</para>
 <refsect2 id='action_objects'><title>Action Objects</title>
 
 <para>The
-<emphasis remap='B'>Builder</emphasis>()
+<emphasis role="bold">Builder</emphasis>()
 function will turn its
-<emphasis remap='B'>action</emphasis>
+<emphasis role="bold">action</emphasis>
 keyword argument into an appropriate
 internal Action object.
 You can also explicity create Action objects
 using the
-<emphasis remap='B'>Action</emphasis>()
+<emphasis role="bold">Action</emphasis>()
 global function,
 which can then be passed to the
-<emphasis remap='B'>Builder</emphasis>()
+<emphasis role="bold">Builder</emphasis>()
 function.
 This can be used to configure
 an Action object more flexibly,
@@ -5132,12 +5082,12 @@ when multiple
 Builder objects need to do the same thing.</para>
 
 <para>The
-<emphasis remap='B'>Action</emphasis>()
+<emphasis role="bold">Action</emphasis>()
 global function
 returns an appropriate object for the action
 represented by the type of the first argument:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>Action</term>
   <listitem>
@@ -5153,15 +5103,15 @@ the object is simply returned.</para>
 a command-line Action is returned.
 Note that the command-line string
 may be preceded by an
-<emphasis remap='B'>@</emphasis>
+<emphasis role="bold">@</emphasis>
 (at-sign)
 to suppress printing of the specified command line,
 or by a
-<emphasis remap='B'>-</emphasis>
+<emphasis role="bold">-</emphasis>
 (hyphen)
 to ignore the exit status from the specified command:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Action('$CC -c -o $TARGET $SOURCES')
 
 # Doesn't print the line being executed.
@@ -5189,7 +5139,7 @@ then a list of Action objects is returned.
 An Action object is created as necessary
 for each element in the list.
 If an element
-<emphasis remap='I'>within</emphasis>
+<emphasis>within</emphasis>
 the list is itself a list,
 the internal list is the
 command and arguments to be executed via
@@ -5198,7 +5148,7 @@ This allows white space to be enclosed
 in an argument by defining
 a command in a list within a list:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 </literallayout> <!-- .fi -->
 
@@ -5210,25 +5160,25 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 <para>If the first argument is a Python function,
 a function Action is returned.
 The Python function must take three keyword arguments,
-<emphasis remap='B'>target</emphasis>
+<emphasis role="bold">target</emphasis>
 (a Node object representing the target file),
-<emphasis remap='B'>source</emphasis>
+<emphasis role="bold">source</emphasis>
 (a Node object representing the source file)
 and
-<emphasis remap='B'>env</emphasis>
+<emphasis role="bold">env</emphasis>
 (the construction environment
 used for building the target file).
 The
-<emphasis remap='B'>target</emphasis>
+<emphasis role="bold">target</emphasis>
 and
-<emphasis remap='B'>source</emphasis>
+<emphasis role="bold">source</emphasis>
 arguments may be lists of Node objects if there is
 more than one target file or source file.
 The actual target and source file name(s) may
 be retrieved from their Node objects
 via the built-in Python str() function:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 target_file_name = str(target)
 source_file_names = map(lambda x: str(x), source)
 </literallayout> <!-- .fi -->
@@ -5236,13 +5186,13 @@ source_file_names = map(lambda x: str(x), source)
 <para>The function should return
 <literal>0</literal>
 or
-<emphasis remap='B'>None</emphasis>
+<emphasis role="bold">None</emphasis>
 to indicate a successful build of the target file(s).
 The function may raise an exception
 or return a non-zero exit status
 to indicate an unsuccessful build.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def build_it(target = None, source = None, env = None):
     # build the target from the source
     return 0
@@ -5269,27 +5219,27 @@ The argument must be either a Python function or a string.</para>
 it's a function that returns a string to be printed
 to describe the action being executed.
 The function may also be specified by the
-<emphasis remap='I'>strfunction</emphasis>=
+<emphasis>strfunction</emphasis>=
 keyword argument.
 Like a function to build a file,
 this function must take three keyword arguments:
-<emphasis remap='B'>target</emphasis>
+<emphasis role="bold">target</emphasis>
 (a Node object representing the target file),
-<emphasis remap='B'>source</emphasis>
+<emphasis role="bold">source</emphasis>
 (a Node object representing the source file)
 and
-<emphasis remap='B'>env</emphasis>
+<emphasis role="bold">env</emphasis>
 (a construction environment).
 The
-<emphasis remap='B'>target</emphasis>
+<emphasis role="bold">target</emphasis>
 and
-<emphasis remap='B'>source</emphasis>
+<emphasis role="bold">source</emphasis>
 arguments may be lists of Node objects if there is
 more than one target file or source file.</para>
 
 <para>In the second case, you provide the string itself.
 The string may also be specified by the
-<emphasis remap='I'>cmdstr</emphasis>=
+<emphasis>cmdstr</emphasis>=
 keyword argument.
 The string typically contains variables, notably
 $TARGET(S) and $SOURCE(S), or consists of just a single
@@ -5298,7 +5248,7 @@ SCons itself heavily uses the latter variant.</para>
 
 <para>Examples:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def build_it(target, source, env):
     # build the target from the source
     return 0
@@ -5323,7 +5273,7 @@ may either be a construction variable or a list of construction variables
 whose values will be included in the signature of the Action
 when deciding whether a target should be rebuilt because the action changed.
 The variables may also be specified by a
-<emphasis remap='I'>varlist</emphasis>=
+<emphasis>varlist</emphasis>=
 keyword parameter;
 if both are present, they are combined.
 This is necessary whenever you want a target to be rebuilt
@@ -5333,7 +5283,7 @@ as the expanded variables will normally be part of the command line,
 but may be needed if a Python function action uses
 the value of a construction variable when generating the command line.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def build_it(target, source, env):
     # build the target from the 'XXX' construction variable
     open(target[0], 'w').write(env['XXX'])
@@ -5347,26 +5297,26 @@ a = Action(build_it, varlist=['XXX'])
 </programlisting> <!-- .fi -->
 
 <para>The
-<emphasis remap='B'>Action</emphasis>()
+<emphasis role="bold">Action</emphasis>()
 global function
 can be passed the following
 optional keyword arguments
 to modify the Action object's behavior:</para>
 
 
-<para><emphasis remap='B'>chdir</emphasis>
+<para><emphasis role="bold">chdir</emphasis>
 The
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 keyword argument specifies that
 scons will execute the action
 after changing to the specified directory.
 If the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis remap='B'>chdir</emphasis>
+<emphasis role="bold">chdir</emphasis>
 argument
 is not a string or Node
 and is non-zero,
@@ -5374,13 +5324,13 @@ then scons will change to the
 target file's directory.</para>
 
 <para>Note that scons will
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 automatically modify
 its expansion of
 construction variables like
-<emphasis remap='B'>$TARGET</emphasis>
+<emphasis role="bold">$TARGET</emphasis>
 and
-<emphasis remap='B'>$SOURCE</emphasis>
+<emphasis role="bold">$SOURCE</emphasis>
 when using the chdir
 keyword argument--that is,
 the expanded file names
@@ -5391,24 +5341,24 @@ relative to the chdir directory.
 Builders created using chdir keyword argument,
 will need to use construction variable
 expansions like
-<emphasis remap='B'>${TARGET.file}</emphasis>
+<emphasis role="bold">${TARGET.file}</emphasis>
 and
-<emphasis remap='B'>${SOURCE.file}</emphasis>
+<emphasis role="bold">${SOURCE.file}</emphasis>
 to use just the filename portion of the
 targets and source.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            chdir=1)
 </literallayout> <!-- .fi -->
 
 
-<para><emphasis remap='B'>exitstatfunc</emphasis>
+<para><emphasis role="bold">exitstatfunc</emphasis>
 The
-<emphasis remap='B'>Action</emphasis>()
+<emphasis role="bold">Action</emphasis>()
 global function
 also takes an
-<emphasis remap='B'>exitstatfunc</emphasis>
+<emphasis role="bold">exitstatfunc</emphasis>
 keyword argument
 which specifies a function
 that is passed the exit status
@@ -5423,7 +5373,7 @@ under special conditions
 and SCons should, therefore,
 consider that the action always suceeds:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def always_succeed(s):
     # Always return 0, which indicates success.
     return 0
@@ -5432,9 +5382,9 @@ a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
 </programlisting> <!-- .fi -->
 
 
-<para><emphasis remap='B'>batch_key</emphasis>
+<para><emphasis role="bold">batch_key</emphasis>
 The
-<emphasis remap='B'>batch_key</emphasis>
+<emphasis role="bold">batch_key</emphasis>
 keyword argument can be used
 to specify that the Action can create multiple target files
 by processing multiple independent source files simultaneously.
@@ -5444,7 +5394,7 @@ by passing multiple source files
 to a single invocation of a compiler
 such as Microsoft's Visual C / C++ compiler.)
 If the
-<emphasis remap='B'>batch_key</emphasis>
+<emphasis role="bold">batch_key</emphasis>
 argument is any non-False, non-callable Python value,
 the configured Action object will cause
 <command>scons</command>
@@ -5453,22 +5403,22 @@ and configured with the same construction environment
 into single invocations of the Action object's
 command line or function.
 Command lines will typically want to use the
-<emphasis remap='B'>CHANGED_SOURCES</emphasis>
+<emphasis role="bold">CHANGED_SOURCES</emphasis>
 construction variable
 (and possibly
-<emphasis remap='B'>CHANGED_TARGETS</emphasis>
+<emphasis role="bold">CHANGED_TARGETS</emphasis>
 as well)
 to only pass to the command line those sources that
 have actually changed since their targets were built.</para>
 
 <para>Example:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 a = Action('build $CHANGED_SOURCES', batch_key=True)
 </literallayout> <!-- .fi -->
 
 <para>The
-<emphasis remap='B'>batch_key</emphasis>
+<emphasis role="bold">batch_key</emphasis>
 argument may also be
 a callable function
 that returns a key that
@@ -5476,10 +5426,10 @@ will be used to identify different
 "batches" of target files to be collected
 for batch building.
 A
-<emphasis remap='B'>batch_key</emphasis>
+<emphasis role="bold">batch_key</emphasis>
 function must take the following arguments:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>action</term>
   <listitem>
@@ -5512,35 +5462,35 @@ be a tuple of values derived from the arguments,
 using any appropriate logic to decide
 how multiple invocations should be batched.
 For example, a
-<emphasis remap='B'>batch_key</emphasis>
+<emphasis role="bold">batch_key</emphasis>
 function may decide to return
 the value of a specific construction
 variable from the
-<emphasis remap='B'>env</emphasis>
+<emphasis role="bold">env</emphasis>
 argument
 which will cause
 <command>scons</command>
 to batch-build targets
 with matching values of that variable,
 or perhaps return the
-<emphasis remap='B'>id</emphasis>()
+<emphasis role="bold">id</emphasis>()
 of the entire construction environment,
 in which case
 <command>scons</command>
 will batch-build
 all targets configured with the same construction environment.
 Returning
-<emphasis remap='B'>None</emphasis>
+<emphasis role="bold">None</emphasis>
 indicates that
 the particular target should
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 be part of any batched build,
 but instead will be built
 by a separate invocation of action's
 command or function.
 Example:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def batch_key(action, env, target, source):
     tdir = target[0].dir
     if tdir.name == 'special':
@@ -5575,7 +5525,7 @@ appropriate time.
 (In Object-Oriented terminology,
 these are actually
 Action
-<emphasis remap='I'>Factory</emphasis>
+<emphasis>Factory</emphasis>
 functions
 that return Action objects.)</para>
 
@@ -5591,9 +5541,9 @@ to perform the action
 at the time the SConscript
 file is being read,
 you can use the
-<emphasis remap='B'>Execute</emphasis>
+<emphasis role="bold">Execute</emphasis>
 global function to do so:</para>
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Touch('file'))
 </literallayout> <!-- .fi -->
 
@@ -5601,7 +5551,7 @@ Execute(Touch('file'))
 you can use these functions
 to supply Actions in a list
 for use by the
-<emphasis remap='B'>Command</emphasis>
+<emphasis role="bold">Command</emphasis>
 method.
 This can allow you to
 perform more complicated
@@ -5610,7 +5560,7 @@ without relying
 on platform-specific
 external commands:
 that</para>
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(TMPBUILD = '/tmp/builddir')
 env.Command('foo.out', 'foo.in',
             [Mkdir('$TMPBUILD'),
@@ -5619,18 +5569,18 @@ env.Command('foo.out', 'foo.in',
              Delete('$TMPBUILD')])
 </literallayout> <!-- .fi -->
 
-<variablelist remap='TP'>
+<variablelist>
   <varlistentry>
-  <term>Chmod(<emphasis remap='I'>dest</emphasis>, <emphasis remap='I'>mode</emphasis>)</term>
+  <term>Chmod(<emphasis>dest</emphasis>, <emphasis>mode</emphasis>)</term>
   <listitem>
 <para>Returns an Action object that
 changes the permissions on the specified
-<emphasis remap='I'>dest</emphasis>
+<emphasis>dest</emphasis>
 file or directory to the specified
-<emphasis remap='I'>mode</emphasis>.
+<emphasis>mode</emphasis>.
 Examples:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Chmod('file', 0755))
 
 env.Command('foo.out', 'foo.in',
@@ -5641,17 +5591,17 @@ env.Command('foo.out', 'foo.in',
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Copy(<emphasis remap='I'>dest</emphasis>, <emphasis remap='I'>src</emphasis>)</term>
+  <term>Copy(<emphasis>dest</emphasis>, <emphasis>src</emphasis>)</term>
   <listitem>
 <para>Returns an Action object
 that will copy the
-<emphasis remap='I'>src</emphasis>
+<emphasis>src</emphasis>
 source file or directory to the
-<emphasis remap='I'>dest</emphasis>
+<emphasis>dest</emphasis>
 destination file or directory.
 Examples:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Copy('foo.output', 'foo.input'))
 
 env.Command('bar.out', 'bar.in',
@@ -5661,27 +5611,27 @@ env.Command('bar.out', 'bar.in',
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Delete(<emphasis remap='I'>entry</emphasis>, [<emphasis remap='I'>must_exist</emphasis>])</term>
+  <term>Delete(<emphasis>entry</emphasis>, [<emphasis>must_exist</emphasis>])</term>
   <listitem>
 <para>Returns an Action that
 deletes the specified
-<emphasis remap='I'>entry</emphasis>,
+<emphasis>entry</emphasis>,
 which may be a file or a directory tree.
 If a directory is specified,
 the entire directory tree
 will be removed.
 If the
-<emphasis remap='I'>must_exist</emphasis>
+<emphasis>must_exist</emphasis>
 flag is set,
 then a Python error will be thrown
 if the specified entry does not exist;
 the default is
-<emphasis remap='B'>must_exist=0</emphasis>,
+<emphasis role="bold">must_exist=0</emphasis>,
 that is, the Action will silently do nothing
 if the entry does not exist.
 Examples:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Delete('/tmp/buildroot'))
 
 env.Command('foo.out', 'foo.in',
@@ -5694,15 +5644,15 @@ Execute(Delete('file_that_must_exist', must_exist=1))
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Mkdir(<emphasis remap='I'>dir</emphasis>)</term>
+  <term>Mkdir(<emphasis>dir</emphasis>)</term>
   <listitem>
 <para>Returns an Action
 that creates the specified
 directory
-<emphasis remap='I'>dir .</emphasis>
+<emphasis>dir .</emphasis>
 Examples:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Mkdir('/tmp/outputdir'))
 
 env.Command('foo.out', 'foo.in',
@@ -5715,18 +5665,18 @@ env.Command('foo.out', 'foo.in',
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Move(<emphasis remap='I'>dest</emphasis>, <emphasis remap='I'>src</emphasis>)</term>
+  <term>Move(<emphasis>dest</emphasis>, <emphasis>src</emphasis>)</term>
   <listitem>
 <para>Returns an Action
 that moves the specified
-<emphasis remap='I'>src</emphasis>
+<emphasis>src</emphasis>
 file or directory to
 the specified
-<emphasis remap='I'>dest</emphasis>
+<emphasis>dest</emphasis>
 file or directory.
 Examples:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Move('file.destination', 'file.source'))
 
 env.Command('output_file', 'input_file',
@@ -5737,15 +5687,15 @@ env.Command('output_file', 'input_file',
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>Touch(<emphasis remap='I'>file</emphasis>)</term>
+  <term>Touch(<emphasis>file</emphasis>)</term>
   <listitem>
 <para>Returns an Action
 that updates the modification time
 on the specified
-<emphasis remap='I'>file</emphasis>.
+<emphasis>file</emphasis>.
 Examples:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 Execute(Touch('file_to_be_touched'))
 
 env.Command('marker', 'input_file',
@@ -5765,12 +5715,12 @@ env.Command('marker', 'input_file',
 performs construction variable interpolation on the strings that make up
 the command line of builders.
 Variables are introduced by a
-<emphasis remap='B'>$</emphasis>
+<emphasis role="bold">$</emphasis>
 prefix.
 Besides construction variables, scons provides the following
 variables for each command execution:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>CHANGED_SOURCES</term>
   <listitem>
@@ -5824,7 +5774,7 @@ if multiple targets are being built.</para>
   <listitem>
 <para>The file names of all sources of the build command
 that have
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 changed since the target was last built.</para>
 
   </listitem>
@@ -5834,7 +5784,7 @@ changed since the target was last built.</para>
   <listitem>
 <para>The file names of all targets that would be built
 from sources that have
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 changed since the target was last built.</para>
 
 <para>(Note that the above variables are reserved
@@ -5847,13 +5797,13 @@ and may not be set in a construction environment.)</para>
 <para>For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 action='$CC -c -o $TARGET $SOURCES'
 </literallayout> <!-- .fi -->
 
 <para>would produce the command line:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 cc -c -o foo foo.c bar.c
 </literallayout> <!-- .fi -->
 
@@ -5864,13 +5814,13 @@ a Python slice subscript appended to select one
 or more items from a list.
 In the previous example, the string:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 ${SOURCES[1]}
 </literallayout> <!-- .fi -->
 
 <para>would produce:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 bar.c
 </literallayout> <!-- .fi -->
 
@@ -5879,7 +5829,7 @@ have the following special
 modifiers appended within the enclosing curly braces
 to modify the interpolated string:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>base</term>
   <listitem>
@@ -5932,7 +5882,7 @@ and minus the directory.</para>
   <listitem>
 <para>The POSIX form of the path,
 with directories separated by
-<emphasis remap='B'>/</emphasis>
+<emphasis role="bold">/</emphasis>
 (forward slashes)
 not backslashes.
 This is sometimes necessary on Windows systems
@@ -5944,7 +5894,7 @@ when a path references a file on other (POSIX) systems.</para>
   <term>srcpath</term>
   <listitem>
 <para>The directory and file name to the source file linked to this file through
-<emphasis remap='B'>VariantDir</emphasis>().
+<emphasis role="bold">VariantDir</emphasis>().
 If this file isn't linked,
 it just returns the directory and filename unchanged.</para>
 
@@ -5954,7 +5904,7 @@ it just returns the directory and filename unchanged.</para>
   <term>srcdir</term>
   <listitem>
 <para>The directory containing the source file linked to this file through
-<emphasis remap='B'>VariantDir</emphasis>().
+<emphasis role="bold">VariantDir</emphasis>().
 If this file isn't linked,
 it just returns the directory part of the filename.</para>
 
@@ -5964,7 +5914,7 @@ it just returns the directory part of the filename.</para>
   <term>rsrcpath</term>
   <listitem>
 <para>The directory and file name to the source file linked to this file through
-<emphasis remap='B'>VariantDir</emphasis>().
+<emphasis role="bold">VariantDir</emphasis>().
 If the file does not exist locally but exists in a Repository,
 the path in the Repository is returned.
 If this file isn't linked, it just returns the
@@ -5976,7 +5926,7 @@ directory and filename unchanged.</para>
   <term>rsrcdir</term>
   <listitem>
 <para>The Repository directory containing the source file linked to this file through
-<emphasis remap='B'>VariantDir</emphasis>().
+<emphasis role="bold">VariantDir</emphasis>().
 If this file isn't linked,
 it just returns the directory part of the filename.</para>
 
@@ -5987,7 +5937,7 @@ it just returns the directory part of the filename.</para>
 <para>For example, the specified target will
 expand as follows for the corresponding modifiers:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 $TARGET              =&gt; sub/dir/file.x
 ${TARGET.base}       =&gt; sub/dir/file
 ${TARGET.dir}        =&gt; sub/dir
@@ -6022,13 +5972,13 @@ associated with a
 construction variable in the environment.
 The function should
 take four arguments:
-<emphasis remap='I'>target</emphasis>
+<emphasis>target</emphasis>
 - a list of target nodes,
-<emphasis remap='I'>source</emphasis>
+<emphasis>source</emphasis>
 - a list of source nodes,
-<emphasis remap='I'>env</emphasis>
+<emphasis>env</emphasis>
 - the construction environment,
-<emphasis remap='I'>for_signature</emphasis>
+<emphasis>for_signature</emphasis>
 - a Boolean value that specifies
 whether the function is being called
 for generating a build signature.
@@ -6036,7 +5986,7 @@ SCons will insert whatever
 the called function returns
 into the expanded string:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def foo(target, source, env, for_signature):
     return "bar"
 
@@ -6057,7 +6007,7 @@ so that the arguments will
 be associated with the
 instantiation of the class:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 class foo(object):
     def __init__(self, arg):
         self.arg = arg
@@ -6071,43 +6021,43 @@ env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
 
 
 <para>The special pseudo-variables
-<emphasis remap='B'>$(</emphasis>
+<emphasis role="bold">$(</emphasis>
 and
-<emphasis remap='B'>$)</emphasis>
+<emphasis role="bold">$)</emphasis>
 may be used to surround parts of a command line
 that may change
-<emphasis remap='I'>without</emphasis>
+<emphasis>without</emphasis>
 causing a rebuild--that is,
 which are not included in the signature
 of target files built with this command.
 All text between
-<emphasis remap='B'>$(</emphasis>
+<emphasis role="bold">$(</emphasis>
 and
-<emphasis remap='B'>$)</emphasis>
+<emphasis role="bold">$)</emphasis>
 will be removed from the command line
 before it is added to file signatures,
 and the
-<emphasis remap='B'>$(</emphasis>
+<emphasis role="bold">$(</emphasis>
 and
-<emphasis remap='B'>$)</emphasis>
+<emphasis role="bold">$)</emphasis>
 will be removed before the command is executed.
 For example, the command line:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 echo Last build occurred $( $TODAY $). &gt; $TARGET
 </literallayout> <!-- .fi -->
 
 
 <para>would execute the command:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 echo Last build occurred $TODAY. &gt; $TARGET
 </literallayout> <!-- .fi -->
 
 
 <para>but the command signature added to any target files would be:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 echo Last build occurred  . &gt; $TARGET
 </literallayout> <!-- .fi -->
 
@@ -6116,21 +6066,21 @@ echo Last build occurred  . &gt; $TARGET
 <refsect2 id='python_code_substitution'><title>Python Code Substitution</title>
 
 <para>Any python code within
-<emphasis remap='B'>${</emphasis>-<emphasis remap='B'>}</emphasis>
+<emphasis role="bold">${</emphasis>-<emphasis role="bold">}</emphasis>
 pairs gets evaluated by python 'eval', with the python globals set to
 the current environment's set of construction variables.
 So in the following case:</para>
-<literallayout remap='.nf'>
+<literallayout>
 env['COND'] = 0
 env.Command('foo.out', 'foo.in',
 <!--    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''') -->
 </literallayout> <!-- .fi -->
 <para>the command executed will be either</para>
-<literallayout remap='.nf'>
+<literallayout>
 echo FOO &gt; foo.out
 </literallayout> <!-- .fi -->
 <para>or</para>
-<literallayout remap='.nf'>
+<literallayout>
 echo BAR &gt; foo.out
 </literallayout> <!-- .fi -->
 <para>according to the current value of env['COND'] when the command is
@@ -6143,7 +6093,7 @@ BAR are environment variables, and their values are substituted into
 the final command.  FOO is a list, so its elements are interpolated
 separated by spaces.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env=Environment()
 env['COND'] = 0
 env['FOO'] = ['foo1', 'foo2']
@@ -6158,7 +6108,7 @@ env.Command('foo.out', 'foo.in',
 <para>SCons uses the following rules when converting construction variables into
 command lines:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>String</term>
   <listitem>
@@ -6199,15 +6149,15 @@ a future version of SCons.</para>
 <refsect2 id='scanner_objects'><title>Scanner Objects</title>
 
 <para>You can use the
-<emphasis remap='B'>Scanner</emphasis>
+<emphasis role="bold">Scanner</emphasis>
 function to define
 objects to scan
 new file types for implicit dependencies.
 The
-<emphasis remap='B'>Scanner</emphasis>
+<emphasis role="bold">Scanner</emphasis>
 function accepts the following arguments:</para>
 
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>function</term>
   <listitem>
@@ -6230,16 +6180,16 @@ the function must take three or four arguments:</para>
 <para>    def scanner_function(node, env, path, arg=None):</para>
 
 <para>The
-<emphasis remap='B'>node</emphasis>
+<emphasis role="bold">node</emphasis>
 argument is the internal
 SCons node representing the file.
 Use
-<emphasis remap='B'>str(node)</emphasis>
+<emphasis role="bold">str(node)</emphasis>
 to fetch the name of the file, and
-<emphasis remap='B'>node.get_contents()</emphasis>
+<emphasis role="bold">node.get_contents()</emphasis>
 to fetch contents of the file.
 Note that the file is
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 guaranteed to exist before the scanner is called,
 so the scanner function should check that
 if there's any chance that the scanned file
@@ -6247,23 +6197,23 @@ might not exist
 (for example, if it's built from other files).</para>
 
 <para>The
-<emphasis remap='B'>env</emphasis>
+<emphasis role="bold">env</emphasis>
 argument is the construction environment for the scan.
 Fetch values from it using the
-<emphasis remap='B'>env.Dictionary()</emphasis>
+<emphasis role="bold">env.Dictionary()</emphasis>
 method.</para>
 
 <para>The
-<emphasis remap='B'>path</emphasis>
+<emphasis role="bold">path</emphasis>
 argument is a tuple (or list)
 of directories that can be searched
 for files.
 This will usually be the tuple returned by the
-<emphasis remap='B'>path_function</emphasis>
+<emphasis role="bold">path_function</emphasis>
 argument (see below).</para>
 
 <para>The
-<emphasis remap='B'>arg</emphasis>
+<emphasis role="bold">arg</emphasis>
 argument is the argument supplied
 when the scanner was created, if any.</para>
 
@@ -6318,14 +6268,14 @@ a list of source nodes,
 and an optional argument supplied
 when the scanner was created.
 The
-<emphasis remap='B'>path_function</emphasis>
+<emphasis role="bold">path_function</emphasis>
 returns a tuple of directories
 that can be searched for files to be returned
 by this Scanner object.
 (Note that the
-<emphasis remap='B'>FindPathDirs</emphasis>()
+<emphasis role="bold">FindPathDirs</emphasis>()
 function can be used to return a ready-made
-<emphasis remap='B'>path_function</emphasis>
+<emphasis role="bold">path_function</emphasis>
 for a given construction variable name,
 instead of having to write your own function from scratch.)</para>
 
@@ -6340,7 +6290,7 @@ Any strings or other objects returned
 by the scanner function
 that are not of this class
 will be run through the
-<emphasis remap='B'>node_factory</emphasis>
+<emphasis role="bold">node_factory</emphasis>
 function.</para>
 
   </listitem>
@@ -6382,7 +6332,7 @@ only invoke the scanner on the file being scanned,
 and not (for example) also on the files
 specified by the #include lines
 in the file being scanned.
-<emphasis remap='I'>recursive</emphasis>
+<emphasis>recursive</emphasis>
 may be a callable function,
 in which case it will be called with a list of
 Nodes found and
@@ -6397,18 +6347,18 @@ Nodes for additional scanning.</para>
 <para>Note that
 <command>scons</command>
 has a global
-<emphasis remap='B'>SourceFileScanner</emphasis>
+<emphasis role="bold">SourceFileScanner</emphasis>
 object that is used by
 the
-<emphasis remap='B'>Object</emphasis>(),
-<emphasis remap='B'>SharedObject</emphasis>(),
+<emphasis role="bold">Object</emphasis>(),
+<emphasis role="bold">SharedObject</emphasis>(),
 and
-<emphasis remap='B'>StaticObject</emphasis>()
+<emphasis role="bold">StaticObject</emphasis>()
 builders to decide
 which scanner should be used
 for different file extensions.
 You can using the
-<emphasis remap='B'>SourceFileScanner.add_scanner</emphasis>()
+<emphasis role="bold">SourceFileScanner.add_scanner</emphasis>()
 method to add your own Scanner object
 to the
 <command>scons</command>
@@ -6417,7 +6367,7 @@ that builds target programs or
 libraries from a list of
 source files of different types:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 def xyz_scan(node, env, path):
     contents = node.get_text_contents()
     # Scan the contents and return the included files.
@@ -6474,7 +6424,7 @@ such as Windows,
 SCons treats a file with a
 <markup>.F</markup>
 suffix as a Fortran source file that should
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 be run through the C preprocessor.</para>
 </refsect2>
 
@@ -6518,7 +6468,7 @@ to run SCons.</para>
 <refsect2 id='windows_sconsbat_file'><title>Windows: scons.bat file</title>
 <para>On Windows systems,
 SCons is executed via a wrapper
-<emphasis remap='B'>scons.bat</emphasis>
+<emphasis role="bold">scons.bat</emphasis>
 file.
 This has (at least) two ramifications:</para>
 
@@ -6528,7 +6478,7 @@ on the command line
 may have to put double quotes
 around the assignments:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons "FOO=BAR" "BAZ=BLEH"
 </literallayout> <!-- .fi -->
 
@@ -6539,11 +6489,11 @@ as an
 command issued at the command-line prompt.
 You can work around this either by
 executing
-<emphasis remap='B'>scons.bat</emphasis>
+<emphasis role="bold">scons.bat</emphasis>
 from the Cygwin command line,
 or by creating a wrapper shell
 script named
-<emphasis remap='B'>scons .</emphasis></para>
+<emphasis role="bold">scons .</emphasis></para>
 
 </refsect2>
 
@@ -6558,7 +6508,7 @@ directories in the PATH variable. If you have both MSVC and MinGW
 installed and you want to use MinGW instead of MSVC,
 then you must explictly tell SCons to use MinGW by passing</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 tools=['mingw']
 </literallayout> <!-- .fi -->
 
@@ -6575,7 +6525,7 @@ this section contains a brief overview of some common tasks.</para>
 
 <refsect2 id='basic_compilation_from_a_single_source_f'><title>Basic Compilation From a Single Source File</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout> <!-- .fi -->
@@ -6589,7 +6539,7 @@ or by specifying a dot ("scons .").</para>
 
 <refsect2 id='basic_compilation_from_multiple_source_f'><title>Basic Compilation From Multiple Source Files</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 </literallayout> <!-- .fi -->
@@ -6598,7 +6548,7 @@ env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 
 <refsect2 id='setting_a_compilation_flag'><title>Setting a Compilation Flag</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(CCFLAGS = '-g')
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout> <!-- .fi -->
@@ -6608,11 +6558,11 @@ env.Program(target = 'foo', source = 'foo.c')
 <refsect2 id='search_the_local_directory_for_h_files'><title>Search The Local Directory For .h Files</title>
 
 <para>Note:  You do
-<emphasis remap='I'>not</emphasis>
+<emphasis>not</emphasis>
 need to set CCFLAGS to specify -I options by hand.
 SCons will construct the right -I options from CPPPATH.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(CPPPATH = ['.'])
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout> <!-- .fi -->
@@ -6621,7 +6571,7 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <refsect2 id='search_multiple_directories_for_h_files'><title>Search Multiple Directories For .h Files</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(CPPPATH = ['include1', 'include2'])
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout> <!-- .fi -->
@@ -6630,7 +6580,7 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <refsect2 id='building_a_static_library'><title>Building a Static Library</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 env.StaticLibrary(target = 'foo', source = Split('l1.c l2.c'))
 env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
@@ -6640,7 +6590,7 @@ env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 
 <refsect2 id='building_a_shared_library'><title>Building a Shared Library</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 env.SharedLibrary(target = 'foo', source = ['l5.c', 'l6.c'])
 env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
@@ -6650,7 +6600,7 @@ env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 
 <refsect2 id='linking_a_local_library_into_a_program'><title>Linking a Local Library Into a Program</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
 env.Library(target = 'mylib', source = Split('l1.c l2.c'))
 env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
@@ -6664,7 +6614,7 @@ env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
 you can leave off the target file suffix,
 and SCons will add it automatically.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
               suffix = '.pdf',
               src_suffix = '.tex')
@@ -6685,7 +6635,7 @@ env.Object(), env.StaticLibrary(), etc.</para>
 
 <refsect2 id='adding_your_own_builder_object_to_an_env'><title>Adding Your Own Builder Object to an Environment</title>
 
-<literallayout remap='.nf'>
+<literallayout>
 bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
               suffix = '.pdf',
               src_suffix = '.tex')
@@ -6698,7 +6648,7 @@ env.Program(target = 'bar', source = 'bar.c')
 <para>You also can use other Pythonic techniques to add
 to the BUILDERS construction variable, such as:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 env = Environment()
 env['BUILDERS]['PDFBuilder'] = bld
 </literallayout> <!-- .fi -->
@@ -6708,17 +6658,17 @@ env['BUILDERS]['PDFBuilder'] = bld
 <refsect2 id='defining_your_own_scanner_object'><title>Defining Your Own Scanner Object</title>
 
 <para>The following example shows an extremely simple scanner (the
-<emphasis remap='B'>kfile_scan</emphasis>()
+<emphasis role="bold">kfile_scan</emphasis>()
 function)
 that doesn't use a search path at all
 and simply returns the
 file names present on any
-<emphasis remap='B'>include</emphasis>
+<emphasis role="bold">include</emphasis>
 lines in the scanned file.
 This would implicitly assume that all included
 files live in the top-level directory:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -6746,18 +6696,18 @@ bar_in.target_scanner = kscan
 have to return a list of File nodes from the scan function, simple
 strings for the file names won't do. As in the examples we are showing here,
 you can use the
-<emphasis remap='B'>File()</emphasis>
+<emphasis role="bold">File()</emphasis>
 function of your current Environment in order to create nodes on the fly from
 a sequence of file names with relative paths.</para>
 
 <para>Here is a similar but more complete example that searches
 a path of directories
 (specified as the
-<emphasis remap='B'>MYPATH</emphasis>
+<emphasis role="bold">MYPATH</emphasis>
 construction variable)
 for files that actually exist:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 import re
 import os
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -6790,26 +6740,26 @@ env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 </programlisting> <!-- .fi -->
 
 <para>The
-<emphasis remap='B'>FindPathDirs</emphasis>()
+<emphasis role="bold">FindPathDirs</emphasis>()
 function used in the previous example returns a function
 (actually a callable Python object)
 that will return a list of directories
 specified in the
-<emphasis remap='B'>$MYPATH</emphasis>
+<emphasis role="bold">$MYPATH</emphasis>
 construction variable. It lets SCons detect the file
-<emphasis remap='B'>incs/foo.inc</emphasis>
+<emphasis role="bold">incs/foo.inc</emphasis>
 , even if 
-<emphasis remap='B'>foo.x</emphasis>
+<emphasis role="bold">foo.x</emphasis>
 contains the line
-<emphasis remap='B'>include foo.inc</emphasis>
+<emphasis role="bold">include foo.inc</emphasis>
 only.
 If you need to customize how the search path is derived,
 you would provide your own
-<emphasis remap='B'>path_function</emphasis>
+<emphasis role="bold">path_function</emphasis>
 argument when creating the Scanner object,
 as follows:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 # MYPATH is a list of directories to search for files in
 def pf(env, dir, target, source, arg):
     top_dir = Dir('#').abspath
@@ -6835,7 +6785,7 @@ scanner = Scanner(name = 'myscanner',
 SConscript
 file are relative to that subdirectory.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 SConstruct:
 
     env = Environment()
@@ -6865,7 +6815,7 @@ sub/dir/SConscript:
 <para>You must explicitly Export() and Import() variables that
 you want to share between SConscript files.</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 SConstruct:
 
     env = Environment()
@@ -6889,7 +6839,7 @@ the SConscript function to establish
 one or more separate variant build directory trees
 for a given source directory:</para>
 
-<programlisting remap='.nf'>
+<programlisting>
 SConstruct:
 
     cppdefines = ['FOO']
@@ -6915,7 +6865,7 @@ value each time we call the SConscript function.</para>
 
 <refsect2 id='hierarchical_build_of_two_libraries_link'><title>Hierarchical Build of Two Libraries Linked With a Program</title>
 
-<programlisting remap='.nf'>
+<programlisting>
 SConstruct:
 
     env = Environment(LIBPATH = ['#libA', '#libB'])
@@ -6958,7 +6908,7 @@ prefix and suffix for the current platform
 <para>The following would allow the C compiler to be specified on the command
 line or in the file custom.py.</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 vars = Variables('custom.py')
 vars.Add('CC', 'The C compiler.')
 env = Environment(variables=vars)
@@ -6967,19 +6917,19 @@ Help(vars.GenerateHelpText(env))
 
 <para>The user could specify the C compiler on the command line:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 scons "CC=my_cc"
 </literallayout> <!-- .fi -->
 
 <para>or in the custom.py file:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 CC = 'my_cc'
 </literallayout> <!-- .fi -->
 
 <para>or get documentation on the options:</para>
 
-<literallayout remap='.nf'>
+<literallayout>
 $ scons -h
 
 CC: The C compiler.
@@ -7003,32 +6953,32 @@ include "StdAfx.h" as the first header in all the source files you are
 compiling to object files. For example:</para>
 
 <para>StdAfx.h:</para>
-<literallayout remap='.nf'>
+<literallayout>
 #include &lt;windows.h&gt;
 #include &lt;my_big_header.h&gt;
 </literallayout> <!-- .fi -->
 
 <para>StdAfx.cpp:</para>
-<literallayout remap='.nf'>
+<literallayout>
 #include &lt;StdAfx.h&gt;
 </literallayout> <!-- .fi -->
 
 <para>Foo.cpp:</para>
-<literallayout remap='.nf'>
+<literallayout>
 #include &lt;StdAfx.h&gt;
 
 /* do some stuff */
 </literallayout> <!-- .fi -->
 
 <para>Bar.cpp:</para>
-<literallayout remap='.nf'>
+<literallayout>
 #include &lt;StdAfx.h&gt;
 
 /* do some other stuff */
 </literallayout> <!-- .fi -->
 
 <para>SConstruct:</para>
-<literallayout remap='.nf'>
+<literallayout>
 env=Environment()
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
@@ -7050,7 +7000,7 @@ file. SCons supports PDB files through the PDB construction
 variable.</para>
 
 <para>SConstruct:</para>
-<literallayout remap='.nf'>
+<literallayout>
 env=Environment()
 env['PDB'] = 'MyApp.pdb'
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
@@ -7062,7 +7012,7 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </refsect1>
 
 <refsect1 id='environment'><title>ENVIRONMENT</title>
-<variablelist remap='IP'>
+<variablelist>
   <varlistentry>
   <term>SCONS_LIB_DIR</term>
   <listitem>

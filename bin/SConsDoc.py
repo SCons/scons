@@ -126,43 +126,69 @@ try:
 except:
     has_lxml = False
 
+try:
+  from lxml import etree
+except ImportError:
+  try:
+    # Python 2.5
+    import xml.etree.cElementTree as etree
+  except ImportError:
+    try:
+      # Python 2.5
+      import xml.etree.ElementTree as etree
+    except ImportError:
+      try:
+        # normal cElementTree install
+        import cElementTree as etree
+      except ImportError:
+        try:
+          # normal ElementTree install
+          import elementtree.ElementTree as etree
+        except ImportError:
+          print("Failed to import ElementTree from any known place")
+          sys.exit(1)
 
 re_entity = re.compile("\&([^;]+);")
-
-entity_header = """<!DOCTYPE sconsdoc [
-<!ENTITY % scons SYSTEM 'scons.mod'>
-%scons;
-<!ENTITY % builders-mod SYSTEM 'builders.mod'>
-%builders-mod;
-<!ENTITY % functions-mod SYSTEM 'functions.mod'>
-%functions-mod;
-<!ENTITY % tools-mod SYSTEM 'tools.mod'>
-%tools-mod;
-<!ENTITY % variables-mod SYSTEM 'variables.mod'>
-%variables-mod;
-]>"""
+re_entity_header = re.compile("<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
 
 # Namespace for the SCons Docbook XSD
 dbxsd="http://www.scons.org/dbxsd/v1.0"
+# Namespace for schema instances
+xsi = "http://www.w3.org/2001/XMLSchema-instance"
 
-xml_header = """<?xml version="1.0" encoding="UTF-8"?>
-<!--
+# Header comment with copyright
+copyright_comment = """
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
--->
+"""
+# Header comment for automatically generated files
+generated_comment = """
+    THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
+  """
 
-%s
+def xml_tree(root, comment=generated_comment):
+    """ Return a XML file tree with the correct namespaces set,
+        the element root as top entry and the given header comment.
+    """
+    NSMAP = {None: dbxsd,
+             'xsi' : xsi}
 
-<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="%s scons.xsd">
-""" % (entity_header, dbxsd)
+    t = etree.Element(root,
+                      nsmap = NSMAP,
+                      attrib = {"{"+xsi+"}schemaLocation" : "%s scons.xsd" % dbxsd})
+
+    c = etree.Comment(comment)
+    t.append(c)
+
+    # print etree.tostring(t, xml_declaration=True, encoding="UTF-8", pretty_print=True)
+
+    return t
 
 def remove_entities(content):
     # Cut out entity inclusions
-    content = content.replace(entity_header, "")
+    content = re_entity_header.sub("", content, re.M)
     # Cut out entities themselves
     content = re_entity.sub(lambda match: match.group(1), content)
     
@@ -176,7 +202,6 @@ def validate_xml(fpath, xmlschema_context):
         # to conflicts when installed together with libxml2.
         if has_lxml:
             # Use lxml
-            from lxml import etree
             xmlschema = etree.XMLSchema(xmlschema_context)
             doc = etree.parse(fpath)
             try:
@@ -219,7 +244,6 @@ def prettyprint_xml(fpath):
         # to conflicts when installed together with libxml2.
         if has_lxml:
             # Use lxml
-            from lxml import etree
             fin = open(fpath,'r')
             tree = etree.parse(fin)
             pretty_content = etree.tostring(tree, pretty_print=True)
@@ -255,7 +279,6 @@ def validate_all_xml(dpath='src', xsdfile=default_xsd):
         # to conflicts when installed together with libxml2.
         if has_lxml:
             # Use lxml
-            from lxml import etree
             xmlschema_context = etree.parse(xsdfile)
     else:
         # Use libxml2 and prepare the schema validation context
@@ -291,28 +314,6 @@ def validate_all_xml(dpath='src', xsdfile=default_xsd):
     
     return True
 
-try:
-  from lxml import etree
-except ImportError:
-  try:
-    # Python 2.5
-    import xml.etree.cElementTree as etree
-  except ImportError:
-    try:
-      # Python 2.5
-      import xml.etree.ElementTree as etree
-    except ImportError:
-      try:
-        # normal cElementTree install
-        import cElementTree as etree
-      except ImportError:
-        try:
-          # normal ElementTree install
-          import elementtree.ElementTree as etree
-        except ImportError:
-          print("Failed to import ElementTree from any known place")
-          sys.exit(1)
-
 class Item(object):
     def __init__(self, name):
         self.name = name
@@ -335,7 +336,6 @@ class Builder(Item):
 class Function(Item):
     def __init__(self, name):
         super(Function, self).__init__(name)
-        self.arguments = ['()']
 
 class Tool(Item):
     def __init__(self, name):
@@ -417,8 +417,17 @@ class SConsDocHandler(object):
         uses, sets = self.parseUsesSets(domelem)
         instance.uses.extend(uses)
         instance.sets.extend(sets)
-        # Parse summary and function blobs
-        
+        # Parse summary and function arguments
+        for s in domelem.iterchildren(tag="{%s}summary" % dbxsd):
+            if not hasattr(instance, 'summary'):
+                instance.summary = []
+            for c in s:
+                instance.summary.append(c)
+        for a in domelem.iterchildren(tag="{%s}arguments" % dbxsd):
+            if not hasattr(instance, 'arguments'):
+                instance.arguments = []
+            instance.arguments.append(a)
+
     def parseDomtree(self, root):    
         # Process Builders
         for b in root.iterchildren(tag="{%s}builder" % dbxsd):
