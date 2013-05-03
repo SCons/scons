@@ -64,15 +64,19 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
   <bookinfo>
-    <title>SCons User Guide &buildversion;</title>
+    <title>SCons &buildversion;</title>
+    <subtitle>User Guide</subtitle>
 
     <author>
       <firstname>Steven</firstname>
       <surname>Knight</surname>
     </author>
 
-    <edition>Revision &buildrevision; (&builddate;)</edition>
+    <corpauthor>Stephen Knight</corpauthor>
 
+<!--
+Revision &buildrevision; (&builddate;)</edition>
+-->
     <pubdate>2004, 2005, 2006, 2007, 2008, 2009, 2010</pubdate>
 
     <copyright>

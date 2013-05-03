@@ -2349,6 +2349,7 @@
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="tools" type="xs:string" />
     <xs:attribute name="example" type="xs:string" use="required" />
+    <xs:attribute name="suffix" type="xs:string" use="required" />
   </xs:attributeGroup>
   <!-- end of scons_output.attlist -->
   <!-- end of scons_output.module -->
@@ -2380,7 +2381,6 @@
     <xs:attribute name="edit" type="xs:string" use="optional" />
     <xs:attribute name="environment" type="xs:string" use="optional" />
     <xs:attribute name="output" type="xs:string" use="optional" />
-    <xs:attribute name="suffix" type="xs:string" use="required" />
   </xs:attributeGroup>
   <!-- end of scons_output_command.attlist -->
   <!-- end of scons_output_command.module -->

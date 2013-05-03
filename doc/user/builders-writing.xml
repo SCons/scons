@@ -224,8 +224,8 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <scons_output example="builderswriting_ex1">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -280,8 +280,8 @@ This functionality could be invoked as in the following example:
        </file>
     </scons_example>
 
-    <scons_output example="builderswriting_ex2">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -346,8 +346,8 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <scons_output example="builderswriting_ex3">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -403,8 +403,8 @@ This functionality could be invoked as in the following example:
        env.Foo('file2')
     </sconstruct>
 
-    <scons_output example="builderswriting_ex4">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex4" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -544,8 +544,8 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <scons_output example="builderswriting_ex5">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex5" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -696,8 +696,8 @@ This functionality could be invoked as in the following example:
        env.Foo('file')
     </sconstruct>
 
-    <scons_output example="builderswriting_ex6">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex6" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -789,8 +789,8 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <scons_output example="builderswriting_ex7">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex7" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -874,8 +874,8 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <scons_output example="builderswriting_MY_EMITTER">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_MY_EMITTER" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -999,8 +999,8 @@ This functionality could be invoked as in the following example:
     </para>
 
     <!-- 
-    <scons_output example="builderswriting_site1" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_site1" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
     -->
 
@@ -1121,8 +1121,8 @@ This functionality could be invoked as in the following example:
        </file>
     </scons_example>
 
-    <scons_output example="builderswriting_ex8">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="builderswriting_ex8" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>

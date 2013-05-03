@@ -19,6 +19,28 @@
     <xsl:copy/>
   </xsl:template>
 
+  <!-- Helper function for replacing strings in strings -->
+  <xsl:template name="string-replace-all">
+    <xsl:param name="text" />
+    <xsl:param name="replace" />
+    <xsl:param name="by" />
+    <xsl:choose>
+      <xsl:when test="contains($text, $replace)">
+        <xsl:value-of select="substring-before($text,$replace)" />
+        <xsl:value-of select="$by" />
+        <xsl:call-template name="string-replace-all">
+          <xsl:with-param name="text"
+          select="substring-after($text,$replace)" />
+          <xsl:with-param name="replace" select="$replace" />
+          <xsl:with-param name="by" select="$by" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$text" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <!-- Leaving scons_example empty -->
   <xsl:template match="scons:scons_example">
     <xsl:apply-templates select="node()"/>
@@ -31,11 +53,10 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- Changing scons_output to screen -->
+  <!-- Leaving scons_output empty, should already
+       have been handled by xinclude_examples.xslt -->
   <xsl:template match="scons:scons_output">
-    <xsl:element name="screen">
-      <xsl:apply-templates select="node()"/>
-    </xsl:element>
+    <xsl:apply-templates select="node()"/>
   </xsl:template>
 
   <!-- Leaving scons_output_command empty, should already
@@ -54,7 +75,11 @@
   <xsl:template match="scons:file">
     <xsl:if test="@printme='1'">
       <xsl:element name="programlisting">
-        <xsl:apply-templates select="node()"/>
+       <xsl:call-template name="string-replace-all">
+        <xsl:with-param name="text" select="node()" />
+        <xsl:with-param name="replace" select="'__ROOT__'" />
+        <xsl:with-param name="by" select="''" />
+       </xsl:call-template>
       </xsl:element>
     </xsl:if>
   </xsl:template>
@@ -62,7 +87,11 @@
   <!-- Changing sconstruct to programlisting -->
   <xsl:template match="scons:sconstruct">
     <xsl:element name="programlisting">
-      <xsl:apply-templates select="node()"/>
+      <xsl:call-template name="string-replace-all">
+       <xsl:with-param name="text" select="node()" />
+       <xsl:with-param name="replace" select="'__ROOT__'" />
+       <xsl:with-param name="by" select="''" />
+      </xsl:call-template>
     </xsl:element>
   </xsl:template>
 

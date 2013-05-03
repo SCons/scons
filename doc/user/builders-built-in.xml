@@ -172,8 +172,8 @@
 
     </para>
 
-    <scons_output example="buildersbuiltin_libs" os="posix">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="buildersbuiltin_libs" os="posix" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -182,8 +182,8 @@
 
     </para>
 
-    <scons_output example="buildersbuiltin_libs" os="win32">
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="buildersbuiltin_libs" os="win32" suffix="2">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -760,8 +760,8 @@
         </file>
       </scons_example>
 
-      <scons_output example="buildersbuiltin_ex1" os="posix">
-        <scons_output_command suffix="1">scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex1" os="posix" suffix="1">
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -789,8 +789,8 @@
         </file>
       </scons_example>
 
-      <scons_output example="buildersbuiltin_ex2" os="posix">
-        <scons_output_command suffix="1">scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex2" os="posix" suffix="1">
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -814,8 +814,8 @@
         </file>
       </scons_example>
 
-      <scons_output example="buildersbuiltin_ex3" os="posix">
-        <scons_output_command suffix="1">scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex3" os="posix" suffix="1">
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
     </section>
@@ -856,8 +856,8 @@
 
       </para>
 
-      <scons_output example="buildersbuiltin_ex4" os="posix">
-        <scons_output_command suffix="1">scons -Q .</scons_output_command>
+      <scons_output example="buildersbuiltin_ex4" os="posix" suffix="1">
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
     </section>

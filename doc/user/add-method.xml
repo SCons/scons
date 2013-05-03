@@ -81,8 +81,8 @@
   This produces the following:
   </para>
 
-  <scons_output example="addmethod_ex1">
-    <scons_output_command suffix="1">scons -Q /</scons_output_command>
+  <scons_output example="addmethod_ex1" suffix="1">
+    <scons_output_command>scons -Q /</scons_output_command>
   </scons_output>
 
   <para>
@@ -98,7 +98,7 @@
 
   </para>
 
-  <scons_example name="ex2">
+  <scons_example name="addmethod_ex2">
      <file name="SConstruct" printme="1">
      def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
          """Build the test program;
@@ -129,16 +129,16 @@
   This produces the following on Linux:
   </para>
 
-  <scons_output example="ex2">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+  <scons_output example="addmethod_ex2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   <para>
   And the following on Windows:
   </para>
 
-  <scons_output example="ex2" os="win32">
-    <scons_output_command suffix="2">scons -Q</scons_output_command>
+  <scons_output example="addmethod_ex2" os="win32" suffix="2">
+    <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   <para>

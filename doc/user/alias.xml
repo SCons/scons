@@ -71,8 +71,8 @@
 
   </para>
 
-  <scons_output example="alias_ex1" os="posix">
-     <scons_output_command suffix="1">scons -Q install</scons_output_command>
+  <scons_output example="alias_ex1" os="posix" suffix="1">
+     <scons_output_command>scons -Q install</scons_output_command>
   </scons_output>
 
   <para>
@@ -116,11 +116,11 @@
 
   </para>
 
-  <scons_output example="alias_ex2" os="posix">
-     <scons_output_command suffix="1">scons -Q install-bin</scons_output_command>
-     <scons_output_command suffix="2">scons -Q install-lib</scons_output_command>
-     <scons_output_command suffix="3">scons -Q -c __ROOT__/</scons_output_command>
-     <scons_output_command suffix="4">scons -Q install</scons_output_command>
+  <scons_output example="alias_ex2" os="posix" suffix="1">
+     <scons_output_command>scons -Q install-bin</scons_output_command>
+     <scons_output_command>scons -Q install-lib</scons_output_command>
+     <scons_output_command>scons -Q -c __ROOT__/</scons_output_command>
+     <scons_output_command>scons -Q install</scons_output_command>
   </scons_output>
 
 </chapter>

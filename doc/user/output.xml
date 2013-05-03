@@ -98,8 +98,8 @@
 
     </para>
 
-    <scons_output example="output_ex1">
-       <scons_output_command suffix="1">scons -h</scons_output_command>
+    <scons_output example="output_ex1" suffix="1">
+       <scons_output_command>scons -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -147,8 +147,8 @@
 
     </para>
 
-    <scons_output example="output_ex2" os="win32">
-       <scons_output_command suffix="1">scons -h</scons_output_command>
+    <scons_output example="output_ex2" os="win32" suffix="1">
+       <scons_output_command>scons -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -157,8 +157,8 @@
 
     </para>
 
-    <scons_output example="output_ex2" os="posix">
-       <scons_output_command suffix="2">scons -h</scons_output_command>
+    <scons_output example="output_ex2" os="posix" suffix="2">
+       <scons_output_command>scons -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -231,8 +231,8 @@
 
     <!--
 
-    <scons_output example="output_COMSTR" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="output_COMSTR" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -313,10 +313,10 @@
 
     <!--
 
-    <scons_output example="output_COMSTR-VERBOSE" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
-       <scons_output_command suffix="2">scons -Q -c</scons_output_command>
-       <scons_output_command suffix="3">scons -Q VERBOSE=1</scons_output_command>
+    <scons_output example="output_COMSTR-VERBOSE" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q -c</scons_output_command>
+       <scons_output_command>scons -Q VERBOSE=1</scons_output_command>
     </scons_output>
 
     -->
@@ -401,8 +401,8 @@
 
     </para>
 
-    <scons_output example="output_Progress-TARGET" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="output_Progress-TARGET" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -694,9 +694,9 @@
 
     </para>
 
-    <scons_output example="output_gbf2">
-          <scons_output_command suffix="1">scons -Q</scons_output_command>
-          <scons_output_command suffix="2">scons -Q fail=1</scons_output_command>
+    <scons_output example="output_gbf2" suffix="1">
+          <scons_output_command>scons -Q</scons_output_command>
+          <scons_output_command>scons -Q fail=1</scons_output_command>
     </scons_output>
 
   </section>

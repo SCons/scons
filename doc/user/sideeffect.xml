@@ -92,8 +92,8 @@
 
  </para>
 
- <scons_output example="sideeffect_simple">
-    <scons_output_command suffix="1">scons -Q --jobs=2</scons_output_command>
+ <scons_output example="sideeffect_simple" suffix="1">
+    <scons_output_command>scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
  <para>
@@ -181,8 +181,8 @@
 
  </para>
 
- <scons_output example="sideeffect_shared">
-    <scons_output_command suffix="1">scons -Q --jobs=2</scons_output_command>
+ <scons_output example="sideeffect_shared" suffix="1">
+    <scons_output_command>scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
  <para>
@@ -207,8 +207,8 @@
    </file>
  </scons_example>
 
- <scons_output example="sideeffect_parallel">
-    <scons_output_command suffix="1">scons -Q --jobs=2</scons_output_command>
+ <scons_output example="sideeffect_parallel" suffix="1">
+    <scons_output_command>scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
  <para>

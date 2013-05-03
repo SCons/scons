@@ -351,11 +351,11 @@ over the file scanning rather than being called for each input line:
 
     </para>
 
-    <scons_output example="scanners_scan">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF other_file]" suffix="2">edit other_file</scons_output_command>
-      <scons_output_command suffix="3">scons -Q</scons_output_command>
-      <scons_output_command suffix="4">scons -Q</scons_output_command>
+    <scons_output example="scanners_scan" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF other_file]">edit other_file</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->

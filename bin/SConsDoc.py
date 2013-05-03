@@ -1,5 +1,27 @@
 #!/usr/bin/env python
 #
+# Copyright (c) 2010 The SCons Foundation
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#
 # Module for handling SCons documentation processing.
 #
 
@@ -16,13 +38,12 @@ Builder example:
 
     <builder name="BUILDER">
     <summary>
-    This is the summary description of an SCons Builder.
+    <para>This is the summary description of an SCons Builder.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
     The name of any builder may be interpolated
     anywhere in the document by specifying the
-    &b-BUILDER;
-    element.  It need not be on a line by itself.
+    &b-BUILDER; element.  It need not be on a line by itself.</para>
 
     Unlike normal XML, blank lines are significant in these
     descriptions and serve to separate paragraphs.
@@ -42,18 +63,12 @@ Function example:
     (arg1, arg2, key=value)
     </arguments>
     <summary>
-    This is the summary description of an SCons function.
+    <para>This is the summary description of an SCons function.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
     The name of any builder may be interpolated
     anywhere in the document by specifying the
-    &f-FUNCTION;
-    element.  It need not be on a line by itself.
-
-    Unlike normal XML, blank lines are significant in these
-    descriptions and serve to separate paragraphs.
-    They'll get replaced in DocBook output with appropriate tags
-    to indicate a new paragraph.
+    &f-FUNCTION; element.  It need not be on a line by itself.</para>
 
     <example>
     print "this is example code, it will be offset and indented"
@@ -65,18 +80,12 @@ Construction variable example:
 
     <cvar name="VARIABLE">
     <summary>
-    This is the summary description of a construction variable.
+    <para>This is the summary description of a construction variable.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
     The name of any construction variable may be interpolated
     anywhere in the document by specifying the
-    &t-VARIABLE;
-    element.  It need not be on a line by itself.
-
-    Unlike normal XML, blank lines are significant in these
-    descriptions and serve to separate paragraphs.
-    They'll get replaced in DocBook output with appropriate tags
-    to indicate a new paragraph.
+    &t-VARIABLE; element.  It need not be on a line by itself.</para>
 
     <example>
     print "this is example code, it will be offset and indented"
@@ -88,18 +97,12 @@ Tool example:
 
     <tool name="TOOL">
     <summary>
-    This is the summary description of an SCons Tool.
+    <para>This is the summary description of an SCons Tool.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
     The name of any tool may be interpolated
     anywhere in the document by specifying the
-    &t-TOOL;
-    element.  It need not be on a line by itself.
-
-    Unlike normal XML, blank lines are significant in these
-    descriptions and serve to separate paragraphs.
-    They'll get replaced in DocBook output with appropriate tags
-    to indicate a new paragraph.
+    &t-TOOL; element. It need not be on a line by itself.</para>
 
     <example>
     print "this is example code, it will be offset and indented"
@@ -184,7 +187,7 @@ def isSConsXml(fpath):
         f = open(fpath,'r')
         content = f.read()
         f.close()
-        if content.find(dbxsd) >= 0:
+        if content.find('xmlns="%s"' % dbxsd) >= 0:
             return True
     except:
         pass
@@ -263,6 +266,14 @@ if not has_libxml2:
         
         def newNode(self, tag):
             return etree.Element(tag)
+
+        def newEtreeNode(self, tag, init_ns=False):
+            if init_ns:
+                NSMAP = {None: dbxsd,
+                         'xsi' : xsi}
+                return etree.Element(tag, nsmap=NSMAP)
+
+            return etree.Element(tag)
         
         def copyNode(self, node):
             return copy.deepcopy(node)
@@ -291,6 +302,12 @@ if not has_libxml2:
                                     encoding="UTF-8", pretty_print=True, 
                                     doctype=dt.createDoctype()))
 
+        def writeTree(self, root, fpath):
+            fp = open(fpath, 'w')
+            fp.write(etree.tostring(root, xml_declaration=True, 
+                                    encoding="UTF-8", pretty_print=True))            
+            fp.close()
+
         def prettyPrintFile(self, fpath):
             fin = open(fpath,'r')
             tree = etree.parse(fin)
@@ -300,6 +317,14 @@ if not has_libxml2:
             fout = open(fpath,'w')
             fout.write(pretty_content)
             fout.close()
+
+        def decorateWithCommentHeader(self, root, comment=generated_comment):
+            root.attrib["{"+xsi+"}schemaLocation"] = "%s scons.xsd" % dbxsd
+            
+            c = etree.Comment(comment)
+            root.insert(0, c)
+            
+            return root
             
         def newXmlTree(self, root, comment=generated_comment):
             """ Return a XML file tree with the correct namespaces set,
@@ -307,15 +332,8 @@ if not has_libxml2:
             """
             NSMAP = {None: dbxsd,
                      'xsi' : xsi}
-        
-            t = etree.Element(root,
-                              nsmap = NSMAP,
-                              attrib = {"{"+xsi+"}schemaLocation" : "%s scons.xsd" % dbxsd})
-        
-            c = etree.Comment(comment)
-            t.append(c)
-        
-            return t
+            t = etree.Element(root, nsmap=NSMAP)
+            return self.decorateWithCommentHeader(t, comment)
         
         def validateXml(self, fpath, xmlschema_context):
             # Use lxml
@@ -342,6 +360,13 @@ if not has_libxml2:
                 expression = "./%s/*" % tag
             return root.findall(expression)
 
+        def convertElementTree(self, root):
+            """ Convert the given tree of etree.Element
+                entries to a list of tree nodes for the
+                current XML toolkit.
+            """
+            return [root]
+        
 else:        
     class TreeFactory:
         def __init__(self):
@@ -349,6 +374,9 @@ else:
         
         def newNode(self, tag):
             return libxml2.newNode(tag)
+
+        def newEtreeNode(self, tag, init_ns=False):
+            return etree.Element(tag)
         
         def copyNode(self, node):
             return node.copyNode(1)
@@ -401,6 +429,14 @@ else:
             fp.write(content)
             doc.freeDoc()
 
+        def writeTree(self, root, fpath):
+            fp = open(fpath, 'w')
+            doc = libxml2.newDoc('1.0')
+            doc.setRootElement(root)
+            fp.write(doc.serialize("UTF-8", 1))
+            doc.freeDoc()
+            fp.close()
+
         def prettyPrintFile(self, fpath):
             # Read file and resolve entities
             doc = libxml2.readFile(fpath, None, libxml2d.XML_PARSE_NOENT)
@@ -411,22 +447,25 @@ else:
             # Cleanup
             doc.freeDoc()
 
+        def decorateWithCommentHeader(self, root, comment=generated_comment):
+            # Register the namespaces
+            ns = root.newNs(dbxsd, None)
+            xi = root.newNs(xsi, 'xsi')
+            root.setNs(ns)  #put this node in the target namespace
+    
+            root.setNsProp(xi, 'schemaLocation', "%s scons.xsd" % dbxsd)
+        
+            c = libxml2.newComment(comment)
+            root.addChild(c)
+            
+            return root
+
         def newXmlTree(self, root, comment=generated_comment):
             """ Return a XML file tree with the correct namespaces set,
                 the element root as top entry and the given header comment.
             """
             t = libxml2.newNode(root)
-            # Register the namespaces
-            ns = t.newNs(dbxsd, None)
-            xi = t.newNs(xsi, 'xsi')
-            t.setNs(ns)  #put this node in the target namespace
-    
-            t.setNsProp(xi, 'schemaLocation', "%s scons.xsd" % dbxsd)
-        
-            c = libxml2.newComment(comment)
-            t.addChild(c)
-        
-            return t
+            return self.decorateWithCommentHeader(t, comment)
 
         def validateXml(self, fpath, xmlschema_context):
             # Create validation context
@@ -479,6 +518,56 @@ else:
                     expression = "./%s/node()" % tag
                 return root.findall(expression)
 
+        def expandChildElements(self, child):
+            """ Helper function for convertElementTree,
+                converts a single child recursively.
+            """
+            nchild = self.newNode(child.tag)
+            # Copy attributes
+            for key, val in child.attrib:
+                self.setAttribute(nchild, key, val)
+            elements = []
+            # Add text
+            if child.text:
+                t = libxml2.newText(child.text)
+                self.appendNode(nchild, t)
+            # Add children
+            for c in child:
+                for n in self.expandChildElements(c):
+                    self.appendNode(nchild, n)
+            elements.append(nchild)
+            # Add tail
+            if child.tail:
+                tail = libxml2.newText(child.tail)
+                elements.append(tail)
+                
+            return elements
+
+        def convertElementTree(self, root):
+            """ Convert the given tree of etree.Element
+                entries to a list of tree nodes for the
+                current XML toolkit.
+            """
+            nroot = self.newNode(root.tag)
+            # Copy attributes
+            for key, val in root.attrib:
+                self.setAttribute(nroot, key, val)
+            elements = []
+            # Add text
+            if root.text:
+                t = libxml2.newText(root.text)
+                self.appendNode(nroot, t)
+            # Add children
+            for c in root:
+                for n in self.expandChildElements(c):
+                    self.appendNode(nroot, n)
+            elements.append(nroot)
+            # Add tail
+            if root.tail:
+                tail = libxml2.newText(root.tail)
+                elements.append(tail)
+                
+            return elements
 
 tf = TreeFactory()
 

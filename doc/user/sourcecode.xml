@@ -74,8 +74,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="sourcecode_bitkeeper">
-     <scons_output_command suffix="1">scons -Q</scons_output_command>
+   <scons_output example="sourcecode_bitkeeper" suffix="1">
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -97,8 +97,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="sourcecode_cvs">
-     <scons_output_command suffix="1">scons -Q</scons_output_command>
+   <scons_output example="sourcecode_cvs" suffix="1">
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -123,8 +123,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="sourcecode_rcs">
-     <scons_output_command suffix="1">scons -Q</scons_output_command>
+   <scons_output example="sourcecode_rcs" suffix="1">
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -149,8 +149,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="sourcecode_sccs">
-     <scons_output_command suffix="1">scons -Q</scons_output_command>
+   <scons_output example="sourcecode_sccs" suffix="1">
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -174,8 +174,8 @@
       </file>
    </scons_example>
 
-   <scons_output example="sourcecode_subversion">
-     <scons_output_command suffix="1">scons -Q</scons_output_command>
+   <scons_output example="sourcecode_subversion" suffix="1">
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>

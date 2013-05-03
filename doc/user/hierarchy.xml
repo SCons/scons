@@ -361,8 +361,8 @@ make no difference to the build.
 
     </para>
 
-    <scons_output example="hierarchy_ex1">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="hierarchy_ex1" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -432,8 +432,8 @@ make no difference to the build.
 
     </para>
 
-    <scons_output example="hierarchy_ex2">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="hierarchy_ex2" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -483,8 +483,8 @@ make no difference to the build.
 
     </para>
 
-    <scons_output example="hierarchy_ex3">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="hierarchy_ex3" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -788,8 +788,8 @@ make no difference to the build.
 
       </para>
 
-      <scons_output example="hierarchy_Return">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="hierarchy_Return" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <!--

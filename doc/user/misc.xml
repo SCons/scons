@@ -115,8 +115,8 @@
     regardless of executing Python version by faking out
     the infrastructure in some way.
 
-    <scons_output example="misc_EnsurePythonVersion">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_EnsurePythonVersion" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -184,8 +184,8 @@
     regardless of executing SCons version by faking out
     the infrastructure in some way.
 
-    <scons_output example="misc_EnsureSConsVersion">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_EnsureSConsVersion" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->
@@ -223,9 +223,9 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_Exit">
-      <scons_output_command suffix="1">scons -Q FUTURE=1</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="misc_Exit" suffix="1">
+      <scons_output_command>scons -Q FUTURE=1</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -278,8 +278,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_FindFile1a" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1a" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <scons_example name="misc_FindFile1b">
@@ -304,8 +304,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_FindFile1b" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1b" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
    <!-- The man page says this should work, but it fails.
@@ -337,8 +337,8 @@
         exists
     </scons_example>
 
-    <scons_output example="misc_FindFile1c" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1c" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
    -->
 
@@ -369,8 +369,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_FindFile1d" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile1d" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
    <!-- file may be a list of file names or a single file name. -->
@@ -392,8 +392,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_FindFile2" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile2" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <scons_example name="misc_FindFile2">
@@ -408,8 +408,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_FindFile2" os="posix">
-       <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile2" os="posix" suffix="2">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -431,8 +431,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="misc_FindFile3" os="posix">
-       <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_FindFile3" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -482,8 +482,8 @@
 
     </para>
 
-    <scons_output example="misc_Flatten1">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_Flatten1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -528,8 +528,8 @@
 
     </para>
 
-    <scons_output example="misc_Flatten2">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_Flatten2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -563,8 +563,8 @@
 
     TODO:  can't use this now because it displays the temporary path name
 
-    <scons_output example="misc_Flatten3">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="misc_Flatten3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->

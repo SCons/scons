@@ -81,8 +81,8 @@
    </file>
  </scons_example>
 
- <scons_output example="mergeflags_MergeFlags1">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+ <scons_output example="mergeflags_MergeFlags1" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -108,8 +108,8 @@
    </file>
  </scons_example>
 
- <scons_output example="mergeflags_MergeFlags2">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+ <scons_output example="mergeflags_MergeFlags2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
 
  <para>
@@ -143,8 +143,8 @@
    </file>
  </scons_example>
 
- <scons_output example="mergeflags_MergeFlags3">
-    <scons_output_command suffix="1">scons -Q</scons_output_command>
+ <scons_output example="mergeflags_MergeFlags3" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
 
  <para>

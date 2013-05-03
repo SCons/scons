@@ -150,8 +150,8 @@
 
     </para>
 
-    <scons_output example="repositories_ex1">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="repositories_ex1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -174,8 +174,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="repositories_ex2">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="repositories_ex2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -197,8 +197,8 @@
       </file>
     </scons_example>
 
-    <scons_output example="repositories_ex3">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="repositories_ex3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -271,8 +271,8 @@
 
     </para>
 
-    <scons_output example="repositories_CPPPATH">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="repositories_CPPPATH" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -310,8 +310,8 @@
 
     </para>
 
-    <scons_output example="repositories_CPPPATH3">
-      <scons_output_command suffix="1">scons -Q</scons_output_command>
+    <scons_output example="repositories_CPPPATH3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
 <!--
@@ -385,8 +385,8 @@ coming into existence.)
         </file>
       </scons_example>
 
-      <scons_output example="repositories_quote1">
-        <scons_output_command suffix="1">scons -Q</scons_output_command>
+      <scons_output example="repositories_quote1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -530,9 +530,9 @@ coming into existence.)
       </file>
     </scons_example>
 
-    <scons_output example="repositories_ex4">
-      <scons_output_command suffix="1">cd /usr/repository1</scons_output_command>
-      <scons_output_command suffix="2">scons -Q</scons_output_command>
+    <scons_output example="repositories_ex4" suffix="1">
+      <scons_output_command>cd /usr/repository1</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -556,10 +556,10 @@ coming into existence.)
     </para>
 
     <!--
-    <scons_output example="repositories_ex4">
-      <scons_output_command suffix="3">cd $HOME/build</scons_output_command>
-      <scons_output_command suffix="4">edit hello.c</scons_output_command>
-      <scons_output_command suffix="5">scons -Q -Y __ROOT__/usr/repository1</scons_output_command>
+    <scons_output example="repositories_ex4" suffix="2">
+      <scons_output_command>cd $HOME/build</scons_output_command>
+      <scons_output_command>edit hello.c</scons_output_command>
+      <scons_output_command>scons -Q -Y __ROOT__/usr/repository1</scons_output_command>
     </scons_output>
     -->
     <screen>
