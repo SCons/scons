@@ -11,7 +11,9 @@
 
   <cfg:preserveSpace xmlns="" 
     elements="address funcsynopsisinfo classsynopsisinfo 
-              literallayout programlisting screen synopsis" />
+              literallayout programlisting screen synopsis
+              sconstruct scons_example_file example_commands
+              scons_output_command file directory" />
 
   <cfg:documentResources xmlns="">
     <cfg:resource path="//@fileref" />

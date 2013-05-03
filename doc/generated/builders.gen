@@ -15,12 +15,10 @@
 <variablelist xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
   <varlistentry id="b-CFile">
     <term>
-      <synopsis>
-        <function>CFile()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.CFile()</function>
-      </synopsis>
+      <function>CFile()</function>
+    </term>
+    <term>
+      <function>env.CFile()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -43,12 +41,10 @@ env.CFile(target = 'bar', source = 'bar.y')
   </varlistentry>
   <varlistentry id="b-Command">
     <term>
-      <synopsis>
-        <function>Command()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Command()</function>
-      </synopsis>
+      <function>Command()</function>
+    </term>
+    <term>
+      <function>env.Command()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -63,12 +59,10 @@ for the calling syntax and details.
   </varlistentry>
   <varlistentry id="b-CXXFile">
     <term>
-      <synopsis>
-        <function>CXXFile()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.CXXFile()</function>
-      </synopsis>
+      <function>CXXFile()</function>
+    </term>
+    <term>
+      <function>env.CXXFile()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -92,12 +86,10 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
   </varlistentry>
   <varlistentry id="b-DVI">
     <term>
-      <synopsis>
-        <function>DVI()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.DVI()</function>
-      </synopsis>
+      <function>DVI()</function>
+    </term>
+    <term>
+      <function>env.DVI()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -153,12 +145,10 @@ env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
   </varlistentry>
   <varlistentry id="b-Install">
     <term>
-      <synopsis>
-        <function>Install()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Install()</function>
-      </synopsis>
+      <function>Install()</function>
+    </term>
+    <term>
+      <function>env.Install()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -178,12 +168,10 @@ env.Install('/usr/local/bin', source = ['foo', 'bar'])
   </varlistentry>
   <varlistentry id="b-InstallAs">
     <term>
-      <synopsis>
-        <function>InstallAs()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.InstallAs()</function>
-      </synopsis>
+      <function>InstallAs()</function>
+    </term>
+    <term>
+      <function>env.InstallAs()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -201,12 +189,10 @@ arguments list different numbers of files or directories.
   </varlistentry>
   <varlistentry id="b-InstallVersionedLib">
     <term>
-      <synopsis>
-        <function>InstallVersionedLib()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.InstallVersionedLib()</function>
-      </synopsis>
+      <function>InstallVersionedLib()</function>
+    </term>
+    <term>
+      <function>env.InstallVersionedLib()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -226,12 +212,10 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
   </varlistentry>
   <varlistentry id="b-Jar">
     <term>
-      <synopsis>
-        <function>Jar()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Jar()</function>
-      </synopsis>
+      <function>Jar()</function>
+    </term>
+    <term>
+      <function>env.Jar()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -277,12 +261,10 @@ env.Jar(target = 'bar.jar',
   </varlistentry>
   <varlistentry id="b-Java">
     <term>
-      <synopsis>
-        <function>Java()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Java()</function>
-      </synopsis>
+      <function>Java()</function>
+    </term>
+    <term>
+      <function>env.Java()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -357,12 +339,10 @@ env['ENV']['LANG'] = 'en_GB.UTF-8'
   </varlistentry>
   <varlistentry id="b-JavaH">
     <term>
-      <synopsis>
-        <function>JavaH()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.JavaH()</function>
-      </synopsis>
+      <function>JavaH()</function>
+    </term>
+    <term>
+      <function>env.JavaH()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -415,12 +395,10 @@ env.JavaH(target = 'export',
   </varlistentry>
   <varlistentry id="b-Library">
     <term>
-      <synopsis>
-        <function>Library()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Library()</function>
-      </synopsis>
+      <function>Library()</function>
+    </term>
+    <term>
+      <function>env.Library()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -432,12 +410,10 @@ builder method.
   </varlistentry>
   <varlistentry id="b-LoadableModule">
     <term>
-      <synopsis>
-        <function>LoadableModule()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.LoadableModule()</function>
-      </synopsis>
+      <function>LoadableModule()</function>
+    </term>
+    <term>
+      <function>env.LoadableModule()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -451,12 +427,10 @@ this creates a loadable module bundle.
   </varlistentry>
   <varlistentry id="b-M4">
     <term>
-      <synopsis>
-        <function>M4()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.M4()</function>
-      </synopsis>
+      <function>M4()</function>
+    </term>
+    <term>
+      <function>env.M4()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -476,12 +450,10 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
   </varlistentry>
   <varlistentry id="b-Moc">
     <term>
-      <synopsis>
-        <function>Moc()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Moc()</function>
-      </synopsis>
+      <function>Moc()</function>
+    </term>
+    <term>
+      <function>env.Moc()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -499,12 +471,10 @@ env.Moc('foo.cpp') # generates foo.moc
   </varlistentry>
   <varlistentry id="b-MOFiles">
     <term>
-      <synopsis>
-        <function>MOFiles()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.MOFiles()</function>
-      </synopsis>
+      <function>MOFiles()</function>
+    </term>
+    <term>
+      <function>env.MOFiles()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -556,12 +526,10 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
   </varlistentry>
   <varlistentry id="b-MSVSProject">
     <term>
-      <synopsis>
-        <function>MSVSProject()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.MSVSProject()</function>
-      </synopsis>
+      <function>MSVSProject()</function>
+    </term>
+    <term>
+      <function>env.MSVSProject()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -739,12 +707,10 @@ env.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
   </varlistentry>
   <varlistentry id="b-MSVSSolution">
     <term>
-      <synopsis>
-        <function>MSVSSolution()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.MSVSSolution()</function>
-      </synopsis>
+      <function>MSVSSolution()</function>
+    </term>
+    <term>
+      <function>env.MSVSSolution()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -813,12 +779,10 @@ env.MSVSSolution(target = 'Bar' + env['MSVSSOLUTIONSUFFIX'],
   </varlistentry>
   <varlistentry id="b-Object">
     <term>
-      <synopsis>
-        <function>Object()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Object()</function>
-      </synopsis>
+      <function>Object()</function>
+    </term>
+    <term>
+      <function>env.Object()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -830,12 +794,10 @@ builder method.
   </varlistentry>
   <varlistentry id="b-Package">
     <term>
-      <synopsis>
-        <function>Package()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Package()</function>
-      </synopsis>
+      <function>Package()</function>
+    </term>
+    <term>
+      <function>env.Package()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -905,12 +867,10 @@ env.Package( NAME           = 'foo',
   </varlistentry>
   <varlistentry id="b-PCH">
     <term>
-      <synopsis>
-        <function>PCH()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.PCH()</function>
-      </synopsis>
+      <function>PCH()</function>
+    </term>
+    <term>
+      <function>env.PCH()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -932,12 +892,10 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
   </varlistentry>
   <varlistentry id="b-PDF">
     <term>
-      <synopsis>
-        <function>PDF()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.PDF()</function>
-      </synopsis>
+      <function>PDF()</function>
+    </term>
+    <term>
+      <function>env.PDF()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -963,12 +921,10 @@ env.PDF(target = 'bbb', source = 'bbb.dvi')
   </varlistentry>
   <varlistentry id="b-POInit">
     <term>
-      <synopsis>
-        <function>POInit()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.POInit()</function>
-      </synopsis>
+      <function>POInit()</function>
+    </term>
+    <term>
+      <function>env.POInit()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1071,12 +1027,10 @@ which has same efect as:
   </varlistentry>
   <varlistentry id="b-PostScript">
     <term>
-      <synopsis>
-        <function>PostScript()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.PostScript()</function>
-      </synopsis>
+      <function>PostScript()</function>
+    </term>
+    <term>
+      <function>env.PostScript()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1102,12 +1056,10 @@ env.PostScript(target = 'bbb', source = 'bbb.dvi')
   </varlistentry>
   <varlistentry id="b-POTUpdate">
     <term>
-      <synopsis>
-        <function>POTUpdate()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.POTUpdate()</function>
-      </synopsis>
+      <function>POTUpdate()</function>
+    </term>
+    <term>
+      <function>env.POTUpdate()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1274,12 +1226,10 @@ then the <filename>messages.pot</filename> will contain
   </varlistentry>
   <varlistentry id="b-POUpdate">
     <term>
-      <synopsis>
-        <function>POUpdate()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.POUpdate()</function>
-      </synopsis>
+      <function>POUpdate()</function>
+    </term>
+    <term>
+      <function>env.POUpdate()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1393,12 +1343,10 @@ pre-configured via environment.
   </varlistentry>
   <varlistentry id="b-Program">
     <term>
-      <synopsis>
-        <function>Program()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Program()</function>
-      </synopsis>
+      <function>Program()</function>
+    </term>
+    <term>
+      <function>env.Program()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1429,12 +1377,10 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
   </varlistentry>
   <varlistentry id="b-RES">
     <term>
-      <synopsis>
-        <function>RES()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.RES()</function>
-      </synopsis>
+      <function>RES()</function>
+    </term>
+    <term>
+      <function>env.RES()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1457,12 +1403,10 @@ env.RES('resource.rc')
   </varlistentry>
   <varlistentry id="b-RMIC">
     <term>
-      <synopsis>
-        <function>RMIC()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.RMIC()</function>
-      </synopsis>
+      <function>RMIC()</function>
+    </term>
+    <term>
+      <function>env.RMIC()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1506,12 +1450,10 @@ env.RMIC(target = 'outdir3',
   </varlistentry>
   <varlistentry id="b-RPCGenClient">
     <term>
-      <synopsis>
-        <function>RPCGenClient()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.RPCGenClient()</function>
-      </synopsis>
+      <function>RPCGenClient()</function>
+    </term>
+    <term>
+      <function>env.RPCGenClient()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1531,12 +1473,10 @@ env.RPCGenClient('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-RPCGenHeader">
     <term>
-      <synopsis>
-        <function>RPCGenHeader()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.RPCGenHeader()</function>
-      </synopsis>
+      <function>RPCGenHeader()</function>
+    </term>
+    <term>
+      <function>env.RPCGenHeader()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1556,12 +1496,10 @@ env.RPCGenHeader('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-RPCGenService">
     <term>
-      <synopsis>
-        <function>RPCGenService()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.RPCGenService()</function>
-      </synopsis>
+      <function>RPCGenService()</function>
+    </term>
+    <term>
+      <function>env.RPCGenService()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1581,12 +1519,10 @@ env.RPCGenClient('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-RPCGenXDR">
     <term>
-      <synopsis>
-        <function>RPCGenXDR()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.RPCGenXDR()</function>
-      </synopsis>
+      <function>RPCGenXDR()</function>
+    </term>
+    <term>
+      <function>env.RPCGenXDR()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1606,12 +1542,10 @@ env.RPCGenClient('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-SharedLibrary">
     <term>
-      <synopsis>
-        <function>SharedLibrary()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.SharedLibrary()</function>
-      </synopsis>
+      <function>SharedLibrary()</function>
+    </term>
+    <term>
+      <function>env.SharedLibrary()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1716,12 +1650,10 @@ when it is done linking it.
   </varlistentry>
   <varlistentry id="b-SharedObject">
     <term>
-      <synopsis>
-        <function>SharedObject()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.SharedObject()</function>
-      </synopsis>
+      <function>SharedObject()</function>
+    </term>
+    <term>
+      <function>env.SharedObject()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1770,12 +1702,10 @@ below, for more information.
   </varlistentry>
   <varlistentry id="b-StaticLibrary">
     <term>
-      <synopsis>
-        <function>StaticLibrary()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.StaticLibrary()</function>
-      </synopsis>
+      <function>StaticLibrary()</function>
+    </term>
+    <term>
+      <function>env.StaticLibrary()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1816,12 +1746,10 @@ will raise an error if there is any mismatch.
   </varlistentry>
   <varlistentry id="b-StaticObject">
     <term>
-      <synopsis>
-        <function>StaticObject()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.StaticObject()</function>
-      </synopsis>
+      <function>StaticObject()</function>
+    </term>
+    <term>
+      <function>env.StaticObject()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1890,12 +1818,10 @@ below, for more information.
   </varlistentry>
   <varlistentry id="b-Substfile">
     <term>
-      <synopsis>
-        <function>Substfile()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Substfile()</function>
-      </synopsis>
+      <function>Substfile()</function>
+    </term>
+    <term>
+      <function>env.Substfile()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1985,12 +1911,10 @@ subst.Substfile('pgm2.c', [Value('#include "@foo@.h"'),
   </varlistentry>
   <varlistentry id="b-Tar">
     <term>
-      <synopsis>
-        <function>Tar()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Tar()</function>
-      </synopsis>
+      <function>Tar()</function>
+    </term>
+    <term>
+      <function>env.Tar()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2033,12 +1957,10 @@ env.Tar('foo')
   </varlistentry>
   <varlistentry id="b-Textfile">
     <term>
-      <synopsis>
-        <function>Textfile()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Textfile()</function>
-      </synopsis>
+      <function>Textfile()</function>
+    </term>
+    <term>
+      <function>env.Textfile()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2106,12 +2028,10 @@ blob.txt
   </varlistentry>
   <varlistentry id="b-Translate">
     <term>
-      <synopsis>
-        <function>Translate()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Translate()</function>
-      </synopsis>
+      <function>Translate()</function>
+    </term>
+    <term>
+      <function>env.Translate()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2246,12 +2166,10 @@ running <command>scons '.'</command>.</para></note>
   </varlistentry>
   <varlistentry id="b-TypeLibrary">
     <term>
-      <synopsis>
-        <function>TypeLibrary()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.TypeLibrary()</function>
-      </synopsis>
+      <function>TypeLibrary()</function>
+    </term>
+    <term>
+      <function>env.TypeLibrary()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2280,12 +2198,10 @@ files.
   </varlistentry>
   <varlistentry id="b-Uic">
     <term>
-      <synopsis>
-        <function>Uic()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Uic()</function>
-      </synopsis>
+      <function>Uic()</function>
+    </term>
+    <term>
+      <function>env.Uic()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2311,12 +2227,10 @@ env.Uic(target = Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
   </varlistentry>
   <varlistentry id="b-Zip">
     <term>
-      <synopsis>
-        <function>Zip()</function>
-      </synopsis>
-      <synopsis>
-        <function>env.Zip()</function>
-      </synopsis>
+      <function>Zip()</function>
+    </term>
+    <term>
+      <function>env.Zip()</function>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
