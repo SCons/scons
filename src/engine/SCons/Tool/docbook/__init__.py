@@ -270,7 +270,7 @@ def __build_libxml2(target, source, env):
     xsl_style = env.subst('$DOCBOOK_XSL')
     styledoc = libxml2.parseFile(xsl_style)
     style = libxslt.parseStylesheetDoc(styledoc)
-    doc = libxml2.parseFile(str(source[0]))
+    doc = libxml2.readFile(str(source[0]),None,libxml2.XML_PARSE_NOENT)
     # Support for additional parameters
     parampass = {}
     if parampass:
@@ -308,7 +308,7 @@ def __xinclude_libxml2(target, source, env):
     """
     Resolving XIncludes, using the libxml2 module.
     """
-    doc = libxml2.parseFile(str(source[0]))
+    doc = libxml2.readFile(str(source[0]), None, libxml2.XML_PARSE_NOENT)
     doc.xincludeProcess()
     doc.saveFile(str(target[0]))
     doc.freeDoc()
