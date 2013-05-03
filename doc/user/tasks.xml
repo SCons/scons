@@ -91,25 +91,40 @@ those files and use them in &SCons;.
 
 </para>
 
-<programlisting>
+<scons_example name="ex1">
+<file name="SConstruct" printme="1">
 #### SConstruct
 env = Environment()
 env.Append(CPPPATH = "#")
 
 ## Header example
 env.Append(BUILDERS =
-   {'Copy1' : Builder(action = 'cat &lt; $SOURCE &gt; $TARGET',
+   {'Copy1' : Builder(action = 'cat &lt; $SOURCE > $TARGET',
                       suffix='.h', src_suffix='.bar')})
 env.Copy1('test.bar') # produces test.h from test.bar. 
 env.Program('app','main.cpp') # indirectly depends on test.bar
 
 ## Source file example
 env.Append(BUILDERS =
-  {'Copy2' : Builder(action = 'cat &lt; $SOURCE &gt; $TARGET',
+  {'Copy2' : Builder(action = 'cat &lt; $SOURCE > $TARGET',
                      suffix='.cpp', src_suffix='.bar2')})
 foo = env.Copy2('foo.bar2') # produces foo.cpp from foo.bar2. 
 env.Program('app2',['main2.cpp'] + foo) # compiles main2.cpp and foo.cpp into app2.
-</programlisting>
+</file>
+
+<file name="main.cpp">
+#include "test.h"
+</file>
+<file name="test.bar">
+// nothing here
+</file>
+<file name="main2.cpp">
+//// main2.cpp
+</file>
+<file name="foo.bar2">
+// nothing here
+</file>
+</scons_example>
 
 <para>
 
@@ -117,21 +132,15 @@ Where main.cpp looks like this:
 
 </para>
 
- 
- <programlisting>
-#include "test.h"
-</programlisting>
+ <scons_example_file example="ex1" name="main.cpp">
+ </scons_example_file>
 
 <para>
 produces this:
 </para>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    cc -o app main.cpp
-    cat &lt; foo.bar2 &gt; foo.cpp
-    cc -o app2 main2.cpp foo.cpp
-    cat &lt; test.bar &gt; test.h
- </screen>
+ <scons_output example="ex1">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
     
 </example>

@@ -69,11 +69,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="explain1">
+      <file name="SConstruct" printme="1">
       # Intentionally misspell the output file name in the
       # command used to create the file:
       Command('file.out', 'file.in', 'cp $SOURCE file.oout')
-    </programlisting>
+      </file>
+      <file name="file.in">
+      file.in
+      </file>
+    </scons_example>
 
     <para>
 
@@ -93,14 +98,11 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cp file.in file.oout
-      % <userinput>scons -Q</userinput>
-      cp file.in file.oout
-      % <userinput>scons -Q</userinput>
-      cp file.in file.oout
-    </screen>
+    <scons_output example="explain1" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -119,11 +121,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --debug=explain</userinput>
-      scons: building `file.out' because it doesn't exist
-      cp file.in file.oout
-    </screen>
+    <scons_output example="explain1" os="posix">
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -151,22 +151,26 @@
 
     </para>
 
-    
+    <scons_example name="explain2">
+      <file name="SConstruct">
+      Program('prog', ['file1.c', 'file2.c', 'file3.c'])
+      </file>
+      <file name="file1.c">
+      file1.c
+      </file>
+      <file name="file2.c">
+      file2.c
+      </file>
+      <file name="file3.c">
+      file3.c
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o file1.o -c file1.c
-      cc -o file2.o -c file2.c
-      cc -o file3.o -c file3.c
-      cc -o prog file1.o file2.o file3.o
-      % <userinput>edit file2.c</userinput>
-          [CHANGE THE CONTENTS OF file2.c]
-      % <userinput>scons -Q --debug=explain</userinput>
-      scons: rebuilding `file2.o' because `file2.c' changed
-      cc -o file2.o -c file2.c
-      scons: rebuilding `prog' because `file2.o' changed
-      cc -o prog file1.o file2.o file3.o
-    </screen>
+    <scons_output example="explain2" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF file2.c]">edit file2.c</scons_output_command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -185,26 +189,31 @@
 
     </para>
 
-    
+    <scons_example name="explain3">
+      <file name="SConstruct">
+      Program('prog', ['file1.c', 'file2.c', 'file3.c'], CPPPATH='.')
+      </file>
+      <file name="file1.c">
+      #include &lt;hello.h&gt;
+      file1.c
+      </file>
+      <file name="file2.c">
+      file2.c
+      </file>
+      <file name="file3.c">
+      #include &lt;hello.h&gt;
+      file3.c
+      </file>
+      <file name="hello.h">
+      #define string    "world"
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o file1.o -c -I. file1.c
-      cc -o file2.o -c -I. file2.c
-      cc -o file3.o -c -I. file3.c
-      cc -o prog file1.o file2.o file3.o
-      % <userinput>edit hello.h</userinput>
-          [CHANGE THE CONTENTS OF hello.h]
-      % <userinput>scons -Q --debug=explain</userinput>
-      scons: rebuilding `file1.o' because `hello.h' changed
-      cc -o file1.o -c -I. file1.c
-      scons: rebuilding `file3.o' because `hello.h' changed
-      cc -o file3.o -c -I. file3.c
-      scons: rebuilding `prog' because:
-                 `file1.o' changed
-                 `file3.o' changed
-      cc -o prog file1.o file2.o file3.o
-    </screen>
+    <scons_output example="explain3" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -246,10 +255,12 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Dump">
+      <file name="SConstruct" printme="1">
          env = Environment()
          print env.Dump()
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -258,79 +269,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
-        'CONFIGUREDIR': '#/.sconf_temp',
-        'CONFIGURELOG': '#/config.log',
-        'CPPSUFFIXES': [ '.c',
-                         '.C',
-                         '.cxx',
-                         '.cpp',
-                         '.c++',
-                         '.cc',
-                         '.h',
-                         '.H',
-                         '.hxx',
-                         '.hpp',
-                         '.hh',
-                         '.F',
-                         '.fpp',
-                         '.FPP',
-                         '.m',
-                         '.mm',
-                         '.S',
-                         '.spp',
-                         '.SPP',
-                         '.sx'],
-        'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'ENV': { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
-        'ESCAPE': &lt;function escape at 0x700000&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'HOST_ARCH': None,
-        'HOST_OS': None,
-        'IDLSUFFIXES': ['.idl', '.IDL'],
-        'INSTALL': &lt;function copyFunc at 0x700000&gt;,
-        'LIBPREFIX': 'lib',
-        'LIBPREFIXES': ['$LIBPREFIX'],
-        'LIBSUFFIX': '.a',
-        'LIBSUFFIXES': ['$LIBSUFFIX', '$SHLIBSUFFIX'],
-        'MAXLINELENGTH': 128072,
-        'OBJPREFIX': '',
-        'OBJSUFFIX': '.o',
-        'PLATFORM': 'posix',
-        'PROGPREFIX': '',
-        'PROGSUFFIX': '',
-        'PSPAWN': &lt;function piped_env_spawn at 0x700000&gt;,
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'SCANNERS': [],
-        'SHELL': 'sh',
-        'SHLIBPREFIX': '$LIBPREFIX',
-        'SHLIBSUFFIX': '.so',
-        'SHOBJPREFIX': '$OBJPREFIX',
-        'SHOBJSUFFIX': '$OBJSUFFIX',
-        'SPAWN': &lt;function spawnvpe_spawn at 0x700000&gt;,
-        'TARGET_ARCH': None,
-        'TARGET_OS': None,
-        'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
-        'TEMPFILEPREFIX': '@',
-        'TOOLS': ['install', 'install'],
-        '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-        '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-        '__RPATH': '$_RPATH',
-        '_concat': &lt;function _concat at 0x700000&gt;,
-        '_defines': &lt;function _defines at 0x700000&gt;,
-        '_stripixes': &lt;function _stripixes at 0x700000&gt;}
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      scons: `.' is up to date.
-      scons: done building targets.
-    </screen>
+    <scons_output example="Dump" os="posix" tools="gcc">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -339,112 +280,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      { 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
-        'CC': 'cl',
-        'CCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
-        'CCFLAGS': ['/nologo'],
-        'CCPCHFLAGS': ['${(PCH and "/Yu%s \\"/Fp%s\\""%(PCHSTOP or "",File(PCH))) or ""}'],
-        'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
-        'CFILESUFFIX': '.c',
-        'CFLAGS': [],
-        'CONFIGUREDIR': '#/.sconf_temp',
-        'CONFIGURELOG': '#/config.log',
-        'CPPDEFPREFIX': '/D',
-        'CPPDEFSUFFIX': '',
-        'CPPSUFFIXES': [ '.c',
-                         '.C',
-                         '.cxx',
-                         '.cpp',
-                         '.c++',
-                         '.cc',
-                         '.h',
-                         '.H',
-                         '.hxx',
-                         '.hpp',
-                         '.hh',
-                         '.F',
-                         '.fpp',
-                         '.FPP',
-                         '.m',
-                         '.mm',
-                         '.S',
-                         '.spp',
-                         '.SPP',
-                         '.sx'],
-        'CXX': '$CC',
-        'CXXCOM': '${TEMPFILE("$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM")}',
-        'CXXFILESUFFIX': '.cc',
-        'CXXFLAGS': ['$(', '/TP', '$)'],
-        'DSUFFIXES': ['.d'],
-        'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'ENV': { 'PATH': 'C:\\WINDOWS\\System32',
-                 'PATHEXT': '.COM;.EXE;.BAT;.CMD',
-                 'SystemRoot': 'C:\\WINDOWS'},
-        'ESCAPE': &lt;function escape at 0x700000&gt;,
-        'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'HOST_ARCH': '',
-        'HOST_OS': 'win32',
-        'IDLSUFFIXES': ['.idl', '.IDL'],
-        'INCPREFIX': '/I',
-        'INCSUFFIX': '',
-        'INSTALL': &lt;function copyFunc at 0x700000&gt;,
-        'LIBPREFIX': '',
-        'LIBPREFIXES': ['$LIBPREFIX'],
-        'LIBSUFFIX': '.lib',
-        'LIBSUFFIXES': ['$LIBSUFFIX'],
-        'MAXLINELENGTH': 2048,
-        'MSVC_SETUP_RUN': True,
-        'OBJPREFIX': '',
-        'OBJSUFFIX': '.obj',
-        'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS',
-        'PCHPDBFLAGS': ['${(PDB and "/Yd") or ""}'],
-        'PLATFORM': 'win32',
-        'PROGPREFIX': '',
-        'PROGSUFFIX': '.exe',
-        'PSPAWN': &lt;function piped_spawn at 0x700000&gt;,
-        'RC': 'rc',
-        'RCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
-        'RCFLAGS': [],
-        'RCSUFFIXES': ['.rc', '.rc2'],
-        'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-        'SCANNERS': [],
-        'SHCC': '$CC',
-        'SHCCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
-        'SHCCFLAGS': ['$CCFLAGS'],
-        'SHCFLAGS': ['$CFLAGS'],
-        'SHCXX': '$CXX',
-        'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM")}',
-        'SHCXXFLAGS': ['$CXXFLAGS'],
-        'SHELL': None,
-        'SHLIBPREFIX': '',
-        'SHLIBSUFFIX': '.dll',
-        'SHOBJPREFIX': '$OBJPREFIX',
-        'SHOBJSUFFIX': '$OBJSUFFIX',
-        'SPAWN': &lt;function spawn at 0x700000&gt;,
-        'STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME': 1,
-        'TARGET_ARCH': '',
-        'TARGET_OS': 'win32',
-        'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
-        'TEMPFILEPREFIX': '@',
-        'TOOLS': ['msvc', 'install', 'install'],
-        '_CCCOMCOM': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS',
-        '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-        '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-        '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-        '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-        '_MSVC_OUTPUT_FLAG': &lt;function msvc_output_flag at 0x700000&gt;,
-        '_concat': &lt;function _concat at 0x700000&gt;,
-        '_defines': &lt;function _defines at 0x700000&gt;,
-        '_stripixes': &lt;function _stripixes at 0x700000&gt;}
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      scons: `.' is up to date.
-      scons: done building targets.
-    </screen>
+    <scons_output example="Dump" os="win32" tools="msvc">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -477,10 +315,12 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Dump_ENV">
+      <file name="SConstruct" printme="1">
          env = Environment()
          print env.Dump('ENV')
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -488,15 +328,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'}
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      scons: `.' is up to date.
-      scons: done building targets.
-    </screen>
+    <scons_output example="Dump_ENV" os="posix">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -504,17 +338,9 @@
 
     </para>
 
-    <screen>
-      C:\><userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      { 'PATH': 'C:\\WINDOWS\\System32',
-        'PATHEXT': '.COM;.EXE;.BAT;.CMD',
-        'SystemRoot': 'C:\\WINDOWS'}
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      scons: `.' is up to date.
-      scons: done building targets.
-    </screen>
+    <scons_output example="Dump_ENV" os="win32">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -542,10 +368,24 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="tree1">
+      <file name="SConstruct" printme="1">
          env = Environment(CPPPATH = ['.'])
          env.Program('prog', ['f1.c', 'f2.c', 'f3.c'])
-    </programlisting>
+      </file>
+      <file name="f1.c">
+      #include "inc.h"
+      </file>
+      <file name="f2.c">
+      #include "inc.h"
+      </file>
+      <file name="f3.c">
+      #include "inc.h"
+      </file>
+      <file name="inc.h">
+      inc.h
+      </file>
+    </scons_example>
 
     <para>
 
@@ -554,38 +394,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=all</userinput>
-      cc -o f1.o -c -I. f1.c
-      cc -o f2.o -c -I. f2.c
-      cc -o f3.o -c -I. f3.c
-      cc -o prog f1.o f2.o f3.o
-      +-.
-        +-SConstruct
-        +-f1.c
-        +-f1.o
-        | +-f1.c
-        | +-inc.h
-        +-f2.c
-        +-f2.o
-        | +-f2.c
-        | +-inc.h
-        +-f3.c
-        +-f3.o
-        | +-f3.c
-        | +-inc.h
-        +-inc.h
-        +-prog
-          +-f1.o
-          | +-f1.c
-          | +-inc.h
-          +-f2.o
-          | +-f2.c
-          | +-inc.h
-          +-f3.o
-            +-f3.c
-            +-inc.h
-    </screen>
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=all</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -609,13 +420,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=all f2.o</userinput>
-      cc -o f2.o -c -I. f2.c
-      +-f2.o
-        +-f2.c
-        +-inc.h
-    </screen>
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=all f2.o</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -629,17 +436,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=all f1.o f3.o</userinput>
-      cc -o f1.o -c -I. f1.c
-      +-f1.o
-        +-f1.c
-        +-inc.h
-      cc -o f3.o -c -I. f3.c
-      +-f3.o
-        +-f3.c
-        +-inc.h
-    </screen>
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=all f1.o f3.o</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -649,49 +448,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=status</userinput>
-      cc -o f1.o -c -I. f1.c
-      cc -o f2.o -c -I. f2.c
-      cc -o f3.o -c -I. f3.c
-      cc -o prog f1.o f2.o f3.o
-       E         = exists
-        R        = exists in repository only
-         b       = implicit builder
-         B       = explicit builder
-          S      = side effect
-           P     = precious
-            A    = always build
-             C   = current
-              N  = no clean
-               H = no cache
-      
-      [E b      ]+-.
-      [E     C  ]  +-SConstruct
-      [E     C  ]  +-f1.c
-      [E B   C  ]  +-f1.o
-      [E     C  ]  | +-f1.c
-      [E     C  ]  | +-inc.h
-      [E     C  ]  +-f2.c
-      [E B   C  ]  +-f2.o
-      [E     C  ]  | +-f2.c
-      [E     C  ]  | +-inc.h
-      [E     C  ]  +-f3.c
-      [E B   C  ]  +-f3.o
-      [E     C  ]  | +-f3.c
-      [E     C  ]  | +-inc.h
-      [E     C  ]  +-inc.h
-      [E B   C  ]  +-prog
-      [E B   C  ]    +-f1.o
-      [E     C  ]    | +-f1.c
-      [E     C  ]    | +-inc.h
-      [E B   C  ]    +-f2.o
-      [E     C  ]    | +-f2.c
-      [E     C  ]    | +-inc.h
-      [E B   C  ]    +-f3.o
-      [E     C  ]      +-f3.c
-      [E     C  ]      +-inc.h
-    </screen>
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=status</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -707,21 +466,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=derived</userinput>
-      cc -o f1.o -c -I. f1.c
-      cc -o f2.o -c -I. f2.c
-      cc -o f3.o -c -I. f3.c
-      cc -o prog f1.o f2.o f3.o
-      +-.
-        +-f1.o
-        +-f2.o
-        +-f3.o
-        +-prog
-          +-f1.o
-          +-f2.o
-          +-f3.o
-    </screen>
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=derived</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -730,32 +477,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=derived,status</userinput>
-      cc -o f1.o -c -I. f1.c
-      cc -o f2.o -c -I. f2.c
-      cc -o f3.o -c -I. f3.c
-      cc -o prog f1.o f2.o f3.o
-       E         = exists
-        R        = exists in repository only
-         b       = implicit builder
-         B       = explicit builder
-          S      = side effect
-           P     = precious
-            A    = always build
-             C   = current
-              N  = no clean
-               H = no cache
-      
-      [E b      ]+-.
-      [E B   C  ]  +-f1.o
-      [E B   C  ]  +-f2.o
-      [E B   C  ]  +-f3.o
-      [E B   C  ]  +-prog
-      [E B   C  ]    +-f1.o
-      [E B   C  ]    +-f2.o
-      [E B   C  ]    +-f3.o
-    </screen>
+    <scons_output example="tree1">
+      <scons_output_command>scons -Q --tree=derived,status</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -776,14 +500,34 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="tree2">
+      <file name="SConstruct" printme="1">
          env = Environment(CPPPATH = ['.'],
                            LIBS = ['foo'],
                            LIBPATH = ['.'])
          env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
          env.Program('prog1.c')
          env.Program('prog2.c')
-    </programlisting>
+      </file>
+      <file name="prog1.c">
+      #include "inc.h"
+      </file>
+      <file name="prog2.c">
+      #include "inc.h"
+      </file>
+      <file name="f1.c">
+      #include "inc.h"
+      </file>
+      <file name="f2.c">
+      #include "inc.h"
+      </file>
+      <file name="f3.c">
+      #include "inc.h"
+      </file>
+      <file name="inc.h">
+      inc.h
+      </file>
+    </scons_example>
 
     <para>
 
@@ -792,79 +536,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=all</userinput>
-      cc -o f1.o -c -I. f1.c
-      cc -o f2.o -c -I. f2.c
-      cc -o f3.o -c -I. f3.c
-      ar rc libfoo.a f1.o f2.o f3.o
-      ranlib libfoo.a
-      cc -o prog1.o -c -I. prog1.c
-      cc -o prog1 prog1.o -L. -lfoo
-      cc -o prog2.o -c -I. prog2.c
-      cc -o prog2 prog2.o -L. -lfoo
-      +-.
-        +-SConstruct
-        +-f1.c
-        +-f1.o
-        | +-f1.c
-        | +-inc.h
-        +-f2.c
-        +-f2.o
-        | +-f2.c
-        | +-inc.h
-        +-f3.c
-        +-f3.o
-        | +-f3.c
-        | +-inc.h
-        +-inc.h
-        +-libfoo.a
-        | +-f1.o
-        | | +-f1.c
-        | | +-inc.h
-        | +-f2.o
-        | | +-f2.c
-        | | +-inc.h
-        | +-f3.o
-        |   +-f3.c
-        |   +-inc.h
-        +-prog1
-        | +-prog1.o
-        | | +-prog1.c
-        | | +-inc.h
-        | +-libfoo.a
-        |   +-f1.o
-        |   | +-f1.c
-        |   | +-inc.h
-        |   +-f2.o
-        |   | +-f2.c
-        |   | +-inc.h
-        |   +-f3.o
-        |     +-f3.c
-        |     +-inc.h
-        +-prog1.c
-        +-prog1.o
-        | +-prog1.c
-        | +-inc.h
-        +-prog2
-        | +-prog2.o
-        | | +-prog2.c
-        | | +-inc.h
-        | +-libfoo.a
-        |   +-f1.o
-        |   | +-f1.c
-        |   | +-inc.h
-        |   +-f2.o
-        |   | +-f2.c
-        |   | +-inc.h
-        |   +-f3.o
-        |     +-f3.c
-        |     +-inc.h
-        +-prog2.c
-        +-prog2.o
-          +-prog2.c
-          +-inc.h
-    </screen>
+    <scons_output example="tree2">
+      <scons_output_command>scons -Q --tree=all</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -884,51 +558,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --tree=prune</userinput>
-      cc -o f1.o -c -I. f1.c
-      cc -o f2.o -c -I. f2.c
-      cc -o f3.o -c -I. f3.c
-      ar rc libfoo.a f1.o f2.o f3.o
-      ranlib libfoo.a
-      cc -o prog1.o -c -I. prog1.c
-      cc -o prog1 prog1.o -L. -lfoo
-      cc -o prog2.o -c -I. prog2.c
-      cc -o prog2 prog2.o -L. -lfoo
-      +-.
-        +-SConstruct
-        +-f1.c
-        +-f1.o
-        | +-f1.c
-        | +-inc.h
-        +-f2.c
-        +-f2.o
-        | +-f2.c
-        | +-inc.h
-        +-f3.c
-        +-f3.o
-        | +-f3.c
-        | +-inc.h
-        +-inc.h
-        +-libfoo.a
-        | +-[f1.o]
-        | +-[f2.o]
-        | +-[f3.o]
-        +-prog1
-        | +-prog1.o
-        | | +-prog1.c
-        | | +-inc.h
-        | +-[libfoo.a]
-        +-prog1.c
-        +-[prog1.o]
-        +-prog2
-        | +-prog2.o
-        | | +-prog2.c
-        | | +-inc.h
-        | +-[libfoo.a]
-        +-prog2.c
-        +-[prog2.o]
-    </screen>
+    <scons_output example="tree2">
+      <scons_output_command>scons -Q --tree=prune</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -954,7 +586,15 @@
 
     </para>
 
-    
+    <scons_example name="presub">
+      <file name="SConstruct">
+         env = Environment(CPPPATH = ['.'])
+         env.Program('prog', 'prog.c')
+      </file>
+      <file name="prog.c">
+      prog.c
+      </file>
+    </scons_example>
 
     <!--
 
@@ -994,10 +634,21 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="findlibs">
+      <file name="SConstruct" printme="1">
         env = Environment(LIBPATH = ['libs1', 'libs2'])
         env.Program('prog.c', LIBS=['foo', 'bar'])
-    </programlisting>
+      </file>
+      <file name="prog.c">
+      prog.c
+      </file>
+      <file name="libs1/libfoo.a">
+      libs1/libfoo.a
+      </file>
+      <file name="libs2/libbar.a">
+      libs2/libbar.a
+      </file>
+    </scons_example>
 
     <para>
 
@@ -1009,20 +660,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --debug=findlibs</userinput>
-        findlibs: looking for 'libfoo.a' in 'libs1' ...
-        findlibs: ... FOUND 'libfoo.a' in 'libs1'
-        findlibs: looking for 'libfoo.so' in 'libs1' ...
-        findlibs: looking for 'libfoo.so' in 'libs2' ...
-        findlibs: looking for 'libbar.a' in 'libs1' ...
-        findlibs: looking for 'libbar.a' in 'libs2' ...
-        findlibs: ... FOUND 'libbar.a' in 'libs2'
-        findlibs: looking for 'libbar.so' in 'libs1' ...
-        findlibs: looking for 'libbar.so' in 'libs2' ...
-      cc -o prog.o -c prog.c
-      cc -o prog prog.o -Llibs1 -Llibs2 -lfoo -lbar
-    </screen>
+    <scons_output example="findlibs">
+      <scons_output_command>scons -Q --debug=findlibs</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -1086,9 +726,11 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="stacktrace">
+      <file name="SConstruct" printme="1">
          Program('prog.c')
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -1098,10 +740,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
-    </screen>
+    <scons_output example="stacktrace">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1116,19 +757,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --debug=stacktrace</userinput>
-      scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
-      scons: internal stack trace:
-        File "bootstrap/src/engine/SCons/Job.py", line 199, in start
-          task.prepare()
-        File "bootstrap/src/engine/SCons/Script/Main.py", line 168, in prepare
-          return SCons.Taskmaster.OutOfDateTask.prepare(self)
-        File "bootstrap/src/engine/SCons/Taskmaster.py", line 189, in prepare
-          executor.prepare()
-        File "bootstrap/src/engine/SCons/Executor.py", line 392, in prepare
-          raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
-    </screen>
+    <scons_output example="stacktrace">
+      <scons_output_command>scons -Q --debug=stacktrace</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1175,74 +806,23 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="taskmastertrace">
+      <file name="SConstruct" printme="1">
       env = Environment(CPPPATH = ['.'])
       env.Program('prog.c')
-    </programlisting>
+      </file>
+      <file name="prog.c">
+      #include "inc.h"
+      prog.c
+      </file>
+      <file name="inc.h">
+      #define   STRING  "one"
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q --taskmastertrace=- prog</userinput>
-      
-      Taskmaster: Looking for a node to evaluate
-      Taskmaster:     Considering node &lt;no_state   0   'prog'&gt; and its children:
-      Taskmaster:        &lt;no_state   0   'prog.o'&gt;
-      Taskmaster:      adjusted ref count: &lt;pending    1   'prog'&gt;, child 'prog.o'
-      Taskmaster:     Considering node &lt;no_state   0   'prog.o'&gt; and its children:
-      Taskmaster:        &lt;no_state   0   'prog.c'&gt;
-      Taskmaster:        &lt;no_state   0   'inc.h'&gt;
-      Taskmaster:      adjusted ref count: &lt;pending    1   'prog.o'&gt;, child 'prog.c'
-      Taskmaster:      adjusted ref count: &lt;pending    2   'prog.o'&gt;, child 'inc.h'
-      Taskmaster:     Considering node &lt;no_state   0   'prog.c'&gt; and its children:
-      Taskmaster: Evaluating &lt;pending    0   'prog.c'&gt;
-      
-      Task.make_ready_current(): node &lt;pending    0   'prog.c'&gt;
-      Task.prepare():      node &lt;up_to_date 0   'prog.c'&gt;
-      Task.executed_with_callbacks(): node &lt;up_to_date 0   'prog.c'&gt;
-      Task.postprocess():  node &lt;up_to_date 0   'prog.c'&gt;
-      Task.postprocess():  removing &lt;up_to_date 0   'prog.c'&gt;
-      Task.postprocess():  adjusted parent ref count &lt;pending    1   'prog.o'&gt;
-      
-      Taskmaster: Looking for a node to evaluate
-      Taskmaster:     Considering node &lt;no_state   0   'inc.h'&gt; and its children:
-      Taskmaster: Evaluating &lt;pending    0   'inc.h'&gt;
-      
-      Task.make_ready_current(): node &lt;pending    0   'inc.h'&gt;
-      Task.prepare():      node &lt;up_to_date 0   'inc.h'&gt;
-      Task.executed_with_callbacks(): node &lt;up_to_date 0   'inc.h'&gt;
-      Task.postprocess():  node &lt;up_to_date 0   'inc.h'&gt;
-      Task.postprocess():  removing &lt;up_to_date 0   'inc.h'&gt;
-      Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog.o'&gt;
-      
-      Taskmaster: Looking for a node to evaluate
-      Taskmaster:     Considering node &lt;pending    0   'prog.o'&gt; and its children:
-      Taskmaster:        &lt;up_to_date 0   'prog.c'&gt;
-      Taskmaster:        &lt;up_to_date 0   'inc.h'&gt;
-      Taskmaster: Evaluating &lt;pending    0   'prog.o'&gt;
-      
-      Task.make_ready_current(): node &lt;pending    0   'prog.o'&gt;
-      Task.prepare():      node &lt;executing  0   'prog.o'&gt;
-      Task.execute():      node &lt;executing  0   'prog.o'&gt;
-      cc -o prog.o -c -I. prog.c
-      Task.executed_with_callbacks(): node &lt;executing  0   'prog.o'&gt;
-      Task.postprocess():  node &lt;executed   0   'prog.o'&gt;
-      Task.postprocess():  removing &lt;executed   0   'prog.o'&gt;
-      Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog'&gt;
-      
-      Taskmaster: Looking for a node to evaluate
-      Taskmaster:     Considering node &lt;pending    0   'prog'&gt; and its children:
-      Taskmaster:        &lt;executed   0   'prog.o'&gt;
-      Taskmaster: Evaluating &lt;pending    0   'prog'&gt;
-      
-      Task.make_ready_current(): node &lt;pending    0   'prog'&gt;
-      Task.prepare():      node &lt;executing  0   'prog'&gt;
-      Task.execute():      node &lt;executing  0   'prog'&gt;
-      cc -o prog prog.o
-      Task.executed_with_callbacks(): node &lt;executing  0   'prog'&gt;
-      Task.postprocess():  node &lt;executed   0   'prog'&gt;
-      
-      Taskmaster: Looking for a node to evaluate
-      Taskmaster: No candidate anymore.
-    </screen>
+    <scons_output example="taskmastertrace" os="posix">
+      <scons_output_command>scons -Q --taskmastertrace=- prog</scons_output_command>
+    </scons_output>
 
     <para>
 

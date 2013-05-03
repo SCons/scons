@@ -129,7 +129,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <programlisting>
-       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
     </programlisting>
 
     <para>
@@ -163,12 +163,26 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    
-
-    <programlisting>
+    <scons_example name="ex1">
+       <file name="SConstruct">
        bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
-    </programlisting>
+       import os
+       env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+       env.Foo('file.foo', 'file.input')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="foobuild" chmod="0755">
+       cat
+       </file>
+    </scons_example>
+
+    <sconstruct>
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+       env = Environment(BUILDERS = {'Foo' : bld})
+    </sconstruct>
 
     <para>
 
@@ -188,10 +202,9 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      foobuild &lt; file.input &gt; file.foo
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -224,19 +237,30 @@ This functionality could be invoked as in the following example:
    in the generated error consistent with what the user will see in the
    User's Guide.
    -->
-    <programlisting>
+    <scons_example name="ex2">
+       <file name="SConstruct">
+       import SCons.Defaults; SCons.Defaults.ConstructionEnvironment['TOOLS'] = {}; bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+       </file>
+       <file name="SConstruct.printme" printme="1">
        bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
-    </programlisting>
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      AttributeError: 'SConsEnvironment' object has no attribute 'Program':
-        File "/home/my/project/SConstruct", line 4:
-          env.Program('hello.c')
-    </screen>
+    <scons_output example="ex2">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -247,15 +271,34 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    
+    <scons_example name="ex3">
+       <file name="SConstruct">
+       env = Environment()
+       import os
+       env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+       env.Append(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+       <file name="foobuild" chmod="0755">
+       cat
+       </file>
+    </scons_example>
 
-    <programlisting>
+    <sconstruct>
        env = Environment()
        bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env.Append(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -264,13 +307,13 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        env = Environment()
        bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
        env['BUILDERS']['Foo'] = bld
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -281,12 +324,9 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      foobuild &lt; file.input &gt; file.foo
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="ex3">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -310,22 +350,40 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    
+    <scons_example name="ex4">
+       <file name="SConstruct">
+       bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET',
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       import os
+       env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+       env.Foo('file1')
+       env.Foo('file2')
+       </file>
+       <file name="file1.input">
+       file1.input
+       </file>
+       <file name="file2.input">
+       file2.input
+       </file>
+       <file name="foobuild" chmod="0755">
+       cat
+       </file>
+    </scons_example>
 
-    <programlisting>
+    <sconstruct>
        bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET',
                      suffix = '.foo',
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file1')
        env.Foo('file2')
-    </programlisting>
+    </sconstruct>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      foobuild &lt; file1.input &gt; file1.foo
-      foobuild &lt; file2.input &gt; file2.foo
-    </screen>
+    <scons_output example="ex4">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -439,7 +497,8 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex5">
+       <file name="SConstruct" printme="1">
        def build_function(target, source, env):
            # Code to build "target" from "source"
            return None
@@ -448,7 +507,11 @@ This functionality could be invoked as in the following example:
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file')
-    </programlisting>
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+    </scons_example>
 
     <para>
 
@@ -459,10 +522,9 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      build_function(["file.foo"], ["file.input"])
-    </screen>
+    <scons_output example="ex5">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -482,7 +544,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        def generate_actions(source, target, env, for_signature):
-           return 'foobuild < %s > %s' % (target[0], source[0])
+           return 'foobuild &lt; %s &gt; %s' % (target[0], source[0])
     </programlisting>
 
     <para>
@@ -582,9 +644,27 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    
+    <scons_example name="ex6">
+       <file name="SConstruct">
+       def generate_actions(source, target, env, for_signature):
+           return 'foobuild &lt; %s &gt; %s' % (source[0], target[0])
+       bld = Builder(generator = generate_actions,
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       import os
+       env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+       env.Foo('file')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="foobuild" chmod="0755">
+       cat
+       </file>
+    </scons_example>
 
-    <programlisting>
+    <sconstruct>
        def generate_actions(source, target, env, for_signature):
            return 'foobuild &lt; %s &gt; %s' % (source[0], target[0])
        bld = Builder(generator = generate_actions,
@@ -592,12 +672,11 @@ This functionality could be invoked as in the following example:
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file')
-    </programlisting>
+    </sconstruct>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      foobuild &lt; file.input &gt; file.foo
-    </screen>
+    <scons_output example="ex6">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -643,9 +722,33 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    
+    <scons_example name="ex7">
+       <file name="SConstruct">
+       def modify_targets(target, source, env):
+           target.append('new_target')
+           source.append('new_source')
+           return target, source
+       bld = Builder(action = 'foobuild $TARGETS - $SOURCES',
+                     suffix = '.foo',
+                     src_suffix = '.input',
+                     emitter = modify_targets)
+       env = Environment(BUILDERS = {'Foo' : bld})
+       import os
+       env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+       env.Foo('file')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="new_source">
+       new_source
+       </file>
+       <file name="foobuild" chmod="0755">
+       cat
+       </file>
+    </scons_example>
 
-    <programlisting>
+    <sconstruct>
        def modify_targets(target, source, env):
            target.append('new_target')
            source.append('new_source')
@@ -656,7 +759,7 @@ This functionality could be invoked as in the following example:
                      emitter = modify_targets)
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file')
-    </programlisting>
+    </sconstruct>
 
     <para>
     
@@ -664,10 +767,9 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      foobuild file.foo new_target - file.input new_source
-    </screen>
+    <scons_output example="ex7">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -685,7 +787,9 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <scons_example name="MY_EMITTER">
+
+      <file name="SConstruct" printme="1">
         bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
                       suffix = '.foo',
                       src_suffix = '.input',
@@ -703,10 +807,26 @@ This functionality could be invoked as in the following example:
         import os
         env1['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
         env2['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
+        </file>
+        <file name="file1.input">
+        file1.input
+        </file>
+        <file name="file2.input">
+        file2.input
+        </file>
+        <file name="modify1.in">
+        modify1.input
+        </file>
+        <file name="modify2.in">
+        modify2.input
+        </file>
+        <file name="my_command" chmod="0755">
+        cat
+        </file>
 
-    </programlisting>
+    </scons_example>
 
-    <programlisting>
+    <sconstruct>
       bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
                     suffix = '.foo',
                     src_suffix = '.input',
@@ -721,7 +841,7 @@ This functionality could be invoked as in the following example:
                          MY_EMITTER = modify2)
       env1.Foo('file1')
       env2.Foo('file2')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -732,11 +852,9 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      my_command file1.input modify1.in &gt; file1.foo
-      my_command file2.input modify2.in &gt; file2.foo
-    </screen>
+    <scons_output example="MY_EMITTER">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -820,14 +938,23 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <scons_example name="site1">
+      <file name="site_scons/site_init.py" printme="1">
         def TOOL_ADD_HEADER(env):
            """A Tool to add a header from $HEADER to the source file"""
            add_header = Builder(action=['echo "$HEADER" &gt; $TARGET',
                                         'cat $SOURCE &gt;&gt; $TARGET'])
            env.Append(BUILDERS = {'AddHeader' : add_header})
            env['HEADER'] = '' # set default value
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+        env=Environment(tools=['default', TOOL_ADD_HEADER], HEADER="=====")
+        env.AddHeader('tgt', 'src')
+      </file>
+      <file name="src">
+        hi there
+      </file>
+    </scons_example>
 
     <para>
 
@@ -835,11 +962,11 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <sconstruct>
         # Use TOOL_ADD_HEADER from site_scons/site_init.py
         env=Environment(tools=['default', TOOL_ADD_HEADER], HEADER="=====")
         env.AddHeader('tgt', 'src')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -885,7 +1012,8 @@ This functionality could be invoked as in the following example:
       functions:
     </para>
       
-    <programlisting>
+    <scons_example name="site2">
+      <file name="site_scons/my_utils.py" printme="1">
         from SCons.Script import *   # for Execute and Mkdir
         def build_id():
            """Return a build ID (stub version)"""
@@ -893,7 +1021,13 @@ This functionality could be invoked as in the following example:
         def MakeWorkDir(workdir):
            """Create the specified dir immediately"""
            Execute(Mkdir(workdir))
-    </programlisting>
+      </file>
+      <file name="SConscript">
+        import my_utils
+        MakeWorkDir('/tmp/work')
+        print "build_id=" + my_utils.build_id()
+      </file>
+    </scons_example>
 
     <para>
 
@@ -902,11 +1036,11 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <sconstruct>
         import my_utils
         print "build_id=" + my_utils.build_id()
         my_utils.MakeWorkDir('/tmp/work')
-    </programlisting>
+    </sconstruct>
 
     <para>
       Note that although you can put this library in
@@ -917,9 +1051,9 @@ This functionality could be invoked as in the following example:
       such as &Environment; or &Mkdir; or &Execute; in any file other
       than a &SConstruct; or &SConscript; you always need to do
     </para>
-    <programlisting>
+    <sconstruct>
         from SCons.Script import *
-    </programlisting>
+    </sconstruct>
 
     <para>
       This is true in modules in <filename>site_scons</filename> such as

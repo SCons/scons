@@ -36,15 +36,19 @@
 
   </para>
 
-  
+  <scons_example name="ex1">
+    <file name="SConstruct">
+    Program('hello.c')
+    </file>
+    <file name="hello.c">
+    int main() { printf("Hello, world!\n"); }
+    </file>
+  </scons_example>
 
-  <screen>
-     % <userinput>scons -Q</userinput>
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-     % <userinput>scons -Q</userinput>
-     scons: `.' is up to date.
-  </screen>
+  <scons_output example="ex1" os="posix">
+     <scons_output_command>scons -Q</scons_output_command>
+     <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
 
   <para>
 
@@ -57,13 +61,10 @@
 
   </para>
 
-  <screen>
-     % <userinput>scons -Q hello</userinput>
-     cc -o hello.o -c hello.c
-     cc -o hello hello.o
-     % <userinput>scons -Q hello</userinput>
-     scons: `hello' is up to date.
-  </screen>
+  <scons_output example="ex1" os="posix">
+     <scons_output_command>scons -Q hello</scons_output_command>
+     <scons_output_command>scons -Q hello</scons_output_command>
+  </scons_output>
 
   <para>
 
@@ -112,14 +113,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-         % <userinput>touch hello.c</userinput>
-         % <userinput>scons -Q hello</userinput>
-         scons: `hello' is up to date.
-      </screen>
+      <scons_output example="ex1" os="posix">
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -137,16 +135,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-         % <userinput>edit hello.c</userinput>
-             [CHANGE THE CONTENTS OF hello.c]
-         % <userinput>scons -Q hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-      </screen>
+      <scons_output example="ex1" os="posix">
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -157,10 +150,10 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Program('hello.c')
         Decider('MD5')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -201,16 +194,11 @@
 
         </para>
 
-        <screen>
-           % <userinput>scons -Q hello</userinput>
-           cc -o hello.o -c hello.c
-           cc -o hello hello.o
-           % <userinput>edit hello.c</userinput>
-             [CHANGE A COMMENT IN hello.c]
-           % <userinput>scons -Q hello</userinput>
-           cc -o hello.o -c hello.c
-           scons: `hello' is up to date.
-        </screen>
+        <scons_output example="ex1" os="posix">
+           <scons_output_command>scons -Q hello</scons_output_command>
+           <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</scons_output_command>
+           <scons_output_command>scons -Q hello</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -258,10 +246,15 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="newer">
+        <file name="SConstruct" printme="1">
         Object('hello.c')
         Decider('timestamp-newer')
-      </programlisting>
+        </file>
+        <file name="hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -271,13 +264,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q hello.o</userinput>
-         cc -o hello.o -c hello.c
-         % <userinput>touch hello.c</userinput>
-         % <userinput>scons -Q hello.o</userinput>
-         cc -o hello.o -c hello.c
-      </screen>
+      <scons_output example="newer" os="posix">
+         <scons_output_command>scons -Q hello.o</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -289,10 +280,10 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Object('hello.c')
         Decider('make')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -324,10 +315,15 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="match">
+        <file name="SConstruct" printme="1">
         Object('hello.c')
         Decider('timestamp-match')
-      </programlisting>
+        </file>
+        <file name="hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -341,13 +337,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q hello.o</userinput>
-         cc -o hello.o -c hello.c
-         % <userinput>touch -t 198901010000 hello.c</userinput>
-         % <userinput>scons -Q hello.o</userinput>
-         cc -o hello.o -c hello.c
-      </screen>
+      <scons_output example="match" os="posix">
+         <scons_output_command>scons -Q hello.o</scons_output_command>
+         <scons_output_command>touch -t 198901010000 hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello.o</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -380,10 +374,15 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="MD5-timestamp">
+        <file name="SConstruct" printme="1">
         Program('hello.c')
         Decider('MD5-timestamp')
-      </programlisting>
+        </file>
+        <file name="hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -493,7 +492,8 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="function">
+        <file name="SConstruct" printme="1">
         Program('hello.c')
         def decide_if_changed(dependency, target, prev_ni):
             if self.get_timestamp() != prev_ni.timestamp:
@@ -503,7 +503,11 @@
                     return True
             return False
         Decider(decide_if_changed)
-      </programlisting>
+        </file>
+        <file name="hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -608,7 +612,7 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment()
         
         def config_file_decider(dependency, target, prev_ni):
@@ -623,7 +627,7 @@
             if not os.path.exists(str(target.abspath)):
                 return True
             if dep_csig != prev_ni.csig:
-                # Some change on source file =&gt; update installed one
+                # Some change on source file => update installed one
                 return True
             return False
         
@@ -638,7 +642,7 @@
         env.Decider(config_file_decider)
         
         env.Install("install","test.txt")
-      </programlisting>
+      </sconstruct>
 
     </section>
 
@@ -670,13 +674,26 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="mixing">
+        <file name="SConstruct" printme="1">
         env1 = Environment(CPPPATH = ['.'])
         env2 = env1.Clone()
         env2.Decider('timestamp-match')
         env1.Program('prog-MD5', 'program1.c')
         env2.Program('prog-timestamp', 'program2.c')
-      </programlisting>
+        </file>
+        <file name="program1.c">
+        #include "inc.h"
+        int main() { printf("Hello, world!\n"); }
+        </file>
+        <file name="program2.c">
+        #include "inc.h"
+        int main() { printf("Hello, world!\n"); }
+        </file>
+        <file name="inc.h">
+        #define INC     1
+        </file>
+      </scons_example>
 
       <para>
 
@@ -690,17 +707,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o program1.o -c -I. program1.c
-         cc -o prog-MD5 program1.o
-         cc -o program2.o -c -I. program2.c
-         cc -o prog-timestamp program2.o
-         % <userinput>touch inc.h</userinput>
-         % <userinput>scons -Q</userinput>
-         cc -o program2.o -c -I. program2.c
-         cc -o prog-timestamp program2.o
-      </screen>
+      <scons_output example="mixing" os="posix">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>touch inc.h</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -737,10 +748,10 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Program('hello.c')
         SourceSignatures('MD5')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -748,10 +759,10 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Program('hello.c')
         SourceSignatures('timestamp')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -805,10 +816,10 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Program('hello.c')
         TargetSignatures('MD5')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -819,10 +830,10 @@
       
       </para>
 
-      <programlisting>
+      <sconstruct>
         Program('hello.c')
         TargetSignatures('timestamp')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -848,11 +859,11 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         Program('hello.c')
         TargetSignatures('source')
         SourceSignatures('timestamp')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -914,14 +925,22 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="include">
+      <file name="SConstruct">
+       Program('hello.c', CPPPATH = '.')
+      </file>
+      <file name="hello.c" printme="1">
        #include &lt;hello.h&gt;
        int
        main()
        {
            printf("Hello, %s!\n", string);
        }
-    </programlisting>
+      </file>
+      <file name="hello.h">
+       #define string    "world"
+      </file>
+    </scons_example>
 
     <para>
 
@@ -929,10 +948,8 @@
 
     </para>
 
-    
-    <programlisting>
-       #define string    "world"
-      </programlisting>
+    <scons_example_file example="include"  name="hello.h">
+    </scons_example_file>
 
     <para>
 
@@ -944,10 +961,8 @@
 
     </para>
 
-    
-    <programlisting>
-       Program('hello.c', CPPPATH = '.')
-      </programlisting>
+    <scons_example_file example="include"  name="SConstruct">
+    </scons_example_file>
 
     <para>
 
@@ -960,18 +975,12 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q hello</userinput>
-       cc -o hello.o -c -I. hello.c
-       cc -o hello hello.o
-       % <userinput>scons -Q hello</userinput>
-       scons: `hello' is up to date.
-       % <userinput>edit hello.h</userinput>
-           [CHANGE THE CONTENTS OF hello.h]
-       % <userinput>scons -Q hello</userinput>
-       cc -o hello.o -c -I. hello.c
-       cc -o hello hello.o
-    </screen>
+    <scons_output example="include" os="posix">
+       <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1016,9 +1025,14 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex5">
+      <file name="SConstruct" printme="1">
        Program('hello.c', CPPPATH = ['include', '/home/project/inc'])
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -1026,11 +1040,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q hello</userinput>
-       cc -o hello.o -c -Iinclude -I/home/project/inc hello.c
-       cc -o hello hello.o
-    </screen>
+    <scons_output example="ex5" os="posix">
+       <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1038,12 +1050,9 @@
 
     </para>
 
-    <screen>
-       C:\><userinput>scons -Q hello.exe</userinput>
-       cl /Fohello.obj /c hello.c /nologo /Iinclude /I\home\project\inc
-       link /nologo /OUT:hello.exe hello.obj
-       embedManifestExeCheck(target, source, env)
-    </screen>
+    <scons_output example="ex5" os="win32">
+       <scons_output_command>scons -Q hello.exe</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -1095,13 +1104,10 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q --implicit-cache hello</userinput>
-       cc -o hello.o -c hello.c
-       cc -o hello hello.o
-       % <userinput>scons -Q hello</userinput>
-       scons: `hello' is up to date.
-    </screen>
+    <scons_output example="ex1">
+       <scons_output_command>scons -Q --implicit-cache hello</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1113,9 +1119,9 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
        SetOption('implicit_cache', 1)
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -1178,13 +1184,10 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q --implicit-deps-changed hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-         % <userinput>scons -Q hello</userinput>
-         scons: `hello' is up to date.
-      </screen>
+      <scons_output example="ex1">
+         <scons_output_command>scons -Q --implicit-deps-changed hello</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1216,13 +1219,10 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q --implicit-deps-unchanged hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-         % <userinput>scons -Q hello</userinput>
-         scons: `hello' is up to date.
-      </screen>
+      <scons_output example="ex1">
+         <scons_output_command>scons -Q --implicit-deps-unchanged hello</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1340,24 +1340,29 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="macroinc">
+      <file name="hello.c" printme="1">
       #define FOO_HEADER &lt;foo.h&gt;
       #include FOO_HEADER
 
       int main() {
           return FOO;
       }
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      Program('hello', 'hello.c', CPPPATH='.')
+      </file>
+      <file name="foo.h">
+      #define FOO 42
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c -I. hello.c
-      cc -o hello hello.o
-      % <userinput>edit foo.h</userinput>
-         [CHANGE CONTENTS OF foo.h]
-      % <userinput>scons -Q</userinput>
-      scons: `.' is up to date.
-    </screen>
+    <scons_output example="macroinc" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="   [CHANGE CONTENTS OF foo.h]"
+      >edit foo.h</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1388,22 +1393,35 @@
     priori specification of the dependency file. The produced hello.d
     file is not found (or used) for unknown reasons. -->
 
-    <programlisting>
+    <scons_example name="parsedep">
+      <file name="hello.c">
+      #define FOO_HEADER &lt;foo.h&gt;
+      #include FOO_HEADER
+
+      int main() {
+          return FOO;
+      }
+      </file>
+      <file name="SConstruct" printme="1">
       obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
       SideEffect('hello.d', obj)
       ParseDepends('hello.d')
       Program('hello', obj)
-    </programlisting>
+      </file>
+      <file name="foo.h">
+      #define FOO 42
+      </file>
+      <file name="hello.d">
+      hello.o: hello.c foo.h
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c -MD -MF hello.d -I. hello.c
-      cc -o hello hello.o
-      % <userinput>edit foo.h</userinput>
-         [CHANGE CONTENTS OF foo.h]
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c -MD -MF hello.d -I. hello.c
-    </screen>
+    <scons_output example="parsedep" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="   [CHANGE CONTENTS OF foo.h]"
+      >edit foo.h</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1413,7 +1431,25 @@
 
     </para>
 
-    
+    <scons_example name="parsedeprebuild">
+      <file name="hello.c">
+      #define FOO_HEADER &lt;foo.h&gt;
+      #include FOO_HEADER
+
+      int main() {
+          return FOO;
+      }
+      </file>
+      <file name="SConstruct">
+      obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
+      SideEffect('hello.d', obj)
+      ParseDepends('hello.d')
+      Program('hello', obj)
+      </file>
+      <file name="foo.h">
+      #define FOO 42
+      </file>
+    </scons_example>
 
     <!--
     <scons_output example="parsedeprebuild" os="posix">
@@ -1474,11 +1510,20 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ignore">
+      <file name="SConstruct" printme="1">
       hello_obj=Object('hello.c')
       hello = Program(hello_obj)
       Ignore(hello_obj, 'hello.h')
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      #include "hello.h"
+      int main() { printf("Hello, %s!\n", string); }
+      </file>
+      <file name="hello.h">
+      #define string    "world"
+      </file>
+    </scons_example>
 
     <!-- XXX mention that you can use lists for target and source? -->
 
@@ -1541,21 +1586,23 @@
     by default.
     </para>
 
-    <programlisting>
+    <scons_example name="ignore_explicit">
+      <file name="SConstruct" printme="1">
       hello_obj=Object('hello.c')
       hello = Program(hello_obj)
       Ignore('.',[hello,hello_obj])
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      #include "stdio.h"
+      int main() { printf("Hello!\n"); }
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      scons: `.' is up to date.
-      % <userinput>scons -Q hello</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q hello</userinput>
-      scons: `hello' is up to date.
-    </screen>
+    <scons_output example="ignore_explicit" os="posix">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
   </section>
 
   <section>
@@ -1600,7 +1647,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="no-Requires">
+      <file name="SConstruct" printme="1">
       import time
 
       version_c_text = """
@@ -1609,7 +1657,12 @@
       open('version.c', 'w').write(version_c_text)
 
       hello = Program(['hello.c', 'version.c'])
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      extern char *date;
+      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -1624,20 +1677,13 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q hello</userinput>
-      cc -o hello.o -c hello.c
-      cc -o version.o -c version.c
-      cc -o hello hello.o version.o
-      % <userinput>sleep 1</userinput>
-      % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
-      cc -o hello hello.o version.o
-      % <userinput>sleep 1</userinput>
-      % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
-      cc -o hello hello.o version.o
-    </screen>
+    <scons_output example="no-Requires">
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1660,7 +1706,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Requires">
+      <file name="SConstruct" printme="1">
       import time
 
       version_c_text = """
@@ -1674,7 +1721,12 @@
                       LINKFLAGS = str(version_obj[0]))
 
       Requires(hello, version_obj)
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      extern char *date;
+      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -1702,27 +1754,16 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
-      cc -o hello.o -c hello.c
-      cc -o hello version.o hello.o
-      % <userinput>sleep 1</userinput>
-      % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
-      scons: `hello' is up to date.
-      % <userinput>sleep 1</userinput>
-      % <userinput>edit hello.c</userinput>
-          [CHANGE THE CONTENTS OF hello.c]
-      % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
-      cc -o hello.o -c hello.c
-      cc -o hello version.o hello.o
-      % <userinput>sleep 1</userinput>
-      % <userinput>scons -Q hello</userinput>
-      cc -o version.o -c version.c
-      scons: `hello' is up to date.
-    </screen>
+    <scons_output example="Requires">
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>sleep 1</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -1738,10 +1779,15 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="AlwaysBuild">
+      <file name="SConstruct" printme="1">
       hello = Program('hello.c')
       AlwaysBuild(hello)
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, %s!\n", string); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -1752,13 +1798,10 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q</userinput>
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="AlwaysBuild">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -1777,13 +1820,10 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q hello.o</userinput>
-      scons: `hello.o' is up to date.
-    </screen>
+    <scons_output example="AlwaysBuild">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q hello.o</scons_output_command>
+    </scons_output>
 
     <!--
 

@@ -151,9 +151,18 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
       SConscript('src/SConscript', variant_dir='build')
-    </programlisting>
+      </file>
+      <file name="src/SConscript">
+      env = Environment()
+      env.Program('hello.c')
+      </file>
+      <file name="src/hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -162,15 +171,11 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <screen>
-      % <userinput>ls src</userinput>
-      SConscript  hello.c
-      % <userinput>scons -Q</userinput>
-      cc -o build/hello.o -c build/hello.c
-      cc -o build/hello build/hello.o
-      % <userinput>ls build</userinput>
-      SConscript  hello  hello.c  hello.o
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -240,9 +245,9 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       #include "file.h"
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -293,9 +298,9 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       SConscript('src/SConscript', variant_dir='build', duplicate=0)
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -332,11 +337,16 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex_builddir">
+      <file name="SConstruct" printme="1">
       VariantDir('build', 'src')
       env = Environment()
       env.Program('build/hello.c')
-    </programlisting>
+      </file>
+      <file name="src/hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -358,15 +368,11 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <screen>
-      % <userinput>ls src</userinput>
-      hello.c
-      % <userinput>scons -Q</userinput>
-      cc -o build/hello.o -c build/hello.c
-      cc -o build/hello build/hello.o
-      % <userinput>ls build</userinput>
-      hello  hello.c  hello.o
-    </screen>
+    <scons_output example="ex_builddir">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -375,11 +381,16 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex_duplicate_0">
+      <file name="SConstruct" printme="1">
       VariantDir('build', 'src', duplicate=0)
       env = Environment()
       env.Program('build/hello.c')
-    </programlisting>
+      </file>
+      <file name="src/hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -388,15 +399,11 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <screen>
-      % <userinput>ls src</userinput>
-      hello.c
-      % <userinput>scons -Q</userinput>
-      cc -o build/hello.o -c src/hello.c
-      cc -o build/hello build/hello.o
-      % <userinput>ls build</userinput>
-      hello  hello.o
-    </screen>
+    <scons_output example="ex_duplicate_0">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -414,10 +421,19 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <scons_example name="example_builddir_sconscript">
+      <file name="SConstruct">
+      VariantDir('build', 'src')
+      SConscript('build/SConscript')
+      </file>
+      <file name="src/SConscript" printme="1">
       env = Environment()
       env.Program('hello.c')
-    </programlisting>
+      </file>
+      <file name="src/hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -425,11 +441,8 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    
-    <programlisting>
-      VariantDir('build', 'src')
-      SConscript('build/SConscript')
-      </programlisting>
+    <scons_example_file example="example_builddir_sconscript" name="SConstruct">
+    </scons_example_file>
 
     <para>
 
@@ -437,15 +450,11 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <screen>
-      % <userinput>ls src</userinput>
-      SConscript  hello.c
-      % <userinput>scons -Q</userinput>
-      cc -o build/hello.o -c build/hello.c
-      cc -o build/hello build/hello.o
-      % <userinput>ls build</userinput>
-      SConscript  hello  hello.c  hello.o
-    </screen>
+    <scons_output example="example_builddir_sconscript">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -470,10 +479,26 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <programlisting>
+    <scons_example name="example_glob_builddir_sconscript">
+      <file name="SConstruct">
+      VariantDir('build', 'src')
+      SConscript('build/SConscript')
+      </file>
+      <file name="src/SConscript" printme="1">
       env = Environment()
       env.Program('hello', Glob('*.c'))
-    </programlisting>
+      </file>
+      <file name="src/f1.c">
+      #include "f2.h"
+      int main() { printf(f2()); }
+      </file>
+      <file name="src/f2.c">
+      const char * f2() { return("Hello, world!\n"); }
+      </file>
+      <file name="src/f2.h">
+      const char * f2();
+      </file>
+    </scons_example>
 
     <para>
 
@@ -484,16 +509,11 @@ program using the F<build/foo.c> path name.
 
     </para>
 
-    <screen>
-      % <userinput>ls src</userinput>
-      SConscript  f1.c  f2.c  f2.h
-      % <userinput>scons -Q</userinput>
-      cc -o build/f1.o -c build/f1.c
-      cc -o build/f2.o -c build/f2.c
-      cc -o build/hello build/f1.o build/f2.o
-      % <userinput>ls build</userinput>
-      SConscript  f1.c  f1.o  f2.c  f2.h  f2.o  hello
-    </screen>
+    <scons_output example="example_glob_builddir_sconscript">
+      <scons_output_command>ls src</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>ls build</scons_output_command>
+    </scons_output>
 
     <para>
 

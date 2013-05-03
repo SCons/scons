@@ -146,19 +146,26 @@
 
       </para>
 
-      
+      <scons_example name="SCONSFLAGS">
+        <file name="SConstruct">
+        def b(target, source, env):
+            pass
+        def s(target, source, env):
+            return "    ... [build output] ..."
+        a = Action(b, strfunction = s)
+        env = Environment(BUILDERS = {'A' : Builder(action=a)})
+        env.A('foo.out', 'foo.in')
+        </file>
+        <file name="foo.in">
+        foo.in
+        </file>
+      </scons_example>
 
-      <screen>
-        % <userinput>scons</userinput>
-        scons: Reading SConscript files ...
-        scons: done reading SConscript files.
-        scons: Building targets ...
-            ... [build output] ...
-        scons: done building targets.
-        % <userinput>export SCONSFLAGS="-Q"</userinput>
-        % <userinput>scons</userinput>
-            ... [build output] ...
-      </screen>
+      <scons_output example="SCONSFLAGS">
+        <scons_output_command>scons</scons_output_command>
+        <scons_output_command>export SCONSFLAGS="-Q"</scons_output_command>
+        <scons_output_command environment="SCONSFLAGS=-Q">scons</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -214,10 +221,10 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         if not GetOption('help'):
             SConscript('src/SConscript', export='env')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -283,12 +290,17 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="SetOption">
+        <file name="SConstruct" printme="1">
         import os
         num_cpu = int(os.environ.get('NUM_CPU', 2))
         SetOption('num_jobs', num_cpu)
         print "running with -j", GetOption('num_jobs')
-      </programlisting>
+        </file>
+        <file name="foo.in">
+        foo.in
+        </file>
+      </scons_example>
 
       <para>
 
@@ -310,11 +322,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        running with -j 2
-        scons: `.' is up to date.
-      </screen>
+      <scons_output example="SetOption">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -324,12 +334,10 @@
 
       </para>
 
-      <screen>
-        % <userinput>export NUM_CPU="4"</userinput>
-        % <userinput>scons -Q</userinput>
-        running with -j 4
-        scons: `.' is up to date.
-      </screen>
+      <scons_output example="SetOption">
+        <scons_output_command>export NUM_CPU="4"</scons_output_command>
+        <scons_output_command environment="NUM_CPU=4">scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -342,15 +350,11 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q -j 7</userinput>
-        running with -j 7
-        scons: `.' is up to date.
-        % <userinput>export NUM_CPU="4"</userinput>
-        % <userinput>scons -Q -j 3</userinput>
-        running with -j 3
-        scons: `.' is up to date.
-      </screen>
+      <scons_output example="SetOption">
+        <scons_output_command>scons -Q -j 7</scons_output_command>
+        <scons_output_command>export NUM_CPU="4"</scons_output_command>
+        <scons_output_command environment="NUM_CPU=4">scons -Q -j 3</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -600,7 +604,8 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="AddOption">
+        <file name="SConstruct" printme="1">
         AddOption('--prefix',
                   dest='prefix',
                   type='string',
@@ -613,7 +618,11 @@
 
         installed_foo = env.Install('$PREFIX/usr/bin', 'foo.in')
         Default(installed_foo)
-      </programlisting>
+        </file>
+        <file name="foo.in">
+        foo.in
+        </file>
+      </scons_example>
 
       <para>
 
@@ -631,10 +640,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q -n</userinput>
-        Install file: "foo.in" as "/usr/bin/foo.in"
-      </screen>
+      <scons_output example="AddOption">
+        <scons_output_command>scons -Q -n</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -644,10 +652,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q -n --prefix=/tmp/install</userinput>
-        Install file: "foo.in" as "/tmp/install/usr/bin/foo.in"
-      </screen>
+      <scons_output example="AddOption">
+        <scons_output_command>scons -Q -n --prefix=/tmp/install</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -702,13 +709,18 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ARGUMENTS">
+       <file name="SConstruct" printme="1">
        env = Environment()
        debug = ARGUMENTS.get('debug', 0)
        if int(debug):
            env.Append(CCFLAGS = '-g')
        env.Program('prog.c')
-    </programlisting>
+       </file>
+       <file name="prog.c">
+       prog.c
+       </file>
+    </scons_example>
 
     <para>
 
@@ -719,18 +731,12 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q debug=0</userinput>
-       cc -o prog.o -c prog.c
-       cc -o prog prog.o
-       % <userinput>scons -Q debug=0</userinput>
-       scons: `.' is up to date.
-       % <userinput>scons -Q debug=1</userinput>
-       cc -o prog.o -c -g prog.c
-       cc -o prog prog.o
-       % <userinput>scons -Q debug=1</userinput>
-       scons: `.' is up to date.
-    </screen>
+    <scons_output example="ARGUMENTS">
+       <scons_output_command>scons -Q debug=0</scons_output_command>
+       <scons_output_command>scons -Q debug=0</scons_output_command>
+       <scons_output_command>scons -Q debug=1</scons_output_command>
+       <scons_output_command>scons -Q debug=1</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -792,14 +798,19 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ARGLIST">
+       <file name="SConstruct" printme="1">
        cppdefines = []
        for key, value in ARGLIST:
            if key == 'define':
                cppdefines.append(value)
        env = Environment(CPPDEFINES = cppdefines)
        env.Object('prog.c')
-    </programlisting>
+       </file>
+       <file name="prog.c">
+       prog.c
+       </file>
+    </scons_example>
 
     <para>
 
@@ -807,12 +818,10 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q define=FOO</userinput>
-       cc -o prog.o -c -DFOO prog.c
-       % <userinput>scons -Q define=FOO define=BAR</userinput>
-       cc -o prog.o -c -DFOO -DBAR prog.c
-    </screen>
+    <scons_output example="ARGLIST">
+       <scons_output_command>scons -Q define=FOO</scons_output_command>
+       <scons_output_command>scons -Q define=FOO define=BAR</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -874,13 +883,21 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Variables1">
+        <file name="SConstruct" printme="1">
            vars = Variables(None, ARGUMENTS)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
            env = Environment(variables = vars,
                              CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
            env.Program(['foo.c', 'bar.c'])
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="bar.c">
+        bar.c
+        </file>
+      </scons_example>
 
       <para>
 
@@ -911,12 +928,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q RELEASE=1</userinput>
-        cc -o bar.o -c -DRELEASE_BUILD=1 bar.c
-        cc -o foo.o -c -DRELEASE_BUILD=1 foo.c
-        cc -o foo foo.o bar.o
-      </screen>
+      <scons_output example="Variables1">
+        <scons_output_command>scons -Q RELEASE=1</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -960,12 +974,14 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Variables_Help">
+        <file name="SConstruct" printme="1">
            vars = Variables(None, ARGUMENTS)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
            env = Environment(variables = vars)
            Help(vars.GenerateHelpText(env))
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -974,15 +990,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q -h</userinput>
-        
-        RELEASE: Set to 1 to build for release
-            default: 0
-            actual: 0
-        
-        Use scons -H for help about command-line options.
-      </screen>
+      <scons_output example="Variables_Help">
+        <scons_output_command>scons -Q -h</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1011,14 +1021,25 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Variables_custom_py_1">
+        <file name="SConstruct" printme="1">
            vars = Variables('custom.py')
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
            env = Environment(variables = vars,
                              CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
            env.Program(['foo.c', 'bar.c'])
            Help(vars.GenerateHelpText(env))
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="bar.c">
+        bar.c
+        </file>
+        <file name="custom.py">
+        RELEASE = 1
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1027,9 +1048,7 @@
 
       </para>
 
-      <programlisting>
-        RELEASE = 1
-        </programlisting>
+      <scons_example_file example="Variables_custom_py_1" name="custom.py"></scons_example_file>
 
       <para>
 
@@ -1039,12 +1058,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o bar.o -c -DRELEASE_BUILD=1 bar.c
-        cc -o foo.o -c -DRELEASE_BUILD=1 foo.c
-        cc -o foo foo.o bar.o
-      </screen>
+      <scons_output example="Variables_custom_py_1">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1052,9 +1068,25 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Variables_custom_py_2">
+        <file name="SConstruct">
+           vars = Variables('custom.py')
+           vars.Add('RELEASE', 'Set to 1 to build for release', 0)
+           env = Environment(variables = vars,
+                             CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+           env.Program(['foo.c', 'bar.c'])
+           Help(vars.GenerateHelpText(env))
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="bar.c">
+        bar.c
+        </file>
+        <file name="custom.py" printme="1">
         RELEASE = 0
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1063,12 +1095,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o bar.o -c -DRELEASE_BUILD=0 bar.c
-        cc -o foo.o -c -DRELEASE_BUILD=0 foo.c
-        cc -o foo foo.o bar.o
-      </screen>
+      <scons_output example="Variables_custom_py_2">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1129,13 +1158,18 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="BoolVariable">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(BoolVariable('RELEASE', 'Set to build for release', 0))
              env = Environment(variables = vars,
                                CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1146,15 +1180,13 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q RELEASE=yes foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=True foo.c
-        </screen>
+        <scons_output example="BoolVariable">
+          <scons_output_command>scons -Q RELEASE=yes foo.o</scons_output_command>
+        </scons_output>
 
-        <screen>
-          % <userinput>scons -Q RELEASE=t foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=True foo.c
-        </screen>
+        <scons_output example="BoolVariable">
+          <scons_output_command>scons -Q RELEASE=t foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1177,15 +1209,13 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q RELEASE=no foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=False foo.c
-        </screen>
+        <scons_output example="BoolVariable">
+          <scons_output_command>scons -Q RELEASE=no foo.o</scons_output_command>
+        </scons_output>
 
-        <screen>
-          % <userinput>scons -Q RELEASE=f foo.o</userinput>
-          cc -o foo.o -c -DRELEASE_BUILD=False foo.c
-        </screen>
+        <scons_output example="BoolVariable">
+          <scons_output_command>scons -Q RELEASE=f foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1206,13 +1236,9 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q RELEASE=bad_value foo.o</userinput>
-          
-          scons: *** Error converting option: RELEASE
-          Invalid value for boolean option: bad_value
-          File "/home/my/project/SConstruct", line 4, in &lt;module&gt;
-        </screen>
+        <scons_output example="BoolVariable">
+          <scons_output_command>scons -Q RELEASE=bad_value foo.o</scons_output_command>
+        </scons_output>
 
       </section>
 
@@ -1236,14 +1262,19 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="EnumVariable">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
                                  allowed_values=('red', 'green', 'blue')))
              env = Environment(variables = vars,
                                CPPDEFINES={'COLOR' : '"${COLOR}"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1252,14 +1283,11 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLOR=red foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="red" foo.c
-          % <userinput>scons -Q COLOR=blue foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
-          % <userinput>scons -Q COLOR=green foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="green" foo.c
-        </screen>
+        <scons_output example="EnumVariable">
+          <scons_output_command>scons -Q COLOR=red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=blue foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1270,12 +1298,9 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLOR=magenta foo.o</userinput>
-          
-          scons: *** Invalid value for option COLOR: magenta.  Valid values are: ('red', 'green', 'blue')
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-        </screen>
+        <scons_output example="EnumVariable">
+          <scons_output_command>scons -Q COLOR=magenta foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1291,7 +1316,8 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="EnumVariable_map">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
                                  allowed_values=('red', 'green', 'blue'),
@@ -1299,7 +1325,11 @@
              env = Environment(variables = vars,
                                CPPDEFINES={'COLOR' : '"${COLOR}"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1311,10 +1341,9 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLOR=navy foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
-        </screen>
+        <scons_output example="EnumVariable_map">
+          <scons_output_command>scons -Q COLOR=navy foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1326,20 +1355,11 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLOR=Red foo.o</userinput>
-          
-          scons: *** Invalid value for option COLOR: Red.  Valid values are: ('red', 'green', 'blue')
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-          % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
-          
-          scons: *** Invalid value for option COLOR: BLUE.  Valid values are: ('red', 'green', 'blue')
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-          % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-          
-          scons: *** Invalid value for option COLOR: nAvY.  Valid values are: ('red', 'green', 'blue')
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-        </screen>
+        <scons_output example="EnumVariable">
+          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1351,7 +1371,8 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="EnumVariable_ic1">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
                                  allowed_values=('red', 'green', 'blue'),
@@ -1360,7 +1381,11 @@
              env = Environment(variables = vars,
                                CPPDEFINES={'COLOR' : '"${COLOR}"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1368,16 +1393,12 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLOR=Red foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="Red" foo.c
-          % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="BLUE" foo.c
-          % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
-          % <userinput>scons -Q COLOR=green foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="green" foo.c
-        </screen>
+        <scons_output example="EnumVariable_ic1">
+          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1390,7 +1411,8 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="EnumVariable_ic2">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
                                  allowed_values=('red', 'green', 'blue'),
@@ -1399,7 +1421,11 @@
              env = Environment(variables = vars,
                                CPPDEFINES={'COLOR' : '"${COLOR}"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1412,14 +1438,11 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLOR=Red foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="red" foo.c
-          % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="blue" foo.c
-          % <userinput>scons -Q COLOR=GREEN foo.o</userinput>
-          cc -o foo.o -c -DCOLOR="green" foo.c
-        </screen>
+        <scons_output example="EnumVariable_ic2">
+          <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLOR=GREEN foo.o</scons_output_command>
+        </scons_output>
 
       </section>
 
@@ -1437,14 +1460,19 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="ListVariable">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(ListVariable('COLORS', 'List of colors', 0,
                                  ['red', 'green', 'blue']))
              env = Environment(variables = vars,
                                CPPDEFINES={'COLORS' : '"${COLORS}"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1455,12 +1483,10 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLORS=red,blue foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="red blue" foo.c
-          % <userinput>scons -Q COLORS=blue,green,red foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="blue green red" foo.c
-        </screen>
+        <scons_output example="ListVariable">
+          <scons_output_command>scons -Q COLORS=red,blue foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLORS=blue,green,red foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1472,12 +1498,10 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLORS=all foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="red green blue" foo.c
-          % <userinput>scons -Q COLORS=none foo.o</userinput>
-          cc -o foo.o -c -DCOLORS="" foo.c
-        </screen>
+        <scons_output example="ListVariable">
+          <scons_output_command>scons -Q COLORS=all foo.o</scons_output_command>
+          <scons_output_command>scons -Q COLORS=none foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1486,13 +1510,9 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q COLORS=magenta foo.o</userinput>
-          
-          scons: *** Error converting option: COLORS
-          Invalid value(s) for option: magenta
-          File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-        </screen>
+        <scons_output example="ListVariable">
+          <scons_output_command>scons -Q COLORS=magenta foo.o</scons_output_command>
+        </scons_output>
 
       </section>
 
@@ -1511,15 +1531,26 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="PathVariable">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('CONFIG',
                                  'Path to configuration file',
-                                 '/etc/my_config'))
+                                 '__ROOT__/etc/my_config'))
              env = Environment(variables = vars,
                                CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+          <file name="__ROOT__/etc/my_config">
+          /opt/location
+          </file>
+          <file name="__ROOT__/usr/local/etc/other_config">
+          /opt/location
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1529,12 +1560,10 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q foo.o</userinput>
-          cc -o foo.o -c -DCONFIG_FILE="/etc/my_config" foo.c
-          % <userinput>scons -Q CONFIG=/usr/local/etc/other_config foo.o</userinput>
-          scons: `foo.o' is up to date.
-        </screen>
+        <scons_output example="PathVariable">
+          <scons_output_command>scons -Q foo.o</scons_output_command>
+          <scons_output_command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1544,12 +1573,9 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q CONFIG=/does/not/exist foo.o</userinput>
-          
-          scons: *** Path for option CONFIG does not exist: /does/not/exist
-          File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
-        </screen>
+        <scons_output example="PathVariable">
+          <scons_output_command>scons -Q CONFIG=__ROOT__/does/not/exist foo.o</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -1561,16 +1587,24 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="PathIsFile">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('CONFIG',
                                  'Path to configuration file',
-                                 '/etc/my_config',
+                                 '__ROOT__/etc/my_config',
                                  PathVariable.PathIsFile))
              env = Environment(variables = vars,
                                CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+          <file name="__ROOT__/etc/my_config">
+          /opt/location
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1580,16 +1614,24 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="PathIsDir">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('DBDIR',
                                  'Path to database directory',
-                                 '/var/my_dbdir',
+                                 '__ROOT__/var/my_dbdir',
                                  PathVariable.PathIsDir))
              env = Environment(variables = vars,
                                CPPDEFINES={'DBDIR' : '"$DBDIR"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+          <file name="__ROOT__/var/my_dbdir">
+          /opt/location
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1601,16 +1643,24 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="PathIsDirCreate">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('DBDIR',
                                  'Path to database directory',
-                                 '/var/my_dbdir',
+                                 '__ROOT__/var/my_dbdir',
                                  PathVariable.PathIsDirCreate))
              env = Environment(variables = vars,
                                CPPDEFINES={'DBDIR' : '"$DBDIR"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+          <file name="__ROOT__/var/my_dbdir">
+          /opt/location
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1621,7 +1671,8 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="PathAccept">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PathVariable('OUTPUT',
                                  'Path to output file or directory',
@@ -1630,7 +1681,11 @@
              env = Environment(variables = vars,
                                CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+        </scons_example>
 
       </section>
 
@@ -1651,15 +1706,26 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="PackageVariable">
+          <file name="SConstruct" printme="1">
              vars = Variables('custom.py')
              vars.Add(PackageVariable('PACKAGE',
                                     'Location package',
-                                    '/opt/location'))
+                                    '__ROOT__/opt/location'))
              env = Environment(variables = vars,
                                CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
              env.Program('foo.c')
-        </programlisting>
+          </file>
+          <file name="foo.c">
+          foo.c
+          </file>
+          <file name="__ROOT__/opt/location">
+          /opt/location
+          </file>
+          <file name="__ROOT__/usr/local/location">
+          /opt/location
+          </file>
+        </scons_example>
 
         <para>
 
@@ -1674,16 +1740,12 @@
 
         </para>
 
-        <screen>
-          % <userinput>scons -Q foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="/opt/location" foo.c
-          % <userinput>scons -Q PACKAGE=/usr/local/location foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="/usr/local/location" foo.c
-          % <userinput>scons -Q PACKAGE=yes foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="True" foo.c
-          % <userinput>scons -Q PACKAGE=no foo.o</userinput>
-          cc -o foo.o -c -DPACKAGE="False" foo.c
-        </screen>
+        <scons_output example="PackageVariable">
+          <scons_output_command>scons -Q foo.o</scons_output_command>
+          <scons_output_command>scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</scons_output_command>
+          <scons_output_command>scons -Q PACKAGE=yes foo.o</scons_output_command>
+          <scons_output_command>scons -Q PACKAGE=no foo.o</scons_output_command>
+        </scons_output>
 
       </section>
 
@@ -1710,7 +1772,8 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="AddVariables_1">
+        <file name="SConstruct" printme="1">
           vars = Variables()
           vars.AddVariables(
               ('RELEASE', 'Set to 1 to build for release', 0),
@@ -1728,7 +1791,8 @@
                             'yes'),
               PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
           )
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
       </para>
@@ -1769,7 +1833,8 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="UnknownVariables">
+        <file name="SConstruct" printme="1">
            vars = Variables(None)
            vars.Add('RELEASE', 'Set to 1 to build for release', 0)
            env = Environment(variables = vars,
@@ -1779,7 +1844,11 @@
                print "Unknown variables:", unknown.keys()
                Exit(1)
            env.Program('foo.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1800,10 +1869,9 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q NOT_KNOWN=foo</userinput>
-        Unknown variables: ['NOT_KNOWN']
-      </screen>
+      <scons_output example="UnknownVariables">
+        <scons_output_command>scons -Q NOT_KNOWN=foo</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1852,12 +1920,20 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="COMMAND_LINE_TARGETS">
+        <file name="SConstruct" printme="1">
         if 'bar' in COMMAND_LINE_TARGETS:
             print "Don't forget to copy `bar' to the archive!"
         Default(Program('foo.c'))
         Program('bar.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="bar.c">
+        foo.c
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1868,15 +1944,10 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o foo.o -c foo.c
-        cc -o foo foo.o
-        % <userinput>scons -Q bar</userinput>
-        Don't forget to copy `bar' to the archive!
-        cc -o bar.o -c bar.c
-        cc -o bar bar.o
-      </screen>
+      <scons_output example="COMMAND_LINE_TARGETS">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -Q bar</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1911,12 +1982,20 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Default1">
+         <file name="SConstruct" printme="1">
          env = Environment()
          hello = env.Program('hello.c')
          env.Program('goodbye.c')
          Default(hello)
-      </programlisting>
+         </file>
+         <file name="hello.c">
+         hello.c
+         </file>
+         <file name="goodbye.c">
+         goodbye.c
+         </file>
+      </scons_example>
 
       <para>
 
@@ -1927,16 +2006,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-         % <userinput>scons -Q</userinput>
-         scons: `hello' is up to date.
-         % <userinput>scons -Q goodbye</userinput>
-         cc -o goodbye.o -c goodbye.c
-         cc -o goodbye goodbye.o
-      </screen>
+      <scons_output example="Default1">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q goodbye</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1949,13 +2023,9 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q .</userinput>
-         cc -o goodbye.o -c goodbye.c
-         cc -o goodbye goodbye.o
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-      </screen>
+      <scons_output example="Default1">
+         <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1966,14 +2036,25 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Default2">
+         <file name="SConstruct" printme="1">
          env = Environment()
          prog1 = env.Program('prog1.c')
          Default(prog1)
          prog2 = env.Program('prog2.c')
          prog3 = env.Program('prog3.c')
          Default(prog3)
-      </programlisting>
+         </file>
+         <file name="prog1.c">
+         prog1.c
+         </file>
+         <file name="prog2.c">
+         prog2.c
+         </file>
+         <file name="prog3.c">
+         prog3.c
+         </file>
+      </scons_example>
 
       <para>
 
@@ -2001,16 +2082,10 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o prog1.o -c prog1.c
-         cc -o prog1 prog1.o
-         cc -o prog3.o -c prog3.c
-         cc -o prog3 prog3.o
-         % <userinput>scons -Q .</userinput>
-         cc -o prog2.o -c prog2.c
-         cc -o prog2 prog2.o
-      </screen>
+      <scons_output example="Default2">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -2019,12 +2094,28 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Default3">
+         <file name="SConstruct" printme="1">
          env = Environment()
          env.Program(['prog1/main.c', 'prog1/foo.c'])
          env.Program(['prog2/main.c', 'prog2/bar.c'])
          Default('prog1')
-      </programlisting>
+         </file>
+         <directory name="prog1"></directory>
+         <directory name="prog2"></directory>
+         <file name="prog1/main.c">
+         int main() { printf("prog1/main.c\n"); }
+         </file>
+         <file name="prog1/foo.c">
+         int foo() { printf("prog1/foo.c\n"); }
+         </file>
+         <file name="prog2/main.c">
+         int main() { printf("prog2/main.c\n"); }
+         </file>
+         <file name="prog2/bar.c">
+         int bar() { printf("prog2/bar.c\n"); }
+         </file>
+      </scons_example>
 
       <para>
 
@@ -2033,18 +2124,11 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o prog1/foo.o -c prog1/foo.c
-         cc -o prog1/main.o -c prog1/main.c
-         cc -o prog1/main prog1/main.o prog1/foo.o
-         % <userinput>scons -Q</userinput>
-         scons: `prog1' is up to date.
-         % <userinput>scons -Q .</userinput>
-         cc -o prog2/bar.o -c prog2/bar.c
-         cc -o prog2/main.o -c prog2/main.c
-         cc -o prog2/main prog2/main.o prog2/bar.o
-      </screen>
+      <scons_output example="Default3">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -2055,12 +2139,20 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="Default4">
+         <file name="SConstruct" printme="1">
          env = Environment()
          prog1 = env.Program('prog1.c')
          prog2 = env.Program('prog2.c')
          Default(None)
-      </programlisting>
+         </file>
+         <file name="prog1.c">
+         prog1.c
+         </file>
+         <file name="prog2.c">
+         prog2.c
+         </file>
+      </scons_example>
 
       <para>
 
@@ -2068,15 +2160,10 @@
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         scons: *** No targets specified and no Default() targets found.  Stop.
-         % <userinput>scons -Q .</userinput>
-         cc -o prog1.o -c prog1.c
-         cc -o prog1 prog1.o
-         cc -o prog2.o -c prog2.c
-         cc -o prog2 prog2.o
-      </screen>
+      <scons_output example="Default4">
+         <scons_output_command>scons -Q</scons_output_command>
+         <scons_output_command>scons -Q .</scons_output_command>
+      </scons_output>
 
       <section>
       <title>Fetching the List of Default Targets: the &DEFAULT_TARGETS; Variable</title>
@@ -2097,11 +2184,16 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="DEFAULT_TARGETS_1">
+           <file name="SConstruct" printme="1">
            prog1 = Program('prog1.c')
            Default(prog1)
            print "DEFAULT_TARGETS is", map(str, DEFAULT_TARGETS)
-        </programlisting>
+           </file>
+           <file name="prog1.c">
+           prog1.c
+           </file>
+        </scons_example>
 
         <para>
 
@@ -2113,16 +2205,9 @@
 
         </para>
 
-        <screen>
-           % <userinput>scons</userinput>
-           scons: Reading SConscript files ...
-           DEFAULT_TARGETS is ['prog1']
-           scons: done reading SConscript files.
-           scons: Building targets ...
-           cc -o prog1.o -c prog1.c
-           cc -o prog1 prog1.o
-           scons: done building targets.
-        </screen>
+        <scons_output example="DEFAULT_TARGETS_1">
+           <scons_output_command>scons</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -2133,14 +2218,22 @@
 
         </para>
 
-        <programlisting>
+        <scons_example name="DEFAULT_TARGETS_2">
+           <file name="SConstruct" printme="1">
            prog1 = Program('prog1.c')
            Default(prog1)
            print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
            prog2 = Program('prog2.c')
            Default(prog2)
            print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
-        </programlisting>
+           </file>
+           <file name="prog1.c">
+           prog1.c
+           </file>
+           <file name="prog2.c">
+           prog2.c
+           </file>
+        </scons_example>
 
         <para>
 
@@ -2148,19 +2241,9 @@
 
         </para>
 
-        <screen>
-           % <userinput>scons</userinput>
-           scons: Reading SConscript files ...
-           DEFAULT_TARGETS is now ['prog1']
-           DEFAULT_TARGETS is now ['prog1', 'prog2']
-           scons: done reading SConscript files.
-           scons: Building targets ...
-           cc -o prog1.o -c prog1.c
-           cc -o prog1 prog1.o
-           cc -o prog2.o -c prog2.c
-           cc -o prog2 prog2.o
-           scons: done building targets.
-        </screen>
+        <scons_output example="DEFAULT_TARGETS_2">
+           <scons_output_command>scons</scons_output_command>
+        </scons_output>
 
         <para>
 
@@ -2198,12 +2281,12 @@
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         if COMMAND_LINE_TARGETS:
             targets = COMMAND_LINE_TARGETS
         else:
             targets = DEFAULT_TARGETS
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -2228,12 +2311,20 @@
 
       </para>
 
-      <programlisting>
+      <scons_example name="BUILD_TARGETS_1">
+        <file name="SConstruct" printme="1">
         prog1 = Program('prog1.c')
         Program('prog2.c')
         Default(prog1)
         print "BUILD_TARGETS is", map(str, BUILD_TARGETS)
-      </programlisting>
+        </file>
+        <file name="prog1.c">
+        prog1.c
+        </file>
+        <file name="prog2.c">
+        prog2.c
+        </file>
+      </scons_example>
 
       <para>
 
@@ -2243,22 +2334,11 @@
 
       </para>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        BUILD_TARGETS is ['prog1']
-        cc -o prog1.o -c prog1.c
-        cc -o prog1 prog1.o
-        % <userinput>scons -Q prog2</userinput>
-        BUILD_TARGETS is ['prog2']
-        cc -o prog2.o -c prog2.c
-        cc -o prog2 prog2.o
-        % <userinput>scons -Q -c .</userinput>
-        BUILD_TARGETS is ['.']
-        Removed prog1.o
-        Removed prog1
-        Removed prog2.o
-        Removed prog2
-      </screen>
+      <scons_output example="BUILD_TARGETS_1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -Q prog2</scons_output_command>
+        <scons_output_command>scons -Q -c .</scons_output_command>
+      </scons_output>
 
     </section>
 

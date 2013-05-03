@@ -40,12 +40,14 @@
   </para>
 
   <para>
-    Ensure, that you have <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
+    Ensure, that you have <ulink
+    url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
     utilities</ulink> installed on your system.
   </para>
 
   <para>
-    To edit translation files you may wish to install <ulink url="http://www.poedit.net/">poedit</ulink> editor.
+    To edit translation files you may wish to install <ulink
+    url="http://www.poedit.net/">poedit</ulink> editor.
   </para>
   </section>
 
@@ -54,7 +56,8 @@
     <para>
     Let's start with a very simple project, the "Hello world" program 
     for example
-    <programlisting>
+    <scons_example name="ex1">
+    <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
     int main(int argc, char* argv[])
@@ -62,22 +65,27 @@
       printf("Hello world\n");
       return 0;
     }
-    </programlisting>
+    </file>
+    </scons_example>
 
     Prepare a <filename>SConstruct</filename> to compile the program
     as usual.
-    <programlisting>
+    <scons_example name="ex2">
+    <file name="SConstruct" printme="1">
     # SConstruct
     env = Environment()
     hello = Program(["hello.c"])
-    </programlisting>
+    </file>
+    </scons_example>
     </para>
 
     <para>
     Now we'll convert the project to a multi-lingual one. If you don't
-    already have <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
+    already have <ulink
+    url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
     utilities</ulink> installed, install them from your preffered
-    package repository, or download from <ulink url="http://ftp.gnu.org/gnu/gettext/">
+    package repository, or download from <ulink
+    url="http://ftp.gnu.org/gnu/gettext/">
     http://ftp.gnu.org/gnu/gettext/</ulink>. For the purpose of this example,
     you should have following three locales installed on your system:
     <literal>en_US</literal>, <literal>de_DE</literal> and
@@ -88,7 +96,8 @@
     <para>
     First prepare the <filename>hello.c</filename> program for
     internationalization. Change the previous code so it reads as follows:
-    <programlisting>
+    <scons_example name="ex3">
+    <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
     #include &lt;libintl.h&gt;
@@ -101,9 +110,11 @@
       printf(gettext("Hello world\n"));
       return 0;
     }
-    </programlisting>
+    </file>
+    </scons_example>
     Detailed recipes for such conversion can
-    be found at <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html#Sources">
+    be found at <ulink
+    url="http://www.gnu.org/software/gettext/manual/gettext.html#Sources">
     http://www.gnu.org/software/gettext/manual/gettext.html#Sources</ulink>.
     The <function>gettext("...")</function> has two purposes.
     First, it marks messages for the <command>xgettext(1)</command> program, which
@@ -127,7 +138,8 @@
 
     <para>  The completed 
     <filename>SConstruct</filename> is as follows:
-    <programlisting>
+    <scons_example name="ex4">
+    <file name="SConstruct" printme="1">
     # SConstruct
     env = Environment( tools = ['default', 'gettext'] )
     hello = env.Program(["hello.c"])
@@ -140,7 +152,8 @@
     InstallAs(["locale/en/LC_MESSAGES/hello.mo"], ["en.mo"])
     InstallAs(["locale/pl/LC_MESSAGES/hello.mo"], ["pl.mo"])
     InstallAs(["locale/de/LC_MESSAGES/hello.mo"], ["de.mo"])
-    </programlisting>
+    </file>
+    </scons_example>
     </para>
     <para>
     Generate the translation files with <command>scons po-update</command>.
@@ -244,7 +257,8 @@
     <para>
     Now, open <filename>hello.c</filename> and add another one
     <literal>printf</literal> line with new message.
-    <programlisting>
+    <scons_example name="ex5">
+    <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
     #include &lt;libintl.h&gt;
@@ -258,7 +272,8 @@
       printf(gettext("and good bye\n"));
       return 0;
     }
-    </programlisting>
+    </file>
+    </scons_example>
     </para>
     <para>
     Compile project with <command>scons</command>. This time, the
@@ -297,7 +312,8 @@
     <literal>PO</literal>) are touched (i.e. no content changes, no
     creation/modification time changed and so on). Let's append another
     line to the program (after the last printf), so its code becomes:
-    <programlisting>
+    <scons_example name="ex6">
+    <file name="hello.c" printme="1">
     /* hello.c */
     #include &lt;stdio.h&gt;
     #include &lt;libintl.h&gt;
@@ -312,7 +328,8 @@
       printf("----------------\n");
       return a;
     }
-    </programlisting>
+    </file>
+    </scons_example>
     Compile the project. You'll see on your screen
     <screen>
     user@host:$scons

@@ -73,11 +73,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
        env = Environment()
        env.Program('hello.c')
-       Repository('/usr/repository1', '/usr/repository2')
-    </programlisting>
+       Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -124,11 +129,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -139,13 +142,20 @@
 
     </para>
 
-    
+    <scons_example name="ex2">
+      <file name="SConstruct">
+       env = Environment()
+       env.Program('hello.c')
+       Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
+      </file>
+      <file name="__ROOT__/usr/repository1/hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c /usr/repository1/hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="ex2">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -155,13 +165,20 @@
 
     </para>
 
-    
+    <scons_example name="ex3">
+      <file name="SConstruct">
+       env = Environment()
+       env.Program('hello.c')
+       Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
+      </file>
+      <file name="__ROOT__/usr/repository2/hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c /usr/repository2/hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="ex3">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -216,11 +233,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="CPPPATH">
+      <file name="SConstruct" printme="1">
        env = Environment(CPPPATH = ['.'])
        env.Program('hello.c')
-       Repository('/usr/repository1')
-    </programlisting>
+       Repository('__ROOT__/usr/repository1')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -228,11 +250,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c -I. -I/usr/repository1 hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="CPPPATH">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -249,11 +269,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="CPPPATH3">
+      <file name="SConstruct" printme="1">
        env = Environment(CPPPATH = ['dir1', 'dir2', 'dir3'])
        env.Program('hello.c')
-       Repository('/r1', '/r2')
-    </programlisting>
+       Repository('__ROOT__/r1', '__ROOT__/r2')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -264,11 +289,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c -Idir1 -I/r1/dir1 -I/r2/dir1 -Idir2 -I/r1/dir2 -I/r2/dir2 -Idir3 -I/r1/dir3 -I/r2/dir3 hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="CPPPATH3">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
 <!--
 
@@ -330,13 +353,20 @@ coming into existence.)
 
       </para>
 
-      
+      <scons_example name="quote1">
+        <file name="SConstruct">
+         env = Environment(CPPPATH = ['.'])
+         env.Program('hello.c')
+         Repository('__ROOT__/usr/repository1')
+        </file>
+        <file name="__ROOT__/usr/repository1/hello.c">
+        int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
 
-      <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o hello.o -c -I. -I/usr/repository1 /usr/repository1/hello.c
-        cc -o hello hello.o
-      </screen>
+      <scons_output example="quote1">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -372,7 +402,7 @@ coming into existence.)
         <para>
 
         Change all occurrences of <literal>#include "file.h"</literal>
-        to <literal>#include &lt;file.h&gt;</literal>.
+        to <literal>#include &amp;lt;file.h&amp;gt;</literal>.
         Use of <literal>#include</literal> with angle brackets
         does not have the same behavior--the <literal>-I</literal>
         directories are searched first
@@ -462,16 +492,27 @@ coming into existence.)
 
     </para>
 
-    
+    <scons_example name="ex4">
+      <file name="SConstruct">
+       env = Environment()
+       env.Program(['hello.c', 'file1.c', 'file2.c'])
+       Repository('/usr/repository1', '/usr/repository2')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="file1.c">
+      int f1() { printf("file1\n"); }
+      </file>
+      <file name="file2.c">
+      int f2() { printf("file2.c\n"); }
+      </file>
+    </scons_example>
 
-    <screen>
-      % <userinput>cd /usr/repository1</userinput>
-      % <userinput>scons -Q</userinput>
-      cc -o file1.o -c file1.c
-      cc -o file2.o -c file2.c
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o file1.o file2.o
-    </screen>
+    <scons_output example="ex4">
+      <scons_output_command>cd /usr/repository1</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
     
@@ -563,11 +604,16 @@ coming into existence.)
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex5">
+      <file name="SConstruct" printme="1">
        env = Environment()
        hello = env.Program('hello.c')
        Local(hello)
-    </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
 
     <para>
 

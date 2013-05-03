@@ -57,9 +57,38 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="java">
+      <file name="SConstruct" printme="1">
       Java('classes', 'src')
-    </programlisting>
+      </file>
+      <file name="src/Example1.java">
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="src/Example2.java">
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="src/Example3.java">
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -69,10 +98,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
-    </screen>
+    <scons_output example="java">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -104,9 +132,54 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="java-classes">
+      <file name="SConstruct" printme="1">
       Java('classes', 'src')
-    </programlisting>
+      </file>
+      <file name="src/Example1.java">
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      public class AdditionalClass1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="src/Example2.java">
+      public class Example2
+      {
+        class Inner2 {
+          public static void main(String[] args)
+          {
+            System.out.println("Hello Java world!\n");
+          }
+        }
+      }
+      </file>
+      <file name="src/Example3.java">
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      public class AdditionalClass3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -117,12 +190,10 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
-      % <userinput>scons -Q classes</userinput>
-      scons: `classes' is up to date.
-    </screen>
+    <scons_output example="java-classes">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q classes</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -143,17 +214,10 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
-      % <userinput>scons -Q -c classes</userinput>
-      Removed classes/Example1.class
-      Removed classes/AdditionalClass1.class
-      Removed classes/Example2$Inner2.class
-      Removed classes/Example2.class
-      Removed classes/Example3.class
-      Removed classes/AdditionalClass3.class
-    </screen>
+    <scons_output example="java-classes">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c classes</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -167,9 +231,9 @@
 
     </para> 
 
-    <programlisting>
+    <sconstruct>
       Java('classes', 'src', JAVAVERSION='1.6')
-    </programlisting>
+    </sconstruct>
 
     <para>
     See <varname>JAVAVERSION</varname> in the man page for more information.
@@ -193,10 +257,39 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="jar1">
+      <file name="SConstruct" printme="1">
       Java(target = 'classes', source = 'src')
       Jar(target = 'test.jar', source = 'classes')
-    </programlisting>
+      </file>
+      <file name="src/Example1.java">
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="src/Example2.java">
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="src/Example3.java">
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -207,11 +300,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
-      jar cf test.jar classes
-    </screen>
+    <scons_output example="jar1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -230,12 +321,50 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="jar2">
+      <file name="SConstruct" printme="1">
       prog1_class_files = Java(target = 'classes', source = 'prog1')
       prog2_class_files = Java(target = 'classes', source = 'prog2')
       Jar(target = 'prog1.jar', source = prog1_class_files)
       Jar(target = 'prog2.jar', source = prog2_class_files)
-    </programlisting>
+      </file>
+      <file name="prog1/Example1.java">
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="prog1/Example2.java">
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="prog2/Example3.java">
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="prog2/Example4.java">
+      public class Example4
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -247,13 +376,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath prog1 prog1/Example1.java prog1/Example2.java
-      javac -d classes -sourcepath prog2 prog2/Example3.java prog2/Example4.java
-      jar cf prog1.jar -C classes Example1.class -C classes Example2.class
-      jar cf prog2.jar -C classes Example3.class -C classes Example4.class
-    </screen>
+    <scons_output example="jar2">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -270,10 +395,39 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="javah">
+      <file name="SConstruct" printme="1">
       classes = Java(target = 'classes', source = 'src/pkg/sub')
       JavaH(target = 'native', source = classes)
-    </programlisting>
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+      package pkg.sub;
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+      package pkg.sub;
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example3.java">
+      package pkg.sub;
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -287,11 +441,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java src/pkg/sub/Example3.java
-      javah -d native -classpath classes pkg.sub.Example1 pkg.sub.Example2 pkg.sub.Example3
-    </screen>
+    <scons_output example="javah">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -327,13 +479,42 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="JAVACLASSDIR">
+      <file name="SConstruct" printme="1">
       Java(target = 'classes', source = 'src/pkg/sub')
       class_file_list = ['classes/pkg/sub/Example1.class',
                          'classes/pkg/sub/Example2.class',
                          'classes/pkg/sub/Example3.class']
       JavaH(target = 'native', source = class_file_list, JAVACLASSDIR = 'classes')
-    </programlisting>
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+      package pkg.sub;
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+      package pkg.sub;
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example3.java">
+      package pkg.sub;
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -343,11 +524,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java src/pkg/sub/Example3.java
-      javah -d native -classpath classes pkg.sub.Example1 pkg.sub.Example2 pkg.sub.Example3
-    </screen>
+    <scons_output example="JAVACLASSDIR">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -358,10 +537,39 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="javah_file">
+      <file name="SConstruct" printme="1">
       classes = Java(target = 'classes', source = 'src/pkg/sub')
       JavaH(target = File('native.h'), source = classes)
-    </programlisting>
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+      package pkg.sub;
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+      package pkg.sub;
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example3.java">
+      package pkg.sub;
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -376,11 +584,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java src/pkg/sub/Example3.java
-      javah -o native.h -classpath classes pkg.sub.Example1 pkg.sub.Example2 pkg.sub.Example3
-    </screen>
+    <scons_output example="javah_file">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -400,10 +606,30 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="RMIC">
+      <file name="SConstruct" printme="1">
       classes = Java(target = 'classes', source = 'src/pkg/sub')
       RMIC(target = 'outdir', source = classes)
-    </programlisting>
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+      package pkg.sub;
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+      package pkg.sub;
+      public class Example2
+      {
+        public static void main(String[] args)
+        {
+        }
+      }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -414,11 +640,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java
-      rmic -d outdir -classpath classes pkg.sub.Example1 pkg.sub.Example2
-    </screen>
+    <scons_output example="RMIC">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 

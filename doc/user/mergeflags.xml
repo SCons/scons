@@ -50,19 +50,19 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="MergeFlags1">
+   <file name="SConstruct" printme="1">
     env = Environment()
     env.Append(CCFLAGS = '-option -O3 -O1')
     flags = { 'CCFLAGS' : '-whatever -O3' }
     env.MergeFlags(flags)
     print env['CCFLAGS']
- </programlisting>
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    ['-option', '-O1', '-whatever', '-O3']
-    scons: `.' is up to date.
- </screen>
+ <scons_output example="MergeFlags1">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -77,19 +77,19 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="MergeFlags2">
+   <file name="SConstruct" printme="1">
     env = Environment()
     env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
     flags = { 'CPPPATH' : ['/usr/opt/include', '/usr/local/include'] }
     env.MergeFlags(flags)
     print env['CPPPATH']
- </programlisting>
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    ['/include', '/usr/local/include', '/usr/include', '/usr/opt/include']
-    scons: `.' is up to date.
- </screen>
+ <scons_output example="MergeFlags2">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 
@@ -111,21 +111,20 @@
 
  </para>
 
- <programlisting>
+ <scons_example name="MergeFlags3">
+   <file name="SConstruct" printme="1">
     env = Environment()
     env.Append(CCFLAGS = '-option -O3 -O1')
     env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
     env.MergeFlags('-whatever -I/usr/opt/include -O3 -I/usr/local/include')
     print env['CCFLAGS']
     print env['CPPPATH']
- </programlisting>
+   </file>
+ </scons_example>
 
- <screen>
-    % <userinput>scons -Q</userinput>
-    ['-option', '-O1', '-whatever', '-O3']
-    ['/include', '/usr/local/include', '/usr/include', '/usr/opt/include']
-    scons: `.' is up to date.
- </screen>
+ <scons_output example="MergeFlags3">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
 
  <para>
 

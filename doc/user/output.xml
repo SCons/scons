@@ -51,12 +51,14 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1">
+       <file name="SConstruct" printme="1">
        Help("""
        Type: 'scons program' to build the production program,
              'scons debug' to build the debug version.
        """)
-    </programlisting>
+       </file>
+    </scons_example>
 
     <para>
 
@@ -75,16 +77,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -h</userinput>
-       scons: Reading SConscript files ...
-       scons: done reading SConscript files.
-       
-       Type: 'scons program' to build the production program,
-             'scons debug' to build the debug version.
-       
-       Use scons -H for help about command-line options.
-    </screen>
+    <scons_output example="ex1">
+       <scons_output_command>scons -h</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -114,14 +109,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex2">
+       <file name="SConstruct" printme="1">
        env = Environment()
 
        Help("\nType: 'scons program' to build the production program.\n")
 
        if env['PLATFORM'] == 'win32':
            Help("\nType: 'scons windebug' to build the Windows debug version.\n")
-    </programlisting>
+       </file>
+    </scons_example>
 
     <para>
 
@@ -129,17 +126,9 @@
 
     </para>
 
-    <screen>
-       C:\><userinput>scons -h</userinput>
-       scons: Reading SConscript files ...
-       scons: done reading SConscript files.
-       
-       Type: 'scons program' to build the production program.
-       
-       Type: 'scons windebug' to build the Windows debug version.
-       
-       Use scons -H for help about command-line options.
-    </screen>
+    <scons_output example="ex2" os="win32">
+       <scons_output_command>scons -h</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -147,15 +136,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -h</userinput>
-       scons: Reading SConscript files ...
-       scons: done reading SConscript files.
-       
-       Type: 'scons program' to build the production program.
-       
-       Use scons -H for help about command-line options.
-    </screen>
+    <scons_output example="ex2" os="posix">
+       <scons_output_command>scons -h</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -208,11 +191,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="COMSTR">
+       <file name="SConstruct" printme="1">
        env = Environment(CCCOMSTR = "Compiling $TARGET",
                          LINKCOMSTR = "Linking $TARGET")
        env.Program('foo.c')
-    </programlisting>
+       </file>
+       <file name="foo.c">
+       foo.c
+       </file>
+    </scons_example>
 
     <para>
 
@@ -275,13 +263,18 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="COMSTR-VERBOSE">
+       <file name="SConstruct" printme="1">
        env = Environment()
        if ARGUMENTS.get('VERBOSE') != "1':
            env['CCCOMSTR'] = "Compiling $TARGET"
            env['LINKCOMSTR'] = "Linking $TARGET"
        env.Program('foo.c')
-    </programlisting>
+       </file>
+       <file name="foo.c">
+       foo.c
+       </file>
+    </scons_example>
 
     <para>
 
@@ -356,11 +349,19 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Progress-TARGET">
+      <file name="SConstruct" printme="1">
         Progress('Evaluating $TARGET\n')
         Program('f1.c')
         Program('f2.c')
-    </programlisting>
+      </file>
+      <file name="f1.c">
+        f1.c
+      </file>
+      <file name="f2.c">
+        f2.c
+      </file>
+    </scons_example>
 
     <para>
 
@@ -379,21 +380,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       Evaluating SConstruct
-       Evaluating f1.c
-       Evaluating f1.o
-       cc -o f1.o -c f1.c
-       Evaluating f1
-       cc -o f1 f1.o
-       Evaluating f2.c
-       Evaluating f2.o
-       cc -o f2.o -c f2.c
-       Evaluating f2
-       cc -o f2 f2.o
-       Evaluating .
-    </screen>
+    <scons_output example="Progress-TARGET" os="posix">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -414,13 +403,13 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
         Progress('$TARGET\r',
                  file=open('/dev/tty', 'w'),
                  overwrite=True)
         Program('f1.c')
         Program('f2.c')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -471,11 +460,11 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
         Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
         Program('f1.c')
         Program('f2.c')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -510,7 +499,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Progress-callable">
+      <file name="SConstruct" printme="1">
         screen = open('/dev/tty', 'w')
         count = 0
         def progress_function(node)
@@ -518,7 +508,8 @@
             screen.write('Node %4d: %s\r' % (count, node))
 
         Progress(progress_function)
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -581,7 +572,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="gbf1">
+      <file name="SConstruct" printme="1">
         import atexit
 
         def print_build_failures():
@@ -589,7 +581,8 @@
             for bf in GetBuildFailures():
                 print "%s failed: %s" % (bf.node, bf.errstr)
         atexit.register(print_build_failures)
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
 
@@ -623,7 +616,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="gbf2">
+      <file name="SConstruct" printme="1">
         # Make the build fail if we pass fail=1 on the command line
         if ARGUMENTS.get('fail', 0):
             Command('target', 'source', ['/bin/false'])
@@ -670,7 +664,8 @@
             print failures_message
 
         atexit.register(display_build_status)
-    </programlisting>
+      </file>
+    </scons_example>
 
     <para>
     
@@ -678,14 +673,9 @@
 
     </para>
 
-    <screen>
-          % <userinput>scons -Q</userinput>
-          scons: `.' is up to date.
-          Build succeeded.
-          % <userinput>scons -Q fail=1</userinput>
-          scons: *** [target] Source `source' not found, needed by target `target'.
-          FAILED!!!!
-          Failed building target: Source `source' not found, needed by target `target'.
-    </screen>
+    <scons_output example="gbf2">
+          <scons_output_command>scons -Q</scons_output_command>
+          <scons_output_command>scons -Q fail=1</scons_output_command>
+    </scons_output>
 
   </section>

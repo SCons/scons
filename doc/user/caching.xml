@@ -43,9 +43,21 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex1">
+       <file name="SConstruct">
+       env = Environment()
+       env.Program('hello.c')
+       CacheDir('cache')
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+       <directory name="cache">
+       </directory>
+       <file name="not_used" printme="1">
        CacheDir('/usr/local/build_cache')
-    </programlisting>
+       </file>
+    </scons_example>
 
     <para>
 
@@ -86,17 +98,11 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
-      % <userinput>scons -Q</userinput>
-      Retrieved `hello.o' from cache
-      Retrieved `hello' from cache
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -142,17 +148,11 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
-      % <userinput>scons -Q --cache-show</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q --cache-show</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -181,13 +181,20 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex-NoCache">
+       <file name="SConstruct" printme="1">
        env = Environment()
        obj = env.Object('hello.c')
        env.Program('hello.c')
        CacheDir('cache')
        NoCache('hello.o')
-    </programlisting>
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+       <directory name="cache">
+       </directory>
+    </scons_example>
 
     <para>
 
@@ -255,23 +262,13 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
-      % <userinput>scons -Q</userinput>
-      Retrieved `hello.o' from cache
-      Retrieved `hello' from cache
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
-      % <userinput>scons -Q --cache-disable</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q --cache-disable</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -306,21 +303,13 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q --cache-disable</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
-      % <userinput>scons -Q --cache-disable</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q --cache-force</userinput>
-      scons: `.' is up to date.
-      % <userinput>scons -Q</userinput>
-      scons: `.' is up to date.
-    </screen>
+    <scons_output example="ex1">
+      <scons_output_command>scons -Q --cache-disable</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q --cache-disable</scons_output_command>
+      <scons_output_command>scons -Q --cache-force</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -354,10 +343,18 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex-random">
+       <file name="SConstruct" printme="1">
        Program('prog',
                ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
-    </programlisting>
+       </file>
+       <file name="f1.c">f1.c</file>
+       <file name="f2.c">f2.c</file>
+       <file name="f3.c">f3.c</file>
+       <file name="f4.c">f4.c</file>
+       <file name="f5.c">f5.c</file>
+       <file name="f6.c">f6.c</file>
+    </scons_example>
 
     <para>
 
@@ -366,15 +363,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o f1.o -c f1.c
-      cc -o f2.o -c f2.c
-      cc -o f3.o -c f3.c
-      cc -o f4.o -c f4.c
-      cc -o f5.o -c f5.c
-      cc -o prog f1.o f2.o f3.o f4.o f5.o
-    </screen>
+    <scons_output example="ex-random">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -464,14 +455,19 @@
 
     </para>
 
-    <programlisting>
-       Program('prog',
-               ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
-
+    <scons_example name="ex-random">
+       <file name="SConstruct" printme="1">
        SetOption('random', 1)
        Program('prog',
                ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
-    </programlisting>
+       </file>
+       <file name="f1.c">f1.c</file>
+       <file name="f2.c">f2.c</file>
+       <file name="f3.c">f3.c</file>
+       <file name="f4.c">f4.c</file>
+       <file name="f5.c">f5.c</file>
+       <file name="f6.c">f6.c</file>
+    </scons_example>
 
   </section>
 

@@ -60,9 +60,12 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Copy1">
+      <file name="SConstruct" printme="1">
         Command("file.out", "file.in", Copy("$TARGET", "$SOURCE"))
-    </programlisting>
+      </file>
+      <file name="file.in">file.in</file>
+    </scons_example>
 
     <para>
 
@@ -75,10 +78,9 @@
 
     </para>
 
-    <screen>
-       % <userinput>scons -Q</userinput>
-       Copy("file.out", "file.in")
-    </screen>
+    <scons_output example="Copy1">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -87,9 +89,12 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Copy2">
+      <file name="SConstruct" printme="1">
       Command("file.out", [], Copy("$TARGET", "file.in"))
-    </programlisting>
+      </file>
+      <file name="file.in">file.in</file>
+    </scons_example>
 
     <para>
 
@@ -97,10 +102,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Copy("file.out", "file.in")
-    </screen>
+    <scons_output example="Copy2">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -119,14 +123,26 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Copy3">
+      <file name="S" printme="1">
       Command("file.out", "file.in",
               [
                 Copy("tempfile", "$SOURCE"),
                 "modify tempfile",
                 Copy("$TARGET", "tempfile"),
               ])
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      env = DefaultEnvironment()
+      import os
+      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+      SConscript('S')
+      </file>
+      <file name="file.in">file.in</file>
+      <file name="modify" chmod="0755">
+      touch $*
+      </file>
+    </scons_example>
 
     <para>
 
@@ -134,12 +150,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Copy("tempfile", "file.in")
-      modify tempfile
-      Copy("file.out", "tempfile")
-    </screen>
+    <scons_output example="Copy3">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -161,7 +174,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Delete1">
+      <file name="S" printme="1">
       Command("file.out", "file.in",
               [
                 Delete("tempfile"),
@@ -169,7 +183,18 @@
                 "modify tempfile",
                 Copy("$TARGET", "tempfile"),
               ])
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      env = DefaultEnvironment()
+      import os
+      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+      SConscript('S')
+      </file>
+      <file name="file.in">file.in</file>
+      <file name="modify" chmod="0755">
+      touch $*
+      </file>
+    </scons_example>
 
     <para>
 
@@ -177,13 +202,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Delete("tempfile")
-      Copy("tempfile", "file.in")
-      modify tempfile
-      Copy("file.out", "tempfile")
-    </screen>
+    <scons_output example="Delete1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -194,13 +215,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Delete2">
+      <file name="SConstruct" printme="1">
       Command("file.out", "file.in",
               [
                 Delete("$TARGET"),
                 Copy("$TARGET", "$SOURCE")
               ])
-    </programlisting>
+      </file>
+      <file name="file.in">file.in</file>
+    </scons_example>
 
     <para>
 
@@ -208,11 +232,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Delete("file.out")
-      Copy("file.out", "file.in")
-    </screen>
+    <scons_output example="Delete2">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -247,14 +269,26 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Move">
+      <file name="S" printme="1">
       Command("file.out", "file.in",
               [
                 Copy("tempfile", "$SOURCE"),
                 "modify tempfile",
                 Move("$TARGET", "tempfile"),
               ])
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      env = DefaultEnvironment()
+      import os
+      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+      SConscript('S')
+      </file>
+      <file name="file.in">file.in</file>
+      <file name="modify" chmod="0755">
+      touch $*
+      </file>
+    </scons_example>
 
     <para>
 
@@ -262,12 +296,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Copy("tempfile", "file.in")
-      modify tempfile
-      Move("file.out", "tempfile")
-    </screen>
+    <scons_output example="Move">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -282,13 +313,22 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Touch">
+      <file name="S" printme="1">
       Command("file.out", "file.in",
               [
                 Copy("$TARGET", "$SOURCE"),
                 Touch("$TARGET"),
               ])
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      env = DefaultEnvironment()
+      import os
+      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+      SConscript('S')
+      </file>
+      <file name="file.in">file.in</file>
+    </scons_example>
 
     <para>
 
@@ -296,11 +336,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Copy("file.out", "file.in")
-      Touch("file.out")
-    </screen>
+    <scons_output example="Touch">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -319,7 +357,8 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Mkdir">
+      <file name="S" printme="1">
       Command("file.out", "file.in",
               [
                 Delete("tempdir"),
@@ -329,7 +368,18 @@
                 Move("$TARGET", "tempdir/output_file"),
                 Delete("tempdir"),
               ])
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      env = DefaultEnvironment()
+      import os
+      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+      SConscript('S')
+      </file>
+      <file name="file.in">file.in</file>
+      <file name="process" chmod="0755">
+      touch $*
+      </file>
+    </scons_example>
 
     <para>
 
@@ -337,15 +387,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Delete("tempdir")
-      Mkdir("tempdir")
-      Copy("tempdir/file.in", "file.in")
-      process tempdir
-      Move("file.out", "tempdir/output_file")
-      scons: *** [file.out] tempdir/output_file: No such file or directory
-    </screen>
+    <scons_output example="Mkdir">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -363,13 +407,16 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="Chmod">
+      <file name="SConstruct" printme="1">
       Command("file.out", "file.in",
               [
                 Copy("$TARGET", "$SOURCE"),
                 Chmod("$TARGET", 0755),
               ])
-    </programlisting>
+      </file>
+      <file name="file.in">file.in</file>
+    </scons_example>
 
     <para>
 
@@ -377,11 +424,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons -Q</userinput>
-      Copy("file.out", "file.in")
-      Chmod("file.out", 0755)
-    </screen>
+    <scons_output example="Chmod">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -401,9 +446,11 @@
 
     </para>
 
-    <programlisting>
-      Execute(Mkdir('/tmp/my_temp_directory'))
-    </programlisting>
+    <scons_example name="Execute">
+      <file name="SConstruct" printme="1">
+      Execute(Mkdir('__ROOT__/tmp/my_temp_directory'))
+      </file>
+    </scons_example>
 
     <para>
 
@@ -413,15 +460,9 @@
 
     </para>
 
-    <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      Mkdir("/tmp/my_temp_directory")
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      scons: `.' is up to date.
-      scons: done building targets.
-    </screen>
+    <scons_output example="Execute">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -457,10 +498,10 @@
 
     </para>
 
-    <programlisting>
-    if Execute(Mkdir('/tmp/my_temp_directory')):
+    <sconstruct>
+    if Execute(Mkdir('__ROOT__/tmp/my_temp_directory')):
         # A problem occurred while making the temp directory.
         Exit(1)
-    </programlisting>
+    </sconstruct>
 
   </section>

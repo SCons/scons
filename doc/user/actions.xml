@@ -244,9 +244,9 @@ solutions to the above limitations.
 
   </para>
 
-  <programlisting>
+  <sconstruct>
     b = Builder(action = 'build &lt; $SOURCE &gt; $TARGET')
-  </programlisting>
+  </sconstruct>
 
   <para>
 
@@ -254,9 +254,9 @@ solutions to the above limitations.
 
   </para>
 
-  <programlisting>
+  <sconstruct>
     b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
-  </programlisting>
+  </sconstruct>
 
   <para>
 

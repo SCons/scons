@@ -59,9 +59,14 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
       Program('hello.c')
-   </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+   </scons_example>
 
    <para>
 
@@ -86,15 +91,9 @@
 
    </para>
 
-   <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      scons: done building targets.
-   </screen>
+   <scons_output example="ex1" os="posix">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -103,16 +102,9 @@
 
    </para>
 
-   <screen>
-      C:\><userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cl /Fohello.obj /c hello.c /nologo
-      link /nologo /OUT:hello.exe hello.obj
-      embedManifestExeCheck(target, source, env)
-      scons: done building targets.
-   </screen>
+   <scons_output example="ex1" os="win32">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -164,9 +156,14 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="Object">
+      <file name="SConstruct" printme="1">
       Object('hello.c')
-   </programlisting>
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+   </scons_example>
 
    <para>
 
@@ -175,14 +172,9 @@
 
    </para>
 
-   <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cc -o hello.o -c hello.c
-      scons: done building targets.
-   </screen>
+   <scons_output example="Object" os="posix">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -191,14 +183,9 @@
 
    </para>
 
-   <screen>
-      C:\><userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cl /Fohello.obj /c hello.c /nologo
-      scons: done building targets.
-   </screen>
+   <scons_output example="Object" os="win32">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output>
 
  </section>
 
@@ -218,9 +205,20 @@
 
    </para>
 
-   <programlisting>
+   <scons_example name="java">
+     <file name="SConstruct" printme="1">
      Java('classes', 'src')
-   </programlisting>
+     </file>
+     <file name="src/hello.java">
+     public class Example1
+     {
+       public static void main(String[] args)
+       {
+         System.out.println("Hello Java world!\n");
+       }
+     }
+     </file>
+   </scons_example>
 
    <para>
 
@@ -232,14 +230,9 @@
 
    </para>
 
-   <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      javac -d classes -sourcepath src src/hello.java
-      scons: done building targets.
-   </screen>
+   <scons_output example="java" os="posix">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -269,24 +262,19 @@
 
    </para>
 
-   
+   <scons_example name="clean">
+      <file name="SConstruct">
+      Program('hello.c')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+   </scons_example>
 
-   <screen>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      scons: done building targets.
-      % <userinput>scons -c</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Cleaning targets ...
-      Removed hello.o
-      Removed hello
-      scons: done cleaning targets.
-   </screen>
+   <scons_output example="clean" os="posix">
+      <scons_output_command>scons</scons_output_command>
+      <scons_output_command>scons -c</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -294,23 +282,10 @@
 
    </para>
 
-   <screen>
-      C:\><userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cl /Fohello.obj /c hello.c /nologo
-      link /nologo /OUT:hello.exe hello.obj
-      embedManifestExeCheck(target, source, env)
-      scons: done building targets.
-      C:\><userinput>scons -c</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Cleaning targets ...
-      Removed hello.obj
-      Removed hello.exe
-      scons: done cleaning targets.
-   </screen>
+   <scons_output example="clean" os="win32">
+      <scons_output_command>scons</scons_output_command>
+      <scons_output_command>scons -c</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -444,13 +419,21 @@
 
      </para>
 
-     <programlisting>
+     <scons_example name="declarative">
+       <file name="SConstruct" printme="1">
        print "Calling Program('hello.c')"
        Program('hello.c')
        print "Calling Program('goodbye.c')"
        Program('goodbye.c')
        print "Finished calling Program()"
-     </programlisting>
+       </file>
+       <file name="hello.c">
+       int main() { printf("Hello, world!\n"); }
+       </file>
+       <file name="goodbye.c">
+       int main() { printf("Goodbye, world!\n"); }
+       </file>
+     </scons_example>
 
      <para>
 
@@ -463,20 +446,9 @@
 
      </para>
 
-     <screen>
-       % <userinput>scons</userinput>
-       scons: Reading SConscript files ...
-       Calling Program('hello.c')
-       Calling Program('goodbye.c')
-       Finished calling Program()
-       scons: done reading SConscript files.
-       scons: Building targets ...
-       cc -o goodbye.o -c goodbye.c
-       cc -o goodbye goodbye.o
-       cc -o hello.o -c hello.c
-       cc -o hello hello.o
-       scons: done building targets.
-     </screen>
+     <scons_output example="declarative" os="posix">
+       <scons_output_command>scons</scons_output_command>
+     </scons_output>
 
      <para>
 
@@ -502,16 +474,9 @@
 
    </para>
 
-   <screen>
-      C:\><userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      scons: done reading SConscript files.
-      scons: Building targets ...
-      cl /Fohello.obj /c hello.c /nologo
-      link /nologo /OUT:hello.exe hello.obj
-      embedManifestExeCheck(target, source, env)
-      scons: done building targets.
-   </screen>
+   <scons_output example="ex1" os="win32">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output>
 
    <para>
 
@@ -535,12 +500,9 @@
 
    </para>
 
-   <screen>
-      C:\><userinput>scons -Q</userinput>
-      cl /Fohello.obj /c hello.c /nologo
-      link /nologo /OUT:hello.exe hello.obj
-      embedManifestExeCheck(target, source, env)
-   </screen>
+   <scons_output example="ex1" os="win32">
+      <scons_output_command>scons -Q</scons_output_command>
+   </scons_output>
 
    <para>
 

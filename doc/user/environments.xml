@@ -466,9 +466,14 @@ environment, of directory names, suffixes, etc.
 
   </para>
 
-   <programlisting>
+   <scons_example name="ex1">
+     <file name="SConstruct" printme="1">
      import os
-   </programlisting>
+     </file>
+     <file name="foo.c">
+    int main() { }
+     </file>
+   </scons_example>
 
   <para>
 
@@ -518,9 +523,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-       <programlisting>
+       <sconstruct>
          env = Environment()
-       </programlisting>
+       </sconstruct>
 
       <para>
 
@@ -550,14 +555,17 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-       <programlisting>
-     import os
-
+       <scons_example name="ex1">
+         <file name="SConstruct" printme="1">
          env = Environment(CC = 'gcc',
                            CCFLAGS = '-O2')
 
          env.Program('foo.c')
-       </programlisting>
+         </file>
+         <file name="foo.c">
+        int main() { }
+         </file>
+       </scons_example>
 
       <para>
 
@@ -577,11 +585,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         gcc -o foo.o -c -O2 foo.c
-         gcc -o foo foo.o
-      </screen>
+      <scons_output example="ex1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -596,10 +602,12 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex6">
+        <file name="SConstruct" printme="1">
          env = Environment()
          print "CC is:", env['CC']
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -609,11 +617,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         CC is: cc
-         scons: `.' is up to date.
-      </screen>
+      <scons_output example="ex6">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -625,12 +631,14 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex6b">
+         <file name="SConstruct" printme="1">
          env = Environment(FOO = 'foo', BAR = 'bar')
          dict = env.Dictionary()
          for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
              print "key = %s, value = %s" % (key, dict[key])
-      </programlisting>
+         </file>
+      </scons_example>
 
       <para>
 
@@ -640,13 +648,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         key = OBJSUFFIX, value = .o
-         key = LIBSUFFIX, value = .a
-         key = PROGSUFFIX, value = 
-         scons: `.' is up to date.
-      </screen>
+      <scons_output example="ex6b" os="posix">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -654,13 +658,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         C:\><userinput>scons -Q</userinput>
-         key = OBJSUFFIX, value = .obj
-         key = LIBSUFFIX, value = .lib
-         key = PROGSUFFIX, value = .exe
-         scons: `.' is up to date.
-      </screen>
+      <scons_output example="ex6b" os="win32">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -670,11 +670,11 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
          env = Environment()
          for item in sorted(env.Dictionary().items()):
              print "construction variable = '%s', value = '%s'" % item
-      </programlisting>
+      </sconstruct>
 
     </section>
 
@@ -697,10 +697,10 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment()
         print "CC is:", env.subst('$CC')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -714,10 +714,10 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment(CCFLAGS = '-DFOO')
         print "CCCOM is:", env['CCCOM']
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -740,10 +740,10 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment(CCFLAGS = '-DFOO')
         print "CCCOM is:", env.subst('$CCCOM')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -781,16 +781,16 @@ environment, of directory names, suffixes, etc.
       (a null string), and will not cause scons to fail. 
       </para>
 
-       <programlisting>
+       <scons_example name="missing1">
+         <file name="SConstruct" printme="1">
           env = Environment()
-          print "value is:", env.subst( '-&gt;$MISSING&lt;-' )
-      </programlisting>
+          print "value is:", env.subst( '->$MISSING&lt;-' )
+        </file>
+      </scons_example>
 
-       <screen>
-          % <userinput>scons -Q</userinput>
-          value is: -&gt;&lt;-
-          scons: `.' is up to date.
-       </screen>
+       <scons_output example="missing1">
+          <scons_output_command>scons -Q</scons_output_command>
+       </scons_output>
 
       <para>
       This default behaviour can be changed using the &AllowSubstExceptions;
@@ -808,18 +808,17 @@ environment, of directory names, suffixes, etc.
       with no extra arguments.
       </para>
 
-       <programlisting>
+       <scons_example name="missing2">
+         <file name="SConstruct" printme="1">
           AllowSubstExceptions()
           env = Environment()
-          print "value is:", env.subst( '-&gt;$MISSING&lt;-' )
-      </programlisting>
+          print "value is:", env.subst( '->$MISSING&lt;-' )
+        </file>
+      </scons_example>
 
-       <screen>
-          % <userinput>scons -Q</userinput>
-          value is:
-          scons: *** NameError `MISSING' trying to evaluate `$MISSING'
-          File "/home/my/project/SConstruct", line 3, in &lt;module&gt;
-       </screen>
+       <scons_output example="missing2">
+          <scons_output_command>scons -Q</scons_output_command>
+       </scons_output>
 
       <para>
       This can also be used to allow other exceptions that might occur,
@@ -829,19 +828,19 @@ environment, of directory names, suffixes, etc.
       allowed
       </para>
 
-       <programlisting>
+       <scons_example name="missing3">
+         <file name="SConstruct" printme="1">
           AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
           env = Environment()
-          print "value is:", env.subst( '-&gt;${1 / 0}&lt;-' )
-      </programlisting>
+          print "value is:", env.subst( '->${1 / 0}&lt;-' )
+        </file>
+      </scons_example>
 
-       <screen>
-          % <userinput>scons -Q</userinput>
-          value is: -&gt;&lt;-
-          scons: `.' is up to date.
-       </screen>
-      <programlisting>
-      </programlisting>
+       <scons_output example="missing3">
+          <scons_output_command>scons -Q</scons_output_command>
+       </scons_output>
+      <sconstruct>
+      </sconstruct>
 
       <para>
       If &AllowSubstExceptions; is called multiple times, each call
@@ -881,11 +880,11 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
 
       DefaultEnvironment(CC = '/usr/local/bin/gcc')
 
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -915,12 +914,12 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
 
       env = DefaultEnvironment()
       env['CC'] = '/usr/local/bin/gcc'
 
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -944,12 +943,12 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
 
       env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
                                CC = '/usr/local/bin/gcc')
 
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -982,22 +981,26 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex2">
+        <file name="SConstruct" printme="1">
          opt = Environment(CCFLAGS = '-O2')
          dbg = Environment(CCFLAGS = '-g')
 
          opt.Program('foo', 'foo.c')
 
          dbg.Program('bar', 'bar.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+        <file name="bar.c">
+        int main() { }
+        </file>
+      </scons_example>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o bar.o -c -g bar.c
-         cc -o bar bar.o
-         cc -o foo.o -c -O2 foo.c
-         cc -o foo foo.o
-      </screen>
+      <scons_output example="ex2">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1009,14 +1012,19 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex3">
+        <file name="SConstruct" printme="1">
          opt = Environment(CCFLAGS = '-O2')
          dbg = Environment(CCFLAGS = '-g')
 
          opt.Program('foo', 'foo.c')
 
          dbg.Program('foo', 'foo.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1024,12 +1032,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         
-         scons: *** Two environments with different actions were specified for the same target: foo.o
-         File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
-      </screen>
+      <scons_output example="ex3">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1052,7 +1057,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex4">
+        <file name="SConstruct" printme="1">
          opt = Environment(CCFLAGS = '-O2')
          dbg = Environment(CCFLAGS = '-g')
 
@@ -1061,7 +1067,11 @@ environment, of directory names, suffixes, etc.
 
          d = dbg.Object('foo-dbg', 'foo.c')
          dbg.Program(d)
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1079,13 +1089,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o foo-dbg.o -c -g foo.c
-         cc -o foo-dbg foo-dbg.o
-         cc -o foo-opt.o -c -O2 foo.c
-         cc -o foo-opt foo-opt.o
-      </screen>
+      <scons_output example="ex4">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -1119,7 +1125,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex5">
+        <file name="SConstruct" printme="1">
          env = Environment(CC = 'gcc')
          opt = env.Clone(CCFLAGS = '-O2')
          dbg = env.Clone(CCFLAGS = '-g')
@@ -1131,7 +1138,11 @@ environment, of directory names, suffixes, etc.
 
          d = dbg.Object('foo-dbg', 'foo.c')
          dbg.Program(d)
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1139,15 +1150,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         gcc -o foo.o -c foo.c
-         gcc -o foo foo.o
-         gcc -o foo-dbg.o -c -g foo.c
-         gcc -o foo-dbg foo-dbg.o
-         gcc -o foo-opt.o -c -O2 foo.c
-         gcc -o foo-opt foo-opt.o
-      </screen>
+      <scons_output example="ex5">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
     </section>
 
@@ -1161,11 +1166,16 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="Replace1">
+        <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = '-DDEFINE1')
          env.Replace(CCFLAGS = '-DDEFINE2')
          env.Program('foo.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1176,11 +1186,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o foo.o -c -DDEFINE2 foo.c
-         cc -o foo foo.o
-      </screen>
+      <scons_output example="Replace1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1190,11 +1198,13 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="Replace-nonexistent">
+        <file name="SConstruct" printme="1">
          env = Environment()
          env.Replace(NEW_VARIABLE = 'xyzzy')
          print "NEW_VARIABLE =", env['NEW_VARIABLE']
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1204,11 +1214,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         NEW_VARIABLE = xyzzy
-         scons: `.' is up to date.
-      </screen>
+      <scons_output example="Replace-nonexistent">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1226,7 +1234,8 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="Replace2">
+        <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = '-DDEFINE1')
          print "CCFLAGS =", env['CCFLAGS']
          env.Program('foo.c')
@@ -1234,7 +1243,14 @@ environment, of directory names, suffixes, etc.
          env.Replace(CCFLAGS = '-DDEFINE2')
          print "CCFLAGS =", env['CCFLAGS']
          env.Program('bar.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+        <file name="bar.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1247,19 +1263,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons</userinput>
-         scons: Reading SConscript files ...
-         CCFLAGS = -DDEFINE1
-         CCFLAGS = -DDEFINE2
-         scons: done reading SConscript files.
-         scons: Building targets ...
-         cc -o bar.o -c -DDEFINE2 bar.c
-         cc -o bar bar.o
-         cc -o foo.o -c -DDEFINE2 foo.c
-         cc -o foo foo.o
-         scons: done building targets.
-      </screen>
+      <scons_output example="Replace2">
+         <scons_output_command>scons</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1292,9 +1298,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
       env.SetDefault(SPECIAL_FLAG = '-extra-option')
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -1322,11 +1328,16 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex8">
+        <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = ['-DMY_VALUE'])
          env.Append(CCFLAGS = ['-DLAST'])
          env.Program('foo.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1335,11 +1346,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o foo.o -c -DMY_VALUE -DLAST foo.c
-         cc -o foo foo.o
-      </screen>
+      <scons_output example="ex8">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1348,11 +1357,13 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="Append-nonexistent">
+        <file name="SConstruct" printme="1">
          env = Environment()
          env.Append(NEW_VARIABLE = 'added')
          print "NEW_VARIABLE =", env['NEW_VARIABLE']
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1360,11 +1371,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         NEW_VARIABLE = added
-         scons: `.' is up to date.
-      </screen>
+      <scons_output example="Append-nonexistent">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1393,9 +1402,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
       env.AppendUnique(CCFLAGS=['-g'])
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -1419,11 +1428,16 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="ex9">
+        <file name="SConstruct" printme="1">
          env = Environment(CCFLAGS = ['-DMY_VALUE'])
          env.Prepend(CCFLAGS = ['-DFIRST'])
          env.Program('foo.c')
-      </programlisting>
+        </file>
+        <file name="foo.c">
+        int main() { }
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1432,11 +1446,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         cc -o foo.o -c -DFIRST -DMY_VALUE foo.c
-         cc -o foo foo.o
-      </screen>
+      <scons_output example="ex9">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1445,11 +1457,13 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <scons_example name="Prepend-nonexistent">
+        <file name="SConstruct" printme="1">
          env = Environment()
          env.Prepend(NEW_VARIABLE = 'added')
          print "NEW_VARIABLE =", env['NEW_VARIABLE']
-      </programlisting>
+        </file>
+      </scons_example>
 
       <para>
 
@@ -1457,11 +1471,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <screen>
-         % <userinput>scons -Q</userinput>
-         NEW_VARIABLE = added
-         scons: `.' is up to date.
-      </screen>
+      <scons_output example="Prepend-nonexistent">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
       <para>
 
@@ -1492,9 +1504,9 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
       env.PrependUnique(CCFLAGS=['-g'])
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -1563,10 +1575,10 @@ environment, of directory names, suffixes, etc.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       path = ['/usr/local/bin', '/bin', '/usr/bin']
       env = Environment(ENV = {'PATH' : path})
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -1583,9 +1595,9 @@ environment, of directory names, suffixes, etc.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -1596,9 +1608,9 @@ environment, of directory names, suffixes, etc.
 
     </para>
 
-    <programlisting>
+    <sconstruct>
       env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -1654,10 +1666,10 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         import os
         env = Environment(ENV = {'PATH' : os.environ['PATH']})
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -1670,10 +1682,10 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         import os
         env = Environment(ENV = os.environ)
-      </programlisting>
+      </sconstruct>
 
       <para>
 
@@ -1717,11 +1729,11 @@ environment, of directory names, suffixes, etc.
 
       </para>
 
-      <programlisting>
+      <sconstruct>
         env = Environment(ENV = os.environ)
         env.PrependENVPath('PATH', '/usr/local/bin')
         env.AppendENVPath('LIB', '/usr/local/lib')
-      </programlisting>
+      </sconstruct>
 
       <para>
 

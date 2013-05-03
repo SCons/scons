@@ -56,11 +56,22 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="precious-ex1">
+      <file name="SConstruct" printme="1">
         env = Environment(RANLIBCOM='')
         lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
         env.Precious(lib)
-    </programlisting>
+      </file>
+      <file name="f1.c">
+      int f1() { }
+      </file>
+      <file name="f2.c">
+      int f2() { }
+      </file>
+      <file name="f3.c">
+      int f3() { }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -70,13 +81,9 @@
 
     </para>
 
-    <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o f1.o -c f1.c
-        cc -o f2.o -c f2.c
-        cc -o f3.o -c f3.c
-        ar rc libfoo.a f1.o f2.o f3.o
-    </screen>
+    <scons_output example="precious-ex1">
+        <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
 
     <para>
 
@@ -107,11 +114,22 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="noclean-ex1">
+      <file name="SConstruct" printme="1">
         env = Environment(RANLIBCOM='')
         lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
         env.NoClean(lib)
-    </programlisting>
+      </file>
+      <file name="f1.c">
+      int f1() { }
+      </file>
+      <file name="f2.c">
+      int f2() { }
+      </file>
+      <file name="f3.c">
+      int f3() { }
+      </file>
+    </scons_example>
 
     <para>
 
@@ -120,21 +138,10 @@
 
     </para>
 
-    <screen>
-        % <userinput>scons -Q</userinput>
-        cc -o f1.o -c f1.c
-        cc -o f2.o -c f2.c
-        cc -o f3.o -c f3.c
-        ar rc libfoo.a f1.o f2.o f3.o
-        % <userinput>scons -c</userinput>
-        scons: Reading SConscript files ...
-        scons: done reading SConscript files.
-        scons: Cleaning targets ...
-        Removed f1.o
-        Removed f2.o
-        Removed f3.o
-        scons: done cleaning targets.
-    </screen>
+    <scons_output example="noclean-ex1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -c</scons_output_command>
+    </scons_output>
 
   </section>
 
@@ -168,10 +175,27 @@
 
     </para>
 
-    <programlisting>
+    <scons_example name="clean-ex1">
+      <file name="S" printme="1">
         t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
         Clean(t, 'foo.log')
-    </programlisting>
+      </file>
+      <file name="SConstruct">
+      env = DefaultEnvironment()
+      import os
+      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+      SConscript('S')
+      </file>
+      <file name="foo.in">
+      foo.in
+      </file>
+      <file name="foo.log">
+      foo.log
+      </file>
+      <file name="build" chmod="0755">
+      cat $3 > $2
+      </file>
+    </scons_example>
 
     <para>
 
@@ -191,12 +215,9 @@
 
     </para>
 
-    <screen>
-        % <userinput>scons -Q</userinput>
-        build -o foo.out foo.in
-        % <userinput>scons -Q -c</userinput>
-        Removed foo.out
-        Removed foo.log
-    </screen>
+    <scons_output example="clean-ex1">
+        <scons_output_command>scons -Q</scons_output_command>
+        <scons_output_command>scons -Q -c</scons_output_command>
+    </scons_output>
 
   </section>
