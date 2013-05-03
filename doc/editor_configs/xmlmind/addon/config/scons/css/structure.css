@@ -1,0 +1,140 @@
+/*
+ * Copyright (c) 2005-2008 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Displays the structure (a little more than a TOC) of a DocBook document.
+ * Titles inside *info (e.g. sectioninfo) elements are not displayed.
+ */
+
+*, 
+*:comment,
+*:processing-instruction {
+    display: none;
+}
+
+title {
+    display: block;
+}
+
+title > * {
+    display: inline;
+}
+
+set,
+book,
+part,
+reference,
+refentry,
+preface,
+chapter,
+article,
+appendix,
+section,
+sect1,
+sect2,
+sect3,
+sect4,
+sect5 {
+    display: block;
+    margin-left: 9ex;
+}
+
+set:before,
+book:before,
+part:before,
+reference:before,
+refentry:before,
+preface:before,
+chapter:before,
+article:before,
+appendix:before,
+section:before,
+sect1:before,
+sect2:before,
+sect3:before,
+sect4:before,
+sect5:before {
+    display: marker;
+    marker-offset: fill;
+    content: element-name();
+    font-size: small;
+    color: gray;
+}
+
+part > title:before { 
+    content: simple-counter(n-, upper-roman) " "; 
+}
+
+chapter > title:before { 
+    content: simple-counter(n-, decimal) " "; 
+}
+
+appendix > title:before { 
+    content: simple-counter(n-, upper-alpha) " "; 
+}
+
+refentry {
+    content: xpath("join(.//refname, ', ')");
+    color: gray;
+}
+
+section > title:before,
+sect1 > title:before {
+    content: simple-counter(n-) " "; 
+}
+
+section section > title:before,
+sect2 > title:before { 
+    content: simple-counter(nn-) " "; 
+}
+
+section section section > title:before,
+sect3 > title:before {
+    content: simple-counter(nnn-) " "; 
+}
+
+section section section section > title:before,
+sect4 > title:before { 
+    content: simple-counter(nnnn-) " "; 
+}
+
+section section section section section > title:before,
+sect5 > title:before { 
+    content: simple-counter(nnnnn-) " "; 
+}
+
+section section section section * section > title:before { 
+    content: ""; 
+}
+
+setinfo,
+setindex,
+bookinfo,
+dedication,
+toc,
+lot,
+glossary,
+bibliography,
+index,
+colophon,
+partinfo,
+partintro,
+referenceinfo,
+prefaceinfo,
+chapterinfo,
+tocchap,
+articleinfo,
+appendixinfo,
+sectioninfo,
+sect1info,
+sect2info,
+sect3info,
+sect4info,
+sect5info {
+    display: block; 
+    content: element-name();
+    font-size: small;
+    color: gray;
+}

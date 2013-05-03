@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2005-2009 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Partial styles for DocBook tables. Requires an @extension.
+ * DO NOT IMPORT THIS FILE: INSTEAD @import cals_table.imp OR 
+ * @import html_cals_table.imp.
+ */
+
+table,
+informaltable {
+    display: block;
+    margin: 1.33ex 0; 
+}
+          
+table > title {
+    display: block;
+    font-style: italic; 
+    font-weight: normal;
+    text-align: center; 
+    /* keep margin because tgroup has no margin */
+}
+
+colspec,
+spanspec {
+    display: table-column;
+    collapsed: yes;
+}
+
+tgroup {
+    display: table; 
+    border-style: solid;
+    border-width: 1;
+}
+
+thead,
+tfoot {
+    display: table-row-group;
+    font-weight: bold; 
+}
+       
+thead {
+    background-color: #F0F0F0;
+}
+
+tfoot {
+    background-color: #E0E0E0;
+}
+       
+tbody {
+    display: table-row-group;
+    background-color: inherit; /*e.g. from read-only tgroup*/
+}
+
+row {
+    display: table-row;
+    background-color: inherit; /*e.g. from read-only tbody*/
+}
+          
+entry {
+    display: table-cell; 
+    background-color: inherit; /*e.g. from read-only row*/
+    border-style: solid;
+    border-width: 1;
+    padding: 2; 
+}
+
+entry > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+entrytbl {
+    display: subtable;
+    background-color: inherit; /*e.g. from read-only row*/
+    border-style: solid;
+    border-width: 1;
+}
+          
+@media print {
+    colspec, 
+    spanspec {
+        display: none; 
+    }
+}
