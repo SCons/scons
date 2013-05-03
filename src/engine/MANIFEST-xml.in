@@ -30,6 +30,7 @@ SCons/Tool/cc.xml
 SCons/Tool/cvf.xml
 SCons/Tool/default.xml
 SCons/Tool/dmd.xml
+SCons/Tool/docbook/__init__.xml
 SCons/Tool/dvi.xml
 SCons/Tool/dvipdf.xml
 SCons/Tool/dvips.xml

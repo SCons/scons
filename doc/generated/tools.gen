@@ -147,6 +147,133 @@ Sets construction variables for D language compilers
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="t-docbook">
+    <term>docbook</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">This tool tries to make working with Docbook in SCons a little easier.
+It provides several toolchains for creating different output formats,
+like HTML or PDF. Contained in the package is
+a distribution of the Docbook XSL stylesheets as of version 1.76.1.
+As long as you don't specify your own stylesheets for customization,
+these official versions are picked as default...which should reduce
+the inevitable setup hassles for you.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Implicit dependencies to images and XIncludes are detected automatically
+if you meet the HTML requirements. The additional
+stylesheet <filename>utils/xmldepend.xsl</filename> by Paul DuBois is used for this purpose.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Note, that there is no support for XML catalog resolving offered! This tool calls
+the XSLT processors and PDF renderers with the stylesheets you specified, that's it.
+The rest lies in your hands and you still have to know what you're doing when
+resolving names via a catalog. 
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">For activating the tool "docbook", you have to add its name to the Environment constructor,
+like this
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">On its startup, the Docbook tool tries to find a required <literal>xsltproc</literal> processor, and
+a PDF renderer, e.g. <literal>fop</literal>. So make sure that these are added to your system's environment
+<literal>PATH</literal> and can be called directly, without specifying their full path.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">For the most basic processing of Docbook to HTML, you need to have installed
+</para>
+<itemizedlist xmlns="http://www.scons.org/dbxsd/v1.0"><listitem><para>the Python <literal>lxml</literal> binding to <literal>libxml2</literal>, or
+</para>
+</listitem>
+<listitem><para>the direct Python bindings for <literal>libxml2/libxslt</literal>, or
+</para>
+</listitem>
+<listitem><para>a standalone XSLT processor, currently detected are <literal>xsltproc</literal>, <literal>saxon</literal>, <literal>saxon-xslt</literal>
+and <literal>xalan</literal>.
+</para>
+</listitem>
+</itemizedlist>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Rendering to PDF requires you to have one of the applications
+<literal>fop</literal> or <literal>xep</literal> installed.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Creating a HTML or PDF document is very simple and straightforward. Say
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtml('manual.html', 'manual.xml')
+env.DocbookPdf('manual.pdf', 'manual.xml')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">to get both outputs from your XML source <filename>manual.xml</filename>. As a shortcut, you can
+give the stem of the filenames alone, like this:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtml('manual')
+env.DocbookPdf('manual')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">and get the same result. Target and source lists are also supported:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtml(['manual.html','reference.html'], ['manual.xml','reference.xml'])
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">or even
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtml(['manual','reference'])
+</screen>
+<important xmlns="http://www.scons.org/dbxsd/v1.0"><para>Whenever you leave out the list of sources, you may not specify a file extension! The
+Tool uses the given names as file stems, and adds the suffixes for target and source files
+accordingly.
+</para>
+</important>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">The rules given above are valid for the Builders <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtml"><function>DocbookHtml</function></link>, 
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookPdf"><function>DocbookPdf</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookXInclude"><function>DocbookXInclude</function></link>. For the 
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookMan"><function>DocbookMan</function></link> transformation you
+can specify a target name, but the actual output names are automatically
+set from the <literal>refname</literal> entries in your XML source.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">The Builders <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtmlChunked"><function>DocbookHtmlChunked</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtmlhelp"><function>DocbookHtmlhelp</function></link> and 
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesHtml"><function>DocbookSlidesHtml</function></link> are special, in that:
+</para>
+<orderedlist xmlns="http://www.scons.org/dbxsd/v1.0"><listitem><para>they create a large set of files, where the exact names and their number depend
+on the content of the source file, and
+</para>
+</listitem>
+<listitem><para>the main target is always named <filename>index.html</filename>, i.e. the output name for the
+XSL transformation is not picked up by the stylesheets.
+</para>
+</listitem>
+</orderedlist>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">As a result, there is simply no use in specifying a target HTML name. 
+So the basic syntax for these builders is always:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlhelp('manual')
+</screen>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you want to use a specific XSL file, you can set the
+additional <literal>xsl</literal> parameter to your
+Builder call as follows:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env.DocbookHtml('other.html', 'manual.xml', xsl='html.xsl')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Since this may get tedious if you always use the same local naming for your customized XSL files,
+e.g. <filename>html.xsl</filename> for HTML and <filename>pdf.xsl</filename> for PDF output, a set of
+variables for setting the default XSL name is provided. These are:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">DOCBOOK_DEFAULT_XSL_HTML        
+DOCBOOK_DEFAULT_XSL_HTMLCHUNKED        
+DOCBOOK_DEFAULT_XSL_HTMLHELP        
+DOCBOOK_DEFAULT_XSL_PDF        
+DOCBOOK_DEFAULT_XSL_MAN        
+DOCBOOK_DEFAULT_XSL_SLIDESPDF        
+DOCBOOK_DEFAULT_XSL_SLIDESHTML        
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">and you can set them when constructing your environment:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'],
+                  DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
+                  DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
+env.DocbookHtml('manual') # now uses html.xsl
+</screen>
+<para>Sets:  &cv-link-DOCBOOK_DEFAULT_XSL_HTML;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLHELP;, &cv-link-DOCBOOK_DEFAULT_XSL_MAN;, &cv-link-DOCBOOK_DEFAULT_XSL_PDF;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESHTML;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESPDF;, &cv-link-DOCBOOK_FOP;, &cv-link-DOCBOOK_FOPCOM;, &cv-link-DOCBOOK_FOPFLAGS;, &cv-link-DOCBOOK_XMLLINT;, &cv-link-DOCBOOK_XMLLINTCOM;, &cv-link-DOCBOOK_XMLLINTFLAGS;, &cv-link-DOCBOOK_XSLTPROC;, &cv-link-DOCBOOK_XSLTPROCCOM;, &cv-link-DOCBOOK_XSLTPROCFLAGS;, &cv-link-DOCBOOK_XSLTPROCPARAMS;.</para><para>Uses:  &cv-link-DOCBOOK_FOPCOMSTR;, &cv-link-DOCBOOK_XMLLINTCOMSTR;, &cv-link-DOCBOOK_XSLTPROCCOMSTR;.</para></listitem>
+  </varlistentry>
   <varlistentry id="t-dvi">
     <term>dvi</term>
     <listitem>

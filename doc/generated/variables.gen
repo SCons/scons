@@ -909,6 +909,194 @@ into a list of Dir instances relative to the target being built.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_HTML">
+    <term>DOCBOOK_DEFAULT_XSL_HTML</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtml"><function>DocbookHtml</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED">
+    <term>DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtmlChunked"><function>DocbookHtmlChunked</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_HTMLHELP">
+    <term>DOCBOOK_DEFAULT_XSL_HTMLHELP</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtmlhelp"><function>DocbookHtmlhelp</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_MAN">
+    <term>DOCBOOK_DEFAULT_XSL_MAN</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookMan"><function>DocbookMan</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_PDF">
+    <term>DOCBOOK_DEFAULT_XSL_PDF</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookPdf"><function>DocbookPdf</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_SLIDESHTML">
+    <term>DOCBOOK_DEFAULT_XSL_SLIDESHTML</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesHtml"><function>DocbookSlidesHtml</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_SLIDESPDF">
+    <term>DOCBOOK_DEFAULT_XSL_SLIDESPDF</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_FOP">
+    <term>DOCBOOK_FOP</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The path to the PDF renderer <literal>fop</literal> or <literal>xep</literal>,
+if one of them is installed (<literal>fop</literal> gets checked first).
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_FOPCOM">
+    <term>DOCBOOK_FOPCOM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The full command-line for the
+PDF renderer <literal>fop</literal> or <literal>xep</literal>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_FOPCOMSTR">
+    <term>DOCBOOK_FOPCOMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when a renderer like <literal>fop</literal> or
+<literal>xep</literal> is used to create PDF output from an XML file.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_FOPFLAGS">
+    <term>DOCBOOK_FOPFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Additonal command-line flags for the
+PDF renderer <literal>fop</literal> or <literal>xep</literal>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XMLLINT">
+    <term>DOCBOOK_XMLLINT</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The path to the external executable <literal>xmllint</literal>, if it's installed.
+Note, that this is only used as last fallback for resolving
+XIncludes, if no libxml2 or lxml Python binding can be imported
+in the current system.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XMLLINTCOM">
+    <term>DOCBOOK_XMLLINTCOM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The full command-line for the external executable
+<literal>xmllint</literal>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XMLLINTCOMSTR">
+    <term>DOCBOOK_XMLLINTCOMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when <literal>xmllint</literal> is used to resolve
+XIncludes for a given XML file.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XMLLINTFLAGS">
+    <term>DOCBOOK_XMLLINTFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Additonal command-line flags for the external executable
+<literal>xmllint</literal>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XSLTPROC">
+    <term>DOCBOOK_XSLTPROC</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The path to the external executable <literal>xsltproc</literal>
+(or <literal>saxon</literal>, <literal>xalan</literal>), if one of them
+is installed.
+Note, that this is only used as last fallback for XSL transformations, if
+no libxml2 or lxml Python binding can be imported in the current system.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XSLTPROCCOM">
+    <term>DOCBOOK_XSLTPROCCOM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The full command-line for the external executable
+<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xalan</literal>).
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XSLTPROCCOMSTR">
+    <term>DOCBOOK_XSLTPROCCOMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when <literal>xsltproc</literal> is used to transform
+an XML file via a given XSLT stylesheet.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XSLTPROCFLAGS">
+    <term>DOCBOOK_XSLTPROCFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Additonal command-line flags for the external executable
+<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xalan</literal>).
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DOCBOOK_XSLTPROCPARAMS">
+    <term>DOCBOOK_XSLTPROCPARAMS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Additonal parameters that are not intended for the XSLT processor executable, but
+the XSL processing itself. By default, they get appended at the end of the command line
+for <literal>saxon</literal> and <literal>saxon-xslt</literal>, respectively.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-DSUFFIXES">
     <term>DSUFFIXES</term>
     <listitem>

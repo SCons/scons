@@ -70,6 +70,26 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-DESCRIPTION_lang "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DESCRIPTION_lang</envar>">
 <!ENTITY cv-Dir "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$Dir</envar>">
 <!ENTITY cv-Dirs "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$Dirs</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_HTML "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_HTML</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_HTMLHELP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_HTMLHELP</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_MAN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_MAN</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_PDF "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_PDF</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_SLIDESHTML "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_SLIDESHTML</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_SLIDESPDF "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_SLIDESPDF</envar>">
+<!ENTITY cv-DOCBOOK_FOP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_FOP</envar>">
+<!ENTITY cv-DOCBOOK_FOPCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_FOPCOM</envar>">
+<!ENTITY cv-DOCBOOK_FOPCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_FOPCOMSTR</envar>">
+<!ENTITY cv-DOCBOOK_FOPFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_FOPFLAGS</envar>">
+<!ENTITY cv-DOCBOOK_XMLLINT "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XMLLINT</envar>">
+<!ENTITY cv-DOCBOOK_XMLLINTCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XMLLINTCOM</envar>">
+<!ENTITY cv-DOCBOOK_XMLLINTCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XMLLINTCOMSTR</envar>">
+<!ENTITY cv-DOCBOOK_XMLLINTFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XMLLINTFLAGS</envar>">
+<!ENTITY cv-DOCBOOK_XSLTPROC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XSLTPROC</envar>">
+<!ENTITY cv-DOCBOOK_XSLTPROCCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XSLTPROCCOM</envar>">
+<!ENTITY cv-DOCBOOK_XSLTPROCCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XSLTPROCCOMSTR</envar>">
+<!ENTITY cv-DOCBOOK_XSLTPROCFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XSLTPROCFLAGS</envar>">
+<!ENTITY cv-DOCBOOK_XSLTPROCPARAMS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_XSLTPROCPARAMS</envar>">
 <!ENTITY cv-DSUFFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DSUFFIXES</envar>">
 <!ENTITY cv-DVIPDF "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DVIPDF</envar>">
 <!ENTITY cv-DVIPDFCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DVIPDFCOM</envar>">
@@ -630,6 +650,26 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-DESCRIPTION_lang "<link linkend='cv-DESCRIPTION_lang' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DESCRIPTION_lang</envar></link>">
 <!ENTITY cv-link-Dir "<link linkend='cv-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$Dir</envar></link>">
 <!ENTITY cv-link-Dirs "<link linkend='cv-Dirs' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$Dirs</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_HTML "<link linkend='cv-DOCBOOK_DEFAULT_XSL_HTML' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_HTML</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED "<link linkend='cv-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_HTMLHELP "<link linkend='cv-DOCBOOK_DEFAULT_XSL_HTMLHELP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_HTMLHELP</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_MAN "<link linkend='cv-DOCBOOK_DEFAULT_XSL_MAN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_MAN</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_PDF "<link linkend='cv-DOCBOOK_DEFAULT_XSL_PDF' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_PDF</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_SLIDESHTML "<link linkend='cv-DOCBOOK_DEFAULT_XSL_SLIDESHTML' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_SLIDESHTML</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_SLIDESPDF "<link linkend='cv-DOCBOOK_DEFAULT_XSL_SLIDESPDF' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_SLIDESPDF</envar></link>">
+<!ENTITY cv-link-DOCBOOK_FOP "<link linkend='cv-DOCBOOK_FOP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_FOP</envar></link>">
+<!ENTITY cv-link-DOCBOOK_FOPCOM "<link linkend='cv-DOCBOOK_FOPCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_FOPCOM</envar></link>">
+<!ENTITY cv-link-DOCBOOK_FOPCOMSTR "<link linkend='cv-DOCBOOK_FOPCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_FOPCOMSTR</envar></link>">
+<!ENTITY cv-link-DOCBOOK_FOPFLAGS "<link linkend='cv-DOCBOOK_FOPFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_FOPFLAGS</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XMLLINT "<link linkend='cv-DOCBOOK_XMLLINT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XMLLINT</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XMLLINTCOM "<link linkend='cv-DOCBOOK_XMLLINTCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XMLLINTCOM</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XMLLINTCOMSTR "<link linkend='cv-DOCBOOK_XMLLINTCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XMLLINTCOMSTR</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XMLLINTFLAGS "<link linkend='cv-DOCBOOK_XMLLINTFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XMLLINTFLAGS</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XSLTPROC "<link linkend='cv-DOCBOOK_XSLTPROC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XSLTPROC</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XSLTPROCCOM "<link linkend='cv-DOCBOOK_XSLTPROCCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XSLTPROCCOM</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XSLTPROCCOMSTR "<link linkend='cv-DOCBOOK_XSLTPROCCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XSLTPROCCOMSTR</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XSLTPROCFLAGS "<link linkend='cv-DOCBOOK_XSLTPROCFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XSLTPROCFLAGS</envar></link>">
+<!ENTITY cv-link-DOCBOOK_XSLTPROCPARAMS "<link linkend='cv-DOCBOOK_XSLTPROCPARAMS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_XSLTPROCPARAMS</envar></link>">
 <!ENTITY cv-link-DSUFFIXES "<link linkend='cv-DSUFFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DSUFFIXES</envar></link>">
 <!ENTITY cv-link-DVIPDF "<link linkend='cv-DVIPDF' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DVIPDF</envar></link>">
 <!ENTITY cv-link-DVIPDFCOM "<link linkend='cv-DVIPDFCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DVIPDFCOM</envar></link>">
