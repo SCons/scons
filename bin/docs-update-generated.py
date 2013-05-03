@@ -8,6 +8,7 @@
 #
 
 import os
+import SConsDoc
 
 # Directory where all generated files are stored
 gen_folder = 'doc/generated'
@@ -28,7 +29,8 @@ def generate_all():
         for f in files:
             if f.endswith('.xml'):
                 fpath = os.path.join(path, f)
-                flist.append(fpath)
+                if SConsDoc.isSConsXml(fpath):
+                    flist.append(fpath)
 
     if flist:
         # Does the destination folder exist

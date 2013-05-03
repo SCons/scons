@@ -4,11 +4,11 @@
     %scons;
 ]>
 
-<chapter id="chap-testing"
+<section id="sect-summary"
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
-<title>Testing</title>
+<title>Summary</title>
 
 <!--
 
@@ -37,18 +37,16 @@
 
   <para>
 
-  XXX
+    This paper has introduced &SCons;, a next-generation build tool
+    with a modular, embeddable architecture and a direct Python
+    interface. &SCons; has a global view of the dependencies in a source
+    tree, uses MD5 signatures to decide if derived files are out of date,
+    and automatically scans files for dependencies, all of which make &SCons;
+    builds exceptionally reliable. The &SCons; development methodology has
+    been described, notable for its emphasis on automated regression
+    testing to ensure a robust and reliable tool from day one. Several
+    future directions for &SCons; have also been discussed.
 
   </para>
 
-  <section>
-  <title>Testing</title>
-
-    <para>
-
-    XXX
-    </para>
-
-  </section>
-
-</chapter>
+</section>

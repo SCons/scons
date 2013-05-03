@@ -1,6 +1,18 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<chapter id="chap-engine"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+<title>Build Engine API</title>
+
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -964,7 +976,7 @@ you set it up with another environment...
   <para>
 
    &Builder; objects referenced in the &BUILDERMAP; do not need to be
-   listed separately in the &BUILDERS; variable.  The &consenv; will
+   listed separately in the <literal>BUILDERS</literal> variable.  The &consenv; will
    bind the union of the &Builder; objects listed in both variables.
 
   </para>
@@ -1292,7 +1304,7 @@ Comments?
   <para>
 
    &Scanner; objects referenced in the &SCANNERMAP; do not need to
-   be listed separately in the &SCANNERS; variable.  The &consenv;
+   be listed separately in the <literal>SCANNERS</literal> variable.  The &consenv;
    will bind the union of the &Scanner; objects listed
    in both variables.
 
@@ -1962,3 +1974,5 @@ I need to write that up...
 	</programlisting>
 
 </section>
+
+</chapter>

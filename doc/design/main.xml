@@ -2,7 +2,7 @@
 
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -25,44 +25,19 @@
 
 -->
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
-[
+<!DOCTYPE sconsdoc [
 
-    <!--
-    We haven't updated the design document in ages.
-    Rather than fool people into thinking that it's
-    actually up-to-date and reflects the current design,
-    hard-code the version from back when we last updated it.
     <!ENTITY % version SYSTEM "../version.xml">
     %version;
-    -->
-    <!ENTITY builddate "2001/12/13 20:55:46">
-    <!ENTITY buildversion "0.91">
-    <!ENTITY buildrevision "0.01.D177">
 
-    <!--
-    Also freeze the scons.mod DTD extensions
-    to what they were way back when.
     <!ENTITY % scons SYSTEM "../scons.mod">
-    -->
-    <!ENTITY % scons SYSTEM "scons.mod">
     %scons;
-
-    <!ENTITY acks SYSTEM "acks.xml">
-    <!ENTITY bground SYSTEM "bground.xml">
-    <!ENTITY copyright SYSTEM "copyright.xml">
-    <!ENTITY engine SYSTEM "engine.xml">
-    <!ENTITY goals SYSTEM "goals.xml">
-    <!ENTITY install SYSTEM "install.xml">
-    <!ENTITY intro SYSTEM "intro.xml">
-    <!ENTITY issues SYSTEM "issues.xml">
-    <!ENTITY native SYSTEM "native.xml">
-    <!ENTITY overview SYSTEM "overview.xml">
 
 ]>
 
-<book>
+<book xmlns="http://www.scons.org/dbxsd/v1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
   <bookinfo>
     <title>SCons Design version &buildversion;</title>
 
@@ -80,79 +55,34 @@
       <holder>Steven Knight</holder>
     </copyright>
 
-    <legalnotice>
-      &copyright;
-    </legalnotice>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
 
     <releaseinfo>version &buildversion;</releaseinfo>
 
   </bookinfo>
 
-  <chapter id="chap-intro">
-    <title>Introduction</title>
-    &intro;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
 
-  <chapter id="chap-goals">
-    <title>Goals</title>
-    &goals;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="goals.xml"/>
 
-  <chapter id="chap-overview">
-    <title>Overview</title>
-    &overview;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="overview.xml"/>
 
-  <chapter id="chap-engine">
-    <title>Build Engine API</title>
-    &engine;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="engine.xml"/>
 
-  <chapter id="chap-native">
-    <title>Native Python Interface</title>
-    &native;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="native.xml"/>
 
   <!--
 
-  <chapter id="chap-install">
-    <title>Installation</title>
-    &install;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="install.xml"/>
 
   -->
 
-  <chapter id="chap-issues">
-    <title>Other Issues</title>
-    &issues;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="issues.xml"/>
 
-  <chapter id="chap-background">
-    <title>Background</title>
-    &bground;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="bground.xml"/>
 
-  <chapter id="chap-summary">
-    <title>Summary</title>
-    <para>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="summary.xml"/>
 
-      &SCons; offers a robust and feature-rich design for an SC-build
-      tool.  With a Build Engine based on the proven design of
-      the &Cons; utility, it offers increased simplification of the
-      user interface for unsophisticated users with the addition
-      of the "do-the-right-thing" <function>env.Make</function>
-      method, increased flexibility for sophisticated users with the
-      addition of &Builder; and &Scanner; objects, a mechanism to
-      allow tool-masters (and users) to share working construction
-      environments, and embeddability to provide reliable dependency
-      management in a variety of environments and interfaces.
-
-    </para>
-  </chapter>
-
-  <chapter id="chap-acks">
-    <title>Acknowledgements</title>
-    &acks;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="acks.xml"/>
 
 </book>

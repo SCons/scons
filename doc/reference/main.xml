@@ -1,8 +1,22 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE sconsdoc [
+
+    <!ENTITY % version SYSTEM "../version.xml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+]>
+
+<book xmlns="http://www.scons.org/dbxsd/v1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+      
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -24,45 +38,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
-
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
-[
-
-    <!ENTITY % version SYSTEM "../version.xml">
-    %version;
-
-    <!ENTITY % scons SYSTEM "../scons.mod">
-    %scons;
-
-    <!-- Builders -->
-    <!ENTITY Alias_file SYSTEM "Alias.xml">
-    <!ENTITY CFile_file SYSTEM "CFile.xml">
-    <!ENTITY CXXFile_file SYSTEM "CXXFile.xml">
-    <!ENTITY Command_file SYSTEM "Command.xml">
-    <!ENTITY Install_file SYSTEM "Install.xml">
-    <!ENTITY InstallAs_file SYSTEM "InstallAs.xml">
-    <!ENTITY Library_file SYSTEM "Library.xml">
-    <!ENTITY Object_file SYSTEM "Object.xml">
-    <!ENTITY PCH_file SYSTEM "PCH.xml">
-    <!ENTITY PDF_file SYSTEM "PDF.xml">
-    <!ENTITY PostScript_file SYSTEM "PostScript.xml">
-    <!ENTITY Program_file SYSTEM "Program.xml">
-    <!ENTITY RES_file SYSTEM "RES.xml">
-    <!ENTITY SharedLibrary_file SYSTEM "SharedLibrary.xml">
-    <!ENTITY SharedObject_file SYSTEM "SharedObject.xml">
-    <!ENTITY StaticLibrary_file SYSTEM "StaticLibrary.xml">
-    <!ENTITY StaticObject_file SYSTEM "StaticObject.xml">
-
-    <!-- Construction Variables -->
-
-    <!ENTITY copyright SYSTEM "copyright.xml">
-    <!ENTITY errors SYSTEM "errors.xml">
-    <!ENTITY preface SYSTEM "preface.xml">
-
-]>
-
-<book>
+      
   <bookinfo>
     <title>SCons Reference Manual &buildversion;</title>
 
@@ -80,128 +56,53 @@
       <holder>Steven Knight</holder>
     </copyright>
 
-    <legalnotice>
-      &copyright;
-    </legalnotice>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
 
     <releaseinfo>version &buildversion;</releaseinfo>
 
   </bookinfo>
 
-  <chapter id="chap-preface">
-    <title>Preface</title>
-    &preface;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="preface.xml"/>
 
   <chapter id="chap-builders">
     <title>Builder Reference</title>
 
-    <section id="sect-Alias">
-      <title>The Alias Builder</title>
-      &Alias_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Alias.xml"/>
 
-    <section id="sect-CFile">
-      <title>The CFile Builder</title>
-      &CFile_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="CFile.xml"/>
 
-    <section id="sect-Command">
-      <title>The Command Builder</title>
-      &Command_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Command.xml"/>
 
-    <section id="sect-CXXFile">
-      <title>The CXXFile Builder</title>
-      &CXXFile_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="CXXFile.xml"/>
 
-    <section id="sect-Install">
-      <title>The Install Builder</title>
-      &Install_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Install.xml"/>
 
-    <section id="sect-InstallAs">
-      <title>The InstallAs Builder</title>
-      &InstallAs_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="InstallAs.xml"/>
 
-    <section id="sect-Library">
-      <title>The Library Builder</title>
-      &Library_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Library.xml"/>
 
-    <section id="sect-Object">
-      <title>The Object Builder</title>
-      &Object_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Object.xml"/>
 
-    <section id="sect-PCH">
-      <title>The PCH Builder</title>
-      &PCH_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="PCH.xml"/>
 
-    <section id="sect-PDF">
-      <title>The PDF Builder</title>
-      &PDF_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="PDF.xml"/>
 
-    <section id="sect-PostScript">
-      <title>The PDF Builder</title>
-      &PostScript_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="PostScript.xml"/>
 
-    <section id="sect-Program">
-      <title>The Program Builder</title>
-      &Program_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Program.xml"/>
 
-    <section id="sect-RES">
-      <title>The RES Builder</title>
-      &RES_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="RES.xml"/>
 
-    <section id="sect-SharedLibrary">
-      <title>The SharedLibrary Builder</title>
-      &SharedLibrary_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="SharedLibrary.xml"/>
 
-    <section id="sect-SharedObject">
-      <title>The SharedObject Builder</title>
-      &SharedObject_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="SharedObject.xml"/>
 
-    <section id="sect-StaticLibrary">
-      <title>The StaticLibrary Builder</title>
-      &StaticLibrary_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="StaticLibrary.xml"/>
 
-    <section id="sect-StaticObject">
-      <title>The StaticObject Builder</title>
-      &StaticObject_file;
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="StaticObject.xml"/>
 
   </chapter>
 
-  <chapter id="chap-variables">
-    <title>&ConsVar; Reference</title>
-
-    <section id="sect-AR">
-      <title>AR</title>
-
-      <para>
-
-      X
-
-      </para>
-
-    </section>
-
-  </chapter>
-
-  <appendix id="chap-errors">
-    <title>Errors Generated by &SCons;</title>
-    &errors;
-  </appendix>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="errors.xml"/>
 
 </book>

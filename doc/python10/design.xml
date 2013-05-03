@@ -1,3 +1,40 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<section id="sect-design"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+<title>Architecture</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
 <para>
 
   The &SCons; architecture consists of three layers:
@@ -6,16 +43,11 @@
 
 <mediaobject>
   <imageobject>
-    <imagedata fileref="arch" format="eps" align="center"/>
+    <imagedata fileref="arch.svg" align="center"/>
   </imageobject>
   <imageobject>
-    <imagedata fileref="arch.jpg" format="jpg" align="center"/>
+    <imagedata fileref="arch.jpg" align="center"/>
   </imageobject>
-  <!--  PDF files?
-  <imageobject>
-    <imagedata fileref="arch.pdf" align="center"/>
-  </imageobject>
-  -->
 </mediaobject>
 
 <itemizedlist>
@@ -166,16 +198,11 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="node" format="eps" align="center"/>
+        <imagedata fileref="node.svg" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="node.jpg" format="jpg" align="center"/>
+        <imagedata fileref="node.jpg" align="center"/>
       </imageobject>
-      <!--  PDF files?
-      <imageobject>
-        <imagedata fileref="node.pdf" align="center"/>
-      </imageobject>
-      -->
     </mediaobject>
 
     <para>
@@ -230,16 +257,11 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="scanner" format="eps" align="center"/>
+        <imagedata fileref="scanner.svg" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="scanner.jpg" format="jpg" align="center"/>
+        <imagedata fileref="scanner.jpg" align="center"/>
       </imageobject>
-      <!--  PDF files?
-      <imageobject>
-        <imagedata fileref="scanner.pdf" align="center"/>
-      </imageobject>
-      -->
     </mediaobject>
 
     <para>
@@ -272,16 +294,11 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="sig" format="eps" align="center"/>
+        <imagedata fileref="sig.svg" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="sig.jpg" format="jpg" align="center"/>
+        <imagedata fileref="sig.jpg" align="center"/>
       </imageobject>
-      <!--  PDF files?
-      <imageobject>
-        <imagedata fileref="sig.pdf" align="center"/>
-      </imageobject>
-      -->
     </mediaobject>
 
     <para>
@@ -328,16 +345,11 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="builder" format="eps" align="center"/>
+        <imagedata fileref="builder.svg" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="builder.jpg" format="jpg" align="center"/>
+        <imagedata fileref="builder.jpg" align="center"/>
       </imageobject>
-      <!--  PDF files?
-      <imageobject>
-        <imagedata fileref="builder.pdf" align="center"/>
-      </imageobject>
-      -->
     </mediaobject>
 
     <para>
@@ -391,16 +403,11 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="job-task" format="eps" align="center"/>
+        <imagedata fileref="job-task.svg" align="center"/>
       </imageobject>
       <imageobject>
-        <imagedata fileref="job-task.jpg" format="jpg" align="center"/>
+        <imagedata fileref="job-task.jpg" align="center"/>
       </imageobject>
-      <!--  PDF files?
-      <imageobject>
-        <imagedata fileref="job-task.pdf" align="center"/>
-      </imageobject>
-      -->
     </mediaobject>
 
     <para>
@@ -547,7 +554,7 @@
       file, a library, etc. A &Builder; object is associated with a
       file through an associated &consenv; method and later invoked to
       actually build the file. The &Builder; object will typically use
-      construction variables (such as &CCFLAGS;, &LIBPATH;) to influence
+      construction variables (such as <literal>CCFLAGS</literal>, <literal>LIBPATH</literal>) to influence
       the specific build execution.
 
     </para>
@@ -629,7 +636,7 @@
     <para>
 
       &Builder; objects are associated with a &consenv; through a
-      &consvar; named &BUILDERS;, a list of the &Builder; objects that
+      &consvar; named <literal>BUILDERS</literal>, a list of the &Builder; objects that
       will be available for execution through the &consenv;:
 
     </para>
@@ -678,7 +685,7 @@
     <para>
 
       &Scanner; objects are associated with a &consenv; through a
-      &consvar; named &SCANNERS;, a list of the &Scanner; objects that
+      &consvar; named <literal>SCANNERS</literal>, a list of the &Scanner; objects that
       will be available through the &consenv;:
 
     </para>
@@ -894,5 +901,7 @@
     from the Perl &Cons; utility on which the &SCons; design is based.
 
   </para>
+
+</section>
 
 </section>
