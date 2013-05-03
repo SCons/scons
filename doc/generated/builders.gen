@@ -84,6 +84,260 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="b-DocbookHtml">
+    <term>
+      <function>DocbookHtml()</function>
+    </term>
+    <term>
+      <function>env.DocbookHtml()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for HTML output.
+</para>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtml('manual.html', 'manual.xml')
+</example_commands>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+or simply
+</para>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtml('manual')
+</example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookHtmlChunked">
+    <term>
+      <function>DocbookHtmlChunked()</function>
+    </term>
+    <term>
+      <function>env.DocbookHtmlChunked()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for chunked HTML output.
+It supports the <literal>base.dir</literal> parameter. The 
+<filename>chunkfast.xsl</filename> file (requires "EXSLT") is used as the
+default stylesheet. Basic syntax:
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlChunked('manual')
+</example_commands>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+where <filename>manual.xml</filename> is the input file.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you use the <literal>root.filename</literal> 
+parameter in your own stylesheets you have to specify the new target name.
+This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlChunked('mymanual.html', 'manual', xsl='htmlchunk.xsl')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Some basic support for the <literal>base.dir</literal> is provided. You
+can add the <literal>base_dir</literal> keyword to your Builder
+call, and the given prefix gets prepended to all the created filenames:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlChunked('manual', xsl='htmlchunk.xsl', base_dir='output/')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Make sure that you don't forget the trailing slash for the base folder, else
+your files get renamed only! 
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookHtmlhelp">
+    <term>
+      <function>DocbookHtmlhelp()</function>
+    </term>
+    <term>
+      <function>env.DocbookHtmlhelp()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for HTMLHELP output.
+Its basic syntax is:
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlhelp('manual')
+</example_commands>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+where <filename>manual.xml</filename> is the input file.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you use the <literal>root.filename</literal> 
+parameter in your own stylesheets you have to specify the new target name.
+This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlhelp('mymanual.html', 'manual', xsl='htmlhelp.xsl')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Some basic support for the <literal>base.dir</literal> parameter
+is provided. You can add the <literal>base_dir</literal> keyword to
+your Builder call, and the given prefix gets prepended to all the
+created filenames:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookHtmlhelp('manual', xsl='htmlhelp.xsl', base_dir='output/')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Make sure that you don't forget the trailing slash for the base folder, else
+your files get renamed only! 
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookMan">
+    <term>
+      <function>DocbookMan()</function>
+    </term>
+    <term>
+      <function>env.DocbookMan()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for Man page output.
+Its basic syntax is:
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookMan('manual')
+</example_commands>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+where <filename>manual.xml</filename> is the input file. Note, that 
+you can specify a target name, but the actual output names are automatically
+set from the <literal>refname</literal> entries in your XML source.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookPdf">
+    <term>
+      <function>DocbookPdf()</function>
+    </term>
+    <term>
+      <function>env.DocbookPdf()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for PDF output.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookPdf('manual.pdf', 'manual.xml')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+or simply
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookPdf('manual')
+</example_commands>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookSlidesHtml">
+    <term>
+      <function>DocbookSlidesHtml()</function>
+    </term>
+    <term>
+      <function>env.DocbookSlidesHtml()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for HTML slides output.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookSlidesHtml('manual')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you use the <literal>titlefoil.html</literal> parameter in
+your own stylesheets you have to give the new target name. This ensures
+that the dependencies get correct, especially for the cleanup via 
+<quote><literal>scons -c</literal></quote>:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookSlidesHtml('mymanual.html','manual', xsl='slideshtml.xsl')
+</screen>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Some basic support for the <literal>base.dir</literal> parameter 
+is provided. You
+can add the <literal>base_dir</literal> keyword to your Builder
+call, and the given prefix gets prepended to all the created filenames:
+</para>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookSlidesHtml('manual', xsl='slideshtml.xsl', base_dir='output/')
+</screen>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Make sure that you don't forget the trailing slash for the base folder, else
+your files get renamed only! 
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookSlidesPdf">
+    <term>
+      <function>DocbookSlidesPdf()</function>
+    </term>
+    <term>
+      <function>env.DocbookSlidesPdf()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for PDF slides output.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookSlidesPdf('manual.pdf', 'manual.xml')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+or simply
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookSlidesPdf('manual')
+</example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookXInclude">
+    <term>
+      <function>DocbookXInclude()</function>
+    </term>
+    <term>
+      <function>env.DocbookXInclude()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, for resolving XIncludes in a separate processing step.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookXInclude('manual_xincluded.xml', 'manual.xml')
+</example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-DocbookXslt">
+    <term>
+      <function>DocbookXslt()</function>
+    </term>
+    <term>
+      <function>env.DocbookXslt()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, applying a given XSL transformation to the input file.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookXslt('manual_transformed.xml', 'manual.xml', xsl='transform.xslt')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Note, that this builder requires the <literal>xsl</literal> parameter
+to be set.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="b-DVI">
     <term>
       <function>DVI()</function>

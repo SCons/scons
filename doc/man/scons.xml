@@ -60,9 +60,12 @@
     </copyright>
 
     <releaseinfo>version &buildversion;</releaseinfo>
-
   </referenceinfo>
-
+  
+  <title>SCons &buildversion;</title>
+  <subtitle>MAN page</subtitle>
+  
+  
 <refentry id='scons1'> 
 <refmeta>
 <refentrytitle>SCONS</refentrytitle>

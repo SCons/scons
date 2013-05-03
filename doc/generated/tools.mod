@@ -24,6 +24,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-cXX "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cXX</literal>">
 <!ENTITY t-default "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>default</literal>">
 <!ENTITY t-dmd "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dmd</literal>">
+<!ENTITY t-docbook "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>docbook</literal>">
 <!ENTITY t-dvi "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dvi</literal>">
 <!ENTITY t-dvipdf "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dvipdf</literal>">
 <!ENTITY t-dvips "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dvips</literal>">
@@ -130,6 +131,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-cXX "<link linkend='t-cXX' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cXX</literal></link>">
 <!ENTITY t-link-default "<link linkend='t-default' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>default</literal></link>">
 <!ENTITY t-link-dmd "<link linkend='t-dmd' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>dmd</literal></link>">
+<!ENTITY t-link-docbook "<link linkend='t-docbook' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>docbook</literal></link>">
 <!ENTITY t-link-dvi "<link linkend='t-dvi' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>dvi</literal></link>">
 <!ENTITY t-link-dvipdf "<link linkend='t-dvipdf' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>dvipdf</literal></link>">
 <!ENTITY t-link-dvips "<link linkend='t-dvips' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>dvips</literal></link>">
