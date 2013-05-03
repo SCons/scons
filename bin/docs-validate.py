@@ -2,10 +2,6 @@
 #
 # Searches through the whole source tree and validates all
 # documentation files against our own XSD in docs/xsd.
-# Additionally, it rewrites all files such that the XML gets
-# pretty-printed in a consistent way. This is done to ensure that
-# merging and diffing doesn't get too hard when people start to
-# use different XML editors...
 #
 
 import os

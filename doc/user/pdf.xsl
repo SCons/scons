@@ -36,6 +36,8 @@
 <xsl:param name="paper.type" select="'letter'"></xsl:param>
 <xsl:param name="body.start.indent">0pt</xsl:param>
 <xsl:param name="shade.verbatim" select="1"></xsl:param>
+<xsl:param name="variablelist.term.break.after" select="1"></xsl:param>
+
 <xsl:param name="generate.toc">
 /appendix toc,title
 article/appendix  nop
@@ -54,8 +56,15 @@ reference toc,title
 set       toc,title
 </xsl:param>
 
-<xsl:template match="varlistentry/term">
-	<xsl:call-template name="inline.boldseq"/>
+<xsl:attribute-set name="variablelist.term.properties">
+  <xsl:attribute name="font-weight">bold</xsl:attribute>
+</xsl:attribute-set>
+
+<xsl:template match="variablelist">
+  <xsl:variable name="presentation">
+    <xsl:call-template name="pi.dbfo_list-presentation"/>
+  </xsl:variable>
+  <xsl:apply-templates select="." mode="vl.as.blocks"/>
 </xsl:template>
 
 </xsl:stylesheet> 

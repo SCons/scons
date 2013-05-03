@@ -134,7 +134,8 @@ class SCons_XML(object):
             
             ve = stf.newNode("varlistentry")
             stf.setAttribute(ve, 'id', '%s%s' % (v.prefix, v.idfunc()))
-            stf.appendNode(ve, v.xml_term())
+            for t in v.xml_terms():
+                stf.appendNode(ve, t)
             vl = stf.newNode("listitem")
             added = False
             if v.summary is not None:
@@ -237,29 +238,26 @@ class SConsThing(Proxy):
     def idfunc(self):
         return self.name
     
-    def xml_term(self):
+    def xml_terms(self):
         e = stf.newNode("term")
         stf.setText(e, self.name)
-        return e
+        return [e]
 
 class Builder(SConsThing):
     description = 'builder'
     prefix = 'b-'
     tag = 'function'
     
-    def xml_term(self):
-        t = stf.newNode("term")
-        s = stf.newNode("synopsis")
+    def xml_terms(self):
+        ta = stf.newNode("term")
         b = stf.newNode(self.tag)
         stf.setText(b, self.name+'()')
-        stf.appendNode(s, b)
-        stf.appendNode(t, s)
-        s = stf.newNode("synopsis")
+        stf.appendNode(ta, b)
+        tb = stf.newNode("term")
         b = stf.newNode(self.tag)
         stf.setText(b, 'env.'+self.name+'()')
-        stf.appendNode(s, b)
-        stf.appendNode(t, s)
-        return t
+        stf.appendNode(tb, b)
+        return [ta, tb]
             
     def entityfunc(self):
         return self.name
@@ -345,18 +343,14 @@ h = parse_docs(args, False)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write_mod)
 
-# Step 2: Patching the include paths for entity definitions in XML files
-print "Patching include paths..."
-os.system('python bin/docs-correct-mod-paths.py')
-
-# Step 3: Validating all input files
+# Step 2: Validating all input files
 print "Validating files against SCons XSD..."
 if SConsDoc.validate_all_xml(['src']):
     print "OK"
 else:
     print "Validation failed! Please correct the errors above and try again."
 
-# Step 4: Creating actual documentation snippets, using the
+# Step 3: Creating actual documentation snippets, using the
 #         fully resolved and updated entities from the *.mod files.
 print "Updating documentation for builders, tools and functions..."
 h = parse_docs(args, True)
