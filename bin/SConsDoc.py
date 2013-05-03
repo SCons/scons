@@ -174,10 +174,6 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 """
-# Header comment for automatically generated files
-generated_comment = """
-    THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
-  """
 
 def isSConsXml(fpath):
     """ Check whether the given file is a SCons XML file, i.e. it
@@ -318,22 +314,18 @@ if not has_libxml2:
             fout.write(pretty_content)
             fout.close()
 
-        def decorateWithCommentHeader(self, root, comment=generated_comment):
-            root.attrib["{"+xsi+"}schemaLocation"] = "%s scons.xsd" % dbxsd
-            
-            c = etree.Comment(comment)
-            root.insert(0, c)
-            
+        def decorateWithHeader(self, root):
+            root.attrib["{"+xsi+"}schemaLocation"] = "%s/scons.xsd scons.xsd" % dbxsd
             return root
             
-        def newXmlTree(self, root, comment=generated_comment):
+        def newXmlTree(self, root):
             """ Return a XML file tree with the correct namespaces set,
                 the element root as top entry and the given header comment.
             """
             NSMAP = {None: dbxsd,
                      'xsi' : xsi}
             t = etree.Element(root, nsmap=NSMAP)
-            return self.decorateWithCommentHeader(t, comment)
+            return self.decorateWithHeader(t)
         
         def validateXml(self, fpath, xmlschema_context):
             # Use lxml
@@ -447,25 +439,22 @@ else:
             # Cleanup
             doc.freeDoc()
 
-        def decorateWithCommentHeader(self, root, comment=generated_comment):
+        def decorateWithHeader(self, root):
             # Register the namespaces
             ns = root.newNs(dbxsd, None)
             xi = root.newNs(xsi, 'xsi')
             root.setNs(ns)  #put this node in the target namespace
     
-            root.setNsProp(xi, 'schemaLocation', "%s scons.xsd" % dbxsd)
+            root.setNsProp(xi, 'schemaLocation', "%s/scons.xsd scons.xsd" % dbxsd)
         
-            c = libxml2.newComment(comment)
-            root.addChild(c)
-            
             return root
 
-        def newXmlTree(self, root, comment=generated_comment):
+        def newXmlTree(self, root):
             """ Return a XML file tree with the correct namespaces set,
                 the element root as top entry and the given header comment.
             """
             t = libxml2.newNode(root)
-            return self.decorateWithCommentHeader(t, comment)
+            return self.decorateWithHeader(t)
 
         def validateXml(self, fpath, xmlschema_context):
             # Create validation context

@@ -13,7 +13,7 @@
     </and>
   </detect>
   <schema>
-    <location>http://www.scons.org/dbxsd/v1.0 scons.xsd</location>
+    <location>http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd</location>
   </schema>
   <template name="Book" location="scons_templates/book.xml" />
   <template name="Article" location="scons_templates/article.xml" />
