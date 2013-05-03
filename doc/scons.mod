@@ -535,3 +535,4 @@
 -->
 
 <!ENTITY lambda "&#923;">
+<!ENTITY mdash "&#8212;">

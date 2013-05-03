@@ -211,7 +211,7 @@
     Other relevant construction variables
     include those used by the &b-link-Object;
     builders to affect how the
-    source files specified as input to the &t-Program;
+    source files specified as input to the <literal>Program</literal>
     builders are turned into object files;
     see the next section.
 

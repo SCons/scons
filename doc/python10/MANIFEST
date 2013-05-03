@@ -12,5 +12,4 @@ main.xml
 node.fig
 process.xml
 scanner.fig
-scons.mod
-sig.fig
+summary.xml

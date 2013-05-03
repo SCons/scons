@@ -4,11 +4,11 @@
     %scons;
 ]>
 
-<chapter id="chap-testing"
+<chapter id="chap-summary"
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
-<title>Testing</title>
+<title>Summary</title>
 
 <!--
 
@@ -37,18 +37,17 @@
 
   <para>
 
-  XXX
+    &SCons; offers a robust and feature-rich design for an SC-build
+    tool.  With a Build Engine based on the proven design of
+    the &Cons; utility, it offers increased simplification of the
+    user interface for unsophisticated users with the addition
+    of the "do-the-right-thing" <function>env.Make</function>
+    method, increased flexibility for sophisticated users with the
+    addition of &Builder; and &Scanner; objects, a mechanism to
+    allow tool-masters (and users) to share working construction
+    environments, and embeddability to provide reliable dependency
+    management in a variety of environments and interfaces.
 
   </para>
-
-  <section>
-  <title>Testing</title>
-
-    <para>
-
-    XXX
-    </para>
-
-  </section>
 
 </chapter>

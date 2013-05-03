@@ -25,9 +25,7 @@
 
 -->
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
-[
+<!DOCTYPE sconsdoc [
 
     <!ENTITY % version SYSTEM "../version.xml">
     %version;
@@ -35,18 +33,11 @@
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
 
-    <!ENTITY architecture SYSTEM "architecture.xml">
-    <!ENTITY branches SYSTEM "branches.xml">
-    <!ENTITY copyright SYSTEM "copyright.xml">
-    <!ENTITY cycle SYSTEM "cycle.xml">
-    <!ENTITY packaging SYSTEM "packaging.xml">
-    <!ENTITY preface SYSTEM "preface.xml">
-    <!ENTITY sourcetree SYSTEM "sourcetree.xml">
-    <!ENTITY testing SYSTEM "testing.xml">
-
 ]>
 
-<book>
+<book xmlns="http://www.scons.org/dbxsd/v1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
   <bookinfo>
     <title>SCons Developer's Guide &buildversion;</title>
 
@@ -64,47 +55,24 @@
       <holder>Steven Knight</holder>
     </copyright>
 
-    <legalnotice>
-      &copyright;
-    </legalnotice>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
 
     <releaseinfo>version &buildversion;</releaseinfo>
 
   </bookinfo>
 
-  <preface id="chap-preface">
-    <title>Preface</title>
-    &preface;
-  </preface>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="preface.xml"/>
 
-  <chapter id="chap-development-cycle">
-    <title>Development Cycle</title>
-    &cycle;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="cycle.xml"/>
 
-  <chapter id="chap-source-tree">
-    <title>Source Tree</title>
-    &sourcetree;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sourcetree.xml"/>
 
-  <chapter id="chap-testing">
-    <title>Testing</title>
-    &testing;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="testing.xml"/>
 
-  <chapter id="chap-branches">
-    <title>Branches</title>
-    &branches;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="branches.xml"/>
 
-  <chapter id="chap-packaging">
-    <title>Packaging</title>
-    &packaging;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="packaging.xml"/>
 
-  <chapter id="chap-architecture">
-    <title>Architecture</title>
-    &architecture;
-  </chapter>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml"/>
 
 </book>

@@ -360,7 +360,7 @@ os.system('python bin/docs-correct-mod-paths.py')
 
 # Step 3: Validating all input files
 print "Validating files against SCons XSD..."
-if SConsDoc.validate_all_xml():
+if SConsDoc.validate_all_xml(['src']):
     print "OK"
 else:
     print "Validation failed! Please correct the errors above and try again."

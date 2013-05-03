@@ -150,7 +150,7 @@ scons: Building targets  ...
 cp foo.in foo.out
 scons: done building targets.
 $
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The status messages
 (everything except the line that reads "cp foo.in foo.out")
@@ -184,7 +184,7 @@ from your external environment as follows:</para>
 <literallayout>
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Similarly, if the commands use external environment variables
 like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
@@ -194,7 +194,7 @@ these variables can also be explicitly propagated:</para>
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH'],
                          'HOME' : os.environ['HOME']})
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Or you may explicitly propagate the invoking user's
 complete external environment:</para>
@@ -202,7 +202,7 @@ complete external environment:</para>
 <literallayout>
 import os
 env = Environment(ENV = os.environ)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>This comes at the expense of making your build
 dependent on the user's environment being set correctly,
@@ -233,7 +233,7 @@ the target file or files to be built.</para>
 
 <literallayout>
 scons
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>will build all target files in or below the current directory.
 Explicit default targets
@@ -253,7 +253,7 @@ as a command-line target:</para>
 
 <literallayout>
 scons .
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Building all target files,
 including any files outside of the current directory,
@@ -262,21 +262,21 @@ of the root directory (on POSIX systems):</para>
 
 <literallayout>
 scons /
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or the path name(s) of the volume(s) in which all the targets
 should be built (on Windows systems):</para>
 
 <literallayout>
 scons C:\ D:\
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>To build only specific targets,
 supply them as command-line arguments:</para>
 
 <literallayout>
 scons foo bar
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>in which case only the specified targets will be built
 (along with any derived files on which they depend).</para>
@@ -289,13 +289,13 @@ necessary to build the specified target:</para>
 
 <literallayout>
 scons -c .
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>to remove all target files, or:</para>
 
 <literallayout>
 scons -c build export
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>to remove target files under build and export.
 Additional files or directories to remove can be specified using the
@@ -316,7 +316,7 @@ built:</para>
 
 <literallayout>
 scons src/subdir
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or by changing directory and invoking scons with the
 <option>-u</option>
@@ -329,7 +329,7 @@ targets relatively to the current subdirectory:</para>
 <literallayout>
 cd src/subdir
 scons -u .
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para><command>scons</command>
 supports building multiple targets in parallel via a
@@ -339,7 +339,7 @@ of simultaneous tasks that may be spawned:</para>
 
 <literallayout>
 scons -j 4
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>builds four targets in parallel, for example.</para>
 
@@ -366,7 +366,7 @@ may be specified on the command line:</para>
 
 <literallayout>
 scons debug=1 .
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>These variables are available in SConscript files
 through the ARGUMENTS dictionary,
@@ -378,7 +378,7 @@ if ARGUMENTS.get('debug', 0):
     env = Environment(CCFLAGS = '-g')
 else:
     env = Environment()
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The command-line variable arguments are also available
 in the ARGLIST list,
@@ -709,7 +709,7 @@ of a given derived file:</para>
 
 <literallayout>
 $ scons --debug=includes foo.o
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -783,7 +783,7 @@ $ scons --debug=presub
 Building myprog.o with action(s):
   $SHCC $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
 ...
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -1077,7 +1077,7 @@ command:</para>
 -s, --silent, --quiet
 --taskmastertrace=FILE
 --tree=OPTIONS
-</literallayout> <!-- .fi -->
+</literallayout>
 
       </listitem>
       </varlistentry>
@@ -1180,7 +1180,7 @@ scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons&gt;&gt;&gt; build -n prog
 scons&gt;&gt;&gt; exit
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <variablelist>
   <varlistentry>
@@ -1436,7 +1436,7 @@ the last dir examined comes first in the resulting path.</para>
     %APPDATA%/scons/site_scons
     %HOME%/.scons/site_scons
     ./site_scons
-</literallayout> <!-- .fi -->
+</literallayout>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -1449,7 +1449,7 @@ the last dir examined comes first in the resulting path.</para>
     $HOME/Library/Application Support/SCons/site_scons
     $HOME/.scons/site_scons
     ./site_scons
-</literallayout> <!-- .fi -->
+</literallayout>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -1460,7 +1460,7 @@ the last dir examined comes first in the resulting path.</para>
     /usr/share/scons/site_scons
     $HOME/.scons/site_scons
     ./site_scons
-</literallayout> <!-- .fi -->
+</literallayout>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -1470,7 +1470,7 @@ the last dir examined comes first in the resulting path.</para>
     /usr/share/scons/site_scons
     $HOME/.scons/site_scons
     ./site_scons
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -1587,7 +1587,7 @@ scons --tree=derived,status
 # Prints all dependencies of target, with status information
 # and pruning dependencies of already-visited Nodes:
 scons --tree=all,prune,status target
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <variablelist>
   <varlistentry>
@@ -1940,7 +1940,7 @@ function:</para>
 
 <literallayout>
 env = Environment()
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Variables, called
 <emphasis>construction</emphasis>
@@ -1952,7 +1952,7 @@ or by assigning them a value after the object is created:</para>
 <literallayout>
 env = Environment(FOO = 'foo')
 env['BAR'] = 'bar'
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>As a convenience,
 construction variables may also be set or modified by the
@@ -1967,7 +1967,7 @@ or if the flags are distributed to a number of construction variables.</para>
 
 <literallayout>
 env = Environment(parse_flags = '-Iinclude -DEBUG -lm')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>This example adds 'include' to
 <emphasis role="bold">CPPPATH</emphasis>,
@@ -1989,7 +1989,7 @@ env = Environment(platform = 'cygwin')
 env = Environment(platform = 'os2')
 env = Environment(platform = 'posix')
 env = Environment(platform = 'win32')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Specifying a platform initializes the appropriate
 construction variables in the environment
@@ -2023,7 +2023,7 @@ def my_platform(env):
     env['VAR'] = 'xyzzy'
 
 env = Environment(platform = my_platform)
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>Additionally, a specific set of tools
 with which to initialize the environment
@@ -2031,13 +2031,13 @@ may be specified as an optional keyword argument:</para>
 
 <literallayout>
 env = Environment(tools = ['msvc', 'lex'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Non-built-in tools may be specified using the toolpath argument:</para>
 
 <literallayout>
 env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>This looks for a tool specification in tools/foo.py (as well as
 using the ordinary default tools for the platform).  foo.py should
@@ -2070,7 +2070,7 @@ methods:</para>
 base = Environment(toolpath=['custom_path'])
 derived = base.Clone(tools=['custom_tool'])
 derived.CustomBuilder()
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The elements of the tools list may also
 be functions or callable objects,
@@ -2083,7 +2083,7 @@ def my_tool(env):
     env['XYZZY'] = 'xyzzy'
 
 env = Environment(tools = [my_tool])
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>The individual elements of the tools list
 may also themselves be two-element lists of the form
@@ -2113,7 +2113,7 @@ def exists(env):
 # in SConstruct:
 env = Environment(tools = ['default', ('my_tool', {'arg1': 'abc'})],
                   toolpath=['tools'])
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>The tool definition (i.e. my_tool()) can use the PLATFORM variable from
 the environment it receives to customize the tool for different platforms.</para>
@@ -2212,7 +2212,7 @@ env.Program(source =  ['bar.c', 'foo.c'], target = 'bar')
 env.Program(target = 'bar', Split('bar.c foo.c'))
 env.Program(target = 'bar', env.Split('bar.c foo.c'))
 env.Program('bar', source = 'bar.c foo.c'.split())
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Target and source file names
 that are not absolute path names
@@ -2264,7 +2264,7 @@ env.Program('#/bar', 'bar.c')
 # Builds the program "other/foo" (relative to the top-level
 # SConstruct directory) from "subdir/foo.c":
 env.Program('#other/foo', 'foo.c')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>When the target shares the same base name
 as the source and only the suffix varies,
@@ -2288,7 +2288,7 @@ env.Program(target = 'bar', source = 'bar.c')
 env.Program('bar', source = 'bar.c')
 env.Program(source = 'bar.c')
 env.Program('bar.c')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>As a convenience, a
 <emphasis role="bold">srcdir</emphasis>
@@ -2310,7 +2310,7 @@ and
 
 <literallayout>
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>It is possible to override or add construction variables when calling a
 builder method by passing additional keyword arguments.
@@ -2321,7 +2321,7 @@ libraries for just one program:</para>
 
 <literallayout>
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or generate a shared library with a non-standard suffix:</para>
 
@@ -2329,7 +2329,7 @@ env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 env.SharedLibrary('word', 'word.cpp',
                   SHLIBSUFFIX='.ocx',
                   LIBSUFFIXES=['.ocx'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>(Note that both the $SHLIBSUFFIX and $LIBSUFFIXES variables must be set
 if you want SCons to search automatically
@@ -2342,7 +2342,7 @@ keyword argument in an override:</para>
 
 <literallayout>
 env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>This example adds 'include' to
 <emphasis role="bold">CPPPATH</emphasis>,
@@ -2360,7 +2360,7 @@ they may also be called without an explicit environment:</para>
 <literallayout>
 Program('hello', 'hello.c')
 SharedLibrary('word', 'word.cpp')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>In this case,
 the methods are called internally using a default construction
@@ -2375,7 +2375,7 @@ to the Python module:</para>
 
 <literallayout>
 from SCons.Script import *
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>All builder methods return a list-like object
 containing Nodes that
@@ -2398,7 +2398,7 @@ flag when compiling one specific object file:</para>
 <literallayout>
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Using a Node in this way
 makes for a more portable build
@@ -2421,7 +2421,7 @@ bar = Object('bar.c')
 objects = ['begin.o'] + foo + ['middle.o'] + bar + ['end.o']
 for object in objects:
     print str(object)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Or you can use the
 <emphasis role="bold">Flatten</emphasis>()
@@ -2435,7 +2435,7 @@ bar = Object('bar.c')
 objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
 for object in objects:
     print str(object)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Note also that because Builder calls return
 a list-like object, not an actual Python list,
@@ -2469,7 +2469,7 @@ object_files = []
 # Instead, use the .extend() method:
 object_files.extend(Object('bar.c'))
 
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The path name for a Node's file may be used
 by passing the Node to the Python-builtin
@@ -2479,7 +2479,7 @@ function:</para>
 <literallayout>
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 print "The path to bar_obj is:", str(bar_obj_list[0])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Note again that because the Builder call returns a list,
 we have to access the first element in the list
@@ -2518,7 +2518,7 @@ env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
 env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
             "cp foo.in foo.out",
             chdir=1)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Note that scons will
 <emphasis>not</emphasis>
@@ -2649,12 +2649,12 @@ if you call something as a global function
 it looks like:</para>
 <literallayout>
 Function(<emphasis>arguments</emphasis>)
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>and if you call something through a construction
 environment it looks like:</para>
 <literallayout>
 env.Function(<emphasis>arguments</emphasis>)
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>If you can call the functionality in both ways,
 then both forms are listed.</para>
 
@@ -2664,7 +2664,7 @@ to the Python module:</para>
 
 <literallayout>
 from SCons.Script import *
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Except where otherwise noted,
 the same-named
@@ -2682,7 +2682,7 @@ For example:</para>
 env = Environment(FOO = 'foo')
 Default('$FOO')
 env.Default('$FOO')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>In the above example,
 the first call to the global
@@ -2750,7 +2750,7 @@ to the Python module:</para>
 
 <literallayout>
 from SCons.Script import *
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <variablelist>
@@ -2785,7 +2785,7 @@ third_tuple = ARGLIST[2]
 print "third keyword, value =", third_tuple[0], third_tuple[1]
 for key, value in ARGLIST:
     # process key and value
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
   </listitem>
@@ -2812,7 +2812,7 @@ if ARGUMENTS.get('debug', 0):
     env = Environment(CCFLAGS = '-g')
 else:
     env = Environment()
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
   </listitem>
@@ -2853,7 +2853,7 @@ if 'foo' in BUILD_TARGETS:
     print "Don't forget to test the `foo' program!"
 if 'special/program' in BUILD_TARGETS:
     SConscript('special')
-</literallayout> <!-- .fi -->
+</literallayout>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -2891,7 +2891,7 @@ if 'foo' in COMMAND_LINE_TARGETS:
     print "Don't forget to test the `foo' program!"
 if 'special/program' in COMMAND_LINE_TARGETS:
     SConscript('special')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
   </listitem>
@@ -2915,7 +2915,7 @@ function to get at the path name for each Node.</para>
 print str(DEFAULT_TARGETS[0])
 if 'foo' in map(str, DEFAULT_TARGETS):
     print "Don't forget to test the `foo' program!"
-</literallayout> <!-- .fi -->
+</literallayout>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -2934,7 +2934,7 @@ Default('bar')
 print map(str, DEFAULT_TARGETS)   # now a node ['foo', 'bar']
 Default(None)
 print map(str, DEFAULT_TARGETS)   # back to []
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Consequently, be sure to use
 <emphasis role="bold">DEFAULT_TARGETS</emphasis>
@@ -3016,20 +3016,20 @@ method of the construction environment:</para>
 <literallayout>
 dict = env.Dictionary()
 dict["CC"] = "cc"
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or using the [] operator:</para>
 
 <literallayout>
 env["CC"] = "cc"
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Construction variables can also be passed to the construction environment
 constructor:</para>
 
 <literallayout>
 env = Environment(CC="cc")
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or when copying a construction environment using the
 <emphasis role="bold">Clone</emphasis>
@@ -3037,7 +3037,7 @@ method:</para>
 
 <literallayout>
 env2 = env.Clone(CC="cl.exe")
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -3275,7 +3275,7 @@ the default is:</para>
 extern "C"
 #endif
 char function_name();
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>The optional
 <emphasis>language</emphasis>
 argument should be
@@ -3395,7 +3395,7 @@ the default is "C".
 Example:</para>
 <literallayout>
 sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -3469,7 +3469,7 @@ if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++',
     # do stuff for qt - usage, e.g.
     conf.env.Append( CPPFLAGS = '-DWITH_QT' )
 env = conf.Finish()
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <variablelist>
   <varlistentry>
@@ -3508,7 +3508,7 @@ For example,
 will return success only if short is two bytes.</para>
 
 <literallayout>
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -3566,7 +3566,7 @@ conf.Define('A_SYMBOL')
 # Puts the following line in the config header file:
 #    #define A_SYMBOL 1
 conf.Define('A_SYMBOL', 1)
-</programlisting> <!-- .fi -->
+</programlisting>
 
 
 <para>Be careful about quoting string values, though:</para>
@@ -3582,7 +3582,7 @@ conf.Define('A_SYMBOL', "YA")
 # Puts the following line in the config header file:
 #    #define A_SYMBOL "YA"
 conf.Define('A_SYMBOL', '"YA"')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 
 <para>For comment:</para>
@@ -3595,7 +3595,7 @@ conf = Configure( env )
 #    /* Set to 1 if you have a symbol */
 #    #define A_SYMBOL 1
 conf.Define('A_SYMBOL', 1, 'Set to 1 if you have a symbol')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>You can define your own custom checks.
 in addition to the predefined checks.
@@ -3755,7 +3755,7 @@ if not conf.CheckQt('/usr/lib/qt'):
     print 'We really need qt!'
     Exit(1)
 env = conf.Finish()
-</programlisting> <!-- .fi -->
+</programlisting>
 
 </refsect2>
 
@@ -3773,7 +3773,7 @@ object to support overriding construction variables
 on the command line:</para>
 <literallayout>
 $ scons VARIABLE=foo
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>The variable values can also be specified in a text-based SConscript file.
 To create a Variables object, call the Variables() function:</para>
 
@@ -3804,7 +3804,7 @@ Example:</para>
 vars = Variables('custom.py')
 vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Variables objects have the following methods:</para>
 
@@ -3852,7 +3852,7 @@ def validate_color(key, val, env):
     if not val in ['red', 'blue', 'yellow']:
         raise Exception("Invalid color value '%s'" % val)
 vars.Add('COLOR', validator=valid_color)
-</programlisting> <!-- .fi -->
+</programlisting>
 
   </listitem>
   </varlistentry>
@@ -3876,7 +3876,7 @@ opt.AddVariables(
        ('VALIDATE', 'An option for testing validation',
         'notset', validator, None),
     )
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -3900,7 +3900,7 @@ the Environment() function:</para>
 
 <literallayout>
 env = Environment(variables=vars)
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -3916,7 +3916,7 @@ are added to the construction environment.</para>
 
 <literallayout>
 CC = 'my_cc'
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <variablelist>
   <varlistentry>
@@ -3933,7 +3933,7 @@ not configured.</para>
 env = Environment(variables=vars)
 for key, value in vars.UnknownVariables():
     print "unknown variable:  %s=%s" % (key, value)
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -3952,7 +3952,7 @@ vars = Variables(['variables.cache', 'custom.py'])
 vars.Add(...)
 vars.Update(env)
 vars.Save('variables.cache', env)
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -3982,7 +3982,7 @@ function).</para>
 <literallayout>
 Help(vars.GenerateHelpText(env))
 Help(vars.GenerateHelpText(env, sort=cmp))
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -4011,7 +4011,7 @@ def my_format(env, opt, help, default, actual):
     fmt = "\n%s: default=%s actual=%s (%s)\n"
     return fmt % (opt, default. actual, help)
 vars.FormatVariableHelpText = my_format
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>To make it more convenient to work with customizable Variables,
 <command>scons</command>
@@ -4265,7 +4265,7 @@ vars.AddVariables(
                PathVariable.PathIsDir),
 
 )
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -4338,7 +4338,7 @@ File('foo.c').srcnode().path   # source path of the given source file.
 # Builders also return File objects:
 foo = env.Program('foo.c')
 print "foo will be built in %s"%foo.path
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>A
 <emphasis>Dir</emphasis>
@@ -4449,7 +4449,7 @@ docs = Dir('docs')
 html = docs.Dir('html')
 index = html.File('index.html')
 css = index.File('app.css')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 </refsect1>
@@ -4558,7 +4558,7 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
             suffix = { None: "file-",
                        "$SRC_SFX_A": gen_prefix })
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <variablelist>
   <varlistentry>
@@ -4585,7 +4585,7 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
             suffix = { None: ".sfx1",
                        "$SRC_SFX_A": gen_suffix })
-</programlisting> <!-- .fi -->
+</programlisting>
 
   </listitem>
   </varlistentry>
@@ -4616,7 +4616,7 @@ env.B1('foo.txt', 'foo.in')
 
 # Builds "bar.txt.out" because ensure_suffix is set.
 env.B2('bar.txt', 'bar.in')
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -4696,7 +4696,7 @@ MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
 env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 
 <para>Note that the call to the MakeDirectory Builder
@@ -4733,7 +4733,7 @@ CollectBuilder = Builder(action=my_mkdir, source_factory=Entry)
 env = Environment()
 env.Append(BUILDERS = {'Collect':CollectBuilder})
 env.Collect('archive', ['directory_name', 'file_name'])
-</programlisting> <!-- .fi -->
+</programlisting>
 
   </listitem>
   </varlistentry>
@@ -4800,7 +4800,7 @@ def e_suf2(target, source, env):
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
             emitter = {'.suf1' : e_suf1,
                        '.suf2' : e_suf2})
-</programlisting> <!-- .fi -->
+</programlisting>
 
   </listitem>
   </varlistentry>
@@ -4860,7 +4860,7 @@ def g(source, target, env, for_signature):
     return [["gcc", "-c", "-o"] + target + source]
 
 b = Builder(generator=g)
-</programlisting> <!-- .fi -->
+</programlisting>
 
 
 <para>The
@@ -4941,7 +4941,7 @@ b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
 
 env = Environment(BUILDERS = {'MyBuild':b})
 env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -4960,7 +4960,7 @@ used to call the Builder for the target file.)</para>
 b = Builder(action="build &lt; $SOURCE &gt; $TARGET")
 env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5012,7 +5012,7 @@ b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
             chdir=1)
 env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para><emphasis role="bold">WARNING:</emphasis>
 Python only keeps one current directory
@@ -5119,7 +5119,7 @@ Action('@build $TARGET $SOURCES')
 
 # Ignores return value
 Action('-build $TARGET $SOURCES')
-</literallayout> <!-- .fi -->
+</literallayout>
 <!--  XXX From Gary Ruben, 23 April 2002: -->
 <!--  What would be useful is a discussion of how you execute command -->
 <!--  shell commands ie. what is the process used to spawn the shell, pass -->
@@ -5150,7 +5150,7 @@ a command in a list within a list:</para>
 
 <literallayout>
 Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5181,7 +5181,7 @@ via the built-in Python str() function:</para>
 <literallayout>
 target_file_name = str(target)
 source_file_names = map(lambda x: str(x), source)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The function should return
 <literal>0</literal>
@@ -5198,7 +5198,7 @@ def build_it(target = None, source = None, env = None):
     return 0
 
 a = Action(build_it)
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>If the action argument is not one of the above,
 None is returned.</para>
@@ -5266,7 +5266,7 @@ s = Action(build_it, cmdstr="building '$TARGET' from '$SOURCE'")
 
 # You can provide a configurable variable.
 l = Action(build_it, '$STRINGIT')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>The third and succeeding arguments, if present,
 may either be a construction variable or a list of construction variables
@@ -5294,7 +5294,7 @@ a = Action(build_it, '$STRINGIT', ['XXX'])
 
 # Alternatively, use a keyword argument.
 a = Action(build_it, varlist=['XXX'])
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>The
 <emphasis role="bold">Action</emphasis>()
@@ -5350,7 +5350,7 @@ targets and source.</para>
 <literallayout>
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            chdir=1)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 
 <para><emphasis role="bold">exitstatfunc</emphasis>
@@ -5379,7 +5379,7 @@ def always_succeed(s):
     return 0
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            exitstatfunc=always_succeed)
-</programlisting> <!-- .fi -->
+</programlisting>
 
 
 <para><emphasis role="bold">batch_key</emphasis>
@@ -5415,7 +5415,7 @@ have actually changed since their targets were built.</para>
 
 <literallayout>
 a = Action('build $CHANGED_SOURCES', batch_key=True)
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The
 <emphasis role="bold">batch_key</emphasis>
@@ -5499,7 +5499,7 @@ def batch_key(action, env, target, source):
         return None
     return (id(action), id(env), tdir)
 a = Action('build $CHANGED_SOURCES', batch_key=batch_key)
-</programlisting> <!-- .fi -->
+</programlisting>
 
   </listitem>
   </varlistentry>
@@ -5545,7 +5545,7 @@ you can use the
 global function to do so:</para>
 <literallayout>
 Execute(Touch('file'))
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Second,
 you can use these functions
@@ -5567,7 +5567,7 @@ env.Command('foo.out', 'foo.in',
              Copy('$TMPBUILD', '${SOURCE.dir}'),
              "cd $TMPBUILD &amp;&amp; make",
              Delete('$TMPBUILD')])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <variablelist>
   <varlistentry>
@@ -5586,7 +5586,7 @@ Execute(Chmod('file', 0755))
 env.Command('foo.out', 'foo.in',
             [Copy('$TARGET', '$SOURCE'),
              Chmod('$TARGET', 0755)])
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5606,7 +5606,7 @@ Execute(Copy('foo.output', 'foo.input'))
 
 env.Command('bar.out', 'bar.in',
             Copy('$TARGET', '$SOURCE'))
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5639,7 +5639,7 @@ env.Command('foo.out', 'foo.in',
              MyBuildAction])
 
 Execute(Delete('file_that_must_exist', must_exist=1))
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5660,7 +5660,7 @@ env.Command('foo.out', 'foo.in',
              Copy('/tmp/builddir/foo.in', '$SOURCE'),
              "cd /tmp/builddir &amp;&amp; make",
              Copy('$TARGET', '/tmp/builddir/foo.out')])
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5682,7 +5682,7 @@ Execute(Move('file.destination', 'file.source'))
 env.Command('output_file', 'input_file',
             [MyBuildAction,
              Move('$TARGET', 'file_created_by_MyBuildAction')])
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5701,7 +5701,7 @@ Execute(Touch('file_to_be_touched'))
 env.Command('marker', 'input_file',
             [MyBuildAction,
              Touch('$TARGET')])
-</literallayout> <!-- .fi -->
+</literallayout>
 
   </listitem>
   </varlistentry>
@@ -5799,13 +5799,13 @@ sources=['foo.c', 'bar.c']:</para>
 
 <literallayout>
 action='$CC -c -o $TARGET $SOURCES'
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>would produce the command line:</para>
 
 <literallayout>
 cc -c -o foo foo.c bar.c
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Variable names may be surrounded by curly braces ({})
 to separate the name from the trailing characters.
@@ -5816,13 +5816,13 @@ In the previous example, the string:</para>
 
 <literallayout>
 ${SOURCES[1]}
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>would produce:</para>
 
 <literallayout>
 bar.c
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Additionally, a variable name may
 have the following special
@@ -5955,7 +5955,7 @@ Repository('/usr/repository')
 $SOURCE              =&gt; sub/dir/file.x
 ${SOURCE.rsrcpath}   =&gt; /usr/repository/src/file.x
 ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Note that curly braces braces may also be used
 to enclose arbitrary Python code to be evaluated.
@@ -5992,7 +5992,7 @@ def foo(target, source, env, for_signature):
 
 # Will expand $BAR to "bar baz"
 env=Environment(FOO=foo, BAR="$FOO baz")
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>You can use this feature to pass arguments to a
 Python function by creating a callable class
@@ -6017,7 +6017,7 @@ class foo(object):
 
 # Will expand $BAR to "my argument bar baz"
 env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
-</literallayout> <!-- .fi -->
+</literallayout>
 
 
 <para>The special pseudo-variables
@@ -6045,21 +6045,21 @@ For example, the command line:</para>
 
 <literallayout>
 echo Last build occurred $( $TODAY $). &gt; $TARGET
-</literallayout> <!-- .fi -->
+</literallayout>
 
 
 <para>would execute the command:</para>
 
 <literallayout>
 echo Last build occurred $TODAY. &gt; $TARGET
-</literallayout> <!-- .fi -->
+</literallayout>
 
 
 <para>but the command signature added to any target files would be:</para>
 
 <literallayout>
 echo Last build occurred  . &gt; $TARGET
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6074,15 +6074,15 @@ So in the following case:</para>
 env['COND'] = 0
 env.Command('foo.out', 'foo.in',
 <!--    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''') -->
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>the command executed will be either</para>
 <literallayout>
 echo FOO &gt; foo.out
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>or</para>
 <literallayout>
 echo BAR &gt; foo.out
-</literallayout> <!-- .fi -->
+</literallayout>
 <para>according to the current value of env['COND'] when the command is
 executed.  The evaluation occurs when the target is being
 built, not when the SConscript is being read.  So if env['COND'] is changed
@@ -6103,7 +6103,7 @@ env.Command('foo.out', 'foo.in',
 
 # Will execute this:
 #  echo foo1 foo2 &gt; foo.out
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>SCons uses the following rules when converting construction variables into
 command lines:</para>
@@ -6377,7 +6377,7 @@ XYZScanner = Scanner(xyz_scan)
 SourceFileScanner.add_scanner('.xyz', XYZScanner)
 
 env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
-</programlisting> <!-- .fi -->
+</programlisting>
 
 </refsect2>
 </refsect1>
@@ -6480,7 +6480,7 @@ around the assignments:</para>
 
 <literallayout>
 scons "FOO=BAR" "BAZ=BLEH"
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Second, the Cygwin shell does not
 recognize this file as being the same
@@ -6510,7 +6510,7 @@ then you must explictly tell SCons to use MinGW by passing</para>
 
 <literallayout>
 tools=['mingw']
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>to the Environment() function, because SCons will prefer the MSVC tools
 over the MinGW tools.</para>
@@ -6528,7 +6528,7 @@ this section contains a brief overview of some common tasks.</para>
 <literallayout>
 env = Environment()
 env.Program(target = 'foo', source = 'foo.c')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Note:  Build the file by specifying
 the target as an argument
@@ -6542,7 +6542,7 @@ or by specifying a dot ("scons .").</para>
 <literallayout>
 env = Environment()
 env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6551,7 +6551,7 @@ env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 <literallayout>
 env = Environment(CCFLAGS = '-g')
 env.Program(target = 'foo', source = 'foo.c')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6565,7 +6565,7 @@ SCons will construct the right -I options from CPPPATH.</para>
 <literallayout>
 env = Environment(CPPPATH = ['.'])
 env.Program(target = 'foo', source = 'foo.c')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6574,7 +6574,7 @@ env.Program(target = 'foo', source = 'foo.c')
 <literallayout>
 env = Environment(CPPPATH = ['include1', 'include2'])
 env.Program(target = 'foo', source = 'foo.c')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6584,7 +6584,7 @@ env.Program(target = 'foo', source = 'foo.c')
 env = Environment()
 env.StaticLibrary(target = 'foo', source = Split('l1.c l2.c'))
 env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6594,7 +6594,7 @@ env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 env = Environment()
 env.SharedLibrary(target = 'foo', source = ['l5.c', 'l6.c'])
 env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6604,7 +6604,7 @@ env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
 env.Library(target = 'mylib', source = Split('l1.c l2.c'))
 env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6623,7 +6623,7 @@ env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
 
 # The following creates "bar.pdf" from "bar.tex"
 env.PDFBuilder(target = 'bar', source = 'bar')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Note also that the above initialization
 overwrites the default Builder objects,
@@ -6643,7 +6643,7 @@ env = Environment()
 env.Append(BUILDERS = {'PDFBuilder' : bld})
 env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
 env.Program(target = 'bar', source = 'bar.c')
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>You also can use other Pythonic techniques to add
 to the BUILDERS construction variable, such as:</para>
@@ -6651,7 +6651,7 @@ to the BUILDERS construction variable, such as:</para>
 <literallayout>
 env = Environment()
 env['BUILDERS]['PDFBuilder'] = bld
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6690,7 +6690,7 @@ env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
 bar_in = File('bar.in')
 env.Command('bar', bar_in, 'kprocess $SOURCES &gt; $TARGET')
 bar_in.target_scanner = kscan
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>It is important to note that you
 have to return a list of File nodes from the scan function, simple
@@ -6737,7 +6737,7 @@ env = Environment(SCANNERS = scanners + [scanner],
                   MYPATH = ['incs'])
 
 env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>The
 <emphasis role="bold">FindPathDirs</emphasis>()
@@ -6775,7 +6775,7 @@ scanner = Scanner(name = 'myscanner',
                  skeys = ['.x'],
                  path_function = pf
                  )
-</programlisting> <!-- .fi -->
+</programlisting>
 
 </refsect2>
 
@@ -6806,7 +6806,7 @@ sub/dir/SConscript:
     env = Environment()
     # Builds sub/dir/foo from sub/dir/foo.c
     env.Program(target = 'foo', source = 'foo.c')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 </refsect2>
 
@@ -6828,7 +6828,7 @@ subdirectory/SConscript:
 
     Import("env")
     env.Program(target = 'foo', source = 'foo.c')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 </refsect2>
 
@@ -6855,7 +6855,7 @@ src/SConscript:
     Import("cppdefines")
     env = Environment(CPPDEFINES = cppdefines)
     env.Program(target = 'src', source = 'src.c')
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>Note the use of the Export() method
 to set the "cppdefines" variable to a different
@@ -6889,7 +6889,7 @@ Main/SConscript:
     Import('env')
     e = env.Copy(LIBS = ['a', 'b'])
     e.Program('foo', Split('m1.c m2.c m3.c'))
-</programlisting> <!-- .fi -->
+</programlisting>
 
 <para>The '#' in the LIBPATH directories specify that they're relative to the
 top-level directory, so they don't turn into "Main/libA" when they're
@@ -6913,19 +6913,19 @@ vars = Variables('custom.py')
 vars.Add('CC', 'The C compiler.')
 env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>The user could specify the C compiler on the command line:</para>
 
 <literallayout>
 scons "CC=my_cc"
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or in the custom.py file:</para>
 
 <literallayout>
 CC = 'my_cc'
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>or get documentation on the options:</para>
 
@@ -6936,7 +6936,7 @@ CC: The C compiler.
     default: None
     actual: cc
 
-</literallayout> <!-- .fi -->
+</literallayout>
 
 </refsect2>
 
@@ -6956,26 +6956,26 @@ compiling to object files. For example:</para>
 <literallayout>
 #include &lt;windows.h&gt;
 #include &lt;my_big_header.h&gt;
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>StdAfx.cpp:</para>
 <literallayout>
 #include &lt;StdAfx.h&gt;
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Foo.cpp:</para>
 <literallayout>
 #include &lt;StdAfx.h&gt;
 
 /* do some stuff */
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>Bar.cpp:</para>
 <literallayout>
 #include &lt;StdAfx.h&gt;
 
 /* do some other stuff */
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>SConstruct:</para>
 <literallayout>
@@ -6983,7 +6983,7 @@ env=Environment()
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>For more information see the document for the PCH builder, and the PCH and
 PCHSTOP construction variables. To learn about the details of precompiled
@@ -7004,7 +7004,7 @@ variable.</para>
 env=Environment()
 env['PDB'] = 'MyApp.pdb'
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
-</literallayout> <!-- .fi -->
+</literallayout>
 
 <para>For more information see the document for the PDB construction variable.</para>
 

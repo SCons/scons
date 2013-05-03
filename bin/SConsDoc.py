@@ -115,38 +115,43 @@ import sys
 
 # Do we have libxml2/libxslt/lxml?
 has_libxml2 = True
-has_lxml = True
 try:
     import libxml2
     import libxslt
 except:
     has_libxml2 = False
-try:
-    import lxml
-except:
-    has_lxml = False
-
-try:
-  from lxml import etree
-except ImportError:
-  try:
-    # Python 2.5
-    import xml.etree.cElementTree as etree
-  except ImportError:
     try:
-      # Python 2.5
-      import xml.etree.ElementTree as etree
+        import lxml
+    except:
+        print("Failed to import either libxml2/libxslt or lxml")
+        sys.exit(1)
+
+has_etree = False
+if not has_libxml2:
+    try:
+        from lxml import etree
+        has_etree = True
     except ImportError:
-      try:
-        # normal cElementTree install
-        import cElementTree as etree
-      except ImportError:
+        pass
+if not has_etree:
+    try:
+        # Python 2.5
+        import xml.etree.cElementTree as etree
+    except ImportError:
         try:
-          # normal ElementTree install
-          import elementtree.ElementTree as etree
+            # Python 2.5
+            import xml.etree.ElementTree as etree
         except ImportError:
-          print("Failed to import ElementTree from any known place")
-          sys.exit(1)
+            try:
+                # normal cElementTree install
+                import cElementTree as etree
+            except ImportError:
+                try:
+                    # normal ElementTree install
+                    import elementtree.ElementTree as etree
+                except ImportError:
+                    print("Failed to import ElementTree from any known place")
+                    sys.exit(1)
 
 re_entity = re.compile("\&([^;]+);")
 re_entity_header = re.compile("<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
@@ -168,6 +173,21 @@ generated_comment = """
     THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
   """
 
+def isSConsXml(fpath):
+    """ Check whether the given file is a SCons XML file, i.e. it
+        contains the default target namespace definition.
+    """
+    try:
+        f = open(fpath,'r')
+        content = f.read()
+        f.close()
+        if content.find(dbxsd) >= 0:
+            return True
+    except:
+        pass
+    
+    return False 
+
 def xml_tree(root, comment=generated_comment):
     """ Return a XML file tree with the correct namespaces set,
         the element root as top entry and the given header comment.
@@ -182,8 +202,6 @@ def xml_tree(root, comment=generated_comment):
     c = etree.Comment(comment)
     t.append(c)
 
-    # print etree.tostring(t, xml_declaration=True, encoding="UTF-8", pretty_print=True)
-
     return t
 
 def remove_entities(content):
@@ -196,75 +214,73 @@ def remove_entities(content):
 
 default_xsd = os.path.join('doc','xsd','scons.xsd')
 
+ARG = "dbscons"
+
+class Libxml2ValidityHandler:
+    
+    def __init__(self):
+        self.errors = []
+        self.warnings = []
+        
+    def error(self, msg, data):
+        if data != ARG:
+            raise Exception, "Error handler did not receive correct argument"
+        self.errors.append(msg)
+
+    def warning(self, msg, data):
+        if data != ARG:
+            raise Exception, "Warning handler did not receive correct argument"
+        self.warnings.append(msg)
+
 def validate_xml(fpath, xmlschema_context):
     if not has_libxml2:
-        # At the moment we prefer libxml2 over lxml, the latter can lead
-        # to conflicts when installed together with libxml2.
-        if has_lxml:
-            # Use lxml
-            xmlschema = etree.XMLSchema(xmlschema_context)
-            doc = etree.parse(fpath)
-            try:
-                xmlschema.assertValid(doc)
-            except:
-                return False
-            return True
-        else:
-            # Try xmllint as a last fallback
-            try:
-                import subprocess
-                p = subprocess.Popen(['xmllint','--noout','--noent','--schema',default_xsd,fpath],
-                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                sout, serr = p.communicate()
-                if serr and not 'validates' in serr:
-                    print serr
-                    return False
-                
-                return True
-                
-            except:
-                print "Can't validate %s! Neither lxml/libxml2, nor xmllint found." % fpath
-                return False
+        # Use lxml
+        xmlschema = etree.XMLSchema(xmlschema_context)
+        doc = etree.parse(fpath)
+        doc.xinclude()
+        try:
+            xmlschema.assertValid(doc)
+        except Exception, e:
+            print e
+            print "%s fails to validate" % fpath
+            return False
+        return True
 
+    # Create validation context
+    validation_context = xmlschema_context.schemaNewValidCtxt()
+    # Set error/warning handlers
+    eh = Libxml2ValidityHandler()
+    validation_context.setValidityErrorHandler(eh.error, eh.warning, ARG)
     # Read file and resolve entities
     doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
-    err = xmlschema_context.schemaValidateDoc(doc)
+    doc.xincludeProcessFlags(libxml2.XML_PARSE_NOENT)
+    err = validation_context.schemaValidateDoc(doc)
     # Cleanup
     doc.freeDoc()
-    
-    if err:
-        # TODO: print error message "Haha",err
+    del validation_context
+
+    if err or eh.errors:
+        for e in eh.errors:
+            print e.rstrip("\n")
+        print "%s fails to validate" % fpath
         return False
         
     return True
 
 def prettyprint_xml(fpath):
     if not has_libxml2:
-        # At the moment we prefer libxml2 over lxml, the latter can lead
-        # to conflicts when installed together with libxml2.
-        if has_lxml:
-            # Use lxml
-            fin = open(fpath,'r')
-            tree = etree.parse(fin)
-            pretty_content = etree.tostring(tree, pretty_print=True)
-            fin.close()
+        # Use lxml
+        fin = open(fpath,'r')
+        tree = etree.parse(fin)
+        pretty_content = etree.tostring(tree, pretty_print=True)
+        fin.close()
 
-            fout = open(fpath,'w')
-            fout.write(pretty_content)
-            fout.close()
-        else:
-            # Use xmllint as a last fallback
-            try:
-                import subprocess
-                p = subprocess.Popen(['xmllint', '-o', fpath, '--format', fpath],
-                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                sout, serr = p.communicate()
-            except:
-                print "Can't prettyprint %s! Neither lxml/libxml2, nor xmllint found." % fpath
-                return False
+        fout = open(fpath,'w')
+        fout.write(pretty_content)
+        fout.close()
 
     # Read file and resolve entities
-    doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
+    doc = libxml2.readFile(fpath, None, libxml2d.XML_PARSE_NOENT)
     err = xmlschema_context.schemaValidateDoc(doc)
     # Cleanup
     doc.freeDoc()
@@ -272,27 +288,25 @@ def prettyprint_xml(fpath):
 
 perc="%"
 
-def validate_all_xml(dpath='src', xsdfile=default_xsd):
+def validate_all_xml(dpaths, xsdfile=default_xsd):
     xmlschema_context = None
     if not has_libxml2:
-        # At the moment we prefer libxml2 over lxml, the latter can lead
-        # to conflicts when installed together with libxml2.
-        if has_lxml:
-            # Use lxml
-            xmlschema_context = etree.parse(xsdfile)
+        # Use lxml
+        xmlschema_context = etree.parse(xsdfile)
     else:
         # Use libxml2 and prepare the schema validation context
         ctxt = libxml2.schemaNewParserCtxt(xsdfile)
-        schema = ctxt.schemaParse()
+        xmlschema_context = ctxt.schemaParse()
         del ctxt
-        xmlschema_context = schema.schemaNewValidCtxt()
     
     fpaths = []
-    for path, dirs, files in os.walk(dpath):
-        for f in files:
-            if f.endswith('.xml'):
-                fp = os.path.join(path, f)
-                fpaths.append(fp)
+    for dp in dpaths:
+        for path, dirs, files in os.walk(dp):
+            for f in files:
+                if f.endswith('.xml'):
+                    fp = os.path.join(path, f)
+                    if isSConsXml(fp):
+                        fpaths.append(fp)
                 
     fails = []
     for idx, fp in enumerate(fpaths):
@@ -307,7 +321,6 @@ def validate_all_xml(dpath='src', xsdfile=default_xsd):
     if has_libxml2:
         # Cleanup
         del xmlschema_context
-        del schema
 
     if fails:
         return False

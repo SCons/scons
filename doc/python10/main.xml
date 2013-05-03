@@ -1,8 +1,19 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE sconsdoc [
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+]>
+
+<article xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+         
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -24,26 +35,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
-
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
-[
-
-    <!ENTITY % scons SYSTEM "scons.mod">
-    %scons;
-
-    <!ENTITY abstract SYSTEM "abstract.xml">
-    <!ENTITY acks SYSTEM "acks.xml">
-    <!ENTITY copyright SYSTEM "copyright.xml">
-    <!ENTITY design SYSTEM "design.xml">
-    <!ENTITY future SYSTEM "future.xml">
-    <!ENTITY install SYSTEM "install.xml">
-    <!ENTITY intro SYSTEM "intro.xml">
-    <!ENTITY process SYSTEM "process.xml">
-
-]>
-
-<article>
+         
   <articleinfo>
     <title>SCons Design and Implementation</title>
 
@@ -81,56 +73,21 @@
 
   </articleinfo>
 
-  <abstract>
-    &abstract;
-  </abstract>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="abstract.xml"/>
 
-  <section id="sect-intro">
-    <title>Introduction</title>
-    &intro;
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
 
-  <section id="sect-design">
-    <title>Architecture</title>
-    &design;
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="design.xml"/>
 
-  <section id="sect-install">
-    <title>Installation</title>
-    &install;
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="install.xml"/>
 
-  <section id="sect-process">
-    <title>Development Process</title>
-    &process;
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="process.xml"/>
 
-  <section id="sect-future">
-    <title>Future Directions</title>
-    &future;
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="future.xml"/>
 
-  <section id="sect-summary">
-    <title>Summary</title>
-    <para>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="summary.xml"/>
 
-      This paper has introduced &SCons;, a next-generation build tool
-      with a modular, embeddable architecture and a direct Python
-      interface. &SCons; has a global view of the dependencies in a source
-      tree, uses MD5 signatures to decide if derived files are out of date,
-      and automatically scans files for dependencies, all of which make &SCons;
-      builds exceptionally reliable. The &SCons; development methodology has
-      been described, notable for its emphasis on automated regression
-      testing to ensure a robust and reliable tool from day one. Several
-      future directions for &SCons; have also been discussed.
-
-    </para>
-  </section>
-
-  <section id="sect-acks">
-    <title>Acknowledgements</title>
-    &acks;
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="acks.xml"/>
 
   <!--
   <section id="sect-refs">
