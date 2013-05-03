@@ -112,6 +112,7 @@ import imp
 import os.path
 import re
 import sys
+import copy
 
 # Do we have libxml2/libxslt/lxml?
 has_libxml2 = True
@@ -158,6 +159,8 @@ re_entity_header = re.compile("<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
 
 # Namespace for the SCons Docbook XSD
 dbxsd="http://www.scons.org/dbxsd/v1.0"
+# Namespace map identifier for the SCons Docbook XSD
+dbxid="dbx"
 # Namespace for schema instances
 xsi = "http://www.w3.org/2001/XMLSchema-instance"
 
@@ -188,22 +191,6 @@ def isSConsXml(fpath):
     
     return False 
 
-def xml_tree(root, comment=generated_comment):
-    """ Return a XML file tree with the correct namespaces set,
-        the element root as top entry and the given header comment.
-    """
-    NSMAP = {None: dbxsd,
-             'xsi' : xsi}
-
-    t = etree.Element(root,
-                      nsmap = NSMAP,
-                      attrib = {"{"+xsi+"}schemaLocation" : "%s scons.xsd" % dbxsd})
-
-    c = etree.Comment(comment)
-    t.append(c)
-
-    return t
-
 def remove_entities(content):
     # Cut out entity inclusions
     content = re_entity_header.sub("", content, re.M)
@@ -232,59 +219,311 @@ class Libxml2ValidityHandler:
             raise Exception, "Warning handler did not receive correct argument"
         self.warnings.append(msg)
 
-def validate_xml(fpath, xmlschema_context):
-    if not has_libxml2:
-        # Use lxml
-        xmlschema = etree.XMLSchema(xmlschema_context)
-        doc = etree.parse(fpath)
-        doc.xinclude()
-        try:
-            xmlschema.assertValid(doc)
-        except Exception, e:
-            print e
-            print "%s fails to validate" % fpath
-            return False
-        return True
 
-    # Create validation context
-    validation_context = xmlschema_context.schemaNewValidCtxt()
-    # Set error/warning handlers
-    eh = Libxml2ValidityHandler()
-    validation_context.setValidityErrorHandler(eh.error, eh.warning, ARG)
-    # Read file and resolve entities
-    doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
-    doc.xincludeProcessFlags(libxml2.XML_PARSE_NOENT)
-    err = validation_context.schemaValidateDoc(doc)
-    # Cleanup
-    doc.freeDoc()
-    del validation_context
-
-    if err or eh.errors:
-        for e in eh.errors:
-            print e.rstrip("\n")
-        print "%s fails to validate" % fpath
-        return False
+class DoctypeEntity:
+    def __init__(self, name_, uri_):
+        self.name = name_
+        self.uri = uri_
         
-    return True
+    def getEntityString(self):
+        txt = """    <!ENTITY %(perc)s %(name)s SYSTEM "%(uri)s">
+    %(perc)s%(name)s;
+""" % {'perc' : perc, 'name' : self.name, 'uri' : self.uri}
 
-def prettyprint_xml(fpath):
-    if not has_libxml2:
-        # Use lxml
-        fin = open(fpath,'r')
-        tree = etree.parse(fin)
-        pretty_content = etree.tostring(tree, pretty_print=True)
-        fin.close()
+        return txt
+        
+class DoctypeDeclaration:
+    def __init__(self, name_=None):
+        self.name = name_
+        self.entries = []
+        if self.name is None:
+            # Add default entries
+            self.name = "sconsdoc"
+            self.addEntity("scons", "../scons.mod")
+            self.addEntity("builders-mod", "builders.mod")
+            self.addEntity("functions-mod", "functions.mod")
+            self.addEntity("tools-mod", "tools.mod")
+            self.addEntity("variables-mod", "variables.mod")
+        
+    def addEntity(self, name, uri):
+        self.entries.append(DoctypeEntity(name, uri))
+        
+    def createDoctype(self):
+        content = '<!DOCTYPE %s [\n' % self.name
+        for e in self.entries:
+            content += e.getEntityString()
+        content += ']>\n'
+        
+        return content
 
-        fout = open(fpath,'w')
-        fout.write(pretty_content)
-        fout.close()
+if not has_libxml2:
+    class TreeFactory:
+        def __init__(self):
+            pass
+        
+        def newNode(self, tag):
+            return etree.Element(tag)
+        
+        def copyNode(self, node):
+            return copy.deepcopy(node)
+        
+        def appendNode(self, parent, child):
+            parent.append(child)
 
-    # Read file and resolve entities
-    doc = libxml2.readFile(fpath, None, libxml2d.XML_PARSE_NOENT)
-    err = xmlschema_context.schemaValidateDoc(doc)
-    # Cleanup
-    doc.freeDoc()
+        def hasAttribute(self, node, att):
+            return att in node.attrib
+        
+        def getAttribute(self, node, att):
+            return node.attrib[att]
+        
+        def setAttribute(self, node, att, value):
+            node.attrib[att] = value
+            
+        def getText(self, root):
+            return root.text
+
+        def setText(self, root, txt):
+            root.text = txt
+
+        def writeGenTree(self, root, fp):
+            dt = DoctypeDeclaration()
+            fp.write(etree.tostring(root, xml_declaration=True, 
+                                    encoding="UTF-8", pretty_print=True, 
+                                    doctype=dt.createDoctype()))
+
+        def prettyPrintFile(self, fpath):
+            fin = open(fpath,'r')
+            tree = etree.parse(fin)
+            pretty_content = etree.tostring(tree, pretty_print=True)
+            fin.close()
     
+            fout = open(fpath,'w')
+            fout.write(pretty_content)
+            fout.close()
+            
+        def newXmlTree(self, root, comment=generated_comment):
+            """ Return a XML file tree with the correct namespaces set,
+                the element root as top entry and the given header comment.
+            """
+            NSMAP = {None: dbxsd,
+                     'xsi' : xsi}
+        
+            t = etree.Element(root,
+                              nsmap = NSMAP,
+                              attrib = {"{"+xsi+"}schemaLocation" : "%s scons.xsd" % dbxsd})
+        
+            c = etree.Comment(comment)
+            t.append(c)
+        
+            return t
+        
+        def validateXml(self, fpath, xmlschema_context):
+            # Use lxml
+            xmlschema = etree.XMLSchema(xmlschema_context)
+            doc = etree.parse(fpath)
+            doc.xinclude()
+            try:
+                xmlschema.assertValid(doc)
+            except Exception, e:
+                print e
+                print "%s fails to validate" % fpath
+                return False
+            return True
+
+        def findAll(self, root, tag, ns=None, xp_ctxt=None, nsmap=None):
+            expression = ".//{%s}%s" % (nsmap[ns], tag)
+            if not ns or not nsmap:
+                expression = ".//%s" % tag
+            return root.findall(expression)
+
+        def findAllChildrenOf(self, root, tag, ns=None, xp_ctxt=None, nsmap=None):
+            expression = "./{%s}%s/*" % (nsmap[ns], tag)
+            if not ns or not nsmap:
+                expression = "./%s/*" % tag
+            return root.findall(expression)
+
+else:        
+    class TreeFactory:
+        def __init__(self):
+            pass
+        
+        def newNode(self, tag):
+            return libxml2.newNode(tag)
+        
+        def copyNode(self, node):
+            return node.copyNode(1)
+        
+        def appendNode(self, parent, child):
+            if hasattr(parent, 'addChild'):
+                parent.addChild(child)
+            else:
+                parent.append(child)
+
+        def hasAttribute(self, node, att):
+            if hasattr(node, 'hasProp'):
+                return node.hasProp(att)
+            return att in node.attrib
+        
+        def getAttribute(self, node, att):
+            if hasattr(node, 'prop'):
+                return node.prop(att)
+            return node.attrib[att]
+
+        def setAttribute(self, node, att, value):
+            if hasattr(node, 'setProp'):
+                node.setProp(att, value)
+            else:
+                node.attrib[att] = value
+                
+        def getText(self, root):
+            if hasattr(root, 'getContent'):
+                return root.getContent()
+            return root.text
+
+        def setText(self, root, txt):
+            if hasattr(root, 'setContent'):
+                root.setContent(txt)
+            else:
+                root.text = txt
+
+        def writeGenTree(self, root, fp):
+            doc = libxml2.newDoc('1.0')
+            dtd = doc.newDtd("sconsdoc", None, None)
+            doc.addChild(dtd)
+            doc.setRootElement(root)
+            content = doc.serialize("UTF-8", 1)
+            dt = DoctypeDeclaration()
+            # This is clearly a hack, but unfortunately libxml2
+            # doesn't support writing PERs (Parsed Entity References).
+            # So, we simply replace the empty doctype with the
+            # text we need...
+            content = content.replace("<!DOCTYPE sconsdoc>", dt.createDoctype())
+            fp.write(content)
+            doc.freeDoc()
+
+        def prettyPrintFile(self, fpath):
+            # Read file and resolve entities
+            doc = libxml2.readFile(fpath, None, libxml2d.XML_PARSE_NOENT)
+            fp = open(fpath, 'w')
+            # Prettyprint
+            fp.write(doc.serialize("UTF-8", 1))
+            fp.close()
+            # Cleanup
+            doc.freeDoc()
+
+        def newXmlTree(self, root, comment=generated_comment):
+            """ Return a XML file tree with the correct namespaces set,
+                the element root as top entry and the given header comment.
+            """
+            t = libxml2.newNode(root)
+            # Register the namespaces
+            ns = t.newNs(dbxsd, None)
+            xi = t.newNs(xsi, 'xsi')
+            t.setNs(ns)  #put this node in the target namespace
+    
+            t.setNsProp(xi, 'schemaLocation', "%s scons.xsd" % dbxsd)
+        
+            c = libxml2.newComment(comment)
+            t.addChild(c)
+        
+            return t
+
+        def validateXml(self, fpath, xmlschema_context):
+            # Create validation context
+            validation_context = xmlschema_context.schemaNewValidCtxt()
+            # Set error/warning handlers
+            eh = Libxml2ValidityHandler()
+            validation_context.setValidityErrorHandler(eh.error, eh.warning, ARG)
+            # Read file and resolve entities
+            doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
+            doc.xincludeProcessFlags(libxml2.XML_PARSE_NOENT)
+            err = validation_context.schemaValidateDoc(doc)
+            # Cleanup
+            doc.freeDoc()
+            del validation_context
+        
+            if err or eh.errors:
+                for e in eh.errors:
+                    print e.rstrip("\n")
+                print "%s fails to validate" % fpath
+                return False
+                
+            return True
+
+        def findAll(self, root, tag, ns=None, xpath_context=None, nsmap=None):
+            if hasattr(root, 'xpathEval') and xpath_context:
+                # Use the xpath context
+                xpath_context.setContextNode(root)
+                expression = ".//%s" % tag
+                if ns:
+                    expression = ".//%s:%s" % (ns, tag)
+                return xpath_context.xpathEval(expression)
+            else:
+                expression = ".//{%s}%s" % (nsmap[ns], tag)
+                if not ns or not nsmap:
+                    expression = ".//%s" % tag
+                return root.findall(expression)
+
+        def findAllChildrenOf(self, root, tag, ns=None, xpath_context=None, nsmap=None):
+            if hasattr(root, 'xpathEval') and xpath_context:
+                # Use the xpath context
+                xpath_context.setContextNode(root)
+                expression = "./%s/node()" % tag
+                if ns:
+                    expression = "./%s:%s/node()" % (ns, tag)
+                
+                return xpath_context.xpathEval(expression)
+            else:
+                expression = "./{%s}%s/node()" % (nsmap[ns], tag)
+                if not ns or not nsmap:
+                    expression = "./%s/node()" % tag
+                return root.findall(expression)
+
+
+tf = TreeFactory()
+
+
+class SConsDocTree:
+    def __init__(self):
+        self.nsmap = {'dbx' : dbxsd}
+        self.doc = None
+        self.root = None
+        self.xpath_context = None
+
+    def parseContent(self, content, include_entities=True):
+        """ Parses the given content as XML file. This method
+            is used when we generate the basic lists of entities
+            for the builders, tools and functions.
+            So we usually don't bother about namespaces and resolving
+            entities here...this is handled in parseXmlFile below
+            (step 2 of the overall process).
+        """
+        if not include_entities:
+            content = remove_entities(content)
+        # Create domtree from given content string
+        self.root = etree.fromstring(content)
+
+    def parseXmlFile(self, fpath):
+        nsmap = {'dbx' : dbxsd}
+        if not has_libxml2:
+            # Create domtree from file
+            domtree = etree.parse(fpath)
+            self.root = domtree.getroot()
+        else:
+            # Read file and resolve entities
+            self.doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
+            self.root = self.doc.getRootElement()
+            # Create xpath context
+            self.xpath_context = self.doc.xpathNewContext()
+            # Register namespaces
+            for key, val in self.nsmap.iteritems():
+                self.xpath_context.xpathRegisterNs(key, val)
+            
+    def __del__(self):
+        if self.doc is not None:
+            self.doc.freeDoc()
+        if self.xpath_context is not None:
+            self.xpath_context.xpathFreeContext()
 
 perc="%"
 
@@ -314,7 +553,7 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
         print "%.2f%s (%d/%d) %s" % (float(idx+1)*100.0/float(len(fpaths)),
                                      perc, idx+1, len(fpaths),fp)
                                               
-        if not validate_xml(fp, xmlschema_context):
+        if not tf.validateXml(fp, xmlschema_context):
             fails.append(fp)
             continue
 
@@ -333,9 +572,10 @@ class Item(object):
         self.sort_name = name.lower()
         if self.sort_name[0] == '_':
             self.sort_name = self.sort_name[1:]
-        self.summary = []
         self.sets = []
         self.uses = []
+        self.summary = None
+        self.arguments = None
     def cmp_name(self, name):
         if name[0] == '_':
             name = name[1:]
@@ -357,18 +597,6 @@ class Tool(Item):
 
 class ConstructionVariable(Item):
     pass
-
-class Chunk(object):
-    def __init__(self, tag, body=None):
-        self.tag = tag
-        if not body:
-            body = []
-        self.body = body
-    def __str__(self):
-        body = ''.join(self.body)
-        return "<%s>%s</%s>\n" % (self.tag, body, self.tag)
-    def append(self, data):
-        self.body.append(data)
 
 class Arguments(object):
     def __init__(self, signature, body=None):
@@ -394,85 +622,92 @@ class SConsDocHandler(object):
         self.tools = {}
         self.cvars = {}
 
-    def parseText(self, root):
-        txt = ""
-        for e in root.childNodes:
-            if (e.nodeType == e.TEXT_NODE):
-                txt += e.data
-        return txt
-
-    def parseItems(self, domelem):
+    def parseItems(self, domelem, xpath_context, nsmap):
         items = []
 
-        for i in domelem.iterchildren(tag="item"):
-            items.append(self.parseText(i))
+        for i in tf.findAll(domelem, "item", dbxid, xpath_context, nsmap):
+            txt = tf.getText(i)
+            if txt is not None:
+                txt = txt.strip()
+                if len(txt):
+                    items.append(txt.strip())
 
         return items
 
-    def parseUsesSets(self, domelem):
+    def parseUsesSets(self, domelem, xpath_context, nsmap):
         uses = []
         sets = []
 
-        for u in domelem.iterchildren(tag="uses"):
-            uses.extend(self.parseItems(u))
-        for s in domelem.iterchildren(tag="sets"):
-            sets.extend(self.parseItems(s))
+        for u in tf.findAll(domelem, "uses", dbxid, xpath_context, nsmap):
+            uses.extend(self.parseItems(u, xpath_context, nsmap))
+        for s in tf.findAll(domelem, "sets", dbxid, xpath_context, nsmap):
+            sets.extend(self.parseItems(s, xpath_context, nsmap))
         
         return sorted(uses), sorted(sets)
 
-    def parseInstance(self, domelem, map, Class):
-        name = domelem.attrib.get('name','unknown')
+    def parseInstance(self, domelem, map, Class, 
+                        xpath_context, nsmap, include_entities=True):
+        name = 'unknown'
+        if tf.hasAttribute(domelem, 'name'):
+            name = tf.getAttribute(domelem, 'name')
         try:
             instance = map[name]
         except KeyError:
             instance = Class(name)
             map[name] = instance
-        uses, sets = self.parseUsesSets(domelem)
+        uses, sets = self.parseUsesSets(domelem, xpath_context, nsmap)
         instance.uses.extend(uses)
         instance.sets.extend(sets)
-        # Parse summary and function arguments
-        for s in domelem.iterchildren(tag="{%s}summary" % dbxsd):
-            if not hasattr(instance, 'summary'):
-                instance.summary = []
-            for c in s:
-                instance.summary.append(c)
-        for a in domelem.iterchildren(tag="{%s}arguments" % dbxsd):
-            if not hasattr(instance, 'arguments'):
-                instance.arguments = []
-            instance.arguments.append(a)
+        if include_entities:
+            # Parse summary and function arguments
+            for s in tf.findAllChildrenOf(domelem, "summary", dbxid, xpath_context, nsmap):
+                if instance.summary is None:
+                    instance.summary = []
+                instance.summary.append(tf.copyNode(s))
+            for a in tf.findAll(domelem, "arguments", dbxid, xpath_context, nsmap):
+                if instance.arguments is None:
+                    instance.arguments = []
+                instance.arguments.append(tf.copyNode(a))
 
-    def parseDomtree(self, root):    
+    def parseDomtree(self, root, xpath_context=None, nsmap=None, include_entities=True):    
         # Process Builders
-        for b in root.iterchildren(tag="{%s}builder" % dbxsd):
-            self.parseInstance(b, self.builders, Builder)
+        for b in tf.findAll(root, "builder", dbxid, xpath_context, nsmap):
+            self.parseInstance(b, self.builders, Builder, 
+                               xpath_context, nsmap, include_entities)
         # Process Functions
-        for f in root.iterchildren(tag="{%s}scons_function" % dbxsd):
-            self.parseInstance(f, self.functions, Function)
+        for f in tf.findAll(root, "scons_function", dbxid, xpath_context, nsmap):
+            self.parseInstance(f, self.functions, Function, 
+                               xpath_context, nsmap, include_entities)
         # Process Tools
-        for t in root.iterchildren(tag="{%s}tool" % dbxsd):
-            self.parseInstance(t, self.tools, Tool)
+        for t in tf.findAll(root, "tool", dbxid, xpath_context, nsmap):
+            self.parseInstance(t, self.tools, Tool, 
+                               xpath_context, nsmap, include_entities)
         # Process CVars
-        for c in root.iterchildren(tag="{%s}cvar" % dbxsd):
-            self.parseInstance(c, self.cvars, ConstructionVariable)
+        for c in tf.findAll(root, "cvar", dbxid, xpath_context, nsmap):
+            self.parseInstance(c, self.cvars, ConstructionVariable, 
+                               xpath_context, nsmap, include_entities)
         
     def parseContent(self, content, include_entities=True):
-        if not include_entities:
-            content = remove_entities(content)
-        # Create domtree from given content string
-        root = etree.fromstring(content)
+        """ Parses the given content as XML file. This method
+            is used when we generate the basic lists of entities
+            for the builders, tools and functions.
+            So we usually don't bother about namespaces and resolving
+            entities here...this is handled in parseXmlFile below
+            (step 2 of the overall process).
+        """
+        # Create doctree
+        t = SConsDocTree()
+        t.parseContent(content, include_entities)
         # Parse it
-        self.parseDomtree(root)
+        self.parseDomtree(t.root, t.xpath_context, t.nsmap, include_entities)
 
     def parseXmlFile(self, fpath):
-        # Create domtree from file
-        domtree = etree.parse(fpath)
+        # Create doctree
+        t = SConsDocTree()
+        t.parseXmlFile(fpath)
         # Parse it
-        self.parseDomtree(domtree.getroot())
-
-    def set_file_info(self, filename, preamble_lines):
-        self.filename = filename
-        self.preamble_lines = preamble_lines
-
+        self.parseDomtree(t.root, t.xpath_context, t.nsmap)
+        
 # lifted from Ka-Ping Yee's way cool pydoc module.
 def importfile(path):
     """Import a Python source file or compiled file given its path."""

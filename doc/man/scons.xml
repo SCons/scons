@@ -2140,7 +2140,7 @@ be redetected.</para>
 
 <!-- '\" BEGIN GENERATED TOOL DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../generated/tools.gen"/>
+<xsi:include xmlns:xsi="http://www.w3.org/2001/XInclude" href="../generated/tools.gen"/>
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" END GENERATED TOOL DESCRIPTIONS -->
 
@@ -2562,7 +2562,7 @@ provides the following builder methods:</para>
 
 <!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../generated/builders.gen"/>
+<xsi:include xmlns:xsi="http://www.w3.org/2001/XInclude" href="../generated/builders.gen"/>
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" END GENERATED BUILDER DESCRIPTIONS -->
 
@@ -2720,7 +2720,7 @@ include:</para>
 
 <!-- '\" BEGIN GENERATED FUNCTION DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../generated/functions.gen"/>
+<xsi:include xmlns:xsi="http://www.w3.org/2001/XInclude" href="../generated/functions.gen"/>
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" END GENERATED FUNCTION DESCRIPTIONS -->
 
@@ -2992,7 +2992,7 @@ defined construction variables:</para>
 
 <!-- '\" BEGIN GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../generated/variables.gen"/>
+<xsi:include xmlns:xsi="http://www.w3.org/2001/XInclude" href="../generated/variables.gen"/>
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" END GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->
 

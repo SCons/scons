@@ -14,7 +14,6 @@ import os
 import re
 import string
 import sys
-import copy
 try:
     from io import StringIO     # usable as of 2.6; takes unicode only
 except ImportError:
@@ -22,28 +21,7 @@ except ImportError:
     exec('from cStringIO import StringIO')
 
 import SConsDoc
-
-try:
-  from lxml import etree
-except ImportError:
-  try:
-    # Python 2.5
-    import xml.etree.cElementTree as etree
-  except ImportError:
-    try:
-      # Python 2.5
-      import xml.etree.ElementTree as etree
-    except ImportError:
-      try:
-        # normal cElementTree install
-        import cElementTree as etree
-      except ImportError:
-        try:
-          # normal ElementTree install
-          import elementtree.ElementTree as etree
-        except ImportError:
-          print("Failed to import ElementTree from any known place")
-          sys.exit(1)
+from SConsDoc import tf as stf
 
 base_sys_path = [os.getcwd() + '/build/test-tar-gz/lib/scons'] + sys.path
 
@@ -150,33 +128,45 @@ class SCons_XML(object):
             filename = fl[0]
             
         # Start new XML file
-        root = SConsDoc.xml_tree("variablelist")
+        root = stf.newXmlTree("variablelist")
         
         for v in self.values:
-            ve = etree.Element("varlistentry",
-                               attrib = {'id' : '%s%s' % (v.prefix, v.idfunc())})
-            ve.append(v.xml_term())
-            vl = etree.Element("listitem")
-            if v.summary:
-                for s in v.summary:
-                    vl.append(copy.deepcopy(s))
             
-            if v.sets:
-                vp = etree.Element("para")
+            ve = stf.newNode("varlistentry")
+            stf.setAttribute(ve, 'id', '%s%s' % (v.prefix, v.idfunc()))
+            stf.appendNode(ve, v.xml_term())
+            vl = stf.newNode("listitem")
+            added = False
+            if v.summary is not None:
+                for s in v.summary:
+                    added = True
+                    stf.appendNode(vl, stf.copyNode(s))
+            
+            if len(v.sets):
+                added = True
+                vp = stf.newNode("para")
                 s = ['&cv-link-%s;' % x for x in v.sets]
-                vp.text = 'Sets:  ' + ', '.join(s) + '.'
-                vl.append(vp)
-            if v.uses:
-                vp = etree.Element("para")
+                stf.setText(vp, 'Sets:  ' + ', '.join(s) + '.')
+                stf.appendNode(vl, vp)
+            if len(v.uses):
+                added = True
+                vp = stf.newNode("para")
                 u = ['&cv-link-%s;' % x for x in v.uses]
-                vp.text = 'Uses:  ' + ', '.join(u) + '.'
-                vl.append(vp)
-            ve.append(vl)
-            root.append(ve)
+                stf.setText(vp, 'Uses:  ' + ', '.join(u) + '.')
+                stf.appendNode(vl, vp)
+                
+            # Still nothing added to this list item?
+            if not added:
+                # Append an empty para
+                vp = stf.newNode("para")
+                stf.appendNode(vl, vp)
+                
+            stf.appendNode(ve, vl)
+            stf.appendNode(root, ve)
             
         # Write file        
         f = self.fopen(filename)
-        f.write(etree.tostring(root, xml_declaration=True, encoding="UTF-8", pretty_print=True))
+        stf.writeGenTree(root, f)
             
     def write_mod(self, filename):
         try:
@@ -248,8 +238,8 @@ class SConsThing(Proxy):
         return self.name
     
     def xml_term(self):
-        e = etree.Element("term")
-        e.text = self.name
+        e = stf.newNode("term")
+        stf.setText(e, self.name)
         return e
 
 class Builder(SConsThing):
@@ -258,17 +248,17 @@ class Builder(SConsThing):
     tag = 'function'
     
     def xml_term(self):
-        t = etree.Element("term")
-        s = etree.Element("synopsis")
-        b = etree.Element(self.tag)
-        b.text = self.name+'()'
-        s.append(b)
-        t.append(s)
-        s = etree.Element("synopsis")
-        b = etree.Element(self.tag)
-        b.text = 'env.'+self.name+'()'
-        s.append(b)
-        t.append(s)
+        t = stf.newNode("term")
+        s = stf.newNode("synopsis")
+        b = stf.newNode(self.tag)
+        stf.setText(b, self.name+'()')
+        stf.appendNode(s, b)
+        stf.appendNode(t, s)
+        s = stf.newNode("synopsis")
+        b = stf.newNode(self.tag)
+        stf.setText(b, 'env.'+self.name+'()')
+        stf.appendNode(s, b)
+        stf.appendNode(t, s)
         return t
             
     def entityfunc(self):
@@ -280,27 +270,26 @@ class Function(SConsThing):
     tag = 'function'
     
     def xml_term(self):
-        try:
-            arguments = self.arguments
-        except AttributeError:
-            a = etree.Element("arguments")
-            a.text = '()'
+        if self.arguments is None:
+            a = stf.newNode("arguments")
+            stf.setText(a, '()')
             arguments = [a]
-        t = etree.Element("term")
+        else:
+            arguments = self.arguments    
+        t = stf.newNode("term")
         for arg in arguments:
-            if 'signature' in arg.attrib:
-                signature = arg.attrib['signature']
-            else:
-                signature = "both"
-            s = arg.text.strip()
+            signature = 'both'
+            if stf.hasAttribute(arg, 'signature'):
+                signature = stf.getAttribute(arg, 'signature')
+            s = stf.getText(arg).strip()
             if signature in ('both', 'global'):
-                syn = etree.Element("synopsis")
-                syn.text = '%s%s' % (self.name, s)
-                t.append(syn)
+                syn = stf.newNode("synopsis")
+                stf.setText(syn, '%s%s' % (self.name, s))
+                stf.appendNode(t, syn)
             if signature in ('both', 'env'):
-                syn = etree.Element("synopsis")
-                syn.text = 'env.%s%s' % (self.name, s)
-                t.append(syn)
+                syn = stf.newNode("synopsis")
+                stf.setText(syn, 'env.%s%s' % (self.name, s))
+                stf.appendNode(t, syn)
 
         return t
     
@@ -351,11 +340,13 @@ def write_output_files(h, buildersfiles, functionsfiles,
 processor_class = SCons_XML
 
 # Step 1: Creating entity files for builders, functions,...
+print "Generating entity files..."
 h = parse_docs(args, False)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write_mod)
 
 # Step 2: Patching the include paths for entity definitions in XML files
+print "Patching include paths..."
 os.system('python bin/docs-correct-mod-paths.py')
 
 # Step 3: Validating all input files
@@ -367,9 +358,11 @@ else:
 
 # Step 4: Creating actual documentation snippets, using the
 #         fully resolved and updated entities from the *.mod files.
+print "Updating documentation for builders, tools and functions..."
 h = parse_docs(args, True)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write)
+print "Done"
 
 # Local Variables:
 # tab-width:4
