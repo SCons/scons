@@ -1,53 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="dmd">
 <summary>
+<para>
 Sets construction variables for D language compilers
 (the Digital Mars D compiler, or GDC).
+</para>
 </summary>
 <sets>
-<!--
-DC
-DCOM
-_DINCFLAGS
-_DVERFLAGS
-_DDEBUGFLAGS
-_DFLAGS
-DPATH
-DFLAGS
-DVERSIONS
-DDEBUG
-DINCPREFIX
-DINCSUFFIX
-DVERPREFIX
-DVERSUFFIX
-DDEBUGPREFIX
-DDEBUGSUFFIX
-DFLAGPREFIX
-DFLAGSUFFIX
-DFLESUFFIX
-DLINK
-DLINKCOM
-DLIB
-DLIBCOM
-_DLINKLIBFLAGS
-_DLIBFLAGS
-DLINKFLAGS
-DLIBLINKPREFIX
-DLIBLINKSUFFIX
-DLIBFLAGPREFIX
-DLIBFLAGSUFFIX
-DLINKFLAGPREFIX
-DLINKFLAGSUFFIX
-LINKCOM
-ARCOM
-LIBS
--->
+<item><!--</item>
+<item>DC</item>
+<item>DCOM</item>
+<item>_DINCFLAGS</item>
+<item>_DVERFLAGS</item>
+<item>_DDEBUGFLAGS</item>
+<item>_DFLAGS</item>
+<item>DPATH</item>
+<item>DFLAGS</item>
+<item>DVERSIONS</item>
+<item>DDEBUG</item>
+<item>DINCPREFIX</item>
+<item>DINCSUFFIX</item>
+<item>DVERPREFIX</item>
+<item>DVERSUFFIX</item>
+<item>DDEBUGPREFIX</item>
+<item>DDEBUGSUFFIX</item>
+<item>DFLAGPREFIX</item>
+<item>DFLAGSUFFIX</item>
+<item>DFLESUFFIX</item>
+<item>DLINK</item>
+<item>DLINKCOM</item>
+<item>DLIB</item>
+<item>DLIBCOM</item>
+<item>_DLINKLIBFLAGS</item>
+<item>_DLIBFLAGS</item>
+<item>DLINKFLAGS</item>
+<item>DLIBLINKPREFIX</item>
+<item>DLIBLINKSUFFIX</item>
+<item>DLIBFLAGPREFIX</item>
+<item>DLIBFLAGSUFFIX</item>
+<item>DLINKFLAGPREFIX</item>
+<item>DLINKFLAGSUFFIX</item>
+<item>LINKCOM</item>
+<item>ARCOM</item>
+<item>LIBS</item>
+<item>--></item>
 </sets>
 <uses>
 </uses>
 </tool>
+
+</sconsdoc>

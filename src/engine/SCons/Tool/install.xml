@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
@@ -5,19 +6,40 @@ This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
 
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
+
 <tool name="install">
 <summary>
+<para>
 Sets construction variables for file
 and directory installation.
+</para>
 </summary>
 <sets>
-INSTALL
-INSTALLSTR
+<item>INSTALL</item>
+<item>INSTALLSTR</item>
 </sets>
 </tool>
 
 <builder name="Install">
 <summary>
+<para>
 Installs one or more source files or directories
 in the specified target,
 which must be a directory.
@@ -25,15 +47,17 @@ The names of the specified source files or directories
 remain the same within the destination directory. The
 sources may be given as a string or as a node returned by
 a builder.
+</para>
 
-<example>
+<example_commands>
 env.Install('/usr/local/bin', source = ['foo', 'bar'])
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <builder name="InstallAs">
 <summary>
+<para>
 Installs one or more source files or directories
 to specific names,
 allowing changing a file or directory name
@@ -43,21 +67,26 @@ target
 and
 source
 arguments list different numbers of files or directories.
+</para>
 </summary>
 </builder>
 
 <builder name="InstallVersionedLib">
 <summary>
+<para>
 Installs a versioned shared library. The &cv-link-SHLIBVERSION;
 construction variable should be defined in the environment
 to confirm the version number in the library name.
 The symlinks appropriate to the architecture will be generated.
+</para>
 
-<example>
+<example_commands>
 env.InstallAs(target = '/usr/local/bin/foo',
               source = 'foo_debug')
 env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
               source = ['libFOO.a', 'libBAR.a'])
-</example>
+</example_commands>
 </summary>
 </builder>
+
+</sconsdoc>

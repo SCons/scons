@@ -1,48 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="Perforce">
 <summary>
+<para>
 Sets construction variables for interacting with the
 Perforce source code management system.
+</para>
 </summary>
 <sets>
-P4
-P4FLAGS
-P4COM
+<item>P4</item>
+<item>P4FLAGS</item>
+<item>P4COM</item>
 </sets>
 <uses>
-P4COMSTR
+<item>P4COMSTR</item>
 </uses>
 </tool>
 
 <cvar name="P4">
 <summary>
+<para>
 The Perforce executable.
+</para>
 </summary>
 </cvar>
 
 <cvar name="P4COM">
 <summary>
+<para>
 The command line used to
 fetch source files from Perforce.
+</para>
 </summary>
 </cvar>
 
 <cvar name="P4COMSTR">
 <summary>
+<para>
 The string displayed when
 fetching a source file from Perforce.
 If this is not set, then &cv-link-P4COM; (the command line) is displayed.
+</para>
 </summary>
 </cvar>
 
 <cvar name="P4FLAGS">
 <summary>
+<para>
 General options that are passed to Perforce.
+</para>
 </summary>
 </cvar>
 
@@ -51,6 +80,7 @@ General options that are passed to Perforce.
 ()
 </arguments>
 <summary>
+<para>
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -59,17 +89,23 @@ The returned Builder
 is intended to be passed to the
 &f-SourceCode;
 function.
+</para>
 
+<para>
 This function is deprecated.  For details, see the entry for the
 &f-SourceCode;
 function.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.SourceCode('.', env.Perforce())
-</example>
+</example_commands>
 
+<para>
 Perforce uses a number of external
 environment variables for its operation.
 Consequently, this function adds the
@@ -86,5 +122,8 @@ SystemRoot,
 USER,
 and
 USERNAME.
+</para>
 </summary>
 </scons_function>
+
+</sconsdoc>

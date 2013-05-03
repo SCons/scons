@@ -1,43 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="textfile">
 <summary>
+<para>
 Set construction variables for the &b-Textfile; and &b-Substfile; builders.
+</para>
 </summary>
 <sets>
-LINESEPARATOR
-SUBSTFILEPREFIX
-SUBSTFILESUFFIX
-TEXTFILEPREFIX
-TEXTFILESUFFIX
+<item>LINESEPARATOR</item>
+<item>SUBSTFILEPREFIX</item>
+<item>SUBSTFILESUFFIX</item>
+<item>TEXTFILEPREFIX</item>
+<item>TEXTFILESUFFIX</item>
 </sets>
 <uses>
-SUBST_DICT
+<item>SUBST_DICT</item>
 </uses>
 </tool>
 
 <builder name="Textfile">
 <summary>
+<para>
 The &b-Textfile; builder generates a single text file.
 The source strings constitute the lines;
 nested lists of sources are flattened. 
 &cv-LINESEPARATOR; is used to separate the strings.
+</para>
 
+<para>
 If present, the &cv-SUBST_DICT; construction variable
 is used to modify the strings before they are written;
 see the &b-Substfile; description for details.
+</para>
 
+<para>
 The prefix and suffix specified by the &cv-TEXTFILEPREFIX;
 and &cv-TEXTFILESUFFIX; construction variables
 (the null string and <filename>.txt</filename> by default, respectively)
 are automatically added to the target if they are not already present.
 Examples:
+</para>
 
-<example>
+<example_commands>
 # builds/writes foo.txt
 env.Textfile(target = 'foo.txt', source = ['Goethe', 42, 'Schiller'])
 
@@ -76,26 +103,33 @@ blob.txt
   Schiller
   tanteratei
   ....8&lt;---- (no linefeed at the end)
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <builder name="Substfile">
 <summary>
+<para>
 The &b-Substfile; builder generates a single text file
 by concatenating the source files.
 Nested lists of sources are flattened. 
 &cv-LINESEPARATOR; is used to separate the source files;
 see the description of &b-Textfile; for details.
+</para>
 
+<para>
 If a single source file is present with an <filename>.in</filename> suffix,
 the suffix is stripped and the remainder is used as the default target name.
+</para>
 
+<para>
 The prefix and suffix specified by the &cv-SUBSTFILEPREFIX;
 and &cv-SUBSTFILESUFFIX; construction variables
 (the null string by default in both cases)
 are automatically added to the target if they are not already present.
+</para>
 
+<para>
 If a construction variable named &cv-SUBST_DICT; is present,
 it may be either a Python dictionary or a sequence of (key,value) tuples.
 If the former,
@@ -103,7 +137,9 @@ the dictionary is converted into a list of tuples in an arbitrary order,
 so if one key is a prefix of another key
 or if one substitution could be further expanded by another subsitition,
 it is unpredictible whether the expansion will occur.
+</para>
 
+<para>
 Any occurences in the source of a key
 are replaced by the corresponding value,
 which may be a Python callable function or a string.
@@ -111,8 +147,9 @@ If a value is a function,
 it is first called (with no arguments) to produce a string.
 The string is <emphasis>subst</emphasis>-expanded
 and the result replaces the key.
+</para>
 
-<example>
+<example_commands>
 env = Environment(tools = ['default', 'textfile'])
 
 env['prefix'] = '/usr/bin'
@@ -154,52 +191,66 @@ subst.Substfile('pgm2.c', [Value('#include "@foo@.h"'),
                            "pgm2.in"
                           ])
 
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <cvar name="LINESEPARATOR">
 <summary>
+<para>
 The separator used by the &b-Substfile; and &b-Textfile; builders.
 This value is used between sources when constructing the target.
 It defaults to the current system line separator.
+</para>
 </summary>
 </cvar>
 
 <cvar name="SUBST_DICT">
 <summary>
+<para>
 The dictionary used by the &b-Substfile; or &b-Textfile; builders
 for substitution values.
 It can be anything acceptable to the dict() constructor,
 so in addition to a dictionary,
 lists of tuples are also acceptable.
+</para>
 </summary>
 </cvar>
 
 <cvar name="SUBSTFILEPREFIX">
 <summary>
+<para>
 The prefix used for &b-Substfile; file names,
 the null string by default.
+</para>
 </summary>
 </cvar>
 
 <cvar name="SUBSTFILESUFFIX">
 <summary>
+<para>
 The suffix used for &b-Substfile; file names,
 the null string by default.
+</para>
 </summary>
 </cvar>
 
 <cvar name="TEXTFILEPREFIX">
 <summary>
+<para>
 The prefix used for &b-Textfile; file names,
 the null string by default.
+</para>
 </summary>
 </cvar>
 
 <cvar name="TEXTFILESUFFIX">
 <summary>
+<para>
 The suffix used for &b-Textfile; file names;
 <filename>.txt</filename> by default.
+</para>
 </summary>
 </cvar>
+
+</sconsdoc>

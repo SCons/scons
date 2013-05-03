@@ -1,59 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="BitKeeper">
 <summary>
+<para>
 Sets construction variables for the BitKeeper
 source code control system.
+</para>
 </summary>
 <sets>
-BITKEEPER
-BITKEEPERGET
-BITKEEPERGETFLAGS
-BITKEEPERCOM
+<item>BITKEEPER</item>
+<item>BITKEEPERGET</item>
+<item>BITKEEPERGETFLAGS</item>
+<item>BITKEEPERCOM</item>
 </sets>
 <uses>
-BITKEEPERCOMSTR
+<item>BITKEEPERCOMSTR</item>
 </uses>
 </tool>
 
 <cvar name="BITKEEPER">
 <summary>
+<para>
 The BitKeeper executable.
+</para>
 </summary>
 </cvar>
 
 <cvar name="BITKEEPERCOM">
 <summary>
+<para>
 The command line for
 fetching source files using BitKeeper.
+</para>
 </summary>
 </cvar>
 
 <cvar name="BITKEEPERCOMSTR">
 <summary>
+<para>
 The string displayed when fetching
 a source file using BitKeeper.
 If this is not set, then &cv-link-BITKEEPERCOM;
 (the command line) is displayed.
+</para>
 </summary>
 </cvar>
 
 <cvar name="BITKEEPERGET">
 <summary>
+<para>
 The command (&cv-link-BITKEEPER;) and subcommand
 for fetching source files using BitKeeper.
+</para>
 </summary>
 </cvar>
 
 <cvar name="BITKEEPERGETFLAGS">
 <summary>
+<para>
 Options that are passed to the BitKeeper
 <command>get</command>
 subcommand.
+</para>
 </summary>
 </cvar>
 
@@ -62,6 +93,7 @@ subcommand.
 ()
 </arguments>
 <summary>
+<para>
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -70,15 +102,22 @@ The returned Builder
 is intended to be passed to the
 &f-SourceCode;
 function.
+</para>
 
+<para>
 This function is deprecated.  For details, see the entry for the
 &f-SourceCode;
 function.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.SourceCode('.', env.BitKeeper())
-</example>
+</example_commands>
 </summary>
 </scons_function>
+
+</sconsdoc>

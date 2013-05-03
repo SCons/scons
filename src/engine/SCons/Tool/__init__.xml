@@ -1,11 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <builder name="CFile">
 <summary>
+<para>
 Builds a C source file given a lex (<filename>.l</filename>)
 or yacc (<filename>.y</filename>) input file.
 The suffix specified by the &cv-link-CFILESUFFIX; construction variable
@@ -13,18 +33,20 @@ The suffix specified by the &cv-link-CFILESUFFIX; construction variable
 is automatically added to the target
 if it is not already present.
 Example:
+</para>
 
-<example>
+<example_commands>
 # builds foo.c
 env.CFile(target = 'foo.c', source = 'foo.l')
 # builds bar.c
 env.CFile(target = 'bar', source = 'bar.y')
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <builder name="CXXFile">
 <summary>
+<para>
 Builds a C++ source file given a lex (<filename>.ll</filename>)
 or yacc (<filename>.yy</filename>)
 input file.
@@ -33,44 +55,52 @@ The suffix specified by the &cv-link-CXXFILESUFFIX; construction variable
 is automatically added to the target
 if it is not already present.
 Example:
+</para>
 
-<example>
+<example_commands>
 # builds foo.cc
 env.CXXFile(target = 'foo.cc', source = 'foo.ll')
 # builds bar.cc
 env.CXXFile(target = 'bar', source = 'bar.yy')
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <builder name="Library">
 <summary>
+<para>
 A synonym for the
 &b-StaticLibrary;
 builder method.
+</para>
 </summary>
 </builder>
 
 <builder name="LoadableModule">
 <summary>
+<para>
 On most systems,
 this is the same as
 &b-SharedLibrary;.
 On Mac OS X (Darwin) platforms,
 this creates a loadable module bundle.
+</para>
 </summary>
 </builder>
 
 <builder name="Object">
 <summary>
+<para>
 A synonym for the
 &b-StaticObject;
 builder method.
+</para>
 </summary>
 </builder>
 
 <builder name="Program">
 <summary>
+<para>
 Builds an executable given one or more object files
 or C, C++, D, or Fortran source files.
 If any C, C++, D or Fortran source files are specified,
@@ -89,15 +119,17 @@ by default, <filename>.exe</filename> on Windows systems,
 nothing on POSIX systems)
 are automatically added to the target if not already present.
 Example:
+</para>
 
-<example>
+<example_commands>
 env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <builder name="SharedLibrary">
 <summary>
+<para>
 Builds a shared library
 (<filename>.so</filename> on a POSIX system,
 <filename>.dll</filename> on Windows)
@@ -118,11 +150,13 @@ by default, <filename>.dll</filename> on Windows systems,
 <filename>.so</filename> on POSIX systems)
 are automatically added to the target if not already present.
 Example:
+</para>
 
-<example>
+<example_commands>
 env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
-</example>
+</example_commands>
 
+<para>
 On Windows systems, the
 &b-SharedLibrary;
 builder method will always build an import
@@ -131,7 +165,9 @@ in addition to the shared (<filename>.dll</filename>) library,
 adding a <filename>.lib</filename> library with the same basename
 if there is not already a <filename>.lib</filename> file explicitly
 listed in the targets.
+</para>
 
+<para>
 Any object files listed in the
 <literal>source</literal>
 must have been built for a shared library
@@ -140,25 +176,33 @@ must have been built for a shared library
 builder method).
 &scons;
 will raise an error if there is any mismatch.
+</para>
 
+<para>
 On some platforms, there is a distinction between a shared library
 (loaded automatically by the system to resolve external references)
 and a loadable module (explicitly loaded by user action).
 For maximum portability, use the &b-LoadableModule; builder for the latter.
+</para>
 
+<para>
 When the &cv-link-SHLIBVERSION; construction variable is defined a versioned
 shared library is created. This modifies the &cv-link-SHLINKFLAGS; as required,
 adds the version number to the library name, and creates the symlinks that
 are needed. &cv-link-SHLIBVERSION; needs to be of the form X.Y.Z, where X
 and Y are numbers, and Z is a number but can also contain letters to designate
 alpha, beta, or release candidate patch levels.
+</para>
 
+<para>
 This builder may create multiple links to the library. On a POSIX system,
 for the shared library libbar.so.2.3.1, the links created would be
 libbar.so, libbar.so.2, and libbar.so.2.3; on a Darwin (OSX) system
 the library would be libbar.2.3.1.dylib and the link would be
 libbar.dylib.
+</para>
 
+<para>
 On Windows systems, specifying
 <literal>register=1</literal>
 will cause the <filename>.dll</filename> to be
@@ -171,20 +215,24 @@ to prevent dialogs from popping
 up and requiring user attention when it is run.  If you change
 &cv-link-REGSVRFLAGS;, be sure to include the <option>/s</option> option.
 For example,
+</para>
 
-<example>
+<example_commands>
 env.SharedLibrary(target = 'bar',
                   source = ['bar.cxx', 'foo.obj'],
                   register=1)
-</example>
+</example_commands>
 
+<para>
 will register <filename>bar.dll</filename> as a COM object
 when it is done linking it.
+</para>
 </summary>
 </builder>
 
 <builder name="SharedObject">
 <summary>
+<para>
 Builds an object file for
 inclusion in a shared library.
 Source files must have one of the same set of extensions
@@ -210,24 +258,28 @@ and suffix
 (specified by the &cv-link-SHOBJSUFFIX; construction variable)
 are automatically added to the target if not already present.
 Examples:
+</para>
 
-<example>
+<example_commands>
 env.SharedObject(target = 'ddd', source = 'ddd.c')
 env.SharedObject(target = 'eee.o', source = 'eee.cpp')
 env.SharedObject(target = 'fff.obj', source = 'fff.for')
-</example>
+</example_commands>
 
+<para>
 Note that the source files will be scanned
 according to the suffix mappings in the
 <literal>SourceFileScanner</literal>
 object.
 See the section "Scanner Objects,"
 below, for more information.
+</para>
 </summary>
 </builder>
 
 <builder name="StaticLibrary">
 <summary>
+<para>
 Builds a static library given one or more object files
 or C, C++, D or Fortran source files.
 If any source files are given,
@@ -245,11 +297,13 @@ by default, <filename>.lib</filename> on Windows systems,
 <filename>.a</filename> on POSIX systems)
 are automatically added to the target if not already present.
 Example:
+</para>
 
-<example>
+<example_commands>
 env.StaticLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
-</example>
+</example_commands>
 
+<para>
 Any object files listed in the
 <literal>source</literal>
 must have been built for a static library
@@ -258,16 +312,19 @@ must have been built for a static library
 builder method).
 &scons;
 will raise an error if there is any mismatch.
+</para>
 </summary>
 </builder>
 
 <builder name="StaticObject">
 <summary>
+<para>
 Builds a static object file
 from one or more C, C++, D, or Fortran source files.
 Source files must have one of the following extensions:
+</para>
 
-<example>
+<example_commands>
   .asm    assembly language file
   .ASM    assembly language file
   .c      C file
@@ -296,8 +353,9 @@ Source files must have one of the following extensions:
           POSIX:  assembly language file + C pre-processor
   .spp    assembly language file + C pre-processor
   .SPP    assembly language file + C pre-processor
-</example>
+</example_commands>
 
+<para>
 The target object file prefix
 (specified by the &cv-link-OBJPREFIX; construction variable; nothing by default)
 and suffix
@@ -306,32 +364,38 @@ and suffix
 <filename>.o</filename> on POSIX systems)
 are automatically added to the target if not already present.
 Examples:
+</para>
 
-<example>
+<example_commands>
 env.StaticObject(target = 'aaa', source = 'aaa.c')
 env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
 env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
-</example>
+</example_commands>
 
+<para>
 Note that the source files will be scanned
 according to the suffix mappings in
 <literal>SourceFileScanner</literal>
 object.
 See the section "Scanner Objects,"
 below, for more information.
+</para>
 </summary>
 </builder>
 
 <cvar name="CCVERSION">
 <summary>
+<para>
 The version number of the C compiler.
 This may or may not be set,
 depending on the specific C compiler being used.
+</para>
 </summary>
 </cvar>
 
 <cvar name="CFILESUFFIX">
 <summary>
+<para>
 The suffix for C source files.
 This is used by the internal CFile builder
 when generating C files from Lex (.l) or YACC (.y) input files.
@@ -343,19 +407,23 @@ SCons also treats
 <filename>.C</filename>
 (upper case) files
 as C files.
+</para>
 </summary>
 </cvar>
 
 <cvar name="CXXVERSION">
 <summary>
+<para>
 The version number of the C++ compiler.
 This may or may not be set,
 depending on the specific C++ compiler being used.
+</para>
 </summary>
 </cvar>
 
 <cvar name="CXXFILESUFFIX">
 <summary>
+<para>
 The suffix for C++ source files.
 This is used by the internal CXXFile builder
 when generating C++ files from Lex (.ll) or YACC (.yy) input files.
@@ -376,34 +444,45 @@ SCons also treats
 <filename>.C</filename>
 (upper case) files
 as C++ files.
+</para>
 </summary>
 </cvar>
 
 <cvar name="LIBEMITTER">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="SHLIBEMITTER">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="PROGEMITTER">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="SHLIBVERSION">
 <summary>
+<para>
 When this construction variable is defined, a versioned shared library
 is created. This modifies the &cv-link-SHLINKFLAGS; as required, adds
 the version number to the library name, and creates the symlinks that
 are needed. &cv-link-SHLIBVERSION; needs to be of the form X.Y.Z,
 where X and Y are numbers, and Z is a number but can also contain
 letters to designate alpha, beta, or release candidate patch levels.
+</para>
 </summary>
 </cvar>
+
+</sconsdoc>

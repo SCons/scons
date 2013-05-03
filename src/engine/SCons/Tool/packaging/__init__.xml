@@ -1,12 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
 <tool name="Packaging">
 <summary>
+<para>
 Sets construction variables for the &b-Package; Builder.
+</para>
 </summary>
 <sets>
 </sets>
@@ -16,6 +37,7 @@ Sets construction variables for the &b-Package; Builder.
 
 <builder name="Package">
 <summary>
+<para>
 Builds software distribution packages.
 Packages consist of files to install and packaging information.
 The former may be specified with the &source; parameter and may be left out,
@@ -23,18 +45,24 @@ in which case the &FindInstalledFiles; function will collect
 all files that have an &b-Install; or &b-InstallAs; Builder attached.
 If the &target; is not specified
 it will be deduced from additional information given to this Builder.
+</para>
 
+<para>
 The packaging information is specified
 with the help of construction variables documented below.
 This information is called a tag to stress that
 some of them can also be attached to files with the &Tag; function.
 The mandatory ones will complain if they were not specified.
 They vary depending on chosen target packager.
+</para>
 
+<para>
 The target packager may be selected with the "PACKAGETYPE" command line
 option or with the &cv-PACKAGETYPE; construction variable. Currently
 the following packagers available:
+</para>
 
+<para>
  * msi - Microsoft Installer
  * rpm - Redhat Package Manger
  * ipkg - Itsy Package Management System
@@ -44,10 +72,13 @@ the following packagers available:
  * src_tarbz2 - compressed tar source
  * src_targz - compressed tar source
  * src_zip - zip file source
+</para>
 
+<para>
 An updated list is always available under the "package_type" option when
 running "scons --help" on a project that has packaging activated.
-<example>
+</para>
+<example_commands>
 env = Environment(tools=['default', 'packaging'])
 env.Install('/bin/', 'my_program')
 env.Package( NAME           = 'foo',
@@ -60,12 +91,13 @@ env.Package( NAME           = 'foo',
              X_RPM_GROUP    = 'Application/fu',
              SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
         )
-</example>
+</example_commands>
 </summary>
 </builder>
 
 <cvar name="ARCHITECTURE">
 <summary>
+<para>
 Specifies the system architecture for which
 the package is being built.
 The default is the system architecture
@@ -75,11 +107,13 @@ This is used to fill in the
 field in an Ipkg
 <filename>control</filename> file,
 and as part of the name of a generated RPM file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="CHANGE_SPECFILE">
 <summary>
+<para>
 A hook for modifying the file that controls the packaging build
 (the <filename>.spec</filename> for RPM,
 the <filename>control</filename> for Ipkg,
@@ -87,65 +121,81 @@ the <filename>.wxs</filename> for MSI).
 If set, the function will be called
 after the SCons template for the file has been written.
 XXX
+</para>
 </summary>
 </cvar>
 
 <cvar name="CHANGELOG">
 <summary>
+<para>
 The name of a file containing the change log text
 to be included in the package.
 This is included as the
 <literal>%changelog</literal>
 section of the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="DESCRIPTION">
 <summary>
+<para>
 A long description of the project being packaged.
 This is included in the relevant section
 of the file that controls the packaging build.
+</para>
 </summary>
 </cvar>
 
 <cvar name="DESCRIPTION_lang">
 <summary>
+<para>
 A language-specific long description for
 the specified <varname>lang</varname>.
 This is used to populate a
 <literal>%description -l</literal>
 section of an RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="LICENSE">
 <summary>
+<para>
 The abbreviated name of the license under which
 this project is released (gpl, lpgl, bsd etc.).
 See http://www.opensource.org/licenses/alphabetical
 for a list of license names.
+</para>
 </summary>
 </cvar>
 
 <cvar name="NAME">
 <summary>
+<para>
 Specfies the name of the project to package.
+</para>
 </summary>
 </cvar>
 
 <cvar name="PACKAGEROOT">
 <summary>
+<para>
 Specifies the directory where all files in resulting archive will be
 placed if applicable.  The default value is "$NAME-$VERSION".
+</para>
 </summary>
 </cvar>
 
 <cvar name="PACKAGETYPE">
 <summary>
+<para>
 Selects the package type to build.  Currently these are available:
+</para>
 
+<para>
  * msi - Microsoft Installer
  * rpm - Redhat Package Manger
  * ipkg - Itsy Package Management System
@@ -155,33 +205,41 @@ Selects the package type to build.  Currently these are available:
  * src_tarbz2 - compressed tar source
  * src_targz - compressed tar source
  * src_zip - zip file source
+</para>
 
+<para>
 This may be overridden with the "package_type" command line option.
+</para>
 </summary>
 </cvar>
 
 <cvar name="PACKAGEVERSION">
 <summary>
+<para>
 The version of the package (not the underlying project).
 This is currently only used by the rpm packager
 and should reflect changes in the packaging,
 not the underlying project code itself.
+</para>
 </summary>
 </cvar>
 
 <cvar name="SOURCE_URL">
 <summary>
+<para>
 The URL
 (web address)
 of the location from which the project was retrieved.
 This is used to fill in the
 <literal>Source:</literal>
 field in the controlling information for Ipkg and RPM packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="SUMMARY">
 <summary>
+<para>
 A short summary of what the project is about.
 This is used to fill in the
 <literal>Summary:</literal>
@@ -189,11 +247,13 @@ field in the controlling information for Ipkg and RPM packages,
 and as the
 <literal>Description:</literal>
 field in MSI packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="VENDOR">
 <summary>
+<para>
 The person or organization who supply the packaged software.
 This is used to fill in the
 <literal>Vendor:</literal>
@@ -201,55 +261,68 @@ field in the controlling information for RPM packages,
 and the
 <literal>Manufacturer:</literal>
 field in the controlling information for MSI packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="VERSION">
 <summary>
+<para>
 The version of the project, specified as a string.
+</para>
 </summary>
 </cvar>
 
 
 <cvar name="X_IPK_DEPENDS">
 <summary>
+<para>
 This is used to fill in the
 <literal>Depends:</literal>
 field in the controlling information for Ipkg packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_DESCRIPTION">
 <summary>
+<para>
 This is used to fill in the
 <literal>Description:</literal>
 field in the controlling information for Ipkg packages.
 The default value is
 <literal>$SUMMARY\n$DESCRIPTION</literal>
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_MAINTAINER">
 <summary>
+<para>
 This is used to fill in the
 <literal>Maintainer:</literal>
 field in the controlling information for Ipkg packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_PRIORITY">
 <summary>
+<para>
 This is used to fill in the
 <literal>Priority:</literal>
 field in the controlling information for Ipkg packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_SECTION">
 <summary>
+<para>
 This is used to fill in the
 <literal>Section:</literal>
 field in the controlling information for Ipkg packages.
+</para>
 </summary>
 </cvar>
 
@@ -257,127 +330,158 @@ field in the controlling information for Ipkg packages.
 
 <cvar name="X_MSI_LANGUAGE">
 <summary>
+<para>
 This is used to fill in the
 <literal>Language:</literal>
 attribute in the controlling information for MSI packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_LICENSE_TEXT">
 <summary>
+<para>
 The text of the software license in RTF format.
 Carriage return characters will be
 replaced with the RTF equivalent \\par.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_UPGRADE_CODE">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 
 <cvar name="X_RPM_AUTOREQPROV">
 <summary>
+<para>
 This is used to fill in the
 <literal>AutoReqProv:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_BUILD">
 <summary>
+<para>
 internal, but overridable
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_BUILDREQUIRES">
 <summary>
+<para>
 This is used to fill in the
 <literal>BuildRequires:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_BUILDROOT">
 <summary>
+<para>
 internal, but overridable
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_CLEAN">
 <summary>
+<para>
 internal, but overridable
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_CONFLICTS">
 <summary>
+<para>
 This is used to fill in the
 <literal>Conflicts:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_DEFATTR">
 <summary>
+<para>
 This value is used as the default attributes
 for the files in the RPM package.
 The default value is
 <literal>(-,root,root)</literal>.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_DISTRIBUTION">
 <summary>
+<para>
 This is used to fill in the
 <literal>Distribution:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_EPOCH">
 <summary>
+<para>
 This is used to fill in the
 <literal>Epoch:</literal>
 field in the controlling information for RPM packages.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_EXCLUDEARCH">
 <summary>
+<para>
 This is used to fill in the
 <literal>ExcludeArch:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_EXLUSIVEARCH">
 <summary>
+<para>
 This is used to fill in the
 <literal>ExclusiveArch:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_GROUP">
 <summary>
+<para>
 This is used to fill in the
 <literal>Group:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_GROUP_lang">
 <summary>
+<para>
 This is used to fill in the
 <literal>Group(lang):</literal>
 field in the RPM
@@ -387,117 +491,144 @@ Note that
 is not literal
 and should be replaced by
 the appropriate language code.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_ICON">
 <summary>
+<para>
 This is used to fill in the
 <literal>Icon:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_INSTALL">
 <summary>
+<para>
 internal, but overridable
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_PACKAGER">
 <summary>
+<para>
 This is used to fill in the
 <literal>Packager:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_PROVIDES">
 <summary>
+<para>
 This is used to fill in the
 <literal>Provides:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_POSTINSTALL">
 <summary>
+<para>
 This is used to fill in the
 <literal>%post:</literal>
 section in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_PREINSTALL">
 <summary>
+<para>
 This is used to fill in the
 <literal>%pre:</literal>
 section in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_PREFIX">
 <summary>
+<para>
 This is used to fill in the
 <literal>Prefix:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_PREP">
 <summary>
+<para>
 internal, but overridable
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_POSTUNINSTALL">
 <summary>
+<para>
 This is used to fill in the
 <literal>%postun:</literal>
 section in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_PREUNINSTALL">
 <summary>
+<para>
 This is used to fill in the
 <literal>%preun:</literal>
 section in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_REQUIRES">
 <summary>
+<para>
 This is used to fill in the
 <literal>Requires:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_SERIAL">
 <summary>
+<para>
 This is used to fill in the
 <literal>Serial:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_URL">
 <summary>
+<para>
 This is used to fill in the
 <literal>Url:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+</para>
 </summary>
 </cvar>
 
@@ -511,115 +642,153 @@ NOT SURE YET WHAT TO DO ABOUT THESE.
 
 <cvar name="CONFIG">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="CONFIG_NOREPLACE">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="DOC">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="INSTALL_LOCATION">
 <summary>
+<para>
 internal, but overridable, TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="LANG_lang">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="UNIX_ATTR">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_POSTINST">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_POSTRM">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_PREINST">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_IPK_PRERM">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_FEATURE">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_FILEID">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_LONGNAME">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_SHORTNAME">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_MSI_VITAL">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_DIR">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_DOCDIR">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_GHOST">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
 <cvar name="X_RPM_VERIFY">
 <summary>
+<para>
 TODO
+</para>
 </summary>
 </cvar>
 
@@ -631,22 +800,26 @@ TODO
 (node, tags)
 </arguments>
 <summary>
+<para>
 Annotates file or directory Nodes with
 information about how the
 &b-link-Package;
 Builder should package those files or directories.
 All tags are optional.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # makes sure the built library will be installed with 0644 file
 # access mode
 Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
 
 # marks file2.txt to be a documentation file
 Tag( 'file2.txt', DOC )
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -654,13 +827,19 @@ Tag( 'file2.txt', DOC )
 <!--
 <function name="FindSourceFiles">
 <summary>
+<para>
 A convenience function which returns all leaves of the build tree.
+</para>
 </summary>
 </function>
 
 <builder name="FindInstalledFiles">
 <summary>
+<para>
 Returns all files "built" by the &b-Install; or &b-InstallAs; builders.
+</para>
 </summary>
 </function>
 -->
+
+</sconsdoc>

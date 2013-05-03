@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 __COPYRIGHT__
 
@@ -5,10 +6,29 @@ This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
 
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 scons.xsd">
+
+
 <!-- Construction variables -->
 
 <cvar name="BUILDERS">
 <summary>
+<para>
 A dictionary mapping the names of the builders
 available through this environment
 to underlying Builder objects.
@@ -17,38 +37,46 @@ Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
 are available by default.
 If you initialize this variable when an
 Environment is created:
+</para>
 
-<example>
+<example_commands>
 env = Environment(BUILDERS = {'NewBuilder' : foo})
-</example>
+</example_commands>
 
+<para>
 the default Builders will no longer be available.
 To use a new Builder object in addition to the default Builders,
 add your new Builder object like this:
+</para>
 
-<example>
+<example_commands>
 env = Environment()
 env.Append(BUILDERS = {'NewBuilder' : foo})
-</example>
+</example_commands>
 
+<para>
 or this:
+</para>
 
-<example>
+<example_commands>
 env = Environment()
 env['BUILDERS]['NewBuilder'] = foo
-</example>
+</example_commands>
 </summary>
 </cvar>
 
 <cvar name="Dir">
 <summary>
+<para>
 A function that converts a string
 into a Dir instance relative to the target being built.
+</para>
 </summary>
 </cvar>
 
 <cvar name="ENV">
 <summary>
+<para>
 A dictionary of environment variables
 to use when invoking commands. When
 &cv-ENV; is used in a command all list
@@ -67,18 +95,22 @@ repeatable regardless of the environment
 variables set at the time
 &scons;
 is invoked.
+</para>
 
+<para>
 If you want to propagate your
 environment variables
 to the commands executed
 to build target files,
 you must do so explicitly:
+</para>
 
-<example>
+<example_commands>
 import os
 env = Environment(ENV = os.environ)
-</example>
+</example_commands>
 
+<para>
 Note that you can choose only to propagate
 certain environment variables.
 A common example is
@@ -89,23 +121,27 @@ so that
 &scons;
 uses the same utilities
 as the invoking shell (or other process):
+</para>
 
-<example>
+<example_commands>
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
-</example>
+</example_commands>
 </summary>
 </cvar>
 
 <cvar name="File">
 <summary>
+<para>
 A function that converts a string into a File instance relative to the
 target being built.
+</para>
 </summary>
 </cvar>
 
 <cvar name="SCANNERS">
 <summary>
+<para>
 A list of the available implicit dependency scanners.
 New file scanners may be added by
 appending to this list,
@@ -115,77 +151,96 @@ with a specific Builder.
 See the sections "Builder Objects"
 and "Scanner Objects,"
 below, for more information.
+</para>
 </summary>
 </cvar>
 
 <cvar name="CHANGED_SOURCES">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="CHANGED_TARGETS">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="SOURCE">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="SOURCES">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="TARGET">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="TARGETS">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="UNCHANGED_SOURCES">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="UNCHANGED_TARGETS">
 <summary>
+<para>
 A reserved variable name
 that may not be set or used in a construction environment.
 (See "Variable Substitution," below.)
+</para>
 </summary>
 </cvar>
 
 <cvar name="TOOLS">
 <summary>
+<para>
 A list of the names of the Tool specifications
 that are part of this construction environment.
+</para>
 </summary>
 </cvar>
 
@@ -196,12 +251,15 @@ that are part of this construction environment.
 (action, [cmd/str/fun, [var, ...]] [option=value, ...])
 </arguments>
 <summary>
+<para>
 Creates an Action object for
 the specified
 <varname>action</varname>.
 See the section "Action Objects,"
 below, for a complete explanation of the arguments and behavior.
+</para>
 
+<para>
 Note that the
 <function>env.Action</function>()
 form of the invocation will expand
@@ -218,6 +276,7 @@ The
 <function>Action</function>()
 form delays all variable expansion
 until the Action object is actually used.
+</para>
 </summary>
 </scons_function>
 
@@ -229,6 +288,7 @@ until the Action object is actually used.
 (function, [name])
 </arguments>
 <summary>
+<para>
 When called with the
 <function>AddMethod</function>()
 form,
@@ -255,10 +315,13 @@ the name of the
 specified
 <varname>function</varname>
 itself is used for the method name.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # Note that the first argument to the function to
 # be attached as a method must be the object through
 # which the method will be called; the Python
@@ -277,7 +340,7 @@ env.my_method('arg')
 env = Environment()
 env.AddMethod(my_method, 'other_method_name')
 env.other_method_name('another arg')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -286,6 +349,7 @@ env.other_method_name('another arg')
 (target, action)
 </arguments>
 <summary>
+<para>
 Arranges for the specified
 <varname>action</varname>
 to be performed
@@ -296,11 +360,14 @@ The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
 (see below).
+</para>
 
+<para>
 When multiple targets are supplied,
 the action may be called multiple times,
 once after each action that generates
 one or more targets in the list.
+</para>
 </summary>
 </scons_function>
 
@@ -309,6 +376,7 @@ one or more targets in the list.
 (target, action)
 </arguments>
 <summary>
+<para>
 Arranges for the specified
 <varname>action</varname>
 to be performed
@@ -319,12 +387,16 @@ The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
 (see below).
+</para>
 
+<para>
 When multiple targets are specified,
 the action(s) may be called multiple times,
 once before each action that generates
 one or more targets in the list.
+</para>
 
+<para>
 Note that if any of the targets are built in multiple steps,
 the action will be invoked just
 before the "final" action that specifically
@@ -333,12 +405,14 @@ For example, when building an executable program
 from a specified source
 <filename>.c</filename>
 file via an intermediate object file:
+</para>
 
-<example>
+<example_commands>
 foo = Program('foo.c')
 AddPreAction(foo, 'pre_action')
-</example>
+</example_commands>
 
+<para>
 The specified
 <literal>pre_action</literal>
 would be executed before
@@ -349,6 +423,7 @@ generates the executable program binary
 not before compiling the
 <filename>foo.c</filename>
 file into an object file.
+</para>
 </summary>
 </scons_function>
 
@@ -357,6 +432,7 @@ file into an object file.
 (alias, [targets, [action]])
 </arguments>
 <summary>
+<para>
 Creates one or more phony targets that
 expand to one or more other targets.
 An optional
@@ -374,10 +450,13 @@ including another alias.
 can be called multiple times for the same
 alias to add additional targets to the alias,
 or additional actions to the list for this alias.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 Alias('install')
 Alias('install', '/usr/bin')
 Alias(['install', 'install-lib'], '/usr/local/lib')
@@ -386,7 +465,7 @@ env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 env.Alias('install', ['/usr/local/man'])
 
 env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -395,6 +474,7 @@ env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
 (target, ...)
 </arguments>
 <summary>
+<para>
 Marks each given
 <varname>target</varname>
 so that it is always assumed to be out of date,
@@ -410,6 +490,7 @@ they will
 be built if so specified.
 Multiple targets can be passed in to a single call to
 &f-AlwaysBuild;.
+</para>
 </summary>
 </scons_function>
 
@@ -418,6 +499,7 @@ Multiple targets can be passed in to a single call to
 (key=val, [...])
 </arguments>
 <summary>
+<para>
 Appends the specified keyword arguments
 to the end of construction variables in the environment.
 If the Environment does not have
@@ -431,12 +513,15 @@ and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
 (See also the Prepend method, below.)
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -445,6 +530,7 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 (name, newpath, [envname, sep, delete_existing])
 </arguments>
 <summary>
+<para>
 This appends new path elements to the given path in the
 specified external environment
 (<literal>ENV</literal>
@@ -460,15 +546,20 @@ and
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
+</para>
 
+<para>
 If 
 <varname>delete_existing</varname>
 is 0, then adding a path that already exists
 will not move it to the end; it will stay where it is in the list.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 print 'before:',env['ENV']['INCLUDE']
 include_path = '/foo/bar:/foo'
 env.AppendENVPath('INCLUDE', include_path)
@@ -477,7 +568,7 @@ print 'after:',env['ENV']['INCLUDE']
 yields:
 before: /foo:/biz
 after: /biz:/foo/bar:/foo
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -486,6 +577,7 @@ after: /biz:/foo/bar:/foo
 (key=val, [...], delete_existing=0)
 </arguments>
 <summary>
+<para>
 Appends the specified keyword arguments
 to the end of construction variables in the environment.
 If the Environment does not have
@@ -499,12 +591,15 @@ be added again to the list.
 However, if delete_existing is 1, 
 existing matching values are removed first, so
 existing values in the arg list move to the end of the list.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -513,6 +608,7 @@ env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 (build_dir, src_dir, [duplicate])
 </arguments>
 <summary>
+<para>
 Deprecated synonyms for
 &f-VariantDir;
 and
@@ -525,6 +621,7 @@ argument of
 &f-VariantDir;
 or
 <function>env.VariantDir</function>().
+</para>
 </summary>
 </scons_function>
 
@@ -533,12 +630,15 @@ or
 (action, [arguments])
 </arguments>
 <summary>
+<para>
 Creates a Builder object for
 the specified
 <varname>action</varname>.
 See the section "Builder Objects,"
 below, for a complete explanation of the arguments and behavior.
+</para>
 
+<para>
 Note that the
 <function>env.Builder</function>()
 form of the invocation will expand
@@ -556,6 +656,7 @@ The
 &f-Builder;
 form delays all variable expansion
 until after the Builder object is actually called.
+</para>
 </summary>
 </scons_function>
 
@@ -564,6 +665,7 @@ until after the Builder object is actually called.
 (cache_dir)
 </arguments>
 <summary>
+<para>
 Specifies that
 &scons;
 will maintain a cache of derived files in
@@ -577,7 +679,9 @@ Specifying a
 of
 <literal>None</literal>
 disables derived file caching.
+</para>
 
+<para>
 Calling
 <function>env.CacheDir</function>()
 will only affect targets built
@@ -592,7 +696,9 @@ that do
 have an
 <function>env.CacheDir</function>()
 specified.
+</para>
 
+<para>
 When a
 <function>CacheDir</function>()
 is being used and
@@ -613,14 +719,18 @@ then place a copy of the built file in the cache
 so that it may be retrieved by other
 builds that need to build the same derived file
 from identical inputs.
+</para>
 
+<para>
 Use of a specified
 &f-CacheDir;
 may be disabled for any invocation
 by using the
 <option>--cache-disable</option>
 option.
+</para>
 
+<para>
 If the
 <option>--cache-force</option>
 option is used,
@@ -637,7 +747,9 @@ is added to a build,
 or after using the
 <option>--cache-disable</option>
 option.
+</para>
 
+<para>
 When using
 &f-CacheDir;,
 &scons;
@@ -659,12 +771,15 @@ This is useful to generate build logs
 that are equivalent regardless of whether
 a given derived file has been built in-place
 or retrieved from the cache.
+</para>
 
+<para>
 The
 &f-link-NoCache;
 method can be used to disable caching of specific files.  This can be
 useful if inputs and/or outputs of some tool are impossible to
 predict or prohibitively large.
+</para>
 </summary>
 </scons_function>
 
@@ -673,6 +788,7 @@ predict or prohibitively large.
 (targets, files_or_dirs)
 </arguments>
 <summary>
+<para>
 This specifies a list of files or directories which should be removed
 whenever the targets are specified with the
 <option>-c</option>
@@ -684,7 +800,9 @@ Multiple calls to
 are legal,
 and create new targets or add files and directories to the
 clean list for the specified targets.
+</para>
 
+<para>
 Multiple files or directories should be specified
 either as separate arguments to the
 &f-Clean;
@@ -693,7 +811,9 @@ method, or as a list.
 will also accept the return value of any of the construction environment
 Builder methods.
 Examples:
+</para>
 
+<para>
 The related
 &f-link-NoClean;
 function overrides calling
@@ -704,22 +824,27 @@ and any targets passed to both functions will
 be removed by the
 <option>-c</option>
 option.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 Clean('foo', ['bar', 'baz'])
 Clean('dist', env.Program('hello', 'hello.c'))
 Clean(['foo', 'bar'], 'something_else_to_clean')
-</example>
+</example_commands>
 
+<para>
 In this example,
 installing the project creates a subdirectory for the documentation.
 This statement causes the subdirectory to be removed
 if the project is deinstalled.
-<example>
+</para>
+<example_commands>
 Clean(docdir, os.path.join(docdir, projectname))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -728,46 +853,56 @@ Clean(docdir, os.path.join(docdir, projectname))
 ([key=val, ...])
 </arguments>
 <summary>
+<para>
 Returns a separate copy of a construction environment.
 If there are any keyword arguments specified,
 they are added to the returned copy,
 overwriting any existing values
 for the keywords.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env2 = env.Clone()
 env3 = env.Clone(CCFLAGS = '-g')
-</example>
+</example_commands>
 
+<para>
 Additionally, a list of tools and a toolpath may be specified, as in
 the Environment constructor:
+</para>
 
-<example>
+<example_commands>
 def MyTool(env): env['FOO'] = 'bar'
 env4 = env.Clone(tools = ['msvc', MyTool])
-</example>
+</example_commands>
 
+<para>
 The
 <varname>parse_flags</varname>
 keyword argument is also recognized:
+</para>
 
-<example>
+<example_commands>
 # create an environment for compiling programs that use wxWidgets
 wx_env = env.Clone(parse_flags = '!wx-config --cflags --cxxflags')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
 <builder name="Command">
 <summary>
+<para>
 The &b-Command; "Builder" is actually implemented
 as a function that looks like a Builder,
 but actually takes an additional argument of the action
 from which the Builder should be made.
 See the &f-link-Command; function description
 for the calling syntax and details.
+</para>
 </summary>
 </builder>
 
@@ -776,13 +911,16 @@ for the calling syntax and details.
 (target, source, action, [key=val, ...])
 </arguments>
 <summary>
+<para>
 Executes a specific action
 (or list of actions)
 to build a target file or files.
 This is more convenient
 than defining a separate Builder object
 for a single special-case build.
+</para>
 
+<para>
 As a special case, the
 <varname>source_scanner</varname>
 keyword argument can
@@ -796,10 +934,14 @@ if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
 already specified in other Builder of function calls.)
+</para>
 
+<para>
 Any other keyword arguments specified override any
 same-named existing construction variables.
+</para>
 
+<para>
 An action can be an external command,
 specified as a string,
 or a callable Python object;
@@ -814,10 +956,13 @@ or by a
 <literal>-</literal>
 (hyphen)
 to ignore the exit status of the external command.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env.Command('foo.out', 'foo.in',
             "$FOO_BUILD &lt; $SOURCES &gt; $TARGET")
 
@@ -833,8 +978,9 @@ def rename(env, target, source):
 env.Command('baz.out', 'baz.in',
             ["$BAZ_BUILD &lt; $SOURCES &gt; .tmp",
 	     rename ])
-</example>
+</example_commands>
 
+<para>
 Note that the
 &f-Command;
 function will usually assume, by default,
@@ -849,19 +995,24 @@ by using the
 or
 <function>env.Dir</function>()
 functions.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE > $TARGET')
 
 env['DISTDIR'] = 'destination/directory'
 env.Command(env.Dir('$DISTDIR')), None, make_distdir)
-</example>
+</example_commands>
 
+<para>
 (Also note that SCons will usually
 automatically create any directory necessary to hold a target file,
 so you normally don't need to create directories by hand.)
+</para>
 </summary>
 </scons_function>
 
@@ -873,10 +1024,12 @@ so you normally don't need to create directories by hand.)
 ([custom_tests, conf_dir, log_file, config_h])
 </arguments>
 <summary>
+<para>
 Creates a Configure object for integrated
 functionality similar to GNU autoconf.
 See the section "Configure Contexts,"
 below, for a complete explanation of the arguments and behavior.
+</para>
 </summary>
 </scons_function>
 
@@ -885,8 +1038,10 @@ below, for a complete explanation of the arguments and behavior.
 ([key=val, ...])
 </arguments>
 <summary>
+<para>
 A now-deprecated synonym for
 <function>env.Clone</function>().
+</para>
 </summary>
 </scons_function>
 
@@ -895,6 +1050,7 @@ A now-deprecated synonym for
 (function)
 </arguments>
 <summary>
+<para>
 Specifies that all up-to-date decisions for
 targets built through this construction environment
 will be handled by the specified
@@ -904,7 +1060,9 @@ The
 can be one of the following strings
 that specify the type of decision function
 to be performed:
+</para>
 
+<para>
 <variablelist>
 <varlistentry>
 <term><literal>timestamp-newer</literal></term>
@@ -985,24 +1143,30 @@ all within a single second.
 </listitem>
 </varlistentry>
 </variablelist>
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # Use exact timestamp matches by default.
 Decider('timestamp-match')
 
 # Use MD5 content signatures for any targets built
 # with the attached construction environment.
 env.Decider('content')
-</example>
+</example_commands>
 
+<para>
 In addition to the above already-available functions,
 the
 <varname>function</varname>
 argument may be an actual Python function
 that takes the following three arguments:
+</para>
 
+<para>
 <variablelist>
 <varlistentry>
 <term><parameter>dependency</parameter></term>
@@ -1048,7 +1212,9 @@ size, or content signature.
 </listitem>
 </varlistentry>
 </variablelist>
+</para>
 
+<para>
 The
 <varname>function</varname>
 should return a
@@ -1074,15 +1240,18 @@ Note that the decision can be made
 using whatever criteria are appopriate.
 Ignoring some or all of the function arguments
 is perfectly normal.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 def my_decider(dependency, target, prev_ni):
     return not os.path.exists(str(target))
 
 env.Decider(my_decider)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1091,6 +1260,7 @@ env.Decider(my_decider)
 (target, dependency)
 </arguments>
 <summary>
+<para>
 Specifies an explicit dependency;
 the
 <varname>target</varname>
@@ -1111,10 +1281,13 @@ This should only be necessary
 for cases where the dependency
 is not caught by a Scanner
 for the file.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.Depends('foo', 'other-input-file-for-foo')
 
 mylib = env.Library('mylib.c')
@@ -1128,7 +1301,7 @@ bar = env.Program('bar.c')
 # and $LIBPATH variables, not using an env.Depends() call.)
 
 env.Depends(bar, installed_lib)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1137,19 +1310,23 @@ env.Depends(bar, installed_lib)
 ([vars])
 </arguments>
 <summary>
+<para>
 Returns a dictionary object
 containing copies of all of the
 construction variables in the environment.
 If there are any variable names specified,
 only the specified construction
 variables are returned in the dictionary.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 dict = env.Dictionary()
 cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1158,6 +1335,7 @@ cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 (name, [directory])
 </arguments>
 <summary>
+<para>
 This returns a Directory Node,
 an object that represents the specified directory
 <varname>name</varname>.
@@ -1168,19 +1346,24 @@ is an optional directory that will be used as the parent directory.
 If no
 <varname>directory</varname>
 is specified, the current script's directory is used as the parent.
+</para>
 
+<para>
 If
 <varname>name</varname>
 is a list, SCons returns a list of Dir nodes.
 Construction variables are expanded in
 <varname>name</varname>.
+</para>
 
+<para>
 Directory Nodes can be used anywhere you
 would supply a string as a directory name
 to a Builder method or function.
 Directory Nodes have attributes and methods
 that are useful in many situations;
 see "File and Directory Nodes," below.
+</para>
 </summary>
 </scons_function>
 
@@ -1189,34 +1372,44 @@ see "File and Directory Nodes," below.
 ([key])
 </arguments>
 <summary>
+<para>
 Returns a pretty printable representation of the environment.
 <varname>key</varname>,
 if not
 <literal>None</literal>,
 should be a string containing the name of the variable of interest.
+</para>
 
+<para>
 This SConstruct:
+</para>
 
-<example>
+<example_commands>
 env=Environment()
 print env.Dump('CCCOM')
-</example>
+</example_commands>
 
+<para>
 will print:
+</para>
 
-<example>
+<example_commands>
 '$CC -c -o $TARGET $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES'
-</example>
+</example_commands>
 
+<para>
 While this SConstruct:
+</para>
 
-<example>
+<example_commands>
 env=Environment()
 print env.Dump()
-</example>
+</example_commands>
 
+<para>
 will print:
-<example>
+</para>
+<example_commands>
 { 'AR': 'ar',
   'ARCOM': '$AR $ARFLAGS $TARGET $SOURCES\n$RANLIB $RANLIBFLAGS $TARGET',
   'ARFLAGS': ['r'],
@@ -1224,7 +1417,7 @@ will print:
   'ASCOM': '$AS $ASFLAGS -o $TARGET $SOURCES',
   'ASFLAGS': [],
   ...
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1233,10 +1426,12 @@ will print:
 ([key=value, ...])
 </arguments>
 <summary>
+<para>
 Return a new construction environment
 initialized with the specified
 <varname>key</varname><literal>=</literal><varname>value</varname>
 pairs.
+</para>
 </summary>
 </scons_function>
 
@@ -1245,6 +1440,7 @@ pairs.
 (action, [strfunction, varlist])
 </arguments>
 <summary>
+<para>
 Executes an Action object.
 The specified
 <varname>action</varname>
@@ -1260,7 +1456,9 @@ and then executed.
 The exit value of the command
 or return value of the Python function
 will be returned.
+</para>
 
+<para>
 Note that
 &scons;
 will print an error message if the executed
@@ -1279,14 +1477,15 @@ If you want the build to stop in response to a failed
 &f-Execute;
 call,
 you must explicitly check for a non-zero return value:
+</para>
 
-<example>
+<example_commands>
 Execute(Copy('file.out', 'file.in'))
 
 if Execute("mkdir sub/dir/ectory"):
     # The mkdir failed, don't try to build.
     Exit(1)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1295,6 +1494,7 @@ if Execute("mkdir sub/dir/ectory"):
 (name, [directory])
 </arguments>
 <summary>
+<para>
 This returns a
 File Node,
 an object that represents the specified file
@@ -1303,19 +1503,24 @@ an object that represents the specified file
 can be a relative or absolute path.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
+</para>
 
+<para>
 If
 <varname>name</varname>
 is a list, SCons returns a list of File nodes.
 Construction variables are expanded in
 <varname>name</varname>.
+</para>
 
+<para>
 File Nodes can be used anywhere you
 would supply a string as a file name
 to a Builder method or function.
 File Nodes have attributes and methods
 that are useful in many situations;
 see "File and Directory Nodes," below.
+</para>
 </summary>
 </scons_function>
 
@@ -1324,6 +1529,7 @@ see "File and Directory Nodes," below.
 (file, dirs)
 </arguments>
 <summary>
+<para>
 Search for
 <varname>file</varname>
 in the path specified by
@@ -1333,12 +1539,15 @@ may be a list of directory names or a single directory name.
 In addition to searching for files that exist in the filesystem,
 this function also searches for derived files
 that have not yet been built.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 foo = env.FindFile('foo', ['dir1', 'dir2'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1347,18 +1556,24 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
 ()
 </arguments>
 <summary>
+<para>
 Returns the list of targets set up by the
 &b-link-Install;
 or
 &b-link-InstallAs;
 builders.
+</para>
 
+<para>
 This function serves as a convenient method to select the contents of
 a binary package.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 Install( '/bin', [ 'executable_a', 'executable_b' ] )
 
 # will return the file node list
@@ -1370,7 +1585,7 @@ Install( '/lib', [ 'some_library' ] )
 # will return the file node list
 # [ '/bin/executable_a', '/bin/executable_b', '/lib/some_library' ]
 FindInstalledFiles()
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1379,6 +1594,7 @@ FindInstalledFiles()
 (node='"."')
 </arguments>
 <summary>
+<para>
 Returns the list of nodes which serve as the source of the built files.
 It does so by inspecting the dependency tree starting at the optional
 argument
@@ -1386,13 +1602,18 @@ argument
 which defaults to the '"."'-node. It will then return all leaves of
 <varname>node</varname>.
 These are all children which have no further children.
+</para>
 
+<para>
 This function is a convenient method to select the contents of a Source
 Package.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 Program( 'src/main_a.c' )
 Program( 'src/main_b.c' )
 Program( 'main_c.c' )
@@ -1402,10 +1623,12 @@ FindSourceFiles()
 
 # returns ['src/main_b.c', 'src/main_a.c' ]
 FindSourceFiles( 'src' )
-</example>
+</example_commands>
 
+<para>
 As you can see build support files (SConstruct in the above example)
 will also be returned by this function.
+</para>
 </summary>
 </scons_function>
 
@@ -1414,6 +1637,7 @@ will also be returned by this function.
 (sequence)
 </arguments>
 <summary>
+<para>
 Takes a sequence (that is, a Python list or tuple)
 that may contain nested sequences
 and returns a flattened list containing
@@ -1424,10 +1648,13 @@ other Builders will automatically
 flatten lists specified as input,
 but direct Python manipulation of
 these lists does not.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 foo = Object('foo.c')
 bar = Object('bar.c')
 
@@ -1443,7 +1670,7 @@ Program(source = objects)
 # call Flatten() yourself, or otherwise handle nested lists:
 for object in Flatten(objects):
     print str(object)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1452,6 +1679,7 @@ for object in Flatten(objects):
 (file, [...])
 </arguments>
 <summary>
+<para>
 Returns the
 &scons;
 path name (or names) for the specified
@@ -1463,6 +1691,7 @@ or files
 may be
 &scons;
 Nodes or strings representing path names.
+</para>
 </summary>
 </scons_function>
 
@@ -1471,6 +1700,7 @@ Nodes or strings representing path names.
 (pattern, [ondisk, source, strings])
 </arguments>
 <summary>
+<para>
 Returns Nodes (or strings) that match the specified
 <varname>pattern</varname>,
 relative to the directory of the current
@@ -1482,24 +1712,30 @@ form performs string substition on
 <varname>pattern</varname>
 and returns whatever matches
 the resulting expanded pattern.
+</para>
 
+<para>
 The specified
 <varname>pattern</varname>
 uses Unix shell style metacharacters for matching:
+</para>
 
-<example>
+<example_commands>
   *       matches everything
   ?       matches any single character
   [seq]   matches any character in seq
   [!seq]  matches any char not in seq
-</example>
+</example_commands>
 
+<para>
 If the first character of a filename is a dot,
 it must be matched explicitly.
 Character matches do
 <emphasis>not</emphasis>
 span directory separators.
+</para>
 
+<para>
 The
 &f-Glob;
 knows about
@@ -1517,7 +1753,9 @@ in the local (SConscript) directory
 if matching Node is found
 anywhere in a corresponding
 repository or source directory.
+</para>
 
+<para>
 The
 <varname>ondisk</varname>
 argument may be set to
@@ -1529,7 +1767,9 @@ already-configured File or Dir Nodes.
 The default behavior is to
 return corresponding Nodes
 for any on-disk matches found.
+</para>
 
+<para>
 The
 <varname>source</varname>
 argument may be set to
@@ -1541,7 +1781,9 @@ when the local directory is a
 the returned Nodes should be from the
 corresponding source directory,
 not the local directory.
+</para>
 
+<para>
 The
 <varname>strings</varname>
 argument may be set to
@@ -1566,13 +1808,16 @@ directory,
 not the original
 &SConscript;
 directory.)
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 Program('foo', Glob('*.c'))
 Zip('/tmp/everything', Glob('.??*') + Glob('*'))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1582,6 +1827,7 @@ Zip('/tmp/everything', Glob('.??*') + Glob('*'))
 (flag)
 </arguments>
 <summary>
+<para>
 When
 <varname>flag</varname>
 is non-zero,
@@ -1597,6 +1843,7 @@ the names of the default builders are removed
 from the global name space
 so that an explicit construction environment is required
 to call all builders.
+</para>
 </summary>
 </scons_function>
 -->
@@ -1606,30 +1853,38 @@ to call all builders.
 (target, dependency)
 </arguments>
 <summary>
+<para>
 The specified dependency file(s)
 will be ignored when deciding if
 the target file(s) need to be rebuilt.
+</para>
 
+<para>
 You can also use
 &f-Ignore;
 to remove a target from the default build.
 In order to do this you must specify the directory the target will
 be built in as the target, and the file you want to skip building
 as the dependency.
+</para>
 
+<para>
 Note that this will only remove the dependencies listed from 
 the files built by default.  It will still be built if that 
 dependency is needed by another object being built. 
 See the third and forth examples below.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env.Ignore('foo', 'foo.c')
 env.Ignore('bar', ['bar1.h', 'bar2.h'])
 env.Ignore('.','foobar.obj')
 env.Ignore('bar','bar/foobar.obj')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1638,10 +1893,12 @@ env.Ignore('bar','bar/foobar.obj')
 (string)
 </arguments>
 <summary>
+<para>
 The specified
 <varname>string</varname>
 will be preserved as-is
 and not have construction variables expanded.
+</para>
 </summary>
 </scons_function>
 
@@ -1650,12 +1907,14 @@ and not have construction variables expanded.
 (targets)
 </arguments>
 <summary>
+<para>
 The specified
 <varname>targets</varname>
 will have copies made in the local tree,
 even if an already up-to-date copy
 exists in a repository.
 Returns a list of the target Node or Nodes.
+</para>
 </summary>
 </scons_function>
 
@@ -1665,6 +1924,7 @@ Returns a list of the target Node or Nodes.
 ( arg ", [" prepend ])
 </arguments>
 <summary>
+<para>
 Merges the elements of the specified
 <varname>arg</varname>,
 which must be a dictionary, to the construction
@@ -1679,7 +1939,9 @@ so multiple strings must
 be passed in as a list,
 not as separate arguments to
 &f-MergeShellPaths;.
+</para>
 
+<para>
 New values are prepended to the environment variable by default,
 unless prepend=0 is specified.  
 Duplicate values are always eliminated, 
@@ -1690,15 +1952,18 @@ or
 depending on the
 <varname>prepend</varname>
 argument.  See those functions for more details.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # Prepend a path to the shell PATH.
 env.MergeShellPaths({'PATH':'/usr/local/bin'} )
 # Append two dirs to the shell INCLUDE.
 env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']}, prepend=0 )
-</example>
+</example_commands>
 </summary>
 </scons_function>
 -->
@@ -1708,6 +1973,7 @@ env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']}, prepend=0 )
 (arg, [unique])
 </arguments>
 <summary>
+<para>
 Merges the specified
 <varname>arg</varname>
 values to the construction environment's construction variables.
@@ -1725,7 +1991,9 @@ so multiple strings must
 be passed in as a list,
 not as separate arguments to
 &f-env-MergeFlags;.
+</para>
 
+<para>
 By default,
 duplicate values are eliminated;
 you can, however, specify
@@ -1739,10 +2007,13 @@ the string
 keep the left-most unique value.
 All other construction variables keep
 the right-most unique value.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # Add an optimization flag to $CCFLAGS.
 env.MergeFlags('-O3')
 
@@ -1755,7 +2026,7 @@ env.MergeFlags(['!pkg-config gtk+-2.0 --cflags', '-O3'])
 env.MergeFlags(['-O3',
                '!pkg-config gtk+-2.0 --cflags --libs',
                '!pkg-config libpng12 --cflags --libs'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1764,6 +2035,7 @@ env.MergeFlags(['-O3',
 (target, ...)
 </arguments>
 <summary>
+<para>
 Specifies a list of files which should
 <emphasis>not</emphasis>
 be cached whenever the
@@ -1771,7 +2043,9 @@ be cached whenever the
 method has been activated.
 The specified targets may be a list
 or an individual target.
+</para>
 
+<para>
 Multiple files should be specified
 either as separate arguments to the
 &f-NoCache;
@@ -1779,18 +2053,23 @@ method, or as a list.
 &f-NoCache;
 will also accept the return value of any of the construction environment
 Builder methods.
+</para>
 
+<para>
 Calling
 &f-NoCache;
 on directories and other non-File Node types has no effect because
 only File Nodes are cached.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 NoCache('foo.elf')
 NoCache(env.Program('hello', 'hello.c'))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1799,6 +2078,7 @@ NoCache(env.Program('hello', 'hello.c'))
 (target, ...)
 </arguments>
 <summary>
+<para>
 Specifies a list of files or directories which should
 <emphasis>not</emphasis>
 be removed whenever the targets (or their dependencies)
@@ -1814,7 +2094,9 @@ and prevent each specified target
 from being removed by calls to the
 <option>-c</option>
 option.
+</para>
 
+<para>
 Multiple files or directories should be specified
 either as separate arguments to the
 &f-NoClean;
@@ -1822,7 +2104,9 @@ method, or as a list.
 &f-NoClean;
 will also accept the return value of any of the construction environment
 Builder methods.
+</para>
 
+<para>
 Calling
 &f-NoClean;
 for a target overrides calling
@@ -1833,13 +2117,16 @@ and any targets passed to both functions will
 be removed by the
 <option>-c</option>
 option.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 NoClean('foo.elf')
 NoClean(env.Program('hello', 'hello.c'))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -1848,6 +2135,7 @@ NoClean(env.Program('hello', 'hello.c'))
 (command, [function, unique])
 </arguments>
 <summary>
+<para>
 Calls the specified
 <varname>function</varname>
 to modify the environment as specified by the output of
@@ -1870,7 +2158,9 @@ you can specify
 <literal>unique=0</literal>
 to allow duplicate
 values to be added.
+</para>
 
+<para>
 Interpreted options
 and the construction variables they affect
 are as specified for the
@@ -1878,6 +2168,7 @@ are as specified for the
 method (which this method calls).
 See that method's description, below,
 for a table of options and construction variables.
+</para>
 </summary>
 </scons_function>
 
@@ -1886,6 +2177,7 @@ for a table of options and construction variables.
 (filename, [must_exist, only_one])
 </arguments>
 <summary>
+<para>
 Parses the contents of the specified
 <varname>filename</varname>
 as a list of dependencies in the style of
@@ -1893,7 +2185,9 @@ as a list of dependencies in the style of
 or
 <application>mkdep</application>,
 and explicitly establishes all of the listed dependencies.
+</para>
 
+<para>
 By default,
 it is not an error
 if the specified
@@ -1907,7 +2201,9 @@ scons
 throw an exception and
 generate an error if the file does not exist,
 or is otherwise inaccessible.
+</para>
 
+<para>
 The optional
 <varname>only_one</varname>
 argument may be set to a non-zero
@@ -1927,7 +2223,9 @@ write dependency information for
 one output file into a corresponding
 <filename>.d</filename>
 file.
+</para>
 
+<para>
 The
 <varname>filename</varname>
 and all of the files listed therein
@@ -1937,6 +2235,7 @@ the directory of the
 file which calls the
 &f-ParseDepends;
 function.
+</para>
 </summary>
 </scons_function>
 
@@ -1945,6 +2244,7 @@ function.
 (flags, ...)
 </arguments>
 <summary>
+<para>
 Parses one or more strings containing
 typical command-line flags for GCC tool chains
 and returns a dictionary with the flag values
@@ -1960,18 +2260,23 @@ will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
 &f-link-env-ParseFlags;
 directly unless you want to manipulate the values.)
+</para>
 
+<para>
 If the first character in any string is
 an exclamation mark (!),
 the rest of the string is executed as a command,
 and the output from the command is
 parsed as GCC tool chain command-line flags
 and added to the resulting dictionary.
+</para>
 
+<para>
 Flag values are translated accordig to the prefix found,
 and added to the following construction variables:
+</para>
 
-<example>
+<example_commands>
 -arch               CCFLAGS, LINKFLAGS
 -D                  CPPDEFINES
 -framework          FRAMEWORKS
@@ -1993,22 +2298,26 @@ and added to the following construction variables:
 -Wp,                CPPFLAGS
 -                   CCFLAGS
 +                   CCFLAGS, LINKFLAGS
-</example>
+</example_commands>
 
+<para>
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
 &cv-LIBS;
 construction variable.
+</para>
 
+<para>
 Examples (all of which produce the same result):
+</para>
 
-<example>
+<example_commands>
 dict = env.ParseFlags('-O2 -Dfoo -Dbar=1')
 dict = env.ParseFlags('-O2', '-Dfoo', '-Dbar=1')
 dict = env.ParseFlags(['-O2', '-Dfoo -Dbar=1'])
 dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2017,6 +2326,7 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
 (string)
 </arguments>
 <summary>
+<para>
 The
 &f-Platform;
 form returns a callable object
@@ -2025,23 +2335,29 @@ a construction environment using the
 platform keyword of the
 &f-Environment;
 function.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env = Environment(platform = Platform('win32'))
-</example>
+</example_commands>
 
+<para>
 The
 &f-env-Platform;
 form applies the callable object for the specified platform
 <varname>string</varname>
 to the environment through which the method was called.
+</para>
 
-<example>
+<example_commands>
 env.Platform('posix')
-</example>
+</example_commands>
 
+<para>
 Note that the
 <literal>win32</literal>
 platform adds the
@@ -2058,6 +2374,7 @@ that use sockets to connect with other systems
 external CVS repository specifications like
 <literal>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</literal>)
 will work on Windows systems.
+</para>
 </summary>
 </scons_function>
 
@@ -2066,6 +2383,7 @@ will work on Windows systems.
 (key=val, [...])
 </arguments>
 <summary>
+<para>
 Appends the specified keyword arguments
 to the beginning of construction variables in the environment.
 If the Environment does not have
@@ -2079,12 +2397,15 @@ and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
 (See also the Append method, above.)
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2093,6 +2414,7 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 (name, newpath, [envname, sep, delete_existing])
 </arguments>
 <summary>
+<para>
 This appends new path elements to the given path in the
 specified external environment
 (&cv-ENV;
@@ -2108,28 +2430,35 @@ and
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
+</para>
 
+<para>
 If
 <varname>delete_existing</varname>
 is 0, then adding a path that already exists
 will not move it to the beginning;
 it will stay where it is in the list.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 print 'before:',env['ENV']['INCLUDE']
 include_path = '/foo/bar:/foo'
 env.PrependENVPath('INCLUDE', include_path)
 print 'after:',env['ENV']['INCLUDE']
-</example>
+</example_commands>
 
+<para>
 The above example will print:
+</para>
 
-<example>
+<example_commands>
 before: /biz:/foo
 after: /foo/bar:/foo:/biz
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2138,6 +2467,7 @@ after: /foo/bar:/foo:/biz
 (key=val, delete_existing=0, [...])
 </arguments>
 <summary>
+<para>
 Appends the specified keyword arguments
 to the beginning of construction variables in the environment.
 If the Environment does not have
@@ -2151,12 +2481,15 @@ be added again to the list.
 However, if delete_existing is 1, 
 existing matching values are removed first, so
 existing values in the arg list move to the front of the list.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.PrependUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2165,14 +2498,18 @@ env.PrependUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 (key=val, [...])
 </arguments>
 <summary>
+<para>
 Replaces construction variables in the Environment
 with the specified keyword arguments.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2181,6 +2518,7 @@ env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
 (directory)
 </arguments>
 <summary>
+<para>
 Specifies that
 <varname>directory</varname>
 is a repository to be searched for files.
@@ -2189,7 +2527,9 @@ Multiple calls to
 are legal,
 and each one adds to the list of
 repositories that will be searched.
+</para>
 
+<para>
 To
 &scons;,
 a repository is a copy of the source tree,
@@ -2209,7 +2549,9 @@ signature information to allow
 to figure out when it is appropriate to
 use the repository copy of a derived file,
 instead of building one locally.
+</para>
 
+<para>
 Note that if an up-to-date derived file
 already exists in a repository,
 &scons;
@@ -2221,6 +2563,7 @@ will be made,
 use the
 &f-link-Local;
 method.
+</para>
 </summary>
 </scons_function>
 
@@ -2229,6 +2572,7 @@ method.
 (target, prerequisite)
 </arguments>
 <summary>
+<para>
 Specifies an order-only relationship
 between the specified target file(s)
 and the specified prerequisite file(s).
@@ -2240,12 +2584,15 @@ but the target file(s) do not actually
 depend on the prerequisites
 and will not be rebuilt simply because
 the prerequisite file(s) change.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env.Requires('foo', 'file-that-must-be-built-before-foo')
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2254,11 +2601,13 @@ env.Requires('foo', 'file-that-must-be-built-before-foo')
 (function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive])
 </arguments>
 <summary>
+<para>
 Creates a Scanner object for
 the specified
 <varname>function</varname>.
 See the section "Scanner Objects,"
 below, for a complete explanation of the arguments and behavior.
+</para>
 </summary>
 </scons_function>
 
@@ -2267,6 +2616,7 @@ below, for a complete explanation of the arguments and behavior.
 (value)
 </arguments>
 <summary>
+<para>
 By default,
 &scons;
 changes its working directory
@@ -2274,12 +2624,14 @@ to the directory in which each
 subsidiary SConscript file lives.
 This behavior may be disabled
 by specifying either:
+</para>
 
-<example>
+<example_commands>
 SConscriptChdir(0)
 env.SConscriptChdir(0)
-</example>
+</example_commands>
 
+<para>
 in which case
 &scons;
 will stay in the top-level directory
@@ -2291,16 +2643,19 @@ You may enable and disable
 this ability by calling
 SConscriptChdir()
 multiple times.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 env = Environment()
 SConscriptChdir(0)
 SConscript('foo/SConscript')	# will not chdir to foo
 env.SConscriptChdir(1)
 SConscript('bar/SConscript')	# will chdir to bar
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2309,6 +2664,7 @@ SConscript('bar/SConscript')	# will chdir to bar
 ([file, dbm_module])
 </arguments>
 <summary>
+<para>
 This tells
 &scons;
 to store all file signatures
@@ -2329,7 +2685,9 @@ is not an absolute path name,
 the file is placed in the same directory as the top-level
 &SConstruct;
 file.
+</para>
 
+<para>
 If
 <varname>file</varname>
 is
@@ -2343,7 +2701,9 @@ file in each directory,
 not in one global database file.
 (This was the default behavior
 prior to SCons 0.96.91 and 0.97.)
+</para>
 
+<para>
 The optional
 <varname>dbm_module</varname>
 argument can be used to specify
@@ -2353,10 +2713,13 @@ The default is to use a custom
 module that uses pickled
 Python data structures,
 and which works on all Python versions.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # Explicitly stores signatures in ".sconsign.dblite"
 # in the top-level SConstruct directory (the
 # default behavior).
@@ -2372,7 +2735,7 @@ SConsignFile("/home/me/SCons/signatures")
 # Stores signatures in a separate .sconsign file
 # in each directory.
 SConsignFile(None)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2381,15 +2744,17 @@ SConsignFile(None)
 (key=val, [...])
 </arguments>
 <summary>
+<para>
 Sets construction variables to default values specified with the keyword
 arguments if (and only if) the variables are not already set.
 The following statements are equivalent:
+</para>
 
-<example>
+<example_commands>
 env.SetDefault(FOO = 'foo')
 
 if 'FOO' not in env: env['FOO'] = 'foo'
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2398,6 +2763,7 @@ if 'FOO' not in env: env['FOO'] = 'foo'
 (side_effect, target)
 </arguments>
 <summary>
+<para>
 Declares
 <varname>side_effect</varname>
 as a side effect of building
@@ -2421,7 +2787,9 @@ is executed at a time.
 Consequently, you only need to use this method
 for side-effect targets that are built as a result of
 multiple build commands.
+</para>
 
+<para>
 Because multiple build commands may update
 the same side effect file,
 by default the
@@ -2449,6 +2817,7 @@ with the
 or
 &f-env-Clean;
 function.
+</para>
 </summary>
 </scons_function>
 
@@ -2457,13 +2826,16 @@ function.
 (entries, builder)
 </arguments>
 <summary>
+<para>
 This function and its associate factory functions are deprecated.
 There is no replacement.
 The intended use was to keep a local tree in sync with an archive,
 but in actuality the function only causes the archive
 to be fetched on the first run.
 Synchronizing with the archive is best done external to &SCons;.
+</para>
 
+<para>
 Arrange for non-existent source files to
 be fetched from a source code management system
 using the specified
@@ -2474,7 +2846,9 @@ may be a Node, string or list of both,
 and may represent either individual
 source files or directories in which
 source files can be found.
+</para>
 
+<para>
 For any non-existent source files,
 &scons;
 will search up the directory tree
@@ -2494,7 +2868,9 @@ even if a
 &f-SourceCode;
 builder has been specified
 for a directory higher up the tree.
+</para>
 
+<para>
 &scons;
 will, by default,
 fetch files from SCCS or RCS subdirectories
@@ -2505,33 +2881,40 @@ source code management files on disk.
 You can avoid these extra searches
 and speed up your build a little
 by disabling these searches as follows:
+</para>
 
-<example>
+<example_commands>
 env.SourceCode('.', None)
-</example>
+</example_commands>
 
+<para>
 Note that if the specified
 <varname>builder</varname>
 is one you create by hand,
 it must have an associated
 construction environment to use
 when fetching a source file.
+</para>
 
+<para>
 &scons;
 provides a set of canned factory
 functions that return appropriate
 Builders for various popular
 source code management systems.
 Canonical examples of invocation include:
+</para>
 
-<example>
+<example_commands>
 env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
 env.SourceCode('src', env.CVS('/usr/local/CVSROOT'))
 env.SourceCode('/', env.RCS())
 env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
 env.SourceCode('no_source.c', None)
-</example>
+</example_commands>
+<para>
 <!-- env.SourceCode('.', env.Subversion('file:///usr/local/Subversion')) -->
+</para>
 </summary>
 </scons_function>
 
@@ -2540,13 +2923,16 @@ env.SourceCode('no_source.c', None)
 (type)
 </arguments>
 <summary>
+<para>
 Note:  Although it is not yet officially deprecated,
 use of this function is discouraged.
 See the
 &f-link-Decider;
 function for a more flexible and straightforward way
 to configure SCons' decision-making.
+</para>
 
+<para>
 The
 &f-SourceSignatures;
 function tells
@@ -2559,7 +2945,9 @@ Legal values are
 <literal>MD5</literal>
 or
 <literal>timestamp</literal>.
+</para>
 
+<para>
 If the environment method is used,
 the specified type of source signature
 is only used when deciding whether targets
@@ -2568,14 +2956,18 @@ If the global function is used,
 the specified type of source signature becomes the default
 used for all decisions
 about whether targets are up-to-date.
+</para>
 
+<para>
 <literal>MD5</literal>
 means
 &scons;
 decides that a source file has changed
 if the MD5 checksum of its contents has changed since
 the last time it was used to rebuild a particular target file.
+</para>
 
+<para>
 <literal>timestamp</literal>
 means
 &scons;
@@ -2586,12 +2978,16 @@ the last time it was used to rebuild a particular target file.
 by default it will also rebuild if the dependency is
 <emphasis>older</emphasis>
 than the last time it was used to rebuild the target file.)
+</para>
 
+<para>
 There is no different between the two behaviors
 for Python
 &f-Value;
 node objects.
+</para>
 
+<para>
 <literal>MD5</literal>
 signatures take longer to compute,
 but are more accurate than
@@ -2599,7 +2995,9 @@ but are more accurate than
 signatures.
 The default value is
 <literal>MD5</literal>.
+</para>
 
+<para>
 Note that the default
 &f-link-TargetSignatures;
 setting (see below)
@@ -2615,6 +3013,7 @@ affect the up-to-date decision for all files in the build
 when
 &f-env-SourceSignatures;
 is used).
+</para>
 </summary>
 </scons_function>
 
@@ -2623,6 +3022,7 @@ is used).
 (arg)
 </arguments>
 <summary>
+<para>
 Returns a list of file names or other objects.
 If arg is a string,
 it will be split on strings of white-space characters
@@ -2633,10 +3033,13 @@ the list will be returned untouched.
 If arg is any other type of object,
 it will be returned as a list
 containing just the object.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
@@ -2644,7 +3047,7 @@ files = Split("""
 	f8.c
 	f9.c
 """)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2653,10 +3056,13 @@ files = Split("""
 (input, [raw, target, source, conv])
 </arguments>
 <summary>
+<para>
 Performs construction variable interpolation
 on the specified string or sequence argument
 <varname>input</varname>.
+</para>
 
+<para>
 By default,
 leading or trailing white space will
 be removed from the result.
@@ -2686,13 +3092,17 @@ and
 <literal>$)</literal>
 pairs
 (as is done for signature calculation).
+</para>
 
+<para>
 If the input is a sequence
 (list or tuple),
 the individual elements of
 the sequence will be expanded,
 and the results will be returned as a list.
+</para>
 
+<para>
 The optional
 <varname>target</varname>
 and
@@ -2712,7 +3122,9 @@ calling
 &f-env-subst;
 from within a Python function used
 as an SCons action.
+</para>
 
+<para>
 Returned string values or sequence elements
 are converted to their string representation by default.
 The optional
@@ -2728,10 +3140,13 @@ you can use the Python
 &lambda;
 idiom to pass in an unnamed function
 that simply returns its unconverted argument.
+</para>
 
+<para>
 Example:
+</para>
 
-<example>
+<example_commands>
 print env.subst("The C compiler is: $CC")
 
 def compile(target, source, env):
@@ -2741,7 +3156,7 @@ def compile(target, source, env):
 
 source_nodes = env.subst('$EXPAND_TO_NODELIST',
                          conv=lambda x: x)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2750,13 +3165,16 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 (type)
 </arguments>
 <summary>
+<para>
 Note:  Although it is not yet officially deprecated,
 use of this function is discouraged.
 See the
 &f-link-Decider;
 function for a more flexible and straightforward way
 to configure SCons' decision-making.
+</para>
 
+<para>
 The
 &f-TargetSignatures;
 function tells
@@ -2775,7 +3193,9 @@ Legal values are
 <literal>"timestamp"</literal>;
 or
 <literal>"source"</literal>.
+</para>
 
+<para>
 If the environment method is used,
 the specified type of target signature is only used
 for targets built with that environment.
@@ -2784,7 +3204,9 @@ the specified type of signature becomes the default
 used for all target files that
 don't have an explicit target signature type
 specified for their environments.
+</para>
 
+<para>
 <literal>"content"</literal>
 (or its synonym
 <literal>"MD5"</literal>)
@@ -2801,7 +3223,9 @@ of target files after they're built,
 and may decide that it does not need to rebuild
 "downstream" target files if a file was
 rebuilt with exactly the same contents as the last time.
+</para>
 
+<para>
 <literal>"timestamp"</literal>
 means
 &scons;
@@ -2812,7 +3236,9 @@ the last time it was used to rebuild some other target file.
 by default it will also rebuild if the dependency is
 <emphasis>older</emphasis>
 than the last time it was used to rebuild the target file.)
+</para>
 
+<para>
 <literal>"source"</literal>
 means
 &scons;
@@ -2828,7 +3254,9 @@ This means that
 will treat all input files to a target the same way,
 regardless of whether they are source files
 or have been built from other files.
+</para>
 
+<para>
 <literal>"build"</literal>
 means
 &scons;
@@ -2843,7 +3271,9 @@ so that other "downstream" target files
 will always be rebuilt,
 even if the contents or the timestamp
 have not changed.
+</para>
 
+<para>
 <literal>"build"</literal>
 signatures are fastest because
 <literal>"content"</literal>
@@ -2863,7 +3293,9 @@ when other target files may be rebuilt from
 both source and target input files.
 The default value is
 <literal>"source"</literal>.
+</para>
 
+<para>
 Because the default setting is
 <literal>"source"</literal>,
 using
@@ -2877,6 +3309,7 @@ Use of
 &f-TargetSignatures;
 provides specific control for how built target files
 affect their "downstream" dependencies.
+</para>
 </summary>
 </scons_function>
 
@@ -2885,6 +3318,7 @@ affect their "downstream" dependencies.
 (string, [toolpath, **kw])
 </arguments>
 <summary>
+<para>
 The
 &f-Tool;
 form of the function
@@ -2900,14 +3334,19 @@ to the construction environment
 and the name of the tool will be added to the
 &cv-link-TOOLS;
 construction variable.
+</para>
 
+<para>
 Additional keyword arguments are passed to the tool's
 <function>generate</function>()
 method.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env = Environment(tools = [ Tool('msvc') ])
 
 env = Environment()
@@ -2915,23 +3354,27 @@ t = Tool('msvc')
 t(env)  # adds 'msvc' to the TOOLS variable
 u = Tool('opengl', toolpath = ['tools'])
 u(env)  # adds 'opengl' to the TOOLS variable
-</example>
+</example_commands>
 
+<para>
 The
 &f-env-Tool;
 form of the function
 applies the callable object for the specified tool
 <varname>string</varname>
 to the environment through which the method was called.
+</para>
 
+<para>
 Additional keyword arguments are passed to the tool's
 <function>generate</function>()
 method.
+</para>
 
-<example>
+<example_commands>
 env.Tool('gcc')
 env.Tool('opengl', toolpath = ['build/tools'])
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2940,6 +3383,7 @@ env.Tool('opengl', toolpath = ['build/tools'])
 (value, [built_value])
 </arguments>
 <summary>
+<para>
 Returns a Node object representing the specified Python value.  Value
 Nodes can be used as dependencies of targets.  If the result of
 calling
@@ -2951,7 +3395,9 @@ will be rebuilt.
 files are up-to-date.)
 When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
+</para>
 
+<para>
 The returned Value Node object has a
 <function>write</function>()
 method that can be used to "build" a Value Node
@@ -2965,10 +3411,13 @@ to indicate the Node should already be considered
 There is a corresponding
 <function>read</function>()
 method that will return the built value of the Node.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 env = Environment()
 
 def create(target, source, env):
@@ -3000,7 +3449,7 @@ input = env.Value('after')
 # action to the construction environment.
 env['BUILDERS']['UpdateValue'] = Builder(action = build_value)
 env.UpdateValue(target = Value(output), source = Value(input))
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -3009,6 +3458,7 @@ env.UpdateValue(target = Value(output), source = Value(input))
 (variant_dir, src_dir, [duplicate])
 </arguments>
 <summary>
+<para>
 Use the
 &f-VariantDir;
 function to create a copy of your sources in another location:
@@ -3021,7 +3471,9 @@ the file or directory is copied to
 Target files can be built in a different directory
 than the original sources by simply refering to the sources (and targets)
 within the variant tree.
+</para>
 
+<para>
 &f-VariantDir;
 can be called multiple times with the same
 <varname>src_dir</varname>
@@ -3038,7 +3490,9 @@ TODO: Can the above restrictions be clarified or relaxed?
 TODO: The latter restriction is clearly not completely right;
 TODO: src_dir = '.' works fine with a build dir under it.
 -->
+</para>
 
+<para>
 The default behavior is for
 &scons;
 to physically duplicate the source files in the variant tree.
@@ -3049,7 +3503,9 @@ or preprocessors or other scanners search for included files
 relative to the source file,
 or individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
+</para>
 
+<para>
 If possible on the platform,
 the duplication is performed by linking rather than copying;
 see also the
@@ -3058,7 +3514,9 @@ command-line option.
 Moreover, only the files needed for the build are duplicated;
 files and directories that are not used are not present in
 <varname>variant_dir</varname>.
+</para>
 
+<para>
 Duplicating the source tree may be disabled by setting the
 <literal>duplicate</literal>
 argument to
@@ -3074,7 +3532,9 @@ This is always more efficient than
 <literal>duplicate=1</literal>,
 and is usually safe for most builds
 (but see above for cases that may cause problems).
+</para>
 
+<para>
 Note that
 &f-VariantDir;
 works most naturally with a subsidiary SConscript file.
@@ -3086,40 +3546,45 @@ regardless of the value of
 This is how you tell
 &scons;
 which variant of a source tree to build:
+</para>
 
-<example>
+<example_commands>
 # run src/SConscript in two variant directories
 VariantDir('build/variant1', 'src')
 SConscript('build/variant1/SConscript')
 VariantDir('build/variant2', 'src')
 SConscript('build/variant2/SConscript')
-</example>
+</example_commands>
 
+<para>
 See also the
 &f-link-SConscript;
 function, described above,
 for another way to specify a variant directory
 in conjunction with calling a subsidiary SConscript file.
+</para>
 
+<para>
 Examples:
+</para>
 
-<example>
+<example_commands>
 # use names in the build directory, not the source directory
 VariantDir('build', 'src', duplicate=0)
 Program('build/prog', 'build/source.c')
-</example>
+</example_commands>
 
-<example>
+<example_commands>
 # this builds both the source and docs in a separate subtree
 VariantDir('build', '.', duplicate=0)
 SConscript(dirs=['build/src','build/doc'])
-</example>
+</example_commands>
 
-<example>
+<example_commands>
 # same as previous example, but only uses SConscript
 SConscript(dirs='src', variant_dir='build/src', duplicate=0)
 SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
-</example>
+</example_commands>
 </summary>
 </scons_function>
 
@@ -3128,6 +3593,7 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 (program, [path, pathext, reject])
 </arguments>
 <summary>
+<para>
 Searches for the specified executable
 <varname>program</varname>,
 returning the full path name to the program
@@ -3154,5 +3620,8 @@ path name or names
 in the specified
 <varname>reject</varname>
 list, if any.
+</para>
 </summary>
 </scons_function>
+
+</sconsdoc>
