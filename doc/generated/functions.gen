@@ -15,8 +15,10 @@
 <variablelist xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
   <varlistentry id="f-Action">
     <term>
-      <synopsis>Action(action, [cmd/str/fun, [var, ...]] [option=value, ...])</synopsis>
-      <synopsis>env.Action(action, [cmd/str/fun, [var, ...]] [option=value, ...])</synopsis>
+      <literal>Action(action, [cmd/str/fun, [var, ...]] [option=value, ...])</literal>
+    </term>
+    <term>
+      <literal>env.Action(action, [cmd/str/fun, [var, ...]] [option=value, ...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -49,8 +51,10 @@ until the Action object is actually used.
   </varlistentry>
   <varlistentry id="f-AddMethod">
     <term>
-      <synopsis>AddMethod(object, function, [name])</synopsis>
-      <synopsis>env.AddMethod(function, [name])</synopsis>
+      <literal>AddMethod(object, function, [name])</literal>
+    </term>
+    <term>
+      <literal>env.AddMethod(function, [name])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -110,7 +114,7 @@ env.other_method_name('another arg')
   </varlistentry>
   <varlistentry id="f-AddOption">
     <term>
-      <synopsis>AddOption(arguments)</synopsis>
+      <literal>AddOption(arguments)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -221,8 +225,10 @@ env = Environment(PREFIX = GetOption('prefix'))
   </varlistentry>
   <varlistentry id="f-AddPostAction">
     <term>
-      <synopsis>AddPostAction(target, action)</synopsis>
-      <synopsis>env.AddPostAction(target, action)</synopsis>
+      <literal>AddPostAction(target, action)</literal>
+    </term>
+    <term>
+      <literal>env.AddPostAction(target, action)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -248,8 +254,10 @@ one or more targets in the list.
   </varlistentry>
   <varlistentry id="f-AddPreAction">
     <term>
-      <synopsis>AddPreAction(target, action)</synopsis>
-      <synopsis>env.AddPreAction(target, action)</synopsis>
+      <literal>AddPreAction(target, action)</literal>
+    </term>
+    <term>
+      <literal>env.AddPreAction(target, action)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -304,8 +312,10 @@ file into an object file.
   </varlistentry>
   <varlistentry id="f-Alias">
     <term>
-      <synopsis>Alias(alias, [targets, [action]])</synopsis>
-      <synopsis>env.Alias(alias, [targets, [action]])</synopsis>
+      <literal>Alias(alias, [targets, [action]])</literal>
+    </term>
+    <term>
+      <literal>env.Alias(alias, [targets, [action]])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -346,7 +356,7 @@ env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
   </varlistentry>
   <varlistentry id="f-AllowSubstExceptions">
     <term>
-      <synopsis>AllowSubstExceptions([exception, ...])</synopsis>
+      <literal>AllowSubstExceptions([exception, ...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -391,8 +401,10 @@ AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
   </varlistentry>
   <varlistentry id="f-AlwaysBuild">
     <term>
-      <synopsis>AlwaysBuild(target, ...)</synopsis>
-      <synopsis>env.AlwaysBuild(target, ...)</synopsis>
+      <literal>AlwaysBuild(target, ...)</literal>
+    </term>
+    <term>
+      <literal>env.AlwaysBuild(target, ...)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -416,7 +428,7 @@ Multiple targets can be passed in to a single call to
   </varlistentry>
   <varlistentry id="f-Append">
     <term>
-      <synopsis>env.Append(key=val, [...])</synopsis>
+      <literal>env.Append(key=val, [...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -446,7 +458,7 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
   </varlistentry>
   <varlistentry id="f-AppendENVPath">
     <term>
-      <synopsis>env.AppendENVPath(name, newpath, [envname, sep, delete_existing])</synopsis>
+      <literal>env.AppendENVPath(name, newpath, [envname, sep, delete_existing])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -492,7 +504,7 @@ after: /biz:/foo/bar:/foo
   </varlistentry>
   <varlistentry id="f-AppendUnique">
     <term>
-      <synopsis>env.AppendUnique(key=val, [...], delete_existing=0)</synopsis>
+      <literal>env.AppendUnique(key=val, [...], delete_existing=0)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -522,7 +534,7 @@ env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
   </varlistentry>
   <varlistentry id="f-BitKeeper">
     <term>
-      <synopsis>env.BitKeeper()</synopsis>
+      <literal>env.BitKeeper()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -553,8 +565,10 @@ env.SourceCode('.', env.BitKeeper())
   </varlistentry>
   <varlistentry id="f-BuildDir">
     <term>
-      <synopsis>BuildDir(build_dir, src_dir, [duplicate])</synopsis>
-      <synopsis>env.BuildDir(build_dir, src_dir, [duplicate])</synopsis>
+      <literal>BuildDir(build_dir, src_dir, [duplicate])</literal>
+    </term>
+    <term>
+      <literal>env.BuildDir(build_dir, src_dir, [duplicate])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -575,8 +589,10 @@ or
   </varlistentry>
   <varlistentry id="f-Builder">
     <term>
-      <synopsis>Builder(action, [arguments])</synopsis>
-      <synopsis>env.Builder(action, [arguments])</synopsis>
+      <literal>Builder(action, [arguments])</literal>
+    </term>
+    <term>
+      <literal>env.Builder(action, [arguments])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -610,8 +626,10 @@ until after the Builder object is actually called.
   </varlistentry>
   <varlistentry id="f-CacheDir">
     <term>
-      <synopsis>CacheDir(cache_dir)</synopsis>
-      <synopsis>env.CacheDir(cache_dir)</synopsis>
+      <literal>CacheDir(cache_dir)</literal>
+    </term>
+    <term>
+      <literal>env.CacheDir(cache_dir)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -733,8 +751,10 @@ predict or prohibitively large.
   </varlistentry>
   <varlistentry id="f-Clean">
     <term>
-      <synopsis>Clean(targets, files_or_dirs)</synopsis>
-      <synopsis>env.Clean(targets, files_or_dirs)</synopsis>
+      <literal>Clean(targets, files_or_dirs)</literal>
+    </term>
+    <term>
+      <literal>env.Clean(targets, files_or_dirs)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -798,7 +818,7 @@ Clean(docdir, os.path.join(docdir, projectname))
   </varlistentry>
   <varlistentry id="f-Clone">
     <term>
-      <synopsis>env.Clone([key=val, ...])</synopsis>
+      <literal>env.Clone([key=val, ...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -842,8 +862,10 @@ wx_env = env.Clone(parse_flags = '!wx-config --cflags --cxxflags')
   </varlistentry>
   <varlistentry id="f-Command">
     <term>
-      <synopsis>Command(target, source, action, [key=val, ...])</synopsis>
-      <synopsis>env.Command(target, source, action, [key=val, ...])</synopsis>
+      <literal>Command(target, source, action, [key=val, ...])</literal>
+    </term>
+    <term>
+      <literal>env.Command(target, source, action, [key=val, ...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -952,8 +974,10 @@ so you normally don't need to create directories by hand.)
   </varlistentry>
   <varlistentry id="f-Configure">
     <term>
-      <synopsis>Configure(env, [custom_tests, conf_dir, log_file, config_h])</synopsis>
-      <synopsis>env.Configure([custom_tests, conf_dir, log_file, config_h])</synopsis>
+      <literal>Configure(env, [custom_tests, conf_dir, log_file, config_h])</literal>
+    </term>
+    <term>
+      <literal>env.Configure([custom_tests, conf_dir, log_file, config_h])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -966,7 +990,7 @@ below, for a complete explanation of the arguments and behavior.
   </varlistentry>
   <varlistentry id="f-Copy">
     <term>
-      <synopsis>env.Copy([key=val, ...])</synopsis>
+      <literal>env.Copy([key=val, ...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -977,7 +1001,7 @@ A now-deprecated synonym for
   </varlistentry>
   <varlistentry id="f-CVS">
     <term>
-      <synopsis>env.CVS(repository, module)</synopsis>
+      <literal>env.CVS(repository, module)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1034,8 +1058,10 @@ env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
   </varlistentry>
   <varlistentry id="f-Decider">
     <term>
-      <synopsis>Decider(function)</synopsis>
-      <synopsis>env.Decider(function)</synopsis>
+      <literal>Decider(function)</literal>
+    </term>
+    <term>
+      <literal>env.Decider(function)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1244,8 +1270,10 @@ env.Decider(my_decider)
   </varlistentry>
   <varlistentry id="f-Default">
     <term>
-      <synopsis>Default(targets)</synopsis>
-      <synopsis>env.Default(targets)</synopsis>
+      <literal>Default(targets)</literal>
+    </term>
+    <term>
+      <literal>env.Default(targets)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1305,7 +1333,7 @@ see below.
   </varlistentry>
   <varlistentry id="f-DefaultEnvironment">
     <term>
-      <synopsis>DefaultEnvironment([args])</synopsis>
+      <literal>DefaultEnvironment([args])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1319,8 +1347,10 @@ from source code management systems.
   </varlistentry>
   <varlistentry id="f-Depends">
     <term>
-      <synopsis>Depends(target, dependency)</synopsis>
-      <synopsis>env.Depends(target, dependency)</synopsis>
+      <literal>Depends(target, dependency)</literal>
+    </term>
+    <term>
+      <literal>env.Depends(target, dependency)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1369,7 +1399,7 @@ env.Depends(bar, installed_lib)
   </varlistentry>
   <varlistentry id="f-Dictionary">
     <term>
-      <synopsis>env.Dictionary([vars])</synopsis>
+      <literal>env.Dictionary([vars])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1393,8 +1423,10 @@ cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
   </varlistentry>
   <varlistentry id="f-Dir">
     <term>
-      <synopsis>Dir(name, [directory])</synopsis>
-      <synopsis>env.Dir(name, [directory])</synopsis>
+      <literal>Dir(name, [directory])</literal>
+    </term>
+    <term>
+      <literal>env.Dir(name, [directory])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1430,7 +1462,7 @@ see "File and Directory Nodes," below.
   </varlistentry>
   <varlistentry id="f-Dump">
     <term>
-      <synopsis>env.Dump([key])</synopsis>
+      <literal>env.Dump([key])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1483,8 +1515,10 @@ will print:
   </varlistentry>
   <varlistentry id="f-EnsurePythonVersion">
     <term>
-      <synopsis>EnsurePythonVersion(major, minor)</synopsis>
-      <synopsis>env.EnsurePythonVersion(major, minor)</synopsis>
+      <literal>EnsurePythonVersion(major, minor)</literal>
+    </term>
+    <term>
+      <literal>env.EnsurePythonVersion(major, minor)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1506,8 +1540,10 @@ EnsurePythonVersion(2,2)
   </varlistentry>
   <varlistentry id="f-EnsureSConsVersion">
     <term>
-      <synopsis>EnsureSConsVersion(major, minor, [revision])</synopsis>
-      <synopsis>env.EnsureSConsVersion(major, minor, [revision])</synopsis>
+      <literal>EnsureSConsVersion(major, minor, [revision])</literal>
+    </term>
+    <term>
+      <literal>env.EnsureSConsVersion(major, minor, [revision])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1536,8 +1572,10 @@ EnsureSConsVersion(0,96,90)
   </varlistentry>
   <varlistentry id="f-Environment">
     <term>
-      <synopsis>Environment([key=value, ...])</synopsis>
-      <synopsis>env.Environment([key=value, ...])</synopsis>
+      <literal>Environment([key=value, ...])</literal>
+    </term>
+    <term>
+      <literal>env.Environment([key=value, ...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1550,8 +1588,10 @@ pairs.
   </varlistentry>
   <varlistentry id="f-Execute">
     <term>
-      <synopsis>Execute(action, [strfunction, varlist])</synopsis>
-      <synopsis>env.Execute(action, [strfunction, varlist])</synopsis>
+      <literal>Execute(action, [strfunction, varlist])</literal>
+    </term>
+    <term>
+      <literal>env.Execute(action, [strfunction, varlist])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1604,8 +1644,10 @@ if Execute("mkdir sub/dir/ectory"):
   </varlistentry>
   <varlistentry id="f-Exit">
     <term>
-      <synopsis>Exit([value])</synopsis>
-      <synopsis>env.Exit([value])</synopsis>
+      <literal>Exit([value])</literal>
+    </term>
+    <term>
+      <literal>env.Exit([value])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1623,8 +1665,10 @@ is used if no value is specified.
   </varlistentry>
   <varlistentry id="f-Export">
     <term>
-      <synopsis>Export(vars)</synopsis>
-      <synopsis>env.Export(vars)</synopsis>
+      <literal>Export(vars)</literal>
+    </term>
+    <term>
+      <literal>env.Export(vars)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1682,8 +1726,10 @@ function, below.
   </varlistentry>
   <varlistentry id="f-File">
     <term>
-      <synopsis>File(name, [directory])</synopsis>
-      <synopsis>env.File(name, [directory])</synopsis>
+      <literal>File(name, [directory])</literal>
+    </term>
+    <term>
+      <literal>env.File(name, [directory])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1717,8 +1763,10 @@ see "File and Directory Nodes," below.
   </varlistentry>
   <varlistentry id="f-FindFile">
     <term>
-      <synopsis>FindFile(file, dirs)</synopsis>
-      <synopsis>env.FindFile(file, dirs)</synopsis>
+      <literal>FindFile(file, dirs)</literal>
+    </term>
+    <term>
+      <literal>env.FindFile(file, dirs)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1744,8 +1792,10 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
   </varlistentry>
   <varlistentry id="f-FindInstalledFiles">
     <term>
-      <synopsis>FindInstalledFiles()</synopsis>
-      <synopsis>env.FindInstalledFiles()</synopsis>
+      <literal>FindInstalledFiles()</literal>
+    </term>
+    <term>
+      <literal>env.FindInstalledFiles()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1782,7 +1832,7 @@ FindInstalledFiles()
   </varlistentry>
   <varlistentry id="f-FindPathDirs">
     <term>
-      <synopsis>FindPathDirs(variable)</synopsis>
+      <literal>FindPathDirs(variable)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1845,8 +1895,10 @@ scanner = Scanner(name = 'myscanner',
   </varlistentry>
   <varlistentry id="f-FindSourceFiles">
     <term>
-      <synopsis>FindSourceFiles(node='"."')</synopsis>
-      <synopsis>env.FindSourceFiles(node='"."')</synopsis>
+      <literal>FindSourceFiles(node='"."')</literal>
+    </term>
+    <term>
+      <literal>env.FindSourceFiles(node='"."')</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1888,8 +1940,10 @@ will also be returned by this function.
   </varlistentry>
   <varlistentry id="f-Flatten">
     <term>
-      <synopsis>Flatten(sequence)</synopsis>
-      <synopsis>env.Flatten(sequence)</synopsis>
+      <literal>Flatten(sequence)</literal>
+    </term>
+    <term>
+      <literal>env.Flatten(sequence)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1930,7 +1984,7 @@ for object in Flatten(objects):
   </varlistentry>
   <varlistentry id="f-GetBuildFailures">
     <term>
-      <synopsis>GetBuildFailures()</synopsis>
+      <literal>GetBuildFailures()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2056,8 +2110,10 @@ atexit.register(print_build_failures)
   </varlistentry>
   <varlistentry id="f-GetBuildPath">
     <term>
-      <synopsis>GetBuildPath(file, [...])</synopsis>
-      <synopsis>env.GetBuildPath(file, [...])</synopsis>
+      <literal>GetBuildPath(file, [...])</literal>
+    </term>
+    <term>
+      <literal>env.GetBuildPath(file, [...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2077,8 +2133,10 @@ Nodes or strings representing path names.
   </varlistentry>
   <varlistentry id="f-GetLaunchDir">
     <term>
-      <synopsis>GetLaunchDir()</synopsis>
-      <synopsis>env.GetLaunchDir()</synopsis>
+      <literal>GetLaunchDir()</literal>
+    </term>
+    <term>
+      <literal>env.GetLaunchDir()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2099,8 +2157,10 @@ file is found.
   </varlistentry>
   <varlistentry id="f-GetOption">
     <term>
-      <synopsis>GetOption(name)</synopsis>
-      <synopsis>env.GetOption(name)</synopsis>
+      <literal>GetOption(name)</literal>
+    </term>
+    <term>
+      <literal>env.GetOption(name)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2366,8 +2426,10 @@ option.
   </varlistentry>
   <varlistentry id="f-Glob">
     <term>
-      <synopsis>Glob(pattern, [ondisk, source, strings])</synopsis>
-      <synopsis>env.Glob(pattern, [ondisk, source, strings])</synopsis>
+      <literal>Glob(pattern, [ondisk, source, strings])</literal>
+    </term>
+    <term>
+      <literal>env.Glob(pattern, [ondisk, source, strings])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2492,8 +2554,10 @@ Zip('/tmp/everything', Glob('.??*') + Glob('*'))
   </varlistentry>
   <varlistentry id="f-Help">
     <term>
-      <synopsis>Help(text)</synopsis>
-      <synopsis>env.Help(text)</synopsis>
+      <literal>Help(text)</literal>
+    </term>
+    <term>
+      <literal>env.Help(text)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2512,8 +2576,10 @@ is called.
   </varlistentry>
   <varlistentry id="f-Ignore">
     <term>
-      <synopsis>Ignore(target, dependency)</synopsis>
-      <synopsis>env.Ignore(target, dependency)</synopsis>
+      <literal>Ignore(target, dependency)</literal>
+    </term>
+    <term>
+      <literal>env.Ignore(target, dependency)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2552,8 +2618,10 @@ env.Ignore('bar','bar/foobar.obj')
   </varlistentry>
   <varlistentry id="f-Import">
     <term>
-      <synopsis>Import(vars)</synopsis>
-      <synopsis>env.Import(vars)</synopsis>
+      <literal>Import(vars)</literal>
+    </term>
+    <term>
+      <literal>env.Import(vars)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2589,8 +2657,10 @@ Import("*")
   </varlistentry>
   <varlistentry id="f-Literal">
     <term>
-      <synopsis>Literal(string)</synopsis>
-      <synopsis>env.Literal(string)</synopsis>
+      <literal>Literal(string)</literal>
+    </term>
+    <term>
+      <literal>env.Literal(string)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2603,8 +2673,10 @@ and not have construction variables expanded.
   </varlistentry>
   <varlistentry id="f-Local">
     <term>
-      <synopsis>Local(targets)</synopsis>
-      <synopsis>env.Local(targets)</synopsis>
+      <literal>Local(targets)</literal>
+    </term>
+    <term>
+      <literal>env.Local(targets)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2619,7 +2691,7 @@ Returns a list of the target Node or Nodes.
   </varlistentry>
   <varlistentry id="f-MergeFlags">
     <term>
-      <synopsis>env.MergeFlags(arg, [unique])</synopsis>
+      <literal>env.MergeFlags(arg, [unique])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2680,8 +2752,10 @@ env.MergeFlags(['-O3',
   </varlistentry>
   <varlistentry id="f-NoCache">
     <term>
-      <synopsis>NoCache(target, ...)</synopsis>
-      <synopsis>env.NoCache(target, ...)</synopsis>
+      <literal>NoCache(target, ...)</literal>
+    </term>
+    <term>
+      <literal>env.NoCache(target, ...)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2723,8 +2797,10 @@ NoCache(env.Program('hello', 'hello.c'))
   </varlistentry>
   <varlistentry id="f-NoClean">
     <term>
-      <synopsis>NoClean(target, ...)</synopsis>
-      <synopsis>env.NoClean(target, ...)</synopsis>
+      <literal>NoClean(target, ...)</literal>
+    </term>
+    <term>
+      <literal>env.NoClean(target, ...)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2780,7 +2856,7 @@ NoClean(env.Program('hello', 'hello.c'))
   </varlistentry>
   <varlistentry id="f-ParseConfig">
     <term>
-      <synopsis>env.ParseConfig(command, [function, unique])</synopsis>
+      <literal>env.ParseConfig(command, [function, unique])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2821,8 +2897,10 @@ for a table of options and construction variables.
   </varlistentry>
   <varlistentry id="f-ParseDepends">
     <term>
-      <synopsis>ParseDepends(filename, [must_exist, only_one])</synopsis>
-      <synopsis>env.ParseDepends(filename, [must_exist, only_one])</synopsis>
+      <literal>ParseDepends(filename, [must_exist, only_one])</literal>
+    </term>
+    <term>
+      <literal>env.ParseDepends(filename, [must_exist, only_one])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2888,7 +2966,7 @@ function.
   </varlistentry>
   <varlistentry id="f-ParseFlags">
     <term>
-      <synopsis>env.ParseFlags(flags, ...)</synopsis>
+      <literal>env.ParseFlags(flags, ...)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2969,7 +3047,7 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
   </varlistentry>
   <varlistentry id="f-Perforce">
     <term>
-      <synopsis>env.Perforce()</synopsis>
+      <literal>env.Perforce()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3019,7 +3097,7 @@ USERNAME.
   </varlistentry>
   <varlistentry id="f-Platform">
     <term>
-      <synopsis>Platform(string)</synopsis>
+      <literal>Platform(string)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3075,8 +3153,10 @@ will work on Windows systems.
   </varlistentry>
   <varlistentry id="f-Precious">
     <term>
-      <synopsis>Precious(target, ...)</synopsis>
-      <synopsis>env.Precious(target, ...)</synopsis>
+      <literal>Precious(target, ...)</literal>
+    </term>
+    <term>
+      <literal>env.Precious(target, ...)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3092,7 +3172,7 @@ Multiple targets can be passed in to a single call to
   </varlistentry>
   <varlistentry id="f-Prepend">
     <term>
-      <synopsis>env.Prepend(key=val, [...])</synopsis>
+      <literal>env.Prepend(key=val, [...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3122,7 +3202,7 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
   </varlistentry>
   <varlistentry id="f-PrependENVPath">
     <term>
-      <synopsis>env.PrependENVPath(name, newpath, [envname, sep, delete_existing])</synopsis>
+      <literal>env.PrependENVPath(name, newpath, [envname, sep, delete_existing])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3174,7 +3254,7 @@ after: /foo/bar:/foo:/biz
   </varlistentry>
   <varlistentry id="f-PrependUnique">
     <term>
-      <synopsis>env.PrependUnique(key=val, delete_existing=0, [...])</synopsis>
+      <literal>env.PrependUnique(key=val, delete_existing=0, [...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3204,9 +3284,13 @@ env.PrependUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
   </varlistentry>
   <varlistentry id="f-Progress">
     <term>
-      <synopsis>Progress(callable, [interval])</synopsis>
-      <synopsis>Progress(string, [interval, file, overwrite])</synopsis>
-      <synopsis>Progress(list_of_strings, [interval, file, overwrite])</synopsis>
+      <literal>Progress(callable, [interval])</literal>
+    </term>
+    <term>
+      <literal>Progress(string, [interval, file, overwrite])</literal>
+    </term>
+    <term>
+      <literal>Progress(list_of_strings, [interval, file, overwrite])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3337,7 +3421,7 @@ Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
   </varlistentry>
   <varlistentry id="f-RCS">
     <term>
-      <synopsis>env.RCS()</synopsis>
+      <literal>env.RCS()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3384,7 +3468,7 @@ for a specific subdirectory.
   </varlistentry>
   <varlistentry id="f-Replace">
     <term>
-      <synopsis>env.Replace(key=val, [...])</synopsis>
+      <literal>env.Replace(key=val, [...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3403,8 +3487,10 @@ env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
   </varlistentry>
   <varlistentry id="f-Repository">
     <term>
-      <synopsis>Repository(directory)</synopsis>
-      <synopsis>env.Repository(directory)</synopsis>
+      <literal>Repository(directory)</literal>
+    </term>
+    <term>
+      <literal>env.Repository(directory)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3457,8 +3543,10 @@ method.
   </varlistentry>
   <varlistentry id="f-Requires">
     <term>
-      <synopsis>Requires(target, prerequisite)</synopsis>
-      <synopsis>env.Requires(target, prerequisite)</synopsis>
+      <literal>Requires(target, prerequisite)</literal>
+    </term>
+    <term>
+      <literal>env.Requires(target, prerequisite)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3486,7 +3574,7 @@ env.Requires('foo', 'file-that-must-be-built-before-foo')
   </varlistentry>
   <varlistentry id="f-Return">
     <term>
-      <synopsis>Return([vars..., stop=])</synopsis>
+      <literal>Return([vars..., stop=])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3539,8 +3627,10 @@ Return('val1 val2')
   </varlistentry>
   <varlistentry id="f-Scanner">
     <term>
-      <synopsis>Scanner(function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive])</synopsis>
-      <synopsis>env.Scanner(function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive])</synopsis>
+      <literal>Scanner(function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive])</literal>
+    </term>
+    <term>
+      <literal>env.Scanner(function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3554,7 +3644,7 @@ below, for a complete explanation of the arguments and behavior.
   </varlistentry>
   <varlistentry id="f-SCCS">
     <term>
-      <synopsis>env.SCCS()</synopsis>
+      <literal>env.SCCS()</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3595,10 +3685,16 @@ for a specific subdirectory.
   </varlistentry>
   <varlistentry id="f-SConscript">
     <term>
-      <synopsis>SConscript(scripts, [exports, variant_dir, duplicate])</synopsis>
-      <synopsis>env.SConscript(scripts, [exports, variant_dir, duplicate])</synopsis>
-      <synopsis>SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate])</synopsis>
-      <synopsis>env.SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate])</synopsis>
+      <literal>SConscript(scripts, [exports, variant_dir, duplicate])</literal>
+    </term>
+    <term>
+      <literal>env.SConscript(scripts, [exports, variant_dir, duplicate])</literal>
+    </term>
+    <term>
+      <literal>SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate])</literal>
+    </term>
+    <term>
+      <literal>env.SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3836,8 +3932,10 @@ SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
   </varlistentry>
   <varlistentry id="f-SConscriptChdir">
     <term>
-      <synopsis>SConscriptChdir(value)</synopsis>
-      <synopsis>env.SConscriptChdir(value)</synopsis>
+      <literal>SConscriptChdir(value)</literal>
+    </term>
+    <term>
+      <literal>env.SConscriptChdir(value)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3884,8 +3982,10 @@ SConscript('bar/SConscript')	# will chdir to bar
   </varlistentry>
   <varlistentry id="f-SConsignFile">
     <term>
-      <synopsis>SConsignFile([file, dbm_module])</synopsis>
-      <synopsis>env.SConsignFile([file, dbm_module])</synopsis>
+      <literal>SConsignFile([file, dbm_module])</literal>
+    </term>
+    <term>
+      <literal>env.SConsignFile([file, dbm_module])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3964,7 +4064,7 @@ SConsignFile(None)
   </varlistentry>
   <varlistentry id="f-SetDefault">
     <term>
-      <synopsis>env.SetDefault(key=val, [...])</synopsis>
+      <literal>env.SetDefault(key=val, [...])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3982,8 +4082,10 @@ if 'FOO' not in env: env['FOO'] = 'foo'
   </varlistentry>
   <varlistentry id="f-SetOption">
     <term>
-      <synopsis>SetOption(name, value)</synopsis>
-      <synopsis>env.SetOption(name, value)</synopsis>
+      <literal>SetOption(name, value)</literal>
+    </term>
+    <term>
+      <literal>env.SetOption(name, value)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4085,8 +4187,10 @@ SetOption('max_drift', 1)
   </varlistentry>
   <varlistentry id="f-SideEffect">
     <term>
-      <synopsis>SideEffect(side_effect, target)</synopsis>
-      <synopsis>env.SideEffect(side_effect, target)</synopsis>
+      <literal>SideEffect(side_effect, target)</literal>
+    </term>
+    <term>
+      <literal>env.SideEffect(side_effect, target)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4148,8 +4252,10 @@ function.
   </varlistentry>
   <varlistentry id="f-SourceCode">
     <term>
-      <synopsis>SourceCode(entries, builder)</synopsis>
-      <synopsis>env.SourceCode(entries, builder)</synopsis>
+      <literal>SourceCode(entries, builder)</literal>
+    </term>
+    <term>
+      <literal>env.SourceCode(entries, builder)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4245,8 +4351,10 @@ env.SourceCode('no_source.c', None)
   </varlistentry>
   <varlistentry id="f-SourceSignatures">
     <term>
-      <synopsis>SourceSignatures(type)</synopsis>
-      <synopsis>env.SourceSignatures(type)</synopsis>
+      <literal>SourceSignatures(type)</literal>
+    </term>
+    <term>
+      <literal>env.SourceSignatures(type)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4344,8 +4452,10 @@ is used).
   </varlistentry>
   <varlistentry id="f-Split">
     <term>
-      <synopsis>Split(arg)</synopsis>
-      <synopsis>env.Split(arg)</synopsis>
+      <literal>Split(arg)</literal>
+    </term>
+    <term>
+      <literal>env.Split(arg)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4378,7 +4488,7 @@ files = Split("""
   </varlistentry>
   <varlistentry id="f-subst">
     <term>
-      <synopsis>env.subst(input, [raw, target, source, conv])</synopsis>
+      <literal>env.subst(input, [raw, target, source, conv])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4486,7 +4596,7 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
   </varlistentry>
   <varlistentry id="f-Tag">
     <term>
-      <synopsis>Tag(node, tags)</synopsis>
+      <literal>Tag(node, tags)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4513,8 +4623,10 @@ Tag( 'file2.txt', DOC )
   </varlistentry>
   <varlistentry id="f-TargetSignatures">
     <term>
-      <synopsis>TargetSignatures(type)</synopsis>
-      <synopsis>env.TargetSignatures(type)</synopsis>
+      <literal>TargetSignatures(type)</literal>
+    </term>
+    <term>
+      <literal>env.TargetSignatures(type)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4666,8 +4778,10 @@ affect their "downstream" dependencies.
   </varlistentry>
   <varlistentry id="f-Tool">
     <term>
-      <synopsis>Tool(string, [toolpath, **kw])</synopsis>
-      <synopsis>env.Tool(string, [toolpath, **kw])</synopsis>
+      <literal>Tool(string, [toolpath, **kw])</literal>
+    </term>
+    <term>
+      <literal>env.Tool(string, [toolpath, **kw])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4731,8 +4845,10 @@ env.Tool('opengl', toolpath = ['build/tools'])
   </varlistentry>
   <varlistentry id="f-Value">
     <term>
-      <synopsis>Value(value, [built_value])</synopsis>
-      <synopsis>env.Value(value, [built_value])</synopsis>
+      <literal>Value(value, [built_value])</literal>
+    </term>
+    <term>
+      <literal>env.Value(value, [built_value])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4806,8 +4922,10 @@ env.UpdateValue(target = Value(output), source = Value(input))
   </varlistentry>
   <varlistentry id="f-VariantDir">
     <term>
-      <synopsis>VariantDir(variant_dir, src_dir, [duplicate])</synopsis>
-      <synopsis>env.VariantDir(variant_dir, src_dir, [duplicate])</synopsis>
+      <literal>VariantDir(variant_dir, src_dir, [duplicate])</literal>
+    </term>
+    <term>
+      <literal>env.VariantDir(variant_dir, src_dir, [duplicate])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4941,8 +5059,10 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
   </varlistentry>
   <varlistentry id="f-WhereIs">
     <term>
-      <synopsis>WhereIs(program, [path, pathext, reject])</synopsis>
-      <synopsis>env.WhereIs(program, [path, pathext, reject])</synopsis>
+      <literal>WhereIs(program, [path, pathext, reject])</literal>
+    </term>
+    <term>
+      <literal>env.WhereIs(program, [path, pathext, reject])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">

@@ -3,6 +3,7 @@ bground.xml
 copyright.xml
 engine.fig
 engine.jpg
+engine.svg
 engine.xml
 goals.xml
 install.xml
@@ -12,3 +13,13 @@ main.xml
 native.xml
 overview.xml
 summary.xml
+chtml.xsl
+html.xsl
+pdf.xsl
+scons_title.xsl
+scons.css
+SConstruct
+titlepage/bricks.jpg
+titlepage/mapnik_final_colors.svg
+titlepage/SCons_path.svg
+titlepage/SConsBuildBricks_path.svg

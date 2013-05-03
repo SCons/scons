@@ -26,103 +26,35 @@
 
 import os.path
 import re
+import sys
+import glob
+import SConsDoc
+import SConsExamples
 
-Import('build_dir', 'env', 'whereis')
+Import('build_dir', 'env', 'whereis', 'revaction')
 
 env = env.Clone()
 
 build = os.path.join(build_dir, 'doc')
+
+fop = whereis('fop')
+xep = whereis('xep')
+epydoc_cli = whereis('epydoc')
 
 #
 #
 #
 dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
 
-#
-# We'll only try to build text files (for some documents)
-# if lynx is available to do the dump.
-#
-fig2dev = whereis('fig2dev')
-epydoc_cli = whereis('epydoc')
-groff = whereis('groff')
-lynx = whereis('lynx')
-man2html = whereis('man2html')
-jade_original = whereis('jade')
-jade = whereis('openjade') or jade_original
-jadetex = whereis('jadetex')
-pdfjadetex = whereis('pdfjadetex')
-jw = whereis('jw')
-tidy = whereis('tidy')
-
 tar_deps = []
 tar_list = []
 
-entity_re = re.compile(r'<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">', re.I)
-format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format="([^"]*)")?')
-
-#
-# Find internal dependencies in .xml files:
-#
-#   <!entity bground SYSTEM "bground.xml">
-#   <graphic fileref="file.jpg">
-#   <imagedata fileref="file.jpg">
-#
-# This only finds one per line, and assumes that anything
-# defined as a SYSTEM entity is, in fact, a file included
-# somewhere in the document.
-#
-def scanxml(node, env, target):
-    includes = []
-
-    contents = node.get_text_contents()
-
-    includes.extend(entity_re.findall(contents))
-
-    matches = format_re.findall(contents)
-    for m in matches:
-        file, format = m
-        if format and file[-len(format):] != format:
-            file = file + '.' + format
-        if not os.path.isabs(file):
-            a = []
-            f = file
-            while f:
-                f, tail = os.path.split(f)
-                if tail == 'doc':
-                    break
-                a = [tail] + a
-            file = os.path.join(*a)
-        includes.append(file)
-
-    return includes
-
-s = Scanner(name = 'xml', function = scanxml, skeys = ['.xml', '.mod'])
-
 orig_env = env
-env = orig_env.Clone(SCANNERS = [s],
-                     SCONS_DOC_PY = File('#bin/scons-doc.py').rfile(),
-                     SCONS_PROC_PY = File('#bin/scons-proc.py').rfile())
+env = orig_env.Clone(SCONS_PY = File('#src/script/scons.py').rfile())
 
-# Fetch the list of files in the build engine that contain
-# SCons documentation XML for processing.
-def chop(s): return s[:-1]
 
-manifest_xml_in = File('#src/engine/MANIFEST-xml.in').rstr()
-scons_doc_files = list(map(chop, open(manifest_xml_in).readlines()))
-scons_doc_files = [File('#src/engine/'+x).rstr() for x in scons_doc_files]
-
-if not jw:
-    print "doc: jw not found, skipping building User Guide."
-else:
-    #
-    # Always create a version.xml file containing the version information
-    # for this run.  Ignore it for dependency purposes so we don't
-    # rebuild all the docs every time just because the date changes.
-    #
-    date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
-    version_xml = File(os.path.join(build, "version.xml"))
-    #version_xml = File("version.xml")
-    verfile = str(version_xml)
+def writeVersionXml(verfile, date, ver, rev):
+    """ Helper function: Write a version.xml file. """
     try:
         os.unlink(verfile)
     except OSError:
@@ -131,7 +63,7 @@ else:
     try:
         os.makedirs(dir)
     except OSError:
-        pass	# okay if the directory already exists
+        pass    # okay if the directory already exists
     open(verfile, "w").write("""<!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
@@ -140,93 +72,121 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY buildrevision "%s">
 """ % (date, ver, rev))
 
-    builders_gen = os.path.join(build, 'user', 'builders.gen')
-    builders_mod = os.path.join(build, 'user', 'builders.mod')
-    functions_gen = os.path.join(build, 'user', 'functions.gen')
-    functions_mod = os.path.join(build, 'user', 'functions.mod')
-    tools_gen = os.path.join(build, 'user', 'tools.gen')
-    tools_mod = os.path.join(build, 'user', 'tools.mod')
-    variables_gen = os.path.join(build, 'user', 'variables.gen')
-    variables_mod = os.path.join(build, 'user', 'variables.mod')
+#
+# Check whether we have all tools installed for
+# building the documentation.
+#
+skip_doc = False
+try:
+    import libxml2
+except:
+    try:
+        import lxml
+    except:
+        print "doc: Neither libxml2 nor lxml Python bindings found!"
+        print "     Please install one of the packages python-libxml2 or python-lxml."
+        skip_doc = True
+        
+if not fop and not xep:
+    print "doc: No PDF renderer found (fop|xep)!"
+    skip_doc = True
+    
+if skip_doc:
+    print "doc: ...skipping building User Guide."
+else:
+    #
+    # Always create a version.xml file containing the version information
+    # for this run.  Ignore it for dependency purposes so we don't
+    # rebuild all the docs every time just because the date changes.
+    #
+    date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
+    version_xml = File(os.path.join(build, "version.xml"))
+    writeVersionXml(str(version_xml), date, ver, rev)
+    
+    if not env.GetOption('clean'):
+        #
+        # Ensure that all XML files are valid against our XSD, and
+        # that all example names and example output suffixes are unique
+        #
+        print "Validating files against SCons XSD..."
+        if SConsDoc.validate_all_xml(['src'], xsdfile='xsd/scons.xsd'):
+            print "OK"
+        else:
+            print "Validation failed! Please correct the errors above and try again."
+            sys.exit(0)
+            
+        print "Checking whether all example names are unique..."
+        if SConsExamples.exampleNamesAreUnique(os.path.join('doc','user')):
+            print "OK"
+        else:
+            print "Not all example names and suffixes are unique! Please correct the errors listed above and try again."
+            sys.exit(0)
+    
+        #
+        # Copy generated files (.gen/.mod/.xml) to the build folder
+        #
+        env.Execute(Mkdir(os.path.join(build, 'generated')))
+        env.Execute(Mkdir(os.path.join(build, 'generated', 'examples')))
+        for g in glob.glob(os.path.join('generated', '*.gen')):
+            env.Execute(Copy(os.path.join(build, 'generated'), g))
+        for g in glob.glob(os.path.join('generated', '*.mod')):
+            env.Execute(Copy(os.path.join(build, 'generated'), g))
+        for g in glob.glob(os.path.join('generated', 'examples', '*')):
+            env.Execute(Copy(os.path.join(build, 'generated', 'examples'), g))
 
-    # We put $( - $) around $SOURCES in the command line below because
-    # the path names will change when a given input file is found in
-    # a repository one run and locally the next, and we don't want
-    # to rebuild documentation just because it's found in one location
-    # vs. the other.  The *.gen and *.mod targets will still be dependent
-    # on the list of the files themselves.
-    doc_output_files = [builders_gen, builders_mod,
-                        functions_gen, functions_mod,
-                        tools_gen, tools_mod,
-                        variables_gen, variables_mod]
-    b = env.Command(doc_output_files,
-                    scons_doc_files,
-                    "$PYTHON $SCONS_PROC_PY --xml -b ${TARGETS[0]},${TARGETS[1]} -f ${TARGETS[2]},${TARGETS[3]} -t ${TARGETS[4]},${TARGETS[5]} -v ${TARGETS[6]},${TARGETS[7]} $( $SOURCES $)")
-    env.Depends(b, "$SCONS_PROC_PY")
+        #
+        # Copy XSLT files (.xslt) to the build folder
+        #
+        env.Execute(Mkdir(os.path.join(build, 'xslt')))
+        for g in glob.glob(os.path.join('xslt','*.*')):
+            env.Execute(Copy(os.path.join(build, 'xslt'), g))
 
-    env.Local(b)
+        #
+        # Copy Docbook stylesheets and Tool to the build folder
+        #
+        dbtoolpath = ['src', 'engine', 'SCons', 'Tool', 'docbook']
+        env.Execute(Mkdir(os.path.join(build_dir, *dbtoolpath)))
+        env.Execute(Mkdir(os.path.join(build_dir, *(dbtoolpath + ['utils']))))
+        env.Execute(Copy(os.path.join(build_dir, *dbtoolpath),
+                         os.path.join('..', *(dbtoolpath + ['__init__.py']))))
+        env.Execute(Copy(os.path.join(build_dir, *(dbtoolpath + ['utils'])),
+                         os.path.join('..', *(dbtoolpath + ['utils', 'xmldepend.xsl']))))
+        dbpath = dbtoolpath + ['docbook-xsl-1.76.1']
+        env.Execute(Mkdir(os.path.join(build_dir, *(dbpath + ['common']))))
+        env.Execute(Mkdir(os.path.join(build_dir, *(dbpath + ['lib']))))
+        env.Execute(Mkdir(os.path.join(build_dir, *(dbpath + ['html']))))
+        env.Execute(Mkdir(os.path.join(build_dir, *(dbpath + ['fo']))))
+        env.Execute(Mkdir(os.path.join(build_dir, *(dbpath + ['manpages']))))
+        env.Execute(Copy(os.path.join(build_dir, *dbpath),
+                         os.path.join('..', *(dbpath + ['VERSION']))))
+        for g in glob.glob(os.path.join('..', *(dbpath + ['common', '*.*']))):
+            env.Execute(Copy(os.path.join(build_dir, *(dbpath + ['common'])), g))
+        for g in glob.glob(os.path.join('..', *(dbpath + ['lib', '*.*']))):
+            env.Execute(Copy(os.path.join(build_dir, *(dbpath + ['lib'])), g))
+        for g in glob.glob(os.path.join('..', *(dbpath + ['html', '*.*']))):
+            env.Execute(Copy(os.path.join(build_dir, *(dbpath + ['html'])), g))
+        for g in glob.glob(os.path.join('..', *(dbpath + ['fo', '*.*']))):
+            env.Execute(Copy(os.path.join(build_dir, *(dbpath + ['fo'])), g))
+        for g in glob.glob(os.path.join('..', *(dbpath + ['manpages', '*.*']))):
+            env.Execute(Copy(os.path.join(build_dir, *(dbpath + ['manpages'])), g))
 
     #
     # Each document will live in its own subdirectory.  List them here
-    # as hash keys, with a hash of the info to control its build.
+    # by their subfolder names. Note, how the specifiers for each subdir
+    # have nothing to do with which formats get created...but which 
+    # of the outputs get installed to the build folder and added to
+    # the different source and binary packages in the end.
     #
-    docs = {
-        'design' : {
-                'htmlindex' : 'book1.html',
-                'ps'        : 1,
-                'pdf'       : 1,
-                'text'      : 0,
-        },
-        # This doesn't build on all systems, and the document is old
-        # enough that there's reallyno need to build it every time any
-        # more, so just comment it out for now.
-        #'python10' : {
-        #        'htmlindex' : 't1.html',
-        #        'html'      : 1,
-        #        'ps'        : 1,
-        #        'pdf'       : 0,
-        #        'text'      : 0,
-        #        'graphics'  : [
-        #                        'arch.fig',
-        #                        'builder.fig',
-        #                        'job-task.fig',
-        #                        'node.fig',
-        #                        'scanner.fig',
-        #                        'sig.fig'
-        #                      ],
-        #},
-        'reference' : {
-                'htmlindex' : 'book1.html',
-                'html'      : 1,
-                'ps'        : 1,
-                'pdf'       : 1,
-                'text'      : 0,
-        },
-        # For whenever (if ever?) we start putting developer guide
-        # information in a printable document instead of the wiki.
-        #'developer' : {
-        #        'htmlindex' : 'book1.html',
-        #        'html'      : 1,
-        #        'ps'        : 1,
-        #        'pdf'       : 1,
-        #        'text'      : 0,
-        #},
-        'user' : {
-                'htmlindex' : 'book1.html',
-                'html'      : 1,
-                'ps'        : 1,
-                'pdf'       : 1,
-                'text'      : 1,
-                'graphics'  : [
-                                'SCons-win32-install-1.jpg',
-                                'SCons-win32-install-2.jpg',
-                                'SCons-win32-install-3.jpg',
-                                'SCons-win32-install-4.jpg',
-                              ],
-                'scons-doc' : 1,
-        },
-    }
-
+    docs = {'design' : ['chtml','pdf'],
+            #'python10' : ['chtml','html','pdf'],
+            'reference' : ['chtml','html','pdf'],
+            #'developer' : ['chtml','html','pdf'],
+            'user' : ['chtml','html','pdf'],
+            'man' : ['man']
+           }
+    # The names of the target files for the MAN pages
+    man_page_list = ['scons.1','scons-time.1','sconsign.1']
+    
     #
     # We have to tell SCons to scan the top-level XML files which
     # get included by the document XML files in the subdirectories.
@@ -234,227 +194,96 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     manifest = File('MANIFEST').rstr()
     src_files = [x[:-1] for x in open(manifest).readlines()]
     for s in src_files:
+        if not s:
+            continue
         base, ext = os.path.splitext(s)
         if ext in ['.fig', '.jpg']:
-            orig_env.Install(build, s)
+            env.Execute(Copy(build, s))
         else:
-            orig_env.SCons_revision(os.path.join(build, s), s)
-        Local(os.path.join(build, s))
+            revaction([env.File(os.path.join(build, s))], 
+                      [env.File(s)], env)
 
     #
-    # For each document, build the document itself in HTML, Postscript,
+    # For each document, build the document itself in HTML,
     # and PDF formats.
     #
-    for doc in docs.keys():
+    for doc in docs:
+        
+        #
+        # Read MANIFEST file and copy the listed files to the
+        # build directory, while branding them with the
+        # SCons copyright and the current revision number...
+        #
+        env.Execute(Mkdir(os.path.join(build, doc)))
+        env.Execute(Mkdir(os.path.join(build, doc, 'titlepage')))
         manifest = File(os.path.join(doc, 'MANIFEST')).rstr()
         src_files = [x[:-1] for x in open(manifest).readlines()]
-        build_doc = docs[doc].get('scons-doc') and int(ARGUMENTS.get('BUILDDOC', 0))
         for s in src_files:
+            if not s:
+                continue
             doc_s = os.path.join(doc, s)
             build_s = os.path.join(build, doc, s)
             base, ext = os.path.splitext(doc_s)
-            if ext in ['.fig', '.jpg']:
-                orig_env.InstallAs(build_s, doc_s)
+            if ext in ['.fig', '.jpg', '.svg']:
+                env.Execute(Copy(build_s, doc_s))
             else:
-                if build_doc and ext == '.xml':
-                    env.Command(doc_s,
-                                base + '.in',
-                                "$PYTHON $SCONS_DOC_PY $SOURCE > $TARGET")
-                orig_env.SCons_revision(build_s, doc_s)
-            Local(build_s)
+                revaction([env.File(build_s)], 
+                          [env.File(doc_s)], env)
 
-        main = os.path.join(build, doc, 'main.xml')
-        out = 'main.out'
+        #
+        # Call SCons in each local doc folder directly, such that
+        # we can Glob for the created *.html files afterwards to
+        # get the dependencies for the install targets right.
+        #
+        cleanopt = ''
+        if env.GetOption('clean'):
+            cleanopt = ' -c'
+        cmd = env.subst("cd %s && $PYTHON ${SCONS_PY.abspath}" % os.path.join(build, doc))+cleanopt
+        os.system(cmd)
 
-        # Hard-coding the scons-src path is a bit of a hack.  This can
-        # be reworked when a better solution presents itself.
-        scons_src_main = os.path.join(build_dir, 'scons-src', 'doc', main)
-        env.Ignore(scons_src_main, version_xml)
-
+        # Collect the output files for this subfolder
         htmldir = os.path.join(build, 'HTML', 'scons-%s' % doc)
-        htmlindex = os.path.join(htmldir, docs[doc]['htmlindex'])
+        htmlindex = os.path.join(htmldir, 'index.html')
         html = os.path.join(build, 'HTML', 'scons-%s.html' % doc)
-        ps = os.path.join(build, 'PS', 'scons-%s.ps' % doc)
         pdf = os.path.join(build, 'PDF', 'scons-%s.pdf' % doc)
-        text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
-
-        if docs[doc].get('html') and jade:
-            def copy_index_html(target, source, env):
-                # Older versions of DocBook|jw|jade|whatever would
-                # create a book1.html file, while newer versions create
-                # an index.html file (logically enough).  The scons.org
-                # web site links expect book1.html, so we're going to
-                # leave the target as is, and run this post-processing
-                # action function to check that the target really did
-                # get created, and if it didn't, copy it from index.html.
-                t = str(target[0])
-                if not os.path.exists(t):
-                    i = os.path.join(os.path.split(t)[0], 'index.html')
-                    open(t, 'w').write(open(i, 'r').read())
-                return None
-
-            cmds = [
-                Delete("${TARGET.dir}/*.html"),
-                "jw -b html -o ${TARGET.dir} $SOURCES",
-            ]
-            if tidy:
-                cmds.append("tidy -m -q $TARGET || true")
-            cmds.append(Action(copy_index_html))
-            env.Command(htmlindex, File(main), cmds)
+        if 'chtml' in docs[doc]:
+            env.Install(htmldir, Glob(os.path.join(build, doc,'scons-%s' % doc, '*.html')))
+            tar_deps.extend([htmlindex])
+            tar_list.extend([htmldir])
             Local(htmlindex)
+            env.Ignore(htmlindex, version_xml)
 
-            cmds = [
-                Delete("${TARGET.dir}/main.html"),
-                "jw -u -b html -o ${TARGET.dir} $SOURCES",
-                Move("$TARGET", "${TARGET.dir}/main.html"),
-            ]
-            if tidy:
-                cmds.append("tidy -m -q $TARGET || true")
-            env.Command(html, File(main), cmds)
+        if 'html' in docs[doc]:
+            env.InstallAs(html, os.path.join(build, doc,'index.html'))
+            tar_deps.extend([html])
+            tar_list.extend([html])
             Local(html)
-
-            env.Ignore([html, htmlindex], version_xml)
-
-            tar_deps.extend([html, htmlindex])
-            tar_list.extend([html, htmldir])
-
-            for g in docs[doc].get('graphics', []):
-                base, ext = os.path.splitext(g)
-                if ext == '.fig':
-                    jpg = base + '.jpg'
-                    htmldir_jpg = os.path.join(htmldir, jpg)
-                    if fig2dev:
-                        fig = os.path.join(build, doc, g)
-                        env.Command(htmldir_jpg, fig,
-                                    "%s -L jpeg -q 100 $SOURCES $TARGET" % fig2dev)
-                    else:
-                        env.InstallAs(htmldir_jpg, jpg)
-                    env.Depends(html, htmldir_jpg)
-                    Local(htmldir_jpg)
-                else:
-                    src = os.path.join(build, doc, g)
-                    Local(env.Install(htmldir, src))
-
-        if docs[doc].get('ps') and jadetex and jade_original:
-            env.Command(ps, main, [
-                Delete("${TARGET.dir}/%s" % out),
-                "jw -b ps -o ${TARGET.dir} -p %s $SOURCES" % jade_original,
-                "mv ${TARGET.dir}/main.ps $TARGET",
-                Delete("${TARGET.dir}/%s" % out),
-            ])
-            Local(ps)
-
-            env.Ignore(ps, version_xml)
-
-            tar_deps.append(ps)
-            tar_list.append(ps)
-
-            for g in docs[doc].get('graphics', []):
-                base, ext = os.path.splitext(g)
-                if ext == '.fig':
-                    eps = base + '.eps'
-                    build_eps = os.path.join(build, 'PS', eps)
-                    if fig2dev:
-                        fig = os.path.join(build, doc, g)
-                        env.Command(build_eps, fig, "%s -L eps $SOURCES $TARGET" % fig2dev)
-                    else:
-                        env.InstallAs(build_eps, eps)
-                    env.Depends(ps, build_eps)
-                    Local(build_eps)
-                else:
-                    src = os.path.join(build, doc, g)
-                    Local(env.Install(htmldir, src))
-
-        if docs[doc].get('pdf') and pdfjadetex and jade_original:
-            env.Command(pdf, main, [
-                Delete("${TARGET.dir}/%s" % out),
-                "jw -b pdf -o ${TARGET.dir} -p %s $SOURCES" % jade_original,
-                "mv ${TARGET.dir}/main.pdf $TARGET",
-                Delete("${TARGET.dir}/out"),
-            ])
+            env.Ignore(html, version_xml)
+            
+        if 'pdf' in docs[doc]:
+            env.InstallAs(pdf, os.path.join(build, doc,'scons-%s.pdf' % doc))
             Local(pdf)
-
             env.Ignore(pdf, version_xml)
 
             tar_deps.append(pdf)
             tar_list.append(pdf)
+            
+        if 'man' in docs[doc]:
+            #
+            # Man page(s)
+            #
+            for m in man_page_list:
+                man, _1 = os.path.splitext(m)
+            
+                pdf = os.path.join(build, 'PDF', '%s-man.pdf' % man)
+                html = os.path.join(build, 'HTML' , '%s-man.html' % man)
+            
+                env.InstallAs(pdf, os.path.join(build, 'man','scons-%s.pdf' % man))
+                env.InstallAs(html, os.path.join(build, 'man','scons-%s.html' % man))
+            
+                tar_deps.extend([pdf, html])
+                tar_list.extend([pdf, html])
 
-        if docs[doc].get('text') and jade and lynx:
-            env.Command(text, html, "lynx -dump ${SOURCE.abspath} > $TARGET")
-            Local(text)
-
-            env.Ignore(text, version_xml)
-
-            tar_deps.append(text)
-            tar_list.append(text)
-
-#
-# Man page(s), in good ol' troff format.
-#
-man_page_list = ['scons.1', 'sconsign.1', 'scons-time.1']
-
-for m in man_page_list:
-    x = orig_env.SCons_revision(os.path.join(build, 'man', m),
-                            os.path.join('man', m))
-
-man_i_files = ['builders.man', 'functions.man', 'tools.man', 'variables.man']
-
-man_intermediate_files = [os.path.join(build, 'man', x) for x in man_i_files]
-
-cmd = "$PYTHON $SCONS_PROC_PY --man -b ${TARGETS[0]} -f ${TARGETS[1]} -t ${TARGETS[2]} -v ${TARGETS[3]} $( $SOURCES $)"
-man_intermediate_files = env.Command(man_intermediate_files,
-                                     scons_doc_files,
-                                     cmd)
-env.Depends(man_intermediate_files, "$SCONS_PROC_PY")
-Local(man_intermediate_files)
-
-for man_1 in man_page_list:
-    man, _1 = os.path.splitext(man_1)
-
-    man_1 = os.path.join(build, 'man', man_1)
-
-    if groff:
-        ps = os.path.join(build, 'PS', '%s-man.ps' % man)
-        text = os.path.join(build, 'TEXT', '%s-man.txt' % man)
-
-        b = env.Command(ps, man_1, "( cd ${SOURCES.dir} && groff -man -Tps ${SOURCES.file} ) > $TARGET")
-        Local(ps)
-        env.Depends(b, man_intermediate_files)
-
-        b = env.Command(text, man_1, "( cd ${SOURCES.dir} && groff -man -Tascii ${SOURCES.file} ) > $TARGET")
-        Local(text)
-        env.Depends(b, man_intermediate_files)
-
-        tar_deps.extend([ps, text])
-        tar_list.extend([ps, text])
-    else:
-        print "doc: WARNING: no groff, skipping text and PostScript versions of man pages"
-
-    if man2html:
-        html = os.path.join(build, 'HTML' , '%s-man.html' % man)
-
-        def strip_to_first_html_tag(target, source, env):
-            t = str(target[0])
-            contents = open(t).read()
-            contents = contents[contents.find('<HTML>'):]
-            open(t, 'w').write(contents)
-            return 0
-
-        cmds = [
-            "( cd %s/man && cp %s .. )" % (build, ' '.join(man_i_files)),
-            "( cd ${SOURCE.dir} && man2html ${SOURCE.file} ) > $TARGET",
-            Action(strip_to_first_html_tag),
-        ]
-        if tidy:
-            cmds.append("tidy -m -q $TARGET || true")
-        b = env.Command(html, man_1, cmds)
-        Local(html)
-        env.Depends(b, man_intermediate_files)
-
-        tar_deps.append(html)
-        tar_list.append(html)
-    else:
-        print "doc: WARNING: no man2html, skipping HTML versions of man pages"
 
 if not epydoc_cli:
     try:

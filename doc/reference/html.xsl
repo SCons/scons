@@ -41,7 +41,7 @@ book      toc,title,figure,table,example,equation
 /chapter  toc,title
 part      toc,title
 /preface  toc,title
-reference title
+reference toc,title
 /sect1    toc
 /sect2    toc
 /sect3    toc

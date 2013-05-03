@@ -41,14 +41,17 @@
 
 </para>
 
+<figure>
+<title>&SCons; architecture</title>
 <mediaobject>
   <imageobject>
-    <imagedata fileref="arch.svg" align="center"/>
+    <imagedata fileref="arch.svg" align="center" scale="50"/>
   </imageobject>
   <imageobject>
     <imagedata fileref="arch.jpg" align="center"/>
   </imageobject>
 </mediaobject>
+</figure>
 
 <itemizedlist>
 
@@ -196,14 +199,17 @@
 
     </para>
 
+    <figure>
+    <title>Node subsystem</title>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="node.svg" align="center"/>
+        <imagedata fileref="node.svg" align="center" scale="50"/>
       </imageobject>
       <imageobject>
         <imagedata fileref="node.jpg" align="center"/>
       </imageobject>
     </mediaobject>
+    </figure>
 
     <para>
 
@@ -255,14 +261,17 @@
 
     </para>
 
+    <figure>
+    <title>Scanner subsystem</title>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="scanner.svg" align="center"/>
+        <imagedata fileref="scanner.svg" align="center" scale="50"/>
       </imageobject>
       <imageobject>
         <imagedata fileref="scanner.jpg" align="center"/>
       </imageobject>
     </mediaobject>
+    </figure>
 
     <para>
 
@@ -292,14 +301,17 @@
 
     </para>
 
+    <figure>
+    <title>Signature subsystem</title>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="sig.svg" align="center"/>
+        <imagedata fileref="sig.svg" align="center" scale="50"/>
       </imageobject>
       <imageobject>
         <imagedata fileref="sig.jpg" align="center"/>
       </imageobject>
     </mediaobject>
+    </figure>
 
     <para>
 
@@ -343,14 +355,17 @@
 
     </para>
 
+    <figure>
+    <title>Builder subsystem</title>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="builder.svg" align="center"/>
+        <imagedata fileref="builder.svg" align="center" scale="50"/>
       </imageobject>
       <imageobject>
         <imagedata fileref="builder.jpg" align="center"/>
       </imageobject>
     </mediaobject>
+    </figure>
 
     <para>
       
@@ -401,14 +416,17 @@
 
     </para>
 
+    <figure>
+    <title>Job/Task subsystem</title>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="job-task.svg" align="center"/>
+        <imagedata fileref="job-task.svg" align="center" scale="50"/>
       </imageobject>
       <imageobject>
         <imagedata fileref="job-task.jpg" align="center"/>
       </imageobject>
     </mediaobject>
+    </figure>
 
     <para>
       

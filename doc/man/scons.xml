@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE refentry [
+<!DOCTYPE reference [
+<!ENTITY % version SYSTEM "../version.xml">
+%version;
 <!ENTITY % scons SYSTEM '../scons.mod'>
 %scons;
 <!ENTITY % builders-mod SYSTEM '../generated/builders.mod'>
@@ -13,10 +15,9 @@
 %variables-mod;
 ]>
 <!-- lifted from troff+man by doclifter -->
-<refentry id='scons1' 
-          xmlns="http://www.scons.org/dbxsd/v1.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
+<reference xmlns="http://www.scons.org/dbxsd/v1.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
 <!--  __COPYRIGHT__ -->
 
 <!--  Permission is hereby granted, free of charge, to any person obtaining -->
@@ -40,6 +41,29 @@
 
 <!--  __FILE__ __REVISION__ __DATE__ __DEVELOPER__ -->
 
+  <referenceinfo>
+    <title>SCons &buildversion;</title>
+    <subtitle>MAN page</subtitle>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <corpauthor>Steven Knight</corpauthor>
+
+    <pubdate>2004, 2005, 2006, 2007, 2008, 2009, 2010</pubdate>
+
+    <copyright>
+      <year>2004, 2005, 2006, 2007, 2008, 2009, 2010</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </referenceinfo>
+
+<refentry id='scons1'> 
 <refmeta>
 <refentrytitle>SCONS</refentrytitle>
 <manvolnum>1</manvolnum>
@@ -142,7 +166,7 @@ To make this obvious,
 <command>scons</command>
 prints the following messages about what it is doing:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 $ scons foo.out
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -181,7 +205,7 @@ construction environment,
 you can propagate the value of PATH
 from your external environment as follows:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </literallayout>
@@ -190,7 +214,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
 these variables can also be explicitly propagated:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH'],
                          'HOME' : os.environ['HOME']})
@@ -199,7 +223,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH'],
 <para>Or you may explicitly propagate the invoking user's
 complete external environment:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 import os
 env = Environment(ENV = os.environ)
 </literallayout>
@@ -231,7 +255,7 @@ the target file or files to be built.</para>
 
 <para>By default, the command</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons
 </literallayout>
 
@@ -251,7 +275,7 @@ may be built by explicitly specifying
 the current directory (.)
 as a command-line target:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons .
 </literallayout>
 
@@ -260,21 +284,21 @@ including any files outside of the current directory,
 may be specified by supplying a command-line target
 of the root directory (on POSIX systems):</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons /
 </literallayout>
 
 <para>or the path name(s) of the volume(s) in which all the targets
 should be built (on Windows systems):</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons C:\ D:\
 </literallayout>
 
 <para>To build only specific targets,
 supply them as command-line arguments:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons foo bar
 </literallayout>
 
@@ -287,13 +311,13 @@ The
 flag removes all files
 necessary to build the specified target:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons -c .
 </literallayout>
 
 <para>to remove all target files, or:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons -c build export
 </literallayout>
 
@@ -314,7 +338,7 @@ remaining at the top-level directory (where the
 file lives) and specifying the subdirectory as the target to be
 built:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons src/subdir
 </literallayout>
 
@@ -326,7 +350,7 @@ hierarchy until it finds the
 file, and then builds
 targets relatively to the current subdirectory:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 cd src/subdir
 scons -u .
 </literallayout>
@@ -337,7 +361,7 @@ supports building multiple targets in parallel via a
 option that takes, as its argument, the number
 of simultaneous tasks that may be spawned:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons -j 4
 </literallayout>
 
@@ -364,7 +388,7 @@ from trying to update the cache simultaneously.</para>
 <para>Values of variables to be passed to the SConscript file(s)
 may be specified on the command line:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons debug=1 .
 </literallayout>
 
@@ -373,7 +397,7 @@ through the ARGUMENTS dictionary,
 and can be used in the SConscript file(s) to modify
 the build in any way:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 if ARGUMENTS.get('debug', 0):
     env = Environment(CCFLAGS = '-g')
 else:
@@ -707,7 +731,7 @@ and about the actual libraries it finds.</para>
 This is generally used to find out what files are included by the sources
 of a given derived file:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 $ scons --debug=includes foo.o
 </literallayout>
 
@@ -778,7 +802,7 @@ is at least considering them or not.</para>
 before the construction environment variables are substituted.
 Also shows which targets are being built by this command.
 Output looks something like this:</para>
-<literallayout>
+<literallayout class="monospaced">
 $ scons --debug=presub
 Building myprog.o with action(s):
   $SHCC $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
@@ -1063,7 +1087,7 @@ are synonyms.</para>
 <emphasis role="bold">build</emphasis>
 command:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 --cache-debug=FILE
 --cache-disable, --no-cache
 --cache-force, --cache-populate
@@ -1174,7 +1198,7 @@ Command-line editing can be used if the
 <emphasis role="bold">readline</emphasis>
 module is available.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 $ scons --interactive
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -1430,7 +1454,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Windows:</term>
   <listitem>
-<literallayout>
+<literallayout class="monospaced">
     %ALLUSERSPROFILE/Application Data/scons/site_scons
     %USERPROFILE%/Local Settings/Application Data/scons/site_scons
     %APPDATA%/scons/site_scons
@@ -1442,7 +1466,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Mac OS X:</term>
   <listitem>
-<literallayout>
+<literallayout class="monospaced">
     /Library/Application Support/SCons/site_scons
     /opt/local/share/scons/site_scons (for MacPorts)
     /sw/share/scons/site_scons (for Fink)
@@ -1455,7 +1479,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Solaris:</term>
   <listitem>
-<literallayout>
+<literallayout class="monospaced">
     /opt/sfw/scons/site_scons
     /usr/share/scons/site_scons
     $HOME/.scons/site_scons
@@ -1466,7 +1490,7 @@ the last dir examined comes first in the resulting path.</para>
   <varlistentry>
   <term>Linux, HPUX, and other Posix-like systems:</term>
   <listitem>
-<literallayout>
+<literallayout class="monospaced">
     /usr/share/scons/site_scons
     $HOME/.scons/site_scons
     ./site_scons
@@ -1580,7 +1604,7 @@ for the relevant output higher up in the tree.</para>
 <para>Multiple options may be specified,
 separated by commas:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 # Prints only derived files, with status information:
 scons --tree=derived,status
 
@@ -1938,7 +1962,7 @@ A new construction environment is created using the
 <emphasis role="bold">Environment</emphasis>
 function:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 </literallayout>
 
@@ -1949,7 +1973,7 @@ may be set in a construction environment
 either by specifying them as keywords when the object is created
 or by assigning them a value after the object is created:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(FOO = 'foo')
 env['BAR'] = 'bar'
 </literallayout>
@@ -1965,7 +1989,7 @@ This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
 or if the flags are distributed to a number of construction variables.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(parse_flags = '-Iinclude -DEBUG -lm')
 </literallayout>
 
@@ -1984,7 +2008,7 @@ An optional platform keyword argument may be
 used to specify that an environment should
 be initialized for a different platform:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(platform = 'cygwin')
 env = Environment(platform = 'os2')
 env = Environment(platform = 'posix')
@@ -2029,13 +2053,13 @@ env = Environment(platform = my_platform)
 with which to initialize the environment
 may be specified as an optional keyword argument:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(tools = ['msvc', 'lex'])
 </literallayout>
 
 <para>Non-built-in tools may be specified using the toolpath argument:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
 </literallayout>
 
@@ -2066,7 +2090,7 @@ and
 <emphasis role="bold">Tool</emphasis>()
 methods:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 base = Environment(toolpath=['custom_path'])
 derived = base.Clone(tools=['custom_tool'])
 derived.CustomBuilder()
@@ -2204,7 +2228,7 @@ the target is first,
 followed by the source.
 The following are equivalent examples of calling the Program builder method:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env.Program('bar', ['bar.c', 'foo.c'])
 env.Program('bar', Split('bar.c foo.c'))
 env.Program('bar', env.Split('bar.c foo.c'))
@@ -2283,7 +2307,7 @@ or
 (on Windows systems)
 from the bar.c source file:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env.Program(target = 'bar', source = 'bar.c')
 env.Program('bar', source = 'bar.c')
 env.Program(source = 'bar.c')
@@ -2308,7 +2332,7 @@ program from the files
 and
 <emphasis role="bold">src/f2.c</emphasis>:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </literallayout>
 
@@ -2319,13 +2343,13 @@ variables will only be in effect when building the target, so they will not
 affect other parts of the build. For example, if you want to add additional
 libraries for just one program:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 </literallayout>
 
 <para>or generate a shared library with a non-standard suffix:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env.SharedLibrary('word', 'word.cpp',
                   SHLIBSUFFIX='.ocx',
                   LIBSUFFIXES=['.ocx'])
@@ -2340,7 +2364,7 @@ see the descriptions of these variables, below, for more information.)</para>
 <emphasis>parse_flags</emphasis>
 keyword argument in an override:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
 </literallayout>
 
@@ -2357,7 +2381,7 @@ are, in fact,
 methods of a construction environment object,
 they may also be called without an explicit environment:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Program('hello', 'hello.c')
 SharedLibrary('word', 'word.cpp')
 </literallayout>
@@ -2373,7 +2397,7 @@ environment may be called from custom Python modules that you
 import into an SConscript file by adding the following
 to the Python module:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 from SCons.Script import *
 </literallayout>
 
@@ -2395,7 +2419,7 @@ to add a specific
 <option>-D</option>
 flag when compiling one specific object file:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
 </literallayout>
@@ -2415,7 +2439,7 @@ If you need to manipulate a list of lists returned by Builders
 directly using Python,
 you can either build the list by hand:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 foo = Object('foo.c')
 bar = Object('bar.c')
 objects = ['begin.o'] + foo + ['middle.o'] + bar + ['end.o']
@@ -2429,7 +2453,7 @@ function supplied by scons
 to create a list containing just the Nodes,
 which may be more convenient:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 foo = Object('foo.c')
 bar = Object('bar.c')
 objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
@@ -2457,7 +2481,7 @@ Instead, use the Python
 method to make sure the list is updated in-place.
 Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 object_files = []
 
 # Do NOT use += as follows:
@@ -2476,7 +2500,7 @@ by passing the Node to the Python-builtin
 <function>str()</function>
 function:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 print "The path to bar_obj is:", str(bar_obj_list[0])
 </literallayout>
@@ -2505,7 +2529,7 @@ and is non-zero,
 then scons will change to the
 target file's directory.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 # scons will change to the "sub" subdirectory
 # before executing the "cp" command.
 env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
@@ -2647,12 +2671,12 @@ must be called with or without a construction environment.
 In the following list,
 if you call something as a global function
 it looks like:</para>
-<literallayout>
+<literallayout class="monospaced">
 Function(<emphasis>arguments</emphasis>)
 </literallayout>
 <para>and if you call something through a construction
 environment it looks like:</para>
-<literallayout>
+<literallayout class="monospaced">
 env.Function(<emphasis>arguments</emphasis>)
 </literallayout>
 <para>If you can call the functionality in both ways,
@@ -2662,7 +2686,7 @@ then both forms are listed.</para>
 import into an SConscript file by adding the following
 to the Python module:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 from SCons.Script import *
 </literallayout>
 
@@ -2678,7 +2702,7 @@ substitute construction variables into
 any supplied strings.
 For example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(FOO = 'foo')
 Default('$FOO')
 env.Default('$FOO')
@@ -2748,7 +2772,7 @@ These variables may be accessed from custom Python modules that you
 import into an SConscript file by adding the following
 to the Python module:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 from SCons.Script import *
 </literallayout>
 
@@ -2778,7 +2802,7 @@ of the tuple, respectively.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 print "first keyword, value =", ARGLIST[0][0], ARGLIST[0][1]
 print "second keyword, value =", ARGLIST[1][0], ARGLIST[1][1]
 third_tuple = ARGLIST[2]
@@ -2807,7 +2831,7 @@ dictionary.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 if ARGUMENTS.get('debug', 0):
     env = Environment(CCFLAGS = '-g')
 else:
@@ -2848,7 +2872,7 @@ for additional information.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 if 'foo' in BUILD_TARGETS:
     print "Don't forget to test the `foo' program!"
 if 'special/program' in BUILD_TARGETS:
@@ -2886,7 +2910,7 @@ is explicitly being built.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 if 'foo' in COMMAND_LINE_TARGETS:
     print "Don't forget to test the `foo' program!"
 if 'special/program' in COMMAND_LINE_TARGETS:
@@ -2911,7 +2935,7 @@ function to get at the path name for each Node.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 print str(DEFAULT_TARGETS[0])
 if 'foo' in map(str, DEFAULT_TARGETS):
     print "Don't forget to test the `foo' program!"
@@ -2926,7 +2950,7 @@ list change on on each successive call to the
 <emphasis role="bold">Default</emphasis>()
 function:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 print map(str, DEFAULT_TARGETS)   # originally []
 Default('foo')
 print map(str, DEFAULT_TARGETS)   # now a node ['foo']
@@ -3013,21 +3037,21 @@ defined construction variables:</para>
 <emphasis role="bold">Dictionary</emphasis>
 method of the construction environment:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 dict = env.Dictionary()
 dict["CC"] = "cc"
 </literallayout>
 
 <para>or using the [] operator:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env["CC"] = "cc"
 </literallayout>
 
 <para>Construction variables can also be passed to the construction environment
 constructor:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(CC="cc")
 </literallayout>
 
@@ -3035,7 +3059,7 @@ env = Environment(CC="cc")
 <emphasis role="bold">Clone</emphasis>
 method:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env2 = env.Clone(CC="cl.exe")
 </literallayout>
 
@@ -3270,7 +3294,7 @@ of the test file
 that will be compiled
 to check if the function exists;
 the default is:</para>
-<literallayout>
+<literallayout class="monospaced">
 #ifdef __cplusplus
 extern "C"
 #endif
@@ -3393,7 +3417,7 @@ or
 and selects the compiler to be used for the check;
 the default is "C".
 Example:</para>
-<literallayout>
+<literallayout class="monospaced">
 sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
 </literallayout>
 
@@ -3458,7 +3482,7 @@ a shared library, only that the compilation (not link) succeeds.</para>
 </variablelist>
 <para>Example of a typical Configure usage:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 conf = Configure( env )
 if not conf.CheckCHeader( 'math.h' ):
@@ -3507,7 +3531,7 @@ For example,
 <emphasis role="bold">CheckTypeSize('short', expect = 2)</emphasis>
 will return success only if short is two bytes.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 </literallayout>
 
   </listitem>
@@ -3771,7 +3795,7 @@ provides a
 <emphasis role="bold">Variables</emphasis>
 object to support overriding construction variables
 on the command line:</para>
-<literallayout>
+<literallayout class="monospaced">
 $ scons VARIABLE=foo
 </literallayout>
 <para>The variable values can also be specified in a text-based SConscript file.
@@ -3800,7 +3824,7 @@ dictionary that holds variables
 specified on the command line.
 Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 vars = Variables('custom.py')
 vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
@@ -3869,7 +3893,7 @@ for an individual call to the
 <emphasis role="bold">Add</emphasis>
 method.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 opt.AddVariables(
        ('debug', '', 0),
        ('CC', 'The C compiler'),
@@ -3898,7 +3922,7 @@ method, below.</para>
 but is called indirectly by passing the Variables object to
 the Environment() function:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(variables=vars)
 </literallayout>
 
@@ -3914,7 +3938,7 @@ are added to the construction environment.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 CC = 'my_cc'
 </literallayout>
 
@@ -3929,7 +3953,7 @@ with which the Variables object was initialized,
 but for which the Variables object was
 not configured.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(variables=vars)
 for key, value in vars.UnknownVariables():
     print "unknown variable:  %s=%s" % (key, value)
@@ -3946,7 +3970,7 @@ that can be used on the next invocation to automatically load the current
 settings.  This method combined with the Variables method can be used to
 support caching of variables between runs.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 vars = Variables(['variables.cache', 'custom.py'])
 vars.Add(...)
@@ -3979,7 +4003,7 @@ and return
 <emphasis>cmp</emphasis>
 function).</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Help(vars.GenerateHelpText(env))
 Help(vars.GenerateHelpText(env, sort=cmp))
 </literallayout>
@@ -4247,7 +4271,7 @@ in a single call to the
 <emphasis role="bold">AddVariables</emphasis>
 method:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 vars.AddVariables(
     BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
     EnumVariable('debug', 'debug output and symbols', 'no'
@@ -4326,7 +4350,7 @@ or
 <emphasis>Dir</emphasis>.
 The</para>
 
-<literallayout>
+<literallayout class="monospaced">
 # Get the current build dir's path, relative to top.
 Dir('.').path
 # Current dir's absolute path
@@ -4431,7 +4455,7 @@ within the parent directory of
 </variablelist>
 <para>For example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 # Get a Node for a file within a directory
 incl = Dir('include')
 f = incl.File('header.h')
@@ -4601,7 +4625,7 @@ that have a different suffix.
 (The default behavior is to leave untouched
 any target file name that looks like it already has any suffix.)</para>
 
-<literallayout>
+<literallayout class="monospaced">
 b1 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
              suffix = ".out")
 b2 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
@@ -4691,7 +4715,7 @@ or directory target.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
 env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
@@ -4935,7 +4959,7 @@ due to the mismatched suffixes of
 and
 <emphasis role="bold">foo.extra</emphasis>.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
             source_ext_match = None)
 
@@ -4956,7 +4980,7 @@ used for normal builds of normal target files,
 which use the environment that was
 used to call the Builder for the target file.)</para>
 
-<literallayout>
+<literallayout class="monospaced">
 b = Builder(action="build &lt; $SOURCE &gt; $TARGET")
 env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
@@ -5007,7 +5031,7 @@ and
 to use just the filename portion of the
 targets and source.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
             chdir=1)
 env = Environment(BUILDERS = {'MyBuild' : b})
@@ -5111,7 +5135,7 @@ or by a
 (hyphen)
 to ignore the exit status from the specified command:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Action('$CC -c -o $TARGET $SOURCES')
 
 # Doesn't print the line being executed.
@@ -5148,7 +5172,7 @@ This allows white space to be enclosed
 in an argument by defining
 a command in a list within a list:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 </literallayout>
 
@@ -5178,7 +5202,7 @@ The actual target and source file name(s) may
 be retrieved from their Node objects
 via the built-in Python str() function:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 target_file_name = str(target)
 source_file_names = map(lambda x: str(x), source)
 </literallayout>
@@ -5347,7 +5371,7 @@ and
 to use just the filename portion of the
 targets and source.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            chdir=1)
 </literallayout>
@@ -5413,7 +5437,7 @@ have actually changed since their targets were built.</para>
 
 <para>Example:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 a = Action('build $CHANGED_SOURCES', batch_key=True)
 </literallayout>
 
@@ -5543,7 +5567,7 @@ file is being read,
 you can use the
 <emphasis role="bold">Execute</emphasis>
 global function to do so:</para>
-<literallayout>
+<literallayout class="monospaced">
 Execute(Touch('file'))
 </literallayout>
 
@@ -5560,7 +5584,7 @@ without relying
 on platform-specific
 external commands:
 that</para>
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(TMPBUILD = '/tmp/builddir')
 env.Command('foo.out', 'foo.in',
             [Mkdir('$TMPBUILD'),
@@ -5580,7 +5604,7 @@ file or directory to the specified
 <emphasis>mode</emphasis>.
 Examples:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Execute(Chmod('file', 0755))
 
 env.Command('foo.out', 'foo.in',
@@ -5601,7 +5625,7 @@ source file or directory to the
 destination file or directory.
 Examples:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Execute(Copy('foo.output', 'foo.input'))
 
 env.Command('bar.out', 'bar.in',
@@ -5631,7 +5655,7 @@ that is, the Action will silently do nothing
 if the entry does not exist.
 Examples:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Execute(Delete('/tmp/buildroot'))
 
 env.Command('foo.out', 'foo.in',
@@ -5652,7 +5676,7 @@ directory
 <emphasis>dir .</emphasis>
 Examples:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Execute(Mkdir('/tmp/outputdir'))
 
 env.Command('foo.out', 'foo.in',
@@ -5676,7 +5700,7 @@ the specified
 file or directory.
 Examples:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Execute(Move('file.destination', 'file.source'))
 
 env.Command('output_file', 'input_file',
@@ -5695,7 +5719,7 @@ on the specified
 <emphasis>file</emphasis>.
 Examples:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 Execute(Touch('file_to_be_touched'))
 
 env.Command('marker', 'input_file',
@@ -5797,13 +5821,13 @@ and may not be set in a construction environment.)</para>
 <para>For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 action='$CC -c -o $TARGET $SOURCES'
 </literallayout>
 
 <para>would produce the command line:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 cc -c -o foo foo.c bar.c
 </literallayout>
 
@@ -5814,13 +5838,13 @@ a Python slice subscript appended to select one
 or more items from a list.
 In the previous example, the string:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 ${SOURCES[1]}
 </literallayout>
 
 <para>would produce:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 bar.c
 </literallayout>
 
@@ -5937,7 +5961,7 @@ it just returns the directory part of the filename.</para>
 <para>For example, the specified target will
 expand as follows for the corresponding modifiers:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 $TARGET              =&gt; sub/dir/file.x
 ${TARGET.base}       =&gt; sub/dir/file
 ${TARGET.dir}        =&gt; sub/dir
@@ -6007,7 +6031,7 @@ so that the arguments will
 be associated with the
 instantiation of the class:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 class foo(object):
     def __init__(self, arg):
         self.arg = arg
@@ -6043,21 +6067,21 @@ and
 will be removed before the command is executed.
 For example, the command line:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 echo Last build occurred $( $TODAY $). &gt; $TARGET
 </literallayout>
 
 
 <para>would execute the command:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 echo Last build occurred $TODAY. &gt; $TARGET
 </literallayout>
 
 
 <para>but the command signature added to any target files would be:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 echo Last build occurred  . &gt; $TARGET
 </literallayout>
 
@@ -6070,17 +6094,17 @@ echo Last build occurred  . &gt; $TARGET
 pairs gets evaluated by python 'eval', with the python globals set to
 the current environment's set of construction variables.
 So in the following case:</para>
-<literallayout>
+<literallayout class="monospaced">
 env['COND'] = 0
 env.Command('foo.out', 'foo.in',
 <!--    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''') -->
 </literallayout>
 <para>the command executed will be either</para>
-<literallayout>
+<literallayout class="monospaced">
 echo FOO &gt; foo.out
 </literallayout>
 <para>or</para>
-<literallayout>
+<literallayout class="monospaced">
 echo BAR &gt; foo.out
 </literallayout>
 <para>according to the current value of env['COND'] when the command is
@@ -6093,7 +6117,7 @@ BAR are environment variables, and their values are substituted into
 the final command.  FOO is a list, so its elements are interpolated
 separated by spaces.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env=Environment()
 env['COND'] = 0
 env['FOO'] = ['foo1', 'foo2']
@@ -6478,7 +6502,7 @@ on the command line
 may have to put double quotes
 around the assignments:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons "FOO=BAR" "BAZ=BLEH"
 </literallayout>
 
@@ -6508,7 +6532,7 @@ directories in the PATH variable. If you have both MSVC and MinGW
 installed and you want to use MinGW instead of MSVC,
 then you must explictly tell SCons to use MinGW by passing</para>
 
-<literallayout>
+<literallayout class="monospaced">
 tools=['mingw']
 </literallayout>
 
@@ -6525,7 +6549,7 @@ this section contains a brief overview of some common tasks.</para>
 
 <refsect2 id='basic_compilation_from_a_single_source_f'><title>Basic Compilation From a Single Source File</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout>
@@ -6539,7 +6563,7 @@ or by specifying a dot ("scons .").</para>
 
 <refsect2 id='basic_compilation_from_multiple_source_f'><title>Basic Compilation From Multiple Source Files</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 </literallayout>
@@ -6548,7 +6572,7 @@ env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 
 <refsect2 id='setting_a_compilation_flag'><title>Setting a Compilation Flag</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(CCFLAGS = '-g')
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout>
@@ -6562,7 +6586,7 @@ env.Program(target = 'foo', source = 'foo.c')
 need to set CCFLAGS to specify -I options by hand.
 SCons will construct the right -I options from CPPPATH.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(CPPPATH = ['.'])
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout>
@@ -6571,7 +6595,7 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <refsect2 id='search_multiple_directories_for_h_files'><title>Search Multiple Directories For .h Files</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(CPPPATH = ['include1', 'include2'])
 env.Program(target = 'foo', source = 'foo.c')
 </literallayout>
@@ -6580,7 +6604,7 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <refsect2 id='building_a_static_library'><title>Building a Static Library</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 env.StaticLibrary(target = 'foo', source = Split('l1.c l2.c'))
 env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
@@ -6590,7 +6614,7 @@ env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 
 <refsect2 id='building_a_shared_library'><title>Building a Shared Library</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 env.SharedLibrary(target = 'foo', source = ['l5.c', 'l6.c'])
 env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
@@ -6600,7 +6624,7 @@ env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 
 <refsect2 id='linking_a_local_library_into_a_program'><title>Linking a Local Library Into a Program</title>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
 env.Library(target = 'mylib', source = Split('l1.c l2.c'))
 env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
@@ -6614,7 +6638,7 @@ env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
 you can leave off the target file suffix,
 and SCons will add it automatically.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
               suffix = '.pdf',
               src_suffix = '.tex')
@@ -6635,7 +6659,7 @@ env.Object(), env.StaticLibrary(), etc.</para>
 
 <refsect2 id='adding_your_own_builder_object_to_an_env'><title>Adding Your Own Builder Object to an Environment</title>
 
-<literallayout>
+<literallayout class="monospaced">
 bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
               suffix = '.pdf',
               src_suffix = '.tex')
@@ -6648,7 +6672,7 @@ env.Program(target = 'bar', source = 'bar.c')
 <para>You also can use other Pythonic techniques to add
 to the BUILDERS construction variable, such as:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 env = Environment()
 env['BUILDERS]['PDFBuilder'] = bld
 </literallayout>
@@ -6668,7 +6692,7 @@ lines in the scanned file.
 This would implicitly assume that all included
 files live in the top-level directory:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -6908,7 +6932,7 @@ prefix and suffix for the current platform
 <para>The following would allow the C compiler to be specified on the command
 line or in the file custom.py.</para>
 
-<literallayout>
+<literallayout class="monospaced">
 vars = Variables('custom.py')
 vars.Add('CC', 'The C compiler.')
 env = Environment(variables=vars)
@@ -6917,19 +6941,19 @@ Help(vars.GenerateHelpText(env))
 
 <para>The user could specify the C compiler on the command line:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 scons "CC=my_cc"
 </literallayout>
 
 <para>or in the custom.py file:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 CC = 'my_cc'
 </literallayout>
 
 <para>or get documentation on the options:</para>
 
-<literallayout>
+<literallayout class="monospaced">
 $ scons -h
 
 CC: The C compiler.
@@ -6953,32 +6977,32 @@ include "StdAfx.h" as the first header in all the source files you are
 compiling to object files. For example:</para>
 
 <para>StdAfx.h:</para>
-<literallayout>
+<literallayout class="monospaced">
 #include &lt;windows.h&gt;
 #include &lt;my_big_header.h&gt;
 </literallayout>
 
 <para>StdAfx.cpp:</para>
-<literallayout>
+<literallayout class="monospaced">
 #include &lt;StdAfx.h&gt;
 </literallayout>
 
 <para>Foo.cpp:</para>
-<literallayout>
+<literallayout class="monospaced">
 #include &lt;StdAfx.h&gt;
 
 /* do some stuff */
 </literallayout>
 
 <para>Bar.cpp:</para>
-<literallayout>
+<literallayout class="monospaced">
 #include &lt;StdAfx.h&gt;
 
 /* do some other stuff */
 </literallayout>
 
 <para>SConstruct:</para>
-<literallayout>
+<literallayout class="monospaced">
 env=Environment()
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
@@ -7000,7 +7024,7 @@ file. SCons supports PDB files through the PDB construction
 variable.</para>
 
 <para>SConstruct:</para>
-<literallayout>
+<literallayout class="monospaced">
 env=Environment()
 env['PDB'] = 'MyApp.pdb'
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
@@ -7048,4 +7072,4 @@ source code.</para>
 Anthony Roach &lt;aroach@electriceyeball.com&gt;</para>
 </refsect1>
 </refentry>
-
+</reference>
