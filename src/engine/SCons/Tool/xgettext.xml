@@ -158,12 +158,12 @@ message <literal>"Hello from ../a.cpp"</literal>. When you reverse order in
   # SConstruct file in '0/1/po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
-</example> then the <filename>messages.pot</filename> will contain
+</example> 
+then the <filename>messages.pot</filename> will contain
 <literal>msgid "Hello from ../../a.cpp"</literal> line and not 
 <literal>msgid "Hello from ../a.cpp"</literal>.
 
 </summary>
-
 </builder>
 
 <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->

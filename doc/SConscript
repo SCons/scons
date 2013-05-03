@@ -107,15 +107,6 @@ env = orig_env.Clone(SCANNERS = [s],
 # SCons documentation XML for processing.
 def chop(s): return s[:-1]
 
-# If we ever read doc from __scons_doc__ strings in *.py files again,
-# here's how it's done:
-#manifest_in = File('#src/engine/MANIFEST.in').rstr()
-#manifest_xml_in = File('#src/engine/MANIFEST-xml.in').rstr()
-#scons_doc_files = map(chop, open(manifest_in).readlines() +\
-#                            open(manifest_xml_in).readlines())
-#scons_doc_files = map(lambda x: '#src/engine/'+x, scons_doc_files)
-#manifest_in = File('#src/engine/MANIFEST.in').rstr()
-
 manifest_xml_in = File('#src/engine/MANIFEST-xml.in').rstr()
 scons_doc_files = list(map(chop, open(manifest_xml_in).readlines()))
 scons_doc_files = [File('#src/engine/'+x).rstr() for x in scons_doc_files]

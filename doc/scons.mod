@@ -16,47 +16,47 @@
 
 -->
 
-<!ENTITY Aegis          "<application>Aegis</application>">
-<!ENTITY Ant            "<application>Ant</application>">
-<!ENTITY ar             "<application>ar</application>">
-<!ENTITY as             "<application>as</application>">
-<!ENTITY Autoconf       "<application>Autoconf</application>">
-<!ENTITY Automake       "<application>Automake</application>">
-<!ENTITY bison          "<application>bison</application>">
-<!ENTITY cc             "<application>cc</application>">
-<!ENTITY Cons           "<application>Cons</application>">
-<!ENTITY cp             "<application>cp</application>">
-<!ENTITY csh            "<application>csh</application>">
-<!ENTITY f77            "<application>f77</application>">
-<!ENTITY f90            "<application>f90</application>">
-<!ENTITY f95            "<application>f95</application>">
-<!ENTITY gas            "<application>gas</application>">
-<!ENTITY gcc            "<application>gcc</application>">
-<!ENTITY g77            "<application>g77</application>">
-<!ENTITY gXX            "<application>gXX</application>">
-<!ENTITY Jam            "<application>Jam</application>">
-<!ENTITY jar            "<application>jar</application>">
-<!ENTITY javac          "<application>javac</application>">
-<!ENTITY javah          "<application>javah</application>">
-<!ENTITY latex          "<application>latex</application>">
-<!ENTITY lex            "<application>lex</application>">
-<!ENTITY m4             "<application>m4</application>">
-<!ENTITY Make           "<application>Make</application>">
-<!ENTITY Makepp         "<application>Make++</application>">
-<!ENTITY pdflatex       "<application>pdflatex</application>">
-<!ENTITY pdftex         "<application>pdftex</application>">
-<!ENTITY Python         "<application>Python</application>">
-<!ENTITY ranlib         "<application>ranlib</application>">
-<!ENTITY rmic           "<application>rmic</application>">
-<!ENTITY SCons          "<application>SCons</application>">
-<!ENTITY ScCons         "<application>ScCons</application>">
-<!ENTITY sleep          "<application>sleep</application>">
-<!ENTITY swig           "<application>swig</application>">
-<!ENTITY tar            "<application>tar</application>">
-<!ENTITY tex            "<application>tex</application>">
-<!ENTITY touch          "<application>touch</application>">
-<!ENTITY yacc           "<application>yacc</application>">
-<!ENTITY zip            "<application>zip</application>">
+<!ENTITY Aegis          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Aegis</application>">
+<!ENTITY Ant            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Ant</application>">
+<!ENTITY ar             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ar</application>">
+<!ENTITY as             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>as</application>">
+<!ENTITY Autoconf       "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Autoconf</application>">
+<!ENTITY Automake       "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Automake</application>">
+<!ENTITY bison          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>bison</application>">
+<!ENTITY cc             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>cc</application>">
+<!ENTITY Cons           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Cons</application>">
+<!ENTITY cp             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>cp</application>">
+<!ENTITY csh            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>csh</application>">
+<!ENTITY f77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f77</application>">
+<!ENTITY f90            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f90</application>">
+<!ENTITY f95            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f95</application>">
+<!ENTITY gas            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gas</application>">
+<!ENTITY gcc            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gcc</application>">
+<!ENTITY g77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>g77</application>">
+<!ENTITY gXX            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gXX</application>">
+<!ENTITY Jam            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Jam</application>">
+<!ENTITY jar            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>jar</application>">
+<!ENTITY javac          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>javac</application>">
+<!ENTITY javah          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>javah</application>">
+<!ENTITY latex          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>latex</application>">
+<!ENTITY lex            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>lex</application>">
+<!ENTITY m4             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>m4</application>">
+<!ENTITY Make           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Make</application>">
+<!ENTITY Makepp         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Make++</application>">
+<!ENTITY pdflatex       "<application xmlns='http://www.scons.org/dbxsd/v1.0'>pdflatex</application>">
+<!ENTITY pdftex         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</application>">
+<!ENTITY Python         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Python</application>">
+<!ENTITY ranlib         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ranlib</application>">
+<!ENTITY rmic           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</application>">
+<!ENTITY SCons          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>SCons</application>">
+<!ENTITY ScCons         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ScCons</application>">
+<!ENTITY sleep          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>sleep</application>">
+<!ENTITY swig           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>swig</application>">
+<!ENTITY tar            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>tar</application>">
+<!ENTITY tex            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>tex</application>">
+<!ENTITY touch          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>touch</application>">
+<!ENTITY yacc           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>yacc</application>">
+<!ENTITY zip            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>zip</application>">
 
 
 <!--
@@ -65,28 +65,28 @@
 
 -->
 
-<!ENTITY Action "<classname>Action</classname>">
-<!ENTITY ActionBase "<classname>ActionBase</classname>">
-<!ENTITY CommandAction "<classname>CommandAction</classname>">
-<!ENTITY FunctionAction "<classname>FunctionAction</classname>">
-<!ENTITY ListAction "<classname>ListAction</classname>">
-<!ENTITY Builder "<classname>Builder</classname>">
-<!ENTITY BuilderBase "<classname>BuilderBase</classname>">
-<!ENTITY CompositeBuilder "<classname>CompositeBuilder</classname>">
-<!ENTITY MultiStepBuilder "<classname>MultiStepBuilder</classname>">
-<!ENTITY Job "<classname>Job</classname>">
-<!ENTITY Jobs "<classname>Jobs</classname>">
-<!ENTITY Serial "<classname>Serial</classname>">
-<!ENTITY Parallel "<classname>Parallel</classname>">
-<!ENTITY Node "<classname>Node</classname>">
-<!ENTITY Node_FS "<classname>Node.FS</classname>">
-<!ENTITY Scanner "<classname>Scanner</classname>">
-<!ENTITY Sig "<classname>Sig</classname>">
-<!ENTITY Signature "<classname>Signature</classname>">
-<!ENTITY Taskmaster "<classname>Taskmaster</classname>">
-<!ENTITY TimeStamp "<classname>TimeStamp</classname>">
-<!ENTITY Walker "<classname>Walker</classname>">
-<!ENTITY Wrapper "<classname>Wrapper</classname>">
+<!ENTITY Action "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Action</classname>">
+<!ENTITY ActionBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ActionBase</classname>">
+<!ENTITY CommandAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CommandAction</classname>">
+<!ENTITY FunctionAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>FunctionAction</classname>">
+<!ENTITY ListAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ListAction</classname>">
+<!ENTITY Builder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</classname>">
+<!ENTITY BuilderBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>BuilderBase</classname>">
+<!ENTITY CompositeBuilder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CompositeBuilder</classname>">
+<!ENTITY MultiStepBuilder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>MultiStepBuilder</classname>">
+<!ENTITY Job "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Job</classname>">
+<!ENTITY Jobs "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Jobs</classname>">
+<!ENTITY Serial "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Serial</classname>">
+<!ENTITY Parallel "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Parallel</classname>">
+<!ENTITY Node "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Node</classname>">
+<!ENTITY Node_FS "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Node.FS</classname>">
+<!ENTITY Scanner "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Scanner</classname>">
+<!ENTITY Sig "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Sig</classname>">
+<!ENTITY Signature "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Signature</classname>">
+<!ENTITY Taskmaster "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Taskmaster</classname>">
+<!ENTITY TimeStamp "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>TimeStamp</classname>">
+<!ENTITY Walker "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Walker</classname>">
+<!ENTITY Wrapper "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Wrapper</classname>">
 
 
 
@@ -96,20 +96,20 @@
 
 -->
 
-<!ENTITY config "<literal>--config</literal>">
-<!ENTITY debug-explain "<literal>--debug=explain</literal>">
-<!ENTITY debug-findlibs "<literal>--debug=findlibs</literal>">
-<!ENTITY debug-includes "<literal>--debug=includes</literal>">
-<!ENTITY debug-prepare "<literal>--debug=prepare</literal>">
-<!ENTITY debug-presub "<literal>--debug=presub</literal>">
-<!ENTITY debug-stacktrace "<literal>--debug=stacktrace</literal>">
-<!ENTITY implicit-cache "<literal>--implicit-cache</literal>">
-<!ENTITY implicit-deps-changed "<literal>--implicit-deps-changed</literal>">
-<!ENTITY implicit-deps-unchanged "<literal>--implicit-deps-unchanged</literal>">
-<!ENTITY profile "<literal>--profile</literal>">
-<!ENTITY taskmastertrace "<literal>--taskmastertrace</literal>">
-<!ENTITY tree "<literal>--tree</literal>">
-<!ENTITY Q "<literal>-Q</literal>">
+<!ENTITY config "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--config</literal>">
+<!ENTITY debug-explain "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=explain</literal>">
+<!ENTITY debug-findlibs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=findlibs</literal>">
+<!ENTITY debug-includes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=includes</literal>">
+<!ENTITY debug-prepare "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=prepare</literal>">
+<!ENTITY debug-presub "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=presub</literal>">
+<!ENTITY debug-stacktrace "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=stacktrace</literal>">
+<!ENTITY implicit-cache "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-cache</literal>">
+<!ENTITY implicit-deps-changed "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-changed</literal>">
+<!ENTITY implicit-deps-unchanged "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-unchanged</literal>">
+<!ENTITY profile "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--profile</literal>">
+<!ENTITY taskmastertrace "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--taskmastertrace</literal>">
+<!ENTITY tree "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--tree</literal>">
+<!ENTITY Q "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>-Q</literal>">
 
 <!--
 
@@ -117,9 +117,9 @@
 
 -->
 
-<!ENTITY implicit_cache "<literal>implicit_cache</literal>">
-<!ENTITY implicit_deps_changed "<literal>implicit_deps_changed</literal>">
-<!ENTITY implicit_deps_unchanged "<literal>implicit_deps_unchanged</literal>">
+<!ENTITY implicit_cache "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>implicit_cache</literal>">
+<!ENTITY implicit_deps_changed "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>implicit_deps_changed</literal>">
+<!ENTITY implicit_deps_unchanged "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>implicit_deps_unchanged</literal>">
 
 
 
@@ -129,16 +129,16 @@
 
 -->
 
-<!ENTITY build "<filename>build</filename>">
-<!ENTITY Makefile "<filename>Makefile</filename>">
-<!ENTITY Makefiles "<filename>Makefiles</filename>">
-<!ENTITY scons "<filename>scons</filename>">
-<!ENTITY SConscript "<filename>SConscript</filename>">
-<!ENTITY SConstruct "<filename>SConstruct</filename>">
-<!ENTITY Sconstruct "<filename>Sconstruct</filename>">
-<!ENTITY sconstruct "<filename>sconstruct</filename>">
-<!ENTITY sconsign "<filename>.sconsign</filename>">
-<!ENTITY src "<filename>src</filename>">
+<!ENTITY build "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>build</filename>">
+<!ENTITY Makefile "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefile</filename>">
+<!ENTITY Makefiles "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefiles</filename>">
+<!ENTITY scons "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>scons</filename>">
+<!ENTITY SConscript "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConscript</filename>">
+<!ENTITY SConstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConstruct</filename>">
+<!ENTITY Sconstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct</filename>">
+<!ENTITY sconstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>sconstruct</filename>">
+<!ENTITY sconsign "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>.sconsign</filename>">
+<!ENTITY src "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>src</filename>">
 
 
 
@@ -149,149 +149,149 @@
 
 -->
 
-<!ENTITY Add "<function>Add</function>">
-<!ENTITY AddMethod "<function>AddMethod</function>">
-<!ENTITY AddPostAction "<function>AddPostAction</function>">
-<!ENTITY AddPreAction "<function>AddPreAction</function>">
-<!ENTITY AddOption "<function>AddOption</function>">
-<!ENTITY AddOptions "<function>AddOptions</function>">
-<!ENTITY AddVariables "<function>AddVariables</function>">
-<!ENTITY Alias "<function>Alias</function>">
-<!ENTITY Aliases "<function>Aliases</function>">
-<!ENTITY AllowSubstExceptions "<function>AllowSubstExceptions</function>">
-<!ENTITY AlwaysBuild "<function>AlwaysBuild</function>">
-<!ENTITY Append "<function>Append</function>">
-<!ENTITY AppendENVPath "<function>AppendENVPath</function>">
-<!ENTITY AppendUnique "<function>AppendUnique</function>">
-<!ENTITY BoolOption "<function>BoolOption</function>">
-<!ENTITY BoolVariable "<function>BoolVariable</function>">
-<!ENTITY Build "<function>Build</function>">
-<!ENTITY CacheDir "<function>CacheDir</function>">
-<!ENTITY Chmod "<function>Chmod</function>">
-<!ENTITY Clean "<function>Clean</function>">
-<!ENTITY Clone "<function>Clone</function>">
-<!ENTITY Command "<function>Command</function>">
-<!ENTITY Configure "<function>Configure</function>">
-<!ENTITY Copy "<function>Copy</function>">
-<!ENTITY Decider "<function>Decider</function>">
-<!ENTITY Default "<function>Default</function>">
-<!ENTITY DefaultEnvironment "<function>DefaultEnvironment</function>">
-<!ENTITY DefaultRules "<function>DefaultRules</function>">
-<!ENTITY Delete "<function>Delete</function>">
-<!ENTITY Depends "<function>Depends</function>">
-<!ENTITY Dir "<function>Dir</function>">
-<!ENTITY Dump "<function>Dump</function>">
-<!ENTITY Duplicate "<function>Duplicate</function>">
-<!ENTITY Entry "<function>Entry</function>">
-<!ENTITY EnumOption "<function>EnumOption</function>">
-<!ENTITY EnumVariable "<function>EnumVariable</function>">
-<!ENTITY EnsurePythonVersion "<function>EnsurePythonVersion</function>">
-<!ENTITY EnsureSConsVersion "<function>EnsureSConsVersion</function>">
-<!ENTITY Environment "<function>Environment</function>">
-<!ENTITY Execute "<function>Execute</function>">
-<!ENTITY Exit "<function>Exit</function>">
-<!ENTITY Export "<function>Export</function>">
-<!ENTITY File "<function>File</function>">
-<!ENTITY FindFile "<function>FindFile</function>">
-<!ENTITY FindInstalledFiles "<function>FindInstalledFiles</function>">
-<!ENTITY FindPathDirs "<function>FindPathDirs</function>">
-<!ENTITY Finish "<function>Finish</function>">
-<!ENTITY Flatten "<function>Flatten</function>">
-<!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
-<!ENTITY GetBuildFailures "<function>GetBuildFailures</function>">
-<!ENTITY GetBuildPath "<function>GetBuildPath</function>">
-<!ENTITY GetLaunchDir "<function>GetLaunchDir</function>">
-<!ENTITY GetOption "<function>GetOption</function>">
-<!ENTITY Glob "<function>Glob</function>">
-<!ENTITY Help "<function>Help</function>">
-<!ENTITY Ignore "<function>Ignore</function>">
-<!ENTITY Import "<function>Import</function>">
-<!ENTITY Install "<function>Install</function>">
-<!ENTITY InstallAs "<function>InstallAs</function>">
-<!ENTITY Link "<function>Link</function>">
-<!ENTITY ListOption "<function>ListOption</function>">
-<!ENTITY ListVariable "<function>ListVariable</function>">
-<!ENTITY Local "<function>Local</function>">
-<!ENTITY MergeFlags "<function>MergeFlags</function>">
-<!ENTITY Mkdir "<function>Mkdir</function>">
-<!ENTITY Module "<function>Module</function>">
-<!ENTITY Move "<function>Move</function>">
-<!ENTITY NoClean "<function>NoClean</function>">
-<!ENTITY NoCache "<function>NoCache</function>">
-<!ENTITY Objects "<function>Objects</function>">
-<!ENTITY Options "<function>Options</function>">
-<!ENTITY Variables "<function>Variables</function>">
-<!ENTITY PackageOption "<function>PackageOption</function>">
-<!ENTITY PackageVariable "<function>PackageVariable</function>">
-<!ENTITY ParseConfig "<function>ParseConfig</function>">
-<!ENTITY ParseDepends "<function>ParseDepends</function>">
-<!ENTITY ParseFlags "<function>ParseFlags</function>">
-<!ENTITY PathOption "<function>PathOption</function>">
-<!ENTITY PathOption_PathAccept "<function>PathOption.PathAccept</function>">
-<!ENTITY PathOption_PathExists "<function>PathOption.PathExists</function>">
-<!ENTITY PathOption_PathIsDir "<function>PathOption.PathIsDir</function>">
-<!ENTITY PathOption_PathIsDirCreate "<function>PathOption.PathIsDirCreate</function>">
-<!ENTITY PathOption_PathIsFile "<function>PathOption.PathIsFile</function>">
-<!ENTITY PathVariable "<function>PathVariable</function>">
-<!ENTITY PathVariable_PathAccept "<function>PathVariable.PathAccept</function>">
-<!ENTITY PathVariable_PathExists "<function>PathVariable.PathExists</function>">
-<!ENTITY PathVariable_PathIsDir "<function>PathVariable.PathIsDir</function>">
-<!ENTITY PathVariable_PathIsDirCreate "<function>PathVariable.PathIsDirCreate</function>">
-<!ENTITY PathVariable_PathIsFile "<function>PathVariable.PathIsFile</function>">
-<!ENTITY Precious "<function>Precious</function>">
-<!ENTITY Prepend "<function>Prepend</function>">
-<!ENTITY PrependENVPath "<function>PrependENVPath</function>">
-<!ENTITY PrependUnique "<function>PrependUnique</function>">
-<!ENTITY Progress "<function>Progress</function>">
-<!ENTITY Replace "<function>Replace</function>">
-<!ENTITY Repository "<function>Repository</function>">
-<!ENTITY Requires "<function>Requires</function>">
-<!ENTITY Return "<function>Return</function>">
-<!ENTITY RuleSet "<function>RuleSet</function>">
-<!ENTITY Salt "<function>Salt</function>">
-<!ENTITY SetBuildSignatureType "<function>SetBuildSignatureType</function>">
-<!ENTITY SetContentSignatureType "<function>SetContentSignatureType</function>">
-<!ENTITY SetDefault "<function>SetDefault</function>">
-<!ENTITY SetOption "<function>SetOption</function>">
-<!ENTITY SideEffect "<function>SideEffect</function>">
-<!ENTITY SourceSignature "<function>SourceSignature</function>">
-<!ENTITY SourceSignatures "<function>SourceSignatures</function>">
-<!ENTITY Split "<function>Split</function>">
-<!ENTITY Tag "<function>Tag</function>">
-<!ENTITY TargetSignatures "<function>TargetSignatures</function>">
-<!ENTITY Task "<function>Task</function>">
-<!ENTITY Touch "<function>Touch</function>">
-<!ENTITY UnknownOptions "<function>UnknownOptions</function>">
-<!ENTITY UnknownVariables "<function>UnknownVariables</function>">
+<!ENTITY Add "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Add</function>">
+<!ENTITY AddMethod "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AddMethod</function>">
+<!ENTITY AddPostAction "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AddPostAction</function>">
+<!ENTITY AddPreAction "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AddPreAction</function>">
+<!ENTITY AddOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AddOption</function>">
+<!ENTITY AddOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AddOptions</function>">
+<!ENTITY AddVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AddVariables</function>">
+<!ENTITY Alias "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Alias</function>">
+<!ENTITY Aliases "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Aliases</function>">
+<!ENTITY AllowSubstExceptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AllowSubstExceptions</function>">
+<!ENTITY AlwaysBuild "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AlwaysBuild</function>">
+<!ENTITY Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Append</function>">
+<!ENTITY AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendENVPath</function>">
+<!ENTITY AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendUnique</function>">
+<!ENTITY BoolOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BoolOption</function>">
+<!ENTITY BoolVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BoolVariable</function>">
+<!ENTITY Build "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Build</function>">
+<!ENTITY CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CacheDir</function>">
+<!ENTITY Chmod "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Chmod</function>">
+<!ENTITY Clean "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clean</function>">
+<!ENTITY Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clone</function>">
+<!ENTITY Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
+<!ENTITY Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Configure</function>">
+<!ENTITY Copy "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Copy</function>">
+<!ENTITY Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Decider</function>">
+<!ENTITY Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Default</function>">
+<!ENTITY DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultEnvironment</function>">
+<!ENTITY DefaultRules "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultRules</function>">
+<!ENTITY Delete "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Delete</function>">
+<!ENTITY Depends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Depends</function>">
+<!ENTITY Dir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dir</function>">
+<!ENTITY Dump "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dump</function>">
+<!ENTITY Duplicate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Duplicate</function>">
+<!ENTITY Entry "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Entry</function>">
+<!ENTITY EnumOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnumOption</function>">
+<!ENTITY EnumVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnumVariable</function>">
+<!ENTITY EnsurePythonVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsurePythonVersion</function>">
+<!ENTITY EnsureSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsureSConsVersion</function>">
+<!ENTITY Environment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Environment</function>">
+<!ENTITY Execute "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Execute</function>">
+<!ENTITY Exit "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Exit</function>">
+<!ENTITY Export "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Export</function>">
+<!ENTITY File "<function xmlns='http://www.scons.org/dbxsd/v1.0'>File</function>">
+<!ENTITY FindFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>FindFile</function>">
+<!ENTITY FindInstalledFiles "<function xmlns='http://www.scons.org/dbxsd/v1.0'>FindInstalledFiles</function>">
+<!ENTITY FindPathDirs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>FindPathDirs</function>">
+<!ENTITY Finish "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Finish</function>">
+<!ENTITY Flatten "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Flatten</function>">
+<!ENTITY GenerateHelpText "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GenerateHelpText</function>">
+<!ENTITY GetBuildFailures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetBuildFailures</function>">
+<!ENTITY GetBuildPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetBuildPath</function>">
+<!ENTITY GetLaunchDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetLaunchDir</function>">
+<!ENTITY GetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetOption</function>">
+<!ENTITY Glob "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Glob</function>">
+<!ENTITY Help "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Help</function>">
+<!ENTITY Ignore "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Ignore</function>">
+<!ENTITY Import "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Import</function>">
+<!ENTITY Install "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Install</function>">
+<!ENTITY InstallAs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>InstallAs</function>">
+<!ENTITY Link "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Link</function>">
+<!ENTITY ListOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ListOption</function>">
+<!ENTITY ListVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ListVariable</function>">
+<!ENTITY Local "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Local</function>">
+<!ENTITY MergeFlags "<function xmlns='http://www.scons.org/dbxsd/v1.0'>MergeFlags</function>">
+<!ENTITY Mkdir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Mkdir</function>">
+<!ENTITY Module "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Module</function>">
+<!ENTITY Move "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Move</function>">
+<!ENTITY NoClean "<function xmlns='http://www.scons.org/dbxsd/v1.0'>NoClean</function>">
+<!ENTITY NoCache "<function xmlns='http://www.scons.org/dbxsd/v1.0'>NoCache</function>">
+<!ENTITY Objects "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Objects</function>">
+<!ENTITY Options "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Options</function>">
+<!ENTITY Variables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Variables</function>">
+<!ENTITY PackageOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PackageOption</function>">
+<!ENTITY PackageVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PackageVariable</function>">
+<!ENTITY ParseConfig "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ParseConfig</function>">
+<!ENTITY ParseDepends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ParseDepends</function>">
+<!ENTITY ParseFlags "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ParseFlags</function>">
+<!ENTITY PathOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathOption</function>">
+<!ENTITY PathOption_PathAccept "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathOption.PathAccept</function>">
+<!ENTITY PathOption_PathExists "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathOption.PathExists</function>">
+<!ENTITY PathOption_PathIsDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathOption.PathIsDir</function>">
+<!ENTITY PathOption_PathIsDirCreate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathOption.PathIsDirCreate</function>">
+<!ENTITY PathOption_PathIsFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathOption.PathIsFile</function>">
+<!ENTITY PathVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathVariable</function>">
+<!ENTITY PathVariable_PathAccept "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathVariable.PathAccept</function>">
+<!ENTITY PathVariable_PathExists "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathVariable.PathExists</function>">
+<!ENTITY PathVariable_PathIsDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathVariable.PathIsDir</function>">
+<!ENTITY PathVariable_PathIsDirCreate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathVariable.PathIsDirCreate</function>">
+<!ENTITY PathVariable_PathIsFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PathVariable.PathIsFile</function>">
+<!ENTITY Precious "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Precious</function>">
+<!ENTITY Prepend "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Prepend</function>">
+<!ENTITY PrependENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependENVPath</function>">
+<!ENTITY PrependUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependUnique</function>">
+<!ENTITY Progress "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Progress</function>">
+<!ENTITY Replace "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Replace</function>">
+<!ENTITY Repository "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Repository</function>">
+<!ENTITY Requires "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Requires</function>">
+<!ENTITY Return "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Return</function>">
+<!ENTITY RuleSet "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RuleSet</function>">
+<!ENTITY Salt "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Salt</function>">
+<!ENTITY SetBuildSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetBuildSignatureType</function>">
+<!ENTITY SetContentSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetContentSignatureType</function>">
+<!ENTITY SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
+<!ENTITY SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetOption</function>">
+<!ENTITY SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SideEffect</function>">
+<!ENTITY SourceSignature "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SourceSignature</function>">
+<!ENTITY SourceSignatures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SourceSignatures</function>">
+<!ENTITY Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Split</function>">
+<!ENTITY Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
+<!ENTITY TargetSignatures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TargetSignatures</function>">
+<!ENTITY Task "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Task</function>">
+<!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
+<!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
+<!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
 
 <!-- Environment methods -->
-<!ENTITY subst "<function>subst</function>">
+<!ENTITY subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>subst</function>">
 
 <!-- Configure context functions -->
-<!ENTITY Message "<function>Message</function>">
-<!ENTITY Result "<function>Result</function>">
-<!ENTITY CheckCHeader "<function>CheckCHeader</function>">
-<!ENTITY CheckCXXHeader "<function>CheckCXXHeader</function>">
-<!ENTITY CheckFunc "<function>CheckFunc</function>">
-<!ENTITY CheckHeader "<function>CheckHeader</function>">
-<!ENTITY CheckLib "<function>CheckLib</function>">
-<!ENTITY CheckLibWithHeader "<function>CheckLibWithHeader</function>">
-<!ENTITY CheckType "<function>CheckType</function>">
-<!ENTITY TryAction "<function>TryAction</function>">
-<!ENTITY TryBuild "<function>TryBuild</function>">
-<!ENTITY TryCompile "<function>TryCompile</function>">
-<!ENTITY TryLink "<function>TryLink</function>">
-<!ENTITY TryRun "<function>TryRun</function>">
+<!ENTITY Message "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Message</function>">
+<!ENTITY Result "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Result</function>">
+<!ENTITY CheckCHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckCHeader</function>">
+<!ENTITY CheckCXXHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckCXXHeader</function>">
+<!ENTITY CheckFunc "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckFunc</function>">
+<!ENTITY CheckHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckHeader</function>">
+<!ENTITY CheckLib "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckLib</function>">
+<!ENTITY CheckLibWithHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckLibWithHeader</function>">
+<!ENTITY CheckType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckType</function>">
+<!ENTITY TryAction "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryAction</function>">
+<!ENTITY TryBuild "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryBuild</function>">
+<!ENTITY TryCompile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryCompile</function>">
+<!ENTITY TryLink "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryLink</function>">
+<!ENTITY TryRun "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryRun</function>">
 
 
 <!-- Python functions and classes -->
-<!ENTITY IndexError "<classname>IndexError</classname>">
-<!ENTITY NameError "<classname>NameError</classname>">
-<!ENTITY str "<function>str</function>">
-<!ENTITY zipfile "<function>zipfile</function>">
+<!ENTITY IndexError "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>IndexError</classname>">
+<!ENTITY NameError "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>NameError</classname>">
+<!ENTITY str "<function xmlns='http://www.scons.org/dbxsd/v1.0'>str</function>">
+<!ENTITY zipfile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>zipfile</function>">
 
 <!-- Obsolete, but referenced in old documents.  -->
-<!ENTITY Cache "<function>Cache</function>">
+<!ENTITY Cache "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Cache</function>">
 
 
 
@@ -301,11 +301,11 @@
 
 -->
 
-<!ENTITY ARGLIST "<varname>ARGLIST</varname>">
-<!ENTITY ARGUMENTS "<varname>ARGUMENTS</varname>">
-<!ENTITY BUILD_TARGETS "<varname>BUILD_TARGETS</varname>">
-<!ENTITY COMMAND_LINE_TARGETS "<varname>COMMAND_LINE_TARGETS</varname>">
-<!ENTITY DEFAULT_TARGETS "<varname>DEFAULT_TARGETS</varname>">
+<!ENTITY ARGLIST "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>ARGLIST</varname>">
+<!ENTITY ARGUMENTS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>ARGUMENTS</varname>">
+<!ENTITY BUILD_TARGETS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>BUILD_TARGETS</varname>">
+<!ENTITY COMMAND_LINE_TARGETS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>COMMAND_LINE_TARGETS</varname>">
+<!ENTITY DEFAULT_TARGETS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>DEFAULT_TARGETS</varname>">
 
 
 
@@ -315,16 +315,16 @@
 
 -->
 
-<!ENTITY BUILDERMAP "<varname>BUILDERMAP</varname>">
-<!ENTITY COLOR "<varname>COLOR</varname>">
-<!ENTITY COLORS "<varname>COLORS</varname>">
-<!ENTITY CONFIG "<varname>CONFIG</varname>">
-<!ENTITY CPPDEFINES "<varname>CPPDEFINES</varname>">
-<!ENTITY RELEASE "<varname>RELEASE</varname>">
-<!ENTITY RELEASE_BUILD "<varname>RELEASE_BUILD</varname>">
-<!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
-<!ENTITY TARFLAGS "<varname>TARFLAGS</varname>">
-<!ENTITY TARSUFFIX "<varname>TARSUFFIX</varname>">
+<!ENTITY BUILDERMAP "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>BUILDERMAP</varname>">
+<!ENTITY COLOR "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>COLOR</varname>">
+<!ENTITY COLORS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>COLORS</varname>">
+<!ENTITY CONFIG "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>CONFIG</varname>">
+<!ENTITY CPPDEFINES "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>CPPDEFINES</varname>">
+<!ENTITY RELEASE "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>RELEASE</varname>">
+<!ENTITY RELEASE_BUILD "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>RELEASE_BUILD</varname>">
+<!ENTITY SCANNERMAP "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>SCANNERMAP</varname>">
+<!ENTITY TARFLAGS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>TARFLAGS</varname>">
+<!ENTITY TARSUFFIX "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>TARSUFFIX</varname>">
 
 
 
@@ -334,9 +334,9 @@
 
 -->
 
-<!ENTITY PATH "<varname>PATH</varname>">
-<!ENTITY PYTHONPATH "<varname>PYTHONPATH</varname>">
-<!ENTITY SCONSFLAGS "<varname>SCONSFLAGS</varname>">
+<!ENTITY PATH "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>PATH</varname>">
+<!ENTITY PYTHONPATH "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>PYTHONPATH</varname>">
+<!ENTITY SCONSFLAGS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>SCONSFLAGS</varname>">
 
 
 
@@ -346,16 +346,16 @@
 
 -->
 
-<!ENTITY allowed_values "<varname>allowed_values</varname>">
-<!ENTITY build_dir "<varname>build_dir</varname>">
-<!ENTITY map "<varname>map</varname>">
-<!ENTITY ignorecase "<varname>ignorecase</varname>">
-<!ENTITY options "<varname>options</varname>">
-<!ENTITY exports "<varname>exports</varname>">
-<!ENTITY source "<varname>source</varname>">
-<!ENTITY target "<varname>target</varname>">
-<!ENTITY variables "<varname>variables</varname>">
-<!ENTITY variant_dir "<varname>variant_dir</varname>">
+<!ENTITY allowed_values "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>allowed_values</varname>">
+<!ENTITY build_dir "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>build_dir</varname>">
+<!ENTITY map "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>map</varname>">
+<!ENTITY ignorecase "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>ignorecase</varname>">
+<!ENTITY options "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>options</varname>">
+<!ENTITY exports "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>exports</varname>">
+<!ENTITY source "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>source</varname>">
+<!ENTITY target "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>target</varname>">
+<!ENTITY variables "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>variables</varname>">
+<!ENTITY variant_dir "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>variant_dir</varname>">
 
 
 
@@ -365,8 +365,8 @@
 
 -->
 
-<!ENTITY all "<literal>all</literal>">
-<!ENTITY none "<literal>none</literal>">
+<!ENTITY all "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>all</literal>">
+<!ENTITY none "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>none</literal>">
 
 
 
@@ -376,33 +376,33 @@
 
 -->
 
-<!ENTITY BuildDir "<function>BuildDir</function>">
-<!ENTITY CFile "<function>CFile</function>">
-<!ENTITY CXXFile "<function>CXXFile</function>">
-<!ENTITY DVI "<function>DVI</function>">
-<!ENTITY Jar "<function>Jar</function>">
-<!ENTITY Java "<function>Java</function>">
-<!ENTITY JavaH "<function>JavaH</function>">
-<!ENTITY Library "<function>Library</function>">
-<!ENTITY Object "<function>Object</function>">
-<!ENTITY PCH "<function>PCH</function>">
-<!ENTITY PDF "<function>PDF</function>">
-<!ENTITY PostScript "<function>PostScript</function>">
-<!ENTITY Program "<function>Program</function>">
-<!ENTITY RES "<function>RES</function>">
-<!ENTITY RMIC "<function>RMIC</function>">
-<!ENTITY SharedLibrary "<function>SharedLibrary</function>">
-<!ENTITY SharedObject "<function>SharedObject</function>">
-<!ENTITY StaticLibrary "<function>StaticLibrary</function>">
-<!ENTITY StaticObject "<function>StaticObject</function>">
-<!ENTITY Substfile "<function>Substfile</function>">
-<!ENTITY Tar "<function>Tar</function>">
-<!ENTITY Textfile "<function>Textfile</function>">
-<!ENTITY VariantDir "<function>VariantDir</function>">
-<!ENTITY Zip "<function>Zip</function>">
+<!ENTITY BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BuildDir</function>">
+<!ENTITY CFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CFile</function>">
+<!ENTITY CXXFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CXXFile</function>">
+<!ENTITY DVI "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DVI</function>">
+<!ENTITY Jar "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Jar</function>">
+<!ENTITY Java "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Java</function>">
+<!ENTITY JavaH "<function xmlns='http://www.scons.org/dbxsd/v1.0'>JavaH</function>">
+<!ENTITY Library "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Library</function>">
+<!ENTITY Object "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Object</function>">
+<!ENTITY PCH "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PCH</function>">
+<!ENTITY PDF "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PDF</function>">
+<!ENTITY PostScript "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PostScript</function>">
+<!ENTITY Program "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Program</function>">
+<!ENTITY RES "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RES</function>">
+<!ENTITY RMIC "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RMIC</function>">
+<!ENTITY SharedLibrary "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SharedLibrary</function>">
+<!ENTITY SharedObject "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SharedObject</function>">
+<!ENTITY StaticLibrary "<function xmlns='http://www.scons.org/dbxsd/v1.0'>StaticLibrary</function>">
+<!ENTITY StaticObject "<function xmlns='http://www.scons.org/dbxsd/v1.0'>StaticObject</function>">
+<!ENTITY Substfile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Substfile</function>">
+<!ENTITY Tar "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tar</function>">
+<!ENTITY Textfile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Textfile</function>">
+<!ENTITY VariantDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>VariantDir</function>">
+<!ENTITY Zip "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Zip</function>">
 
 <!-- Obsolete, but referenced in old documents.  -->
-<!ENTITY MakeBuilder "<function>Make</function>">
+<!ENTITY MakeBuilder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Make</function>">
 
 
 
@@ -413,49 +413,49 @@
 
 -->
 
-<!ENTITY buildfunc "<literal>builder function</literal>">
-<!ENTITY build_action "<literal>build action</literal>">
-<!ENTITY build_actions "<literal>build actions</literal>">
-<!ENTITY builder_method "<literal>builder method</literal>">
+<!ENTITY buildfunc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>builder function</literal>">
+<!ENTITY build_action "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build action</literal>">
+<!ENTITY build_actions "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build actions</literal>">
+<!ENTITY builder_method "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>builder method</literal>">
 
-<!ENTITY Configure_Contexts "<literal>Configure Contexts</literal>">
-<!ENTITY configure_context "<literal>configure context</literal>">
+<!ENTITY Configure_Contexts "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Configure Contexts</literal>">
+<!ENTITY configure_context "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>configure context</literal>">
 
-<!ENTITY ConsEnv "<literal>Construction Environment</literal>">
-<!ENTITY ConsEnvs "<literal>Construction Environments</literal>">
-<!ENTITY Consenv "<literal>Construction environment</literal>">
-<!ENTITY Consenvs "<literal>Construction environments</literal>">
-<!ENTITY consenv "<literal>construction environment</literal>">
-<!ENTITY consenvs "<literal>construction environments</literal>">
+<!ENTITY ConsEnv "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Environment</literal>">
+<!ENTITY ConsEnvs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Environments</literal>">
+<!ENTITY Consenv "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environment</literal>">
+<!ENTITY Consenvs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environments</literal>">
+<!ENTITY consenv "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction environment</literal>">
+<!ENTITY consenvs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction environments</literal>">
 
-<!ENTITY ConsVar "<literal>Construction Variable</literal>">
-<!ENTITY ConsVars "<literal>Construction Variables</literal>">
-<!ENTITY Consvar "<literal>Construction variable</literal>">
-<!ENTITY Consvars "<literal>Construction variables</literal>">
-<!ENTITY consvar "<literal>construction variable</literal>">
-<!ENTITY consvars "<literal>construction variables</literal>">
+<!ENTITY ConsVar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variable</literal>">
+<!ENTITY ConsVars "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variables</literal>">
+<!ENTITY Consvar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction variable</literal>">
+<!ENTITY Consvars "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction variables</literal>">
+<!ENTITY consvar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction variable</literal>">
+<!ENTITY consvars "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction variables</literal>">
 
-<!ENTITY CPPPATH "<literal>CPPPATH</literal>">
+<!ENTITY CPPPATH "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>CPPPATH</literal>">
 
-<!ENTITY Dictionary "<literal>Dictionary</literal>">
+<!ENTITY Dictionary "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Dictionary</literal>">
 
-<!ENTITY Emitter "<literal>Emitter</literal>">
-<!ENTITY emitter "<literal>emitter</literal>">
+<!ENTITY Emitter "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Emitter</literal>">
+<!ENTITY emitter "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>emitter</literal>">
 
-<!ENTITY factory "<literal>factory</literal>">
+<!ENTITY factory "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>factory</literal>">
 
-<!ENTITY Generator "<literal>Generator</literal>">
-<!ENTITY generator "<literal>generator</literal>">
+<!ENTITY Generator "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Generator</literal>">
+<!ENTITY generator "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>generator</literal>">
 
-<!ENTITY Nodes "<literal>Nodes</literal>">
+<!ENTITY Nodes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Nodes</literal>">
 
-<!ENTITY signature "<literal>signature</literal>">
-<!ENTITY buildsignature "<literal>build signature</literal>">
+<!ENTITY signature "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>signature</literal>">
+<!ENTITY buildsignature "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</literal>">
 
-<!ENTITY true "<literal>true</literal>">
-<!ENTITY false "<literal>false</literal>">
+<!ENTITY true "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>true</literal>">
+<!ENTITY false "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>false</literal>">
 
-<!ENTITY typedef "<literal>typedef</literal>">
+<!ENTITY typedef "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>typedef</literal>">
 
 <!--
 
@@ -463,12 +463,12 @@
 
 -->
 
-<!ENTITY action "<literal>action=</literal>">
-<!ENTITY batch_key "<literal>batch_key=</literal>">
-<!ENTITY cmdstr "<literal>cmdstr=</literal>">
-<!ENTITY exitstatfunc "<literal>exitstatfunc=</literal>">
-<!ENTITY strfunction "<literal>strfunction=</literal>">
-<!ENTITY varlist "<literal>varlist=</literal>">
+<!ENTITY action "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>action=</literal>">
+<!ENTITY batch_key "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>batch_key=</literal>">
+<!ENTITY cmdstr "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cmdstr=</literal>">
+<!ENTITY exitstatfunc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>exitstatfunc=</literal>">
+<!ENTITY strfunction "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>strfunction=</literal>">
+<!ENTITY varlist "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>varlist=</literal>">
 
 <!--
 
@@ -476,38 +476,38 @@
 
 -->
 
-<!ENTITY bar "<filename>bar</filename>">
-<!ENTITY common1_c "<filename>common1.c</filename>">
-<!ENTITY common2_c "<filename>common2.c</filename>">
-<!ENTITY custom_py "<filename>custom.py</filename>">
-<!ENTITY goodbye "<filename>goodbye</filename>">
-<!ENTITY goodbye_o "<filename>goodbye.o</filename>">
-<!ENTITY goodbye_obj "<filename>goodbye.obj</filename>">
-<!ENTITY file_dll "<filename>file.dll</filename>">
-<!ENTITY file_in "<filename>file.in</filename>">
-<!ENTITY file_lib "<filename>file.lib</filename>">
-<!ENTITY file_o "<filename>file.o</filename>">
-<!ENTITY file_obj "<filename>file.obj</filename>">
-<!ENTITY file_out "<filename>file.out</filename>">
-<!ENTITY foo "<filename>foo</filename>">
-<!ENTITY foo_o "<filename>foo.o</filename>">
-<!ENTITY foo_obj "<filename>foo.obj</filename>">
-<!ENTITY hello "<filename>hello</filename>">
-<!ENTITY hello_c "<filename>hello.c</filename>">
-<!ENTITY hello_exe "<filename>hello.exe</filename>">
-<!ENTITY hello_h "<filename>hello.h</filename>">
-<!ENTITY hello_o "<filename>hello.o</filename>">
-<!ENTITY hello_obj "<filename>hello.obj</filename>">
-<!ENTITY libfile_a "<filename>libfile_a</filename>">
-<!ENTITY libfile_so "<filename>libfile_so</filename>">
-<!ENTITY new_hello "<filename>new_hello</filename>">
-<!ENTITY new_hello_exe "<filename>new_hello.exe</filename>">
-<!ENTITY prog "<filename>prog</filename>">
-<!ENTITY prog1 "<filename>prog1</filename>">
-<!ENTITY prog2 "<filename>prog2</filename>">
-<!ENTITY prog_c "<filename>prog.c</filename>">
-<!ENTITY prog_exe "<filename>prog.exe</filename>">
-<!ENTITY stdio_h "<filename>stdio.h</filename>">
+<!ENTITY bar "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>bar</filename>">
+<!ENTITY common1_c "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>common1.c</filename>">
+<!ENTITY common2_c "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>common2.c</filename>">
+<!ENTITY custom_py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>custom.py</filename>">
+<!ENTITY goodbye "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>goodbye</filename>">
+<!ENTITY goodbye_o "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>goodbye.o</filename>">
+<!ENTITY goodbye_obj "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>goodbye.obj</filename>">
+<!ENTITY file_dll "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>file.dll</filename>">
+<!ENTITY file_in "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>file.in</filename>">
+<!ENTITY file_lib "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>file.lib</filename>">
+<!ENTITY file_o "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>file.o</filename>">
+<!ENTITY file_obj "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>file.obj</filename>">
+<!ENTITY file_out "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>file.out</filename>">
+<!ENTITY foo "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>foo</filename>">
+<!ENTITY foo_o "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>foo.o</filename>">
+<!ENTITY foo_obj "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>foo.obj</filename>">
+<!ENTITY hello "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>hello</filename>">
+<!ENTITY hello_c "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>hello.c</filename>">
+<!ENTITY hello_exe "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>hello.exe</filename>">
+<!ENTITY hello_h "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>hello.h</filename>">
+<!ENTITY hello_o "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>hello.o</filename>">
+<!ENTITY hello_obj "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>hello.obj</filename>">
+<!ENTITY libfile_a "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>libfile_a</filename>">
+<!ENTITY libfile_so "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>libfile_so</filename>">
+<!ENTITY new_hello "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>new_hello</filename>">
+<!ENTITY new_hello_exe "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>new_hello.exe</filename>">
+<!ENTITY prog "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>prog</filename>">
+<!ENTITY prog1 "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>prog1</filename>">
+<!ENTITY prog2 "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>prog2</filename>">
+<!ENTITY prog_c "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>prog.c</filename>">
+<!ENTITY prog_exe "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>prog.exe</filename>">
+<!ENTITY stdio_h "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>stdio.h</filename>">
 
 <!--
 
@@ -515,8 +515,8 @@
 
 -->
 
-<!ENTITY plus "<literal>+</literal>">
-<!ENTITY hash "<literal>#</literal>">
+<!ENTITY plus "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>+</literal>">
+<!ENTITY hash "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>#</literal>">
 
 <!--
 
@@ -524,6 +524,14 @@
 
 -->
 
-<!ENTITY scons-announce "<literal>announce@scons.tigris.org</literal>">
-<!ENTITY scons-devel "<literal>dev@scons.tigris.org</literal>">
-<!ENTITY scons-users "<literal>users@scons.tigris.org</literal>">
+<!ENTITY scons-announce "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</literal>">
+<!ENTITY scons-devel "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dev@scons.tigris.org</literal>">
+<!ENTITY scons-users "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>users@scons.tigris.org</literal>">
+
+<!--
+
+  Character entities
+  
+-->
+
+<!ENTITY lambda "&#923;">
