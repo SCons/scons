@@ -1,3 +1,6 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
 actions.xml
 add-method.xml
 alias.xml
@@ -46,14 +49,8 @@ tools.xml
 troubleshoot.xml
 variants.xml
 variables.xml
-SCons-win32-install-1.jpg
-SCons-win32-install-2.jpg
-SCons-win32-install-3.jpg
-SCons-win32-install-4.jpg
-chtml.xsl
-html.xsl
-pdf.xsl
-scons_title.xsl
+*.jpg
+*.xsl
 scons.css
 SConstruct
 titlepage/bricks.jpg

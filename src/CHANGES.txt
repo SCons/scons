@@ -20,6 +20,12 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Philipp Kraus:
     - Added optional ZIPROOT to Zip tool.
 
+  From Dirk Baechle:
+    - Replaced old SGML-based documentation toolchain with a more modern
+      approach, that also requires less external dependencies (programs and
+      Python packages). Added a customized Docbook XSD for strict validation of
+      all input XML files.
+      
 RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   From Anatoly Techtonik:

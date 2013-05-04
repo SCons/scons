@@ -41,7 +41,7 @@ defined Builder and/or Scanner objects.
 python setup.py build
 
 %install
-python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --install-lib=/usr/lib/scons --install-scripts=/usr/bin --install-data=/usr/share
+python setup.py install --root=$RPM_BUILD_ROOT --install-lib=/usr/lib/scons --install-scripts=/usr/bin --install-data=/usr/share
 
 %clean
 rm -rf $RPM_BUILD_ROOT

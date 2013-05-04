@@ -30,6 +30,7 @@ import sys
 import glob
 import SConsDoc
 import SConsExamples
+import bootstrap
 
 Import('build_dir', 'env', 'whereis', 'revaction')
 
@@ -192,7 +193,7 @@ else:
     # get included by the document XML files in the subdirectories.
     #
     manifest = File('MANIFEST').rstr()
-    src_files = [x[:-1] for x in open(manifest).readlines()]
+    src_files = bootstrap.parseManifestLines('.', open(manifest).readlines())
     for s in src_files:
         if not s:
             continue
@@ -217,7 +218,7 @@ else:
         env.Execute(Mkdir(os.path.join(build, doc)))
         env.Execute(Mkdir(os.path.join(build, doc, 'titlepage')))
         manifest = File(os.path.join(doc, 'MANIFEST')).rstr()
-        src_files = [x[:-1] for x in open(manifest).readlines()]
+        src_files = bootstrap.parseManifestLines(doc, open(manifest).readlines())
         for s in src_files:
             if not s:
                 continue
@@ -363,7 +364,7 @@ else:
     # the SConstruct file.
     e = os.path.join('#src', 'engine')
     manifest_in = File(os.path.join(e, 'MANIFEST.in')).rstr()
-    sources = [x[:-1] for x in open(manifest_in).readlines()]
+    sources = bootstrap.parseManifestLines(e, open(manifest_in).readlines())
     sources = [x for x in sources if x.find('Platform') == -1]
     sources = [x for x in sources if x.find('Tool') == -1]
     # XXX
