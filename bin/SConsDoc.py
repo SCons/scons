@@ -330,13 +330,18 @@ if not has_libxml2:
         def validateXml(self, fpath, xmlschema_context):
             # Use lxml
             xmlschema = etree.XMLSchema(xmlschema_context)
-            doc = etree.parse(fpath)
+            try:
+	        doc = etree.parse(fpath)
+            except Exception, e:
+                print "ERROR: %s fails to parse:"%fpath
+                print e
+                return False
             doc.xinclude()
             try:
                 xmlschema.assertValid(doc)
             except Exception, e:
+                print "ERROR: %s fails to validate:" % fpath
                 print e
-                print "%s fails to validate" % fpath
                 return False
             return True
 
@@ -618,16 +623,20 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
     
     fpaths = []
     for dp in dpaths:
-        for path, dirs, files in os.walk(dp):
-            for f in files:
-                if f.endswith('.xml'):
-                    fp = os.path.join(path, f)
-                    if isSConsXml(fp):
-                        fpaths.append(fp)
+        if dp.endswith('.xml') and isSConsXml(dp):
+            path='.'
+            fpaths.append(dp)
+        else:
+            for path, dirs, files in os.walk(dp):
+                for f in files:
+                    if f.endswith('.xml'):
+                        fp = os.path.join(path, f)
+                        if isSConsXml(fp):
+                            fpaths.append(fp)
                 
     fails = []
     for idx, fp in enumerate(fpaths):
-        fpath = os.path.join(path, f)
+        fpath = os.path.join(path, fp)
         print "%.2f%s (%d/%d) %s" % (float(idx+1)*100.0/float(len(fpaths)),
                                      perc, idx+1, len(fpaths),fp)
                                               
