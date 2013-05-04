@@ -1,3 +1,6 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
 Alias.xml
 CFile.xml
 CXXFile.xml
@@ -19,10 +22,7 @@ copyright.xml
 errors.xml
 main.xml
 preface.xml
-chtml.xsl
-html.xsl
-pdf.xsl
-scons_title.xsl
+*.xsl
 scons.css
 SConstruct
 titlepage/bricks.jpg

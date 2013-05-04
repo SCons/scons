@@ -1,9 +1,9 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
 acks.xml
 bground.xml
 copyright.xml
-engine.fig
-engine.jpg
-engine.svg
 engine.xml
 goals.xml
 install.xml
@@ -13,10 +13,10 @@ main.xml
 native.xml
 overview.xml
 summary.xml
-chtml.xsl
-html.xsl
-pdf.xsl
-scons_title.xsl
+engine.fig
+engine.jpg
+engine.svg
+*.xsl
 scons.css
 SConstruct
 titlepage/bricks.jpg

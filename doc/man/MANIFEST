@@ -1,9 +1,10 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
 scons.xml
 sconsign.xml
 scons-time.xml
-html.xsl
-pdf.xsl
-scons_title.xsl
+*.xsl
 scons.css
 SConstruct
 titlepage/bricks.jpg

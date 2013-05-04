@@ -42,6 +42,8 @@ import stat
 import sys
 import tempfile
 
+import bootstrap
+
 project = 'scons'
 default_version = '2.3.1.alpha.yyyymmdd'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
@@ -755,7 +757,7 @@ for p in [ scons ]:
     # destination files.
     #
     manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
-    src_files = [x[:-1] for x in open(manifest_in).readlines()]
+    src_files = bootstrap.parseManifestLines(src, open(manifest_in).readlines())
     raw_files = src_files[:]
     dst_files = src_files[:]
     rpm_files = []
@@ -774,7 +776,7 @@ for p in [ scons ]:
             isubdir = p['subinst_dirs'][sp['pkg']]
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
-            files = [x[:-1] for x in open(MANIFEST_in).readlines()]
+            files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), open(MANIFEST_in).readlines())
             raw_files.extend(files)
             src_files.extend([os.path.join(ssubdir, x) for x in files])
             for f in files:
