@@ -26,6 +26,9 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Python packages). Added a customized Docbook XSD for strict validation of
       all input XML files.
       
+  From Luca Falavigna:
+    - Fixed spelling errors in MAN pages (#2897).
+      
 RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   From Anatoly Techtonik:
