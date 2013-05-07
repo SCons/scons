@@ -4126,7 +4126,7 @@ case-insensitive.
 If the value of
 <emphasis>ignore_case</emphasis>
 is
-<literal>1</literal>,
+<literal>2</literal>,
 then values will be matched
 case-insensitive,
 and all input values will be
