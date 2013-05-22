@@ -1,0 +1,5 @@
+*,D
+.*.swp
+.consign
+.sconsign
+version.xml

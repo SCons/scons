@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<configuration
+  xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration">
+
+  <!-- Without this, a tgroup is created with a tbody containing tr. -->
+
+  <cfg:elementTemplate xmlns="" name="CALS" selectable="override"
+                       parent="tgroup|entrytbl">
+    <tbody>
+      <row><entry></entry></row>
+    </tbody>
+  </cfg:elementTemplate>
+
+  <cfg:elementTemplate xmlns="" name="CALS" selectable="override"
+                       parent="tgroup|entrytbl">
+    <thead>
+      <row><entry></entry></row>
+    </thead>
+  </cfg:elementTemplate>
+
+  <cfg:elementTemplate xmlns="" name="CALS" selectable="override"
+                       parent="tgroup|entrytbl">
+    <tfoot>
+      <row><entry></entry></row>
+    </tfoot>
+  </cfg:elementTemplate>
+
+  <cfg:elementTemplate xmlns="" name="HTML" selectable="override"
+                       parent="table|informaltable">
+    <tbody>
+      <tr><td></td></tr>
+    </tbody>
+  </cfg:elementTemplate>
+
+  <cfg:elementTemplate xmlns="" name="HTML" selectable="override"
+                       parent="table|informaltable">
+    <thead>
+      <tr><th></th></tr>
+    </thead>
+  </cfg:elementTemplate>
+
+  <cfg:elementTemplate xmlns="" name="HTML" selectable="override"
+                       parent="table|informaltable">
+    <tfoot>
+      <tr><th></th></tr>
+    </tfoot>
+  </cfg:elementTemplate>
+
+  <!-- HTML table templates =============================================== -->
+
+  <!-- selectable="false" is used to avoid clutter in the Element menu. 
+       Therefore these templates can only be used by the macros triggered
+       by toobar buttons. -->
+
+  <elementTemplate name="HTML" selectable="false">
+    <informaltable xmlns="" border="1">
+      <tr>
+        <td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td>
+      </tr>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="HTML_head_row" selectable="false">
+    <informaltable xmlns="" frame="box" rules="all">
+      <thead>
+	<tr align="center">
+	  <th></th><th></th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <td></td><td></td>
+	</tr>
+	<tr>
+	  <td></td><td></td>
+	</tr>
+      </tbody>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="HTML_head_column" selectable="false">
+    <informaltable xmlns="" frame="box" rules="all">
+      <col align="center" span="1" />
+      <tbody>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+      </tbody>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="HTML_head_row_column" selectable="false">
+    <informaltable xmlns="" frame="box" rules="all">
+      <col align="center" span="1" />
+      <thead>
+	<tr align="center">
+	  <th></th><th></th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+      </tbody>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="HTML" selectable="false">
+    <table xmlns="" border="1">
+      <caption></caption>
+      <tr>
+        <td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td>
+      </tr>
+    </table>
+  </elementTemplate>
+
+  <elementTemplate name="HTML_head_row" selectable="false">
+    <table xmlns="" frame="box" rules="all">
+      <caption></caption>
+      <thead>
+	<tr align="center">
+	  <th></th><th></th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <td></td><td></td>
+	</tr>
+	<tr>
+	  <td></td><td></td>
+	</tr>
+      </tbody>
+    </table>
+  </elementTemplate>
+
+  <elementTemplate name="HTML_head_column" selectable="false">
+    <table xmlns="" frame="box" rules="all">
+      <caption></caption>
+      <col align="center" span="1" />
+      <tbody>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+      </tbody>
+    </table>
+  </elementTemplate>
+
+  <elementTemplate name="HTML_head_row_column" selectable="false">
+    <table xmlns="" frame="box" rules="all">
+      <caption></caption>
+      <col align="center" span="1" />
+      <thead>
+	<tr align="center">
+	  <th></th><th></th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+	<tr>
+	  <th></th><td></td>
+	</tr>
+      </tbody>
+    </table>
+  </elementTemplate>
+</configuration>

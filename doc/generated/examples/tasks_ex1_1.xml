@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q</userinput>
+cc -o app main.cpp
+cat &lt; foo.bar2 &gt; foo.cpp
+cc -o app2 main2.cpp foo.cpp
+cat &lt; test.bar &gt; test.h
+</screen>
