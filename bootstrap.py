@@ -80,9 +80,7 @@ def parseManifestLines(basedir, lines):
         comment lines, starting with a '#'.
     """
     sources = []
-    oldwd = os.path.abspath(os.getcwd())
     basewd = os.path.abspath(basedir)
-    os.chdir(basedir)
     for l in lines:
         if l.startswith('#'):
             # Skip comments
@@ -90,33 +88,18 @@ def parseManifestLines(basedir, lines):
         l = l.rstrip('\n')
         if l.endswith('**'):
             # Glob all files recursively
-            globwd, tail = os.path.split(l)
-            if globwd:
-                os.chdir(globwd)
-            for path, dirs, files in os.walk('.'):
+            globwd = os.path.dirname(os.path.join(basewd, l))
+            for path, dirs, files in os.walk(globwd):
                 for f in files:
-                    if globwd:
-                        fpath = os.path.join(globwd, path, f)
-                    else:
-                        fpath = os.path.join(path, f)
-                    sources.append(os.path.normpath(fpath))
-            if globwd:
-                os.chdir(basewd)
+                    fpath = os.path.join(globwd, path, f)
+                    sources.append(os.path.relpath(fpath, basewd))
         elif '*' in l:
             # Glob file pattern
-            globwd, tail = os.path.split(l)
-            if globwd:
-                os.chdir(globwd)
-                files = glob.glob(tail)
-                for f in files:
-                    fpath = os.path.join(globwd, f)
-                    sources.append(os.path.normpath(fpath))
-                os.chdir(basewd)
-            else:
-                sources.extend(glob.glob(tail))
+            files = glob.glob(os.path.join(basewd, l))
+            for f in files:
+                sources.append(os.path.relpath(f, basewd))
         else:
             sources.append(l)
-    os.chdir(oldwd)
 
     return sources
 
