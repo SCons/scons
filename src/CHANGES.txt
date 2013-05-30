@@ -1,0 +1,5678 @@
+
+
+                 SCons - a software construction tool
+
+                            Change Log
+
+RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
+  From Gary Oberbrunner:
+    - Test harness: fail_test() can now print a message to help debugging.
+
+  From William Deegan:
+    - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
+      in shell used to run batch files.
+    - MSVC Support fixed defaulting TARGET_ARCH to HOST_ARCH. It should be
+      None if not explicitly set.
+    - MSVC Fixed issue where if more than one Architectures compilers are
+      detected, it would take the last one found, and not the first.
+
+  From Philipp Kraus:
+    - Added optional ZIPROOT to Zip tool.
+
+  From Dirk Baechle:
+    - Replaced old SGML-based documentation toolchain with a more modern
+      approach, that also requires less external dependencies (programs and
+      Python packages). Added a customized Docbook XSD for strict validation of
+      all input XML files.
+      
+RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
+
+  From Anatoly Techtonik:
+    - Added ability to run scripts/scons.py directly from source checkout
+    - Hide deprecated --debug={dtree,stree,tree} from --help output
+    - Error messages from option parser now include hints about valid choices
+    - Cleaned up some Python 1.5 and pre-2.3 code, so don't expect SCons
+      to run on anything less than Python 2.4 anymore
+    - Several fixes for runtest.py:
+      * exit with an error if no tests were found
+      * removed --noqmtest option - this behavior is by default
+      * replaced `-o FILE --xml` combination with `--xml FILE`
+      * changed `-o, --output FILE` option to capture stdout/stderr output
+        from runtest.py
+    - Remove os_spawnv_fix.diff patch required to enable parallel builds
+      support prior to Python 2.2
+
+  From Juan Lang:
+    - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
+    - Support building with WiX releases after 2.0
+
+  From Alexey Klimkin:
+    - Fix nested LIBPATH expansion by flattening sequences in subst_path.
+
+  From eyan on Bitbucket:
+    - Print target name with command execution time with --debug=time
+
+  From Thomas Berg and Evgeny Podjachev:
+    - Fix subprocess spawning on Windows.  Work around a Windows
+      bug that can crash python occasionally when using -jN. (#2449)
+
+  From Dirk Baechle:
+    - Updated test framework to support dir and file fixtures and
+      added ability to test external (out-of-tree) tools (#2862).
+      See doc in QMTest/test-framework.rst.
+    - Fixed several errors in the test suite (Java paths, MSVS version
+      detection, Tool import), additionally
+      * provided MinGW command-line support for the CXX, AS and
+        Fortran tests,
+      * refactored the detection of the gcc version and the according
+        Fortran startup library,
+      * provided a new module rpmutils.py, wrapping the RPM naming rules
+        for target files and further hardware-dependent info (compatibility,
+        compiler flags, ...),
+      * added new test methods must_exist_one_of() and
+        must_not_exist_any_of() and
+      * removed Aegis support from runtest.py. (#2872)
+
+  From Gary Oberbrunner:
+    - Add -jN support to runtest.py to run tests in parallel
+    - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
+    - Fix MSVS solution generation for VS11, and fixed tests.
+
+  From Rob Managan:
+    - Updated the TeX builder to support the \newglossary command
+      in LaTeX's glossaries package and the files it creates.
+    - Improve support for new versions of biblatex in the TeX builder
+      so biber is called automatically if biblatex requires it.
+    - Add SHLIBVERSION as an option that tells SharedLibrary to build
+      a versioned shared library and create the required symlinks.
+      Add builder InstallVersionedLib to create the required symlinks
+      installing a versioned shared library.
+
+RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
+
+  From dubcanada on Bitbucket:
+    - Fix 32-bit Visual Express C++ on 64-bit Windows (generate 32-bit code)
+
+  From Paweł Tomulik:
+    - Added gettext toolset
+    - Fixed FindSourceFiles to find final sources (leaf nodes).
+
+  From Greg Ward:
+    - Allow Node objects in Java path (#2825)
+
+  From Joshua Hughes:
+    - Make Windows not redefine builtin file as un-inheritable (#2857)
+    - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
+
+  From smallbub on Bitbucket:
+    - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
+
+  From Mortoray:
+    - Make -s (silent mode) be silent about entering subdirs (#2976).
+    - Fix cloning of builders when cloning environment (#2821).
+
+  From Gary Oberbrunner:
+    - Show valid Visual Studio architectures in error message
+       when user passes invalid arch.
+
+  From Alexey Petruchik:
+    - Support for Microsoft Visual Studio 11 (both using it
+      and generating MSVS11 solution files).
+
+  From Alexey Klimkin:
+    - Fixed the Taskmaster, curing spurious build failures in
+      multi-threaded runs (#2720).
+
+  From Dirk Baechle:
+    - Improved documentation of command-line variables (#2809).
+    - Fixed scons-doc.py to properly convert main XML files (#2812).
+
+  From Rob Managan:
+    - Updated the TeX builder to support LaTeX's multibib package.
+    - Updated the TeX builder to support LaTeX's biblatex package.
+    - Added support for using biber instead of bibtex by setting
+      env['BIBTEX'] = 'biber'
+
+  From Arve Knudsen:
+    - Test for FORTRANPPFILESUFFIXES (#2129).
+
+
+RELEASE 2.1.0 - Mon, 09 Sep 2011 20:54:57 -0700
+
+  From Anton Lazarev:
+    - Fix Windows resource compiler scanner to accept DOS line endings.
+
+  From Matthias:
+    - Update MSVS documents to remove note indicating that only one
+      project is currently supported per solution file.
+
+  From Grzegorz Bizoń:
+    - Fix long compile lines in batch mode by using TEMPFILE
+    - Fix MSVC_BATCH=False (was treating it as true)
+
+  From Justin Gullingsrud:
+    - support -std=c++0x and related CXXFLAGS in pkgconfig (ParseFlags)
+
+  From Vincent Beffara:
+    - Support -dylib_file in pkgconfig (ParseFlags)
+
+  From Gary Oberbrunner and Sohail Somani:
+    - new construction variable WINDOWS_EMBED_MANIFEST to automatically
+      embed manifests in Windows EXEs and DLLs.
+
+  From Gary Oberbrunner:
+    - Fix Visual Studio project generation when CPPPATH contains Dir nodes
+    - Ensure Visual Studio project is regenerated when CPPPATH or CPPDEFINES change
+    - Fix unicode error when using non-ASCII filenames with Copy or Install
+    - Put RPATH in LINKCOM rather than LINKFLAGS so resetting
+      LINKFLAGS doesn't kill RPATH
+    - Fix precompiled headers on Windows when variant dir name has spaces.
+    - Adding None to an Action no longer fails (just returns original action)
+    - New --debug=prepare option to show each target as it's being
+      prepared, whether or not anything needs to be done for it.
+    - New debug option --debug=duplicate to print a line for each
+      unlink/relink (or copy) of a variant file from its source file.
+    - Improve error message for EnumVariables to show legal values.
+    - Fix Intel compiler to sort versions >9 correctly (esp. on Linux)
+    - Fix Install() when the source and target are directories and the
+      target directory exists.
+
+  From David Garcia Garzon:
+    - Fix Delete to be able to delete broken symlinks and dir
+      symlinks.
+
+  From Robert Lehr:
+    - Handle .output file generated by bison/yacc properly. Cleaning it
+      when necessary.
+
+  From Antoine Dechaume:
+    - Handle SWIG file where there is whitespace after the module name
+      properly. Previously the generated files would include
+      the whitespace.
+
+  From Dmitry R.:
+    - Handle Environment in case __semi_deepcopy is None
+
+  From Benoit Belley:
+
+    - Much improved support for Windows UNC paths (\\SERVERNAME).
+
+  From Jean-Baptiste Lab:
+
+    - Fix problems with appending CPPDEFINES that contain
+      dictionaries, and related issues with Parse/MergeFlags and
+      CPPDEFINES.
+
+  From Allen Weeks:
+
+    - Fix for an issue with implicit-cache with multiple targets
+      when dependencies are removed on disk.
+
+  From Evgeny Podjachev and Alexey Petruchick:
+
+    - Support generation of Microsoft Visual Studio 2008 (9.0)
+      and 2010 (10.0) project and solution files.
+
+  From Ken Deeter:
+
+    - Fix a problem when FS Entries which are actually Dirs have builders.
+
+  From Luca Falavigna:
+
+    - Support Fortran 03
+
+  From Gary Oberbrunner:
+
+    - Print the path to the SCons package in scons --version
+
+  From Jean-Franï¿½ois Colson:
+
+    - Improve Microsoft Visual Studio Solution generation, and fix
+      various errors in the generated solutions especially when using
+      MSVS_SCC_PROVIDER, and when generating multiple projects.  The
+      construction variable MSVS_SCC_PROJECT_BASE_PATH, which never
+      worked properly, is removed.  Users can use the new variable
+      MSVS_SCC_CONNECTION_ROOT instead if desired.
+
+  From Anatoly Techtonik:
+
+    - Use subprocess in bootstrap.py instead of os.execve to avoid
+      losing output control on Windows (http://bugs.python.org/issue9148)
+
+    - Revert patch for adding SCons to App Paths, because standard cmd
+      shell doesn't search there. This is confusing, because `scons` can
+      be executed from explorer, but fail to start from console.
+
+    - Fix broken installation with easy_install on Windows (issue #2051)
+      SCons traditionally installed in a way that allowed to run multiple
+      versions side by side. This custom logic was incompatible with
+      easy_install way of doing things.
+
+    - Use epydoc module for generating API docs in HTML if command line
+      utility is not found in PATH. Actual for Windows.
+
+  From Alexander Goomenyuk:
+
+    - Add .sx to assembly source scanner list so .sx files
+      get their header file dependencies detected.
+
+  From Arve Knudsen:
+
+    - Set module metadata when loading site_scons/site_init.py
+      so it is treated as a proper module; __doc__, __file__ and
+      __name__ now refer to the site_init.py file.
+
+  From Russel Winder:
+
+    - Users Guide updates explaining that Tools can be packages as
+      well as python modules.
+
+  From Gary Oberbrunner:
+
+    - New systemwide and per-user site_scons dirs.
+
+  From Dirk Baechle:
+
+    - XML fixes in User's Guide.
+    - Fixed the detection of 'jar' and 'rmic' during
+      the initialization of the respective Tools (#2730).
+    - Improved docs for custom Decider functions and
+      custom Scanner objects (#2711, #2713).
+    - Corrected SWIG module names for generated *.i files (#2707).
+
+  From Joe Zuntz:
+
+    - Fixed a case-sensitivity problem with Fortran modules.
+
+  From Bauke Conijn:
+
+    - Added Users Guide example for auto-generated source code
+
+  From Steven Knight:
+
+    - Fix explicit dependencies (Depends()) on Nodes that don't have
+      attached Builders.
+
+    - Fix use of the global Alias() function with command actions.
+
+  From Matt Hughes:
+
+    - Fix the ability to append to default $*FLAGS values (which are
+      implemented as CLVar instances) in a copied construction environment
+      without affecting the original construction environment's value.
+
+  From Rob Managan:
+
+    - Updated the TeX command strings to include a /D on Windows in
+      case the new directory is on a different drive letter.
+
+    - Fixed the LaTeX scanner so dependencies are found in commands that
+      are broken across lines with a comment or have embedded spaces.
+
+    - The TeX builders should now work with tex files that are generated
+      by another program. Thanks to Hans-Martin von Gaudecker for
+      isolating the cause of this bug.
+
+    - Added support for INDEXSTYLE environment variable so makeindex can
+      find style files.
+
+    - Added support for the bibunits package so we call bibtex on all
+      the bu*.aux files.
+
+    - Add support of finding path information on OSX for TeX applications
+      MacPorts and Fink paths need to be added by the user
+
+  From Russel Winder:
+
+    - Add support for DMD version 2 (the phobos2 library).
+
+  From William Deegan:
+
+    - Add initial support for VS/VC 2010 (express and non-express versions)
+    - Remove warning for not finding MS VC/VS install.
+      "scons: warning: No version of Visual Studio compiler found
+        - C/C++ compilers most likely not set correctly"
+    - Add support for Linux 3.0
+
+
+RELEASE 2.0.1 - Mon, 15 Aug 2010 15:46:32 -0700
+
+  From Dirk Baechle:
+
+    - Fix XML in documentation.
+
+  From Joe Zuntz:
+
+    - Fixed a case-sensitivity problem with Fortran modules.
+
+  From Bauke Conijn:
+
+    - Added Users Guide example for auto-generated source code
+
+  From Steven Knight:
+
+    - Fix explicit dependencies (Depends()) on Nodes that don't have
+      attached Builders.
+
+  From Matt Hughes:
+
+    - Fix the ability to append to default $*FLAGS values (which are
+      implemented as CLVar instances) in a copied construction environment
+      without affecting the original construction environment's value.
+
+  From Rob Managan:
+
+    - Updated the TeX command strings to include a /D on Windows in
+      case the new directory is on a different drive letter.
+
+    - Fixed the LaTeX scanner so dependencies are found in commands that
+      are broken across lines with a comment or have embedded spaces.
+
+
+RELEASE 2.0.0.final.0 - Mon, 14 Jun 2010 22:01:37 -0700
+
+  From Dirk Baechle:
+
+    - Fix XML in documentation.
+
+  From Steven Knight:
+
+    - Provide forward compatibility for the 'profile' module.
+
+    - Provide forward compatibility for the 'pickle' module.
+
+    - Provide forward compatibility for the 'io' module.
+
+    - Provide forward compatibility for the 'queue' module.
+
+    - Provide forward compatibility for the 'collections' module.
+
+    - Provide forward compatibility for the 'builtins' module.
+
+    - Provide forward compatibility for 'sys.intern()'.
+
+    - Convert to os.walk() from of os.path.walk().
+
+    - Remove compatibility logic no longer needed.
+
+    - Add a '-3' option to runtest to print 3.x incompatibility warnings.
+
+    - Convert old-style classes into new-style classes.
+
+    - Fix "Ignoring corrupt sconsign entry" warnings when building
+      in a tree with a pre-2.0 .sconsign file.
+
+    - Fix propagation from environment of VS*COMNTOOLS to resolve issues
+      initializing MSVC/MSVS/SDK issues.
+
+    - Handle detecting Visual C++ on Python verions with upper-case
+      platform architectures like 'AMD64'.
+
+  From W. Trevor King:
+
+    - Revisions to README.
+
+  From Greg Noel:
+
+    - Apply numerous Python fixers to update code to more modern idioms.
+      Find where fixers should be applied to code in test strings and
+      apply the fixers there, too.
+
+    - Write a fixer to convert string functions to string methods.
+
+    - Modify the 'dict' fixer to be less conservative.
+
+    - Modify the 'apply' fixer to handle more cases.
+
+    - Create a modified 'types' fixer that converts types to 2.x
+      equivalents rather than 3.x equivalents.
+
+    - Write a 'division' fixer to highlight uses of the old-style
+      division operator.  Correct usage where needed.
+
+    - Add forward compatibility for the new 'memoryview' function
+      (which replaces the 'buffer' function).
+
+    - Add forward compatibility for the 'winreg' module.
+
+    - Remove no-longer-needed 'platform' module.
+
+    - Run tests with the '-3' option to Python 2.6 and clear up
+      various reported incompatibilities.
+
+    - Comb out code paths specialized to Pythons older than 2.4.
+
+    - Update deprecation warnings; most now become mandatory.
+
+    - Start deprecation cycle for BuildDir() and build_dir.
+
+    - Start deprecation cycle for SourceCode() and related factories
+
+    - Fixed a problem with is_Dict() not identifying some objects derived
+      from UserDict.
+
+  From Jim Randall:
+
+    - Document the AllowSubstExceptions() function in the User's Guide.
+
+  From William Deegan:
+
+    - Migrate MSVC/MSVS/SDK improvements from 1.3 branch.
+
+
+RELEASE 1.3.0 - Tue, 23 Mar 2010 21:44:19 -0400
+
+  From Steven Knight:
+
+    - Update man page and documentation.
+
+  From William Deegan (plus minor patch from Gary Oberbrunner):
+
+    - Support Visual Studio 8.0 Express
+
+RELEASE 1.2.0.d20100306 - Sat, 06 Mar 2010 16:18:33 -0800
+
+  From Luca Falavigna:
+
+    - Fix typos in the man page.
+
+  From Gottfried Ganssauge:
+
+    - Support execution when SCons is installed via easy_install.
+
+  From Steven Knight:
+
+    - Make the messages for Configure checks of compilers consistent.
+
+    - Issue an error message if a BUILDERS entry is not a Builder
+      object or a callable wrapper.
+
+  From Rob Managan:
+
+    - Update tex builder to handle the case where a \input{foo}
+      command tries to work with a directory named foo instead of the
+      file foo.tex. The builder now ignores a directory and continues
+      searching to find the correct file. Thanks to Lennart Sauerbeck
+      for the test case and initial patch
+
+      Also allow the \include of files in subdirectories when variantDir
+      is used with duplicate=0. Previously latex would crash since
+      the directory in which the .aux file is written was not created.
+      Thanks to Stefan Hepp for finding this and part of the solution.
+
+  From James Teh:
+    - Patches to fix some issues using MS SDK V7.0
+
+  From William Deegan:
+    - Lots of testing and minor patches to handle mixed MS VC and SDK
+      installations, as well as having only the SDK installed.
+
+
+RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
+
+  From Jim Randall:
+    - Fixed temp filename race condition on Windows with long cmd lines.
+
+  From David Cournapeau:
+    - Fixed tryRun when sconf directory is in a variant dir.
+    - Do not add -fPIC for ifort tool on non-posix platforms (darwin and
+      windows).
+    - Fix bug 2294 (spurious CheckCC failures).
+    - Fix scons bootstrap process on windows 64 (wrong wininst name)
+
+  From William Deegan:
+    - Final merge from vs_revamp branch to main
+
+    - Added definition and usage of HOST_OS, HOST_ARCH, TARGET_OS,
+      TARGET_ARCH, currently only defined/used by Visual Studio
+      Compilers. This will be rolled out to other platforms/tools
+      in the future.
+
+    - Add check for python >= 3.0.0 and exit gracefully.
+      For 1.3 python >= 1.5.2 and < 3.0.0 are supported
+
+    - Fix bug 1944 - Handle non-existent .i file in swig emitter, previously
+      it would crash with an IOError exception. Now it will try to make an
+      educated guess on the module name based on the filename.
+
+  From Lukas Erlinghagen:
+
+    - Have AddOption() remove variables from the list of
+      seen-but-unknown variables (which are reported later).
+
+    - An option name and aliases can now be specified as a tuple.
+
+  From Hartmut Goebel:
+
+    - Textfile builder.
+
+  From Jared Grubb:
+
+    - use "is/is not" in comparisons with None instead of "==" or "!=".
+
+  From Jim Hunziker:
+
+    - Avoid adding -gphobos to a command line multiple times
+      when initializing use of the DMD compiler.
+
+  From Jason Kenney:
+
+    - Sugguested HOST/TARGET OS/ARCH separation.
+
+  From Steven Knight:
+
+    - Fix the -n option when used with VariantDir(duplicate=1)
+      and the variant directory doesn't already exist.
+
+    - Fix scanning of Unicode files for both UTF-16 endian flavors.
+
+    - Fix a TypeError on #include of file names with Unicode characters.
+
+    - Fix an exception if a null command-line argument is passed in.
+
+    - Evaluate Requires() prerequisites before a Node's direct children
+      (sources and dependencies).
+
+  From Greg Noel:
+
+    - Remove redundant __metaclass__ initializations in Environment.py.
+
+    - Correct the documentation of text returned by sconf.Result().
+
+    - Document that filenames with '.' as the first character are
+      ignored by Glob() by default (matching UNIX glob semantics).
+
+    - Fix SWIG testing infrastructure to work on Mac OS X.
+
+    - Restructure a test that occasionally hung so that the test would
+      detect when it was stuck and fail instead.
+
+    - Substfile builder.
+
+  From Gary Oberbrunner:
+
+    - When reporting a target that SCons doesn't know how to make,
+      specify whether it's a File, Dir, etc.
+
+  From Ben Webb:
+
+    - Fix use of $SWIGOUTDIR when generating Python wrappers.
+
+    - Add $SWIGDIRECTORSUFFIX and $SWIGVERSION construction variables.
+
+  From Rob Managan:
+
+    - Add -recorder flag to Latex commands and updated internals to
+      use the output to find files TeX creates. This allows the MiKTeX
+      installations to find the created files
+
+    - Notify user of Latex errors that would get buried in the
+      Latex output
+
+    - Remove LATEXSUFFIXES from environments that don't initialize Tex.
+
+    - Add support for the glossaries package for glossaries and acronyms
+
+    - Fix problem that pdftex, latex, and pdflatex tools by themselves did
+      not create the actions for bibtex, makeindex,... by creating them
+      and other environment settings in one routine called by all four
+      tex tools.
+
+    - Fix problem with filenames of sideeffects when the user changes
+      the name of the output file from the latex default
+
+    - Add scanning of files included in Latex by means of \lstinputlisting{}
+      Patch from Stefan Hepp.
+
+    - Change command line for epstopdf to use --outfile= instead of -o
+      since this works on all platforms.
+      Patch from Stefan Hepp.
+
+    - Change scanner to properly search for included file from the
+      directory of the main file instead of the file it is included from.
+      Also update the emitter to add the .aux file associated with
+      \include{filename} commands. This makes sure the required directories
+      if any are created for variantdir cases.
+      Half of the patch from Stefan Hepp.
+
+RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
+
+  From Stanislav Baranov:
+
+    - Make suffix-matching for scanners case-insensitive on Windows.
+
+  From David Cournapeau:
+
+    - Change the way SCons finds versions of Visual C/C++ and Visual
+      Studio to find and use the Microsoft v*vars.bat files.
+
+  From Robert P. J. Day:
+
+    - User's Guide updates.
+
+  From Dan Eaton:
+
+    - Fix generation of Visual Studio 8 project files on x64 platforms.
+
+  From Allan Erskine:
+
+    - Set IncludeSearchPath and PreprocessorDefinitions in generated
+      Visual Studio 8 project files, to help IntelliSense work.
+
+  From Mateusz Gruca:
+
+    - Fix deletion of broken symlinks by the --clean option.
+
+  From Steven Knight:
+
+    - Fix the error message when use of a non-existent drive on Windows
+      is detected.
+
+    - Add sources for files whose targets don't exist in $CHANGED_SOURCES.
+
+    - Detect implicit dependencies on commands even when the command is
+      quoted.
+
+    - Fix interaction of $CHANGED_SOURCES with the --config=force option.
+
+    - Fix finding #include files when the string contains escaped
+      backslashes like "C:\\some\\include.h".
+
+    - Pass $CCFLAGS to Visual C/C++ precompiled header compilation.
+
+    - Remove unnecessary nested $( $) around $_LIBDIRFLAGS on link lines
+      for the Microsoft linker, the OS/2 ilink linker and the Phar Lap
+      linkloc linker.
+
+    - Spell the Windows environment variables consistently "SystemDrive"
+      and "SystemRoot" instead of "SYSTEMDRIVE" and "SYSTEMROOT".
+
+
+
+RELEASE 1.2.0.d20090113 - Tue, 13 Jan 2009 02:50:30 -0800
+
+  From Stanislav Baranov, Ted Johnson and Steven Knight:
+
+    - Add support for batch compilation of Visual Studio C/C++ source
+      files, controlled by a new $MSVC_BATCH construction variable.
+
+  From Steven Knight:
+
+    - Print the message, "scons: Build interrupted." on error output,
+      not standard output.
+
+    - Add a --warn=future-deprecated option for advance warnings about
+      deprecated features that still have warnings hidden by default.
+
+    - Fix use of $SOURCE and $SOURCES attributes when there are no
+      sources specified in the Builder call.
+
+    - Add support for new $CHANGED_SOURCES, $CHANGED_TARGETS,
+      $UNCHANGED_SOURCES and $UNCHANGED_TARGETS variables.
+
+    - Add general support for batch builds through new batch_key= and
+      targets= keywords to Action object creation.
+
+  From Arve Knudsen:
+
+    - Make linker tools differentiate properly between SharedLibrary
+      and LoadableModule.
+
+    - Document TestCommon.shobj_prefix variable.
+
+    - Support $SWIGOUTDIR values with spaces.
+
+  From Rob Managan:
+
+    - Don't automatically try to build .pdf graphics files for
+      .eps files in \includegraphics{} calls in TeX/LaTeX files
+      when building with the PDF builder (and thus using pdflatex).
+
+  From Gary Oberbrunner:
+
+    - Allow AppendENVPath() and PrependENVPath() to interpret '#'
+      for paths relative to the top-level SConstruct directory.
+
+    - Use the Borland ilink -e option to specify the output file name.
+
+    - Document that the msvc Tool module uses $PCH, $PCHSTOP and $PDB.
+
+    - Allow WINDOWS_INSERT_DEF=0 to disable --output-def when linking
+      under MinGW.
+
+  From Zia Sobhani:
+
+    - Fix typos in the User's Guide.
+
+  From Greg Spencer:
+
+    - Support implicit dependency scanning of files encoded in utf-8
+      and utf-16.
+
+  From Roberto de Vecchi:
+
+    - Remove $CCFLAGS from the the default definitions of $CXXFLAGS for
+      Visual C/C++ and MIPSpro C++ on SGI so, they match other tools
+      and avoid flag duplication on C++ command lines.
+
+  From Ben Webb:
+
+    - Handle quoted module names in SWIG source files.
+
+    - Emit *_wrap.h when SWIG generates header file for directors
+
+  From Matthew Wesley:
+
+    - Copy file attributes so we identify, and can link a shared library
+      from, shared object files in a Repository.
+
+
+
+RELEASE 1.2.0 - Sat, 20 Dec 2008 22:47:29 -0800
+
+  From Steven Knight:
+
+    - Don't fail if can't import a _subprocess module on Windows.
+
+    - Add warnings for use of the deprecated Options object.
+
+
+
+RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
+
+  From Benoit Belley:
+
+    - Improve the robustness of GetBuildFailures() by refactoring
+      SCons exception handling (especially BuildError exceptions).
+
+    - Have the --taskmastertrace= option print information about
+      individual Task methods, not just the Taskmaster control flow.
+
+    - Eliminate some spurious dependency cycles by being more aggressive
+      about pruning pending children from the Taskmaster walk.
+
+    - Suppress mistaken reports of a dependency cycle when a child
+      left on the pending list is a single Node in EXECUTED state.
+
+  From David Cournapeau:
+
+    - Fix $FORTRANMODDIRPREFIX for the ifort (Intel Fortran) tool.
+
+  From Brad Fitzpatrick:
+
+    - Don't pre-generate an exception message (which will likely be
+      ignored anyway) when an EntryProxy re-raises an AttributeError.
+
+  From Jared Grubb:
+
+    - Clean up coding style and white space in Node/FS.py.
+
+    - Fix a typo in the documentation for $_CPPDEFFLAGS.
+
+    - Issue 2401: Fix usage of comparisons with None.
+
+  From Ludwig Hï¿½hne:
+
+    - Handle Java inner classes declared within a method.
+
+  From Steven Knight:
+
+    - Fix label placement by the "scons-time.py func" subcommand
+      when a profile value was close to (or equal to) 0.0.
+
+    - Fix env.Append() and env.Prepend()'s ability to add a string to
+      list-like variables like $CCFLAGS under Python 2.6.
+
+    - Other Python2.6 portability:  don't use "as" (a Python 2.6 keyword).
+      Don't use the deprecated Exception.message attribute.
+
+    - Support using the -f option to search for a different top-level
+      file name when walking up with the -D, -U or -u options.
+
+    - Fix use of VariantDir when the -n option is used and doesn't,
+      therefore, actually create the variant directory.
+
+    - Fix a stack trace from the --debug=includes option when passed a
+      static or shared library as an argument.
+
+    - Speed up the internal find_file() function (used for searching
+      CPPPATH, LIBPATH, etc.).
+
+    - Add support for using the Python "in" keyword on construction
+      environments (for example, if "CPPPATH" in env: ...).
+
+    - Fix use of Glob() when a repository or source directory contains
+      an in-memory Node without a corresponding on-disk file or directory.
+
+    - Add a warning about future reservation of $CHANGED_SOURCES,
+      $CHANGED_TARGETS, $UNCHANGED_SOURCES and $UNCHANGED_TARGETS.
+
+    - Enable by default the existing warnings about setting the resource
+      $SOURCE, $SOURCES, $TARGET and $TARGETS variable.
+
+  From Rob Managan:
+
+    - Scan for TeX files in the paths specified in the $TEXINPUTS
+      construction variable and the $TEXINPUTS environment variable.
+
+    - Configure the PDF() and PostScript() Builders as single_source so
+      they know each source file generates a separate target file.
+
+    - Add $EPSTOPDF, $EPSTOPDFFLAGS and $EPSTOPDFCOM
+
+    - Add .tex as a valid extension for the PDF() builder.
+
+    - Add regular expressions to find \input, \include and
+      \includegraphics.
+
+    - Support generating a .pdf file from a .eps source.
+
+    - Recursive scan included input TeX files.
+
+    - Handle requiring searched-for TeX input graphics files to have
+      extensions (to avoid trying to build a .eps from itself, e.g.).
+
+  From Greg Noel:
+
+    - Make the Action() function handle positional parameters consistently.
+
+    - Clarify use of Configure.CheckType().
+
+    - Make the File.{Dir,Entry,File}() methods create their entries
+      relative to the calling File's directory, not the SConscript
+      directory.
+
+    - Use the Python os.devnull variable to discard error output when
+      looking for the $CC or $CXX version.
+
+    - Mention LoadableModule() in the SharedLibrary() documentation.
+
+  From Gary Oberbrunner:
+
+    - Update the User's Guide to clarify use of the site_scons/
+      directory and the site_init.py module.
+
+    - Make env.AppendUnique() and env.PrependUnique remove duplicates
+      within a passed-in list being added, too.
+
+  From Randall Spangler:
+
+    - Fix Glob() so an on-disk file or directory beginning with '#'
+      doesn't throw an exception.
+
+
+
+RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
+
+  From Chris AtLee
+
+    - Use the specified environment when checking for the GCC compiler
+      version.
+
+  From Ian P. Cardenas:
+
+    - Fix Glob() polluting LIBPATH by returning copy of list
+
+  From David Cournapeau:
+
+    - Add CheckCC, CheckCXX, CheckSHCC and CheckSHCXX tests to
+      configuration contexts.
+
+    - Have the --profile= argument use the much faster cProfile module
+      (if it's available in the running Python version).
+
+    - Reorder MSVC compilation arguments so the /Fo is first.
+
+  From Bill Deegan:
+
+    - Add scanning Windows resource (.rc) files for implicit dependencies.
+
+  From John Gozde:
+
+    - When scanning for a #include file, don't use a directory that
+      has the same name as the file.
+
+  From Ralf W. Grosse-Kunstleve
+
+    - Suppress error output when checking for the GCC compiler version.
+
+  From Jared Grubb:
+
+    - Fix VariantDir duplication of #included files in subdirectories.
+
+  From Ludwig Hï¿½hne:
+
+    - Reduce memory usage when a directory is used as a dependency of
+      another Node (such as an Alias) by returning a concatenation
+      of the children's signatures + names, not the children's contents,
+      as the directory contents.
+
+    - Raise AttributeError, not KeyError, when a Builder can't be found.
+
+    - Invalidate cached Node information (such as the contenst returned
+      by the get_contents() method) when calling actions with Execute().
+
+    - Avoid object reference cycles from frame objects.
+
+    - Reduce memory usage from Null Executor objects.
+
+    - Compute MD5 checksums of large files without reading the entire
+      file contents into memory.  Add a new --md5-chunksize option to
+      control the size of each chunk read into memory.
+
+  From Steven Knight:
+
+    - Fix the ability of the add_src_builder() method to add a new
+      source builder to any other builder.
+
+    - Avoid an infinite loop on non-Windows systems trying to find the
+      SCons library directory if the Python library directory does not
+      begin with the string "python".
+
+    - Search for the SCons library directory in "scons-local" (with
+      no version number) after "scons-local-{VERSION}".
+
+  From Rob Managan:
+
+    - Fix the user's ability to interrupt the TeX build chain.
+
+    - Fix the TeX builder's allowing the user to specify the target name,
+      instead of always using its default output name based on the source.
+
+    - Iterate building TeX output files until all warning are gone
+      and the auxiliary files stop changing, or until we reach the
+      (configurable) maximum number of retries.
+
+    - Add TeX scanner support for:  glossaries, nomenclatures, lists of
+      figures, lists of tables, hyperref and beamer.
+
+    - Use the $BIBINPUTS, $BSTINPUTS, $TEXINPUTS and $TEXPICTS construction
+      variables as search paths for the relevant types of input file.
+
+    - Fix building TeX with VariantDir(duplicate=0) in effect.
+
+    - Fix the LaTeX scanner to search for graphics on the TEXINPUTS path.
+
+    - Have the PDFLaTeX scanner search for .gif files as well.
+
+  From Greg Noel:
+
+    - Fix typos and format bugs in the man page.
+
+    - Add a first draft of a wrapper module for Python's subprocess
+      module.
+
+    - Refactor use of the SCons.compat module so other modules don't
+      have to import it individually.
+
+    - Add .sx as a suffix for assembly language files that use the
+      C preprocessor.
+
+  From Gary Oberbrunner:
+
+    - Make Glob() sort the returned list of Files or Nodes
+      to prevent spurious rebuilds.
+
+    - Add a delete_existing keyword argument to the AppendENVPath()
+      and PrependENVPath() Environment methods.
+
+    - Add ability to use "$SOURCE" when specifying a target to a builder
+
+  From Damyan Pepper:
+
+    - Add a test case to verify that SConsignFile() files can be
+      created in previously non-existent subdirectories.
+
+  From Jim Randall:
+
+    - Make the subdirectory in which the SConsignFile() file will
+      live, if the subdirectory doesn't already exist.
+
+  From Ali Tofigh:
+
+    - Add a test to verify duplication of files in VariantDir subdirectories.
+
+
+
+RELEASE 1.0.1 - Sat, 06 Sep 2008 07:29:34 -0700
+
+  From Greg Noel:
+
+    - Add a FindFile() section to the User's Guide.
+
+    - Fix the FindFile() documentation in the man page.
+
+    - Fix formatting errors in the Package() description in the man page.
+
+    - Escape parentheses that appear within variable names when spawning
+      command lines using os.system().
+
+
+
+RELEASE 1.0.0 - XXX
+
+  From Jared Grubb:
+
+    - Clear the Node state when turning a generic Entry into a Dir.
+
+  From Ludwig Hï¿½hne:
+
+    - Fix sporadic output-order failures in test/GetBuildFailures/parallel.py.
+
+    - Document the ParseDepends() function in the User's Guide.
+
+  From khomenko:
+
+    - Create a separate description and long_description for RPM packages.
+
+  From Steven Knight:
+
+    - Document the GetLaunchDir() function in the User's Guide.
+
+    - Have the env.Execute() method print an error message if the
+      executed command fails.
+
+    - Add a script for creating a standard SCons development system on
+      Ubuntu Hardy.  Rewrite subsidiary scripts for install Python and
+      SCons versions in Python (from shell).
+
+  From Greg Noel:
+
+    - Handle yacc/bison on newer Mac OS X versions creating file.hpp,
+      not file.cpp.h.
+
+    - In RPCGEN tests, ignore stderr messages from older versions of
+      rpcgen on some versions of Mac OS X.
+
+    - Fix typos in man page descriptions of Tag() and Package(), and in
+      the scons-time man page.
+
+    - Fix documentation of SConf.CheckLibWithHeader and other SConf methods.
+
+    - Update documentation of SConscript(variant_dir) usage.
+
+    - Fix SWIG tests for (some versions of) Mac OS X.
+
+  From Jonas Olsson:
+
+    - Print the warning about -j on Windows being potentially unreliable if
+      the pywin32 extensions are unavailable or lack file handle operations.
+
+  From Jim Randall:
+
+    - Fix the env.WhereIs() method to expand construction variables.
+
+  From Rogier Schouten:
+
+    - Enable building of shared libraries with the Bordand ilink32 linker.
+
+
+
+RELEASE 1.0.0 - Sat, 09 Aug 2008 12:19:44 -0700
+
+  From Luca Falavigna:
+
+    - Fix SCons man page indentation under Debian's man page macros.
+
+  From Steven Knight:
+
+    - Clarify the man page description of the SConscript(src_dir) argument.
+
+    - User's Guide updates:
+
+       -  Document the BUILD_TARGETS, COMMAND_LINE_TARGETS and
+          DEFAULT_TARGETS variables.
+
+       -  Document the AddOption(), GetOption() and SetOption() functions.
+
+       -  Document the Requires() function; convert to the Variables
+          object, its UnknownOptions() method, and its associated
+          BoolVariable(), EnumVariable(), ListVariable(), PackageVariable()
+          and PathVariable() functions.
+
+       -  Document the Progress() function.
+
+       -  Reorganize the chapter and sections describing the different
+          types of environments and how they interact.  Document the
+          SetDefault() method.  Document the PrependENVPath() and
+          AppendENVPath() functions.
+
+       -  Reorganize the command-line arguments chapter.  Document the
+          ARGLIST variable.
+
+       -  Collect some miscellaneous sections into a chapter about
+          configuring build output.
+
+    - Man page updates:
+
+       -  Document suggested use of the Visual C/C++ /FC option to fix
+          the ability to double-click on file names in compilation error
+          messages.
+
+       -  Document the need to use Clean() for any SideEffect() files that
+          must be explicitly removed when their targets are removed.
+
+       -  Explicitly document use of Node lists as input to Dependency().
+
+  From Greg Noel:
+
+    - Document MergeFlags(), ParseConfig(), ParseFlags() and SideEffect()
+      in the User's Guide.
+
+  From Gary Oberbrunner:
+
+    - Document use of the GetBuildFailures() function in the User's Guide.
+
+  From Adam Simpkins:
+
+    - Add man page text clarifying the behavior of AddPreAction() and
+      AddPostAction() when called with multiple targets.
+
+  From Alexey Zezukin:
+
+    - Fix incorrectly swapped man page descriptions of the --warn= options
+      for duplicate-environment and missing-sconscript.
+
+
+
+RELEASE 0.98.5 - Sat, 07 Jun 2008 08:20:35 -0700
+
+  From Benoit Belley:
+
+  - Fix the Intel C++ compiler ABI specification for EMT64 processors.
+
+  From David Cournapeau:
+
+  - Issue a (suppressable) warning, not an error, when trying to link
+    C++ and Fortran object files into the same executable.
+
+  From Steven Knight:
+
+  - Update the scons.bat file so that it returns the real exit status
+    from SCons, even though it uses setlocal + endlocal.
+
+  - Fix the --interactive post-build messages so it doesn't get stuck
+    mistakenly reporting failures after any individual build fails.
+
+  - Fix calling File() as a File object method in some circumstances.
+
+  - Fix setup.py installation on Mac OS X so SCons gets installed
+    under /usr/lcoal by default, not in the Mac OS X Python framework.
+
+
+
+RELEASE 0.98.4 - Sat, 17 May 2008 22:14:46 -0700
+
+  From Benoit Belley:
+
+  - Fix calculation of signatures for Python function actions with
+    closures in Python versions before 2.5.
+
+  From David Cournapeau:
+
+  - Fix the initialization of $SHF77FLAGS so it includes $F77FLAGS.
+
+  From Jonas Olsson:
+
+  - Fix a syntax error in the Intel C compiler support on Windows.
+
+  From Steven Knight:
+
+  - Change how we represent Python Value Nodes when printing and when
+    stored in .sconsign files (to avoid blowing out memory by storing
+    huge strings in .sconsign files after multiple runs using Configure
+    contexts cause the Value strings to be re-escaped each time).
+
+  - Fix a regression in not executing configuration checks after failure
+    of any configuration check that used the same compiler or other tool.
+
+  - Handle multiple destinations in Visual Studio 8 settings for the
+    analogues to the INCLUDE, LIBRARY and PATH variables.
+
+  From Greg Noel:
+
+  - Update man page text for VariantDir().
+
+
+
+RELEASE 0.98.3 - Tue, 29 Apr 2008 22:40:12 -0700
+
+  From Greg Noel:
+
+  - Fix use of $CXXFLAGS when building C++ shared object files.
+
+  From Steven Knight:
+
+  - Fix a regression when a Builder's source_scanner doesn't select
+    a more specific scanner for the suffix of a specified source file.
+
+  - Fix the Options object backwards compatibility so people can still
+    "import SCons.Options.{Bool,Enum,List,Package,Path}Option" submodules.
+
+  - Fix searching for implicit dependencies when an Entry Node shows up
+    in the search path list.
+
+  From Stefano:
+
+  - Fix expansion of $FORTRANMODDIR in the default Fortran command line(s)
+    when it's set to something like ${TARGET.dir}.
+
+
+
+RELEASE 0.98.2 - Sun, 20 Apr 2008 23:38:56 -0700
+
+  From Steven Knight:
+
+  - Fix a bug in Fortran suffix computation that would cause SCons to
+    run out of memory on Windows systems.
+
+  - Fix being able to specify --interactive mode command lines with
+    \ (backslash) path name separators on Windows.
+
+  From Gary Oberbrunner:
+
+  - Document Glob() in the User's Guide.
+
+
+
+RELEASE 0.98.1 - Fri, 18 Apr 2008 19:11:58 -0700
+
+  From Benoit Belley:
+
+  - Speed up the SCons.Util.to_string*() functions.
+
+  - Optimize various Node intialization and calculations.
+
+  - Optimize Executor scanning code.
+
+  - Optimize Taskmaster execution, including dependency-cycle checking.
+
+  - Fix the --debug=stree option so it prints its tree once, not twice.
+
+  From Johan Boulï¿½:
+
+  - Fix the ability to use LoadableModule() under MinGW.
+
+  From David Cournapeau:
+
+  - Various missing Fortran-related construction variables have been added.
+
+  - SCons now uses the program specified in the $FORTRAN construction
+    variable to link Fortran object files.
+
+  - Fortran compilers on Linux (Intel, g77 and gfortran) now add the -fPIC
+    option by default when compilling shared objects.
+
+  - New 'sunf77', 'sunf90' and 'sunf95' Tool modules have been added to
+    support Sun Fortran compilers.  On Solaris, the Sun Fortran compilers
+    are used in preference to other compilers by default.
+
+  - Fortran support now uses gfortran in preference to g77.
+
+  - Fortran file suffixes are now configurable through the
+    $F77FILESUFFIXES, $F90FILESUFFIXES, $F95FILESUFFIXES and
+    $FORTRANFILESUFFIXES variables.
+
+  From Steven Knight:
+
+  - Make the -d, -e, -w and --no-print-directory options "Ignored for
+    compatibility."  (We're not going to implement them.)
+
+  - Fix a serious inefficiency in how SCons checks for whether any source
+    files are missing when a Builder call creates many targets from many
+    input source files.
+
+  - In Java projects, make the target .class files depend only on the
+    specific source .java files where the individual classes are defined.
+
+  - Don't store duplicate source file entries  in the .sconsign file so
+    we don't endlessly rebuild the target(s) for no reason.
+
+  - Add a Variables object as the first step towards deprecating the
+    Options object name.  Similarly, add BoolVariable(), EnumVariable(),
+    ListVariable(), PackageVariable() and PathVariable() functions
+    as first steps towards replacing BoolOption(), EnumOption(),
+    ListOption(), PackageOption() and PathOption().
+
+  - Change the options= keyword argument to the Environment() function
+    to variables=, to avoid confusion with SCons command-line options.
+    Continue supporting the options= keyword for backwards compatibility.
+
+  - When $SWIGFLAGS contains the -python flag, expect the generated .py
+    file to be in the same (sub)directory as the target.
+
+  - When compiling C++ files, allow $CCFLAGS settings to show up on the
+    command line even when $CXXFLAGS has been redefined.
+
+  - Fix --interactive with -u/-U/-D when a VariantDir() is used.
+
+  From Anatoly Techtonik:
+
+  - Have the scons.bat file add the script execution directory to its
+    local %PATH% on Windows, so the Python executable can be found.
+
+  From Mike Wake:
+
+  - Fix passing variable names as a list to the Return() function.
+
+  From Matthew Wesley:
+
+  - Add support for the GDC 'D' language compiler.
+
+
+
+RELEASE 0.98 - Sun, 30 Mar 2008 23:33:05 -0700
+
+  From Benoit Belley:
+
+  - Fix the --keep-going flag so it builds all possible targets even when
+    a later top-level target depends on a child that failed its build.
+
+  - Fix being able to use $PDB and $WINDWOWS_INSERT_MANIFEST together.
+
+  - Don't crash if un-installing the Intel C compiler leaves left-over,
+    dangling entries in the Windows registry.
+
+  - Improve support for non-standard library prefixes and suffixes by
+    stripping all prefixes/suffixes from file name string as appropriate.
+
+  - Reduce the default stack size for -j worker threads to 256 Kbytes.
+    Provide user control over this value by adding --stack-size and
+    --warn=stack-size options, and a SetOption('stack_size') function.
+
+  - Fix a crash on Linux systems when trying to use the Intel C compiler
+    and no /opt/intel_cc_* directories are found.
+
+  - Improve using Python functions as actions by incorporating into
+    a FunctionAction's signature:
+      - literal values referenced by the byte code.
+      - values of default arguments
+      - code of nested functions
+      - values of variables captured by closures
+      - names of referenced global variables and functions
+
+  - Fix the closing message when --clean and --keep-going are both
+    used and no errors occur.
+
+  - Add support for the Intel C compiler on Mac OS X.
+
+  - Speed up reading SConscript files by about 20% (for some
+    configurations) by:  1) optimizing the SCons.Util.is_*() and
+    SCons.Util.flatten() functions; 2) avoiding unnecessary os.stat()
+    calls by using a File's .suffix attribute directly instead of
+    stringifying it.
+
+  From JÃ©rÃ´me Berger:
+
+  - Have the D language scanner search for .di files as well as .d files.
+
+  - Add a find_include_names() method to the Scanner.Classic class to
+    abstract out how included names can be generated by subclasses.
+
+  - Allow the D language scanner to detect multiple modules imported by
+    a single statement.
+
+  From Konstantin Bozhikov:
+
+  - Support expansion of construction variables that contain or refer
+    to lists of other variables or Nodes within expansions like $CPPPATH.
+
+  - Change variable substitution (the env.subst() method) so that an
+    input sequence (list or tuple) is preserved as a list in the output.
+
+  From David Cournapeau:
+
+  - Add a CheckDeclaration() call to configure contexts.
+
+  - Improve the CheckTypeSize() code.
+
+  - Add a Define() call to configure contexts, to add arbitrary #define
+    lines to a generated configure header file.
+
+  - Add a "gfortran" Tool module for the GNU F95/F2003 compiler.
+
+  - Avoid use of -rpath with the Mac OS X linker.
+
+  - Add comment lines to the generated config.h file to describe what
+    the various #define/#undef lines are doing.
+
+  From Steven Knight:
+
+  - Support the ability to subclass the new-style "str" class as input
+    to Builders.
+
+  - Improve the performance of our type-checking by using isinstance()
+    with new-style classes.
+
+  - Fix #include (and other $*PATH variables searches) of files with
+    absolute path names.  Don't die if they don't exist (due to being
+    #ifdef'ed out or the like).
+
+  - Fix --interactive mode when Default(None) is used.
+
+  - Fix --debug=memoizer to work around a bug in base Python 2.2 metaclass
+    initialization (by just not allowing Memoization in Python versions
+    that have the bug).
+
+  - Have the "scons-time time" subcommand handle empty log files, and
+    log files that contain no results specified by the --which option.
+
+  - Fix the max Y of vertical bars drawn by "scons-time --fmt=gnuplot".
+
+  - On Mac OS X, account for the fact that the header file generated
+    from a C++ file will be named (e.g.) file.cpp.h, not file.hpp.
+
+  - Fix floating-point numbers confusing the Java parser about
+    generated .class file names in some configurations.
+
+  - Document (nearly) all the values you can now fetch with GetOption().
+
+  - Fix use of file names containing strings of multiple spaces when
+    using ActionFactory instances like the Copy() or Move() function.
+
+  - Fix a 0.97 regression when using a variable expansion (like
+    $OBJSUFFIX) in a source file name to a builder with attached source
+    builders that match suffix (like Program()+Object()).
+
+  - Have the Java parser recognize generics (surrounded by angle brackets)
+    so they don't interfere with identifying anonymous inner classes.
+
+  - Avoid an infinite loop when trying to use saved copies of the
+    env.Install() or env.InstallAs() after replacing the method
+    attributes.
+
+  - Improve the performance of setting construction variables.
+
+  - When cloning a construction environment, avoid over-writing an
+    attribute for an added method if the user explicitly replaced it.
+
+  - Add a warning about deprecated support for Python 1.5, 2.0 and 2.1.
+
+  - Fix being able to SetOption('warn', ...) in SConscript files.
+
+  - Add a warning about env.Copy() being deprecated.
+
+  - Add warnings about the --debug={dtree,stree,tree} options
+    being deprecated.
+
+  - Add VariantDir() as the first step towards deprecating BuildDir().
+    Add the keyword argument "variant_dir" as the replacement for
+    "build_dir".
+
+  - Add warnings about the {Target,Source}Signatures() methods and
+    functions being deprecated.
+
+  From Rob Managan:
+
+  - Enhance TeX and LaTeX support to work with BuildDir(duplicate=0).
+
+  - Re-run LaTeX when it issues a package warning that it must be re-run.
+
+  From Leanid Nazdrynau:
+
+  - Have the Copy() action factory preserve file modes and times
+    when copying individual files.
+
+  From Jan Nijtmans:
+
+  - If $JARCHDIR isn't set explicitly, use the .java_classdir attribute
+    that was set when the Java() Builder built the .class files.
+
+  From Greg Noel:
+
+  - Document the Dir(), File() and Entry() methods of Dir and File Nodes.
+
+  - Add the parse_flags option when creating Environments
+
+  From Gary Oberbrunner:
+
+  - Make File(), Dir() and Entry() return a list of Nodes when passed
+    a list of names, instead of trying to make a string from the name
+    list and making a Node from that string.
+
+  - Fix the ability to build an Alias in --interactive mode.
+
+  - Fix the ability to hash the contents of actions for nested Python
+    functions on Python versions where the inability to pickle them
+    returns a TypeError (instead of the documented PicklingError).
+
+  From Jonas Olsson:
+
+  - Fix use of the Intel C compiler when the top compiler directory,
+    but not the compiler version, is specified.
+
+  - Handle Intel C compiler network license files (port@system).
+
+  From Jim Randall:
+
+  - Fix how Python Value Nodes are printed in --debug=explain output.
+
+  From Adam Simpkins:
+
+  - Add a --interactive option that starts a session for building (or
+    cleaning) targets without re-reading the SConscript files every time.
+
+  - Fix use of readline command-line editing in --interactive mode.
+
+  - Have the --interactive mode "build" command with no arguments
+    build the specified Default() targets.
+
+  - Fix the Chmod(), Delete(), Mkdir() and Touch() Action factories to
+    take a list (of Nodes or strings) as arguments.
+
+  From Vaclav Smilauer:
+
+  - Fix saving and restoring an Options value of 'all' on Python
+    versions where all() is a builtin function.
+
+  From Daniel Svensson:
+
+  - Code correction in SCons.Util.is_List().
+
+  From Ben Webb:
+
+  - Support the SWIG %module statement with following modifiers in
+    parenthese (e.g., '%module(directors="1")').
+
+
+
+RELEASE 0.97.0d20071212 - Wed, 12 Dec 2007 09:29:32 -0600
+
+  From Benoit Belley:
+
+  - Fix occasional spurious rebuilds and inefficiency when using
+    --implicit-cache and Builders that produce multiple targets.
+
+  - Allow SCons to not have to know about the builders of generated
+    files when BuildDir(duplicate=0) is used, potentially allowing some
+    SConscript files to be ignored for smaller builds.
+
+  From David Cournapeau:
+
+  - Add a CheckTypeSize() call to configure contexts.
+
+  From Ken Deeter:
+
+  - Make the "contents" of Alias Nodes a concatenation of the children's
+    content signatures (MD5 checksums), not a concatenation of the
+    children's contents, to avoid using large amounts of memory during
+    signature calculation.
+
+  From Malte Helmert:
+
+  - Fix a lot of typos in the man page and User's Guide.
+
+  From Geoffrey Irving:
+
+  - Speed up conversion of paths in .sconsign files to File or Dir Nodes.
+
+  From Steven Knight:
+
+  - Add an Options.UnknownOptions() method that returns any settings
+    (from the command line, or whatever dictionary was passed in)
+    that aren't known to the Options object.
+
+  - Add a Glob() function.
+
+  - When removing targets with the -c option, use the absolute path (to
+    avoid problems interpreting BuildDir() when the top-level directory
+    is the source directory).
+
+  - Fix problems with Install() and InstallAs() when called through a
+    clone (of a clone, ...) of a cloned construction environment.
+
+  - When executing a file containing Options() settings, add the file's
+    directory to sys.path (so modules can be imported from there) and
+    explicity set __name__ to the name of the file so the statement's
+    in the file can deduce the location if they need to.
+
+  - Fix an O(n^2) performance problem when adding sources to a target
+    through calls to a multi Builder (including Aliases).
+
+  - Redefine the $WINDOWSPROGMANIFESTSUFFIX and
+    $WINDOWSSHLIBMANIFESTSUFFIX variables so they pick up changes to
+    the underlying $SHLIBSUFFIX and $PROGSUFFIX variables.
+
+  - Add a GetBuildFailures() function that can be called from functions
+    registered with the Python atexit module to print summary information
+    about any failures encountered while building.
+
+  - Return a NodeList object, not a Python list, when a single_source
+    Builder like Object() is called with more than one file.
+
+  - When searching for implicit dependency files in the directories
+    in a $*PATH list, don't create Dir Nodes for directories that
+    don't actually exist on-disk.
+
+  - Add a Requires() function to allow the specification of order-only
+    prerequisites, which will be updated before specified "downstream"
+    targets but which don't actually cause the target to be rebuilt.
+
+  - Restore the FS.{Dir,File,Entry}.rel_path() method.
+
+  - Make the default behavior of {Source,Target}Signatures('timestamp')
+    be equivalent to 'timestamp-match', not 'timestamp-newer'.
+
+  - Fix use of CacheDir with Decider('timestamp-newer') by updating
+    the modification time when copying files from the cache.
+
+  - Fix random issues with parallel (-j) builds on Windows when Python
+    holds open file handles (especially for SCons temporary files,
+    or targets built by Python function actions) across process creation.
+
+  From Maxim Kartashev:
+
+  - Fix test scripts when run on Solaris.
+
+  From Gary Oberbrunner:
+
+  - Fix Glob() when a pattern is in an explicitly-named subdirectory.
+
+  From Philipp Scholl:
+
+  - Fix setting up targets if multiple Package builders are specified
+    at once.
+
+
+
+RELEASE 0.97.0d20070918 - Tue, 18 Sep 2007 10:51:27 -0500
+
+  From Steven Knight:
+
+  - Fix the wix Tool module to handle null entries in $PATH variables.
+
+  - Move the documentation of Install() and InstallAs() from the list
+    of functions to the list of Builders (now that they're implemented
+    as such).
+
+  - Allow env.CacheDir() to be set per construction environment.  The
+    global CacheDir() function now sets an overridable global default.
+
+  - Add an env.Decider() method and a Node.Decider() method that allow
+    flexible specification of an arbitrary function to decide if a given
+    dependency has changed since the last time a target was built.
+
+  - Don't execute Configure actions (while reading SConscript files)
+    when cleaning (-c) or getting help (-h or -H).
+
+  - Add to each target an implicit dependency on the external command(s)
+    used to build the target, as found by searching env['ENV']['PATH']
+    for the first argument on each executed command line.
+
+  - Add support for a $IMPLICIT_COMMAND_DEPENDENCIES construction
+    variabe that can be used to disable the automatic implicit
+    dependency on executed commands.
+
+  - Add an "ensure_suffix" keyword to Builder() definitions that, when
+    true, will add the configured suffix to the targets even if it looks
+    like they already have a different suffix.
+
+  - Add a Progress() function that allows for calling a function or string
+    (or list of strings) to display progress while walking the DAG.
+
+  - Allow ParseConfig(), MergeFlags() and ParseFlags() to handle output
+    from a *config command with quoted path names that contain spaces.
+
+  - Make the Return() function stop processing the SConscript file and
+    return immediately.  Add a "stop=" keyword argument that can be set
+    to False to preserve the old behavior.
+
+  - Fix use of exitstatfunc on an Action.
+
+  - Introduce all man page function examples with "Example:" or "Examples:".
+
+  - When a file gets added to a directory, make sure the directory gets
+    re-scanned for the new implicit dependency.
+
+  - Fix handling a file that's specified multiple times in a target
+    list so that it doesn't cause dependent Nodes to "disappear" from
+    the dependency graph walk.
+
+  From Carsten Koch:
+
+  - Avoid race conditions with same-named files and directory creation
+    when pushing copies of files to CacheDir().
+
+  From Tzvetan Mikov:
+
+  - Handle $ in Java class names.
+
+  From Gary Oberbrunner:
+
+  - Add support for the Intel C compiler on Windows64.
+
+  - On SGI IRIX, have $SHCXX use $CXX by default (like other platforms).
+
+  From Sohail Somani:
+
+  - When Cloning a construction environment, set any variables before
+    applying tools (so the tool module can access the configured settings)
+    and re-set them after (so they end up matching what the user set).
+
+  From Matthias Troffaes:
+
+  - Make sure extra auxiliary files generated by some LaTeX packages
+    and not ending in .aux also get deleted by scons -c.
+
+  From Greg Ward:
+
+  - Add a $JAVABOOTCLASSPATH variable for directories to be passed to the
+    javac -bootclasspath option.
+
+  From Christoph Wiedemann:
+
+  - Add implicit dependencies on the commands used to build a target.
+
+
+
+
+RELEASE 0.97.0d20070809 - Fri, 10 Aug 2007 10:51:27 -0500
+
+  From Lars Albertsson:
+
+  - Don't error if a #include line happens to match a directory
+    somewhere on a path (like $CPPPATH, $FORTRANPATH, etc.).
+
+  From Mark Bertoglio:
+
+  - Fix listing multiple projects in Visual Studio 7.[01] solution files,
+    including generating individual project GUIDs instead of re-using
+    the solution GUID.
+
+  From Jean Brouwers:
+
+  - Add /opt/SUNWspro/bin to the default execution PATH on Solaris.
+
+  From Allan Erskine:
+
+  - Only expect the Microsoft IDL compiler to emit *_p.c and *_data.c
+    files if the /proxy and /dlldata switches are used (respectively).
+
+  From Steven Knight:
+
+  - Have --debug=explain report if a target is being rebuilt because
+    AlwaysBuild() is specified (instead of "unknown reasons").
+
+  - Support {Get,Set}Option('help') to make it easier for SConscript
+    files to tell if a help option (-h, --help, etc.) has been specified.
+
+  - Support {Get,Set}Option('random') so random-dependency interaction
+    with CacheDir() is controllable from SConscript files.
+
+  - Add a new AddOption() function to support user-defined command-
+    line flags (like --prefix=, --force, etc.).
+
+  - Replace modified Optik version with new optparse compatibility module
+    for command line processing in Scripts/SConsOptions.py
+
+  - Push and retrieve built symlinks to/from a CacheDir() as actual
+    symlinks, not by copying the file contents.
+
+  - Fix how the Action module handles stringifying the shared library
+    generator in the Tool/mingw.py module.
+
+  - When generating a config.h file, print "#define HAVE_{FEATURE} 1"
+    instad of just "#define HAVE_{FEATURE}", for more compatibility
+    with Autoconf-style projects.
+
+  - Fix expansion of $TARGET, $TARGETS, $SOURCE and $SOURCES keywords in
+    Visual C/C++ PDB file names.
+
+  - Fix locating Visual C/C++ PDB files in build directories.
+
+  - Support an env.AddMethod() method and an AddMethod() global function
+    for adding a new method, respectively, to a construction environment
+    or an arbitrary object (such as a class).
+
+  - Fix the --debug=time option when the -j option is specified and all
+    files are up to date.
+
+  - Add a $SWIGOUTDIR variable to allow setting the swig -outdir option,
+    and use it to identify files created by the swig -java option.
+
+  - Add a $SWIGPATH variable that specifies the path to be searched
+    for included SWIG files, Also add related $SWIGINCPREFIX and
+    $SWIGINCSUFFIX variables that specify the prefix and suffix to
+    be be added to each $SWIGPATH directory when expanded on the SWIG
+    command line.
+
+  - More efficient copying of construction environments (mostly borrowed
+    from copy.deepcopy() in the standard Python library).
+
+  - When printing --tree=prune output, don't print [brackets] around
+    source files, only do so for built targets with children.
+
+  - Fix interpretation of Builder source arguments when the Builder has
+    a src_suffix *and* a source_builder and the argument has no suffix.
+
+  - Fix use of expansions like ${TARGET.dir} or ${SOURCE.dir} in the
+    following construction variables:  $FORTRANMODDIR, $JARCHDIR,
+    $JARFLAGS, $LEXFLAGS, $SWIGFLAGS, $SWIGOUTDIR and $YACCFLAGS.
+
+  - Fix dependencies on Java files generated by SWIG so they can be
+    detected and built in one pass.
+
+  - Fix SWIG when used with a BuildDir().
+
+  From Leanid Nazdrynau:
+
+  - When applying Tool modules after a construction environment has
+    already been created, don't overwrite existing $CFILESUFFIX and
+    $CXXFILESUFFIX value.
+
+  - Support passing the Java() builder a list of explicit .java files
+    (not only a list of directories to be scanned for .java files).
+
+  - Support passing .java files to the Jar() and JavaH() builders, which
+    then use the builder underlying the Java() builder to turn them into
+    .class files.  (That is, the Jar()-Java() chain of builders become
+    multi-step, like the Program()-Object()-CFile() builders.)
+
+  - Support passing SWIG .i files to the Java builders (Java(),
+    Jar(), JavaH()), to cause intermediate .java files to be created
+    automatically.
+
+  - Add $JAVACLASSPATH and $JAVASOURCEPATH variables, that get added to
+    the javac "-classpath" and "-sourcepath" options.  (Note that SCons
+    does *not* currently search these paths for implicit dependencies.)
+
+  - Commonize initialization of Java-related builders.
+
+  From Jan Nijtmans:
+
+  - Find Java anonymous classes when the next token after the name is
+    an open parenthesis.
+
+  From Gary Oberbrunner:
+
+  - Fix a code example in the man page.
+
+  From Tilo Prutz:
+
+  - Add support for the file names that Java 1.5 (and 1.6) generates for
+    nested anonymous inner classes, which are different from Java 1.4.
+
+  From Adam Simpkins:
+
+  - Allow worker threads to terminate gracefully when all jobs are
+    finished.
+
+  From Sohail Somani:
+
+  - Add LaTeX scanner support for finding dependencies specified with
+    the \usepackage{} directive.
+
+
+
+RELEASE 0.97 - Thu, 17 May 2007 08:59:41 -0500
+
+  From Steven Knight:
+
+  - Fix a bug that would make parallel builds stop in their tracks if
+    Nodes that depended on lists that contained some Nodes built together
+    caused the reference count to drop below 0 if the Nodes were visited
+    and commands finished in the wrong order.
+
+  - Make sure the DirEntryScanner doesn't choke if it's handed something
+    that's not a directory (Node.FS.Dir) Node.
+
+
+
+RELEASE 0.96.96 - Thu, 12 Apr 2007 12:36:25 -0500
+
+  NOTE:  This is (Yet) a(nother) pre-release of 0.97 for testing purposes.
+
+  From Joe Bloggs:
+
+  - Man page fix:  remove cut-and-paste sentence in NoCache() description.
+
+  From Dmitry Grigorenko and Gary Oberbrunner:
+
+  - Use the Intel C++ compiler, not $CC, to link C++ source.
+
+  From Helmut Grohne:
+
+  - Fix the man page example of propagating a user's external environment.
+
+  From Steven Knight:
+
+  - Back out (most of) the Windows registry installer patch, which
+    seems to not work on some versions of Windows.
+
+  - Don't treat Java ".class" attributes as defining an inner class.
+
+  - Fix detecting an erroneous Java anonymous class when the first
+    non-skipped token after a "new" keyword is a closing brace.
+
+  - Fix a regression when a CPPDEFINES list contains a tuple, the second
+    item of which (the option value) is a construction variable expansion
+    (e.g. $VALUE) and the value of the variable isn't a string.
+
+  - Improve the error message if an IOError (like trying to read a
+    directory as a file) occurs while deciding if a node is up-to-date.
+
+  - Fix "maximum recursion" / "unhashable type" errors in $CPPPATH
+    PathList expansion if a subsidiary expansion yields a stringable,
+    non-Node object.
+
+  - Generate API documentation from the docstrings (using epydoc).
+
+  - Fix use of --debug=presub with Actions for out-of-the-box Builders.
+
+  - Fix handling nested lists within $CPPPATH, $LIBPATH, etc.
+
+  - Fix a "builders_used" AttributeError that real-world Qt initialization
+    triggered in the refactored suffix handling for Builders.
+
+  - Make the reported --debug=time timings meaningful when used with -j.
+    Better documentation of what the times mean.
+
+  - User Guide updates: --random, AlwaysBuild(), --tree=,
+    --debug=findlibs, --debug=presub, --debug=stacktrace,
+    --taskmastertrace.
+
+  - Document (in both man page and User's Guide) that --implicit-cache
+    ignores changes in $CPPPATH, $LIBPATH, etc.
+
+  From Jean-Baptiste Lab:
+
+  - Remove hard-coded dependency on Python 2.2 from Debian packaging files.
+
+  From Jeff Mahovsky:
+
+  - Handle spaces in the build target name in Visual Studio project files.
+
+  From Rob Managan:
+
+  - Re-run LaTeX after BibTeX has been re-run in response to a changed
+    .bib file.
+
+  From Joel B. Mohler:
+
+  - Make additional TeX auxiliary files (.toc, .idx and .bbl files)
+    Precious so their removal doesn't affect whether the necessary
+    sections are included in output PDF or PostScript files.
+
+  From Gary Oberbrunner:
+
+  - Fix the ability to import modules in the site_scons directory from
+    a subdirectory.
+
+  From Adam Simpkins:
+
+  - Make sure parallel (-j) builds all targets even if they show up
+    multiple times in the child list (as a source and a dependency).
+
+  From Matthias Troffaes:
+
+  - Don't re-run TeX if the triggering strings (\makeindex, \bibliography
+    \tableofcontents) are commented out.
+
+  From Richard Viney:
+
+  - Fix use of custom include and lib paths with Visual Studio 8.
+
+  - Select the default .NET Framework SDK Dir based on the version of
+    Visual Studio being used.
+
+
+
+RELEASE 0.96.95 - Mon, 12 Feb 2007 20:25:16 -0600
+
+  From Anatoly Techtonik:
+
+  - Add the scons.org URL and a package description to the setup.py
+    arguments.
+
+  - Have the Windows installer add a registry entry for scons.bat in the
+    "App Paths" key, so scons.bat can be executed without adding the
+    directory to the %PATH%.  (Python itself works this way.)
+
+  From Anonymous:
+
+  - Fix looking for default paths in Visual Studio 8.0 (and later).
+
+  - Add -lm to the list of default D libraries for linking.
+
+  From Matt Doar:
+
+  - Provide a more complete write-your-own-Scanner example in the man page.
+
+  From Ralf W. Grosse-Kunstleve:
+
+  - Contributed upstream Python change to our copied subprocess.py module
+    for more efficient standard input processing.
+
+  From Steven Knight:
+
+  - Fix the Node.FS.Base.rel_path() method when the two nodes are on
+    different drive letters.  (This caused an infinite loop when
+    trying to write .sconsign files.)
+
+  - Fully support Scanners that use a dictionary to map file suffixes
+    to other scanners.
+
+  - Support delayed evaluation of the $SPAWN variable to allow selection
+    of a function via ${} string expansions.
+
+  - Add --srcdir as a synonym for -Y/--repository.
+
+  - Document limitations of #include "file.h" with Repository().
+
+  - Fix use of a toolpath under the source directory of a BuildDir().
+
+  - Fix env.Install() with a file name portion that begins with '#'.
+
+  - Fix ParseConfig()'s handling of multiple options in a string that's
+    replaced a *FLAGS construction variable.
+
+  - Have the C++ tools initialize common C compilation variables ($CCFLAGS,
+    $SHCCFLAGS and $_CCCOMCOM) even if the 'cc' Tool isn't loaded.
+
+  From Leanid Nazdrynau:
+
+  - Fix detection of Java anonymous classes if a newline precedes the
+    opening brace.
+
+  From Gary Oberbrunner:
+
+  - Document use of ${} to execute arbitrary Python code.
+
+  - Add support for:
+    1) automatically adding a site_scons subdirectory (in the top-level
+       SConstruct directory) to sys.path (PYTHONPATH);
+    2) automatically importing site_scons/site_init.py;
+    3) automatically adding site_scons/site_tools to the toolpath.
+
+  From John Pye:
+
+  - Change ParseConfig() to preserve white space in arguments passed in
+    as a list.
+
+  From a smith:
+
+  - Fix adding explicitly-named Java inner class files (and any
+    other file names that may contain a '$') to Jar files.
+
+  From David Vitek:
+
+  - Add a NoCache() function to mark targets as unsuitable for propagating
+    to (or retrieving from) a CacheDir().
+
+  From Ben Webb:
+
+  - If the swig -noproxy option is used, it won't generate a .py file,
+    so don't emit it as a target that we expect to be built.
+
+
+
+RELEASE 0.96.94 - Sun, 07 Jan 2007 18:36:20 -0600
+
+  NOTE:  This is a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Allow arbitrary white space after a SWIG %module declaration.
+
+  From Paul:
+
+  - When compiling resources under MinGW, make sure there's a space
+    between the --include-dir option and its argument.
+
+  From Jay Kint:
+
+  - Alleviate long command line issues on Windows by executing command
+    lines directly via os.spawnv() if the command line doesn't need
+    shell interpretation (has no pipes, redirection, etc.).
+
+  From Walter Franzini:
+
+  - Exclude additional Debian packaging files from the copyright check.
+
+  From Fawad Halim:
+
+  - Handle the conflict between the impending Python 2.6 'as' keyword
+    and our Tool/as.py module name.
+
+  From Steven Knight:
+
+  - Speed up the Node.FS.Dir.rel_path() method used to generate path names
+    that get put into the .sconsign* file(s).
+
+  - Optimize Node.FS.Base.get_suffix() by computing the suffix once, up
+    front, when we set the Node's name.  (Duh...)
+
+  - Reduce the Memoizer's responsibilities to simply counting hits and
+    misses when the --debug=memoizer option is used, not to actually
+    handling the key calculation and memoization itself.  This speeds
+    up some configurations significantly, and should cause no functional
+    differences.
+
+  - Add a new scons-time script with subcommands for generating
+    consistent timing output from SCons configurations, extracting
+    various information from those timings, and displaying them in
+    different formats.
+
+  - Reduce some unnecessary stat() calls from on-disk entry type checks.
+
+  - Fix SideEffect() when used with -j, which was badly broken in 0.96.93.
+
+  - Propagate TypeError exceptions when evaluating construction variable
+    expansions up the stack, so users can see what's going on.
+
+  - When disambiguating a Node.FS.Entry into a Dir or File, don't look
+    in the on-disk source directory until we've confirmed there's no
+    on-disk entry locally and there *is* one in the srcdir.  This avoids
+    creating a phantom Node that can interfere with dependencies on
+    directory contents.
+
+  - Add an AllowSubstExceptions() function that gives the SConscript
+    files control over what exceptions cause a string to expand to ''
+    vs. terminating processing with an error.
+
+  - Allow the f90.py and f95.py Tool modules to compile earlier source
+    source files of earlier Fortran version.
+
+  - Fix storing signatures of files retrieved from CacheDir() so they're
+    correctly identified as up-to-date next invocation.
+
+  - Make sure lists of computed source suffixes cached by Builder objects
+    don't persist across changes to the list of source Builders (so the
+    addition of suffixes like .ui by the qt.py Tool module take effect).
+
+  - Enhance the bootstrap.py script to allow it to be used to execute
+    SCons more easily from a checked-out source tree.
+
+  From Ben Leslie:
+
+  - Fix post-Memoizer value caching misspellings in Node.FS._doLookup().
+
+  From Rob Managan, Dmitry Mikhin and Joel B. Mohler:
+
+  - Handle TeX/LaTeX files in subdirectories by changing directory
+    before invoking TeX/LaTeX.
+
+  - Scan LaTeX files for \bibliography lines.
+
+  - Support multiple file names in a "\bibliography{file1,file2}" string.
+
+  - Handle TeX warnings about undefined citations.
+
+  - Support re-running LaTeX if necessary due to a Table of Contents.
+
+  From Dmitry Mikhin:
+
+  - Return LaTeX if "Rerun to get citations correct" shows up on the next
+    line after the "Warning:" string.
+
+  From Gary Oberbrunner:
+
+  - Add #include lines to fix portability issues in two tests.
+
+  - Eliminate some unnecessary os.path.normpath() calls.
+
+  - Add a $CFLAGS variable for C-specific options, leaving $CCFLAGS
+    for options common to C and C++.
+
+  From Tom Parker:
+
+  - Have the error message print the missing file that Qt can't find.
+
+  From John Pye:
+
+  - Fix env.MergeFlags() appending to construction variable value of None.
+
+  From Steve Robbins:
+
+  - Fix the "sconsign" script when the .sconsign.dblite file is explicitly
+    specified on the command line (and not intuited from the old way of
+    calling it with just ".sconsign").
+
+  From Jose Pablo Ezequiel "Pupeno" Fernandez Silva:
+
+  - Give the 'lex' tool knowledge of the additional target files produced
+    by the flex "--header-file=" and "--tables-file=" options.
+
+  - Give the 'yacc' tool knowledge of the additional target files produced
+    by the bison "-g", "--defines=" and "--graph=" options.
+
+  - Generate intermediate files with Objective C file suffixes (.m) when
+    the lex and yacc source files have appropriate suffixes (.lm and .ym).
+
+  From Sohail Somain:
+
+  - Have the mslink.py Tool only look for a 'link' executable on Windows
+    systems.
+
+  From Vaclav Smilauer:
+
+  - Add support for a "srcdir" keyword argument when calling a Builder,
+    which will add a srcdir prefix to all non-relative string sources.
+
+  From Jonathan Ultis:
+
+  - Allow Options converters to take the construction environment as
+    an optional argument.
+
+
+
+RELEASE 0.96.93 - Mon, 06 Nov 2006 00:44:11 -0600
+
+  NOTE:  This is a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Allow Python Value Nodes to be Builder targets.
+
+  From Matthias:
+
+  - Only filter Visual Studio common filename prefixes on complete
+    directory names.
+
+  From Chad Austin:
+
+  - Fix the build of the SCons documentation on systems that don't
+    have "python" in the $PATH.
+
+  From Ken Boortz:
+
+  - Enhance ParseConfig() to recognize options that begin with '+'.
+
+  From John Calcote, Elliot Murphy:
+
+  - Document ways to override the CCPDBFLAGS variable to use the
+    Microsoft linker's /Zi option instead of the default /Z7.
+
+  From Christopher Drexler:
+
+  - Make SCons aware bibtex must be called if any \include files
+    cause creation of a bibliography.
+
+  - Make SCons aware that "\bilbiography" in TeX source files means
+    that related .bbl and .blg bibliography files will be created.
+    (NOTE:  This still needs to search for the string in \include files.)
+
+  From David Gruener:
+
+  - Fix inconsistent handling of Action strfunction arguments.
+
+  - Preserve white space in display Action strfunction strings.
+
+  From James Y. Knight and Gerard Patel:
+
+  - Support creation of shared object files from assembly language.
+
+  From Steven Knight:
+
+  - Speed up the Taskmaster significantly by avoiding unnecessary
+    re-scans of Nodes to find out if there's work to be done, having it
+    track the currently-executed top-level target directly and not
+    through its presence on the target list, and eliminating some other
+    minor list(s), method(s) and manipulation.
+
+  - Fix the expansion of $TARGET and $SOURCE in the expansion of
+    $INSTALLSTR displayed for non-environment calls to InstallAs().
+
+  - Fix the ability to have an Alias() call refer to a directory
+    name that's not identified as a directory until later.
+
+  - Enhance runtest.py with an option to use QMTest as the harness.
+    This will become the default behavior as we add more functionality
+    to the QMTest side.
+
+  - Let linking on mingw use the default function that chooses $CC (gcc)
+    or $CXX (g++) depending on whether there are any C++ source files.
+
+  - Work around a bug in early versions of the Python 2.4 profile module
+    that caused the --profile= option to fail.
+
+  - Only call Options validators and converters once when initializing a
+    construction environment.
+
+  - Fix the ability of env.Append() and env.Prepend(), in all known Python
+    versions, to handle different input value types when the construction
+    variable being updated is a dictionary.
+
+  - Add a --cache-debug option for information about what files it's
+    looking for in a CacheDir().
+
+  - Document the difference in construction variable expansion between
+    {Action,Builder}() and env.{Action,Builder}().
+
+  - Change the name of env.Copy() to env.Clone(), keeping the old name
+    around for backwards compatibility (with the intention of eventually
+    phasing it out to avoid confusion with the Copy() Action factory).
+
+  From Arve Knudsen:
+
+  - Support cleaning and scanning SWIG-generated files.
+
+  From Carsten Koch:
+
+  - Allow selection of Visual Studio version by setting $MSVS_VERSION
+    after construction environment initialization.
+
+  From Jean-Baptiste Lab:
+
+  - Try using zipimport if we can't import Tool or Platform modules
+    using the normal "imp" module.  This allows SCons to be packaged
+    using py2exe's all-in-one-zip-file approach.
+
+  From Ben Liblit:
+
+  - Do not re-scan files if the scanner returns no implicit dependencies.
+
+  From Sanjoy Mahajan:
+
+  - Change use of $SOURCES to $SOURCE in all TeX-related Tool modules.
+
+  From Joel B. Mohler:
+
+  - Make SCons aware that "\makeindex" in TeX source files means that
+    related .ilg, .ind and .idx index files will be created.
+    (NOTE:  This still needs to search for the string in \include files.)
+
+  - Prevent scanning the TeX .aux file for additional files from
+    trying to remove it twice when the -c option is used.
+
+  From Leanid Nazdrynau:
+
+  - Give the MSVC RES (resource) Builder a src_builder list and a .rc
+    src_suffix so other builders can generate .rc files.
+
+  From Matthew A. Nicholson:
+
+  - Enhance Install() and InstallAs() to handle directory trees as sources.
+
+  From Jan Nijtmans:
+
+  - Don't use the -fPIC flag when using gcc on Windows (e.g. MinGW).
+
+  From Greg Noel:
+
+  - Add an env.ParseFlags() method that provides separate logic for
+    parsing GNU tool chain flags into a dictionary.
+
+  - Add an env.MergeFlags() method to apply an arbitrary dictionary
+    of flags to a construction environment's variables.
+
+  From Gary Oberbrunner:
+
+  - Fix parsing tripartite Intel C compiler version numbers on Linux.
+
+  - Extend the ParseConfig() function to recognize -arch and
+    -isysroot options.
+
+  - Have the error message list the known suffixes when a Builder call
+    can't build a source file with an unknown suffix.
+
+  From Karol Pietrzak:
+
+  - Avoid recursive calls to main() in the program snippet used by the
+    SConf subsystem to test linking against libraries.  This changes the
+    default behavior of CheckLib() and CheckLibWithHeader() to print
+    "Checking for C library foo..." instead of "Checking for main()
+    in C library foo...".
+
+  From John Pye:
+
+  - Throw an exception if a command called by ParseConfig() or
+    ParseFlags() returns an error.
+
+  From Stefan Seefeld:
+
+  - Initial infrastructure for running SCons tests under QMTest.
+
+  From Sohail Somani:
+
+  - Fix tests that fail due to gcc warnings.
+
+  From Dobes Vandermeer:
+
+  - In stack traces, print the full paths of SConscript files.
+
+  From Atul Varma:
+
+  - Fix detection of Visual C++ Express Edition.
+
+  From Dobes Vandermeer:
+
+  - Let the src_dir option to the SConscript() function affect all the
+    the source file paths, instead of treating all source files paths
+    as relative to the SConscript directory itself.
+
+  From Nicolas Vigier:
+
+  - Fix finding Fortran modules in build directories.
+
+  - Fix use of BuildDir() when the source file in the source directory
+    is a symlink with a relative path.
+
+  From Edward Wang:
+
+  - Fix the Memoizer when the SCons Python modules are executed from
+    .pyo files at different locations from where they were compiled.
+
+  From Johan Zander:
+
+  - Fix missing os.path.join() when constructing the $FRAMEWORKSDKDIR/bin.
+
+
+
+RELEASE 0.96.92 - Mon, 10 Apr 2006 21:08:22 -0400
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Fix the intelc.py Tool module to not throw an exception if the
+    only installed version is something other than ia32.
+
+  - Set $CCVERSION when using gcc.
+
+  From Matthias:
+
+  - Support generating project and solution files for Microsoft
+    Visual Studio version 8.
+
+  - Support generating more than one project file for a Microsoft
+    Visual Studio solution file.
+
+  - Add support for a support "runfile" parameter to Microsoft
+    Visual Studio project file creation.
+
+  - Put the project GUID, not the solution GUID, in the right spot
+    in the solution file.
+
+  From Erling Andersen:
+
+  - Fix interpretation of Node.FS objects wrapped in Proxy instances,
+    allowing expansion of things like ${File(TARGET)} in command lines.
+
+  From Stanislav Baranov:
+
+  - Add a separate MSVSSolution() Builder, with support for the
+    following new construction variables: $MSVSBUILDCOM, $MSVSCLEANCOM,
+    $MSVSENCODING, $MSVSREBUILDCOM, $MSVSSCONS, $MSVSSCONSCOM,
+    $MSVSSCONSFLAGS, $MSVSSCONSCRIPT and $MSVSSOLUTIONCOM.
+
+  From Ralph W. Grosse-Kunstleve and Patrick Mezard:
+
+  - Remove unneceesary (and incorrect) SCons.Util strings on some function
+    calls in SCons.Util.
+
+  From Bob Halley:
+
+  - Fix C/C++ compiler selection on AIX to not always use the external $CC
+    environment variable.
+
+  From August HÃ¶randl:
+
+  - Add a scanner for \include and \import files, with support for
+    searching a directory list in $TEXINPUTS (imported from the external
+    environment).
+
+  - Support $MAKEINDEX, $MAKEINDEXCOM, $MAKEINDEXCOMSTR and
+    $MAKEINDEXFLAGS for generating indices from .idx files.
+
+  From Steven Johnson:
+
+  - Add a NoClean() Environment method and function to override removal
+    of targets during a -c clean, including documentation and tests.
+
+  From Steven Knight:
+
+  - Check for whether files exist on disk by listing the directory
+    contents, not calling os.path.exists() file by file.  This is
+    somewhat more efficient in general, and may be significantly
+    more efficient on Windows.
+
+  - Minor speedups in the internal is_Dict(), is_List() and is_String()
+    functions.
+
+  - Fix a signature refactoring bug that caused Qt header files to
+    get re-generated every time.
+
+  - Don't fail when writing signatures if the .sconsign.dblite file is
+    owned by a different user (e.g. root) from a previous run.
+
+  - When deleting variables from stacked OverrideEnvironments, don't
+    throw a KeyError if we were able to delte the variable from any
+    Environment in the stack.
+
+  - Get rid of the last indentation tabs in the SCons source files and
+    add -tt to the Python invocations in the packaging build and the
+    tests so they don't creep back in.
+
+  - In Visual Studio project files, put quotes around the -C directory
+    so everything works even if the path has spaces in it.
+
+  - The Intel Fortran compiler uses -object:$TARGET, not "-o $TARGET",
+    when building object files on Windows.  Have the the ifort Tool
+    modify the default command lines appropriately.
+
+  - Document the --debug=explain option in the man page.  (How did we
+    miss this?)
+
+  - Add a $LATEXRETRIES variable to allow configuration of the number of
+    times LaTex can be re-called to try to resolve undefined references.
+
+  - Change the order of the arguments to Configure.Checklib() to match
+    the documentation.
+
+  - Handle signature calculation properly when the Python function used
+    for a FunctionAction is an object method.
+
+  - On Windows, assume that absolute path names without a drive letter
+    refer to the drive on which the SConstruct file lives.
+
+  - Add /usr/ccs/bin to the end of the the default external execution
+    PATH on Solaris.
+
+  - Add $PKGCHK and $PKGINFO variables for use on Solaris when searching
+    for the SunPRO C++ compiler.  Make the default value for $PKGCHK
+    be /usr/sbin/pgkchk (since /usr/sbin isn't usually on the external
+    execution $PATH).
+
+  - Fix a man page example of overriding variables when calling
+    SharedLibrary() to also set the $LIBSUFFIXES variable.
+
+  - Add a --taskmastertrace=FILE option to give some insight on how
+    the taskmaster decides what Node to build next.
+
+  - Changed the names of the old $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX construction variables to
+    new $WINDOWSDEFPREFIX, $WINDOWSDEFSUFFIX, $WINDOWSDLLPREFIX and
+    $WINDOWSIMPLIBPREFIX construction variables.  The old names are now
+    deprecated, but preserved for backwards compatibility.
+
+  - Fix (?) a runtest.py hang on Windows when the --xml option is used.
+
+  - Change the message when an error occurs trying to interact with the
+    file system to report the target(s) in square brackets (as before) and
+    the actual file or directory that encountered the error afterwards.
+
+  From Chen Lee:
+
+  - Add x64 support for Microsoft Visual Studio 8.
+
+  From Baptiste Lepilleur:
+
+  - Support the --debug=memory option on Windows when the Python version
+    has the win32process and win32api modules.
+
+  - Add support for Visual Studio 2005 Pro.
+
+  - Fix portability issues in various tests: test/Case.py,
+    Test/Java/{JAR,JARCHDIR,JARFLAGS,JAVAC,JAVACFLAGS,JAVAH,RMIC}.py,
+    test/MSVS/vs-{6.0,7.0,7.1,8.0}-exec.py,
+    test/Repository/{Java,JavaH,RMIC}.py,
+    test/QT/{generated-ui,installed,up-to-date,warnings}.py,
+    test/ZIP/ZIP.py.
+
+  - Ignore pkgchk errors on Solaris when searching for the C++ compiler.
+
+  - Speed up the SCons/EnvironmentTests.py unit tests.
+
+  - Add a --verbose= option to runtest.py to print executed commands
+    and their output at various levels.
+
+  From Christian Maaser:
+
+  - Add support for Visual Studio Express Editions.
+
+  - Add support for Visual Studio 8 *.manifest files, includng
+    new $WINDOWS_INSERT_MANIFEST, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSPROGMANIFESTPREFIX, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSSHLIBMANIFESTPREFIX and $WINDOWSSHLIBMANIFESTSUFFIX
+    construction variables.
+
+  From Adam MacBeth:
+
+  - Fix detection of additional Java inner classes following use of a
+    "new" keyword inside an inner class.
+
+  From Sanjoy Mahajan:
+
+  - Correct TeX-related command lines to just $SOURCE, not $SOURCES
+
+  From Patrick Mezard:
+
+  - Execute build commands for a command-line target if any of the
+    files built along with the target is out of date or non-existent,
+    not just if the command-line target itself is out of date.
+
+  - Fix the -n option when used with -c to print all of the targets
+    that will be removed for a multi-target Builder call.
+
+  - If there's no file in the source directory, make sure there isn't
+    one in the build directory, too, to avoid dangling files left
+    over from previous runs when a source file is removed.
+
+  - Allow AppendUnique() and PrependUnique() to append strings (and
+    other atomic objects) to lists.
+
+  From Joel B. Mohler:
+
+  - Extend latex.py, pdflatex.py, pdftex.py and tex.py so that building
+    from both TeX and LaTeX files uses the same logic to call $BIBTEX
+    when it's necessary, to call $MAKEINDEX when it's necessary, and to
+    call $TEX or $LATEX multiple times to handle undefined references.
+
+  - Add an emitter to the various TeX builders so that the generated
+    .aux and .log files also get deleted by the -c option.
+
+  From Leanid Nazdrynau:
+
+  - Fix the Qt UIC scanner to work with generated .ui files (by using
+    the FindFile() function instead of checking by-hand for the file).
+
+  From Jan Nieuwenhuizen:
+
+  - Fix a problem with interpreting quoted argument lists on command lines.
+
+  From Greg Noel:
+
+  - Add /sw/bin to the default execution PATH on Mac OS X.
+
+  From Kian Win Ong:
+
+  - When building a .jar file and there is a $JARCHDIR, put the -C
+    in front of each .class file on the command line.
+
+  - Recognize the Java 1.5 enum keyword.
+
+  From Asfand Yar Qazi:
+
+  - Add /opt/bin to the default execution PATH on all POSIX platforms
+    (between /usr/local/bin and /bin).
+
+  From Jon Rafkind:
+
+  - Fix the use of Configure() contexts from nested subsidiary
+    SConscript files.
+
+  From Christoph Schulz:
+
+  - Add support for $CONFIGUREDIR and $CONFIGURELOG variables to control
+    the directory and logs for configuration tests.
+
+  - Add support for a $INSTALLSTR variable.
+
+  - Add support for $RANLIBCOM and $RANLIBCOMSTR variables (which fixes
+    a bug when setting $ARCOMSTR).
+
+  From Amir Szekely:
+
+  - Add use of $CPPDEFINES to $RCCOM (resource file compilation) on MinGW.
+
+  From Erick Tryzelaar:
+
+  - Fix the error message when trying to report that a given option is
+    not gettable/settable from an SConscript file.
+
+  From Dobes Vandermeer:
+
+  - Add support for SCC and other settings in Microsoft Visual
+    Studio project and solution files:  $MSVS_PROJECT_BASE_PATH,
+    $MSVS_PROJECT_GUID, $MSVS_SCC_AUX_PATH, $MSVS_SCC_LOCAL_PATH,
+    $MSVS_SCC_PROJECT_NAME, $MSVS_SCC_PROVIDER,
+
+  - Add support for using a $SCONS_HOME variable (imported from the
+    external environment, or settable internally) to put a shortened
+    SCons execution line in the Visual Studio project file.
+
+  From David J. Van Maren:
+
+  - Only filter common prefixes from source files names in Visual Studio
+    project files if the prefix is a complete (sub)directory name.
+
+  From Thad Ward:
+
+  - If $MSVSVERSIONS is already set, don't overwrite it with
+    information from the registry.
+
+
+
+RELEASE 0.96.91 - Thu, 08 Sep 2005 07:18:23 -0400
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
+  From Chad Austin:
+
+  - Have the environment store the toolpath and re-use it to find Tools
+    modules during later Copy() or Tool() calls (unless overridden).
+
+  - Normalize the directory path names in SConsignFile() database
+    files so the same signature file can interoperate on Windows and
+    non-Windows systems.
+
+  - Make --debug=stacktrace print a stacktrace when a UserError is thrown.
+
+  - Remove an old, erroneous cut-and-paste comment in Scanner/Dir.py.
+
+  From Stanislav Baranov:
+
+  - Make it possible to support with custom Alias (sub-)classes.
+
+  - Allow Builders to take empty source lists when called.
+
+  - Allow access to both TARGET and SOURCE in $*PATH expansions.
+
+  - Allow SConscript files to modify BUILD_TARGETS.
+
+  From Timothee Besset:
+
+  - Add support for Objective C/C++ .m and .mm file suffixes (for
+    Mac OS X).
+
+  From Charles Crain
+
+  - Fix the PharLap linkloc.py module to use target+source arguments
+    when calling env.subst().
+
+  From Bjorn Eriksson:
+
+  - Fix an incorrect Command() keyword argument in the man page.
+
+  - Add a $TEMPFILEPREFIX variable to control the prefix or flag used
+    to pass a long-command-line-execution tempfile to a command.
+
+  From Steven Knight:
+
+  - Enhanced the SCons setup.py script to install man pages on
+    UNIX/Linux systems.
+
+  - Add support for an Options.FormatOptionHelpText() method that can
+    be overridden to customize the format of Options help text.
+
+  - Add a global name for the Entry class (which had already been
+    documented).
+
+  - Fix re-scanning of generated source files for implicit dependencies
+    when the -j option is used.
+
+  - Fix a dependency problem that caused $LIBS scans to not be added
+    to all of the targets in a multiple-target builder call, which
+    could cause out-of-order builds when the -j option is used.
+
+  - Store the paths of source files and dependencies in the .sconsign*
+    file(s) relative to the target's directory, not relative to the
+    top-level SConstruct directory.  This starts to make it possible to
+    subdivide the dependency tree arbitrarily by putting an SConstruct
+    file in every directory and using content signatures.
+
+  - Add support for $YACCHFILESUFFIX and $YACCHXXFILESUFFIX variables
+    that accomodate parser generators that write header files to a
+    different suffix than the hard-coded .hpp when the -d option is used.
+
+  - The default behavior is now to store signature information in a
+    single .sconsign.dblite file in the top-level SConstruct directory.
+    The old behavior of a separate .sconsign file in each directory can
+    be specified by calling SConsignFile(None).
+
+  - Remove line number byte codes within the signature calculation
+    of Python function actions, so that changing the location of an
+    otherwise unmodified Python function doesn't cause rebuilds.
+
+  - Fix AddPreAction() and AddPostAction() when an action has more than
+    one target file:  attach the actions to the Executor, not the Node.
+
+  - Allow the source directory of a BuildDir / build_dir to be outside
+    of the top-level SConstruct directory tree.
+
+  - Add a --debug=nomemoizer option that disables the Memoizer for clearer
+    looks at the counts and profiles of the underlying function calls,
+    not the Memoizer wrappers.
+
+  - Print various --debug= stats even if we exit early (e.g. using -h).
+
+  - Really only use the cached content signature value if the file
+    is older than --max-drift, not just if --max-drift is set.
+
+  - Remove support for conversion from old (pre 0.96) .sconsign formats.
+
+  - Add support for a --diskcheck option to enable or disable various
+    on-disk checks:  that File and Dir nodes match on-disk entries;
+    whether an RCS file exists for a missing source file; whether an
+    SCCS file exists for a missing source file.
+
+  - Add a --raw argument to the sconsign script, so it can print a
+    raw representation of each entry's NodeInfo dictionary.
+
+  - Add the 'f90' and 'f95' tools to the list of Fortran compilers
+    searched for by default.
+
+  - Add the +Z option by default when compiling shared objects on
+    HP-UX.
+
+  From Chen Lee:
+
+  - Handle Visual Studio project and solution files in Unicode.
+
+  From Sanjoy Mahajan:
+
+  - Fix a bad use of Copy() in an example in the man page, and a
+    bad regular expression example in the man page and User's Guide.
+
+  From Shannon Mann:
+
+  - Have the Visual Studio project file(s) echo "Starting SCons" before
+    executing SCons, mainly to work around a quote-stripping bug in
+    (some versions of?) the Windows cmd command executor.
+
+  From Georg Mischler:
+
+  - Remove the space after the -o option when invoking the Borland
+    BCC compiler; some versions apparently require that the file name
+    argument be concatenated with the option.
+
+  From Leanid Nazdrynau:
+
+  - Fix the Java parser's handling of backslashes in strings.
+
+  From Greg Noel:
+
+  - Add construction variables to support frameworks on Mac OS X:
+    $FRAMEWORKS, $FRAMEWORKPREFIX, $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX.
+
+  - Re-order link lines so the -o option always comes right after the
+    command name.
+
+  From Gary Oberbrunner:
+
+  - Add support for Intel C++ beta 9.0 (both 32 and 64 bit versions).
+
+  - Document the new $FRAMEWORK* variables for Mac OS X.
+
+  From Karol Pietrzak:
+
+  - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
+
+  - Add a description of env.subst() to the man page.
+
+  From Chris Prince:
+
+  - Look in the right directory, not always the local directory, for a
+    same-named file or directory conflict on disk.
+
+  - On Windows, preserve the external environment's %SYSTEMDRIVE%
+    variable, too.
+
+  From Craig Scott:
+
+  - Have the Fortran module emitter look for Fortan modules to be created
+    relative to $FORTRANMODDIR, not the top-level directory.
+
+  - When saving Options to a file, run default values through the
+    converter before comparing them with the set values.  This correctly
+    suppresses Boolean Option values from getting written to the saved
+    file when they're one of the many synonyms for a default True or
+    False value.
+
+  - Fix the Fortran Scanner's ability to handle a module being used
+    in the same file in which it is defined.
+
+  From Steve-o:
+
+  - Add the -KPIC option by default when compiling shared objects on
+    Solaris.
+
+  - Change the default suffix for Solaris objects to .o, to conform to
+    Sun WorkShop's expectations.  Change the profix to so_ so they can
+    still be differentiated from static objects in the same directory.
+
+  From Amir Szekely:
+
+  - When calling the resource compiler on MinGW, add --include-dir and
+    the source directory so it finds the source file.
+
+  - Update EnsureSConsVersion() to support revision numbers.
+
+  From Greg Ward:
+
+  - Fix a misplaced line in the man page.
+
+
+
+RELEASE 0.96.90 - Tue, 15 Feb 2005 21:21:12 +0000
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Fix Java parsing to avoid erroneously identifying a new array
+    of class instances as an anonymous inner class.
+
+  - Fix a typo in the man page description of PathIsDirCreate.
+
+  From Chad Austin:
+
+  - Allow Help() to be called multiple times, appending to the help
+    text each call.
+
+  - Allow Tools found on a toolpath to import Python modules from
+    their local directory.
+
+  From Steve Christensen:
+
+  - Handle exceptions from Python functions as build actions.
+
+  - Add a set of canned PathOption validators:  PathExists (the default),
+    PathIsFile, PathIsDir and PathIsDirCreate.
+
+  From Matthew Doar:
+
+  - Add support for .lex and .yacc file suffixes for Lex and Yacc files.
+
+  From Eric Frias:
+
+  - Huge performance improvement:  wrap the tuples representing an
+    include path in an object, so that the time it takes to hash the
+    path doesn't grow porportionally to the length of the path.
+
+  From Gottfried Ganssauge:
+
+  - Fix SCons on SuSE/AMD-64 Linux by having the wrapper script also
+    check for the build engine in the parent directory of the Python
+    library directory (/usr/lib64 instead of /usr/lib).
+
+  From Stephen Kennedy:
+
+  - Speed up writing the .sconsign file at the end of a run by only
+    calling sync() once at the end, not after every entry.
+
+  From Steven Knight:
+
+  - When compiling with Microsoft Visual Studio, don't include the ATL and
+    MFC directories in the default INCLUDE and LIB environment variables.
+
+  - Remove the following deprecated features:  the ParseConfig()
+    global function (deprecated in 0.93); the misspelled "validater"
+    keyword to the Options.Add() method (deprecated in 0.91); the
+    SetBuildSignatureType(), SetContentSignatureType(), SetJobs() and
+    GetJobs() global functions (deprecated in 0.14).
+
+  - Fix problems with corrupting the .sconsign.dblite file when
+    interrupting builds by writing to a temporary file and renaming,
+    not writing the file directly.
+
+  - Fix a 0.96 regression where when running with -k, targets built from
+    walking dependencies later on the command line would not realize
+    that a dependency had failed an earlier build attempt, and would
+    try to rebuild the dependent targets.
+
+  - Change the final messages when using -k and errors occur from
+    "{building,cleaning} terminated because of errors" to "done
+    {building,cleaning} targets (errors occurred during {build,clean})."
+
+  - Allow Configure.CheckFunc() to take an optional header argument
+    (already supported by Conftest.py) to specify text at the top of
+    the compiled test file.
+
+  - Fix the --debug=explain output when a Python function action changed
+    so it prints a meaningful string, not the binary representation of
+    the function contents.
+
+  - Allow a ListOption's default value(s) to be a Python list of specified
+    values, not just a string containing a comma-separated list of names.
+
+  - Add a ParseDepends() function that will parse up a list of explicit
+    dependencies from a "make depend" style file.
+
+  - Support the ability to change directory when executing an Action
+    through "chdir" keyword arguments to Action and Builder creation
+    and calls.
+
+  - Fix handling of Action ojects (and other callables that don't match
+    our calling arguments) in construction variable expansions.
+
+  - On Win32, install scons.bat in the Python directory when installing
+    from setup.py.  (The bdist_wininst installer was already doing this.)
+
+  - Fix env.SConscript() when called with a list of SConscipt files.
+    (The SConscript() global function already worked properly.)
+
+  - Add a missing newline to the end of the --debug=explain "unknown
+    reasons" message.
+
+  - Enhance ParseConfig() to work properly for spaces in between the -I,
+    -L and -l options and their arguments.
+
+  - Packaging build fix:  Rebuild the files that are use to report the
+    --version of SCons whenever the development version number changes.
+
+  - Fix the ability to specify a target_factory of Dir() to a Builder,
+    which the default create-a-directory Builder was interfering with.
+
+  - Mark a directory as built if it's created as part of the preparation
+    for another target, to avoid trying to build it again when it comes
+    up in the target list.
+
+  - Allow a function with the right calling signature to be put directly
+    in an Environment's BUILDERS dictionary, making for easier creation
+    and use of wrappers (pseudo-Builders) that call other Builders.
+
+  - On Python 2.x, wrap lists of Nodes returned by Builders in a UserList
+    object that adds a method that makes str() object return a string
+    with all of the Nodes expanded to their path names.  (Builders under
+    Python 1.5.2 still return lists to avoid TypeErrors when trying
+    to extend() list, so Python 1.5.2 doesn't get pretty-printing of Node
+    lists, but everything should still function.)
+
+  - Allow Aliases to have actions that will be executed whenever
+    any of the expanded Alias targets are out of date.
+
+  - Fix expansion of env.Command() overrides within target and
+    source file names.
+
+  - Support easier customization of what's displayed by various default
+    actions by adding lots of new construction variables: $ARCOMSTR,
+    $ASCOMSTR, $ASPPCOMSTR, $BIBTEXCOMSTR, $BITKEEPERCOMSTR, $CCCOMSTR,
+    $CVSCOMSTR, $CXXCOMSTR, $DCOMSTR, $DVIPDFCOMSTR, $F77COMSTR,
+    $F90COMSTR, $F95COMSTR, $FORTRANCOMSTR, $GSCOMSTR, $JARCOMSTR,
+    $JAVACCOMSTR, $JAVAHCOMSTR, $LATEXCOMSTR, $LEXCOMSTR, $LINKCOMSTR,
+    $M4COMSTR, $MIDLCOMSTR, $P4COMSTR, $PCHCOMSTR, $PDFLATEXCOMSTR,
+    $PDFTEXCOMSTR, $PSCOMSTR, $QT_MOCFROMCXXCOMSTR, $QT_MOCFROMHCOMSTR,
+    $QT_UICCOMSTR, $RCCOMSTR, $REGSVRCOMSTR, $RCS_COCOMSTR, $RMICCOMSTR,
+    $SCCSCOMSTR, $SHCCCOMSTR, $SHCXXCOMSTR, $SHF77COMSTR, $SHF90COMSTR,
+    $SHF95COMSTR, $SHFORTRANCOMSTR, $SHLINKCOMSTR, $SWIGCOMSTR,
+    $TARCOMSTR, $TEXCOMSTR, $YACCCOMSTR and $ZIPCOMSTR.
+
+  - Add an optional "map" keyword argument to ListOption() that takes a
+    dictionary to map user-specified values to legal values from the list
+    (like EnumOption() already doee).
+
+  - Add specific exceptions to try:-except: blocks without any listed,
+    so that they won't catch and mask keyboard interrupts.
+
+  - Make --debug={tree,dtree,stree} print something even when there's
+    a build failure.
+
+  - Fix how Scanners sort the found dependencies so that it doesn't
+    matter whether the dependency file is in a Repository or not.
+    This may cause recompilations upon upgrade to this version.
+
+  - Make AlwaysBuild() work with Alias and Python value Nodes (making
+    it much simpler to support aliases like "clean" that just invoke
+    an arbitrary action).
+
+  - Have env.ParseConfig() use AppendUnique() by default to suppress
+    duplicate entries from multiple calls.  Add a "unique" keyword
+    argument to allow the old behavior to be specified.
+
+  - Allow the library modules imported by an SConscript file to get at
+    all of the normally-available global functions and variables by saying
+    "from SCons.Script import *".
+
+  - Add a --debug=memoizer option to print Memoizer hit/mass statistics.
+
+  - Allow more than one --debug= option to be set at a time.
+
+  - Change --debug=count to report object counts before and after
+    reading SConscript files and before and after building targets.
+
+  - Change --debug=memory output to line up the numbers and to better
+    match (more or less) the headers on the --debug=count columns.
+
+  - Speed things up when there are lists of targets and/or sources by
+    getting rid of some N^2 walks of the lists involved.
+
+  - Cache evaluation of LazyActions so we don't create a new object
+    for each invocation.
+
+  - When scanning, don't create Nodes for include files that don't
+    actually exist on disk.
+
+  - Make supported global variables CScanner, DScanner, ProgramScanner and
+    SourceFileScanner.  Make SourceFileScanner.add_scanner() a supported
+    part of the public interface.  Keep the old SCons.Defaults.*Scan names
+    around for a while longer since some people were already using them.
+
+  - By default, don't scan directories for on-disk files.  Add a
+    DirScanner global scanner that can be used in Builders or Command()
+    calls that want source directory trees scanned for on-disk changes.
+    Have the Tar() and Zip() Builders use the new DirScanner to preserve
+    the behavior of rebuilding a .tar or .zip file if any file or
+    directory under a source tree changes.  Add Command() support for
+    a source_scanner keyword argument to Command() that can be set to
+    DirScanner to get this behavior.
+
+  - Documentation changes:  Explain that $CXXFLAGS contains $CCFLAGS
+    by default.  Fix a bad target_factory example in the man page.
+    Add appendices to the User's Guide to cover the available Tools,
+    Builders and construction variables.  Comment out the build of
+    the old Python 10 paper, which doesn't build on all systems and
+    is old enough at this point that it probably isn't worth the
+    effort to make it do so.
+
+  From Wayne Lee:
+
+  - Avoid "maximum recursion limit" errors when removing $(-$) pairs
+    from long command lines.
+
+  From Clive Levinson:
+
+  - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
+    $CCFLAGS, and -mwindows to $LINKFLAGS.
+
+  From Michael McCracken:
+
+  - Add a new "applelink" tool to handle the things like Frameworks and
+    bundles that Apple has added to gcc for linking.
+
+  - Use more appropriate default search lists of linkers, compilers and
+    and other tools for the 'darwin' platform.
+
+  - Add a LoadableModule Builder that builds a bundle on Mac OS X (Darwin)
+    and a shared library on other systems.
+
+  - Improve SWIG tests for use on Mac OS X (Darwin).
+
+  From Elliot Murphy:
+
+  - Enhance the tests to guarantee persistence of ListOption
+    values in saved options files.
+
+  - Supply the help text when -h is used with the -u, -U or -D options.
+
+  From Christian Neeb:
+
+  - Fix the Java parser's handling of string definitions to avoid ignoring
+    subsequent code.
+
+  From Han-Wen Nienhuys:
+
+  - Optimize variable expansion by:  using the re.sub() method (when
+    possible); not using "eval" for variables for which we can fetch the
+    value directory; avoiding slowing substitution logic when there's no
+    '$' in the string.
+
+  From Gary Oberbrunner:
+
+  - Add an Environment.Dump() method to print the contents of a
+    construction environment.
+
+  - Allow $LIBS (and similar variables) to contain explicit File Nodes.
+
+  - Change ParseConfig to add the found library names directly to the
+    $LIBS variable, instead of returning them.
+
+  - Add ParseConfig() support for the -framework GNU linker option.
+
+  - Add a PRINT_CMD_LINE_FUNC construction variable to allow people
+    to filter (or log) command-line output.
+
+  - Print an internal Python stack trace in response to an otherwise
+    unexplained error when --debug=stacktrace is specified.
+
+  - Add a --debug=findlibs option to print what's happening when
+    the scanner is searching for libraries.
+
+  - Allow Tool specifications to be passed a dictionary of keyword
+    arguments.
+
+  - Support an Options default value of None, in which case the variable
+    will not be added to the construction environment unless it's set
+    explicitly by the user or from an Options file.
+
+  - Avoid copying __builtin__ values into a construction environment's
+    dictionary when evaluating construction variables.
+
+  - Add a new cross-platform intelc.py Tool that can detect and
+    configure the Intel C++ v8 compiler on both Windows, where it's
+    named icl, and Linux, where it's named icc.  It also checks that
+    the directory specified in the Windows registry exists, and sets a
+    new $INTEL_C_COMPILER_VERSION construction variable to identify the
+    version being used.  (Niall Douglas contributed an early prototype
+    of parts of this module.)
+
+  - Fix the private Conftest._Have() function so it doesn't change
+    non-alphanumeric characters to underscores.
+
+  - Supply a better error message when a construction variable expansion
+    has an unknown attribute.
+
+  - Documentation changes:  Update the man page to describe use of
+    filenames or Nodes in $LIBS.
+
+  From Chris Pawling:
+
+  - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
+    Visual Studio version to use.
+
+  From Kevin Quick:
+
+  - Fix the Builder name returned from ListBuilders and other instances
+    of subclasses of the BuilderBase class.
+
+  - Add Builders and construction variables to support rpcgen:
+    RPCGenClient(), RPCGenHeader(), RPCGenService(), RPCGenXDR(),
+    $RPCGEN, $RPCGENFLAGS, $RPCGENCLIENTFLAGS, $RPCGENHEADERFLAGS,
+    $RPCGENSERVICEFLAGS, $RPCGENXDRFLAGS.
+
+  - Update the man page to document that prefix and suffix Builder
+    keyword arguments can be strings, callables or dictionaries.
+
+  - Provide more info in the error message when a user tries to build
+    a target multiple ways.
+
+  - Fix Delete() when a file doesn't exist and must_exist=1.  (We were
+    unintentionally dependent on a bug in versions of the Python shutil.py
+    module prior to Python 2.3, which would generate an exception for
+    a nonexistent file even when ignore_errors was set.)
+
+  - Only replace a Node's builder with a non-null source builder.
+
+  - Fix a stack trace when a suffix selection dictionary is passed
+    an empty source file list.
+
+  - Allow optional names to be attached to Builders, for default
+    Builders that don't get attached to construction environments.
+
+  - Fix problems with Parallel Task Exception handling.
+
+  - Build targets in an associated BuildDir even if there are targets
+    or subdirectories locally in the source directory.
+
+  - If a FunctionAction has a callable class as its underlying Python
+    function, use its strfunction() method (if any) to display the
+    action.
+
+  - Fix handling when BuildDir() exists but is unwriteable.  Add
+    "Stop." to those error messages for consistency.
+
+  - Catch incidents of bad builder creation (without an action) and
+    supply meaningful error messages.
+
+  - Fix handling of src_suffix values that aren't extensions (don't
+    begin with a '.').
+
+  - Don't retrieve files from a CacheDir, but report what would happen,
+    when the -n option is used.
+
+  - Use the source_scanner from the target Node, not the source node
+    itself.
+
+  - Internal Scanners fixes:  Make sure Scanners are only passed Nodes.
+    Fix how a Scanner.Selector called its base class initialization.
+    Make comparisons of Scanner objects more robust.  Add a name to
+    an internal default ObjSourceScanner.
+
+  - Add a deprecated warning for use of the old "scanner" keyword argument
+    to Builder creation.
+
+  - Improve the --debug=explain message when the build action changes.
+
+  - Test enhancements in SourceCode.py, option-n.py, midl.py.  Better
+    Command() and Scanner test coverage.  Improved test infrastructure
+    for -c output.
+
+  - Refactor the interface between Action and Executor objects to treat
+    Actions atomically.
+
+  - The --debug=presub option will now report the pre-substitution
+    each action seprately, instead of reporting the entire list before
+    executing the actions one by one.
+
+  - The --debug=explain option explaining a changed action will now
+    (more correctly) show pre-substitution action strings, instead of
+    the commands with substituted file names.
+
+  - A Node (file) will now be rebuilt if its PreAction or PostAction
+    actions change.
+
+  - Python Function actions now have their calling signature (target,
+    source, env) reported correctly when displayed.
+
+  - Fix BuildDir()/build_dir handling when the build_dir is underneath
+    the source directory and trying to use entries from the build_dir
+    as sources for other targets in the build-dir.
+
+  - Fix hard-coding of JDK path names in various Java tests.
+
+  - Handle Python stack traces consistently (stop at the SConscript stack
+    frame, by default) even if the Python source code isn't available.
+
+  - Improve the performance of the --debug={tree,dtree} options.
+
+  - Add --debug=objects logging of creation of OverrideWarner,
+    EnvironmentCopy and EnvironmentOverride objects.
+
+  - Fix command-line expansion of Python Value Nodes.
+
+  - Internal cleanups:  Remove an unnecessary scan argument.  Associate
+    Scanners only with Builders, not nodes.  Apply overrides once when
+    a Builder is called, not in multiple places.  Cache results from the
+    Node.FS.get_suffix() and Node.get_build_env() methods.  Use the Python
+    md5 modules' hexdigest() method, if there is one.  Have Taskmaster
+    call get_stat() once for each Node and re-use the value instead of
+    calling it each time it needs the value.  Have Node.depends_on()
+    re-use the list from the children() method instead of calling it
+    multiple times.
+
+  - Use the correct scanner if the same source file is used for targets in
+    two different environments with the same path but different scanners.
+
+  - Collect logic for caching values in memory in a Memoizer class,
+    which cleans up a lot of special-case code in various methods and
+    caches additional values to speed up most configurations.
+
+  - Add a PathAccept validator to the list of new canned PathOption
+    validators.
+
+  From Jeff Squyres:
+
+  - Documentation changes:  Use $CPPDEFINES instead of $CCFLAGS in man
+    page examples.
+
+  From Levi Stephen:
+
+  - Allow $JARCHDIR to be expanded to other construction variables.
+
+  From Christoph Wiedemann:
+
+  - Add an Environment.SetDefault() method that only sets values if
+    they aren't already set.
+
+  - Have the qt.py Tool not override variables already set by the user.
+
+  - Add separate $QT_BINPATH, $QT_CPPPATH and $QT_LIBPATH variables
+    so these can be set individually, instead of being hard-wired
+    relative to $QTDIR.
+
+  - The %TEMP% and %TMP% external environment variables are now propagated
+    automatically to the command execution environment on Windows systems.
+
+  - A new --config= command-line option allows explicit control of
+    of when the Configure() tests are run:  --config=force forces all
+    checks to be run, --config=cache uses all previously cached values,
+    --config=auto (the default) runs tests only when dependency analysis
+    determines it's necessary.
+
+  - The Configure() subsystem can now write a config.h file with values
+    like HAVE_STDIO_H, HAVE_LIBM, etc.
+
+  - The Configure() subsystem now executes its checks silently when the
+    -Q option is specified.
+
+  - The Configure() subsystem now reports if a test result is being
+    taken from cache, and prints the standard output and error output
+    of tests even when cached.
+
+  - Configure() test results are now reported as "yes" or "no" instead of
+    "ok" or "failed."
+
+  - Fixed traceback printing when calling the env.Configure() method
+    instead of the Configure() global function.
+
+  - The Configure() subsystem now caches build failures in a .sconsign
+    file in the subdirectory, not a .cache file.  This may cause
+    tests to be re-executed the first time after you install 0.97.
+
+  - Additional significant internal cleanups in the Configure() subsystem
+    and its tests.
+
+  - Have the Qt Builder make uic-generated files dependent on the .ui.h
+    file, if one exists.
+
+  - Add a test to make sure that SCons source code does not contain
+    try:-except: blocks that catch all errors, which potentially catch
+    and mask keyboard interrupts.
+
+  - Fix us of TargetSignatures('content') with the SConf subsystem.
+
+  From Russell Yanofsky:
+
+  - Add support for the Metrowerks Codewarrior compiler and linker
+    (mwcc and mwld).
+
+
+
+RELEASE 0.96.1 - Mon, 23 Aug 2004 12:55:50 +0000
+
+  From Craig Bachelor:
+
+  - Handle white space in the executable Python path name within in MSVS
+    project files by quoting the path.
+
+  - Correct the format of a GUID string in a solution (.dsw) file so
+    MSVS can correctly "build enable" a project.
+
+  From Steven Knight:
+
+  - Add a must_exist flag to Delete() to let the user control whether
+    it's an error if the specified entry doesn't exist.  The default
+    behavior is now to silently do nothing if it doesn't exist.
+
+  - Package up the new Platform/darwin.py, mistakenly left out of 0.96.
+
+  - Make the scons.bat REM statements into @REM so they aren't printed.
+
+  - Make the SCons packaging SConscript files platform independent.
+
+  From Anthony Roach:
+
+  - Fix scanning of pre-compiled header (.pch) files for #includes,
+    broken in 0.96.
+
+
+
+RELEASE 0.96 - Wed, 18 Aug 2004 13:36:40 +0000
+
+  From Chad Austin:
+
+  - Make the CacheDir() directory if it doesn't already exist.
+
+  - Allow construction variable substitutions in $LIBS specifications.
+
+  - Allow the emitter argument to a Builder() to be or expand to a list
+    of emitter functions, which will be called in sequence.
+
+  - Suppress null values in construction variables like $LIBS that use
+    the internal _concat() function.
+
+  - Remove .dll files from the construction variables searched for
+    libraries that can be fed to Win32 compilers.
+
+  From Chad Austin and Christoph Wiedemann:
+
+  - Add support for a $RPATH variable to supply a list of directories
+    to search for shared libraries when linking a program.  Used by
+    the GNU and IRIX linkers (gnulink and sgilink).
+
+  From Charles Crain:
+
+  - Restore the ability to do construction variable substitutions in all
+    kinds of *PATH variables, even when the substitution returns a Node
+    or other object.
+
+  From Tom Epperly:
+
+  - Allow the Java() Builder to take more than one source directory.
+
+  From Ralf W. Grosse-Kunstleve:
+
+  - Have SConsignFile() use, by default, a custom "dblite.py" that we can
+    control and guarantee to work on all Python versions (or nearly so).
+
+  From Jonathan Gurley:
+
+  - Add support for the newer "ifort" versions of the Intel Fortran
+    Compiler for Linux.
+
+  From Bob Halley:
+
+  - Make the new *FLAGS variable type work with copied Environments.
+
+  From Chris Hoeppler:
+
+  - Initialize the name of a Scanner.Classic scanner correctly.
+
+  From James Juhasz:
+
+  - Add support for the .dylib shared library suffix and the -dynamiclib
+    linker option on Mac OS X.
+
+  From Steven Knight:
+
+  - Add an Execute() method for executing actions directly.
+
+  - Support passing environment override keyword arguments to Command().
+
+  - Fix use of $MSVS_IGNORE_IDE_PATHS, which was broken when we added
+    support for $MSVS_USE_MFC_DIRS last release.
+
+  - Make env.Append() and env.Prepend() act like the underlying Python
+    behavior when the variable being appended to is a UserList object.
+
+  - Fix a regression that prevented the Command() global function in
+    0.95 from working with command-line strings as actions.
+
+  - Fix checking out a file from a source code management system when
+    the env.SourceCode() method was called with an individual file name
+    or node, not a directory name or node.
+
+  - Enhance the Task.make_ready() method to create a list of the
+    out-of-date Nodes for the task for use by the wrapping interface.
+
+  - Allow Scanners to pull the list of suffixes from the construction
+    environment when the "skeys" keyword argument is a string containing
+    a construction variable to be expanded.
+
+  - Support new $CPPSUFFIXES, $DSUFFIXES $FORTRANSUFFIXES, and
+    $IDLSUFFIXES.  construction variables that contain the default list
+    of suffixes to be scanned by a given type of scanner, allowing these
+    suffix lists to be easily added to or overridden.
+
+  - Speed up Node creation when calling a Builder by comparing whether two
+    Environments are the same object, not if their underlying dictionaries
+    are equivalent.
+
+  - Add a --debug=explain option that reports the reason(s) why SCons
+    thinks it must rebuild something.
+
+  - Add support for functions that return platform-independent Actions
+    to Chmod(), Copy(), Delete(), Mkdir(), Move() and Touch() files
+    and/or directories.  Like any other Actions, the returned Action
+    object may be executed directly using the Execute() global function
+    or env.Execute() environment method, or may be used as a Builder
+    action or in an env.Command() action list.
+
+  - Add support for the strfunction argument to all types of Actions:
+    CommandAction, ListAction, and CommandGeneratorAction.
+
+  - Speed up turning file system Nodes into strings by caching the
+    values after we're finished reading the SConscript files.
+
+  - Have ParseConfig() recognize and supporting adding the -Wa, -Wl,
+    and -Wp, flags to ASFLAGS, LINKFLAGS and CPPFLAGS, respectively.
+
+  - Change the .sconsign format and the checks for whether a Node is
+    up-to-date to make dependency checks more efficient and correct.
+
+  - Add wrapper Actions to SCons.Defaults for $ASCOM, $ASPPCOM, $LINKCOM,
+    $SHLINKCOM, $ARCOM, $LEXCOM and $YACCCOM.  This makes it possible
+    to replace the default print behavior with a custom strfunction()
+    for each of these.
+
+  - When a Node has been built, don't walk the whole tree back to delete
+    the parents's implicit dependencies, let returning up the normal
+    Taskmaster descent take care of it for us.
+
+  - Add documented support for separate target_scanner and source_scanner
+    arguments to Builder creation, which allows different scanners to
+    be applied to source files
+
+  - Don't re-install or (re-generate) .h files when a subsidiary #included
+    .h file changes.  This eliminates incorrect circular dependencies
+    with .h files generated from other source files.
+
+  - Slim down the internal Sig.Calculator class by eliminating methods
+    whose functionality is now covered by Node methods.
+
+  - Document use of the target_factory and source_factory keyword
+    arguments when creating Builder objects.  Enhance Dir Nodes so that
+    they can be created with user-specified Builder objects.
+
+  - Don't blow up with stack trace when the external $PATH environment
+    variable isn't set.
+
+  - Make Builder calls return lists all the time, even if there's only
+    one target.  This keeps things consistent and easier to program to
+    across platforms.
+
+  - Add a Flatten() function to make it easier to deal with the Builders
+    all returning lists of targets, not individual targets.
+
+  - Performance optimizations in Node.FS.__doLookup().
+
+  - Man page fixes:  formatting typos, misspellings, bad example.
+
+  - User's Guide fixes: Fix the signatures of the various example
+    *Options() calls.  Triple-quote properly a multi-line Split example.
+
+  - User's Guide additions:  Chapter describing File and Directory
+    Nodes.  Section describing declarative nature of SCons functions in
+    SConscript files.  Better organization and clarification of points
+    raised by Robert P. J. Day.  Chapter describing SConf (Autoconf-like)
+    functionality.  Chapter describing how to install Python and
+    SCons.  Chapter describing Java builds.
+
+  From Chris Murray:
+
+  - Add a .win32 attribute to force file names to expand with
+    Windows backslash path separators.
+
+  - Fix escaping file names on command lines when the expansion is
+    concatenated with another string.
+
+  - Add support for Fortran 90 and Fortran 95.  This adds $FORTRAN*
+    variables that specify a default compiler, command-line, flags,
+    etc. for all Fortran versions, plus separate $F90* and $F95*
+    variables for when different compilers/flags/etc. must be specified
+    for different Fortran versions.
+
+  - Have individual tools that create libraries override the default
+    $LIBPREFIX and $LIBSUFFIX values set by the platform.  This makes
+    it easier to use Microsoft Visual Studio tools on a CygWin platform.
+
+  From Gary Oberbrunner:
+
+  - Add a --debug=presub option to print actions prior to substitution.
+
+  - Add a warning upon use of the override keywords "targets" and
+    "sources" when calling Builders.  These are usually mistakes which
+    are otherwise silently (and confusingly) turned into construction
+    variable overrides.
+
+  - Try to find the ICL license file path name in the external environment
+    and the registry before resorting to the hard-coded path name.
+
+  - Add support for fetching command-line keyword=value arguments in
+    order from an ARGLIST list.
+
+  - Avoid stack traces when trying to read dangling symlinks.
+
+  - Treat file "extensions" that only contain digits as part of the
+    file basename.  This supports version numbers as part of shared
+    library names, for example.
+
+  - Avoid problems when there are null entries (None or '') in tool
+    lists or CPPPATH.
+
+  - Add an example and explanation of how to use "tools = ['default', ..."
+    when creating a construction environment.
+
+  - Add a section describing File and Directory Nodes and some of their
+    attributes and methods.
+
+  - Have ParseConfig() add a returned -pthread flag to both $CCFLAGS
+    and $LINKFLAGS.
+
+  - Fix some test portability issues on Mac OS X (darwin).
+
+  From Simon Perkins:
+
+  - Fix a bug introduced in building shared libraries under MinGW.
+
+  From Kevin Quick:
+
+  - Handling SCons exceptions according to Pythonic standards.
+
+  - Fix test/chained-build.py on systems that execute within one second.
+
+  - Fix tests on systems where 'ar' warns about archive creation.
+
+  From Anthony Roach:
+
+  - Fix use of the --implicit-cache option with timestamp signatures.
+
+  - If Visual Studio is installed, assume the C/C++ compiler, the linker
+    and the MIDL compiler that comes with it are available, too.
+
+  - Better error messages when evaluating a construction variable
+    expansion yields a Python syntax error.
+
+  - Change the generation of PDB files when using Visual Studio from
+    compile time to link time.
+
+  From sam th:
+
+  - Allow SConf.CheckLib() to search a list of libraries, like the
+    Autoconf AC_SEARCH_LIBS macro.
+
+  - Allow the env.WhereIs() method to take a "reject" argument to
+    let it weed out specific path names.
+
+  From Christoph Wiedemann:
+
+  - Add new Moc() and Uic() Builders for more explicit control over
+    Qt builds, plus new construction variables to control them:
+    $QT_AUTOSCAN, $QT_DEBUG, $QT_MOCCXXPREFIX, $QT_MOCCXXSUFFIX,
+    $QT_MOCHPREFIX, $QT_MOCHSUFFIX, $QT_UICDECLPREFIX, $QT_UICDECLSUFFIX,
+    $QT_UICIMPLPREFIX, $QT_UICIMPLSUFFIX and $QT_UISUFFIX.
+
+  - Add a new single_source keyword argument for Builders that enforces
+    a single source file on calls to the Builder.
+
+
+
+RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
+
+  From Chad Austin:
+
+  - Replace print statements with calls to sys.stdout.write() so output
+    lines stay together when -j is used.
+
+  - Add portability fixes for a number of tests.
+
+  - Accomodate the fact that Cygwin's os.path.normcase() lies about
+    the underlying system being case-sensitive.
+
+  - Fix an incorrect _concat() call in the $RCINCFLAGS definition for
+    the mingw Tool.
+
+  - Fix a problem with the msvc tool with Python versions prior to 2.3.
+
+  - Add support for a "toolpath" Tool() and Environment keyword that
+    allows Tool modules to be found in specified local directories.
+
+  - Work around Cygwin Python's silly fiction that it's using a
+    case-sensitive file system.
+
+  - More robust handling of data in VCComponents.dat.
+
+  - If the "env" command is available, spawn commands with the more
+    general "env -" instead of "env -i".
+
+  From Kerim Borchaev:
+
+  - Fix a typo in a msvc.py's registry lookup:  "VCComponents.dat", not
+    "VSComponents.dat".
+
+  From Chris Burghart:
+
+  - Fix the ability to save/restore a PackageOption to a file.
+
+  From Steve Christensen:
+
+  - Update the MSVS .NET and MSVC 6.0/7.0 path detection.
+
+  From David M. Cooke:
+
+  - Make the Fortran scanner case-insensitive for the INCLUDE string.
+
+  From Charles Crain:
+
+  - If no version of MSVC is detected but the tool is specified,
+    use the MSVC 6.0 paths by default.
+
+  - Ignore any "6.1" version of MSVC found in the registry; this is a
+    phony version number (created by later service packs?) and would
+    throw off the logic if the user had any non-default paths configure.
+
+  - Correctly detect if the user has independently configured the MSVC
+    "include," "lib" or "path" in the registry and use the appropriate
+    values.  Previously, SCons would only use the values if all three
+    were set in the registry.
+
+  - Make sure side-effect nodes are prepare()d before building their
+    corresponding target.
+
+  - Preserve the ability to call BuildDir() multiple times with the
+    same target and source directory arguments.
+
+  From Andy Friesen:
+
+  - Add support for the Digital Mars "D" programming language.
+
+  From Scott Lystig Fritchie:
+
+  - Fix the ability to use a custom _concat() function in the
+    construction environment when calling _stripixes().
+
+  - Make the message about ignoring a missing SConscript file into a
+    suppressable Warning, not a hard-coded sys.stderr.write().
+
+  - If a builder can be called multiple times for a target (because
+    the sources and overrides are identical, or it's a builder with the
+    "multi" flag set), allow the builder to be called through multiple
+    environments so long as the builders have the same signature for
+    the environments in questions (that is, they're the same action).
+
+  From Bob Halley:
+
+  - When multiple targets are built by a single action, retrieve all
+    of them from cache, not just the first target, and exec the build
+    command if any of the targets isn't present in the cache.
+
+  From Zephaniah Hull:
+
+  - Fix command-line ARGUMENTS with multiple = in them.
+
+  From Steven Knight:
+
+  - Fix EnsureSConsVersion() so it checks against the SCons version,
+    not the Python version, on Pythons with sys.version_info.
+
+  - Don't swallow the AttributeError when someone uses an expansion like
+    $TARGET.bak, so we can supply a more informative error message.
+
+  - Fix an odd double-quote escape sequence in the man page.
+
+  - Fix looking up a naked drive letter as a directory (Dir('C:')).
+
+  - Support using File nodes in the LIBS construction variable.
+
+  - Allow the LIBS construction variable to be a single string or File
+    node, not a list, when only one library is needed.
+
+  - Fix typos in the man page:  JAVACHDIR => JARCHDIR; add "for_signature"
+    to the __call__() example in the "Variable Substitution" section.
+
+  - Correct error message spellings of "non-existant" to "non-existent."
+
+  - When scanning for libraries to link with, don't append $LIBPREFIXES
+    or $LIBSUFFIXES values to the $LIBS values if they're already present.
+
+  - Add a ZIPCOMPRESSION construction variable to control whether the
+    internal Python action for the Zip Builder compresses the file or
+    not.  The default value is zipfile.ZIP_DEFLATED, which generates
+    a compressed file.
+
+  - Refactor construction variable expansion to support recursive
+    expansion of variables (e.g. CCFLAGS = "$CCFLAGS -g") without going
+    into an infinite loop.  Support this in all construction variable
+    overrides, as well as when copying Environments.
+
+  - Fix calling Configure() from more than one subsidiary SConscript file.
+
+  - Fix the env.Action() method so it returns the correct type of
+    Action for its argument(s).
+
+  - Fix specifying .class files as input to JavaH with the .class suffix
+    when they weren't generated using the Java Builder.
+
+  - Make the check for whether all of the objects going into a
+    SharedLibrary() are shared work even if the object was built in a
+    previous run.
+
+  - Supply meaningful error messages, not stack traces, if we try to add
+    a non-Node as a source, dependency, or ignored dependency of a Node.
+
+  - Generate MSVS Project files that re-invoke SCons properly regardless
+    of whether the file was built via scons.bat or scons.py.
+    (Thanks to Niall Douglas for contributing code and testing.)
+
+  - Fix TestCmd.py, runtest.py and specific tests to accomodate being
+    run from directories whose paths include white space.
+
+  - Provide a more useful error message if a construction variable
+    expansion contains a syntax error during evaluation.
+
+  - Fix transparent checkout of implicit dependency files from SCCS
+    and RCS.
+
+  - Added new --debug=count, --debug=memory and --debug=objects options.
+    --debug=count and --debug=objects only print anything when run
+    under Python 2.1 or later.
+
+  - Deprecate the "overrides" keyword argument to Builder() creation
+    in favor of using keyword argument values directly (like we do
+    for builder execution and the like).
+
+  - Always use the Builder overrides in substitutions, not just if
+    there isn't a target-specific environment.
+
+  - Add new "rsrcpath" and "rsrcdir" and attributes to $TARGET/$SOURCE,
+    so Builder command lines can find things in Repository source
+    directories when using BuildDir.
+
+  - Fix the M4 Builder so that it chdirs to the Repository directory
+    when the input file is in the source directory of a BuildDir.
+
+  - Save memory at build time by allowing Nodes to delete their build
+    environments after they've been built.
+
+  - Add AppendUnique() and PrependUnique() Environment methods, which
+    add values to construction variables like Append() and Prepend()
+    do, but suppress any duplicate elements in the list.
+
+  - Allow the 'qt' tool to still be used successfully from a copied
+    Environment.  The include and library directories previously ended up
+    having the same string re-appended to the end, yielding an incorrect
+    path name.
+
+  - Supply a more descriptive error message when the source for a target
+    can't be found.
+
+  - Initialize all *FLAGS variables with objects do the right thing with
+    appending flags as strings or lists.
+
+  - Make things like ${TARGET.dir} work in *PATH construction variables.
+
+  - Allow a $MSVS_USE_MFC_DIRS construction variable to control whether
+    ATL and MFC directories are included in the default INCLUDE and
+    LIB paths.
+
+  - Document the dbm_module argument to the SConsignFile() function.
+
+  From Vincent Risi:
+
+  - Add support for the bcc32, ilink32 and tlib Borland tools.
+
+  From Anthony Roach:
+
+  - Supply an error message if the user tries to configure a BuildDir
+    for a directory that already has one.
+
+  - Remove documentation of the still-unimplemented -e option.
+
+  - Add -H help text listing the legal --debug values.
+
+  - Don't choke if a construction variable is a non-string value.
+
+  - Build Type Libraries in the target directory, not the source
+    directory.
+
+  - Add an appendix to the User's Guide showing how to accomplish
+    various common tasks in Python.
+
+  From Greg Spencer:
+
+  - Add support for Microsoft Visual Studio 2003 (version 7.1).
+
+  - Evaluate $MSVSPROJECTSUFFIX and $MSVSSOLUTIONSUFFIX when the Builder
+    is invoked, not when the tool is initialized.
+
+  From Christoph Wiedemann:
+
+  - When compiling Qt, make sure the moc_*.cc files are compiled using
+    the flags from the environment used to specify the target, not
+    the environment that first has the Qt Builders attached.
+
+
+
+RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
+
+  From Hartmut Goebel:
+
+  - Add several new types of canned functions to help create options:
+    BoolOption(), EnumOption(), ListOption(), PackageOption(),
+    PathOption().
+
+  From Steven Knight:
+
+  - Fix use of CPPDEFINES with C++ source files.
+
+  - Fix env.Append() when the operand is an object with a __cmp__()
+    method (like a Scanner instance).
+
+  - Fix subclassing the Environment and Scanner classes.
+
+  - Add BUILD_TARGETS, COMMAND_LINE_TARGETS and DEFAULT_TARGETS variables.
+
+  From Steve Leblanc:
+
+  - SGI fixes:  Fix C++ compilation, add a separate Tool/sgic++.py module.
+
+  From Gary Oberbrunner:
+
+  - Fix how the man page un-indents after examples in some browsers.
+
+  From Vincent Risi:
+
+  - Fix the C and C++ tool specifications for AIX.
+
+
+
+RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500
+
+  From J.T. Conklin:
+
+  - On POSIX, execute commands with the more modern os.spawnvpe()
+    function, if it's available.
+
+  - Scan .S, .spp and .SPP files for C preprocessor dependencies.
+
+  - Refactor the Job.Parallel() class to use a thread pool without a
+    condition variable.  This improves parallel build performance and
+    handles keyboard interrupts properly when -j is used.
+
+  From Charles Crain:
+
+  - Add support for a JARCHDIR variable to control changing to a
+    directory using the jar -C option.
+
+  - Add support for detecting Java manifest files when using jar,
+    and specifying them using the jar m flag.
+
+  - Fix some Python 2.2 specific things in various tool modules.
+
+  - Support directories as build sources, so that a rebuild of a target
+    can be triggered if anything underneath the directory changes.
+
+  - Have the scons.bat and scons.py files look for the SCons modules
+    in site-packages as well.
+
+  From Christian Engel:
+
+  - Support more flexible inclusion of separate C and C++ compilers.
+
+  - Use package management tools on AIX and Solaris to find where
+    the comilers are installed, and what version they are.
+
+  - Add support for CCVERSION and CXXVERSION variables for a number
+    of C and C++ compilers.
+
+  From Sergey Fogel:
+
+  - Add test cases for the new capabilities to run bibtex and to rerun
+    latex as needed.
+
+  From Ralf W. Grosse-Kunstleve:
+
+  - Accomodate anydbm modules that don't have a sync() method.
+
+  - Allow SConsignFile() to take an argument specifying the DBM
+    module to be used.
+
+  From Stephen Kennedy:
+
+  - Add support for a configurable global .sconsign.dbm file which
+    can be used to avoid cluttering each directory with an individual
+    .sconsign file.
+
+  From John Johnson:
+
+  - Fix (re-)scanning of dependencies in generated or installed
+    header files.
+
+  From Steven Knight:
+
+  - The -Q option suppressed too many messages; fix it so that it only
+    suppresses the Reading/Building messages.
+
+  - Support #include when there's no space before the opening quote
+    or angle bracket.
+
+  - Accomodate alphanumeric version strings in EnsurePythonVersion().
+
+  - Support arbitrary expansion of construction variables within
+    file and directory arguments to Builder calls and Environment methods.
+
+  - Add Environment-method versions of the following global functions:
+    Action(), AddPostAction(), AddPreAction(), Alias(), Builder(),
+    BuildDir(), CacheDir(), Clean(), Configure(), Default(),
+    EnsurePythonVersion(), EnsureSConsVersion(), Environment(),
+    Exit(), Export(), FindFile(), GetBuildPath(), GetOption(), Help(),
+    Import(), Literal(), Local(), Platform(), Repository(), Scanner(),
+    SConscriptChdir(), SConsignFile(), SetOption(), SourceSignatures(),
+    Split(), TargetSignatures(), Tool(), Value().
+
+  - Add the following global functions that correspond to the same-named
+    Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
+    Install(), InstallAs(), Precious(), SideEffect() and SourceCode().
+
+  - Add the following global functions that correspond to the default
+    Builder methods supported by SCons: CFile(), CXXFile(), DVI(), Jar(),
+    Java(), JavaH(), Library(), M4(), MSVSProject(), Object(), PCH(),
+    PDF(), PostScript(), Program(), RES(), RMIC(), SharedLibrary(),
+    SharedObject(), StaticLibrary(), StaticObject(), Tar(), TypeLibrary()
+    and Zip().
+
+  - Rearrange the man page to show construction environment methods and
+    global functions in the same list, and to explain the difference.
+
+  - Alphabetize the explanations of the builder methods in the man page.
+
+  - Rename the Environment.Environment class to Enviroment.Base.
+    Allow the wrapping interface to extend an Environment by using its own
+    subclass of Environment.Base and setting a new Environment.Environment
+    variable as the calling entry point.
+
+  - Deprecate the ParseConfig() global function in favor of a same-named
+    construction environment method.
+
+  - Allow the Environment.WhereIs() method to take explicit path and
+    pathext arguments (like the underlying SCons.Util.WhereIs() function).
+
+  - Remove the long-obsolete {Get,Set}CommandHandler() functions.
+
+  - Enhance env.Append() to suppress null values when appropriate.
+
+  - Fix ParseConfig() so it works regardless of initial construction
+    variable values.
+
+    Extend CheckHeader(), CheckCHeader(), CheckCXXHeader() and
+    CheckLibWithHeader() to accept a list of header files that will be
+    #included in the test.  The last one in the list is assumed to be
+    the one being checked for.  (Prototype code contributed by Gerard
+    Patel and Niall Douglas).
+
+  - Supply a warning when -j is used and threading isn't built in to
+    the current version of Python.
+
+  - First release of the User's Guide (finally, and despite a lot
+    of things still missing from it...).
+
+  From Clark McGrew:
+
+  - Generalize the action for .tex files so that it will decide whether
+    a file is TeX or LaTeX, check the .aux output to decide if it should
+    run bibtex, and check the .log output to re-run LaTeX if needed.
+
+  From Bram Moolenaar:
+
+  - Split the non-SCons-specific functionality from SConf.py to a new,
+    re-usable Conftest.py module.
+
+  From Gary Oberbrunner:
+
+  - Allow a directory to be the target or source or dependency of a
+    Depends(), Ignore(), Precious() or SideEffect() call.
+
+  From Gerard Patel:
+
+  - Use the %{_mandir} macro when building our RPM package.
+
+  From Marko Rauhamaa:
+
+  - Have the closing message say "...terminated because of errors" if
+    there were any.
+
+  From Anthony Roach:
+
+  - On Win32 systems, only use "rm" to delete files if Cygwin is being
+    used.   ("rm" doesn't understand Win32-format path names.)
+
+  From Christoph Wiedemann:
+
+  - Fix test/SWIG.py to find the Python include directory in all cases.
+
+  - Fix a bug in detection of Qt installed on the local system.
+
+  - Support returning Python 2.3 BooleanType values from Configure checks.
+
+  - Provide an error message if someone mistakenly tries to call a
+    Configure check from within a Builder function.
+
+  - Support calling a Builder when a Configure context is still open.
+
+  - Handle interrupts better by eliminating all try:-except: blocks
+    which caught any and all exceptions, including KeyboardInterrupt.
+
+  - Add a --duplicate= option to control how files are duplicated.
+
+
+
+RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
+
+  From Charles Crain and Gary Oberbrunner:
+
+  - Fix Tool import problems with the Intel and PharLap linkers.
+
+  From Steven Knight
+
+  - Refactor the DictCmdGenerator class to be a Selector subclass.
+
+  - Allow the DefaultEnvironment() function to take arguments and pass
+    them to instantiation of the default construction environment.
+
+  - Update the Debian package so it uses Python 2.2 and more closely
+    resembles the currently official Debian packaging info.
+
+  From Gerard Patel
+
+  - When the yacc -d flag is used, take the .h file base name from the
+    target .c file, not the source (matching what yacc does).
+
+
+
+RELEASE 0.91 - Thu, 14 Aug 2003 13:00:44 -0500
+
+  From Chad Austin:
+
+  - Support specifying a list of tools when calling Environment.Copy().
+
+  - Give a Value Nodes a timestamp of the system time when they're
+    created, so they'll work when using timestamp-based signatures.
+
+  - Add a DefaultEnvironment() function that only creates a default
+    environment on-demand (for fetching source files, e.g.).
+
+  - Portability fix for test/M4.py.
+
+  From Steven Knight:
+
+  - Tighten up the scons -H help output.
+
+  - When the input yacc file ends in .yy and the -d flag is specified,
+    recognize that a .hpp file (not a .h file) will be created.
+
+  - Make builder prefixes work correctly when deducing a target
+    from a source file name in another directory.
+
+  - Documentation fixes: typo in the man page; explain up-front about
+    not propagating the external environment.
+
+  - Use "cvs co -d" instead of "cvs co -p >" when checking out something
+    from CVS with a specified module name.  This avoids zero-length
+    files when there is a checkout error.
+
+  - Add an "sconsign" script to print the contents of .sconsign files.
+
+  - Speed up maintaining the various lists of Node children by using
+    dictionaries to avoid "x in list" searches.
+
+  - Cache the computed list of Node children minus those being Ignored
+    so it's only calculated once.
+
+  - Fix use of the --cache-show option when building a Program()
+    (or using any other arbitrary action) by making sure all Action
+    instances have strfunction() methods.
+
+  - Allow the source of Command() to be a directory.
+
+  - Better error handling of things like raw TypeErrors in SConscripts.
+
+  - When installing using "setup.py install --prefix=", suppress the
+    distutils warning message about adding the (incorrect) library
+    directory to your search path.
+
+  - Correct the spelling of the "validater" option to "validator."
+    Add a DeprecatedWarning when the old spelling is used.
+
+  - Allow a Builder's emitter to be a dictionary that maps source file
+    suffixes to emitter functions, using the suffix of the first file
+    in the source list to pick the right one.
+
+  - Refactor the creation of the Program, *Object and *Library Builders
+    so that they're moved out of SCons.Defaults and created on demand.
+
+  - Don't split SConscript file names on white space.
+
+  - Document the SConscript function's "dirs" and "name" keywords.
+
+  - Remove the internal (and superfluous) SCons.Util.argmunge() function.
+
+  - Add /TP to the default CXXFLAGS for msvc, so it can compile all
+    of the suffixes we use as C++ files.
+
+  - Allow the "prefix" and "suffix" attributes of a Builder to be
+    callable objects that return generated strings, or dictionaries
+    that map a source file suffix to the right prefix/suffix.
+
+  - Support a MAXLINELINELENGTH construction variable on Win32 systems
+    to control when a temporary file is used for long command lines.
+
+  - Make how we build .rpm packages not depend on the installation
+    locations from the distutils being used.
+
+  - When deducing a target Node, create it directly from the first
+    source Node, not by trying to create the right string to pass to
+    arg2nodes().
+
+  - Add support for SWIG.
+
+  From Bram Moolenaar:
+
+  - Test portability fixes for FreeBSD.
+
+  From Gary Oberbrunner:
+
+  - Report the target being built in error messages when building
+    multiple sources from different extensions, or when the target file
+    extension can't be deduced, or when we don't have an action for a
+    file suffix.
+
+  - Provide helpful error messages when the arguments to env.Install()
+    are incorrect.
+
+  - Fix the value returned by the Node.prevsiginfo() method to conform
+    to a previous change when checking whether a node is current.
+
+  - Supply a stack trace if the Taskmaster catches an exception.
+
+  - When using a temporary file for a long link line on Win32 systems,
+    (also) print the command line that is being executed through the
+    temporary file.
+
+  - Initialize the LIB environment variable when using the Intel
+    compiler (icl).
+
+  - Documentation fixes:  better explain the AlwaysBuild() function.
+
+  From Laurent Pelecq:
+
+  - When the -debug=pdb option is specified, use pdb.Pdb().runcall() to
+    call pdb directly, don't call Python recursively.
+
+  From Ben Scott:
+
+  - Add support for a platform-independent CPPDEFINES variable.
+
+  From Christoph Wiedemann:
+
+  - Have the g++ Tool actually use g++ in preference to c++.
+
+  - Have the gcc Tool actually use gcc in preference to cc.
+
+  - Add a gnutools.py test of the GNU tool chain.
+
+  - Be smarter about linking: use $CC by default and $CXX only if we're
+    linking with any C++ objects.
+
+  - Avoid SCons hanging when a piped command has a lot of output to read.
+
+  - Add QT support for preprocessing .ui files into .c files.
+
+
+
+RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500
+
+  From Chad Austin:
+
+  - Fix the _concat() documentation, and add a test for it.
+
+  - Portability fixes for non-GNU versions of lex and yacc.
+
+  From Matt Balvin:
+
+  - Fix handling of library prefixes when the subdirectory matches
+    the prefix.
+
+  From Timothee Bessett:
+
+  - Add an M4 Builder.
+
+  From Charles Crain:
+
+  - Use '.lnk' as the suffix on the temporary file for linking long
+    command lines (necessary for the Phar Lap linkloc linker).
+
+  - Save non-string Options values as their actual type.
+
+  - Save Options string values that contain a single quote correctly.
+
+  - Save any Options values that are changed from the default
+    Environment values, not just ones changed on the command line or in
+    an Options file.
+
+  - Make closing the Options file descriptor exception-safe.
+
+  From Steven Knight:
+
+  - SCons now enforces (with an error) that construction variables
+    must have the same form as valid Python identifiers.
+
+  - Fix man page bugs: remove duplicate AddPostAction() description;
+    document no_import_lib; mention that CPPFLAGS does not contain
+    $_CPPINCFLAGS; mention that F77FLAGS does not contain $_F77INCFLAGS;
+    mention that LINKFLAGS and SHLINKFLAGS contains neither $_LIBFLAGS
+    nor $_LIBDIRFLAGS.
+
+  - Eliminate a dependency on the distutils.fancy_getopt module by
+    copying and pasting its wrap_text() function directly.
+
+  - Make the Script.Options() subclass match the underlying base class
+    implementation.
+
+  - When reporting a target is up to date, quote the target like make
+    (backquote-quote) instead of with double quotes.
+
+  - Fix handling of ../* targets when using -U, -D or -u.
+
+  From Steve Leblanc:
+
+  - Don't update the .sconsign files when run with -n.
+
+  From Gary Oberbrunner:
+
+  - Add support for the Intel C Compiler (icl.exe).
+
+  From Anthony Roach
+
+  - Fix Import('*').
+
+  From David Snopek
+
+  - Fix use of SConf in paths with white space in them.
+
+  - Add CheckFunc and CheckType functionality to SConf.
+
+  - Fix use of SConf with Builders that return a list of nodes.
+
+  From David Snopek and Christoph Wiedemann
+
+  - Fix use of the SConf subsystem with SConscriptChdir().
+
+  From Greg Spencer
+
+  - Check for the existence of MS Visual Studio on disk before using it,
+    to avoid getting fooled by leftover junk in the registry.
+
+  - Add support for MSVC++ .NET.
+
+  - Add support for MS Visual Studio project files (DSP, DSW,
+    SLN and VCPROJ files).
+
+  From Christoph Wiedemann
+
+  - SConf now works correctly when the -n and -q options are used.
+
+
+
+RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500
+
+  From Chad Austin:
+
+  - Use .dll (not .so) for shared libraries on Cygwin; use -fPIC
+    when compiling them.
+
+  - Use 'rm' to remove files under Cygwin.
+
+  - Add a PLATFORM variable to construction environments.
+
+  - Remove the "platform" argument from tool specifications.
+
+  - Propogate PYTHONPATH when running the regression tests so distutils
+    can be found in non-standard locations.
+
+  - Using MSVC long command-line linking when running Cygwin.
+
+  - Portability fixes for a lot of tests.
+
+  - Add a Value Node class for dependencies on in-core Python values.
+
+  From Allen Bierbaum:
+
+  - Pass an Environment to the Options validator method, and
+    add an Options.Save() method.
+
+  From Steve Christensen:
+
+  - Add an optional sort function argument to the GenerateHelpText()
+    Options function.
+
+  - Evaluate the "varlist" variables when computing the signature of a
+    function action.
+
+  From Charles Crain:
+
+  - Parse the source .java files for class names (including inner class
+    names) to figure out the target .class files that will be created.
+
+  - Make Java support work with Repositories and SConscriptChdir(0).
+
+  - Pass Nodes, not strings, to Builder emitter functions.
+
+  - Refactor command-line interpolation and signature calculation
+    so we can use real Node attributes.
+
+  From Steven Knight:
+
+  - Add Java support (javac, javah, jar and rmic).
+
+  - Propagate the external SYSTEMROOT environment variable into ENV on
+    Win32 systems, so external commands that use sockets will work.
+
+  - Add a .posix attribute to PathList expansions.
+
+  - Check out CVS source files using POSIX path names (forward slashes
+    as separators) even on Win32.
+
+  - Add Node.clear() and Node.FS.Entry.clear() methods to wipe out a
+    Node's state, allowing it to be re-evaluated by continuous
+    integration build interfaces.
+
+  - Change the name of the Set{Build,Content}SignatureType() functions
+    to {Target,Source}Signatures().  Deprecate the old names but support
+    them for backwards compatibility.
+
+  - Add internal SCons.Node.FS.{Dir,File}.Entry() methods.
+
+  - Interpolate the null string if an out-of-range subscript is used
+    for a construction variable.
+
+  - Fix the internal Link function so that it properly links or copies
+    files in subsidiary BuildDir directories.
+
+  - Refactor the internal representation of a single execution instance
+    of an action to eliminate redundant signature calculations.
+
+  - Eliminate redundant signature calculations for Nodes.
+
+  - Optimize out calling hasattr() before accessing attributes.
+
+  - Say "Cleaning targets" (not "Building...") when the -c option is
+    used.
+
+  From Damyan Pepper:
+
+  - Quote the "Entering directory" message like Make.
+
+  From Stefan Reichor:
+
+  - Add support for using Ghostscript to convert Postscript to PDF files.
+
+  From Anthony Roach:
+
+  - Add a standalone "Alias" function (separate from an Environment).
+
+  - Make Export() work for local variables.
+
+  - Support passing a dictionary to Export().
+
+  - Support Import('*') to import everything that's been Export()ed.
+
+  - Fix an undefined exitvalmap on Win32 systems.
+
+  - Support new SetOption() and GetOption() functions for setting
+    various command-line options from with an SConscript file.
+
+  - Deprecate the old SetJobs() and GetJobs() functions in favor of
+    using the new generic {Set,Get}Option() functions.
+
+  - Fix a number of tests that searched for a Fortran compiler using the
+    external PATH instead of what SCons would use.
+
+  - Fix the interaction of SideEffect() and BuildDir() so that (for
+    example) PDB files get put correctly in a BuildDir().
+
+  From David Snopek:
+
+  - Contribute the "Autoscons" code for Autoconf-like checking for
+    the existence of libraries, header files and the like.
+
+  - Have the Tool() function add the tool name to the $TOOLS
+    construction variable.
+
+  From Greg Spencer:
+
+  - Support the C preprocessor #import statement.
+
+  - Allow the SharedLibrary() Builder on Win32 systems to be able to
+    register a newly-built dll using regsvr32.
+
+  - Add a Builder for Windows type library (.tlb) files from IDL files.
+
+  - Add an IDL scanner.
+
+  - Refactor the Fortran, C and IDL scanners to share common logic.
+
+  - Add .srcpath and .srcdir attributes to $TARGET and $SOURCE.
+
+  From Christoph Wiedemann:
+
+  - Integrate David Snopek's "Autoscons" code as the new SConf
+    configuration subsystem, including caching of values between
+    runs (using normal SCons dependency mechanisms), tests, and
+    documentation.
+
+
+
+RELEASE 0.13 - Mon, 31 Mar 2003 20:22:00 -0600
+
+  From Charles Crain:
+
+  - Fix a bug when BuildDir(duplicate=0) is used and SConscript
+    files are called from within other SConscript files.
+
+  - Support (older) versions of Perforce which don't set the Windows
+    registry.
+
+
+
+RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
+
+  From Charles Crain:
+
+  - Added support for the Perforce source code management system.
+
+  - Fix str(Node.FS) so that it returns a path relative to the calling
+    SConscript file's directory, not the top-level directory.
+
+  - Added support for a separate src_dir argument to SConscript()
+    that allows explicit specification of where the source files
+    for an SConscript file can be found.
+
+  - Support more easily re-usable flavors of command generators by
+    calling callable variables when strings are expanded.
+
+  From Steven Knight:
+
+  - Added an INSTALL construction variable that can be set to a function
+    to control how the Install() and InstallAs() Builders install files.
+    The default INSTALL function now copies, not links, files.
+
+  - Remove deprecated features:  the "name" argument to Builder objects,
+    and the Environment.Update() method.
+
+  - Add an Environment.SourceCode() method to support fetching files
+    from source code systems.  Add factory methods that create Builders
+    to support BitKeeper, CVS, RCS, and SCCS.  Add support for fetching
+    files from RCS or SCCS transparently (like GNU Make).
+
+  - Make the internal to_String() function more efficient.
+
+  - Make the error message the same as other build errors when there's a
+    problem unlinking a target file in preparation for it being built.
+
+  - Make TARGET, TARGETS, SOURCE and SOURCES reserved variable names and
+    warn if the user tries to set them in a construction environment.
+
+  - Add support for Tar and Zip files.
+
+  - Better documentation of the different ways to export variables to a
+    subsidiary SConscript file.  Fix documentation bugs in a tools
+    example, places that still assumed SCons split strings on white
+    space, and typos.
+
+  - Support fetching arbitrary files from the TARGETS or SOURCES lists
+    (e.g. ${SOURCES[2]}) when calculating the build signature of a
+    command.
+
+  - Don't silently swallow exceptions thrown by Scanners (or other
+    exceptions while finding a node's dependent children).
+
+  - Push files to CacheDir() before calling the superclass built()
+    method (which may clear the build signature as part of clearing
+    cached implicit dependencies, if the file has a source scanner).
+    (Bug reported by Jeff Petkau.)
+
+  - Raise an internal error if we attempt to push a file to CacheDir()
+    with a build signature of None.
+
+  - Add an explicit Exit() function for terminating early.
+
+  - Change the documentation to correctly describe that the -f option
+    doesn't change to the directory in which the specified file lives.
+
+  - Support changing directories locally with SConscript directory
+    path names relative to any SConstruct file specified with -f.
+    This allows you to build in another directory by simply changing
+    there and pointing at the SConstruct file in another directory.
+
+  - Change the default SConscriptChdir() behavior to change to the
+    SConscript directory while it's being read.
+
+  - Fix an exception thrown when the -U option was used with no
+    Default() target specified.
+
+  - Fix -u so that it builds things in corresponding build directories
+    when used in a source directory.
+
+  From Lachlan O'Dea:
+
+  - Add SharedObject() support to the masm tool.
+
+  - Fix WhereIs() to return normalized paths.
+
+  From Jeff Petkau:
+
+  - Don't copy a built file to a CacheDir() if it's already there.
+
+  - Avoid partial copies of built files in a CacheDir() by copying
+    to a temporary file and renaming.
+
+  From Anthony Roach:
+
+  - Fix incorrect dependency-cycle errors when an Aliased source doesn't
+    exist.
+
+
+
+RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
+
+  From Chad Austin:
+
+  - Add support for IRIX and the SGI MIPSPro tool chain.
+
+  - Support using the MSVC tool chain when running Cygwin Python.
+
+  From Michael Cook:
+
+  - Avoid losing signal bits in the exit status from a command,
+    helping terminate builds on interrupt (CTRL+C).
+
+  From Charles Crain:
+
+  - Added new AddPreAction() and AddPostAction() functions that support
+    taking additional actions before or after building specific targets.
+
+  - Add support for the PharLap ETS tool chain.
+
+  From Steven Knight:
+
+  - Allow Python function Actions to specify a list of construction
+    variables that should be included in the Action's signature.
+
+  - Allow libraries in the LIBS variable to explicitly include the prefix
+    and suffix, even when using the GNU linker.
+    (Bug reported by Neal Becker.)
+
+  - Use DOS-standard CR-LF line endings in the scons.bat file.
+    (Bug reported by Gary Ruben.)
+
+  - Doc changes:  Eliminate description of deprecated "name" keyword
+    argument from Builder definition (reported by Gary Ruben).
+
+  - Support using env.Append() on BUILDERS (and other dictionaries).
+    (Bug reported by Bj=F6rn Bylander.)
+
+  - Setting the BUILDERS construction variable now properly clears
+    the previous Builder attributes from the construction Environment.
+    (Bug reported by Bj=F6rn Bylander.)
+
+  - Fix adding a prefix to a file when the target isn't specified.
+    (Bug reported by Esa Ilari Vuokko.)
+
+  - Clean up error messages from problems duplicating into read-only
+    BuildDir directories or into read-only files.
+
+  - Add a CommandAction.strfunction() method, and add an "env" argument
+    to the FunctionAction.strfunction() method, so that all Action
+    objects have strfunction() methods, and the functions for building
+    and returning a string both take the same arguments.
+
+  - Add support for new CacheDir() functionality to share derived files
+    between builds, with related options --cache-disable, --cache-force,
+    and --cache-show.
+
+  - Change the default behavior when no targets are specified to build
+    everything in the current directory and below (like Make).  This
+    can be disabled by specifying Default(None) in an SConscript.
+
+  - Revamp SCons installation to fix a case-sensitive installation
+    on Win32 systems, and to add SCons-specific --standard-lib,
+    --standalone-lib, and --version-lib options for easier user
+    control of where the libraries get installed.
+
+  - Fix the ability to directly import and use Platform and Tool modules
+    that have been implicitly imported into an Environment().
+
+  - Add support for allowing an embedding interface to annotate a node
+    when it's created.
+
+  - Extend the SConscript() function to accept build_dir and duplicate
+    keyword arguments that function like a BuildDir() call.
+
+  From Steve Leblanc:
+
+  - Fix the output of -c -n when directories are involved, so it
+    matches -c.
+
+  From Anthony Roach:
+
+  - Use a different shared object suffix (.os) when using gcc so shared
+    and static objects can exist side-by-side in the same directory.
+
+  - Allow the same object files on Win32 to be linked into either
+    shared or static libraries.
+
+  - Cache implicit cache values when using --implicit-cache.
+
+
+
+RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
+
+  From Derrick 'dman' Hudson:
+
+  - Support Repositories on other file systems by symlinking or
+    copying files when hard linking won't work.
+
+  From Steven Knight:
+
+  - Remove Python bytecode (*.pyc) files from the scons-local packages.
+
+  - Have FunctionActions print a description of what they're doing
+    (a representation of the Python call).
+
+  - Fix the Install() method so that, like other actions, it prints
+    what would have happened when the -n option is used.
+
+  - Don't create duplicate source files in a BuildDir when the -n
+    option is used.
+
+  - Refactor the Scanner interface to eliminate unnecessary Scanner
+    calls and make it easier to write efficient scanners.
+
+  - Added a "recursive" flag to Scanner creation that specifies the
+    Scanner should be invoked recursively on dependency files returned
+    by the scanner.
+
+  - Significant performance improvement from using a more efficient
+    check, throughout the code, for whether a Node has a Builder.
+
+  - Fix specifying only the source file to MultiStepBuilders such as
+    the Program Builder.  (Bug reported by Dean Bair.)
+
+  - Fix an exception when building from a file with the same basename as
+    the subdirectory in which it lives.  (Bug reported by Gerard Patel.)
+
+  - Fix automatic deduction of a target file name when there are
+    multiple source files specified; the target is now deduced from just
+    the first source file in the list.
+
+  - Documentation fixes: better initial explanation of SConscript files;
+    fix a misformatted "table" in the StaticObject explanation.
+
+  From Steven Knight and Steve Leblanc:
+
+  - Fix the -c option so it will remove symlinks.
+
+  From Steve Leblanc:
+
+  - Add a Clean() method to support removing user-specified targets
+    when using the -c option.
+
+  - Add a development script for running SCons through PyChecker.
+
+  - Clean up things found by PyChecker (mostly unnecessary imports).
+
+  - Add a script to use HappyDoc to create HTML class documentation.
+
+  From Lachlan O'Dea:
+
+  - Make the Environment.get() method return None by default.
+
+  From Anthony Roach:
+
+  - Add SetJobs() and GetJobs() methods to allow configuration of the
+    number of default jobs (still overridden by -j).
+
+  - Convert the .sconsign file format from ASCII to a pickled Python
+    data structure.
+
+  - Error message cleanups:  Made consistent the format of error
+    messages (now all start with "scons: ***") and warning messages (now
+    all start with "scons: warning:").  Caught more cases with the "Do
+    not know how to build" error message.
+
+  - Added support for the MinGW tool chain.
+
+  - Added a --debug=includes option.
+
+
+
+RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
+
+  From Chad Austin:
+
+  - Add a Prepend() method to Environments, to append values to
+    the beginning of construction variables.
+
+  From Matt Balvin:
+
+  - Add long command-line support to the "lib" Tool (Microsoft library
+    archiver), too.
+
+  From Charles Crain:
+
+  - Allow $$ in a string to be passed through as $.
+
+  - Support file names with odd characters in them.
+
+  - Add support for construction variable substition on scanner
+    directories (in CPPPATH, F77PATH, LIBPATH, etc.).
+
+  From Charles Crain and Steven Knight:
+
+  - Add Repository() functionality, including the -Y option.
+
+  From Steven Knight:
+
+  - Fix auto-deduction of target names so that deduced targets end
+    up in the same subdirectory as the source.
+
+  - Don't remove source files specified on the command line!
+
+  - Suport the Intel Fortran Compiler (ifl.exe).
+
+  - Supply an error message if there are no command-line or
+    Default() targets specified.
+
+  - Fix the ASPPCOM values for the GNU assembler.
+    (Bug reported by Brett Polivka.)
+
+  - Fix an exception thrown when a Default() directory was specified
+    when using the -U option.
+
+  - Issue a warning when -c can't remove a target.
+
+  - Eliminate unnecessary Scanner calls by checking for the
+    existence of a file before scanning it.  (This adds a generic
+    hook to check an arbitrary condition before scanning.)
+
+  - Add explicit messages to tell when we're "Reading SConscript files
+    ...," "done reading SConscript files," "Building targets," and
+    "done building targets."  Add a -Q option to supress these.
+
+  - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
+    (by default, the same as $OBJPREFIX and $OBJSUFFIX).
+
+  - Add Make-like error messages when asked to build a source file,
+    and before trying to build a file that doesn't have all its source
+    files (including when an invalid drive letter is used on WIN32).
+
+  - Add an scons-local-{version} package (in both .tar.gz and .zip
+    flavors) to help people who want to ship SCons as a stand-alone
+    build tool in their software packages.
+
+  - Prevent SCons from unlinking files in certain situations when
+    the -n option is used.
+
+  - Change the name of Tool/lib.py to Tool/mslib.py.
+
+  From Steven Knight and Anthony Roach:
+
+  - Man page:  document the fact that Builder calls return Node objects.
+
+  From Steve LeBlanc:
+
+  - Refactor option processing to use our own version of Greg Ward's
+    Optik module, modified to run under Python 1.5.2.
+
+  - Add a ParseConfig() command to modify an environment based on
+    parsing output from a *-config command.
+
+  From Jeff Petkau:
+
+  - Fix interpretation of '#/../foo' on Win32 systems.
+
+  From Anthony Roach:
+
+  - Fixed use of command lines with spaces in their arguments,
+    and use of Nodes with spaces in their string representation.
+
+  - Make access and modification times of files in a BuildDir match
+    the source file, even when hard linking isn't available.
+
+  - Make -U be case insensitive on Win32 systems.
+
+  - Issue a warning and continue when finding a corrupt .sconsign file.
+
+  - Fix using an alias as a dependency of a target so that if one of the
+    alias' dependencies gets rebuilt, the resulting target will, too.
+
+  - Fix differently ordered targets causing unnecessary rebuilds
+    on case insensitive systems.
+
+  - Use os.system() to execute external commands whenever the "env"
+    utility is available, which is much faster than fork()/exec(),
+    and fixes the -j option on several platforms.
+
+  - Fix use of -j with multiple targets.
+
+  - Add an Options() object for friendlier accomodation of command-
+    line arguments.
+
+  - Add support for Microsoft VC++ precompiled header (.pch) files,
+    debugger (.pdb) files, and resource (.rc) files.
+
+  - Don't compute the $_CPPINCFLAGS, $_F77INCFLAGS, $_LIBFLAGS and
+    $_LIBDIRFLAGS variables each time a command is executed, define
+    them so they're computed only as needed.  Add a new _concat
+    function to the Environment that allows people to define their
+    own similar variables.
+
+  - Fix dependency scans when $LIBS is overridden.
+
+  - Add EnsurePythonVersion() and EnsureSConsVersion() functions.
+
+  - Fix the overly-verbose stack trace on ListBuilder build errors.
+
+  - Add a SetContentSignatureType() function, allowing use of file
+    timestamps instead of MD5 signatures.
+
+  - Make -U and Default('source') fail gracefully.
+
+  - Allow the File() and Dir() methods to take a path-name string as
+    the starting directory, in addition to a Dir object.
+
+  - Allow the command handler to be selected via the SPAWN, SHELL
+    and ESCAPE construction variables.
+
+  - Allow construction variables to be overridden when a Builder
+    is called.
+
+  From sam th:
+
+  - Dynamically check for the existence of utilities with which to
+    initialize Environments by default.
+
+
+
+RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
+
+  From Charles Crain:
+
+  - Fixed a bug with relative CPPPATH dirs when using BuildDir().
+    (Bug reported by Bob Summerwill.)
+
+  - Added a warnings framework and a --warn option to enable or
+    disable warnings.
+
+  - Make the C scanner warn users if files referenced by #include
+    directives cannot be found and --warn=dependency is specified.
+
+  - The BUILDERS construction variable should now be a dictionary
+    that maps builder names to actions.  Existing uses of lists,
+    and the Builder name= keyword argument, generate warnings
+    about use of deprecated features.
+
+  - Removed the "shared" keyword argument from the Object and
+    Library builders.
+
+  - Added separated StaticObject, SharedObject, StaticLibrary and
+    SharedLibrary builders.  Made Object and Library synonyms for
+    StaticObject and StaticLibrary, respectively.
+
+  - Add LIBS and LIBPATH dependencies for shared libraries.
+
+  - Removed support for the prefix, suffix and src_suffix arguments
+    to Builder() to be callable functions.
+
+  - Fix handling file names with multiple dots.
+
+  - Allow a build directory to be outside of the SConstruct tree.
+
+  - Add a FindFile() function that searches for a file node with a
+    specified name.
+
+  - Add $CPPFLAGS to the shared-object command lines for g++ and gcc.
+
+  From Charles Crain and Steven Knight:
+
+  - Add a "tools=" keyword argument to Environment instantiation,
+    and a separate Tools() method, for more flexible specification
+    of tool-specific environment changes.
+
+  From Steven Knight:
+
+  - Add a "platform=" keyword argument to Environment instantiation,
+    and a separate Platform() method, for more flexible specification
+    of platform-specific environment changes.
+
+  - Updated README instructions and setup.py code to catch an
+    installation failure from not having distutils installed.
+
+  - Add descriptions to the -H help text for -D, -u and -U so
+    people can tell them apart.
+
+  - Remove the old feature of automatically splitting strings
+    of file names on white space.
+
+  - Add a dependency Scanner for native Fortran "include" statements,
+    using a new "F77PATH" construction variable.
+
+  - Fix C #include scanning to detect file names with characters like
+    '-' in them.
+
+  - Add more specific version / build output to the -v option.
+
+  - Add support for the GNU as, Microsoft masm, and nasm assemblers.
+
+  - Allow the "target" argument to a Builder call to be omitted, in
+    which case the target(s) are deduced from the source file(s) and the
+    Builder's specified suffix.
+
+  - Add a tar archive builder.
+
+  - Add preliminary support for the OS/2 Platform, including the icc
+    and ilink Tools.
+
+  From Jeff Petkau:
+
+  - Fix --implicit-cache if the scanner returns an empty list.
+
+  From Anthony Roach:
+
+  - Add a "multi" keyword argument to Builder creation that specifies
+    it's okay to call the builder multiple times for a target.
+
+  - Set a "multi" on Aliases so multiple calls will append to an Alias.
+
+  - Fix emitter functions' use of path names when using BuildDir or
+    in subdirectories.
+
+  - Fix --implicit-cache causing redundant rebuilds when the header
+    file list changed.
+
+  - Fix --implicit-cache when a file has no implicit dependencies and
+    its source is generated.
+
+  - Make the drive letters on Windows always be the same case, so that
+    changes in the case of drive letters don't cause a rebuild.
+
+  - Fall back to importing the SCons.TimeStamp module if the SCons.MD5
+    module can't be imported.
+
+  - Fix interrupt handling to guarantee that a single interrupt will
+    halt SCons both when using -j and not.
+
+  - Fix .sconsign signature storage so that output files of one build
+    can be safely used as input files to another build.
+
+  - Added a --debug=time option to print SCons execution times.
+
+  - Print an error message if a file can't be unlinked before being
+    built, rather than just silently terminating the build.
+
+  - Add a SideEffect() method that can be used to tell the build
+    engine that a given file is created as a side effect of building
+    a target.  A file can be specified as a side effect of more than
+    one build comand, in which case the commands will not be executed
+    simultaneously.
+
+  - Significant performance gains from not using our own version of
+    the inefficient stock os.path.splitext() method, caching source
+    suffix computation, code cleanup in MultiStepBuilder.__call__(),
+    and replicating some logic in scons_subst().
+
+  - Add --implicit-deps-changed and --implicit-deps-unchanged options.
+
+  - Add a GetLaunchDir() function.
+
+  - Add a SetBuildSignatureType() function.
+
+  From Zed Shaw:
+
+  - Add an Append() method to Environments, to append values to
+    construction variables.
+
+  - Change the name of Update() to Replace().  Keep Update() as a
+    deprecated synonym, at least for now.
+
+  From Terrel Shumway:
+
+  - Use a $PYTHON construction variable, initialized to sys.executable,
+    when using Python to build parts of the SCons packages.
+
+  - Use sys.prefix, not sys.exec_prefix, to find pdb.py.
+
+
+
+RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
+
+  From Chad Austin:
+
+  - Changes to build SCons packages on IRIX (and other *NIces).
+
+  - Don't create a directory Node when a file already exists there,
+    and vice versa.
+
+  - Add 'dirs' and 'names' keyword arguments to SConscript for
+    easier specification of subsidiary SConscript files.
+
+  From Charles Crain:
+
+  - Internal cleanup of environment passing to function Actions.
+
+  - Builders can now take arbitrary keyword arguments to create
+    attributes to be passed to: command generator functions,
+    FunctionAction functions, Builder emitter functions (below),
+    and prefix/suffix generator functions (below).
+
+  - Command generator functions can now return ANYTHING that can be
+    converted into an Action (a function, a string, a CommandGenerator
+    instance, even an ActionBase instance).
+
+  - Actions now call get_contents() with the actual target and source
+    nodes used for the build.
+
+  - A new DictCmdGenerator class replaces CompositeBuilder to support
+    more flexible Builder behavior internally.
+
+  - Builders can now take an emitter= keyword argument.  An emitter
+    is a function that takes target, source, and env argument, then
+    return a 2-tuple of (new sources, new targets).  The emitter is
+    called when the Builder is __call__'ed, allowing a user to modify
+    source and target lists.
+
+  - The prefix, suffix and src_suffix Builder arguments now take a
+    callable as well a string.  The callable is passed the Environment
+    and any extra Builder keyword arguments and is expected to return
+    the appropriate prefix or suffix.
+
+  - CommandActions can now be a string, a list of command + argument
+    strings, or a list of commands (strings or lists).
+
+  - Added shared library support.  The Object and Library Builders now
+    take a "shared=1" keyword argument to specify that a shared object
+    or shared library should be built.  It is an error to try to build
+    static objects into a shared library or vice versa.
+
+  - Win32 support for .def files has been added.  Added the Win32-specific
+    construction variables $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX.  When building a .dll,
+    the new construction variable $WIN32_INSERT_DEF, controls whether
+    the appropriately-named .def file is inserted into the target
+    list (if not already present).  A .lib file is always added to
+    a Library build if not present in the list of targets.
+
+  - ListBuilder now passes all targets to the action, not just the first.
+
+  - Fix so that -c now deletes generated yacc .h files.
+
+  - Builder actions and emitter functions can now be initialized, through
+    construction variables, to things other than strings.
+
+  - Make top-relative '#/dir' lookups work like '#dir'.
+
+  - Fix for relative CPPPATH directories in subsidiary SConscript files
+    (broken in 0.06).
+
+  - Add a for_signature argument to command generators, so that
+    generators that need to can return distinct values for the
+    command signature and for executing the command.
+
+  From Alex Jacques:
+
+  - Create a better scons.bat file from a py2bat.py script on the Python
+    mailing list two years ago (modeled after pl2bat.pl).
+
+  From Steven Knight:
+
+  - Fix so that -c -n does *not* remove the targets!
+
+  - Man page:  Add a hierarchical libraries + Program example.
+
+  - Support long MSVC linker command lines through a builder action
+    that writes to a temporary file and uses the magic MSVC "link @file"
+    argument syntax if the line is longer than 2K characters.
+
+  - Fix F77 command-line options on Win32 (use /Fo instead of -o).
+
+  - Use the same action to build from .c (lower case) and .C (upper
+    case) files on case-insensitive systems like Win32.
+
+  - Support building a PDF file directly from a TeX or LaTeX file
+    using pdftex or pdflatex.
+
+  - Add a -x option to runtest.py to specify the script being tested.
+    A -X option indicates it's an executable, not a script to feed
+    to the Python interpreter.
+
+  - Add a Split() function (identical to SCons.Util.argmunge()) for use
+    in the next release, when Builders will no longer automatically split
+    strings on white space.
+
+  From Steve Leblanc:
+
+  - Add the SConscriptChdir() method.
+
+  From Anthony Roach:
+
+  - Fix --debug=tree when used with directory targets.
+
+  - Significant internal restructuring of Scanners and Taskmaster.
+
+  - Added new --debug=dtree option.
+
+  - Fixes for --profile option.
+
+  - Performance improvement in construction variable substitution.
+
+  - Implemented caching of content signatures, plus added --max-drift
+    option to control caching.
+
+  - Implemented caching of dependency signatures, enabled by new
+    --implicit-cache option.
+
+  - Added abspath construction variable modifier.
+
+  - Added $SOURCE variable as a synonym for $SOURCES[0].
+
+  - Write out .sconsign files on error or interrupt so intermediate
+    build results are saved.
+
+  - Change the -U option to -D.  Make a new -U that builds just the
+    targets from the local SConscript file.
+
+  - Fixed use of sys.path so Python modules can be imported from
+    the SConscript directory.
+
+  - Fix for using Aliases with the -u, -U and -D options.
+
+  - Fix so that Nodes can be passed to SConscript files.
+
+  From Moshe Zadka:
+
+  - Changes for official Debian packaging.
+
+
+
+RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
+
+  From Charles Crain:
+
+  - Fix command generators to expand construction variables.
+
+  - Make FunctionAction arguments be Nodes, not strings.
+
+  From Stephen Kennedy:
+
+  - Performance:  Use a dictionary, not a list, for a Node's parents.
+
+  From Steven Knight:
+
+  - Add .zip files to the packages we build.
+
+  - Man page:  document LIBS, fix a typo, document ARGUMENTS.
+
+  - Added RANLIB and RANLIBFLAGS construction variables.  Only use them
+    in ARCOM if there's a "ranlib" program on the system.
+
+  - Add a configurable CFILESUFFIX for the Builder of .l and .y files
+    into C files.
+
+  - Add a CXXFile Builder that turns .ll and .yy files into .cc files
+    (configurable via a CXXFILESUFFIX construction variable).
+
+  - Use the POSIX-standard lex -t flag, not the GNU-specific -o flag.
+    (Bug reported by Russell Christensen.)
+
+  - Fixed an exception when CPPPATH or LIBPATH is a null string.
+    (Bug reported by Richard Kiss.)
+
+  - Add a --profile=FILE option to make profiling SCons easier.
+
+  - Modify the new DVI builder to create .dvi files from LaTeX (.ltx
+    and .latex) files.
+
+  - Add support for Aliases (phony targets).
+
+  - Add a WhereIs() method for searching for path names to executables.
+
+  - Add PDF and PostScript document builders.
+
+  - Add support for compiling Fortran programs from a variety of
+    suffixes (a la GNU Make):  .f, .F, .for, .FOR, .fpp and .FPP
+
+  - Support a CPPFLAGS variable on all default commands that use the
+    C preprocessor.
+
+  From Steve Leblanc:
+
+  - Add support for the -U option.
+
+  - Allow CPPPATH, LIBPATH and LIBS to be specified as white-space
+    separated strings.
+
+  - Add a document builder to create .dvi files from TeX (.tex) files.
+
+  From Anthony Roach:
+
+  - Fix:  Construction variables with values of 0 were incorrectly
+    interpolated as ''.
+
+  - Support env['VAR'] to fetch construction variable values.
+
+  - Man page:  document Precious().
+
+
+
+RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
+
+  From Chad Austin:
+
+  - Set PROGSUFFIX to .exe under Cygwin.
+
+  From Charles Crain:
+
+  - Allow a library to specified as a command-line source file, not just
+    in the LIBS construction variable.
+
+  - Compensate for a bug in os.path.normpath() that returns '' for './'
+    on WIN32.
+
+  - More performance optimizations:  cache #include lines from files,
+    eliminate unnecessary calls.
+
+  - If a prefix or suffix contains white space, treat the resulting
+    concatenation as separate arguments.
+
+  - Fix irregularities in the way we fetch DevStudio information from
+    the Windows registry, and in our registry error handling.
+
+  From Steven Knight:
+
+  - Flush stdout after print so it intermixes correctly with stderr
+    when redirected.
+
+  - Allow Scanners to return a list of strings, and document how to
+    write your own Scanners.
+
+  - Look up implicit (scanned) dependencies relative to the directory
+    of file being scanned.
+
+  - Make writing .sconsign files more robust by first trying to write
+    to a temp file that gets renamed.
+
+  - Create all of the directories for a list of targets before trying
+    to build any of the targets.
+
+  - WIN32 portability fixes in tests.
+
+  - Allow the list of variables exported to an SConscript file to be
+    a UserList, too.
+
+  - Document the overlooked LIBPATH construction variable.
+    (Bug reported by Eicke Godehardt.)
+
+  - Fix so that Ignore() ignores indirect, implicit dependencies
+    (included files), not just direct dependencies.
+
+  - Put the man page in the Debian distribution.
+
+  - Run HTML docs through tidy to clean up the HTML (for Konqueror).
+
+  - Add preliminary support for Unicode strings.
+
+  - Efficiency:  don't scan dependencies more than once during the
+    walk of a tree.
+
+  - Fix the -c option so it doesn't stop removing targets if one doesn't
+    already exist.
+    (Bug reported by Paul Connell.)
+
+  - Fix the --debug=pdb option when run on Windows NT.
+    (Bug reported by Paul Connell.)
+
+  - Add support for the -q option.
+
+  From Steve Leblanc:
+
+  - Add support for the -u option.
+
+  - Add .cc and .hh file suffixes to the C Scanner.
+
+  From Anthony Roach:
+
+  - Make the scons script return an error code on failures.
+
+  - Add support for using code to generate a command to build a target.
+
+
+
+RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
+
+  From Charles Crain:
+
+  - Significant performance improvements in the Node.FS and
+    Scanner subsystems.
+
+  - Fix signatures of binary files on Win32 systems.
+
+  - Allow LIBS and LIBPATH to be strings, not just arrays.
+
+  - Print a traceback if a Python-function builder throws an exception.
+
+  From Steven Knight:
+
+  - Fix using a directory as a Default(), and allow Default() to
+    support white space in file names for strings in arrays.
+
+  - Man page updates:  corrected some mistakes, documented various
+    missing Environment methods, alphabetized the construction
+    variables and other functions, defined begin and end macros for
+    the example sections, regularized white space separation, fixed
+    the use of Export() in the Multiple Variants example.
+
+  - Function action fixes:  None is now a successful return value.
+    Exceptions are now reported.  Document function actions.
+
+  - Add 'Action' and 'Scanner' to the global keywords so SConscript
+    files can use them too.
+
+  - Removed the Wrapper class between Nodes and Walkers.
+
+  - Add examples using Library, LIBS, and LIBPATH.
+
+  - The C Scanner now always returns a sorted list of dependencies
+    so order changes don't cause unnecessary rebuilds.
+
+  - Strip $(-$) bracketed text from command lines.  Use this to
+    surround $_INCDIRS and $_LIBDIRS so we don't rebuild in response
+    to changes to -I or -L options.
+
+  - Add the Ignore() method to ignore dependencies.
+
+  - Provide an error message when a nonexistent target is specified
+    on the command line.
+
+  - Remove targets before building them, and add an Environment
+    Precious() method to override that.
+
+  - Eliminate redundant calls to the same builder when the target is a
+    list of targets:  Add a ListBuilder class that wraps Builders to
+    handle lists atomically.  Extend the Task class to support building
+    and updating multiple targets in a single Task.  Simplify the
+    interface between Task and Taskmaster.
+
+  - Add a --debug=pdb option to re-run SCons under the Python debugger.
+
+  - Only compute a build signature once for each node.
+
+  - Changes to our sys.path[] manipulation to support installation into
+    an arbitrary --prefix value.
+
+  From Steve Leblanc:
+
+  - Add var=value command-line arguments.
+
+
+
+RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
+
+  From Charles Crain:
+
+  - Performance improvements in the Node.FS and Sig.Calculator classes.
+
+  - Add the InstallAs() method.
+
+  - Execute commands through an external interpreter (sh, cmd.exe, or
+    command.com) to handle redirection metacharacters.
+
+  - Allow the user to supply a command handler.
+
+  From Steven Knight:
+
+  - Search both /usr/lib and /usr/local/lib for scons directories by
+    adding them both to sys.path, with whichever is in sys.prefix first.
+
+  - Fix interpreting strings of multiple white-space separated file names
+    as separate file names, allowing prefixes and suffixes to be appended
+    to each individually.
+
+  - Refactor to move CompositeBuilder initialization logic from the
+    factory wrapper to the __init__() method, and allow a Builder to
+    have both an action and a src_builder (or array of them).
+
+  - Refactor BuilderBase.__call__() to separate Node creation/lookup
+    from initialization of the Node's builder information.
+
+  - Add a CFile Builder object that supports turning lex (.l) and
+    yacc (.y) files into .c files.
+
+  - Document: variable interpretation attributes; how to propogate
+    the user's environment variables to executed commands; how to
+    build variants in multiple BuildDirs.
+
+  - Collect String, Dict, and List type-checking in common utility
+    routines so we can accept User{String,Dict,List}s all over.
+
+  - Put the Action factory and classes into their own module.
+
+  - Use one CPlusPlusAction in the Object Builder's action dictionary,
+    instead of letting it create multiple identical instances.
+
+  - Document the Install() and InstallAs() methods.
+
+  From Steve Leblanc:
+
+  - Require that a Builder be given a name argument, supplying a
+    useful error message when it isn't.
+
+  From Anthony Roach:
+
+  - Add a "duplicate" keyword argument to BuildDir() that can be set
+    to prevent linking/copying source files into build directories.
+
+  - Add a "--debug=tree" option to print an ASCII dependency tree.
+
+  - Fetch the location of the Microsoft Visual C++ compiler(s) from
+    the Registry, instead of hard-coding the location.
+
+  - Made Scanner objects take Nodes, not path names.
+
+  - Have the C Scanner cache the #include file names instead of
+    (re-)scanning the file each time it's called.
+
+  - Created a separate class for parent "nodes" of file system roots,
+    eliminating the need for separate is-parent-null checks everywhere.
+
+  - Removed defined __hash__() and __cmp() methods from FS.Entry, in
+    favor of Python's more efficient built-in identity comparisons.
+
+
+
+RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600
+
+  From Charles Crain:
+
+  - Added the Install(), BuildDir(), and Export() methods.
+
+  - Fix the -C option by delaying setting the top of the FS tree.
+
+  - Avoid putting the directory path on the libraries in the LIBS
+    construction variable.
+
+  - Added a GetBuildPath() method to return the full path to the
+    Node for a specified string.
+
+  - Fixed variable substitution in CPPPATH and LIBPATH.
+
+  From Steven Knight:
+
+  - Fixed the version comment in the scons.bat (the UNIX geek used
+    # instead of @rem).
+
+  - Fix to setup.py so it doesn't require a sys.argv[1] argument.
+
+  - Provide make-like warning message for "command not found" and
+    similar errors.
+
+  - Added an EXAMPLES section to the man page.
+
+  - Make Default() targets properly relative to their SConscript
+    file's subdirectory.
+
+  From Anthony Roach:
+
+  - Documented CXXFLAGS, CXXCOM, and CPPPATH.
+
+  - Fixed SCONS_LIB_DIR to work as documented.
+
+  - Made Default() accept Nodes as arguments.
+
+  - Changed Export() to make it easier to use.
+
+  - Added the Import() and Return() methods.
+
+
+
+RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001
+
+A brief overview of important functionality available in release 0.01:
+
+  - C and C++ compilation on POSIX and Windows NT.
+
+  - Automatic scanning of C/C++ source files for #include dependencies.
+
+  - Support for building libraries; setting construction variables
+    allows creation of shared libraries.
+
+  - Library and C preprocessor search paths.
+
+  - File changes detected using MD5 signatures.
+
+  - User-definable Builder objects for building files.
+
+  - User-definable Scanner objects for scanning for dependencies.
+
+  - Parallel build (-j) support.
+
+  - Dependency cycles detected.
+
+  - Linux packages available in RPM and Debian format.
+
+  - Windows installer available.
+
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__
