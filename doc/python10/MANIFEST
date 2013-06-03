@@ -1,0 +1,14 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
+abstract.xml
+acks.xml
+*.fig
+copyright.xml
+design.xml
+future.xml
+install.xml
+intro.xml
+main.xml
+process.xml
+summary.xml

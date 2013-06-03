@@ -1,0 +1,1292 @@
+/*
+ * Copyright (c) 2003-2010 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Styles for elements found in Simplified DocBook
+ * (and closely related elements even if not found in Simplified DocBook).
+ */
+
+/* =====================================
+   Article structure
+===================================== */
+
+sconsdoc,
+article {
+    display: block;
+}
+
+article > title { 
+    font-size: 2em; 
+    margin: 0.5ex 0;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent transparent #004080 transparent;
+}
+
+title,
+subtitle,
+titleabbrev {
+    display: block;
+    color: #004080;
+    margin: 1.33ex 0;
+}
+
+title,
+subtitle {
+    font-weight: bold; 
+}
+
+/* -------------------------------------
+   Sections
+------------------------------------- */
+
+section,
+sect1,
+sect2,
+sect3,
+sect4,
+sect5,
+simplesect {
+    display: block;
+}
+
+tool,
+builder,
+scons_function,
+cvar { 
+    display: block;
+}
+
+sconsdoc > tool:before { 
+    color: #004080;
+    font-size: 1.5em; 
+    margin: .83ex 0; 
+    display: block;
+    content: "Tool '" attr(name) "'";
+}
+
+sconsdoc > builder:before { 
+    color: #004080;
+    font-size: 1.5em; 
+    margin: .83ex 0; 
+    display: block;
+    content: "Builder '" attr(name) "'";
+}
+
+sconsdoc > scons_function:before { 
+    color: #004080;
+    font-size: 1.5em; 
+    margin: .83ex 0; 
+    display: block;
+    content: "Function '" attr(name) "'";
+}
+
+sconsdoc > cvar:before { 
+    color: #004080;
+    font-size: 1.5em; 
+    margin: .83ex 0; 
+    display: block;
+    content: "CVar '" attr(name) "'";
+}
+
+cvar > summary:before,
+scons_function > summary:before,
+builder > summary:before,
+tool > summary:before { 
+    font-size: 1.3em; 
+    font-weight: bold;
+    margin: .83ex 0; 
+    display: block;
+    content: "Summary: ";
+}
+
+scons_function > arguments:before {
+    font-size: 1.2em; 
+    margin: .83ex 0; 
+    display: block;
+    content: "Arguments";
+}
+
+section > title,
+sect1 > title { 
+    font-size: 1.5em; 
+    margin: .83ex 0; 
+}
+
+section > title:before,
+sect1 > title:before {
+    content: simple-counter(n-) " "; 
+}
+
+section section > title,
+sect2 > title { 
+    font-size: 1.3em; 
+    margin: 1ex 0; 
+}
+
+section * section > title { 
+    font-size: 1em; 
+    margin: 1.33ex 0; 
+}
+      
+section section > title:before,
+sect2 > title:before { 
+    content: simple-counter(nn-) " "; 
+}
+
+section section section > title:before,
+sect3 > title:before {
+    content: simple-counter(nnn-) " "; 
+}
+
+section section section section > title:before,
+sect4 > title:before { 
+    content: simple-counter(nnnn-) " "; 
+}
+
+section section section * section > title:before { 
+    content: ""; 
+}
+      
+/* -------------------------------------
+   Appendix
+------------------------------------- */
+
+appendix {
+    display: block;
+}
+
+appendix > title { /* in a book or in a part */
+    font-size: 2em; 
+    margin: 0.5ex 0;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent transparent #004080 transparent;
+}
+
+article > appendix > title { 
+    font-size: 1.5em; 
+    margin: 0.83ex 0;
+    border-width: 0;
+    border-style: none;
+}
+
+appendix > title:before { 
+    content: "Appendix " simple-counter(n-, upper-alpha) ": "; 
+}
+
+/* =====================================
+   Paragraphs
+===================================== */
+
+para,
+simpara {
+    display: block;
+    margin: 1.33ex 0; 
+}
+
+/* =====================================
+   Lists
+===================================== */
+
+/* -------------------------------------
+   itemizedlist
+------------------------------------- */
+
+uses,
+sets,
+itemizedlist {
+    display: block;
+    margin-left: 2ex; /* all lists are slightly indented */
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+listitem {
+    display: block;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+uses[spacing=compact] > listitem,
+sets[spacing=compact] > listitem,
+itemizedlist[spacing=compact] > listitem,
+orderedlist[spacing=compact] > listitem {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+listitem > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+      
+uses > listitem,
+sets > listitem,
+itemizedlist > listitem {
+    margin-left: 2.5ex; 
+}
+
+uses > listitem:before,
+sets > listitem:before,
+itemizedlist > listitem:before {
+    display: marker; 
+    content: disc; 
+    color: #004080;
+}
+
+itemizedlist > listitem itemizedlist > listitem:before {
+    content: square; 
+}
+
+itemizedlist > listitem itemizedlist > listitem itemizedlist > 
+listitem:before {
+    content: icon(diamond); 
+}
+
+itemizedlist > listitem itemizedlist > listitem itemizedlist > 
+listitem itemizedlist > listitem:before {
+    content: circle; 
+}
+  
+/* -------------------------------------
+   orderedlist
+------------------------------------- */
+
+orderedlist {
+    display: block;
+    margin-left: 2ex; 
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+    counter-reset: item; 
+}
+
+orderedlist[continuation=continues] {
+    counter-reset: none; 
+}
+
+orderedlist > listitem {
+    margin-left: 6ex;
+    counter-increment: item; 
+}
+
+orderedlist > listitem:before {
+    display: marker; 
+    content: counter(item, decimal) "."; 
+    font-weight: bold; 
+    color: #004080;
+}
+
+orderedlist[numeration=loweralpha] > listitem:before {
+    content: counter(item, lower-alpha) "."; 
+}
+
+orderedlist[numeration=upperalpha] > listitem:before {
+    content: counter(item, upper-alpha) "."; 
+}
+
+orderedlist[numeration=lowerroman] > listitem:before {
+    content: counter(item, lower-roman) "."; 
+}
+
+orderedlist[numeration=upperroman] > listitem:before {
+    content: counter(item, upper-roman) "."; 
+}
+
+orderedlist[inheritnum=inherit] > listitem:before,
+orderedlist[inheritnum=inherit][numeration=arabic] > listitem:before {
+    content: counters(item, ".", decimal) "."; 
+}
+
+orderedlist[inheritnum=inherit][numeration=loweralpha] > listitem:before {
+    content: counters(item, ".", lower-alpha) "."; 
+}
+
+orderedlist[inheritnum=inherit][numeration=upperalpha] > listitem:before {
+    content: counters(item, ".", upper-alpha) "."; 
+}
+
+orderedlist[inheritnum=inherit][numeration=lowerroman] > listitem:before {
+    content: counters(item, ".", lower-roman) "."; 
+}
+
+orderedlist[inheritnum=inherit][numeration=upperroman] > listitem:before {
+    content: counters(item, ".", upper-roman) "."; 
+}
+
+/* -------------------------------------
+   variablelist
+------------------------------------- */
+
+variablelist {
+    display: block;
+    margin-left: 2ex; 
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+varlistentry {
+    display: block;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+variablelist[spacing=compact] > varlistentry {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+term {
+    display: block;
+    font-weight: bold; 
+}
+
+varlistentry > listitem {
+    margin-left: 4ex; 
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+/* =====================================
+   Figures
+===================================== */
+
+programlisting,
+screen,
+scons_example,
+scons_example_file,
+example_commands,
+sconstruct,
+scons_output,
+scons_output_command,
+file,
+directory,
+literallayout,
+synopsis {
+    display: block;
+    white-space: pre;
+    font-family: monospace;
+    margin: 1.33ex 0; 
+}
+
+example_commands,
+programlisting {
+    background-color: #EEEEEE; 
+    border: thin solid gray; 
+    padding: 2px; 
+}
+ 
+scons_example,
+sconstruct,
+scons_output {
+    background-color: #94CAEE; 
+    border: thin solid gray; 
+    padding: 2px; 
+}
+
+file,
+directory,
+scons_example_file {
+    background-color: #EED27B; 
+}
+
+screen {
+    background-color: #EEEEFF; 
+    border: thin solid #8888FF; 
+    padding: 2px; 
+}
+ 
+figure,
+informalfigure,
+example,
+informalexample {
+    display: block;
+    margin: 1.33ex auto; 
+}
+
+figure > title,
+example > title {
+    font-style: italic;
+    font-weight: normal;
+    text-align: center;
+    margin: 0; /* content of figure generally already has a margin */
+}
+
+mediaobject {
+    display: table;
+    border-spacing: 2px;
+    margin: 1.33ex auto; 
+}
+
+inlinemediaobject {
+    display: inline-table;
+    border-spacing: 2px;
+}
+
+caption {
+    display: table-caption;
+    color: #004080;
+    font-style: italic;
+    font-weight: normal;
+    text-align: center;
+    /* content of caption already has a margin */
+}
+
+audioobject,
+videoobject,
+imageobject,
+textobject {
+    display: table-cell; /* this will create one row per cell */
+    text-align: center;
+}
+
+objectinfo {
+    text-align: left;
+}
+
+mediaobject > objectinfo {
+    display: table-cell;
+}
+
+audiodata {
+    display: inline;
+    content: url(icons/audio.png); 
+}
+
+videodata {
+    display: inline;
+    content: url(icons/video.png); 
+}
+
+/* 
+ * imagedata is defined in image.imp.
+ */
+
+textdata {
+    display: inline;
+    content: url(icons/text.png); 
+}
+
+/* =====================================
+   Divisions
+===================================== */
+
+abstract {
+    display: block;
+    margin-left: 18ex;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+abstract > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0;
+}
+      
+abstract:before {
+    display: marker; 
+    content: element-label();
+    font-weight: bold;
+    color: #004080;
+}
+
+blockquote,
+epigraph {
+    display: block;
+    margin: 1.33ex 10ex; 
+}
+
+blockquote > title {
+    font-style: italic;
+    font-weight: normal;
+    text-align: center;
+    margin: 0; /* content of blockquote already has a margin */
+}
+       
+attribution {
+    display: block;
+    text-align: right;
+}
+
+attribution:before {
+    content: " -- "; 
+}
+
+footnote {
+    display: block;
+    margin-left: 18ex;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+    margin-right: 10ex;
+    font-size: small;
+    padding: 2px;
+    background-color: #F0F0FF;
+}
+
+footnote > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+footnote:before {
+    display: marker; 
+    content: element-label();
+    color: #004080;
+}
+
+footnote[label]:before {
+    content: "[" attr(label) "]"; 
+}
+
+note,
+caution,
+important,
+tip,
+warning {
+    display: block;
+    margin-left: 18ex;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+note > *:first-child,
+caution > *:first-child,
+important > *:first-child,
+tip > *:first-child,
+warning > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+      
+note:before,
+caution:before,
+important:before,
+tip:before,
+warning:before {
+    display: marker; 
+    content: element-label();
+    font-weight: bold; 
+    color: #004080;
+}
+
+sidebar {
+    display: block;
+    margin: 1.33ex 0; 
+    border: thin solid #80F880;
+    background-color: #E0F8E0;
+    padding: 2px;
+}
+
+sidebar > title {
+    margin: 0; /* content of sidebar already has a margin */
+}
+       
+/* =====================================
+   Special sections
+===================================== */
+
+/* -------------------------------------
+   Bibliography
+   (complemented in docbook1.imp)
+------------------------------------- */
+
+bibliography,
+bibliodiv,
+bibliolist {
+    display: block;
+    /* content of bibliography has a margin */
+}
+
+bibliomixed,
+bibliomset,
+biblioentry,
+biblioset {
+    display: block;
+    margin: 1.33ex 0; 
+}
+
+bibliomixed,
+biblioentry {
+    border: thin solid gray;
+    padding: 2px;
+}
+
+bibliomixed > title,
+bibliomixed > subtitle,
+bibliomixed > titleabbrev,
+bibliomset > title,
+bibliomset > subtitle,
+bibliomset > titleabbrev,
+biblioentry > title,
+biblioentry > subtitle,
+biblioentry > titleabbrev,
+biblioset > title,
+biblioset > subtitle,
+biblioset > titleabbrev {
+    /* title of a bibliography entry, not ``caption'' of a formal block */
+    font-weight: normal;
+    font-size: 1em;
+    color: black;
+}
+
+bibliomixed > title,
+bibliomixed > subtitle,
+bibliomixed > titleabbrev,
+bibliomset > title,
+bibliomset > subtitle,
+bibliomset > titleabbrev {
+    display: inline;
+}
+
+bibliomixed > title,
+bibliomixed > subtitle,
+bibliomset > title,
+bibliomset > subtitle {
+    font-style: italic;
+}
+
+bibliomisc {
+    display: inline;
+}
+
+/* -------------------------------------
+   Meta-information
+   (complemented in docbook1.imp)
+------------------------------------- */
+
+appendixinfo,
+articleinfo,
+bibliographyinfo,
+blockinfo,
+bookinfo,
+chapterinfo,
+glossaryinfo,
+indexinfo,
+objectinfo,
+partinfo,
+prefaceinfo,
+refentryinfo,
+refmeta,
+referenceinfo,
+refsect1info,
+refsect2info,
+refsect3info,
+refsectioninfo,
+refsynopsisdivinfo,
+sect1info,
+sect2info,
+sect3info,
+sect4info,
+sect5info,
+sectioninfo,
+setindexinfo,
+setinfo,
+sidebarinfo  {
+    display: block; 
+    margin: 1.33ex 0;
+    border: thin solid #C0F8F8;
+    background-color: #E0F8F8;
+    padding: 2px;
+}
+
+authorgroup {
+    display: block;
+    /* content of authorgroup has a margin */
+}
+
+author,
+editor,
+othercredit {
+    display: block; /* can contain authorblurb, address */
+    margin: 1.33ex 0;
+}
+
+personname {
+    display: inline;
+}
+
+honorific,
+firstname,
+surname,
+lineage,
+othername {
+    display: inline;
+}
+
+honorific:after,
+firstname:after,
+surname:after,
+lineage:after,
+othername:after {
+    content: " ";
+}
+
+contrib {
+    display: inline;
+}
+
+authorblurb,
+personblurb {
+    display: block;
+    /* content of authorblurb has a margin */
+}
+
+corpauthor,
+corpname {
+    /* Could be block but inline is safer when used in strange places
+       and when used in meta-info, display is forced to be block. */
+    display: inline;
+}
+
+affiliation {
+    display: block; /* can contain address */
+    margin: 1.33ex 0;
+}
+
+shortaffil,
+jobtitle,
+orgname,
+orgdiv {
+    display: inline;
+}
+
+shortaffil:after,
+affiliation > jobtitle:after,
+affiliation > orgname:after,
+orgdiv:after {
+    content: " ";
+}
+
+copyright {
+    display: inline;
+}
+
+year,
+holder {
+    display: inline;
+}
+
+year:after,
+holder:after {
+    content: " ";
+}
+
+date,
+pubdate {
+    display: inline;
+}
+
+edition {
+    display: inline;
+}
+
+issuenum {
+    display: inline;
+}
+
+keywordset,
+subjectset {
+    display: inline;
+}
+
+keyword,
+subject,
+subjectterm {
+    display: inline;
+}
+
+keyword:after,
+subjectterm:after {
+    content: " ";
+}
+
+legalnotice {
+    display: block;
+    /* content of legalnotice has a margin */
+}
+
+publishername {
+    display: inline;
+}
+
+releaseinfo {
+    display: inline;
+}
+
+revhistory {
+    display: block;
+    margin: 1.33ex 0;
+}
+
+revision {
+    display: block;
+    margin-left: 2.5ex; 
+}
+
+revision:before {
+    display: marker; 
+    content: icon(right); 
+    color: #004080;
+}
+
+revision > author,
+authorinitials {
+    display: inline;
+    font-weight: bold;
+}
+
+revnumber,
+revremark {
+    display: inline;
+}
+
+revnumber:after,
+revision > date:after,
+revision > author:after,
+revision > authorinitials:after {
+    content: " ";
+}
+
+revdescription {
+    display: block;
+    /* content of revdescription has a margin */
+}
+
+volumenum {
+    display: inline;
+}
+
+/* ---------------------------------------------------------------------------
+   Inlined elements other than those belonging to modules
+
+   Note that default display is inline, so there is no need to specify it.
+--------------------------------------------------------------------------- */
+
+emphasis {
+    font-style: italic;
+}
+emphasis[role=bold] {
+    font-style: normal; 
+    font-weight: bold; 
+}
+emphasis[role=underline] {
+    font-style: normal; 
+    text-decoration: underline;
+}
+emphasis[role=strikethrough] {
+    font-style: normal; 
+    text-decoration: line-through;
+}
+
+emphasis > emphasis {
+    font-style: normal; 
+    font-weight: normal; 
+    text-decoration: none;
+}
+
+directory,
+literal {
+    font-family: monospace;
+}
+      
+link,
+ulink,
+email {
+    color: navy;
+    text-decoration: underline;
+}
+
+/* -------------------------------------
+   Technical
+------------------------------------- */
+
+command,
+computeroutput,
+filename,
+option,
+systemitem,
+userinput {
+    font-family: monospace;
+}
+  
+computeroutput,
+userinput {
+    background-color: #EEEEEE;
+}
+     
+command,
+option {
+    font-weight: bold;
+}
+
+lineannotation {
+    font-style: italic;
+    font-size: medium; /* occurs in verbatim, fixed font, blocks */
+}
+   
+replaceable {
+    font-style: italic; 
+}
+   
+/* -------------------------------------
+   General
+------------------------------------- */
+
+anchor {
+    content: icon(right-target);
+    color: gray;
+}
+
+subscript,
+superscript {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: small;
+}
+subscript {
+    vertical-align: sub; 
+}
+superscript {
+    vertical-align: super; 
+}
+ 
+abbrev, 
+acronym {
+    font-weight: bold;
+}
+
+citetitle {
+    font-style: italic;
+}
+
+footnoteref {
+    content: "[" attr(linkend) "]"; 
+    font-size: small;
+    vertical-align: super;
+    color: navy;
+}
+
+footnoteref[label] {
+    content: "[" attr(label) "]"; 
+}
+
+phrase[revisionflag=deleted] {
+    text-decoration: line-through;
+}
+
+phrase[revisionflag=added] {
+    text-decoration: underline;
+}
+
+quote:before {
+    content: open-quote; 
+    font-weight: bold;
+    color: gray; 
+}
+
+quote:after {
+    content: close-quote; 
+    font-weight: bold;
+    color: gray; 
+}
+
+trademark,
+productname {
+    color: #004080;
+}
+
+trademark:after,
+productname:after {
+    font-size: small; 
+    color: gray; 
+}
+
+trademark:after, /* also works for class=trade */
+productname[class=trade]:after { 
+    content: "[tm]"; 
+}
+
+trademark[class=copyright]:after,
+productname[class=copyright]:after {
+    content: "\A9"; 
+    font-size: medium; 
+}
+
+trademark[class=registered]:after,
+productname[class=registered]:after {
+    content: "\AE"; 
+    font-size: medium; 
+}
+
+trademark[class=service]:after,
+productname[class=service]:after {
+    content: "[sm]"; 
+}
+
+xref {
+    content: icon(left-link) 
+      xpath("if(id(@linkend)/@xreflabel, id(@linkend)/@xreflabel, @linkend)");
+    vertical-align: text-top; /* for the icon */
+    color: navy;
+}
+        
+xref[endterm] {
+    content: icon(left-link) xpath("if(id(@endterm), id(@endterm), @endterm)");
+}
+
+/* ---------------------------------------------------------------------------
+   Overrides natural display of elements in special sections
+   (must be at the very end of the style sheet)
+--------------------------------------------------------------------------- */
+
+/* -------------------------------------
+   Bibliography
+------------------------------------- */
+
+biblioentry > *,
+biblioset > * {
+    display: block;
+    text-align: left; /* Reset paragraph styles */
+    font: normal normal 1em sans-serif;
+    color: black;
+    margin-left: 18ex;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+biblioentry > *:first-child,
+biblioset > *:first-child { /* nicer */
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+biblioentry > *:before,
+biblioset > *:before {
+    display: marker; 
+    content: element-label();
+    font: normal normal small sans-serif;
+    color: #004080;
+}
+
+biblioentry > *:after,
+biblioset > *:after {
+    content: "";
+}
+
+biblioentry > biblioset,
+biblioset > biblioset {
+    margin-left: 0;
+}
+
+biblioentry > biblioset:before,
+biblioset > biblioset:before {
+    content: "";
+}
+
+/* -------------------------------------
+   Meta-information
+------------------------------------- */
+
+appendixinfo > *,
+articleinfo > *,
+bibliographyinfo > *,
+blockinfo > *,
+bookinfo > *,
+chapterinfo > *,
+glossaryinfo > *,
+indexinfo > *,
+objectinfo > *,
+partinfo > *,
+prefaceinfo > *,
+refentryinfo > *,
+refmeta > *,
+referenceinfo > *,
+refsect1info > *,
+refsect2info > *,
+refsect3info > *,
+refsectioninfo > *,
+refsynopsisdivinfo > *,
+sect1info > *,
+sect2info > *,
+sect3info > *,
+sect4info > *,
+sect5info > *,
+sectioninfo > *,
+setindexinfo > *,
+setinfo > *,
+sidebarinfo > * {
+    display: block;
+    text-align: left; /* Reset paragraph styles */
+    font: normal normal 1em sans-serif;
+    color: black;
+    margin-left: 18ex;
+    margin-right: 0;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+appendixinfo > *:first-child,
+articleinfo > *:first-child,
+bibliographyinfo > *:first-child,
+blockinfo > *:first-child,
+bookinfo > *:first-child,
+chapterinfo > *:first-child,
+glossaryinfo > *:first-child,
+indexinfo > *:first-child,
+objectinfo > *:first-child,
+partinfo > *:first-child,
+prefaceinfo > *:first-child,
+refentryinfo > *:first-child,
+refmeta > *:first-child,
+referenceinfo > *:first-child,
+refsect1info > *:first-child,
+refsect2info > *:first-child,
+refsect3info > *:first-child,
+refsectioninfo > *:first-child,
+refsynopsisdivinfo > *:first-child,
+sect1info > *:first-child,
+sect2info > *:first-child,
+sect3info > *:first-child,
+sect4info > *:first-child,
+sect5info > *:first-child,
+sectioninfo > *:first-child,
+setindexinfo > *:first-child,
+setinfo > *:first-child,
+sidebarinfo > *:first-child { /* nicer */
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+appendixinfo > *:before,
+articleinfo > *:before,
+bibliographyinfo > *:before,
+blockinfo > *:before,
+bookinfo > *:before,
+chapterinfo > *:before,
+glossaryinfo > *:before,
+indexinfo > *:before,
+objectinfo > *:before,
+partinfo > *:before,
+prefaceinfo > *:before,
+refentryinfo > *:before,
+refmeta > *:before,
+referenceinfo > *:before,
+refsect1info > *:before,
+refsect2info > *:before,
+refsect3info > *:before,
+refsectioninfo > *:before,
+refsynopsisdivinfo > *:before,
+sect1info > *:before,
+sect2info > *:before,
+sect3info > *:before,
+sect4info > *:before,
+sect5info > *:before,
+sectioninfo > *:before,
+setindexinfo > *:before,
+setinfo > *:before,
+sidebarinfo > *:before {
+    display: marker; 
+    content: element-label();
+    font: normal normal small sans-serif;
+    color: #004080;
+}
+
+appendixinfo > *:after,
+articleinfo > *:after,
+bibliographyinfo > *:after,
+blockinfo > *:after,
+bookinfo > *:after,
+chapterinfo > *:after,
+glossaryinfo > *:after,
+indexinfo > *:after,
+objectinfo > *:after,
+partinfo > *:after,
+prefaceinfo > *:after,
+refentryinfo > *:after,
+refmeta > *:after,
+referenceinfo > *:after,
+refsect1info > *:after,
+refsect2info > *:after,
+refsect3info > *:after,
+refsectioninfo > *:after,
+refsynopsisdivinfo > *:after,
+sect1info > *:after,
+sect2info > *:after,
+sect3info > *:after,
+sect4info > *:after,
+sect5info > *:after,
+sectioninfo > *:after,
+setindexinfo > *:after,
+setinfo > *:after,
+sidebarinfo > *:after {
+    content: "";
+}
+
+appendixinfo > title,
+articleinfo > title,
+bibliographyinfo > title,
+blockinfo > title,
+bookinfo > title,
+chapterinfo > title,
+glossaryinfo > title,
+indexinfo > title,
+objectinfo > title,
+partinfo > title,
+prefaceinfo > title,
+refentryinfo > title, /* refmeta has no title */
+referenceinfo > title,
+refsect1info > title,
+refsect2info > title,
+refsect3info > title,
+refsectioninfo > title,
+refsynopsisdivinfo > title,
+sect1info > title,
+sect2info > title,
+sect3info > title,
+sect4info > title,
+sect5info > title,
+sectioninfo > title,
+setindexinfo > title,
+setinfo > title,
+sidebarinfo > title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #004080;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 1ex;
+}
+
+appendixinfo > title:before,
+articleinfo > title:before,
+bibliographyinfo > title:before,
+blockinfo > title:before,
+bookinfo > title:before,
+chapterinfo > title:before,
+glossaryinfo > title:before,
+indexinfo > title:before,
+objectinfo > title:before,
+partinfo > title:before,
+prefaceinfo > title:before,
+refentryinfo > title:before,
+referenceinfo > title:before,
+refsect1info > title:before,
+refsect2info > title:before,
+refsect3info > title:before,
+refsectioninfo > title:before,
+refsynopsisdivinfo > title:before,
+sect1info > title:before,
+sect2info > title:before,
+sect3info > title:before,
+sect4info > title:before,
+sect5info > title:before,
+sectioninfo > title:before,
+setindexinfo > title:before,
+setinfo > title:before,
+sidebarinfo > title:before {
+    content: "";
+}
+
