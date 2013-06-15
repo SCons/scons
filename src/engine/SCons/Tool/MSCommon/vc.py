@@ -259,15 +259,15 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     installed_sdks=get_installed_sdks()
     for _sdk in installed_sdks:
         sdk_bat_file = _sdk.get_sdk_vc_script(host_arch,target_arch)
-        if sdk_bat_file and os.path.join(pdir,sdk_bat_file):
-            sdk_bat_file_path = os.path.join(pdir,sdk_bat_file)
-            debug('vc.py:find_batch_file() sdk_bat_file_path:%s'%sdk_bat_file_path)
-
-            return (batfilename,sdk_bat_file_path)
-        else:
+        if not sdk_bat_file:
             debug("vc.py:find_batch_file() not found:%s"%_sdk)
-    else:
-        return (batfilename,None)
+        else:
+            sdk_bat_file_path = os.path.join(pdir,sdk_bat_file)
+            if os.path.exists(sdk_bat_file_path): 
+                debug('vc.py:find_batch_file() sdk_bat_file_path:%s'%sdk_bat_file_path)
+                return (batfilename,sdk_bat_file_path)
+    return (batfilename,None)
+
 
 __INSTALLED_VCS_RUN = None
 
