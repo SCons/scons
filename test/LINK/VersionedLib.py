@@ -134,7 +134,7 @@ return n+11 ;
 }
 """)
 
-print test.run()
+test.run()
 
 test.run(arguments = '-c')
 
