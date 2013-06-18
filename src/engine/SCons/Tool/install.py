@@ -309,6 +309,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
             fulllinkname = os.path.join(install_dir, linkname)
             env.SideEffect(fulllinkname,target[0])
             env.Clean(target[0],fulllinkname)
+            _INSTALLED_FILES.extend(fulllinkname)
         
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
