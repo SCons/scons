@@ -297,6 +297,8 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     global _INSTALLED_FILES, _UNIQUE_INSTALLED_FILES
     Verbose = False
     _INSTALLED_FILES.extend(target)
+    if Verbose:
+        print "ver lib emitter ",repr(target)
 
     # see if we have a versioned shared library, if so generate side effects
     version, libname, install_dir = versionedLibVersion(target[0].path, env)
@@ -309,7 +311,9 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
             fulllinkname = os.path.join(install_dir, linkname)
             env.SideEffect(fulllinkname,target[0])
             env.Clean(target[0],fulllinkname)
-            _INSTALLED_FILES.extend(fulllinkname)
+            _INSTALLED_FILES.append(fulllinkname)
+            if Verbose:
+                print "installed list ", _INSTALLED_FILES
         
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
