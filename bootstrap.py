@@ -184,7 +184,7 @@ def main():
     MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
     
     files = [ scons_py ] + [os.path.join(src_engine, x)
-                            for x in parseManifestLines(src_engine, open(MANIFEST_in).readlines())]
+                            for x in parseManifestLines(os.path.join(script_dir, src_engine), open(MANIFEST_in).readlines())]
     
     for file in files:
         src = find(file)
