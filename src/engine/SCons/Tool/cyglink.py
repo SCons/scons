@@ -44,10 +44,8 @@ def shlib_emitter(target, source, env):
     
     # Remove any "lib" after the prefix
     pre = env.subst('$SHLIBPREFIX')
-    dll_name = str(dll)
-    if dll_name[len(pre):len(pre)+3] == 'lib':
-        dll_name = pre + dll_name[len(pre)+3:]
-        dll = env.fs.File(dll_name)
+    if dll.name[len(pre):len(pre)+3] == 'lib':
+        dll.name = pre + dll.name[len(pre)+3:]
 
     orig_target = target
     target = [env.fs.File(dll)]
