@@ -168,6 +168,17 @@ listed in the targets.
 </para>
 
 <para>
+On Cygwin systems, the
+&b-SharedLibrary;
+builder method will always build an import
+(<filename>.dll.a</filename>) library
+in addition to the shared (<filename>.dll</filename>) library,
+adding a <filename>.dll.a</filename> library with the same basename
+if there is not already a <filename>.dll.a</filename> file explicitly
+listed in the targets.
+</para>
+
+<para>
 Any object files listed in the
 <literal>source</literal>
 must have been built for a shared library

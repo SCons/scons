@@ -98,6 +98,18 @@ elif platform == 'darwin':
     'libtest.dylib',
     'libtest.2.5.4.dylib',
     ]
+elif platform == 'cygwin':
+    # All (?) the files we expect will get created in the current directory
+    files = [
+    'cygtest-2-5-4.dll',
+    'libtest-2-5-4.dll.a',
+    'test.os',
+    ]
+    # All (?) the files we expect will get created in the 'installtest' directory
+    instfiles = [
+    'cygtest-2-5-4.dll',
+    'libtest-2-5-4.dll.a',
+    ]
 elif platform == 'win32':
     # All (?) the files we expect will get created in the current directory
     files = [
