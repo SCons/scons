@@ -133,6 +133,11 @@ def copyFuncVersionedLib(dest, source, env):
     if os.path.isdir(source):
         raise SCons.Errors.UserError("cannot install directory `%s' as a version library" % str(source) )
     else:
+        # remove the link if it is already there
+        try:
+            os.remove(dest)
+        except:
+            pass
         shutil.copy2(source, dest)
         st = os.stat(source)
         os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
@@ -196,11 +201,34 @@ def versionedLibLinks(dest, source, env):
     if version != None:
         # libname includes the version number if one was given
         linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
-        for linkname in linknames:
-            if Verbose:
-                print "make link of %s to %s" %(libname, os.path.join(install_dir, linkname))
+        if Verbose:
+            print "versionedLibLinks: linknames ",linknames
+        # Here we just need the file name w/o path as the target of the link
+        lib_ver = libname
+        # make symlink of adjacent names in linknames
+        for count in range(len(linknames)):
+            linkname = linknames[count]
             fulllinkname = os.path.join(install_dir, linkname)
-            os.symlink(libname,fulllinkname)
+            if Verbose:
+                print "full link name ",fulllinkname
+            if count > 0:
+                try:
+                    os.remove(lastlinkname)
+                except:
+                    pass
+                os.symlink(os.path.basename(fulllinkname),lastlinkname)
+                if Verbose:
+                    print "versionedLibLinks: made sym link of %s -> %s" % (lastlinkname,os.path.basename(fulllinkname))
+            lastlinkname = fulllinkname
+        # finish chain of sym links with link to the actual library
+        if len(linknames)>0:
+            try:
+                os.remove(lastlinkname)
+            except:
+                pass
+            os.symlink(lib_ver,lastlinkname)
+            if Verbose:
+                print "versionedLibLinks: made sym link of %s -> %s" % (lib_ver,lastlinkname)
     return
 
 def installFunc(target, source, env):
@@ -269,6 +297,8 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     global _INSTALLED_FILES, _UNIQUE_INSTALLED_FILES
     Verbose = False
     _INSTALLED_FILES.extend(target)
+    if Verbose:
+        print "ver lib emitter ",repr(target)
 
     # see if we have a versioned shared library, if so generate side effects
     version, libname, install_dir = versionedLibVersion(target[0].path, env)
@@ -281,6 +311,9 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
             fulllinkname = os.path.join(install_dir, linkname)
             env.SideEffect(fulllinkname,target[0])
             env.Clean(target[0],fulllinkname)
+            _INSTALLED_FILES.append(fulllinkname)
+            if Verbose:
+                print "installed list ", _INSTALLED_FILES
         
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)

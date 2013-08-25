@@ -337,15 +337,23 @@ symlinks for the platform we are on"""
         for count in range(len(linknames)):
             linkname = linknames[count]
             if count > 0:
-                os.symlink(os.path.basename(linkname),lastname)
+                try:
+                    os.remove(lastlinkname)
+                except:
+                    pass
+                os.symlink(os.path.basename(linkname),lastlinkname)
                 if Verbose:
-                    print "VerShLib: made sym link of %s -> %s" % (lastname,linkname)
-            lastname = linkname
+                    print "VerShLib: made sym link of %s -> %s" % (lastlinkname,linkname)
+            lastlinkname = linkname
         # finish chain of sym links with link to the actual library
         if len(linknames)>0:
-            os.symlink(lib_ver,lastname)
+            try:
+                os.remove(lastlinkname)
+            except:
+                pass
+            os.symlink(lib_ver,lastlinkname)
             if Verbose:
-                print "VerShLib: made sym link of %s -> %s" % (lib_ver,linkname)
+                print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
     return result
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)

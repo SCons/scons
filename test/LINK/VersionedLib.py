@@ -135,6 +135,19 @@ for f in files:
 for f in instfiles:
     test.must_exist(['installtest', f])
 
+# modify test.c and make sure it can recompile when links already exist
+test.write('test.c', """\
+#if _WIN32
+__declspec(dllexport)
+#endif
+int testlib(int n)
+{
+return n+11 ;
+}
+""")
+
+test.run()
+
 test.run(arguments = '-c')
 
 for f in files:
