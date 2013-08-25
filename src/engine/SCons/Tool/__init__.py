@@ -733,6 +733,14 @@ def tool_list(platform, env):
         assemblers = ['as']
         fortran_compilers = ['gfortran', 'f95', 'f90', 'g77']
         ars = ['ar']
+    elif str(platform) == 'cygwin':
+        "prefer GNU tools on Cygwin, except for a platform-specific linker"
+        linkers = ['cyglink', 'mslink', 'ilink']
+        c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'c++']
+        assemblers = ['gas', 'nasm', 'masm']
+        fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
+        ars = ['ar', 'mslib']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']

@@ -6,8 +6,20 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From David Rothenberger:
+    - Added cyglink linker that uses Cygwin naming conventions for
+      shared libraries and automatically generates import libraries.
+
+  From Dirk Baechle:
+    - Update bootstrap.py so it can be used from any dir, to run
+      SCons from a source (non-installed) dir.
+
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.
+
+  From Anatoly Techtonik:
+    - require rpmbuild when building SCons package.
+    - print full stack on certain errors, for debugging.
 
   From William Deegan:
     - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
