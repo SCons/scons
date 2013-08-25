@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="744.09448"
+   height="1052.3622"
+   id="svg2">
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <g
+       transform="matrix(0.07552694,0,0,0.07552694,91.773975,249.13616)"
+       id="g3772"
+       style="fill:none;stroke-width:0.025in">
+      <rect
+         width="1500"
+         height="600"
+         rx="0"
+         x="1200"
+         y="3000"
+         id="rect3774"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="1200"
+         height="600"
+         rx="0"
+         x="3300"
+         y="4200"
+         id="rect3776"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="1200"
+         height="600"
+         rx="0"
+         x="5100"
+         y="4200"
+         id="rect3778"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="1200"
+         height="600"
+         rx="0"
+         x="4200"
+         y="3000"
+         id="rect3780"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polygon
+         points="2775,3260 2700,3300 2700,3300 2775,3340 2850,3300 "
+         id="polygon3782"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polygon
+         points="4800,3600 4800,3600 4725,3750 4875,3750 "
+         id="polygon3784"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polyline
+         id="polyline3786"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="3900,4200 3900,3900 5700,3900 5700,4200 " />
+      <polyline
+         id="polyline3788"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="4800,3750 4800,3900 " />
+      <polyline
+         id="polyline3790"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="2850,3300 4080,3300 " />
+      <polygon
+         points="4079,3330 4079,3330 4199,3300 4079,3270 "
+         id="polygon3792"
+         style="fill:#000000;stroke:#000000;stroke-width:7;stroke-miterlimit:8" />
+      <polyline
+         id="polyline3794"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:40, 40"
+         points="1950,3000 1950,2700 " />
+      <polyline
+         id="polyline3796"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:40, 40"
+         points="4800,3000 4800,2700 " />
+      <text
+         x="1950"
+         y="3375"
+         id="text3798"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Times">Taskmaster</text>
+      <text
+         x="3900"
+         y="4575"
+         id="text3800"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Times">MD5</text>
+      <text
+         x="5700"
+         y="4575"
+         id="text3802"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Times">TStamp</text>
+      <text
+         x="4800"
+         y="3375"
+         id="text3804"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Times">Sig</text>
+    </g>
+  </g>
+</svg>

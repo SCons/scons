@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+if [ "$1" = "configure" ]; then
+	if [ -d /usr/doc -a ! -e /usr/doc/scons -a -d /usr/share/doc/scons ]; then
+		ln -sf ../share/doc/scons /usr/doc/scons
+	fi
+fi
+
+NAME=scons
+PYTHON_VERSION=`python -V 2>&1| cut -d" " -f2 | cut -d"." -f1-2`
+PYTHON_EXE_NAME=`which python$PYTHON_VERSION`
+case "$1" in
+        configure|abort-upgrade|abort-remove|abort-deconfigure)
+                dpkg --listfiles $NAME | grep '\.py$' | \
+                     xargs -n 1 $PYTHON_EXE_NAME -c 'import py_compile,sys;py_compile.compile(sys.argv[1])'
+                dpkg --listfiles $NAME | grep '\.py$' | \
+                     xargs -n 1 $PYTHON_EXE_NAME -O -c 'import py_compile,sys;py_compile.compile(sys.argv[1])'
+        ;;
+esac

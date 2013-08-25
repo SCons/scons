@@ -1,0 +1,299 @@
+/*
+ * MANIFEST: use of SCons in project config file to build itself
+ *
+ * SCons has a Repository feature, introduced in SCons 0.09, that was
+ * designed to work well with Aegis.
+ */
+
+/*
+ * The build_command field of the project config file is used to invoke
+ * the relevant build command.  This command tells SCons where to find
+ * the rules.
+ *
+ * Our chicken-and-egg dilemma is this: we want to use the version of
+ * SCons under development in an Aegis change to build itself.  But the
+ * pieces of SCons are likely only partly in this change, and partly in
+ * baselines.
+ *
+ * Python only imports things on a module-by-module basis--which is to
+ * say, once it finds __init__.py in a given directory, it assumes that
+ * all other files in that module are in the same directory.  But that's
+ * not the way Aegis works, because if a file hasn't changed on the
+ * branch, it will only be in its parent's baseline directory.
+ *
+ * Aegis' mechanism for working around this sort of problem is to make
+ * symlinks to the proper baseline versions of each file, which makes
+ * it look like everything is in the local tree.  That's unattractive,
+ * though, because we really want to eat our own dog food and use the
+ * SCons -Y options to pull things from the baseline repositories.
+ *
+ * So our solution (suggested by Anthony Roach) is a bootstrap.py script
+ * that does some Aegis-like searching through the baseline directories
+ * and makes a bootstrap copy of the version of SCons under development
+ * that we can use for building.  After it makes this copy of SCons, it
+ * executes it with the same command-line arguments we supplied (and
+ * setting $SCONS_LIB_DIR to the right directory) so we can use it
+ * here with command-line options as if it were SCons itself.  (Note,
+ * however, that bootstrap.py only understands the specific command-line
+ * options already in use here, so if you change the call below to add
+ * some other SCons options, you may have to modify bootstrap.py to
+ * recognize them.
+ *
+ * The ${Source bootstrap.py} substitution finds bootstrap.py wherever
+ * it may be in the Aegis baselines.
+ *
+ * The long -Y${SUBSTitute...} substitution takes the Aegis baseline
+ * search path and turns it into the right -Y command-line options for
+ * SCons.
+ *
+ * The rest of the substitutions (${DEVeloper}, etc.) should be obvious.
+ *
+ * Look in aesub(5) for more information about command substitutions.
+ */
+build_command = "python2.1 ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+
+/*
+ * SCons removes its targets before constructing them, which qualifies it
+ * for the following entry in the config file.  The files must be removed
+ * first, otherwise the baseline would cease to be self-consistent.
+ */
+
+link_integration_directory = true;
+
+/*
+ * This is set temporarily to allow us to build using the SCons
+ * currently checked in to the src directory.
+create_symlinks_before_build = true;
+ */
+
+/*
+ *	aegis - project change supervisor
+ *	This file is in the Public Domain, 1995, 1998 Peter Miller.
+ *
+ * MANIFEST: example of using rcs in the project config file
+ *
+ * The entries for the commands are listed below.  RCS uses a slightly
+ * different model than aegis wants, so some maneuvering is required.
+ * The command strings in this section assume that the RCS commands ci and co
+ * and rcs and rlog are in the command search PATH, but you may like to
+ * hard-wire the paths, or set PATH at the start of each.  You should also note
+ * that the strings are always handed to the Bourne shell to be executed, and
+ * are set to exit with an error immediately a sub-command fails.
+ *
+ * In these commands, the RCS file is kept unlocked, since only the owner will
+ * be checking changes in.  The RCS functionality for coordinating shared
+ * access is not required.
+ *
+ * One advantage of using RCS version 5.6 or later is that binary files are
+ * supported, should you want to have binary files in the baseline.
+ *
+ * The ${quote ...} construct is used to quote filenames which contain
+ * shell special characters.  A minimum of quoting is performed, so if
+ * the filenames do not contail shell special characters, no quotes will
+ * be used.
+ */
+
+/*
+ * This command is used to create a new file history.
+ * This command is always executed as the project owner.
+ * The following substitutions are available:
+ *
+ * ${Input}
+ *	absolute path of the source file
+ * ${History}
+ *	absolute path of the history file
+ *
+ * The "ci -f" option is used to specify that a copy is to be checked-in even
+ *	if there are no changes.
+ * The "ci -u" option is used to specify that an unlocked copy will remain in
+ *	the baseline.
+ * The "ci -d" option is used to specify that the file time rather than the
+ *	current time is to be used for the new revision.
+ * The "ci -M" option is used to specify that the mode date on the original
+ *	file is not to be altered.
+ * The "ci -t" option is used to specify that there is to be no description
+ *	text for the new RCS file.
+ * The "ci -m" option is used to specify that the change number is to be stored
+ *	in the file log if this is actually an update (typically from aenf
+ *	after aerm on the same file name).
+ * The "rcs -U" option is used to specify that the new RCS file is to have
+ *	unstrict locking.
+ * The "rcs -kk" option is used to specify that keyword substitution is
+ *	disabled (only keyword names, not values, are substituted).
+ */
+history_create_command =
+	"ci -f -u -d -M -m$c -t/dev/null ${quote $input} ${quote $history,v}; \
+rcs -kk -U ${quote $history,v}";
+
+
+/*
+ * This command is used to get a specific edit back from history.
+ * This command is always executed as the project owner.
+ * The following substitutions are available:
+ *
+ * ${History}
+ *	absolute path of the history file
+ * ${Edit}
+ *	edit number, as given by history_\%query_\%command
+ * ${Output}
+ *	absolute path of the destination file
+ *
+ * The "co -r" option is used to specify the edit to be retrieved.
+ * The "co -p" option is used to specify that the results be printed on the
+ *	standard output; this is because the destination filename will never
+ *	look anything like the history source filename.
+ * The "rcs -kk" option is used to specify that keyword substitution is
+ *	disabled (only keyword names, not values, are substituted).
+ */
+history_get_command =
+	"co -kk -r${quote $edit} -p ${quote $history,v} > ${quote $output}";
+
+/*
+ * This command is used to add a new "top-most" entry to the history file.
+ * This command is always executed as the project owner.
+ * The following substitutions are available:
+ *
+ * ${Input}
+ *	absolute path of source file
+ * ${History}
+ *	absolute path of history file
+ *
+ * The "ci -f" option is used to specify that a copy is to be checked-in even
+ *	if there are no changes.
+ * The "ci -u" option is used to specify that an unlocked copy will remain in
+ *	the baseline.
+ * The "ci -d" option is used to specify that the file time rather than the
+ *	current time is to be used for the new revision.
+ * The "ci -M" option is used to specify that the mode date on the original
+ *	file is not to be altered.
+ * The "ci -m" option is used to specify that the change number is to be stored
+ *	in the file log, which allows rlog to be used to find the change
+ *	numbers to which each revision of the file corresponds.
+ *
+ * It is possible for a a very cautious approach has been taken, in which case
+ * the history_put_command may be set to the same string specified above for
+ * the history_create_command.
+ */
+history_put_command =
+	"ci -f -u -d -M -m$c ${quote $input} ${quote $history,v}";
+
+/*
+ * This command is used to query what the history mechanism calls the top-most
+ * edit of a history file.  The result may be any arbitrary string, it need not
+ * be anything like a number, just so long as it uniquely identifies the edit
+ * for use by the history_get_command at a later date.  The edit number is to
+ * be printed on the standard output.  This command is always executed as the
+ * project owner.
+ *
+ * The following substitutions are available:
+ *
+ * ${History}
+ *	absolute path of the history file
+ */
+history_query_command =
+	"rlog -r ${quote $history,v} | awk '/^head:/ {print $$2}'";
+
+/*
+ * RCS also provides a merge program, which can be used to provide a three-way
+ * merge.  It has an ouput format some sites prefer to the fmerge output.
+ *
+ * This command is used by aed(1) to produce a difference listing when a file
+ * in the development directory is out of date compared to the current version
+ * in the baseline.
+ *
+ * All of the command substitutions described in aesub(5) are available.
+ * In addition, the following substitutions are also available:
+ *
+ * ${ORiginal}
+ *	The absolute path name of a file containing the common ancestor
+ *	version of ${MostRecent} and {$Input}.  Usually the version originally
+ *	copied into the change.  Usually in a temporary file.
+ * ${Most_Recent}
+ *	The absolute path name of a file containing the most recent version.
+ *	Usually in the baseline.
+ * ${Input}
+ *	The absolute path name of the edited version of the file.  Usually in
+ *	the development directory.
+ * ${Output}
+ *	The absolute path name of the file in which to write the difference
+ *	listing.  Usually in the development directory.
+ *
+ * An exit status of 0 means successful, even of the files differ (and they
+ * usually do).  An exit status which is non-zero means something is wrong.
+ *
+ * The "merge -L" options are used to specify labels for the baseline and the
+ *	development directory, respecticvely, when conflict lines are inserted
+ *	into the result.
+ * The "merge -p" options is used to specify that the results are to be printed
+ *	on the standard output.
+ */
+
+diff3_command =
+	"set +e; \
+merge -p -L baseline -L C$c ${quote $mostrecent} ${quote $original} \
+${quote $input} > ${quote $output}; \
+test $? -le 1";
+
+/*
+ * The diff command in Red Hat 8.0 changed the exit status so it *fails*
+ * when *it* thinks it's trying to diff a binary (non-ASCII-text) file.
+ * The -a option disables this behavior and makes diff's exit status
+ * behave like it used to, even on any binary files we have checked in.
+ */
+
+diff_command =
+	"set +e; \
+	diff -a -c ${quote $original} ${quote $input} > ${quote $output}; \
+	test $? -le 1";
+
+/*
+ * We use a runtest.py script to execute tests.  This takes care of
+ * massaging environment variables and the like to test against the
+ * unpacked package in the current directory.
+ *
+ * Note that we must include $spe in the batch_test_command line (so
+ * that Aegis thinks we're smart about testing ourselves against the
+ * baseline) but we don't actually need it.  Our tests always run
+ * relative to the package built under the current directory, which
+ * is set appropriately during a baseline test.  So we just use the
+ * proper aesub variable to comment out the expanded $spe.
+ */
+test_command = "python1.5 ${Source runtest.py Absolute} --noqmtest -p tar-gz -t -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q --sp ${Search_Path} --spe ${Search_Path_Executable} ${File_Name}";
+
+batch_test_command = "python1.5 ${Source runtest.py Absolute} --noqmtest -p tar-gz -t -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} --aegis  --sp ${Search_Path} --spe ${Search_Path_Executable} ${File_Names}";
+
+new_test_filename = "test/CHANGETHIS.py";
+
+/*
+ *
+ */
+file_template =
+[
+	{
+		pattern = [ "src/engine/*__init__.py" ];
+		body = "${read_file ${source template/__init__.py abs}}";
+	},
+	{
+		pattern = [ "src/engine/*Tests.py" ];
+		body = "${read_file ${source template/Tests.py abs}}";
+	},
+	{
+		pattern = [ "src/engine/*.py" ];
+		body = "${read_file ${source template/file.py abs}}";
+	},
+	{
+		pattern = [ "test/*.py" ];
+		body = "${read_file ${source template/test.py abs}}";
+	},
+];
+
+/*
+ * Command for distributing changes from Aegis to all of the repositories
+ * we want to mirror the information.
+ *
+ * XXX Uncomment after upgrading to an Aegis version that supports this.
+
+integrate_pass_notify_command =
+        "$sh ${s bin/scons-cdist} -p $project $change";
+ *
+ */

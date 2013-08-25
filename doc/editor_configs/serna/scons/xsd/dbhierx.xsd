@@ -1,0 +1,2186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- .............................................................................. -->
+<!-- SCons DocBook V4.5-Based extension V1.0 XML document hierarchy module V4.5 ... -->
+<!-- File dbhierx.xsd ............................................................. -->
+<!-- Copyright (c) 2001-7,2010,2011,2012 The SCons Foundation
+
+     Permission is hereby granted, free of charge, to any person obtaining
+     a copy of this software and associated documentation files (the
+     "Software"), to deal in the Software without restriction, including
+     without limitation the rights to use, copy, modify, merge, publish,
+     distribute, sublicense, and/or sell copies of the Software, and to
+     permit persons to whom the Software is furnished to do so, subject to
+     the following conditions:
+
+     The above copyright notice and this permission notice shall be included
+     in all copies or substantial portions of the Software.
+
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+     This DTD extension is based on the DocBook document hierarchy
+     module V4.5 with:
+     
+        Copyright 1992-2004 HaL Computer Systems, Inc.,
+        O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+        Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+        Organization for the Advancement of Structured Information
+        Standards (OASIS).
+  
+        $Id: dbhierx.mod 6340 2006-10-03 13:23:24Z nwalsh $
+
+     Please direct all questions, bug reports, or suggestions for
+     changes to the docbook@lists.oasis-open.org mailing list. For more
+     information, see http://www.oasis-open.org/docbook/.
+     For the modified SCons extension files
+     
+        scons.xsd, dbpoolx.xsd, 
+
+     you can write to its developer mailing list. Check out 
+     http://www.scons.org/ and http://www.scons.org/lists.php.
+ 
+-->
+<!-- ...................................................................... -->
+<!--
+  This module contains the definitions for the overall document
+  hierarchies of DocBook documents.  It covers computer documentation
+  manuals and manual fragments, as well as reference entries (such as
+  man pages) and technical journals or anthologies containing
+  articles.
+  
+  This module depends on the DocBook information pool module.  All
+  elements and entities referenced but not defined here are assumed
+  to be defined in the information pool module.
+  
+  In DTD driver files referring to this module, please use an entity
+  declaration that uses the public identifier shown below:
+  
+  <!ENTITY % dbhier PUBLIC
+  "-//OASIS//ELEMENTS DocBook Document Hierarchy V4.5//EN"
+  "dbhierx.mod">
+  %dbhier;
+  
+  See the documentation for detailed information on the parameter
+  entity and module scheme used in DocBook, customizing DocBook and
+  planning for interchange, and changes made since the last release
+  of DocBook.
+-->
+<!-- ...................................................................... -->
+<!-- Entities for module inclusions ....................................... -->
+<!-- ...................................................................... -->
+<!-- Entities for element classes ......................................... -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xs:element name="appendix.class" abstract="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:element minOccurs="0" ref="appendixinfo"/>
+        <xs:group ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:element minOccurs="0" ref="tocchap"/>
+        <xs:group ref="bookcomponent.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="appendix.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="article.class" abstract="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="div.title.content"/>
+        <xs:element minOccurs="0" ref="articleinfo"/>
+        <xs:element minOccurs="0" ref="tocchap"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lot"/>
+        <xs:group ref="bookcomponent.content"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:group ref="nav.class"/>
+          <xs:element ref="appendix.class"/>
+          <xs:element ref="colophon"/>
+          <xs:element ref="ackno"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="article.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="book.class" abstract="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="div.title.content"/>
+        <xs:element minOccurs="0" ref="bookinfo"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="dedication"/>
+          <xs:element ref="toc"/>
+          <xs:element ref="lot"/>
+          <xs:element ref="glossary"/>
+          <xs:element ref="bibliography"/>
+          <xs:element ref="preface"/>
+          <xs:element ref="chapter.class"/>
+          <xs:element ref="reference"/>
+          <xs:element ref="part"/>
+          <xs:element ref="article.class"/>
+          <xs:element ref="appendix.class"/>
+          <xs:group ref="index.class"/>
+          <xs:element ref="colophon"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="book.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="chapter.class" abstract="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:element minOccurs="0" ref="chapterinfo"/>
+        <xs:group ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:element minOccurs="0" ref="tocchap"/>
+        <xs:group ref="bookcomponent.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="chapter.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="index.class">
+    <xs:choice>
+      <xs:element ref="index"/>
+      <xs:element ref="setindex"/>
+    </xs:choice>
+  </xs:group>
+  <xs:element name="refentry.class" abstract="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ndxterm.class"/>
+        <xs:element minOccurs="0" ref="refentryinfo"/>
+        <xs:element minOccurs="0" ref="refmeta"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="remark"/>
+          <xs:element ref="link.char.class"/>
+        </xs:choice>
+        <xs:element maxOccurs="unbounded" ref="refnamediv"/>
+        <xs:element minOccurs="0" ref="refsynopsisdiv"/>
+        <xs:choice>
+          <xs:element maxOccurs="unbounded" ref="refsect1"/>
+          <xs:element maxOccurs="unbounded" ref="refsection"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="refentry.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section.class" abstract="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sectioninfo"/>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+            <xs:choice>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="section.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element maxOccurs="unbounded" ref="section.class"/>
+          <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="section.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="nav.class">
+    <xs:choice>
+      <xs:element ref="toc"/>
+      <xs:element ref="lot"/>
+      <xs:element ref="index"/>
+      <xs:element ref="glossary"/>
+      <xs:element ref="bibliography"/>
+    </xs:choice>
+  </xs:group>
+  <!-- Redeclaration placeholder ............................................ -->
+  <!--
+    For redeclaring entities that are declared after this point while
+    retaining their references to the entities that are declared before
+    this point
+  -->
+  <!-- ...................................................................... -->
+  <!-- Entities for element mixtures ........................................ -->
+  <xs:group name="divcomponent.mix">
+    <xs:choice>
+      <xs:element ref="list.class"/>
+      <xs:element ref="admon.class"/>
+      <xs:element ref="linespecific.class"/>
+      <xs:element ref="synop.class"/>
+      <xs:element ref="para.class"/>
+      <xs:element ref="informal.class"/>
+      <xs:element ref="formal.class"/>
+      <xs:element ref="compound.class"/>
+      <xs:group ref="genobj.class"/>
+      <xs:group ref="descobj.class"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="refcomponent.mix">
+    <xs:choice>
+      <xs:element ref="list.class"/>
+      <xs:element ref="admon.class"/>
+      <xs:element ref="linespecific.class"/>
+      <xs:element ref="synop.class"/>
+      <xs:element ref="para.class"/>
+      <xs:element ref="informal.class"/>
+      <xs:element ref="formal.class"/>
+      <xs:element ref="compound.class"/>
+      <xs:group ref="genobj.class"/>
+      <xs:group ref="descobj.class"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="indexdivcomponent.mix">
+    <xs:choice>
+      <xs:element ref="itemizedlist"/>
+      <xs:element ref="orderedlist"/>
+      <xs:element ref="variablelist"/>
+      <xs:element ref="simplelist"/>
+      <xs:element ref="linespecific.class"/>
+      <xs:element ref="synop.class"/>
+      <xs:element ref="para.class"/>
+      <xs:element ref="informal.class"/>
+      <xs:element ref="anchor"/>
+      <xs:element ref="remark"/>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="refname.char.mix">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="tech.char.class"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="partcontent.mix">
+    <xs:choice>
+      <xs:element ref="appendix.class"/>
+      <xs:element ref="chapter.class"/>
+      <xs:group ref="nav.class"/>
+      <xs:element ref="article.class"/>
+      <xs:element ref="preface"/>
+      <xs:element ref="refentry.class"/>
+      <xs:element ref="reference"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="refinline.char.mix">
+    <xs:sequence>
+      <xs:choice minOccurs="0">
+        <xs:element ref="xref.char.class"/>
+        <xs:element ref="gen.char.class"/>
+        <xs:element ref="link.char.class"/>
+        <xs:element ref="tech.char.class"/>
+        <xs:group ref="base.char.class"/>
+        <xs:element ref="docinfo.char.class"/>
+        <xs:group ref="other.char.class"/>
+        <xs:element ref="ndxterm.class"/>
+        <xs:element ref="beginpage"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="refclass.char.mix">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="application"/>
+    </xs:sequence>
+  </xs:group>
+  <!-- Redeclaration placeholder 2 .......................................... -->
+  <!--
+    For redeclaring entities that are declared after this point while
+    retaining their references to the entities that are declared before
+    this point
+  -->
+  <!-- ...................................................................... -->
+  <!-- Entities for content models .......................................... -->
+  <xs:group name="div.title.content">
+    <xs:sequence>
+      <xs:element ref="title"/>
+      <xs:element minOccurs="0" ref="subtitle"/>
+      <xs:element minOccurs="0" ref="titleabbrev"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="bookcomponent.title.content">
+    <xs:sequence>
+      <xs:element ref="title"/>
+      <xs:element minOccurs="0" ref="subtitle"/>
+      <xs:element minOccurs="0" ref="titleabbrev"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="sect.title.content">
+    <xs:sequence>
+      <xs:element ref="title"/>
+      <xs:element minOccurs="0" ref="subtitle"/>
+      <xs:element minOccurs="0" ref="titleabbrev"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="refsect.title.content">
+    <xs:sequence>
+      <xs:element ref="title"/>
+      <xs:element minOccurs="0" ref="subtitle"/>
+      <xs:element minOccurs="0" ref="titleabbrev"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="bookcomponent.content">
+    <xs:choice>
+      <xs:sequence>
+        <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+        <xs:choice>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="sect1"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="section.class"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:choice>
+        <xs:element maxOccurs="unbounded" ref="sect1"/>
+        <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+        <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        <xs:element maxOccurs="unbounded" ref="section.class"/>
+      </xs:choice>
+    </xs:choice>
+  </xs:group>
+  <!-- ...................................................................... -->
+  <!-- Set and SetInfo ...................................................... -->
+  <xs:attributeGroup name="set.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A collection of books. -->
+  <xs:element name="set">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="div.title.content"/>
+        <xs:element minOccurs="0" ref="setinfo"/>
+        <xs:element minOccurs="0" ref="toc"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="set"/>
+          <xs:element ref="book.class"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="setindex"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="set.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of set.element -->
+  <!-- FPI: SGML formal public identifier -->
+  <xs:attributeGroup name="set.attlist">
+    <xs:attribute name="fpi"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="set.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of set.attlist -->
+  <!-- end of set.module -->
+  <xs:attributeGroup name="setinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Set. -->
+  <xs:element name="setinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="setinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of setinfo.element -->
+  <!--
+    Contents: IDs of the ToC, Books, and SetIndex that comprise
+    the set, in the order of their appearance
+  -->
+  <xs:attributeGroup name="setinfo.attlist">
+    <xs:attribute name="contents" type="xs:IDREFS"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="setinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of setinfo.attlist -->
+  <!-- end of setinfo.module -->
+  <!-- end of set.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Book and BookInfo .................................................... -->
+  <xs:attributeGroup name="book.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A book. -->
+  <xs:element name="book" substitutionGroup="book.class"/>
+  <!-- end of book.element -->
+  <!-- FPI: SGML formal public identifier -->
+  <xs:attributeGroup name="book.attlist">
+    <xs:attribute name="fpi"/>
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="book.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of book.attlist -->
+  <!-- end of book.module -->
+  <xs:attributeGroup name="bookinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Book. -->
+  <xs:element name="bookinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="bookinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of bookinfo.element -->
+  <!--
+    Contents: IDs of the ToC, LoTs, Prefaces, Parts, Chapters,
+    Appendixes, References, GLossary, Bibliography, and indexes
+    comprising the Book, in the order of their appearance
+  -->
+  <xs:attributeGroup name="bookinfo.attlist">
+    <xs:attribute name="contents" type="xs:IDREFS"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="bookinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of bookinfo.attlist -->
+  <!-- end of bookinfo.module -->
+  <!-- end of book.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Dedication, ToC, and LoT ............................................. -->
+  <xs:attributeGroup name="dedication.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A wrapper for the dedication section of a book. -->
+  <xs:element name="dedication">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="sect.title.content"/>
+        <xs:group maxOccurs="unbounded" ref="legalnotice.mix"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="dedication.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of dedication.element -->
+  <xs:attributeGroup name="dedication.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="dedication.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of dedication.attlist -->
+  <!-- end of dedication.module -->
+  <xs:attributeGroup name="colophon.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Text at the back of a book describing facts about its production. -->
+  <xs:element name="colophon">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="sect.title.content"/>
+        <xs:group maxOccurs="unbounded" ref="textobject.mix"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="colophon.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of colophon.element -->
+  <xs:attributeGroup name="colophon.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="colophon.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of colophon.attlist -->
+  <!-- end of colophon.module -->
+  <xs:attributeGroup name="toc.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A table of contents. -->
+  <xs:element name="toc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:group minOccurs="0" ref="bookcomponent.title.content"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="tocfront"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="tocpart"/>
+          <xs:element ref="tocchap"/>
+        </xs:choice>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="tocback"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="toc.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of toc.element -->
+  <xs:attributeGroup name="toc.attlist">
+    <xs:attributeGroup ref="pagenum.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="toc.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of toc.attlist -->
+  <!-- end of toc.module -->
+  <xs:attributeGroup name="tocfront.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An entry in a table of contents for a front matter component. -->
+  <xs:element name="tocfront">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="para.char.mix"/>
+      <xs:attributeGroup ref="tocfront.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tocfront.element -->
+  <!-- to element that this entry represents -->
+  <xs:attributeGroup name="tocfront.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="linkend.attrib"/>
+    <xs:attributeGroup ref="pagenum.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="tocfront.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of tocfront.attlist -->
+  <!-- end of tocfront.module -->
+  <xs:attributeGroup name="tocentry.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A component title in a table of contents. -->
+  <xs:element name="tocentry">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="para.char.mix"/>
+      <xs:attributeGroup ref="tocentry.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tocentry.element -->
+  <!-- to element that this entry represents -->
+  <xs:attributeGroup name="tocentry.attlist">
+    <xs:attributeGroup ref="linkend.attrib"/>
+    <xs:attributeGroup ref="pagenum.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="tocentry.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of tocentry.attlist -->
+  <!-- end of tocentry.module -->
+  <xs:attributeGroup name="tocpart.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An entry in a table of contents for a part of a book. -->
+  <xs:element name="tocpart">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="tocchap"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="tocpart.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tocpart.element -->
+  <xs:attributeGroup name="tocpart.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="tocpart.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of tocpart.attlist -->
+  <!-- end of tocpart.module -->
+  <xs:attributeGroup name="tocchap.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An entry in a table of contents for a component in the body of a document. -->
+  <xs:element name="tocchap">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="toclevel1"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="tocchap.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tocchap.element -->
+  <xs:attributeGroup name="tocchap.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="tocchap.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of tocchap.attlist -->
+  <!-- end of tocchap.module -->
+  <xs:attributeGroup name="toclevel1.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A top-level entry within a table of contents entry for a chapter-like component. -->
+  <xs:element name="toclevel1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="toclevel2"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="toclevel1.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of toclevel1.element -->
+  <xs:attributeGroup name="toclevel1.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="toclevel1.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of toclevel1.attlist -->
+  <!-- end of toclevel1.module -->
+  <xs:attributeGroup name="toclevel2.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A second-level entry within a table of contents entry for a chapter-like component. -->
+  <xs:element name="toclevel2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="toclevel3"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="toclevel2.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of toclevel2.element -->
+  <xs:attributeGroup name="toclevel2.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="toclevel2.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of toclevel2.attlist -->
+  <!-- end of toclevel2.module -->
+  <xs:attributeGroup name="toclevel3.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A third-level entry within a table of contents entry for a chapter-like component. -->
+  <xs:element name="toclevel3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="toclevel4"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="toclevel3.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of toclevel3.element -->
+  <xs:attributeGroup name="toclevel3.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="toclevel3.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of toclevel3.attlist -->
+  <!-- end of toclevel3.module -->
+  <xs:attributeGroup name="toclevel4.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A fourth-level entry within a table of contents entry for a chapter-like component. -->
+  <xs:element name="toclevel4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="toclevel5"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="toclevel4.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of toclevel4.element -->
+  <xs:attributeGroup name="toclevel4.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="toclevel4.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of toclevel4.attlist -->
+  <!-- end of toclevel4.module -->
+  <xs:attributeGroup name="toclevel5.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A fifth-level entry within a table of contents entry for a chapter-like component. -->
+  <xs:element name="toclevel5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tocentry"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="toclevel5.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of toclevel5.element -->
+  <xs:attributeGroup name="toclevel5.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="toclevel5.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of toclevel5.attlist -->
+  <!-- end of toclevel5.module -->
+  <xs:attributeGroup name="tocback.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An entry in a table of contents for a back matter component. -->
+  <xs:element name="tocback">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="para.char.mix"/>
+      <xs:attributeGroup ref="tocback.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tocback.element -->
+  <!-- to element that this entry represents -->
+  <xs:attributeGroup name="tocback.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="linkend.attrib"/>
+    <xs:attributeGroup ref="pagenum.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="tocback.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of tocback.attlist -->
+  <!-- end of tocback.module -->
+  <!-- end of toc.content.module -->
+  <xs:attributeGroup name="lot.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A list of the titles of formal objects (as tables or figures) in a document. -->
+  <xs:element name="lot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:group minOccurs="0" ref="bookcomponent.title.content"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lotentry"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="lot.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of lot.element -->
+  <xs:attributeGroup name="lot.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="lot.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of lot.attlist -->
+  <!-- end of lot.module -->
+  <xs:attributeGroup name="lotentry.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An entry in a list of titles. -->
+  <xs:element name="lotentry">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="para.char.mix"/>
+      <xs:attributeGroup ref="lotentry.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of lotentry.element -->
+  <!--
+    SrcCredit: Information about the source of the entry,
+    as for a list of illustrations
+  -->
+  <!-- linkend: to element that this entry represents -->
+  <xs:attributeGroup name="lotentry.attlist">
+    <xs:attributeGroup ref="linkend.attrib"/>
+    <xs:attributeGroup ref="pagenum.attrib"/>
+    <xs:attribute name="srccredit"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="lotentry.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of lotentry.attlist -->
+  <!-- end of lotentry.module -->
+  <!-- end of lot.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Appendix, Chapter, Part, Preface, Reference, PartIntro ............... -->
+  <xs:attributeGroup name="appendix.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An appendix in a Book or Article. -->
+  <xs:element name="appendix" substitutionGroup="appendix.class"/>
+  <!-- end of appendix.element -->
+  <xs:attributeGroup name="appendix.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="appendix.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of appendix.attlist -->
+  <!-- end of appendix.module -->
+  <xs:attributeGroup name="chapter.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A chapter, as of a book. -->
+  <xs:element name="chapter" substitutionGroup="chapter.class"/>
+  <!-- end of chapter.element -->
+  <xs:attributeGroup name="chapter.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="chapter.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of chapter.attlist -->
+  <!-- end of chapter.module -->
+  <!--
+    Note that Part was to have its content model reduced in V4.5.  This
+    change will not be made after all.
+  -->
+  <xs:attributeGroup name="part.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A division in a book. -->
+  <xs:element name="part">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:element minOccurs="0" ref="partinfo"/>
+        <xs:group ref="bookcomponent.title.content"/>
+        <xs:element minOccurs="0" ref="partintro"/>
+        <xs:group maxOccurs="unbounded" ref="partcontent.mix"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="part.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of part.element -->
+  <xs:attributeGroup name="part.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="part.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of part.attlist -->
+  <!-- ELEMENT PartIntro (defined below) -->
+  <!-- end of part.module -->
+  <xs:attributeGroup name="preface.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Introductory matter preceding the first chapter of a book. -->
+  <xs:element name="preface">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:element minOccurs="0" ref="prefaceinfo"/>
+        <xs:group ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:element minOccurs="0" ref="tocchap"/>
+        <xs:group ref="bookcomponent.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="preface.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of preface.element -->
+  <xs:attributeGroup name="preface.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="preface.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of preface.attlist -->
+  <!-- end of preface.module -->
+  <xs:attributeGroup name="reference.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A collection of reference entries. -->
+  <xs:element name="reference">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="beginpage"/>
+        <xs:element minOccurs="0" ref="referenceinfo"/>
+        <xs:group ref="bookcomponent.title.content"/>
+        <xs:element minOccurs="0" ref="partintro"/>
+        <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="reference.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of reference.element -->
+  <xs:attributeGroup name="reference.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="reference.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of reference.attlist -->
+  <!-- ELEMENT PartIntro (defined below) -->
+  <!-- end of reference.module -->
+  <xs:attributeGroup name="partintro.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An introduction to the contents of a part. -->
+  <xs:element name="partintro">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="div.title.content"/>
+        <xs:group ref="bookcomponent.content"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="partintro.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of partintro.element -->
+  <xs:attributeGroup name="partintro.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="partintro.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of partintro.attlist -->
+  <!-- end of partintro.module -->
+  <!-- ...................................................................... -->
+  <!-- Other Info elements .................................................. -->
+  <xs:attributeGroup name="appendixinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for an Appendix. -->
+  <xs:element name="appendixinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="appendixinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of appendixinfo.element -->
+  <xs:attributeGroup name="appendixinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="appendixinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of appendixinfo.attlist -->
+  <!-- end of appendixinfo.module -->
+  <xs:attributeGroup name="bibliographyinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Bibliography. -->
+  <xs:element name="bibliographyinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="bibliographyinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of bibliographyinfo.element -->
+  <xs:attributeGroup name="bibliographyinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="bibliographyinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of bibliographyinfo.attlist -->
+  <!-- end of bibliographyinfo.module -->
+  <xs:attributeGroup name="chapterinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Chapter. -->
+  <xs:element name="chapterinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="chapterinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of chapterinfo.element -->
+  <xs:attributeGroup name="chapterinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="chapterinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of chapterinfo.attlist -->
+  <!-- end of chapterinfo.module -->
+  <xs:attributeGroup name="glossaryinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Glossary. -->
+  <xs:element name="glossaryinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="glossaryinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of glossaryinfo.element -->
+  <xs:attributeGroup name="glossaryinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="glossaryinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of glossaryinfo.attlist -->
+  <!-- end of glossaryinfo.module -->
+  <xs:attributeGroup name="indexinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for an Index. -->
+  <xs:element name="indexinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="indexinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of indexinfo.element -->
+  <xs:attributeGroup name="indexinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="indexinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of indexinfo.attlist -->
+  <!-- end of indexinfo.module -->
+  <xs:attributeGroup name="setindexinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a SetIndex. -->
+  <xs:element name="setindexinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="setindexinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of setindexinfo.element -->
+  <xs:attributeGroup name="setindexinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="setindexinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of setindexinfo.attlist -->
+  <!-- end of setindexinfo.module -->
+  <xs:attributeGroup name="partinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Part. -->
+  <xs:element name="partinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="partinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of partinfo.element -->
+  <xs:attributeGroup name="partinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="partinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of partinfo.attlist -->
+  <!-- end of partinfo.module -->
+  <xs:attributeGroup name="prefaceinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Preface. -->
+  <xs:element name="prefaceinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="prefaceinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of prefaceinfo.element -->
+  <xs:attributeGroup name="prefaceinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="prefaceinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of prefaceinfo.attlist -->
+  <!-- end of prefaceinfo.module -->
+  <xs:attributeGroup name="refentryinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Refentry. -->
+  <xs:element name="refentryinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="refentryinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refentryinfo.element -->
+  <xs:attributeGroup name="refentryinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refentryinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refentryinfo.attlist -->
+  <!-- end of refentryinfo.module -->
+  <xs:attributeGroup name="refsectioninfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a refsection. -->
+  <xs:element name="refsectioninfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="refsectioninfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsectioninfo.element -->
+  <xs:attributeGroup name="refsectioninfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsectioninfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsectioninfo.attlist -->
+  <!-- end of refsectioninfo.module -->
+  <xs:attributeGroup name="refsect1info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a RefSect1. -->
+  <xs:element name="refsect1info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="refsect1info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsect1info.element -->
+  <xs:attributeGroup name="refsect1info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsect1info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsect1info.attlist -->
+  <!-- end of refsect1info.module -->
+  <xs:attributeGroup name="refsect2info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a RefSect2. -->
+  <xs:element name="refsect2info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="refsect2info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsect2info.element -->
+  <xs:attributeGroup name="refsect2info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsect2info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsect2info.attlist -->
+  <!-- end of refsect2info.module -->
+  <xs:attributeGroup name="refsect3info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a RefSect3. -->
+  <xs:element name="refsect3info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="refsect3info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsect3info.element -->
+  <xs:attributeGroup name="refsect3info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsect3info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsect3info.attlist -->
+  <!-- end of refsect3info.module -->
+  <xs:attributeGroup name="refsynopsisdivinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a RefSynopsisDiv. -->
+  <xs:element name="refsynopsisdivinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="refsynopsisdivinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsynopsisdivinfo.element -->
+  <xs:attributeGroup name="refsynopsisdivinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsynopsisdivinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsynopsisdivinfo.attlist -->
+  <!-- end of refsynopsisdivinfo.module -->
+  <xs:attributeGroup name="referenceinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Reference. -->
+  <xs:element name="referenceinfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="referenceinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of referenceinfo.element -->
+  <xs:attributeGroup name="referenceinfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="referenceinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of referenceinfo.attlist -->
+  <!-- end of referenceinfo.module -->
+  <xs:attributeGroup name="sect1info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Sect1. -->
+  <xs:element name="sect1info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="sect1info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect1info.element -->
+  <xs:attributeGroup name="sect1info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect1info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect1info.attlist -->
+  <xs:attributeGroup name="sect2info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Sect2. -->
+  <xs:element name="sect2info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="sect2info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect2info.element -->
+  <xs:attributeGroup name="sect2info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect2info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect2info.attlist -->
+  <xs:attributeGroup name="sect3info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Sect3. -->
+  <xs:element name="sect3info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="sect3info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect3info.element -->
+  <xs:attributeGroup name="sect3info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect3info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect3info.attlist -->
+  <xs:attributeGroup name="sect4info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Sect4. -->
+  <xs:element name="sect4info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="sect4info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect4info.element -->
+  <xs:attributeGroup name="sect4info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect4info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect4info.attlist -->
+  <xs:attributeGroup name="sect5info.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a Sect5. -->
+  <xs:element name="sect5info">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="sect5info.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect5info.element -->
+  <xs:attributeGroup name="sect5info.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect5info.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect5info.attlist -->
+  <!-- ...................................................................... -->
+  <!-- Section (parallel to Sect*) ......................................... -->
+  <xs:attributeGroup name="section.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A recursive section. -->
+  <xs:element name="section" substitutionGroup="section.class"/>
+  <!-- end of section.element -->
+  <xs:attributeGroup name="section.attlist">
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="section.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of section.attlist -->
+  <!-- end of section.module -->
+  <xs:attributeGroup name="sectioninfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a recursive section. -->
+  <xs:element name="sectioninfo">
+    <xs:complexType>
+      <xs:group maxOccurs="unbounded" ref="info.class"/>
+      <xs:attributeGroup ref="sectioninfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sectioninfo.element -->
+  <xs:attributeGroup name="sectioninfo.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sectioninfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sectioninfo.attlist -->
+  <!-- end of sectioninfo.module -->
+  <!-- end of section.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Sect1, Sect2, Sect3, Sect4, Sect5 .................................... -->
+  <xs:attributeGroup name="sect1.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A top-level section of document. -->
+  <xs:element name="sect1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sect1info"/>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+            <xs:choice>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="sect2"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element maxOccurs="unbounded" ref="sect2"/>
+          <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="sect1.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect1.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <xs:attributeGroup name="sect1.attlist">
+    <xs:attribute name="renderas">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="sect2"/>
+          <xs:enumeration value="sect3"/>
+          <xs:enumeration value="sect4"/>
+          <xs:enumeration value="sect5"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect1.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect1.attlist -->
+  <!-- end of sect1.module -->
+  <xs:attributeGroup name="sect2.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A subsection within a Sect1. -->
+  <xs:element name="sect2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sect2info"/>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+            <xs:choice>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="sect3"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element maxOccurs="unbounded" ref="sect3"/>
+          <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="sect2.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect2.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <xs:attributeGroup name="sect2.attlist">
+    <xs:attribute name="renderas">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="sect1"/>
+          <xs:enumeration value="sect3"/>
+          <xs:enumeration value="sect4"/>
+          <xs:enumeration value="sect5"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect2.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect2.attlist -->
+  <!-- end of sect2.module -->
+  <xs:attributeGroup name="sect3.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A subsection within a Sect2. -->
+  <xs:element name="sect3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sect3info"/>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+            <xs:choice>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="sect4"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element maxOccurs="unbounded" ref="sect4"/>
+          <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="sect3.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect3.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <xs:attributeGroup name="sect3.attlist">
+    <xs:attribute name="renderas">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="sect1"/>
+          <xs:enumeration value="sect2"/>
+          <xs:enumeration value="sect4"/>
+          <xs:enumeration value="sect5"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect3.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect3.attlist -->
+  <!-- end of sect3.module -->
+  <xs:attributeGroup name="sect4.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A subsection within a Sect3. -->
+  <xs:element name="sect4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sect4info"/>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+            <xs:choice>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="sect5"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element maxOccurs="unbounded" ref="sect5"/>
+          <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="sect4.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect4.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <xs:attributeGroup name="sect4.attlist">
+    <xs:attribute name="renderas">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="sect1"/>
+          <xs:enumeration value="sect2"/>
+          <xs:enumeration value="sect3"/>
+          <xs:enumeration value="sect5"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect4.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect4.attlist -->
+  <!-- end of sect4.module -->
+  <xs:attributeGroup name="sect5.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A subsection within a Sect4. -->
+  <xs:element name="sect5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sect5info"/>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+            <xs:choice>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="refentry.class"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="simplesect"/>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refentry.class"/>
+          <xs:element maxOccurs="unbounded" ref="simplesect"/>
+        </xs:choice>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="nav.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="sect5.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sect5.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <xs:attributeGroup name="sect5.attlist">
+    <xs:attribute name="renderas">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="sect1"/>
+          <xs:enumeration value="sect2"/>
+          <xs:enumeration value="sect3"/>
+          <xs:enumeration value="sect4"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="label.attrib"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sect5.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sect5.attlist -->
+  <!-- end of sect5.module -->
+  <xs:attributeGroup name="simplesect.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A section of a document with no subdivisions. -->
+  <xs:element name="simplesect">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="sect.title.content"/>
+        <xs:group maxOccurs="unbounded" ref="divcomponent.mix"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="simplesect.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of simplesect.element -->
+  <xs:attributeGroup name="simplesect.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="simplesect.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of simplesect.attlist -->
+  <!-- end of simplesect.module -->
+  <!-- ...................................................................... -->
+  <!-- Bibliography ......................................................... -->
+  <xs:attributeGroup name="bibliography.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A bibliography. -->
+  <xs:element name="bibliography">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="bibliographyinfo"/>
+        <xs:group minOccurs="0" ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="component.mix"/>
+        <xs:choice>
+          <xs:element maxOccurs="unbounded" ref="bibliodiv"/>
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="biblioentry"/>
+            <xs:element ref="bibliomixed"/>
+          </xs:choice>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="bibliography.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of bibliography.element -->
+  <xs:attributeGroup name="bibliography.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="bibliography.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of bibliography.attlist -->
+  <!-- end of bibliography.module -->
+  <xs:attributeGroup name="bibliodiv.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A section of a Bibliography. -->
+  <xs:element name="bibliodiv">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="component.mix"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="biblioentry"/>
+          <xs:element ref="bibliomixed"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="bibliodiv.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of bibliodiv.element -->
+  <xs:attributeGroup name="bibliodiv.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="bibliodiv.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of bibliodiv.attlist -->
+  <!-- end of bibliodiv.module -->
+  <!-- end of bibliography.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Glossary ............................................................. -->
+  <xs:attributeGroup name="glossary.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A glossary. -->
+  <xs:element name="glossary">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="glossaryinfo"/>
+        <xs:group minOccurs="0" ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="component.mix"/>
+        <xs:choice>
+          <xs:element maxOccurs="unbounded" ref="glossdiv"/>
+          <xs:element maxOccurs="unbounded" ref="glossentry"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="bibliography"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="glossary.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of glossary.element -->
+  <xs:attributeGroup name="glossary.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="glossary.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of glossary.attlist -->
+  <!-- end of glossary.module -->
+  <xs:attributeGroup name="glossdiv.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A division in a Glossary. -->
+  <xs:element name="glossdiv">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="sect.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="component.mix"/>
+        <xs:element maxOccurs="unbounded" ref="glossentry"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="glossdiv.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of glossdiv.element -->
+  <xs:attributeGroup name="glossdiv.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="glossdiv.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of glossdiv.attlist -->
+  <!-- end of glossdiv.module -->
+  <!-- end of glossary.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Index and SetIndex ................................................... -->
+  <xs:attributeGroup name="indexes.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An index. -->
+  <xs:element name="index">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="indexinfo"/>
+        <xs:group minOccurs="0" ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="component.mix"/>
+        <xs:choice>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="indexdiv"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="indexentry"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="index.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of index.element -->
+  <xs:attributeGroup name="index.attlist">
+    <xs:attribute name="type"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="indexes.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of index.attlist -->
+  <!-- doc:An index to a set of books. -->
+  <xs:element name="setindex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="setindexinfo"/>
+        <xs:group minOccurs="0" ref="bookcomponent.title.content"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="component.mix"/>
+        <xs:choice>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="indexdiv"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="indexentry"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="setindex.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of setindex.element -->
+  <xs:attributeGroup name="setindex.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="indexes.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of setindex.attlist -->
+  <!-- end of indexes.module -->
+  <!--
+    SegmentedList in this content is useful for marking up permuted
+    indices.
+  -->
+  <xs:attributeGroup name="indexdiv.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A division in an index. -->
+  <xs:element name="indexdiv">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" ref="sect.title.content"/>
+        <xs:sequence>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="indexdivcomponent.mix"/>
+          <xs:choice>
+            <xs:element maxOccurs="unbounded" ref="indexentry"/>
+            <xs:element ref="segmentedlist"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attributeGroup ref="indexdiv.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of indexdiv.element -->
+  <xs:attributeGroup name="indexdiv.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="indexdiv.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of indexdiv.attlist -->
+  <!-- end of indexdiv.module -->
+  <!-- Index entries appear in the index, not the text. -->
+  <xs:attributeGroup name="indexentry.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An entry in an index. -->
+  <xs:element name="indexentry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="primaryie"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="seeie"/>
+          <xs:element ref="seealsoie"/>
+        </xs:choice>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="secondaryie"/>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="seeie"/>
+            <xs:element ref="seealsoie"/>
+            <xs:element ref="tertiaryie"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attributeGroup ref="indexentry.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of indexentry.element -->
+  <xs:attributeGroup name="indexentry.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="indexentry.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of indexentry.attlist -->
+  <!-- end of indexentry.module -->
+  <xs:attributeGroup name="primsecterie.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A primary term in an index entry, not in the text. -->
+  <xs:element name="primaryie">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="ndxterm.char.mix"/>
+      <xs:attributeGroup ref="primaryie.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of primaryie.element -->
+  <!-- to IndexTerms that these entries represent -->
+  <xs:attributeGroup name="primaryie.attlist">
+    <xs:attributeGroup ref="linkends.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="primsecterie.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of primaryie.attlist -->
+  <!-- doc:A secondary term in an index entry, rather than in the text. -->
+  <xs:element name="secondaryie">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="ndxterm.char.mix"/>
+      <xs:attributeGroup ref="secondaryie.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of secondaryie.element -->
+  <!-- to IndexTerms that these entries represent -->
+  <xs:attributeGroup name="secondaryie.attlist">
+    <xs:attributeGroup ref="linkends.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="primsecterie.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of secondaryie.attlist -->
+  <!-- doc:A tertiary term in an index entry, rather than in the text. -->
+  <xs:element name="tertiaryie">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="ndxterm.char.mix"/>
+      <xs:attributeGroup ref="tertiaryie.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tertiaryie.element -->
+  <!-- to IndexTerms that these entries represent -->
+  <xs:attributeGroup name="tertiaryie.attlist">
+    <xs:attributeGroup ref="linkends.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="primsecterie.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of tertiaryie.attlist -->
+  <!-- end of primsecterie.module -->
+  <xs:attributeGroup name="seeie.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A See entry in an index, rather than in the text. -->
+  <xs:element name="seeie">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="ndxterm.char.mix"/>
+      <xs:attributeGroup ref="seeie.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of seeie.element -->
+  <!-- to IndexEntry to look up -->
+  <xs:attributeGroup name="seeie.attlist">
+    <xs:attributeGroup ref="linkend.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="seeie.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of seeie.attlist -->
+  <!-- end of seeie.module -->
+  <xs:attributeGroup name="seealsoie.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A See also entry in an index, rather than in the text. -->
+  <xs:element name="seealsoie">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="ndxterm.char.mix"/>
+      <xs:attributeGroup ref="seealsoie.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of seealsoie.element -->
+  <!-- to related IndexEntries -->
+  <xs:attributeGroup name="seealsoie.attlist">
+    <xs:attributeGroup ref="linkends.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="seealsoie.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of seealsoie.attlist -->
+  <!-- end of seealsoie.module -->
+  <!-- end of index.content.module -->
+  <!-- ...................................................................... -->
+  <!-- RefEntry ............................................................. -->
+  <xs:attributeGroup name="refentry.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A reference page (originally a UNIX man-style reference page). -->
+  <xs:element name="refentry" substitutionGroup="refentry.class"/>
+  <!-- end of refentry.element -->
+  <xs:attributeGroup name="refentry.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refentry.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refentry.attlist -->
+  <!-- end of refentry.module -->
+  <xs:attributeGroup name="refmeta.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a reference entry. -->
+  <xs:element name="refmeta">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ndxterm.class"/>
+        <xs:element ref="refentrytitle"/>
+        <xs:element minOccurs="0" ref="manvolnum"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="refmiscinfo"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ndxterm.class"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="refmeta.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refmeta.element -->
+  <xs:attributeGroup name="refmeta.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refmeta.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refmeta.attlist -->
+  <!-- end of refmeta.module -->
+  <xs:attributeGroup name="refmiscinfo.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:Meta-information for a reference entry other than the title and volume number. -->
+  <xs:element name="refmiscinfo">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="docinfo.char.mix"/>
+      <xs:attributeGroup ref="refmiscinfo.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refmiscinfo.element -->
+  <!-- Class: Freely assignable parameter; no default -->
+  <xs:attributeGroup name="refmiscinfo.attlist">
+    <xs:attribute name="class"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refmiscinfo.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refmiscinfo.attlist -->
+  <!-- end of refmiscinfo.module -->
+  <xs:attributeGroup name="refnamediv.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:The name, purpose, and classification of a reference page. -->
+  <xs:element name="refnamediv">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="refdescriptor"/>
+        <xs:element maxOccurs="unbounded" ref="refname"/>
+        <xs:element ref="refpurpose"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="refclass"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="remark"/>
+          <xs:element ref="link.char.class"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="refnamediv.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refnamediv.element -->
+  <xs:attributeGroup name="refnamediv.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refnamediv.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refnamediv.attlist -->
+  <!-- end of refnamediv.module -->
+  <xs:attributeGroup name="refdescriptor.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A description of the topic of a reference page. -->
+  <xs:element name="refdescriptor">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="refname.char.mix"/>
+      <xs:attributeGroup ref="refdescriptor.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refdescriptor.element -->
+  <xs:attributeGroup name="refdescriptor.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refdescriptor.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refdescriptor.attlist -->
+  <!-- end of refdescriptor.module -->
+  <xs:attributeGroup name="refname.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:The name of (one of) the subject(s) of a reference page. -->
+  <xs:element name="refname">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="refname.char.mix"/>
+      <xs:attributeGroup ref="refname.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refname.element -->
+  <xs:attributeGroup name="refname.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refname.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refname.attlist -->
+  <!-- end of refname.module -->
+  <xs:attributeGroup name="refpurpose.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A short (one sentence) synopsis of the topic of a reference page. -->
+  <xs:element name="refpurpose">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="refinline.char.mix"/>
+      <xs:attributeGroup ref="refpurpose.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refpurpose.element -->
+  <xs:attributeGroup name="refpurpose.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refpurpose.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refpurpose.attlist -->
+  <!-- end of refpurpose.module -->
+  <xs:attributeGroup name="refclass.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:The scope or other indication of applicability of a reference entry. -->
+  <xs:element name="refclass">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="refclass.char.mix"/>
+      <xs:attributeGroup ref="refclass.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refclass.element -->
+  <xs:attributeGroup name="refclass.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refclass.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refclass.attlist -->
+  <!-- end of refclass.module -->
+  <xs:attributeGroup name="refsynopsisdiv.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A syntactic synopsis of the subject of the reference page. -->
+  <xs:element name="refsynopsisdiv">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="refsynopsisdivinfo"/>
+        <xs:group minOccurs="0" ref="refsect.title.content"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="refcomponent.mix"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="refsect2"/>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refsect2"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="refsynopsisdiv.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsynopsisdiv.element -->
+  <xs:attributeGroup name="refsynopsisdiv.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsynopsisdiv.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsynopsisdiv.attlist -->
+  <!-- end of refsynopsisdiv.module -->
+  <xs:attributeGroup name="refsection.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A recursive section in a refentry. -->
+  <xs:element name="refsection">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="refsectioninfo"/>
+        <xs:group ref="refsect.title.content"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="refcomponent.mix"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="refsection"/>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refsection"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="refsection.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsection.element -->
+  <xs:attributeGroup name="refsection.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsection.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsection.attlist -->
+  <!-- end of refsection.module -->
+  <xs:attributeGroup name="refsect1.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A major subsection of a reference entry. -->
+  <xs:element name="refsect1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="refsect1info"/>
+        <xs:group ref="refsect.title.content"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="refcomponent.mix"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="refsect2"/>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refsect2"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="refsect1.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsect1.element -->
+  <xs:attributeGroup name="refsect1.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsect1.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsect1.attlist -->
+  <!-- end of refsect1.module -->
+  <xs:attributeGroup name="refsect2.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A subsection of a RefSect1. -->
+  <xs:element name="refsect2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="refsect2info"/>
+        <xs:group ref="refsect.title.content"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:group maxOccurs="unbounded" ref="refcomponent.mix"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="refsect3"/>
+          </xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="refsect3"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="refsect2.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsect2.element -->
+  <xs:attributeGroup name="refsect2.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsect2.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsect2.attlist -->
+  <!-- end of refsect2.module -->
+  <xs:attributeGroup name="refsect3.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A subsection of a RefSect2. -->
+  <xs:element name="refsect3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="refsect3info"/>
+        <xs:group ref="refsect.title.content"/>
+        <xs:group maxOccurs="unbounded" ref="refcomponent.mix"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="refsect3.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of refsect3.element -->
+  <xs:attributeGroup name="refsect3.attlist">
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="refsect3.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of refsect3.attlist -->
+  <!-- end of refsect3.module -->
+  <!-- end of refentry.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Article .............................................................. -->
+  <!--
+    An Article is a chapter-level, stand-alone document that is often,
+    but need not be, collected into a Book.
+  -->
+  <xs:attributeGroup name="article.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:An article. -->
+  <xs:element name="article" substitutionGroup="article.class"/>
+  <!-- end of article.element -->
+  <!--
+    Class: Indicates the type of a particular article;
+    all articles have the same structure and general purpose.
+    No default.
+  -->
+  <!-- ParentBook: ID of the enclosing Book -->
+  <xs:attributeGroup name="article.attlist">
+    <xs:attribute name="class">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="journalarticle"/>
+          <xs:enumeration value="productsheet"/>
+          <xs:enumeration value="whitepaper"/>
+          <xs:enumeration value="techreport"/>
+          <xs:enumeration value="specification"/>
+          <xs:enumeration value="faq"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="parentbook" type="xs:IDREF"/>
+    <xs:attributeGroup ref="status.attrib"/>
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="article.role.attrib"/>
+  </xs:attributeGroup>
+</xs:schema>
+<!-- end of article.attlist -->
+<!-- end of article.module -->
+<!-- End of SCons DocBook V4.5-Based extension V1.0 XML document hierarchy module V4.5 -->
+<!-- ................................................................................. -->
