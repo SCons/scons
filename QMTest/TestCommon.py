@@ -163,7 +163,7 @@ elif sys.platform == 'cygwin':
     shobj_prefix = ''
     lib_prefix   = 'lib'
     lib_suffix   = '.a'
-    dll_prefix   = ''
+    dll_prefix   = 'cyg'
     dll_suffix   = '.dll'
 elif sys.platform.find('irix') != -1:
     exe_suffix   = ''

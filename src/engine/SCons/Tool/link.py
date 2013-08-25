@@ -127,6 +127,18 @@ def shlib_emitter_names(target, source, env):
                     print "shlib_emitter_names: side effect: ", name
                 # add version_name to list of names to be a Side effect
                 version_names.append(version_name)
+            elif platform == 'cygwin':
+                shlib_suffix = env.subst('$SHLIBSUFFIX')
+                name = target[0].name
+                # generate library name with the version number
+                suffix_re = re.escape(shlib_suffix)
+                version_name = re.sub(suffix_re, '-' + re.sub('\.', '-', version) + shlib_suffix, name)
+                if Verbose:
+                    print "shlib_emitter_names: target is ", version_name
+                    print "shlib_emitter_names: side effect: ", name
+                # add version_name to list of names to be a Side effect
+                version_names.append(version_name)
+                
     except KeyError:
         version = None
     return version_names
