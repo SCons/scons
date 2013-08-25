@@ -4126,7 +4126,7 @@ case-insensitive.
 If the value of
 <emphasis>ignore_case</emphasis>
 is
-<literal>1</literal>,
+<literal>2</literal>,
 then values will be matched
 case-insensitive,
 and all input values will be
@@ -6533,7 +6533,7 @@ Python interpreter, SCons will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
 directories in the PATH variable. If you have both MSVC and MinGW
 installed and you want to use MinGW instead of MSVC,
-then you must explictly tell SCons to use MinGW by passing</para>
+then you must explicitly tell SCons to use MinGW by passing</para>
 
 <literallayout class="monospaced">
 tools=['mingw']
