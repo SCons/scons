@@ -394,6 +394,7 @@ class ClassicCPP(Classic):
     the contained filename in group 1.
     """
     def find_include(self, include, source_dir, path):
+        include = list (map (SCons.Util.to_str, include))
         if include[0] == '"':
             paths = (source_dir,) + tuple(path)
         else:
@@ -405,7 +406,7 @@ class ClassicCPP(Classic):
         return n, i
 
     def sort_key(self, include):
-        return SCons.Node.FS._my_normcase(' '.join(include))
+        return SCons.Node.FS._my_normcase(b' '.join(include))
 
 # Local Variables:
 # tab-width:4

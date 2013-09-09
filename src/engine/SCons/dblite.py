@@ -26,6 +26,8 @@ except NameError:
     def str(s): return s
 
 dblite_suffix = '.dblite'
+if bytes is not str:
+    dblite_suffix += '.p3'
 tmp_suffix = '.tmp'
 
 class dblite(object):
@@ -238,7 +240,6 @@ def _exercise():
     assert str(e) == "[Errno 2] No such file or directory: 'tmp.dblite'", str(e)
   else:
     raise RuntimeError("IOError expected.")
-  print("OK")
 
 if (__name__ == "__main__"):
   _exercise()
