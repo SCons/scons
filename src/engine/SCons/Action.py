@@ -434,12 +434,7 @@ class ActionBase(object):
 
     def get_contents(self, target, source, env):
         result = [ self.get_presig(target, source, env) ]
-        def clean (u):
-            if isinstance (u, bytes):
-                return u
-            elif isinstance (u, str):
-                return bytes (u, 'utf-8')
-        result = [ clean(r) for r in result ]
+        result = [ SCons.Util.to_bytes(r) for r in result ]
         # This should never happen, as the Action() factory should wrap
         # the varlist, but just in case an action is created directly,
         # we duplicate this check here.

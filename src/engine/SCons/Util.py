@@ -1486,7 +1486,7 @@ class NullSeq(Null):
 del __revision__
 
 def to_bytes (s):
-    if bytes is str:
+    if isinstance (s, bytes) or bytes is str:
         return s
     else:
         return bytes (s, 'utf-8')
