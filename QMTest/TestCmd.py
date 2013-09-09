@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 TestCmd.py:  a testing framework for commands and scripts.
 
@@ -950,7 +951,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print(str("Preserved directory " + dir + "\n"), end=' ')
+                print("Preserved directory " + dir + "\n", end=' ')
         else:
             list = self._dirlist[:]
             list.reverse()

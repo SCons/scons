@@ -446,7 +446,7 @@ class ActionBase(object):
         vl = self.get_varlist(target, source, env)
         if is_String(vl): vl = (vl,)
         for v in vl:
-            result.append(bytes(env.subst('${'+v+'}'), 'utf-8'))
+            result.append(SCons.Util.to_bytes(env.subst('${'+v+'}')))
         return b''.join(result)
 
     def __add__(self, other):
