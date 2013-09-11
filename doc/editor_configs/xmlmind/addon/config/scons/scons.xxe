@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<configuration name="SCons" mimeType="application/docbook+xml"
+  xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <help location="docbook_help.jar" />
+  <include location="common.incl" />
+
+  <detect>
+    <and>
+      <rootElementNamespace>http://www.scons.org/dbxsd/v1.0</rootElementNamespace>
+    </and>
+  </detect>
+  <schema>
+    <location>http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd</location>
+  </schema>
+  <template name="Book" location="scons_templates/book.xml" />
+  <template name="Article" location="scons_templates/article.xml" />
+  <template name="Part" location="scons_templates/part.xml" />
+  <template name="Chapter" location="scons_templates/chapter.xml" />
+  <template name="Refentry" location="scons_templates/refentry.xml" />
+  <template name="Appendix" location="scons_templates/appendix.xml" />
+  <template name="Glossary" location="scons_templates/glossary.xml" />
+  <template name="Section" location="scons_templates/section.xml" />
+  <template name="Sconsdoc" location="scons_templates/sconsdoc.xml" />
+
+  <css name="SCons" location="css/scons.css" />
+  <css name="Document structure" alternate="true"
+       location="css/structure.css" />
+  <!-- In principle, this is used to debug modular documents 
+       but we think that some users may also like this way of 
+       making documents modules more visible. -->
+  <css name="Show info about included elements" alternate="true"
+       location="css/visible_inclusions.css" />
+</configuration>
+
