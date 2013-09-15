@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE t:document-template PUBLIC "-//Syntext//DTD Syntext Document Template V2.0//EN" "doctemplate.dtd" []>
+<t:document-template xmlns:t="http://www.syntext.com/Extensions/DocTemplate-2.0">
+  <t:name>SCons Docbook</t:name>
+  <t:category>SCons Docbook V4.5-Based extension V1.0</t:category>
+
+  <t:xml-stylesheet>$SERNA_TEMPLATE_DIR/docbook-xsl-serna/docbook.xsl</t:xml-stylesheet>
+  <t:xml-schema>$SERNA_TEMPLATE_DIR/xsd/scons.xsd</t:xml-schema>
+  <t:dtd-pubid>-//SCONS//DTD DocBook V4.5-Based extension V1.0//EN</t:dtd-pubid>
+  <t:dtd-sysid>http://www.scons.org/dtd/scons.dtd</t:dtd-sysid>
+
+  <t:csl-stylesheet>$SERNA_TEMPLATE_DIR/scons.csl</t:csl-stylesheet>
+
+  <t:xml-catalogs>$SERNA_TEMPLATE_DIR/catalog.xml</t:xml-catalogs>
+
+  <t:folding-rules>
+    <t:elems-per-page>60</t:elems-per-page>
+    <t:fold-if-large>appendix article book chapter glossary index qandaset reference section refsect1 refsect2 refsect3 sect1 sect2 sect3 sect4 sect5 section set</t:fold-if-large>
+    <t:folding-list>appendix article bibliodiv bibliography bibliomisc biblioset book bookinfo chapter example figure glossary glossdiv index indexdiv qandadiv qandaset reference refsect1 refsect2 refsect3 sect1 sect2 sect3 sect4 sect5 section set table </t:folding-list>
+  </t:folding-rules>
+
+  <t:category-pixmap>docbook_4_5_template</t:category-pixmap>
+
+  <t:element-help>$SERNA_TEMPLATE_DIR/docbook-help/docbook.sehelp</t:element-help>
+
+  <t:spellcheck>
+    <t:skip-elements> programlisting literal sgmltag keycombo filename methodname methodparam classname command computeroutput database email envar function keycode varname structname </t:skip-elements>
+  </t:spellcheck>
+
+  <t:publish>
+    <t:name>htmlSingle</t:name>
+    <t:inscription>HTML (Single Chunk)</t:inscription>
+    <t:extension>htm</t:extension>
+    <t:script>runXslt</t:script>
+    <t:stylesheet>$SERNA_STYLESHEETS/docbook-xsl-1.68.1/html/docbook.xsl</t:stylesheet>
+  </t:publish>
+  <t:publish>
+    <t:name>htmlMulti</t:name>
+    <t:inscription>HTML (Multiple Chunks)</t:inscription>
+    <t:extension>htm</t:extension>
+    <t:script>runXslt</t:script>
+    <t:stylesheet>$SERNA_STYLESHEETS/docbook-xsl-1.68.1/html/chunk.xsl</t:stylesheet>
+  </t:publish>
+
+  <t:publish>
+    <t:name>pdfFop</t:name>
+    <t:inscription>PDF (with FOP)</t:inscription>
+    <t:extension>pdf</t:extension>
+    <t:script>runFop</t:script>
+    <t:stylesheet>$SERNA_STYLESHEETS/docbook-xsl-1.68.1/fo/docbook.xsl</t:stylesheet>
+  </t:publish>
+  <t:publish>
+    <t:name>pdfXep</t:name>
+    <t:inscription>PDF (with XEP)</t:inscription>
+    <t:extension>pdf</t:extension>
+    <t:script>runXep</t:script>
+    <t:stylesheet>$SERNA_STYLESHEETS/docbook-xsl-1.68.1/fo/docbook.xsl</t:stylesheet>
+  </t:publish>
+
+  <t:root-elements>appendix article book.class chapter part section set reference</t:root-elements>
+
+  <t:load-plugins>TablePlugin</t:load-plugins>
+
+  <t:template-showup-priority>11</t:template-showup-priority>
+
+  <t:dtd-guess-string>//SCONS//DTD DocBook</t:dtd-guess-string>
+
+  <t:document-skeleton>
+    <t:name>All</t:name>
+  </t:document-skeleton>
+  <t:document-skeleton>
+    <t:name>Article</t:name>
+    <t:content>
+      <article>
+        <title/>
+      </article>
+    </t:content>
+  </t:document-skeleton>
+  <t:document-skeleton>
+    <t:name>Chapter</t:name>
+    <t:content>
+      <chapter>
+        <title/>
+      </chapter>
+    </t:content>
+  </t:document-skeleton>
+  <t:document-skeleton>
+    <t:name>Book</t:name>
+    <t:content>
+      <book>
+        <title/>
+      </book>
+    </t:content>
+  </t:document-skeleton>
+</t:document-template>
