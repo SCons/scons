@@ -35,7 +35,7 @@ def _optional_no_translator_flag(env):
   """ Return '--no-translator' flag if we run *msginit(1)*  in non-interactive
       mode."""
   import SCons.Util
-  if env.has_key('POAUTOINIT'):
+  if 'POAUTOINIT' in env:
     autoinit = env['POAUTOINIT']
   else:
     autoinit = False
@@ -66,7 +66,7 @@ def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
   if source is _null:
     if 'POTDOMAIN' in kw:
       domain = kw['POTDOMAIN']
-    elif env.has_key('POTDOMAIN'):
+    elif 'POTDOMAIN' in env:
       domain = env['POTDOMAIN']
     else:
       domain = 'messages'

@@ -73,14 +73,14 @@ if len(sys.argv) < 2:
 else:
     mode = sys.argv[1]
     if mode not in ['develop', 'release', 'post']:
-        print("""ERROR: `%s' as a parameter is invalid; it must be one of
-\tdevelop, release, or post.  The default is develop.""" % mode)
+        print(("""ERROR: `%s' as a parameter is invalid; it must be one of
+\tdevelop, release, or post.  The default is develop.""" % mode))
         sys.exit(1)
 
 # Get configuration information
 
 config = dict()
-exec open('ReleaseConfig').read() in globals(), config
+exec(open('ReleaseConfig').read(), globals(), config)
 
 try:
     version_tuple = config['version_tuple']
@@ -90,9 +90,9 @@ except KeyError:
     print('''ERROR: Config file must contain at least version_tuple,
 \tunsupported_python_version, and deprecated_python_version.''')
     sys.exit(1)
-if DEBUG: print 'version tuple', version_tuple
-if DEBUG: print 'unsupported Python version', unsupported_version
-if DEBUG: print 'deprecated Python version', deprecated_version
+if DEBUG: print('version tuple', version_tuple)
+if DEBUG: print('unsupported Python version', unsupported_version)
+if DEBUG: print('deprecated Python version', deprecated_version)
 
 try:
     release_date = config['release_date']
@@ -102,9 +102,9 @@ else:
     if len(release_date) == 3:
         release_date = release_date + time.localtime()[3:6]
     if len(release_date) != 6:
-        print '''ERROR: Invalid release date''', release_date
+        print('''ERROR: Invalid release date''', release_date)
         sys.exit(1)
-if DEBUG: print 'release date', release_date
+if DEBUG: print('release date', release_date)
 
 if mode == 'develop' and version_tuple[3] != 'alpha':
     version_tuple ==  version_tuple[:3] + ('alpha', 0)
@@ -119,11 +119,11 @@ if len(version_tuple) > 3:
     version_type = version_tuple[3]
 else:
     version_type = 'final'
-if DEBUG: print 'version string', version_string
+if DEBUG: print('version string', version_string)
 
 if version_type not in ['alpha', 'beta', 'candidate', 'final']:
-    print("""ERROR: `%s' is not a valid release type in version tuple;
-\tit must be one of alpha, beta, candidate, or final""" % version_type)
+    print(("""ERROR: `%s' is not a valid release type in version tuple;
+\tit must be one of alpha, beta, candidate, or final""" % version_type))
     sys.exit(1)
 
 try:
@@ -133,13 +133,13 @@ except KeyError:
         month_year = 'MONTH YEAR'
     else:
         month_year =  time.strftime('%B %Y', release_date + (0,0,0))
-if DEBUG: print 'month year', month_year
+if DEBUG: print('month year', month_year)
 
 try:
     copyright_years = config['copyright_years']
 except KeyError:
     copyright_years = ', '.join(map(str, list(range(2001, release_date[0] + 1))))
-if DEBUG: print 'copyright years', copyright_years
+if DEBUG: print('copyright years', copyright_years)
 
 class UpdateFile(object):
     """
@@ -218,7 +218,7 @@ class UpdateFile(object):
         XXX
         '''
         if self.file is not None and self.content != self.orig:
-            print 'Updating ' + self.file + '...'
+            print('Updating ' + self.file + '...')
             open(self.file, 'w').write(self.content)
 
 if mode == 'post':
@@ -332,7 +332,7 @@ t.replace_assign('deprecated_python_version', str(deprecated_version))
 
 # Update doc/user/main.{in,xml}
 
-docyears = ', '.join(map(str, iter(range(2004, release_date[0] + 1))))
+docyears = ', '.join(map(str, iter(list(range(2004, release_date[0] + 1)))))
 t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
 if DEBUG: t.file = '/tmp/main.in'
 ## TODO debug these

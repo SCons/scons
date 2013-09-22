@@ -23,7 +23,7 @@
 #
 # This will allow (as much as possible) us to time just the code itself,
 # not Python function call overhead.
-from __future__ import division
+
 
 import getopt
 import sys
@@ -94,7 +94,7 @@ exec(open(args[0], 'rU').read())
 try:
     FunctionList
 except NameError:
-    function_names = sorted([x for x in locals().keys() if x[:4] == FunctionPrefix])
+    function_names = sorted([x for x in list(locals().keys()) if x[:4] == FunctionPrefix])
     l = [locals()[f] for f in function_names]
     FunctionList = [f for f in l if isinstance(f, types.FunctionType)]
 
@@ -113,12 +113,12 @@ def display(label, results):
     total = 0.0
     for r in results:
         total += r
-    print "    %8.3f" % ((total * 1e6) / len(results)), ':', label
+    print("    %8.3f" % ((total * 1e6) / len(results)), ':', label)
 
 for func in FunctionList:
     if func.__doc__: d = ' (' + func.__doc__ + ')'
     else: d = ''
-    print func.__name__ + d + ':'
+    print(func.__name__ + d + ':')
 
     for label, args, kw in Data:
         r = timer(func, *args, **kw)

@@ -37,7 +37,7 @@ import SCons.Util
 
 # Even though the Mac is based on the GNU toolchain, it doesn't understand
 # the -rpath option, so we use the "link" tool instead of "gnulink".
-import link
+from . import link
 
 def generate(env):
     """Add Builders and construction variables for applelink to an

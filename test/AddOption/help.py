@@ -57,10 +57,10 @@ lines = test.stdout().split('\n')
 missing = [e for e in expected_lines if e not in lines]
 
 if missing:
-    print "====== STDOUT:"
-    print test.stdout()
-    print "====== Missing the following lines in the above AddOption() help output:"
-    print "\n".join(missing)
+    print("====== STDOUT:")
+    print(test.stdout())
+    print("====== Missing the following lines in the above AddOption() help output:")
+    print("\n".join(missing))
     test.fail_test()
 
 test.unlink('SConstruct')
@@ -70,10 +70,10 @@ lines = test.stdout().split('\n')
 unexpected = [e for e in expected_lines if e in lines]
 
 if unexpected:
-    print "====== STDOUT:"
-    print test.stdout()
-    print "====== Unexpected lines in the above non-AddOption() help output:"
-    print "\n".join(unexpected)
+    print("====== STDOUT:")
+    print(test.stdout())
+    print("====== Unexpected lines in the above non-AddOption() help output:")
+    print("\n".join(unexpected))
     test.fail_test()
 
 test.pass_test()

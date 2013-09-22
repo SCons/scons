@@ -32,7 +32,7 @@ for o, a in opts:
         outdir = a
     elif o == '-v' or o == '--verbose':
         def printname(x):
-            print x
+            print(x)
 
 if len(args) != 1:
     sys.stderr.write("scons-unzip.py:  \n")

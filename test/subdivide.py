@@ -76,8 +76,8 @@ for s in sys.argv[2:]:
     ofp.write(open(s, 'rb').read())
 """)
 
-test.chmod(fake_cc_py, 0755)
-test.chmod(fake_link_py, 0755)
+test.chmod(fake_cc_py, 0o755)
+test.chmod(fake_link_py, 0o755)
 
 test.write('SConstruct', """\
 SConsignFile(None)

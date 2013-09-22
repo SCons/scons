@@ -223,8 +223,8 @@ class TempFileMunge(object):
         # purity get in the way of just being helpful, so we'll
         # reach into SCons.Action directly.
         if SCons.Action.print_actions:
-            print("Using tempfile "+native_tmp+" for command line:\n"+
-                  str(cmd[0]) + " " + " ".join(args))
+            print(("Using tempfile "+native_tmp+" for command line:\n"+
+                  str(cmd[0]) + " " + " ".join(args)))
         return [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
     
 def Platform(name = platform_default()):

@@ -82,7 +82,7 @@ def adjustColumnWidths(ctx, nodeset):
         relParts.append(relPart)
         absParts.append(pixels)
 
-        col = col.next
+        col = col.__next__
 
     # Ok, now we have the relative widths and absolute widths in
     # two parallel arrays.
@@ -116,7 +116,7 @@ def adjustColumnWidths(ctx, nodeset):
             pixelWidth = convertLength(tableWidth)
 
         if pixelWidth <= absTotal:
-            print "Table is wider than table width"
+            print("Table is wider than table width")
         else:
             pixelWidth = pixelWidth - absTotal
 
@@ -151,7 +151,7 @@ def adjustColumnWidths(ctx, nodeset):
             col.setProp("width", widths[count])
 
         count = count+1
-        col = col.next
+        col = col.__next__
 
     return nodeset
 
@@ -163,10 +163,10 @@ def convertLength(length):
     m = re.search('([+-]?[\d\.]+)(\S+)', length)
     if m != None and m.lastindex > 1:
         unit = pixelsPerInch
-        if unitHash.has_key(m.group(2)):
+        if m.group(2) in unitHash:
             unit = unitHash[m.group(2)]
         else:
-            print "Unrecognized length: " + m.group(2)
+            print("Unrecognized length: " + m.group(2))
 
         pixels = unit * float(m.group(1))
     else:

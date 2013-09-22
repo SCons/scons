@@ -26,7 +26,7 @@ files.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -113,7 +113,7 @@ def compute_exports(exports):
                     retval[export] = loc[export]
                 except KeyError:
                     retval[export] = glob[export]
-    except KeyError, x:
+    except KeyError as x:
         raise SCons.Errors.UserError("Export of non-existent variable '%s'"%x)
 
     return retval
@@ -145,7 +145,7 @@ def Return(*vars, **kw):
         for var in fvars:
             for v in var.split():
                 retval.append(call_stack[-1].globals[v])
-    except KeyError, x:
+    except KeyError as x:
         raise SCons.Errors.UserError("Return of non-existent variable '%s'"%x)
 
     if len(retval) == 1:
@@ -174,7 +174,7 @@ def _SConscript(fs, *files, **kw):
         try:
             SCons.Script.sconscript_reading = SCons.Script.sconscript_reading + 1
             if fn == "-":
-                exec sys.stdin in call_stack[-1].globals
+                exec(sys.stdin, call_stack[-1].globals)
             else:
                 if isinstance(fn, SCons.Node.Node):
                     f = fn
@@ -257,7 +257,7 @@ def _SConscript(fs, *files, **kw):
                         pass
                     try:
                         try:
-                            exec _file_ in call_stack[-1].globals
+                            exec(_file_, call_stack[-1].globals)
                         except SConscriptReturn:
                             pass
                     finally:
@@ -282,7 +282,7 @@ def _SConscript(fs, *files, **kw):
                 rdir._create()  # Make sure there's a directory there.
                 try:
                     os.chdir(rdir.get_abspath())
-                except OSError, e:
+                except OSError as e:
                     # We still couldn't chdir there, so raise the error,
                     # but only if actions are being executed.
                     #
@@ -467,15 +467,15 @@ class SConsEnvironment(SCons.Environment.Base):
                 scons_ver_string = '%d.%d.%d' % (major, minor, revision)
             else:
                 scons_ver_string = '%d.%d' % (major, minor)
-            print "SCons %s or greater required, but you have SCons %s" % \
-                  (scons_ver_string, SCons.__version__)
+            print("SCons %s or greater required, but you have SCons %s" % \
+                  (scons_ver_string, SCons.__version__))
             sys.exit(2)
 
     def EnsurePythonVersion(self, major, minor):
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]
-            print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
+            print("Python %d.%d or greater required, but you have Python %s" %(major,minor,v))
             sys.exit(2)
 
     def Exit(self, value=0):
@@ -514,7 +514,7 @@ class SConsEnvironment(SCons.Environment.Base):
                             globals[v] = exports[v]
                         else:
                             globals[v] = global_exports[v]
-        except KeyError,x:
+        except KeyError as x:
             raise SCons.Errors.UserError("Import of non-existent variable '%s'"%x)
 
     def SConscript(self, *ls, **kw):
@@ -529,7 +529,7 @@ class SConsEnvironment(SCons.Environment.Base):
             return x
         ls = list(map(subst_element, ls))
         subst_kw = {}
-        for key, val in kw.items():
+        for key, val in list(kw.items()):
             if SCons.Util.is_String(val):
                 val = self.subst(val)
             elif SCons.Util.is_List(val):

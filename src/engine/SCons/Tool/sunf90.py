@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-from FortranCommon import add_all_to_env
+from .FortranCommon import add_all_to_env
 
 compilers = ['sunf90', 'f90']
 

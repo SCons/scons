@@ -70,8 +70,8 @@ moc_MyForm = [x for x in test.stdout().split('\n') if x.find('moc_MyForm') != -1
 MYLIB_IMPL = [x for x in moc_MyForm if x.find('MYLIB_IMPL') != -1]
 
 if not MYLIB_IMPL:
-    print "Did not find MYLIB_IMPL on moc_MyForm compilation line:"
-    print test.stdout()
+    print("Did not find MYLIB_IMPL on moc_MyForm compilation line:")
+    print(test.stdout())
     test.fail_test()
 
 test.pass_test()

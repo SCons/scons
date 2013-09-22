@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    import dbm
+    import dbm.ndbm
 except ImportError:
     test.skip_test('No dbm in this version of Python; skipping test.\n')
 

@@ -59,7 +59,7 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
     def read_file(self, file):
         try:
             fp = open(str(file.rfile()))
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             self.missing.append((file, self.current_file))
             return ''
         else:

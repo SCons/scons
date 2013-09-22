@@ -230,7 +230,7 @@ def suite():
     suite.addTest(ProgramScannerTestCase6())
     suite.addTest(ProgramScannerTestCase7())
     suite.addTest(ProgramScannerTestCase8())
-    try: unicode
+    try: str
     except NameError: pass
     else:
         code = """if 1:
@@ -245,7 +245,7 @@ def suite():
                     assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
             suite.addTest(ProgramScannerTestCase4())
             \n"""
-        exec code
+        exec(code)
     return suite
 
 if __name__ == "__main__":

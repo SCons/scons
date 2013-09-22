@@ -26,13 +26,13 @@ import os
 import shutil
 import signal
 import stat
-import StringIO
+import io
 import sys
 import tempfile
 import time
 import types
 import unittest
-import UserList
+import collections
 
 # Strip the current directory so we get the right TestCmd.py module.
 sys.path = sys.path[1:]
@@ -131,11 +131,11 @@ class TestCmdTestCase(unittest.TestCase):
         run_env.write(t.scriptout_path, textout)
         run_env.write(t.scripterr_path, texterr)
 
-        os.chmod(t.script_path, 0644)  # XXX UNIX-specific
-        os.chmod(t.scriptx_path, 0755)  # XXX UNIX-specific
-        os.chmod(t.script1_path, 0644)  # XXX UNIX-specific
-        os.chmod(t.scriptout_path, 0644)  # XXX UNIX-specific
-        os.chmod(t.scripterr_path, 0644)  # XXX UNIX-specific
+        os.chmod(t.script_path, 0o644)  # XXX UNIX-specific
+        os.chmod(t.scriptx_path, 0o755)  # XXX UNIX-specific
+        os.chmod(t.script1_path, 0o644)  # XXX UNIX-specific
+        os.chmod(t.scriptout_path, 0o644)  # XXX UNIX-specific
+        os.chmod(t.scripterr_path, 0o644)  # XXX UNIX-specific
 
         t.orig_cwd = os.getcwd()
 
@@ -220,8 +220,8 @@ class cleanup_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
         test.write('file2', "Test file #2\n")
-        os.chmod(test.workpath('file2'), 0400)
-        os.chmod(wdir, 0500)
+        os.chmod(test.workpath('file2'), 0o400)
+        os.chmod(wdir, 0o500)
         test.cleanup()
         assert not os.path.exists(wdir)
 
@@ -286,35 +286,35 @@ class chmod_TestCase(TestCmdTestCase):
             test.chmod(['sub', 'file2'], stat.S_IWRITE)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0444, '0%o' % file1_mode
+            assert file1_mode == 0o444, '0%o' % file1_mode
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0666, '0%o' % file2_mode
+            assert file2_mode == 0o666, '0%o' % file2_mode
 
             test.chmod('file1', stat.S_IWRITE)
             test.chmod(wdir_sub_file2, stat.S_IREAD)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0666, '0%o' % file1_mode
+            assert file1_mode == 0o666, '0%o' % file1_mode
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0444, '0%o' % file2_mode
+            assert file2_mode == 0o444, '0%o' % file2_mode
 
         else:
 
-            test.chmod(wdir_file1, 0700)
-            test.chmod(['sub', 'file2'], 0760)
+            test.chmod(wdir_file1, 0o700)
+            test.chmod(['sub', 'file2'], 0o760)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0700, '0%o' % file1_mode
+            assert file1_mode == 0o700, '0%o' % file1_mode
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0760, '0%o' % file2_mode
+            assert file2_mode == 0o760, '0%o' % file2_mode
 
-            test.chmod('file1', 0765)
-            test.chmod(wdir_sub_file2, 0567)
+            test.chmod('file1', 0o765)
+            test.chmod(wdir_sub_file2, 0o567)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0765, '0%o' % file1_mode
+            assert file1_mode == 0o765, '0%o' % file1_mode
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0567, '0%o' % file2_mode
+            assert file2_mode == 0o567, '0%o' % file2_mode
 
 
 
@@ -1032,14 +1032,14 @@ class match_exact_TestCase(TestCmdTestCase):
         assert test.match_exact("abcde\n", "abcde\n")
         assert not test.match_exact(["12345\n", "abcde\n"], ["1[0-9]*5\n", "a.*e\n"])
         assert test.match_exact(["12345\n", "abcde\n"], ["12345\n", "abcde\n"])
-        assert not test.match_exact(UserList.UserList(["12345\n", "abcde\n"]),
+        assert not test.match_exact(collections.UserList(["12345\n", "abcde\n"]),
                                     ["1[0-9]*5\n", "a.*e\n"])
-        assert test.match_exact(UserList.UserList(["12345\n", "abcde\n"]),
+        assert test.match_exact(collections.UserList(["12345\n", "abcde\n"]),
                                 ["12345\n", "abcde\n"])
         assert not test.match_exact(["12345\n", "abcde\n"],
-                                    UserList.UserList(["1[0-9]*5\n", "a.*e\n"]))
+                                    collections.UserList(["1[0-9]*5\n", "a.*e\n"]))
         assert test.match_exact(["12345\n", "abcde\n"],
-                                UserList.UserList(["12345\n", "abcde\n"]))
+                                collections.UserList(["12345\n", "abcde\n"]))
         assert not test.match_exact("12345\nabcde\n", "1[0-9]*5\na.*e\n")
         assert test.match_exact("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
@@ -1098,26 +1098,26 @@ sys.exit(0)
                                     ["1.*j\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
                                     ["12345\n", "abcde\n", "fghij\n"])
-        assert test.match_re_dotall(UserList.UserList(["12345\n",
+        assert test.match_re_dotall(collections.UserList(["12345\n",
                                                        "abcde\n",
                                                        "fghij\n"]),
                                     ["1[0-9]*5\n", "a.*e\n", "f.*j\n"])
-        assert test.match_re_dotall(UserList.UserList(["12345\n",
+        assert test.match_re_dotall(collections.UserList(["12345\n",
                                                        "abcde\n",
                                                        "fghij\n"]),
                                     ["1.*j\n"])
-        assert test.match_re_dotall(UserList.UserList(["12345\n",
+        assert test.match_re_dotall(collections.UserList(["12345\n",
                                                        "abcde\n",
                                                        "fghij\n"]),
                                     ["12345\n", "abcde\n", "fghij\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    UserList.UserList(["1[0-9]*5\n",
+                                    collections.UserList(["1[0-9]*5\n",
                                                        "a.*e\n",
                                                        "f.*j\n"]))
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    UserList.UserList(["1.*j\n"]))
+                                    collections.UserList(["1.*j\n"]))
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    UserList.UserList(["12345\n",
+                                    collections.UserList(["12345\n",
                                                        "abcde\n",
                                                        "fghij\n"]))
         assert test.match_re_dotall("12345\nabcde\nfghij\n",
@@ -1176,14 +1176,14 @@ sys.exit(0)
         assert test.match_re("abcde\n", "abcde\n")
         assert test.match_re(["12345\n", "abcde\n"], ["1[0-9]*5\n", "a.*e\n"])
         assert test.match_re(["12345\n", "abcde\n"], ["12345\n", "abcde\n"])
-        assert test.match_re(UserList.UserList(["12345\n", "abcde\n"]),
+        assert test.match_re(collections.UserList(["12345\n", "abcde\n"]),
                              ["1[0-9]*5\n", "a.*e\n"])
-        assert test.match_re(UserList.UserList(["12345\n", "abcde\n"]),
+        assert test.match_re(collections.UserList(["12345\n", "abcde\n"]),
                              ["12345\n", "abcde\n"])
         assert test.match_re(["12345\n", "abcde\n"],
-                             UserList.UserList(["1[0-9]*5\n", "a.*e\n"]))
+                             collections.UserList(["1[0-9]*5\n", "a.*e\n"]))
         assert test.match_re(["12345\n", "abcde\n"],
-                             UserList.UserList(["12345\n", "abcde\n"]))
+                             collections.UserList(["12345\n", "abcde\n"]))
         assert test.match_re("12345\nabcde\n", "1[0-9]*5\na.*e\n")
         assert test.match_re("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
@@ -1463,7 +1463,7 @@ class preserve_TestCase(TestCmdTestCase):
     def test_preserve(self):
         """Test preserve()"""
         def cleanup_test(test, cond=None, stdout=""):
-            io = StringIO.StringIO()
+            io = io.StringIO()
             save = sys.stdout
             sys.stdout = io
             try:
@@ -1603,7 +1603,7 @@ class read_TestCase(TestCmdTestCase):
         _file_matches(wdir_foo_file3, test.read(['foo', 'file3']),
                         "Test\nfile\n#3.\n")
         _file_matches(wdir_foo_file3,
-                      test.read(UserList.UserList(['foo', 'file3'])),
+                      test.read(collections.UserList(['foo', 'file3'])),
                         "Test\nfile\n#3.\n")
         _file_matches(wdir_file4, test.read('file4', mode = 'r'),
                         "Test\nfile\n#4.\n")
@@ -1862,8 +1862,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 1)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             test.run(arguments = ['arg1 arg2'])
             o = sys.stdout.getvalue()
@@ -1876,8 +1876,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                     workdir = '',
                                     verbose = 1)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
             expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
@@ -1913,8 +1913,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 2)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -1934,8 +1934,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                     workdir = '',
                                     verbose = 2)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
 
@@ -1958,8 +1958,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 2)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -1978,8 +1978,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 3)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -2002,8 +2002,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '')
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -2022,8 +2022,8 @@ class run_verbose_TestCase(TestCmdTestCase):
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '')
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
 
@@ -2048,8 +2048,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 1)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             test.run(arguments = ['arg1 arg2'])
             o = sys.stdout.getvalue()
@@ -2062,8 +2062,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                     workdir = '',
                                     verbose = 1)
     
-            sys.stdout = StringIO.StringIO()
-            sys.stderr = StringIO.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
             expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
@@ -2347,7 +2347,7 @@ while 1:
 logfp.close()
         """ % t.recv_out_path
         t.run_env.write(t.recv_script_path, text)
-        os.chmod(t.recv_script_path, 0644)  # XXX UNIX-specific
+        os.chmod(t.recv_script_path, 0o644)  # XXX UNIX-specific
         return t
 
     def test_start(self):
@@ -2765,11 +2765,11 @@ class subdir_TestCase(TestCmdTestCase):
         assert test.subdir('bar') == 1
         assert test.subdir(['foo', 'succeed']) == 1
         if os.name != "nt":
-            os.chmod(test.workpath('foo'), 0500)
+            os.chmod(test.workpath('foo'), 0o500)
             assert test.subdir(['foo', 'fail']) == 0
         assert test.subdir(['sub', 'dir', 'ectory'], 'sub') == 1
         assert test.subdir('one',
-                           UserList.UserList(['one', 'two']),
+                           collections.UserList(['one', 'two']),
                            ['one', 'two', 'three']) == 3
         assert os.path.isdir(test.workpath('foo'))
         assert os.path.isdir(test.workpath('bar'))
@@ -2962,7 +2962,7 @@ class unlink_TestCase(TestCmdTestCase):
         test.unlink(['foo', 'file3a'])
         assert not os.path.exists(wdir_foo_file3a)
 
-        test.unlink(UserList.UserList(['foo', 'file3b']))
+        test.unlink(collections.UserList(['foo', 'file3b']))
         assert not os.path.exists(wdir_foo_file3b)
 
         test.unlink([test.workdir, 'foo', 'file4'])
@@ -2971,8 +2971,8 @@ class unlink_TestCase(TestCmdTestCase):
         # Make it so we can't unlink file5.
         # For UNIX, remove write permission from the dir and the file.
         # For Windows, open the file.
-        os.chmod(test.workdir, 0500)
-        os.chmod(wdir_file5, 0400)
+        os.chmod(test.workdir, 0o500)
+        os.chmod(wdir_file5, 0o400)
         f = open(wdir_file5, 'r')
 
         try:
@@ -2983,8 +2983,8 @@ class unlink_TestCase(TestCmdTestCase):
             except:
                 raise
         finally:
-            os.chmod(test.workdir, 0700)
-            os.chmod(wdir_file5, 0600)
+            os.chmod(test.workdir, 0o700)
+            os.chmod(wdir_file5, 0o600)
             f.close()
 
 
@@ -3208,11 +3208,11 @@ class executable_TestCase(TestCmdTestCase):
 
         def make_executable(fname):
             st = os.stat(fname)
-            os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0100))
+            os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0o100))
 
         def make_non_executable(fname):
             st = os.stat(fname)
-            os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0100))
+            os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0o100))
 
         test.executable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
@@ -3282,7 +3282,7 @@ class write_TestCase(TestCmdTestCase):
         test.write('file9', "Test file #9.\r\n", mode = 'wb')
 
         if os.name != "nt":
-            os.chmod(test.workdir, 0500)
+            os.chmod(test.workdir, 0o500)
             try:
                 test.write('file10', "Test file #10 (should not get created).\n")
             except IOError:  # expect "Permission denied"

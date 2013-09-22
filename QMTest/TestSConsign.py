@@ -68,7 +68,7 @@ class TestSConsign(TestSCons):
             elif os.path.exists(self.script_path('sconsign')):
                 sconsign = 'sconsign'
             else:
-                print "Can find neither 'sconsign.py' nor 'sconsign' scripts."
+                print("Can find neither 'sconsign.py' nor 'sconsign' scripts.")
                 self.no_result()
         self.set_sconsign(sconsign)
 

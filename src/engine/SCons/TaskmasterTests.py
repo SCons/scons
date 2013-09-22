@@ -20,7 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -692,7 +692,7 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = SCons.Taskmaster.Taskmaster([n3])
         try:
             t = tm.next_task()
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             assert str(e) == "Dependency cycle: n3 -> n1 -> n2 -> n3", str(e)
         else:
             assert 'Did not catch expected UserError'
@@ -846,7 +846,7 @@ class TaskmasterTestCase(unittest.TestCase):
         exc_caught = None
         try:
             t.prepare()
-        except MyException, e:
+        except MyException as e:
             exc_caught = 1
         except:
             pass
@@ -899,7 +899,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         try:
             t.prepare()
-        except Exception, e:
+        except Exception as e:
             assert str(e) == "Executor.prepare() exception", e
         else:
             raise AssertionError("did not catch expected exception")
@@ -953,7 +953,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         try:
             t.execute()
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             assert e.node == n4, e.node
             assert e.errstr == "OtherError : ", e.errstr
             assert len(e.exc_info) == 3, e.exc_info

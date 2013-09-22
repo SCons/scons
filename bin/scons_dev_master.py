@@ -131,12 +131,12 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
     try:
         try:
             opts, args = getopt.getopt(argv[1:], short_options, long_options)
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         for o, a in opts:
             if o in ('-h', '--help'):
-                print helpstr
+                print(helpstr)
                 sys.exit(0)
             elif o in ('-n', '--no-exec'):
                 CommandRunner.execute = CommandRunner.do_not_execute
@@ -148,7 +148,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
                 username = a
             elif o in ('-y', '--yes', '--assume-yes'):
                 yesflag = o
-    except Usage, err:
+    except Usage as err:
         sys.stderr.write(str(err.msg) + '\n')
         sys.stderr.write('use -h to get help\n')
         return 2

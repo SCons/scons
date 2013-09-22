@@ -102,7 +102,7 @@ for f in files:
         indent_list.append( (line_num, match.group('try_or_except') ) )
         try_except_lines[match.group('indent')] = indent_list
     uncaught_this_file = []
-    for indent in try_except_lines.keys():
+    for indent in list(try_except_lines.keys()):
         exc_keyboardint_seen = 0
         exc_all_seen = 0
         for (l,statement) in try_except_lines[indent] + [(-1,indent + 'try')]:
@@ -129,9 +129,9 @@ for f in files:
     if expected_num != len(uncaught_this_file):
         uncaughtKeyboardInterrupt = 1
         msg = "%s:  expected %d uncaught interrupts, got %d:"
-        print msg % (f, expected_num, len(uncaught_this_file))
+        print(msg % (f, expected_num, len(uncaught_this_file)))
         for line in uncaught_this_file:
-            print "  File %s:%d: Uncaught KeyboardInterrupt!" % (f,line)
+            print("  File %s:%d: Uncaught KeyboardInterrupt!" % (f,line))
 
 test.fail_test(uncaughtKeyboardInterrupt)
 

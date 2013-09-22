@@ -113,7 +113,7 @@ class Tool(object):
                 finally:
                     if file:
                         file.close()
-            except ImportError, e:
+            except ImportError as e:
                 if str(e)!="No module named %s"%self.name:
                     raise SCons.Errors.EnvironmentError(e)
                 try:
@@ -125,7 +125,7 @@ class Tool(object):
                         try:
                             importer = zipimport.zipimporter(aPath)
                             return importer.load_module(self.name)
-                        except ImportError, e:
+                        except ImportError as e:
                             pass
         finally:
             sys.path = oldpythonpath
@@ -143,7 +143,7 @@ class Tool(object):
                     if file:
                         file.close()
                     return module
-                except ImportError, e:
+                except ImportError as e:
                     if str(e)!="No module named %s"%self.name:
                         raise SCons.Errors.EnvironmentError(e)
                     try:
@@ -152,10 +152,10 @@ class Tool(object):
                         module = importer.load_module(full_name)
                         setattr(SCons.Tool, self.name, module)
                         return module
-                    except ImportError, e:
+                    except ImportError as e:
                         m = "No tool named '%s': %s" % (self.name, e)
                         raise SCons.Errors.EnvironmentError(m)
-            except ImportError, e:
+            except ImportError as e:
                 m = "No tool named '%s': %s" % (self.name, e)
                 raise SCons.Errors.EnvironmentError(m)
 
@@ -254,7 +254,7 @@ def VersionShLibLinkNames(version, libname, env):
         suffix_re = re.escape('.' + version + shlib_suffix)
         linkname = re.sub(suffix_re, shlib_suffix, libname)
         if Verbose:
-            print "VersionShLibLinkNames: linkname = ",linkname
+            print("VersionShLibLinkNames: linkname = ",linkname)
         linknames.append(linkname)
     elif platform == 'posix':
         # For libfoo.so.x.y.z, linknames libfoo.so libfoo.so.x.y libfoo.so.x
@@ -262,7 +262,7 @@ def VersionShLibLinkNames(version, libname, env):
         # First linkname has no version number
         linkname = re.sub(suffix_re, shlib_suffix, libname)
         if Verbose:
-            print "VersionShLibLinkNames: linkname = ",linkname
+            print("VersionShLibLinkNames: linkname = ",linkname)
         linknames.append(linkname)
         versionparts = version.split('.')
         major_name = linkname + "." + versionparts[0]
@@ -271,7 +271,7 @@ def VersionShLibLinkNames(version, libname, env):
         #for linkname in [major_name, minor_name]:
         for linkname in [major_name, ]:
             if Verbose:
-                print "VersionShLibLinkNames: linkname ",linkname, ", target ",libname
+                print("VersionShLibLinkNames: linkname ",linkname, ", target ",libname)
             linknames.append(linkname)
     # note: no Windows case here (win32 or cygwin);
     # MSVC doesn't support this type of versioned shared libs.
@@ -294,10 +294,10 @@ symlinks for the platform we are on"""
     shlib_suffix = env.subst('$SHLIBSUFFIX')
     shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
     if Verbose:
-        print "VersionShLib: libname      = ",libname
-        print "VersionShLib: platform     = ",platform
-        print "VersionShLib: shlib_suffix = ",shlib_suffix
-        print "VersionShLib: target = ",str(target[0])
+        print("VersionShLib: libname      = ",libname)
+        print("VersionShLib: platform     = ",platform)
+        print("VersionShLib: shlib_suffix = ",shlib_suffix)
+        print("VersionShLib: target = ",str(target[0]))
 
     if version:
         # set the shared library link flags
@@ -308,7 +308,7 @@ symlinks for the platform we are on"""
             soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
             shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
             if Verbose:
-                print " soname ",soname,", shlink_flags ",shlink_flags
+                print(" soname ",soname,", shlink_flags ",shlink_flags)
         elif platform == 'cygwin':
             shlink_flags += [ '-Wl,-Bsymbolic',
                               '-Wl,--out-implib,${TARGET.base}.a' ]
@@ -317,7 +317,7 @@ symlinks for the platform we are on"""
                               '-compatibility_version', '%s' % version,
                               '-undefined', 'dynamic_lookup' ]
         if Verbose:
-            print "VersionShLib: shlink_flags = ",shlink_flags
+            print("VersionShLib: shlink_flags = ",shlink_flags)
         envlink = env.Clone()
         envlink['SHLINKFLAGS'] = shlink_flags
     else:
@@ -330,7 +330,7 @@ symlinks for the platform we are on"""
         libname = target[0].path
         linknames = VersionShLibLinkNames(version, libname, env)
         if Verbose:
-            print "VerShLib: linknames ",linknames
+            print("VerShLib: linknames ",linknames)
         # Here we just need the file name w/o path as the target of the link
         lib_ver = target[0].name
         # make symlink of adjacent names in linknames
@@ -343,7 +343,7 @@ symlinks for the platform we are on"""
                     pass
                 os.symlink(os.path.basename(linkname),lastlinkname)
                 if Verbose:
-                    print "VerShLib: made sym link of %s -> %s" % (lastlinkname,linkname)
+                    print("VerShLib: made sym link of %s -> %s" % (lastlinkname,linkname))
             lastlinkname = linkname
         # finish chain of sym links with link to the actual library
         if len(linknames)>0:
@@ -353,7 +353,7 @@ symlinks for the platform we are on"""
                 pass
             os.symlink(lib_ver,lastlinkname)
             if Verbose:
-                print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
+                print("VerShLib: made sym link of %s -> %s" % (linkname, lib_ver))
     return result
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
@@ -631,7 +631,7 @@ class ToolInitializer(object):
         so we no longer copy and re-bind them when the construction
         environment gets cloned.
         """
-        for method in self.methods.values():
+        for method in list(self.methods.values()):
             env.RemoveMethod(method)
 
     def apply_tools(self, env):

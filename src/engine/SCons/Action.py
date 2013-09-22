@@ -114,6 +114,7 @@ import SCons.Errors
 import SCons.Executor
 import SCons.Util
 import SCons.Subst
+import collections
 
 # we use these a lot, so try to optimize them
 is_String = SCons.Util.is_String
@@ -165,12 +166,12 @@ def _callable_contents(obj):
     """
     try:
         # Test if obj is a method.
-        return _function_contents(obj.im_func)
+        return _function_contents(obj.__func__)
 
     except AttributeError:
         try:
             # Test if obj is a callable object.
-            return _function_contents(obj.__call__.im_func)
+            return _function_contents(obj.__call__.__func__)
 
         except AttributeError:
             try:
@@ -190,12 +191,12 @@ def _object_contents(obj):
     """
     try:
         # Test if obj is a method.
-        return _function_contents(obj.im_func)
+        return _function_contents(obj.__func__)
 
     except AttributeError:
         try:
             # Test if obj is a callable object.
-            return _function_contents(obj.__call__.im_func)
+            return _function_contents(obj.__call__.__func__)
 
         except AttributeError:
             try:
@@ -269,17 +270,17 @@ def _code_contents(code):
 def _function_contents(func):
     """Return the signature contents of a function."""
 
-    contents = [_code_contents(func.func_code)]
+    contents = [_code_contents(func.__code__)]
 
     # The function contents depends on the value of defaults arguments
-    if func.func_defaults:
-        contents.append(',(' + ','.join(map(_object_contents,func.func_defaults)) + ')')
+    if func.__defaults__:
+        contents.append(',(' + ','.join(map(_object_contents,func.__defaults__)) + ')')
     else:
         contents.append(',()')
 
     # The function contents depends on the closure captured cell values.
     try:
-        closure = func.func_closure or []
+        closure = func.__closure__ or []
     except AttributeError:
         # Older versions of Python do not support closures.
         closure = []
@@ -328,7 +329,7 @@ def _do_create_keywords(args, kw):
         cmdstrfunc = args[0]
         if cmdstrfunc is None or is_String(cmdstrfunc):
             kw['cmdstr'] = cmdstrfunc
-        elif callable(cmdstrfunc):
+        elif isinstance(cmdstrfunc, collections.Callable):
             kw['strfunction'] = cmdstrfunc
         else:
             raise SCons.Errors.UserError(
@@ -359,7 +360,7 @@ def _do_create_action(act, kw):
     if is_List(act):
         return CommandAction(act, **kw)
 
-    if callable(act):
+    if isinstance(act, collections.Callable):
         try:
             gen = kw['generator']
             del kw['generator']
@@ -492,7 +493,7 @@ class _ActionAction(ActionBase):
         self.targets = targets
 
         if batch_key:
-            if not callable(batch_key):
+            if not isinstance(batch_key, collections.Callable):
                 # They have set batch_key, but not to their own
                 # callable.  The default behavior here will batch
                 # *all* targets+sources using this action, separated
@@ -512,7 +513,7 @@ class _ActionAction(ActionBase):
         # This code assumes s is a regular string, but should
         # work if it's unicode too.
         try:
-            sys.stdout.write(unicode(s + "\n"))
+            sys.stdout.write(str(s + "\n"))
         except UnicodeDecodeError:
             sys.stdout.write(s + "\n")
 
@@ -553,7 +554,7 @@ class _ActionAction(ActionBase):
                 source = executor.get_all_sources()
             t = ' and '.join(map(str, target))
             l = '\n  '.join(self.presub_lines(env))
-            out = u"Building %s with action:\n  %s\n" % (t, l)
+            out = "Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         cmd = None
         if show and self.strfunction:
@@ -653,7 +654,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
 
     # Ensure that the ENV values are all strings:
     new_env = {}
-    for key, value in ENV.items():
+    for key, value in list(ENV.items()):
         if is_List(value):
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
@@ -672,7 +673,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
 
     try:
         return subprocess.Popen(cmd, **kw)
-    except EnvironmentError, e:
+    except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
         class dummyPopen(object):
@@ -779,7 +780,7 @@ class CommandAction(_ActionAction):
         ENV = get_default_ENV(env)
 
         # Ensure that the ENV values are all strings:
-        for key, value in ENV.items():
+        for key, value in list(ENV.items()):
             if not is_String(value):
                 if is_List(value):
                     # If the value is a list, then we assume it is a
@@ -1038,7 +1039,7 @@ class FunctionAction(_ActionAction):
         else:
             if strfunc is None:
                 return None
-            if callable(strfunc):
+            if isinstance(strfunc, collections.Callable):
                 return strfunc(target, source, env)
         name = self.function_name()
         tstr = array(target)
@@ -1060,11 +1061,11 @@ class FunctionAction(_ActionAction):
             rsources = list(map(rfile, source))
             try:
                 result = self.execfunction(target=target, source=rsources, env=env)
-            except KeyboardInterrupt, e:
+            except KeyboardInterrupt as e:
                 raise
-            except SystemExit, e:
+            except SystemExit as e:
                 raise
-            except Exception, e:
+            except Exception as e:
                 result = e
                 exc_info = sys.exc_info()
 
@@ -1179,11 +1180,11 @@ class ActionCaller(object):
         actfunc = self.parent.actfunc
         try:
             # "self.actfunc" is a function.
-            contents = str(actfunc.func_code.co_code)
+            contents = str(actfunc.__code__.co_code)
         except AttributeError:
             # "self.actfunc" is a callable object.
             try:
-                contents = str(actfunc.__call__.im_func.func_code.co_code)
+                contents = str(actfunc.__call__.__func__.__code__.co_code)
             except AttributeError:
                 # No __call__() method, so it might be a builtin
                 # or something like that.  Do the best we can.
@@ -1214,7 +1215,7 @@ class ActionCaller(object):
 
     def subst_kw(self, target, source, env):
         kw = {}
-        for key in self.kw.keys():
+        for key in list(self.kw.keys()):
             kw[key] = self.subst(self.kw[key], target, source, env)
         return kw
 

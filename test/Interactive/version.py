@@ -76,7 +76,7 @@ expect2 = r"""scons>>> SCons by Steven Knight et al\.:
 
 stdout = test.stdout() + '\n'
 if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
-    print repr(stdout)
+    print(repr(stdout))
     test.fail_test()
 
 

@@ -31,7 +31,7 @@ from distutils.msvccompiler.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -50,6 +50,7 @@ import SCons.Environment
 import SCons.PathList
 import SCons.Subst
 import SCons.Tool
+import collections
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -221,7 +222,7 @@ def mkdir_func(dest):
     for entry in dest:
         try:
             os.makedirs(str(entry))
-        except os.error, e:
+        except os.error as e:
             p = str(entry)
             if (e.args[0] == errno.EEXIST or
                     (sys.platform=='win32' and e.args[0]==183)) \
@@ -325,9 +326,9 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     if not itms:
         return itms
 
-    if not callable(c):
+    if not isinstance(c, collections.Callable):
         env_c = env['_concat']
-        if env_c != _concat and callable(env_c):
+        if env_c != _concat and isinstance(env_c, collections.Callable):
             # There's a custom _concat() method in the construction
             # environment, and we've allowed people to set that in
             # the past (see test/custom-concat.py), so preserve the
@@ -381,7 +382,7 @@ def processDefines(defs):
                 else:
                     l.append(str(d[0]))
             elif SCons.Util.is_Dict(d):
-                for macro,value in d.iteritems():
+                for macro,value in d.items():
                     if value is not None:
                         l.append(str(macro) + '=' + str(value))
                     else:

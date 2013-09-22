@@ -51,7 +51,7 @@ fp.write('FILEFLAG=%s\\n' % args[2])
 fp.write('TIMESTAMP=%s\\n' % args[3])
 """)
 
-os.chmod(build_py, 0755)
+os.chmod(build_py, 0o755)
 
 test.write('SConstruct', """\
 arg = 'a_long_ignored_argument'

@@ -27,6 +27,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
+import collections
 
 # global, set by --debug=findlibs
 print_find_libs = None
@@ -76,7 +77,7 @@ def scan(node, env, libpath = ()):
 
     result = []
 
-    if callable(libpath):
+    if isinstance(libpath, collections.Callable):
         libpath = libpath()
 
     find_file = SCons.Node.FS.find_file

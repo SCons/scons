@@ -69,7 +69,7 @@ else:
 # anyway...).
 nasm_format = 'elf'
 format_map = {}
-for k, v in format_map.items():
+for k, v in list(format_map.items()):
     if sys.platform.find(k) != -1:
         nasm_format = v
         break

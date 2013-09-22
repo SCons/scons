@@ -54,10 +54,10 @@ else:
     dir_to_check_for='.scons'
 
 if 'Loading site dir' not in test.stdout():
-    print test.stdout()
+    print(test.stdout())
     test.fail_test()
 if dir_to_check_for not in test.stdout():
-    print test.stdout()
+    print(test.stdout())
     test.fail_test()
 
 test.pass_test()

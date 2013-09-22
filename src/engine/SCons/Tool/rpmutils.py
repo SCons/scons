@@ -491,7 +491,7 @@ def updateRpmDicts(rpmrc, pyfile):
                 key = tokens[0]
                 if key in sections:
                     # Have we met this section before?
-                    if not data.has_key(tokens[0]):
+                    if tokens[0] not in data:
                         # No, so insert it
                         data[key] = {}
                     # Insert data
@@ -509,7 +509,7 @@ def updateRpmDicts(rpmrc, pyfile):
                 if l.startswith('# Start of rpmrc dictionaries'):
                     pm = 1
                     # Write data sections to single dictionaries
-                    for key, entries in data.iteritems():
+                    for key, entries in data.items():
                         out.write("%s = {\n" % key)
                         for arch in sorted(entries.keys()):
                             out.write("  '%s' : ['%s'],\n" % (arch, "','".join(entries[arch])))
@@ -519,7 +519,7 @@ def updateRpmDicts(rpmrc, pyfile):
         pass
 
 def usage():
-    print "rpmutils.py rpmrc.in rpmutils.py"
+    print("rpmutils.py rpmrc.in rpmutils.py")
 
 def main():
     import sys

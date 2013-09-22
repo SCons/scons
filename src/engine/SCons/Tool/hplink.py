@@ -37,7 +37,7 @@ import os.path
 
 import SCons.Util
 
-import link
+from . import link
 
 ccLinker = None
 

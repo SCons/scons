@@ -60,8 +60,8 @@ options = [x[-1] == ',' and x[:-1] or x for x in options]
 lowered = [x.lower() for x in options]
 ordered = sorted(lowered)
 if lowered != ordered:
-    print "lowered =", lowered
-    print "sorted =", ordered
+    print("lowered =", lowered)
+    print("sorted =", ordered)
     test.fail_test()
 
 test.pass_test()

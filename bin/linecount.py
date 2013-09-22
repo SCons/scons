@@ -21,7 +21,7 @@
 # in each category, the number of non-blank lines, and the number of
 # non-comment lines.  The last figure (non-comment) lines is the most
 # interesting one for most purposes.
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -98,23 +98,23 @@ all_tests = Collection('all tests', src_tests.files + test_tests.files)
 def ratio(over, under):
     return "%.2f" % (float(len(over)) / float(len(under)))
 
-print fmt % ('', '', '', '', '', 'non-blank')
-print fmt % ('', 'files', 'lines', 'non-blank', 'non-comment', 'non-comment')
-print
-print fmt % src_Tests_py_tests.printables()
-print fmt % src_test_tests.printables()
-print
-print fmt % src_tests.printables()
-print fmt % test_tests.printables()
-print
-print fmt % all_tests.printables()
-print fmt % sources.printables()
-print
-print fmt % ('ratio:',
+print(fmt % ('', '', '', '', '', 'non-blank'))
+print(fmt % ('', 'files', 'lines', 'non-blank', 'non-comment', 'non-comment'))
+print()
+print(fmt % src_Tests_py_tests.printables())
+print(fmt % src_test_tests.printables())
+print()
+print(fmt % src_tests.printables())
+print(fmt % test_tests.printables())
+print()
+print(fmt % all_tests.printables())
+print(fmt % sources.printables())
+print()
+print(fmt % ('ratio:',
              ratio(all_tests, sources),
              ratio(all_tests.lines(), sources.lines()),
              ratio(all_tests.non_blank(), sources.non_blank()),
              ratio(all_tests.non_comment(), sources.non_comment()),
              ratio(all_tests.non_blank_non_comment(),
                    sources.non_blank_non_comment())
-            )
+            ))

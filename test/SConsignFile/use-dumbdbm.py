@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    import dumbdbm
+    import dbm.dumb
 except ImportError:
     test.skip_test('No dumbdbm in this version of Python; skipping test.\n')
 

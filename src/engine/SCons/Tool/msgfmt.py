@@ -41,7 +41,7 @@ class _MOFileBuilder(BuilderBase):
     import SCons.Util
     from SCons.Tool.GettextCommon import _read_linguas_from_files
     linguas_files = None
-    if env.has_key('LINGUAS_FILE') and env['LINGUAS_FILE'] is not None:
+    if 'LINGUAS_FILE' in env and env['LINGUAS_FILE'] is not None:
       linguas_files = env['LINGUAS_FILE']
       # This should prevent from endless recursion. 
       env['LINGUAS_FILE'] = None

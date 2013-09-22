@@ -133,7 +133,7 @@ class Environment(object):
         self.d['SPAWN'] = scons_env['SPAWN']
         self.d['PSPAWN'] = scons_env['PSPAWN']
         self.d['ESCAPE'] = scons_env['ESCAPE']
-        for k, v in kw.items():
+        for k, v in list(kw.items()):
             self.d[k] = v
     # Just use the underlying scons_subst*() utility methods.
     def subst(self, strSubst, raw=0, target=[], source=[], conv=None):
@@ -158,12 +158,12 @@ class Environment(object):
     def Clone(self, **kw):
         res = Environment()
         res.d = SCons.Util.semi_deepcopy(self.d)
-        for k, v in kw.items():
+        for k, v in list(kw.items()):
             res.d[k] = v
         return res
     def sig_dict(self):
         d = {}
-        for k,v in self.items(): d[k] = v
+        for k,v in list(self.items()): d[k] = v
         d['TARGETS'] = ['__t1__', '__t2__', '__t3__', '__t4__', '__t5__', '__t6__']
         d['TARGET'] = d['TARGETS'][0]
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
@@ -270,7 +270,7 @@ def test_positional_args(pos_callback, cmd, **kw):
         try:
             #FUTURE a = SCons.Action.Action(cmd, [], **kw)
             a = SCons.Action.Action(cmd, [], **kw)
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             s = str(e)
             m = 'Invalid command display variable'
             assert s.find(m) != -1, 'Unexpected string:  %s' % s
@@ -305,7 +305,7 @@ class ActionTestCase(unittest.TestCase):
         # a singleton list returns the contained action
         test_positional_args(cmd_action, ["string"])
 
-        try: unicode
+        try: str
         except NameError: pass
         else:
             a2 = eval("SCons.Action.Action(u'string')")
@@ -493,7 +493,7 @@ class _ActionActionTestCase(unittest.TestCase):
         def func(): pass
         try:
             a = SCons.Action.Action('foo', cmdstr='string', strfunction=func)
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             s = str(e)
             m = 'Cannot have both strfunction and cmdstr args to Action()'
             assert s.find(m) != -1, 'Unexpected string:  %s' % s

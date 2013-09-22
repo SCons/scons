@@ -55,13 +55,13 @@ expect2 = r"""SCons by Steven Knight et al.:
 test.run(arguments = '-v')
 stdout = test.stdout()
 if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
-    print stdout
+    print(stdout)
     test.fail_test()
 
 test.run(arguments = '--version')
 stdout = test.stdout()
 if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
-    print stdout
+    print(stdout)
     test.fail_test()
 
 test.pass_test()

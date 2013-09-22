@@ -129,7 +129,7 @@ test.must_match(['work', 'f2.out'], "f2.in\n")
 # if a target can not be unlinked before building it:
 test.write(['work', 'f1.in'], "f1.in again again\n")
 
-os.chmod(test.workpath('work', 'export'), 0555)
+os.chmod(test.workpath('work', 'export'), 0o555)
 f = open(f1_out, 'rb')
 
 

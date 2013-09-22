@@ -173,14 +173,14 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
 
     reruns = [x for x in output_lines if x.find('latex -interaction=nonstopmode -recorder rerun.tex') != -1]
     if len(reruns) != 2:
-        print "Expected 2 latex calls, got %s:" % len(reruns)
-        print '\n'.join(reruns)
+        print("Expected 2 latex calls, got %s:" % len(reruns))
+        print('\n'.join(reruns))
         test.fail_test()
 
     bibtex = [x for x in output_lines if x.find('bibtex bibtex-test') != -1]
     if len(bibtex) != 1:
-        print "Expected 1 bibtex call, got %s:" % len(bibtex)
-        print '\n'.join(bibtex)
+        print("Expected 1 bibtex call, got %s:" % len(bibtex))
+        print('\n'.join(bibtex))
         test.fail_test()
 
 test.pass_test()

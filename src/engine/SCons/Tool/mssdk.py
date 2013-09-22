@@ -33,7 +33,7 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
 
-from MSCommon import mssdk_exists, \
+from .MSCommon import mssdk_exists, \
                      mssdk_setup_env
 
 def generate(env):

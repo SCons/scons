@@ -36,7 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
-import fortran
+from . import fortran
 from SCons.Tool.FortranCommon import add_all_to_env, add_f03_to_env
 
 compilers = ['f03']

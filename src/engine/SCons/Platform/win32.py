@@ -155,7 +155,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         try:
             args = [sh, '/C', escape(' '.join(args)) ]
             ret = spawnve(os.P_WAIT, sh, args, env)
-        except OSError, e:
+        except OSError as e:
             # catch any error
             try:
                 ret = exitvalmap[e[0]]
@@ -183,7 +183,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 def exec_spawn(l, env):
     try:
         result = spawnve(os.P_WAIT, l[0], l, env)
-    except OSError, e:
+    except OSError as e:
         try:
             result = exitvalmap[e[0]]
             sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))

@@ -35,6 +35,7 @@ import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
 import SCons.Warnings
+import collections
 
 class F90Scanner(SCons.Scanner.Classic):
     """
@@ -109,7 +110,7 @@ class F90Scanner(SCons.Scanner.Classic):
         # is actually found in a Repository or locally.
         nodes = []
         source_dir = node.get_dir()
-        if callable(path):
+        if isinstance(path, collections.Callable):
             path = path()
         for dep in mods_and_includes:
             n, i = self.find_include(dep, source_dir, path)

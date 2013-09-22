@@ -27,20 +27,20 @@ import sys
 filenames = sys.argv[1:]
 
 if not filenames:
-    print """Usage:  memlogs.py file [...]
+    print("""Usage:  memlogs.py file [...]
 
 Summarizes the --debug=memory numbers from one or more build logs.
-"""
+""")
     sys.exit(0)
 
 fmt = "%12s %12s %12s %12s    %s"
 
-print fmt % ("pre-read", "post-read", "pre-build", "post-build", "")
+print(fmt % ("pre-read", "post-read", "pre-build", "post-build", ""))
 
 for fname in sys.argv[1:]:
     lines = [l for l in open(fname).readlines() if l[:7] == 'Memory ']
     t = tuple([l.split()[-1] for l in lines]) + (fname,)
-    print fmt % t
+    print(fmt % t)
 
 # Local Variables:
 # tab-width:4

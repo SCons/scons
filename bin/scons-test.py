@@ -60,7 +60,7 @@ for o, a in opts:
         outdir = a
     elif o == '-v' or o == '--verbose':
         def printname(x):
-            print x
+            print(x)
     elif o == '--xml':
         format = o
 
@@ -148,34 +148,34 @@ else:
 
 if format == '--xml':
 
-    print "<scons_test_run>"
-    print "  <sys>"
+    print("<scons_test_run>")
+    print("  <sys>")
     sys_keys = ['byteorder', 'exec_prefix', 'executable', 'maxint', 'maxunicode', 'platform', 'prefix', 'version', 'version_info']
     for k in sys_keys:
-        print "    <%s>%s</%s>" % (k, sys.__dict__[k], k)
-    print "  </sys>"
+        print("    <%s>%s</%s>" % (k, sys.__dict__[k], k))
+    print("  </sys>")
 
     fmt = '%a %b %d %H:%M:%S %Y'
-    print "  <time>"
-    print "    <gmtime>%s</gmtime>" % time.strftime(fmt, time.gmtime())
-    print "    <localtime>%s</localtime>" % time.strftime(fmt, time.localtime())
-    print "  </time>"
+    print("  <time>")
+    print("    <gmtime>%s</gmtime>" % time.strftime(fmt, time.gmtime()))
+    print("    <localtime>%s</localtime>" % time.strftime(fmt, time.localtime()))
+    print("  </time>")
 
-    print "  <tempdir>%s</tempdir>" % tempdir
+    print("  <tempdir>%s</tempdir>" % tempdir)
 
     def print_version_info(tag, module):
-        print "    <%s>" % tag
-        print "      <version>%s</version>" % module.__version__
-        print "      <build>%s</build>" % module.__build__
-        print "      <buildsys>%s</buildsys>" % module.__buildsys__
-        print "      <date>%s</date>" % module.__date__
-        print "      <developer>%s</developer>" % module.__developer__
-        print "    </%s>" % tag
+        print("    <%s>" % tag)
+        print("      <version>%s</version>" % module.__version__)
+        print("      <build>%s</build>" % module.__build__)
+        print("      <buildsys>%s</buildsys>" % module.__buildsys__)
+        print("      <date>%s</date>" % module.__date__)
+        print("      <developer>%s</developer>" % module.__developer__)
+        print("    </%s>" % tag)
 
-    print "  <scons>"
+    print("  <scons>")
     print_version_info("script", scons)
     print_version_info("engine", SCons)
-    print "  </scons>"
+    print("  </scons>")
 
     environ_keys = [
         'PATH',
@@ -213,32 +213,32 @@ if format == '--xml':
         'USER',
     ]
 
-    print "  <environment>"
+    print("  <environment>")
     for key in sorted(environ_keys):
         value = os.environ.get(key)
         if value:
-            print "    <variable>"
-            print "      <name>%s</name>" % key
-            print "      <value>%s</value>" % value
-            print "    </variable>"
-    print "  </environment>"
+            print("    <variable>")
+            print("      <name>%s</name>" % key)
+            print("      <value>%s</value>" % value)
+            print("    </variable>")
+    print("  </environment>")
 
     command = '"%s" runtest.py -q -o - --xml %s' % (sys.executable, runtest_args)
     #print command
     os.system(command)
-    print "</scons_test_run>"
+    print("</scons_test_run>")
 
 else:
 
     def print_version_info(tag, module):
-        print "\t%s: v%s.%s, %s, by %s on %s" % (tag,
+        print("\t%s: v%s.%s, %s, by %s on %s" % (tag,
                                                  module.__version__,
                                                  module.__build__,
                                                  module.__date__,
                                                  module.__developer__,
-                                                 module.__buildsys__)
+                                                 module.__buildsys__))
 
-    print "SCons by Steven Knight et al.:"
+    print("SCons by Steven Knight et al.:")
     print_version_info("script", scons)
     print_version_info("engine", SCons)
 

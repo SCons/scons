@@ -44,7 +44,7 @@ import SCons.Tool.msvc
 import SCons.Tool.msvs
 import SCons.Util
 
-from MSCommon import msvc_setup_env_once, msvc_exists
+from .MSCommon import msvc_setup_env_once, msvc_exists
 
 def pdbGenerator(env, target, source, for_signature):
     try:
@@ -195,7 +195,7 @@ def RegServerFunc(target, source, env):
         if ret:
             raise SCons.Errors.UserError("Unable to register %s" % target[0])
         else:
-            print "Registered %s sucessfully" % target[0]
+            print("Registered %s sucessfully" % target[0])
         return ret
     return 0
 
@@ -212,10 +212,10 @@ def embedManifestDllCheck(target, source, env):
         if os.path.exists(manifestSrc):
             ret = (embedManifestDllAction) ([target[0]],None,env)        
             if ret:
-                raise SCons.Errors.UserError, "Unable to embed manifest into %s" % (target[0])
+                raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
         else:
-            print '(embed: no %s.manifest found; not embedding.)'%str(target[0])
+            print('(embed: no %s.manifest found; not embedding.)'%str(target[0]))
     return 0
 
 def embedManifestExeCheck(target, source, env):
@@ -226,10 +226,10 @@ def embedManifestExeCheck(target, source, env):
         if os.path.exists(manifestSrc):
             ret = (embedManifestExeAction) ([target[0]],None,env)
             if ret:
-                raise SCons.Errors.UserError, "Unable to embed manifest into %s" % (target[0])
+                raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
         else:
-            print '(embed: no %s.manifest found; not embedding.)'%str(target[0])
+            print('(embed: no %s.manifest found; not embedding.)'%str(target[0]))
     return 0
 
 embedManifestDllCheckAction = SCons.Action.Action(embedManifestDllCheck, None)

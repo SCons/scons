@@ -248,13 +248,13 @@ for collector in check_list:
         not_built.append(collector.directory)
 
 if missing_strings:
-    print "Found the following files with missing strings:"
-    print "\t" + "\n\t".join(missing_strings)
+    print("Found the following files with missing strings:")
+    print("\t" + "\n\t".join(missing_strings))
     test.fail_test(1)
 
 if not_built:
-    print "Cannot check all strings, the following have apparently not been built:"
-    print "\t" + "\n\t".join(not_built)
+    print("Cannot check all strings, the following have apparently not been built:")
+    print("\t" + "\n\t".join(not_built))
     test.no_result(1)
 
 test.pass_test()

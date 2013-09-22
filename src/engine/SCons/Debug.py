@@ -73,7 +73,7 @@ def dumpLoggedInstances(classes, file=sys.stdout):
             obj = ref()
             if obj is not None:
                 file.write('    %s:\n' % obj)
-                for key, value in obj.__dict__.items():
+                for key, value in list(obj.__dict__.items()):
                     file.write('        %20s : %s\n' % (key, value))
 
 
@@ -143,7 +143,7 @@ def caller_trace(back=0):
 # print a single caller and its callers, if any
 def _dump_one_caller(key, file, level=0):
     leader = '      '*level
-    for v,c in sorted([(-v,c) for c,v in caller_dicts[key].items()]):
+    for v,c in sorted([(-v,c) for c,v in list(caller_dicts[key].items())]):
         file.write("%s  %6d %s:%d(%s)\n" % ((leader,-v) + func_shorten(c[-3:])))
         if c in caller_dicts:
             _dump_one_caller(c, file, level+1)

@@ -106,7 +106,7 @@ Link_Entities_Header = """\
 class SCons_XML(object):
     def __init__(self, entries, **kw):
         self.values = entries
-        for k, v in kw.items():
+        for k, v in list(kw.items()):
             setattr(self, k, v)
             
     def fopen(self, name):
@@ -344,25 +344,25 @@ def write_output_files(h, buildersfiles, functionsfiles,
 processor_class = SCons_XML
 
 # Step 1: Creating entity files for builders, functions,...
-print "Generating entity files..."
+print("Generating entity files...")
 h = parse_docs(args, False)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write_mod)
 
 # Step 2: Validating all input files
-print "Validating files against SCons XSD..."
+print("Validating files against SCons XSD...")
 if SConsDoc.validate_all_xml(['src']):
-    print "OK"
+    print("OK")
 else:
-    print "Validation failed! Please correct the errors above and try again."
+    print("Validation failed! Please correct the errors above and try again.")
 
 # Step 3: Creating actual documentation snippets, using the
 #         fully resolved and updated entities from the *.mod files.
-print "Updating documentation for builders, tools and functions..."
+print("Updating documentation for builders, tools and functions...")
 h = parse_docs(args, True)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write)
-print "Done"
+print("Done")
 
 # Local Variables:
 # tab-width:4

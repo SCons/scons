@@ -278,14 +278,14 @@ else:
 
             try:
                 prev_size = threading.stack_size(stack_size*1024) 
-            except AttributeError, e:
+            except AttributeError as e:
                 # Only print a warning if the stack size has been
                 # explicitly set.
                 if not explicit_stack_size is None:
                     msg = "Setting stack size is unsupported by this version of Python:\n    " + \
                         e.args[0]
                     SCons.Warnings.warn(SCons.Warnings.StackSizeWarning, msg)
-            except ValueError, e:
+            except ValueError as e:
                 msg = "Setting stack size failed:\n    " + str(e)
                 SCons.Warnings.warn(SCons.Warnings.StackSizeWarning, msg)
 

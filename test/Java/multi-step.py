@@ -557,7 +557,7 @@ test.must_exist(['buildout', 'jni', 'SampleTest.java'])
 # it doesn't exist.
 p = test.workpath('buildout', 'jni', 'SampleTest.class')
 if not os.path.exists(p):
-    print 'Warning:  %s does not exist' % p
+    print('Warning:  %s does not exist' % p)
 
 test.up_to_date(arguments = '.')
 

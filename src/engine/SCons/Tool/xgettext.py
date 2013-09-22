@@ -55,7 +55,7 @@ class _CmdRunner(object):
     proc = SCons.Action._subproc(env, command, **kw)
     self.out, self.err = proc.communicate()
     self.status = proc.wait()
-    if self.err: sys.stderr.write(unicode(self.err))
+    if self.err: sys.stderr.write(str(self.err))
     return self.status
 
   def strfunction(self, target, source, env):
@@ -153,7 +153,7 @@ from SCons.Builder import BuilderBase
 class _POTBuilder(BuilderBase):
   def _execute(self, env, target, source, *args):
     if not target:
-      if env.has_key('POTDOMAIN') and env['POTDOMAIN']:
+      if 'POTDOMAIN' in env and env['POTDOMAIN']:
         domain = env['POTDOMAIN']
       else:
         domain = 'messages'
@@ -175,7 +175,7 @@ def _scan_xgettext_from_files(target, source, env, files = None, path = None):
     files = [ files ]
 
   if path is None:
-    if env.has_key('XGETTEXTPATH'):
+    if 'XGETTEXTPATH' in env:
       path = env['XGETTEXTPATH']
     else:
       path = []
@@ -222,7 +222,7 @@ def _pot_update_emitter(target, source, env):
   import SCons.Util
   import SCons.Node.FS
 
-  if env.has_key('XGETTEXTFROM'): 
+  if 'XGETTEXTFROM' in env: 
     xfrom = env['XGETTEXTFROM']
   else:
     return target, source

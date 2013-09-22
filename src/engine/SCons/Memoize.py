@@ -143,7 +143,7 @@ class Counter(object):
         CounterList.append(self)
     def display(self):
         fmt = "    %7d hits %7d misses    %s()"
-        print fmt % (self.hit, self.miss, self.name)
+        print(fmt % (self.hit, self.miss, self.name))
     def __cmp__(self, other):
         try:
             return cmp(self.name, other.name)
@@ -215,7 +215,7 @@ class Memoizer(object):
 
 def Dump(title=None):
     if title:
-        print title
+        print(title)
     CounterList.sort()
     for counter in CounterList:
         counter.display()

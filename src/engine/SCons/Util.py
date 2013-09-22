@@ -33,15 +33,16 @@ import re
 import types
 
 from collections import UserDict, UserList, UserString
+import collections
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
 InstanceType    = types.InstanceType
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
-try: unicode
+try: str
 except NameError: UnicodeType = None
-else:             UnicodeType = unicode
+else:             UnicodeType = str
 
 def dictify(keys, values, result={}):
     for k, v in zip(keys, values):
@@ -111,7 +112,7 @@ class NodeList(UserList):
     >>> someList.strip()
     [ 'foo', 'bar' ]
     """
-    def __nonzero__(self):
+    def __bool__(self):
         return len(self.data) != 0
 
     def __str__(self):
@@ -153,7 +154,7 @@ class DisplayEngine(object):
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(unicode(text))
+            sys.stdout.write(str(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -239,7 +240,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
                       '        N  = no clean\n' +
                       '         H = no cache\n' +
                       '\n')
-            sys.stdout.write(unicode(legend))
+            sys.stdout.write(str(legend))
 
         tags = ['[']
         tags.append(' E'[IDX(root.exists())])
@@ -264,10 +265,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     children = child_func(root)
 
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + u'\n')
+        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + u'\n')
+    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
 
     visited[rname] = 1
 
@@ -303,11 +304,11 @@ SequenceTypes = (list, tuple, UserList)
 # Note that profiling data shows a speed-up when comparing
 # explicitely with str and unicode instead of simply comparing
 # with basestring. (at least on Python 2.5.1)
-StringTypes = (str, unicode, UserString)
+StringTypes = (str, str, UserString)
 
 # Empirically, it is faster to check explicitely for str and
 # unicode than for basestring.
-BaseStringTypes = (str, unicode)
+BaseStringTypes = (str, str)
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)
@@ -440,7 +441,7 @@ _semi_deepcopy_dispatch = d = {}
 
 def semi_deepcopy_dict(x, exclude = [] ):
     copy = {}
-    for key, val in x.items():
+    for key, val in list(x.items()):
         # The regular Python copy.deepcopy() also deepcopies the key,
         # as follows:
         #
@@ -465,7 +466,7 @@ def semi_deepcopy(x):
     if copier:
         return copier(x)
     else:
-        if hasattr(x, '__semi_deepcopy__') and callable(x.__semi_deepcopy__):
+        if hasattr(x, '__semi_deepcopy__') and isinstance(x.__semi_deepcopy__, collections.Callable):
             return x.__semi_deepcopy__()
         elif isinstance(x, UserDict):
             return x.__class__(semi_deepcopy_dict(x))
@@ -718,7 +719,7 @@ else:
                     # raised so as to not mask possibly serious disk or
                     # network issues.
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                     try:
                         reject.index(f)
                     except ValueError:
@@ -979,7 +980,7 @@ class OrderedDict(UserDict):
         if key not in self._keys: self._keys.append(key)
 
     def update(self, dict):
-        for (key, val) in dict.items():
+        for (key, val) in list(dict.items()):
             self.__setitem__(key, val)
 
     def values(self):
@@ -1001,7 +1002,7 @@ class Selector(OrderedDict):
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
-            for (k,v) in self.items():
+            for (k,v) in list(self.items()):
                 if k is not None:
                     s_k = env.subst(k)
                     if s_k in s_dict:
@@ -1360,7 +1361,7 @@ def AddMethod(obj, function, name=None):
       print a.listIndex(5)
     """
     if name is None:
-        name = function.func_name
+        name = function.__name__
     else:
         function = RenameFunction(function, name)
 
@@ -1376,10 +1377,10 @@ def RenameFunction(function, name):
     Returns a function identical to the specified function, but with
     the specified name.
     """
-    return FunctionType(function.func_code,
-                        function.func_globals,
+    return FunctionType(function.__code__,
+                        function.__globals__,
                         name,
-                        function.func_defaults)
+                        function.__defaults__)
 
 
 md5 = False
@@ -1461,7 +1462,7 @@ class Null(object):
         return self
     def __repr__(self):
         return "Null(0x%08X)" % id(self)
-    def __nonzero__(self):
+    def __bool__(self):
         return False
     def __getattr__(self, name):
         return self

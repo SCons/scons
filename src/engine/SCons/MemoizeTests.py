@@ -30,9 +30,7 @@ import SCons.Memoize
 
 
 
-class FakeObject(object):
-
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+class FakeObject(object, metaclass=SCons.Memoize.Memoized_Metaclass):
 
     memoizer_counters = []
 

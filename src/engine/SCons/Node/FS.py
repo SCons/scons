@@ -54,6 +54,7 @@ import SCons.Util
 import SCons.Warnings
 
 from SCons.Debug import Trace
+import collections
 
 do_store_info = True
 print_duplicate = 0
@@ -550,7 +551,7 @@ class EntryProxy(SCons.Util.Proxy):
         except KeyError:
             try:
                 attr = SCons.Util.Proxy.__getattr__(self, name)
-            except AttributeError, e:
+            except AttributeError as e:
                 # Raise our own AttributeError subclass with an
                 # overridden __str__() method that identifies the
                 # name of the entry that caused the exception.
@@ -1508,7 +1509,7 @@ class Dir(Base):
         This clears any cached information that is invalidated by changing
         the repository."""
 
-        for node in self.entries.values():
+        for node in list(self.entries.values()):
             if node != self.dir:
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
@@ -2055,7 +2056,7 @@ class Dir(Base):
             # We use the .name attribute from the Node because the keys of
             # the dir.entries dictionary are normalized (that is, all upper
             # case) on case-insensitive systems like Windows.
-            node_names = [ v.name for k, v in dir.entries.items()
+            node_names = [ v.name for k, v in list(dir.entries.items())
                            if k not in ('.', '..') ]
             names.extend(node_names)
             if not strings:
@@ -2420,7 +2421,7 @@ class File(Base):
         fname = self.rfile().abspath
         try:
             contents = open(fname, "rb").read()
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
             raise
@@ -2455,7 +2456,7 @@ class File(Base):
         try:
             cs = SCons.Util.MD5filesignature(fname,
                 chunksize=SCons.Node.FS.File.md5_chunksize*1024)
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
             raise
@@ -2793,7 +2794,7 @@ class File(Base):
     def _rmv_existing(self):
         self.clear_memoized_values()
         if print_duplicate:
-            print "dup: removing existing target %s"%self
+            print("dup: removing existing target %s"%self)
         e = Unlink(self, [], None)
         if isinstance(e, SCons.Errors.BuildError):
             raise e
@@ -2817,7 +2818,7 @@ class File(Base):
             else:
                 try:
                     self._createDir()
-                except SCons.Errors.StopError, drive:
+                except SCons.Errors.StopError as drive:
                     desc = "No drive `%s' for target `%s'." % (drive, self)
                     raise SCons.Errors.StopError(desc)
 
@@ -2835,7 +2836,7 @@ class File(Base):
     def do_duplicate(self, src):
         self._createDir()
         if print_duplicate:
-            print "dup: relinking variant '%s' from '%s'"%(self, src)
+            print("dup: relinking variant '%s' from '%s'"%(self, src))
         Unlink(self, None, None)
         e = Link(self, src, None)
         if isinstance(e, SCons.Errors.BuildError):
@@ -2870,7 +2871,7 @@ class File(Base):
                         # The source file does not exist.  Make sure no old
                         # copy remains in the variant directory.
                         if print_duplicate:
-                            print "dup: no src for %s, unlinking old variant copy"%self
+                            print("dup: no src for %s, unlinking old variant copy"%self)
                         if Base.exists(self) or self.islink():
                             self.fs.unlink(self.path)
                         # Return None explicitly because the Base.exists() call
@@ -3196,10 +3197,10 @@ class FileFinder(object):
             except KeyError:
                 pass
 
-        if verbose and not callable(verbose):
+        if verbose and not isinstance(verbose, collections.Callable):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            _verbose = u'  %s: ' % verbose
+            _verbose = '  %s: ' % verbose
             verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)

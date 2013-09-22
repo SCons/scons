@@ -27,10 +27,10 @@ import sys
 filenames = sys.argv[1:]
 
 if len(sys.argv) != 3:
-    print """Usage:  objcounts.py file1 file2
+    print("""Usage:  objcounts.py file1 file2
 
 Compare the --debug=object counts from two build logs.
-"""
+""")
     sys.exit(0)
 
 def fetch_counts(fname):
@@ -47,7 +47,7 @@ c1 = fetch_counts(sys.argv[1])
 c2 = fetch_counts(sys.argv[2])
 
 common = {}
-for k in c1.keys():
+for k in list(c1.keys()):
     try:
         common[k] = (c1[k], c2[k])
     except KeyError:
@@ -58,7 +58,7 @@ for k in c1.keys():
         if not '.' in k:
             s = '.'+k
             l = len(s)
-            for k2 in c2.keys():
+            for k2 in list(c2.keys()):
                 if k2[-l:] == s:
                     common[k2] = (c1[k], c2[k2])
                     del c1[k]
@@ -81,10 +81,9 @@ def diffstr(c1, c2):
     return " %5s/%-5s %-8s" % (c1, c2, d)
 
 def printline(c1, c2, classname):
-    print \
-          diffstr(c1[2], c2[2]) + \
+    print(diffstr(c1[2], c2[2]) + \
           diffstr(c1[3], c2[3]) + \
-          ' ' + classname
+          ' ' + classname)
 
 for k in sorted(common.keys()):
     c = common[k]

@@ -241,7 +241,7 @@ class FileTestCase(BaseTestCase):
             warn_caught = 0
             try:
                 f7.push_to_cache()
-            except SCons.Errors.BuildError, e:
+            except SCons.Errors.BuildError as e:
                 assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
                 warn_caught = 1
             assert warn_caught

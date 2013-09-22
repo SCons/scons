@@ -77,7 +77,7 @@ def exec_fork(l, env):
         exitval = 127
         try:
             os.execvpe(l[0], l, env)
-        except OSError, e:
+        except OSError as e:
             exitval = exitvalmap.get(e[0], e[0])
             sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
         os._exit(exitval)
@@ -92,7 +92,7 @@ def _get_env_command(sh, escape, cmd, args, env):
     s = ' '.join(args)
     if env:
         l = ['env', '-'] + \
-            [escape(t[0])+'='+escape(t[1]) for t in env.items()] + \
+            [escape(t[0])+'='+escape(t[1]) for t in list(env.items())] + \
             [sh, '-c', escape(s)]
         s = ' '.join(l)
     return s
@@ -125,7 +125,8 @@ def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
                 else:
                     #sys.__stderr__.write( "str(stderr) = %s\n" % str )
                     stderr.write(str)
-        except select.error, (_errno, _strerror):
+        except select.error as xxx_todo_changeme:
+            (_errno, _strerror) = xxx_todo_changeme.args
             if _errno != errno.EINTR:
                 raise
 
@@ -164,7 +165,7 @@ def exec_piped_fork(l, env, stdout, stderr):
         exitval = 127
         try:
             os.execvpe(l[0], l, env)
-        except OSError, e:
+        except OSError as e:
             exitval = exitvalmap.get(e[0], e[0])
             stderr.write("scons: %s: %s\n" % (l[0], e[1]))
         os._exit(exitval)

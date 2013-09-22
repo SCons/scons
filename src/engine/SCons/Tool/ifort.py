@@ -36,7 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 from SCons.Scanner.Fortran import FortranScan
-from FortranCommon import add_all_to_env
+from .FortranCommon import add_all_to_env
 
 def generate(env):
     """Add Builders and construction variables for ifort to an Environment."""

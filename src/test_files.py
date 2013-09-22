@@ -77,7 +77,7 @@ check = {
 missing = []
 no_result = []
 
-for directory, check_list in check.items():
+for directory, check_list in list(check.items()):
     if os.path.exists(directory):
         for c in check_list:
             f = os.path.join(directory, c)
@@ -87,13 +87,13 @@ for directory, check_list in check.items():
         no_result.append(directory)
 
 if missing:
-    print "Missing the following files:\n"
-    print "\t" + "\n\t".join(missing)
+    print("Missing the following files:\n")
+    print("\t" + "\n\t".join(missing))
     test.fail_test(1)
 
 if no_result:
-    print "Cannot check files, the following have apparently not been built:"
-    print "\t" + "\n\t".join(no_result)
+    print("Cannot check files, the following have apparently not been built:")
+    print("\t" + "\n\t".join(no_result))
     test.no_result(1)
 
 test.pass_test()

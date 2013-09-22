@@ -33,7 +33,7 @@ import os
 import SCons.Errors
 import SCons.Util
 
-import common
+from . import common
 
 debug = common.debug
 
@@ -80,7 +80,7 @@ class SDKDefinition(object):
 
         try:
             sdk_dir = common.read_reg(hkey)
-        except WindowsError, e:
+        except WindowsError as e:
             debug('find_sdk_dir(): no SDK registry key %s' % repr(hkey))
             return None
 
@@ -299,7 +299,7 @@ def get_cur_sdk_dir_from_reg():
     try:
         val = common.read_reg(_CURINSTALLED_SDK_HKEY_ROOT)
         debug("Found current sdk dir in registry: %s" % val)
-    except WindowsError, e:
+    except WindowsError as e:
         debug("Did not find current sdk in registry")
         return None
 
@@ -350,7 +350,7 @@ def mssdk_setup_env(env):
             debug('sdk.py:mssdk_setup_env thinks msvs_version is None')
             return
         msvs_version = env.subst(msvs_version)
-        import vs
+        from . import vs
         msvs = vs.get_vs_by_version(msvs_version)
         debug('sdk.py:mssdk_setup_env:msvs is :%s'%msvs)
         if not msvs:

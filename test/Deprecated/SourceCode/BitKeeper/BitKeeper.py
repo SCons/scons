@@ -67,7 +67,7 @@ test.subdir('BK', 'import', ['import', 'sub'])
 # Test using BitKeeper to fetch from SCCS/s.file files.
 sccs = test.where_is('sccs')
 if not sccs:
-    print "Could not find SCCS, skipping sub-test of BitKeeper using SCCS files."
+    print("Could not find SCCS, skipping sub-test of BitKeeper using SCCS files.")
 else:
     test.subdir('work1',
                 ['work1', 'SCCS'],
@@ -167,9 +167,9 @@ sub/fff.in 1.1 -> 1.2: 1 lines
 rcs = test.where_is('rcs')
 ci = test.where_is('ci')
 if not rcs:
-    print "Could not find RCS,\nskipping sub-test of BitKeeper using RCS files."
+    print("Could not find RCS,\nskipping sub-test of BitKeeper using RCS files.")
 elif not ci:
-    print "Could not find the RCS ci command,\nskipping sub-test of BitKeeper using RCS files."
+    print("Could not find the RCS ci command,\nskipping sub-test of BitKeeper using RCS files.")
 else:
     test.subdir('work2',
                 ['work2', 'RCS'],

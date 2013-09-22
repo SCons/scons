@@ -81,7 +81,7 @@ open(sys.argv[-1],'wb').write(" ".join(sys.argv[1:-2]))
 # to make sure there's no difference in behavior.
 for source_signature in ['MD5', 'timestamp-newer']:
 
-    print "Testing Value node with source signatures:", source_signature
+    print("Testing Value node with source signatures:", source_signature)
 
     test.write('SConstruct', SConstruct_content % locals())
 

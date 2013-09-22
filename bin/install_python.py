@@ -48,7 +48,7 @@ Usage:  install_python.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
     try:
         try:
             opts, args = getopt.getopt(argv[1:], short_options, long_options)
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         for o, a in opts:
@@ -57,7 +57,7 @@ Usage:  install_python.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
             elif o in ('-d', '--downloads'):
                 downloads_dir = a
             elif o in ('-h', '--help'):
-                print helpstr
+                print(helpstr)
                 sys.exit(0)
             elif o in ('-n', '--no-exec'):
                 CommandRunner.execute = CommandRunner.do_not_execute
@@ -65,7 +65,7 @@ Usage:  install_python.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
                 prefix = a
             elif o in ('-q', '--quiet'):
                 CommandRunner.display = CommandRunner.do_not_display
-    except Usage, err:
+    except Usage as err:
         sys.stderr.write(str(err.msg) + '\n')
         sys.stderr.write('use -h to get help\n')
         return 2

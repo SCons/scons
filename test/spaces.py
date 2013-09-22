@@ -36,7 +36,7 @@ if sys.platform == 'win32':
 else:
     test.write('duplicate a file.sh', 'cp foo.in foo.out\n')
     copy = test.workpath('duplicate a file.sh')
-    os.chmod(test.workpath('duplicate a file.sh'), 0777)
+    os.chmod(test.workpath('duplicate a file.sh'), 0o777)
     
 
 test.write('SConstruct', r'''

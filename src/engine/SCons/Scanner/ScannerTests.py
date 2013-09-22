@@ -569,7 +569,7 @@ class ClassicCPPTestCase(unittest.TestCase):
             assert n == 'path/bbb', n
             assert i == 'bbb', i
 
-            n, i = s.find_include(('<', u'ccc'), 'foo', ('path',))
+            n, i = s.find_include(('<', 'ccc'), 'foo', ('path',))
             assert n == 'path/ccc', n
             assert i == 'ccc', i
 

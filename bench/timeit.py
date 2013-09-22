@@ -46,7 +46,7 @@ be aware of it.  The baseline overhead can be measured by invoking the
 program without arguments.  The baseline overhead differs between
 Python versions!
 """
-from __future__ import division
+
 
 try:
     import gc
@@ -122,7 +122,7 @@ class Timer(object):
         self.src = src # Save for traceback display
         code = compile(src, dummy_src_name, "exec")
         ns = {}
-        exec code in globals(), ns
+        exec(code, globals(), ns)
         self.inner = ns["inner"]
 
     def print_exc(self, file=None):
@@ -216,9 +216,9 @@ def main(args=None):
         opts, args = getopt.getopt(args, "n:s:r:tcvh",
                                    ["number=", "setup=", "repeat=",
                                     "time", "clock", "verbose", "help"])
-    except getopt.error, err:
-        print err
-        print "use -h/--help for command line help"
+    except getopt.error as err:
+        print(err)
+        print("use -h/--help for command line help")
         return 2
     timer = default_timer
     stmt = "\n".join(args) or "pass"
@@ -245,7 +245,7 @@ def main(args=None):
                 precision = precision + 1
             verbose = precision + 1
         if o in ("-h", "--help"):
-            print __doc__,
+            print(__doc__, end=' ')
             return 0
     setup = "\n".join(setup) or "pass"
     # Include the current directory, so that local imports work (sys.path
@@ -264,7 +264,7 @@ def main(args=None):
                 t.print_exc()
                 return 1
             if verbose:
-                print "%d loops -> %.*g secs" % (number, precision, x)
+                print("%d loops -> %.*g secs" % (number, precision, x))
             if x >= 0.2:
                 break
     try:
@@ -274,18 +274,18 @@ def main(args=None):
         return 1
     best = min(r)
     if verbose:
-        print "raw times:", ' '.join(["%.*g" % (precision, x) for x in r])
-    print "%d loops," % number,
+        print("raw times:", ' '.join(["%.*g" % (precision, x) for x in r]))
+    print("%d loops," % number, end=' ')
     usec = best * 1e6 / number
     if usec < 1000:
-        print "best of %d: %.*g usec per loop" % (repeat, precision, usec)
+        print("best of %d: %.*g usec per loop" % (repeat, precision, usec))
     else:
         msec = usec / 1000
         if msec < 1000:
-            print "best of %d: %.*g msec per loop" % (repeat, precision, msec)
+            print("best of %d: %.*g msec per loop" % (repeat, precision, msec))
         else:
             sec = msec / 1000
-            print "best of %d: %.*g sec per loop" % (repeat, precision, sec)
+            print("best of %d: %.*g sec per loop" % (repeat, precision, sec))
     return None
 
 if __name__ == "__main__":

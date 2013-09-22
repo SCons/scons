@@ -18,7 +18,7 @@ try:
     xmlfile = sys.argv[1]
     xslfile = sys.argv[2]
 except IndexError:
-    print usage
+    print(usage)
     sys.exit(1)
 
 def quote(astring):
@@ -38,12 +38,12 @@ try:
     while (sys.argv[count]):
         try:
             name, value = sys.argv[count].split("=", 2)
-            if params.has_key(name):
-                print "Warning: '%s' re-specified; replacing value" % name
+            if name in params:
+                print("Warning: '%s' re-specified; replacing value" % name)
             params[name] = quote(value)
         except ValueError:
-            print "Invalid parameter specification: '" + sys.argv[count] + "'"
-            print usage
+            print("Invalid parameter specification: '" + sys.argv[count] + "'")
+            print(usage)
             sys.exit(1)
         count = count+1
 except IndexError:
@@ -70,7 +70,7 @@ result = style.applyStylesheet(doc, params)
 if outfile:
     style.saveResultToFilename(outfile, result, 0)
 else:
-    print result
+    print(result)
 
 # Free things up
 style.freeStylesheet()

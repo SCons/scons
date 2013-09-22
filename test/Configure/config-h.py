@@ -135,19 +135,19 @@ test.run(stdout=expected_stdout)
 
 config_h = test.read(test.workpath('config.h'))
 if expected_config_h != config_h:
-    print "Unexpected config.h"
-    print "Expected: "
-    print "---------------------------------------------------------"
-    print repr(expected_config_h)
-    print "---------------------------------------------------------"
-    print "Found: "
-    print "---------------------------------------------------------"
-    print repr(config_h)
-    print "---------------------------------------------------------"
-    print "Stdio: "
-    print "---------------------------------------------------------"
-    print test.stdout()
-    print "---------------------------------------------------------"
+    print("Unexpected config.h")
+    print("Expected: ")
+    print("---------------------------------------------------------")
+    print(repr(expected_config_h))
+    print("---------------------------------------------------------")
+    print("Found: ")
+    print("---------------------------------------------------------")
+    print(repr(config_h))
+    print("---------------------------------------------------------")
+    print("Stdio: ")
+    print("---------------------------------------------------------")
+    print(test.stdout())
+    print("---------------------------------------------------------")
     test.fail_test()
 
 expected_read_str = re.sub(r'\b((yes)|(no))\b',
@@ -162,19 +162,19 @@ test.run(stdout=expected_stdout)
 
 config_h = test.read(test.workpath('config.h'))    
 if expected_config_h != config_h:
-    print "Unexpected config.h"
-    print "Expected: "
-    print "---------------------------------------------------------"
-    print repr(expected_config_h)
-    print "---------------------------------------------------------"
-    print "Found: "
-    print "---------------------------------------------------------"
-    print repr(config_h)
-    print "---------------------------------------------------------"
-    print "Stdio: "
-    print "---------------------------------------------------------"
-    print test.stdout()
-    print "---------------------------------------------------------"
+    print("Unexpected config.h")
+    print("Expected: ")
+    print("---------------------------------------------------------")
+    print(repr(expected_config_h))
+    print("---------------------------------------------------------")
+    print("Found: ")
+    print("---------------------------------------------------------")
+    print(repr(config_h))
+    print("---------------------------------------------------------")
+    print("Stdio: ")
+    print("---------------------------------------------------------")
+    print(test.stdout())
+    print("---------------------------------------------------------")
     test.fail_test()
 
 test.pass_test()

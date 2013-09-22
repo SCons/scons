@@ -11,7 +11,7 @@ selection method.
 import SCons.Action
 import SCons.Util
 
-import gnulink
+from . import gnulink
 
 def shlib_generator(target, source, env, for_signature):
     cmd = SCons.Util.CLVar(['$SHLINK']) 

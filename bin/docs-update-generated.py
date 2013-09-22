@@ -38,7 +38,7 @@ def generate_all():
             try:
                 os.makedirs(gen_folder)
             except:
-                print "Couldn't create destination folder %s! Exiting..." % gen_folder
+                print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
         os.system('python %s -b %s -f %s -t %s -v %s %s' %

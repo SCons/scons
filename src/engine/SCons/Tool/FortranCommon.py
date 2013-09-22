@@ -61,7 +61,7 @@ def isfortran(env, source):
 def _fortranEmitter(target, source, env):
     node = source[0].rfile()
     if not node.exists() and not node.is_derived():
-       print "Could not locate " + str(node.name)
+       print("Could not locate " + str(node.name))
        return ([], [])
     mod_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
     cre = re.compile(mod_regex,re.M)

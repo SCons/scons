@@ -34,7 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 
-import posix
+from . import posix
 
 def get_xlc(env, xlc=None, xlc_r=None, packages=[]):
     # Use the AIX package installer tool lslpp to figure out where a

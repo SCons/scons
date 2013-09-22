@@ -20,7 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -567,13 +567,13 @@ class VariantDirTestCase(unittest.TestCase):
             dp = dnode.srcnode().path
             expect = os.path.normpath(srcnode_map.get(dir, dir))
             if dp != expect:
-                print "Dir `%s' srcnode() `%s' != expected `%s'" % (dir, dp, expect)
+                print("Dir `%s' srcnode() `%s' != expected `%s'" % (dir, dp, expect))
                 errors = errors + 1
 
             fp = fnode.srcnode().path
             expect = os.path.normpath(srcnode_map.get(f, f))
             if fp != expect:
-                print "File `%s' srcnode() `%s' != expected `%s'" % (f, fp, expect)
+                print("File `%s' srcnode() `%s' != expected `%s'" % (f, fp, expect))
                 errors = errors + 1
 
         for dir in dir_list:
@@ -585,14 +585,14 @@ class VariantDirTestCase(unittest.TestCase):
             tp = t[0].path
             expect = os.path.normpath(alter_map.get(dir, dir))
             if tp != expect:
-                print "Dir `%s' alter_targets() `%s' != expected `%s'" % (dir, tp, expect)
+                print("Dir `%s' alter_targets() `%s' != expected `%s'" % (dir, tp, expect))
                 errors = errors + 1
 
             t, m = fnode.alter_targets()
             tp = t[0].path
             expect = os.path.normpath(alter_map.get(f, f))
             if tp != expect:
-                print "File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect)
+                print("File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect))
                 errors = errors + 1
 
         self.failIf(errors)
@@ -1088,7 +1088,7 @@ class FSTestCase(_tempdirTestCase):
 
             try:
                 f2 = fs.File(sep.join(['f1', 'f2']), directory = d1)
-            except TypeError, x:
+            except TypeError as x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
             except:
@@ -1096,7 +1096,7 @@ class FSTestCase(_tempdirTestCase):
 
             try:
                 dir = fs.Dir(sep.join(['d1', 'f1']))
-            except TypeError, x:
+            except TypeError as x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
             except:
@@ -1104,7 +1104,7 @@ class FSTestCase(_tempdirTestCase):
 
             try:
                 f2 = fs.File('d1')
-            except TypeError, x:
+            except TypeError as x:
                 assert str(x) == ("Tried to lookup Dir '%s' as a File." %
                                   'd1'), x
             except:
@@ -1305,7 +1305,7 @@ class FSTestCase(_tempdirTestCase):
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
-        test_string = u"Foo\x1aBar"
+        test_string = "Foo\x1aBar"
         test.write("utf8_file", test_string.encode('utf-8'))
         f1 = fs.File(test.workpath("utf8_file"))
         assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
@@ -1645,7 +1645,7 @@ class FSTestCase(_tempdirTestCase):
 
         def unc_workpath(dirs, test=test):
             import ntpath
-            x = apply(test.workpath, dirs)
+            x = test.workpath(*dirs)
             drive, path = ntpath.splitdrive(x)
             unc, path = ntpath.splitunc(path)
             path = strip_slash(path)
@@ -1911,9 +1911,9 @@ class FSTestCase(_tempdirTestCase):
             del cases[:3]
             result = dir.rel_path(other)
             if result != expect:
-                if failed == 0: print
+                if failed == 0: print()
                 fmt = "    dir_path(%(dir)s, %(other)s) => '%(result)s' did not match '%(expect)s'"
-                print fmt % locals()
+                print(fmt % locals())
                 failed = failed + 1
         assert failed == 0, "%d rel_path() cases failed" % failed
 
@@ -2520,9 +2520,9 @@ class GlobTestCase(_tempdirTestCase):
                 fmt = lambda n: n
             if r != result:
                 import pprint
-                print "Glob(%s) expected:" % repr(input)
+                print("Glob(%s) expected:" % repr(input))
                 pprint.pprint(list(map(fmt, result)))
-                print "Glob(%s) got:" % repr(input)
+                print("Glob(%s) got:" % repr(input))
                 pprint.pprint(list(map(fmt, r)))
                 self.fail()
 
@@ -3621,7 +3621,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         caught = None
         try:
             fs.Dir('ddd').get_subst_proxy().no_such_attr
-        except AttributeError, e:
+        except AttributeError as e:
             assert str(e) == "Dir instance 'ddd' has no attribute 'no_such_attr'", e
             caught = 1
         assert caught, "did not catch expected AttributeError"
@@ -3629,7 +3629,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         caught = None
         try:
             fs.Entry('eee').get_subst_proxy().no_such_attr
-        except AttributeError, e:
+        except AttributeError as e:
             # Gets disambiguated to File instance by get_subst_proxy().
             assert str(e) == "File instance 'eee' has no attribute 'no_such_attr'", e
             caught = 1
@@ -3638,7 +3638,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         caught = None
         try:
             fs.File('fff').get_subst_proxy().no_such_attr
-        except AttributeError, e:
+        except AttributeError as e:
             assert str(e) == "File instance 'fff' has no attribute 'no_such_attr'", e
             caught = 1
         assert caught, "did not catch expected AttributeError"

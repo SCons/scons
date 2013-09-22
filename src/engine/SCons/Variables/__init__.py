@@ -36,11 +36,11 @@ import SCons.Errors
 import SCons.Util
 import SCons.Warnings
 
-from BoolVariable import BoolVariable  # okay
-from EnumVariable import EnumVariable  # okay
-from ListVariable import ListVariable  # naja
-from PackageVariable import PackageVariable # naja
-from PathVariable import PathVariable # okay
+from .BoolVariable import BoolVariable  # okay
+from .EnumVariable import EnumVariable  # okay
+from .ListVariable import ListVariable  # naja
+from .PackageVariable import PackageVariable # naja
+from .PathVariable import PathVariable # okay
 
 
 class Variables(object):
@@ -170,7 +170,7 @@ class Variables(object):
                     sys.path.insert(0, dir)
                 try:
                     values['__name__'] = filename
-                    exec open(filename, 'rU').read() in {}, values
+                    exec(open(filename, 'rU').read(), {}, values)
                 finally:
                     if dir:
                         del sys.path[0]
@@ -180,7 +180,7 @@ class Variables(object):
         if args is None:
             args = self.args
 
-        for arg, value in args.items():
+        for arg, value in list(args.items()):
             added = False
             for option in self.options:
                 if arg in list(option.aliases) + [ option.key ]:
@@ -206,7 +206,7 @@ class Variables(object):
                         env[option.key] = option.converter(value)
                     except TypeError:
                         env[option.key] = option.converter(value, env)
-                except ValueError, x:
+                except ValueError as x:
                     raise SCons.Errors.UserError('Error converting option: %s\n%s'%(option.key, x))
 
 
@@ -268,7 +268,7 @@ class Variables(object):
             finally:
                 fh.close()
 
-        except IOError, x:
+        except IOError as x:
             raise SCons.Errors.UserError('Error writing options to file: %s\n%s' % (filename, x))
 
     def GenerateHelpText(self, env, sort=None):

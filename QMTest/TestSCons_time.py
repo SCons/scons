@@ -225,7 +225,7 @@ class TestSCons_time(TestCommon):
     def write_fake_aegis_py(self, name):
         name = self.workpath(name)
         self.write(name, aegis_py)
-        os.chmod(name, 0755)
+        os.chmod(name, 0o755)
         return name
 
     def write_fake_scons_py(self):
@@ -235,7 +235,7 @@ class TestSCons_time(TestCommon):
     def write_fake_svn_py(self, name):
         name = self.workpath(name)
         self.write(name, svn_py)
-        os.chmod(name, 0755)
+        os.chmod(name, 0o755)
         return name
 
     def write_sample_directory(self, archive, dir, files):

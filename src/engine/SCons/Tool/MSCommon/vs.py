@@ -31,7 +31,7 @@ import os
 import SCons.Errors
 import SCons.Util
 
-from common import debug, \
+from .common import debug, \
                    get_output, \
                    is_win64, \
                    normalize_env, \
@@ -85,7 +85,7 @@ class VisualStudio(object):
             key = root + key
             try:
                 comps = read_reg(key)
-            except WindowsError, e:
+            except WindowsError as e:
                 debug('find_vs_dir_by_reg(): no VS registry key %s' % repr(key))
             else:
                 debug('find_vs_dir_by_reg(): found VS in registry: %s' % comps)
@@ -536,7 +536,7 @@ def msvs_setup_env(env):
             env['ENV'] = save_ENV
         vars = parse_output(output, vars)
 
-        for k, v in vars.items():
+        for k, v in list(vars.items()):
             env.PrependENVPath(k, v, delete_existing=1)
 
 def query_versions():

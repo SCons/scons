@@ -160,7 +160,7 @@ class TestEnvironmentFixture(object):
         default_keys = { 'CC' : 'cc',
                          'CCFLAGS' : '-DNDEBUG',
                          'ENV' : { 'TMP' : '/tmp' } }
-        for key, value in default_keys.items():
+        for key, value in list(default_keys.items()):
             if key not in kw:
                 kw[key] = value
         if 'BUILDERS' not in kw:
@@ -263,7 +263,7 @@ class SubstitutionTestCase(unittest.TestCase):
         assert isinstance(nodes[0], X)
         assert nodes[0].name == "Util.py UtilTests.py"
 
-        try: unicode
+        try: str
         except NameError: pass
         else:
             code = """if 1:
@@ -272,7 +272,7 @@ class SubstitutionTestCase(unittest.TestCase):
                 assert isinstance(nodes[0], X)
                 assert nodes[0].name == u"Util.py UtilTests.py"
                 \n"""
-            exec code in globals(), locals()
+            exec(code, globals(), locals())
 
         nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes
@@ -655,7 +655,7 @@ sys.exit(0)
             cmd = '%s %s' % (python, test.workpath('fail.py'))
             try:
                 env.backtick(cmd)
-            except OSError, e:
+            except OSError as e:
                 assert str(e) == "'%s' exited 1" % cmd, str(e)
             else:
                 self.fail("did not catch expected OSError")
@@ -1586,17 +1586,17 @@ def exists(env):
             env['XXX'] = copy.copy(input)
             try:
                 env.Append(XXX = append)
-            except Exception, e:
-                if failed == 0: print
-                print "    %s Append %s exception: %s" % \
-                      (repr(input), repr(append), e)
+            except Exception as e:
+                if failed == 0: print()
+                print("    %s Append %s exception: %s" % \
+                      (repr(input), repr(append), e))
                 failed = failed + 1
             else:
                 result = env['XXX']
                 if result != expect:
-                    if failed == 0: print
-                    print "    %s Append %s => %s did not match %s" % \
-                          (repr(input), repr(append), repr(result), repr(expect))
+                    if failed == 0: print()
+                    print("    %s Append %s => %s did not match %s" % \
+                          (repr(input), repr(append), repr(result), repr(expect)))
                     failed = failed + 1
             del cases[:3]
         assert failed == 0, "%d Append() cases failed" % failed
@@ -1935,7 +1935,7 @@ def generate(env):
             assert x is None, x
 
             sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
-            os.chmod(sub2_xxx_exe, 0755)
+            os.chmod(sub2_xxx_exe, 0o755)
 
             env = self.TestEnvironment(ENV = { 'PATH' : [sub1, sub2] })
 
@@ -1943,7 +1943,7 @@ def generate(env):
             assert x == 'xxx.exe', x
 
             sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
-            os.chmod(sub1_xxx_exe, 0755)
+            os.chmod(sub1_xxx_exe, 0o755)
 
             x = env.Detect('xxx.exe')
             assert x == 'xxx.exe', x
@@ -2258,17 +2258,17 @@ f5: \
             env['XXX'] = copy.copy(input)
             try:
                 env.Prepend(XXX = prepend)
-            except Exception, e:
-                if failed == 0: print
-                print "    %s Prepend %s exception: %s" % \
-                      (repr(input), repr(prepend), e)
+            except Exception as e:
+                if failed == 0: print()
+                print("    %s Prepend %s exception: %s" % \
+                      (repr(input), repr(prepend), e))
                 failed = failed + 1
             else:
                 result = env['XXX']
                 if result != expect:
-                    if failed == 0: print
-                    print "    %s Prepend %s => %s did not match %s" % \
-                          (repr(input), repr(prepend), repr(result), repr(expect))
+                    if failed == 0: print()
+                    print("    %s Prepend %s => %s did not match %s" % \
+                          (repr(input), repr(prepend), repr(result), repr(expect)))
                     failed = failed + 1
             del cases[:3]
         assert failed == 0, "%d Prepend() cases failed" % failed
@@ -2506,10 +2506,10 @@ def generate(env):
         os.mkdir(sub2_xxx_exe)
 
         test.write(sub3_xxx_exe, "\n")
-        os.chmod(sub3_xxx_exe, 0777)
+        os.chmod(sub3_xxx_exe, 0o777)
 
         test.write(sub4_xxx_exe, "\n")
-        os.chmod(sub4_xxx_exe, 0777)
+        os.chmod(sub4_xxx_exe, 0o777)
 
         env_path = os.environ['PATH']
 

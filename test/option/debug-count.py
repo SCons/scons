@@ -74,10 +74,10 @@ for args in ['-h --debug=count', '--debug=count']:
     missing = [o for o in objects if find_object_count(o, stdout) is None]
 
     if missing:
-        print "Missing the following object lines from '%s' output:" % args
-        print "\t", ' '.join(missing)
-        print "STDOUT =========="
-        print stdout
+        print("Missing the following object lines from '%s' output:" % args)
+        print("\t", ' '.join(missing))
+        print("STDOUT ==========")
+        print(stdout)
         test.fail_test(1)
 
 expect_warning = """

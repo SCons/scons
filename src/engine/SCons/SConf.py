@@ -118,7 +118,7 @@ def CreateConfigHBuilder(env):
                                  _stringConfigH)
     sconfigHBld = SCons.Builder.Builder(action=action)
     env.Append( BUILDERS={'SConfigHBuilder':sconfigHBld} )
-    for k in _ac_config_hs.keys():
+    for k in list(_ac_config_hs.keys()):
         env.SConfigHBuilder(k, env.Value(_ac_config_hs[k]))
     
 class SConfWarning(SCons.Warnings.Warning):
@@ -239,7 +239,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 # Earlier versions of Python don't have sys.excepthook...
                 def excepthook(type, value, tb):
                     traceback.print_tb(tb)
-                    print type, value
+                    print(type, value)
             excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
@@ -318,7 +318,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                                     env_decider=env.decide_source):
                         env_decider(dependency, target, prev_ni)
                         return True
-                    if env.decide_source.func_code is not force_build.func_code:
+                    if env.decide_source.__code__ is not force_build.__code__:
                         env.Decider(force_build)
                 env['PSTDOUT'] = env['PSTDERR'] = s
                 try:
@@ -332,7 +332,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 raise SCons.Errors.ExplicitExit(self.targets[0],exc_value.code)
-            except Exception, e:
+            except Exception as e:
                 for t in self.targets:
                     binfo = t.get_binfo()
                     binfo.__class__ = SConfBuildInfo
@@ -652,7 +652,7 @@ class SConfBase(object):
         """Adds all the tests given in the tests dictionary to this SConf
         instance
         """
-        for name in tests.keys():
+        for name in list(tests.keys()):
             self.AddTest(name, tests[name])
 
     def _createDir( self, node ):

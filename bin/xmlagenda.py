@@ -89,7 +89,7 @@ for issue in issues:
     writer.writerow(['','','','','','',''])
     for member in team: writer.writerow(['','',member,'','','',''])
 
-print "Exported %d issues to editlist.csv.  Ready to upload to Google."%len(issues)
+print("Exported %d issues to editlist.csv.  Ready to upload to Google."%len(issues))
 
 # Local Variables:
 # tab-width:4

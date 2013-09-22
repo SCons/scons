@@ -27,7 +27,7 @@ import atexit
 import sys
 import unittest
 
-import cpp
+from . import cpp
 
 
 

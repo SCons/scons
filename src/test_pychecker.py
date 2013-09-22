@@ -139,7 +139,7 @@ for file in files:
             mismatches.append(stderr)
 
 if mismatches:
-    print ''.join(mismatches[1:])
+    print(''.join(mismatches[1:]))
     test.fail_test()
 
 test.pass_test()

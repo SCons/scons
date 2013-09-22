@@ -36,7 +36,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 try:
-    unicode
+    str
 except NameError:
     import sys
     msg = "Unicode not supported by Python version %s; skipping test\n"

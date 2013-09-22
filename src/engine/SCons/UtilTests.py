@@ -219,7 +219,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Dict(())
         assert not is_Dict("")
         if HasUnicode:
-            exec "assert not is_Dict(u'')"
+            exec("assert not is_Dict(u'')")
 
     def test_is_List(self):
         assert is_List([])
@@ -235,12 +235,12 @@ class UtilTestCase(unittest.TestCase):
         assert not is_List({})
         assert not is_List("")
         if HasUnicode:
-            exec "assert not is_List(u'')"
+            exec("assert not is_List(u'')")
 
     def test_is_String(self):
         assert is_String("")
         if HasUnicode:
-            exec "assert is_String(u'')"
+            exec("assert is_String(u'')")
         assert is_String(UserString(''))
         try:
             class mystr(str):
@@ -266,7 +266,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Tuple({})
         assert not is_Tuple("")
         if HasUnicode:
-            exec "assert not is_Tuple(u'')"
+            exec("assert not is_Tuple(u'')")
 
     def test_to_String(self):
         """Test the to_String() method."""
@@ -285,16 +285,16 @@ class UtilTestCase(unittest.TestCase):
         assert to_String(s2) == 'foo', s2
 
         if HasUnicode:
-            s3=UserString(unicode('bar'))
+            s3=UserString(str('bar'))
             assert to_String(s3) == s3, s3
-            assert to_String(s3) == unicode('bar'), s3
-            assert isinstance(to_String(s3), unicode), \
+            assert to_String(s3) == str('bar'), s3
+            assert isinstance(to_String(s3), str), \
                    type(to_String(s3))
 
         if HasUnicode:
-            s4 = unicode('baz')
-            assert to_String(s4) == unicode('baz'), to_String(s4)
-            assert isinstance(to_String(s4), unicode), \
+            s4 = str('baz')
+            assert to_String(s4) == str('baz'), to_String(s4)
+            assert isinstance(to_String(s4), str), \
                    type(to_String(s4))
 
     def test_WhereIs(self):
@@ -313,10 +313,10 @@ class UtilTestCase(unittest.TestCase):
         os.mkdir(sub2_xxx_exe)
 
         test.write(sub3_xxx_exe, "\n")
-        os.chmod(sub3_xxx_exe, 0777)
+        os.chmod(sub3_xxx_exe, 0o777)
 
         test.write(sub4_xxx_exe, "\n")
-        os.chmod(sub4_xxx_exe, 0777)
+        os.chmod(sub4_xxx_exe, 0o777)
 
         env_path = os.environ['PATH']
 
@@ -681,7 +681,7 @@ bling
             fobj = io.StringIO(content)
         except TypeError:
             # Python 2.7 and beyond require unicode strings.
-            fobj = io.StringIO(unicode(content))
+            fobj = io.StringIO(str(content))
 
         lines = LogicalLines(fobj).readlines()
         assert lines == [
@@ -696,7 +696,7 @@ bling
         s1 = silent_intern("spam")
         # Python 3.x does not have a unicode() global function
         if sys.version[0] == '2': 
-            s2 = silent_intern(unicode("unicode spam"))
+            s2 = silent_intern(str("unicode spam"))
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)

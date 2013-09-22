@@ -185,8 +185,8 @@ for tool in tools:
                 matched = 1
                 break
         if not matched:
-            print "Failed importing '%s', stderr:" % tool
-            print stderr
+            print("Failed importing '%s', stderr:" % tool)
+            print(stderr)
             failures.append(tool)
 
 test.fail_test(len(failures))

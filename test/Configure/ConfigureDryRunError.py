@@ -97,7 +97,7 @@ test.checkLogAndStdout( ["Checking for C library %s... " % lib,
 
 newLog = test.read(test.workpath('config.log'))
 if newLog != oldLog:
-    print "Unexpected update of log file within a dry run"
+    print("Unexpected update of log file within a dry run")
     test.fail_test()
 
 test.pass_test()

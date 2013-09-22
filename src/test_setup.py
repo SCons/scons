@@ -197,9 +197,9 @@ if not os.path.isdir(scons_version) and os.path.isfile(tar_gz):
     os.system("gunzip -c %s | tar xf -" % tar_gz)
 
 if not os.path.isdir(scons_version):
-    print "Cannot test package installation, found none of the following packages:"
-    print "\t" + tar_gz
-    print "\t" + zip
+    print("Cannot test package installation, found none of the following packages:")
+    print("\t" + tar_gz)
+    print("\t" + zip)
     test.no_result(1)
 
 # Verify that a virgin installation installs the version library,

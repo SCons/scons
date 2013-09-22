@@ -118,7 +118,7 @@ def testObject(test, obj, expect):
     line1 = contents.split('\n')[0]
     actual = ' '.join(line1.split())
     if not expect == actual:
-        print "%s:  %s != %s\n" % (obj, repr(expect), repr(actual))
+        print("%s:  %s != %s\n" % (obj, repr(expect), repr(actual)))
         test.fail_test()
 
 if sys.platform in ('win32', 'cygwin'):

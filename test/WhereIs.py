@@ -45,10 +45,10 @@ if sys.platform != 'win32':
 os.mkdir(sub2_xxx_exe)
 
 test.write(sub3_xxx_exe, "\n")
-os.chmod(sub3_xxx_exe, 0777)
+os.chmod(sub3_xxx_exe, 0o777)
 
 test.write(sub4_xxx_exe, "\n")
-os.chmod(sub4_xxx_exe, 0777)
+os.chmod(sub4_xxx_exe, 0o777)
 
 env_path = os.environ['PATH']
 

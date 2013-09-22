@@ -36,7 +36,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    unicode
+    str
 except NameError:
     import sys
     msg = "Unicode not supported by Python version %s; skipping test\n"
@@ -102,28 +102,28 @@ include utf16be.k
 foo.k 1 line 4
 """)
 
-contents = unicode("""\
+contents = str("""\
 ascii.k 1 line 1
 include ascii.inc
 ascii.k 1 line 3
 """)
 test.write('ascii.k', contents.encode('ascii'))
 
-contents = unicode("""\
+contents = str("""\
 utf8.k 1 line 1
 include utf8.inc
 utf8.k 1 line 3
 """)
 test.write('utf8.k', codecs.BOM_UTF8 + contents.encode('utf-8'))
 
-contents = unicode("""\
+contents = str("""\
 utf16le.k 1 line 1
 include utf16le.inc
 utf16le.k 1 line 3
 """)
 test.write('utf16le.k', codecs.BOM_UTF16_LE + contents.encode('utf-16-le'))
 
-contents = unicode("""\
+contents = str("""\
 utf16be.k 1 line 1
 include utf16be.inc
 utf16be.k 1 line 3

@@ -371,7 +371,7 @@ class Node(object):
         """
         try:
             self.get_executor()(self, **kw)
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             e.node = self
             raise
 
@@ -827,7 +827,7 @@ class Node(object):
         """Adds dependencies."""
         try:
             self._add_child(self.depends, self.depends_set, depend)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -844,7 +844,7 @@ class Node(object):
         """Adds dependencies to ignore."""
         try:
             self._add_child(self.ignore, self.ignore_set, depend)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -858,7 +858,7 @@ class Node(object):
             return
         try:
             self._add_child(self.sources, self.sources_set, source)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1197,8 +1197,8 @@ class Node(object):
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(zip(old_bkids, old_bkidsigs))
-        nsig = dict(zip(new_bkids, new_bkidsigs))
+        osig = dict(list(zip(old_bkids, old_bkidsigs)))
+        nsig = dict(list(zip(new_bkids, new_bkidsigs)))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to

@@ -20,7 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -164,7 +164,7 @@ outside of the 15%% tolerance.
 """ % locals())
 
 if failures or warnings:
-    print '\n'.join([test.stdout()] + failures + warnings)
+    print('\n'.join([test.stdout()] + failures + warnings))
 if failures:
     test.fail_test(1)
 
@@ -172,7 +172,7 @@ test.run(arguments = "--debug=time . SLEEP=0")
 
 command_time = get_command_time(test.stdout())
 if command_time != 0.0:
-    print "Up-to-date run received non-zero command time of %s" % command_time
+    print("Up-to-date run received non-zero command time of %s" % command_time)
     test.fail_test()
 
 
@@ -201,14 +201,14 @@ outside of the 1%% tolerance.
 """ % locals())
 
 if failures:
-    print '\n'.join([test.stdout()] + failures)
+    print('\n'.join([test.stdout()] + failures))
     test.fail_test(1)
 
 test.run(arguments = "-j4 --debug=time . SLEEP=1")
 
 command_time = get_command_time(test.stdout())
 if command_time != 0.0:
-    print "Up-to-date run received non-zero command time of %s" % command_time
+    print("Up-to-date run received non-zero command time of %s" % command_time)
     test.fail_test()
 
 

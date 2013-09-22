@@ -50,8 +50,8 @@ for i in range(len(uppercase)-1, -1, -1):
         break
 
 if bad_drive is None:
-    print "All drive letters appear to be in use."
-    print "Cannot test SCons handling of invalid Windows drive letters."
+    print("All drive letters appear to be in use.")
+    print("Cannot test SCons handling of invalid Windows drive letters.")
     test.no_result(1);
 
 test.write('SConstruct', """

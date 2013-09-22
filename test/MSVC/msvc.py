@@ -181,9 +181,9 @@ slow = time.time() - start
 # using precompiled headers should be faster
 limit = slow*0.90
 if fast >= limit:
-    print "Using precompiled headers was not fast enough:"
-    print "slow.obj:  %.3fs" % slow
-    print "fast.obj:  %.3fs (expected less than %.3fs)" % (fast, limit)
+    print("Using precompiled headers was not fast enough:")
+    print("slow.obj:  %.3fs" % slow)
+    print("fast.obj:  %.3fs (expected less than %.3fs)" % (fast, limit))
     test.fail_test()
 
 # Modifying resource.h should cause both the resource and precompiled header to be rebuilt:

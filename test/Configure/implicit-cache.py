@@ -93,11 +93,11 @@ test.run_sconsign('-d .sconf_temp -e conftest_0.c --raw .sconsign.dblite')
 new_sconsign_dblite = test.stdout()
 
 if old_sconsign_dblite != new_sconsign_dblite:
-    print ".sconsign.dblite did not match:"
-    print "FIRST RUN =========="
-    print old_sconsign_dblite
-    print "SECOND RUN =========="
-    print new_sconsign_dblite
+    print(".sconsign.dblite did not match:")
+    print("FIRST RUN ==========")
+    print(old_sconsign_dblite)
+    print("SECOND RUN ==========")
+    print(new_sconsign_dblite)
     test.fail_test()
 
 test.pass_test()

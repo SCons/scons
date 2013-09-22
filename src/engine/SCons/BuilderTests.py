@@ -77,7 +77,7 @@ class Environment(object):
         self.d['SHELL'] = scons_env['SHELL']
         self.d['SPAWN'] = scons_env['SPAWN']
         self.d['ESCAPE'] = scons_env['ESCAPE']
-        for k, v in kw.items():
+        for k, v in list(kw.items()):
             self.d[k] = v
         global env_arg2nodes_called
         env_arg2nodes_called = None
@@ -138,7 +138,7 @@ class Environment(object):
         return list(self.d.items())
     def sig_dict(self):
         d = {}
-        for k,v in self.items(): d[k] = v
+        for k,v in list(self.items()): d[k] = v
         d['TARGETS'] = ['__t1__', '__t2__', '__t3__', '__t4__', '__t5__', '__t6__']
         d['TARGET'] = d['TARGETS'][0]
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
@@ -305,11 +305,11 @@ class BuilderTestCase(unittest.TestCase):
         #be = target.get_build_env()
         #assert be['VAR'] == 'foo', be['VAR']
 
-        try: unicode
+        try: str
         except NameError:
             uni = str
         else:
-            uni = unicode
+            uni = str
 
         target = builder(env, target = uni('n12 n13'),
                           source = [uni('n14 n15')])[0]
@@ -325,7 +325,7 @@ class BuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             target = builder(env, None, source=n20)
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown if a source node can't create a target."
 
@@ -341,7 +341,7 @@ class BuilderTestCase(unittest.TestCase):
                                         suffix = '.s')
         try:
             builder(env, target = 'n22', source = 'n22')
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             pass
         else:
             raise Exception("Did not catch expected UserError.")
@@ -1497,7 +1497,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
@@ -1528,8 +1528,8 @@ class CompositeBuilderTestCase(unittest.TestCase):
         try:
             tgt.build()
             flag = 1
-        except SCons.Errors.UserError, e:
-            print e
+        except SCons.Errors.UserError as e:
+            print(e)
             flag = 0
         assert flag, "It should be possible to define actions in composite builders using variables."
         env['FOO_SUFFIX'] = '.BAR2'
@@ -1581,7 +1581,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])[0]
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t5']' from `test5b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
@@ -1590,7 +1590,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])[0]
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t6']' from `test6b.foo': Cannot build multiple sources with different extensions: .bar, .foo"
@@ -1599,7 +1599,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])[0]
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t4']' from `test4b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
@@ -1608,7 +1608,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             builder(env, target='t7', source=[env.fs.File('test7')])[0]
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t7']': Cannot deduce file extension from source files: ['test7']"
@@ -1617,7 +1617,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         flag = 0
         try:
             builder(env, target='t8', source=['test8.unknown'])[0]
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             flag = 1
         assert flag, "UserError should be thrown when we call a builder target with an unknown suffix."
         expect = "While building `['t8']' from `['test8.unknown']': Don't know how to build from a source file with suffix `.unknown'.  Expected a suffix in this list: ['.foo', '.bar']."

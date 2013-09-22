@@ -265,7 +265,7 @@ def ensureExampleOutputsExist(dpath):
         os.mkdir(generated_examples)
         
     examples = readAllExampleInfos(dpath)
-    for key, value in examples.iteritems():
+    for key, value in examples.items():
         # Process all scons_output tags
         for o in value.outputs:
             cpath = os.path.join(generated_examples,
@@ -303,10 +303,10 @@ def createAllExampleOutputs(dpath):
     examples = readAllExampleInfos(dpath)
     total = len(examples)
     idx = 0
-    for key, value in examples.iteritems():
+    for key, value in examples.items():
         # Process all scons_output tags
-        print "%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
-                                     perc, idx + 1, total, key)
+        print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
+                                     perc, idx + 1, total, key))
         
         create_scons_output(value)
         # Process all scons_example_file tags
@@ -344,7 +344,7 @@ def collectSConsExampleNames(fpath):
             if n not in suffixes:
                 suffixes[n] = []
         else:
-            print "Error: Example in file '%s' is missing a name!" % fpath
+            print("Error: Example in file '%s' is missing a name!" % fpath)
             failed_suffixes = True
     
     for o in stf.findAll(t.root, "scons_output", SConsDoc.dbxid,
@@ -353,11 +353,11 @@ def collectSConsExampleNames(fpath):
         if stf.hasAttribute(o, 'example'):
             n = stf.getAttribute(o, 'example')
         else:
-            print "Error: scons_output in file '%s' is missing an example name!" % fpath
+            print("Error: scons_output in file '%s' is missing an example name!" % fpath)
             failed_suffixes = True
             
         if n not in suffixes:
-            print "Error: scons_output in file '%s' is referencing non-existent example '%s'!" % (fpath, n)
+            print("Error: scons_output in file '%s' is referencing non-existent example '%s'!" % (fpath, n))
             failed_suffixes = True
             continue
             
@@ -365,13 +365,13 @@ def collectSConsExampleNames(fpath):
         if stf.hasAttribute(o, 'suffix'):
             s = stf.getAttribute(o, 'suffix')
         else:
-            print "Error: scons_output in file '%s' (example '%s') is missing a suffix!" % (fpath, n)
+            print("Error: scons_output in file '%s' (example '%s') is missing a suffix!" % (fpath, n))
             failed_suffixes = True
         
         if s not in suffixes[n]:
             suffixes[n].append(s)
         else:
-            print "Error: scons_output in file '%s' (example '%s') is using a duplicate suffix '%s'!" % (fpath, n, s)
+            print("Error: scons_output in file '%s' (example '%s') is using a duplicate suffix '%s'!" % (fpath, n, s))
             failed_suffixes = True
     
     return names, failed_suffixes
@@ -392,7 +392,7 @@ def exampleNamesAreUnique(dpath):
                         unique = False
                     i = allnames.intersection(names)
                     if i:
-                        print "Not unique in %s are: %s" % (fpath, ', '.join(i))
+                        print("Not unique in %s are: %s" % (fpath, ', '.join(i)))
                         unique = False
                     
                     allnames |= names

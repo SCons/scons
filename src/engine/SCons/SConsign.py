@@ -84,7 +84,7 @@ def Get_DataBase(dir):
         DB_sync_list.append(db)
         return db, "c"
     except TypeError:
-        print "DataBase =", DataBase
+        print("DataBase =", DataBase)
         raise
 
 def Reset():
@@ -172,7 +172,7 @@ class Base(object):
         pass
 
     def merge(self):
-        for key, node in self.to_be_merged.items():
+        for key, node in list(self.to_be_merged.items()):
             entry = node.get_stored_info()
             try:
                 ninfo = entry.ninfo
@@ -215,10 +215,10 @@ class DB(Base):
                     raise TypeError
             except KeyboardInterrupt:
                 raise
-            except Exception, e:
+            except Exception as e:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                     "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.tpath, e))
-            for key, entry in self.entries.items():
+            for key, entry in list(self.entries.items()):
                 entry.convert_from_sconsign(dir, key)
 
         if mode == "r":
@@ -245,7 +245,7 @@ class DB(Base):
         # the Repository; we only write to our own .sconsign file,
         # not to .sconsign files in Repositories.
         path = normcase(self.dir.path)
-        for key, entry in self.entries.items():
+        for key, entry in list(self.entries.items()):
             entry.convert_to_sconsign()
         db[path] = pickle.dumps(self.entries, 1)
 
@@ -274,7 +274,7 @@ class Dir(Base):
             raise TypeError
 
         if dir:
-            for key, entry in self.entries.items():
+            for key, entry in list(self.entries.items()):
                 entry.convert_from_sconsign(dir, key)
 
 class DirFile(Dir):
@@ -333,14 +333,14 @@ class DirFile(Dir):
                 fname = self.sconsign
             except IOError:
                 return
-        for key, entry in self.entries.items():
+        for key, entry in list(self.entries.items()):
             entry.convert_to_sconsign()
         pickle.dump(self.entries, file, 1)
         file.close()
         if fname != self.sconsign:
             try:
                 mode = os.stat(self.sconsign)[0]
-                os.chmod(self.sconsign, 0666)
+                os.chmod(self.sconsign, 0o666)
                 os.unlink(self.sconsign)
             except (IOError, OSError):
                 # Try to carry on in the face of either OSError

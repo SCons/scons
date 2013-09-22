@@ -66,7 +66,7 @@ tries = 0
 max_tries = 10
 while test.stdout() == non_random_output:
     if tries >= max_tries:
-        print "--random generated the non-random output %s times!" % max_tries
+        print("--random generated the non-random output %s times!" % max_tries)
         test.fail_test()
     tries = tries + 1
     test.run(arguments = '-n -Q --random')
@@ -84,7 +84,7 @@ tries = 0
 max_tries = 10
 while test.stdout() == non_random_output:
     if tries >= max_tries:
-        print "--random generated the non-random output %s times!" % max_tries
+        print("--random generated the non-random output %s times!" % max_tries)
         test.fail_test()
     tries = tries + 1
     test.run(arguments = '-n -Q --random')

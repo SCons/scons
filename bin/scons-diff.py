@@ -43,7 +43,7 @@ def diff_line(left, right):
         opts = ' ' + ' '.join(diff_options)
     else:
         opts = ''
-    print 'diff%s %s %s' % (opts, left, right)
+    print('diff%s %s %s' % (opts, left, right))
 
 for o, a in opts:
     if o in ('-c', '-u'):
@@ -51,7 +51,7 @@ for o, a in opts:
         context = int(a)
         diff_options.append(o)
     elif o in ('-h', '--help'):
-        print Usage
+        print(Usage)
 	sys.exit(0)
     elif o in ('-n'):
         diff_options.append(o)
@@ -161,9 +161,9 @@ def diff_file(left, right):
     else:
         if text:
             diff_line(left, right)
-            print text,
+            print(text, end=' ')
         elif report_same:
-            print 'Files %s and %s are identical' % (left, right)
+            print('Files %s and %s are identical' % (left, right))
 
 def diff_dir(left, right):
     llist = os.listdir(left)
@@ -173,16 +173,16 @@ def diff_dir(left, right):
         u[l] = 1
     for r in rlist:
         u[r] = 1
-    for x in sorted([ x for x in u.keys() if x[-4:] != '.pyc' ]):
+    for x in sorted([ x for x in list(u.keys()) if x[-4:] != '.pyc' ]):
         if x in llist:
             if x in rlist:
                 do_diff(os.path.join(left, x),
                         os.path.join(right, x),
                         recursive)
             else:
-                print 'Only in %s: %s' % (left, x)
+                print('Only in %s: %s' % (left, x))
         else:
-            print 'Only in %s: %s' % (right, x)
+            print('Only in %s: %s' % (right, x))
 
 do_diff(left, right, True)
 

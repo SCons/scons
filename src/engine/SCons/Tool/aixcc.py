@@ -36,7 +36,7 @@ import os.path
 
 import SCons.Platform.aix
 
-import cc
+from . import cc
 
 packages = ['vac.C', 'ibmcxx.cmp']
 

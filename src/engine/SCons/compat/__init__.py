@@ -87,7 +87,7 @@ def rename_module(new, old):
 
 
 rename_module('builtins', '__builtin__')
-import _scons_builtins
+from . import _scons_builtins
 
 
 try:

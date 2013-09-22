@@ -120,7 +120,7 @@ class SConsInteractiveCmd(cmd.Cmd):
 
     def __init__(self, **kw):
         cmd.Cmd.__init__(self)
-        for key, val in kw.items():
+        for key, val in list(kw.items()):
             setattr(self, key, val)
 
         if sys.platform == 'win32':
@@ -129,12 +129,12 @@ class SConsInteractiveCmd(cmd.Cmd):
             self.shell_variable = 'SHELL'
 
     def default(self, argv):
-        print "*** Unknown command: %s" % argv[0]
+        print("*** Unknown command: %s" % argv[0])
 
     def onecmd(self, line):
         line = line.strip()
         if not line:
-            print self.lastcmd
+            print(self.lastcmd)
             return self.emptyline()
         self.lastcmd = line
         if line[0] == '!':
@@ -249,7 +249,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             while n:
                 n = walker.get_next()
 
-        for node in seen_nodes.keys():
+        for node in list(seen_nodes.keys()):
             # Call node.clear() to clear most of the state
             node.clear()
             # node.clear() doesn't reset node.state, so call
@@ -274,7 +274,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         return self.do_build(['build', '--clean'] + argv[1:])
 
     def do_EOF(self, argv):
-        print
+        print()
         self.do_exit(argv)
 
     def _do_one_help(self, arg):
@@ -357,7 +357,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             # Doing the right thing with an argument list currently
             # requires different shell= values on Windows and Linux.
             p = subprocess.Popen(argv, shell=(sys.platform=='win32'))
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             sys.stderr.write('scons: %s: %s\n' % (argv[0], e.strerror))
         else:
             p.wait()

@@ -30,7 +30,7 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -206,17 +206,16 @@ def get_all_compiler_versions():
                         # Registry points to nonexistent dir.  Ignore this
                         # version.
                         value = get_intel_registry_value('ProductDir', subkey, 'IA32')
-                    except MissingRegistryError, e:
+                    except MissingRegistryError as e:
 
                         # Registry key is left dangling (potentially
                         # after uninstalling).
 
-                        print \
-                            "scons: *** Ignoring the registry key for the Intel compiler version %s.\n" \
+                        print("scons: *** Ignoring the registry key for the Intel compiler version %s.\n" \
                             "scons: *** It seems that the compiler was uninstalled and that the registry\n" \
-                            "scons: *** was not cleaned up properly.\n" % subkey
+                            "scons: *** was not cleaned up properly.\n" % subkey)
                     else:
-                        print "scons: *** Ignoring "+str(value)
+                        print("scons: *** Ignoring "+str(value))
 
                 i = i + 1
         except EnvironmentError:
@@ -424,8 +423,8 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
             bindir="bin"
             libdir="lib"
         if verbose:
-            print "Intel C compiler: using version %s (%g), abi %s, in '%s/%s'"%\
-                  (repr(version), linux_ver_normalize(version),abi,topdir,bindir)
+            print("Intel C compiler: using version %s (%g), abi %s, in '%s/%s'"%\
+                  (repr(version), linux_ver_normalize(version),abi,topdir,bindir))
             if is_linux:
                 # Show the actual compiler version by running the compiler.
                 os.system('%s/%s/icc --version'%(topdir,bindir))
@@ -439,14 +438,14 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in paths.keys():
+            for p in list(paths.keys()):
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
         if is_mac:
             paths={'INCLUDE'         : 'include',
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in paths.keys():
+            for p in list(paths.keys()):
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
         if is_windows:
             #       env key    reg valname   default subdir of top

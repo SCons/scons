@@ -59,7 +59,7 @@ test.write(['src', 'file.in'], "src/file.in\n")
 
 build_file_out = test.workpath('build', 'file.out')
 
-print os.path.splitdrive(build_file_out)[1]
+print(os.path.splitdrive(build_file_out)[1])
 test.run(chdir = 'src',
          arguments = os.path.splitdrive(build_file_out)[1])
 

@@ -13,7 +13,7 @@ attributes defined in this subclass.
 """
 
 # __COPYRIGHT__
-from __future__ import division
+
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -356,7 +356,7 @@ class TestSCons(TestCommon):
                             # raised so as to not mask possibly serious disk or
                             # network issues.
                             continue
-                        if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                        if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                             return os.path.normpath(f)
         else:
             import SCons.Environment
@@ -503,9 +503,9 @@ class TestSCons(TestCommon):
                self.pass_test()
             else:
                # test failed; have to do this by hand...
-               print self.banner('STDOUT ')
-               print self.stdout()
-               print self.diff(warning, stderr, 'STDERR ')
+               print(self.banner('STDOUT '))
+               print(self.stdout())
+               print(self.diff(warning, stderr, 'STDERR '))
                self.fail_test()
 
         return warning
@@ -574,7 +574,7 @@ class TestSCons(TestCommon):
         We stick the requested file name and line number in the right
         places, abstracting out the version difference.
         """
-        exec 'import traceback; x = traceback.format_stack()[-1]'
+        exec('import traceback; x = traceback.format_stack()[-1]')
         x = x.lstrip()
         x = x.replace('<string>', file)
         x = x.replace('line 1,', 'line %s,' % line)
@@ -721,7 +721,7 @@ class TestSCons(TestCommon):
             home = os.path.normpath('%s/..'%jar)
         if os.path.isdir(home):
             return home
-        print("Could not determine JAVA_HOME: %s is not a directory" % home)
+        print(("Could not determine JAVA_HOME: %s is not a directory" % home))
         self.fail_test()
 
     def java_where_jar(self, version=None):
@@ -1087,27 +1087,27 @@ SConscript( sconscript )
             if doCheckLog and lastEnd != len(logfile):
                 raise NoMatch(lastEnd)
 
-        except NoMatch, m:
-            print "Cannot match log file against log regexp."
-            print "log file: "
-            print "------------------------------------------------------"
-            print logfile[m.pos:]
-            print "------------------------------------------------------"
-            print "log regexp: "
-            print "------------------------------------------------------"
-            print log
-            print "------------------------------------------------------"
+        except NoMatch as m:
+            print("Cannot match log file against log regexp.")
+            print("log file: ")
+            print("------------------------------------------------------")
+            print(logfile[m.pos:])
+            print("------------------------------------------------------")
+            print("log regexp: ")
+            print("------------------------------------------------------")
+            print(log)
+            print("------------------------------------------------------")
             self.fail_test()
 
         if doCheckStdout:
             exp_stdout = self.wrap_stdout(".*", rdstr)
             if not self.match_re_dotall(self.stdout(), exp_stdout):
-                print "Unexpected stdout: "
-                print "-----------------------------------------------------"
-                print repr(self.stdout())
-                print "-----------------------------------------------------"
-                print repr(exp_stdout)
-                print "-----------------------------------------------------"
+                print("Unexpected stdout: ")
+                print("-----------------------------------------------------")
+                print(repr(self.stdout()))
+                print("-----------------------------------------------------")
+                print(repr(exp_stdout))
+                print("-----------------------------------------------------")
                 self.fail_test()
 
     def get_python_version(self):
@@ -1241,7 +1241,7 @@ class TimeSCons(TestSCons):
         self.variables = kw.get('variables')
         default_calibrate_variables = []
         if self.variables is not None:
-            for variable, value in self.variables.items():
+            for variable, value in list(self.variables.items()):
                 value = os.environ.get(variable, value)
                 try:
                     value = int(value)
@@ -1297,7 +1297,7 @@ class TimeSCons(TestSCons):
         """
         if 'options' not in kw and self.variables:
             options = []
-            for variable, value in self.variables.items():
+            for variable, value in list(self.variables.items()):
                 options.append('%s=%s' % (variable, value))
             kw['options'] = ' '.join(options)
         if self.calibrate:
@@ -1323,7 +1323,7 @@ class TimeSCons(TestSCons):
                    self.elapsed_time(),
                    "seconds",
                    sort=0)
-        for name, args in stats.items():
+        for name, args in list(stats.items()):
             self.trace(name, trace, **args)
 
     def uptime(self):

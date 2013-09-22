@@ -50,7 +50,7 @@ svnadmin = test.where_is('svnadmin')
 if not svn:
     test.skip_test("Could not find 'svnadmin'; skipping test(s).\n")
 
-print "Short-circuiting this test until we support Subversion"
+print("Short-circuiting this test until we support Subversion")
 test.pass_test()
 
 test.subdir('Subversion', 'import', ['import', 'sub'], 'work1', 'work2')
