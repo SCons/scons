@@ -114,7 +114,7 @@ class Tool(object):
                     if file:
                         file.close()
             except ImportError as e:
-                if str(e)!="No module named %s"%self.name:
+                if not str(e).startswith ("No module"):
                     raise SCons.Errors.EnvironmentError(e)
                 try:
                     import zipimport
@@ -144,7 +144,7 @@ class Tool(object):
                         file.close()
                     return module
                 except ImportError as e:
-                    if str(e)!="No module named %s"%self.name:
+                    if not str(e).startswith("No module"):
                         raise SCons.Errors.EnvironmentError(e)
                     try:
                         import zipimport

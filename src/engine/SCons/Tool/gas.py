@@ -33,7 +33,10 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-as_module = __import__('as', globals(), locals(), [])
+try:
+    as_module = __import__('as', globals(), locals(), [])
+except:
+    as_module = __import__(__package__+'.as', globals(), locals(), ['*'])
 
 assemblers = ['as', 'gas']
 

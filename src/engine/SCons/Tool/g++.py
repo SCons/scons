@@ -40,8 +40,7 @@ import subprocess
 import SCons.Tool
 import SCons.Util
 
-cplusplus = __import__('c++', globals(), locals(), [])
-
+cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
 compilers = ['g++']
 
 def generate(env):
@@ -75,7 +74,7 @@ def generate(env):
         #line = pipe.stdout.read().strip()
         #if line:
         #    env['CXXVERSION'] = line
-        line = pipe.stdout.readline()
+        line = SCons.Util.to_str (pipe.stdout.readline())
         match = re.search(r'[0-9]+(\.[0-9]+)+', line)
         if match:
             env['CXXVERSION'] = match.group(0)

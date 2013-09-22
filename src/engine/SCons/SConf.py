@@ -175,13 +175,19 @@ class Streamer(object):
     """
     def __init__(self, orig):
         self.orig = orig
-        self.s = io.StringIO()
+        try:
+            import StringIO
+            self.s = StringIO.StringIO()
+        except:
+            self.s = io.StringIO()
 
     def write(self, str):
-        if self.orig:
-            self.orig.write(str)
-        self.s.write(str)
-
+        try:
+            if self.orig:
+                self.orig.write(str)
+            self.s.write(str)
+        except:
+            print ('oops')
     def writelines(self, lines):
         for l in lines:
             self.write(l + '\n')

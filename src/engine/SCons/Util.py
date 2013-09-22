@@ -37,7 +37,6 @@ import collections
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-InstanceType    = types.InstanceType
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
 try: str
@@ -1370,7 +1369,7 @@ def AddMethod(obj, function, name=None):
         setattr(obj, name, MethodType(function, obj, obj.__class__))
     else:
         # "obj" is a class, so it gets an unbound method.
-        setattr(obj, name, MethodType(function, None, obj))
+        setattr(obj, name, function)
 
 def RenameFunction(function, name):
     """
@@ -1402,7 +1401,7 @@ else:
         md5 = True
         def MD5signature(s):
             m = hashlib.md5()
-            m.update(str(s))
+            m.update(to_bytes(str(s)))
             return m.hexdigest()
 
         def MD5filesignature(fname, chunksize=65536):
@@ -1412,7 +1411,7 @@ else:
                 blck = f.read(chunksize)
                 if not blck:
                     break
-                m.update(str(blck))
+                m.update(to_bytes (str(blck)))
             f.close()
             return m.hexdigest()
             
@@ -1485,6 +1484,18 @@ class NullSeq(Null):
 
 
 del __revision__
+
+def to_bytes (s):
+    if bytes is str:
+        return s
+    else:
+        return bytes (s, 'utf-8')
+
+def to_str (s):
+    if bytes is str:
+        return s
+    else:
+        return str (s, 'utf-8')
 
 # Local Variables:
 # tab-width:4

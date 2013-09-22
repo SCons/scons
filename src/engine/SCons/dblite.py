@@ -16,14 +16,10 @@ ignore_corrupt_dbfiles = 0
 def corruption_warning(filename):
     print("Warning: Discarding corrupt database:", filename)
 
-try: str
-except NameError:
-    def is_string(s):
-        return isinstance(s, str)
-else:
-    def is_string(s):
-        return type(s) in (str, str)
-
+def is_string(s):
+    return isinstance(s, str)
+def is_bytes(s):
+    return isinstance (s, bytes)
 try:
     str('a')
 except NameError:
@@ -148,8 +144,8 @@ class dblite(object):
     self._check_writable()
     if (not is_string(key)):
       raise TypeError("key `%s' must be a string but is %s" % (key, type(key)))
-    if (not is_string(value)):
-      raise TypeError("value `%s' must be a string but is %s" % (value, type(value)))
+    if (not is_bytes(value)):
+      raise TypeError("value `%s' must be a bytes but is %s" % (value, type(value)))
     self._dict[key] = value
     self._needs_sync = 0o001
 

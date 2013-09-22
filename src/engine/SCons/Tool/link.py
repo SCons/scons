@@ -42,7 +42,7 @@ import SCons.Warnings
 
 from SCons.Tool.FortranCommon import isfortran
 
-cplusplus = __import__('c++', globals(), locals(), [])
+cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
 
 issued_mixed_link_warning = False
 

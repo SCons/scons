@@ -325,7 +325,7 @@ class Classic(Current):
 
     def __init__(self, name, suffixes, path_variable, regex, *args, **kw):
 
-        self.cre = re.compile(regex, re.M)
+        self.cre = re.compile(SCons.Util.to_bytes(regex), re.M)
 
         def _scan(node, env, path=(), self=self):
             node = node.rfile()

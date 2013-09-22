@@ -237,9 +237,9 @@ def _code_contents(code):
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents.append("%s,%s" % (code.co_argcount, len(code.co_varnames)))
+    contents.append(str.encode("%s,%s" % (code.co_argcount, len(code.co_varnames))))
     try:
-        contents.append(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars)))
+        contents.append(str.encode(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars))))
     except AttributeError:
         # Older versions of Python do not support closures.
         contents.append(",0,0")
@@ -252,19 +252,19 @@ def _code_contents(code):
     # Note that we also always ignore the first entry of co_consts
     # which contains the function doc string. We assume that the
     # function does not access its doc string.
-    contents.append(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')')
+    contents.append(b',(' + b','.join(map(_object_contents,code.co_consts[1:])) + b')')
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
     # the variable actually accessed and therefore changes the
     # function result.
-    contents.append(',(' + ','.join(map(_object_contents,code.co_names)) + ')')
+    contents.append(b',(' + b','.join(map(_object_contents,code.co_names)) + b')')
 
 
     # The code contents depends on its actual code!!!
-    contents.append(',(' + str(remove_set_lineno_codes(code.co_code)) + ')')
+    contents.append(b',(' + remove_set_lineno_codes(code.co_code) + b')')
 
-    return ''.join(contents)
+    return b''.join(contents)
 
 
 def _function_contents(func):
@@ -274,9 +274,9 @@ def _function_contents(func):
 
     # The function contents depends on the value of defaults arguments
     if func.__defaults__:
-        contents.append(',(' + ','.join(map(_object_contents,func.__defaults__)) + ')')
+        contents.append(b',(' + b','.join(map(_object_contents,func.__defaults__)) + b')')
     else:
-        contents.append(',()')
+        contents.append(b',()')
 
     # The function contents depends on the closure captured cell values.
     try:
@@ -290,9 +290,9 @@ def _function_contents(func):
         xxx = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
         xxx = []
-    contents.append(',(' + ','.join(xxx) + ')')
+    contents.append(b',(' + b','.join(xxx) + b')')
 
-    return ''.join(contents)
+    return b''.join(contents)
 
 
 def _actionAppend(act1, act2):
@@ -434,14 +434,20 @@ class ActionBase(object):
 
     def get_contents(self, target, source, env):
         result = [ self.get_presig(target, source, env) ]
+        def clean (u):
+            if isinstance (u, bytes):
+                return u
+            elif isinstance (u, str):
+                return bytes (u, 'utf-8')
+        result = [ clean(r) for r in result ]
         # This should never happen, as the Action() factory should wrap
         # the varlist, but just in case an action is created directly,
         # we duplicate this check here.
         vl = self.get_varlist(target, source, env)
         if is_String(vl): vl = (vl,)
         for v in vl:
-            result.append(env.subst('${'+v+'}'))
-        return ''.join(result)
+            result.append(bytes(env.subst('${'+v+'}'), 'utf-8'))
+        return b''.join(result)
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -1135,7 +1141,7 @@ class ListAction(ActionBase):
 
         Simple concatenation of the signatures of the elements.
         """
-        return "".join([x.get_contents(target, source, env) for x in self.list])
+        return b"".join([x.get_contents(target, source, env) for x in self.list])
 
     def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
                  show=_null, execute=_null, chdir=_null, executor=None):

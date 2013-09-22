@@ -32,8 +32,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-import exceptions
-
 class BuildError(Exception):
     """ Errors occuring while building.
 
@@ -163,7 +161,7 @@ def convert_to_BuildError(status, exc_info=None):
             status=2,
             exitstatus=2,
             exc_info=exc_info)
-    elif isinstance(status, exceptions.EnvironmentError):
+    elif isinstance(status, EnvironmentError):
         # If an IOError/OSError happens, raise a BuildError.
         # Report the name of the file or directory that caused the
         # error, which might be different from the target being built

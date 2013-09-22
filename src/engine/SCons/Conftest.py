@@ -101,7 +101,6 @@ Autoconf-like configuration support; low level implementation of tests.
 #
 
 import re
-from types import IntType
 
 #
 # PUBLIC VARIABLES

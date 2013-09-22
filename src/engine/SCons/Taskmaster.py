@@ -518,13 +518,9 @@ class Task(object):
         Raises a pending exception that was recorded while getting a
         Task ready for execution.
         """
-        exc = self.exc_info()[:]
-        try:
-            exc_type, exc_value, exc_traceback = exc
-        except ValueError:
-            exc_type, exc_value = exc
-            exc_traceback = None
-        raise exc_type(exc_value).with_traceback(exc_traceback)
+
+        import six
+        six.reraise(*self.exc_info())
 
 class AlwaysTask(Task):
     def needs_execute(self):

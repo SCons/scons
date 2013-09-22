@@ -1627,7 +1627,7 @@ def FormatSubversionPropertyChanges(filename, props):
 
   See the following doctest for example.
 
-  >>> print FormatSubversionPropertyChanges('foo.cc', [('svn:eol-style', 'LF')])
+  >>> print(FormatSubversionPropertyChanges('foo.cc', [('svn:eol-style', 'LF')]))
   Property changes on: foo.cc
   ___________________________________________________________________
   Added: svn:eol-style

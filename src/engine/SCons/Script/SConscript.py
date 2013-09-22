@@ -257,7 +257,7 @@ def _SConscript(fs, *files, **kw):
                         pass
                     try:
                         try:
-                            exec(_file_, call_stack[-1].globals)
+                            exec(_file_.read(), call_stack[-1].globals)
                         except SConscriptReturn:
                             pass
                     finally:
