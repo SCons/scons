@@ -57,6 +57,10 @@ from SCons.Debug import Trace
 def classname(obj):
     return str(obj.__class__).split('.')[-1]
 
+# Set to false if we're doing a dry run. There's more than one of these
+# little treats
+do_store_info = True
+
 # Node states
 #
 # These are in "priority" order, so that the maximum value for any
@@ -384,6 +388,10 @@ class Node(object):
             parent.implicit = None
 
         self.clear()
+
+        if not self.exists() and do_store_info:
+            SCons.Warnings.warn(SCons.Warnings.TargetNotBuiltWarning,
+                                "Cannot find target " + str(self) + " after building")
 
         self.ninfo.update(self)
 

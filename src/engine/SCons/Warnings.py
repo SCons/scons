@@ -42,6 +42,9 @@ class WarningOnByDefault(Warning):
 
 # NOTE:  If you add a new warning class, add it to the man page, too!
 
+class TargetNotBuiltWarning(Warning): # Should go to OnByDefault
+    pass
+
 class CacheWriteErrorWarning(Warning):
     pass
 
