@@ -337,15 +337,23 @@ symlinks for the platform we are on"""
         for count in range(len(linknames)):
             linkname = linknames[count]
             if count > 0:
-                os.symlink(os.path.basename(linkname),lastname)
+                try:
+                    os.remove(lastlinkname)
+                except:
+                    pass
+                os.symlink(os.path.basename(linkname),lastlinkname)
                 if Verbose:
-                    print "VerShLib: made sym link of %s -> %s" % (lastname,linkname)
-            lastname = linkname
+                    print "VerShLib: made sym link of %s -> %s" % (lastlinkname,linkname)
+            lastlinkname = linkname
         # finish chain of sym links with link to the actual library
         if len(linknames)>0:
-            os.symlink(lib_ver,lastname)
+            try:
+                os.remove(lastlinkname)
+            except:
+                pass
+            os.symlink(lib_ver,lastlinkname)
             if Verbose:
-                print "VerShLib: made sym link of %s -> %s" % (lib_ver,linkname)
+                print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
     return result
 
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
@@ -733,6 +741,14 @@ def tool_list(platform, env):
         assemblers = ['as']
         fortran_compilers = ['gfortran', 'f95', 'f90', 'g77']
         ars = ['ar']
+    elif str(platform) == 'cygwin':
+        "prefer GNU tools on Cygwin, except for a platform-specific linker"
+        linkers = ['cyglink', 'mslink', 'ilink']
+        c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'c++']
+        assemblers = ['gas', 'nasm', 'masm']
+        fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
+        ars = ['ar', 'mslib']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']

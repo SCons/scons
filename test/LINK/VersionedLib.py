@@ -98,6 +98,18 @@ elif platform == 'darwin':
     'libtest.dylib',
     'libtest.2.5.4.dylib',
     ]
+elif platform == 'cygwin':
+    # All (?) the files we expect will get created in the current directory
+    files = [
+    'cygtest-2-5-4.dll',
+    'libtest-2-5-4.dll.a',
+    'test.os',
+    ]
+    # All (?) the files we expect will get created in the 'installtest' directory
+    instfiles = [
+    'cygtest-2-5-4.dll',
+    'libtest-2-5-4.dll.a',
+    ]
 elif platform == 'win32':
     # All (?) the files we expect will get created in the current directory
     files = [
@@ -122,6 +134,19 @@ for f in files:
     test.must_exist([ f])
 for f in instfiles:
     test.must_exist(['installtest', f])
+
+# modify test.c and make sure it can recompile when links already exist
+test.write('test.c', """\
+#if _WIN32
+__declspec(dllexport)
+#endif
+int testlib(int n)
+{
+return n+11 ;
+}
+""")
+
+test.run()
 
 test.run(arguments = '-c')
 

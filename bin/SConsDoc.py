@@ -331,7 +331,7 @@ if not has_libxml2:
             # Use lxml
             xmlschema = etree.XMLSchema(xmlschema_context)
             try:
-	        doc = etree.parse(fpath)
+                doc = etree.parse(fpath)
             except Exception, e:
                 print "ERROR: %s fails to parse:"%fpath
                 print e

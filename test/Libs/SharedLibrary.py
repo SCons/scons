@@ -44,7 +44,7 @@ else:
 SharedLibrary(target = 'foo2',
               source = Split('f2a.c f2b.c f2c.c'),
               WINDOWS_INSERT_DEF = 1)
-env.SharedLibrary(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
+env.SharedLibrary(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'], no_import_lib = 1)
 env2.Program(target = 'prog', source = 'prog.c')
 """)
 
@@ -206,6 +206,13 @@ if sys.platform.find('irix') != -1:
 
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
+
+if sys.platform == 'cygwin':
+    # Cygwin: Make sure the DLLs are prefixed correctly.
+    test.must_exist('cygfoo1.dll', 'cygfoo2.dll', 'cygfoo3.dll')
+    test.must_exist('libfoo1.dll.a', 'libfoo2.dll.a')
+    test.must_not_exist('foo3.dll.a')
+
 
 if sys.platform == 'win32' or sys.platform.find('irix') != -1:
     test.run(arguments = '-f SConstructFoo')

@@ -30,12 +30,14 @@ libraries that have non-standard library prefixes and suffixes.
 """
 
 import re
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 import sys
+isCygwin = sys.platform == 'cygwin'
 isWindows = sys.platform == 'win32'
 isMingw = False
 if isWindows:
@@ -107,9 +109,9 @@ def nameInLib(source, lib, libname):
     return (source, libname)
 
 libmethods = [nodeInSrc, pathInSrc, nodeInLib, pathInLib]
-# We skip the nameInLib test for MinGW...it would fail, due to
+# We skip the nameInLib test for MinGW and Cygwin...they would fail, due to
 # the Tool's internal naming conventions
-if not isMingw:
+if not isMingw and not isCygwin:
     libmethods.extend([nameInLib])
 
 def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
@@ -122,11 +124,11 @@ def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
             if str(l)[-4:] == '.lib':
                 lib = [l]
                 break
-    # If we use MinGW and create a SharedLibrary, we get two targets: a DLL,
+    # If we use MinGW or Cygwin and create a SharedLibrary, we get two targets: a DLL,
     # and the import lib created by the "--out-implib" parameter. We always
     # want to link against the second one, in order to prevent naming issues
     # for the linker command line...
-    if isMingw and len(lib) > 1:
+    if (isMingw or isCygwin) and len(lib) > 1:
         lib = lib[1:]
         
     # Apply the naming method to be tested and call the specified Builder.
@@ -276,8 +278,14 @@ tests = re.findall(r'Prog: (\d+), (\S+), (\S+), (\S+)', test.stdout())
 expected = "goo.c\nfoo.c\nprog.c\n"
 
 for t in tests:
-    test.must_exist(t[1])
-    test.must_exist(t[2])
+    if sys.platform != 'cygwin':
+        test.must_exist(t[1])
+        test.must_exist(t[2])
+    else:
+        # Cygwin turns libFoo.xxx into cygFoo.xxx
+        for f in t[1:2]:
+            test.must_exist(re.sub('^lib', 'cyg', f))
+
     test.must_exist(t[3])
     test.run(program = test.workpath(t[3]), stdout=expected)
 
