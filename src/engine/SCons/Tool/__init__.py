@@ -364,7 +364,9 @@ symlinks for the platform we are on"""
                 print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
     return result
 
-ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None)
+# Fix http://scons.tigris.org/issues/show_bug.cgi?id=2903 : 
+# varlist=['$SHLINKCOM']: ensure we still depend on SCons.Defaults.ShLinkAction command line which is $SHLINKCOM 
+ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None, varlist=['SHLINKCOM'])
 
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
