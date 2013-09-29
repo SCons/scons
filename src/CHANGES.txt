@@ -6,6 +6,10 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Stefan Sperling:
+    - Fixed the setup of linker flags for a versioned SharedLibrary
+      under OpenBSD (#2916).
+
   From Antonio Cavallo:
     - Improve error if Visual Studio bat file not found.
 

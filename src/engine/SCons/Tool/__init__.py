@@ -257,6 +257,10 @@ def VersionShLibLinkNames(version, libname, env):
             print "VersionShLibLinkNames: linkname = ",linkname
         linknames.append(linkname)
     elif platform == 'posix':
+        if sys.platform.startswith('openbsd'):
+            # OpenBSD uses x.y shared library versioning numbering convention
+            # and doesn't use symlinks to backwards-compatible libraries
+            return []
         # For libfoo.so.x.y.z, linknames libfoo.so libfoo.so.x.y libfoo.so.x
         suffix_re = re.escape(shlib_suffix + '.' + version)
         # First linkname has no version number
@@ -302,13 +306,17 @@ symlinks for the platform we are on"""
     if version:
         # set the shared library link flags
         if platform == 'posix':
-            suffix_re = re.escape(shlib_suffix + '.' + version)
-            (major, age, revision) = version.split(".")
-            # soname will have only the major version number in it
-            soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
-            shlink_flags += [ '-Wl,-Bsymbolic', '-Wl,-soname=%s' % soname ]
-            if Verbose:
-                print " soname ",soname,", shlink_flags ",shlink_flags
+            shlink_flags += [ '-Wl,-Bsymbolic' ]
+            # OpenBSD doesn't usually use SONAME for libraries
+            if not sys.platform.startswith('openbsd'):
+                # continue setup of shlink flags for all other POSIX systems
+                suffix_re = re.escape(shlib_suffix + '.' + version)
+                (major, age, revision) = version.split(".")
+                # soname will have only the major version number in it
+                soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
+                shlink_flags += [ '-Wl,-soname=%s' % soname ]
+                if Verbose:
+                    print " soname ",soname,", shlink_flags ",shlink_flags
         elif platform == 'cygwin':
             shlink_flags += [ '-Wl,-Bsymbolic',
                               '-Wl,--out-implib,${TARGET.base}.a' ]
