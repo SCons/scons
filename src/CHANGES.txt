@@ -6,6 +6,10 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Manuel Francisco Naranjo:
+    - Allow Subst.Literal string objects to be compared with each other,
+      so they work better in AddUnique() and Remove().
+
   From David Rothenberger:
     - Added cyglink linker that uses Cygwin naming conventions for
       shared libraries and automatically generates import libraries.
