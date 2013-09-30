@@ -6,6 +6,9 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Bogdan Tenea:
+    - Check for 8.3 filenames on cygwin as well as win32 to make variant_dir work properly.
+
   From Alexandre Feblot:
     - Make sure SharedLibrary depends on all dependent libs (by depending on SHLINKCOM)
 
