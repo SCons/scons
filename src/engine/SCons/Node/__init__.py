@@ -218,6 +218,7 @@ class Node(object):
         self.env = None
         self.state = no_state
         self.precious = None
+        self.pseudo = False
         self.noclean = 0
         self.nocache = 0
         self.cached = 0 # is this node pulled from cache?
@@ -389,10 +390,13 @@ class Node(object):
 
         self.clear()
 
-        if not self.exists() and do_store_info:
-            SCons.Warnings.warn(SCons.Warnings.TargetNotBuiltWarning,
-                                "Cannot find target " + str(self) + " after building")
-
+        if self.pseudo:
+            if self.exists():
+                raise SCons.Errors.UserError("Pseudo target " + str(self) + " must not exist")
+        else:
+            if not self.exists() and do_store_info:
+                SCons.Warnings.warn(SCons.Warnings.TargetNotBuiltWarning,
+                                    "Cannot find target " + str(self) + " after building")
         self.ninfo.update(self)
 
     def visited(self):
@@ -795,6 +799,10 @@ class Node(object):
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
         self.precious = precious
+
+    def set_pseudo(self, pseudo = True):
+        """Set the Node's precious value."""
+        self.pseudo = pseudo
 
     def set_noclean(self, noclean = 1):
         """Set the Node's noclean value."""

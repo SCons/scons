@@ -693,6 +693,15 @@ class NodeTestCase(unittest.TestCase):
         node.set_precious(7)
         assert node.precious == 7
 
+    def test_set_phony(self):
+        """Test setting a Node's phony value
+        """
+        node = SCons.Node.Node()
+        node.set_phony()
+        assert node.phony
+        node.set_phony(False)
+        assert not node.phony
+
     def test_exists(self):
         """Test evaluating whether a Node exists.
         """
@@ -954,7 +963,7 @@ class NodeTestCase(unittest.TestCase):
                 self.source_scanner = scanner
 
         builder = Builder2(ts1)
-            
+
         targets = builder([source])
         s = targets[0].get_source_scanner(source)
         assert s is ts1, s
@@ -967,7 +976,7 @@ class NodeTestCase(unittest.TestCase):
         builder = Builder1(env=Environment(SCANNERS = [ts3]))
 
         targets = builder([source])
-        
+
         s = targets[0].get_source_scanner(source)
         assert s is ts3, s
 

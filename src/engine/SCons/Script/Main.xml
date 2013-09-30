@@ -685,6 +685,21 @@ Multiple targets can be passed in to a single call to
 </summary>
 </scons_function>
 
+<scons_function name="Phony">
+<arguments>
+(target, ...)
+</arguments>
+<summary>
+<para>
+Marks each given
+<varname>target</varname>
+as phony, indicating it should not be created by the build rule. If a
+Phony target is created, this will cause an error.
+Multiple targets can be passed in to a single call to
+&f-Phony;.
+</para>
+</summary>
+</scons_function>
 <scons_function name="SetOption">
 <arguments>
 (name, value)
