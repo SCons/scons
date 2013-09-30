@@ -1682,6 +1682,8 @@ def exists(env):
                           CCC1 = '',
                           CCC2 = '',
                           DDD1 = ['a', 'b', 'c'])
+        env['LL1'] = [env.Literal('a literal'), env.Literal('b literal')]
+        env['LL2'] = [env.Literal('c literal'), env.Literal('b literal')]
         env.AppendUnique(AAA1 = 'a1',
                          AAA2 = ['a2'],
                          AAA3 = ['a3', 'b', 'c', 'c', 'b', 'a3'], # ignore dups
@@ -1694,7 +1696,9 @@ def exists(env):
                          BBB5 = ['b5.new'],
                          CCC1 = 'c1',
                          CCC2 = ['c2'],
-                         DDD1 = 'b')
+                         DDD1 = 'b',
+                         LL1  = env.Literal('a literal'),
+                         LL2  = env.Literal('a literal'))
 
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
@@ -1709,6 +1713,8 @@ def exists(env):
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
+        assert env['LL1']  == [env.Literal('a literal'), env.Literal('b literal')], env['LL1']
+        assert env['LL2']  == [env.Literal('c literal'), env.Literal('b literal'), env.Literal('a literal')], [str(x) for x in env['LL2']]
 
         env.AppendUnique(DDD1 = 'b', delete_existing=1)
         assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # b moves to end
