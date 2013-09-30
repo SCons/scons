@@ -693,14 +693,14 @@ class NodeTestCase(unittest.TestCase):
         node.set_precious(7)
         assert node.precious == 7
 
-    def test_set_phony(self):
+    def test_set_pseudo(self):
         """Test setting a Node's phony value
         """
         node = SCons.Node.Node()
-        node.set_phony()
-        assert node.phony
-        node.set_phony(False)
-        assert not node.phony
+        node.set_pseudo()
+        assert node.pseudo
+        node.set_pseudo(False)
+        assert not node.pseudo
 
     def test_exists(self):
         """Test evaluating whether a Node exists.
