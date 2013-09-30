@@ -6,6 +6,23 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Bogdan Tenea:
+    - Check for 8.3 filenames on cygwin as well as win32 to make variant_dir work properly.
+
+  From Alexandre Feblot:
+    - Make sure SharedLibrary depends on all dependent libs (by depending on SHLINKCOM)
+
+  From Stefan Sperling:
+    - Fixed the setup of linker flags for a versioned SharedLibrary
+      under OpenBSD (#2916).
+
+  From Antonio Cavallo:
+    - Improve error if Visual Studio bat file not found.
+
+  From Manuel Francisco Naranjo:
+    - Allow Subst.Literal string objects to be compared with each other,
+      so they work better in AddUnique() and Remove().
+
   From David Rothenberger:
     - Added cyglink linker that uses Cygwin naming conventions for
       shared libraries and automatically generates import libraries.

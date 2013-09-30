@@ -1147,6 +1147,11 @@ class LiteralTestCase(unittest.TestCase):
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
+    def test_LiteralEqualsTest(self):
+        """Test that Literals compare for equality properly"""
+        assert Literal('a literal') == Literal('a literal')
+        assert Literal('a literal') != Literal('b literal')
+
 class SpecialAttrWrapperTestCase(unittest.TestCase):
     def test_SpecialAttrWrapper(self):
         """Test the SpecialAttrWrapper() function."""
