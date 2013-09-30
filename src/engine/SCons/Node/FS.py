@@ -1841,7 +1841,7 @@ class Dir(Base):
                 for entry in map(_my_normcase, entries):
                     d[entry] = True
             self.on_disk_entries = d
-        if sys.platform == 'win32':
+        if sys.platform == 'win32' or sys.platform == 'cygwin':
             name = _my_normcase(name)
             result = d.get(name)
             if result is None:
