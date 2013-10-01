@@ -272,6 +272,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                (EnvironmentError, SCons.Errors.StopError,
                             SCons.Errors.UserError))):
             type, value, trace = buildError.exc_info
+            if tb and print_stacktrace:
+                sys.stderr.write("scons: internal stack trace:\n")
+                traceback.print_tb(tb, file=sys.stderr)
             traceback.print_exception(type, value, trace)
         elif tb and print_stacktrace:
             sys.stderr.write("scons: internal stack trace:\n")
@@ -1071,6 +1074,7 @@ def _main(parser):
         # Build the targets
         nodes = _build_targets(fs, options, targets, target_top)
         if not nodes:
+            print 'Found nothing to build'
             exit_status = 2
 
 def _build_targets(fs, options, targets, target_top):
@@ -1299,12 +1303,8 @@ def _exec_main(parser, values):
         prof = Profile()
         try:
             prof.runcall(_main, parser)
-        except SConsPrintHelpException, e:
+        finally:
             prof.dump_stats(options.profile_file)
-            raise e
-        except SystemExit:
-            pass
-        prof.dump_stats(options.profile_file)
     else:
         _main(parser)
 
@@ -1359,6 +1359,7 @@ def main():
         parser.print_help()
         exit_status = 0
     except SCons.Errors.BuildError, e:
+        print e
         exit_status = e.exitstatus
     except:
         # An exception here is likely a builtin Python exception Python
