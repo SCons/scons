@@ -564,6 +564,11 @@ def Parser(version):
                   action="store_true",
                   help="Copy already-built targets into the CacheDir.")
 
+    op.add_option('--cache-readonly',
+                  dest='cache_readonly', default=False,
+                  action="store_true",
+                  help="Do not update CacheDir with built targets.")
+
     op.add_option('--cache-show',
                   dest='cache_show', default=False,
                   action="store_true",
@@ -579,8 +584,10 @@ def Parser(version):
         if not value in c_options:
             raise OptionValueError(opt_invalid('config', value, c_options))
         setattr(parser.values, option.dest, value)
+
     opt_config_help = "Controls Configure subsystem: %s." \
                       % ", ".join(config_options)
+
     op.add_option('--config',
                   nargs=1, type="string",
                   dest="config", default="auto",

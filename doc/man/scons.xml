@@ -61,12 +61,12 @@
 
     <releaseinfo>version &buildversion;</releaseinfo>
   </referenceinfo>
-  
+
   <title>SCons &buildversion;</title>
   <subtitle>MAN page</subtitle>
-  
-  
-<refentry id='scons1'> 
+
+
+<refentry id='scons1'>
 <refmeta>
 <refentrytitle>SCONS</refentrytitle>
 <manvolnum>1</manvolnum>
@@ -79,7 +79,7 @@
 <!-- body begins here -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>scons</command>    
+  <command>scons</command>
     <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>name=val</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>targets</replaceable></arg>
@@ -381,6 +381,7 @@ will be retrieved from the cache instead of being rebuilt locally.
 Caching behavior may be disabled and controlled in other ways by the
 <option>--cache-force</option>,
 <option>--cache-disable</option>,
+<option>--cache-readonly</option>,
 and
 <option>--cache-show</option>
 command-line options.  The
@@ -539,6 +540,15 @@ or to add to the cache any derived files
 recently built with caching disabled via the
 <option>--cache-disable</option>
 option.</para>
+
+  </listitem>
+  </varlistentry>
+<varlistentry>
+  <term>--cache-readonly</term>
+  <listitem>
+<para>Use the cache (if enabled) for reading, but do not not update the
+cache with changed files.
+</para>
 
   </listitem>
   </varlistentry>
@@ -1094,6 +1104,7 @@ command:</para>
 --cache-debug=FILE
 --cache-disable, --no-cache
 --cache-force, --cache-populate
+--cache-readonly
 --cache-show
 --debug=TYPE
 -i, --ignore-errors
@@ -6775,7 +6786,7 @@ specified in the
 <emphasis role="bold">$MYPATH</emphasis>
 construction variable. It lets SCons detect the file
 <emphasis role="bold">incs/foo.inc</emphasis>
-, even if 
+, even if
 <emphasis role="bold">foo.x</emphasis>
 contains the line
 <emphasis role="bold">include foo.inc</emphasis>

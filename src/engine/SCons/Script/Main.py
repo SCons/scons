@@ -1089,6 +1089,7 @@ def _build_targets(fs, options, targets, target_top):
         SCons.Node.FS.set_diskcheck(options.diskcheck)
 
     SCons.CacheDir.cache_enabled = not options.cache_disable
+    SCons.CacheDir.cache_readonly = options.cache_readonly
     SCons.CacheDir.cache_debug = options.cache_debug
     SCons.CacheDir.cache_force = options.cache_force
     SCons.CacheDir.cache_show = options.cache_show
