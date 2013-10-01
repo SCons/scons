@@ -79,7 +79,12 @@ def fetch_win32_parallel_msg():
     import SCons.Platform.win32
     return SCons.Platform.win32.parallel_msg
 
-#
+def revert_io():
+    # This call is added to revert stderr and stdout to the original
+    # ones just in case some build rule or something else in the system
+    # has redirected them elsewhere.
+    sys.stderr = sys.__stderr__
+    sys.stdout = sys.__stdout__
 
 class SConsPrintHelpException(Exception):
     pass
@@ -986,9 +991,9 @@ def _main(parser):
         # reading SConscript files and haven't started building
         # things yet, stop regardless of whether they used -i or -k
         # or anything else.
+        revert_io()
         sys.stderr.write("scons: *** %s  Stop.\n" % e)
-        exit_status = 2
-        sys.exit(exit_status)
+        sys.exit(2)
     global sconscript_time
     sconscript_time = time.time() - start_time
 
@@ -1074,6 +1079,7 @@ def _main(parser):
         # Build the targets
         nodes = _build_targets(fs, options, targets, target_top)
         if not nodes:
+            revert_io()
             print 'Found nothing to build'
             exit_status = 2
 
@@ -1342,7 +1348,10 @@ def main():
     OptionsParser = parser
 
     try:
-        _exec_main(parser, values)
+        try:
+            _exec_main(parser, values)
+        finally:
+            revert_io()
     except SystemExit, s:
         if s:
             exit_status = s
