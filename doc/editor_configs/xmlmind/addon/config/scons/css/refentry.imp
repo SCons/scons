@@ -1,0 +1,524 @@
+/*
+ * Copyright (c) 2003 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Styles for refentry elements.
+ */
+
+/* =====================================
+   Refentry structure
+===================================== */
+
+refentry {
+    display: block;
+    border-width: 1px;
+    border-style: solid;
+    border-color: silver transparent silver transparent;
+    margin: 3ex 0;
+}
+
+refnamediv,
+refsynopsisdiv {
+    display: block;
+    margin: 1ex 0;
+}
+
+refnamediv:before,
+refsynopsisdiv:before {
+    display: block;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #004080;
+    margin: 1ex 0;
+}
+
+refnamediv:before {
+    content: "Name";
+}
+
+refnamediv > *:before {
+    content: " ";
+}
+
+refnamediv > *:first-child:before {
+    content: "";
+}
+
+refdescriptor,
+refname,
+refpurpose,
+refclass {
+    display: inline;
+}
+
+refpurpose:before,
+refclass:before {
+    content: " -- ";
+    color: gray;
+}
+
+refsynopsisdiv:before {
+    content: "Synopsis";
+}
+
+refsynopsisdiv:contains-element(title):before,
+refsynopsisdiv:contains-element(info):before {
+    content: "";
+}
+
+refsynopsisdiv > title {
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 1ex;
+}
+
+refsection,
+refsect1,
+refsect2,
+refsect3 {
+    display: block;
+}
+
+refsection > title,
+refsect1 > title {
+    font-size: 1.3em; 
+    margin: 1ex 0; 
+}
+
+refsection refsection > title { 
+    font-size: 1em; 
+    margin: 1.33ex 0; 
+}
+
+/* =====================================
+   Synopsis environments
+===================================== */
+
+/* -------------------------------------
+   cmdsynopsis
+------------------------------------- */
+
+cmdsynopsis {
+    display: block;
+    font-family: monospace;
+    margin: 1.33ex 0; 
+}
+
+synopfragment {
+    display: block;
+    font-family: monospace;
+    margin-left: 4ex;
+}
+
+arg,
+group {
+    display: inline;
+}
+
+arg:before,
+group:before { /* also works for choice=opt */
+    content: " [";
+    color: gray;
+}
+
+group > arg:before,
+group > group:before { 
+    content: " | [";
+}
+
+arg:first-child:before,
+group:first-child:before { 
+    content: "[";
+}
+
+arg:after,
+group:after {
+    content: "]";
+    color: gray;
+}
+
+arg[rep=repeat]:after,
+group[rep=repeat]:after {
+    content: "]...";
+    color: gray;
+}
+
+arg[choice=req]:before,
+group[choice=req]:before {
+    content: " {";
+}
+
+group > arg[choice=req]:before,
+group > group[choice=req]:before {
+    content: " | {";
+}
+
+arg[choice=req]:first-child:before,
+group[choice=req]:first-child:before {
+    content: "{";
+}
+
+arg[choice=req]:after,
+group[choice=req]:after {
+    content: "}";
+}
+
+arg[choice=req][rep=repeat]:after,
+group[choice=req][rep=repeat]:after {
+    content: "}...";
+}
+
+arg[choice=plain]:before,
+group[choice=plain]:before {
+    content: " ";
+}
+
+group > arg[choice=plain]:before,
+group > group[choice=plain]:before {
+    content: " | ";
+}
+
+arg[choice=plain]:first-child:before,
+group[choice=plain]:first-child:before {
+    content: "";
+}
+
+arg[choice=plain]:after,
+group[choice=plain]:after {
+    content: "";
+}
+
+arg[choice=plain][rep=repeat]:after,
+group[choice=plain][rep=repeat]:after {
+    content: "...";
+}
+
+synopfragmentref {
+    display: inline;
+    color: navy;
+    text-decoration: underline;
+}
+
+synopfragmentref:after {
+    content: icon(left-link) attr(linkend); 
+    vertical-align: text-top; /* for the icon */
+}
+
+/* -------------------------------------
+   funcsynopsis
+------------------------------------- */
+
+funcsynopsis {
+    display: block;
+    font-family: monospace;
+    margin: 1.33ex 0; 
+}
+
+funcsynopsisinfo {
+    display: block;
+    white-space: pre;
+    margin: 1.33ex 0; 
+}
+
+funcprototype {
+    display: block;
+}
+
+funcprototype > *:before {
+    content: " ";
+}
+
+funcprototype > *:first-child:before {
+    content: "";
+}
+
+funcprototype:after {
+    content: ";";
+    color: gray;
+}
+
+funcdef {
+    display: inline;
+}
+
+void {
+    display: inline;
+    content: "void";
+    color: gray;
+}
+
+funcprototype > void {
+    content: "(void)";
+}
+
+varargs {
+    display: inline;
+    content: "(...)";
+    color: gray;
+}
+
+paramdef + varargs {
+    content: ", ...)";
+}
+
+paramdef {
+    display: inline;
+}
+
+paramdef > parameter {
+    font-style: italic;
+}
+
+paramdef:before {
+    content: ", ";
+    color: gray;
+}
+
+paramdef:first-of-type:before {
+    content: " (";
+}
+
+paramdef:last-of-type:after {
+    content: ")";
+    color: gray;
+}
+
+funcparams {
+    display: inline;
+}
+
+paramdef > funcparams:before {
+    content: "(";
+    color: gray;
+}
+
+paramdef > funcparams:after {
+    content: ")";
+    color: gray;
+}
+
+/* -------------------------------------
+   classsynopsis
+------------------------------------- */
+
+classsynopsis {
+    display: block;
+    font-family: monospace;
+    margin-top: 1.33ex; 
+}
+
+ooclass + classsynopsisinfo:before,
+oointerface + classsynopsisinfo:before,
+ooexception + classsynopsisinfo:before,
+ooclass + fieldsynopsis:before,
+oointerface + fieldsynopsis:before,
+ooexception + fieldsynopsis:before,
+ooclass + constructorsynopsis:before,
+oointerface + constructorsynopsis:before,
+ooexception + constructorsynopsis:before,
+ooclass + destructorsynopsis:before,
+oointerface + destructorsynopsis:before,
+ooexception + destructorsynopsis:before,
+ooclass + methodsynopsis:before,
+oointerface + methodsynopsis:before,
+ooexception + methodsynopsis:before {
+    display: block;
+    content: "{";
+    color: gray;
+}
+
+classsynopsis:after {
+    display: block;
+    content: "}";
+    color: gray;
+    margin-bottom: 1.33ex; 
+}
+
+classsynopsisinfo {
+    display: block;
+    white-space: pre;
+    margin-left: 4ex;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+ooclass,
+oointerface,
+ooexception {
+    display: inline;
+    font-family: monospace;
+}
+
+classsynopsis > ooclass:after,
+classsynopsis > oointerface:after,
+classsynopsis > ooexception:after {
+    content: " ";
+}
+
+ooclass > *:before,
+oointerface > *:before,
+ooexception > *:before {
+    content: " ";
+}
+
+ooclass > classname:before {
+    content: " class ";
+    color: gray;
+}
+oointerface > interfacename:before {
+    content: " interface ";
+    color: gray;
+}
+ooexception > exceptionname:before {
+    content: " exception ";
+    color: gray;
+}
+
+ooclass > *:first-child:before,
+oointerface > *:first-child:before,
+ooexception > *:first-child:before {
+    content: "";
+}
+
+ooclass > classname:first-child:before {
+    content: "class ";
+    color: gray;
+}
+oointerface > interfacename:first-child:before {
+    content: "interface ";
+    color: gray;
+}
+ooexception > exceptionname:first-child:before {
+    content: "exception ";
+    color: gray;
+}
+
+fieldsynopsis,
+constructorsynopsis,
+destructorsynopsis,
+methodsynopsis {
+    display: block;
+    font-family: monospace;
+    margin: 1.33ex 0; 
+}
+
+classsynopsis > fieldsynopsis,
+classsynopsis > constructorsynopsis,
+classsynopsis > destructorsynopsis,
+classsynopsis > methodsynopsis {
+    margin-left: 4ex;
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+fieldsynopsis:after,
+constructorsynopsis:after,
+destructorsynopsis:after,
+methodsynopsis:after {
+    content: ";";
+    color: gray;
+}
+
+fieldsynopsis > *:before,
+constructorsynopsis > *:before,
+destructorsynopsis > *:before,
+methodsynopsis > *:before {
+    content: " ";
+}
+
+fieldsynopsis > *:first-child:before,
+constructorsynopsis > *:first-child:before,
+destructorsynopsis > *:first-child:before,
+methodsynopsis > *:first-child:before {
+    content: "";
+}
+
+constructorsynopsis > exceptionname:before,
+destructorsynopsis > exceptionname:before,
+methodsynopsis > exceptionname:before { /*In practice, cannot be first child*/
+    content: " throws ";
+    color: gray;
+}
+
+methodname + void {
+    content: "(void)";
+}
+
+methodparam {
+    display: inline;
+    /* rep and choice attributes not visualized */
+}
+
+methodparam:before {
+    content: ", ";
+    color: gray;
+}
+
+methodparam:first-of-type:before {
+    content: " (";
+}
+
+methodparam:last-of-type:after{
+    content: ")";
+    color: gray;
+}
+
+methodparam > parameter {
+    font-style: italic;
+}
+
+methodparam > *:before {
+    content: " ";
+}
+
+methodparam > *:first-child:before {
+    content: "";
+}
+
+modifier {
+    display: inline;
+    font-family: monospace;
+}
+
+initializer {
+    display: inline;
+    font-family: monospace;
+}
+
+initializer:before { /* Cannot be first child */
+    content: " = ";
+    color: gray;
+}
+
+/* ---------------------------------------------------------------------------
+   Inlined elements other than those belonging to modules
+
+   Note that default display is inline, so there is no need to specify it.
+--------------------------------------------------------------------------- */
+
+/* -------------------------------------
+   General
+------------------------------------- */
+
+citerefentry {
+    display: inline;
+    font-style: italic;
+}
+
+citerefentry > manvolnum:before {
+    content: "(";
+    color: gray;
+}
+
+citerefentry > manvolnum:after {
+    content: ")";
+    color: gray;
+}
+
+refentrytitle,
+manvolnum,
+refmiscinfo { /* also found in refmeta */
+    display: inline;
+}

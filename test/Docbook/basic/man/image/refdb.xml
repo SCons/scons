@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<refentry id="refentry-refdb8">
+  <refentryinfo><date>2005-10-15</date></refentryinfo>
+  <refmeta>
+    <refentrytitle>refdb</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class="date">2005-10-15</refmiscinfo>
+    <refmiscinfo class="manual">RefDB Manual</refmiscinfo>
+  </refmeta>
+  <refnamediv id="refdb-name">
+    <refname>refdb</refname>
+    <refname>refdb.sh</refname>
+    <refpurpose>refdbd startup script</refpurpose>
+  </refnamediv>
+  <!-- body begins here -->
+  <refsynopsisdiv id="refdb-synopsis">
+    <cmdsynopsis>
+      <command>refdb</command>
+      <group choice="plain">
+	<arg choice="plain"><replaceable>start</replaceable></arg>
+	<arg choice="plain"><replaceable>stop</replaceable></arg>
+	<arg choice="plain"><replaceable>restart</replaceable></arg>
+	<arg choice="plain"><replaceable>force-reload</replaceable></arg>
+      </group>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+
+  <refsect1 id="refdb-description">
+    <title>Description</title>
+    <para>refdb is a wrapper script for refdbd(1) to be used as a rc(8) or init(8) control script. The script is called refdb.sh on BSD-style systems. See the documentation of your system how to integrate refdb into the start process to run refdbd(1) automatically as a daemon.</para>
+  </refsect1>
+
+  <refsect1 id="refdb-options">
+    <title>Options</title>
+    <variablelist remap="TP">
+      <varlistentry>
+	<term><emphasis remap="I">start</emphasis></term>
+	<listitem>
+	  <para>Starts the refdbd(1) daemon</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><emphasis remap="I">stop</emphasis></term>
+	<listitem>
+	  <para>Stops the refdbd(1) daemon</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><emphasis remap="I">restart</emphasis></term>
+	<listitem>
+	  <para>Restarts the refdbd(1) daemon</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><emphasis remap="I">force-reload</emphasis></term>
+	<listitem>
+	  <para>Causes the refdbd(1) daemon to read its configuration file</para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="refdb-see_also">
+    <title>See also</title>
+    <para><emphasis remap="B">RefDB</emphasis> (7),
+    <emphasis remap="B"><link linkend="refentry-refdbd">refdbd</link></emphasis> (1)
+    <emphasis remap="B"><link linkend="refentry-refdbctl">refdbctl</link></emphasis> (1).</para> 
+
+    <para><emphasis remap="I">RefDB manual (local copy) </emphasis> &lt;prefix&gt;/share/doc/refdb-&lt;version&gt;/refdb-manual/index.html</para>
+
+    <para><emphasis remap="I">RefDB manual (web) </emphasis> &lt;<ulink url="http://refdb.sourceforge.net/manual/index.html">http://refdb.sourceforge.net/manual/index.html</ulink>&gt;</para>
+
+    <para><emphasis remap="I">RefDB on the web </emphasis> &lt;<ulink url="http://refdb.sourceforge.net/">http://refdb.sourceforge.net/</ulink>&gt;</para>
+  </refsect1>
+
+  <refsect1 id="refdb-author">
+    <title>Author</title>
+    <para>refdb was written by Markus Hoenicka &lt;markus@mhoenicka.de&gt;.</para>
+
+  </refsect1>
+</refentry>
