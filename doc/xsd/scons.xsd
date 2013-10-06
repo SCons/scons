@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- SCons DocBook V4.5-Based extension V1.0 .............................. -->
+<!-- File scons.xsd ....................................................... -->
+<!-- Copyright (c) 2001-7,2010,2011,2012 The SCons Foundation
+
+     Permission is hereby granted, free of charge, to any person obtaining
+     a copy of this software and associated documentation files (the
+     "Software"), to deal in the Software without restriction, including
+     without limitation the rights to use, copy, modify, merge, publish,
+     distribute, sublicense, and/or sell copies of the Software, and to
+     permit persons to whom the Software is furnished to do so, subject to
+     the following conditions:
+
+     The above copyright notice and this permission notice shall be included
+     in all copies or substantial portions of the Software.
+
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+     This DTD extension is based on the DocBook V4.5 DTD with:
+
+        Copyright 1992-2006 HaL Computer Systems, Inc.,
+        O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+        Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+        Organization for the Advancement of Structured Information
+        Standards (OASIS).
+  
+        See also http://docbook.org/specs/
+  
+        $Id: docbookx.dtd 6340 2006-10-03 13:23:24Z nwalsh $
+  
+  
+     Please direct all questions, bug reports, or suggestions for
+     changes to the docbook@lists.oasis-open.org mailing list. For more
+     information, see http://www.oasis-open.org/docbook/.
+     For the modified SCons extension files
+     
+        scons.xsd, dbpoolx.xsd, 
+
+     you can write to its developer mailing list. Check out 
+     http://www.scons.org/ and http://www.scons.org/lists.php.
+ 
+-->
+<!-- ...................................................................... -->
+<!--
+  This is the driver file for V4.5 of the DocBook DTD.
+  Please use the following formal public identifier to identify it:
+  
+  "-//OASIS//DTD DocBook XML V4.5//EN"
+  
+  For example, if your document's top-level element is Book, and
+  you are using DocBook directly, use the FPI in the DOCTYPE
+  declaration:
+  
+  <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
+                 [...]>
+  
+  Or, if you have a higher-level driver file that customizes DocBook,
+  use the FPI in the parameter entity declaration:
+  
+  <!ENTITY % DocBookDTD PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+             "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+  %DocBookDTD;
+  
+  See the documentation for detailed information on the parameter
+  entity and module scheme used in DocBook, customizing DocBook and
+  planning for interchange, and changes made since the last release
+  of DocBook.
+-->
+<!-- ...................................................................... -->
+<!-- Enable SGML features ................................................. -->
+<!-- ...................................................................... -->
+<!-- Notation declarations ................................................ -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.scons.org/dbxsd/v1.0" 
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="dbnotnx.xsd"/>
+  <xs:include schemaLocation="dbpoolx.xsd"/>
+  <xs:include schemaLocation="dbhierx.xsd"/>
+  <!-- ...................................................................... -->
+  <!-- ISO character entity sets ............................................ -->
+  <!-- euro sign, U+20AC NEW -->
+  <!-- ...................................................................... -->
+  <!-- DTD modules .......................................................... -->
+  <!-- Information pool .............. -->
+  <!-- Redeclaration placeholder ..... -->
+  <!-- Document hierarchy ............ -->
+</xs:schema>
+<!-- ...................................................................... -->
+<!-- Other general entities ............................................... -->
+<!-- End of SCons DocBook V4.5-Based extension V1.0 ....................... -->
+<!-- ...................................................................... -->
