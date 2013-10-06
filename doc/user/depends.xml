@@ -64,7 +64,7 @@ Program('hello.c')
     </file>
     <file name="hello.c">
 int main() { printf("Hello, world!\n"); }
-    </file>
+</file>
   </scons_example>
 
   <scons_output example="depends_ex1" os="posix" suffix="1">
