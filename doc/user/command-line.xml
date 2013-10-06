@@ -628,21 +628,21 @@ foo.in
 
       <scons_example name="commandline_AddOption">
         <file name="SConstruct" printme="1">
-        AddOption('--prefix',
-                  dest='prefix',
-                  type='string',
-                  nargs=1,
-                  action='store',
-                  metavar='DIR',
-                  help='installation prefix')
+AddOption('--prefix',
+          dest='prefix',
+          type='string',
+          nargs=1,
+          action='store',
+          metavar='DIR',
+          help='installation prefix')
 
-        env = Environment(PREFIX = GetOption('prefix'))
+env = Environment(PREFIX = GetOption('prefix'))
 
-        installed_foo = env.Install('$PREFIX/usr/bin', 'foo.in')
-        Default(installed_foo)
+installed_foo = env.Install('$PREFIX/usr/bin', 'foo.in')
+Default(installed_foo)
         </file>
         <file name="foo.in">
-        foo.in
+foo.in
         </file>
       </scons_example>
 
@@ -1092,21 +1092,21 @@ RELEASE = 1
 
       <scons_example name="commandline_Variables_custom_py_2">
         <file name="SConstruct">
-           vars = Variables('custom.py')
-           vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-           env = Environment(variables = vars,
-                             CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-           env.Program(['foo.c', 'bar.c'])
-           Help(vars.GenerateHelpText(env))
+   vars = Variables('custom.py')
+   vars.Add('RELEASE', 'Set to 1 to build for release', 0)
+   env = Environment(variables = vars,
+                     CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+   env.Program(['foo.c', 'bar.c'])
+   Help(vars.GenerateHelpText(env))
         </file>
         <file name="foo.c">
-        foo.c
+foo.c
         </file>
         <file name="bar.c">
-        bar.c
+bar.c
         </file>
         <file name="custom.py" printme="1">
-        RELEASE = 0
+RELEASE = 0
         </file>
       </scons_example>
 

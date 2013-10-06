@@ -657,7 +657,7 @@ def update_file():
     f = open("test.txt","a")
     f.write("some line\n")
     f.close()
-    
+
 update_file()
 
 # Activate our own decider function
@@ -1364,18 +1364,18 @@ cc -o hello hello.o
 
     <scons_example name="depends_macroinc">
       <file name="hello.c" printme="1">
-      #define FOO_HEADER &lt;foo.h&gt;
-      #include FOO_HEADER
+#define FOO_HEADER &lt;foo.h&gt;
+#include FOO_HEADER
 
-      int main() {
-          return FOO;
-      }
+int main() {
+    return FOO;
+}
       </file>
       <file name="SConstruct">
-      Program('hello', 'hello.c', CPPPATH='.')
+Program('hello', 'hello.c', CPPPATH='.')
       </file>
       <file name="foo.h">
-      #define FOO 42
+#define FOO 42
       </file>
     </scons_example>
 
@@ -1416,24 +1416,24 @@ cc -o hello hello.o
 
     <scons_example name="depends_parsedep">
       <file name="hello.c">
-      #define FOO_HEADER &lt;foo.h&gt;
-      #include FOO_HEADER
+#define FOO_HEADER &lt;foo.h&gt;
+#include FOO_HEADER
 
-      int main() {
-          return FOO;
-      }
+int main() {
+    return FOO;
+}
       </file>
       <file name="SConstruct" printme="1">
-      obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
-      SideEffect('hello.d', obj)
-      ParseDepends('hello.d')
-      Program('hello', obj)
+obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
+SideEffect('hello.d', obj)
+ParseDepends('hello.d')
+Program('hello', obj)
       </file>
       <file name="foo.h">
-      #define FOO 42
+#define FOO 42
       </file>
       <file name="hello.d">
-      hello.o: hello.c foo.h
+hello.o: hello.c foo.h
       </file>
     </scons_example>
 
@@ -1453,21 +1453,21 @@ cc -o hello hello.o
 
     <scons_example name="depends_parsedeprebuild">
       <file name="hello.c">
-      #define FOO_HEADER &lt;foo.h&gt;
-      #include FOO_HEADER
+#define FOO_HEADER &lt;foo.h&gt;
+#include FOO_HEADER
 
-      int main() {
-          return FOO;
-      }
+int main() {
+    return FOO;
+}
       </file>
       <file name="SConstruct">
-      obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
-      SideEffect('hello.d', obj)
-      ParseDepends('hello.d')
-      Program('hello', obj)
+obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
+SideEffect('hello.d', obj)
+ParseDepends('hello.d')
+Program('hello', obj)
       </file>
       <file name="foo.h">
-      #define FOO 42
+#define FOO 42
       </file>
     </scons_example>
 
@@ -1669,18 +1669,18 @@ int main() { printf("Hello!\n"); }
 
     <scons_example name="depends_no-Requires">
       <file name="SConstruct" printme="1">
-      import time
+import time
 
-      version_c_text = """
-      char *date = "%s";
-      """ % time.ctime(time.time())
-      open('version.c', 'w').write(version_c_text)
+version_c_text = """
+char *date = "%s";
+""" % time.ctime(time.time())
+open('version.c', 'w').write(version_c_text)
 
-      hello = Program(['hello.c', 'version.c'])
+hello = Program(['hello.c', 'version.c'])
       </file>
       <file name="hello.c">
-      extern char *date;
-      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+extern char *date;
+int main() { printf("Hello, %s!  I was built: %s\n", date); }
       </file>
     </scons_example>
 
@@ -1728,23 +1728,23 @@ int main() { printf("Hello!\n"); }
 
     <scons_example name="depends_Requires">
       <file name="SConstruct" printme="1">
-      import time
+import time
 
-      version_c_text = """
-      char *date = "%s";
-      """ % time.ctime(time.time())
-      open('version.c', 'w').write(version_c_text)
+version_c_text = """
+char *date = "%s";
+""" % time.ctime(time.time())
+open('version.c', 'w').write(version_c_text)
 
-      version_obj = Object('version.c')
+version_obj = Object('version.c')
 
-      hello = Program('hello.c',
-                      LINKFLAGS = str(version_obj[0]))
+hello = Program('hello.c',
+                LINKFLAGS = str(version_obj[0]))
 
-      Requires(hello, version_obj)
+Requires(hello, version_obj)
       </file>
       <file name="hello.c">
-      extern char *date;
-      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+extern char *date;
+int main() { printf("Hello, %s!  I was built: %s\n", date); }
       </file>
     </scons_example>
 

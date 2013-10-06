@@ -303,20 +303,20 @@ env = conf.Finish()
     </para>
 
     <sconstruct>
-    mylib_test_source_file = """
-    #include &amp;lt;mylib.h&amp;gt;
-    int main(int argc, char **argv)
-    {
-        MyLibrary mylib(argc, argv);
-        return 0;
-    }
-    """
+mylib_test_source_file = """
+#include &amp;lt;mylib.h&amp;gt;
+int main(int argc, char **argv)
+{
+    MyLibrary mylib(argc, argv);
+    return 0;
+}
+"""
 
-    def CheckMyLibrary(context):
-        context.Message('Checking for MyLibrary...')
-        result = context.TryLink(mylib_test_source_file, '.c')
-        context.Result(result)
-        return result
+def CheckMyLibrary(context):
+    context.Message('Checking for MyLibrary...')
+    result = context.TryLink(mylib_test_source_file, '.c')
+    context.Result(result)
+    return result
     </sconstruct>
 
     <para>
@@ -380,30 +380,30 @@ conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
     </para>
 
     <sconstruct>
-    mylib_test_source_file = """
-    #include &amp;lt;mylib.h&amp;gt;
-    int main(int argc, char **argv)
-    {
-        MyLibrary mylib(argc, argv);
-        return 0;
-    }
-    """
+mylib_test_source_file = """
+#include &amp;lt;mylib.h&amp;gt;
+int main(int argc, char **argv)
+{
+    MyLibrary mylib(argc, argv);
+    return 0;
+}
+"""
 
-    def CheckMyLibrary(context):
-        context.Message('Checking for MyLibrary... ')
-        result = context.TryLink(mylib_test_source_file, '.c')
-        context.Result(result)
-        return result
+def CheckMyLibrary(context):
+    context.Message('Checking for MyLibrary... ')
+    result = context.TryLink(mylib_test_source_file, '.c')
+    context.Result(result)
+    return result
 
-    env = Environment()
-    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
-    if not conf.CheckMyLibrary():
-        print 'MyLibrary is not installed!'
-        Exit(1)
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+if not conf.CheckMyLibrary():
+    print 'MyLibrary is not installed!'
+    Exit(1)
+env = conf.Finish()
 
-    # We would then add actual calls like Program() to build
-    # something using the "env" construction environment.
+# We would then add actual calls like Program() to build
+# something using the "env" construction environment.
     </sconstruct>
 
     <para>

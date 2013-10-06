@@ -183,11 +183,11 @@ int main() { printf("Goodbye, world!\n"); }
 
     <scons_example name="nodes_print">
       <file name="SConstruct" printme="1">
-      hello_c = File('hello.c')
-      Program(hello_c)
+hello_c = File('hello.c')
+Program(hello_c)
 
-      classes = Dir('classes')
-      Java(classes, 'src')
+classes = Dir('classes')
+Java(classes, 'src')
       </file>
     </scons_example>
 

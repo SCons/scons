@@ -424,20 +424,20 @@ Program('prog',
       <scons_output_command>scons -Q - -random</scons_output_command>
     </scons_output>
 
-    We captured it directly here to guarantee a "random" order,
-    guarding against the potential for - -random to happen
-    to return things in the original sorted order.
+We captured it directly here to guarantee a "random" order,
+guarding against the potential for - -random to happen
+to return things in the original sorted order.
 
-    -->
+-->
 
     <screen>
-      % <userinput>scons -Q --random</userinput>
-      cc -o f3.o -c f3.c
-      cc -o f1.o -c f1.c
-      cc -o f5.o -c f5.c
-      cc -o f2.o -c f2.c
-      cc -o f4.o -c f4.c
-      cc -o prog f1.o f2.o f3.o f4.o f5.o
+  % <userinput>scons -Q --random</userinput>
+  cc -o f3.o -c f3.c
+  cc -o f1.o -c f1.c
+  cc -o f5.o -c f5.c
+  cc -o f2.o -c f2.c
+  cc -o f4.o -c f4.c
+  cc -o prog f1.o f2.o f3.o f4.o f5.o
     </screen>
 
     <para>

@@ -308,34 +308,34 @@ env.Append(SCANNERS = kscan)
 
     <scons_example name="scanners_scan">
       <file name="SConstruct" printme="1">
-        import re
+  import re
 
-        include_re = re.compile(r'^include\s+(\S+)$', re.M)
+  include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
-        def kfile_scan(node, env, path):
-            contents = node.get_text_contents()
-            includes = include_re.findall(contents)
-            return env.File(includes)
+  def kfile_scan(node, env, path):
+      contents = node.get_text_contents()
+      includes = include_re.findall(contents)
+      return env.File(includes)
 
-        kscan = Scanner(function = kfile_scan,
-                        skeys = ['.k'])
+  kscan = Scanner(function = kfile_scan,
+                  skeys = ['.k'])
 
-        env = Environment(ENV = {'PATH' : '__ROOT__/usr/local/bin'})
-        env.Append(SCANNERS = kscan)
+  env = Environment(ENV = {'PATH' : '__ROOT__/usr/local/bin'})
+  env.Append(SCANNERS = kscan)
 
-        env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
+  env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
       </file>
       <file name="foo.k">
-      include other_file
+include other_file
       </file>
       <file name="other_file">
-      other_file
+other_file
       </file>
       <directory name="__ROOT__/usr"></directory>
       <directory name="__ROOT__/usr/local"></directory>
       <directory name="__ROOT__/usr/local/bin"></directory>
       <file name="__ROOT_/usr/local/bin/kprocess" chmod="755">
-      cat
+cat
       </file>
     </scons_example>
 
